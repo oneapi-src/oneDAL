@@ -27,10 +27,10 @@ namespace oneapi::dal::test::engine {
 
 static sycl::queue get_default_queue() {
     try {
-        return sycl::queue{sycl::gpu_selector{}};
+        return sycl::queue{ sycl::gpu_selector{} };
     }
     catch (const sycl::runtime_error& ex) {
-        return sycl::queue{sycl::cpu_selector{}};
+        return sycl::queue{ sycl::cpu_selector{} };
     }
 }
 
@@ -40,18 +40,18 @@ static sycl::queue get_queue(const std::string& device_selector) {
     }
 
     if (device_selector == "cpu") {
-        return sycl::queue{sycl::cpu_selector{}};
+        return sycl::queue{ sycl::cpu_selector{} };
     }
 
     if (device_selector == "gpu") {
-        return sycl::queue{sycl::gpu_selector{}};
+        return sycl::queue{ sycl::gpu_selector{} };
     }
 
     if (device_selector == "host") {
-        return sycl::queue{sycl::host_selector{}};
+        return sycl::queue{ sycl::host_selector{} };
     }
 
-    throw std::invalid_argument{"Unknown device selector"};
+    throw std::invalid_argument{ "Unknown device selector" };
 }
 
 void global_setup(const global_config& config) {

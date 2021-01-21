@@ -24,7 +24,8 @@ template <typename Float>
 class basic_statistics {
 public:
     basic_statistics(const array<Float>& mean, const array<Float>& variance)
-            : mean_(mean), variance_(variance) {}
+            : mean_(mean),
+              variance_(variance) {}
 
     const array<Float>& get_means() const {
         return mean_;

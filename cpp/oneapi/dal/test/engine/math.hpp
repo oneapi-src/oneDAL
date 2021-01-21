@@ -60,4 +60,4 @@ inline bool has_no_nans(const Container& container) {
     return !has_nans<Container>(container);
 }
 
-} // oneapi::dal::test::engine
+} // namespace oneapi::dal::test::engine

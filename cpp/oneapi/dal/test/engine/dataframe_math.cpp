@@ -65,7 +65,6 @@ static array<Float> compute_column_variances(const dataframe& df, const array<Fl
     Float* sums_ptr = sums.get_mutable_data();
     Float* sums_c_ptr = sums_c.get_mutable_data();
 
-
     for (std::int64_t i = 0; i < row_count; i++) {
         for (std::int64_t j = 0; j < column_count; j++) {
             const Float x = Float(data[i * column_count + j]);

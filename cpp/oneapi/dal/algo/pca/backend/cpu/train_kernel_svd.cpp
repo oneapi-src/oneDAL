@@ -41,8 +41,8 @@ using daal_pca_svd_kernel_t = daal_pca::internal::
 
 template <typename Float>
 inline auto get_normalization_algorithm() {
-    using normalization_alg_t = daal::algorithms::normalization::zscore::Batch<
-        Float, daal::algorithms::normalization::zscore::defaultDense>;
+    using normalization_alg_t = daal::algorithms::normalization::zscore::
+        Batch<Float, daal::algorithms::normalization::zscore::defaultDense>;
     return daal::services::SharedPtr<normalization_alg_t>{ new normalization_alg_t{} };
 }
 

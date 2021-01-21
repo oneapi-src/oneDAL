@@ -33,8 +33,8 @@ public:
 
     auto get_descriptor(std::int64_t component_count) const {
         return pca::descriptor<Float, Method>{}
-                .set_component_count(component_count)
-                .set_deterministic(false);
+            .set_component_count(component_count)
+            .set_deterministic(false);
     }
 
     table get_input_data(const te::dataframe& df, const std::string& table_type) {
@@ -89,10 +89,7 @@ public:
 
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
                             const te::dataframe& data,
-                            const pca::infer_result<>& result) {
-
-
-    }
+                            const pca::infer_result<>& result) {}
 
     void check_shapes(const pca::descriptor<Float, Method>& desc,
                       const te::dataframe& data,
@@ -184,21 +181,20 @@ private:
         const auto eigenvectors = result.get_eigenvectors();
         return std::make_tuple(means, variances, eigenvalues, eigenvectors);
     }
-
 };
 
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
 
-TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow",
-                     "[pca][integration][batch]", pca_types) {
+TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{100, 10}.fill_uniform(0.2, 0.5),
-                           te::dataframe_builder{100000, 10}.fill_uniform(-0.2, 1.5));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
+                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
 
-    const std::int64_t component_count =
-        GENERATE_COPY(0, 1, data.get_column_count(),
-                      data.get_column_count() - 1,
-                      data.get_column_count() / 2);
+    const std::int64_t component_count = GENERATE_COPY(0,
+                                                       1,
+                                                       data.get_column_count(),
+                                                       data.get_column_count() - 1,
+                                                       data.get_column_count() / 2);
 
     const std::string table_type = GENERATE("homogen");
 

@@ -21,10 +21,7 @@
 
 namespace oneapi::dal::backend::linalg {
 
-template <typename Float,
-          layout lyt_a,
-          layout lyt_b,
-          layout lyt_c>
+template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c>
 struct dot_op {
     void operator()(const context_cpu& ctx,
                     const matrix<Float, lyt_a>& a,
@@ -34,10 +31,7 @@ struct dot_op {
                     Float beta) const;
 };
 
-template <typename Float,
-          layout lyt_a,
-          layout lyt_b,
-          layout lyt_c>
+template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c>
 inline void dot(const matrix<Float, lyt_a>& a,
                 const matrix<Float, lyt_b>& b,
                 matrix<Float, lyt_c>& c,

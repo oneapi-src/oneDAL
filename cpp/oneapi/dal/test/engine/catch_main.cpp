@@ -15,10 +15,8 @@ int main(int argc, char** argv) {
     global_config config;
     Catch::Session session;
 
-    auto cli = session.cli() |
-        Opt(config.device_selector, "device")
-        ["--device"]
-        ("DPC++ device selector");
+    auto cli =
+        session.cli() | Opt(config.device_selector, "device")["--device"]("DPC++ device selector");
 
     session.cli(cli);
 

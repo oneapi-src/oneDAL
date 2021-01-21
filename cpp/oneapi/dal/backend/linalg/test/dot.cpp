@@ -66,28 +66,24 @@ private:
     std::int64_t k_;
 };
 
-
 #define LAYOUT_VEC2(x, y)    (layout::x, layout::y)
 #define LAYOUT_VEC3(x, y, z) (layout::x, layout::y, layout::z)
 
-#define LAYOUTS_AB                                     \
-    LAYOUT_VEC3(row_major, row_major, row_major),      \
-    LAYOUT_VEC3(row_major, column_major, row_major),   \
-    LAYOUT_VEC3(column_major, row_major, row_major),   \
-    LAYOUT_VEC3(column_major, column_major, row_major)
+#define LAYOUTS_AB                                                                                 \
+    LAYOUT_VEC3(row_major, row_major, row_major), LAYOUT_VEC3(row_major, column_major, row_major), \
+        LAYOUT_VEC3(column_major, row_major, row_major),                                           \
+        LAYOUT_VEC3(column_major, column_major, row_major)
 
-#define LAYOUTS_ABC                                       \
-    LAYOUT_VEC3(row_major, row_major, row_major),         \
-    LAYOUT_VEC3(row_major, row_major, column_major),      \
-    LAYOUT_VEC3(row_major, column_major, row_major),      \
-    LAYOUT_VEC3(row_major, column_major, column_major),   \
-    LAYOUT_VEC3(column_major, row_major, row_major),      \
-    LAYOUT_VEC3(column_major, row_major, column_major),   \
-    LAYOUT_VEC3(column_major, column_major, row_major),   \
-    LAYOUT_VEC3(column_major, column_major, column_major)
+#define LAYOUTS_ABC                                                                                \
+    LAYOUT_VEC3(row_major, row_major, row_major), LAYOUT_VEC3(row_major, row_major, column_major), \
+        LAYOUT_VEC3(row_major, column_major, row_major),                                           \
+        LAYOUT_VEC3(row_major, column_major, column_major),                                        \
+        LAYOUT_VEC3(column_major, row_major, row_major),                                           \
+        LAYOUT_VEC3(column_major, row_major, column_major),                                        \
+        LAYOUT_VEC3(column_major, column_major, row_major),                                        \
+        LAYOUT_VEC3(column_major, column_major, column_major)
 
-#define DOT_TEST_TEMPLATE_SIG \
-    ((layout lyt_a, layout lyt_b, layout lyt_c), lyt_a, lyt_b, lyt_c)
+#define DOT_TEST_TEMPLATE_SIG ((layout lyt_a, layout lyt_b, layout lyt_c), lyt_a, lyt_b, lyt_c)
 
 #define DOT_TEST(name, tags, layouts) \
     TEMPLATE_SIG_TEST_M(dot_test, name, tags, DOT_TEST_TEMPLATE_SIG, layouts)
@@ -143,15 +139,15 @@ TEST("dot orthogonal matrix", "[linalg][dot]") {
     const std::int64_t column_count = 5;
     const std::int64_t element_count = row_count * column_count;
     const double X_ptr[element_count] = {
-         0.5728966506,  0.5677902077,  -0.4104886344,   0.0993844187,  0.4135523258,
-        -0.4590520326,  0.2834513205,  -0.6214677550,  -0.5114715156, -0.2471867686,
-         0.0506571111, -0.3713048334,   0.0645569868,  -0.6484125926,  0.6595150363,
-         0.3318135734,  0.4178413295,   0.5362188809,  -0.5381061517, -0.3717787744,
-        -0.5902493276,  0.5336768432,   0.3918910789,   0.1360974115,  0.4412410170
+        0.5728966506,  0.5677902077,  -0.4104886344, 0.0993844187,  0.4135523258,
+        -0.4590520326, 0.2834513205,  -0.6214677550, -0.5114715156, -0.2471867686,
+        0.0506571111,  -0.3713048334, 0.0645569868,  -0.6484125926, 0.6595150363,
+        0.3318135734,  0.4178413295,  0.5362188809,  -0.5381061517, -0.3717787744,
+        -0.5902493276, 0.5336768432,  0.3918910789,  0.1360974115,  0.4412410170
     };
 
-    const auto X = matrix<double>::wrap(
-        array<double>::wrap(X_ptr, element_count), {row_count, column_count});
+    const auto X = matrix<double>::wrap(array<double>::wrap(X_ptr, element_count),
+                                        { row_count, column_count });
 
     const auto C = dot(X, X.t());
 

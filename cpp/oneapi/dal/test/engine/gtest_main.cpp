@@ -23,16 +23,13 @@ static std::vector<std::string> split_string(const std::string& entry, char deli
 static std::tuple<std::string, std::string> split_key_value(const std::string& entry) {
     const auto key_value = split_string(entry, '=');
     if (key_value.size() > 2) {
-        throw std::invalid_argument{"Invalid format of input argument: '" + entry + "'"};
+        throw std::invalid_argument{ "Invalid format of input argument: '" + entry + "'" };
     }
     return { key_value[0], key_value[1] };
 }
 
-
 template <typename Contrainer, typename Setter>
-static void try_add_config_key(Contrainer& options,
-                               const std::string& key,
-                               Setter&& setter) {
+static void try_add_config_key(Contrainer& options, const std::string& key, Setter&& setter) {
     const auto it = options.find("--" + key);
     if (it != options.end()) {
         setter(it->second);
@@ -43,7 +40,7 @@ static void try_add_config_key(Contrainer& options,
 static global_config parse_config(int argc, char** argv) {
     std::unordered_map<std::string, std::string> options;
     for (int i = 1; i < argc; i++) {
-        const auto entry = std::string{argv[i]};
+        const auto entry = std::string{ argv[i] };
         const auto [key, value] = split_key_value(entry);
         options[key] = value;
     }
@@ -54,7 +51,7 @@ static global_config parse_config(int argc, char** argv) {
     });
 
     if (!options.empty()) {
-        throw std::invalid_argument{"Found unknown options"};
+        throw std::invalid_argument{ "Found unknown options" };
     }
 
     return config;

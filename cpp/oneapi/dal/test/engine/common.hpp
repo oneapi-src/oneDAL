@@ -34,9 +34,8 @@
 // Workaround DPC++ Compiler's warning on unused
 // variable declared by Catch2's TEST_CASE macro
 #ifdef __clang__
-#define _TS_DISABLE_UNUSED_VARIABLE  \
-    _Pragma("clang diagnostic push") \
-    _Pragma("clang diagnostic ignored \"-Wunused-variable\"")
+#define _TS_DISABLE_UNUSED_VARIABLE \
+    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wunused-variable\"")
 
 #define _TS_ENABLE_UNUSED_VARIABLE _Pragma("clang diagnostic pop")
 
@@ -78,14 +77,14 @@
 #endif // __clang__
 
 // Shortcuts for Catch2 defines
-#define TEST                  TEST_CASE
-#define TEMPLATE_TEST         TEMPLATE_TEST_CASE
-#define TEMPLATE_LIST_TEST    TEMPLATE_LIST_TEST_CASE
-#define TEMPLATE_SIG_TEST     TEMPLATE_TEST_CASE_SIG
-#define TEST_M                TEST_CASE_METHOD
-#define TEMPLATE_TEST_M       TEMPLATE_TEST_CASE_METHOD
-#define TEMPLATE_LIST_TEST_M  TEMPLATE_LIST_TEST_CASE_METHOD
-#define TEMPLATE_SIG_TEST_M   TEMPLATE_TEST_CASE_METHOD_SIG
+#define TEST                 TEST_CASE
+#define TEMPLATE_TEST        TEMPLATE_TEST_CASE
+#define TEMPLATE_LIST_TEST   TEMPLATE_LIST_TEST_CASE
+#define TEMPLATE_SIG_TEST    TEMPLATE_TEST_CASE_SIG
+#define TEST_M               TEST_CASE_METHOD
+#define TEMPLATE_TEST_M      TEMPLATE_TEST_CASE_METHOD
+#define TEMPLATE_LIST_TEST_M TEMPLATE_LIST_TEST_CASE_METHOD
+#define TEMPLATE_SIG_TEST_M  TEMPLATE_TEST_CASE_METHOD_SIG
 
 namespace oneapi::dal::test::engine {
 
@@ -208,13 +207,11 @@ private:
     static constexpr std::size_t j = index % count_y;
 
 public:
-    using type = std::tuple<std::tuple_element_t<i, TupleX>,
-                            std::tuple_element_t<j, TupleY>>;
+    using type = std::tuple<std::tuple_element_t<i, TupleX>, std::tuple_element_t<j, TupleY>>;
 };
 
 template <std::size_t index, typename TupleX, typename TupleY>
-using combine_types_element_t = typename combine_types_element<
-    index, TupleX, TupleY>::type;
+using combine_types_element_t = typename combine_types_element<index, TupleX, TupleY>::type;
 
 template <typename TupleX, typename TupleY>
 struct combine_types {
@@ -223,8 +220,8 @@ private:
     static constexpr std::size_t count_y = std::tuple_size_v<TupleY>;
 
     template <std::size_t... indices>
-    static constexpr auto index_helper(std::index_sequence<indices...>) ->
-        std::tuple<combine_types_element_t<indices, TupleX, TupleY>...>;
+    static constexpr auto index_helper(std::index_sequence<indices...>)
+        -> std::tuple<combine_types_element_t<indices, TupleX, TupleY>...>;
 
 public:
     static constexpr std::size_t count = count_x * count_y;
@@ -235,7 +232,6 @@ template <typename TupleX, typename TupleY>
 using combine_types_t = typename combine_types<TupleX, TupleY>::type;
 
 #define COMBINE_TYPES(x, y) \
-    oneapi::dal::test::engine::combine_types_t< \
-        std::tuple<_TE_UNPACK(x)>, std::tuple<_TE_UNPACK(y)>>
+    oneapi::dal::test::engine::combine_types_t<std::tuple<_TE_UNPACK(x)>, std::tuple<_TE_UNPACK(y)>>
 
 } // namespace oneapi::dal::test::engine

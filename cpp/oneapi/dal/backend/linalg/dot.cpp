@@ -21,10 +21,7 @@ namespace oneapi::dal::backend::linalg {
 
 namespace mkl = oneapi::dal::backend::mkl;
 
-template <typename Float,
-          layout lyt_a,
-          layout lyt_b,
-          layout lyt_c>
+template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c>
 void dot_op<Float, lyt_a, lyt_b, lyt_c>::operator()(const context_cpu &ctx,
                                                     const matrix<Float, lyt_a> &a,
                                                     const matrix<Float, lyt_b> &b,

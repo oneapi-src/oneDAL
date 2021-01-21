@@ -57,8 +57,7 @@ template <typename T, layout lyt, typename Op>
 binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
                                            const matrix<T, lyt>& rhs,
                                            Op&& op) {
-    ONEDAL_ASSERT(lhs.get_shape() == rhs.get_shape(),
-                  "Matrices must have the same shape");
+    ONEDAL_ASSERT(lhs.get_shape() == rhs.get_shape(), "Matrices must have the same shape");
 
     using result_matrix_t = binary_op_result_t<T, lyt, Op>;
     auto res = result_matrix_t::empty(lhs.get_shape());
@@ -150,4 +149,4 @@ T l_inf_norm(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return max(abs(subtract(lhs, rhs)));
 }
 
-} // oneapi::dal::backend::linalg
+} // namespace oneapi::dal::backend::linalg

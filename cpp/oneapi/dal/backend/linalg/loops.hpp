@@ -66,4 +66,4 @@ inline void for_each(const matrix<T, lyt>& m, Op&& op) {
     });
 }
 
-} // oneapi::dal::backend::linalg
+} // namespace oneapi::dal::backend::linalg

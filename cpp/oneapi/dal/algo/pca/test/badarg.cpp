@@ -50,31 +50,16 @@ public:
 
 private:
     static constexpr std::array<float, element_count> train_data_ = {
-        1.0,  1.0,
-        2.0,  2.0,
-        1.0,  2.0,
-        2.0,  1.0,
-       -1.0, -1.0,
-       -1.0, -2.0,
-       -2.0, -1.0,
-       -2.0, -2.0
+        1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
     static constexpr std::array<float, element_count> infer_data_ = {
-         1.0,  1.0,
-         2.0,  2.0,
-         1.0,  2.0,
-         2.0,  1.0,
-        -1.0, -1.0,
-        -1.0, -2.0,
-        -2.0, -1.0,
-        -2.0, -2.0
+        1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 };
 
 #define PCA_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(pca_badarg_test, name, "[pca][badarg]", \
-        pca::method::cov, pca::method::svd)
+    TEMPLATE_TEST_M(pca_badarg_test, name, "[pca][badarg]", pca::method::cov, pca::method::svd)
 
 PCA_BADARG_TEST("accepts non-negative component_count") {
     REQUIRE_NOTHROW(this->get_descriptor().set_component_count(0));

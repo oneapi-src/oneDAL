@@ -26,8 +26,7 @@ namespace oneapi::dal::backend::linalg {
 template <typename T, layout lyt>
 class matrix_formatter {
 public:
-    matrix_formatter(const matrix<T, lyt>& m)
-            : matrix_(m) {}
+    matrix_formatter(const matrix<T, lyt>& m) : matrix_(m) {}
 
     const matrix<T, lyt>& get_matrix() const {
         return matrix_;

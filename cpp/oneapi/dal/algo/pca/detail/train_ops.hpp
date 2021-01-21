@@ -62,8 +62,7 @@ struct train_ops {
         if (desc.get_component_count() > 0) {
             ONEDAL_ASSERT(result.get_eigenvalues().get_column_count() ==
                           desc.get_component_count());
-            ONEDAL_ASSERT(result.get_eigenvectors().get_row_count() ==
-                          desc.get_component_count());
+            ONEDAL_ASSERT(result.get_eigenvectors().get_row_count() == desc.get_component_count());
         }
     }
 

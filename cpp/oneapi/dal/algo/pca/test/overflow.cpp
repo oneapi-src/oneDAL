@@ -33,28 +33,27 @@ public:
     static constexpr std::int64_t invalid_component_count = 0x7FFFFFFFFFFFFFFF;
 
     auto get_descriptor_with_invalid_component_count() const {
-        return pca::descriptor<float, Method, pca::task::dim_reduction>{}
-            .set_component_count(invalid_component_count);
+        return pca::descriptor<float, Method, pca::task::dim_reduction>{}.set_component_count(
+            invalid_component_count);
     }
 
     table get_train_data_with_invalid_column_count() const {
-        return homogen_table{ tu::dummy_homogen_table{row_count, invalid_component_count} };
+        return homogen_table{ tu::dummy_homogen_table{ row_count, invalid_component_count } };
     }
 
     table get_infer_data() const {
-        return homogen_table{ tu::dummy_homogen_table{row_count, column_count} };
+        return homogen_table{ tu::dummy_homogen_table{ row_count, column_count } };
     }
 
     pca::model<> get_model_with_invalid_component_count() const {
-        const auto eigenvectors = homogen_table{
-            tu::dummy_homogen_table{invalid_component_count, column_count} };
+        const auto eigenvectors =
+            homogen_table{ tu::dummy_homogen_table{ invalid_component_count, column_count } };
         return pca::model{}.set_eigenvectors(eigenvectors);
     }
 };
 
 #define PCA_OVERFLOW_TEST(name) \
-    TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", \
-        pca::method::cov, pca::method::svd)
+    TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::cov, pca::method::svd)
 
 PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {
     const auto pca_desc = this->get_descriptor_with_invalid_component_count();

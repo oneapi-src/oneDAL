@@ -46,8 +46,7 @@ public:
         }
         shape_[0] = row_count;
         shape_[1] = column_count;
-        ONEDAL_ASSERT(get_count() / get_column_count() == get_row_count(),
-                      "Shape count overflow");
+        ONEDAL_ASSERT(get_count() / get_column_count() == get_row_count(), "Shape count overflow");
     }
 
     std::int64_t operator[](std::int64_t i) const {
@@ -82,7 +81,6 @@ public:
 private:
     std::int64_t shape_[2];
 };
-
 
 template <layout lyt>
 class matrix_base {
@@ -123,9 +121,7 @@ public:
     }
 
 protected:
-    explicit matrix_base(const shape& s, std::int64_t stride)
-            : shape_(s),
-              stride_(stride) {
+    explicit matrix_base(const shape& s, std::int64_t stride) : shape_(s), stride_(stride) {
         if constexpr (lyt == layout::row_major) {
             ONEDAL_ASSERT(stride >= s.get_column_count(),
                           "Stride must be greater than "
@@ -138,8 +134,7 @@ protected:
         }
     }
 
-    explicit matrix_base(const shape& s)
-            : matrix_base(s, get_default_stride(s)) {}
+    explicit matrix_base(const shape& s) : matrix_base(s, get_default_stride(s)) {}
 
 protected:
     static std::int64_t get_default_stride(const shape& s) {
@@ -245,8 +240,7 @@ public:
     }
 
     auto t() const {
-        return matrix<Float, transpose_layout(lyt)>{
-            x_, get_shape().t(), get_stride() };
+        return matrix<Float, transpose_layout(lyt)>{ x_, get_shape().t(), get_stride() };
     }
 
     Float get(std::int64_t linear_i) const {
@@ -275,7 +269,8 @@ public:
 
 private:
     explicit matrix(const array<Float>& x, const shape& s, std::int64_t stride)
-            : base(s, stride), x_(x) {
+            : base(s, stride),
+              x_(x) {
         ONEDAL_ASSERT(s.get_count() <= x.get_count(),
                       "Element count in matrix does not match "
                       "element count in the provided array");
