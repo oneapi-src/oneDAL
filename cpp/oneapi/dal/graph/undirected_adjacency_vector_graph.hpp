@@ -57,10 +57,7 @@ public:
     virtual ~undirected_adjacency_vector_graph() = default;
 
     /// Move constructor for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other);
-
-    /// Copy constructor for undirected_adjacency_vector_graph
-    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &other);
+    undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other) = default;
 
     /// Constructs an empty undirected_adjacency_vector_graph with specified graph properties
     /// and allocator
@@ -77,6 +74,9 @@ public:
     undirected_adjacency_vector_graph &operator=(undirected_adjacency_vector_graph &&other);
 
 private:
+    /// Copy constructor for undirected_adjacency_vector_graph
+    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &other);
+
     using pimpl = dal::detail::pimpl<typename graph_traits<graph_type>::impl_type>;
 
     pimpl impl_;
@@ -156,53 +156,7 @@ undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType,
                                                                    IndexType,
                                                                    Allocator>) {}
 
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
-          typename IndexType,
-          typename Allocator>
-undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>::
-    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &other)
-        : undirected_adjacency_vector_graph() {
-    using graph_type =
-        undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
-    using vertex_t = typename graph_traits<graph_type>::vertex_type;
-    using edge_t = typename graph_traits<graph_type>::edge_type;
-    using vertex_allocator_traits =
-        typename graph_traits<graph_type>::impl_type::vertex_allocator_traits;
-    using edge_allocator_traits =
-        typename graph_traits<graph_type>::impl_type::edge_allocator_traits;
-    using edge_set = typename graph_traits<graph_type>::edge_set;
-    using vertex_set = typename graph_traits<graph_type>::vertex_set;
-    // check std vector specs
-    // to copy allocator?
-    const auto &layout = dal::detail::get_impl(other).get_topology();
-    auto &vertex_allocator = dal::detail::get_impl(other)._vertex_allocator;
-    auto &edge_allocator = dal::detail::get_impl(other)._edge_allocator;
-
-    vertex_t *vertex_neighbors =
-        vertex_allocator_traits::allocate(vertex_allocator, layout._cols.get_count());
-    edge_t *vertex_degrees =
-        edge_allocator_traits::allocate(edge_allocator, layout._degrees.get_count());
-    edge_t *edge_offsets_data =
-        edge_allocator_traits::allocate(edge_allocator, layout._rows.get_count());
-
-    std::memcpy(vertex_neighbors,
-                layout._cols.get_data(),
-                layout._cols.get_count() * sizeof(vertex_t));
-    memcpy(vertex_degrees,
-           layout._degrees.get_data(),
-           layout._degrees.get_count() * sizeof(edge_t));
-    memcpy(edge_offsets_data, layout._rows.get_data(), layout._rows.get_count() * sizeof(edge_t));
-
-    impl_->get_topology()._vertex_count = layout._vertex_count;
-    impl_->get_topology()._edge_count = layout._edge_count;
-
-    impl_->get_topology()._rows = edge_set::wrap(edge_offsets_data, layout._rows.get_count());
-    impl_->get_topology()._degrees = edge_set::wrap(vertex_degrees, layout._degrees.get_count());
-    impl_->get_topology()._cols = vertex_set::wrap(vertex_neighbors, layout._cols.get_count());
-}
-
+/*
 template <typename VertexValue,
           typename EdgeValue,
           typename GraphValue,
@@ -226,6 +180,7 @@ undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType,
     layout._rows.reset();
     layout._degrees.reset();
 }
+*/
 
 template <typename VertexValue,
           typename EdgeValue,

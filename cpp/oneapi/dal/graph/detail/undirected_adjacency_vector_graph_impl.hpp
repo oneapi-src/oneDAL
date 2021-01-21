@@ -213,8 +213,8 @@ constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
 }
 
 template <typename IndexType>
-constexpr auto get_topology_cols(const topology<IndexType>& _topology,
-                                 const IndexType& vertex) noexcept ->
+constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
+                                             const IndexType& vertex) noexcept ->
     typename topology<IndexType>::const_edge_range {
     const IndexType* vertex_neighbors_begin = _topology._cols.get_data() + _topology._rows[vertex];
     const IndexType* vertex_neighbors_end =
