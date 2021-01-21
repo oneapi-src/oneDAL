@@ -21,23 +21,42 @@ namespace v1 {
 
 template <typename Data>
 void integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Data& second) {
-    volatile Data tmp = first + second;
-    tmp -= first;
-    if (tmp != second) {
+    Data op_result;
+    if (!is_safe_sum(first, second, op_result)) {
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
 }
 
 template <typename Data>
 void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Data& second) {
-    if (first != 0 && second != 0) {
-        volatile Data tmp = first * second;
-        tmp /= first;
-        if (tmp != second) {
-            throw range_error(
-                dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
-        }
+    Data op_result;
+    if (!is_safe_mul(first, second, op_result)) {
+        throw range_error(
+            dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
     }
+}
+
+template <typename Data>
+bool integer_overflow_ops<Data>::is_safe_sum(const Data& first,
+                                             const Data& second,
+                                             Data& sum_result) {
+    sum_result = first + second;
+    volatile Data tmp = sum_result;
+    tmp -= first;
+    return tmp == second;
+}
+
+template <typename Data>
+bool integer_overflow_ops<Data>::is_safe_mul(const Data& first,
+                                             const Data& second,
+                                             Data& mul_result) {
+    mul_result = first * second;
+    if (first != 0 && second != 0) {
+        volatile Data tmp = mul_result;
+        tmp /= first;
+        return tmp == second;
+    }
+    return true;
 }
 
 template struct ONEDAL_EXPORT integer_overflow_ops<std::int8_t>;
