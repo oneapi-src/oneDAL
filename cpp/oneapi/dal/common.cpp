@@ -20,12 +20,28 @@
 
 namespace oneapi::dal::v1 {
 
-void* base::operator new(std::size_t size) { return daal::services::daal_calloc(size); }
-void* base::operator new(std::size_t, void * where) { return where; }
-void* base::operator new[](std::size_t size) { return daal::services::daal_calloc(size); }
-void* base::operator new[](std::size_t, void * where) { return where; }
+void* base::operator new(std::size_t size) {
+    return daal::services::daal_calloc(size);
+}
 
-void base::operator delete(void * ptr, std::size_t) { daal::services::daal_free(ptr); }
-void base::operator delete[](void * ptr, std::size_t) { daal::services::daal_free(ptr); }
+void* base::operator new(std::size_t, void* where) {
+    return where;
+}
+
+void* base::operator new[](std::size_t size) {
+    return daal::services::daal_calloc(size);
+}
+
+void* base::operator new[](std::size_t, void* where) {
+    return where;
+}
+
+void base::operator delete(void* ptr, std::size_t) {
+    daal::services::daal_free(ptr);
+}
+
+void base::operator delete[](void* ptr, std::size_t) {
+    daal::services::daal_free(ptr);
+}
 
 } // namespace oneapi::dal::v1
