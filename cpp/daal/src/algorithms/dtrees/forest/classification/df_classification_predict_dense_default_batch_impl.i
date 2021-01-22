@@ -680,14 +680,12 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictOneRowByAllTrees(
     {
         resPtr[0] = algorithmFPType(services::internal::getMaxElementIndex<double, cpu>(prob_d, _nClasses));
     }
-    algorithmFPType inverseTreesCount = 1.0 / algorithmFPType(nTreesTotal);
     if (probPtr != nullptr)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < _nClasses; ++j)
         {
-            prob_d[j] *= inverseTreesCount;
             probPtr[j] = prob_d[j];
         }
     }
@@ -915,14 +913,12 @@ Status PredictClassificationTask<float, avx512>::predictOneRowByAllTrees(size_t 
     {
         resPtr[0] = float(services::internal::getMaxElementIndex<double, avx512>(prob_d, _nClasses));
     }
-    float inverseTreesCount = 1.0 / float(nTreesTotal);
     if (probPtr != nullptr)
     {
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < _nClasses; ++j)
         {
-            prob_d[j] *= inverseTreesCount;
             probPtr[j] = prob_d[j];
         }
     }
