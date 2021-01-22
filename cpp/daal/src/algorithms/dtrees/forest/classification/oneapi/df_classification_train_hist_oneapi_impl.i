@@ -836,6 +836,8 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     daal::services::internal::TArray<int, sse2> selectedRowsHost(_nSelectedRows * treeBlock);
     DAAL_CHECK_MALLOC(selectedRowsHost.get());
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nSelectedRows, treeBlock);
+
     auto treeOrderLev = context.allocate(TypeIds::id<int32_t>(), _nSelectedRows * treeBlock, status);
     DAAL_CHECK_STATUS_VAR(status);
     auto treeOrderLevBuf = context.allocate(TypeIds::id<int32_t>(), _nSelectedRows * treeBlock, status);

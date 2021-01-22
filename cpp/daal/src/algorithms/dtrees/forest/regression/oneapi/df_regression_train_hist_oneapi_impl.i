@@ -819,6 +819,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     _nSelectedRows = par.observationsPerTreeFraction * _nRows;
     DAAL_CHECK_EX((_nSelectedRows > 0), ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nSelectedRows, treeBlock);
     daal::services::internal::TArray<int, sse2> selectedRowsHost(_nSelectedRows * treeBlock);
     DAAL_CHECK_MALLOC(selectedRowsHost.get());
 
