@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ struct dense {};
 /// method.
 struct hist {};
 
-/// Alias tag-type for `dense <df_t_math_dense>`_ computational
+/// Alias tag-type for `dense <df_t_math_dense_>`_ computational
 /// method.
 using by_default = dense;
 } // namespace v1

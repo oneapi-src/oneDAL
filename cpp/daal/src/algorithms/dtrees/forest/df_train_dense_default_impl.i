@@ -1,6 +1,6 @@
 /* file: df_train_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -419,7 +419,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
         DAAL_CHECK_STATUS_THR(s);
         if (pTree)
         {
-            md.add((typename ModelType::TreeType &)*pTree, nClasses);
+            md.add((typename ModelType::TreeType &)*pTree, nClasses, i);
         }
     });
     s = safeStat.detach();

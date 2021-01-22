@@ -1,6 +1,6 @@
 /* file: threading.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -107,6 +107,33 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
     for (i = 0; i < n; i++)
     {
         func(i, a);
+    }
+#endif
+}
+
+DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func)
+{
+#if defined(__DO_TBB_LAYER__)
+    const size_t nthreads           = _daal_threader_get_max_threads();
+    const size_t nblocks_per_thread = n / nthreads + !!(n % nthreads);
+
+    tbb::parallel_for(
+        tbb::blocked_range<size_t>(0, nthreads, 1),
+        [&](tbb::blocked_range<size_t> r) {
+            const size_t tid   = r.begin();
+            const size_t begin = tid * nblocks_per_thread;
+            const size_t end   = n < begin + nblocks_per_thread ? n : begin + nblocks_per_thread;
+
+            for (size_t i = begin; i < end; ++i)
+            {
+                func(i, tid, a);
+            }
+        },
+        tbb::static_partitioner());
+#elif defined(__DO_SEQ_LAYER__)
+    for (size_t i = 0; i < n; i++)
+    {
+        func(i, 0, a);
     }
 #endif
 }

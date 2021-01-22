@@ -1,6 +1,6 @@
 /* file: error_handling_sycl.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,7 +26,9 @@
 #include <CL/sycl.hpp>
 
 #include "services/error_handling.h"
-#include "services/internal/sycl/level_zero_common.h"
+#ifndef DAAL_DISABLE_LEVEL_ZERO
+    #include "services/internal/sycl/level_zero_common.h"
+#endif
 
 #define DAAL_CHECK_OPENCL(cl_error, status)                   \
     {                                                         \

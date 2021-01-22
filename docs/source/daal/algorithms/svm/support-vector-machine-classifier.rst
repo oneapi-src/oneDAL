@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -297,5 +297,3 @@ equal to :math:`n^2 \cdot \text{sizeof(algorithmFPType)}`. However, avoid
 setting the cache size to a larger value than the number of bytes
 required to store :math:`n^2` data elements because the algorithm
 does not fully utilize the cache in this case.
-
-.. include:: ../../../opt-notice.rst

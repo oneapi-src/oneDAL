@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ Before You Begin
 ~~~~~~~~~~~~~~~~
 
 |short_name| is located in :file:`<install_dir>/dal` directory where :file:`<install_dir>`
-is the directory in which Intel\ |reg|\  oneAPI Toolkit was installed.
+is the directory in which |base_tk| was installed.
 
 The current version of |short_name| with
 DPC++ is available for Linux\* and Windows\* 64-bit operating systems. The
@@ -35,4 +35,3 @@ The dependencies needed to build examples with DPC++ extensions:
 - |dpcpp_comp|_ 2021.1 release or later (for DPC++ support)
 - OpenCL™ runtime 1.2 or later (to run the DPC++ runtime)
 - GNU\* Make on Linux\*, nmake on Windows\*
-
