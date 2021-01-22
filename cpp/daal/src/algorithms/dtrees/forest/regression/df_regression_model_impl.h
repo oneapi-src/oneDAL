@@ -64,7 +64,7 @@ public:
     virtual services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
-    bool add(const TreeType & tree, size_t nClasses);
+    bool add(const TreeType & tree, size_t nClasses, size_t iTree);
 
     virtual size_t getNumberOfTrees() const DAAL_C11_OVERRIDE;
 };

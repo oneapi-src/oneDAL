@@ -419,7 +419,7 @@ services::Status computeImpl(HostAppIface * pHostApp, const NumericTable * x, co
         DAAL_CHECK_STATUS_THR(s);
         if (pTree)
         {
-            md.add((typename ModelType::TreeType &)*pTree, nClasses);
+            md.add((typename ModelType::TreeType &)*pTree, nClasses, i);
         }
     });
     s = safeStat.detach();
