@@ -136,17 +136,18 @@ private:
                                              size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs, size_t reduceLocalSize);
 
     services::Status computeResults(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
-                                    const size_t nFeatures, const services::internal::sycl::UniversalBuffer & oobIndices, size_t nOOB,
+                                    const size_t nFeatures, const services::internal::sycl::UniversalBuffer & oobIndices,
+                                    const services::internal::sycl::UniversalBuffer & oobRowsNumList,
                                     services::internal::sycl::UniversalBuffer & oobBuf, algorithmFPType * varImp, algorithmFPType * varImpVariance,
-                                    size_t nBuiltTrees, const engines::EnginePtr & engine, const Parameter & par);
+                                    size_t nBuiltTrees, const engines::EnginePtr & engine, size_t nTreesInBlock, size_t tree, const Parameter & par);
 
     algorithmFPType computeOOBError(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
-                                    const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, size_t n,
+                                    const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, size_t indicesOffset, size_t n,
                                     services::internal::sycl::UniversalBuffer oobBuf, services::Status & status);
 
     algorithmFPType computeOOBErrorPerm(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
-                                        const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, const int * indicesPerm,
-                                        const size_t testFtrInd, size_t n, services::Status & status);
+                                        const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, size_t indicesOffset,
+                                        const int * indicesPerm, const size_t testFtrInd, size_t n, services::Status & status);
 
     services::Status finalizeOOBError(const algorithmFPType * y, const services::internal::sycl::UniversalBuffer & oobBuf, const size_t nRows,
                                       algorithmFPType * res, algorithmFPType * resPerObs);
@@ -170,8 +171,13 @@ private:
     const size_t _maxBins                 = 256;
     const size_t _reduceLocalSizePartHist = 64;
 
+    const size_t _minPreferableLocalSizeForPartHistKernel = 32;
+
     const size_t _maxPartHistCumulativeSize      = 805306368; // 768 Mb
-    const size_t _minRowsBlocksForMaxPartHistNum = 1024;
+    const size_t _maxTreeObservationsMapSize     = 134217728; // 128 Mb
+    const size_t _minRowsBlocksForMaxPartHistNum = 16384;
+    const size_t _minRowsBlocksForOneHist        = 128;
+    const size_t _maxNumOfTreesInBlock           = 128;
 
     const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
     const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
@@ -184,6 +190,7 @@ private:
     size_t _nSelectedRows;
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;
+    size_t _preferableLocalSizeForPartHistKernel; // local size for histogram collection depends on num of selected features
 };
 
 } // namespace internal
