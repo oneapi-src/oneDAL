@@ -812,15 +812,17 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
 
     _totalBins = indexedFeatures.totalBins();
     /* calculating the maximal number of bins for feature among all features */
-    DAAL_ASSERT_UNIVERSAL_BUFFER(indexedFeatures.binOffsets(), uint32_t, _nFeatures + 1);
-    auto binOffsetsHost = indexedFeatures.binOffsets().template get<uint32_t>().toHost(ReadWriteMode::readOnly, status);
-    DAAL_CHECK_STATUS_VAR(status);
-
-    _nMaxBinsAmongFtrs = 0;
-    for (size_t i = 0; i < _nFeatures; i++)
     {
-        auto nFtrBins      = static_cast<size_t>(binOffsetsHost.get()[i + 1] - binOffsetsHost.get()[i]);
-        _nMaxBinsAmongFtrs = (_nMaxBinsAmongFtrs < nFtrBins) ? nFtrBins : _nMaxBinsAmongFtrs;
+        DAAL_ASSERT_UNIVERSAL_BUFFER(indexedFeatures.binOffsets(), uint32_t, _nFeatures + 1);
+        auto binOffsetsHost = indexedFeatures.binOffsets().template get<uint32_t>().toHost(ReadWriteMode::readOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        _nMaxBinsAmongFtrs = 0;
+        for (size_t i = 0; i < _nFeatures; i++)
+        {
+            auto nFtrBins      = static_cast<size_t>(binOffsetsHost.get()[i + 1] - binOffsetsHost.get()[i]);
+            _nMaxBinsAmongFtrs = (_nMaxBinsAmongFtrs < nFtrBins) ? nFtrBins : _nMaxBinsAmongFtrs;
+        }
     }
     // no need to check for _nMaxBinsAmongFtrs < INT32_MAX because it will not be bigger than _nRows and _nRows was already checked
     // check mul overflow for _nMaxBinsAmongFtrs * nSelectedFeatures
