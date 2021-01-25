@@ -85,7 +85,6 @@
 #define TEMPLATE_LIST_TEST_M TEMPLATE_LIST_TEST_CASE_METHOD
 #define TEMPLATE_SIG_TEST_M  TEMPLATE_TEST_CASE_METHOD_SIG
 
-
 #ifdef ONEDAL_DATA_PARALLEL
 #define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::device_test_policy policy_name
 #else

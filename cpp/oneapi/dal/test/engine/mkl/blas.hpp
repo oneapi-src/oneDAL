@@ -21,8 +21,18 @@
 namespace oneapi::dal::test::engine::mkl {
 
 template <typename Float>
-void gemm(bool transa, bool transb, std::int64_t m, std::int64_t n, std::int64_t k, Float alpha,        \
-          const Float *a, std::int64_t lda, const Float *b, std::int64_t ldb, Float beta, Float *c,
+void gemm(bool transa,
+          bool transb,
+          std::int64_t m,
+          std::int64_t n,
+          std::int64_t k,
+          Float alpha,
+          const Float *a,
+          std::int64_t lda,
+          const Float *b,
+          std::int64_t ldb,
+          Float beta,
+          Float *c,
           std::int64_t ldc);
 
 } // namespace oneapi::dal::test::engine::mkl
