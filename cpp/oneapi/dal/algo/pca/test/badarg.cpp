@@ -19,7 +19,9 @@
 #include "oneapi/dal/algo/pca/infer.hpp"
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 
 namespace oneapi::dal::pca::test {
 

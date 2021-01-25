@@ -16,8 +16,11 @@
 
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/algo/pca/infer.hpp"
-#include "oneapi/dal/test/engine/linalg.hpp"
+
+#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::pca::test {
 

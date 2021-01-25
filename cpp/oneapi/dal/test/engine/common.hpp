@@ -29,7 +29,6 @@
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/test/engine/macro.hpp"
-#include "oneapi/dal/test/engine/math.hpp"
 
 // Workaround DPC++ Compiler's warning on unused
 // variable declared by Catch2's TEST_CASE macro
@@ -85,6 +84,13 @@
 #define TEMPLATE_TEST_M      TEMPLATE_TEST_CASE_METHOD
 #define TEMPLATE_LIST_TEST_M TEMPLATE_LIST_TEST_CASE_METHOD
 #define TEMPLATE_SIG_TEST_M  TEMPLATE_TEST_CASE_METHOD_SIG
+
+
+#ifdef ONEDAL_DATA_PARALLEL
+#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::device_test_policy policy_name
+#else
+#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::host_test_policy policy_name
+#endif
 
 namespace oneapi::dal::test::engine {
 
@@ -164,40 +170,6 @@ inline auto compute(device_test_policy& policy, Args&&... args) {
     return dal::compute(policy.get_queue(), std::forward<Args>(args)...);
 }
 #endif
-
-#ifdef ONEDAL_DATA_PARALLEL
-#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::device_test_policy policy_name
-#else
-#define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::host_test_policy policy_name
-#endif
-
-class policy_fixture {
-public:
-    auto& get_policy() {
-        return policy_;
-    }
-
-private:
-    DECLARE_TEST_POLICY(policy_);
-};
-
-class algo_fixture : public policy_fixture {
-public:
-    template <typename... Args>
-    auto train(Args&&... args) {
-        return oneapi::dal::test::engine::train(get_policy(), std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto infer(Args&&... args) {
-        return oneapi::dal::test::engine::infer(get_policy(), std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto compute(Args&&... args) {
-        return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
-    }
-};
 
 template <std::size_t index, typename TupleX, typename TupleY>
 struct combine_types_element {
