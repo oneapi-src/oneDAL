@@ -20,11 +20,16 @@
 
 #pragma once
 
+#include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/io/detail/common.hpp"
+//#include <vector>
 
 namespace oneapi::dal::preview {
 /// Type of graph representation as an edge list
 /// @tparam IndexType Type of the graph vertex indicies
 template <typename IndexType = std::int32_t>
-using edge_list = detail::edge_list_container<std::pair<IndexType, IndexType>>;
+using edge_list =
+    detail::edge_list_container<std::pair<IndexType, IndexType>, std::allocator<char>>;
+//	using edge_list = std::vector<std::pair<IndexType, IndexType>>;
 } // namespace oneapi::dal::preview

@@ -28,8 +28,7 @@ namespace oneapi::dal::preview::load_graph {
 ///
 /// @tparam Input  Type of the source data
 /// @tparam Output Type of the destination data
-template <typename Input = edge_list<int32_t>,
-          typename Output = undirected_adjacency_vector_graph<>>
+template <typename Input = edge_list<>, typename Output = undirected_adjacency_vector_graph<>>
 struct descriptor {
     using input_type = Input;
     using output_type = Output;

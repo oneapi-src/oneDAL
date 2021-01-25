@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <fstream>
 
-#include <iostream>
-
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -74,8 +72,8 @@ edge_list<std::int64_t> load_edge_list(const std::string &name) {
 template <typename Index>
 std::int64_t get_vertex_count_from_edge_list(const edge_list<Index> &edges) {
     Index max_id = edges[0].first;
-    for (auto u : edges) {
-        Index edge_max = std::max(u.first, u.second);
+    for (std::int64_t i = 0; i < edges.size(); i++) {
+        Index edge_max = std::max(edges[i].first, edges[i].second);
         max_id = std::max(max_id, edge_max);
     }
 
@@ -273,9 +271,9 @@ template <typename Descriptor, typename DataSource>
 output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
     using graph_type = output_type<Descriptor>;
     graph_type graph;
-    convert_to_csr_impl(
-        load_edge_list<typename graph_traits<graph_type>::vertex_type>(data_source.get_filename()),
-        graph);
+    const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
+        data_source.get_filename());
+    convert_to_csr_impl(el, graph);
     return graph;
 }
 } // namespace oneapi::dal::preview::load_graph::detail

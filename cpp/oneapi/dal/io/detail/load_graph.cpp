@@ -17,7 +17,7 @@
 //#include <algorithm>
 
 #include "oneapi/dal/io/detail/load_graph.hpp"
-/*
+
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
@@ -31,7 +31,6 @@
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 #include "services/daal_atomic_int.h"
 #include "services/daal_memory.h"
-*/
 
 namespace oneapi::dal::preview::load_graph::detail {
 
