@@ -39,6 +39,7 @@ struct IdxValType
     bool operator<=(const IdxValType & o) const { return value < o.value || (value == o.value && index == o.index); }
 };
 typedef void (*functype)(int i, const void * a);
+typedef void (*functype_static)(size_t i, size_t tid, const void * a);
 typedef void (*functype2)(int i, int n, const void * a);
 typedef void * (*tls_functype)(const void * a);
 typedef void (*tls_reduce_functype)(void * p, const void * a);
@@ -50,6 +51,7 @@ extern "C"
 {
     DAAL_EXPORT int _daal_threader_get_max_threads();
     DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func);
+    DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func);
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
     DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func);
@@ -160,6 +162,13 @@ inline void threader_func(int i, const void * a)
 }
 
 template <typename F>
+inline void static_threader_func(size_t i, size_t tid, const void * a)
+{
+    const F & lambda = *static_cast<const F *>(a);
+    lambda(i, tid);
+}
+
+template <typename F>
 inline void threader_func_b(int i0, int in, const void * a)
 {
     const F & lambda = *static_cast<const F *>(a);
@@ -179,6 +188,14 @@ inline void threader_for(int n, int threads_request, const F & lambda)
     const void * a = static_cast<const void *>(&lambda);
 
     _daal_threader_for(n, threads_request, a, threader_func<F>);
+}
+
+template <typename F>
+inline void static_threader_for(size_t n, const F & lambda)
+{
+    const void * a = static_cast<const void *>(&lambda);
+
+    _daal_static_threader_for(n, a, static_threader_func<F>);
 }
 
 template <typename F>
@@ -290,6 +307,81 @@ private:
     void * tlsPtr;
     void * voidLambda;
     tls_deleter * d;
+};
+
+template <typename F, typename lambdaType>
+inline void * creater_func(const void * a)
+{
+    const lambdaType & lambda = *static_cast<const lambdaType *>(a);
+    return lambda();
+}
+
+template <typename F>
+class static_tls
+{
+public:
+    template <typename lambdaType>
+    explicit static_tls(const lambdaType & lambda)
+    {
+        _nThreads = threader_get_max_threads_number();
+
+        _storage = new F[_nThreads];
+
+        if (!_storage)
+        {
+            return;
+        }
+
+        for (size_t i = 0; i < _nThreads; ++i)
+        {
+            _storage[i] = nullptr;
+        }
+
+        const void * ac = static_cast<const void *>(&lambda);
+        void * a        = const_cast<void *>(ac);
+        _creater        = a;
+
+        _creater_func = creater_func<F, lambdaType>;
+    }
+
+    virtual ~static_tls() { delete _storage; }
+
+    F local(size_t tid)
+    {
+        if (_storage)
+        {
+            if (!_storage[tid])
+            {
+                _storage[tid] = static_cast<F>(_creater_func(_creater));
+            }
+
+            return _storage[tid];
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    template <typename lambdaType>
+    void reduce(const lambdaType & lambda)
+    {
+        if (_storage)
+        {
+            for (size_t i = 0; i < _nThreads; ++i)
+            {
+                lambda(_storage[i]);
+            }
+        }
+    }
+
+    size_t nthreads() const { return _nThreads; }
+
+private:
+    F * _storage                     = nullptr;
+    size_t _nThreads                 = 0;
+    void * _creater                  = nullptr;
+    daal::tls_functype _creater_func = nullptr;
 };
 
 template <typename F>

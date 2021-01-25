@@ -52,7 +52,7 @@ struct dense {};
 /// method.
 struct hist {};
 
-/// Alias tag-type for `dense <df_t_math_dense>`_ computational
+/// Alias tag-type for `dense <df_t_math_dense_>`_ computational
 /// method.
 using by_default = dense;
 } // namespace v1

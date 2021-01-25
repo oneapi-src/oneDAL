@@ -74,6 +74,7 @@ public:
     MSG(small_data_block);
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
+    MSG(unsupported_feature_type);
 
     /* Tables */
     MSG(cannot_get_data_type_from_empty_metadata);
