@@ -1,0 +1,198 @@
+#===============================================================================
+# Copyright 2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+# It defines the following variables:
+#     DAL_<component>_FOUND
+#     DAL_LIBRARIES
+#
+# DALConfigVersion.cmake defines DAL_VERSION
+#
+# Initialize to default values
+
+# Handle arguments
+# TARGET_LINK
+# USE_PARALLEL
+# USE_DPCPP
+if ("${TARGET_LINK}" STREQUAL "")
+    set(TARGET_LINK "dynamic")
+elseif (NOT "${TARGET_LINK}" STREQUAL "static" AND NOT "${TARGET_LINK}" STREQUAL "dynamic")
+    message(FATAL_ERROR "TARGET_LINK must be 'static' or 'dynamic'")
+endif()
+if ("${USE_PARALLEL}" STREQUAL "")
+    set(USE_PARALLEL "yes")
+elseif (NOT "${USE_PARALLEL}" STREQUAL "yes" AND NOT "${USE_PARALLEL}" STREQUAL "no")
+    message(FATAL_ERROR "USE_PARALLEL must be 'yes' or 'no'")
+endif()
+if ("${USE_DPCPP}" STREQUAL "")
+    set(USE_DPCPP "yes")
+elseif (NOT "${USE_DPCPP}" STREQUAL "yes" AND NOT "${USE_DPCPP}" STREQUAL "no")
+    message(FATAL_ERROR "USE_DPCPP must be 'yes' or 'no'")
+endif()
+
+message(STATUS "TARGET_LINK:  ${TARGET_LINK}")
+message(STATUS "USE_PARALLEL: ${USE_PARALLEL}")
+message(STATUS "USE_DPCPP:    ${USE_DPCPP}")
+
+if (NOT DAL_LIBRARIES)
+    set(DAL_LIBRARIES "")
+endif()
+set(DAL_IMPORTED_TARGETS "")
+
+get_filename_component(_dal_root "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
+get_filename_component(_dal_root "${_dal_root}/@DAL_ROOT_REL_PATH@" ABSOLUTE)
+
+if (@VERSIONS_SET@ STREQUAL "TRUE")
+    set(_dal_ver_major_bin @DAL_VER_MAJOR_BIN@)
+    set(_dal_ver_minor_bin @DAL_VER_MINOR_BIN@)
+elseif (@VERSIONS_SET@ STREQUAL "FALSE")
+    file(READ ${_dal_root}/include/services/library_version_info.h DAL_VERSION_INFO)
+    string(REGEX REPLACE ".*#define __INTEL_DAAL_MAJOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_major_bin "${DAL_VERSION_INFO}")
+    string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_minor_bin "${DAL_VERSION_INFO}")
+endif()
+
+if(USE_PARALLEL STREQUAL "yes")
+    set(DAL_THREAD_LIBRARY_NAME onedal_thread)
+    find_package(TBB REQUIRED tbb tbbmalloc)
+    list(APPEND DAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+
+    if(UNIX)
+        if(APPLE)
+            list(APPEND DAL_IMPORTED_TARGETS -lc++)
+        else()
+            list(APPEND DAL_IMPORTED_TARGETS -lstdc++)
+        endif()
+    endif()
+else()
+    set(DAL_THREAD_LIBRARY_NAME onedal_sequential)
+endif()
+
+list(APPEND DAL_LIBS onedal_core)
+
+if (USE_DPCPP STREQUAL "no")
+    list(APPEND DAL_LIBS onedal)
+elseif (USE_DPCPP STREQUAL "yes")
+    list(APPEND DAL_LIBS onedal_dpc)
+endif()
+
+if (UNIX OR TARGET_LINK STREQUAL "static")
+    list(APPEND DAL_LIBS ${DAL_THREAD_LIBRARY_NAME})
+endif()
+
+if(UNIX)
+    list(APPEND DAL_IMPORTED_TARGETS -lm -lpthread -ldl)
+endif()
+
+if(UNIX)
+    set(LIB_PREFIX "lib")
+    set(LIB_EXT ".a")
+    set(DLL_EXT ".so.${_dal_ver_major_bin}.${_dal_ver_minor_bin}")
+else()
+    set(LIB_PREFIX "")
+    set(LIB_EXT ".lib")
+    set(DLL_EXT "_dll.${_dal_ver_major_bin}.lib")
+endif()
+
+foreach (_dal_component ${DAL_LIBS})
+    set(DAL_FIND_REQUIRED_${_dal_component} 1)
+endforeach()
+
+foreach (_dal_component ${DAL_LIBS})
+    set(DAL_${_dal_component}_FOUND 0)
+
+    if (NOT TARGET DAL::${_dal_component})
+        if (${TARGET_LINK} STREQUAL "static")
+            add_library(DAL::${_dal_component} STATIC IMPORTED)
+            find_library(
+                _dal_lib
+                NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
+                PATH_SUFFIXES "@LIB_REL_PATH@/@SUB_DIR@"
+                PATHS "${_dal_root}")
+        elseif (${TARGET_LINK} STREQUAL "dynamic")
+            add_library(DAL::${_dal_component} SHARED IMPORTED)
+            find_library(
+                _dal_lib
+                NAMES "${LIB_PREFIX}${_dal_component}${DLL_EXT}"
+                PATH_SUFFIXES "@LIB_REL_PATH@/@SUB_DIR@"
+                PATHS "${_dal_root}")
+        endif()
+
+        get_filename_component(_dal_include_dir "${_dal_root}/@INC_REL_PATH@" ABSOLUTE)
+        set_target_properties(DAL::${_dal_component} PROPERTIES
+                              INTERFACE_INCLUDE_DIRECTORIES "${_dal_include_dir}")
+        unset(_dal_include_dir)
+    endif()
+
+    if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic")
+        find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
+        set_target_properties(DAL::${_dal_component} PROPERTIES
+                              IMPORTED_LOCATION "${${_dal_component}_dll}"
+                              IMPORTED_IMPLIB "${_dal_lib}")
+    else()
+        set_target_properties(DAL::${_dal_component} PROPERTIES
+                              IMPORTED_LOCATION "${_dal_lib}")
+    endif()
+
+    if (_dal_lib)
+        list(APPEND DAL_LIBRARIES DAL::${_dal_component})
+        set(DAL_${_dal_component}_FOUND 1)
+    elseif (DAL_FIND_REQUIRED AND DAL_FIND_REQUIRED_${_dal_component})
+        message(STATUS "Missed required DAL component: ${_dal_component}")
+        message(STATUS "  ${_dal_lib} must exist.")
+        set(DAL_FOUND FALSE)
+    endif()
+
+    unset(_dal_lib CACHE)
+endforeach()
+
+if(${USE_DPCPP} STREQUAL "yes")
+    set(MICROLIBS onedal_sycl)
+    find_library(
+        _dal_lib
+        NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
+        PATH_SUFFIXES "@LIB_REL_PATH@/@SUB_DIR@"
+        PATHS "${_dal_root}")
+
+    if (_dal_lib)
+        list(APPEND DAL_LIBRARIES ${_dal_lib})
+    endif()
+endif()
+
+
+list(APPEND DAL_IMPORTED_TARGETS ${DAL_LIBRARIES})
+list(REMOVE_DUPLICATES DAL_IMPORTED_TARGETS)
+
+set(DAL_ROOT_DIR "${_dal_root}")
+set(DAL_INCLUDE_DIRS "${_dal_root}/@INC_REL_PATH@")
+if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic")
+    set(DAL_DLL_DIR "${_dal_root}/@DLL_REL_PATH@")
+endif()
+
+if(DAL_FOUND STREQUAL "FALSE")
+    message(
+        FATAL_ERROR
+        "DAL was not found in ${DAL_ROOT_DIR}! Set/check DALROOT environment variable!"
+    )
+else()
+    message(STATUS "DAL_ROOT_DIR:     ${_dal_root}")
+    message(STATUS "DAL_INCLUDE_DIRS: ${_dal_root}/@INC_REL_PATH@")
+    if (WIN32 AND TARGET_LINK STREQUAL "dynamic")
+        message(STATUS "DAL_DLL_DIR:      ${_dal_root}/@DLL_REL_PATH@")
+    endif()
+    message(STATUS "DAL_IMPORTED_TARGETS:    ${DAL_IMPORTED_TARGETS}")
+endif()
+
+unset(_dal_lib)
+unset(_dal_root)
