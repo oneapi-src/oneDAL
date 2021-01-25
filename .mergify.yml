@@ -28,6 +28,9 @@ pull_request_rules:
       - author=renovate[bot]
       - -closed
     actions:
+      label:
+        add: [infra]
       request_reviews:
         users:
           - napetrov
+          - PetrovKP
