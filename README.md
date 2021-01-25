@@ -203,12 +203,14 @@ Except C++ and Python API oneDAL also provide API for C++ SYCL and Java language
 - [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
 
 ## Support
-Please report questions, issues and suggestions using:
+Report issues, ask questions, and provide suggestions using:
 
 - [GitHub Issues](https://github.com/oneapi-src/oneDAL/issues)
 - [Forum](https://community.intel.com/t5/Intel-oneAPI-Data-Analytics/bd-p/oneapi-data-analytics-library)
 
-You may reach out to project maintainers privately at onedal.maintainers@intel.com
+You may reach out to project maintainers privately at onedal.maintainers@intel.com.
+
+To report a vulnerability, refer to [Intel vulnerability reporting policy](https://www.intel.com/content/www/us/en/security-center/default.html).
 
 ## Samples <!-- omit in toc -->
 Samples is an examples of how oneDAL can be used in different applications.
@@ -250,7 +252,3 @@ See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 Distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
 information.
-
-## Security <!-- omit in toc -->
-
-To report a vulnerability, refer to [Intel vulnerability reporting policy](https://www.intel.com/content/www/us/en/security-center/default.html).
