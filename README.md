@@ -210,6 +210,8 @@ Report issues, ask questions, and provide suggestions using:
 
 You may reach out to project maintainers privately at onedal.maintainers@intel.com.
 
+### Security
+
 To report a vulnerability, refer to [Intel vulnerability reporting policy](https://www.intel.com/content/www/us/en/security-center/default.html).
 
 ## Samples <!-- omit in toc -->
