@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/linalg/matrix.hpp"
-#include "oneapi/dal/backend/linalg/loops.hpp"
-#include "oneapi/dal/backend/linalg/umath.hpp"
-#include "oneapi/dal/backend/linalg/dot.hpp"
+#include "oneapi/dal/test/engine/linalg/matrix.hpp"
+#include "oneapi/dal/test/engine/linalg/loops.hpp"
+#include "oneapi/dal/test/engine/linalg/umath.hpp"
+#include "oneapi/dal/test/engine/linalg/dot.hpp"
+#include "oneapi/dal/test/engine/linalg/io.hpp"

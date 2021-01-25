@@ -16,21 +16,13 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include <cstdint>
 
-#define GEMM_PARAMETERS(Float)                                                                    \
-    bool transa, bool transb, std::int64_t m, std::int64_t n, std::int64_t k, Float alpha,        \
-        const Float *a, std::int64_t lda, const Float *b, std::int64_t ldb, Float beta, Float *c, \
-        std::int64_t ldc
-
-namespace oneapi::dal::backend::mkl {
-
-template <typename Float, typename Cpu = void>
-void gemm(GEMM_PARAMETERS(Float));
+namespace oneapi::dal::test::engine::mkl {
 
 template <typename Float>
-void gemm(const context_cpu &ctx, GEMM_PARAMETERS(Float));
+void gemm(bool transa, bool transb, std::int64_t m, std::int64_t n, std::int64_t k, Float alpha,        \
+          const Float *a, std::int64_t lda, const Float *b, std::int64_t ldb, Float beta, Float *c,
+          std::int64_t ldc);
 
-} // namespace oneapi::dal::backend::mkl
-
-#undef GEMM_PARAMETERS
+} // namespace oneapi::dal::test::engine::mkl

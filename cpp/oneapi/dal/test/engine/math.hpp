@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/linalg.hpp"
+#include "oneapi/dal/test/engine/linalg.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -38,14 +38,14 @@ inline double get_tolerance(double f32_tol, double f64_tol) {
 
 template <typename Reference, typename Actual>
 inline double l_inf_norm(const Reference& ref, const Actual& actual) {
-    const auto ref_mat = backend::linalg::matrix<double>::wrap(ref);
-    const auto act_mat = backend::linalg::matrix<double>::wrap(actual);
-    return backend::linalg::l_inf_norm(ref_mat, act_mat);
+    const auto ref_mat = linalg::matrix<double>::wrap(ref);
+    const auto act_mat = linalg::matrix<double>::wrap(actual);
+    return linalg::l_inf_norm(ref_mat, act_mat);
 }
 
 template <typename Container>
 inline bool has_nans(const Container& container) {
-    const auto container_mat = backend::linalg::matrix<double>::wrap(container);
+    const auto container_mat = linalg::matrix<double>::wrap(container);
 
     const double* mat_ptr = container_mat.get_data();
     for (std::int64_t i = 0; i < container_mat.get_count(); i++) {

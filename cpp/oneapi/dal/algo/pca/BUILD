@@ -25,6 +25,7 @@ dal_test_suite(
         ":pca",
     ],
     tags = [
+        "backend",
         "cpu-only",
     ]
 )
@@ -39,24 +40,30 @@ dal_test_suite(
         ":pca",
     ],
     tags = [
+        "backend",
         "gpu-only",
     ]
 )
 
 dal_test_suite(
-    name = "tests",
+    name = "interface_tests",
     framework = "catch2",
     srcs = glob([
         "test/*.cpp",
     ]),
     dal_deps = [
         ":pca",
-        "@onedal//cpp/oneapi/dal/test/util",
-        "@onedal//cpp/oneapi/dal/backend/linalg",
-        "@onedal//cpp/oneapi/dal/test/engine:dataframes",
     ],
+    tags = [
+        "interface",
+    ]
+)
+
+dal_test_suite(
+    name = "tests",
     tests = [
         ":cpu_tests",
         ":gpu_tests_dpc",
+        ":interface_tests",
     ],
 )

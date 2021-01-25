@@ -19,9 +19,9 @@
 #include <iomanip>
 #include <ostream>
 
-#include "oneapi/dal/backend/linalg/matrix.hpp"
+#include "oneapi/dal/test/engine/linalg/matrix.hpp"
 
-namespace oneapi::dal::backend::linalg {
+namespace oneapi::dal::test::engine::linalg {
 
 template <typename T, layout lyt>
 class matrix_formatter {
@@ -98,4 +98,4 @@ inline std::ostream& operator<<(std::ostream& stream, layout l) {
     return stream;
 }
 
-} // namespace oneapi::dal::backend::linalg
+} // namespace oneapi::dal::test::engine::linalg

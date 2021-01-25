@@ -21,7 +21,7 @@
 #include "oneapi/dal/backend/linalg/io.hpp"
 #include "oneapi/dal/backend/linalg/loops.hpp"
 
-namespace oneapi::dal::backend::linalg::test {
+namespace oneapi::dal::test::engine::linalg::test {
 
 template <layout lyt_a, layout lyt_b, layout lyt_c>
 class dot_test {
@@ -165,4 +165,4 @@ TEST("dot orthogonal matrix", "[linalg][dot]") {
     }
 }
 
-} // namespace oneapi::dal::backend::linalg::test
+} // namespace oneapi::dal::test::engine::linalg::test

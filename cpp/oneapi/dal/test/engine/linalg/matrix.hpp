@@ -20,7 +20,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
-namespace oneapi::dal::backend::linalg {
+namespace oneapi::dal::test::engine::linalg {
 
 enum class layout {
     row_major,
@@ -283,4 +283,4 @@ private:
     array<Float> x_;
 };
 
-} // namespace oneapi::dal::backend::linalg
+} // namespace oneapi::dal::test::engine::linalg

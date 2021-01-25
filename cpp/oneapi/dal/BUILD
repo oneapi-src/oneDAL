@@ -115,8 +115,6 @@ dal_collect_test_suites(
         "io",
         "table",
         "util",
-        "backend/linalg",
-        "backend/mkl",
     ],
     tests = [
         ":common_tests",

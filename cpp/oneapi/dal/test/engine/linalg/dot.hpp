@@ -16,15 +16,13 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/common.hpp"
-#include "oneapi/dal/backend/linalg/matrix.hpp"
+#include "oneapi/dal/test/engine/linalg/matrix.hpp"
 
-namespace oneapi::dal::backend::linalg {
+namespace oneapi::dal::test::engine::linalg {
 
 template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c>
 struct dot_op {
-    void operator()(const context_cpu& ctx,
-                    const matrix<Float, lyt_a>& a,
+    void operator()(const matrix<Float, lyt_a>& a,
                     const matrix<Float, lyt_b>& b,
                     matrix<Float, lyt_c>& c,
                     Float alpha,
@@ -37,7 +35,7 @@ inline void dot(const matrix<Float, lyt_a>& a,
                 matrix<Float, lyt_c>& c,
                 Float alpha = Float(1),
                 Float beta = Float(0)) {
-    dot_op<Float, lyt_a, lyt_b, lyt_c>{}(context_cpu{}, a, b, c, alpha, beta);
+    dot_op<Float, lyt_a, lyt_b, lyt_c>{}(a, b, c, alpha, beta);
 }
 
 template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c = layout::row_major>
@@ -49,4 +47,4 @@ inline matrix<Float> dot(const matrix<Float, lyt_a>& a,
     return c;
 }
 
-} // namespace oneapi::dal::backend::linalg
+} // namespace oneapi::dal::test::engine::linalg

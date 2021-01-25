@@ -16,14 +16,13 @@
 
 #include "oneapi/dal/algo/pca/train.hpp"
 #include "oneapi/dal/algo/pca/infer.hpp"
-#include "oneapi/dal/backend/linalg.hpp"
-#include "oneapi/dal/backend/linalg/io.hpp"
+#include "oneapi/dal/test/engine/linalg.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
 
 namespace oneapi::dal::pca::test {
 
 namespace te = dal::test::engine;
-namespace la = backend::linalg;
+namespace la = te::linalg;
 
 template <typename TestType>
 class pca_batch_test : public te::algo_fixture {

@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/linalg/matrix.hpp"
+#include "oneapi/dal/test/engine/linalg/matrix.hpp"
 
-namespace oneapi::dal::backend::linalg {
+namespace oneapi::dal::test::engine::linalg {
 
 template <typename T, layout lyt, typename Op>
 inline void enumerate_row_first(const matrix<T, lyt>& m, Op&& op) {
@@ -66,4 +66,4 @@ inline void for_each(const matrix<T, lyt>& m, Op&& op) {
     });
 }
 
-} // namespace oneapi::dal::backend::linalg
+} // namespace oneapi::dal::test::engine::linalg

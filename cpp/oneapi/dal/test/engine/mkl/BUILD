@@ -1,14 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
-    "dal_module",
+    "dal_test_module",
     "dal_test_suite",
 )
 
-dal_module(
+dal_test_module(
     name = "mkl",
     auto = True,
-    dal_deps = [
-        "@onedal//cpp/oneapi/dal:common",
+    dal_test_deps = [
+        "@onedal//cpp/oneapi:include_root",
+        "@mkl//:mkl_seq",
     ],
 )
 

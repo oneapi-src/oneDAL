@@ -18,7 +18,7 @@
 #include "oneapi/dal/algo/pca/infer.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/util/table_mocks.hpp"
+#include "oneapi/dal/test/engine/mocks.hpp"
 
 namespace oneapi::dal::pca::test {
 

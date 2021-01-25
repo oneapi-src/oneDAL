@@ -14,16 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/linalg/dot.hpp"
-#include "oneapi/dal/backend/mkl/blas.hpp"
+#include "oneapi/dal/test/engine/linalg/dot.hpp"
+#include "oneapi/dal/test/engine/mkl/blas.hpp"
 
-namespace oneapi::dal::backend::linalg {
+namespace oneapi::dal::test::engine::linalg {
 
-namespace mkl = oneapi::dal::backend::mkl;
+namespace mkl = oneapi::dal::test::engine::mkl;
 
 template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c>
-void dot_op<Float, lyt_a, lyt_b, lyt_c>::operator()(const context_cpu &ctx,
-                                                    const matrix<Float, lyt_a> &a,
+void dot_op<Float, lyt_a, lyt_b, lyt_c>::operator()(const matrix<Float, lyt_a> &a,
                                                     const matrix<Float, lyt_b> &b,
                                                     matrix<Float, lyt_c> &c,
                                                     Float alpha,
@@ -37,8 +36,7 @@ void dot_op<Float, lyt_a, lyt_b, lyt_c>::operator()(const context_cpu &ctx,
         constexpr bool is_a_trans = (lyt_a == layout::column_major);
         constexpr bool is_b_trans = (lyt_b == layout::column_major);
 
-        mkl::gemm<Float>(ctx,
-                         is_b_trans,
+        mkl::gemm<Float>(is_b_trans,
                          is_a_trans,
                          c.get_column_count(),
                          c.get_row_count(),
@@ -56,8 +54,7 @@ void dot_op<Float, lyt_a, lyt_b, lyt_c>::operator()(const context_cpu &ctx,
         constexpr bool is_a_trans = (lyt_a == layout::row_major);
         constexpr bool is_b_trans = (lyt_b == layout::row_major);
 
-        mkl::gemm<Float>(ctx,
-                         is_a_trans,
+        mkl::gemm<Float>(is_a_trans,
                          is_b_trans,
                          c.get_row_count(),
                          c.get_column_count(),
@@ -89,4 +86,4 @@ void dot_op<Float, lyt_a, lyt_b, lyt_c>::operator()(const context_cpu &ctx,
 INSTANTIATE_LAYOUTS(float)
 INSTANTIATE_LAYOUTS(double)
 
-} // namespace oneapi::dal::backend::linalg
+} // namespace oneapi::dal::test::engine::linalg

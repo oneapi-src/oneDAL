@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/linalg/loops.hpp"
+#include "oneapi/dal/test/engine/linalg/loops.hpp"
 
-namespace oneapi::dal::backend::linalg {
+namespace oneapi::dal::test::engine::linalg {
 
 template <typename T, layout lyt, typename Op>
 struct unary_op_result {
@@ -149,4 +149,4 @@ T l_inf_norm(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return max(abs(subtract(lhs, rhs)));
 }
 
-} // namespace oneapi::dal::backend::linalg
+} // namespace oneapi::dal::test::engine::linalg

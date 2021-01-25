@@ -54,6 +54,12 @@ tbb_repo(
     strip_prefix = "oneapi-tbb-2021.1-beta08",
 )
 
+load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
+mkl_repo(
+    name = "mkl",
+    root_env_var = "MKLROOT",
+)
+
 load("@onedal//dev/bazel/deps:onedal.bzl", "onedal_repo")
 onedal_repo(
     name = "onedal_release",
