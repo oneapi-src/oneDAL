@@ -43,23 +43,13 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data,
                                  const model_t& model) {
     const std::int64_t row_count = data.get_row_count();
-    const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = desc.get_component_count();
-
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    auto arr_eigvec = row_accessor<const Float>{ model.get_eigenvectors() }.pull();
 
     dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(row_count * component_count);
 
-    // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
-    // Need to create special immutable homogen table on daal interop side
-
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
-    const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
-    const auto daal_eigenvectors =
-        interop::convert_to_daal_homogen_table(arr_eigvec, component_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_eigenvectors = interop::convert_to_daal_table<Float>(model.get_eigenvectors());
     const auto daal_result =
         interop::convert_to_daal_homogen_table(arr_result, row_count, component_count);
 

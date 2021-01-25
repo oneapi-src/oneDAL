@@ -985,7 +985,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
         DFTreeConverterType converter;
         DAAL_CHECK_STATUS_VAR(converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper));
 
-        mdImpl.add(mTreeHelper._tree, 0 /*nClasses*/);
+        mdImpl.add(mTreeHelper._tree, 0 /*nClasses*/, iter);
 
         DAAL_CHECK_STATUS_VAR(computeResults(mTreeHelper._tree, dataBlock.getBlockPtr(), responseBlock.getBlockPtr(), _nSelectedRows, _nFeatures,
                                              oobRows, nOOBRows, oobBufferPerObs, varImpBlock.getBlockPtr(), varImpVariance.get(), iter + 1,

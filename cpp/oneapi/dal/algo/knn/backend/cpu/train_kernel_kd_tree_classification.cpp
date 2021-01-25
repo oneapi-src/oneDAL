@@ -50,12 +50,13 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     auto arr_data = row_accessor<const Float>{ data }.pull();
     auto arr_labels = row_accessor<const Float>{ labels }.pull();
 
+    // TODO: change the copy logic to preserve table type and metadata
     const auto daal_data =
         interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
 
     const std::int64_t dummy_seed = 777;
-    const auto data_use_in_model = daal_knn::doNotUse;
+    const auto data_use_in_model = daal_knn::doUse;
     daal_knn::Parameter daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
@@ -68,7 +69,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-    const bool copy_data_labels = true;
+    const bool copy_data_labels = data_use_in_model == daal_knn::doNotUse;
     knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
     knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
 
