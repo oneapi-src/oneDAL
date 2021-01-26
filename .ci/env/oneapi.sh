@@ -40,7 +40,7 @@ function install_dpcpp {
 }
 
 function install_mkl {
-    sudo apt-get install intel-oneapi-mkl
+    sudo apt-get install intel-oneapi-mkl-devel
     export MKLROOT=/opt/intel/oneapi/mkl/latest
 }
 
