@@ -142,7 +142,6 @@ jobs:
       git clone https://github.com/OnlyDeniko/daal4py.git
       cd daal4py
       git checkout run-tests
-      cd ..
     displayName: Clone daal4py
   - script: |
       .ci/env/clang.sh
