@@ -74,7 +74,7 @@ jobs:
                            openjdk-11-jdk \
                            bazel-4.0.0
 
-      source .ci/env/oneapi.sh mkl
+      .ci/env/oneapi.sh mkl
     displayName: 'apt-get'
 
   - script: |
@@ -107,6 +107,7 @@ jobs:
     displayName: 'cpp-examples-thread-release-dynamic'
 
   - script: |
+      export MKLROOT=/opt/intel/oneapi/mkl/latest
       bazel test //cpp/oneapi/dal:tests \
                  --config=host \
                  --test_link_mode=dev \
