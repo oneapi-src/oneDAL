@@ -254,3 +254,6 @@ data types:
    as specified in the algorithmFPType template parameter of the
    class.
 
+
+.. include:: ../../../opt-notice.rst
+
