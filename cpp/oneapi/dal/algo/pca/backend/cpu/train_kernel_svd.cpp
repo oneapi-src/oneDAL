@@ -33,6 +33,7 @@ using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 namespace daal_pca = daal::algorithms::pca;
+namespace daal_zscore = daal::algorithms::normalization::zscore;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
@@ -41,8 +42,7 @@ using daal_pca_svd_kernel_t = daal_pca::internal::
 
 template <typename Float>
 inline auto get_normalization_algorithm() {
-    using normalization_alg_t = daal::algorithms::normalization::zscore::
-        Batch<Float, daal::algorithms::normalization::zscore::defaultDense>;
+    using normalization_alg_t = daal_zscore::Batch<Float, daal_zscore::defaultDense>;
     return daal::services::SharedPtr<normalization_alg_t>{ new normalization_alg_t{} };
 }
 
@@ -70,9 +70,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_pca::internal::InputDataType dtype = daal_pca::internal::nonNormalizedDataset;
 
     auto norm_alg = get_normalization_algorithm<Float>();
-    norm_alg->input.set(daal::algorithms::normalization::zscore::data, daal_data);
-    norm_alg->parameter().resultsToCompute |= daal::algorithms::normalization::zscore::mean;
-    norm_alg->parameter().resultsToCompute |= daal::algorithms::normalization::zscore::variance;
+    norm_alg->input.set(daal_zscore::data, daal_data);
+    norm_alg->parameter().resultsToCompute |= daal_zscore::mean;
+    norm_alg->parameter().resultsToCompute |= daal_zscore::variance;
 
     daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
     parameter.normalization = norm_alg;
