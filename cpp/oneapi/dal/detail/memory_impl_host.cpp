@@ -20,42 +20,41 @@
 
 namespace oneapi::dal::detail::v1 {
 
-void* malloc_impl_host(const default_host_policy&, std::int64_t size) {
-    auto ptr = daal::services::daal_malloc(detail::integral_cast<std::size_t>(size));
+template <typename AllocOp>
+void* alloc_impl(AllocOp&& op, std::size_t size, std::size_t alignment) {
+    auto ptr = op(size, alignment);
     if (ptr == nullptr) {
         throw dal::host_bad_alloc();
     }
     return ptr;
 }
 
-void free_impl_host(const default_host_policy&, void* pointer) {
+void* malloc(const default_host_policy&, std::size_t size) {
+    return alloc_impl(daal::services::daal_malloc, size, daal::DAAL_MALLOC_DEFAULT_ALIGNMENT);
+}
+
+void* calloc(const default_host_policy&, std::size_t size) {
+    return alloc_impl(daal::services::daal_calloc, size, daal::DAAL_MALLOC_DEFAULT_ALIGNMENT);
+}
+
+void free(const default_host_policy&, void* pointer) {
     daal::services::daal_free(pointer);
 }
 
-void fill_impl_host(const default_host_policy&,
-                    void* dest,
-                    std::int64_t size,
-                    const void* pattern,
-                    std::int64_t pattern_size) {
+void fill(const default_host_policy&,
+          void* dest,
+          std::size_t size,
+          const void* pattern,
+          std::size_t pattern_size) {
     // TODO: can be optimized in future
+
+    ONEDAL_ASSERT(dest_size % pattern_size == 0);
 
     auto dest_bytes = static_cast<std::uint8_t*>(dest);
     auto pattern_bytes = static_cast<const std::uint8_t*>(pattern);
 
-    if (size < 0) {
-        throw dal::invalid_argument(detail::error_messages::dst_size_leq_zero());
-    }
 
-    if (pattern_size < 0) {
-        throw dal::invalid_argument(detail::error_messages::src_size_leq_zero());
-    }
-
-    if (size % pattern_size != 0) {
-        throw dal::invalid_argument(
-            detail::error_messages::fill_pattern_size_divides_src_size_with_remainder());
-    }
-
-    for (std::int64_t i = 0; i < size; i++) {
+    for (std::size_t i = 0; i < size; i++) {
         dest_bytes[i] = pattern_bytes[i % pattern_size];
     }
 }

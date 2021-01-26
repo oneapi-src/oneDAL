@@ -191,7 +191,7 @@ public:
                     std::int64_t column_count,
                     const sycl::vector_class<sycl::event>& dependencies = {}) {
         auto& impl = get_impl();
-        detail::wait_and_throw(dependencies);
+        sycl::event::wait_and_throw(dependencies);
         impl.copy_data(queue, data, row_count, column_count);
         return *this;
     }

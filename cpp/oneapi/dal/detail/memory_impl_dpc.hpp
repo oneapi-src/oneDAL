@@ -25,28 +25,27 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-ONEDAL_EXPORT void* malloc_impl_dpc(const data_parallel_policy&,
-                                    std::int64_t size,
-                                    const sycl::usm::alloc& alloc);
-ONEDAL_EXPORT void free_impl_dpc(const data_parallel_policy&, void* pointer);
-ONEDAL_EXPORT void fill_impl_dpc(const data_parallel_policy&,
-                                 void* dest,
-                                 std::int64_t size,
-                                 const void* pattern,
-                                 std::int64_t pattern_size);
+ONEDAL_EXPORT void* malloc(const data_parallel_policy&, std::size_t size, const sycl::usm::alloc&);
+ONEDAL_EXPORT void free(const data_parallel_policy&, void* pointer);
+ONEDAL_EXPORT void fill(const data_parallel_policy&,
+                        void* dest,
+                        std::size_t dest_size,
+                        const void* pattern,
+                        std::size_t pattern_size);
 
 template <typename T>
-T* malloc(const data_parallel_policy& policy, std::int64_t count, const sycl::usm::alloc& alloc) {
-    const std::int64_t bytes_count = sizeof(T) * count;
+inline T* malloc(const data_parallel_policy& policy, std::int64_t count, const sycl::usm::alloc& alloc) {
+    const std::size_t bytes_count = sizeof(T) * count;
     ONEDAL_ASSERT(bytes_count > count);
-    return static_cast<T*>(malloc_impl_host(policy, bytes_count, alloc));
+    return static_cast<T*>(malloc(policy, bytes_count, alloc));
 }
 
 template <typename T>
-void free(const data_parallel_policy& policy, T* pointer) {
+inline void free(const data_parallel_policy& policy, T* pointer) {
     using mutable_t = std::remove_const_t<T>;
-    free_impl_dpc(policy, const_cast<mutable_t*>(pointer));
+    free(policy, reinterpret_cast<void*>(const_cast<mutable_t*>(pointer)));
 }
+
 
 ONEDAL_EXPORT void memset(const data_parallel_policy& policy,
                           void* dest,
@@ -58,10 +57,10 @@ ONEDAL_EXPORT void memcpy(const data_parallel_policy& policy,
                           std::int64_t size);
 
 template <typename T>
-void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
-    const std::int64_t bytes_count = sizeof(T) * count;
+inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
+    const std::size_t bytes_count = sizeof(T) * count;
     ONEDAL_ASSERT(bytes_count > count);
-    fill_impl_host(policy, dest, bytes_count, &value, sizeof(T));
+    fill(policy, dest, bytes_count, &value, sizeof(T));
 }
 
 template <typename T>

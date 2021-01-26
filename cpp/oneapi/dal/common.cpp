@@ -15,13 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/common.hpp"
-
-#include <daal/include/services/daal_memory.h>
+#include "oneapi/dal/detail/memory.hpp"
 
 namespace oneapi::dal::v1 {
 
 void* base::operator new(std::size_t size) {
-    return daal::services::daal_calloc(size);
+    return detail::malloc(detail::default_host_policy{}, size);
 }
 
 void* base::operator new(std::size_t, void* where) {
@@ -29,7 +28,7 @@ void* base::operator new(std::size_t, void* where) {
 }
 
 void* base::operator new[](std::size_t size) {
-    return daal::services::daal_calloc(size);
+    return detail::calloc(detail::default_host_policy{}, size);
 }
 
 void* base::operator new[](std::size_t, void* where) {
@@ -37,11 +36,11 @@ void* base::operator new[](std::size_t, void* where) {
 }
 
 void base::operator delete(void* ptr, std::size_t) {
-    daal::services::daal_free(ptr);
+    detail::free(detail::default_host_policy{}, ptr);
 }
 
 void base::operator delete[](void* ptr, std::size_t) {
-    daal::services::daal_free(ptr);
+    detail::free(detail::default_host_policy{}, ptr);
 }
 
 } // namespace oneapi::dal::v1

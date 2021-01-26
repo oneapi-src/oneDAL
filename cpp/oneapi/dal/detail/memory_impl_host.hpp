@@ -24,24 +24,26 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-ONEDAL_EXPORT void* malloc_impl_host(const default_host_policy&, std::int64_t size);
-ONEDAL_EXPORT void free_impl_host(const default_host_policy&, void* pointer);
-ONEDAL_EXPORT void fill_impl_host(const default_host_policy&,
-                                  void* dest,
-                                  std::int64_t size,
-                                  const void* pattern,
-                                  std::int64_t pattern_size);
+ONEDAL_EXPORT void* malloc(const default_host_policy&, std::size_t size);
+ONEDAL_EXPORT void* calloc(const default_host_policy&, std::size_t size);
+ONEDAL_EXPORT void free(const default_host_policy&, void* pointer);
+ONEDAL_EXPORT void fill(const default_host_policy&,
+                        void* dest,
+                        std::size_t size,
+                        const void* pattern,
+                        std::size_t pattern_size);
 
 template <typename T>
-T* malloc(const default_host_policy& policy, std::int64_t count) {
-    const std::int64_t bytes_count = sizeof(T) * count;
+inline T* malloc(const default_host_policy& policy, std::int64_t count) {
+    const std::size_t bytes_count = sizeof(T) * count;
     ONEDAL_ASSERT(bytes_count > count);
-    return static_cast<T*>(malloc_impl_host(policy, bytes_count));
+    return static_cast<T*>(malloc(policy, bytes_count));
 }
 
 template <typename T>
-void free(const default_host_policy& policy, T* pointer) {
-    free_impl_host(policy, pointer);
+inline void free(const default_host_policy& policy, T* pointer) {
+    using mutable_t = std::remove_const_t<T>;
+    free(policy, reinterpret_cast<void*>(const_cast<mutable_t*>(pointer)));
 }
 
 ONEDAL_EXPORT void memset(const default_host_policy&,
@@ -54,10 +56,10 @@ ONEDAL_EXPORT void memcpy(const default_host_policy&,
                           std::int64_t size);
 
 template <typename T>
-void fill(const default_host_policy& policy, T* dest, std::int64_t count, const T& value) {
+inline void fill(const default_host_policy& policy, T* dest, std::int64_t count, const T& value) {
     const std::int64_t bytes_count = sizeof(T) * count;
     ONEDAL_ASSERT(bytes_count > count);
-    fill_impl_host(policy, dest, bytes_count, &value, sizeof(T));
+    fill(policy, dest, bytes_count, &value, sizeof(T));
 }
 
 template <typename T>
@@ -74,6 +76,7 @@ public:
 } // namespace v1
 
 using v1::malloc;
+using v1::calloc;
 using v1::free;
 using v1::memset;
 using v1::memcpy;
