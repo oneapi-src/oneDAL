@@ -44,9 +44,9 @@ public:
                           "Both row count and column count must be zeros, "
                           "but got non-zero column count");
         }
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, row_count, column_count);
         shape_[0] = row_count;
         shape_[1] = column_count;
-        ONEDAL_ASSERT(get_count() / get_column_count() == get_row_count(), "Shape count overflow");
     }
 
     std::int64_t operator[](std::int64_t i) const {

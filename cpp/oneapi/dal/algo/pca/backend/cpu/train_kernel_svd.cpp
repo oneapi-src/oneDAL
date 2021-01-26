@@ -37,7 +37,7 @@ namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_pca_svd_kernel_t = daal_pca::internal::
-    PCASVDBatchKernel<Float, daal_pca::interface3::BatchParameter<Float, daal_pca::svdDense>, Cpu>;
+    PCASVDBatchKernel<Float, daal_pca::BatchParameter<Float, daal_pca::svdDense>, Cpu>;
 
 template <typename Float>
 inline auto get_normalization_algorithm() {
@@ -74,7 +74,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     norm_alg->parameter().resultsToCompute |= daal::algorithms::normalization::zscore::mean;
     norm_alg->parameter().resultsToCompute |= daal::algorithms::normalization::zscore::variance;
 
-    daal_pca::interface3::BatchParameter<Float, daal_pca::svdDense> parameter;
+    daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
     parameter.normalization = norm_alg;
     parameter.resultsToCompute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
