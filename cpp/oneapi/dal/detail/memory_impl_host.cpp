@@ -43,7 +43,7 @@ void free(const default_host_policy&, void* pointer) {
 
 void fill(const default_host_policy&,
           void* dest,
-          std::size_t size,
+          std::size_t dest_size,
           const void* pattern,
           std::size_t pattern_size) {
     // TODO: can be optimized in future
@@ -54,7 +54,7 @@ void fill(const default_host_policy&,
     auto pattern_bytes = static_cast<const std::uint8_t*>(pattern);
 
 
-    for (std::size_t i = 0; i < size; i++) {
+    for (std::size_t i = 0; i < dest_size; i++) {
         dest_bytes[i] = pattern_bytes[i % pattern_size];
     }
 }
@@ -69,7 +69,7 @@ void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_
     std::int32_t status =
         daal::services::internal::daal_memcpy_s(dest, converted_size, src, converted_size);
     if (status) {
-        throw dal::internal_error(detail::error_messages::fill_memory_error());
+        throw dal::internal_error(detail::error_messages::unknown_memcpy_error());
     }
 }
 

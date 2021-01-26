@@ -39,7 +39,7 @@ MSG(small_data_block, "Data block size is smaller than expected")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")
-MSG(unknowm_memcpy_error, "Unknown error during memory copying")
+MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 
 /* Tables */

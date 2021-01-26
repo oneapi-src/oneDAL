@@ -35,8 +35,8 @@ ONEDAL_EXPORT void fill(const default_host_policy&,
 
 template <typename T>
 inline T* malloc(const default_host_policy& policy, std::int64_t count) {
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
     const std::size_t bytes_count = sizeof(T) * count;
-    ONEDAL_ASSERT(bytes_count > count);
     return static_cast<T*>(malloc(policy, bytes_count));
 }
 
@@ -57,8 +57,8 @@ ONEDAL_EXPORT void memcpy(const default_host_policy&,
 
 template <typename T>
 inline void fill(const default_host_policy& policy, T* dest, std::int64_t count, const T& value) {
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
     const std::int64_t bytes_count = sizeof(T) * count;
-    ONEDAL_ASSERT(bytes_count > count);
     fill(policy, dest, bytes_count, &value, sizeof(T));
 }
 
