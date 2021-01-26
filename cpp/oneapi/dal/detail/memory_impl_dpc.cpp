@@ -19,7 +19,7 @@
 
 namespace oneapi::dal::detail::v1 {
 
-bool is_known_usm_pointer_type(const data_parallel_policy& policy, void* pointer) {
+bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* pointer) {
     auto& queue = policy.get_queue();
     auto context = queue.get_context();
 
