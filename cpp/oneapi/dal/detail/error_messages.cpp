@@ -38,11 +38,8 @@ MSG(unsupported_device_type, "Requested device type is not supported")
 MSG(small_data_block, "Data block size is smaller than expected")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(method_not_implemented, "Method is not implemented")
-MSG(fill_memory_error, "Fill memory function returns error code")
-MSG(dst_size_leq_zero, "Destination array size is lower than or equal to zero")
-MSG(src_size_leq_zero, "Source array size is lower than or equal to zero")
-MSG(fill_pattern_size_divides_src_size_with_remainder,
-    "Size of fill pattern array divides the size source array size with remainder")
+MSG(unsupported_feature_type, "Feature type is not supported")
+MSG(unknowm_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 
 /* Tables */

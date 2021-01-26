@@ -74,10 +74,8 @@ public:
     MSG(small_data_block);
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
-    MSG(fill_memory_error);
-    MSG(dst_size_leq_zero);
-    MSG(src_size_leq_zero);
-    MSG(fill_pattern_size_divides_src_size_with_remainder);
+    MSG(unsupported_feature_type);
+    MSG(unknowm_memcpy_error);
     MSG(unknown_usm_pointer_type);
 
     /* Tables */
