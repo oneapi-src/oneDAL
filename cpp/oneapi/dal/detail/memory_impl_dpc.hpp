@@ -19,7 +19,6 @@
 #ifdef ONEDAL_DATA_PARALLEL
 #include <cstring>
 
-#include "oneapi/dal/detail/common_dpc.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {

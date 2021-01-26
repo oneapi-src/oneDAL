@@ -36,7 +36,7 @@ void* malloc(const data_parallel_policy& policy, std::size_t size, const sycl::u
         if (alloc == sycl::usm::alloc::shared || alloc == sycl::usm::alloc::host) {
             throw dal::host_bad_alloc();
         }
-        else if (alloc = sycl::usm::alloc::device) {
+        else if (alloc == sycl::usm::alloc::device) {
             throw dal::device_bad_alloc();
         }
         else {
