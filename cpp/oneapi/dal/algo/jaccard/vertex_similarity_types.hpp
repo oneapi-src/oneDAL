@@ -21,18 +21,10 @@
 #pragma once
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/algo/jaccard/detail/vertex_similarity_types.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
-
-namespace detail {
-template <typename Graph>
-class vertex_similarity_input_impl;
-class vertex_similarity_result_impl;
-} // namespace detail
 
 /// Class for the description of the input parameters of the Jaccard Similarity
 /// algorithm
@@ -93,19 +85,6 @@ public:
 private:
     dal::detail::pimpl<detail::vertex_similarity_result_impl> impl_;
 };
-
-namespace detail {
-template <typename Graph>
-class vertex_similarity_input_impl : public base {
-public:
-    vertex_similarity_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
-            : graph_data(graph_data_input),
-              builder(builder_input) {}
-
-    const Graph& graph_data;
-    caching_builder& builder;
-};
-} // namespace detail
 
 template <typename Graph>
 vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data,

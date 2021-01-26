@@ -164,32 +164,4 @@ undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType,
     return *this;
 }
 
-namespace detail {
-// service to construct required csr for an algorithm
-template <typename Graph>
-struct csr_topology_builder {
-    const dal::preview::detail::topology<vertex_type<Graph>> &operator()(const Graph &graph) {
-        return topology<vertex_type<Graph>>{};
-    }
-};
-
-template <typename VertexValue,
-          typename EdgeValue,
-          typename GraphValue,
-          typename IndexType,
-          typename Allocator>
-struct csr_topology_builder<
-    undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> {
-    const topology<IndexType> &operator()(
-        const undirected_adjacency_vector_graph<VertexValue,
-                                                EdgeValue,
-                                                GraphValue,
-                                                IndexType,
-                                                Allocator> &graph) {
-        return dal::detail::get_impl(graph).get_topology();
-    }
-};
-
-} //namespace detail
-
 } // namespace oneapi::dal::preview

@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/algo/jaccard/common.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {

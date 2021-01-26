@@ -23,6 +23,7 @@
 #include "oneapi/dal/algo/jaccard/detail/vertex_similarity_ops.hpp"
 
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_topology_builder.hpp"
 
 namespace oneapi::dal::preview::jaccard::detail {
 
