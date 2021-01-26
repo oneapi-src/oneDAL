@@ -73,6 +73,8 @@ jobs:
                            binutils \
                            openjdk-11-jdk \
                            bazel-4.0.0
+
+      source .ci/env/oneapi.sh mkl
     displayName: 'apt-get'
 
   - script: |
@@ -130,7 +132,7 @@ jobs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
   - script: |
-        .ci/env/dpcpp.sh
+        .ci/env/oneapi.sh dpcpp
     displayName: 'Create dpcpp enviroment'
   - script: |
       sudo apt-get install git
