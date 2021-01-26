@@ -19,8 +19,7 @@
 
 namespace oneapi::dal::detail::v1 {
 
-bool is_known_usm_pointer_type(const data_parallel_policy& policy,
-                               void* pointer) {
+bool is_known_usm_pointer_type(const data_parallel_policy& policy, void* pointer) {
     auto& queue = policy.get_queue();
     auto context = queue.get_context();
 
@@ -29,9 +28,7 @@ bool is_known_usm_pointer_type(const data_parallel_policy& policy,
     return pointer_type != sycl::usm::alloc::unknown;
 }
 
-void* malloc(const data_parallel_policy& policy,
-             std::size_t size,
-             const sycl::usm::alloc& alloc) {
+void* malloc(const data_parallel_policy& policy, std::size_t size, const sycl::usm::alloc& alloc) {
     auto& queue = policy.get_queue();
 
     auto ptr = sycl::malloc(size, queue, alloc);
@@ -70,9 +67,11 @@ void fill(const data_parallel_policy& policy,
 
     auto& queue = policy.get_queue();
     auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(dest_size), [=](sycl::id<1> idx) {
-            dest_bytes[idx[0]] = pattern_bytes[idx[0] % pattern_size];
-        });
+        cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(dest_size),
+                                                       [=](sycl::id<1> idx) {
+                                                           dest_bytes[idx[0]] =
+                                                               pattern_bytes[idx[0] % pattern_size];
+                                                       });
     });
 
     event.wait();

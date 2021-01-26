@@ -34,7 +34,9 @@ ONEDAL_EXPORT void fill(const data_parallel_policy&,
                         std::size_t pattern_size);
 
 template <typename T>
-inline T* malloc(const data_parallel_policy& policy, std::int64_t count, const sycl::usm::alloc& alloc) {
+inline T* malloc(const data_parallel_policy& policy,
+                 std::int64_t count,
+                 const sycl::usm::alloc& alloc) {
     ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
     const std::size_t bytes_count = sizeof(T) * count;
     return static_cast<T*>(malloc(policy, bytes_count, alloc));
@@ -45,7 +47,6 @@ inline void free(const data_parallel_policy& policy, T* pointer) {
     using mutable_t = std::remove_const_t<T>;
     free(policy, reinterpret_cast<void*>(const_cast<mutable_t*>(pointer)));
 }
-
 
 ONEDAL_EXPORT void memset(const data_parallel_policy& policy,
                           void* dest,

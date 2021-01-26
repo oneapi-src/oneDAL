@@ -53,7 +53,6 @@ void fill(const default_host_policy&,
     auto dest_bytes = static_cast<std::uint8_t*>(dest);
     auto pattern_bytes = static_cast<const std::uint8_t*>(pattern);
 
-
     for (std::size_t i = 0; i < dest_size; i++) {
         dest_bytes[i] = pattern_bytes[i % pattern_size];
     }
