@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-//#include <algorithm>
-
 #include "oneapi/dal/io/detail/load_graph.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
@@ -74,9 +72,7 @@ void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
-
         dal::detail::parallel_sort(start_p, end_p);
-        //std::sort(start_p, end_p);
         auto neighs_u_new_end = std::unique(start_p, end_p);
         neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
         new_degrees[u] = (std::int32_t)std::distance(start_p, neighs_u_new_end);

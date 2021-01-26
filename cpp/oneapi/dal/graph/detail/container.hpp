@@ -21,6 +21,6 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename T>
-using container = dal::v1::array<T>;
+using container = dal::array<T>;
 
 } // namespace oneapi::dal::preview::detail

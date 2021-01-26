@@ -38,4 +38,5 @@ template <typename Descriptor = descriptor<>, typename DataSource = graph_csv_da
 ONEDAL_EXPORT output_type<Descriptor> load(const Descriptor &desc, const DataSource &data_source) {
     return detail::load_impl(desc, data_source);
 }
+
 } // namespace oneapi::dal::preview::load_graph
