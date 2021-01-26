@@ -1072,7 +1072,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
         for (size_t tree = 0; tree < nTrees; tree++)
         {
-            mdImpl.add(mTreeHelper._tree_list[tree], 0 /*nClasses*/);
+            mdImpl.add(mTreeHelper._tree_list[tree], 0 /*nClasses*/, iter + tree);
 
             DAAL_CHECK_STATUS_VAR(computeResults(mTreeHelper._tree_list[tree], dataBlock.getBlockPtr(), responseBlock.getBlockPtr(), _nSelectedRows,
                                                  _nFeatures, oobRows, oobRowsNumList, oobBufferPerObs, varImpBlock.getBlockPtr(),

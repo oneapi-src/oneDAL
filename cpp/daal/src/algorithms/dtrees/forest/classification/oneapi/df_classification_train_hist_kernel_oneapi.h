@@ -173,8 +173,8 @@ private:
 
     const size_t _minPreferableLocalSizeForPartHistKernel = 32;
 
-    const size_t _maxPartHistCumulativeSize      = 805306368; // 768 Mb
-    const size_t _maxTreeObservationsMapSize     = 134217728; // 128 Mb
+    const size_t _maxPartHistCumulativeSize      = 805306368;     // 768 Mb
+    const size_t _maxTreeObservationsMapSize     = 134217728 * 8; // 1024 Mb
     const size_t _minRowsBlocksForMaxPartHistNum = 16384;
     const size_t _minRowsBlocksForOneHist        = 128;
     const size_t _maxNumOfTreesInBlock           = 128;
