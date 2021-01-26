@@ -17,7 +17,7 @@
 
 # Intel&reg; oneAPI Data Analytics Library <!-- omit in toc -->
 
-[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](#documentation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Samples](#samples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Get Help](https://community.intel.com/t5/Intel-oneAPI-Data-Analytics/bd-p/oneapi-data-analytics-library)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
+[Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](#documentation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Support](#support)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Samples](#samples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
 [![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/oneapi-src.oneDAL?branchName=master)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=5&branchName=master) ![License](https://img.shields.io/github/license/oneapi-src/oneDAL.svg)
 
@@ -33,6 +33,7 @@ Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Anal
 - [oneDAL Apache Spark MLlib samples](#onedal-apache-spark-mllib-samples)
 - [Installation](#installation)
 - [Documentation](#documentation)
+- [Support](#support)
 - [Technical Preview Features](#technical-preview-features)
 - [oneDAL and Intel&reg; DAAL](#onedal-and-intel-daal)
 
@@ -201,6 +202,18 @@ Except C++ and Python API oneDAL also provide API for C++ SYCL and Java language
 - [Release Notes](https://software.intel.com/content/www/us/en/develop/articles/oneapi-dal-release-notes.html)
 - [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
 
+## Support
+Report issues, ask questions, and provide suggestions using:
+
+- [GitHub Issues](https://github.com/oneapi-src/oneDAL/issues)
+- [Forum](https://community.intel.com/t5/Intel-oneAPI-Data-Analytics/bd-p/oneapi-data-analytics-library)
+
+You may reach out to project maintainers privately at onedal.maintainers@intel.com.
+
+### Security
+
+To report a vulnerability, refer to [Intel vulnerability reporting policy](https://www.intel.com/content/www/us/en/security-center/default.html).
+
 ## Samples <!-- omit in toc -->
 Samples is an examples of how oneDAL can be used in different applications.
 - [Apache Arrow](https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/arrow)
@@ -241,7 +254,3 @@ See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 Distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
 information.
-
-## Security <!-- omit in toc -->
-
-To report a vulnerability, refer to [Intel vulnerability reporting policy](https://www.intel.com/content/www/us/en/security-center/default.html).
