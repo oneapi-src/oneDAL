@@ -17,8 +17,8 @@
 #include <iostream>
 
 #include "example_util/utils.hpp"
-#include "oneapi/dal/graph/graph_service_functions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
     const dal::preview::graph_csv_data_source ds(filename);
-    using my_graph_type = dal::preview::undirected_adjacency_array_graph<>;
+    using my_graph_type = dal::preview::undirected_adjacency_vector_graph<>;
     const dal::preview::load_graph::descriptor<dal::preview::edge_list<int32_t>, my_graph_type>
         desc;
     const auto my_graph = dal::preview::load_graph::load(desc, ds);
@@ -49,5 +49,30 @@ int main(int argc, char **argv) {
         }
         std::cout << std::endl;
     }
+
+std::cout << std::endl << std::endl;
+    using my_graph_type2 = dal::preview::undirected_adjacency_vector_graph<dal::preview::empty_value,dal::preview::empty_value, dal::preview::empty_value, int64_t, std::allocator<char>>;
+    const dal::preview::load_graph::descriptor<dal::preview::edge_list<int64_t>, my_graph_type2>
+        desc2;
+    //my_graph_type2 g3;
+    const auto my_graph2 = dal::preview::load_graph::load<dal::preview::load_graph::descriptor<dal::preview::edge_list<int64_t>, my_graph_type2>>(desc2, ds);
+    std::cout << "Number of vertices: " << dal::preview::get_vertex_count(my_graph2) << std::endl;
+    std::cout << "Number of edges: " << dal::preview::get_edge_count(my_graph2) << std::endl;
+
+    dal::preview::vertex_type<my_graph_type> vertex_id2 = 0;
+    std::cout << "Degree of " << vertex_id2 << ": "
+              << dal::preview::get_vertex_degree(my_graph2, vertex_id2) << std::endl;
+
+    for (dal::preview::vertex_size_type<my_graph_type2> j = 0;
+         j < dal::preview::get_vertex_count(my_graph2);
+         ++j) {
+        std::cout << "Neighbors of " << j << ": ";
+        const auto neigh = dal::preview::get_vertex_neighbors(my_graph2, j);
+        for (auto i = neigh.first; i != neigh.second; ++i) {
+            std::cout << *i << " ";
+        }
+        std::cout << std::endl;
+    }
+
     return 0;
 }

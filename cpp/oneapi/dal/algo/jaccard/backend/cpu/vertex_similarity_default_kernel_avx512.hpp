@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include <immintrin.h>
 
 #include <daal/src/services/service_defines.h>
@@ -25,7 +27,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
+#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
@@ -344,12 +346,12 @@ DAAL_FORCEINLINE std::size_t intersection(const std::int32_t *neigh_u,
 template <typename Cpu>
 vertex_similarity_result call_jaccard_default_kernel_avx512(
     const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    const auto &my_graph = input.get_graph();
-    const auto &g = dal::detail::get_impl(my_graph);
-    auto g_edge_offsets = g._edge_offsets.data();
-    auto g_vertex_neighbors = g._vertex_neighbors.data();
-    auto g_degrees = g._degrees.data();
+    const dal::preview::detail::topology<std::int32_t> &data,
+    void *result_ptr) {
+    const auto g_edge_offsets = data._rows.get_data();
+    const auto g_vertex_neighbors = data._cols.get_data();
+    const auto g_degrees = data._degrees.get_data();
+
     const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin =
@@ -357,8 +359,6 @@ vertex_similarity_result call_jaccard_default_kernel_avx512(
     const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
     const auto number_elements_in_block =
         compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const auto max_block_size = compute_max_block_size(number_elements_in_block);
-    void *result_ptr = input.get_caching_builder()(max_block_size);
     std::int32_t *first_vertices = reinterpret_cast<std::int32_t *>(result_ptr);
     std::int32_t *second_vertices = first_vertices + number_elements_in_block;
     float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);

@@ -1,3 +1,4 @@
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -13,14 +14,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 #pragma once
 
-#include <vector>
+#include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview::detail {
 
-template <class T, class Allocator = std::allocator<T>>
-using graph_container = std::vector<T, Allocator>;
+template <typename T = std::int32_t, typename Allocator = std::allocator<char>>
+using edge_list_container = vector_container<T, Allocator>;
 
 } // namespace oneapi::dal::preview::detail
