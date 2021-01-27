@@ -38,6 +38,7 @@ void* malloc(const data_parallel_policy& policy, std::size_t size, const sycl::u
 }
 
 void free(const data_parallel_policy& policy, void* pointer) {
+    ONEDAL_ASSERT(pointer == nullptr || is_known_usm_pointer_type(policy, pointer));
     sycl::free(pointer, policy.get_queue());
 }
 
