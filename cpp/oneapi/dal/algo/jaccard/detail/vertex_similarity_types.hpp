@@ -22,9 +22,7 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace detail {
+namespace oneapi::dal::preview::jaccard::detail {
 
 class vertex_similarity_result_impl;
 
@@ -39,6 +37,4 @@ public:
     caching_builder& builder;
 };
 
-} // namespace detail
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard::detail

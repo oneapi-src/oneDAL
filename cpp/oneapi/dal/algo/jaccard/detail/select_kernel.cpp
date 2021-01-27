@@ -1,4 +1,3 @@
-
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
 *
@@ -15,14 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/jaccard/detail/vertex_similarity_ops.hpp"
+#include "oneapi/dal/algo/jaccard/detail/select_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace detail {
+namespace oneapi::dal::preview::jaccard::detail {
 
 template <typename Float, typename Method>
 vertex_similarity_result backend_default<dal::detail::host_policy,
@@ -33,7 +30,6 @@ operator()(const dal::detail::host_policy &policy,
            const descriptor_base &desc,
            const dal::preview::detail::topology<std::int32_t> &data,
            void *result_ptr) {
-    //call specialization function by Index in tpology
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return call_jaccard_default_kernel_int32<decltype(cpu)>(desc, data, result_ptr);
     });
@@ -44,6 +40,4 @@ template struct backend_default<dal::detail::host_policy,
                                 dal::preview::jaccard::method::fast,
                                 dal::preview::detail::topology<std::int32_t>>;
 
-} // namespace detail
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard::detail
