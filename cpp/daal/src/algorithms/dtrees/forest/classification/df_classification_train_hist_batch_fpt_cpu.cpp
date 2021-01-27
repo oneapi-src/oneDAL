@@ -1,6 +1,6 @@
 /* file: df_classification_train_hist_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 */
 
 #include "src/algorithms/dtrees/forest/classification/df_classification_train_container.h"
+#include "src/algorithms/dtrees/forest/classification/df_classification_train_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/classification/df_classification_train_kernel.h"
 
 namespace daal

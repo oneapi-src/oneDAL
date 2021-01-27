@@ -1,6 +1,6 @@
 /* file: pca_dense_correlation_distr_step2_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,6 +29,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(pca::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, pca::correlationDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(pca::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, pca::correlationDense)
 }
 } // namespace daal

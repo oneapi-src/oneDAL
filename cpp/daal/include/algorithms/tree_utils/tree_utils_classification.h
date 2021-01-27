@@ -1,6 +1,6 @@
 /* file: tree_utils_classification.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__CLASSIFICATION__LEAFNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of leaf node in classification descision tree
+ * \brief %Struct containing description of leaf node in classification decision tree
  */
 struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 {
@@ -65,7 +65,7 @@ namespace interface2
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__CLASSIFICATION__LEAFNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of leaf node in classification descision tree
+ * \brief %Struct containing description of leaf node in classification decision tree
  */
 struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 {

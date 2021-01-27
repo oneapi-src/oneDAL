@@ -1,6 +1,6 @@
 /* file: tree_utils.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__NODEDESCRIPTOR"></a>
- * \brief %Struct containing base description of node in descision tree
+ * \brief %Struct containing base description of node in decision tree
  */
 struct DAAL_EXPORT NodeDescriptor
 {
@@ -53,7 +53,7 @@ struct DAAL_EXPORT NodeDescriptor
 
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__SPLITNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of split node in descision tree
+ * \brief %Struct containing description of split node in decision tree
  */
 struct DAAL_EXPORT SplitNodeDescriptor : public NodeDescriptor
 {

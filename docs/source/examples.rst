@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _oneapi_dal_examples:
+
 oneAPI Examples
 ###############
 
@@ -23,11 +25,3 @@ oneAPI Examples
    
    DPC++ <examples/dpc.rst>
    C++ <examples/cpp.rst>
-
-.. note::
-
-   You can find other examples on Github*:
-
-   - `C++ <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source>`_ (CPU)
-   - `Java* <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples>`_ (not supported on GPU)
-   - `Python* <https://github.com/IntelPython/daal4py/tree/master/examples>`_

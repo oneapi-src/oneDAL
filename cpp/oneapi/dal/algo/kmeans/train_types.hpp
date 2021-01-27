@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ using v1::train_result_impl;
 
 namespace v1 {
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::clustering`.
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -44,8 +46,13 @@ public:
     using task_t = Task;
 
     train_input(const table& data);
+
+    /// Creates a new instance of the class with the given :literal:`data` and
+    /// :literal:`initial_centroids`
     train_input(const table& data, const table& initial_centroids);
 
+    /// An $n \\times p$ table with the data to be clustered, where each row
+    /// stores one feature vector.
     const table& get_data() const;
 
     auto& set_data(const table& data) {
@@ -53,6 +60,8 @@ public:
         return *this;
     }
 
+    /// A $k \\times p$ table with the initial centroids, where each row
+    /// stores one centroid.
     const table& get_initial_centroids() const;
 
     auto& set_initial_centroids(const table& data) {
@@ -68,6 +77,8 @@ private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::clustering`.
 template <typename Task = task::by_default>
 class train_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -75,8 +86,11 @@ class train_result {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     train_result();
 
+    /// The trained K-means model
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -84,6 +98,9 @@ public:
         return *this;
     }
 
+    /// An $n \\times 1$ table with the labels $y_i$ assigned to the
+    /// samples $x_i$ in the input data, $1 \\leq 1 \\leq n$.
+    /// @remark default = table{}
     const table& get_labels() const;
 
     auto& set_labels(const table& value) {
@@ -91,6 +108,9 @@ public:
         return *this;
     }
 
+    /// The number of iterations performed by the algorithm.
+    /// @remark default = 0
+    /// @invariant :expr:`iteration_count >= 0`
     int64_t get_iteration_count() const;
 
     auto& set_iteration_count(std::int64_t value) {
@@ -98,6 +118,9 @@ public:
         return *this;
     }
 
+    /// The value of the objective function $\\Phi_X(C)$, where C is
+    /// :expr:`model.centroids` (see :expr:`kmeans::v1::model::centroids`).
+    /// @invariant :expr:`objective_function_value >= 0.0`
     double get_objective_function_value() const;
 
     auto& set_objective_function_value(double value) {

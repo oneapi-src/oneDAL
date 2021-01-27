@@ -1,6 +1,6 @@
 /* file: kmeans_dense_lloyd_kernel_base_ucapi_impl.i */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.

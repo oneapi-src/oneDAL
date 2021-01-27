@@ -1,6 +1,6 @@
 /* file: identifiers_impl.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -219,7 +219,7 @@ public:
         }
 
         /* Positive indices in the range [0, nf - 1] and negative indices in the range [ -nf, -1 ] are allowed.
-         * Negative indices shoud be interpreted as a result of subtraction nf - abs(index) */
+         * Negative indices should be interpreted as a result of subtraction nf - abs(index) */
         const InternalIndex nf = (InternalIndex)numberOfFeatures;
         if (_index >= nf || _index < -nf)
         {

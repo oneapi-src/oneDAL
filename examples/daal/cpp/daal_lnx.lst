@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2020 Intel Corporation
+# Copyright 2014-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,11 +58,13 @@ DAAL  = assoc_rules_apriori_batch             \
         datastructures_packedtriangular       \
         dbscan_dense_batch                    \
         dbscan_dense_distr                    \
-        df_cls_dense_batch                    \
+        df_cls_default_dense_batch            \
         df_cls_dense_batch_model_builder      \
+        df_cls_hist_dense_batch               \
         df_cls_traverse_model                 \
         df_cls_traversed_model_builder        \
-        df_reg_dense_batch                    \
+        df_reg_default_dense_batch            \
+        df_reg_hist_dense_batch               \
         df_reg_traverse_model                 \
         dt_cls_dense_batch                    \
         dt_cls_traverse_model                 \

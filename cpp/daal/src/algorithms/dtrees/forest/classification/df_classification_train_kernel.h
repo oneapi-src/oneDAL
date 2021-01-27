@@ -1,6 +1,6 @@
 /* file: df_classification_train_kernel.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,10 +50,7 @@ class ClassificationTrainBatchKernel : public daal::algorithms::Kernel
 public:
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
                              decision_forest::classification::Model & m, Result & res,
-                             const decision_forest::classification::training::Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
+                             const decision_forest::classification::training::Parameter & par);
 };
 
 } // namespace internal

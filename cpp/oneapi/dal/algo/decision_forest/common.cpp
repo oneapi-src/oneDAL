@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public:
     explicit descriptor_impl() {
         if constexpr (std::is_same_v<Task, task::classification>) {
             class_count = 2;
-            min_observations_in_leaf_node = 2;
+            min_observations_in_leaf_node = 1;
         }
         else if constexpr (std::is_same_v<Task, task::regression>) {
             class_count = -1;

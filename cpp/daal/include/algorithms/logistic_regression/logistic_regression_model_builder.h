@@ -1,6 +1,6 @@
 /* file: logistic_regression_model_builder.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ public:
     /**
      *  Method to set betas to model via random access iterator, last - first value have to be equal to (_nFeatures)*_nClasses
      *  in case when intercept flag is suppose to be false and (_nFeatures + 1)*_nClasses when intercept flag is true
-     * \tparam RandomIterator Random access iterator type for access to values of suport vectors
+     * \tparam RandomIterator Random access iterator type for access to values of support vectors
      *  \param[in] first      Iterator which point to first element of support vectors
      *  \param[in] last       Iterator which point to last element of support vectors
      */

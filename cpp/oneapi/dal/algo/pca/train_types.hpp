@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ using v1::train_result_impl;
 
 namespace v1 {
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::dim_reduction`.
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -43,8 +45,13 @@ class train_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`data`
+    /// property value
     train_input(const table& data);
 
+    /// An $n \\times p$ table with the training data, where each row stores one
+    /// feature vector.
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& data) {
@@ -59,6 +66,8 @@ private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::dim_reduction`.
 template <typename Task = task::by_default>
 class train_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -66,10 +75,17 @@ class train_result {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     train_result();
 
+    /// An $r \\times p$ table with the eigenvectors. Each row contains one
+    /// eigenvector.
+    /// @remark default = table{}
+    /// @invariant :expr:`eigenvectors == model.eigenvectors`
     const table& get_eigenvectors() const;
 
+    /// The trained PCA model
+    /// @remark default = model<Task>{}
     const model<Task>& get_model() const;
 
     auto& set_model(const model<Task>& value) {
@@ -77,6 +93,9 @@ public:
         return *this;
     }
 
+    /// A $1 \\times r$ table that contains the eigenvalues for for the first
+    /// :literal:`r` features.
+    /// @remark default = table{}
     const table& get_eigenvalues() const;
 
     auto& set_eigenvalues(const table& value) {
@@ -84,6 +103,9 @@ public:
         return *this;
     }
 
+    /// A $1 \\times r$ table that contains the variances for the first :literal:`r`
+    /// features.
+    /// @remark default = table{}
     const table& get_variances() const;
 
     auto& set_variances(const table& value) {
@@ -91,6 +113,9 @@ public:
         return *this;
     }
 
+    /// A $1 \\times r$ table that contains the mean values for the first :literal:`r`
+    /// features.
+    /// @remark default = table{}
     const table& get_means() const;
 
     auto& set_means(const table& value) {

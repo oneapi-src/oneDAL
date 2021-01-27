@@ -1,6 +1,6 @@
 /* file: logistic_regression_train_dense_default_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ services::Status TrainBatchKernelOneAPI<algorithmFPType, method>::compute(const 
     if (nClasses != 2)
     {
         const algorithmFPType initialVal = algorithmFPType(1e-3);
-        DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, initialVal, argumentBuff, nClasses, p));
+        DAAL_CHECK_STATUS(status, HelperObjectiveFunction::setColElem(0, initialVal, argumentBuff, nClasses, nBeta));
     }
 
     //initialize solver arguments

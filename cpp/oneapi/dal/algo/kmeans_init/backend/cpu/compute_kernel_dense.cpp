@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,10 +45,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    const auto daal_data = interop::convert_to_daal_homogen_table(arr_data,
-                                                                  data.get_row_count(),
-                                                                  data.get_column_count());
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const size_t len_input = 1;
     daal::data_management::NumericTable* input[len_input] = { daal_data.get() };
 

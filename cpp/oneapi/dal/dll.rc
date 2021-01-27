@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ BEGIN
             VALUE "OriginalFilename", ORIG_FILE_NAME
             VALUE "CompanyName", "Intel Corporation\0"
             VALUE "FileVersion", FILE_VERSION_STR
-            VALUE "LegalCopyright", "Copyright 2020, Intel Corporation.\0"
+            VALUE "LegalCopyright", "Copyright 2021, Intel Corporation.\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", PRODUCT_NAME_STR

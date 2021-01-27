@@ -1,6 +1,6 @@
 /* file: TrainingBatch.java */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class TrainingBatch extends com.intel.daal.algorithms.TrainingBatch {
 
         this.method = method;
 
-        if (this.method != TrainingMethod.defaultDense) {
+        if (this.method != TrainingMethod.defaultDense && this.method != TrainingMethod.hist) {
             throw new IllegalArgumentException("method unsupported");
         }
 

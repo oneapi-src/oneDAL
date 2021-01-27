@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,10 @@ namespace oneapi::dal::rbf_kernel {
 
 namespace task {
 namespace v1 {
+
+/// Tag-type that parameterizes entities that are used to compute statistics, distance, and so on.
 struct compute {};
+/// Alias tag-type for the dense method.
 using by_default = compute;
 } // namespace v1
 
@@ -71,6 +74,8 @@ public:
 
     descriptor_base();
 
+    /// The coefficient $\\sigma$ of the RBF kernel.
+    /// @remark default = 1.0
     double get_sigma() const;
 
 protected:
@@ -94,6 +99,13 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::v1::dense`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::v1::compute`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>

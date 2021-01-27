@@ -1,6 +1,6 @@
 /* file: df_regression_train_kernel.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -49,10 +49,7 @@ class RegressionTrainBatchKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
-                             decision_forest::regression::Model & m, Result & res, const Parameter & par)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
+                             decision_forest::regression::Model & m, Result & res, const Parameter & par);
 };
 
 } // namespace internal

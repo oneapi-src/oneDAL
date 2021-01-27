@@ -1,4 +1,19 @@
 #!/bin/bash
+#===============================================================================
+# Copyright 2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
 
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -22,35 +37,8 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-# set enviroment
-PYTHON_VERSION="3.7"
-source ${CONDA_DIR}/etc/profile.d/conda.sh
-export PATH=${CONDA_DIR}/bin:$PATH
-conda create -y -n conf python=${PYTHON_VERSION}
-source activate conf
-conda install -y -c intel mpich numpy pytest pandas
-conda install -y -c conda-forge scikit-learn
-conda install $HOME/miniconda/envs/CB/conda-bld/linux-64/daal4py*.tar.bz2
-conda list
-compiler_vars=${ONEAPI_DIR}/compiler/latest/env/vars.sh
-if [ ! -e "${compiler_vars}" ]
-then
-    echo "Can't find compiler vars ${compiler_vars}"
-    exit 1
-fi
-source "${compiler_vars}"
-dal_vars=${BUILD_DIR}/daal/latest/env/vars.sh
-if [ ! -e "${dal_vars}" ]
-then
-    echo "Can't find oneDAL vars ${dal_vars}"
-    exit 1
-fi
-source ${dal_vars} intel64
-export TBBROOT=${BUILD_DIR}/tbb/latest/lib/intel64
-export LD_LIBRARY_PATH=${BUILD_DIR}/tbb/latest/lib/intel64:$LD_LIBRARY_PATH
-
 # testing
 cd .ci/scripts/conformance-scripts/ || exit 1
 export IDP_SKLEARN_VERBOSE=INFO
-python run_tests.py ${PYTHON_VERSION} || exit 1
+python run_tests.py || exit 1
 cd ../../..

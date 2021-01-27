@@ -1,6 +1,6 @@
 /* file: df_classification_train_container.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
 #include "algorithms/decision_forest/decision_forest_classification_training_types.h"
 #include "algorithms/decision_forest/decision_forest_classification_training_batch.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_train_kernel.h"
-#include "src/algorithms/dtrees/forest/classification/df_classification_train_dense_default_kernel.h"
 #include "src/algorithms/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/services/service_algo_utils.h"

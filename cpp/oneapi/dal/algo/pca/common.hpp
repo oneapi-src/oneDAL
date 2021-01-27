@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,7 +23,11 @@ namespace oneapi::dal::pca {
 
 namespace task {
 namespace v1 {
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`dimensionality reduction problem <dimensionality reduction>`.
 struct dim_reduction {};
+
+/// Alias tag-type for dimensionality reduction task.
 using by_default = dim_reduction;
 } // namespace v1
 
@@ -34,8 +38,15 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
+/// Tag-type that denotes `Covariance <pca_t_math_cov_>`_ computational
+/// method.
 struct cov {};
+
+/// Tag-type that denotes `SVD <pca_t_math_svd_>`_ computational method.
 struct svd {};
+
+/// Alias tag-type for `Covariance <pca_t_math_cov_>`_ computational
+/// method.
 using by_default = cov;
 } // namespace v1
 
@@ -76,7 +87,15 @@ public:
 
     descriptor_base();
 
+    /// The number of principal components :literal:`r`. If it is zero, the algorithm
+    /// computes the eigenvectors for all features, $r = p$.
+    /// @remark default = 0
+    /// @invariant :expr:`component_count >= 0`
     std::int64_t get_component_count() const;
+
+    /// Specifies whether the algorithm applies the `Sign-flip technique`_.
+    /// If it is `true`, the directions of the eigenvectors must be deterministic.
+    /// @remark default = true
     bool get_deterministic() const;
 
 protected:
@@ -102,6 +121,13 @@ using v1::is_valid_task_v;
 
 namespace v1 {
 
+/// @tparam Float  The floating-point type that the algorithm uses for
+///                intermediate computations. Can be :expr:`float` or
+///                :expr:`double`.
+/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
+///                be :expr:`method::v1::cov` or :expr:`method::v1::svd`.
+/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
+///                be :expr:`task::v1::dim_reduction`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t>
@@ -117,6 +143,8 @@ public:
     using method_t = Method;
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`component_count`
+    /// property value
     explicit descriptor(std::int64_t component_count = 0) {
         set_component_count(component_count);
     }
@@ -132,6 +160,8 @@ public:
     }
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::dim_reduction`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -140,8 +170,12 @@ class model : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     model();
 
+    /// An $r \\times p$ table with the eigenvectors. Each row contains one
+    /// eigenvector.
+    /// @remark default = table{}
     const table& get_eigenvectors() const;
 
     auto& set_eigenvectors(const table& value) {

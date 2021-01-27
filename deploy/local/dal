@@ -1,6 +1,6 @@
 #%Module1.0###################################################################
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright 2020-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,8 +84,8 @@ set daal_target_arch         "intel64"
 module-whatis "Intel(R) oneAPI Data Analytics Library for $daal_target_arch."
 
 # Setup environment variables
-setenv          DAL_MAJOR_BINARY   1
-setenv          DAL_MINOR_BINARY   0
+setenv          DAL_MAJOR_BINARY   __DAL_MAJOR_BINARY__
+setenv          DAL_MINOR_BINARY   __DAL_MINOR_BINARY__
 setenv          DALROOT            $daalroot
 setenv          DAALROOT           $daalroot
 

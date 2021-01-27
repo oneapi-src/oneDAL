@@ -1,6 +1,6 @@
 /* file: bf_knn_classification_predict_dense_default_batch_container.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,15 +72,8 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     }
     else
     {
-        if (par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
-        {
-            __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
-                                    m.get(), label.get(), par);
-        }
-        else
-        {
-            return services::Status(services::ErrorDeviceSupportNotImplemented);
-        }
+        __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
+                                m.get(), label.get(), indices.get(), distances.get(), par);
     }
 }
 

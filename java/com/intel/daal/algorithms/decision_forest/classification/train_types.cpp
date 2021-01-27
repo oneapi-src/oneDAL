@@ -1,6 +1,6 @@
 /* file: train_types.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -248,6 +248,56 @@ JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classific
                                                                                                                          jlong value)
 {
     (*(dfct::Parameter *)parAddr).maxLeafNodes = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cGetMaxBins
+* Signature: (J)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cGetMaxBins(JNIEnv *,
+                                                                                                                     jobject,
+                                                                                                                     jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).maxBins;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cSetMaxBins
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetMaxBins(JNIEnv *,
+                                                                                                                    jobject,
+                                                                                                                    jlong parAddr,
+                                                                                                                    jlong value)
+{
+    (*(dfct::Parameter *)parAddr).maxBins = value;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cGetMinBinSize
+* Signature: (J)J
+*/
+JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cGetMinBinSize(JNIEnv *,
+                                                                                                                        jobject,
+                                                                                                                        jlong parAddr)
+{
+    return (jlong)(*(dfct::Parameter *)parAddr).minBinSize;
+}
+
+/*
+* Class:     com_intel_daal_algorithms_decision_forest_classification_training_Parameter
+* Method:    cSetMinBinSize
+* Signature: (JJ)V
+*/
+JNIEXPORT void JNICALL Java_com_intel_daal_algorithms_decision_1forest_classification_training_Parameter_cSetMinBinSize(JNIEnv *,
+                                                                                                                       jobject,
+                                                                                                                       jlong parAddr,
+                                                                                                                       jlong value)
+{
+    (*(dfct::Parameter *)parAddr).minBinSize = value;
 }
 
 /*

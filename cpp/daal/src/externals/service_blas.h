@@ -1,6 +1,6 @@
 /* file: service_blas.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,6 +34,66 @@ namespace daal
 {
 namespace internal
 {
+template <typename fpType, CpuType cpu>
+class Helper
+{
+public:
+    static void copy(fpType * dsc, const fpType * src, const size_t n);
+};
+
+template <typename fpType, CpuType cpu>
+void Helper<fpType, cpu>::copy(fpType * dsc, const fpType * src, const size_t n)
+{
+    for (size_t i = 0; i < n; ++i)
+    {
+        dsc[i] = src[i];
+    }
+}
+
+#if defined(__INTEL_COMPILER)
+
+template <>
+void Helper<float, avx512>::copy(float * dsc, const float * src, const size_t n)
+{
+    size_t i           = 0;
+    const size_t align = ((64 - (reinterpret_cast<size_t>(dsc) & 63)) & 63) >> 2;
+    for (; i < align; ++i)
+    {
+        dsc[i] = src[i];
+    }
+    for (; (i + 16) < n; i += 16)
+    {
+        const __m512 srcVec = _mm512_loadu_ps(&src[i]);
+        _mm512_stream_ps(&dsc[i], srcVec);
+    }
+    for (; i < n; i++)
+    {
+        dsc[i] = src[i];
+    }
+}
+
+template <>
+void Helper<double, avx512>::copy(double * dsc, const double * src, const size_t n)
+{
+    size_t i           = 0;
+    const size_t align = ((64 - (reinterpret_cast<size_t>(dsc) & 63)) & 63) >> 3;
+    for (; i < align; ++i)
+    {
+        dsc[i] = src[i];
+    }
+    for (; (i + 8) < n; i += 8)
+    {
+        const __m512d srcVec = _mm512_loadu_pd(&src[i]);
+        _mm512_stream_pd(&dsc[i], srcVec);
+    }
+    for (; i < n; i++)
+    {
+        dsc[i] = src[i];
+    }
+}
+
+#endif
+
 /*
 // Template functions definition
 */
@@ -168,7 +228,7 @@ struct Blas
         TlsMem<fpType, cpu> tlsMklBuff(blockSizeA * blockSizeB);
 
         /* Threaded loop by whole number of blocks */
-        daal::threader_for(nBlocksB, nBlocksB, [&, isSOARes](SizeType iBlockB) {
+        daal::conditional_threader_for((nRowsB > 512), nBlocksB, [&, isSOARes](SizeType iBlockB) {
             /* Current block size - can be less than general block size for last block */
             SizeType nRowsInBlockB   = (iBlockB < (nBlocksB - 1)) ? blockSizeB : lastBlockSizeB;
             const SizeType startRowB = iBlockB * blockSizeB;
@@ -185,7 +245,7 @@ struct Blas
                 DAAL_CHECK_MALLOC_THR(mtcRows.get());
             }
 
-            daal::threader_for(nBlocksA, nBlocksA, [&](SizeType iBlockA) {
+            daal::conditional_threader_for((nRowsA > 512), nBlocksA, [&](SizeType iBlockA) {
                 /* Current block size - can be less than general block size for last block */
                 SizeType nRowsInBlockA   = (iBlockA < (nBlocksA - 1)) ? blockSizeA : lastBlockSizeA;
                 const SizeType startRowA = iBlockA * blockSizeA;
@@ -212,8 +272,7 @@ struct Blas
                     {
                         WriteOnlyColumns<fpType, cpu> mtcColumns(tc, startRowA + i, startRowB, nRowsInBlockB);
                         DAAL_CHECK_BLOCK_STATUS_THR(mtcColumns);
-                        services::internal::daal_memcpy_s(mtcColumns.get(), nRowsInBlockB * sizeof(fpType), c + i * ldc2,
-                                                          nRowsInBlockB * sizeof(fpType));
+                        Helper<fpType, cpu>::copy(mtcColumns.get(), c + i * ldc2, nRowsInBlockB);
                     }
                 }
             });

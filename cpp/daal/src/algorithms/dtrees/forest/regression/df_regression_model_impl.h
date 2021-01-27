@@ -1,6 +1,6 @@
 /* file: df_regression_model_impl.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public:
     virtual services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
     virtual services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
 
-    bool add(const TreeType & tree, size_t nClasses);
+    bool add(const TreeType & tree, size_t nClasses, size_t iTree);
 
     virtual size_t getNumberOfTrees() const DAAL_C11_OVERRIDE;
 };

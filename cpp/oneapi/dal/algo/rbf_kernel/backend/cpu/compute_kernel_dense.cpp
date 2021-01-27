@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,16 +44,12 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& y) {
     const int64_t row_count_x = x.get_row_count();
     const int64_t row_count_y = y.get_row_count();
-    const int64_t column_count = x.get_column_count();
-
-    auto arr_x = row_accessor<const Float>{ x }.pull();
-    auto arr_y = row_accessor<const Float>{ y }.pull();
 
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
     auto arr_values = array<Float>::empty(row_count_x * row_count_y);
 
-    const auto daal_x = interop::convert_to_daal_homogen_table(arr_x, row_count_x, column_count);
-    const auto daal_y = interop::convert_to_daal_homogen_table(arr_y, row_count_y, column_count);
+    const auto daal_x = interop::convert_to_daal_table<Float>(x);
+    const auto daal_y = interop::convert_to_daal_table<Float>(y);
     const auto daal_values =
         interop::convert_to_daal_homogen_table(arr_values, row_count_x, row_count_y);
 

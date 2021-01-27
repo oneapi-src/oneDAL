@@ -1,6 +1,6 @@
 /* file: service_threading.h */
 /*******************************************************************************
-* Copyright 2015-2020 Intel Corporation
+* Copyright 2015-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -98,6 +98,20 @@ public:
     typedef daal::tls<T *> super;
     TlsMem(size_t n) : super([=]() -> T * { return Allocator::allocate(n); }) {}
     ~TlsMem()
+    {
+        this->reduce([](T * ptr) -> void {
+            if (ptr) Allocator::deallocate(ptr);
+        });
+    }
+};
+
+template <typename T, CpuType cpu, typename Allocator = services::internal::ScalableMalloc<T, cpu> >
+class LsMem : public daal::ls<T *>
+{
+public:
+    typedef daal::ls<T *> super;
+    LsMem(size_t n, const bool isTls = false) : super([=]() -> T * { return Allocator::allocate(n); }, isTls) {}
+    ~LsMem()
     {
         this->reduce([](T * ptr) -> void {
             if (ptr) Allocator::deallocate(ptr);

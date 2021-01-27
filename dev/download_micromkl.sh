@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# Copyright 2018-2020 Intel Corporation
+# Copyright 2018-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 #===============================================================================
 
 MKLFPK_URL_ROOT="https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/"
-MKLFPK_VERSION="2021.1-beta08"
-MKLGPUFPK_VERSION="20201003"
+MKLFPK_VERSION="2021.1-gold"
+MKLGPUFPK_VERSION="2021.1-gold"
 WITH_GPU=true
 
 while true ; do

@@ -1,6 +1,6 @@
 /* file: kernel_function_rbf_dense_default_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -306,7 +306,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         return tlsData;
     });
 
-    daal::threader_for(nBlocks1, nBlocks1, [&, isSOARes](const size_t iBlock1) {
+    daal::conditional_threader_for((nVectors1 > 512), nBlocks1, [&, isSOARes](const size_t iBlock1) {
         DAAL_INT nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         DAAL_INT startRow1     = iBlock1 * blockSize;
 
@@ -320,7 +320,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             mtRRows.set(r, startRow1, nRowsInBlock1);
             DAAL_CHECK_MALLOC_THR(mtRRows.get());
         }
-        daal::threader_for(nBlocks2, nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+        daal::conditional_threader_for((nVectors2 > 512), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
             DAAL_INT nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
             DAAL_INT startRow2     = iBlock2 * blockSize;
 

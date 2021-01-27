@@ -1,6 +1,6 @@
 /* file: dbscan_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ string datasetFileName = "../data/batch/dbscan_dense.csv";
 /* DBSCAN algorithm parameters */
 const float epsilon          = 0.04f;
 const size_t minObservations = 45;
+const size_t nFeatures       = 2;
 
 int main(int argc, char * argv[])
 {
@@ -57,15 +58,16 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Initialize FileDataSource to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::doAllocateNumericTable, DataSource::doDictionaryFromContext);
+        FileDataSource<CSVFeatureManager> dataSource(datasetFileName, DataSource::notAllocateNumericTable, DataSource::doDictionaryFromContext);
 
+        auto data = SyclHomogenNumericTable<>::create(nFeatures, 0, NumericTable::notAllocate);
         /* Retrieve the data from the input file */
-        dataSource.loadDataBlock();
+        dataSource.loadDataBlock(data.get());
 
         /* Create an algorithm object for the DBSCAN algorithm */
         dbscan::Batch<> algorithm(epsilon, minObservations);
 
-        algorithm.input.set(dbscan::data, dataSource.getNumericTable());
+        algorithm.input.set(dbscan::data, data);
         algorithm.parameter().memorySavingMode = true;
         algorithm.compute();
 

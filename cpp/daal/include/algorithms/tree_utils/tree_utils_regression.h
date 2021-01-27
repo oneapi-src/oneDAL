@@ -1,6 +1,6 @@
 /* file: tree_utils_regression.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ namespace interface1
 {
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__TREE_UTILS__REGRESSION__LEAFNODEDESCRIPTOR"></a>
- * \brief %Struct containing description of leaf node in regression descision tree
+ * \brief %Struct containing description of leaf node in regression decision tree
  */
 struct DAAL_EXPORT LeafNodeDescriptor : public NodeDescriptor
 {

@@ -1,6 +1,6 @@
 /* file: df_regression_train_hist_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
-                                           decision_forest::regression::training::hist)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(decision_forest::regression::training::BatchContainer, batch, DAAL_FPTYPE,
+                                                decision_forest::regression::training::hist)
 namespace decision_forest
 {
 namespace regression

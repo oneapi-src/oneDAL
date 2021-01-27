@@ -1,6 +1,6 @@
 /* file: df_regression_train_container.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_batch.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h"
-#include "src/algorithms/dtrees/forest/regression/df_regression_train_dense_default_kernel.h"
 #include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/services/service_algo_utils.h"
