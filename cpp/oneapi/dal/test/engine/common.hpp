@@ -173,9 +173,13 @@ inline auto compute(device_test_policy& policy, Args&&... args) {
 template <std::size_t index, typename TupleX, typename TupleY>
 struct combine_types_element {
 private:
+    static constexpr std::size_t count_x = std::tuple_size_v<TupleX>;
     static constexpr std::size_t count_y = std::tuple_size_v<TupleY>;
     static constexpr std::size_t i = index / count_y;
     static constexpr std::size_t j = index % count_y;
+
+    static_assert(i < count_x);
+    static_assert(j < count_y);
 
 public:
     using type = std::tuple<std::tuple_element_t<i, TupleX>, std::tuple_element_t<j, TupleY>>;
