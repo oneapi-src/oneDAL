@@ -124,8 +124,8 @@ public:
     constexpr void resize(std::int64_t count) {
         if (count > capacity) {
             std::int64_t count_temp = count;
-            std::int64_t new_capacity = capacity;
-            while (count_temp != 0) { // new_capacity = nearest old_capacity * 2^k > count
+            std::int64_t new_capacity = 1;
+            while (count_temp != 0) {
                 count_temp = count_temp >> 1;
                 new_capacity *= 2;
             }
