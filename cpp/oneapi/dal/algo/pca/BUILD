@@ -18,6 +18,7 @@ dal_module(
 
 dal_test_suite(
     name = "cpu_tests",
+    dpc = False,
     srcs = glob([
         "backend/cpu/test/*.cpp",
     ]),

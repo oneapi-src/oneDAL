@@ -242,9 +242,10 @@ public:
             throw invalid_argument{ "Action fill_uniform got null dataframe" };
         }
 
+        float* data = df->get_array().need_mutable_data().get_mutable_data();
+
         // TODO: Migrate to MKL's random generators
         std::mt19937 rng(seed_);
-        float* data = df->get_data();
 
         std::uniform_real_distribution<float> distr(a_, b_);
         for (std::int64_t i = 0; i < df->get_count(); i++) {
@@ -291,47 +292,78 @@ dataframe dataframe_builder::build() const {
 }
 
 template <typename Float>
-table dataframe::get_table(const std::string& table_type) const {
-    const auto arr = impl_->get_array();
-    const std::int64_t row_count = get_row_count();
-    const std::int64_t column_count = get_column_count();
-    if (table_type == "homogen") {
-        return dal::detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
-    }
-    else {
-        throw unimplemented{ "Only homogen table is supported" };
-    }
+static homogen_table wrap_to_homogen_table(host_test_policy& policy,
+                                           const array<Float>& data,
+                                           std::int64_t row_count,
+                                           std::int64_t column_count) {
+    return dal::detail::homogen_table_builder{}.reset(data, row_count, column_count).build();
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float>
-table dataframe::get_table(device_test_policy& policy, const std::string& table_type) const {
-    const auto arr = impl_->get_array();
-    const std::int64_t row_count = get_row_count();
-    const std::int64_t column_count = get_column_count();
-    if (table_type == "homogen") {
-        return dal::detail::homogen_table_builder{}
-            .allocate(policy.get_queue(), row_count, column_count)
-            .copy_data(policy.get_queue(), arr.get_data(), row_count, column_count)
-            .build();
+static homogen_table wrap_to_homogen_table(device_test_policy& policy,
+                                           const array<Float>& data,
+                                           std::int64_t row_count,
+                                           std::int64_t column_count) {
+    return dal::detail::homogen_table_builder{}
+        .allocate(policy.get_queue(), row_count, column_count)
+        .copy_data(policy.get_queue(), data.get_data(), row_count, column_count)
+        .build();
+}
+#endif
+
+static array<double> convert_to_f64(const array<float>& data) {
+    auto data_f64 = array<double>::empty(data.get_count());
+
+    const float* data_ptr = data.get_data();
+    double* data_f64_ptr = data_f64.get_mutable_data();
+
+    for (std::int64_t i = 0; i < data.get_count(); i++) {
+        data_f64_ptr[i] = data_ptr[i];
+    }
+
+    return data_f64;
+}
+
+template <typename Policy>
+static homogen_table build_homogen_table(Policy& policy,
+                                         const array<float>& data,
+                                         const table_id& id,
+                                         std::int64_t row_count,
+                                         std::int64_t column_count) {
+    if (id.get_float_type() == table_float_type::f32) {
+        return wrap_to_homogen_table(policy, data, row_count, column_count);
+    }
+    else if (id.get_float_type() == table_float_type::f64) {
+        auto data_f64 = convert_to_f64(data);
+        return wrap_to_homogen_table(policy, data_f64, row_count, column_count);
+    }
+    else {
+        throw unimplemented{ "Only f32 and f64 floating point types are supported" };
+    }
+}
+
+template <typename Policy>
+static table build_table(Policy& policy, const dataframe& df, const table_id& id) {
+    const auto data = df.get_array();
+    const std::int64_t row_count = df.get_row_count();
+    const std::int64_t column_count = df.get_column_count();
+    if (id.get_kind() == table_kind::homogen) {
+        return build_homogen_table(policy, data, id, row_count, column_count);
     }
     else {
         throw unimplemented{ "Only homogen table is supported" };
     }
 }
-#endif
 
-#define INSTANTIATE(Float) template table dataframe::get_table<Float>(const std::string&) const;
-
-INSTANTIATE(float)
-INSTANTIATE(double)
+table dataframe::get_table(host_test_policy& policy, const table_id& id) const {
+    return build_table(policy, *this, id);
+}
 
 #ifdef ONEDAL_DATA_PARALLEL
-#define INSTANTIATE_DATA_PARALLEL(F) \
-    template table dataframe::get_table<F>(device_test_policy&, const std::string&) const;
-
-INSTANTIATE_DATA_PARALLEL(float)
-INSTANTIATE_DATA_PARALLEL(double)
+table dataframe::get_table(device_test_policy& policy, const table_id& id) const {
+    return build_table(policy, *this, id);
+}
 #endif
 
 } // namespace oneapi::dal::test::engine

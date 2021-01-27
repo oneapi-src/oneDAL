@@ -18,11 +18,11 @@
 
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::test::util {
+namespace oneapi::dal::test::engine {
 
-class dummy_homogen_table {
+class dummy_homogen_table_impl {
 public:
-    explicit dummy_homogen_table(std::int64_t row_count, std::int64_t column_count)
+    explicit dummy_homogen_table_impl(std::int64_t row_count, std::int64_t column_count)
             : row_count_(row_count),
               column_count_(column_count) {}
 
@@ -78,4 +78,4 @@ private:
     std::int64_t column_count_;
 };
 
-} // namespace oneapi::dal::test::util
+} // namespace oneapi::dal::test::engine

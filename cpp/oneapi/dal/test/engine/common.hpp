@@ -33,46 +33,46 @@
 // Workaround DPC++ Compiler's warning on unused
 // variable declared by Catch2's TEST_CASE macro
 #ifdef __clang__
-#define _TS_DISABLE_UNUSED_VARIABLE \
+#define _TE_DISABLE_UNUSED_VARIABLE \
     _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wunused-variable\"")
 
-#define _TS_ENABLE_UNUSED_VARIABLE _Pragma("clang diagnostic pop")
+#define _TE_ENABLE_UNUSED_VARIABLE _Pragma("clang diagnostic pop")
 
 #undef TEST_CASE
 #define TEST_CASE(...)                   \
-    _TS_DISABLE_UNUSED_VARIABLE          \
+    _TE_DISABLE_UNUSED_VARIABLE          \
     INTERNAL_CATCH_TESTCASE(__VA_ARGS__) \
-    _TS_ENABLE_UNUSED_VARIABLE
+    _TE_ENABLE_UNUSED_VARIABLE
 
 #undef TEMPLATE_TEST_CASE
 #define TEMPLATE_TEST_CASE(...)                    \
-    _TS_DISABLE_UNUSED_VARIABLE                    \
+    _TE_DISABLE_UNUSED_VARIABLE                    \
     INTERNAL_CATCH_TEMPLATE_TEST_CASE(__VA_ARGS__) \
-    _TS_ENABLE_UNUSED_VARIABLE
+    _TE_ENABLE_UNUSED_VARIABLE
 
 #undef TEMPLATE_LIST_TEST_CASE
 #define TEMPLATE_LIST_TEST_CASE(...)                    \
-    _TS_DISABLE_UNUSED_VARIABLE                         \
+    _TE_DISABLE_UNUSED_VARIABLE                         \
     INTERNAL_CATCH_TEMPLATE_LIST_TEST_CASE(__VA_ARGS__) \
-    _TS_ENABLE_UNUSED_VARIABLE
+    _TE_ENABLE_UNUSED_VARIABLE
 
 #undef TEST_CASE_METHOD
 #define TEST_CASE_METHOD(...)                    \
-    _TS_DISABLE_UNUSED_VARIABLE                  \
+    _TE_DISABLE_UNUSED_VARIABLE                  \
     INTERNAL_CATCH_TEST_CASE_METHOD(__VA_ARGS__) \
-    _TS_ENABLE_UNUSED_VARIABLE
+    _TE_ENABLE_UNUSED_VARIABLE
 
 #undef TEMPLATE_TEST_CASE_METHOD
 #define TEMPLATE_TEST_CASE_METHOD(...)                    \
-    _TS_DISABLE_UNUSED_VARIABLE                           \
+    _TE_DISABLE_UNUSED_VARIABLE                           \
     INTERNAL_CATCH_TEMPLATE_TEST_CASE_METHOD(__VA_ARGS__) \
-    _TS_ENABLE_UNUSED_VARIABLE
+    _TE_ENABLE_UNUSED_VARIABLE
 
 #undef TEMPLATE_LIST_TEST_CASE_METHOD
 #define TEMPLATE_LIST_TEST_CASE_METHOD(...)                    \
-    _TS_DISABLE_UNUSED_VARIABLE                                \
+    _TE_DISABLE_UNUSED_VARIABLE                                \
     INTERNAL_CATCH_TEMPLATE_LIST_TEST_CASE_METHOD(__VA_ARGS__) \
-    _TS_ENABLE_UNUSED_VARIABLE
+    _TE_ENABLE_UNUSED_VARIABLE
 #endif // __clang__
 
 // Shortcuts for Catch2 defines
@@ -115,7 +115,7 @@ class test_queue_provider {
 public:
     static test_queue_provider& get_instance();
 
-    sycl::queue& get_global_queue() {
+    sycl::queue& get_global_queue() const {
         if (!queue_) {
             throw internal_error{ "Test queue provider is not initialized" };
         }

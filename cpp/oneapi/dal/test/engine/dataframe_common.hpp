@@ -31,6 +31,42 @@ namespace oneapi::dal::test::engine {
 #define GENERATE_DATAFRAME(...) \
     GENERATE(as<oneapi::dal::test::engine::dataframe_builder>{}, __VA_ARGS__).build()
 
+enum class table_kind {
+    homogen
+};
+
+enum class table_float_type {
+    f32,
+    f64
+};
+
+class table_id {
+public:
+    template <typename Float>
+    static table_id homogen() {
+        static_assert(dal::detail::is_floating_point<Float>());
+        if constexpr (std::is_same_v<Float, float>) {
+            return table_id{table_kind::homogen, table_float_type::f32};
+        }
+        return table_id{table_kind::homogen, table_float_type::f64};
+    }
+
+    table_kind get_kind() const {
+        return kind_;
+    }
+
+    table_float_type get_float_type() const {
+        return float_type_;
+    }
+
+private:
+    explicit table_id(table_kind kind, table_float_type float_type)
+            : kind_(kind), float_type_(float_type) {}
+
+    table_kind kind_;
+    table_float_type float_type_;
+};
+
 class dataframe_impl {
 public:
     explicit dataframe_impl(const array<float>& data,
@@ -38,9 +74,7 @@ public:
                             std::int64_t column_count)
             : array_(data),
               row_count_(row_count),
-              column_count_(column_count) {
-        array_.need_mutable_data();
-    }
+              column_count_(column_count) {}
 
     dataframe_impl(const dataframe_impl&) = delete;
     dataframe_impl& operator=(const dataframe_impl&) = delete;
@@ -61,11 +95,11 @@ public:
         return column_count_;
     }
 
-    float* get_data() const {
-        return array_.get_mutable_data();
+    const array<float>& get_array() const {
+        return array_;
     }
 
-    const array<float>& get_array() const {
+    array<float>& get_array() {
         return array_;
     }
 
@@ -117,18 +151,16 @@ public:
 
     explicit dataframe(dataframe_impl* impl) : impl_(impl) {}
 
-    template <typename Float>
-    table get_table(const std::string& table_type) const;
-
-    template <typename Float>
-    table get_table(host_test_policy& policy, const std::string& table_type) const {
-        return get_table<Float>(table_type);
-    }
+    table get_table(host_test_policy& policy, const table_id& id) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename Float>
-    table get_table(device_test_policy& policy, const std::string& table_type) const;
+    table get_table(device_test_policy& policy, const table_id& id) const;
 #endif
+
+    table get_table(const table_id& id) const {
+        host_test_policy policy;
+        return get_table(policy, id);
+    }
 
     std::int64_t get_row_count() const {
         return impl_->get_row_count();

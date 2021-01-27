@@ -19,19 +19,18 @@ load("@onedal//dev/bazel:cc.bzl",
     "cc_static_lib",
     "cc_dynamic_lib",
     "cc_test",
+    "ModuleInfo",
 )
 load("@onedal//dev/bazel:release.bzl",
     "headers_filter",
 )
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
-    "utils",
     "paths",
 )
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
 )
-load("@onedal//dev/bazel:cc.bzl", "ModuleInfo")
 
 def dal_module(name, hdrs=[], srcs=[],
                dal_deps=[], extra_deps=[],

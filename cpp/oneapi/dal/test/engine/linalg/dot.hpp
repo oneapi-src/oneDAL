@@ -39,9 +39,9 @@ inline void dot(const matrix<Float, lyt_a>& a,
 }
 
 template <typename Float, layout lyt_a, layout lyt_b, layout lyt_c = layout::row_major>
-inline matrix<Float> dot(const matrix<Float, lyt_a>& a,
-                         const matrix<Float, lyt_b>& b,
-                         Float alpha = Float(1)) {
+inline matrix<Float, lyt_c> dot(const matrix<Float, lyt_a>& a,
+                                const matrix<Float, lyt_b>& b,
+                                Float alpha = Float(1)) {
     auto c = matrix<Float, lyt_c>::empty({ a.get_row_count(), b.get_column_count() });
     dot(a, b, c, alpha);
     return c;

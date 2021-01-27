@@ -9,6 +9,8 @@ dal_test_module(
     auto = True,
     dal_test_deps = [
         "@onedal//cpp/oneapi:include_root",
+    ],
+    extra_deps = [
         "@mkl//:mkl_seq",
     ],
 )

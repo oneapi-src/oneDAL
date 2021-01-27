@@ -39,15 +39,15 @@ public:
             .set_deterministic(false);
     }
 
-    table get_input_data(const te::dataframe& df, const std::string& table_type) {
-        return df.get_table<Float>(this->get_policy(), table_type);
+    te::table_id get_homogen_table_id() const {
+        return te::table_id::homogen<Float>();
     }
 
     void general_checks(const te::dataframe& data,
                         std::int64_t component_count,
-                        const std::string& table_type) {
-        CAPTURE(component_count, table_type);
-        const table x = get_input_data(data, table_type);
+                        const te::table_id& data_table_id) {
+        CAPTURE(component_count);
+        const table x = data.get_table(data_table_id);
 
         INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
@@ -192,15 +192,16 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
 
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto data_table_id = this->get_homogen_table_id();
+
     const std::int64_t component_count = GENERATE_COPY(0,
                                                        1,
                                                        data.get_column_count(),
                                                        data.get_column_count() - 1,
                                                        data.get_column_count() / 2);
 
-    const std::string table_type = GENERATE("homogen");
-
-    this->general_checks(data, component_count, table_type);
+    this->general_checks(data, component_count, data_table_id);
 }
 
 } // namespace oneapi::dal::pca::test
