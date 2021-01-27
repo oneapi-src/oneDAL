@@ -26,11 +26,16 @@ namespace v1 {
 
 ONEDAL_EXPORT void* malloc(const data_parallel_policy&, std::size_t size, const sycl::usm::alloc&);
 ONEDAL_EXPORT void free(const data_parallel_policy&, void* pointer);
-ONEDAL_EXPORT void fill(const data_parallel_policy&,
-                        void* dest,
-                        std::size_t dest_size,
-                        const void* pattern,
-                        std::size_t pattern_size);
+ONEDAL_EXPORT void memset(const data_parallel_policy& policy,
+                          void* dest,
+                          std::int32_t value,
+                          std::int64_t size);
+ONEDAL_EXPORT void memcpy(const data_parallel_policy& policy,
+                          void* dest,
+                          const void* src,
+                          std::int64_t size);
+ONEDAL_EXPORT bool is_known_usm_pointer_type(const data_parallel_policy& policy,
+                                             const void* pointer);
 
 template <typename T>
 inline T* malloc(const data_parallel_policy& policy,
@@ -47,20 +52,13 @@ inline void free(const data_parallel_policy& policy, T* pointer) {
     free(policy, reinterpret_cast<void*>(const_cast<mutable_t*>(pointer)));
 }
 
-ONEDAL_EXPORT void memset(const data_parallel_policy& policy,
-                          void* dest,
-                          std::int32_t value,
-                          std::int64_t size);
-ONEDAL_EXPORT void memcpy(const data_parallel_policy& policy,
-                          void* dest,
-                          const void* src,
-                          std::int64_t size);
-
 template <typename T>
 inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
-    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
-    const std::size_t bytes_count = sizeof(T) * count;
-    fill(policy, dest, bytes_count, &value, sizeof(T));
+    ONEDAL_ASSERT(is_known_usm_pointer_type(policy, dest));
+    ONEDAL_ASSERT(count > 0);
+
+    auto& queue = policy.get_queue();
+    queue.fill(dest, value, count).wait_and_throw();
 }
 
 template <typename T>
@@ -94,6 +92,7 @@ using v1::malloc;
 using v1::free;
 using v1::memset;
 using v1::memcpy;
+using v1::is_known_usm_pointer_type;
 using v1::fill;
 using v1::data_parallel_allocator;
 

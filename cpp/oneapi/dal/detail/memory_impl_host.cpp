@@ -46,8 +46,10 @@ void fill(const default_host_policy&,
           std::size_t dest_size,
           const void* pattern,
           std::size_t pattern_size) {
-    // TODO: can be optimized in future
-
+    ONEDAL_ASSERT(dest != nullptr);
+    ONEDAL_ASSERT(pattern != nullptr);
+    ONEDAL_ASSERT(dest_size > 0);
+    ONEDAL_ASSERT(pattern_size > 0);
     ONEDAL_ASSERT(dest_size % pattern_size == 0);
 
     auto dest_bytes = static_cast<std::uint8_t*>(dest);
@@ -59,11 +61,14 @@ void fill(const default_host_policy&,
 }
 
 void memset(const default_host_policy&, void* dest, std::int32_t value, std::int64_t size) {
-    // TODO: can be optimized in future
+    ONEDAL_ASSERT(dest != nullptr);
     std::memset(dest, value, detail::integral_cast<std::size_t>(size));
 }
 
 void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_t size) {
+    ONEDAL_ASSERT(dest != nullptr);
+    ONEDAL_ASSERT(src != nullptr);
+
     const size_t converted_size = detail::integral_cast<std::size_t>(size);
     std::int32_t status =
         daal::services::internal::daal_memcpy_s(dest, converted_size, src, converted_size);
