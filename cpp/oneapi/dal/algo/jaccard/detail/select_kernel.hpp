@@ -28,9 +28,7 @@ struct backend_base {
     virtual vertex_similarity_result operator()(const Policy &ctx,
                                                 const descriptor_base &descriptor,
                                                 const Topology &data,
-                                                void *result_ptr) {
-        return vertex_similarity_result();
-    }
+                                                void *result_ptr) = 0;
     virtual ~backend_base() {}
 };
 
