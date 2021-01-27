@@ -316,6 +316,21 @@ inline void * creater_func(const void * a)
     return lambda();
 }
 
+class static_tls_deleter
+{
+public:
+    virtual ~static_tls_deleter() {}
+    virtual void del(void * a) = 0;
+};
+
+template <typename lambdaType>
+class static_tls_deleter_ : public static_tls_deleter
+{
+public:
+    virtual ~static_tls_deleter_() {}
+    virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
+};
+
 template <typename F>
 class static_tls
 {
@@ -337,14 +352,23 @@ public:
             _storage[i] = nullptr;
         }
 
-        const void * ac = static_cast<const void *>(&lambda);
+        lambdaType * locall = new lambdaType(lambda);
+        _deleter            = new static_tls_deleter_<lambdaType>();
+
+        const void * ac = static_cast<const void *>(locall);
         void * a        = const_cast<void *>(ac);
         _creater        = a;
 
         _creater_func = creater_func<F, lambdaType>;
+        int abc       = 0;
     }
 
-    virtual ~static_tls() { delete _storage; }
+    virtual ~static_tls()
+    {
+        _deleter->del(_creater);
+        delete _deleter;
+        delete _storage;
+    }
 
     F local(size_t tid)
     {
@@ -382,6 +406,7 @@ private:
     size_t _nThreads                 = 0;
     void * _creater                  = nullptr;
     daal::tls_functype _creater_func = nullptr;
+    static_tls_deleter * _deleter    = nullptr;
 };
 
 template <typename F>
