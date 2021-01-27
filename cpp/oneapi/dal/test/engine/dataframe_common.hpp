@@ -31,14 +31,9 @@ namespace oneapi::dal::test::engine {
 #define GENERATE_DATAFRAME(...) \
     GENERATE(as<oneapi::dal::test::engine::dataframe_builder>{}, __VA_ARGS__).build()
 
-enum class table_kind {
-    homogen
-};
+enum class table_kind { homogen };
 
-enum class table_float_type {
-    f32,
-    f64
-};
+enum class table_float_type { f32, f64 };
 
 class table_id {
 public:
@@ -46,9 +41,9 @@ public:
     static table_id homogen() {
         static_assert(dal::detail::is_floating_point<Float>());
         if constexpr (std::is_same_v<Float, float>) {
-            return table_id{table_kind::homogen, table_float_type::f32};
+            return table_id{ table_kind::homogen, table_float_type::f32 };
         }
-        return table_id{table_kind::homogen, table_float_type::f64};
+        return table_id{ table_kind::homogen, table_float_type::f64 };
     }
 
     table_kind get_kind() const {
@@ -61,7 +56,8 @@ public:
 
 private:
     explicit table_id(table_kind kind, table_float_type float_type)
-            : kind_(kind), float_type_(float_type) {}
+            : kind_(kind),
+              float_type_(float_type) {}
 
     table_kind kind_;
     table_float_type float_type_;
