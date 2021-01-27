@@ -50,9 +50,6 @@ void memset(const data_parallel_policy& policy, void* dest, std::int32_t value, 
 }
 
 void memcpy(const data_parallel_policy& policy, void* dest, const void* src, std::int64_t size) {
-    ONEDAL_ASSERT(is_known_usm_pointer_type(policy, dest));
-    ONEDAL_ASSERT(is_known_usm_pointer_type(policy, src));
-
     auto& queue = policy.get_queue();
     queue.memcpy(dest, src, detail::integral_cast<std::size_t>(size)).wait_and_throw();
 }
