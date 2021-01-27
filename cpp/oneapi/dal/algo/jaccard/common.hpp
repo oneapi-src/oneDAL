@@ -108,10 +108,10 @@ struct ONEDAL_EXPORT caching_builder {
     ///
     /// @param [in]   block_max_size  The required size of memory
     /// @param [in/out]  builder  The caching builder
-    void* operator()(std::size_t block_max_size);
+    void* operator()(std::int64_t block_max_size);
 
     std::shared_ptr<byte_t> result_ptr;
-    std::size_t size = 0;
+    std::int64_t size = 0;
 };
 
 namespace detail {

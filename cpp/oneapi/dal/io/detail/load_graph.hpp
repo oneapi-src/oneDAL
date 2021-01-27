@@ -191,7 +191,6 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     const vertex_size_type vertex_count = get_vertex_count_from_edge_list(edges);
 
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
-    auto &allocator = graph_impl._allocator;
     auto &vertex_allocator = graph_impl._vertex_allocator;
     auto &edge_allocator = graph_impl._edge_allocator;
     atomic_vertex_allocator_type atomic_vertex_allocator;
