@@ -54,9 +54,9 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
 #endif
 
 DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
-                                          const std::int32_t *neigh_v,
-                                          std::int32_t n_u,
-                                          std::int32_t n_v) {
+                                           const std::int32_t *neigh_v,
+                                           std::int32_t n_u,
+                                           std::int32_t n_v) {
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
 #if defined(__INTEL_COMPILER)

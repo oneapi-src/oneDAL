@@ -87,21 +87,17 @@ vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method,
     vertex_similarity_input<Graph> &input) const {
     const auto &csr_topology =
         dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-    const auto row_begin =
-        dal::detail::integral_cast<vertex_type<Graph>>(desc.get_row_range_begin());
-    const auto row_end = dal::detail::integral_cast<vertex_type<Graph>>(desc.get_row_range_end());
-    const auto column_begin =
-        dal::detail::integral_cast<vertex_type<Graph>>(desc.get_column_range_begin());
-    const auto column_end =
-        dal::detail::integral_cast<vertex_type<Graph>>(desc.get_column_range_end());
-    const auto number_elements_in_block =
+    const std::int64_t row_begin = desc.get_row_range_begin();
+    const std::int64_t row_end = desc.get_row_range_end();
+    const std::int64_t column_begin = desc.get_column_range_begin();
+    const std::int64_t column_end = desc.get_column_range_end();
+    const std::int64_t number_elements_in_block =
         get_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const auto max_block_size =
+    const std::int64_t max_block_size =
         get_max_block_size<Float, vertex_type<Graph>>(number_elements_in_block);
     void *result_ptr = input.get_caching_builder()(max_block_size);
-
     static auto impl = get_backend<Policy, Float, Method>(desc, csr_topology);
-    return (*impl)(policy, desc, csr_topology, result_ptr); // dep on backend
+    return (*impl)(policy, desc, csr_topology, result_ptr);
 }
 
 } // namespace oneapi::dal::preview::jaccard::detail

@@ -24,9 +24,9 @@
 namespace oneapi::dal::preview::jaccard::detail {
 
 inline std::int64_t get_number_elements_in_block(const std::int32_t &row_range_begin,
-                                                const std::int32_t &row_range_end,
-                                                const std::int32_t &column_range_begin,
-                                                const std::int32_t &column_range_end) {
+                                                 const std::int32_t &row_range_end,
+                                                 const std::int32_t &column_range_begin,
+                                                 const std::int32_t &column_range_end) {
     ONEDAL_ASSERT(row_range_end >= row_range_begin, "Negative interval found");
     const std::int64_t row_count = row_range_end - row_range_begin;
     ONEDAL_ASSERT(column_range_end >= column_range_begin, "Negative interval found");
@@ -43,7 +43,8 @@ inline std::int64_t get_max_block_size(const std::int64_t &vertex_pairs_count) {
     const std::int64_t vertex_pair_element_count = 2; // 2 elements in the vertex pair
     const std::int64_t jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
 
-    const std::int64_t vertex_pair_size = vertex_pair_element_count * sizeof(Index); // size in bytes
+    const std::int64_t vertex_pair_size =
+        vertex_pair_element_count * sizeof(Index); // size in bytes
     const std::int64_t jaccard_coeff_size =
         jaccard_coeff_element_count * sizeof(Float); // size in bytes
     const std::int64_t element_result_size = vertex_pair_size + jaccard_coeff_size;

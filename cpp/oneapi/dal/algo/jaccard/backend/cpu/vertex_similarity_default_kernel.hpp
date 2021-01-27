@@ -64,7 +64,8 @@ DAAL_FORCEINLINE std::int64_t compute_max_block_size(const std::int64_t &vertex_
     const std::int64_t vertex_pair_element_count = 2; // 2 elements in the vertex pair
     const std::int64_t jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
 
-    const std::int64_t vertex_pair_size = vertex_pair_element_count * sizeof(Index); // size in bytes
+    const std::int64_t vertex_pair_size =
+        vertex_pair_element_count * sizeof(Index); // size in bytes
     const std::int64_t jaccard_coeff_size =
         jaccard_coeff_element_count * sizeof(Float); // size in bytes
     const std::int64_t element_result_size = vertex_pair_size + jaccard_coeff_size;
