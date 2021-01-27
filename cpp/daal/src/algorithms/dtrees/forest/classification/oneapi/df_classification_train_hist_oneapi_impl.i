@@ -1,6 +1,6 @@
 /* file: df_classification_train_hist_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1007,7 +1007,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
         DFTreeConverterType converter;
         DAAL_CHECK_STATUS_VAR(converter.convertToDFDecisionTree(DFTreeRecords, binValues.data(), mTreeHelper, _nClasses));
 
-        mdImpl.add(mTreeHelper._tree, _nClasses);
+        mdImpl.add(mTreeHelper._tree, _nClasses, iter);
 
         DAAL_CHECK_STATUS_VAR(computeResults(mTreeHelper._tree, dataBlock.getBlockPtr(), responseBlock.getBlockPtr(), _nSelectedRows, _nFeatures,
                                              oobRows, nOOBRows, oobBufferPerObs, varImpBlock.getBlockPtr(), varImpVariance.get(), iter + 1,

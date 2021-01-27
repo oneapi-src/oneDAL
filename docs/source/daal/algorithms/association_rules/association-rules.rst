@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -253,7 +253,4 @@ data types:
 -  A numeric table with the confidence values of the same data type
    as specified in the algorithmFPType template parameter of the
    class.
-
-
-.. include:: ../../../opt-notice.rst
 

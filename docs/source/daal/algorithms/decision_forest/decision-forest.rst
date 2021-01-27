@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -412,5 +412,3 @@ Performance Considerations
 To get the best performance of the decision forest variable
 importance computation, use the Mean Decrease Impurity (MDI) rather
 than the Mean Decrease Accuracy (MDA) method.
-
-.. include:: ../../../opt-notice.rst

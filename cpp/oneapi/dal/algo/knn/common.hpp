@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes `k-d tree <knn_t_math_kd_tree>`_ computational method.
+/// Tag-type that denotes `k-d tree <knn_t_math_kd_tree_>`_ computational method.
 struct kd_tree {};
 
 /// Tag-type that denotes `brute-force <knn_t_math_brute_force_>`_ computational

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,15 +41,15 @@ using v1::by_default;
 namespace method {
 namespace v1 {
 
-/// Tag-type that denotes `Thunder <svm_t_math_thunder>`_ computational
+/// Tag-type that denotes `Thunder <svm_t_math_thunder_>`_ computational
 /// method.
 struct thunder {};
 
-/// Tag-type that denotes `SMO <svm_t_math_smo>`_ computational
+/// Tag-type that denotes `SMO <svm_t_math_smo_>`_ computational
 /// method.
 struct smo {};
 
-/// Alias tag-type for `Thunder <svm_t_math_thunder>`_ computational
+/// Alias tag-type for `Thunder <svm_t_math_thunder_>`_ computational
 /// method.
 using by_default = thunder;
 } // namespace v1

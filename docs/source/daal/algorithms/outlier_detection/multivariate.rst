@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -162,5 +162,3 @@ To get the best overall performance of multivariate outlier detection:
 - If input data is non-homogeneous, use :ref:`AOS layout <aos_layout>` rather than SOA layout.
 - For the default outlier detection method (``defaultDense``),
   you can benefit from splitting the input data set into blocks for parallel processing.
-
-.. include:: ../../../opt-notice.rst

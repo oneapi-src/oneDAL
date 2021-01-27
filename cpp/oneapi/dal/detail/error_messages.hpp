@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ public:
     MSG(small_data_block);
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
+    MSG(unsupported_feature_type);
 
     /* Tables */
     MSG(cannot_get_data_type_from_empty_metadata);

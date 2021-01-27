@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
         # Navigate to DPC++ examples directory and build examples
         cd /examples/oneapi/dpc
-        nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ compiler
+        nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
         nmake libintel64 mode=build			     # This will compile all DPC++ examples
 
   To see all available parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.
