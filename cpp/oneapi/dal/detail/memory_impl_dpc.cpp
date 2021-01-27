@@ -38,7 +38,6 @@ void* malloc(const data_parallel_policy& policy, std::size_t size, const sycl::u
 }
 
 void free(const data_parallel_policy& policy, void* pointer) {
-    ONEDAL_ASSERT(is_known_usm_pointer_type(policy, pointer));
     sycl::free(pointer, policy.get_queue());
 }
 
@@ -55,10 +54,6 @@ void memcpy(const data_parallel_policy& policy, void* dest, const void* src, std
 }
 
 bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* pointer) {
-    if (pointer == nullptr) {
-        return false;
-    }
-
     auto& queue = policy.get_queue();
     auto context = queue.get_context();
 
