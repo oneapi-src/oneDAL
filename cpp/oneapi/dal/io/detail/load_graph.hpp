@@ -58,17 +58,6 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
     return elist;
 }
 
-template <>
-edge_list<std::int64_t> load_edge_list(const std::string &name) {
-    edge_list<std::int32_t> elist_int32 = load_edge_list<std::int32_t>(name);
-    edge_list<std::int64_t> elist_int64(elist_int32.size());
-    dal::detail::threader_for(elist_int64.size(), elist_int64.size(), [&](std::int64_t i) {
-        elist_int64[i].first = elist_int32[i].first;
-        elist_int64[i].second = elist_int32[i].second;
-    });
-    return elist_int64;
-}
-
 template <typename Index>
 std::int64_t get_vertex_count_from_edge_list(const edge_list<Index> &edges) {
     Index max_id = edges[0].first;
