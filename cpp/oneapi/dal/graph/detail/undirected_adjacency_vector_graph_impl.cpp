@@ -18,8 +18,6 @@
 
 namespace oneapi::dal::preview::detail {
 
-template class ONEDAL_EXPORT dal::array<float>;
-
 template class ONEDAL_EXPORT topology<int32_t>;
 
 } // namespace oneapi::dal::preview::detail

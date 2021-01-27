@@ -102,8 +102,8 @@ public:
 
     vector_container(vector_container<T, Allocator>&& other)
             : impl_(other.impl_),
-              capacity(other.capacity),
-              allocator(other.allocator) {}
+              allocator(other.allocator),
+              capacity(other.capacity) {}
 
     vector_container<T, Allocator> operator=(vector_container<T, Allocator>&& other) {
         swap(*this, other);

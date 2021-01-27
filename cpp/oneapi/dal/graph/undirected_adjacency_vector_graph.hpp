@@ -47,8 +47,7 @@ public:
     using graph_type =
         undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
 
-    static_assert(std::is_integral_v<IndexType> && std::is_signed_v<IndexType>,
-                  "Use signed integer for vertex index type");
+    static_assert(detail::is_valid_index_v<IndexType>, "Use int32_t for vertex index type");
 
     /// Constructs an empty undirected_adjacency_vector_graph
     undirected_adjacency_vector_graph();

@@ -24,6 +24,9 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename IndexType>
+constexpr bool is_valid_index_v = dal::detail::is_one_of_v<IndexType, std::int32_t>;
+
+template <typename IndexType>
 class topology {
 public:
     using vertex_type = IndexType;

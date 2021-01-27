@@ -7,10 +7,11 @@ load("@onedal//dev/bazel:dal.bzl",
 
 dal_module(
     name = "graph_csv",
-    hdrs = glob(["**/*graph*.hpp"]),
+    hdrs = glob(["**/*graph*.hpp", "**/*common*.hpp"]),
     srcs = glob(["**/*graph*.cpp"]),
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/oneapi/dal:common",
     ],
 )
 
