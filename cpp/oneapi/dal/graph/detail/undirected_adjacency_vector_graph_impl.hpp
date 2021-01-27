@@ -51,8 +51,8 @@ public:
     vertex_set _cols;
     edge_set _degrees;
     edge_set _rows;
-    int64_t _vertex_count = 0;
-    int64_t _edge_count = 0;
+    std::int64_t _vertex_count = 0;
+    std::int64_t _edge_count = 0;
 };
 
 template <typename VertexValue>
