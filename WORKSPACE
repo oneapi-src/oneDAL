@@ -75,9 +75,9 @@ http_archive(
 
 http_archive(
     name = "catch2",
-    url = "https://github.com/catchorg/Catch2/archive/v2.13.1.tar.gz",
-    sha256 = "36bcc9e6190923961be11e589d747e606515de95f10779e29853cfeae560bd6c",
-    strip_prefix = "Catch2-2.13.1",
+    url = "https://github.com/catchorg/Catch2/archive/v2.13.4.tar.gz",
+    sha256 = "e7eb70b3d0ac2ed7dcf14563ad808740c29e628edde99e973adad373a2b5e4df",
+    strip_prefix = "Catch2-2.13.4",
 )
 
 http_archive(
