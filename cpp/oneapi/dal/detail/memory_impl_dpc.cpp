@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
 
 namespace oneapi::dal::detail::v1 {
@@ -65,4 +64,3 @@ bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* p
 
 } // namespace oneapi::dal::detail::v1
 
-#endif // ONEDAL_DATA_PARALLEL
