@@ -354,18 +354,24 @@ public:
 
         lambdaType * locall = new lambdaType(lambda);
         _deleter            = new static_tls_deleter_<lambdaType>();
+        if (!locall || !_deleter)
+        {
+            return;
+        }
 
         const void * ac = static_cast<const void *>(locall);
         void * a        = const_cast<void *>(ac);
         _creater        = a;
 
         _creater_func = creater_func<F, lambdaType>;
-        int abc       = 0;
     }
 
     virtual ~static_tls()
     {
-        _deleter->del(_creater);
+        if (_deleter)
+        {
+            _deleter->del(_creater);
+        }
         delete _deleter;
         delete _storage;
     }
