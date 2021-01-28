@@ -44,7 +44,7 @@ struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Topology> {
 };
 
 template <typename Float, typename Method>
-struct ONEDAL_EXPORT backend_default<dal::detail::host_policy,
+struct backend_default<dal::detail::host_policy,
                                      Float,
                                      Method,
                                      dal::preview::detail::topology<std::int32_t>>
