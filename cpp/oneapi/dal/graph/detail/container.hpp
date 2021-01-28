@@ -40,19 +40,17 @@ public:
     using allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<T>;
     using empty_delete = dal::detail::empty_delete<const T>;
 
-    vector_container() : impl_(new impl_t()), allocator(allocator_type()) {
-        impl_->reset(allocator_traits::allocate(allocator, capacity), 0, empty_delete{});
+    vector_container() : impl_(new impl_t()), allocator_(allocator_type()) {
+        impl_->reset(allocator_traits::allocate(allocator_, capacity_), capacity_, empty_delete{});
     }
 
     vector_container(std::int64_t count) : vector_container() {
         //TODO: add check for count
-        capacity = count;
-        impl_->reset(allocator_traits::allocate(allocator, capacity), count, empty_delete{});
+        resize(count);
     }
 
-    vector_container(const allocator_type& a) : impl_(new impl_t()), allocator(a) {
-        allocator = a;
-        impl_->reset(allocator_traits::allocate(allocator, capacity), 0, empty_delete{});
+    vector_container(const allocator_type& a) : impl_(new impl_t()), allocator_(a) {
+        impl_->reset(allocator_traits::allocate(allocator, capacity), capacity, empty_delete{});
     }
 
     vector_container(std::int64_t count, const allocator_type& a) : vector_container(a) {
@@ -61,8 +59,8 @@ public:
     }
 
     virtual ~vector_container() {
-        if (impl_->get_mutable_data() != nullptr) {
-            allocator_traits::deallocate(allocator, impl_->get_mutable_data(), capacity);
+        if (impl_->has_mutable_data()) {
+            allocator_traits::deallocate(allocator_, impl_->get_mutable_data(), capacity_);
         }
     }
 
@@ -77,19 +75,19 @@ public:
     }
 
     std::int64_t get_count() const noexcept {
-        return impl_->get_count();
+        return count_;
     }
 
     std::int64_t size() const noexcept {
-        return impl_->get_count();
+        return count_;
     }
 
     std::int64_t get_size() const noexcept {
-        return impl_->get_size();
+        return count_ * sizeof(data_t);
     }
 
     const allocator_type& get_allocator() const noexcept {
-        return allocator;
+        return allocator_;
     }
 
     const T* get_data() const noexcept {
@@ -100,29 +98,8 @@ public:
         return impl_->get_mutable_data();
     }
 
-    vector_container(vector_container<T, Allocator>&& other)
-            : impl_(other.impl_),
-              allocator(other.allocator),
-              capacity(other.capacity) {}
-
-    vector_container<T, Allocator> operator=(vector_container<T, Allocator>&& other) {
-        swap(*this, other);
-        return *this;
-    }
-
-    vector_container(const vector_container<T, Allocator>& other)
-            : impl_(other.impl_),
-              capacity(other.capacity),
-              allocator(other.allocator) {}
-
-    vector_container<T, Allocator> operator=(const vector_container<T, Allocator>& other) {
-        vector_container<T, Allocator> tmp{ other };
-        swap(*this, tmp);
-        return *this;
-    }
-
     constexpr void resize(std::int64_t count) {
-        if (count > capacity) {
+        if (count > capacity_) {
             std::int64_t count_temp = count;
             std::int64_t new_capacity = 1;
             while (count_temp != 0) {
@@ -130,39 +107,40 @@ public:
                 new_capacity *= 2;
             }
             reserve(new_capacity);
-            impl_->reset(impl_->get_mutable_data(), count, empty_delete{});
         }
-        impl_->reset(impl_->get_mutable_data(), count, empty_delete{});
+        this->count_ = count;
     }
 
     constexpr void reserve(std::int64_t new_capacity) {
-        if (new_capacity > capacity) {
-            T* data_ptr = allocator_traits::allocate(allocator, new_capacity);
+        if (new_capacity > capacity_) {
+            T* data_ptr = allocator_traits::allocate(allocator_, new_capacity);
             T* old_data_ptr = impl_->get_mutable_data();
-            const std::int64_t old_count = get_count();
+            const std::int64_t old_count = this->count_;
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (std::int64_t i = 0; i < old_count; i++) {
                 data_ptr[i] = old_data_ptr[i];
             }
 
-            allocator_traits::deallocate(allocator, old_data_ptr, capacity);
-            impl_->reset(data_ptr, impl_->get_count(), empty_delete{});
-            capacity = new_capacity;
+            allocator_traits::deallocate(allocator_, old_data_ptr, capacity_);
+            impl_->reset(data_ptr, new_capacity, empty_delete{});
+            capacity_ = new_capacity;
         }
     }
 
     constexpr void push_back(const T& value) {
-        resize(impl_->get_count() + 1);
-        operator[](impl_->get_count() - 1) = value;
+        resize(this->count_ + 1);
+        operator[](this->count_ - 1) = value;
     }
 
     using iterator = T*;
+
     iterator begin() {
         return impl_->get_mutable_data();
     }
+
     iterator end() {
-        return impl_->get_mutable_data() + impl_->get_count();
+        return impl_->get_mutable_data() + this->count_;
     }
 
 private:
@@ -170,9 +148,11 @@ private:
 
     pimpl impl_;
 
-    allocator_type allocator;
+    allocator_type allocator_;
 
-    std::int64_t capacity = 1;
+    std::int64_t capacity_ = 1;
+
+    std::int64_t count_ = 0;
 
     friend dal::detail::pimpl_accessor;
 };
