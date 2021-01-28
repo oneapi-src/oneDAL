@@ -173,7 +173,7 @@ jobs:
       source ${TBBROOT}/env/vars.sh
       cd daal4py
       python -c "import daal4py"
-      python tests/run_tests.py
+      pytest tests/tests*.py
       echo $?
       pytest --pyargs daal4py/sklearn/
       python examples/run_examples.py
