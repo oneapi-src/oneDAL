@@ -44,18 +44,8 @@ public:
         impl_->reset(allocator_traits::allocate(allocator_, capacity_), capacity_, empty_delete{});
     }
 
-    vector_container(std::int64_t count) : vector_container() {
-        //TODO: add check for count
-        resize(count);
-    }
-
     vector_container(const allocator_type& a) : impl_(new impl_t()), allocator_(a) {
-        impl_->reset(allocator_traits::allocate(allocator, capacity), capacity, empty_delete{});
-    }
-
-    vector_container(std::int64_t count, const allocator_type& a) : vector_container(a) {
-        //TODO: add check for count
-        resize(count);
+        impl_->reset(allocator_traits::allocate(allocator_, capacity_), capacity_, empty_delete{});
     }
 
     virtual ~vector_container() {
@@ -80,10 +70,6 @@ public:
 
     std::int64_t size() const noexcept {
         return count_;
-    }
-
-    std::int64_t get_size() const noexcept {
-        return count_ * sizeof(data_t);
     }
 
     const allocator_type& get_allocator() const noexcept {
