@@ -27,11 +27,6 @@ namespace v1 {
 ONEDAL_EXPORT void* malloc(const default_host_policy&, std::size_t size);
 ONEDAL_EXPORT void* calloc(const default_host_policy&, std::size_t size);
 ONEDAL_EXPORT void free(const default_host_policy&, void* pointer);
-ONEDAL_EXPORT void fill(const default_host_policy&,
-                        void* dest,
-                        std::size_t size,
-                        const void* pattern,
-                        std::size_t pattern_size);
 ONEDAL_EXPORT void memset(const default_host_policy&,
                           void* dest,
                           std::int32_t value,
@@ -63,9 +58,12 @@ inline void free(const default_host_policy& policy, T* pointer) {
 
 template <typename T>
 inline void fill(const default_host_policy& policy, T* dest, std::int64_t count, const T& value) {
-    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
-    const std::int64_t bytes_count = sizeof(T) * count;
-    fill(policy, dest, bytes_count, &value, sizeof(T));
+    ONEDAL_ASSERT(dest != nullptr);
+    ONEDAL_ASSERT(count > 0);
+
+    for (std::int64_t i = 0; i < count; i++) {
+        dest[i] = value;
+    }
 }
 
 template <typename T>
