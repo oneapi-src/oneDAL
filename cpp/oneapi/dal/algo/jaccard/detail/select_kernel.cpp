@@ -35,9 +35,9 @@ operator()(const dal::detail::host_policy &policy,
     });
 }
 
-template struct backend_default<dal::detail::host_policy,
-                                float,
-                                dal::preview::jaccard::method::fast,
-                                dal::preview::detail::topology<std::int32_t>>;
+template struct ONEDAL_EXPORT backend_default<dal::detail::host_policy,
+                                              float,
+                                              dal::preview::jaccard::method::fast,
+                                              dal::preview::detail::topology<std::int32_t>>;
 
 } // namespace oneapi::dal::preview::jaccard::detail
