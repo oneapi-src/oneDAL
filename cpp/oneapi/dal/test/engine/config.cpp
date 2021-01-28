@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,24 +14,49 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/config.hpp"
+#include "oneapi/dal/test/engine/config.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
-#include "oneapi/dal/test/common.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #endif
 
-namespace oneapi::dal::test {
+namespace oneapi::dal::test::engine {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
 static sycl::queue get_default_queue() {
-    return sycl::gpu_selector{};
+    try {
+        return sycl::queue{ sycl::gpu_selector{} };
+    }
+    catch (const sycl::runtime_error& ex) {
+        return sycl::queue{ sycl::cpu_selector{} };
+    }
 }
 
-void global_setup() {
+static sycl::queue get_queue(const std::string& device_selector) {
+    if (device_selector.empty()) {
+        return get_default_queue();
+    }
+
+    if (device_selector == "cpu") {
+        return sycl::queue{ sycl::cpu_selector{} };
+    }
+
+    if (device_selector == "gpu") {
+        return sycl::queue{ sycl::gpu_selector{} };
+    }
+
+    if (device_selector == "host") {
+        return sycl::queue{ sycl::host_selector{} };
+    }
+
+    throw std::invalid_argument{ "Unknown device selector" };
+}
+
+void global_setup(const global_config& config) {
     dal::backend::interop::enable_daal_sycl_execution_context_cache();
-    test_queue_provider::get_instance().init(get_default_queue());
+    test_queue_provider::get_instance().init(get_queue(config.device_selector));
 }
 
 void global_cleanup() {
@@ -40,8 +65,8 @@ void global_cleanup() {
 }
 
 #else
-void global_setup() {}
+void global_setup(const global_config& config) {}
 void global_cleanup() {}
 #endif
 
-} //namespace oneapi::dal::test
+} //namespace oneapi::dal::test::engine

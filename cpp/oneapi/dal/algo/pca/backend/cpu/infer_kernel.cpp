@@ -16,6 +16,7 @@
 
 #include <daal/src/algorithms/pca/transform/pca_transform_kernel.h>
 
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -43,7 +44,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data,
                                  const model_t& model) {
     const std::int64_t row_count = data.get_row_count();
-    const std::int64_t component_count = desc.get_component_count();
+    const std::int64_t component_count = get_component_count(desc, data);
 
     dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result = array<Float>::empty(row_count * component_count);

@@ -19,31 +19,30 @@ load("@onedal//dev/bazel:cc.bzl",
     "cc_static_lib",
     "cc_dynamic_lib",
     "cc_test",
+    "ModuleInfo",
 )
 load("@onedal//dev/bazel:release.bzl",
     "headers_filter",
 )
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
-    "utils",
     "paths",
 )
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
 )
-load("@onedal//dev/bazel:cc.bzl", "ModuleInfo")
 
 def dal_module(name, hdrs=[], srcs=[],
                dal_deps=[], extra_deps=[],
                host_hdrs=[], host_srcs=[], host_deps=[],
                dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
-               auto=False, host=True, dpc=True, **kwargs):
+               auto=False, host=True, dpc=True, auto_exclude=[], **kwargs):
     _check_target_name(name, host, dpc)
     if auto:
-        hpp_filt = ["**/*.hpp"]
-        cpp_filt = ["**/*.cpp"]
-        dpc_filt = ["**/*_dpc.cpp"]
-        test_filt = ["**/*_test*", "**/test/**"]
+        hpp_filt = ["**/*.hpp"] + auto_exclude
+        cpp_filt = ["**/*.cpp"] + auto_exclude
+        dpc_filt = ["**/*_dpc.cpp"] + auto_exclude
+        test_filt = ["**/*_test*", "**/test/**"] + auto_exclude
         hdrs_all = native.glob(hpp_filt, exclude=test_filt)
         dpc_auto_hdrs = hdrs_all
         dpc_auto_srcs = native.glob(cpp_filt, exclude=test_filt)
@@ -69,6 +68,14 @@ def dal_module(name, hdrs=[], srcs=[],
         srcs = srcs + dpc_auto_srcs + dpc_srcs,
         deps = _get_dpc_deps(dal_deps) + dpc_deps + extra_deps,
         is_dpc = True,
+        **kwargs,
+    )
+
+def dal_test_module(name, dal_deps=[], dal_test_deps = [], **kwargs):
+    dal_module(
+        name = name,
+        dal_deps = _test_link_mode_deps(dal_deps) + dal_test_deps,
+        testonly = True,
         **kwargs,
     )
 
@@ -139,7 +146,7 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
     )
 
 def dal_test(name, hdrs=[], srcs=[],
-             dal_deps=[], extra_deps=[],
+             dal_deps=[], dal_test_deps=[], extra_deps=[],
              host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
              host=True, dpc=True, framework="gtest",
@@ -147,8 +154,8 @@ def dal_test(name, hdrs=[], srcs=[],
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
         fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
-    gtest = (framework == "gtest")
-    catch2 = (framework == "catch2")
+    is_gtest = framework == "gtest"
+    is_catch2 = framework == "catch2"
     module_name = "__" + name
     if not host and dpc:
         module_name = _remove_dpc_suffix(module_name) + "_dpc"
@@ -164,51 +171,16 @@ def dal_test(name, hdrs=[], srcs=[],
         dpc_deps = dpc_deps,
         host = host,
         dpc = dpc,
-        dal_deps = _select({
-            "@config//:dev_test_link_mode": dal_deps,
-            "@config//:static_test_link_mode": [
-                "@onedal//cpp/oneapi/dal:static",
-            ],
-            "@config//:dynamic_test_link_mode": [
-                "@onedal//cpp/oneapi/dal:dynamic",
-            ],
-            "@config//:release_static_test_link_mode": [
-                "@onedal_release//:onedal_static",
-            ],
-            "@config//:release_dynamic_test_link_mode": [
-                "@onedal_release//:onedal_dynamic",
-            ],
-        }) + ([
-            "@onedal//cpp/oneapi:include_root"
-        ]) + ([
-            "@onedal//cpp/oneapi/dal/test:common",
-        ] if catch2 else []),
-        extra_deps = _select({
-            "@config//:dev_test_link_mode": [
-                "@onedal//cpp/daal:threading_static",
-            ],
-            "@config//:static_test_link_mode": [
-                "@onedal//cpp/daal:core_static",
-                "@onedal//cpp/daal:threading_static",
-            ],
-            "@config//:dynamic_test_link_mode": [
-                "@onedal//cpp/daal:core_dynamic",
-                "@onedal//cpp/daal:threading_dynamic",
-            ],
-            "@config//:release_static_test_link_mode": [
-                "@onedal_release//:core_static",
-                "@onedal//cpp/daal:threading_release_static",
-            ],
-            "@config//:release_dynamic_test_link_mode": [
-                "@onedal_release//:core_dynamic",
-                "@onedal//cpp/daal:threading_release_dynamic",
-            ],
-        }) + ([
-            "@gtest//:gtest_main",
-        ] if gtest else []) + ([
-            "@onedal//cpp/oneapi/dal/test:catch2_main",
-        ] if catch2 else []) +
-        extra_deps,
+        dal_deps = (
+            dal_test_deps +
+            _test_link_mode_deps(dal_deps)
+        ) + ([
+            "@onedal//cpp/oneapi/dal/test/engine:gtest_main",
+        ] if is_gtest else []) + ([
+            "@onedal//cpp/oneapi/dal/test/engine:common",
+            "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
+        ] if is_catch2 else []),
+        extra_deps = _test_deps_on_daal() + extra_deps,
         testonly = True,
         **kwargs,
     )
@@ -225,13 +197,14 @@ def dal_test(name, hdrs=[], srcs=[],
             features = [ "dpc++" ],
             deps = [
                 ":" + _get_dpc_target_name(module_name, host, dpc),
+                # TODO: Remove once all GPU algorithms are migrated to DPC++
                 "@opencl//:opencl_binary",
             ],
             data = data,
             tags = tags + ["dpc"],
         )
 
-def dal_test_suite(name, srcs=[], tests=[], host_tests=[], dpc_tests=[],
+def dal_test_suite(name, srcs=[], tests=[],
                    host=True, dpc=True, **kwargs):
     _check_target_name(name, host, dpc)
     targets = []
@@ -249,18 +222,9 @@ def dal_test_suite(name, srcs=[], tests=[], host_tests=[], dpc_tests=[],
             targets.append(":" + target)
         if dpc:
             targets_dpc.append(":" + _get_dpc_target_name(target, host, dpc))
-    # TODO: Empty test_suites (where the field tests = []) run all
-    # tests in package (not sure bug or feature of Bazel). Probably,
-    # need to create test suite with one fake test to workaround it.
-    _add_test_suite_if_condition(
-        condition = host,
-        name = _remove_dpc_suffix(name),
-        tests = tests + host_tests + targets,
-    )
-    _add_test_suite_if_condition(
-        condition = dpc,
-        name = _get_dpc_target_name(name, host, dpc),
-        tests = _get_dpc_deps(tests) + dpc_tests + targets_dpc,
+    native.test_suite(
+        name = name,
+        tests = tests + targets + targets_dpc,
     )
 
 def dal_collect_test_suites(name, root, modules, tests=[], **kwargs):
@@ -311,6 +275,32 @@ def dal_algo_example_suite(algos, dal_deps=[], **kwargs):
             ],
             **kwargs,
         )
+
+def _test_link_mode_deps(dal_deps):
+    return _select({
+        "@config//:dev_test_link_mode": dal_deps,
+        "@config//:release_static_test_link_mode": [
+            "@onedal_release//:onedal_static",
+        ],
+        "@config//:release_dynamic_test_link_mode": [
+            "@onedal_release//:onedal_dynamic",
+        ],
+    })
+
+def _test_deps_on_daal():
+    return _select({
+        "@config//:dev_test_link_mode": [
+            "@onedal//cpp/daal:threading_static",
+        ],
+        "@config//:release_static_test_link_mode": [
+            "@onedal_release//:core_static",
+            "@onedal//cpp/daal:threading_release_static",
+        ],
+        "@config//:release_dynamic_test_link_mode": [
+            "@onedal_release//:core_dynamic",
+            "@onedal//cpp/daal:threading_release_dynamic",
+        ],
+    })
 
 def _dal_generate_cpu_dispatcher_impl(ctx):
     cpus = sets.make(ctx.attr._cpus[CpuInfo].enabled)
@@ -442,12 +432,6 @@ def _add_module_if_condition(condition, name, is_dpc=False, **kwargs):
         _dal_module(name=name, is_dpc=is_dpc, **kwargs)
     else:
         _dal_module(name=name, is_dpc=is_dpc)
-
-def _add_test_suite_if_condition(condition, name, **kwargs):
-    if condition:
-        native.test_suite(name=name, **kwargs)
-    else:
-        native.test_suite(name=name)
 
 def _select(x):
     return [x]

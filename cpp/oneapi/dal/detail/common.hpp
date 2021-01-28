@@ -28,24 +28,24 @@
 #define ONEDAL_ASSERT_MUL_OVERFLOW(...)
 #else
 #define ONEDAL_ASSERT_SUM_OVERFLOW(Data, first, second)                                       \
-    {                                                                                         \
+    do {                                                                                      \
         static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
         Data result;                                                                          \
         ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_sum((first),  \
                                                                                     (second), \
                                                                                     result),  \
-                      "Sum overflow assertion failed with operands" #first " and " #second)   \
-    }
+                      "Sum overflow assertion failed with operands" #first " and " #second);  \
+    } while (0)
 
 #define ONEDAL_ASSERT_MUL_OVERFLOW(Data, first, second)                                       \
-    {                                                                                         \
+    do {                                                                                      \
         static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
         Data result;                                                                          \
         ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_mul((first),  \
                                                                                     (second), \
                                                                                     result),  \
-                      "Mul overflow assertion failed with operands" #first " and " #second)   \
-    }
+                      "Mul overflow assertion failed with operands" #first " and " #second);  \
+    } while (0)
 #endif
 
 namespace oneapi::dal::detail {
