@@ -24,7 +24,7 @@
 namespace oneapi::dal::preview::jaccard::detail {
 
 template <typename Policy, typename Topology>
-struct ONEDAL_EXPORT backend_base {
+struct backend_base {
     virtual vertex_similarity_result operator()(const Policy &ctx,
                                                 const descriptor_base &descriptor,
                                                 const Topology &data,
@@ -33,7 +33,7 @@ struct ONEDAL_EXPORT backend_base {
 };
 
 template <typename Policy, typename Float, typename Method, typename Topology>
-struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Topology> {
+struct backend_default : public backend_base<Policy, Topology> {
     virtual vertex_similarity_result operator()(const Policy &ctx,
                                                 const descriptor_base &descriptor,
                                                 const Topology &data,
@@ -44,7 +44,7 @@ struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Topology> {
 };
 
 template <typename Float, typename Method>
-struct backend_default<dal::detail::host_policy,
+struct ONEDAL_EXPORT backend_default<dal::detail::host_policy,
                                      Float,
                                      Method,
                                      dal::preview::detail::topology<std::int32_t>>
