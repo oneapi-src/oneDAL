@@ -34,7 +34,7 @@ void run(sycl::queue &q) {
     const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_label_file_name });
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
 
     const auto df_train_desc = df::descriptor<float, df::method::hist, df::task::classification>{}
                                    .set_class_count(5)
