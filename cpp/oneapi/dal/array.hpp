@@ -254,7 +254,7 @@ public:
                    const sycl::vector_class<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
         update_data(impl_.get());
-        detail::wait_and_throw(dependencies);
+        sycl::event::wait_and_throw(dependencies);
     }
 
     /// Creates the ownership structure for memory block of externally-allocated immutable data,
@@ -276,7 +276,7 @@ public:
                    const sycl::vector_class<sycl::event>& dependencies = {})
             : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
         update_data(impl_.get());
-        detail::wait_and_throw(dependencies);
+        sycl::event::wait_and_throw(dependencies);
     }
 #endif
 
@@ -462,7 +462,7 @@ public:
                std::int64_t count,
                YDeleter&& deleter,
                const sycl::vector_class<sycl::event>& dependencies) {
-        detail::wait_and_throw(dependencies);
+        sycl::event::wait_and_throw(dependencies);
         reset(data, count, std::forward<YDeleter>(deleter));
     }
 #endif

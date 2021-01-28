@@ -75,6 +75,8 @@ public:
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
     MSG(unsupported_feature_type);
+    MSG(unknown_memcpy_error);
+    MSG(unknown_usm_pointer_type);
 
     /* Tables */
     MSG(cannot_get_data_type_from_empty_metadata);

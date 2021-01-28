@@ -158,15 +158,7 @@ inline constexpr std::int64_t get_data_type_size(data_type t) {
 }
 
 template <typename T>
-constexpr data_type make_data_type_impl();
-
-template <typename T>
-constexpr data_type make_data_type() {
-    return make_data_type_impl<std::decay_t<T>>();
-}
-
-template <typename T>
-constexpr data_type make_data_type_impl() {
+inline constexpr data_type make_data_type_impl() {
     if constexpr (std::is_same_v<std::int32_t, T>) {
         return data_type::int32;
     }
@@ -192,7 +184,12 @@ constexpr data_type make_data_type_impl() {
     return data_type::float32; // shall never come here
 }
 
-constexpr bool is_floating_point(data_type t) {
+template <typename T>
+inline constexpr data_type make_data_type() {
+    return make_data_type_impl<std::decay_t<T>>();
+}
+
+inline constexpr bool is_floating_point(data_type t) {
     if (t == data_type::bfloat16 || t == data_type::float32 || t == data_type::float64) {
         return true;
     }
@@ -202,7 +199,7 @@ constexpr bool is_floating_point(data_type t) {
 }
 
 template <typename T>
-constexpr bool is_floating_point() {
+inline constexpr bool is_floating_point() {
     return is_floating_point(make_data_type<T>());
 }
 
