@@ -63,4 +63,3 @@ bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* p
 }
 
 } // namespace oneapi::dal::detail::v1
-
