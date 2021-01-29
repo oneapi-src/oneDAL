@@ -198,6 +198,7 @@ jobs:
     inputs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
+    condition: always()
 
 - job: 'macOSMake'
   timeoutInMinutes: 0
