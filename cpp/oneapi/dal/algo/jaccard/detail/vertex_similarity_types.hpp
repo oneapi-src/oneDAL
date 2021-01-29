@@ -14,17 +14,27 @@
 * limitations under the License.
 *******************************************************************************/
 
+/// @file
+/// Contains the definition of the input and output for Jaccard Similarity
+/// algorithm
+
 #pragma once
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/detail/vertex_similarity_ops.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/vertex_similarity.hpp"
 
-namespace oneapi::dal::preview::detail {
+namespace oneapi::dal::preview::jaccard::detail {
 
-template <typename Descriptor, typename Graph>
-struct vertex_similarity_ops<Descriptor, Graph, jaccard::detail::tag>
-        : jaccard::detail::vertex_similarity_ops<Descriptor, Graph> {};
+class vertex_similarity_result_impl;
 
-} // namespace oneapi::dal::preview::detail
+template <typename Graph>
+class vertex_similarity_input_impl : public base {
+public:
+    vertex_similarity_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
+            : graph_data(graph_data_input),
+              builder(builder_input) {}
+
+    const Graph& graph_data;
+    caching_builder& builder;
+};
+
+} // namespace oneapi::dal::preview::jaccard::detail

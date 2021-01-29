@@ -16,41 +16,60 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace detail {
+namespace oneapi::dal::preview::jaccard::detail {
 
-template <typename Index>
-DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
-                                          const Index *neigh_v,
-                                          Index n_u,
-                                          Index n_v) {
-    std::size_t total = 0;
-    Index i_u = 0, i_v = 0;
-    while (i_u < n_u && i_v < n_v) {
-        if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
-            return total;
-        }
-        if (neigh_u[i_u] == neigh_v[i_v])
-            total++, i_u++, i_v++;
-        else if (neigh_u[i_u] < neigh_v[i_v])
-            i_u++;
-        else if (neigh_u[i_u] > neigh_v[i_v])
-            i_v++;
-    }
-    return total;
+inline std::int64_t get_number_elements_in_block(const std::int32_t &row_range_begin,
+                                                 const std::int32_t &row_range_end,
+                                                 const std::int32_t &column_range_begin,
+                                                 const std::int32_t &column_range_end) {
+    ONEDAL_ASSERT(row_range_end >= row_range_begin, "Negative interval found");
+    const std::int64_t row_count = row_range_end - row_range_begin;
+    ONEDAL_ASSERT(column_range_end >= column_range_begin, "Negative interval found");
+    const std::int64_t column_count = column_range_end - column_range_begin;
+    // compute the number of the vertex pairs in the block of the graph
+    const std::int64_t vertex_pairs_count = row_count * column_count;
+    ONEDAL_ASSERT(vertex_pairs_count / row_count == column_count,
+                  "Overflow found in multiplication of two values");
+    return vertex_pairs_count;
 }
 
-template <typename Cpu, typename Index>
-vertex_similarity_result call_jaccard_default_kernel_scalar(
+template <typename Float, typename Index>
+inline std::int64_t get_max_block_size(const std::int64_t &vertex_pairs_count) {
+    const std::int64_t vertex_pair_element_count = 2; // 2 elements in the vertex pair
+    const std::int64_t jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
+
+    const std::int64_t vertex_pair_size =
+        vertex_pair_element_count * sizeof(Index); // size in bytes
+    const std::int64_t jaccard_coeff_size =
+        jaccard_coeff_element_count * sizeof(Float); // size in bytes
+    const std::int64_t element_result_size = vertex_pair_size + jaccard_coeff_size;
+
+    const std::int64_t block_result_size = element_result_size * vertex_pairs_count;
+    ONEDAL_ASSERT(block_result_size / vertex_pairs_count == element_result_size,
+                  "Overflow found in multiplication of two values");
+    return block_result_size;
+}
+
+template <typename Index>
+inline Index min(const Index &a, const Index &b) {
+    return (a >= b) ? b : a;
+}
+
+template <typename Index>
+inline Index max(const Index &a, const Index &b) {
+    return (a <= b) ? b : a;
+}
+
+template <typename Index>
+inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Index n_u, Index n_v);
+
+template <typename Index>
+vertex_similarity_result call_jaccard_default_kernel_general(
     const descriptor_base &desc,
     const dal::preview::detail::topology<Index> &data,
     void *result_ptr) {
@@ -62,7 +81,7 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
     const auto column_begin = dal::detail::integral_cast<Index>(desc.get_column_range_begin());
     const auto column_end = dal::detail::integral_cast<Index>(desc.get_column_range_end());
     const auto number_elements_in_block =
-        compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
+        get_number_elements_in_block(row_begin, row_end, column_begin, column_end);
     Index *first_vertices = reinterpret_cast<Index *>(result_ptr);
     Index *second_vertices = first_vertices + number_elements_in_block;
     float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
@@ -122,6 +141,23 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
         nnz);
     return res;
 }
-} // namespace detail
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+
+template <typename Index>
+inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Index n_u, Index n_v) {
+    std::int64_t total = 0;
+    Index i_u = 0, i_v = 0;
+    while (i_u < n_u && i_v < n_v) {
+        if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
+            return total;
+        }
+        if (neigh_u[i_u] == neigh_v[i_v])
+            total++, i_u++, i_v++;
+        else if (neigh_u[i_u] < neigh_v[i_v])
+            i_u++;
+        else if (neigh_u[i_u] > neigh_v[i_v])
+            i_v++;
+    }
+    return total;
+}
+
+} // namespace oneapi::dal::preview::jaccard::detail
