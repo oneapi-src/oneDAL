@@ -34,10 +34,10 @@
 namespace oneapi::dal::preview::load_graph::detail {
 
 template <typename Vertex>
-edge_list<Vertex> load_edge_list(const std::string &name);
+inline edge_list<Vertex> load_edge_list(const std::string &name);
 
 template <>
-edge_list<std::int32_t> load_edge_list(const std::string &name) {
+inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;
 
     std::ifstream file(name);
