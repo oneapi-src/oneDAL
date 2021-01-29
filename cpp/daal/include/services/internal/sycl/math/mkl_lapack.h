@@ -25,7 +25,7 @@
 #define __ONEAPI_INTERNAL_MKL_LAPACK_H__
 
 #include "services/internal/buffer.h"
-#include "services/internal/sycl/math/mkl_dal.h"
+#include "services/internal/sycl/math/mkl_dal_utils.h"
 
 namespace daal
 {
@@ -54,7 +54,7 @@ struct MKLPotrf
 
     Status operator()(const math::UpLo uplo, const size_t n, Buffer<algorithmFPType> & a, const size_t lda)
     {
-        const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+        const auto uplomkl                       = to_fpk_uplo(uplo);
         const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
         return this->operator()(uplo, n, a, lda, minimalScratchpadSize);
     }
@@ -65,7 +65,7 @@ private:
         using namespace daal::services;
 
         Status status;
-        const ::oneapi::fpk::uplo uplomkl = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+        const auto uplomkl = to_fpk_uplo(uplo);
 
 #ifdef DAAL_SYCL_INTERFACE_USM
         if (a.isUSMBacked())
@@ -98,9 +98,10 @@ private:
             status |= catchSyclExceptions([&]() mutable {
                 cl::sycl::buffer<algorithmFPType, 1> scratchpad { cl::sycl::range<1>(scratchpadSize) };
 
-                const size_t minimalScratchpadSize = size_t(::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda));
+                const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
                 _queue.wait_and_throw();
-                if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorMemoryAllocationFailed);
+                DAAL_ASSERT(minimalScratchpadSize > 0);
+                if (scratchpad.get_count() < size_t(minimalScratchpadSize)) return Status(ErrorMemoryAllocationFailed);
 
                 ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
                 _queue.wait_and_throw();
@@ -127,7 +128,7 @@ struct MKLPotrs
     Status operator()(const math::UpLo uplo, const size_t n, const size_t ny, Buffer<algorithmFPType> & a, const size_t lda,
                       Buffer<algorithmFPType> & b, const size_t ldb)
     {
-        const ::oneapi::fpk::uplo uplomkl        = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+        const auto uplomkl                       = to_fpk_uplo(uplo);
         const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
         return this->operator()(uplo, n, ny, a, lda, b, ldb, minimalScratchpadSize);
     }
@@ -139,7 +140,7 @@ private:
         using namespace daal::services;
 
         services::Status status;
-        const ::oneapi::fpk::uplo uplomkl = uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
+        const auto uplomkl = to_fpk_uplo(uplo);
 
 #ifdef DAAL_SYCL_INTERFACE_USM
         if (a.isUSMBacked())
@@ -178,10 +179,12 @@ private:
             status |= catchSyclExceptions([&]() mutable {
                 cl::sycl::buffer<algorithmFPType, 1> scratchpad { cl::sycl::range<1>(scratchpadSize) };
 
-                const size_t minimalScratchpadSize =
-                    size_t(::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb));
+                const std::int64_t minimalScratchpadSize =
+                    ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
                 _queue.wait_and_throw();
-                if (scratchpad.get_count() < minimalScratchpadSize) return Status(ErrorMemoryAllocationFailed);
+
+                DAAL_ASSERT(minimalScratchpadSize > 0);
+                if (scratchpad.get_count() < size_t(minimalScratchpadSize)) return Status(ErrorMemoryAllocationFailed);
 
                 ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
                 _queue.wait_and_throw();

@@ -143,8 +143,8 @@ private:
                 auto dst = dst_buffer.toUSM(queue, status);
                 DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
 
-                auto src_raw = src.get() + srcOffset;
-                auto dst_raw = dst.get() + dstOffset;
+                auto * src_raw = src.get() + srcOffset;
+                auto * dst_raw = dst.get() + dstOffset;
 
                 const size_t bytes_count = sizeof(T) * count;
                 DAAL_ASSERT(bytes_count >= count);

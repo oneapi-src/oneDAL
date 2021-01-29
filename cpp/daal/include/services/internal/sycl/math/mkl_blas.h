@@ -26,7 +26,7 @@
 
 #include "services/internal/buffer.h"
 #include "services/internal/sycl/error_handling_sycl.h"
-#include "services/internal/sycl/math/mkl_dal.h"
+#include "services/internal/sycl/math/mkl_dal_utils.h"
 
 namespace daal
 {
@@ -40,19 +40,6 @@ namespace math
 {
 namespace interface1
 {
-namespace
-{
-inline auto to_fpk_transpose(const math::Transpose & trans)
-{
-    return trans == math::Transpose::Trans ? ::oneapi::fpk::transpose::trans : ::oneapi::fpk::transpose::nontrans;
-}
-
-inline auto to_fpk_uplo(const math::UpLo & uplo)
-{
-    return uplo == math::UpLo::Upper ? ::oneapi::fpk::uplo::upper : ::oneapi::fpk::uplo::lower;
-}
-} // namespace
-
 /** @ingroup oneapi_internal
  * @{
  */
