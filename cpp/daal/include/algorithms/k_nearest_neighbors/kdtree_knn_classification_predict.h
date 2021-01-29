@@ -348,6 +348,16 @@ public:
     }
 
     /**
+     * Constructs a KD-tree based kNN prediction algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
+    Batch(size_t nClasses)
+    {
+        parameter.nClasses = nClasses;
+        initialize();
+    }
+
+    /**
      * Get input objects for the KD-tree based kNN prediction algorithm
      * \return %Input objects for the KD-tree based kNN prediction algorithm
      */

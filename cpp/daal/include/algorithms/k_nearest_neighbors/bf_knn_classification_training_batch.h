@@ -81,7 +81,7 @@ public:
  *
  * \par References
  *      - \ref bf_knn_classification::interface1::Model "bf_knn_classification::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::interface1::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public classifier::training::Batch
@@ -97,12 +97,18 @@ public:
     Batch();
 
     /**
-     * Constructs a BF kNN prediction algorithm by copying input objects and parameters
-     * of another BF kNN prediction algorithm
+     * Constructs a BF kNN training algorithm by copying input objects and parameters
+     * of another BF kNN training algorithm
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
     Batch(const Batch<algorithmFPType, method> & other);
+
+    /**
+     * Constructs a BF kNN training algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
+    Batch(size_t nClasses);
 
     /** Destructor */
     ~Batch()
@@ -124,8 +130,8 @@ public:
     virtual const ParameterType & parameter() const { return *static_cast<const ParameterType *>(_par); }
 
     /**
-     * Get input objects for the BF kNN prediction algorithm
-     * \return %Input objects for the BF kNN prediction algorithm
+     * Get input objects for the BF kNN training algorithm
+     * \return %Input objects for the BF kNN training algorithm
      */
     InputType * getInput() DAAL_C11_OVERRIDE { return static_cast<InputType *>(_in); }
 

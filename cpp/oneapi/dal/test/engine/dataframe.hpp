@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,5 @@
 
 #pragma once
 
-namespace oneapi::dal::test {
-
-void global_setup();
-
-void global_cleanup();
-
-} //namespace oneapi::dal::test
+#include "oneapi/dal/test/engine/dataframe_common.hpp"
+#include "oneapi/dal/test/engine/dataframe_math.hpp"

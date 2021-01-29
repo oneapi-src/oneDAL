@@ -45,6 +45,13 @@ Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::predict
     initialize();
 }
 
+template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
+Batch<algorithmFPType, method>::Batch(size_t nClasses)
+{
+    _par = new ParameterType(nClasses);
+    initialize();
+}
+
 template class Batch<DAAL_FPTYPE, defaultDense>;
 
 } // namespace interface1

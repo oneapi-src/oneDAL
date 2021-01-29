@@ -39,28 +39,31 @@ struct train_ops {
     using result_t = train_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const input_t& input) const {
+    void check_preconditions(const Descriptor& desc, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
         if (!input.get_data().has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }
-        if (input.get_data().get_column_count() < params.get_component_count()) {
+        if (input.get_data().get_column_count() < desc.get_component_count()) {
             throw invalid_argument(msg::input_data_cc_lt_desc_component_count());
         }
     }
 
-    void check_postconditions(const Descriptor& params,
+    void check_postconditions(const Descriptor& desc,
                               const input_t& input,
                               const result_t& result) const {
         ONEDAL_ASSERT(result.get_variances().get_row_count() == 1);
         ONEDAL_ASSERT(result.get_variances().get_column_count() ==
                       input.get_data().get_column_count());
         ONEDAL_ASSERT(result.get_eigenvalues().get_row_count() == 1);
-        ONEDAL_ASSERT(result.get_eigenvalues().get_column_count() == params.get_component_count());
         ONEDAL_ASSERT(result.get_eigenvectors().get_column_count() ==
                       input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_eigenvectors().get_row_count() == params.get_component_count());
+        if (desc.get_component_count() > 0) {
+            ONEDAL_ASSERT(result.get_eigenvalues().get_column_count() ==
+                          desc.get_component_count());
+            ONEDAL_ASSERT(result.get_eigenvectors().get_row_count() == desc.get_component_count());
+        }
     }
 
     template <typename Context>

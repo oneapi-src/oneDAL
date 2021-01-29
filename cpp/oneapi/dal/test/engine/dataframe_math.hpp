@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,4 +16,31 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/linalg/matrix.hpp"
+#include "oneapi/dal/test/engine/dataframe.hpp"
+
+namespace oneapi::dal::test::engine {
+
+template <typename Float>
+class basic_statistics {
+public:
+    basic_statistics(const array<Float>& mean, const array<Float>& variance)
+            : mean_(mean),
+              variance_(variance) {}
+
+    const array<Float>& get_means() const {
+        return mean_;
+    }
+
+    const array<Float>& get_variances() const {
+        return variance_;
+    }
+
+private:
+    array<Float> mean_;
+    array<Float> variance_;
+};
+
+template <typename Float>
+basic_statistics<Float> compute_basic_statistics(const dataframe& df);
+
+} // namespace oneapi::dal::test::engine

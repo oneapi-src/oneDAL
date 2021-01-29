@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,22 +16,17 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/algo/pca/common.hpp"
 
-#ifdef ONEDAL_DATA_PARALLEL
-#include <CL/sycl.hpp>
+namespace oneapi::dal::pca::backend {
 
-namespace oneapi::dal::detail {
-namespace v1 {
-
-inline void wait_and_throw(const sycl::vector_class<sycl::event>& dependencies) {
-    sycl::event::wait_and_throw(dependencies);
+template <typename Descriptor>
+inline std::int64_t get_component_count(const Descriptor& desc, const table& data) {
+    ONEDAL_ASSERT(desc.get_component_count() >= 0);
+    if (desc.get_component_count() == 0) {
+        return data.get_column_count();
+    }
+    return desc.get_component_count();
 }
 
-} // namespace v1
-
-using v1::wait_and_throw;
-
-} // namespace oneapi::dal::detail
-
-#endif // ONEDAL_DATA_PARALLEL
+} // namespace oneapi::dal::pca::backend

@@ -195,7 +195,7 @@ public:
                   data_pointer,
                   std::forward<ConstDeleter>(data_deleter),
                   layout);
-        detail::wait_and_throw(dependencies);
+        sycl::event::wait_and_throw(dependencies);
     }
 #endif
 

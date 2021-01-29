@@ -34,13 +34,15 @@
 #else
 #include <cassert>
 #include <iostream>
-#define __ONEDAL_ASSERT_NO_MESSAGE__(condition) assert(condition);
+#define __ONEDAL_ASSERT_NO_MESSAGE__(condition) assert(condition)
 
 #define __ONEDAL_ASSERT_MESSAGE__(condition, message) \
-    if (!(condition)) {                               \
-        std::cerr << message << std::endl;            \
-        assert(condition);                            \
-    }
+    do {                                              \
+        if (!(condition)) {                           \
+            std::cerr << (message) << std::endl;      \
+            assert((condition));                      \
+        }                                             \
+    } while (0)
 
 #define __ONEDAL_ASSERT_GET__(_1, _2, F, ...) F
 

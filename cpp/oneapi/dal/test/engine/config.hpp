@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,13 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/common.hpp"
+#pragma once
 
-namespace oneapi::dal::test {
+#include <string>
 
-test_queue_provider& test_queue_provider::get_instance() {
-    static test_queue_provider provider;
-    return provider;
-}
+namespace oneapi::dal::test::engine {
 
-} // namespace oneapi::dal::test
+struct global_config {
+    std::string device_selector;
+};
+
+void global_setup(const global_config& config);
+
+void global_cleanup();
+
+} //namespace oneapi::dal::test::engine
