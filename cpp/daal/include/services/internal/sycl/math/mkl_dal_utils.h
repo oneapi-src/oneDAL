@@ -41,13 +41,13 @@ namespace interface1
 {
 inline auto to_fpk_transpose(const math::Transpose & trans)
 {
-    namespace fpk_transpose = ::oneapi::fpk::transpose;
+    using fpk_transpose = ::oneapi::fpk::transpose;
     return trans == math::Transpose::Trans ? fpk_transpose::trans : fpk_transpose::nontrans;
 }
 
 inline auto to_fpk_uplo(const math::UpLo & uplo)
 {
-    namespace fpk_uplo = ::oneapi::fpk::uplo;
+    using fpk_uplo = ::oneapi::fpk::uplo;
     return uplo == math::UpLo::Upper ? fpk_uplo::upper : fpk_uplo::lower;
 }
 
