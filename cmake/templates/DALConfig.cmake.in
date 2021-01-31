@@ -26,6 +26,7 @@
 # TARGET_LINK
 # USE_PARALLEL
 # USE_DPCPP
+# USE_NEW_IFACES
 if ("${TARGET_LINK}" STREQUAL "")
     set(TARGET_LINK "dynamic")
 elseif (NOT "${TARGET_LINK}" STREQUAL "static" AND NOT "${TARGET_LINK}" STREQUAL "dynamic")
@@ -40,6 +41,11 @@ if ("${USE_DPCPP}" STREQUAL "")
     set(USE_DPCPP "yes")
 elseif (NOT "${USE_DPCPP}" STREQUAL "yes" AND NOT "${USE_DPCPP}" STREQUAL "no")
     message(FATAL_ERROR "USE_DPCPP must be 'yes' or 'no'")
+endif()
+if ("${USE_NEW_IFACES}" STREQUAL "")
+    set(USE_NEW_IFACES "no")
+elseif (NOT "${USE_NEW_IFACES}" STREQUAL "yes" AND NOT "${USE_NEW_IFACES}" STREQUAL "no")
+    message(FATAL_ERROR "USE_NEW_IFACES must be 'yes' or 'no'")
 endif()
 
 message(STATUS "TARGET_LINK:  ${TARGET_LINK}")
@@ -63,6 +69,8 @@ elseif (@VERSIONS_SET@ STREQUAL "FALSE")
     string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_minor_bin "${DAL_VERSION_INFO}")
 endif()
 
+list(APPEND DAL_LIBS onedal_core)
+
 if(USE_PARALLEL STREQUAL "yes")
     set(DAL_THREAD_LIBRARY_NAME onedal_thread)
     find_package(TBB REQUIRED tbb tbbmalloc)
@@ -79,20 +87,24 @@ else()
     set(DAL_THREAD_LIBRARY_NAME onedal_sequential)
 endif()
 
-list(APPEND DAL_LIBS onedal_core)
-
-if (USE_DPCPP STREQUAL "no")
-    list(APPEND DAL_LIBS onedal)
-elseif (USE_DPCPP STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal_dpc)
-endif()
-
 if (UNIX OR TARGET_LINK STREQUAL "static")
     list(APPEND DAL_LIBS ${DAL_THREAD_LIBRARY_NAME})
 endif()
 
+if (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "no")
+    list(APPEND DAL_LIBS onedal_sycl)
+elseif (USE_DPCPP STREQUAL "no" AND USE_NEW_IFACES STREQUAL "yes")
+    list(APPEND DAL_LIBS onedal)
+elseif (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "yes")
+    list(APPEND DAL_LIBS onedal_dpc)
+endif()
+
 if(UNIX)
     list(APPEND DAL_IMPORTED_TARGETS -lm -lpthread -ldl)
+endif()
+
+if (USE_DPCPP STREQUAL "yes")
+    list(APPEND DAL_IMPORTED_TARGETS -lOpenCL)
 endif()
 
 if(UNIX)
@@ -113,7 +125,7 @@ foreach (_dal_component ${DAL_LIBS})
     set(DAL_${_dal_component}_FOUND 0)
 
     if (NOT TARGET DAL::${_dal_component})
-        if (${TARGET_LINK} STREQUAL "static")
+        if (${TARGET_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
             add_library(DAL::${_dal_component} STATIC IMPORTED)
             find_library(
                 _dal_lib
@@ -135,7 +147,7 @@ foreach (_dal_component ${DAL_LIBS})
         unset(_dal_include_dir)
     endif()
 
-    if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic")
+    if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
         find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
         set_target_properties(DAL::${_dal_component} PROPERTIES
                               IMPORTED_LOCATION "${${_dal_component}_dll}"
@@ -157,20 +169,6 @@ foreach (_dal_component ${DAL_LIBS})
     unset(_dal_lib CACHE)
 endforeach()
 
-if(${USE_DPCPP} STREQUAL "yes")
-    set(MICROLIBS onedal_sycl)
-    find_library(
-        _dal_lib
-        NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
-        PATH_SUFFIXES "@LIB_REL_PATH@/@SUB_DIR@"
-        PATHS "${_dal_root}")
-
-    if (_dal_lib)
-        list(APPEND DAL_LIBRARIES ${_dal_lib})
-    endif()
-endif()
-
-
 list(APPEND DAL_IMPORTED_TARGETS ${DAL_LIBRARIES})
 list(REMOVE_DUPLICATES DAL_IMPORTED_TARGETS)
 
@@ -186,12 +184,12 @@ if(DAL_FOUND STREQUAL "FALSE")
         "DAL was not found in ${DAL_ROOT_DIR}! Set/check DALROOT environment variable!"
     )
 else()
-    message(STATUS "DAL_ROOT_DIR:     ${_dal_root}")
-    message(STATUS "DAL_INCLUDE_DIRS: ${_dal_root}/@INC_REL_PATH@")
+    message(STATUS "DAL_ROOT_DIR:         ${_dal_root}")
+    message(STATUS "DAL_INCLUDE_DIRS:     ${_dal_root}/@INC_REL_PATH@")
     if (WIN32 AND TARGET_LINK STREQUAL "dynamic")
-        message(STATUS "DAL_DLL_DIR:      ${_dal_root}/@DLL_REL_PATH@")
+        message(STATUS "DAL_DLL_DIR:          ${_dal_root}/@DLL_REL_PATH@")
     endif()
-    message(STATUS "DAL_IMPORTED_TARGETS:    ${DAL_IMPORTED_TARGETS}")
+    message(STATUS "DAL_IMPORTED_TARGETS: ${DAL_IMPORTED_TARGETS}")
 endif()
 
 unset(_dal_lib)
