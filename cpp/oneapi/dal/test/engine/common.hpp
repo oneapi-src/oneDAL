@@ -56,6 +56,12 @@
     INTERNAL_CATCH_TEMPLATE_LIST_TEST_CASE(__VA_ARGS__) \
     _TE_ENABLE_UNUSED_VARIABLE
 
+#undef TEMPLATE_TEST_CASE_SIG
+#define TEMPLATE_TEST_CASE_SIG(...)                    \
+    _TE_DISABLE_UNUSED_VARIABLE                        \
+    INTERNAL_CATCH_TEMPLATE_TEST_CASE_SIG(__VA_ARGS__) \
+    _TE_ENABLE_UNUSED_VARIABLE
+
 #undef TEST_CASE_METHOD
 #define TEST_CASE_METHOD(...)                    \
     _TE_DISABLE_UNUSED_VARIABLE                  \
@@ -72,6 +78,12 @@
 #define TEMPLATE_LIST_TEST_CASE_METHOD(...)                    \
     _TE_DISABLE_UNUSED_VARIABLE                                \
     INTERNAL_CATCH_TEMPLATE_LIST_TEST_CASE_METHOD(__VA_ARGS__) \
+    _TE_ENABLE_UNUSED_VARIABLE
+
+#undef TEMPLATE_TEST_CASE_METHOD_SIG
+#define TEMPLATE_TEST_CASE_METHOD_SIG(...)                    \
+    _TE_DISABLE_UNUSED_VARIABLE                               \
+    INTERNAL_CATCH_TEMPLATE_TEST_CASE_METHOD_SIG(__VA_ARGS__) \
     _TE_ENABLE_UNUSED_VARIABLE
 #endif // __clang__
 
