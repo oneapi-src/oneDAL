@@ -48,9 +48,10 @@ elseif (NOT "${USE_NEW_IFACES}" STREQUAL "yes" AND NOT "${USE_NEW_IFACES}" STREQ
     message(FATAL_ERROR "USE_NEW_IFACES must be 'yes' or 'no'")
 endif()
 
-message(STATUS "TARGET_LINK:  ${TARGET_LINK}")
-message(STATUS "USE_PARALLEL: ${USE_PARALLEL}")
-message(STATUS "USE_DPCPP:    ${USE_DPCPP}")
+message(STATUS "TARGET_LINK:    ${TARGET_LINK}")
+message(STATUS "USE_PARALLEL:   ${USE_PARALLEL}")
+message(STATUS "USE_DPCPP:      ${USE_DPCPP}")
+message(STATUS "USE_NEW_IFACES: ${USE_NEW_IFACES}")
 
 if (NOT DAL_LIBRARIES)
     set(DAL_LIBRARIES "")
