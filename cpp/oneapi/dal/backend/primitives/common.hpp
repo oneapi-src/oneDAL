@@ -18,8 +18,4 @@
 
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::backend::primitives {
-
-
-
-} // namespace oneapi::dal::backend::primitives
+namespace oneapi::dal::backend::primitives {} // namespace oneapi::dal::backend::primitives

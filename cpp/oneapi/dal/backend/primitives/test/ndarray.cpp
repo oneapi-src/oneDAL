@@ -47,20 +47,20 @@ public:
 
 TEST("ndarray returns correct shapes", "[ndarray_base]") {
     SECTION("1D") {
-        const auto x = ndarray_base<1> { { 5 } };
+        const auto x = ndarray_base<1>{ { 5 } };
 
         REQUIRE(x.get_shape()[0] == 5);
     }
 
     SECTION("2D") {
-        const auto x = ndarray_base<2> { { 5, 8 } };
+        const auto x = ndarray_base<2>{ { 5, 8 } };
 
         REQUIRE(x.get_shape()[0] == 5);
         REQUIRE(x.get_shape()[1] == 8);
     }
 
     SECTION("3D") {
-        const auto x = ndarray_base<3> { { 5, 8, 1 } };
+        const auto x = ndarray_base<3>{ { 5, 8, 1 } };
 
         REQUIRE(x.get_shape()[0] == 5);
         REQUIRE(x.get_shape()[1] == 8);
@@ -70,20 +70,20 @@ TEST("ndarray returns correct shapes", "[ndarray_base]") {
 
 TEST("ndarray has correct default strides in c-order", "[ndarray_base]") {
     SECTION("1D") {
-        const auto x = ndarray_base<1, ndorder::c> { { 5 } };
+        const auto x = ndarray_base<1, ndorder::c>{ { 5 } };
 
         REQUIRE(x.get_strides()[0] == 1);
     }
 
     SECTION("2D") {
-        const auto x = ndarray_base<2, ndorder::c> { { 5, 8 } };
+        const auto x = ndarray_base<2, ndorder::c>{ { 5, 8 } };
 
         REQUIRE(x.get_strides()[0] == 8);
         REQUIRE(x.get_strides()[1] == 1);
     }
 
     SECTION("3D") {
-        const auto x = ndarray_base<3, ndorder::c> { { 5, 3, 7 } };
+        const auto x = ndarray_base<3, ndorder::c>{ { 5, 3, 7 } };
 
         REQUIRE(x.get_strides()[0] == 21);
         REQUIRE(x.get_strides()[1] == 7);
@@ -93,20 +93,20 @@ TEST("ndarray has correct default strides in c-order", "[ndarray_base]") {
 
 TEST("ndarray has correct default strides in f-order", "[ndarray_base]") {
     SECTION("1D") {
-        const auto x = ndarray_base<1, ndorder::f> { { 5 } };
+        const auto x = ndarray_base<1, ndorder::f>{ { 5 } };
 
         REQUIRE(x.get_strides()[0] == 1);
     }
 
     SECTION("2D") {
-        const auto x = ndarray_base<2, ndorder::f> { { 5, 8 } };
+        const auto x = ndarray_base<2, ndorder::f>{ { 5, 8 } };
 
         REQUIRE(x.get_strides()[0] == 1);
         REQUIRE(x.get_strides()[1] == 5);
     }
 
     SECTION("3D") {
-        const auto x = ndarray_base<3, ndorder::f> { { 5, 3, 7 } };
+        const auto x = ndarray_base<3, ndorder::f>{ { 5, 3, 7 } };
 
         REQUIRE(x.get_strides()[0] == 1);
         REQUIRE(x.get_strides()[1] == 5);
@@ -115,7 +115,7 @@ TEST("ndarray has correct default strides in f-order", "[ndarray_base]") {
 }
 
 TEMPLATE_SIG_TEST("can create empty ndview", "[ndview]", ENUMERATE_AXIS_COUNT_123) {
-    const auto x = ndview<float, axis_count> {};
+    const auto x = ndview<float, axis_count>{};
 
     REQUIRE(x.has_data() == false);
     REQUIRE(x.get_count() == 0);
@@ -133,7 +133,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndview", "[ndview]", ENUMERATE_AXIS_COUNT_
 }
 
 TEMPLATE_SIG_TEST("can create empty ndarray", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
-    const auto x = ndarray<float, axis_count> {};
+    const auto x = ndarray<float, axis_count>{};
 
     REQUIRE(x.has_data() == false);
     REQUIRE(x.get_count() == 0);
@@ -144,10 +144,10 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
     float data[] = { 0.1 };
     const auto shape = ndshape<axis_count>::square(1);
     const auto empty_deleter = dal::detail::empty_delete<float>{};
-    const auto data_shared = std::shared_ptr<float> { data, empty_deleter };
+    const auto data_shared = std::shared_ptr<float>{ data, empty_deleter };
     const auto data_array_mutable = array<float>::wrap(data, shape.get_count());
-    const auto data_array_immutable
-        = array<float>::wrap(const_cast<const float*>(data), shape.get_count());
+    const auto data_array_immutable =
+        array<float>::wrap(const_cast<const float*>(data), shape.get_count());
 
     SECTION("raw data") {
         const auto x = ndarray<float, axis_count>::wrap(data, shape);
@@ -291,9 +291,7 @@ TEMPLATE_SIG_TEST("can create ndarray with custom deleter", "[ndarray]", ENUMERA
     const auto shape = ndshape<axis_count>::square(1);
     auto deleter = custom_deleter{};
 
-    {
-        const auto x = ndarray<float, axis_count>::wrap(data, shape, deleter);
-    }
+    { const auto x = ndarray<float, axis_count>::wrap(data, shape, deleter); }
 
     REQUIRE(deleter.get_call_count() == 1);
 }
@@ -441,4 +439,4 @@ TEST_M(ndarray_test, "can allocate ones ndarray", "[ndarray]") {
 
 #endif
 
-} // oneapi::dal::backend::primitives::test
+} // namespace oneapi::dal::backend::primitives::test

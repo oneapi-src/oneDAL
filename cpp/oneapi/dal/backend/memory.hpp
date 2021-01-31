@@ -53,9 +53,7 @@ inline void free(const sycl::queue& queue, void* pointer) {
 }
 
 template <typename T>
-inline T* malloc(const sycl::queue& queue,
-                 std::int64_t count,
-                 const sycl::usm::alloc& alloc) {
+inline T* malloc(const sycl::queue& queue, std::int64_t count, const sycl::usm::alloc& alloc) {
     ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
     const std::size_t bytes_count = sizeof(T) * count;
     return static_cast<T*>(malloc(queue, bytes_count, alloc));
@@ -64,8 +62,7 @@ inline T* malloc(const sycl::queue& queue,
 template <typename T>
 class usm_deleter {
 public:
-    explicit usm_deleter(const sycl::queue& queue)
-        : queue_(queue) {}
+    explicit usm_deleter(const sycl::queue& queue) : queue_(queue) {}
 
     void operator()(T* ptr) const {
         free(queue_, ptr);

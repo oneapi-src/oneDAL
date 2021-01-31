@@ -24,7 +24,7 @@ namespace oneapi::dal::backend::primitives {
 
 enum class ndorder {
     c, /* C-style ordering, row-major in 2D case */
-    f  /* Fortran-style ordering, column-major in 2D case */
+    f /* Fortran-style ordering, column-major in 2D case */
 };
 
 template <ndorder order>
@@ -50,8 +50,7 @@ class ndarray_base {
 public:
     ndarray_base() = default;
 
-    explicit ndarray_base(const ndshape<axis_count>& shape,
-                          const ndshape<axis_count>& strides)
+    explicit ndarray_base(const ndshape<axis_count>& shape, const ndshape<axis_count>& strides)
             : shape_(shape),
               strides_(strides) {
         if constexpr (order == ndorder::c) {
@@ -76,7 +75,6 @@ public:
     explicit ndarray_base(const ndshape<axis_count>& shape)
             : ndarray_base(shape, get_default_strides(shape)) {}
 
-
     ndorder get_order() const {
         return order;
     }
@@ -96,10 +94,10 @@ public:
     template <typename... Indices>
     std::int64_t get_flat_index(Indices&&... indices) const {
         static_assert(std::tuple_size_v<std::tuple<Indices...>> == axis_count,
-                     "Incorrect number of indices");
+                      "Incorrect number of indices");
 
         std::int64_t flat_index = 0;
-        ndindex<axis_count> idx { std::int64_t(indices)... };
+        ndindex<axis_count> idx{ std::int64_t(indices)... };
 
         for (std::int64_t i = 0; i < axis_count; i++) {
             ONEDAL_ASSERT(idx[i] < shape_[i], "Index is out of range");
@@ -142,7 +140,7 @@ protected:
         const auto default_strides = get_default_strides(this->get_shape());
         for (std::int64_t i = 0; i < axis_count; i++) {
             ONEDAL_ASSERT(this->get_strides()[i] == default_strides[i],
-                        "Operation can be applied only to the array with default strides");
+                          "Operation can be applied only to the array with default strides");
         }
 #endif
     }
@@ -154,7 +152,6 @@ private:
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
 class ndview : public ndarray_base<axis_count, order> {
-
     template <typename, std::int64_t, ndorder>
     friend class ndview;
 
@@ -162,15 +159,14 @@ public:
     using base = ndarray_base<axis_count, order>;
     using shape_t = ndshape<axis_count>;
 
-    ndview() :
-        data_(nullptr) {}
+    ndview() : data_(nullptr) {}
 
     static ndview wrap(T* data, const shape_t& shape) {
-        return ndview { data, shape };
+        return ndview{ data, shape };
     }
 
     static ndview wrap(T* data, const shape_t& shape, const shape_t& strides) {
-        return ndview { data, shape, strides };
+        return ndview{ data, shape, strides };
     }
 
     T* get_data() const {
@@ -185,14 +181,14 @@ public:
         using tranposed_ndview_t = ndview<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
         const auto& strides = this->get_strides();
-        return tranposed_ndview_t { data_, shape.t(), strides.t() };
+        return tranposed_ndview_t{ data_, shape.t(), strides.t() };
     }
 
     template <std::int64_t new_axis_count>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
         using reshaped_ndview_t = ndview<T, new_axis_count, order>;
         check_reshape_conditions(new_shape);
-        return reshaped_ndview_t { data_, new_shape };
+        return reshaped_ndview_t{ data_, new_shape };
     }
 
 protected:
@@ -200,9 +196,7 @@ protected:
             : base(shape, strides),
               data_(data) {}
 
-    explicit ndview(T* data, const shape_t& shape)
-            : base(shape),
-              data_(data) {}
+    explicit ndview(T* data, const shape_t& shape) : base(shape), data_(data) {}
 
     template <std::int64_t new_axis_count>
     void check_reshape_conditions(const ndshape<new_axis_count>& new_shape) const {
@@ -217,7 +211,6 @@ private:
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
 class ndarray : public ndview<T, axis_count, order> {
-
     template <typename, std::int64_t, ndorder>
     friend class ndarray;
 
@@ -228,13 +221,11 @@ private:
     using array_t = dal::array<std::remove_const_t<T>>;
 
     struct array_deleter {
-        explicit array_deleter(const array_t& ary)
-            : ary_(ary) {}
+        explicit array_deleter(const array_t& ary) : ary_(ary) {}
 
-        explicit array_deleter(array_t&& ary)
-            : ary_(std::move(ary)) {}
+        explicit array_deleter(array_t&& ary) : ary_(std::move(ary)) {}
 
-        void operator()(T *ptr) const { }
+        void operator()(T* ptr) const {}
 
         array_t ary_;
     };
@@ -250,66 +241,70 @@ public:
 
     template <typename Deleter = dal::detail::empty_delete<T>>
     static ndarray wrap(T* data, const shape_t& shape, Deleter&& deleter = Deleter{}) {
-        auto shared = shared_t { data, std::forward<Deleter>(deleter) };
+        auto shared = shared_t{ data, std::forward<Deleter>(deleter) };
         return wrap(std::move(shared), shape);
     }
 
     static ndarray wrap(const shared_t& data, const shape_t& shape) {
-        return ndarray { data, shape };
+        return ndarray{ data, shape };
     }
 
     static ndarray wrap(shared_t&& data, const shape_t& shape) {
-        return ndarray { std::move(data), shape };
+        return ndarray{ std::move(data), shape };
     }
 
     template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(const array_t& ary, const shape_t& shape) {
-        return wrap(ary.get_data(), shape, array_deleter { ary });
+        ONEDAL_ASSERT(ary.get_count() == shape.get_count());
+        return wrap(ary.get_data(), shape, array_deleter{ ary });
     }
 
     template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(array_t&& ary, const shape_t& shape) {
+        ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         const T* data_ptr = ary.get_data();
-        return wrap(data_ptr, shape, array_deleter { std::move(ary) });
+        return wrap(data_ptr, shape, array_deleter{ std::move(ary) });
     }
 
     template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(const array_t& ary) {
         static_assert(axis_count == 1);
-        return wrap(ary, shape_t { ary.get_count() });
+        return wrap(ary, shape_t{ ary.get_count() });
     }
 
     template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(array_t&& ary) {
         static_assert(axis_count == 1);
         std::int64_t ary_count = ary.get_count();
-        return wrap(std::move(ary), shape_t { ary_count });
+        return wrap(std::move(ary), shape_t{ ary_count });
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(const array_t& ary, const shape_t& shape) {
-        auto shared = shared_t { ary.get_mutable_data(), array_deleter { ary } };
+        ONEDAL_ASSERT(ary.get_count() == shape.get_count());
+        auto shared = shared_t{ ary.get_mutable_data(), array_deleter{ ary } };
         return wrap(std::move(shared), shape);
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(array_t&& ary, const shape_t& shape) {
+        ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         T* data_ptr = ary.get_mutable_data();
-        auto shared = shared_t { data_ptr, array_deleter { std::move(ary) } };
+        auto shared = shared_t{ data_ptr, array_deleter{ std::move(ary) } };
         return wrap(std::move(shared), shape);
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(const array_t& ary) {
         static_assert(axis_count == 1);
-        return wrap_mutable(ary, shape_t { ary.get_count() });
+        return wrap_mutable(ary, shape_t{ ary.get_count() });
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(array_t&& ary) {
         static_assert(axis_count == 1);
         std::int64_t ary_count = ary.get_count();
-        return wrap_mutable(std::move(ary), shape_t { ary_count });
+        return wrap_mutable(std::move(ary), shape_t{ ary_count });
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -318,14 +313,15 @@ public:
                          const shape_t& shape,
                          const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         T* ptr = malloc<T>(q, shape.get_count(), alloc_kind);
-        return wrap(ptr, shape, usm_deleter<T> { q });
+        return wrap(ptr, shape, usm_deleter<T>{ q });
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
-    static std::tuple<ndarray, sycl::event> full_async(sycl::queue& q,
-                                                 const shape_t& shape,
-                                                 const T& value,
-                                                 const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+    static std::tuple<ndarray, sycl::event> full_async(
+        sycl::queue& q,
+        const shape_t& shape,
+        const T& value,
+        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         auto ary = empty(q, shape, alloc_kind);
         auto event = q.fill(ary.get_data(), value, ary.get_count());
         return { ary, event };
@@ -336,15 +332,16 @@ public:
                         const shape_t& shape,
                         const T& value,
                         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
-        auto [ ary, event ] = full_async(q, shape, value, alloc_kind);
+        auto [ary, event] = full_async(q, shape, value, alloc_kind);
         event.wait_and_throw();
         return ary;
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
-    static std::tuple<ndarray, sycl::event> zeros_async(sycl::queue& q,
-                                                  const shape_t& shape,
-                                                  const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+    static std::tuple<ndarray, sycl::event> zeros_async(
+        sycl::queue& q,
+        const shape_t& shape,
+        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         return full_async(q, shape, T(0), alloc_kind);
     }
 
@@ -356,9 +353,10 @@ public:
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
-    static std::tuple<ndarray, sycl::event> ones_async(sycl::queue& q,
-                                                       const shape_t& shape,
-                                                       const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+    static std::tuple<ndarray, sycl::event> ones_async(
+        sycl::queue& q,
+        const shape_t& shape,
+        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         return full_async(q, shape, T(1), alloc_kind);
     }
 
@@ -371,33 +369,29 @@ public:
 #endif
 
     array_t flatten() const {
-        return array_t { data_, this->get_count() };
+        return array_t{ data_, this->get_count() };
     }
 
     auto t() const {
         using tranposed_ndarray_t = ndarray<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
         const auto& strides = this->get_strides();
-        return tranposed_ndarray_t { data_, shape.t(), strides.t() };
+        return tranposed_ndarray_t{ data_, shape.t(), strides.t() };
     }
 
     template <std::int64_t new_axis_count>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
         using reshaped_ndarray_t = ndarray<T, new_axis_count, order>;
         base::check_reshape_conditions(new_shape);
-        return reshaped_ndarray_t { data_, new_shape };
+        return reshaped_ndarray_t{ data_, new_shape };
     }
 
 private:
-    explicit ndarray(const shared_t& data,
-                     const shape_t& shape,
-                     const shape_t& strides)
+    explicit ndarray(const shared_t& data, const shape_t& shape, const shape_t& strides)
             : base(data.get(), shape, strides),
               data_(data) {}
 
-    explicit ndarray(shared_t&& data,
-                     const shape_t& shape,
-                     const shape_t& strides)
+    explicit ndarray(shared_t&& data, const shape_t& shape, const shape_t& strides)
             : base(data.get(), shape, strides),
               data_(std::move(data)) {}
 

@@ -32,8 +32,7 @@ public:
         dimensions_.fill(0);
     }
 
-    ndshape(const ndindex<axis_count>& dimensions)
-            : dimensions_(dimensions) {
+    ndshape(const ndindex<axis_count>& dimensions) : dimensions_(dimensions) {
         for (std::int64_t i = 0; i < axis_count; i++) {
             ONEDAL_ASSERT(dimensions[i] > 0, "Dimension must be positive number");
         }
@@ -48,21 +47,19 @@ public:
     }
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
-    ndshape(std::int64_t d1)
-            : ndshape(ndindex<1> { d1 }) {}
+    ndshape(std::int64_t d1) : ndshape(ndindex<1>{ d1 }) {}
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
-    ndshape(std::int64_t d1, std::int64_t d2)
-            : ndshape(ndindex<2> { d1, d2 }) {}
+    ndshape(std::int64_t d1, std::int64_t d2) : ndshape(ndindex<2>{ d1, d2 }) {}
 
     template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 3>>
     ndshape(std::int64_t d1, std::int64_t d2, std::int64_t d3)
-            : ndshape(ndindex<3> { d1, d2, d3 }) {}
+            : ndshape(ndindex<3>{ d1, d2, d3 }) {}
 
     static ndshape square(std::int64_t dimension) {
         ndindex<axis_count> dimensions;
         dimensions.fill(dimension);
-        return ndshape { dimensions };
+        return ndshape{ dimensions };
     }
 
     std::int64_t operator[](std::int64_t i) const {

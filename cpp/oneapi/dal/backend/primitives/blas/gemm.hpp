@@ -20,15 +20,9 @@
 
 namespace oneapi::dal::backend::primitives::blas {
 
-enum class layout {
-    row_major,
-    column_major
-};
+enum class layout { row_major, column_major };
 
-enum class orientation {
-    normal,
-    transposed
-};
+enum class orientation { normal, transposed };
 
 template <typename Float>
 sycl::event gemm(sycl::queue& q, layout lyt, );
