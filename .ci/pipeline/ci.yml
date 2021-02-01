@@ -167,12 +167,16 @@ jobs:
       export TBBROOT=/opt/intel/oneapi/tbb/latest
       source ${TBBROOT}/env/vars.sh
       cd daal4py
-      python -c "import daal4py"
-      python tests/run_tests.py
-      pytest --pyargs daal4py/sklearn/
-      python examples/run_examples.py
-      python -m daal4py examples/sycl/sklearn_sycl.py
+      ./conda-recipe/run_test.sh
     displayName: daal4py test
+  - script: |
+      ret_code=0
+      python -m daal4py examples/run_examples.py
+      ret_code=$(($ret_code + $?))
+      python -m daal4py examples/sycl/sklearn_sycl.py
+      ret_code=$(($ret_code + $?))
+      exit $ret_code
+    displayName: daal4py examples
   - script: |
       source venv/bin/activate
       export DPCPPROOT=/opt/intel/oneapi/compiler/latest
