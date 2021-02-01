@@ -132,7 +132,7 @@ private:
         {}
 
         template <typename T>
-        Status copyVanilla(const const Buffer<T> & srcBuffer, const Buffer<T> & dstBuffer)
+        Status copyVanilla(const Buffer<T> & srcBuffer, const Buffer<T> & dstBuffer)
         {
             using namespace cl::sycl;
 
@@ -155,7 +155,7 @@ private:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
         template <typename T>
-        Status copyUSMBacked(const const Buffer<T> & srcBuffer, const Buffer<T> & dstBuffer)
+        Status copyUSMBacked(const Buffer<T> & srcBuffer, const Buffer<T> & dstBuffer)
         {
             using namespace cl::sycl;
 
@@ -350,7 +350,7 @@ private:
         explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value) : queue(queue), dstUnivers(dest), value(value) {}
 
         template <typename T>
-        Status fillVanilla(Buffer<T> dstBuffer)
+        Status fillVanilla(const Buffer<T>& dstBuffer)
         {
             using namespace cl::sycl;
 
@@ -370,7 +370,7 @@ private:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
         template <typename T>
-        Status fillUSMBacked(Buffer<T> dstBuffer)
+        Status fillUSMBacked(const Buffer<T>& dstBuffer)
         {
             Status status;
             auto dstPtr = dstBuffer.toUSM(queue, status);
