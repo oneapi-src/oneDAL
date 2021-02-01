@@ -105,7 +105,11 @@ if(UNIX)
 endif()
 
 if (USE_DPCPP STREQUAL "yes")
-    list(APPEND DAL_IMPORTED_TARGETS -lOpenCL)
+    if (UNIX)
+        list(APPEND DAL_IMPORTED_TARGETS -lOpenCL)
+    else()
+        list(APPEND DAL_IMPORTED_TARGETS OpenCL.lib)
+    endif()
 endif()
 
 if (USE_NEW_IFACES STREQUAL "yes")
