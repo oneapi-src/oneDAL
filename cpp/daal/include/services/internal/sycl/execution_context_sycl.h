@@ -247,11 +247,7 @@ public:
 
     UniversalBuffer allocate(TypeId type, size_t bufferSize, Status & status) DAAL_C11_OVERRIDE
     {
-#ifdef DAAL_SYCL_INTERFACE_USM
-        return BufferAllocator::allocateUSMBacked(_deviceQueue, type, bufferSize, status);
-#else
-        return BufferAllocator::allocateVanilla(type, bufferSize, status);
-#endif // DAAL_SYCL_INTERFACE_USM
+        return BufferAllocator::allocate(_deviceQueue, type, bufferSize, status);
     }
 
     void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count, Status & status) DAAL_C11_OVERRIDE

@@ -88,7 +88,6 @@ private:
     };
 #endif
 
-public:
     static UniversalBuffer allocateVanilla(TypeId type, size_t bufferSize, Status & status)
     {
         AllocateVanilla allocateOp(bufferSize);
@@ -104,6 +103,16 @@ public:
         return allocateOp.buffer;
     }
 #endif
+
+public:
+    static UniversalBuffer allocate(const cl::sycl::queue & q, TypeId type, size_t bufferSize, Status & status)
+    {
+#ifdef DAAL_SYCL_INTERFACE_USM
+        return BufferAllocator::allocateUSMBacked(q, type, bufferSize, status);
+#else
+        return BufferAllocator::allocateVanilla(type, bufferSize, status);
+#endif // DAAL_SYCL_INTERFACE_USM
+    }
 };
 
 class BufferCopier
@@ -123,25 +132,41 @@ private:
         {}
 
         template <typename T>
-        void operator()(Typelist<T>, Status & status)
+        Status copyVanilla(const const Buffer<T> & srcBuffer, const Buffer<T> & dstBuffer)
         {
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(srcUnivers, T);
-            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
+            using namespace cl::sycl;
 
-            const auto & src_buffer = srcUnivers.get<T>();
-            const auto & dst_buffer = dstUnivers.get<T>();
+            Status status;
+            auto src = srcBuffer.toSycl(status);
+            DAAL_CHECK_STATUS_VAR(status);
 
-            DAAL_ASSERT(src_buffer.size() >= srcOffset + count);
-            DAAL_ASSERT(dst_buffer.size() >= dstOffset + count);
+            auto dst = dstBuffer.toSycl(status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            return catchSyclExceptions([&]() mutable {
+                event event = queue.submit([&](handler & cgh) {
+                    auto src_acc = src.template get_access<access::mode::read>(cgh, range<1>(count), id<1>(srcOffset));
+                    auto dst_acc = dst.template get_access<access::mode::write>(cgh, range<1>(count), id<1>(dstOffset));
+                    cgh.copy(src_acc, dst_acc);
+                });
+                event.wait_and_throw();
+            });
+        }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-            if (src_buffer.isUSMBacked() && dst_buffer.isUSMBacked())
-            {
-                auto src = src_buffer.toUSM(queue, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+        template <typename T>
+        Status copyUSMBacked(const const Buffer<T> & srcBuffer, const Buffer<T> & dstBuffer)
+        {
+            using namespace cl::sycl;
 
-                auto dst = dst_buffer.toUSM(queue, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+            Status status;
+            if (srcBuffer.isUSMBacked() && dstBuffer.isUSMBacked())
+            {
+                auto src = srcBuffer.toUSM(queue, status);
+                DAAL_CHECK_STATUS_VAR(status);
+
+                auto dst = dstBuffer.toUSM(queue, status);
+                DAAL_CHECK_STATUS_VAR(status);
 
                 auto * src_raw = src.get() + srcOffset;
                 auto * dst_raw = dst.get() + dstOffset;
@@ -149,50 +174,53 @@ private:
                 const size_t bytes_count = sizeof(T) * count;
                 DAAL_ASSERT(bytes_count >= count);
 
-                status |= catchSyclExceptions([&]() mutable {
+                return catchSyclExceptions([&]() mutable {
                     auto event = queue.memcpy(dst_raw, src_raw, bytes_count);
                     event.wait_and_throw();
                 });
             }
-            else if (src_buffer.isUSMBacked())
+            else if (srcBuffer.isUSMBacked())
             {
                 // this branch is a workaround on the SYCL RT bug
                 // on copy operation from usm-backed buffer to the vanilla buffer
-                auto src = src_buffer.toUSM(queue, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+                auto src = srcBuffer.toUSM(queue, status);
+                DAAL_CHECK_STATUS_VAR(status);
 
-                auto dst = dst_buffer.toSycl(status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+                auto dst = dstBuffer.toSycl(status);
+                DAAL_CHECK_STATUS_VAR(status);
 
-                status |= catchSyclExceptions([&]() mutable {
-                    auto event = queue.submit([&](cl::sycl::handler & cgh) {
-                        auto dst_acc =
-                            dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
+                return catchSyclExceptions([&]() mutable {
+                    auto event = queue.submit([&](handler & cgh) {
+                        auto dst_acc = dst.template get_access<access::mode::write>(cgh, range<1>(count), id<1>(dstOffset));
                         cgh.copy(src.get() + srcOffset, dst_acc);
                     });
                     event.wait_and_throw();
                 });
             }
             else
-#endif
             {
-                auto src = src_buffer.toSycl(status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                auto dst = dst_buffer.toSycl(status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                status |= catchSyclExceptions([&]() mutable {
-                    cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                        auto src_acc =
-                            src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
-                        auto dst_acc =
-                            dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                        cgh.copy(src_acc, dst_acc);
-                    });
-                    event.wait_and_throw();
-                });
+                return copyVanilla(srcBuffer, dstBuffer);
             }
+        }
+#endif
+
+        template <typename T>
+        void operator()(Typelist<T>, Status & status)
+        {
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(srcUnivers, T);
+            DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
+
+            const auto & srcBuffer = srcUnivers.get<T>();
+            const auto & dstBuffer = dstUnivers.get<T>();
+
+            DAAL_ASSERT(srcBuffer.size() >= srcOffset + count);
+            DAAL_ASSERT(dstBuffer.size() >= dstOffset + count);
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+            status |= copyUSMBacked(srcBuffer, dstBuffer);
+#else
+            status |= copyVanilla(srcBuffer, dstBuffer);
+#endif
         }
     };
 
@@ -228,50 +256,73 @@ private:
         {}
 
         template <typename T>
+        Status copyVanilla(const T * src, const Buffer<T> & dstBuffer)
+        {
+            using namespace cl::sycl;
+
+            Status status;
+
+            auto dst = dstBuffer.toSycl(status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            return catchSyclExceptions([&]() mutable {
+                event event = queue.submit([&](handler & cgh) {
+                    auto dst_acc = dst.template get_access<access::mode::write>(cgh, range<1>(count), id<1>(dstOffset));
+                    cgh.copy(src + srcOffset, dst_acc);
+                });
+                event.wait_and_throw();
+            });
+        }
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+        template <typename T>
+        Status copyUSMBacked(const T * src, const Buffer<T> & dstBuffer)
+        {
+            using namespace cl::sycl;
+
+            Status status;
+
+            auto dst = dstBuffer.toUSM(queue, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            auto dst_raw = dst.get() + dstOffset;
+            DAAL_ASSERT(((get_pointer_type(dst_raw, queue.get_context()) == usm::alloc::shared)
+                         || (get_pointer_type(dst_raw, queue.get_context()) == usm::alloc::host)));
+
+            const size_t size = sizeof(T) * count;
+            DAAL_ASSERT(size >= count);
+
+            auto result = daal_memcpy_s(dst_raw, size, src + srcOffset, size);
+            if (result)
+            {
+                status |= services::ErrorMemoryCopyFailedInternal;
+            }
+
+            return status;
+        }
+#endif
+
+        template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
             DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
 
-            auto src                = (T *)srcArray;
-            const auto & dst_buffer = dstUnivers.get<T>();
+            auto src               = (T *)srcArray;
+            const auto & dstBuffer = dstUnivers.get<T>();
 
             DAAL_ASSERT(srcArray);
             DAAL_ASSERT(srcCount >= srcOffset + count);
-            DAAL_ASSERT(dst_buffer.size() >= dstOffset + count);
+            DAAL_ASSERT(dstBuffer.size() >= dstOffset + count);
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-            if (dst_buffer.isUSMBacked())
+            if (dstBuffer.isUSMBacked())
             {
-                auto dst = dst_buffer.toUSM(queue, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                auto dst_raw = dst.get() + dstOffset;
-                DAAL_ASSERT(((cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::shared)
-                             || (cl::sycl::get_pointer_type(dst_raw, queue.get_context()) == cl::sycl::usm::alloc::host)));
-
-                const size_t size = sizeof(T) * count;
-                DAAL_ASSERT(size >= count);
-
-                auto result = daal_memcpy_s(dst_raw, size, src + srcOffset, size);
-                if (result)
-                {
-                    status |= services::ErrorMemoryCopyFailedInternal;
-                }
+                status |= copyUSMBacked(src, dstBuffer);
             }
             else
 #endif
             {
-                auto dst = dstUnivers.get<T>().toSycl(status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                status |= catchSyclExceptions([&]() mutable {
-                    cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                        auto dst_acc =
-                            dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                        cgh.copy(src + srcOffset, dst_acc);
-                    });
-                    event.wait_and_throw();
-                });
+                status |= copyVanilla(src, dstBuffer);
             }
         }
     };
@@ -299,6 +350,40 @@ private:
         explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value) : queue(queue), dstUnivers(dest), value(value) {}
 
         template <typename T>
+        Status fillVanilla(Buffer<T> dstBuffer)
+        {
+            using namespace cl::sycl;
+
+            Status status;
+
+            auto dst = dstBuffer.toSycl(status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            return catchSyclExceptions([&]() mutable {
+                event event = queue.submit([&](handler & cgh) {
+                    auto acc = dst.template get_access<access::mode::write>(cgh);
+                    cgh.fill(acc, static_cast<T>(value));
+                });
+                event.wait_and_throw();
+            });
+        }
+
+#ifdef DAAL_SYCL_INTERFACE_USM
+        template <typename T>
+        Status fillUSMBacked(Buffer<T> dstBuffer)
+        {
+            Status status;
+            auto dstPtr = dstBuffer.toUSM(queue, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            return catchSyclExceptions([&]() mutable {
+                auto event = queue.fill(dstPtr.get(), static_cast<T>(value), dstBuffer.size());
+                event.wait_and_throw();
+            });
+        }
+#endif
+
+        template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
             DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
@@ -308,27 +393,12 @@ private:
 #ifdef DAAL_SYCL_INTERFACE_USM
             if (dstBuffer.isUSMBacked())
             {
-                auto dstPtr = dstBuffer.toUSM(queue, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                status |= catchSyclExceptions([&]() mutable {
-                    auto event = queue.fill(dstPtr.get(), static_cast<T>(value), dstBuffer.size());
-                    event.wait_and_throw();
-                });
+                status |= fillUSMBacked(dstBuffer);
             }
             else
 #endif
             {
-                auto dst = dstUnivers.get<T>().toSycl(status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                status |= catchSyclExceptions([&]() mutable {
-                    cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                        auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
-                        cgh.fill(acc, static_cast<T>(value));
-                    });
-                    event.wait_and_throw();
-                });
+                status |= fillVanilla(dstBuffer);
             }
         }
     };
