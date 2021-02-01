@@ -70,6 +70,14 @@ elseif (@VERSIONS_SET@ STREQUAL "FALSE")
     string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_minor_bin "${DAL_VERSION_INFO}")
 endif()
 
+if (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "no")
+    list(APPEND DAL_LIBS onedal_sycl)
+elseif (USE_DPCPP STREQUAL "no" AND USE_NEW_IFACES STREQUAL "yes")
+    list(APPEND DAL_LIBS onedal)
+elseif (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "yes")
+    list(APPEND DAL_LIBS onedal_dpc onedal_sycl)
+endif()
+
 list(APPEND DAL_LIBS onedal_core)
 
 if(USE_PARALLEL STREQUAL "yes")
@@ -92,20 +100,20 @@ if (UNIX OR TARGET_LINK STREQUAL "static")
     list(APPEND DAL_LIBS ${DAL_THREAD_LIBRARY_NAME})
 endif()
 
-if (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "no")
-    list(APPEND DAL_LIBS onedal_sycl)
-elseif (USE_DPCPP STREQUAL "no" AND USE_NEW_IFACES STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal)
-elseif (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal_dpc)
-endif()
-
 if(UNIX)
     list(APPEND DAL_IMPORTED_TARGETS -lm -lpthread -ldl)
 endif()
 
 if (USE_DPCPP STREQUAL "yes")
     list(APPEND DAL_IMPORTED_TARGETS -lOpenCL)
+endif()
+
+if (USE_NEW_IFACES STREQUAL "yes")
+    if (MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+    else ()
+        set(CMAKE_CXX_STANDARD 17)
+    endif()
 endif()
 
 if(UNIX)
