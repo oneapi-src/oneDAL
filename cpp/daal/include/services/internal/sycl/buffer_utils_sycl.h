@@ -350,7 +350,7 @@ private:
         explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value) : queue(queue), dstUnivers(dest), value(value) {}
 
         template <typename T>
-        Status fillVanilla(const Buffer<T>& dstBuffer)
+        Status fillVanilla(const Buffer<T> & dstBuffer)
         {
             using namespace cl::sycl;
 
@@ -370,7 +370,7 @@ private:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
         template <typename T>
-        Status fillUSMBacked(const Buffer<T>& dstBuffer)
+        Status fillUSMBacked(const Buffer<T> & dstBuffer)
         {
             Status status;
             auto dstPtr = dstBuffer.toUSM(queue, status);

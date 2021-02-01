@@ -248,10 +248,7 @@ public:
         return status;
     }
 
-    Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
-    {
-        return ErrorMethodNotImplemented;
-    }
+    Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE { return ErrorMethodNotImplemented; }
 
     Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
     {
