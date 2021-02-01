@@ -250,9 +250,7 @@ public:
 
     Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
     {
-        Status status;
-        _nativeBuffer = wrap(status, buffer.get(), buffer.size(), true);
-        return status;
+        return ErrorMethodNotImplemented;
     }
 
     Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
