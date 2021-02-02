@@ -204,6 +204,12 @@ public:
         return reshaped_ndview_t{ data_, new_shape };
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    sycl::event prefetch(sycl::queue& queue) const {
+        return queue.prefetch(data_, this->get_count());
+    }
+#endif
+
 protected:
     explicit ndview(T* data, const shape_t& shape, const shape_t& strides)
             : base(shape, strides),

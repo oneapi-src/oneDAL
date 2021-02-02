@@ -31,6 +31,15 @@ sycl::event gemm(sycl::queue& queue,
                  Float beta = Float(0),
                  const event_vector& deps = {});
 
+template <typename Float, ndorder ao, ndorder bo, ndorder co>
+inline sycl::event gemm(sycl::queue& queue,
+                        const ndview<Float, 2, ao>& a,
+                        const ndview<Float, 2, bo>& b,
+                        const ndview<Float, 2, co>& c,
+                        const event_vector& deps = {}) {
+    return gemm(queue, a, b, c, Float(1), Float(0), deps);
+}
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives

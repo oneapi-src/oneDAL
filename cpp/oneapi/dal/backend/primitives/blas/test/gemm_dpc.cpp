@@ -41,51 +41,99 @@ public:
     static constexpr ndorder co = std::tuple_element_t<3, Param>::value;
 
     gemm_test() {
-        queue_ = get_policy().get_queue();
+        m_ = 0;
+        n_ = 0;
+        k_ = 0;
+    }
+
+    void generate_small_dimensions() {
         m_ = GENERATE(3, 4, 5);
         n_ = GENERATE(4, 5, 6);
         k_ = GENERATE(5, 6, 7);
         CAPTURE(m_, n_, k_);
     }
 
-    sycl::queue& get_queue() {
-        return queue_;
+    void generate_medium_dimensions() {
+        m_ = GENERATE(300, 400);
+        n_ = GENERATE(400, 500);
+        k_ = GENERATE(500, 600);
+        CAPTURE(m_, n_, k_);
     }
 
     auto A() {
-        auto [x, event] = ndarray<float_t, 2, ao>::ones(queue_, { m_, k_ });
-        event.wait_and_throw();
-        return x;
+        check_if_initialized();
+        return ndarray<float_t, 2, ao>::ones(get_queue(), { m_, k_ });
     }
 
     auto At() {
-        auto [x, event] = ndarray<float_t, 2, ao>::ones(queue_, { k_, m_ });
-        event.wait_and_throw();
-        return x.t();
+        check_if_initialized();
+        return ndarray<float_t, 2, ao>::ones(get_queue(), { k_, m_ });
     }
 
     auto B() {
-        auto [x, event] = ndarray<float_t, 2, bo>::ones(queue_, { k_, n_ });
-        event.wait_and_throw();
-        return x;
+        check_if_initialized();
+        return ndarray<float_t, 2, bo>::ones(get_queue(), { k_, n_ });
     }
 
     auto Bt() {
-        auto [x, event] = ndarray<float_t, 2, bo>::ones(queue_, { n_, k_ });
-        event.wait_and_throw();
-        return x.t();
+        check_if_initialized();
+        return ndarray<float_t, 2, bo>::ones(get_queue(), { n_, k_ });
     }
 
     auto C() {
-        return ndarray<float_t, 2, co>::empty(queue_, { m_, n_ });
+        check_if_initialized();
+        return ndarray<float_t, 2, co>::empty(get_queue(), { m_, n_ });
+    }
+
+    void test_gemm() {
+        auto c = C();
+        auto [ a, a_e ] = A();
+        auto [ b, b_e ] = B();
+        auto [ at, at_e ] = At();
+        auto [ bt, bt_e ] = Bt();
+
+        SECTION("A x B") {
+            gemm(get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
+            check_ones_matrix(c);
+        }
+
+        SECTION("A x Bt") {
+            gemm(get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
+            check_ones_matrix(c);
+        }
+
+        SECTION("At x B") {
+            gemm(get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
+            check_ones_matrix(c);
+        }
+
+        SECTION("At x Bt") {
+            gemm(get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
+            check_ones_matrix(c);
+        }
     }
 
     void check_ones_matrix(const ndarray<float_t, 2, co>& mat) {
+        check_if_initialized();
         REQUIRE(mat.get_shape() == ndshape<2>{ m_, n_ });
 
         float_t* mat_ptr = mat.get_data();
         for (std::int64_t i = 0; i < mat.get_count(); i++) {
-            REQUIRE(std::int64_t(mat_ptr[i]) == k_);
+            if (std::int64_t(mat_ptr[i]) != k_) {
+                CAPTURE(i, mat_ptr[i]);
+                FAIL();
+            }
+        }
+        SUCCEED();
+    }
+
+    bool is_initialized() const {
+        return m_ > 0 && n_ > 0 && k_ > 0;
+    }
+
+    void check_if_initialized() {
+        if (!is_initialized()) {
+            throw std::runtime_error { "gemm test is not initialized" };
         }
     }
 
@@ -93,7 +141,6 @@ private:
     std::int64_t m_;
     std::int64_t n_;
     std::int64_t k_;
-    sycl::queue queue_;
 };
 
 using gemm_types = COMBINE_TYPES((float, double),
@@ -101,44 +148,14 @@ using gemm_types = COMBINE_TYPES((float, double),
                                  (c_order, f_order),
                                  (c_order, f_order));
 
-TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm", "[gemm]", gemm_types) {
-    auto C = this->C();
-
-    SECTION("A x B") {
-        gemm(this->get_queue(), this->A(), this->B(), C).wait_and_throw();
-        this->check_ones_matrix(C);
-    }
+TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on small sizes", "[gemm][small]", gemm_types) {
+    this->generate_small_dimensions();
+    this->test_gemm();
 }
 
-// TEST("dot orthogonal matrix", "[linalg][dot]") {
-//     const std::int64_t row_count = 5;
-//     const std::int64_t column_count = 5;
-//     const std::int64_t element_count = row_count * column_count;
-//     const double X_ptr[element_count] = {
-//         0.5728966506,  0.5677902077,  -0.4104886344, 0.0993844187,  0.4135523258,
-//         -0.4590520326, 0.2834513205,  -0.6214677550, -0.5114715156, -0.2471867686,
-//         0.0506571111,  -0.3713048334, 0.0645569868,  -0.6484125926, 0.6595150363,
-//         0.3318135734,  0.4178413295,  0.5362188809,  -0.5381061517, -0.3717787744,
-//         -0.5902493276, 0.5336768432,  0.3918910789,  0.1360974115,  0.4412410170
-//     };
-
-//     const auto X = matrix<double>::wrap(array<double>::wrap(X_ptr, element_count),
-//                                         { row_count, column_count });
-
-//     const auto C = dot(X, X.t());
-
-//     SECTION("result is ones matrix") {
-//         enumerate(C, [&](std::int64_t i, std::int64_t j, double x) {
-//             CAPTURE(i, j);
-
-//             if (i == j) {
-//                 REQUIRE(std::abs(x - 1.0) < 1e-9);
-//             }
-//             else {
-//                 REQUIRE(std::abs(x) < 1e-9);
-//             }
-//         });
-//     }
-// }
+TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on medium sizes", "[gemm][medium]", gemm_types) {
+    this->generate_medium_dimensions();
+    this->test_gemm();
+}
 
 } // namespace oneapi::dal::backend::primitives::test

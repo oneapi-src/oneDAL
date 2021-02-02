@@ -79,7 +79,7 @@ sycl::event gemm(sycl::queue& queue,
 }
 
 #define INSTANTIATE(F, ao, bo, co)                                      \
-    template sycl::event gemm<F, ao, bo, co>(sycl::queue& queue,        \
+    template ONEDAL_EXPORT sycl::event gemm<F, ao, bo, co>(sycl::queue& queue,        \
                                              const ndview<F, 2, ao>& a, \
                                              const ndview<F, 2, bo>& b, \
                                              const ndview<F, 2, co>& c, \
