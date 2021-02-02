@@ -87,10 +87,10 @@ public:
 
     void test_gemm() {
         auto c = C();
-        auto [ a, a_e ] = A();
-        auto [ b, b_e ] = B();
-        auto [ at, at_e ] = At();
-        auto [ bt, bt_e ] = Bt();
+        auto [a, a_e] = A();
+        auto [b, b_e] = B();
+        auto [at, at_e] = At();
+        auto [bt, bt_e] = Bt();
 
         SECTION("A x B") {
             gemm(get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
@@ -133,7 +133,7 @@ public:
 
     void check_if_initialized() {
         if (!is_initialized()) {
-            throw std::runtime_error { "gemm test is not initialized" };
+            throw std::runtime_error{ "gemm test is not initialized" };
         }
     }
 

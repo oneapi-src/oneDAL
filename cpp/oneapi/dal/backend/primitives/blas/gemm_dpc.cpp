@@ -44,48 +44,48 @@ sycl::event gemm(sycl::queue& queue,
     constexpr bool is_c_trans = (co == ndorder::c);
     if constexpr (is_c_trans) {
         return mkl::blas::gemm(queue,
-                        f_order_as_transposed(bo),
-                        f_order_as_transposed(ao),
-                        c.get_shape(1),
-                        c.get_shape(0),
-                        a.get_shape(1),
-                        alpha,
-                        b.get_data(),
-                        b.get_leading_stride(),
-                        a.get_data(),
-                        a.get_leading_stride(),
-                        beta,
-                        c.get_data(),
-                        c.get_leading_stride(),
-                        deps);
+                               f_order_as_transposed(bo),
+                               f_order_as_transposed(ao),
+                               c.get_shape(1),
+                               c.get_shape(0),
+                               a.get_shape(1),
+                               alpha,
+                               b.get_data(),
+                               b.get_leading_stride(),
+                               a.get_data(),
+                               a.get_leading_stride(),
+                               beta,
+                               c.get_data(),
+                               c.get_leading_stride(),
+                               deps);
     }
     else {
         return mkl::blas::gemm(queue,
-                        c_order_as_transposed(ao),
-                        c_order_as_transposed(bo),
-                        c.get_shape(0),
-                        c.get_shape(1),
-                        a.get_shape(1),
-                        alpha,
-                        a.get_data(),
-                        a.get_leading_stride(),
-                        b.get_data(),
-                        b.get_leading_stride(),
-                        beta,
-                        c.get_data(),
-                        c.get_leading_stride(),
-                        deps);
+                               c_order_as_transposed(ao),
+                               c_order_as_transposed(bo),
+                               c.get_shape(0),
+                               c.get_shape(1),
+                               a.get_shape(1),
+                               alpha,
+                               a.get_data(),
+                               a.get_leading_stride(),
+                               b.get_data(),
+                               b.get_leading_stride(),
+                               beta,
+                               c.get_data(),
+                               c.get_leading_stride(),
+                               deps);
     }
 }
 
-#define INSTANTIATE(F, ao, bo, co)                                      \
-    template ONEDAL_EXPORT sycl::event gemm<F, ao, bo, co>(sycl::queue& queue,        \
-                                             const ndview<F, 2, ao>& a, \
-                                             const ndview<F, 2, bo>& b, \
-                                             const ndview<F, 2, co>& c, \
-                                             F alpha,                   \
-                                             F beta,                    \
-                                             const event_vector& deps);
+#define INSTANTIATE(F, ao, bo, co)                                                    \
+    template ONEDAL_EXPORT sycl::event gemm<F, ao, bo, co>(sycl::queue & queue,       \
+                                                           const ndview<F, 2, ao>& a, \
+                                                           const ndview<F, 2, bo>& b, \
+                                                           const ndview<F, 2, co>& c, \
+                                                           F alpha,                   \
+                                                           F beta,                    \
+                                                           const event_vector& deps);
 
 #define INSTANTIATE_FLOAT(ao, bo, co) \
     INSTANTIATE(float, ao, bo, co)    \
