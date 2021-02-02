@@ -80,11 +80,13 @@ public:
         return ndarray<float_t, 2, co>::empty(queue_, { m_, n_ });
     }
 
-    void check_ones_matrix(const ndarray<float_t, 2, co>& mat) const {
+    void check_ones_matrix(const ndarray<float_t, 2, co>& mat) {
         REQUIRE(mat.get_shape() == ndshape<2>{ m_, n_ });
-        // for_each(mat, [&](float x) {
-        //     REQUIRE(std::int64_t(x) == k_);
-        // });
+
+        float_t* mat_ptr = mat.get_data();
+        for (std::int64_t i = 0; i < mat.get_count(); i++) {
+            REQUIRE(std::int64_t(mat_ptr[i]) == k_);
+        }
     }
 
 private:
@@ -103,7 +105,7 @@ TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm", "[gemm]", gemm_types) {
     auto C = this->C();
 
     SECTION("A x B") {
-        gemm(this->get_queue(), this->A(), this->B(), C);
+        gemm(this->get_queue(), this->A(), this->B(), C).wait_and_throw();
         this->check_ones_matrix(C);
     }
 }
