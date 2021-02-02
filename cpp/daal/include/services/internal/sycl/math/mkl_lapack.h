@@ -68,47 +68,27 @@ private:
         const auto uplomkl = to_fpk_uplo(uplo);
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-        if (a.isUSMBacked())
+        auto a_usm = a.toUSM(_queue, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        algorithmFPType * scratchpad = nullptr;
+        if (scratchpadSize > 0)
         {
-            auto a_usm = a.toUSM(_queue, status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            algorithmFPType * scratchpad = nullptr;
-            if (scratchpadSize > 0)
-            {
-                scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
-                if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
-            }
-
-            status |= catchSyclExceptions([&]() mutable {
-                ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_usm.get(), lda, scratchpad, scratchpadSize);
-                _queue.wait_and_throw();
-            });
-
-            if (scratchpadSize > 0) cl::sycl::free(scratchpad, _queue);
-
-            scratchpad = nullptr;
+            scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
+            if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
         }
-        else
+
+        status |= catchSyclExceptions([&]() mutable {
+            ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_usm.get(), lda, scratchpad, scratchpadSize);
+            _queue.wait_and_throw();
+        });
+
+        if (scratchpadSize > 0) cl::sycl::free(scratchpad, _queue);
+
+        scratchpad = nullptr;
+#else
+        static_assert(false, "USM support required");
 #endif
-        {
-            auto a_sycl_buff = a.toSycl(status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            status |= catchSyclExceptions([&]() mutable {
-                cl::sycl::buffer<algorithmFPType, 1> scratchpad { cl::sycl::range<1>(scratchpadSize) };
-
-                const std::int64_t minimalScratchpadSize = ::oneapi::fpk::lapack::potrf_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, lda);
-                _queue.wait_and_throw();
-                DAAL_ASSERT(minimalScratchpadSize > 0);
-                if (scratchpad.get_count() < size_t(minimalScratchpadSize)) return Status(ErrorMemoryAllocationFailed);
-
-                ::oneapi::fpk::lapack::potrf(_queue, uplomkl, n, a_sycl_buff, lda, scratchpad, scratchpad.get_count());
-                _queue.wait_and_throw();
-                return Status();
-            });
-        }
-
         return status;
     }
 
@@ -143,56 +123,30 @@ private:
         const auto uplomkl = to_fpk_uplo(uplo);
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-        if (a.isUSMBacked())
+        auto a_usm = a.toUSM(_queue, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        auto b_usm = b.toUSM(_queue, status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        algorithmFPType * scratchpad = nullptr;
+        if (scratchpadSize > 0)
         {
-            auto a_usm = a.toUSM(_queue, status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            auto b_usm = b.toUSM(_queue, status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            algorithmFPType * scratchpad = nullptr;
-            if (scratchpadSize > 0)
-            {
-                scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
-                if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
-            }
-
-            status |= catchSyclExceptions([&]() mutable {
-                ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_usm.get(), lda, b_usm.get(), ldb, scratchpad, scratchpadSize);
-                _queue.wait_and_throw();
-            });
-
-            if (scratchpadSize > 0) cl::sycl::free(scratchpad, _queue);
-
-            scratchpad = nullptr;
+            scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
+            if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
         }
-        else
+
+        status |= catchSyclExceptions([&]() mutable {
+            ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_usm.get(), lda, b_usm.get(), ldb, scratchpad, scratchpadSize);
+            _queue.wait_and_throw();
+        });
+
+        if (scratchpadSize > 0) cl::sycl::free(scratchpad, _queue);
+
+        scratchpad = nullptr;
+#else
+        static_assert(false, "USM support required");
 #endif
-        {
-            cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a.toSycl(status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b.toSycl(status);
-            DAAL_CHECK_STATUS_VAR(status);
-
-            status |= catchSyclExceptions([&]() mutable {
-                cl::sycl::buffer<algorithmFPType, 1> scratchpad { cl::sycl::range<1>(scratchpadSize) };
-
-                const std::int64_t minimalScratchpadSize =
-                    ::oneapi::fpk::lapack::potrs_scratchpad_size<algorithmFPType>(_queue, uplomkl, n, ny, lda, ldb);
-                _queue.wait_and_throw();
-
-                DAAL_ASSERT(minimalScratchpadSize > 0);
-                if (scratchpad.get_count() < size_t(minimalScratchpadSize)) return Status(ErrorMemoryAllocationFailed);
-
-                ::oneapi::fpk::lapack::potrs(_queue, uplomkl, n, ny, a_sycl_buff, lda, b_sycl_buff, ldb, scratchpad, scratchpad.get_count());
-                _queue.wait_and_throw();
-
-                return Status();
-            });
-        }
-
         return status;
     }
 
