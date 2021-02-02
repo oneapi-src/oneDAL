@@ -33,6 +33,11 @@ public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
 
+    bool not_available_on_device() {
+        constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;
+        return get_policy().is_gpu() && is_svd;
+    }
+
     auto get_descriptor(std::int64_t component_count) const {
         return pca::descriptor<Float, Method>{}
             .set_component_count(component_count)
@@ -188,6 +193,8 @@ private:
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
 
 TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
+    SKIP_IF(this->not_available_on_device());
+
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));

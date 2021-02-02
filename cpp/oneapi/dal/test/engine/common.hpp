@@ -104,9 +104,24 @@
 #define DECLARE_TEST_POLICY(policy_name) oneapi::dal::test::engine::host_test_policy policy_name
 #endif
 
+#define SKIP_IF(condition) \
+    if (condition) {       \
+        SUCCEED();         \
+        return;            \
+    }
+
 namespace oneapi::dal::test::engine {
 
-class host_test_policy {};
+class host_test_policy {
+public:
+    bool is_cpu() const {
+        return true;
+    }
+
+    bool is_gpu() const {
+        return false;
+    }
+};
 
 template <typename... Args>
 inline auto train(host_test_policy& policy, Args&&... args) {
@@ -161,6 +176,14 @@ public:
 
     sycl::queue& get_queue() {
         return queue_;
+    }
+
+    bool is_cpu() const {
+        return queue_.get_device().is_cpu() || queue_.get_device().is_host();
+    }
+
+    bool is_gpu() const {
+        return queue_.get_device().is_gpu();
     }
 
 private:

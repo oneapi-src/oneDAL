@@ -16,6 +16,8 @@
 
 #include "oneapi/dal/test/engine/config.hpp"
 
+#include <stdexcept>
+
 #ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
@@ -65,7 +67,12 @@ void global_cleanup() {
 }
 
 #else
-void global_setup(const global_config& config) {}
+void global_setup(const global_config& config) {
+    if (config.device_selector != "" && config.device_selector != "cpu") {
+        throw std::invalid_argument { "Test is build in HOST mode, so only CPU device is available" };
+    }
+}
+
 void global_cleanup() {}
 #endif
 

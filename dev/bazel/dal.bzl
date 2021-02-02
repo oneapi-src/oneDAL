@@ -27,6 +27,7 @@ load("@onedal//dev/bazel:release.bzl",
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
     "paths",
+    "utils",
 )
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
@@ -206,6 +207,12 @@ def dal_test_suite(name, srcs=[], tests=[], compile_as=[ "c++", "dpc++" ], **kwa
     targets_dpc = []
     for test_file in srcs:
         target = test_file.replace(".cpp", "").replace("/", "_")
+        is_dpc_target = target.endswith("_dpc")
+
+        # No need to have `_dpc` suffix if test source already contains it
+        if is_dpc_target:
+            target = utils.remove_substring(target, "_dpc")
+
         dal_test(
             name = target,
             srcs = [test_file],
@@ -213,6 +220,10 @@ def dal_test_suite(name, srcs=[], tests=[], compile_as=[ "c++", "dpc++" ], **kwa
             **kwargs,
         )
         if "c++" in compile_as:
+            if is_dpc_target:
+                utils.warn("Test source file `{}` has `_dpc` suffix, ".format(test_file) +
+                           "but is going to be compiled by C++ compiler, " +
+                           "make sure BUILD file content is correct")
             targets.append(":" + target)
         if "dpc++" in compile_as:
             targets_dpc.append(":" + target + "_dpc")
