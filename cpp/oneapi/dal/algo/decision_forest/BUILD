@@ -18,48 +18,47 @@ dal_module(
 
 dal_module(
     name = "test_utils",
-    dpc = False,
     hdrs = glob(["test/*.hpp"]),
 )
 
 dal_test_suite(
     name = "common_tests",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob([
         "common_*_test.cpp",
     ]),
     dal_deps = [
         ":decision_forest",
     ],
-    extra_deps = [
+    dal_test_deps = [
         ":test_utils",
     ],
 )
 
 dal_test_suite(
     name = "cpu_tests",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob([
         "backend/cpu/*_test.cpp",
     ]),
     dal_deps = [
         ":decision_forest",
     ],
-    extra_deps = [
+    dal_test_deps = [
         ":test_utils",
     ],
 )
 
 dal_test_suite(
     name = "gpu_tests_dpc",
-    host = False,
+    compile_as = [ "dpc++" ],
     srcs = glob([
         "backend/gpu/*_test.cpp",
     ]),
     dal_deps = [
         ":decision_forest",
     ],
-    extra_deps = [
+    dal_test_deps = [
         ":test_utils",
     ],
     tags = ["gpu"],

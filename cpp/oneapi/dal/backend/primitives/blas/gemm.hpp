@@ -16,15 +16,21 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/common.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 
-namespace oneapi::dal::backend::primitives::blas {
+namespace oneapi::dal::backend::primitives {
 
-enum class layout { row_major, column_major };
+#ifdef ONEDAL_DATA_PARALLEL
 
-enum class orientation { normal, transposed };
+template <typename Float, ndorder ao, ndorder bo, ndorder co>
+sycl::event gemm(sycl::queue& queue,
+                 const ndview<Float, 2, ao>& a,
+                 const ndview<Float, 2, bo>& b,
+                 const ndview<Float, 2, co>& c,
+                 Float alpha = Float(1),
+                 Float beta = Float(0),
+                 const event_vector& deps = {});
 
-template <typename Float>
-sycl::event gemm(sycl::queue& q, layout lyt, );
+#endif
 
-} // namespace oneapi::dal::backend::primitives::blas
+} // namespace oneapi::dal::backend::primitives

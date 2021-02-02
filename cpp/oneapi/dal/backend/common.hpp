@@ -16,4 +16,16 @@
 
 #pragma once
 
+#ifdef ONEDAL_DATA_PARALLEL
+#include <CL/sycl.hpp>
+#endif
+
 #include "oneapi/dal/backend/dispatcher.hpp"
+
+namespace oneapi::dal::backend {
+
+#ifdef ONEDAL_DATA_PARALLEL
+using event_vector = std::vector<sycl::event>;
+#endif
+
+} // namespace oneapi::dal::backend

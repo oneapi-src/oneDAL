@@ -19,25 +19,25 @@ test:host \
 
 # Configuration: 'dpc-cpu'
 build:dpc-cpu \
-    --build_tag_filters="dpc"
+    --build_tag_filters="dpc,-gpu-only"
 
 run:dpc-cpu \
     -- --device=cpu
 
 test:dpc-cpu \
-    --test_tag_filters="dpc" \
+    --test_tag_filters="dpc,-gpu-only" \
     --test_env=OCL_ICD_FILENAMES \
     --test_arg="--device=cpu"
 
 
 # Configuration: 'dpc-gpu'
 build:dpc-gpu \
-    --build_tag_filters="dpc"
+    --build_tag_filters="dpc,-cpu-only"
 
 run:dpc-gpu \
     -- --device=gpu
 
 test:dpc-gpu \
-    --test_tag_filters="dpc" \
+    --test_tag_filters="dpc,-cpu-only" \
     --test_env=OCL_ICD_FILENAMES \
     --test_arg="--device=gpu"

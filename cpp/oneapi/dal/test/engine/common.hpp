@@ -29,6 +29,7 @@
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/test/engine/macro.hpp"
+#include "oneapi/dal/test/engine/type_traits.hpp"
 
 // Workaround DPC++ Compiler's warning on unused
 // variable declared by Catch2's TEST_CASE macro
@@ -181,44 +182,5 @@ inline auto compute(device_test_policy& policy, Args&&... args) {
     return dal::compute(policy.get_queue(), std::forward<Args>(args)...);
 }
 #endif
-
-template <std::size_t index, typename TupleX, typename TupleY>
-struct combine_types_element {
-private:
-    static constexpr std::size_t count_x = std::tuple_size_v<TupleX>;
-    static constexpr std::size_t count_y = std::tuple_size_v<TupleY>;
-    static constexpr std::size_t i = index / count_y;
-    static constexpr std::size_t j = index % count_y;
-
-    static_assert(i < count_x);
-    static_assert(j < count_y);
-
-public:
-    using type = std::tuple<std::tuple_element_t<i, TupleX>, std::tuple_element_t<j, TupleY>>;
-};
-
-template <std::size_t index, typename TupleX, typename TupleY>
-using combine_types_element_t = typename combine_types_element<index, TupleX, TupleY>::type;
-
-template <typename TupleX, typename TupleY>
-struct combine_types {
-private:
-    static constexpr std::size_t count_x = std::tuple_size_v<TupleX>;
-    static constexpr std::size_t count_y = std::tuple_size_v<TupleY>;
-
-    template <std::size_t... indices>
-    static constexpr auto index_helper(std::index_sequence<indices...>)
-        -> std::tuple<combine_types_element_t<indices, TupleX, TupleY>...>;
-
-public:
-    static constexpr std::size_t count = count_x * count_y;
-    using type = decltype(index_helper(std::make_index_sequence<count>{}));
-};
-
-template <typename TupleX, typename TupleY>
-using combine_types_t = typename combine_types<TupleX, TupleY>::type;
-
-#define COMBINE_TYPES(x, y) \
-    oneapi::dal::test::engine::combine_types_t<std::tuple<_TE_UNPACK(x)>, std::tuple<_TE_UNPACK(y)>>
 
 } // namespace oneapi::dal::test::engine

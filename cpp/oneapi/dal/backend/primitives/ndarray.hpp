@@ -46,6 +46,7 @@ constexpr ndorder transposed_ndorder_v = transposed_ndorder<order>::value;
 template <std::int64_t axis_count, ndorder order = ndorder::c>
 class ndarray_base {
     static_assert(axis_count > 0, "Axis count must be non-zero");
+    static_assert(order == ndorder::c || order == ndorder::f, "Only C or F orders are supported");
 
 public:
     ndarray_base() = default;
@@ -58,9 +59,6 @@ public:
         }
         else if constexpr (order == ndorder::f) {
             ONEDAL_ASSERT(strides[0] == 1, "First F-order stride must be 1");
-        }
-        else {
-            ONEDAL_ASSERT(!"Unsupported order");
         }
 
 #ifdef ONEDAL_ENABLE_ASSERT
@@ -85,6 +83,24 @@ public:
 
     const ndshape<axis_count>& get_strides() const {
         return strides_;
+    }
+
+    std::int64_t get_shape(std::int64_t axis) const {
+        return shape_[axis];
+    }
+
+    std::int64_t get_stride(std::int64_t axis) const {
+        return strides_[axis];
+    }
+
+    std::int64_t get_leading_stride() const {
+        if constexpr (order == ndorder::c) {
+            return strides_[0];
+        }
+        else if constexpr (order == ndorder::f) {
+            return strides_[axis_count - 1];
+        }
+        return 0;
     }
 
     std::int64_t get_count() const {
@@ -127,9 +143,6 @@ protected:
                 strides[i] = stride;
                 stride *= shape[i];
             }
-        }
-        else {
-            ONEDAL_ASSERT(!"Unsupported order");
         }
 
         return strides;
@@ -317,7 +330,7 @@ public:
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
-    static std::tuple<ndarray, sycl::event> full_async(
+    static std::tuple<ndarray, sycl::event> full(
         sycl::queue& q,
         const shape_t& shape,
         const T& value,
@@ -328,44 +341,21 @@ public:
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
-    static ndarray full(sycl::queue& q,
-                        const shape_t& shape,
-                        const T& value,
-                        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
-        auto [ary, event] = full_async(q, shape, value, alloc_kind);
-        event.wait_and_throw();
-        return ary;
-    }
-
-    template <typename U = T, typename = enable_if_non_const_t<U>>
-    static std::tuple<ndarray, sycl::event> zeros_async(
+    static std::tuple<ndarray, sycl::event> zeros(
         sycl::queue& q,
         const shape_t& shape,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
-        return full_async(q, shape, T(0), alloc_kind);
-    }
-
-    template <typename U = T, typename = enable_if_non_const_t<U>>
-    static ndarray zeros(sycl::queue& q,
-                         const shape_t& shape,
-                         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         return full(q, shape, T(0), alloc_kind);
     }
 
     template <typename U = T, typename = enable_if_non_const_t<U>>
-    static std::tuple<ndarray, sycl::event> ones_async(
+    static std::tuple<ndarray, sycl::event> ones(
         sycl::queue& q,
         const shape_t& shape,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
-        return full_async(q, shape, T(1), alloc_kind);
-    }
-
-    template <typename U = T, typename = enable_if_non_const_t<U>>
-    static ndarray ones(sycl::queue& q,
-                        const shape_t& shape,
-                        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         return full(q, shape, T(1), alloc_kind);
     }
+
 #endif
 
     array_t flatten() const {

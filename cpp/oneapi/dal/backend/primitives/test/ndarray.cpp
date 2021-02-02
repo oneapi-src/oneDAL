@@ -296,14 +296,14 @@ TEMPLATE_SIG_TEST("can create ndarray with custom deleter", "[ndarray]", ENUMERA
     REQUIRE(deleter.get_call_count() == 1);
 }
 
-template <template <typename T, std::int64_t axis_count> typename Nd>
+template <template <typename, std::int64_t, ndorder> typename Nd>
 void test_nd_transpose() {
     // Allocate enough element count for all shapes under test
     std::vector<float> data_vector(1000, 0.0f);
     float* data_ptr = data_vector.data();
 
     SECTION("1D") {
-        const auto x = Nd<float, 1>::wrap(data_ptr, { 5 });
+        const auto x = Nd<float, 1, ndorder::c>::wrap(data_ptr, { 5 });
 
         const auto xt = x.t();
 
@@ -312,7 +312,7 @@ void test_nd_transpose() {
     }
 
     SECTION("2D") {
-        const auto x = Nd<float, 2>::wrap(data_ptr, { 3, 7 });
+        const auto x = Nd<float, 2, ndorder::c>::wrap(data_ptr, { 3, 7 });
 
         const auto xt = x.t();
 
@@ -323,7 +323,7 @@ void test_nd_transpose() {
     }
 
     SECTION("3D") {
-        const auto x = Nd<float, 3>::wrap(data_ptr, { 5, 3, 7 });
+        const auto x = Nd<float, 3, ndorder::c>::wrap(data_ptr, { 5, 3, 7 });
 
         const auto xt = x.t();
 
@@ -336,14 +336,14 @@ void test_nd_transpose() {
     }
 }
 
-template <template <typename T, std::int64_t axis_count> typename Nd>
+template <template <typename, std::int64_t, ndorder> typename Nd>
 void test_nd_reshape() {
     // Allocate enough element count for all shapes under test
     std::vector<float> data_vector(1000, 0.0f);
     float* data_ptr = data_vector.data();
 
     SECTION("1D -> 1D") {
-        const auto x = Nd<float, 1>::wrap(data_ptr, { 5 });
+        const auto x = Nd<float, 1, ndorder::c>::wrap(data_ptr, { 5 });
 
         const auto xr = x.reshape(ndshape<1>{ 5 });
 
@@ -351,7 +351,7 @@ void test_nd_reshape() {
     }
 
     SECTION("1D -> 2D") {
-        const auto x = Nd<float, 1>::wrap(data_ptr, { 8 });
+        const auto x = Nd<float, 1, ndorder::c>::wrap(data_ptr, { 8 });
 
         const auto xr = x.reshape(ndshape<2>{ 4, 2 });
 
@@ -360,7 +360,7 @@ void test_nd_reshape() {
     }
 
     SECTION("2D -> 2D") {
-        const auto x = Nd<float, 2>::wrap(data_ptr, { 10, 2 });
+        const auto x = Nd<float, 2, ndorder::c>::wrap(data_ptr, { 10, 2 });
 
         const auto xr = x.reshape(ndshape<2>{ 5, 4 });
 
@@ -369,7 +369,7 @@ void test_nd_reshape() {
     }
 
     SECTION("3D -> 2D") {
-        const auto x = Nd<float, 3>::wrap(data_ptr, { 8, 4, 2 });
+        const auto x = Nd<float, 3, ndorder::c>::wrap(data_ptr, { 8, 4, 2 });
 
         const auto xr = x.reshape(ndshape<2>{ 8, 8 });
 
@@ -409,32 +409,18 @@ TEST_M(ndarray_test, "can allocate zeros ndarray", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 
-    SECTION("sync") {
-        const auto x = ndarray<float, 2>::zeros(queue, { 7, 5 });
-        check_if_all_zeros(x);
-    }
-
-    SECTION("async") {
-        auto [x, event] = ndarray<float, 2>::zeros_async(queue, { 7, 5 });
-        event.wait_and_throw();
-        check_if_all_zeros(x);
-    }
+    auto [x, event] = ndarray<float, 2>::zeros(queue, { 7, 5 });
+    event.wait_and_throw();
+    check_if_all_zeros(x);
 }
 
 TEST_M(ndarray_test, "can allocate ones ndarray", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 
-    SECTION("sync") {
-        const auto x = ndarray<float, 2>::ones(queue, { 7, 5 });
-        check_if_all_ones(x);
-    }
-
-    SECTION("async") {
-        auto [x, event] = ndarray<float, 2>::ones_async(queue, { 7, 5 });
-        event.wait_and_throw();
-        check_if_all_ones(x);
-    }
+    auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 });
+    event.wait_and_throw();
+    check_if_all_ones(x);
 }
 
 #endif

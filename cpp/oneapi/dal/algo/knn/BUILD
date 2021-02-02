@@ -17,7 +17,7 @@ dal_module(
 
 dal_test_suite(
     name = "common_tests",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob([
         "common_*_host_test.cpp",
     ]),
@@ -28,7 +28,7 @@ dal_test_suite(
 
 dal_test_suite(
     name = "gpu_tests_dpc",
-    host = False,
+    compile_as = [ "dpc++" ],
     srcs = glob([
         "common_*_dpc_test.cpp",
     ]),
