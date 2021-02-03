@@ -137,7 +137,10 @@ jobs:
     displayName: 'Create dpcpp enviroment'
   - script: |
       sudo apt-get install git
-      git clone https://github.com/IntelPython/daal4py.git
+      git clone https://github.com/OnlyDeniko/daal4py.git
+      cd daal4py
+      git checkout CI
+      cd ..
     displayName: Clone daal4py
   - script: |
       .ci/env/clang.sh
