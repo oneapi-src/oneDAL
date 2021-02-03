@@ -580,7 +580,6 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
                                                                                          services::Status & status)
 {
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
-    typename DFTreeConverterType::TreeHelperType mTreeHelper(1);
 
     DAAL_ASSERT(x);
     DAAL_ASSERT(y);
@@ -602,11 +601,10 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
         algorithmFPType prediction = DFTreeConverterType::TreeHelperType::predict(t, &x[rowInd * nFeatures]);
         oobBufHost.get()[rowInd * 2 + 0] += prediction;
         oobBufHost.get()[rowInd * 2 + 1] += algorithmFPType(1);
-        algorithmFPType val = (prediction - y[rowInd]) * (prediction - y[rowInd]);
-        mean += (val - mean) / algorithmFPType(i + 1);
+        mean += (prediction - y[rowInd]) * (prediction - y[rowInd]);
     }
 
-    return mean;
+    return mean / n;
 }
 
 template <typename algorithmFPType>
@@ -615,7 +613,6 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
     const UniversalBuffer & indices, size_t indicesOffset, const int * indicesPerm, const size_t testFtrInd, size_t n, services::Status & status)
 {
     typedef DFTreeConverter<algorithmFPType, sse2> DFTreeConverterType;
-    typename DFTreeConverterType::TreeHelperType mTreeHelper(1);
 
     DAAL_ASSERT(x);
     DAAL_ASSERT(y);
@@ -639,12 +636,11 @@ algorithmFPType RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::compute
         DAAL_ASSERT(rowIndPerm < nRows);
         services::internal::tmemcpy<algorithmFPType, sse2>(buf.get(), &x[rowInd * nFeatures], nFeatures);
         buf[testFtrInd]            = x[rowIndPerm * nFeatures + testFtrInd];
-        algorithmFPType prediction = mTreeHelper.predict(t, buf.get());
-        algorithmFPType val        = (prediction - y[rowInd]) * (prediction - y[rowInd]);
-        mean += (val - mean) / algorithmFPType(i + 1);
+        algorithmFPType prediction = DFTreeConverterType::TreeHelperType::predict(t, buf.get());
+        mean += (prediction - y[rowInd]) * (prediction - y[rowInd]);
     }
 
-    return mean;
+    return mean / n;
 }
 
 template <typename algorithmFPType>

@@ -605,11 +605,10 @@ algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::com
         DAAL_ASSERT(rowInd < nRows);
         size_t prediction = DFTreeConverterType::TreeHelperType::predict(t, &x[rowInd * nFeatures]);
         oobBufHost.get()[rowInd * _nClasses + prediction]++;
-        algorithmFPType val = algorithmFPType(prediction != size_t(y[rowInd]));
-        mean += (val - mean) / algorithmFPType(i + 1);
+        mean += algorithmFPType(prediction != size_t(y[rowInd]));
     }
 
-    return mean;
+    return mean / n;
 }
 
 template <typename algorithmFPType>
@@ -640,13 +639,12 @@ algorithmFPType ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::com
         DAAL_ASSERT(rowInd < nRows);
         DAAL_ASSERT(rowIndPerm < nRows);
         services::internal::tmemcpy<algorithmFPType, sse2>(buf.get(), &x[rowInd * nFeatures], nFeatures);
-        buf[testFtrInd]     = x[rowIndPerm * nFeatures + testFtrInd];
-        size_t prediction   = DFTreeConverterType::TreeHelperType::predict(t, buf.get());
-        algorithmFPType val = algorithmFPType(prediction != size_t(y[rowInd]));
-        mean += (val - mean) / algorithmFPType(i + 1);
+        buf[testFtrInd]   = x[rowIndPerm * nFeatures + testFtrInd];
+        size_t prediction = DFTreeConverterType::TreeHelperType::predict(t, buf.get());
+        mean += algorithmFPType(prediction != size_t(y[rowInd]));
     }
 
-    return mean;
+    return mean / n;
 }
 
 template <typename algorithmFPType>
