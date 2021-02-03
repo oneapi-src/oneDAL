@@ -39,6 +39,8 @@ MSG(small_data_block, "Data block size is smaller than expected")
 MSG(invalid_data_block_size, "Invalid data block size")
 MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")
+MSG(unknown_memcpy_error, "Unknown error during memory copying")
+MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 
 /* Tables */
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
@@ -130,6 +132,8 @@ MSG(input_model_eigenvectors_cc_neq_input_data_cc,
     "Input model eigenvectors column count is not equal to input data column count")
 MSG(input_model_eigenvectors_rc_neq_desc_component_count,
     "Eigenvectors' row count in input model is not equal to component count provided in descriptor")
+MSG(input_model_eigenvectors_rc_neq_input_data_cc,
+    "Eigenvectors' row count in input model is not equal to input data column count")
 MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
 

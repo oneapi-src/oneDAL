@@ -17,8 +17,8 @@
 #include <iostream>
 
 #include "example_util/utils.hpp"
-#include "oneapi/dal/graph/graph_service_functions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
     const dal::preview::graph_csv_data_source ds(filename);
-    using my_graph_type = dal::preview::undirected_adjacency_array_graph<>;
+    using my_graph_type = dal::preview::undirected_adjacency_vector_graph<>;
     const dal::preview::load_graph::descriptor<dal::preview::edge_list<int32_t>, my_graph_type>
         desc;
     const auto my_graph = dal::preview::load_graph::load(desc, ds);

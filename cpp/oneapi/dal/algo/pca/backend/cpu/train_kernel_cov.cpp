@@ -16,6 +16,7 @@
 
 #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -42,7 +43,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
     const std::int64_t column_count = data.get_column_count();
-    const std::int64_t component_count = desc.get_component_count();
+    const std::int64_t component_count = get_component_count(desc, data);
 
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);

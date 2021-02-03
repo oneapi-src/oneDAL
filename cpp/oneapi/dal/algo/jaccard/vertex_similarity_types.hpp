@@ -21,18 +21,10 @@
 #pragma once
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
-#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/algo/jaccard/detail/vertex_similarity_types.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
-
-namespace detail {
-template <typename Graph>
-class vertex_similarity_input_impl;
-class vertex_similarity_result_impl;
-} // namespace detail
 
 /// Class for the description of the input parameters of the Jaccard Similarity
 /// algorithm
@@ -41,6 +33,8 @@ class vertex_similarity_result_impl;
 template <typename Graph>
 class ONEDAL_EXPORT vertex_similarity_input {
 public:
+    static_assert(detail::is_valid_graph<Graph>,
+                  "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the graph and the caching builder.
     ///
     /// @param [in]   graph  The input graph
@@ -91,5 +85,21 @@ public:
 private:
     dal::detail::pimpl<detail::vertex_similarity_result_impl> impl_;
 };
+
+template <typename Graph>
+vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data,
+                                                        caching_builder& builder_input)
+        : impl_(new detail::vertex_similarity_input_impl<Graph>(data, builder_input)) {}
+
+template <typename Graph>
+const Graph& vertex_similarity_input<Graph>::get_graph() const {
+    return impl_->graph_data;
+}
+
+template <typename Graph>
+caching_builder& vertex_similarity_input<Graph>::get_caching_builder() {
+    return impl_->builder;
+}
+
 } // namespace jaccard
 } // namespace oneapi::dal::preview

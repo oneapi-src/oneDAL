@@ -19,58 +19,46 @@
 #ifdef ONEDAL_DATA_PARALLEL
 #include <cstring>
 
-#include "oneapi/dal/detail/common_dpc.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
+ONEDAL_EXPORT void* malloc(const data_parallel_policy&, std::size_t size, const sycl::usm::alloc&);
+ONEDAL_EXPORT void free(const data_parallel_policy&, void* pointer);
+ONEDAL_EXPORT void memset(const data_parallel_policy& policy,
+                          void* dest,
+                          std::int32_t value,
+                          std::int64_t size);
+ONEDAL_EXPORT void memcpy(const data_parallel_policy& policy,
+                          void* dest,
+                          const void* src,
+                          std::int64_t size);
+ONEDAL_EXPORT bool is_known_usm_pointer_type(const data_parallel_policy& policy,
+                                             const void* pointer);
+
 template <typename T>
 inline T* malloc(const data_parallel_policy& policy,
                  std::int64_t count,
                  const sycl::usm::alloc& alloc) {
-    auto& queue = policy.get_queue();
-    auto device = queue.get_device();
-    auto context = queue.get_context();
-    // TODO: is not safe since sycl::memset accepts count as size_t
-    return sycl::malloc<T>(count, device, context, alloc);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
+    const std::size_t bytes_count = sizeof(T) * count;
+    return static_cast<T*>(malloc(policy, bytes_count, alloc));
 }
 
 template <typename T>
 inline void free(const data_parallel_policy& policy, T* pointer) {
     using mutable_t = std::remove_const_t<T>;
-    sycl::free(const_cast<mutable_t*>(pointer), policy.get_queue());
-}
-
-inline void memset(const data_parallel_policy& policy,
-                   void* dest,
-                   std::int32_t value,
-                   std::int64_t size) {
-    // TODO: is not safe since queue.memset accepts size as size_t
-    auto event = policy.get_queue().memset(dest, value, size);
-    event.wait();
-}
-
-inline void memcpy(const data_parallel_policy& policy,
-                   void* dest,
-                   const void* src,
-                   std::int64_t size) {
-    // TODO: is not safe since queue.memcpy accepts size as size_t
-    auto event = policy.get_queue().memcpy(dest, src, size);
-    event.wait();
+    free(policy, reinterpret_cast<void*>(const_cast<mutable_t*>(pointer)));
 }
 
 template <typename T>
 inline void fill(const data_parallel_policy& policy, T* dest, std::int64_t count, const T& value) {
-    // TODO: can be optimized in future
-    auto& queue = policy.get_queue();
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for<class oneapi_dal_memory_fill>(sycl::range<1>(count), [=](sycl::id<1> idx) {
-            dest[idx[0]] = value;
-        });
-    });
+    ONEDAL_ASSERT(is_known_usm_pointer_type(policy, dest));
+    ONEDAL_ASSERT(count > 0);
 
-    event.wait();
+    auto& queue = policy.get_queue();
+    queue.fill(dest, value, count).wait_and_throw();
 }
 
 template <typename T>
@@ -104,6 +92,7 @@ using v1::malloc;
 using v1::free;
 using v1::memset;
 using v1::memcpy;
+using v1::is_known_usm_pointer_type;
 using v1::fill;
 using v1::data_parallel_allocator;
 

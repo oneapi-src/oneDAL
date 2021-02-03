@@ -389,6 +389,16 @@ public:
     }
 
     /**
+     * Constructs a KD-tree based kNN training algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
+    Batch(size_t nClasses)
+    {
+        parameter.nClasses = nClasses;
+        initialize();
+    }
+
+    /**
      * Get input objects for KD-tree based kNN model-based training algorithm
      * \return %Input objects for KD-tree based kNN model-based training algorithm
      */
