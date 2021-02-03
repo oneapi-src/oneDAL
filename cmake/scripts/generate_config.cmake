@@ -37,7 +37,7 @@ endif()
 
 # Make a directory for result configs
 if (NOT "$ENV{DALROOT}" STREQUAL "")
-    set(INSTALL_DIR "$ENV{DALROOT}/lib/cmake/oneDAL-${oneDAL_VERSION_MAJOR}.${oneDAL_VERSION_MINOR}.${oneDAL_VERSION_PATCH}")
+    set(INSTALL_DIR "$ENV{DALROOT}/lib/cmake/oneDAL")
 else()
     set(INSTALL_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 endif()
