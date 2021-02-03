@@ -22,22 +22,22 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-sycl::event gemm(sycl::queue& queue,
-                 const ndview<Float, 2, ao>& a,
-                 const ndview<Float, 2, bo>& b,
-                 const ndview<Float, 2, co>& c,
-                 Float alpha = Float(1),
-                 Float beta = Float(0),
-                 const event_vector& deps = {});
+template <typename Float>
+struct compute_cov_op {
+    sycl::event operator()(sycl::queue& queue,
+                           const ndview<Float, 2>& data,
+                           const ndview<Float, 1>& sums,
+                           const ndview<Float, 2>& cov,
+                           const event_vector& deps);
+};
 
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-inline sycl::event gemm(sycl::queue& queue,
-                        const ndview<Float, 2, ao>& a,
-                        const ndview<Float, 2, bo>& b,
-                        const ndview<Float, 2, co>& c,
-                        const event_vector& deps = {}) {
-    return gemm<Float>(queue, a, b, c, Float(1), Float(0), deps);
+template <typename Float>
+inline sycl::event compute_cov(sycl::queue& queue,
+                               const ndview<Float, 2>& data,
+                               const ndview<Float, 1>& sums,
+                               const ndview<Float, 2>& cov,
+                               const event_vector& deps = {}) {
+    return compute_cov_op<Float>{}(queue, data, sums, cov, deps);
 }
 
 #endif

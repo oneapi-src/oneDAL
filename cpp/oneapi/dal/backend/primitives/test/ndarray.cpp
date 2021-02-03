@@ -154,6 +154,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
 
         REQUIRE(x.get_data() == data);
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
     }
 
     SECTION("shared pointer") {
@@ -161,6 +162,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
 
         REQUIRE(x.get_data() == data);
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
     }
 
     SECTION("shared pointer rvalue") {
@@ -170,14 +172,16 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
 
         REQUIRE(x.get_data() == data);
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
         REQUIRE(movable_data_shared.get() == nullptr);
     }
 
     SECTION("immutable array") {
-        const auto x = ndarray<const float, axis_count>::wrap(data_array_immutable, shape);
+        const auto x = ndarray<float, axis_count>::wrap(data_array_immutable, shape);
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == false);
 
         auto data_array = data_array_immutable;
         data_array.need_mutable_data();
@@ -188,10 +192,11 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
         auto movable_data_array_immutable = data_array_immutable;
 
         const auto x =
-            ndarray<const float, axis_count>::wrap(std::move(movable_data_array_immutable), shape);
+            ndarray<float, axis_count>::wrap(std::move(movable_data_array_immutable), shape);
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == false);
         REQUIRE(movable_data_array_immutable.get_data() == nullptr);
 
         auto data_array = data_array_immutable;
@@ -205,6 +210,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
         REQUIRE(x.get_data() == data_array_mutable.get_data());
         REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
     }
 
     SECTION("mutable array rvalue") {
@@ -216,6 +222,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
         REQUIRE(x.get_data() == data_array_mutable.get_data());
         REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
         REQUIRE(movable_data_array_mutable.get_data() == nullptr);
     }
 }
@@ -226,7 +233,7 @@ TEST("can wrap array into ndarray without shape", "[ndarray]") {
     const auto data_array_immutable = array<float>::wrap(const_cast<const float*>(data), 1);
 
     SECTION("immutable array") {
-        const auto x = ndarray<const float, 1>::wrap(data_array_immutable);
+        const auto x = ndarray<float, 1>::wrap(data_array_immutable);
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == ndshape<1>{ 1 });
@@ -239,7 +246,7 @@ TEST("can wrap array into ndarray without shape", "[ndarray]") {
     SECTION("immutable array rvalue") {
         auto movable_data_array_immutable = data_array_immutable;
 
-        const auto x = ndarray<const float, 1>::wrap(std::move(movable_data_array_immutable));
+        const auto x = ndarray<float, 1>::wrap(std::move(movable_data_array_immutable));
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == ndshape<1>{ 1 });
@@ -392,6 +399,19 @@ TEST("ndview reshape", "[ndview]") {
 
 TEST("ndarray reshape", "[ndarray]") {
     test_nd_reshape<ndarray>();
+}
+
+template <typename Float, ndorder order>
+void test_pass_non_const_to_const(const ndview<std::add_const_t<Float>, 2, order>&);
+
+TEST("can cast ndarray to ndview", "[ndarray]") {
+    float data[] = { 0.1 };
+    const auto x = ndarray<float, 2>::wrap(data, { 1, 1 });
+
+    const ndview<float, 2> x_view = x;
+    REQUIRE(x_view.get_data() == x.get_data());
+    REQUIRE(x_view.get_shape() == x.get_shape());
+    REQUIRE(x_view.get_strides() == x.get_strides());
 }
 
 #ifdef ONEDAL_DATA_PARALLEL

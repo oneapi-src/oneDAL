@@ -165,8 +165,13 @@ private:
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
 class ndview : public ndarray_base<axis_count, order> {
+    static_assert(!std::is_const_v<T>, "T must be non-const");
+
     template <typename, std::int64_t, ndorder>
     friend class ndview;
+
+    template <typename U>
+    using enable_if_cv_match_t = std::enable_if_t<std::is_same_v<T, std::remove_cv_t<U>>>;
 
 public:
     using base = ndarray_base<axis_count, order>;
@@ -178,30 +183,47 @@ public:
         return ndview{ data, shape };
     }
 
+    static ndview wrap(const T* data, const shape_t& shape) {
+        return ndview{ data, shape };
+    }
+
     static ndview wrap(T* data, const shape_t& shape, const shape_t& strides) {
         return ndview{ data, shape, strides };
     }
 
-    T* get_data() const {
+    static ndview wrap(const T* data, const shape_t& shape, const shape_t& strides) {
+        return ndview{ data, shape, strides };
+    }
+
+    const T* get_data() const {
         return data_;
+    }
+
+    T* get_mutable_data() const {
+        ONEDAL_ASSERT(data_is_mutable_);
+        return const_cast<T*>(data_);
     }
 
     bool has_data() const {
         return this->get_count() > 0;
     }
 
+    bool has_mutable_data() const {
+        return has_data() && data_is_mutable_;
+    }
+
     auto t() const {
         using tranposed_ndview_t = ndview<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
         const auto& strides = this->get_strides();
-        return tranposed_ndview_t{ data_, shape.t(), strides.t() };
+        return tranposed_ndview_t{ data_, shape.t(), strides.t(), data_is_mutable_ };
     }
 
     template <std::int64_t new_axis_count>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
         using reshaped_ndview_t = ndview<T, new_axis_count, order>;
         check_reshape_conditions(new_shape);
-        return reshaped_ndview_t{ data_, new_shape };
+        return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -211,11 +233,32 @@ public:
 #endif
 
 protected:
-    explicit ndview(T* data, const shape_t& shape, const shape_t& strides)
+    explicit ndview(const T* data,
+                    const shape_t& shape,
+                    const shape_t& strides,
+                    bool data_is_mutable)
             : base(shape, strides),
-              data_(data) {}
+              data_(data),
+              data_is_mutable_(data_is_mutable) {}
 
-    explicit ndview(T* data, const shape_t& shape) : base(shape), data_(data) {}
+    template <typename U, typename = enable_if_cv_match_t<U>>
+    explicit ndview(U* data, const shape_t& shape, const shape_t& strides)
+            : base(shape, strides),
+              data_(data),
+              data_is_mutable_(std::is_same_v<U, T>) {}
+
+    explicit ndview(const T* data,
+                    const shape_t& shape,
+                    bool data_is_mutable)
+            : base(shape),
+              data_(data),
+              data_is_mutable_(data_is_mutable) {}
+
+    template <typename U, typename = enable_if_cv_match_t<U>>
+    explicit ndview(U* data, const shape_t& shape)
+             : base(shape),
+               data_(data),
+               data_is_mutable_(std::is_same_v<U, T>) {}
 
     template <std::int64_t new_axis_count>
     void check_reshape_conditions(const ndshape<new_axis_count>& new_shape) const {
@@ -224,8 +267,14 @@ protected:
         base::check_if_strides_are_default();
     }
 
+    ndview& set_mutability(bool data_is_mutable) {
+        data_is_mutable_ = data_is_mutable;
+        return *this;
+    }
+
 private:
-    T* data_;
+    const T* data_;
+    bool data_is_mutable_;
 };
 
 template <typename T, std::int64_t axis_count, ndorder order = ndorder::c>
@@ -233,7 +282,6 @@ class ndarray : public ndview<T, axis_count, order> {
     template <typename, std::int64_t, ndorder>
     friend class ndarray;
 
-private:
     using base = ndview<T, axis_count, order>;
     using shape_t = ndshape<axis_count>;
     using shared_t = dal::detail::shared<T>;
@@ -249,12 +297,6 @@ private:
         array_t ary_;
     };
 
-    template <typename U>
-    using enable_if_const_t = std::enable_if_t<std::is_const_v<U>>;
-
-    template <typename U>
-    using enable_if_non_const_t = std::enable_if_t<!std::is_const_v<U>>;
-
 public:
     ndarray() = default;
 
@@ -262,6 +304,12 @@ public:
     static ndarray wrap(T* data, const shape_t& shape, Deleter&& deleter = Deleter{}) {
         auto shared = shared_t{ data, std::forward<Deleter>(deleter) };
         return wrap(std::move(shared), shape);
+    }
+
+    template <typename Deleter = dal::detail::empty_delete<T>>
+    static ndarray wrap(const T* data, const shape_t& shape, Deleter&& deleter = Deleter{}) {
+        auto shared = shared_t{ const_cast<T*>(data), std::forward<Deleter>(deleter) };
+        return wrap(std::move(shared), shape).set_mutability(false);
     }
 
     static ndarray wrap(const shared_t& data, const shape_t& shape) {
@@ -272,40 +320,34 @@ public:
         return ndarray{ std::move(data), shape };
     }
 
-    template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(const array_t& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         return wrap(ary.get_data(), shape, array_deleter{ ary });
     }
 
-    template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(array_t&& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         const T* data_ptr = ary.get_data();
         return wrap(data_ptr, shape, array_deleter{ std::move(ary) });
     }
 
-    template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(const array_t& ary) {
         static_assert(axis_count == 1);
         return wrap(ary, shape_t{ ary.get_count() });
     }
 
-    template <typename U = T, typename = enable_if_const_t<U>>
     static ndarray wrap(array_t&& ary) {
         static_assert(axis_count == 1);
         std::int64_t ary_count = ary.get_count();
         return wrap(std::move(ary), shape_t{ ary_count });
     }
 
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(const array_t& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         auto shared = shared_t{ ary.get_mutable_data(), array_deleter{ ary } };
         return wrap(std::move(shared), shape);
     }
 
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(array_t&& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         T* data_ptr = ary.get_mutable_data();
@@ -313,13 +355,11 @@ public:
         return wrap(std::move(shared), shape);
     }
 
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(const array_t& ary) {
         static_assert(axis_count == 1);
         return wrap_mutable(ary, shape_t{ ary.get_count() });
     }
 
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray wrap_mutable(array_t&& ary) {
         static_assert(axis_count == 1);
         std::int64_t ary_count = ary.get_count();
@@ -327,7 +367,6 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static ndarray empty(const sycl::queue& q,
                          const shape_t& shape,
                          const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
@@ -335,18 +374,16 @@ public:
         return wrap(ptr, shape, usm_deleter<T>{ q });
     }
 
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static std::tuple<ndarray, sycl::event> full(
         sycl::queue& q,
         const shape_t& shape,
         const T& value,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         auto ary = empty(q, shape, alloc_kind);
-        auto event = q.fill(ary.get_data(), value, ary.get_count());
+        auto event = q.fill(ary.get_mutable_data(), value, ary.get_count());
         return { ary, event };
     }
 
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static std::tuple<ndarray, sycl::event> zeros(
         sycl::queue& q,
         const shape_t& shape,
@@ -354,7 +391,6 @@ public:
         return full(q, shape, T(0), alloc_kind);
     }
 
-    template <typename U = T, typename = enable_if_non_const_t<U>>
     static std::tuple<ndarray, sycl::event> ones(
         sycl::queue& q,
         const shape_t& shape,
@@ -363,6 +399,9 @@ public:
     }
 
 #endif
+    const base& get_view() const {
+        return *this;
+    }
 
     array_t flatten() const {
         return array_t{ data_, this->get_count() };
@@ -372,14 +411,16 @@ public:
         using tranposed_ndarray_t = ndarray<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
         const auto& strides = this->get_strides();
-        return tranposed_ndarray_t{ data_, shape.t(), strides.t() };
+        return tranposed_ndarray_t{ data_, shape.t(), strides.t() }
+            .set_mutability(this->has_mutable_data());
     }
 
     template <std::int64_t new_axis_count>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
         using reshaped_ndarray_t = ndarray<T, new_axis_count, order>;
         base::check_reshape_conditions(new_shape);
-        return reshaped_ndarray_t{ data_, new_shape };
+        return reshaped_ndarray_t{ data_, new_shape }
+            .set_mutability(this->has_mutable_data());
     }
 
 private:
@@ -398,6 +439,11 @@ private:
     explicit ndarray(shared_t&& data, const shape_t& shape)
             : base(data.get(), shape),
               data_(std::move(data)) {}
+
+    ndarray& set_mutability(bool data_is_mutable) {
+        base::set_mutability(data_is_mutable);
+        return *this;
+    }
 
     shared_t data_;
 };

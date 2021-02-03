@@ -40,6 +40,7 @@ sycl::event gemm(sycl::queue& queue,
     ONEDAL_ASSERT(a.get_shape(0) == c.get_shape(0));
     ONEDAL_ASSERT(a.get_shape(1) == b.get_shape(0));
     ONEDAL_ASSERT(b.get_shape(1) == c.get_shape(1));
+    ONEDAL_ASSERT(c.has_mutable_data());
 
     constexpr bool is_c_trans = (co == ndorder::c);
     if constexpr (is_c_trans) {
@@ -55,7 +56,7 @@ sycl::event gemm(sycl::queue& queue,
                         a.get_data(),
                         a.get_leading_stride(),
                         beta,
-                        c.get_data(),
+                        c.get_mutable_data(),
                         c.get_leading_stride(),
                         deps);
     }
@@ -72,7 +73,7 @@ sycl::event gemm(sycl::queue& queue,
                         b.get_data(),
                         b.get_leading_stride(),
                         beta,
-                        c.get_data(),
+                        c.get_mutable_data(),
                         c.get_leading_stride(),
                         deps);
     }

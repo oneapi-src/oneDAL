@@ -43,6 +43,7 @@ dal_collect_test_suites(
     modules = [
         "blas",
         "reduction",
+        "stat",
     ],
     tests = [
         ":common_tests",

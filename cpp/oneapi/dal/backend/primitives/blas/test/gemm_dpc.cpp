@@ -93,22 +93,22 @@ public:
         auto [ bt, bt_e ] = Bt();
 
         SECTION("A x B") {
-            gemm(get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
+            gemm<float_t>(get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("A x Bt") {
-            gemm(get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
+            gemm<float_t>(get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x B") {
-            gemm(get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
+            gemm<float_t>(get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x Bt") {
-            gemm(get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
+            gemm<float_t>(get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
             check_ones_matrix(c);
         }
     }
@@ -117,7 +117,7 @@ public:
         check_if_initialized();
         REQUIRE(mat.get_shape() == ndshape<2>{ m_, n_ });
 
-        float_t* mat_ptr = mat.get_data();
+        const float_t* mat_ptr = mat.get_data();
         for (std::int64_t i = 0; i < mat.get_count(); i++) {
             if (std::int64_t(mat_ptr[i]) != k_) {
                 CAPTURE(i, mat_ptr[i]);

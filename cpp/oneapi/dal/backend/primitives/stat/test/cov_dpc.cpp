@@ -14,6 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/backend/primitives/stat/cov.hpp"
 
-#include "oneapi/dal/backend/primitives/blas/gemm.hpp"
+namespace oneapi::dal::backend::primitives::test {
+
+TEST("cov", "[cov]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    auto [sums, sums_event] = ndarray<float, 1>::full(queue, { 100 }, 1000.f, sycl::usm::alloc::device);
+    auto [data, data_event] = ndarray<float, 2>::ones(queue, { 1000, 100 }, sycl::usm::alloc::device);
+    auto cov = ndarray<float, 2>::empty(queue, { 100, 100 });
+
+    compute_cov<float>(queue, data, sums, cov, { sums_event, data_event }).wait_and_throw();
+}
+
+} // namespace oneapi::dal::backend::primitives::test
