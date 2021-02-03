@@ -137,10 +137,7 @@ jobs:
     displayName: 'Create dpcpp enviroment'
   - script: |
       sudo apt-get install git
-      git clone https://github.com/OnlyDeniko/daal4py.git
-      cd daal4py
-      git checkout CI
-      cd ..
+      git clone https://github.com/IntelPython/daal4py.git
     displayName: Clone daal4py
   - script: |
       .ci/env/clang.sh
@@ -173,6 +170,13 @@ jobs:
       ./conda-recipe/run_test.sh
     displayName: daal4py test
   - script: |
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
       cd daal4py
       ret_code=0
       python -m daal4py examples/run_examples.py
