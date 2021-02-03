@@ -173,6 +173,7 @@ jobs:
       ./conda-recipe/run_test.sh
     displayName: daal4py test
   - script: |
+      cd daal4py
       ret_code=0
       python -m daal4py examples/run_examples.py
       ret_code=$(($ret_code + $?))
