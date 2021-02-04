@@ -306,7 +306,12 @@ public:
             return services::ErrorMemoryCopyFailedInternal;
         }
 
-        _data = SharedPtr<T>(usm_data, [q = this->_q](const void * data) { cl::sycl::free(const_cast<void *>(data), q); });
+        _data = SharedPtr<T>(usm_data,
+            [q = this->_q, host_data, size](const void * data)
+            {
+                services::internal::daal_memcpy_s(host_data.get(), size, data, size);
+                cl::sycl::free(const_cast<void *>(data), q);
+            });
         return st;
     }
 
@@ -320,7 +325,7 @@ public:
     {
         Status st;
 
-        auto host_data = buffer.getHostRead(st);
+        auto host_data = buffer.getHostReadWrite(st);
         DAAL_CHECK_STATUS_VAR(st);
         auto usm_data = cl::sycl::malloc_shared<T>(buffer.size(), _q);
         if (usm_data == nullptr)
@@ -337,7 +342,12 @@ public:
             return services::ErrorMemoryCopyFailedInternal;
         }
 
-        _data = SharedPtr<T>(usm_data, [q = this->_q](const void * data) { cl::sycl::free(const_cast<void *>(data), q); });
+        _data = SharedPtr<T>(usm_data,
+            [q = this->_q, host_data, size](const void * data)
+            {
+                services::internal::daal_memcpy_s(host_data.get(), size, data, size);
+                cl::sycl::free(const_cast<void *>(data), q);
+            });
         return st;
     }
 
