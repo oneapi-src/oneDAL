@@ -150,23 +150,23 @@ void doRegression(cl::sycl::queue & q, bf_knn_classification::prediction::Result
         trainResponses->getBlockOfRows(0, nTrainSamples, readOnly, trainResponsesBlock);
     }
     {
-        auto neighborsIndicesBuffer = neighborsIndicesBlock.getBuffer().toSycl();
-        auto testResponsesBuffer    = testResponsesBlock.getBuffer().toSycl();
-        auto trainResponsesBuffer   = trainResponsesBlock.getBuffer().toSycl();
+        auto neighborsIndicesSharedPtr = neighborsIndicesBlock.getBuffer().toUSM(q);
+        auto testResponsesSharedPtr = testResponsesBlock.getBuffer().toUSM(q);
+        auto trainResponsesSharedPtr = trainResponsesBlock.getBuffer().toUSM(q);
         const float kn              = static_cast<float>(kNeighbors);
         q.submit([&](cl::sycl::handler & h) {
-            auto neighborsIndicesAcc = neighborsIndicesBuffer.get_access<cl::sycl::access::mode::read>(h);
-            auto testResponsesAcc    = testResponsesBuffer.get_access<cl::sycl::access::mode::write>(h);
-            auto trainResponsesAcc   = trainResponsesBuffer.get_access<cl::sycl::access::mode::read>(h);
+            auto neighborsIndicesPtr = neighborsIndicesSharedPtr.get();
+            auto testResponsesPtr    = testResponsesSharedPtr.get();
+            auto trainResponsesPtr   = trainResponsesSharedPtr.get();
             h.parallel_for<class regressor>(cl::sycl::range<2>(nTestSamples, nResponses), [=](cl::sycl::id<2> idx) {
                 float acc(0);
                 int trIndex;
                 for (size_t i = 0; i < kNeighbors; ++i)
                 {
-                    trIndex = neighborsIndicesAcc[idx[0] * kNeighbors + i];
-                    acc += trainResponsesAcc[trIndex * nResponses + idx[1]];
+                    trIndex = neighborsIndicesPtr[idx[0] * kNeighbors + i];
+                    acc += trainResponsesPtr[trIndex * nResponses + idx[1]];
                 }
-                testResponsesAcc[idx[0] * nResponses + idx[1]] = acc / kn;
+                testResponsesPtr[idx[0] * nResponses + idx[1]] = acc / kn;
             });
         });
         q.wait();
