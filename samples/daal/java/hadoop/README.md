@@ -59,9 +59,15 @@ The command creates the `/Hadoop/<sample_name>` and `/Hadoop/Libraries` director
 For each algorithm, the results are stored in the `/_results/<sample_name>/part-r-00000` sequence file.
 
 ## Notices and Disclaimers
-Intel, and the Intel logo are trademarks of Intel Corporation in the U.S. and/or other countries.
+
+Performance varies by use, configuration and other factors. Learn more at www.Intel.com/PerformanceIndex​.  
+
+No product or component can be absolutely secure. 
+
+Your costs and results may vary.
+
+Intel technologies may require enabled hardware, software or service activation.
+
+**&copy; Intel Corporation**. Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries.  Other names and brands may be claimed as the property of others.
 
 \*Other names and brands may be claimed as the property of others.
-
-&copy; Copyright 2017-2021, Intel Corporation
-

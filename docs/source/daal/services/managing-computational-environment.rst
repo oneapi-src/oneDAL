@@ -56,6 +56,9 @@ it for multiple purposes:
    the system (machine) topology, application, and operating system.
    By default, the method is disabled.
 
+
+.. include:: ../../opt-notice.rst
+
 Examples
 ++++++++
 

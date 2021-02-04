@@ -128,3 +128,5 @@ To get the best overall performance when Cholesky decomposition:
 - If input data is homogeneous, for input matrix :math:`X` and output matrix :math:`L` use homogeneous numeric tables
   of the same type as specified in the ``algorithmFPType`` class template parameter.
 - If input data is non-homogeneous, use :ref:`AOS <aos_layout>` layout rather than SOA layout.
+
+.. include:: ../../../opt-notice.rst

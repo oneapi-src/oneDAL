@@ -167,3 +167,5 @@ prediction stage:
    template parameter.
 -  For predicted labels, use a homogeneous numeric table of type int.
 
+
+.. include:: ../../../opt-notice.rst
