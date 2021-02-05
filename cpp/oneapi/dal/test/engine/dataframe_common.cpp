@@ -17,12 +17,12 @@
 #include "oneapi/dal/test/engine/dataframe_common.hpp"
 
 #include <list>
-#include <random>
 #include <unordered_map>
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/test/engine/dataframe_actions.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -190,77 +190,6 @@ static dataframe_builder_cache& get_dataframe_builder_cache() {
     return dataframe_builder_cache::get_instance();
 }
 
-class dataframe_builder_action_allocate : public dataframe_builder_action {
-public:
-    explicit dataframe_builder_action_allocate(std::int64_t row_count, std::int64_t column_count)
-            : row_count_(row_count),
-              column_count_(column_count) {
-        if (row_count == 0 || column_count == 0) {
-            throw invalid_argument{ fmt::format(
-                "Invalid dataframe shape, row and column count must be positive, "
-                "but got row_count = {}, column_count = {}",
-                row_count,
-                column_count) };
-        }
-    }
-
-    std::string get_opcode() const override {
-        return fmt::format("allocate({},{})", row_count_, column_count_);
-    }
-
-    dataframe_impl* execute(dataframe_impl* df) const override {
-        delete df;
-        const auto arr = array<float>::empty(row_count_ * column_count_);
-        return new dataframe_impl{ arr, row_count_, column_count_ };
-    }
-
-private:
-    std::int64_t row_count_;
-    std::int64_t column_count_;
-};
-
-class dataframe_builder_action_fill_uniform : public dataframe_builder_action {
-public:
-    explicit dataframe_builder_action_fill_uniform(double a, double b, std::int64_t seed)
-            : a_(a),
-              b_(b),
-              seed_(seed) {
-        if (a >= b) {
-            throw invalid_argument{ fmt::format("Invalid uniform distribution interval, "
-                                                "expected b > a, but got a = {}, b = {}",
-                                                a,
-                                                b) };
-        }
-    }
-
-    std::string get_opcode() const override {
-        return fmt::format("fill_uniform({},{},{})", a_, b_, seed_);
-    }
-
-    dataframe_impl* execute(dataframe_impl* df) const override {
-        if (!df) {
-            throw invalid_argument{ "Action fill_uniform got null dataframe" };
-        }
-
-        float* data = df->get_array().need_mutable_data().get_mutable_data();
-
-        // TODO: Migrate to MKL's random generators
-        std::mt19937 rng(seed_);
-
-        std::uniform_real_distribution<float> distr(a_, b_);
-        for (std::int64_t i = 0; i < df->get_count(); i++) {
-            data[i] = distr(rng);
-        }
-
-        return df;
-    }
-
-private:
-    double a_ = 0.0;
-    double b_ = 1.0;
-    std::int64_t seed_ = 7777;
-};
-
 dataframe dataframe_builder_program::execute() const {
     dataframe_impl* impl = nullptr;
     for (const auto& action : actions_) {
@@ -271,6 +200,16 @@ dataframe dataframe_builder_program::execute() const {
 
 dataframe_builder_impl::dataframe_builder_impl(std::int64_t row_count, std::int64_t column_count) {
     program_.add<dataframe_builder_action_allocate>(row_count, column_count);
+}
+
+dataframe_builder& dataframe_builder::fill(double value) {
+    impl_->get_program().add<dataframe_builder_action_fill>(value);
+    return *this;
+}
+
+dataframe_builder& dataframe_builder::fill_diag(double value) {
+    impl_->get_program().add<dataframe_builder_action_fill_diag>(value);
+    return *this;
 }
 
 dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int64_t seed) {
@@ -306,7 +245,6 @@ static homogen_table wrap_to_homogen_table(device_test_policy& policy,
                                            std::int64_t row_count,
                                            std::int64_t column_count) {
     return dal::detail::homogen_table_builder{}
-        .allocate(policy.get_queue(), row_count, column_count)
         .copy_data(policy.get_queue(), data.get_data(), row_count, column_count)
         .build();
 }

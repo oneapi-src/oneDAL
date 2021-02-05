@@ -138,10 +138,7 @@ public:
                    const void* data,
                    std::int64_t row_count,
                    std::int64_t column_count) {
-        const auto kind = sycl::get_pointer_type(data_.get_data(), queue.get_context());
-        ONEDAL_ASSERT(kind != sycl::usm::alloc::unknown);
-
-        allocate(queue, row_count, column_count, kind);
+        allocate(queue, row_count, column_count, sycl::usm::alloc::shared);
         detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
     }
 #endif

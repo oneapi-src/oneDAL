@@ -146,7 +146,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    auto& queue = ctx.get_queue();
+    // auto& queue = ctx.get_queue();
 
 
 

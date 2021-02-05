@@ -29,7 +29,7 @@
 namespace oneapi::dal::test::engine {
 
 #define GENERATE_DATAFRAME(...) \
-    GENERATE(as<oneapi::dal::test::engine::dataframe_builder>{}, __VA_ARGS__).build()
+    GENERATE_COPY(as<oneapi::dal::test::engine::dataframe_builder>{}, __VA_ARGS__).build()
 
 enum class table_kind { homogen };
 
@@ -257,6 +257,10 @@ class dataframe_builder {
 public:
     explicit dataframe_builder(std::int64_t row_count, std::int64_t column_count)
             : impl_(new dataframe_builder_impl{ row_count, column_count }) {}
+
+    dataframe_builder& fill(double vaue);
+
+    dataframe_builder& fill_diag(double vaue);
 
     dataframe_builder& fill_uniform(double a, double b, std::int64_t seed = 7777);
 
