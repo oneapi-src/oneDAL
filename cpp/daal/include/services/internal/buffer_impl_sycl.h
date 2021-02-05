@@ -286,10 +286,10 @@ class ConvertToUsm : public BufferVisitor<T>
 public:
     ConvertToUsm(cl::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag) : _q(queue), _rwFlag(rwFlag) {}
 
-    Status makeCopyToUSM(const SharedPtr<T>& hostData, size_t count)
+    Status makeCopyToUSM(const SharedPtr<T> & hostData, size_t count)
     {
         Status st;
-        auto usmData  = cl::sycl::malloc_shared<T>(count, _q);
+        auto usmData = cl::sycl::malloc_shared<T>(count, _q);
         if (usmData == nullptr)
         {
             return services::ErrorMemoryAllocationFailed;
@@ -307,15 +307,13 @@ public:
             }
         }
 
-        _data = SharedPtr<T>(usmData,
-            [q = this->_q, rwFlag = this->_rwFlag, hostData, size](const void * data)
+        _data = SharedPtr<T>(usmData, [q = this->_q, rwFlag = this->_rwFlag, hostData, size](const void * data) {
+            if (rwFlag & data_management::writeOnly)
             {
-                if (rwFlag & data_management::writeOnly)
-                {
-                    services::internal::daal_memcpy_s(hostData.get(), size, data, size);
-                }
-                cl::sycl::free(const_cast<void *>(data), q);
-            });
+                services::internal::daal_memcpy_s(hostData.get(), size, data, size);
+            }
+            cl::sycl::free(const_cast<void *>(data), q);
+        });
         return st;
     }
 

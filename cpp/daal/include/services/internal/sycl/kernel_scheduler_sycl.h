@@ -471,7 +471,7 @@ private:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     template <data_management::ReadWriteMode mode, typename T>
-    void handlePublicBuffer(Buffer<T>& buffer, Status& status)
+    void handlePublicBuffer(Buffer<T> & buffer, Status & status)
     {
         auto shared_pointer = buffer.toUSM(_queue, mode, status);
         DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
