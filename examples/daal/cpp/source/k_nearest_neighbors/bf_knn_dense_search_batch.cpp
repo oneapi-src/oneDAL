@@ -44,7 +44,6 @@ const string groundTruthIndicesFileName =
     "../data/batch/k_nearest_neighbors_indices_ground_truth.csv";
 
 const size_t nFeatures = 5;
-const size_t nClasses = 5;
 const size_t nNeighbors = 3;
 
 void trainModel(bf_knn_classification::training::ResultPtr &trainingResult);
@@ -100,9 +99,8 @@ void trainModel(bf_knn_classification::training::ResultPtr &trainingResult) {
 
   /* Pass the training data set and dependent values to the algorithm */
   algorithm.input.set(classifier::training::data, trainData);
-  algorithm.input.set(classifier::training::labels, trainGroundTruth);
   algorithm.parameter().k = nNeighbors;
-  algorithm.parameter().nClasses = nClasses;
+  algorithm.parameter().resultsToEvaluate = classifier::none;
   algorithm.parameter().resultsToCompute =
       bf_knn_classification::computeDistances |
       bf_knn_classification::computeIndicesOfNeighbors;
@@ -139,7 +137,7 @@ void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
   algorithm.input.set(classifier::prediction::model,
                       trainingResult->get(classifier::training::model));
   algorithm.parameter().k = nNeighbors;
-  algorithm.parameter().nClasses = nClasses;
+  algorithm.parameter().resultsToEvaluate = classifier::none;
   algorithm.parameter().resultsToCompute =
       bf_knn_classification::computeDistances |
       bf_knn_classification::computeIndicesOfNeighbors;
