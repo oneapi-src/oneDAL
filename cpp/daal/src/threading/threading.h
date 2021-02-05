@@ -400,7 +400,7 @@ public:
         {
             for (size_t i = 0; i < _nThreads; ++i)
             {
-                lambda(_storage[i]);
+                if (_storage[i]) lambda(_storage[i]);
             }
         }
     }

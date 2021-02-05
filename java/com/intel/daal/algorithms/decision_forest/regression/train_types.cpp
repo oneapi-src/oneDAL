@@ -408,7 +408,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
                                                                                                                       jlong algAddr, jint prec,
                                                                                                                       jint method)
 {
-    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getResult(prec, method, algAddr);
+    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense, dfrt::hist>::getResult(prec, method, algAddr);
 }
 
 /*
@@ -459,7 +459,7 @@ JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regressi
 JNIEXPORT jlong JNICALL Java_com_intel_daal_algorithms_decision_1forest_regression_training_TrainingInput_cInit(JNIEnv *, jobject, jlong algAddr,
                                                                                                                 jint prec, jint method)
 {
-    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense>::getInput(prec, method, algAddr);
+    return jniBatch<dfrt::Method, dfrt::Batch, dfrt::defaultDense, dfrt::hist>::getInput(prec, method, algAddr);
 }
 
 /*

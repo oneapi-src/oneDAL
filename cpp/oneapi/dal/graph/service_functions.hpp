@@ -1,4 +1,4 @@
-/* file: graph_service_functions.hpp */
+/* file: service_functions.hpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -21,44 +21,61 @@
 #pragma once
 
 #include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
-#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/common.hpp"
+#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 
 namespace oneapi::dal::preview {
 
 /// Returns the number of vertices in the graph
 ///
 /// @tparam Graph  Type of the graph
+/// @param [in]   graph  Input graph object
+/// @return The number of vertices in the graph
+template <typename Graph>
+constexpr auto get_vertex_count(const Graph &graph) noexcept -> vertex_size_type<Graph>;
+
+/// Returns the number of edges in the graph
 ///
+/// @tparam Graph  Type of the graph
 /// @param [in]   graph  Input graph object
 ///
-/// @return The number of vertices in the graph
+/// @return The number of edges in the graph
+template <typename Graph>
+constexpr auto get_edge_count(const Graph &graph) noexcept -> edge_size_type<Graph>;
+
+/// Returns the degree for the specified vertex
+///
+/// @tparam Graph  Type of the graph
+/// @param [in]   graph  Input graph object
+/// @param [in]   vertex Identifier of the vertex
+///
+/// @return The degree of the vertex
+template <typename Graph>
+constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
+    -> edge_size_type<Graph>;
+
+/// Returns the range of the vertex neighbors for the specified vertex
+///
+/// @tparam Graph  Type of the graph
+/// @param [in]   graph  Input graph object
+/// @param [in]   vertex Identifier of the vertex
+///
+/// @return The range of the vertex neighbors
+template <typename Graph>
+constexpr auto get_vertex_neighbors(const Graph &graph, vertex_type<Graph> vertex)
+    -> const_edge_range_type<Graph>;
+
+//Functions implementation
 template <typename Graph>
 constexpr auto get_vertex_count(const Graph &graph) noexcept -> vertex_size_type<Graph> {
     return detail::get_vertex_count_impl(graph);
 }
 
-/// Returns the number of edges in the graph
-///
-/// @tparam Graph  Type of the graph
-///
-/// @param [in]   graph  Input graph object
-///
-/// @return The number of edges in the graph
 template <typename Graph>
 constexpr auto get_edge_count(const Graph &graph) noexcept -> edge_size_type<Graph> {
     return detail::get_edge_count_impl(graph);
 }
 
-/// Returns the degree for the specified vertex
-///
-/// @tparam Graph  Type of the graph
-///
-/// @param [in]   graph  Input graph object
-///
-/// @param [in]   vertex Identifier of the vertex
-///
-/// @return The degree of the vertex
 template <typename Graph>
 constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
     -> edge_size_type<Graph> {
@@ -69,15 +86,6 @@ constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
     return detail::get_vertex_degree_impl(graph, vertex);
 }
 
-/// Returns the range of the vertex neighbors for the specified vertex
-///
-/// @tparam Graph  Type of the graph
-///
-/// @param [in]   graph  Input graph object
-///
-/// @param [in]   vertex Identifier of the vertex
-///
-/// @return The range of the vertex neighbors
 template <typename Graph>
 constexpr auto get_vertex_neighbors(const Graph &graph, vertex_type<Graph> vertex)
     -> const_edge_range_type<Graph> {

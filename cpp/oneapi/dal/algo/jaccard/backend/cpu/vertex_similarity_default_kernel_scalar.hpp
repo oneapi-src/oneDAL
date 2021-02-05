@@ -19,23 +19,22 @@
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
+#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
-DAAL_FORCEINLINE std::size_t intersection(const std::int32_t *neigh_u,
-                                          const std::int32_t *neigh_v,
-                                          std::int32_t n_u,
-                                          std::int32_t n_v) {
+
+template <typename Index>
+DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
+                                          const Index *neigh_v,
+                                          Index n_u,
+                                          Index n_v) {
     std::size_t total = 0;
-    std::int32_t i_u = 0, i_v = 0;
+    Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
         if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
             return total;
@@ -50,33 +49,29 @@ DAAL_FORCEINLINE std::size_t intersection(const std::int32_t *neigh_u,
     return total;
 }
 
-template <typename Cpu>
+template <typename Cpu, typename Index>
 vertex_similarity_result call_jaccard_default_kernel_scalar(
     const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    const auto &my_graph = input.get_graph();
-    const auto &g = dal::detail::get_impl(my_graph);
-    auto g_edge_offsets = g._edge_offsets.data();
-    auto g_vertex_neighbors = g._vertex_neighbors.data();
-    auto g_degrees = g._degrees.data();
-    const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
-    const auto column_begin =
-        dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
+    const dal::preview::detail::topology<Index> &data,
+    void *result_ptr) {
+    const auto g_edge_offsets = data._rows.get_data();
+    const auto g_vertex_neighbors = data._cols.get_data();
+    const auto g_degrees = data._degrees.get_data();
+    const auto row_begin = dal::detail::integral_cast<Index>(desc.get_row_range_begin());
+    const auto row_end = dal::detail::integral_cast<Index>(desc.get_row_range_end());
+    const auto column_begin = dal::detail::integral_cast<Index>(desc.get_column_range_begin());
+    const auto column_end = dal::detail::integral_cast<Index>(desc.get_column_range_end());
     const auto number_elements_in_block =
         compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const auto max_block_size = compute_max_block_size(number_elements_in_block);
-    void *result_ptr = input.get_caching_builder()(max_block_size);
-    int *first_vertices = reinterpret_cast<int *>(result_ptr);
-    int *second_vertices = first_vertices + number_elements_in_block;
+    Index *first_vertices = reinterpret_cast<Index *>(result_ptr);
+    Index *second_vertices = first_vertices + number_elements_in_block;
     float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
     std::int64_t nnz = 0;
-    for (std::int32_t i = row_begin; i < row_end; ++i) {
+    for (Index i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
         const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
         const auto diagonal = min(i, column_end);
-        for (std::int32_t j = column_begin; j < diagonal; j++) {
+        for (Index j = column_begin; j < diagonal; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
@@ -103,7 +98,7 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
             nnz++;
         }
 
-        for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
+        for (Index j = max(column_begin, diagonal + 1); j < column_end; j++) {
             const auto j_neighbor_size = g_degrees[j];
             const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
