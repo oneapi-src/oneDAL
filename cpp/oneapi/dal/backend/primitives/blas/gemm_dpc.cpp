@@ -33,7 +33,7 @@ template <typename Float, ndorder ao, ndorder bo, ndorder co>
 sycl::event gemm(sycl::queue& queue,
                  const ndview<Float, 2, ao>& a,
                  const ndview<Float, 2, bo>& b,
-                 const ndview<Float, 2, co>& c,
+                 ndview<Float, 2, co>& c,
                  Float alpha,
                  Float beta,
                  const event_vector& deps) {
@@ -83,7 +83,7 @@ sycl::event gemm(sycl::queue& queue,
     template ONEDAL_EXPORT sycl::event gemm<F, ao, bo, co>(sycl::queue& queue,        \
                                              const ndview<F, 2, ao>& a, \
                                              const ndview<F, 2, bo>& b, \
-                                             const ndview<F, 2, co>& c, \
+                                             ndview<F, 2, co>& c,       \
                                              F alpha,                   \
                                              F beta,                    \
                                              const event_vector& deps);

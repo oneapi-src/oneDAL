@@ -16,29 +16,33 @@
 
 #pragma once
 
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+/// Computes correlation matrix and variances
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  data  The [n x p] input dataset
+/// @param[in]  sums  The [p] sums computed along each column of the data
+/// @param[out] corr  The [p x p] correlation matrix
+/// @param[out] means The [p] means for each feature
+/// @param[out] vars  The [p] variances for each feature
+/// @param[out] tmp   The [p] temporary buffer
 template <typename Float>
-struct compute_cov_op {
-    sycl::event operator()(sycl::queue& queue,
-                           const ndview<Float, 2>& data,
-                           const ndview<Float, 1>& sums,
-                           const ndview<Float, 2>& cov,
-                           const event_vector& deps);
-};
-
-template <typename Float>
-inline sycl::event compute_cov(sycl::queue& queue,
-                               const ndview<Float, 2>& data,
-                               const ndview<Float, 1>& sums,
-                               const ndview<Float, 2>& cov,
-                               const event_vector& deps = {}) {
-    return compute_cov_op<Float>{}(queue, data, sums, cov, deps);
-}
+sycl::event correlation(sycl::queue& queue,
+                        const table& data,
+                        const ndview<Float, 1>& sums,
+                        ndview<Float, 2>& corr,
+                        ndview<Float, 1>& means,
+                        ndview<Float, 1>& vars,
+                        ndview<Float, 1>& tmp,
+                        const event_vector& deps = {});
 
 #endif
 

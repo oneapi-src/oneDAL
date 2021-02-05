@@ -11,6 +11,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
+        "@onedal//cpp/oneapi/dal:table",
     ],
 )
 
