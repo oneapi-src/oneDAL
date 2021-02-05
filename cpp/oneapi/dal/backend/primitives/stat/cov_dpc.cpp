@@ -122,14 +122,14 @@ sycl::event correlation(sycl::queue& queue,
     return finalize_corr_event;
 }
 
-#define INSTANTIATE(F)                                                      \
-    template ONEDAL_EXPORT sycl::event correlation<F>(sycl::queue&,         \
-                                                      const table&,         \
-                                                      const ndview<F, 1>&,  \
-                                                      ndview<F, 2>&,        \
-                                                      ndview<F, 1>&,        \
-                                                      ndview<F, 1>&,        \
-                                                      ndview<F, 1>&,        \
+#define INSTANTIATE(F)                                                     \
+    template ONEDAL_EXPORT sycl::event correlation<F>(sycl::queue&,        \
+                                                      const table&,        \
+                                                      const ndview<F, 1>&, \
+                                                      ndview<F, 2>&,       \
+                                                      ndview<F, 1>&,       \
+                                                      ndview<F, 1>&,       \
+                                                      ndview<F, 1>&,       \
                                                       const event_vector&);
 
 INSTANTIATE(float)

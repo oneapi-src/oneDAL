@@ -148,8 +148,6 @@ template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     // auto& queue = ctx.get_queue();
 
-
-
     return call_daal_kernel<Float>(ctx, desc, input.get_data());
 }
 

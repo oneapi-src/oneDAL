@@ -69,7 +69,9 @@ void global_cleanup() {
 #else
 void global_setup(const global_config& config) {
     if (config.device_selector != "" && config.device_selector != "cpu") {
-        throw std::invalid_argument { "Test is build in HOST mode, so only CPU device is available" };
+        throw std::invalid_argument{
+            "Test is build in HOST mode, so only CPU device is available"
+        };
     }
 }
 

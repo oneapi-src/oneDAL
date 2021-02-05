@@ -24,11 +24,7 @@ namespace oneapi::dal::backend::primitives {
 
 class row_block_info {
 public:
-    row_block_info()
-        : block_index_(0),
-          row_start_index_(0),
-          row_count_(0),
-          column_count_(0) {}
+    row_block_info() : block_index_(0), row_start_index_(0), row_count_(0), column_count_(0) {}
 
     std::int64_t get_start_row_index() const {
         return row_start_index_;

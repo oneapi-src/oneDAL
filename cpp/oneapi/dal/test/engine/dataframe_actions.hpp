@@ -95,8 +95,7 @@ private:
 
 class dataframe_builder_action_fill : public dataframe_builder_action {
 public:
-    explicit dataframe_builder_action_fill(double value)
-            : value_(value) {}
+    explicit dataframe_builder_action_fill(double value) : value_(value) {}
 
     std::string get_opcode() const override {
         return fmt::format("fill({})", value_);
@@ -121,8 +120,7 @@ private:
 
 class dataframe_builder_action_fill_diag : public dataframe_builder_action {
 public:
-    explicit dataframe_builder_action_fill_diag(double value)
-            : value_(value) {}
+    explicit dataframe_builder_action_fill_diag(double value) : value_(value) {}
 
     std::string get_opcode() const override {
         return fmt::format("fill_diag({})", value_);

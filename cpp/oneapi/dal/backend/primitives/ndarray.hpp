@@ -247,18 +247,16 @@ protected:
               data_(data),
               data_is_mutable_(std::is_same_v<U, T>) {}
 
-    explicit ndview(const T* data,
-                    const shape_t& shape,
-                    bool data_is_mutable)
+    explicit ndview(const T* data, const shape_t& shape, bool data_is_mutable)
             : base(shape),
               data_(data),
               data_is_mutable_(data_is_mutable) {}
 
     template <typename U, typename = enable_if_cv_match_t<U>>
     explicit ndview(U* data, const shape_t& shape)
-             : base(shape),
-               data_(data),
-               data_is_mutable_(std::is_same_v<U, T>) {}
+            : base(shape),
+              data_(data),
+              data_is_mutable_(std::is_same_v<U, T>) {}
 
     template <std::int64_t new_axis_count>
     void check_reshape_conditions(const ndshape<new_axis_count>& new_shape) const {
@@ -411,16 +409,15 @@ public:
         using tranposed_ndarray_t = ndarray<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
         const auto& strides = this->get_strides();
-        return tranposed_ndarray_t{ data_, shape.t(), strides.t() }
-            .set_mutability(this->has_mutable_data());
+        return tranposed_ndarray_t{ data_, shape.t(), strides.t() }.set_mutability(
+            this->has_mutable_data());
     }
 
     template <std::int64_t new_axis_count>
     auto reshape(const ndshape<new_axis_count>& new_shape) const {
         using reshaped_ndarray_t = ndarray<T, new_axis_count, order>;
         base::check_reshape_conditions(new_shape);
-        return reshaped_ndarray_t{ data_, new_shape }
-            .set_mutability(this->has_mutable_data());
+        return reshaped_ndarray_t{ data_, new_shape }.set_mutability(this->has_mutable_data());
     }
 
 private:

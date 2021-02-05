@@ -29,7 +29,8 @@ class cov_test : public te::policy_fixture {
 public:
     void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) {
         const auto corr_mat =
-            te::linalg::matrix<Float>::wrap(corr.get_data(), { corr.get_shape(0), corr.get_shape(1) });
+            te::linalg::matrix<Float>::wrap(corr.get_data(),
+                                            { corr.get_shape(0), corr.get_shape(1) });
 
         te::linalg::enumerate(corr_mat, [&](std::int64_t i, std::int64_t j, Float x) {
             if (i == j) {
