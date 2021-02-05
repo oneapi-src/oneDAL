@@ -458,7 +458,7 @@ private:
         {
         case AccessModeIds::read: return handlePublicBuffer<data_management::readOnly>(service_buffer, status);
 
-        case AccessModeIds::write: return handlePublicBuffer<data_management::writeOnly>(service_buffer, status);
+        case AccessModeIds::write: return handlePublicBuffer<data_management::readWrite>(service_buffer, status);
 
         case AccessModeIds::readwrite: return handlePublicBuffer<data_management::readWrite>(service_buffer, status);
 
