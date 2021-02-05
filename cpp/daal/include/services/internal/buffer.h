@@ -260,14 +260,14 @@ public:
      *  \param[out] status Status of operation
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue & q, Status & status) const
+    SharedPtr<T> toUSM(cl::sycl::queue & q, const data_management::ReadWriteMode & rwFlag, Status & status) const
     {
         if (!_impl)
         {
             status |= ErrorEmptyBuffer;
             return SharedPtr<T>();
         }
-        return internal::SyclBufferConverter<T>().toUSM(*_impl, q, status);
+        return internal::SyclBufferConverter<T>().toUSM(*_impl, q, rwFlag, status);
     }
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
@@ -275,10 +275,10 @@ public:
      *  Converts buffer to the USM shared pointer, throws exception if conversion fails
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue & q) const
+    SharedPtr<T> toUSM(cl::sycl::queue & q, const data_management::ReadWriteMode & rwFlag) const
     {
         Status status;
-        const SharedPtr<T> ptr = toUSM(q, status);
+        const SharedPtr<T> ptr = toUSM(q, rwFlag, status);
         throwIfPossible(status);
         return ptr;
     }

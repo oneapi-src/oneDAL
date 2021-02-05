@@ -96,7 +96,7 @@ inline SharedPtr<T> toSharedPtr(const Buffer<T> & buffer, cl::sycl::queue & queu
 {
     if (buffer.isUSMBacked())
     {
-        return buffer.toUSM(queue, status);
+        return buffer.toUSM(queue, mode, status);
     }
     else
     {
@@ -268,7 +268,7 @@ private:
         Status fillOp(const Buffer<T> & dstBuffer)
         {
             Status status;
-            auto dstPtr = dstBuffer.toUSM(queue, status);
+            auto dstPtr = dstBuffer.toUSM(queue, data_management::writeOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             return catchSyclExceptions([&]() mutable {

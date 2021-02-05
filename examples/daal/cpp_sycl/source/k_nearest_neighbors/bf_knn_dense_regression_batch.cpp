@@ -150,9 +150,9 @@ void doRegression(cl::sycl::queue & q, bf_knn_classification::prediction::Result
         trainResponses->getBlockOfRows(0, nTrainSamples, readOnly, trainResponsesBlock);
     }
     {
-        auto neighborsIndicesSharedPtr = neighborsIndicesBlock.getBuffer().toUSM(q);
-        auto testResponsesSharedPtr = testResponsesBlock.getBuffer().toUSM(q);
-        auto trainResponsesSharedPtr = trainResponsesBlock.getBuffer().toUSM(q);
+        auto neighborsIndicesSharedPtr = neighborsIndicesBlock.getBuffer().toUSM(q, data_management::readOnly);
+        auto testResponsesSharedPtr = testResponsesBlock.getBuffer().toUSM(q, data_management::writeOnly);
+        auto trainResponsesSharedPtr = trainResponsesBlock.getBuffer().toUSM(q, data_management::readOnly);
         const float kn              = static_cast<float>(kNeighbors);
         q.submit([&](cl::sycl::handler & h) {
             auto neighborsIndicesPtr = neighborsIndicesSharedPtr.get();

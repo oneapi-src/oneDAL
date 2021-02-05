@@ -68,7 +68,7 @@ private:
         const auto uplomkl = to_fpk_uplo(uplo);
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-        auto a_usm = a.toUSM(_queue, status);
+        auto a_usm = a.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         algorithmFPType * scratchpad = nullptr;
@@ -123,10 +123,10 @@ private:
         const auto uplomkl = to_fpk_uplo(uplo);
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-        auto a_usm = a.toUSM(_queue, status);
+        auto a_usm = a.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto b_usm = b.toUSM(_queue, status);
+        auto b_usm = b.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         algorithmFPType * scratchpad = nullptr;

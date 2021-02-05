@@ -64,11 +64,11 @@ struct MKLGemm
         const auto transamkl = to_fpk_transpose(transa);
         const auto transbmkl = to_fpk_transpose(transb);
 
-        auto a_usm = a_buffer.toUSM(_queue, status);
+        auto a_usm = a_buffer.toUSM(_queue, data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto b_usm = b_buffer.toUSM(_queue, status);
+        auto b_usm = b_buffer.toUSM(_queue, data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto c_usm = c_buffer.toUSM(_queue, status);
+        auto c_usm = c_buffer.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         auto a_ptr = a_usm.get() + offsetA;
@@ -129,9 +129,9 @@ struct MKLSyrk
         const auto transmkl = to_fpk_transpose(trans);
         const auto uplomkl  = to_fpk_uplo(upper_lower);
 
-        auto a_usm = a_buffer.toUSM(_queue, status);
+        auto a_usm = a_buffer.toUSM(_queue, data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-        auto c_usm = c_buffer.toUSM(_queue, status);
+        auto c_usm = c_buffer.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         auto a_ptr = a_usm.get() + offsetA;
@@ -184,10 +184,10 @@ struct MKLAxpy
         Status status;
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-        auto x_usm = x_buffer.toUSM(_queue, status);
+        auto x_usm = x_buffer.toUSM(_queue, data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto y_usm = y_buffer.toUSM(_queue, status);
+        auto y_usm = y_buffer.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         status |= catchSyclExceptions([&]() mutable {

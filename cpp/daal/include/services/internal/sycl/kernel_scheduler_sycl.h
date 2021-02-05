@@ -411,27 +411,27 @@ private:
 };
 #endif // DAAL_DISABLE_LEVEL_ZERO
 
-class SyclBufferStorage
+class UsmPointerStorage
 {
 public:
-    SyclBufferStorage()                          = default;
-    SyclBufferStorage(const SyclBufferStorage &) = delete;
-    SyclBufferStorage & operator=(const SyclBufferStorage &) = delete;
+    UsmPointerStorage()                          = default;
+    UsmPointerStorage(const UsmPointerStorage &) = delete;
+    UsmPointerStorage & operator=(const UsmPointerStorage &) = delete;
 
     template <typename T>
-    bool add(const cl::sycl::buffer<T, 1> & buffer)
+    bool add(const SharedPtr<T> & usmPointer)
     {
-        return _buffers.safe_push_back(Any(buffer));
+        return _pointers.safe_push_back(Any(usmPointer));
     }
 
 private:
-    Collection<Any> _buffers;
+    Collection<Any> _pointers;
 };
 
 class SyclKernelSchedulerArgHandler
 {
 public:
-    SyclKernelSchedulerArgHandler(cl::sycl::queue & queue, cl::sycl::handler & handler, SyclBufferStorage & storage, size_t argumentIndex,
+    SyclKernelSchedulerArgHandler(cl::sycl::queue & queue, cl::sycl::handler & handler, UsmPointerStorage & storage, size_t argumentIndex,
                                   const KernelArgument & arg)
         : _queue(queue), _handler(handler), _storage(storage), _argumentIndex(argumentIndex), _argument(arg)
     {}
@@ -454,48 +454,39 @@ private:
     {
         auto service_buffer = _argument.get<Buffer<T> >();
 #ifdef DAAL_SYCL_INTERFACE_USM
-        if (service_buffer.isUSMBacked())
+        switch (_argument.accessMode())
         {
-            DAAL_ASSERT((_argument.accessMode() == AccessModeIds::read || _argument.accessMode() == AccessModeIds::write
-                         || _argument.accessMode() == AccessModeIds::readwrite));
-            auto shared_pointer = service_buffer.toUSM(_queue, status);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+        case AccessModeIds::read: return handlePublicBuffer<data_management::readOnly>(service_buffer, status);
 
-            _handler.set_arg((int)_argumentIndex, shared_pointer.get());
+        case AccessModeIds::write: return handlePublicBuffer<data_management::writeOnly>(service_buffer, status);
+
+        case AccessModeIds::readwrite: return handlePublicBuffer<data_management::readWrite>(service_buffer, status);
+
+        default: DAAL_ASSERT(!"Unexpected buffer access mode");
         }
-        else
+#else
+        static_assert(false, "USM memory support is required for kernel execution");
 #endif
-        {
-            auto buffer = service_buffer.toSycl(status);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-            // Note: we need this storage to keep all sycl buffers alive
-            // while the kernel is running
-            if (!_storage.add(buffer))
-            {
-                status |= ErrorMemoryAllocationFailed;
-                return;
-            }
-
-            switch (_argument.accessMode())
-            {
-            case AccessModeIds::read: return handlePublicBuffer<cl::sycl::access::mode::read>(buffer);
-
-            case AccessModeIds::write: return handlePublicBuffer<cl::sycl::access::mode::write>(buffer);
-
-            case AccessModeIds::readwrite: return handlePublicBuffer<cl::sycl::access::mode::read_write>(buffer);
-
-            default: DAAL_ASSERT(!"Unexpected buffer access mode");
-            }
-        }
     }
 
-    template <cl::sycl::access::mode mode, typename Buffer>
-    void handlePublicBuffer(Buffer & buffer)
+#ifdef DAAL_SYCL_INTERFACE_USM
+    template <data_management::ReadWriteMode mode, typename T>
+    void handlePublicBuffer(Buffer<T>& buffer, Status& status)
     {
-        auto accessor = buffer.template get_access<mode>(_handler);
-        _handler.set_arg((int)_argumentIndex, accessor);
+        auto shared_pointer = buffer.toUSM(_queue, mode, status);
+        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+
+        // Note: we need this storage to keep all usm shared pointers alive
+        // while the kernel is running
+        if (!_storage.add(shared_pointer))
+        {
+            status |= ErrorMemoryAllocationFailed;
+            return;
+        }
+
+        _handler.set_arg((int)_argumentIndex, shared_pointer.get());
     }
+#endif
 
     template <typename T>
     void handlePrivateBuffer(Status & status)
@@ -512,7 +503,7 @@ private:
 
     cl::sycl::queue & _queue;
     cl::sycl::handler & _handler;
-    SyclBufferStorage & _storage;
+    UsmPointerStorage & _storage;
     size_t _argumentIndex;
     const KernelArgument & _argument;
 };
@@ -625,7 +616,7 @@ private:
     template <typename Range>
     void scheduleSycl(const Range & range, const OpenClKernel & kernel, const KernelArguments & args, Status & status)
     {
-        SyclBufferStorage bufferStorage;
+        UsmPointerStorage bufferStorage;
 
         status |= catchSyclExceptions([&]() mutable {
             cl::sycl::kernel syclKernel = kernel.toSycl(_queue.get_context());
@@ -639,7 +630,7 @@ private:
         });
     }
 
-    void passArguments(cl::sycl::queue & queue, cl::sycl::handler & cgh, SyclBufferStorage & storage, const KernelArguments & args,
+    void passArguments(cl::sycl::queue & queue, cl::sycl::handler & cgh, UsmPointerStorage & storage, const KernelArguments & args,
                        Status & status) const
     {
         for (size_t i = 0; i < args.size(); i++)

@@ -284,35 +284,45 @@ template <typename T>
 class ConvertToUsm : public BufferVisitor<T>
 {
 public:
-    ConvertToUsm(cl::sycl::queue & queue) : _q(queue) {}
+    ConvertToUsm(cl::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag) : _q(queue), _rwFlag(rwFlag) {}
 
-    Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
+    Status makeCopyToUSM(const SharedPtr<T>& hostData, size_t count)
     {
         Status st;
-
-        auto host_data = buffer.get();
-        auto usm_data  = cl::sycl::malloc_shared<T>(buffer.size(), _q);
-        if (usm_data == nullptr)
+        auto usmData  = cl::sycl::malloc_shared<T>(count, _q);
+        if (usmData == nullptr)
         {
             return services::ErrorMemoryAllocationFailed;
         }
 
-        const size_t size = sizeof(T) * buffer.size();
-        DAAL_ASSERT(size / sizeof(T) == buffer.size());
+        const size_t size = sizeof(T) * count;
+        DAAL_ASSERT(size / sizeof(T) == count);
 
-        auto result = services::internal::daal_memcpy_s(usm_data, size, host_data.get(), size);
-        if (result)
+        if (_rwFlag & data_management::readOnly)
         {
-            return services::ErrorMemoryCopyFailedInternal;
+            auto result = services::internal::daal_memcpy_s(usmData, size, hostData.get(), size);
+            if (result)
+            {
+                return services::ErrorMemoryCopyFailedInternal;
+            }
         }
 
-        _data = SharedPtr<T>(usm_data,
-            [q = this->_q, host_data, size](const void * data)
+        _data = SharedPtr<T>(usmData,
+            [q = this->_q, rwFlag = this->_rwFlag, hostData, size](const void * data)
             {
-                services::internal::daal_memcpy_s(host_data.get(), size, data, size);
+                if (rwFlag & data_management::writeOnly)
+                {
+                    services::internal::daal_memcpy_s(hostData.get(), size, data, size);
+                }
                 cl::sycl::free(const_cast<void *>(data), q);
             });
         return st;
+    }
+
+    Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        auto hostData = buffer.get();
+        return makeCopyToUSM(hostData, buffer.size());
     }
 
     Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
@@ -324,31 +334,9 @@ public:
     Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
     {
         Status st;
-
-        auto host_data = buffer.getHostReadWrite(st);
+        auto hostData = buffer.getHostReadWrite(st);
         DAAL_CHECK_STATUS_VAR(st);
-        auto usm_data = cl::sycl::malloc_shared<T>(buffer.size(), _q);
-        if (usm_data == nullptr)
-        {
-            return services::ErrorMemoryAllocationFailed;
-        }
-
-        const size_t size = sizeof(T) * buffer.size();
-        DAAL_ASSERT(size / sizeof(T) == buffer.size());
-
-        auto result = services::internal::daal_memcpy_s(usm_data, size, host_data.get(), size);
-        if (result)
-        {
-            return services::ErrorMemoryCopyFailedInternal;
-        }
-
-        _data = SharedPtr<T>(usm_data,
-            [q = this->_q, host_data, size](const void * data)
-            {
-                services::internal::daal_memcpy_s(host_data.get(), size, data, size);
-                cl::sycl::free(const_cast<void *>(data), q);
-            });
-        return st;
+        return makeCopyToUSM(hostData, buffer.size());
     }
 
     const SharedPtr<T> & get() const { return _data; }
@@ -356,6 +344,7 @@ public:
 private:
     SharedPtr<T> _data;
     cl::sycl::queue & _q;
+    data_management::ReadWriteMode _rwFlag;
 };
 #endif
 
@@ -376,9 +365,9 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, cl::sycl::queue & q, Status & status)
+    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, cl::sycl::queue & q, const data_management::ReadWriteMode & rwFlag, Status & status)
     {
-        ConvertToUsm<T> action(q);
+        ConvertToUsm<T> action(q, rwFlag);
         status |= buffer.apply(action);
         DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<T>());
         return action.get();
