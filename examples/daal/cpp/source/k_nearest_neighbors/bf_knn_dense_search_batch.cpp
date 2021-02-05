@@ -45,7 +45,7 @@ const string groundTruthIndicesFileName =
 
 const size_t nFeatures = 5;
 const size_t nClasses = 5;
-const size_t kNeighbors = 3;
+const size_t nNeighbors = 3;
 
 void trainModel(bf_knn_classification::training::ResultPtr &trainingResult);
 void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
@@ -101,7 +101,7 @@ void trainModel(bf_knn_classification::training::ResultPtr &trainingResult) {
   /* Pass the training data set and dependent values to the algorithm */
   algorithm.input.set(classifier::training::data, trainData);
   algorithm.input.set(classifier::training::labels, trainGroundTruth);
-  algorithm.parameter().k = kNeighbors;
+  algorithm.parameter().k = nNeighbors;
   algorithm.parameter().nClasses = nClasses;
   algorithm.parameter().resultsToCompute =
       bf_knn_classification::computeDistances |
@@ -138,7 +138,7 @@ void testModel(bf_knn_classification::training::ResultPtr &trainingResult,
   algorithm.input.set(classifier::prediction::data, testData);
   algorithm.input.set(classifier::prediction::model,
                       trainingResult->get(classifier::training::model));
-  algorithm.parameter().k = kNeighbors;
+  algorithm.parameter().k = nNeighbors;
   algorithm.parameter().nClasses = nClasses;
   algorithm.parameter().resultsToCompute =
       bf_knn_classification::computeDistances |
@@ -164,9 +164,9 @@ void readGroundTruth(NumericTablePtr &groundTruthIndices,
 
   /* Create Numeric Tables for testing data and labels */
   groundTruthIndices =
-      HomogenNumericTable<>::create(kNeighbors, 0, NumericTable::doNotAllocate);
+      HomogenNumericTable<>::create(nNeighbors, 0, NumericTable::doNotAllocate);
   groundTruthDistances =
-      HomogenNumericTable<>::create(kNeighbors, 0, NumericTable::doNotAllocate);
+      HomogenNumericTable<>::create(nNeighbors, 0, NumericTable::doNotAllocate);
 
   /* Retrieve the data from input file */
   indicesDataSource.loadDataBlock(groundTruthIndices.get());

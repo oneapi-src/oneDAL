@@ -45,7 +45,7 @@ const string groundTruthIndicesFileName   = "../data/batch/k_nearest_neighbors_i
 
 const size_t nFeatures  = 5;
 const size_t nClasses   = 5;
-const size_t kNeighbors = 3;
+const size_t nNeighbors = 3;
 
 void trainModel(bf_knn_classification::training::ResultPtr & trainingResult);
 void testModel(bf_knn_classification::training::ResultPtr & trainingResult, bf_knn_classification::prediction::ResultPtr & predictionResult);
@@ -101,7 +101,7 @@ void trainModel(bf_knn_classification::training::ResultPtr & trainingResult)
     /* Pass the training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
-    algorithm.parameter().k                = kNeighbors;
+    algorithm.parameter().k                = nNeighbors;
     algorithm.parameter().nClasses         = nClasses;
     algorithm.parameter().resultsToCompute = bf_knn_classification::computeDistances | bf_knn_classification::computeIndicesOfNeighbors;
 
@@ -131,7 +131,7 @@ void testModel(bf_knn_classification::training::ResultPtr & trainingResult, bf_k
     /* Pass the testing data set and trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model, trainingResult->get(classifier::training::model));
-    algorithm.parameter().k                = kNeighbors;
+    algorithm.parameter().k                = nNeighbors;
     algorithm.parameter().nClasses         = nClasses;
     algorithm.parameter().resultsToCompute = bf_knn_classification::computeDistances | bf_knn_classification::computeIndicesOfNeighbors;
 
@@ -152,8 +152,8 @@ void readGroundTruth(NumericTablePtr & groundTruthIndices, NumericTablePtr & gro
                                                           DataSource::doDictionaryFromContext);
 
     /* Create Numeric Tables for testing data and labels */
-    groundTruthIndices   = SyclHomogenNumericTable<>::create(kNeighbors, 0, NumericTable::doNotAllocate);
-    groundTruthDistances = SyclHomogenNumericTable<>::create(kNeighbors, 0, NumericTable::doNotAllocate);
+    groundTruthIndices   = SyclHomogenNumericTable<>::create(nNeighbors, 0, NumericTable::doNotAllocate);
+    groundTruthDistances = SyclHomogenNumericTable<>::create(nNeighbors, 0, NumericTable::doNotAllocate);
 
     /* Retrieve the data from input file */
     indicesDataSource.loadDataBlock(groundTruthIndices.get());
