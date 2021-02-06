@@ -80,7 +80,7 @@ jobs:
       .ci/env/oneapi.sh mkl
 
       # Create .bazelrc and set cache directory
-      echo "startup --output_user_root=$(BAZEL_CACHE_DIR)" > ~/.bazelrc
+      echo "build --disk_cache=$(BAZEL_CACHE_DIR)" > ~/.bazelrc
 
       # Display oneDAL build configuration
       bazel build @config//:dump
@@ -89,7 +89,7 @@ jobs:
 
   - task: Cache@2
     inputs:
-      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)"'
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1"'
       path: $(BAZEL_CACHE_DIR)
     displayName: 'bazel-cache'
 
