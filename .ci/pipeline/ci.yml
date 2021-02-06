@@ -58,6 +58,9 @@ jobs:
   timeoutInMinutes: 0
   pool:
     vmImage: 'ubuntu-20.04'
+  variables:
+    BAZEL_VERSION: bazel-4.0.0
+    BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
   steps:
   - script: |
       # Add bazel repository
@@ -72,15 +75,23 @@ jobs:
                            g++-multilib \
                            binutils \
                            openjdk-11-jdk \
-                           bazel-4.0.0
+                           $(BAZEL_VERSION)
 
       .ci/env/oneapi.sh mkl
-    displayName: 'apt-get'
 
-  - script: |
+      # Create .bazelrc and set cache directory
+      echo "startup --output_user_root=$(BAZEL_CACHE_DIR)" > ~/.bazelrc
+
+      # Display oneDAL build configuration
       bazel build @config//:dump
       cat bazel-bin/external/config/config.json
-    displayName: 'config-dump'
+    displayName: 'configure'
+
+  - task: Cache@2
+    inputs:
+      key: '$(BAZEL_VERSION) | "$(Agent.OS)"'
+      path: $(BAZEL_CACHE_DIR)
+    displayName: bazel-cache
 
   - script: |
       bazel build :release
