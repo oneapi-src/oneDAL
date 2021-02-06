@@ -89,7 +89,7 @@ jobs:
 
   - task: Cache@2
     inputs:
-      key: '$(BAZEL_VERSION) | "$(Agent.OS)"'
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)"'
       path: $(BAZEL_CACHE_DIR)
     displayName: bazel-cache
 
