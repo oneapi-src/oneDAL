@@ -106,10 +106,4 @@ PCA_BADARG_TEST("throws if infer data column count neq eigenvector columns") {
     REQUIRE_THROWS_AS(this->infer(pca_desc, model, infer_data), invalid_argument);
 }
 
-TEST("dummy test") {
-    // Test to check if CI cache works
-    // Iter 1
-    // Iter 2
-}
-
 } // namespace oneapi::dal::pca::test
