@@ -80,7 +80,8 @@ jobs:
       .ci/env/oneapi.sh mkl
 
       # Create .bazelrc and set cache directory
-      echo "build --disk_cache=$(BAZEL_CACHE_DIR)" > ~/.bazelrc
+      # Minimal CPU instruction set in Azure is AVX2
+      echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
 
       # Display oneDAL build configuration
       bazel build @config//:dump
