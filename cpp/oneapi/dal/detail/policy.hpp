@@ -46,7 +46,7 @@ public:
     host_policy();
 
     static const host_policy& get_default() {
-        static host_policy instance;
+        const static host_policy instance;
         return instance;
     }
 
