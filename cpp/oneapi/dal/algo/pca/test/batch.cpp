@@ -194,10 +194,13 @@ using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method:
 
 TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
     SKIP_IF(this->not_available_on_device());
+    
+    const std::string higgs = "/higgs/dataset/higgs_100t_train.csv";
 
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
-                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
+                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5),
+                           te::dataframe_builder{ higgs });
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();

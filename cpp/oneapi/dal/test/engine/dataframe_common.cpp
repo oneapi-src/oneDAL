@@ -219,6 +219,30 @@ private:
     std::int64_t column_count_;
 };
 
+class dataframe_builder_action_set : public dataframe_builder_action {
+public:
+    explicit dataframe_builder_action_set(const array<float>& data,
+                                          std::int64_t row_count,
+                                          std::int64_t column_count)
+            : array_(data),
+              row_count_(row_count),
+              column_count_(column_count) {}
+
+    std::string get_opcode() const override {
+        return fmt::format("set({},{})", row_count_, column_count_);
+    }
+
+    dataframe_impl* execute(dataframe_impl* df) const override {
+        delete df;
+        return new dataframe_impl{ array_, row_count_, column_count_ };
+    }
+
+private:
+    array<float> array_;
+    std::int64_t row_count_;
+    std::int64_t column_count_;
+};
+
 class dataframe_builder_action_fill_uniform : public dataframe_builder_action {
 public:
     explicit dataframe_builder_action_fill_uniform(double a, double b, std::int64_t seed)
@@ -271,6 +295,19 @@ dataframe dataframe_builder_program::execute() const {
 
 dataframe_builder_impl::dataframe_builder_impl(std::int64_t row_count, std::int64_t column_count) {
     program_.add<dataframe_builder_action_allocate>(row_count, column_count);
+}
+
+dataframe_builder_impl::dataframe_builder_impl(std::string dataset) {
+    const char* dataset_root_ptr = std::getenv("DATASETSROOT");
+    if (dataset_root_ptr == nullptr) {
+        throw invalid_argument{ "DATASETSROOT environment variable is unset" };
+    }
+    const std::string datasets_root(dataset_root_ptr);
+
+    const auto data_table = dal::read<dal::table>(dal::csv::data_source{ datasets_root + dataset });
+    program_.add<dataframe_builder_action_set>(dal::row_accessor<const float>{ data_table }.pull(),
+                                               data_table.get_row_count(),
+                                               data_table.get_column_count());
 }
 
 dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int64_t seed) {
@@ -326,11 +363,11 @@ static array<double> convert_to_f64(const array<float>& data) {
 }
 
 template <typename Policy>
-static homogen_table build_homogen_table(Policy& policy,
-                                         const array<float>& data,
-                                         const table_id& id,
-                                         std::int64_t row_count,
-                                         std::int64_t column_count) {
+static homogen_table wrap_to_homogen_table(Policy& policy,
+                                           const array<float>& data,
+                                           const table_id& id,
+                                           std::int64_t row_count,
+                                           std::int64_t column_count) {
     if (id.get_float_type() == table_float_type::f32) {
         return wrap_to_homogen_table(policy, data, row_count, column_count);
     }
@@ -344,25 +381,75 @@ static homogen_table build_homogen_table(Policy& policy,
 }
 
 template <typename Policy>
-static table build_table(Policy& policy, const dataframe& df, const table_id& id) {
+static homogen_table build_homogen_table(Policy& policy,
+                                         const array<float>& data,
+                                         const table_id& id,
+                                         std::int64_t row_count,
+                                         std::int64_t first_column,
+                                         std::int64_t last_column) {
+    const std::int64_t data_column_count = data.get_count() / row_count;
+    const std::int64_t column_count = last_column - first_column;
+
+    if (first_column == 0 && data_column_count == column_count) {
+        return wrap_to_homogen_table(policy, data, id, row_count, column_count);
+    }
+    else {
+        auto arr = array<float>::empty(row_count * column_count);
+        float* arr_ptr = arr.get_mutable_data();
+        const auto data_ptr = data.get_data();
+
+        for (std::int64_t i = 0; i < row_count; ++i) {
+            for (std::int64_t j = 0; j < column_count; ++j) {
+                arr_ptr[i * column_count + j] = data_ptr[i * data_column_count + first_column + j];
+            }
+        }
+
+        return wrap_to_homogen_table(policy, arr, id, row_count, column_count);
+    }
+}
+
+template <typename Policy>
+static table build_table(Policy& policy, const dataframe& df, const table_id& id, range r) {
+    if (r.start_idx == 0 && r.end_idx == 0) {
+        r.end_idx = df.get_column_count();
+    }
+
+    if (r.end_idx < 0) {
+        r.end_idx += df.get_column_count();
+    }
+
+    std::int64_t first_column = r.start_idx;
+    std::int64_t last_column = r.end_idx;
+
     const auto data = df.get_array();
     const std::int64_t row_count = df.get_row_count();
-    const std::int64_t column_count = df.get_column_count();
+    const std::int64_t data_column_count = df.get_column_count();
+
+    if (first_column < 0) {
+        throw invalid_argument{ "first_column should be >= 0" };
+    }
+    if (first_column >= last_column) {
+        throw invalid_argument{ "first_column should be < last_column" };
+    }
+    if (last_column > data_column_count) {
+        throw invalid_argument{ "last_column should be <= data column count" };
+    }
+
     if (id.get_kind() == table_kind::homogen) {
-        return build_homogen_table(policy, data, id, row_count, column_count);
+        return build_homogen_table(policy, data, id, row_count, first_column, last_column);
     }
     else {
         throw unimplemented{ "Only homogen table is supported" };
     }
 }
 
-table dataframe::get_table(host_test_policy& policy, const table_id& id) const {
-    return build_table(policy, *this, id);
+table dataframe::get_table(host_test_policy& policy, const table_id& id, range r) const {
+    return build_table(policy, *this, id, r);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-table dataframe::get_table(device_test_policy& policy, const table_id& id) const {
-    return build_table(policy, *this, id);
+table dataframe::get_table(device_test_policy& policy, const table_id& id, range r) const {
+    return build_table(policy, *this, id, r);
 }
 #endif
 
