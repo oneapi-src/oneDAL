@@ -248,14 +248,13 @@ Inference methods: *Dense* and *Hist*
 
 *Dense* and *hist* inference methods perform prediction in the same way:
 to solve the problem for each given query vector :math:`x_i`, the
-algorithm finds the leaf node in a tree in the forest that gives:
+algorithm does the following:
 
-- the label by that tree, for classification. The
-  forest chooses the label :math:`y` taking the majority of trees in the
-  forest voting for that label.
-- the response by that tree as the mean of
-  dependent variables, for regression. The forest predicts the response as the mean
-  of responses from trees.
+-  For classification it finds the leaf node in a tree in the forest that gives the label by that tree. The
+   forest chooses the label :math:`y` taking the majority of trees in the forest voting for that label.
+
+-  For regression it finds the leaf node in a tree in the forest that gives the response by that tree as the mean of
+   dependent variables. The forest predicts the response as the mean of responses from trees.
 
 Additional Characteristics Calculated by the Decision Forest
 ------------------------------------------------------------
