@@ -50,7 +50,7 @@ dal_test_suite(
 )
 
 dal_test_suite(
-    name = "gpu_tests_dpc",
+    name = "gpu_tests",
     compile_as = [ "dpc++" ],
     srcs = glob([
         "backend/gpu/*_test.cpp",
@@ -71,6 +71,6 @@ dal_test_suite(
         ":cpu_tests",
     ],
     dpc_tests = [
-        ":gpu_tests_dpc",
+        ":gpu_tests",
     ],
 )

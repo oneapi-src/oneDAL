@@ -15,3 +15,5 @@
 *******************************************************************************/
 
 #pragma once
+
+#include "oneapi/dal/backend/primitives/blas/gemm.hpp"

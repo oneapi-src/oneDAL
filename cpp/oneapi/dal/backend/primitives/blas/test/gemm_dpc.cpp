@@ -149,11 +149,15 @@ using gemm_types = COMBINE_TYPES((float, double),
                                  (c_order, f_order));
 
 TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on small sizes", "[gemm][small]", gemm_types) {
+    // DPC++ GEMM from micro MKL libs is not supported on GPU
+    SKIP_IF(this->get_policy().is_cpu());
     this->generate_small_dimensions();
     this->test_gemm();
 }
 
 TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on medium sizes", "[gemm][medium]", gemm_types) {
+    // DPC++ GEMM from micro MKL libs is not supported on GPU
+    SKIP_IF(this->get_policy().is_cpu());
     this->generate_medium_dimensions();
     this->test_gemm();
 }

@@ -17,5 +17,3 @@
 #pragma once
 
 #include "oneapi/dal/backend/common.hpp"
-
-namespace oneapi::dal::backend::primitives {} // namespace oneapi::dal::backend::primitives
