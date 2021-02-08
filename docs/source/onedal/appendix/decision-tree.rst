@@ -39,23 +39,24 @@ the figure below, where:
 
 .. image:: images/decision-tree-structure.png
   :width: 600
-  :alt: A test is a rule for partitioning the feature space. A test
-        depends on feature values. Each outcome of a test represents an
-        appropriate hypercube associated with both the test and one of the
-        descending branches. 
 
-        If a test is a Boolean expression (for
-        example, :math:`f < c` or :math:`f = c`, where :math:`f` is a feature and :math:`c` is a constant fitted
-        during decision tree induction), the inducted decision tree is a
-        binary tree, so its non-leaf nodes have exactly two branches,
-        'true' and 'false', each corresponding to the result of the Boolean
-        expression.
+A test is a rule for partitioning the feature space. A test
+depends on feature values. Each outcome of a test represents an
+appropriate hypercube associated with both the test and one of the
+descending branches. 
 
-        Prediction is performed by starting at the root node of the tree,
-        testing features by the test specified in this node, then moving down
-        the tree branch corresponding to the outcome of the test for the
-        given sample. This process is then repeated for the subtree rooted
-        at the node, discovered at the selected branch. The final result is the prediction of the simple
-        model at the leaf node.
+If a test is a Boolean expression (for
+example, :math:`f < c` or :math:`f = c`, where :math:`f` is a feature and :math:`c` is a constant fitted
+during decision tree induction), the inducted decision tree is a
+binary tree, so its non-leaf nodes have exactly two branches,
+'true' and 'false', each corresponding to the result of the Boolean
+expression.
 
-        Decision trees are often used in ensemble algorithms, such as boosting, bagging, or decision forest.
+Prediction is performed by starting at the root node of the tree,
+testing features by the test specified in this node, then moving down
+the tree branch corresponding to the outcome of the test for the
+given sample. This process is then repeated for the subtree rooted
+at the node, discovered at the selected branch. The final result is the prediction of the simple
+model at the leaf node.
+
+Decision trees are often used in ensemble algorithms, such as boosting, bagging, or decision forest.
