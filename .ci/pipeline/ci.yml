@@ -18,7 +18,7 @@ pr:
 jobs:
 - job: 'ClangFormat'
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   steps:
     - script: |
         .ci/env/clang.sh
@@ -33,7 +33,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
@@ -57,7 +57,7 @@ jobs:
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
   pool:
-    vmImage: 'ubuntu-18.04'
+    vmImage: 'ubuntu-20.04'
   steps:
   - script: |
       sudo apt-get update
@@ -125,6 +125,10 @@ jobs:
   pool:
     vmImage: 'ubuntu-20.04'
     maxParallel: 2
+  strategy:
+    matrix:
+      Python38:
+        python.version: '3.8'
   steps:
   - task: DownloadPipelineArtifact@2
     inputs:
@@ -132,32 +136,56 @@ jobs:
       path: $(Pipeline.Workspace)
   - script: |
         .ci/env/dpcpp.sh
-    displayName: 'create dpcpp enviroment'
+    displayName: 'Create dpcpp enviroment'
   - script: |
       sudo apt-get install git
       git clone https://github.com/IntelPython/daal4py.git
-    displayName: clone daal4py
+    displayName: Clone daal4py
   - script: |
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-      bash miniconda.sh -b -p $HOME/miniconda
-      export PATH="$HOME/miniconda/bin:$PATH"
-      conda config --set always_yes yes --set changeps1 no
-      conda update -q conda
-      conda create -q -y -n CB python=3.7 conda-build conda-verify
-    displayName: Create Anaconda environment
+      .ci/env/clang.sh
+      python -m venv venv
+      source venv/bin/activate
+      pip install -r .ci/scripts/conformance-scripts/requirements.txt
+    displayName: Create python environment
   - script: |
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      export DAALROOT=$(Pipeline.Workspace)/daal/latest
-      export TBBROOT=$(Pipeline.Workspace)/tbb/latest
-      . $HOME/miniconda/etc/profile.d/conda.sh
-      conda activate CB
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
       cd daal4py
-      conda build --override-channels -c conda-forge -c intel --numpy=1.17 conda-recipe
-    displayName: conda build
+      export NO_DIST=1
+      export CC=dpcpp
+      export CXX=dpcpp
+      export LDFLAGS="-fPIC"
+      python setup.py install --single-version-externally-managed --record=record.txt
+    displayName: daal4py build
   - script: |
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
+      cd daal4py
+      python -c "import daal4py"
+      python tests/run_tests.py
+      pytest --pyargs daal4py/sklearn/
+      python examples/run_examples.py
+      python -m daal4py examples/sycl/sklearn_sycl.py
+    displayName: daal4py test
+  - script: |
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
-    displayName: conformance
+    displayName: Conformance tests
   - script: |
       cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/_log_* $(Build.ArtifactStagingDirectory)/
       cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/report.html $(Build.ArtifactStagingDirectory)/

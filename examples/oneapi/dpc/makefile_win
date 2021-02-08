@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2020 Intel Corporation
+# Copyright 2014-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ EXT_LIB = tbb12.lib tbbmalloc.lib
 !ENDIF
 
 !ELSE
-DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.1.lib"
+DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
 RT_LIB=/link /ignore:4078
 !ENDIF
 

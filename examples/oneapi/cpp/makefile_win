@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2020 Intel Corporation
+# Copyright 2020-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ LOPTS = $(DAAL_LIB) $(EXT_LIB)
 lib libintel64:
 	nmake comm_func $(RES) $(CLEAN) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
 dll dllintel64:
-	nmake comm_func $(RES) $(CLEAN) EXT=_dll.1.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
+	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
 
 comm_func:
 	if not exist _results md _results

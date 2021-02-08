@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ using v1::compute_result_impl;
 
 namespace v1 {
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`task::v1::init`.
 template <typename Task = task::by_default>
 class compute_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -43,8 +45,12 @@ class compute_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`data`.
     compute_input(const table& data);
 
+    /// An $n \\times p$ table with the data to be clustered, where each row
+    /// stores one feature vector.
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& data) {
@@ -58,6 +64,8 @@ private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
 };
 
+/// @tparam Task Tag-type that specifies type of the problem to solve. Can
+///              be :expr:`oneapi::dal::kmeans::task::v1::clustering`.
 template <typename Task = task::by_default>
 class compute_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -65,8 +73,12 @@ class compute_result {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     compute_result();
 
+    /// A $k \\times p$ table with the initial centroids. Each row of the
+    /// table stores one centroid.
+    /// @remark default = table{}
     const table& get_centroids() const;
 
     auto& set_centroids(const table& value) {

@@ -1,6 +1,6 @@
 /* file: svm_model_builder.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public:
 
     /**
      *  Method to set support vectors to model via random access iterator
-     * \tparam RandomIterator       Random access iterator type for access to values of suport vectors
+     * \tparam RandomIterator       Random access iterator type for access to values of support vectors
      *  \param[in] first            Iterator which point to first element of support vectors
      *  \param[in] last             Iterator which point to last element of support vectors
      */
@@ -97,7 +97,7 @@ public:
 
     /**
      *  Method to set support indices to model via random access iterator
-     * \tparam RandomIterator       Random access iterator type for access to values of suport indices
+     * \tparam RandomIterator       Random access iterator type for access to values of support indices
      *  \param[in] first            Iterator which point to first element of support indices
      *  \param[in] last             Iterator which point to last element of support indices
      */

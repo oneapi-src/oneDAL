@@ -1,6 +1,6 @@
 /* file: linear_regression_training_input.cpp */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ services::Status Input::check(const daal::algorithms::Parameter * par, int metho
     size_t nColumnsInData     = dataTable->getNumberOfColumns();
     if (method == normEqDense)
     {
-        DAAL_CHECK(nRowsInData >= nColumnsInData + (int)(parameter->interceptFlag == true), ErrorIncorrectNumberOfRows);
+        DAAL_CHECK(nRowsInData >= nColumnsInData, ErrorIncorrectNumberOfRows);
     }
     else
     {

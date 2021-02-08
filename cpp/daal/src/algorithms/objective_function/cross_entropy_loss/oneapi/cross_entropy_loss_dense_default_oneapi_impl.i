@@ -1,6 +1,6 @@
 /* file: cross_entropy_loss_dense_default_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
                                                                                         const uint32_t nBeta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
-    DAAL_ASSERT(x.size() == size_t(n) * size_t(ldX)); // overflows checked in the algorithm
+    DAAL_ASSERT(x.size() >= size_t(n) * size_t(ldX)); // overflows checked in the algorithm
     DAAL_ASSERT(beta.size() >= size_t(offset) + size_t(ldX) * size_t(nClasses));
     DAAL_ASSERT(xb.size() >= size_t(n) * size_t(nClasses));
 
@@ -66,9 +66,9 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::be
                                                                                             const uint32_t nBeta)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(betaIntercept);
-    DAAL_ASSERT(one.size() == size_t(n));
+    DAAL_ASSERT(one.size() >= size_t(n));
     DAAL_ASSERT(arg.size() >= size_t(nClasses));
-    DAAL_ASSERT(f.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
+    DAAL_ASSERT(f.size() >= size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
 
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::NoTrans, math::Transpose::Trans, n, nClasses, 1,
                                            algorithmFPType(1), one, 1, 0, arg, nBeta, 0, algorithmFPType(1), f, nClasses, 0);
@@ -84,8 +84,8 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::ap
                                                                                             const algorithmFPType beta, const uint32_t offset)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
-    DAAL_ASSERT(g.size() == size_t(n) * size_t(nClasses));
-    DAAL_ASSERT(x.size() == size_t(n) * size_t(p));
+    DAAL_ASSERT(g.size() >= size_t(n) * size_t(nClasses));
+    DAAL_ASSERT(x.size() >= size_t(n) * size_t(p));
     DAAL_ASSERT(gradient.size() >= size_t(offset) + size_t(p) * size_t(nClasses)); // overflows checked in the algorithm
 
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, nClasses, p, n, alpha, g,
@@ -99,8 +99,8 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
 
-    DAAL_ASSERT(x.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
-    DAAL_ASSERT(result.size() == size_t(n) * size_t(nClasses));
+    DAAL_ASSERT(x.size() >= size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
+    DAAL_ASSERT(result.size() >= size_t(n) * size_t(nClasses));
 
     services::Status status;
 
@@ -137,9 +137,9 @@ services::Status CrossEntropyLossKernelOneAPI<algorithmFPType, defaultDense>::so
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(softmaxAndUpdateProba);
 
-    DAAL_ASSERT(x.size() == size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
-    DAAL_ASSERT(result.size() == size_t(n) * size_t(nClasses));
-    DAAL_ASSERT(y.size() == n);
+    DAAL_ASSERT(x.size() >= size_t(n) * size_t(nClasses)); // overflows checked in the algorithm
+    DAAL_ASSERT(result.size() >= size_t(n) * size_t(nClasses));
+    DAAL_ASSERT(y.size() >= n);
 
     services::Status status;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ void descriptor_base::set_block_impl(const std::initializer_list<std::int64_t>& 
     impl_->column_range_end = *(column_range.begin() + 1);
 }
 
-void* caching_builder::operator()(std::size_t block_max_size) {
+void* caching_builder::operator()(std::int64_t block_max_size) {
     if (size < block_max_size) {
         size = block_max_size;
         result_ptr.reset();

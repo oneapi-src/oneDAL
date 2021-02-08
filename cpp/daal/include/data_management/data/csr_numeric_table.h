@@ -1,6 +1,6 @@
 /* file: csr_numeric_table.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1214,7 +1214,10 @@ protected:
             }
 
             size_t * row_offsets = block.getBlockRowIndicesSharedPtr().get();
-
+            if (row_offsets == NULL)
+            {
+                return services::Status(services::ErrorNullPtr);
+            }
             for (size_t i = 0; i < nrows + 1; i++)
             {
                 row_offsets[i] = rowOffsets[idx + i] - rowOffsets[idx] + 1;

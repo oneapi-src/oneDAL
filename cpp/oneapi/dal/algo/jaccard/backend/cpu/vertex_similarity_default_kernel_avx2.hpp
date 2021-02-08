@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,11 +48,11 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
 }
 #endif
 
-DAAL_FORCEINLINE std::size_t intersection(const std::int32_t *neigh_u,
-                                          const std::int32_t *neigh_v,
-                                          std::int32_t n_u,
-                                          std::int32_t n_v) {
-    std::size_t total = 0;
+DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
+                                           const std::int32_t *neigh_v,
+                                           std::int32_t n_u,
+                                           std::int32_t n_v) {
+    std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
 
     const std::int32_t n_u_8_end = n_u - 8;

@@ -1,6 +1,6 @@
 @echo off
 rem ============================================================================
-rem Copyright 2014-2020 Intel Corporation
+rem Copyright 2014-2021 Intel Corporation
 rem
 rem Licensed under the Apache License, Version 2.0 (the "License");
 rem you may not use this file except in compliance with the License.
@@ -55,11 +55,12 @@ datasource\DataStructuresPackedTriangular ^
 datasource\DataStructuresRowMerged ^
 dbscan\DBSCANDenseBatch ^
 dbscan\DBSCANDenseDistr ^
-decision_forest\DfClsDenseBatch ^
+decision_forest\DfClsDefaultDenseBatch ^
 decision_forest\DfClsDenseBatchModelBuilder ^
+decision_forest\DfClsHistDenseBatch ^
 decision_forest\DfClsTraversedModelBuilder ^
 decision_forest\DfClsTraverseModel ^
-decision_forest\DfRegDenseBatch ^
+decision_forest\DfRegDefaultDenseBatch ^
 decision_forest\DfRegTraverseModel ^
 decision_tree\DtClsDenseBatch ^
 decision_tree\DtClsTraverseModel ^

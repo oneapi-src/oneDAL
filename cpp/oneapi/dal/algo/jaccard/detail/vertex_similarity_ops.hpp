@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -44,10 +44,10 @@ struct vertex_similarity_ops {
     void check_preconditions(const Descriptor &param, vertex_similarity_input<Graph> &input) const {
         using msg = dal::detail::error_messages;
 
-        const auto row_begin = param.get_row_range_begin();
-        const auto row_end = param.get_row_range_end();
-        const auto column_begin = param.get_column_range_begin();
-        const auto column_end = param.get_column_range_end();
+        const std::int64_t row_begin = param.get_row_range_begin();
+        const std::int64_t row_end = param.get_row_range_end();
+        const std::int64_t column_begin = param.get_column_range_begin();
+        const std::int64_t column_end = param.get_column_range_end();
         if (row_begin < 0 || column_begin < 0) {
             throw invalid_argument(msg::negative_interval());
         }
@@ -57,11 +57,10 @@ struct vertex_similarity_ops {
         if (column_begin > column_end) {
             throw invalid_argument(msg::column_begin_gt_column_end());
         }
-        const auto vertex_count =
+        const std::int64_t vertex_count =
             dal::detail::get_impl(input.get_graph()).get_topology()._vertex_count;
         // Safe conversion as ranges were checked
-        if (static_cast<std::size_t>(row_end) > vertex_count ||
-            static_cast<std::size_t>(column_end) > vertex_count) {
+        if (row_end > vertex_count || column_end > vertex_count) {
             throw out_of_range(msg::interval_gt_vertex_count());
         }
         if (row_end >= dal::detail::limits<std::int32_t>::max() ||
@@ -88,21 +87,17 @@ vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method,
     vertex_similarity_input<Graph> &input) const {
     const auto &csr_topology =
         dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-    const auto row_begin =
-        dal::detail::integral_cast<vertex_type<Graph>>(desc.get_row_range_begin());
-    const auto row_end = dal::detail::integral_cast<vertex_type<Graph>>(desc.get_row_range_end());
-    const auto column_begin =
-        dal::detail::integral_cast<vertex_type<Graph>>(desc.get_column_range_begin());
-    const auto column_end =
-        dal::detail::integral_cast<vertex_type<Graph>>(desc.get_column_range_end());
-    const auto number_elements_in_block =
+    const std::int64_t row_begin = desc.get_row_range_begin();
+    const std::int64_t row_end = desc.get_row_range_end();
+    const std::int64_t column_begin = desc.get_column_range_begin();
+    const std::int64_t column_end = desc.get_column_range_end();
+    const std::int64_t number_elements_in_block =
         get_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const auto max_block_size =
+    const std::int64_t max_block_size =
         get_max_block_size<Float, vertex_type<Graph>>(number_elements_in_block);
     void *result_ptr = input.get_caching_builder()(max_block_size);
-
     static auto impl = get_backend<Policy, Float, Method>(desc, csr_topology);
-    return (*impl)(policy, desc, csr_topology, result_ptr); // dep on backend
+    return (*impl)(policy, desc, csr_topology, result_ptr);
 }
 
 } // namespace oneapi::dal::preview::jaccard::detail

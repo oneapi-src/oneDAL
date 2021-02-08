@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_batch.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h>
-#include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_dense_default_kernel.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 
@@ -54,12 +53,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    auto arr_label = row_accessor<const Float>{ labels }.pull();
-
-    const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 
     /* init param for daal kernel */
     auto daal_input = daal_df_reg_train::Input();

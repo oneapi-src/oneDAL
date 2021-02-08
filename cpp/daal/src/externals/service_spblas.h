@@ -1,6 +1,6 @@
 /* file: service_spblas.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ private:
     static void splitCSR2CSC(const fpType * a, const size_t * ja, const size_t * ia, size_t n, size_t nRowsInCommonBlock, size_t nRowsInTailBlock,
                              size_t nBlocks, fpType * valuesCSC, uint32_t * colIdxCSC, uint32_t * rowIdxCSC)
     {
-        daal::threader_for(nBlocks, nBlocks, [=](size_t i) {
+        daal::conditional_threader_for((n > 512), nBlocks, [=](size_t i) {
             size_t offset = i * nRowsInCommonBlock;
 
             uint32_t * rowIdxCSC_i = rowIdxCSC + ia[offset] - ia[0];

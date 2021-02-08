@@ -1,6 +1,6 @@
 /* file: logitboost_predict.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public:
  * \brief Predicts LogitBoost classification results        \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-LOGITBOOST-ALGORITHM">LogitBoost algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the LogitBoost algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the LogitBoost algorithm, double or float
  * \tparam method           LogitBoost computation method, \ref Method
  *
  * \par Enumerations
@@ -224,7 +224,7 @@ public:
  * \brief Predicts LogitBoost classification results
  * <!-- \n<a href="DAAL-REF-LOGITBOOST-ALGORITHM">LogitBoost algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the LogitBoost algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the LogitBoost algorithm, double or float
  * \tparam method           LogitBoost computation method, \ref Method
  *
  * \par Enumerations

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -42,11 +42,8 @@ template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = desc.get_component_count();
-
-    auto arr_data = row_accessor<const Float>{ data }.pull();
 
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(column_count * component_count);
@@ -54,12 +51,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     auto arr_means = array<Float>::empty(1 * column_count);
     auto arr_vars = array<Float>::empty(1 * column_count);
 
-    // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
-    // Need to create special immutable homogen table on daal interop side
-
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
-    const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_homogen_table(arr_eigvec, column_count, component_count);
     const auto daal_eigenvalues =

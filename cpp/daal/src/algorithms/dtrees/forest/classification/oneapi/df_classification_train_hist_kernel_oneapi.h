@@ -1,6 +1,6 @@
 /* file: df_classification_train_hist_kernel_oneapi.h */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -160,14 +160,18 @@ private:
 
     decision_forest::internal::TreeLevelBuildHelperOneAPI<algorithmFPType> _treeLevelBuildHelper;
 
-    const size_t _maxWorkItemsPerGroup = 256; // should be a power of two for interal needs
-    const size_t _preferableSubGroup   = 16;  // preferable maximal sub-group size
-    const size_t _maxLocalSize         = 128;
-    const size_t _maxLocalSums         = 256;
-    const size_t _maxLocalHistograms   = 256;
-    const size_t _preferableGroupSize  = 256;
-    const size_t _minRowsBlock         = 256;
-    const size_t _maxBins              = 256;
+    const size_t _maxWorkItemsPerGroup    = 256; // should be a power of two for interal needs
+    const size_t _preferableSubGroup      = 16;  // preferable maximal sub-group size
+    const size_t _maxLocalSize            = 128;
+    const size_t _maxLocalSums            = 256;
+    const size_t _maxLocalHistograms      = 256;
+    const size_t _preferableGroupSize     = 256;
+    const size_t _minRowsBlock            = 256;
+    const size_t _maxBins                 = 256;
+    const size_t _reduceLocalSizePartHist = 64;
+
+    const size_t _maxPartHistCumulativeSize      = 805306368; // 768 Mb
+    const size_t _minRowsBlocksForMaxPartHistNum = 1024;
 
     const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
     const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks

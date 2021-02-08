@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,10 +55,8 @@ ONEDAL_EXPORT void parallel_sort(F *begin_ptr, F *end_ptr) {
     template <>                                        \
     ONEDAL_EXPORT void parallel_sort(TYPE *begin_ptr, TYPE *end_ptr);
 
-ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::int64_t)
-ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::uint64_t)
 ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::int32_t)
-ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::uint32_t)
+ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::uint64_t)
 
 #undef ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL
 

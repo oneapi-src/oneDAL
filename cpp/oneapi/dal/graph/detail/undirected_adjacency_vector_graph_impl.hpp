@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@
 #include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview::detail {
+
+template <typename IndexType>
+constexpr bool is_valid_index_v = dal::detail::is_one_of_v<IndexType, std::int32_t>;
 
 template <typename IndexType>
 class topology {
@@ -48,8 +51,8 @@ public:
     vertex_set _cols;
     edge_set _degrees;
     edge_set _rows;
-    int64_t _vertex_count = 0;
-    int64_t _edge_count = 0;
+    std::int64_t _vertex_count = 0;
+    std::int64_t _edge_count = 0;
 };
 
 template <typename VertexValue>

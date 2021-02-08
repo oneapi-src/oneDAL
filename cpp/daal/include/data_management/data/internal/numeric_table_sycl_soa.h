@@ -1,6 +1,6 @@
 /* file: numeric_table_sycl_soa.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -325,8 +325,7 @@ protected:
     void freeDataMemoryImpl() DAAL_C11_OVERRIDE
     {
         _cpuTable.reset();
-        _arrays.clear();
-        _arrays.resize(_ddict->getNumberOfFeatures());
+        _arrays            = services::Collection<services::internal::sycl::UniversalBuffer>(_ddict->getNumberOfFeatures());
         _arraysInitialized = 0;
 
         _partialMemStatus = notAllocated;

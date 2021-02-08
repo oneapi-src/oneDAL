@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# Copyright 2014-2020 Intel Corporation
+# Copyright 2014-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 # limitations under the License.
 #===============================================================================
 
-TBB_URL_ROOT="https://github.com/oneapi-src/oneTBB/releases/download/v2021.1-beta08/"
-TBB_VERSION="oneapi-tbb-2021.1-beta08"
+TBB_URL_ROOT="https://github.com/oneapi-src/oneTBB/releases/download/v2021.1.1/"
+TBB_VERSION="oneapi-tbb-2021.1.1"
 
 os=$(uname)
 if [ "${os}" = "Linux" ]; then
@@ -62,7 +62,8 @@ if [ ! -d "${DST}/${OS}/bin" ]; then
   fi
 
   echo tar -xvf "${DST}/${TBB_PACKAGE}.tgz" -C "${DST}"
-  tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz" ${TBB_VERSION}
+  tar -C "${DST}/${OS}" --strip-components=1 -xvf "${DST}/${TBB_PACKAGE}.tgz"
+  ls -al "${DST}/${OS}/"
   echo "Downloaded and unpacked oneTBB to ${DST}/${OS}"
 else
   echo "oneTBB is already installed in ${DST}/${OS}"

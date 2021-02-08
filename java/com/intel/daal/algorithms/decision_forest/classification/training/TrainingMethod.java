@@ -1,6 +1,6 @@
 /* file: TrainingMethod.java */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,8 +48,11 @@ public final class TrainingMethod {
     }
 
     private static final int defaultDenseId = 0;
+    private static final int histId = 1;
 
     /** Default method. Bagging, random choice of features, Gini impurity */
     public static final TrainingMethod defaultDense = new TrainingMethod(defaultDenseId);
+    /** Hist method. Bagging, random choice of features, Gini impurity */
+    public static final TrainingMethod hist = new TrainingMethod(histId);
 }
 /** @} */

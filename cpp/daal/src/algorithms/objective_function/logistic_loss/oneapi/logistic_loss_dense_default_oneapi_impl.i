@@ -1,6 +1,6 @@
 /* file: logistic_loss_dense_default_oneapi_impl.i */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::applyGradie
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
     DAAL_ASSERT(x.size() == size_t(n) * size_t(p)); // overflows checked in the algorithm
-    DAAL_ASSERT(sub.size() == size_t(n));
+    DAAL_ASSERT(sub.size() >= size_t(n));
     DAAL_ASSERT(gradient.size() >= size_t(offset) + size_t(p));
     return BlasGpu<algorithmFPType>::xgemm(math::Layout::RowMajor, math::Transpose::Trans, math::Transpose::NoTrans, p, 1, n, alpha, x, p, 0, sub, 1,
                                            0, beta, gradient, 1, offset);
@@ -158,7 +158,7 @@ services::Status LogLossKernelOneAPI<algorithmFPType, defaultDense>::sigmoids(co
     DAAL_ITTNOTIFY_SCOPED_TASK(sigmoids);
     services::Status status;
 
-    DAAL_ASSERT(x.size() == n);
+    DAAL_ASSERT(x.size() >= n);
     DAAL_ASSERT(calculateInverse ? result.size() >= 2 * n : result.size() >= n);
 
     ExecutionContextIface & ctx    = services::internal::getDefaultContext();

@@ -1,6 +1,6 @@
 /* file: df_cls_dense_batch.cpp */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -72,8 +72,7 @@ int main(int argc, char * argv[])
         services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 
         /* Create an algorithm object to train the decision forest classification model */
-        training::ResultPtr trainingResult =
-            device.is_gpu() ? trainModel(training::Batch<float, training::hist>(nClasses)) : trainModel(training::Batch<>(nClasses));
+        training::ResultPtr trainingResult = trainModel(training::Batch<float, training::hist>(nClasses));
 
         testModel(trainingResult);
     }

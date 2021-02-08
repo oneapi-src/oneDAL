@@ -1,6 +1,6 @@
 /* file: bf_knn_classification_predict_kernel_ucapi.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -40,6 +40,9 @@ template <typename algorithmFpType>
 class KNNClassificationPredictKernelUCAPI : public daal::algorithms::Kernel
 {
 public:
+    services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, NumericTable * outIndices,
+                             NumericTable * outDistances, const daal::algorithms::Parameter * par);
+
     services::Status compute(const NumericTable * x, const classifier::Model * m, NumericTable * y, const daal::algorithms::Parameter * par);
 
 private:
@@ -49,9 +52,15 @@ private:
                                                    services::internal::sycl::UniversalBuffer & partialDistances,
                                                    services::internal::sycl::UniversalBuffer & partialLabels, uint32_t curQueryBlockRows, uint32_t k,
                                                    uint32_t nChunk, uint32_t totalNumberOfChunks);
+
     services::Status scatterSumOfSquares(services::internal::sycl::ExecutionContextIface & context,
                                          const services::internal::sycl::UniversalBuffer & dataSumOfSquares, uint32_t dataBlockRowCount,
                                          uint32_t queryBlockRowCount, services::internal::sycl::UniversalBuffer & distances);
+
+    services::Status scatterBothL2Norms(services::internal::sycl::ExecutionContextIface & context,
+                                        const services::internal::sycl::UniversalBuffer & dataSumOfSquares,
+                                        const services::internal::sycl::UniversalBuffer & querySumOfSquares, uint32_t dataBlockRowCount,
+                                        uint32_t queryBlockRowCount, services::internal::sycl::UniversalBuffer & distances);
 
     services::Status computeDistances(services::internal::sycl::ExecutionContextIface & context,
                                       const services::internal::Buffer<algorithmFpType> & data,
@@ -59,9 +68,15 @@ private:
                                       services::internal::sycl::UniversalBuffer & distances, uint32_t dataBlockRowCount, uint32_t queryBlockRowCount,
                                       uint32_t nFeatures);
 
+    services::Status initializeIndices(services::internal::sycl::ExecutionContextIface & context, const uint32_t dataBlockRowCount,
+                                       const uint32_t fromDataBlockRow, services::internal::sycl::UniversalBuffer & indices);
+
     services::Status computeWinners(services::internal::sycl::ExecutionContextIface & context,
                                     const services::internal::sycl::UniversalBuffer & labels, uint32_t queryBlockRowCount, uint32_t k,
                                     services::internal::sycl::UniversalBuffer labelsOut);
+
+    services::Status distancesFromSquares(services::internal::sycl::ExecutionContextIface & context, services::internal::sycl::UniversalBuffer & data,
+                                          const uint32_t distancesCount);
 
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & kernel_factory);
 };

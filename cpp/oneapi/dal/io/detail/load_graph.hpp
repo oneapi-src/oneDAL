@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@
 namespace oneapi::dal::preview::load_graph::detail {
 
 template <typename Vertex>
-edge_list<Vertex> load_edge_list(const std::string &name);
+inline edge_list<Vertex> load_edge_list(const std::string &name);
 
 template <>
-edge_list<std::int32_t> load_edge_list(const std::string &name) {
+inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;
 
     std::ifstream file(name);
@@ -56,17 +56,6 @@ edge_list<std::int32_t> load_edge_list(const std::string &name) {
 
     file.close();
     return elist;
-}
-
-template <>
-edge_list<std::int64_t> load_edge_list(const std::string &name) {
-    edge_list<std::int32_t> elist_int32 = load_edge_list<std::int32_t>(name);
-    edge_list<std::int64_t> elist_int64(elist_int32.size());
-    dal::detail::threader_for(elist_int64.size(), elist_int64.size(), [&](std::int64_t i) {
-        elist_int64[i].first = elist_int32[i].first;
-        elist_int64[i].second = elist_int32[i].second;
-    });
-    return elist_int64;
 }
 
 template <typename Index>
@@ -202,7 +191,6 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     const vertex_size_type vertex_count = get_vertex_count_from_edge_list(edges);
 
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
-    auto &allocator = graph_impl._allocator;
     auto &vertex_allocator = graph_impl._vertex_allocator;
     auto &edge_allocator = graph_impl._edge_allocator;
     atomic_vertex_allocator_type atomic_vertex_allocator;

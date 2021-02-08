@@ -1,6 +1,6 @@
 /* file: gbt_classification_predict.h */
 /*******************************************************************************
-* Copyright 2014-2020 Intel Corporation
+* Copyright 2014-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public:
  * \brief Predicts gradient boosted trees classification results   \DAAL_DEPRECATED
  * <!-- \n<a href="DAAL-REF-gbt-ALGORITHM">gbt algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the gbt algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the gbt algorithm, double or float
  * \tparam method           gradient boosted trees computation method, \ref Method
  *
  * \par Enumerations
@@ -222,7 +222,7 @@ public:
  * \brief Predicts gradient boosted trees classification results
  * <!-- \n<a href="DAAL-REF-gbt-ALGORITHM">gbt algorithm description and usage models</a> -->
  *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the gbt algortithm, double or float
+ * \tparam algorithmFPType  Data type to use in intermediate computations for the gbt algorithm, double or float
  * \tparam method           gradient boosted trees computation method, \ref Method
  *
  * \par Enumerations

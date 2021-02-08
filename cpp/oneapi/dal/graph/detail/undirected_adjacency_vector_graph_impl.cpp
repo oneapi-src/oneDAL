@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
 namespace oneapi::dal::preview::detail {
-
-template class ONEDAL_EXPORT dal::array<float>;
 
 template class ONEDAL_EXPORT topology<int32_t>;
 

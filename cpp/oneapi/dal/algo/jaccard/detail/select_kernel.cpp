@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ operator()(const dal::detail::host_policy &policy,
     });
 }
 
-template struct backend_default<dal::detail::host_policy,
-                                float,
-                                dal::preview::jaccard::method::fast,
-                                dal::preview::detail::topology<std::int32_t>>;
+template struct ONEDAL_EXPORT backend_default<dal::detail::host_policy,
+                                              float,
+                                              dal::preview::jaccard::method::fast,
+                                              dal::preview::detail::topology<std::int32_t>>;
 
 } // namespace oneapi::dal::preview::jaccard::detail

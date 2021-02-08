@@ -1,6 +1,6 @@
 /* file: numeric_table_sycl_csr.h */
 /*******************************************************************************
-* Copyright 2020 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -589,6 +589,11 @@ protected:
 
             size_t * rowOffsetsNewPtr    = hostRowOffsetsNew.get();
             const size_t * rowOffsetsPtr = hostRowOffsets.get();
+
+            if (rowOffsetsNewPtr == NULL || rowOffsetsPtr == NULL)
+            {
+                return services::Status(services::ErrorNullPtr);
+            }
 
             rowOffsetsNewPtr[0] = 1;
             for (size_t i = 0; i < nrows; ++i)
