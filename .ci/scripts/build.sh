@@ -81,7 +81,4 @@ make ${target:-daal} ${make_op} \
     COMPILER=${compiler} \
     REQCPU="${CPU_OPTIMIZATIONS}"
 
-# Generate CMake configs
-cmake -P cmake/scripts/generate_config.cmake
-
 exit $?
