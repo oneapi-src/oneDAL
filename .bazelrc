@@ -1,3 +1,43 @@
+# Global options
 build -c opt \
       --incompatible_enable_cc_toolchain_resolution \
       --incompatible_require_linker_input_cc_api
+
+# Aliases for user-defined flags
+build --flag_alias=test_link_mode=@config//:test_link_mode
+build --flag_alias=test_thread_mode=@config//:test_thread_mode
+build --flag_alias=release_dpc=@config//:release_dpc
+build --flag_alias=cpu=@config//:cpu
+
+# Configuration: 'host'
+build:host \
+    --build_tag_filters="host"
+
+test:host \
+    --test_tag_filters="host"
+
+
+# Configuration: 'dpc-cpu'
+build:dpc-cpu \
+    --build_tag_filters="dpc"
+
+run:dpc-cpu \
+    -- --device=cpu
+
+test:dpc-cpu \
+    --test_tag_filters="dpc" \
+    --test_env=OCL_ICD_FILENAMES \
+    --test_arg="--device=cpu"
+
+
+# Configuration: 'dpc-gpu'
+build:dpc-gpu \
+    --build_tag_filters="dpc"
+
+run:dpc-gpu \
+    -- --device=gpu
+
+test:dpc-gpu \
+    --test_tag_filters="dpc" \
+    --test_env=OCL_ICD_FILENAMES \
+    --test_arg="--device=gpu"

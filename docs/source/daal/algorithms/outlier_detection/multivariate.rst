@@ -162,3 +162,5 @@ To get the best overall performance of multivariate outlier detection:
 - If input data is non-homogeneous, use :ref:`AOS layout <aos_layout>` rather than SOA layout.
 - For the default outlier detection method (``defaultDense``),
   you can benefit from splitting the input data set into blocks for parallel processing.
+
+.. include:: ../../../opt-notice.rst

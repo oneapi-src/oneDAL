@@ -42,6 +42,9 @@ the fields of the LibraryVersionInfo structure:
 | processor                         | Processor optimization            |
 +-----------------------------------+-----------------------------------+
 
+
+.. include:: ../../opt-notice.rst
+
 Examples
 ++++++++
 

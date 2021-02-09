@@ -21,12 +21,10 @@
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/vertex_similarity.hpp"
 
-namespace oneapi::dal::preview {
-namespace detail {
+namespace oneapi::dal::preview::detail {
 
 template <typename Descriptor, typename Graph>
 struct vertex_similarity_ops<Descriptor, Graph, jaccard::detail::tag>
         : jaccard::detail::vertex_similarity_ops<Descriptor, Graph> {};
 
-} // namespace detail
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::detail

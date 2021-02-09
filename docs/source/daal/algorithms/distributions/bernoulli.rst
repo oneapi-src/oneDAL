@@ -87,3 +87,5 @@ Performance Considerations
 
 To get the best overall performance when using the Bernoulli distribution random number generator,
 provide the 32-bit signed integer homogeneous numeric table constructed with enabled equal features.
+
+.. include:: ../../../opt-notice.rst

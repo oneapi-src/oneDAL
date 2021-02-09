@@ -24,31 +24,43 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-template <typename T>
-inline T* malloc(const default_host_policy&, std::int64_t count) {
-    return new T[count];
-}
+ONEDAL_EXPORT void* malloc(const default_host_policy&, std::size_t size);
+ONEDAL_EXPORT void* calloc(const default_host_policy&, std::size_t size);
+ONEDAL_EXPORT void free(const default_host_policy&, void* pointer);
+ONEDAL_EXPORT void memset(const default_host_policy&,
+                          void* dest,
+                          std::int32_t value,
+                          std::int64_t size);
+ONEDAL_EXPORT void memcpy(const default_host_policy&,
+                          void* dest,
+                          const void* src,
+                          std::int64_t size);
 
 template <typename T>
-inline void free(const default_host_policy&, T* pointer) {
-    delete[] pointer;
-}
-
-inline void memset(const default_host_policy&, void* dest, std::int32_t value, std::int64_t size) {
-    // TODO: is not safe since std::memset accepts size as size_t
-    // TODO: can be optimized in future
-    std::memset(dest, value, size);
-}
-
-inline void memcpy(const default_host_policy&, void* dest, const void* src, std::int64_t size) {
-    // TODO: is not safe since std::memset accepts size as size_t
-    // TODO: can be optimized in future
-    std::memcpy(dest, src, size);
+inline T* malloc(const default_host_policy& policy, std::int64_t count) {
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
+    const std::size_t bytes_count = sizeof(T) * count;
+    return static_cast<T*>(malloc(policy, bytes_count));
 }
 
 template <typename T>
-inline void fill(const default_host_policy&, T* dest, std::int64_t count, const T& value) {
-    // TODO: can be optimized in future
+inline T* calloc(const default_host_policy& policy, std::int64_t count) {
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
+    const std::size_t bytes_count = sizeof(T) * count;
+    return static_cast<T*>(calloc(policy, bytes_count));
+}
+
+template <typename T>
+inline void free(const default_host_policy& policy, T* pointer) {
+    using mutable_t = std::remove_const_t<T>;
+    free(policy, reinterpret_cast<void*>(const_cast<mutable_t*>(pointer)));
+}
+
+template <typename T>
+inline void fill(const default_host_policy& policy, T* dest, std::int64_t count, const T& value) {
+    ONEDAL_ASSERT(dest != nullptr);
+    ONEDAL_ASSERT(count > 0);
+
     for (std::int64_t i = 0; i < count; i++) {
         dest[i] = value;
     }
@@ -68,10 +80,11 @@ public:
 } // namespace v1
 
 using v1::malloc;
+using v1::calloc;
 using v1::free;
+using v1::fill;
 using v1::memset;
 using v1::memcpy;
-using v1::fill;
 using v1::host_allocator;
 
 } // namespace oneapi::dal::detail

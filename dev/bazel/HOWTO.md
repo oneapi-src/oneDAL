@@ -1,8 +1,8 @@
 # Bazel Guide
 ## Install Bazel on Linux
-1. Download Bazel 3.7.0
+1. Download Bazel 4.0.0
    ```sh
-   wget -O bazel https://github.com/bazelbuild/bazel/releases/download/3.7.0/bazel-3.7.0-linux-x86_64
+   wget -O bazel https://github.com/bazelbuild/bazel/releases/download/4.0.0/bazel-4.0.0-linux-x86_64
    ```
    > Note: If you are using proxy don't forget to set
    `http_proxy` and `https_proxy` environment variables
@@ -14,17 +14,17 @@
    chmod +x bazel
    ```
 
-3. Create bazel cache directory on **local disk** and
+3. Create Bazel cache directory on **local disk** and
    configure path to the cache in `~/.bazelrc`.
    ```sh
-   mkdir -p <my-user-dir-utils>/.bazel-cache
-   echo "startup --output_user_root=<my-user-dir-utils>/.bazel-cache" > ~/.bazelrc
+   mkdir -p <my-user-dir-on-local-disk>/.bazel-cache
+   echo "startup --output_user_root=<my-user-dir-on-local-disk>/.bazel-cache" > ~/.bazelrc
    ```
 
 4. Add `bazel` to the `$PATH`.
    ```sh
-   export PATH=<my-user-dir-utils>/bin:$PATH
-   bazel --version # Should be "bazel 3.7.0"
+   export PATH=<my-user-dir-on-local-disk>/bin:$PATH
+   bazel --version # Should be "bazel 4.0.0"
    ```
 
 ## Build options

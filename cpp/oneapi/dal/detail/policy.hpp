@@ -45,6 +45,11 @@ class ONEDAL_EXPORT host_policy : public base {
 public:
     host_policy();
 
+    static const host_policy& get_default() {
+        const static host_policy instance;
+        return instance;
+    }
+
     cpu_extension get_enabled_cpu_extensions() const noexcept;
 
     auto& set_enabled_cpu_extensions(const cpu_extension& extensions) {
