@@ -104,6 +104,12 @@ public:
      */
     Batch(const Batch<algorithmFPType, method> & other);
 
+    /**
+     * Constructs a BF kNN prediction algorithm with nClasses parameter
+     * \param[in] nClasses   number of classes
+    */
+    Batch(size_t nClasses);
+
     /** Destructor */
     ~Batch()
     {

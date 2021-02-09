@@ -28,24 +28,24 @@
 #define ONEDAL_ASSERT_MUL_OVERFLOW(...)
 #else
 #define ONEDAL_ASSERT_SUM_OVERFLOW(Data, first, second)                                       \
-    {                                                                                         \
+    do {                                                                                      \
         static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
         Data result;                                                                          \
         ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_sum((first),  \
                                                                                     (second), \
                                                                                     result),  \
-                      "Sum overflow assertion failed with operands" #first " and " #second)   \
-    }
+                      "Sum overflow assertion failed with operands" #first " and " #second);  \
+    } while (0)
 
 #define ONEDAL_ASSERT_MUL_OVERFLOW(Data, first, second)                                       \
-    {                                                                                         \
+    do {                                                                                      \
         static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
         Data result;                                                                          \
         ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_mul((first),  \
                                                                                     (second), \
                                                                                     result),  \
-                      "Mul overflow assertion failed with operands" #first " and " #second)   \
-    }
+                      "Mul overflow assertion failed with operands" #first " and " #second);  \
+    } while (0)
 #endif
 
 namespace oneapi::dal::detail {
@@ -158,15 +158,7 @@ inline constexpr std::int64_t get_data_type_size(data_type t) {
 }
 
 template <typename T>
-constexpr data_type make_data_type_impl();
-
-template <typename T>
-constexpr data_type make_data_type() {
-    return make_data_type_impl<std::decay_t<T>>();
-}
-
-template <typename T>
-constexpr data_type make_data_type_impl() {
+inline constexpr data_type make_data_type_impl() {
     if constexpr (std::is_same_v<std::int32_t, T>) {
         return data_type::int32;
     }
@@ -192,7 +184,12 @@ constexpr data_type make_data_type_impl() {
     return data_type::float32; // shall never come here
 }
 
-constexpr bool is_floating_point(data_type t) {
+template <typename T>
+inline constexpr data_type make_data_type() {
+    return make_data_type_impl<std::decay_t<T>>();
+}
+
+inline constexpr bool is_floating_point(data_type t) {
     if (t == data_type::bfloat16 || t == data_type::float32 || t == data_type::float64) {
         return true;
     }
@@ -202,7 +199,7 @@ constexpr bool is_floating_point(data_type t) {
 }
 
 template <typename T>
-constexpr bool is_floating_point() {
+inline constexpr bool is_floating_point() {
     return is_floating_point(make_data_type<T>());
 }
 

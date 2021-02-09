@@ -28,8 +28,6 @@ config_flag(
     build_setting_default = "dev",
     allowed_build_setting_values = [
         "dev",
-        "static",
-        "dynamic",
         "release_static",
         "release_dynamic",
     ],
@@ -39,20 +37,6 @@ config_setting(
     name = "dev_test_link_mode",
     flag_values  = {
         ":test_link_mode": "dev",
-    },
-)
-
-config_setting(
-    name = "static_test_link_mode",
-    flag_values  = {
-        ":test_link_mode": "static",
-    },
-)
-
-config_setting(
-    name = "dynamic_test_link_mode",
-    flag_values  = {
-        ":test_link_mode": "dynamic",
     },
 )
 

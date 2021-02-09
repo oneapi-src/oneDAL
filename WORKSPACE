@@ -54,6 +54,12 @@ tbb_repo(
     strip_prefix = "oneapi-tbb-2021.1-beta08",
 )
 
+load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
+mkl_repo(
+    name = "mkl",
+    root_env_var = "MKLROOT",
+)
+
 load("@onedal//dev/bazel/deps:onedal.bzl", "onedal_repo")
 onedal_repo(
     name = "onedal_release",
@@ -65,4 +71,19 @@ http_archive(
     url = "https://github.com/google/googletest/archive/release-1.10.0.tar.gz",
     sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
     strip_prefix = "googletest-release-1.10.0",
+)
+
+http_archive(
+    name = "catch2",
+    url = "https://github.com/catchorg/Catch2/archive/v2.13.4.tar.gz",
+    sha256 = "e7eb70b3d0ac2ed7dcf14563ad808740c29e628edde99e973adad373a2b5e4df",
+    strip_prefix = "Catch2-2.13.4",
+)
+
+http_archive(
+    name = "fmt",
+    url = "https://github.com/fmtlib/fmt/archive/7.1.3.tar.gz",
+    sha256 = "5cae7072042b3043e12d53d50ef404bbb76949dad1de368d7f993a15c8c05ecc",
+    strip_prefix = "fmt-7.1.3",
+    build_file = "@onedal//dev/bazel/deps:fmt.tpl.BUILD",
 )

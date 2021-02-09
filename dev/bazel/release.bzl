@@ -113,6 +113,7 @@ def _headers_filter_impl(ctx):
         if (_match_file_name(header, ctx.attr.include) and
             not _match_file_name(header, ctx.attr.exclude)):
             filtered_headers.append(header)
+    print(filtered_headers)
     return [
         DefaultInfo(files = depset(filtered_headers))
     ]

@@ -75,6 +75,8 @@ public:
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
     MSG(unsupported_feature_type);
+    MSG(unknown_memcpy_error);
+    MSG(unknown_usm_pointer_type);
 
     /* Tables */
     MSG(cannot_get_data_type_from_empty_metadata);
@@ -159,6 +161,7 @@ public:
     MSG(input_data_cc_lt_desc_component_count);
     MSG(input_model_eigenvectors_cc_neq_input_data_cc);
     MSG(input_model_eigenvectors_rc_neq_desc_component_count);
+    MSG(input_model_eigenvectors_rc_neq_input_data_cc);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
 
     /* SVM */
