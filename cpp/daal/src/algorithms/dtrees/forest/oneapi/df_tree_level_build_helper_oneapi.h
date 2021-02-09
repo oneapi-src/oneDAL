@@ -74,6 +74,7 @@ public:
                                              size_t nSubgroupSums, services::internal::sycl::UniversalBuffer & oobRowsNumList, size_t totalOOBRowsNum,
                                              size_t nTrees, size_t tree, services::internal::sycl::UniversalBuffer & oobRowsList);
 
+    size_t getOOBRowsRequiredMemSize(size_t nRows, size_t nTrees, double observationsPerTreeFraction);
     services::Status getOOBRows(const services::internal::sycl::UniversalBuffer & rowsList, size_t nRows, size_t nTrees,
                                 services::internal::sycl::UniversalBuffer & oobRowsNumList, services::internal::sycl::UniversalBuffer & oobRowsList);
 
@@ -127,8 +128,8 @@ private:
     const size_t _preferableSubGroup           = 16;  // preferable maximal sub-group size
     const size_t _auxNodeBufferProps           = 2;   // auxilliary buffer for nodes partitioning
     const size_t _partitionMaxBlocksNum        = 256; // max blocks number for one node
-
-    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+    const double _aproximateOOBRowsFraction    = 0.6;
+    const size_t _int32max                     = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
     size_t _nNodeProps;
 };
 

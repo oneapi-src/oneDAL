@@ -108,18 +108,19 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
 }
 
 template <typename algorithmFPType>
+size_t IndexedFeaturesOneAPI<algorithmFPType>::getRequiredMemSize(size_t nCols, size_t nRows)
+{
+    size_t requiredMem = sizeof(uint32_t) * (nCols + 1);
+
+    requiredMem += sizeof(uint32_t) * nRows * nCols; // data vs ftrs bin map table (_fullData)
+    return requiredMem;
+}
+
+template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t nR)
 {
     auto & context = services::internal::getDefaultContext();
     services::Status status;
-
-    DAAL_CHECK_MALLOC(_data.resize(nC));
-
-    for (size_t i = 0; i < nC; i++)
-    {
-        _data[i] = context.allocate(TypeId::uint32, nR, status);
-        DAAL_CHECK_STATUS_VAR(status);
-    }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nR, nC);
     _fullData = context.allocate(TypeId::uint32, nR * nC, status);
@@ -317,7 +318,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
 template <typename algorithmFPType>
 services::Status IndexedFeaturesOneAPI<algorithmFPType>::makeIndex(const services::internal::Buffer<algorithmFPType> & data, int32_t featureId,
                                                                    int32_t nFeatures, int32_t nRows, const dtrees::internal::BinParams * pBinPrm,
-                                                                   UniversalBuffer & bins, FeatureEntry & entry)
+                                                                   UniversalBuffer & _values, UniversalBuffer & _values_buf,
+                                                                   UniversalBuffer & _indices, UniversalBuffer & _indices_buf, UniversalBuffer & bins,
+                                                                   FeatureEntry & entry)
 {
     DAAL_CHECK_STATUS_VAR(extractColumn(data, _values, _indices, featureId, nFeatures, nRows));
     DAAL_CHECK_STATUS_VAR(sort::RadixSort::sortIndices(_values, _indices, _values_buf, _indices_buf, nRows));
@@ -393,14 +396,25 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
 
     auto & context = services::internal::getDefaultContext();
 
-    _values = context.allocate(TypeIds::id<algorithmFPType>(), nR, status);
+    //allocating auxilliary buffers
+    services::Collection<services::internal::sycl::UniversalBuffer> _data;
+
+    DAAL_CHECK_MALLOC(_data.resize(nCsz));
+
+    for (size_t i = 0; i < nCsz; i++)
+    {
+        _data[i] = context.allocate(TypeId::uint32, nRsz, status);
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+
+    auto _values = context.allocate(TypeIds::id<algorithmFPType>(), nRsz, status);
     DAAL_CHECK_STATUS_VAR(status);
-    _values_buf = context.allocate(TypeIds::id<algorithmFPType>(), nR, status);
+    auto _values_buf = context.allocate(TypeIds::id<algorithmFPType>(), nRsz, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    _indices = context.allocate(TypeIds::id<int32_t>(), nR, status);
+    auto _indices = context.allocate(TypeIds::id<int32_t>(), nRsz, status);
     DAAL_CHECK_STATUS_VAR(status);
-    _indices_buf = context.allocate(TypeIds::id<int32_t>(), nR, status);
+    auto _indices_buf = context.allocate(TypeIds::id<int32_t>(), nRsz, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     BlockDescriptor<algorithmFPType> dataBlock;
@@ -411,7 +425,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         {
             DAAL_CHECK_STATUS_VAR(nt.getBlockOfColumnValues(i, 0, nR, readOnly, dataBlock));
             auto dataBuffer = dataBlock.getBuffer();
-            DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, 0, 1, nR, pBinPrm, _data[i], _entries[i]));
+            DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, 0, 1, nR, pBinPrm, _values, _values_buf, _indices, _indices_buf, _data[i], _entries[i]));
             DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfColumnValues(dataBlock));
         }
     }
@@ -421,7 +435,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
         auto dataBuffer = dataBlock.getBuffer();
         for (int32_t i = 0; i < nC; i++)
         {
-            DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, i, nC, nR, pBinPrm, _data[i], _entries[i]));
+            DAAL_CHECK_STATUS_VAR(makeIndex(dataBuffer, i, nC, nR, pBinPrm, _values, _values_buf, _indices, _indices_buf, _data[i], _entries[i]));
         }
         DAAL_CHECK_STATUS_VAR(nt.releaseBlockOfRows(dataBlock));
     }

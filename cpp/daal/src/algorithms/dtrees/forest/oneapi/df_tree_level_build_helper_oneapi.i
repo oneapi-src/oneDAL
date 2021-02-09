@@ -278,6 +278,15 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::fillOOBRowsListByB
 
     return status;
 }
+
+template <typename algorithmFPType>
+size_t TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRowsRequiredMemSize(size_t nRows, size_t nTrees, double observationsPerTreeFraction)
+{
+    // mem size occupied on GPU for storing OOB rows indices
+    size_t oobRowsAproxNum = nRows * (1.0 - observationsPerTreeFraction) + nRows * observationsPerTreeFraction * _aproximateOOBRowsFraction;
+    return sizeof(int32_t) * oobRowsAproxNum * nTrees;
+}
+
 template <typename algorithmFPType>
 services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const UniversalBuffer & rowsList, size_t nRows, size_t nTrees,
                                                                          UniversalBuffer & oobRowsNumList, UniversalBuffer & oobRowsList)
@@ -329,7 +338,7 @@ services::Status TreeLevelBuildHelperOneAPI<algorithmFPType>::getOOBRows(const U
     if (totalOOBRowsNum > 0)
     {
         // assign buffer of required size to the input oobRowsList buffer
-        oobRowsList = context.allocate(TypeIds::id<int>(), totalOOBRowsNum, status);
+        oobRowsList = context.allocate(TypeIds::id<int32_t>(), totalOOBRowsNum, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         auto nOOBRowsHost = oobRowsNumList.template get<int32_t>().toHost(ReadWriteMode::readOnly, status);

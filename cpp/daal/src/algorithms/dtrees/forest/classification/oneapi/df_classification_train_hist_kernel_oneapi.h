@@ -98,6 +98,8 @@ private:
     services::Status buildProgram(services::internal::sycl::ClKernelFactoryIface & factory, const char * programName, const char * programSrc,
                                   const char * buildOptions);
 
+    size_t getPartHistRequiredMemSize(size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs);
+
     services::Status computeBestSplit(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & treeOrder,
                                       services::internal::sycl::UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
                                       const services::internal::Buffer<algorithmFPType> & response,
@@ -173,11 +175,10 @@ private:
 
     const size_t _minPreferableLocalSizeForPartHistKernel = 32;
 
-    const size_t _maxPartHistCumulativeSize      = 805306368;     // 768 Mb
-    const size_t _maxTreeObservationsMapSize     = 134217728 * 8; // 1024 Mb
+    const double globalMemFractionForTreeBlock   = 0.6; // part of free global mem which can be used for processing block of tree
+    const double globalMemFractionForPartHist    = 0.2; // part of free global mem which can be used for partial histograms
     const size_t _minRowsBlocksForMaxPartHistNum = 16384;
     const size_t _minRowsBlocksForOneHist        = 128;
-    const size_t _maxNumOfTreesInBlock           = 128;
 
     const size_t _nNodesGroups   = 3; // all nodes are split on groups (big, medium, small)
     const size_t _nodeGroupProps = 2; // each nodes Group contains props: numOfNodes, maxNumOfBlocks
@@ -191,6 +192,7 @@ private:
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;
     size_t _preferableLocalSizeForPartHistKernel; // local size for histogram collection depends on num of selected features
+    size_t _maxPartHistCumulativeSize;            // is calculated at the beggining of compute using globalMemFractionForPartHist
 };
 
 } // namespace internal

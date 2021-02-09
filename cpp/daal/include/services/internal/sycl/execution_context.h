@@ -286,8 +286,10 @@ public:
  */
 struct InfoDevice
 {
-    size_t maxWorkGroupSize;
     bool isCpu;
+    size_t maxWorkGroupSize;
+    size_t maxMemAllocSize;
+    size_t globalMemSize;
 };
 
 /**

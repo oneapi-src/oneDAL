@@ -249,6 +249,14 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 }
 
 template <typename algorithmFPType>
+size_t RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::getPartHistRequiredMemSize(size_t nSelectedFeatures, size_t nMaxBinsAmongFtrs)
+{
+    // mul overflow for nSelectedFeatures * _nMaxBinsAmongFtrs and for nHistBins * _nHistProps were checked before kernel call in compute
+    const size_t nHistBins = nSelectedFeatures * _nMaxBinsAmongFtrs;
+    return sizeof(algorithmFPType) * nHistBins * _nHistProps;
+}
+
+template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeBestSplit(
     const UniversalBuffer & data, UniversalBuffer & treeOrder, UniversalBuffer & selectedFeatures, size_t nSelectedFeatures,
     const services::internal::Buffer<algorithmFPType> & response, UniversalBuffer & nodeList, UniversalBuffer & binOffsets, UniversalBuffer & impList,
@@ -285,19 +293,19 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
         if (maxGroupBlocksNum > 1)
         {
+            const size_t partHistSize = getPartHistRequiredMemSize(nSelectedFeatures, _nMaxBinsAmongFtrs);
+
             size_t nPartialHistograms = maxGroupBlocksNum <= _minRowsBlocksForOneHist ? 1 : _maxLocalHistograms;
 
             if (nPartialHistograms > 1 && maxGroupBlocksNum < _minRowsBlocksForMaxPartHistNum)
             {
-                while (nPartialHistograms > 1 && nPartialHistograms * _minRowsBlocksForOneHist > maxGroupBlocksNum)
+                while (nPartialHistograms > 1
+                       && (nPartialHistograms * _minRowsBlocksForOneHist > maxGroupBlocksNum
+                           || nPartialHistograms * partHistSize > _maxPartHistCumulativeSize))
                 {
                     nPartialHistograms >>= 1;
                 }
             }
-
-            // mul overflow for nSelectedFeatures * _nMaxBinsAmongFtrs and for nHistBins * _nHistProps were checked before kernel call in compute
-            const size_t nHistBins    = nSelectedFeatures * _nMaxBinsAmongFtrs;
-            const size_t partHistSize = nHistBins * _nHistProps;
 
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nGroupNodes, partHistSize);
             DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nGroupNodes * partHistSize, nPartialHistograms);
@@ -747,17 +755,14 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
 
     const size_t nSelectedFeatures = par.featuresPerNode ? par.featuresPerNode : (_nFeatures > 3 ? _nFeatures / 3 : 1);
 
+    _nSelectedRows = par.observationsPerTreeFraction * _nRows;
+    DAAL_CHECK_EX((_nSelectedRows > 0), ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+
     _preferableLocalSizeForPartHistKernel = _preferableGroupSize;
 
     while (_preferableLocalSizeForPartHistKernel > services::internal::max<sse2>(nSelectedFeatures, _minPreferableLocalSizeForPartHistKernel))
     {
         _preferableLocalSizeForPartHistKernel >>= 1;
-    }
-
-    size_t treeBlock = services::internal::min<sse2>(par.nTrees, size_t(_maxNumOfTreesInBlock));
-    while (treeBlock > 1 && treeBlock * _nRows * sizeof(int32_t) > _maxTreeObservationsMapSize)
-    {
-        treeBlock >>= 1;
     }
 
     const bool mdaRequired(par.varImportance == decision_forest::training::MDA_Raw || par.varImportance == decision_forest::training::MDA_Scaled);
@@ -775,6 +780,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
+    auto & info = context.getInfoDevice();
+
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "part1", df_batch_regression_kernels_part1, buildOptions.c_str()));
     kernelComputeBestSplitSinglePass = kernel_factory.getKernel("computeBestSplitSinglePass", status);
 
@@ -787,6 +794,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     dtrees::internal::BinParams prm(par.maxBins, par.minBinSize);
     decision_forest::internal::IndexedFeaturesOneAPI<algorithmFPType> indexedFeatures;
     dtrees::internal::FeatureTypes featTypes;
+
+    // init indexed features.
     {
         DAAL_CHECK_MALLOC(featTypes.init(*x));
         DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
@@ -806,14 +815,45 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
             _nMaxBinsAmongFtrs = (_nMaxBinsAmongFtrs < nFtrBins) ? nFtrBins : _nMaxBinsAmongFtrs;
         }
     }
+
     // no need to check for _nMaxBinsAmongFtrs < INT32_MAX because it will not be bigger than _nRows and _nRows was already checked
     // check mul overflow for _nMaxBinsAmongFtrs * nSelectedFeatures
     // and _nMaxBinsAmongFtrs * nSelectedFeatures * _nHistProps because they are used further in kernels
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nMaxBinsAmongFtrs, nSelectedFeatures);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nMaxBinsAmongFtrs * nSelectedFeatures, _nHistProps);
 
-    _nSelectedRows = par.observationsPerTreeFraction * _nRows;
-    DAAL_CHECK_EX((_nSelectedRows > 0), ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+    // define num of trees which can be built in parallel
+    const size_t partHistSize = getPartHistRequiredMemSize(nSelectedFeatures, _nMaxBinsAmongFtrs); // alloc space at least for one part hist
+
+    size_t usedMemSize = sizeof(algorithmFPType) * _nRows * (_nFeatures + 1); // input table size + response
+    usedMemSize += indexedFeatures.getRequiredMemSize(_nFeatures, _nRows);
+    usedMemSize += oobRequired ? sizeof(algorithmFPType) * _nRows * _nOOBProps : 0;
+    usedMemSize += partHistSize; // alloc space at least for one part hist
+
+    size_t availableGlobalMemSize = info.globalMemSize > usedMemSize ? info.globalMemSize - usedMemSize : 0;
+
+    size_t availableMemSizeForTreeBlock =
+        services::internal::min<sse2>(info.maxMemAllocSize, static_cast<size_t>(availableGlobalMemSize * globalMemFractionForTreeBlock));
+
+    size_t requiredMemSizeForOneTree =
+        oobRequired ? _treeLevelBuildHelper.getOOBRowsRequiredMemSize(_nRows, 1 /* for 1 tree */, par.observationsPerTreeFraction) : 0;
+    requiredMemSizeForOneTree += sizeof(int32_t) * _nSelectedRows * 2; // main tree order and auxiliary one used for partitioning
+
+    size_t treeBlock = availableMemSizeForTreeBlock / requiredMemSizeForOneTree;
+
+    if (treeBlock <= 0)
+    {
+        // not enough memory even for one tree
+        return services::Status(services::ErrorMemoryAllocationFailed);
+    }
+
+    treeBlock = services::internal::min<sse2>(par.nTrees, treeBlock);
+
+    availableGlobalMemSize =
+        availableGlobalMemSize > (treeBlock * requiredMemSizeForOneTree) ? availableGlobalMemSize - (treeBlock * requiredMemSizeForOneTree) : 0;
+    // size for one part hist was already reserved, add some more if there is available mem
+    _maxPartHistCumulativeSize = services::internal::min<sse2>(
+        info.maxMemAllocSize, static_cast<size_t>(partHistSize + availableGlobalMemSize * globalMemFractionForPartHist));
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nSelectedRows, treeBlock);
     daal::services::internal::TArray<int, sse2> selectedRowsHost(_nSelectedRows * treeBlock);
