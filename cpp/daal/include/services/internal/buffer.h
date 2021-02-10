@@ -257,6 +257,8 @@ public:
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
      *  Converts buffer to the USM shared pointer
+     *  \param[in]  q      The SYCL* queue object
+     *  \param[in] rwFlag  Flag specifying read/write access to the buffer
      *  \param[out] status Status of operation
      *  \return USM shared pointer
      */
@@ -273,6 +275,8 @@ public:
     #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
      *  Converts buffer to the USM shared pointer, throws exception if conversion fails
+     *  \param[in]  q      The SYCL* queue object
+     *  \param[in] rwFlag  Flag specifying read/write access to the buffer
      *  \return USM shared pointer
      */
     SharedPtr<T> toUSM(cl::sycl::queue & q, const data_management::ReadWriteMode & rwFlag) const
