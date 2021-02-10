@@ -140,7 +140,7 @@ public:
     using method_t = Method;
     using task_t = Task;
 
-    explicit descriptor(kind triangle, relabel mode, Allocator alloc);
+    explicit descriptor(kind triangle, relabel mode){}
 
     auto& set_kind(kind value);
     auto& set_relabel(relabel value);

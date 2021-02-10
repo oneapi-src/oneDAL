@@ -28,10 +28,9 @@ vertex_ranking_result<Task> backend_default<Task, dal::detail::host_policy,
                                          dal::preview::detail::topology<std::int32_t>>::
 operator()(const dal::detail::host_policy &policy,
            const descriptor_base<Task> &desc,
-           const dal::preview::detail::topology<std::int32_t> &data,
-           void *result_ptr) {
+           const dal::preview::detail::topology<std::int32_t> &data) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return call_triangle_counting_default_kernel_int32<decltype(cpu)>(desc, data, result_ptr);
+        return call_triangle_counting_default_kernel_int32<decltype(cpu)>(desc, data);
     });
 }
 

@@ -36,8 +36,7 @@ using result_t = vertex_ranking_result<task::local>;
 template <typename Cpu>
 result_t call_triangle_counting_default_kernel_int32(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<int32_t> &data,
-    void *result_ptr);
+    const dal::preview::detail::topology<int32_t> &data);
 
 DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
     return (a >= b) ? b : a;

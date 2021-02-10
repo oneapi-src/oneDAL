@@ -31,17 +31,14 @@ namespace detail {
 
 template result_t call_triangle_counting_default_kernel_avx512<
     dal::backend::cpu_dispatch_avx512>(const descriptor_t &desc,
-                                       const dal::preview::detail::topology<std::int32_t> &data,
-                                       void *result_ptr);
+                                       const dal::preview::detail::topology<std::int32_t> &data);
 
 template <>
 result_t call_triangle_counting_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<std::int32_t> &data,
-    void *result_ptr) {
+    const dal::preview::detail::topology<std::int32_t> &data) {
     return call_triangle_counting_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc,
-                                                                                 data,
-                                                                                 result_ptr);
+                                                                                 data);
 }
 } // namespace detail
 } // namespace triangle_counting

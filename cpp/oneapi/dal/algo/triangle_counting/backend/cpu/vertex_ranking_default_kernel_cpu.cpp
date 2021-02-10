@@ -34,20 +34,17 @@ using result_t = vertex_ranking_result<task::local>;
 
 template result_t call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<std::int32_t> &data,
-    void *result_ptr);
+    const dal::preview::detail::topology<std::int32_t> &data);
 
 template result_t call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<std::int64_t> &data,
-    void *result_ptr);
+    const dal::preview::detail::topology<std::int64_t> &data);
 
 template <>
 result_t call_triangle_counting_default_kernel_int32<__CPU_TAG__>(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<std::int32_t> &data,
-    void *result_ptr) {
-    return call_triangle_counting_default_kernel_scalar<__CPU_TAG__>(desc, data, result_ptr);
+    const dal::preview::detail::topology<std::int32_t> &data) {
+    return call_triangle_counting_default_kernel_scalar<__CPU_TAG__>(desc, data);
 }
 
 } // namespace detail

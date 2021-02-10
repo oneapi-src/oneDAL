@@ -24,7 +24,7 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename Descriptor, typename Graph>
-struct vertex_ranking_ops<Descriptor, Graph, triangle_counting::detail::tag>
+struct vertex_ranking_ops<Descriptor, Graph, triangle_counting::detail::descriptor_tag>
         : triangle_counting::detail::vertex_ranking_ops<Descriptor, Graph> {};
 
 } // namespace oneapi::dal::preview::detail

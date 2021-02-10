@@ -56,8 +56,7 @@ DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
 template <typename Cpu, typename Index>
 result_t call_triangle_counting_default_kernel_scalar(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<Index> &data,
-    void *result_ptr) {
+    const dal::preview::detail::topology<Index> &data) {
     /*const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();

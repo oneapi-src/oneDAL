@@ -350,8 +350,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
 template <typename Cpu>
 result_t call_triangle_counting_default_kernel_avx512(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<std::int32_t> &data,
-    void *result_ptr) {
+    const dal::preview::detail::topology<std::int32_t> &data) {
     /*const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();

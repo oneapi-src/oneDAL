@@ -50,7 +50,7 @@ public:
     auto& set_graph(const Graph& value);
 
 private:
-    dal::detail::pimpl<detail::vertex_ranking_input_impl<Graph>> impl_;
+    dal::detail::pimpl<detail::vertex_ranking_input_impl<Graph, Task>> impl_;
 };
 
 /// Class for the description of the result of the Triangle Counting algorithm

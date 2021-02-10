@@ -26,7 +26,7 @@ namespace oneapi::dal::preview::triangle_counting::detail {
 
 class vertex_ranking_result_impl;
 
-template <typename Graph>
+template <typename Graph, typename Task>
 class vertex_ranking_input_impl : public base {
 public:
     vertex_ranking_input_impl(const Graph& graph_data_input)

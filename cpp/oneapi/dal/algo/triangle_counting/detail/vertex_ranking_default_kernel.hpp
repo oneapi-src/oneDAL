@@ -34,8 +34,7 @@ inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Ind
 template <typename Index>
 result_t call_triangle_counting_default_kernel_general(
     const descriptor_t &desc,
-    const dal::preview::detail::topology<Index> &data,
-    void *result_ptr) {
+    const dal::preview::detail::topology<Index> &data) {
     /*const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
@@ -98,7 +97,7 @@ result_t call_triangle_counting_default_kernel_general(
             }
         }
     }*/
-    result_t res();
+    result_t res;
     return res;
 }
 
