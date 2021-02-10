@@ -36,7 +36,9 @@ public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
 
-    auto get_descriptor(std::int64_t cluster_count, std::int64_t max_iteration_count, Float accuracy_threshold) const {
+    auto get_descriptor(std::int64_t cluster_count,
+                        std::int64_t max_iteration_count,
+                        Float accuracy_threshold) const {
         return kmeans::descriptor<Float, Method>{}
             .set_cluster_count(cluster_count)
             .set_max_iteration_count(max_iteration_count)
@@ -59,12 +61,18 @@ public:
         CAPTURE(cluster_count);
 
         INFO("create descriptor")
-        const auto kmeans_desc = get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
         INFO("run training");
         const auto train_result = train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
-        check_train_result(kmeans_desc, train_result, data, ref_centroids, ref_labels, test_convergence);
+        check_train_result(kmeans_desc,
+                           train_result,
+                           data,
+                           ref_centroids,
+                           ref_labels,
+                           test_convergence);
 
         INFO("run inference");
         const auto infer_result = infer(kmeans_desc, model, data);
@@ -83,9 +91,9 @@ public:
         const Float strict_rel_tol = std::numeric_limits<Float>::epsilon() * iteration_count * 10;
         check_table_match_with_rel_tol(strict_rel_tol, ref_centroids, centroids);
         check_table_match(ref_labels, labels);
-        if(test_convergence) {
+        if (test_convergence) {
             INFO("check convergence");
-            REQUIRE(iteration_count < desc.get_max_iteration_count());            
+            REQUIRE(iteration_count < desc.get_max_iteration_count());
         }
     }
 
@@ -104,11 +112,12 @@ public:
         }
 
         Float rel_tol = 1.0e-5;
-        if(!(ref_objective_function < 0.0)) {
-            REQUIRE(fabs(objective_function - ref_objective_function) / (fabs(objective_function) + (ref_objective_function)) < rel_tol);
+        if (!(ref_objective_function < 0.0)) {
+            REQUIRE(fabs(objective_function - ref_objective_function) /
+                        (fabs(objective_function) + (ref_objective_function)) <
+                    rel_tol);
         }
-    }    
-
+    }
 
     void check_table_match_with_rel_tol(Float rel_tol, const table& left, const table& right) {
         SECTION("centroid shape is expected") {
@@ -123,7 +132,8 @@ public:
             for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
                 const Float l = left_rows[i];
                 const Float r = right_rows[i];
-                if(fabs(l - r) < alpha) continue;
+                if (fabs(l - r) < alpha)
+                    continue;
                 const Float denom = fabs(l) + fabs(r) + alpha;
                 failed |= fabs(l - r) / denom < rel_tol;
             }
@@ -177,57 +187,69 @@ private:
         const auto objective_function = result.get_objective_function_value();
         return std::make_tuple(labels, objective_function);
     }
-
 };
 
 using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
 
-TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans common tests", "[kmeans][degenerated][batch]", kmeans_types) {
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "kmeans degenerated test",
+                     "[kmeans][batch]",
+                     kmeans_types) {
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
-    Float data[] = {0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0};
+    Float data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
     homogen_table x{ data, 5, 3, empty_delete<const Float>() };
-    Float labels[] = {0, 1, 2};
+    Float labels[] = { 0, 1, 2 };
     homogen_table y{ labels, 1, 3, empty_delete<const Float>() };
     this->general_checks(x, x, x, y, 3, 2, 0.0, 0.0, false);
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans common tests", "[kmeans][relocation][convergence][batch]", kmeans_types) {
+TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batch]", kmeans_types) {
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
 
-    Float data[] = {0, 0, 0.5, 0, 0.5, 1, 1, 1};
+    Float data[] = { 0, 0, 0.5, 0, 0.5, 1, 1, 1 };
     homogen_table x{ data, 2, 4, empty_delete<const Float>() };
 
-    Float initial_centroids[] = {0.5, 0.5, 3, 3};
+    Float initial_centroids[] = { 0.5, 0.5, 3, 3 };
     homogen_table c_init{ initial_centroids, 2, 2, empty_delete<const Float>() };
 
-    Float final_centroids[] = {0.25, 0, 0.75, 1};
+    Float final_centroids[] = { 0.25, 0, 0.75, 1 };
     homogen_table c_final{ final_centroids, 2, 2, empty_delete<const Float>() };
 
-    std::int64_t labels[] = {0, 0, 1, 1};
+    std::int64_t labels[] = { 0, 0, 1, 1 };
     homogen_table y{ labels, 1, 4, empty_delete<const std::int64_t>() };
 
     Float expected_obj_function = 0.25;
     std::int64_t expected_n_iters = 3;
-    this->general_checks(x, c_init, c_final, y, 2, expected_n_iters + 1, 0.0, expected_obj_function, true);
+    this->general_checks(x,
+                         c_init,
+                         c_final,
+                         y,
+                         2,
+                         expected_n_iters + 1,
+                         0.0,
+                         expected_obj_function,
+                         true);
 }
 
-TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans common tests", "[kmeans][empty cluster][batch]", kmeans_types) {
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "kmeans empty clusters test",
+                     "[kmeans][batch]",
+                     kmeans_types) {
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
 
-    Float data[] = {-10, -9.5, -9, -8.5, -8, -1, 1, 9, 9.5, 10};
+    Float data[] = { -10, -9.5, -9, -8.5, -8, -1, 1, 9, 9.5, 10 };
     homogen_table x{ data, 1, 10, empty_delete<const Float>() };
 
-    Float initial_centroids[] = {-10, -10, -10};
+    Float initial_centroids[] = { -10, -10, -10 };
     homogen_table c_init{ initial_centroids, 1, 3, empty_delete<const Float>() };
 
-    Float final_centroids[] = {-10, 10, 9.5};
+    Float final_centroids[] = { -10, 10, 9.5 };
     homogen_table c_final{ final_centroids, 1, 3, empty_delete<const Float>() };
 
     this->general_checks(x, c_init, c_final, table{}, 3, 1, 0.0);
 }
-
 
 } // namespace oneapi::dal::kmeans::test
