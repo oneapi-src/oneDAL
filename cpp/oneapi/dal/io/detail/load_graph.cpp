@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include <daal/include/services/daal_atomic_int.h>
-#include <daal/include/services/daal_memory.h>
 
 #include "oneapi/dal/io/detail/load_graph.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -34,27 +33,9 @@ namespace oneapi::dal::preview::load_graph::detail {
 
 template std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges);
 
-template void collect_degrees_from_edge_list(
-    const edge_list<std::int32_t> &edges,
-    typename daal::services::Atomic<std::int32_t> *&degrees_cv);
-
-template std::int32_t compute_prefix_sum_atomic(
-    typename daal::services::Atomic<std::int32_t> *const &degrees,
-    std::int64_t degrees_count,
-    typename daal::services::Atomic<std::int32_t> *&edge_offsets_atomic);
-
 template std::int32_t compute_prefix_sum(std::int32_t *const &degrees,
                                          std::int64_t degrees_count,
                                          std::int32_t *&edge_offsets);
-
-template void fill_from_atomics(std::int32_t *&arr,
-                                typename daal::services::Atomic<std::int32_t> *const &atomic_arr,
-                                std::int64_t elements_count);
-
-template void fill_unfiltered_neighs(
-    const edge_list<std::int32_t> &edges,
-    typename daal::services::Atomic<std::int32_t> *&rows_vec_atomic,
-    std::int32_t *&unfiltered_neighs);
 
 template void fill_filtered_neighs(const std::int32_t *unfiltered_offsets,
                                    const std::int32_t *unfiltered_neighs,
