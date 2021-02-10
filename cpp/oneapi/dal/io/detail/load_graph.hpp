@@ -199,8 +199,8 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     atomic_edge_allocator_type atomic_edge_allocator;
 
     atomic_vertex_t *degrees_cv =
-        atomic_vertex_allocator_traits::allocate(atomic_vertex_allocator, vertex_count); 
-    degrees_cv = new (degrees_cv) atomic_vertex_t[vertex_count] ();
+        atomic_vertex_allocator_traits::allocate(atomic_vertex_allocator, vertex_count);
+    degrees_cv = new (degrees_cv) atomic_vertex_t[vertex_count]();
 
     collect_degrees_from_edge_list(edges, degrees_cv);
 
@@ -211,17 +211,17 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
 
     atomic_edge_t *rows_vec_atomic =
         atomic_edge_allocator_traits::allocate(atomic_edge_allocator, rows_vec_count);
-    rows_vec_atomic = new (rows_vec_atomic) atomic_edge_t[rows_vec_count] ();
+    rows_vec_atomic = new (rows_vec_atomic) atomic_edge_t[rows_vec_count]();
 
     edge_t total_sum_degrees =
         compute_prefix_sum_atomic<edge_t>(degrees_cv, vertex_count, rows_vec_atomic);
 
-    atomic_vertex_allocator_traits::deallocate(atomic_vertex_allocator, degrees_cv, vertex_count);       
-    
+    atomic_vertex_allocator_traits::deallocate(atomic_vertex_allocator, degrees_cv, vertex_count);
+
     vertex_t *unfiltered_neighs =
         vertex_allocator_traits::allocate(vertex_allocator, total_sum_degrees);
     edge_t *unfiltered_offsets = edge_allocator_traits::allocate(edge_allocator, rows_vec_count);
-    
+
     fill_from_atomics(unfiltered_offsets, rows_vec_atomic, rows_vec_count);
 
     fill_unfiltered_neighs(edges, rows_vec_atomic, unfiltered_neighs);
@@ -229,7 +229,6 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     atomic_edge_allocator_traits::deallocate(atomic_edge_allocator,
                                              rows_vec_atomic,
                                              rows_vec_count);
-    
 
     vertex_t *degrees_data = vertex_allocator_traits::allocate(vertex_allocator, vertex_count);
 
@@ -260,7 +259,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                             edge_offsets_data,
                             vertex_neighbors,
                             degrees_data);
-                            
+
     return;
 }
 

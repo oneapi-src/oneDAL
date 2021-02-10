@@ -14,8 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/include/services/daal_atomic_int.h>
-
 #include "oneapi/dal/io/detail/load_graph.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
