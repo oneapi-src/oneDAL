@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -112,9 +112,10 @@ public:
         }
 
         Float rel_tol = 1.0e-5;
+        Float alpha = std::numeric_limits<Float>::min();
         if (!(ref_objective_function < 0.0)) {
             REQUIRE(fabs(objective_function - ref_objective_function) /
-                        (fabs(objective_function) + (ref_objective_function)) <
+                        (fabs(objective_function) + (ref_objective_function) + alpha) <
                     rel_tol);
         }
     }
@@ -127,7 +128,7 @@ public:
         SECTION("centroid match is expected") {
             const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
             const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            const Float alpha = std::numeric_limits<Float>::min() * rel_tol;
+            const Float alpha = std::numeric_limits<Float>::min();
             bool failed = false;
             for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
                 const Float l = left_rows[i];
@@ -142,11 +143,11 @@ public:
     }
 
     void check_table_match(const table& left, const table& right) {
-        SECTION("centroid shape is expected") {
+        SECTION("label shape is expected") {
             REQUIRE(left.get_row_count() == right.get_row_count());
             REQUIRE(left.get_column_count() == right.get_column_count());
         }
-        SECTION("centroid match is expected") {
+        SECTION("label match is expected") {
             const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
             const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
             bool failed = false;
@@ -198,9 +199,9 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
     Float data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
-    homogen_table x{ data, 5, 3, empty_delete<const Float>() };
+    homogen_table x{ data, 3, 5, empty_delete<const Float>() };
     Float labels[] = { 0, 1, 2 };
-    homogen_table y{ labels, 1, 3, empty_delete<const Float>() };
+    homogen_table y{ labels, 3, 1, empty_delete<const Float>() };
     this->general_checks(x, x, x, y, 3, 2, 0.0, 0.0, false);
 }
 
@@ -209,7 +210,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
     using Float = std::tuple_element_t<0, TestType>;
 
     Float data[] = { 0, 0, 0.5, 0, 0.5, 1, 1, 1 };
-    homogen_table x{ data, 2, 4, empty_delete<const Float>() };
+    homogen_table x{ data, 4, 2, empty_delete<const Float>() };
 
     Float initial_centroids[] = { 0.5, 0.5, 3, 3 };
     homogen_table c_init{ initial_centroids, 2, 2, empty_delete<const Float>() };
@@ -218,7 +219,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
     homogen_table c_final{ final_centroids, 2, 2, empty_delete<const Float>() };
 
     std::int64_t labels[] = { 0, 0, 1, 1 };
-    homogen_table y{ labels, 1, 4, empty_delete<const std::int64_t>() };
+    homogen_table y{ labels, 4, 1, empty_delete<const std::int64_t>() };
 
     Float expected_obj_function = 0.25;
     std::int64_t expected_n_iters = 3;
@@ -241,15 +242,18 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     using Float = std::tuple_element_t<0, TestType>;
 
     Float data[] = { -10, -9.5, -9, -8.5, -8, -1, 1, 9, 9.5, 10 };
-    homogen_table x{ data, 1, 10, empty_delete<const Float>() };
+    homogen_table x{ data, 10, 1, empty_delete<const Float>() };
 
     Float initial_centroids[] = { -10, -10, -10 };
-    homogen_table c_init{ initial_centroids, 1, 3, empty_delete<const Float>() };
+    homogen_table c_init{ initial_centroids, 3, 1, empty_delete<const Float>() };
 
     Float final_centroids[] = { -10, 10, 9.5 };
-    homogen_table c_final{ final_centroids, 1, 3, empty_delete<const Float>() };
+    homogen_table c_final{ final_centroids, 3, 1, empty_delete<const Float>() };
 
-    this->general_checks(x, c_init, c_final, table{}, 3, 1, 0.0);
+    Float labels[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    homogen_table y{ labels, 10, 1, empty_delete<const Float>() };
+
+    this->general_checks(x, c_init, c_final, y, 3, 1, 0.0);
 }
 
 } // namespace oneapi::dal::kmeans::test
