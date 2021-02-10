@@ -521,7 +521,8 @@ template <typename algorithmFPType>
 services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::computeResults(
     const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, size_t nRows, size_t nFeatures,
     const UniversalBuffer & oobIndices, const UniversalBuffer & oobRowsNumList, UniversalBuffer & oobBuf, algorithmFPType * varImp,
-    algorithmFPType * varImpVariance, size_t nBuiltTrees, const engines::EnginePtr & engine, size_t nTreesInBlock, size_t tree, const Parameter & par)
+    algorithmFPType * varImpVariance, size_t nBuiltTrees, const engines::EnginePtr & engine, size_t nTreesInBlock, size_t treeIndex,
+    const Parameter & par)
 {
     DAAL_ASSERT_UNIVERSAL_BUFFER(oobRowsNumList, int32_t, nTreesInBlock + 1);
 
@@ -534,8 +535,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     {
         auto nOOBRowsHost = oobRowsNumList.template get<int32_t>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-        oobIndicesOffset = static_cast<size_t>(nOOBRowsHost.get()[tree]);
-        nOOB             = static_cast<size_t>(nOOBRowsHost.get()[tree + 1] - nOOBRowsHost.get()[tree]);
+        oobIndicesOffset = static_cast<size_t>(nOOBRowsHost.get()[treeIndex]);
+        nOOB             = static_cast<size_t>(nOOBRowsHost.get()[treeIndex + 1] - nOOBRowsHost.get()[treeIndex]);
     }
 
     if ((par.resultsToCompute & (decision_forest::training::computeOutOfBagError | decision_forest::training::computeOutOfBagErrorPerObservation)
@@ -796,10 +797,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     dtrees::internal::FeatureTypes featTypes;
 
     // init indexed features.
-    {
-        DAAL_CHECK_MALLOC(featTypes.init(*x));
-        DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
-    }
+    DAAL_CHECK_MALLOC(featTypes.init(*x));
+    DAAL_CHECK_STATUS(status, (indexedFeatures.init(*const_cast<NumericTable *>(x), &featTypes, &prm)));
 
     _totalBins = indexedFeatures.totalBins();
     /* calculating the maximal number of bins for feature among all features */
@@ -916,10 +915,10 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     engines::internal::EnginesCollection<sse2> enginesCollection(par.engine, technique, params, engines, &status);
     DAAL_CHECK_STATUS_VAR(status);
     daal::services::internal::TArray<engines::internal::BatchBaseImpl *, sse2> enginesBaseImpl(par.nTrees);
-    for (size_t tree = 0; tree < par.nTrees; tree++)
+    for (size_t treeIndex = 0; treeIndex < par.nTrees; treeIndex++)
     {
-        enginesBaseImpl[tree] = dynamic_cast<engines::internal::BatchBaseImpl *>(engines[tree].get());
-        if (!enginesBaseImpl[tree]) return Status(ErrorEngineNotSupported);
+        enginesBaseImpl[treeIndex] = dynamic_cast<engines::internal::BatchBaseImpl *>(engines[treeIndex].get());
+        if (!enginesBaseImpl[treeIndex]) return Status(ErrorEngineNotSupported);
     }
 
     for (size_t iter = 0; (iter < par.nTrees) && !algorithms::internal::isCancelled(status, pHostApp); iter += treeBlock)

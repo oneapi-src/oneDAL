@@ -110,9 +110,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
 template <typename algorithmFPType>
 size_t IndexedFeaturesOneAPI<algorithmFPType>::getRequiredMemSize(size_t nCols, size_t nRows)
 {
-    size_t requiredMem = sizeof(uint32_t) * (nCols + 1);
+    size_t requiredMem = sizeof(BinType) * (nCols + 1);
 
-    requiredMem += sizeof(uint32_t) * nRows * nCols; // data vs ftrs bin map table (_fullData)
+    requiredMem += sizeof(BinType) * nRows * nCols; // data vs ftrs bin map table (_fullData)
     return requiredMem;
 }
 
@@ -123,10 +123,10 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::alloc(size_t nC, size_t
     services::Status status;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nR, nC);
-    _fullData = context.allocate(TypeId::uint32, nR * nC, status);
+    _fullData = context.allocate(TypeIds::id<BinType>(), nR * nC, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    _binOffsets = context.allocate(TypeId::uint32, nC + 1, status);
+    _binOffsets = context.allocate(TypeIds::id<BinType>(), nC + 1, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     _entries.reset(nC);
@@ -233,7 +233,7 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::computeBins(UniversalBu
         DAAL_ASSERT_UNIVERSAL_BUFFER(values, algorithmFPType, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(indices, int32_t, nRows);
         DAAL_ASSERT_UNIVERSAL_BUFFER(binBorders, algorithmFPType, maxBins);
-        DAAL_ASSERT_UNIVERSAL_BUFFER(bins, uint32_t, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(bins, BinType, nRows);
 
         KernelArguments args(6, status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -345,8 +345,8 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::storeColumn(const Unive
     DAAL_CHECK_STATUS_VAR(status);
 
     {
-        DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows);
-        DAAL_ASSERT_UNIVERSAL_BUFFER(fullData, uint32_t, nRows * nFeatures);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(data, BinType, nRows);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(fullData, BinType, nRows * nFeatures);
 
         KernelArguments args(5, status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -441,11 +441,11 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::init(NumericTable & nt,
     }
 
     {
-        DAAL_ASSERT_UNIVERSAL_BUFFER(_binOffsets, uint32_t, nC + 1);
-        auto binOffsetsHost = _binOffsets.template get<uint32_t>().toHost(ReadWriteMode::writeOnly, status);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(_binOffsets, BinType, nC + 1);
+        auto binOffsetsHost = _binOffsets.template get<BinType>().toHost(ReadWriteMode::writeOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         DAAL_CHECK_MALLOC(binOffsetsHost.get());
-        uint32_t total = 0;
+        BinType total = 0;
         for (int32_t i = 0; i < nC; i++)
         {
             DAAL_CHECK_STATUS_VAR(storeColumn(_data[i], _fullData, i, nC, nR));

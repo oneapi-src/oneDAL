@@ -141,7 +141,8 @@ private:
                                     const size_t nFeatures, const services::internal::sycl::UniversalBuffer & oobIndices,
                                     const services::internal::sycl::UniversalBuffer & oobRowsNumList,
                                     services::internal::sycl::UniversalBuffer & oobBuf, algorithmFPType * varImp, algorithmFPType * varImpVariance,
-                                    size_t nBuiltTrees, const engines::EnginePtr & engine, size_t nTreesInBlock, size_t tree, const Parameter & par);
+                                    size_t nBuiltTrees, const engines::EnginePtr & engine, size_t nTreesInBlock, size_t treeIndex,
+                                    const Parameter & par);
 
     algorithmFPType computeOOBError(const dtrees::internal::Tree & t, const algorithmFPType * x, const algorithmFPType * y, const size_t nRows,
                                     const size_t nFeatures, const services::internal::sycl::UniversalBuffer & indices, size_t indicesOffset, size_t n,

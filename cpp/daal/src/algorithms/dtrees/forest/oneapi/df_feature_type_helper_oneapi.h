@@ -58,6 +58,7 @@ class IndexedFeaturesOneAPI
 {
 public:
     typedef size_t IndexType;
+    typedef uint32_t BinType;
 
     struct FeatureEntry
     {

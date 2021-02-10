@@ -286,8 +286,8 @@ public:
  */
 struct InfoDevice
 {
-    bool isCpu;
     size_t maxWorkGroupSize;
+    bool isCpu;
     size_t maxMemAllocSize;
     size_t globalMemSize;
 };
@@ -357,6 +357,8 @@ public:
     {
         _infoDevice.isCpu            = true;
         _infoDevice.maxWorkGroupSize = 0;
+        _infoDevice.maxMemAllocSize  = 0;
+        _infoDevice.globalMemSize    = 0;
     }
 
     void run(const KernelRange & /*range*/, const KernelPtr & /*kernel*/, const KernelArguments & /*args*/, Status & st) DAAL_C11_OVERRIDE
