@@ -105,11 +105,11 @@ KMEANS_BADARG_TEST("throws if cluster_count is zero") {
 }
 
 KMEANS_BADARG_TEST("accepts positive max iteration count") {
-    REQUIRE_THROWS_AS(this->get_descriptor().set_max_iteration_count(1), domain_error);
+    REQUIRE_NOTHROW(this->get_descriptor().set_max_iteration_count(1));
 }
 
 KMEANS_BADARG_TEST("accepts zero max iteration count") {
-    REQUIRE_THROWS_AS(this->get_descriptor().set_max_iteration_count(0), domain_error);
+    REQUIRE_NOTHROW(this->get_descriptor().set_max_iteration_count(0));
 }
 
 KMEANS_BADARG_TEST("throws if max iteration count is negative") {
@@ -117,11 +117,11 @@ KMEANS_BADARG_TEST("throws if max iteration count is negative") {
 }
 
 KMEANS_BADARG_TEST("accepts positive accuracy threshold") {
-    REQUIRE_THROWS_AS(this->get_descriptor().set_accuracy_threshold(0.01), domain_error);
+    REQUIRE_NOTHROW(this->get_descriptor().set_accuracy_threshold(0.01));
 }
 
 KMEANS_BADARG_TEST("accepts zero accuracy threshold") {
-    REQUIRE_THROWS_AS(this->get_descriptor().set_accuracy_threshold(0.0), domain_error);
+    REQUIRE_NOTHROW(this->get_descriptor().set_accuracy_threshold(0.0));
 }
 
 KMEANS_BADARG_TEST("throws if accuracy threshold is negative") {
