@@ -110,6 +110,9 @@ services::Status IndexedFeaturesOneAPI<algorithmFPType>::FeatureEntry::allocBord
 template <typename algorithmFPType>
 size_t IndexedFeaturesOneAPI<algorithmFPType>::getRequiredMemSize(size_t nCols, size_t nRows)
 {
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nCols);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, sizeof(BinType), nRows * nCols);
+
     size_t requiredMem = sizeof(BinType) * (nCols + 1);
 
     requiredMem += sizeof(BinType) * nRows * nCols; // data vs ftrs bin map table (_fullData)
