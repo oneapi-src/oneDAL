@@ -55,10 +55,10 @@ public:
         return homogen_table::wrap(infer_data_.data(), override_row_count, override_column_count);
     }
 
-    table get_good_initial_centroids(std::int64_t override_row_count = cluster_count,
-                                     std::int64_t override_column_count = column_count) const {
+    table get_initial_centroids(std::int64_t override_row_count = cluster_count,
+                                std::int64_t override_column_count = column_count) const {
         ONEDAL_ASSERT(override_row_count * override_column_count <= element_count);
-        return homogen_table::wrap(good_initial_centroids.data(),
+        return homogen_table::wrap(initial_centroids.data(),
                                    override_row_count,
                                    override_column_count);
     }
@@ -80,14 +80,13 @@ private:
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<float, bad_element_count> bad_initial_centroids[] = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-    };
+    static constexpr std::array<float, bad_element_count> bad_initial_centroids = { 0.0, 0.0, 0.0,
+                                                                                    0.0, 0.0, 0.0 };
 
-    static constexpr std::array<float, bad_element_count> good_initial_centroids[] = { 0.0,
-                                                                                       0.0,
-                                                                                       0.0,
-                                                                                       0.0 };
+    static constexpr std::array<float, bad_element_count> initial_centroids = { 0.0,
+                                                                                0.0,
+                                                                                0.0,
+                                                                                0.0 };
 };
 
 #define KMEANS_BADARG_TEST(name) \
@@ -136,23 +135,23 @@ KMEANS_BADARG_TEST("throws if train data is empty") {
 }
 
 KMEANS_BADARG_TEST("throws if initial centroids rows less than cluster count") {
-    const auto kmeans_desc = this->get_descriptor().set_cluster_count(huge_cluster_count);
+    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->huge_cluster_count);
 
     REQUIRE_THROWS_AS(train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()),
                       invalid_argument);
 }
 
 KMEANS_BADARG_TEST("throws if train data columns neq initial centroid columns") {
-    const auto kmeans_desc = this->get_descriptor().set_cluster_count(cluster_count);
+    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->cluster_count);
 
     REQUIRE_THROWS_AS(train(kmeans_desc, this->get_train_data(), this->get_bad_initial_centroids()),
                       invalid_argument);
 }
 
 KMEANS_BADARG_TEST("throws if infer data is empty") {
-    const auto kmeans_desc = this->get_descriptor().set_cluster_count(cluster_count);
+    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->cluster_count);
     const auto model =
-        train(kmeans_desc, this->get_train_data(), this->get_good_initial_centroids()).get_model();
+        train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()).get_model();
 
     REQUIRE_THROWS_AS(infer(kmeans_desc, model, homogen_table{}), domain_error);
 }
