@@ -261,6 +261,47 @@ private:
     std::int64_t seed_ = 7777;
 };
 
+class dataframe_builder_action_fill_normal : public dataframe_builder_action {
+public:
+    explicit dataframe_builder_action_fill_normal(double a, double b, std::int64_t seed)
+            : a_(a),
+              b_(b),
+              seed_(seed) {
+        if (b < 0) {
+            throw invalid_argument{ fmt::format("Invalid normal distribution interval, "
+                                                "expected b >= 0, but got b = {}",
+                                                b) };
+        }
+    }
+
+    std::string get_opcode() const override {
+        return fmt::format("fill_normal({},{},{})", a_, b_, seed_);
+    }
+
+    dataframe_impl* execute(dataframe_impl* df) const override {
+        if (!df) {
+            throw invalid_argument{ "Action fill_normal got null dataframe" };
+        }
+
+        float* data = df->get_array().need_mutable_data().get_mutable_data();
+
+        // TODO: Migrate to MKL's random generators
+        std::mt19937 rng(seed_);
+
+        std::normal_distribution<float> distr(a_, b_);
+        for (std::int64_t i = 0; i < df->get_count(); i++) {
+            data[i] = distr(rng);
+        }
+
+        return df;
+    }
+
+private:
+    double a_ = 5.0;
+    double b_ = 2.0;
+    std::int64_t seed_ = 7777;
+};
+
 dataframe dataframe_builder_program::execute() const {
     dataframe_impl* impl = nullptr;
     for (const auto& action : actions_) {
@@ -275,6 +316,11 @@ dataframe_builder_impl::dataframe_builder_impl(std::int64_t row_count, std::int6
 
 dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int64_t seed) {
     impl_->get_program().add<dataframe_builder_action_fill_uniform>(a, b, seed);
+    return *this;
+}
+
+dataframe_builder& dataframe_builder::fill_normal(double a, double b, std::int64_t seed) {
+    impl_->get_program().add<dataframe_builder_action_fill_normal>(a, b, seed);
     return *this;
 }
 

@@ -164,18 +164,18 @@ public:
         const auto E = la::matrix<double>::eye(V.get_row_count());
         const auto VxVT = la::dot(V, V.t());
         const double diff = la::l_inf_norm(VxVT, E);
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
+        const double tol = te::get_tolerance<Float>(1.5e-2, 3.0e-3);
         CHECK(diff < tol);
     }
 
     void check_means(const te::basic_statistics<double>& reference, const table& means) {
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
+        const double tol = te::get_tolerance<Float>(1.5e-2, 3.0e-3);
         const double diff = te::l_inf_norm(reference.get_means(), means);
         CHECK(diff < tol);
     }
 
     void check_variances(const te::basic_statistics<double>& reference, const table& variances) {
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
+        const double tol = te::get_tolerance<Float>(1.5e-2, 3.0e-3);
         const double diff = te::l_inf_norm(reference.get_variances(), variances);
         CHECK(diff < tol);
     }
@@ -192,12 +192,37 @@ private:
 
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
 
-TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
+TEMPLATE_LIST_TEST_M(pca_batch_test,
+                     "pca common flow uniform distribution",
+                     "[pca][integration][batch]",
+                     pca_types) {
     SKIP_IF(this->not_available_on_device());
 
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
+
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto data_table_id = this->get_homogen_table_id();
+
+    const std::int64_t component_count = GENERATE_COPY(0,
+                                                       1,
+                                                       data.get_column_count(),
+                                                       data.get_column_count() - 1,
+                                                       data.get_column_count() / 2);
+
+    this->general_checks(data, component_count, data_table_id);
+}
+
+TEMPLATE_LIST_TEST_M(pca_batch_test,
+                     "pca common flow normail distribution",
+                     "[pca][integration][batch]",
+                     pca_types) {
+    SKIP_IF(this->not_available_on_device());
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(2.0, 0.5),
+                           te::dataframe_builder{ 100000, 10 }.fill_normal(5.0, 1.5));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();
