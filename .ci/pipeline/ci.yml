@@ -86,11 +86,18 @@ jobs:
       # Display oneDAL build configuration
       bazel build @config//:dump
       cat bazel-bin/external/config/config.json
+
+      # Generate random hash to use it as part of cache key. Caches are immutable
+      # by design, so we always need to change a key. Cache lookup is based on
+      # `restoreKeys` option.
+      date +%s | sha256sum > .cache-id
     displayName: 'configure'
 
   - task: Cache@2
     inputs:
-      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1"'
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2" | .cache-id'
+      restoreKeys: |
+        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2"
       path: $(BAZEL_CACHE_DIR)
     displayName: 'bazel-cache'
 
