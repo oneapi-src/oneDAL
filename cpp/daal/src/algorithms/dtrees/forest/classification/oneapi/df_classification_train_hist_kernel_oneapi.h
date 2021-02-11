@@ -176,8 +176,9 @@ private:
 
     const size_t _minPreferableLocalSizeForPartHistKernel = 32;
 
-    const double globalMemFractionForTreeBlock   = 0.6; // part of free global mem which can be used for processing block of tree
-    const double globalMemFractionForPartHist    = 0.2; // part of free global mem which can be used for partial histograms
+    const double _globalMemFractionForTreeBlock  = 0.6;        // part of free global mem which can be used for processing block of tree
+    const double _globalMemFractionForPartHist   = 0.2;        // part of free global mem which can be used for partial histograms
+    const size_t _maxMemAllocSizeForAlgo         = 1073741824; // 1 Gb it showed better efficiency than using just platform info.maxMemAllocSize
     const size_t _minRowsBlocksForMaxPartHistNum = 16384;
     const size_t _minRowsBlocksForOneHist        = 128;
 
@@ -193,7 +194,7 @@ private:
     size_t _nMaxBinsAmongFtrs;
     size_t _totalBins;
     size_t _preferableLocalSizeForPartHistKernel; // local size for histogram collection depends on num of selected features
-    size_t _maxPartHistCumulativeSize;            // is calculated at the beggining of compute using globalMemFractionForPartHist
+    size_t _maxPartHistCumulativeSize;            // is calculated at the beggining of compute using _globalMemFractionForPartHist
 };
 
 } // namespace internal

@@ -822,7 +822,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nMaxBinsAmongFtrs * nSelectedFeatures, _nHistProps);
 
     // define num of trees which can be built in parallel
-    const size_t partHistSize = getPartHistRequiredMemSize(nSelectedFeatures, _nMaxBinsAmongFtrs); // alloc space at least for one part hist
+    const size_t partHistSize    = getPartHistRequiredMemSize(nSelectedFeatures, _nMaxBinsAmongFtrs); // alloc space at least for one part hist
+    const size_t maxMemAllocSize = services::internal::min<sse2>(info.maxMemAllocSize, size_t(_maxMemAllocSizeForAlgo));
 
     size_t usedMemSize = sizeof(algorithmFPType) * _nRows * (_nFeatures + 1); // input table size + response
     usedMemSize += indexedFeatures.getRequiredMemSize(_nFeatures, _nRows);
@@ -832,7 +833,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     size_t availableGlobalMemSize = info.globalMemSize > usedMemSize ? info.globalMemSize - usedMemSize : 0;
 
     size_t availableMemSizeForTreeBlock =
-        services::internal::min<sse2>(info.maxMemAllocSize, static_cast<size_t>(availableGlobalMemSize * globalMemFractionForTreeBlock));
+        services::internal::min<sse2>(maxMemAllocSize, static_cast<size_t>(availableGlobalMemSize * _globalMemFractionForTreeBlock));
 
     size_t requiredMemSizeForOneTree =
         oobRequired ? _treeLevelBuildHelper.getOOBRowsRequiredMemSize(_nRows, 1 /* for 1 tree */, par.observationsPerTreeFraction) : 0;
@@ -851,8 +852,8 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, hist>::comput
     availableGlobalMemSize =
         availableGlobalMemSize > (treeBlock * requiredMemSizeForOneTree) ? availableGlobalMemSize - (treeBlock * requiredMemSizeForOneTree) : 0;
     // size for one part hist was already reserved, add some more if there is available mem
-    _maxPartHistCumulativeSize = services::internal::min<sse2>(
-        info.maxMemAllocSize, static_cast<size_t>(partHistSize + availableGlobalMemSize * globalMemFractionForPartHist));
+    _maxPartHistCumulativeSize =
+        services::internal::min<sse2>(maxMemAllocSize, static_cast<size_t>(partHistSize + availableGlobalMemSize * _globalMemFractionForPartHist));
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, _nSelectedRows, treeBlock);
     daal::services::internal::TArray<int, sse2> selectedRowsHost(_nSelectedRows * treeBlock);
