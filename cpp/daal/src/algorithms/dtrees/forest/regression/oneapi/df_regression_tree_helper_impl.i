@@ -48,9 +48,13 @@ public:
     typedef dtrees::internal::TreeImpRegression<> TreeType;
     typedef typename TreeType::NodeType NodeType;
 
+    RegressionTreeHelperOneAPI() = delete;
+    explicit RegressionTreeHelperOneAPI(size_t nTrees) : _allocator(_cNumNodesHint) { _tree_list.reset(nTrees); }
+    ~RegressionTreeHelperOneAPI() {}
+
     typename NodeType::Leaf * makeLeaf(size_t n, algorithmFPType response, algorithmFPType impurity)
     {
-        typename NodeType::Leaf * pNode = _tree.allocator().allocLeaf(0);
+        typename NodeType::Leaf * pNode = _allocator.allocLeaf(0);
         DAAL_ASSERT(n > 0);
         pNode->response = response;
         pNode->count    = n;
@@ -62,7 +66,7 @@ public:
     typename NodeType::Split * makeSplit(size_t iFeature, algorithmFPType featureValue, bool bUnordered, algorithmFPType impurity,
                                          typename NodeType::Base * left, typename NodeType::Base * right)
     {
-        typename NodeType::Split * pNode = _tree.allocator().allocSplit();
+        typename NodeType::Split * pNode = _allocator.allocSplit();
         pNode->set(iFeature, featureValue, bUnordered);
         pNode->kid[0]   = left;
         pNode->kid[1]   = right;
@@ -71,14 +75,16 @@ public:
         return pNode;
     }
 
-    algorithmFPType predict(const dtrees::internal::Tree & t, const algorithmFPType * x) const
+    static algorithmFPType predict(const dtrees::internal::Tree & t, const algorithmFPType * x)
     {
         const typename NodeType::Base * pNode = dtrees::prediction::internal::findNode<algorithmFPType, TreeType, cpu>(t, x);
         DAAL_ASSERT(pNode);
         return pNode ? NodeType::castLeaf(pNode)->response : 0.0;
     }
 
-    TreeType _tree;
+    static const size_t _cNumNodesHint = 512; //number of nodes as a hint for allocator to grow by
+    TreeType::Allocator _allocator;
+    TArray<TreeType, sse2> _tree_list;
 };
 
 template <typename algorithmFPType>
@@ -173,7 +179,10 @@ struct DFTreeConverter
             dfTreeLevelNodesPrev = dfTreeLevelNodes;
         } while (level > 0);
 
-        treeBuilder._tree.reset(dfTreeLevelNodesPrev->get()[0], unorderedFeaturesUsed);
+        for (size_t tree = 0; tree < treeBuilder._tree_list.size(); tree++)
+        {
+            treeBuilder._tree_list[tree].reset(dfTreeLevelNodesPrev->get()[tree], unorderedFeaturesUsed);
+        }
         return status;
     }
 };

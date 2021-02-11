@@ -58,6 +58,9 @@ jobs:
   timeoutInMinutes: 0
   pool:
     vmImage: 'ubuntu-20.04'
+  variables:
+    BAZEL_VERSION: bazel-4.0.0
+    BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
   steps:
   - script: |
       # Add bazel repository
@@ -72,15 +75,24 @@ jobs:
                            g++-multilib \
                            binutils \
                            openjdk-11-jdk \
-                           bazel-4.0.0
+                           $(BAZEL_VERSION)
 
       .ci/env/oneapi.sh mkl
-    displayName: 'apt-get'
 
-  - script: |
+      # Create .bazelrc and set cache directory
+      # Minimal CPU instruction set in Azure is AVX2
+      echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
+
+      # Display oneDAL build configuration
       bazel build @config//:dump
       cat bazel-bin/external/config/config.json
-    displayName: 'config-dump'
+    displayName: 'configure'
+
+  - task: Cache@2
+    inputs:
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1"'
+      path: $(BAZEL_CACHE_DIR)
+    displayName: 'bazel-cache'
 
   - script: |
       bazel build :release
@@ -166,6 +178,7 @@ jobs:
       source ${DALROOT}/env/vars.sh
       export TBBROOT=/opt/intel/oneapi/tbb/latest
       source ${TBBROOT}/env/vars.sh
+      export NO_DIST=1
       cd daal4py
       ./conda-recipe/run_test.sh
     displayName: daal4py test

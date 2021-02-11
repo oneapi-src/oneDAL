@@ -58,6 +58,7 @@ class IndexedFeaturesOneAPI
 {
 public:
     typedef size_t IndexType;
+    typedef uint32_t BinType;
 
     struct FeatureEntry
     {
@@ -71,8 +72,10 @@ public:
     };
 
 public:
-    IndexedFeaturesOneAPI() : _data(), _nCols(0), _nRows(0) {}
+    IndexedFeaturesOneAPI() : _nCols(0), _nRows(0) {}
     ~IndexedFeaturesOneAPI();
+
+    size_t getRequiredMemSize(size_t nCols, size_t nRows);
 
     services::Status init(NumericTable & nt, const dtrees::internal::FeatureTypes * featureTypes, const dtrees::internal::BinParams * pBinPrm);
 
@@ -86,9 +89,6 @@ public:
     services::internal::sycl::UniversalBuffer & binOffsets() { return _binOffsets; }
 
     services::internal::sycl::UniversalBuffer & getFullData() { return _fullData; }
-
-    //for low-level optimization
-    const services::internal::sycl::UniversalBuffer & getFeature(size_t iFeature) const { return _data[iFeature]; }
 
     size_t nRows() const { return _nRows; }
     size_t nCols() const { return _nCols; }
@@ -111,24 +111,21 @@ protected:
                                  const dtrees::internal::BinParams * pBinPrm);
 
     services::Status makeIndex(const services::internal::Buffer<algorithmFPType> & data, int32_t featureId, int32_t nFeatures, int32_t nRows,
-                               const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & bins, FeatureEntry & entry);
+                               const dtrees::internal::BinParams * pBinPrm, services::internal::sycl::UniversalBuffer & _values,
+                               services::internal::sycl::UniversalBuffer & _values_buf, services::internal::sycl::UniversalBuffer & _indices,
+                               services::internal::sycl::UniversalBuffer & _indices_buf, services::internal::sycl::UniversalBuffer & bins,
+                               FeatureEntry & entry);
 
     services::Status storeColumn(const services::internal::sycl::UniversalBuffer & data, services::internal::sycl::UniversalBuffer & fullData,
                                  int32_t featureId, int32_t nFeatures, int32_t nRows);
 
 protected:
-    services::Collection<services::internal::sycl::UniversalBuffer> _data;
     services::internal::sycl::UniversalBuffer _fullData;
     services::internal::sycl::UniversalBuffer _binOffsets;
     daal::internal::TArray<FeatureEntry, sse2> _entries;
     size_t _nRows;
     size_t _nCols;
     IndexType _totalBins;
-
-    services::internal::sycl::UniversalBuffer _values;
-    services::internal::sycl::UniversalBuffer _values_buf;
-    services::internal::sycl::UniversalBuffer _indices;
-    services::internal::sycl::UniversalBuffer _indices_buf;
 
     static constexpr size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
 
