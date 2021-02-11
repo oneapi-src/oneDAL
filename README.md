@@ -206,9 +206,9 @@ Beside C++ and Python API, oneDAL also provides APIs for DPC++ and Java:
 Refer to GitHub Wiki to browse [the full list of oneDAL and daal4py resources](https://github.com/oneapi-src/oneDAL/wiki/Resources).
 
 ## Support
-Report issues, ask questions, and provide suggestions using:
 
-- [GitHub Issues](https://github.com/oneapi-src/oneDAL/issues)
+Ask questions and engage in discussions with oneDAL developers, contributers, and other users through the following channels:
+
 - [GitHub Discussions](https://github.com/oneapi-src/oneDAL/discussions)
 - [Community Forum](https://community.intel.com/t5/Intel-oneAPI-Data-Analytics/bd-p/oneapi-data-analytics-library)
 
@@ -217,6 +217,12 @@ You may reach out to project maintainers privately at onedal.maintainers@intel.c
 ### Security <!-- omit in toc -->
 
 To report a vulnerability, refer to [Intel vulnerability reporting policy](https://www.intel.com/content/www/us/en/security-center/default.html).
+
+### Contribute <!-- omit in toc -->
+
+Report issues and make feature requests using [GitHub Issues](https://github.com/oneapi-src/oneDAL/issues).
+
+We welcome community contributions, so check our [contributing guidelines](CONTRIBUTING.md) to learn more.
 
 ### Feedback <!-- omit in toc -->
 
@@ -249,14 +255,11 @@ Intel&reg; oneAPI Data Analytics Library is an extension of Intel&reg; Data Anal
 
 This repository contains branches corresponding to both oneAPI and classical versions of the library. We encourage you to use oneDAL located under the `master` branch.
 
-|Product|Latest release|Branch|Resources|
-|-------|--------------|------|:-------------:|
-|oneDAL       |2021.1|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021-gold-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/2021-gold-mnt)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Documentation](http://oneapi-src.github.io/oneDAL/)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)|
-|Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|&nbsp;&nbsp;&nbsp;[Home page](https://software.intel.com/content/www/us/en/develop/tools/data-analytics-acceleration-library.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[Developer Guide](https://software.intel.com/content/www/us/en/develop/documentation/daal-programming-guide/top.html)&nbsp;&nbsp;&nbsp;</br>&nbsp;&nbsp;&nbsp;[System Requirements](https://software.intel.com/content/www/us/en/develop/articles/intel-data-analytics-acceleration-library-2020-system-requirements.html)|
+|Product|Latest release|Branch|
+|-------|--------------|------|
+|oneDAL       |2021.1|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021-gold-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/2021-gold-mnt)|
+|Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|
 
-## Contribute <!-- omit in toc -->
-
-See [CONTRIBUTING](CONTRIBUTING.md) for more information.
 
 ## License <!-- omit in toc -->
 
