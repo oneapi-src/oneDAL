@@ -335,7 +335,6 @@ public:
     /// to the ownership structure in the array instance and :literal:`other`.
     array<T> operator=(array<T>&& other) {
         swap(*this, other);
-        other.reset_data();
         return *this;
     }
 
