@@ -54,6 +54,14 @@ public:
 public:
     array_impl() : count_(0) {}
 
+    array_impl(const shared& data, std::int64_t count) {
+        reset(data, count);
+    }
+
+    array_impl(const cshared& data, std::int64_t count) {
+        reset(data, count);
+    }
+
     template <typename Deleter>
     array_impl(T* data, std::int64_t count, Deleter&& d) {
         reset(data, count, std::forward<Deleter>(d));
@@ -126,6 +134,16 @@ public:
         reset(new_data, count, [alloc, count](T* ptr) {
             alloc.deallocate(ptr, count);
         });
+    }
+
+    void reset(const shared& data, std::int64_t count) {
+        data_owned_ = data;
+        count_ = count;
+    }
+
+    void reset(const cshared& data, std::int64_t count) {
+        data_owned_ = data;
+        count_ = count;
     }
 
     template <typename Deleter>
