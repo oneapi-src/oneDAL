@@ -150,7 +150,7 @@ def dal_test(name, hdrs=[], srcs=[],
              host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
              host=True, dpc=True, framework="gtest",
-             data=[], tags=[], **kwargs):
+             data=[], tags=[], private=False, **kwargs):
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
         fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
@@ -184,12 +184,13 @@ def dal_test(name, hdrs=[], srcs=[],
         testonly = True,
         **kwargs,
     )
+    iface_access_tag = "private" if private else "public"
     if host:
         cc_test(
             name = name,
             deps = [ ":" + module_name ],
             data = data,
-            tags = tags + ["host"],
+            tags = tags + ["host", iface_access_tag],
         )
     if dpc:
         cc_test(
@@ -201,7 +202,7 @@ def dal_test(name, hdrs=[], srcs=[],
                 "@opencl//:opencl_binary",
             ],
             data = data,
-            tags = tags + ["dpc"],
+            tags = tags + ["dpc", iface_access_tag],
         )
 
 def dal_test_suite(name, srcs=[], tests=[],

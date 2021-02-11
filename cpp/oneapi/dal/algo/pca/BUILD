@@ -19,31 +19,25 @@ dal_module(
 dal_test_suite(
     name = "cpu_tests",
     dpc = False,
+    private = True,
     srcs = glob([
         "backend/cpu/test/*.cpp",
     ]),
     dal_deps = [
         ":pca",
     ],
-    tags = [
-        "backend",
-        "cpu-only",
-    ]
 )
 
 dal_test_suite(
     name = "gpu_tests_dpc",
     host = False,
+    private = True,
     srcs = glob([
         "backend/gpu/test/*.cpp",
     ]),
     dal_deps = [
         ":pca",
     ],
-    tags = [
-        "backend",
-        "gpu-only",
-    ]
 )
 
 dal_test_suite(
@@ -55,9 +49,6 @@ dal_test_suite(
     dal_deps = [
         ":pca",
     ],
-    tags = [
-        "interface",
-    ]
 )
 
 dal_test_suite(

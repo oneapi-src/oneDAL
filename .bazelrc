@@ -17,6 +17,14 @@ test:host \
     --test_tag_filters="host"
 
 
+# Configuration: host-public
+build:host-public \
+    --build_tag_filters="host,-private"
+
+test:host-public \
+    --test_tag_filters="host,-private"
+
+
 # Configuration: 'dpc-cpu'
 build:dpc-cpu \
     --build_tag_filters="dpc"
