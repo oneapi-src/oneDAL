@@ -17,28 +17,33 @@
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_scalar.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/graph_service_functions_impl.hpp"
+#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
 namespace detail {
 
-template vertex_similarity_result call_jaccard_default_kernel_scalar<__CPU_TAG__>(
+template vertex_similarity_result call_jaccard_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
     const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input);
+    const dal::preview::detail::topology<std::int32_t> &data,
+    void *result_ptr);
+
+template vertex_similarity_result call_jaccard_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
+    const descriptor_base &desc,
+    const dal::preview::detail::topology<std::int64_t> &data,
+    void *result_ptr);
 
 template <>
-vertex_similarity_result
-call_jaccard_default_kernel<undirected_adjacency_array_graph<>, __CPU_TAG__>(
+vertex_similarity_result call_jaccard_default_kernel_int32<__CPU_TAG__>(
     const descriptor_base &desc,
-    vertex_similarity_input<undirected_adjacency_array_graph<>> &input) {
-    return call_jaccard_default_kernel_scalar<__CPU_TAG__>(desc, input);
+    const dal::preview::detail::topology<std::int32_t> &data,
+    void *result_ptr) {
+    return call_jaccard_default_kernel_scalar<__CPU_TAG__>(desc, data, result_ptr);
 }
 
 } // namespace detail

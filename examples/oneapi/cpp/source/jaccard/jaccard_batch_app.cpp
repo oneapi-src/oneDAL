@@ -21,8 +21,8 @@
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
-#include "oneapi/dal/graph/graph_service_functions.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/homogen.hpp"

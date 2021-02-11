@@ -14,26 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/graph/detail/graph_container.hpp"
-#include "oneapi/dal/graph/graph_common.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
 namespace oneapi::dal::preview::detail {
 
-template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph>;
+template class ONEDAL_EXPORT topology<int32_t>;
 
-template <typename Graph>
-ONEDAL_EXPORT auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph>;
-
-template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_degree_impl(const Graph &graph,
-                                          const vertex_type<Graph> &vertex) noexcept
-    -> edge_size_type<Graph>;
-
-template <typename Graph>
-ONEDAL_EXPORT auto get_vertex_neighbors_impl(const Graph &graph,
-                                             const vertex_type<Graph> &vertex) noexcept
-    -> const_edge_range_type<Graph>;
 } // namespace oneapi::dal::preview::detail

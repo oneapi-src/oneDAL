@@ -61,6 +61,7 @@ decision_forest\DfClsHistDenseBatch ^
 decision_forest\DfClsTraversedModelBuilder ^
 decision_forest\DfClsTraverseModel ^
 decision_forest\DfRegDefaultDenseBatch ^
+decision_forest\DfRegHistDenseBatch ^
 decision_forest\DfRegTraverseModel ^
 decision_tree\DtClsDenseBatch ^
 decision_tree\DtClsTraverseModel ^

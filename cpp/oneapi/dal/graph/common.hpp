@@ -1,4 +1,4 @@
-/* file: graph_common.hpp */
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -22,7 +22,7 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/graph/detail/graph_container.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview {
 
@@ -37,7 +37,6 @@ struct graph_traits {
 
     // vertex types
     using vertex_type = empty_value;
-    using const_vertex_type = empty_value;
     using vertex_iterator = empty_value;
     using const_vertex_iterator = empty_value;
     using vertex_size_type = empty_value;
@@ -47,7 +46,6 @@ struct graph_traits {
 
     // vertex weight types
     using vertex_user_value_type = empty_value;
-    using const_vertex_user_value_type = empty_value;
 
     // edge types
     using edge_type = empty_value;
@@ -121,10 +119,5 @@ using const_edge_range_type = typename graph_traits<Graph>::const_edge_range;
 /// @tparam Graph Type of the graph
 template <typename Graph>
 using graph_allocator = typename graph_traits<Graph>::allocator_type;
-
-/// Type of graph representation as an edge list
-/// @tparam IndexType Type of the graph vertex indicies
-template <typename IndexType = std::int32_t>
-using edge_list = detail::graph_container<std::pair<IndexType, IndexType>>;
 
 } // namespace oneapi::dal::preview

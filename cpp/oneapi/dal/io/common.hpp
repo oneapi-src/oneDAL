@@ -1,3 +1,4 @@
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -14,13 +15,19 @@
 * limitations under the License.
 *******************************************************************************/
 
+/// @file
+/// Io related common data type aliases
+
 #pragma once
 
-#include <vector>
+#include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/io/detail/common.hpp"
 
-namespace oneapi::dal::preview::detail {
-
-template <class T, class Allocator = std::allocator<T>>
-using graph_container = std::vector<T, Allocator>;
-
-} // namespace oneapi::dal::preview::detail
+namespace oneapi::dal::preview {
+/// Type of graph representation as an edge list
+/// @tparam IndexType Type of the graph vertex indicies
+template <typename IndexType = std::int32_t>
+using edge_list =
+    detail::edge_list_container<std::pair<IndexType, IndexType>, std::allocator<char>>;
+} // namespace oneapi::dal::preview
