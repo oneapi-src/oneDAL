@@ -51,6 +51,7 @@ void vertex_ranking_result<Task>::set_global_rank_impl(int64_t value) {
 }
 
 template class ONEDAL_EXPORT vertex_ranking_result<task::local>;
+template class ONEDAL_EXPORT vertex_ranking_result<task::global>;
 
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview

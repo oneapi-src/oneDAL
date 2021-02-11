@@ -17,6 +17,7 @@
 #pragma once
 
 #include <immintrin.h>
+#include <functional>
 
 #include <daal/src/services/service_defines.h>
 
@@ -27,16 +28,14 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include <iostream>
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
-
-using input_t = vertex_ranking_input<task::local>;
-using descriptor_t = detail::descriptor_base<task::local>;
-using result_t = vertex_ranking_result<task::local>;
 
 #if defined(__INTEL_COMPILER)
 DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
@@ -348,378 +347,123 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
 }
 
 template <typename Cpu>
-result_t call_triangle_counting_default_kernel_avx512(
-    const descriptor_t &desc,
+vertex_ranking_result<task::local> call_triangle_counting_default_kernel_avx512(
+    const detail::descriptor_base<task::local> &desc,
     const dal::preview::detail::topology<std::int32_t> &data) {
-    /*const auto g_edge_offsets = data._rows.get_data();
+    std::cout << "local tc avx512" << std::endl;
+
+    vertex_ranking_result<task::local> res;
+    return res;
+}
+
+std::int64_t triangle_counting_(const std::int32_t* vertex_neighbors, const std::int32_t* edge_offsets, 
+                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
+    std::int32_t average_degree = edge_count / vertex_count;
+    const std::int32_t average_degree_sparsity_boundary = 4;
+    if (average_degree < average_degree_sparsity_boundary) {
+        std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(vertex_count, 0,
+            [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
+                for (auto u = begin_u; u!= end_u; ++u) {
+                    for (auto v_ = vertex_neighbors + edge_offsets[u]; v_ != vertex_neighbors + edge_offsets[u+1]; ++v_) {
+                        std::int32_t v = *v_;
+                        if (v > u) {
+                            break;
+                        }
+                        auto u_neighbors_ptr = vertex_neighbors + edge_offsets[u];
+                        for (auto w_ = vertex_neighbors + edge_offsets[v]; v_ != vertex_neighbors + edge_offsets[v+1]; ++w_) {
+                            std::int32_t w = *w_;
+                            if (w > v){
+                                break;
+                            }
+                            while (*u_neighbors_ptr < w){
+                                u_neighbors_ptr++;
+                            }
+                            if (w == *u_neighbors_ptr){
+                                tc_u++;
+                            }
+                        }
+                    }
+                }
+                return tc_u;
+            },
+            [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+                return x + y;
+            });
+        return total_s;
+    } else {
+            std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(vertex_count, 0,
+            [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
+                for (auto u = begin_u; u!= end_u; ++u) {                                     
+                    if (degrees[u] < 2){
+                        continue; 
+                    }
+                    const std::int32_t* neigh_u = vertex_neighbors + edge_offsets[u];
+                    std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u+1] - neigh_u;
+
+                    tc_u += oneapi::dal::detail::parallel_reduce_int32ptr_int64_t_simple(vertex_neighbors + edge_offsets[u], vertex_neighbors + edge_offsets[u+1], (std::int64_t)0,
+                            [&] (const std::int32_t* begin_v, const std::int32_t* end_v, std::int64_t total) -> std::int64_t {
+                                for (auto v_ = begin_v; v_!= end_v; ++v_) {
+                    
+                                std::int32_t v = *v_;
+
+                                if (v > u) {
+                                    break;
+                                }
+
+                                const std::int32_t* neigh_v = vertex_neighbors + edge_offsets[v];
+                                std::int32_t size_neigh_v = vertex_neighbors + edge_offsets[v+1] - neigh_v;   
+
+                                std::int32_t new_size_neigh_v = 0;
+                                for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
+                                
+
+                                total += intersection(neigh_u, neigh_v, size_neigh_u, new_size_neigh_v);
+                            }
+                            return total;
+                        },
+                        [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+                            return x + y;
+                        });
+                }     
+                return tc_u;
+            },
+            [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+                return x + y;
+            });
+        return total_s;
+    }
+}
+
+template <typename Cpu>
+vertex_ranking_result<task::global> call_triangle_counting_default_kernel_avx512(
+    const detail::descriptor_base<task::global> &desc,
+    const dal::preview::detail::topology<std::int32_t> &data) {
+    std::cout << "global tc avx512" << std::endl;
+    const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
+    const auto g_vertex_count = data._vertex_count;
+    const auto g_edge_count = data._edge_count;
 
-    const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
-    const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
-    const auto column_begin =
-        dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
-    const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
-    const auto number_elements_in_block =
-        compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    std::int32_t *first_vertices = reinterpret_cast<std::int32_t *>(result_ptr);
-    std::int32_t *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
+    const auto relabel = desc.get_relabel();
+    std::int64_t triangles = 0;
 
-    std::int64_t nnz = 0;
-    std::int32_t j = column_begin;
-#if defined(__INTEL_COMPILER)
-    __m512i j_vertices_tmp1 =
-        _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-    GRAPH_STACK_ALING(64) std::int32_t stack16_j_vertex[16] = { 0 };
-
-    std::int32_t ones_num = 0;
-#endif
-
-    for (std::int32_t i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = g_degrees[i];
-        const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal = min(i, column_end);
-
-#if defined(__INTEL_COMPILER)
-        __m512i n_i_start_v = _mm512_set1_epi32(i_neigbhors[0]);
-        __m512i n_i_end_v = _mm512_set1_epi32(i_neigbhors[i_neighbor_size - 1]);
-        __m512i i_vertex = _mm512_set1_epi32(i);
-
-        if (j < column_begin + ((diagonal - column_begin) / 16) * 16) {
-            //load_data(0)
-            __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
-            __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
-            __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
-
-            __m512i n_j_start_v = _mm512_permutexvar_epi32(
-                j_vertices_tmp1,
-                _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-            __m512i n_j_end_v = _mm512_permutexvar_epi32(
-                j_vertices_tmp1,
-                _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
-
-            for (; j + 16 < column_begin + ((diagonal - column_begin) / 16) * 16;) {
-                __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
-                __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
-                __m512i end_indices_j_v =
-                    _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
-
-                __m512i n_j_start_v1 = _mm512_permutexvar_epi32(
-                    j_vertices_tmp1,
-                    _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-                __m512i n_j_end_v1 = _mm512_permutexvar_epi32(
-                    j_vertices_tmp1,
-                    _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
-
-                __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-                __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
-
-                __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-                ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
-
-                if (ones_num != 0) {
-                    __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                    __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
-
-                    _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
-                                                     worth_intersection,
-                                                     j_vertices);
-
-                    GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                    for (std::int32_t s = 0; s < ones_num; s++) {
-                        const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
-                        const auto j_neigbhors =
-                            g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                        stack16_intersections[s] = intersection(i_neigbhors,
-                                                                j_neigbhors,
-                                                                i_neighbor_size,
-                                                                j_neighbor_size);
-                    }
-                    __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
-                    j_vertices = _mm512_load_epi32(stack16_j_vertex);
-
-                    __mmask16 non_zero_coefficients =
-                        _mm512_test_epi32_mask(intersections_v, intersections_v);
-                    _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
-                                                     non_zero_coefficients,
-                                                     i_vertex);
-                    _mm512_mask_compressstoreu_epi32((second_vertices + nnz),
-                                                     non_zero_coefficients,
-                                                     j_vertices);
-                    __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
-                    _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
-
-                    nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                }
-
-                j += 16;
-
-                n_j_start_v = n_j_start_v1;
-                n_j_end_v = n_j_end_v1;
-            }
-
-            //process n data
-
-            __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-            __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
-
-            __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-            ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
-
-            if (ones_num != 0) {
-                __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
-
-                _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
-                                                 worth_intersection,
-                                                 j_vertices);
-
-                GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                for (std::int32_t s = 0; s < ones_num; s++) {
-                    const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
-                    const auto j_neigbhors =
-                        g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                    stack16_intersections[s] =
-                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                }
-                __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
-                j_vertices = _mm512_load_epi32(stack16_j_vertex);
-                __mmask16 non_zero_coefficients =
-                    _mm512_test_epi32_mask(intersections_v, intersections_v);
-                _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
-                                                 non_zero_coefficients,
-                                                 i_vertex);
-                _mm512_mask_compressstoreu_epi32((second_vertices + nnz),
-                                                 non_zero_coefficients,
-                                                 j_vertices);
-                __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
-                _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
-
-                nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-            }
-
-            j += 16;
-
-            for (j = column_begin + ((diagonal - column_begin) / 16); j < diagonal; j++) {
-                const auto j_neighbor_size = g_degrees[j];
-                const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-                if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                    !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                    auto intersection_value =
-                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                    if (intersection_value) {
-                        jaccard[nnz] = static_cast<float>(intersection_value);
-                        first_vertices[nnz] = i;
-                        second_vertices[nnz] = j;
-                        nnz++;
-                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                    }
-                }
-            }
+    const std::int32_t average_degree_sparsity_boundary = 4;
+    if (g_edge_count / g_vertex_count > average_degree_sparsity_boundary && relabel == relabel::yes) {
+        //graph<std::int32_t, EdgeID_t> g_;
+        //graph_status relabel_status = relabel_by_greater_degree(g, g_);
+        /*if (relabel_status != ok) {
+            cout << "Relabel failed!";
+            return relabel_status;
         }
-        else {
-#endif
-            for (j = column_begin; j < diagonal; j++) {
-                const auto j_neighbor_size = g_degrees[j];
-                const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-                if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                    !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                    auto intersection_value =
-                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                    if (intersection_value) {
-                        jaccard[nnz] = static_cast<float>(intersection_value);
-                        first_vertices[nnz] = i;
-                        second_vertices[nnz] = j;
-                        nnz++;
-                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                    }
-                }
-            }
-#if defined(__INTEL_COMPILER)
-        }
-#endif
-
-        std::int32_t tmp_idx = column_begin;
-        if (diagonal >= column_begin) {
-            jaccard[nnz] = 1.0;
-            first_vertices[nnz] = i;
-            second_vertices[nnz] = diagonal;
-            nnz++;
-            ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-            tmp_idx = diagonal + 1;
-        }
-        j = tmp_idx;
-
-#if defined(__INTEL_COMPILER)
-        if (j < tmp_idx + ((column_end - tmp_idx) / 16) * 16) {
-            //load_data(0)
-            __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j);
-            __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 1);
-            __m512i end_indices_j_v = _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
-
-            __m512i n_j_start_v = _mm512_permutexvar_epi32(
-                j_vertices_tmp1,
-                _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-            __m512i n_j_end_v = _mm512_permutexvar_epi32(
-                j_vertices_tmp1,
-                _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
-
-            for (; j + 16 < tmp_idx + ((column_end - tmp_idx) / 16) * 16;) {
-                __m512i start_indices_j_v = _mm512_load_epi32(g_edge_offsets + j + 16);
-                __m512i end_indices_j_v_tmp = _mm512_load_epi32(g_edge_offsets + j + 17);
-                __m512i end_indices_j_v =
-                    _mm512_add_epi32(end_indices_j_v_tmp, _mm512_set1_epi32(-1));
-
-                __m512i n_j_start_v1 = _mm512_permutexvar_epi32(
-                    j_vertices_tmp1,
-                    _mm512_i32gather_epi32(start_indices_j_v, g_vertex_neighbors, 4));
-                __m512i n_j_end_v1 = _mm512_permutexvar_epi32(
-                    j_vertices_tmp1,
-                    _mm512_i32gather_epi32(end_indices_j_v, g_vertex_neighbors, 4));
-
-                __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-                __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
-
-                __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-                ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
-
-                if (ones_num != 0) {
-                    __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                    __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
-
-                    _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
-                                                     worth_intersection,
-                                                     j_vertices);
-
-                    GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                    for (std::int32_t s = 0; s < ones_num; s++) {
-                        const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
-                        const auto j_neigbhors =
-                            g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                        stack16_intersections[s] = intersection(i_neigbhors,
-                                                                j_neigbhors,
-                                                                i_neighbor_size,
-                                                                j_neighbor_size);
-                    }
-                    __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
-                    j_vertices = _mm512_load_epi32(stack16_j_vertex);
-
-                    __mmask16 non_zero_coefficients =
-                        _mm512_test_epi32_mask(intersections_v, intersections_v);
-                    _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
-                                                     non_zero_coefficients,
-                                                     i_vertex);
-                    _mm512_mask_compressstoreu_epi32((second_vertices + nnz),
-                                                     non_zero_coefficients,
-                                                     j_vertices);
-                    __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
-                    _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
-
-                    nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                }
-
-                j += 16;
-
-                n_j_start_v = n_j_start_v1;
-                n_j_end_v = n_j_end_v1;
-            }
-
-            //process n data
-
-            __mmask16 cmpgt1 = _mm512_cmpgt_epi32_mask(n_i_start_v, n_j_end_v);
-            __mmask16 cmpgt2 = _mm512_cmpgt_epi32_mask(n_j_start_v, n_i_end_v);
-
-            __mmask16 worth_intersection = _mm512_knot(_mm512_kor(cmpgt1, cmpgt2));
-            ones_num = _popcnt32_redef(_cvtmask16_u32(worth_intersection));
-
-            if (ones_num != 0) {
-                __m512i j_vertices_tmp2 = _mm512_set1_epi32(j);
-                __m512i j_vertices = _mm512_add_epi32(j_vertices_tmp1, j_vertices_tmp2);
-
-                _mm512_mask_compressstoreu_epi32((stack16_j_vertex),
-                                                 worth_intersection,
-                                                 j_vertices);
-
-                GRAPH_STACK_ALING(64) std::int32_t stack16_intersections[16] = { 0 };
-                for (std::int32_t s = 0; s < ones_num; s++) {
-                    const auto j_neighbor_size = g_degrees[stack16_j_vertex[s]];
-                    const auto j_neigbhors =
-                        g_vertex_neighbors + g_edge_offsets[stack16_j_vertex[s]];
-                    stack16_intersections[s] =
-                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                }
-                __m512i intersections_v = _mm512_load_epi32(stack16_intersections);
-                j_vertices = _mm512_load_epi32(stack16_j_vertex);
-                __mmask16 non_zero_coefficients =
-                    _mm512_test_epi32_mask(intersections_v, intersections_v);
-                _mm512_mask_compressstoreu_epi32((first_vertices + nnz),
-                                                 non_zero_coefficients,
-                                                 i_vertex);
-                _mm512_mask_compressstoreu_epi32((second_vertices + nnz),
-                                                 non_zero_coefficients,
-                                                 j_vertices);
-                __m512 tmp_v = _mm512_cvtepi32_ps(intersections_v);
-                _mm512_mask_compressstoreu_ps((jaccard + nnz), non_zero_coefficients, tmp_v);
-
-                nnz += _popcnt32_redef(_cvtmask16_u32(non_zero_coefficients));
-                ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-            }
-
-            j += 16;
-
-            for (j = tmp_idx + ((column_end - tmp_idx) / 16) * 16; j < column_end; j++) {
-                const auto j_neighbor_size = g_degrees[j];
-                const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-                if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                    !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                    auto intersection_value =
-                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                    if (intersection_value) {
-                        jaccard[nnz] = static_cast<float>(intersection_value);
-                        first_vertices[nnz] = i;
-                        second_vertices[nnz] = j;
-                        nnz++;
-                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                    }
-                }
-            }
-        }
-        else {
-#endif
-            for (j = tmp_idx; j < column_end; j++) {
-                const auto j_neighbor_size = g_degrees[j];
-                const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-                if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                    !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                    auto intersection_value =
-                        intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                    if (intersection_value) {
-                        jaccard[nnz] = static_cast<float>(intersection_value);
-                        first_vertices[nnz] = i;
-                        second_vertices[nnz] = j;
-                        nnz++;
-                        ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                    }
-                }
-            }
-#if defined(__INTEL_COMPILER)
-        }
-#endif
+        triangles = triangle_counting_relabel_(g_);*/
+    }
+    else {
+        triangles = triangle_counting_(g_vertex_neighbors, g_edge_offsets, g_degrees, g_vertex_count, g_edge_count);
     }
 
-    PRAGMA_VECTOR_ALWAYS
-    for (int i = 0; i < nnz; i++) {
-        if (first_vertices[i] != second_vertices[i])
-            jaccard[i] =
-                jaccard[i] / static_cast<float>(g_degrees[first_vertices[i]] +
-                                                g_degrees[second_vertices[i]] - jaccard[i]);
-    }*/
-
-    result_t res;
+    vertex_ranking_result<task::global> res;
+    res.set_global_rank(triangles);
     return res;
 }
 } // namespace detail

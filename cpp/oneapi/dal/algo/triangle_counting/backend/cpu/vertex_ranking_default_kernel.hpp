@@ -29,13 +29,14 @@ namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
 
-using input_t = vertex_ranking_input<task::local>;
-using descriptor_t = detail::descriptor_base<task::local>;
-using result_t = vertex_ranking_result<task::local>;
+template <typename Cpu>
+vertex_ranking_result<task::local> call_triangle_counting_default_kernel_int32(
+    const detail::descriptor_base<task::local> &desc,
+    const dal::preview::detail::topology<int32_t> &data);
 
 template <typename Cpu>
-result_t call_triangle_counting_default_kernel_int32(
-    const descriptor_t &desc,
+vertex_ranking_result<task::global> call_triangle_counting_default_kernel_int32(
+    const detail::descriptor_base<task::global> &desc,
     const dal::preview::detail::topology<int32_t> &data);
 
 DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {

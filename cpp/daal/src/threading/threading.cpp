@@ -111,6 +111,51 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
+DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func, const void * b,
+                                            daal::reduction_functype_int64 reduction_func)
+{
+#if defined(__DO_TBB_LAYER__)
+    return tbb::parallel_reduce(
+        tbb::blocked_range<size_t>(0, n), init,
+        [&](const tbb::blocked_range<size_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::auto_partitioner{});
+
+#elif defined(__DO_SEQ_LAYER__)
+    int64_t value_for_reduce = init;
+    return loop_func(0, n, value_for_reduce, a);
+#endif
+}
+
+DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func, const void * b,
+                                            daal::reduction_functype_int64 reduction_func)
+{
+#if defined(__DO_TBB_LAYER__)
+    return tbb::parallel_reduce(
+        tbb::blocked_range<size_t>(0, n), init,
+        [&](const tbb::blocked_range<size_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner{});
+
+#elif defined(__DO_SEQ_LAYER__)
+    int64_t value_for_reduce = init;
+    return loop_func(0, n, value_for_reduce, a);
+#endif
+}
+
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t* begin, const int32_t* end, int64_t init, const void * a, daal::loop_functype_int32ptr_int64 loop_func, const void * b,
+                                            daal::reduction_functype_int64 reduction_func)
+{
+#if defined(__DO_TBB_LAYER__)
+    return tbb::parallel_reduce(
+        tbb::blocked_range<const int32_t*>(begin, end), init,
+        [&](const tbb::blocked_range<const int32_t*> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner{});
+
+#elif defined(__DO_SEQ_LAYER__)
+    int64_t value_for_reduce = init;
+    return loop_func(begin, end, value_for_reduce, a);
+#endif
+}
+
 DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func)
 {
 #if defined(__DO_TBB_LAYER__)

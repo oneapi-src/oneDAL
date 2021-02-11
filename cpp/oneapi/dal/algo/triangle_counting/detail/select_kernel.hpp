@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-template <typename Task, typename Policy, typename Topology>
+template <typename Policy, typename Task, typename Topology>
 struct ONEDAL_EXPORT backend_base {
     virtual vertex_ranking_result<Task> operator()(const Policy &ctx,
                                                 const descriptor_base<Task> &descriptor,
@@ -32,7 +32,7 @@ struct ONEDAL_EXPORT backend_base {
 };
 
 template <typename Policy, typename Task, typename Float, typename Method, typename Topology>
-struct ONEDAL_EXPORT backend_default : public backend_base<Task, Policy, Topology> {
+struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Task, Topology> {
     virtual vertex_ranking_result<Task> operator()(const Policy &ctx,
                                                 const descriptor_base<Task> &descriptor,
                                                 const Topology &data) {
@@ -42,11 +42,11 @@ struct ONEDAL_EXPORT backend_default : public backend_base<Task, Policy, Topolog
 };
 
 template <typename Task, typename Float, typename Method>
-struct backend_default<Task, dal::detail::host_policy,
+struct backend_default<dal::detail::host_policy, Task, 
                        Float,
                        Method,
                        dal::preview::detail::topology<std::int32_t>>
-        : public backend_base<Task, dal::detail::host_policy,
+        : public backend_base<dal::detail::host_policy, Task, 
                               dal::preview::detail::topology<std::int32_t>> {
     virtual vertex_ranking_result<Task> operator()(
         const dal::detail::host_policy &ctx,
@@ -56,9 +56,9 @@ struct backend_default<Task, dal::detail::host_policy,
 };
 
 template <typename Policy, typename Task, typename Float, class Method, typename Topology>
-dal::detail::pimpl<backend_base<Task, Policy, Topology>> get_backend(const descriptor_base<Task> &desc,
+dal::detail::pimpl<backend_base<Policy, Task, Topology>> get_backend(const descriptor_base<Task> &desc,
                                                                const Topology &data) {
-    return dal::detail::pimpl<backend_base<Task, Policy, Topology>>(
+    return dal::detail::pimpl<backend_base<Policy, Task, Topology>>(
         new backend_default<Policy, Task, float, method::by_default, Topology>);
 }
 

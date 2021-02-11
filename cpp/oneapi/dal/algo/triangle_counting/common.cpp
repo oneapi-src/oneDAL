@@ -66,6 +66,7 @@ void descriptor_base<Task>::set_relabel(relabel relabel) {
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::local>;
+template class ONEDAL_EXPORT descriptor_base<task::global>;
 
 } // namespace detail
 } // namespace oneapi::dal::preview::triangle_counting
