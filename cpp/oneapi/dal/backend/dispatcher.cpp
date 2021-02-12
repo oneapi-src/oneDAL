@@ -22,7 +22,6 @@
 namespace oneapi::dal::backend {
 
 inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
-    std::cout << "select_cpu" << std::endl;
     using detail::cpu_extension;
     switch (cpu) {
         case daal::sse2: return cpu_extension::sse2;
@@ -38,6 +37,7 @@ inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
 }
 
 detail::cpu_extension detect_top_cpu_extension() {
+    std::cout << "select_cpu" << std::endl;
     if (!__daal_serv_cpu_extensions_available()) {
         return detail::cpu_extension::sse2;
     }
