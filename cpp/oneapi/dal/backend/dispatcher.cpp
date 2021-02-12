@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iostream>
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 #include <daal/src/services/service_defines.h>
@@ -37,7 +36,6 @@ inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
 }
 
 detail::cpu_extension detect_top_cpu_extension() {
-    std::cout << "select_cpu" << std::endl;
     if (!__daal_serv_cpu_extensions_available()) {
         return detail::cpu_extension::sse2;
     }
