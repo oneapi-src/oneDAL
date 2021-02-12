@@ -14,6 +14,7 @@ build --flag_alias=cpu=@config//:cpu
 test --test_env=OCL_ICD_FILENAMES
 
 # Configuration: 'host'
+# Build & run all host tests
 build:host \
     --build_tag_filters="host"
 
@@ -22,6 +23,7 @@ test:host \
 
 
 # Configuration: host-public
+# Build & run all host tests for public interface
 build:host-public \
     --build_tag_filters="host,-private"
 
@@ -30,6 +32,7 @@ test:host-public \
 
 
 # Configuration: 'dpc-cpu'
+# Build & run all DPC++ tests on CPU
 build:dpc-cpu \
     --build_tag_filters="dpc"
 
@@ -41,7 +44,21 @@ test:dpc-cpu \
     --test_arg="--device=cpu"
 
 
+# Configuration: 'dpc-cpu-public'
+# Build & run all DPC++ tests on CPU for public interface
+build:dpc-cpu-public \
+    --build_tag_filters="dpc,-private"
+
+run:dpc-cpu-public \
+    -- --device=cpu
+
+test:dpc-cpu-public \
+    --test_tag_filters="dpc,-private" \
+    --test_arg="--device=cpu"
+
+
 # Configuration: 'dpc-gpu'
+# Build & run all DPC++ tests on GPU
 build:dpc-gpu \
     --build_tag_filters="dpc"
 
@@ -50,4 +67,17 @@ run:dpc-gpu \
 
 test:dpc-gpu \
     --test_tag_filters="dpc" \
+    --test_arg="--device=gpu"
+
+
+# Configuration: 'dpc-gpu-pulbic'
+# Build & run all DPC++ tests on GPU for public interface
+build:dpc-gpu-public \
+    --build_tag_filters="dpc,-private"
+
+run:dpc-gpu-public \
+    -- --device=gpu
+
+test:dpc-gpu-public \
+    --test_tag_filters="dpc,-private" \
     --test_arg="--device=gpu"
