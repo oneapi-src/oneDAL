@@ -39,13 +39,13 @@ namespace math
 {
 namespace interface1
 {
-inline auto to_fpk_transpose(const math::Transpose & trans)
+inline ::oneapi::fpk::transpose to_fpk_transpose(const math::Transpose & trans)
 {
     using fpk_transpose = ::oneapi::fpk::transpose;
     return trans == math::Transpose::Trans ? fpk_transpose::trans : fpk_transpose::nontrans;
 }
 
-inline auto to_fpk_uplo(const math::UpLo & uplo)
+inline ::oneapi::fpk::uplo to_fpk_uplo(const math::UpLo & uplo)
 {
     using fpk_uplo = ::oneapi::fpk::uplo;
     return uplo == math::UpLo::Upper ? fpk_uplo::upper : fpk_uplo::lower;
