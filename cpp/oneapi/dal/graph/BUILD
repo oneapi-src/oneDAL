@@ -13,20 +13,14 @@ dal_module(
     ]
 )
 
-_DATA_DEPS = [
-    "@onedal//cpp/oneapi/dal/graph:test_data",
-]
-
 dal_test_suite(
-    name = "graph_tests",
+    name = "tests",
     framework = "catch2",
     srcs = glob([
-        "service_functions_test.cpp",
+        "test/service_functions_test.cpp",
     ]),
     dal_deps = [
         ":graph",
         "@onedal//cpp/oneapi/dal/io",
     ],
-    data = _DATA_DEPS,
 )
-
