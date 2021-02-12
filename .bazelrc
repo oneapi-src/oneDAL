@@ -70,7 +70,7 @@ test:dpc-gpu \
     --test_arg="--device=gpu"
 
 
-# Configuration: 'dpc-gpu-pulbic'
+# Configuration: 'dpc-gpu-public'
 # Build & run all DPC++ tests on GPU for public interface
 build:dpc-gpu-public \
     --build_tag_filters="dpc,-private"
