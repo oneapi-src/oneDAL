@@ -198,7 +198,7 @@ public:
     /// in :literal:`other` to the new array instance
     array(array<T>&& other) : impl_(std::move(other.impl_)) {
         update_data(impl_.get());
-        // other.reset_data();
+        other.reset_data();
     }
 
     /// Creates a new array instance which owns a memory block of externally-allocated mutable data.
