@@ -45,5 +45,4 @@ test:dpc-gpu \
     --test_env=OverrideDefaultFP64Settings \
     --test_env=IGC_ForceDPEmulation \
     --test_env=IGC_EnableDPEmulation \
-    --test_env=DG1 \
     --test_arg="--device=gpu"
