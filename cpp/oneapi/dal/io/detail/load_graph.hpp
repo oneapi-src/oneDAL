@@ -21,6 +21,7 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
@@ -170,7 +171,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
 
     using vertex_t = typename graph_traits<Graph>::vertex_type;
     using vertex_size_type = typename graph_traits<Graph>::vertex_size_type;
-    using edge_t = typename graph_traits<Graph>::edge_type;
+    using edge_t = std::int64_t;
     using atomic_vertex_t = typename daal::services::Atomic<vertex_t>;
     using atomic_edge_t = typename daal::services::Atomic<edge_t>;
     using vertex_allocator_traits =
@@ -252,6 +253,24 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                             edge_offsets_data,
                             vertex_neighbors,
                             degrees_data);
+
+    if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
+        using edge_vertex_t = typename graph_traits<Graph>::impl_type::edge_vertex_type;
+        using edge_vertex_set = typename graph_traits<Graph>::impl_type::edge_vertex_set;
+        using edge_vertex_allocator_type = typename graph_traits<Graph>::impl_type::edge_vertex_allocator_type;
+        using edge_vertex_allocator_traits = typename graph_traits<Graph>::impl_type::edge_vertex_allocator_traits;
+
+        edge_vertex_allocator_type edge_vertex_allocator = graph_impl._edge_vertex_allocator;
+        edge_vertex_t *rows_vertex =
+        edge_vertex_allocator_traits::allocate(edge_vertex_allocator, vertex_count + 1);
+
+        dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](edge_vertex_t u) {
+            rows_vertex[u] = static_cast<edge_vertex_t>(edge_offsets_data[u]);
+        });
+
+        graph_impl.get_topology()._rows_vertex = edge_vertex_set::wrap(rows_vertex, vertex_count + 1);
+    }
+
     return;
 }
 

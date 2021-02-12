@@ -356,12 +356,12 @@ vertex_ranking_result<task::local> call_triangle_counting_default_kernel_avx512(
     return res;
 }
 
-std::int64_t triangle_counting_(const std::int32_t* vertex_neighbors, const std::int32_t* edge_offsets, 
+std::int64_t triangle_counting_(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
                                 const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
     std::int32_t average_degree = edge_count / vertex_count;
     const std::int32_t average_degree_sparsity_boundary = 4;
     if (average_degree < average_degree_sparsity_boundary) {
-        std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(vertex_count, 0,
+        std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(vertex_count, (std::int64_t)0,
             [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
                 for (auto u = begin_u; u!= end_u; ++u) {
                     for (auto v_ = vertex_neighbors + edge_offsets[u]; v_ != vertex_neighbors + edge_offsets[u+1]; ++v_) {
@@ -391,7 +391,7 @@ std::int64_t triangle_counting_(const std::int32_t* vertex_neighbors, const std:
             });
         return total_s;
     } else {
-            std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(vertex_count, 0,
+            std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(vertex_count, (std::int64_t)0,
             [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
                 for (auto u = begin_u; u!= end_u; ++u) {                                     
                     if (degrees[u] < 2){
@@ -450,15 +450,15 @@ vertex_ranking_result<task::global> call_triangle_counting_default_kernel_avx512
 
     const std::int32_t average_degree_sparsity_boundary = 4;
     if (g_edge_count / g_vertex_count > average_degree_sparsity_boundary && relabel == relabel::yes) {
-        //graph<std::int32_t, EdgeID_t> g_;
-        //graph_status relabel_status = relabel_by_greater_degree(g, g_);
-        /*if (relabel_status != ok) {
-            cout << "Relabel failed!";
-            return relabel_status;
-        }
-        triangles = triangle_counting_relabel_(g_);*/
+        std::int32_t* g_vertex_neighbors_relabel = nullptr;
+        std::int64_t* g_edge_offsets_relabel = nullptr;
+        std::int32_t* g_degrees_relabel = nullptr;
+        relabel_by_greater_degree(g_vertex_neighbors, g_edge_offsets, g_degrees, g_vertex_count, g_edge_count,
+                                  g_vertex_neighbors_relabel, g_edge_offsets_relabel, g_degrees_relabel);
+
     }
     else {
+
         triangles = triangle_counting_(g_vertex_neighbors, g_edge_offsets, g_degrees, g_vertex_count, g_edge_count);
     }
 

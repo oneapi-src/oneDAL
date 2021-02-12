@@ -34,9 +34,11 @@ public:
     using vertex_iterator = vertex_type*;
     using const_vertex_iterator = const vertex_type*;
     using vertex_size_type = std::int64_t;
+    using edge_vertex_type = vertex_type;
 
-    using edge_type = IndexType;
+    using edge_type = std::int64_t;
     using edge_set = container<edge_type>;
+    using edge_vertex_set = container<edge_vertex_type>;
     using edge_iterator = edge_type*;
     using const_edge_iterator = const edge_type*;
     using edge_size_type = std::int64_t;
@@ -49,8 +51,10 @@ public:
     virtual ~topology() = default;
 
     vertex_set _cols;
-    edge_set _degrees;
+    vertex_set _degrees;
     edge_set _rows;
+    edge_vertex_set _rows_vertex;
+
     std::int64_t _vertex_count = 0;
     std::int64_t _edge_count = 0;
 };
@@ -87,6 +91,13 @@ public:
     using const_vertex_iterator = typename topology_type::const_vertex_iterator;
     using vertex_size_type = typename topology_type::vertex_size_type;
 
+    using edge_vertex_type = typename topology_type::edge_vertex_type;
+    using edge_vertex_set = typename topology_type::edge_vertex_set;
+    using edge_vertex_allocator_type =
+        typename std::allocator_traits<Allocator>::template rebind_alloc<edge_vertex_type>;
+    using edge_vertex_allocator_traits =
+        typename std::allocator_traits<Allocator>::template rebind_traits<edge_vertex_type>;
+
     using edge_type = typename topology_type::edge_type;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
@@ -122,6 +133,7 @@ public:
         auto& cols = _topology._cols;
         auto& degrees = _topology._degrees;
         auto& rows = _topology._rows;
+        auto& rows_vertex = _topology._rows_vertex;
 
         if (cols.get_data() != nullptr && cols.has_mutable_data()) {
             vertex_allocator_traits::deallocate(_vertex_allocator,
@@ -137,6 +149,11 @@ public:
             edge_allocator_traits::deallocate(_edge_allocator,
                                               rows.get_mutable_data(),
                                               rows.get_count());
+        }
+        if (rows_vertex.get_data() != nullptr && rows_vertex.has_mutable_data()) {
+            edge_vertex_allocator_traits::deallocate(_edge_vertex_allocator,
+                                              rows_vertex.get_mutable_data(),
+                                              rows_vertex.get_count());
         }
         if (_vertex_values.get_data() != nullptr && _vertex_values.has_mutable_data()) {
             vertex_user_value_allocator_traits::deallocate(_vertex_user_value_allocator,
@@ -154,11 +171,11 @@ public:
                              edge_size_type edge_count,
                              edge_type* offsets,
                              vertex_type* neighbors,
-                             edge_type* degrees) {
+                             vertex_type* degrees) {
         _topology._vertex_count = vertex_count;
         _topology._edge_count = edge_count;
         _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
-        _topology._degrees = edge_set::wrap(degrees, vertex_count);
+        _topology._degrees = vertex_set::wrap(degrees, vertex_count);
         _topology._cols = vertex_set::wrap(neighbors, edge_count * 2);
     }
 
@@ -189,6 +206,7 @@ public:
     allocator_type _allocator;
     vertex_allocator_type _vertex_allocator;
     edge_allocator_type _edge_allocator;
+    edge_vertex_allocator_type _edge_vertex_allocator;
     vertex_user_value_allocator_type _vertex_user_value_allocator;
     edge_user_value_allocator_type _edge_user_value_allocator;
 

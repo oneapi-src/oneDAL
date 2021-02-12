@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 
     // set algorithm parameters
     const auto tc_desc =
-        descriptor<float, method::ordered_count, task::global>(kind::undirected_clique, relabel::yes);
+        descriptor<float, method::ordered_count, task::global>(kind::undirected_clique, relabel::no);
 
     // compute local triangles
     const auto result_vertex_ranking =
