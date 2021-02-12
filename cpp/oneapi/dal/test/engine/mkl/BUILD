@@ -14,10 +14,3 @@ dal_test_module(
         "@mkl//:mkl_seq",
     ],
 )
-
-dal_test_suite(
-    name = "tests",
-    dpc = False, # TODO: Remove this once DPC++ support
-                 #       is added to `mkl` module
-
-)
