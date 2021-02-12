@@ -90,21 +90,6 @@ public:
     }
 };
 
-#ifdef DAAL_SYCL_INTERFACE_USM
-template <data_management::ReadWriteMode mode, typename T>
-inline SharedPtr<T> toSharedPtr(const Buffer<T> & buffer, cl::sycl::queue & queue, Status & status)
-{
-    if (buffer.isUSMBacked())
-    {
-        return buffer.toUSM(queue, mode, status);
-    }
-    else
-    {
-        return buffer.toHost(mode, status);
-    }
-}
-#endif // DAAL_SYCL_INTERFACE_USM
-
 class BufferCopier
 {
 private:
@@ -128,10 +113,11 @@ private:
             using namespace cl::sycl;
 
             Status status;
-            auto src = toSharedPtr<data_management::readOnly>(srcBuffer, queue, status);
+            // for shared and host USM toHost() call is zero-copy and return USM pointer
+            auto src = srcBuffer.toHost(data_management::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            auto dst = toSharedPtr<data_management::writeOnly>(dstBuffer, queue, status);
+            auto dst = dstBuffer.toHost(data_management::writeOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             auto * src_raw = src.get() + srcOffset;
@@ -140,10 +126,22 @@ private:
             const size_t bytes_count = sizeof(T) * count;
             DAAL_ASSERT(bytes_count >= count);
 
-            return catchSyclExceptions([&]() mutable {
-                auto event = queue.memcpy(dst_raw, src_raw, bytes_count);
-                event.wait_and_throw();
-            });
+            if (srcBuffer.isUSMBacked() || dstBuffer.isUSMBacked())
+            {
+                return catchSyclExceptions([&]() mutable {
+                    auto event = queue.memcpy(dst_raw, src_raw, bytes_count);
+                    event.wait_and_throw();
+                });
+            }
+            else
+            {
+                int result = daal_memcpy_s(dst_raw, bytes_count, src_raw, bytes_count);
+                if (result)
+                {
+                    return services::ErrorMemoryCopyFailedInternal;
+                }
+                return status;
+            }
         }
 #endif
 
@@ -206,7 +204,8 @@ private:
 
             Status status;
 
-            auto dst = toSharedPtr<data_management::readOnly>(dstBuffer, queue, status);
+            // for shared and host USM toHost() call is zero-copy and return USM pointer
+            auto dst = dstBuffer.toHost(data_management::readOnly, status);
             DAAL_CHECK_STATUS_VAR(status);
 
             auto dst_raw = dst.get() + dstOffset;
@@ -214,10 +213,22 @@ private:
             const size_t size = sizeof(T) * count;
             DAAL_ASSERT(size >= count);
 
-            return catchSyclExceptions([&]() mutable {
-                auto event = queue.memcpy(dst_raw, src, size);
-                event.wait_and_throw();
-            });
+            if (dstBuffer.isUSMBacked())
+            {
+                return catchSyclExceptions([&]() mutable {
+                    auto event = queue.memcpy(dst_raw, src, size);
+                    event.wait_and_throw();
+                });
+            }
+            else
+            {
+                int result = daal_memcpy_s(dst_raw, size, src, size);
+                if (result)
+                {
+                    return services::ErrorMemoryCopyFailedInternal;
+                }
+                return status;
+            }
         }
 #endif
 
