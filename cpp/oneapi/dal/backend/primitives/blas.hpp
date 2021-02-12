@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,16 +16,4 @@
 
 #pragma once
 
-#ifdef ONEDAL_DATA_PARALLEL
-#include <CL/sycl.hpp>
-#endif
-
-#include "oneapi/dal/backend/dispatcher.hpp"
-
-namespace oneapi::dal::backend {
-
-#ifdef ONEDAL_DATA_PARALLEL
-using event_vector = std::vector<sycl::event>;
-#endif
-
-} // namespace oneapi::dal::backend
+#include "oneapi/dal/backend/primitives/blas/gemm.hpp"

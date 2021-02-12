@@ -53,6 +53,7 @@ dal_collect_modules(
     modules = [
         "algo",
         "io",
+        "backend/primitives",
     ],
 )
 
@@ -115,6 +116,7 @@ dal_collect_test_suites(
         "io",
         "table",
         "util",
+        "backend/primitives",
     ],
     tests = [
         ":common_tests",
