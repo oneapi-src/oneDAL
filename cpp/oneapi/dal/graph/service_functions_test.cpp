@@ -24,7 +24,6 @@ auto check_neighbors (const std::string& name,
 	const dal::preview::vertex_size_type<my_graph_type> vertices_num) {
 	int correct_neigh_num = 0;
 	dal::preview::vertex_size_type<my_graph_type> neigh_index = 0;
-	//const dal::preview::vertex_size_type<my_graph_type> correct_neigh[] = {4, 0};
 	const auto my_graph = dal::preview::load_graph::load(desc, get_data_source(name));
 	for (dal::preview::vertex_size_type<my_graph_type> j = 0; j < vertices_num; j++) {
 		const auto neigh = dal::preview::get_vertex_neighbors(my_graph, j);
