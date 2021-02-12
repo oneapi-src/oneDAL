@@ -28,7 +28,7 @@ TEST("just fill", "[dpc++]") {
     sycl::free(x, q);
 }
 
-TEST("fill and write on host", "[dpc++]") {
+TEST_CASE("fill and write on host", "[dpc++]") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
 
