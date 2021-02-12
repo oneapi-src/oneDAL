@@ -27,10 +27,24 @@ dal_collect_modules(
 )
 
 dal_test_suite(
+    name = "dpc_compiler_tests",
+    compile_as = [ "dpc++" ],
+    framework = "catch2",
+    srcs = [
+        "test/fill_dpc.cpp",
+    ],
+    dal_deps = [
+        ":common",
+    ],
+)
+
+dal_test_suite(
     name = "common_tests",
     framework = "catch2",
     srcs = glob([
         "test/*.cpp",
+    ], exclude=[
+        "test/*_dpc.cpp",
     ]),
     dal_deps = [
         ":common",
@@ -46,5 +60,6 @@ dal_collect_test_suites(
     ],
     tests = [
         ":common_tests",
+        ":dpc_compiler_tests",
     ]
 )
