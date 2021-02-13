@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <utility>
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
@@ -35,6 +36,8 @@ typedef std::int64_t (*loop_functype_int32ptr_int64)(const int32_t* begin,
 typedef std::int64_t (*reduction_functype_int64)(std::int64_t a,
                                                  std::int64_t b,
                                                  const void *reduction);
+
+typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;
 } // namespace oneapi::dal::preview
 
 extern "C" {
@@ -159,12 +162,15 @@ ONEDAL_EXPORT void parallel_sort(F *begin_ptr, F *end_ptr) {
     throw unimplemented(dal::detail::error_messages::unimplemented_sorting_procedure());
 }
 
+
+
 #define ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(TYPE) \
     template <>                                        \
     ONEDAL_EXPORT void parallel_sort(TYPE *begin_ptr, TYPE *end_ptr);
 
 ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::int32_t)
 ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::uint64_t)
+ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(oneapi::dal::preview::pair_int32_t_size_t)
 
 #undef ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL
 

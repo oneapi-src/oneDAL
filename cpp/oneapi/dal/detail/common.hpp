@@ -19,6 +19,7 @@
 #include <memory>
 #include <limits>
 #include <type_traits>
+#include <utility>
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"

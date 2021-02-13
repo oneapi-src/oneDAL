@@ -18,6 +18,7 @@
 
 #include <immintrin.h>
 #include <functional>
+#include <memory>
 
 #include <daal/src/services/service_defines.h>
 
@@ -434,6 +435,173 @@ std::int64_t triangle_counting_(const std::int32_t* vertex_neighbors, const std:
     }
 }
 
+std::int64_t triangle_counting_relabel(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
+                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
+    std::int32_t average_degree = edge_count / vertex_count;
+    const std::int32_t average_degree_sparsity_boundary = 4;
+    if (average_degree < average_degree_sparsity_boundary) {
+        std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(vertex_count, (std::int64_t)0,
+            [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
+                for (auto u = begin_u; u!= end_u; ++u) {
+                    for (auto v_ = vertex_neighbors + edge_offsets[u]; v_ != vertex_neighbors + edge_offsets[u+1]; ++v_) {
+                        std::int32_t v = *v_;
+                        if (v > u) {
+                            break;
+                        }
+                        auto u_neighbors_ptr = vertex_neighbors + edge_offsets[u];
+                        for (auto w_ = vertex_neighbors + edge_offsets[v]; v_ != vertex_neighbors + edge_offsets[v+1]; ++w_) {
+                            std::int32_t w = *w_;
+                            if (w > v){
+                                break;
+                            }
+                            while (*u_neighbors_ptr < w){
+                                u_neighbors_ptr++;
+                            }
+                            if (w == *u_neighbors_ptr){
+                                tc_u++;
+                            }
+                        }
+                    }
+                }
+                return tc_u;
+            },
+            [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+                return x + y;
+            });
+        return total_s;
+    } else {
+            std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(vertex_count, (std::int64_t)0,
+            [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
+                for (auto u = begin_u; u!= end_u; ++u) {                                     
+                    if (degrees[u] < 2){
+                        continue; 
+                    }
+                    const std::int32_t* neigh_u = vertex_neighbors + edge_offsets[u];
+                    std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u+1] - neigh_u;
+
+                    for (auto v_ = vertex_neighbors + edge_offsets[u]; v_ != vertex_neighbors + edge_offsets[u+1]; ++v_) {
+                        std::int32_t v = *v_;
+
+                        if (v > u) {
+                            break;
+                        }
+
+                        const std::int32_t* neigh_v = vertex_neighbors + edge_offsets[v];
+                        std::int32_t size_neigh_v = vertex_neighbors + edge_offsets[v+1] - neigh_v;   
+
+                        std::int32_t new_size_neigh_v = 0;
+                        for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
+                        
+
+                        tc_u += intersection(neigh_u, neigh_v, size_neigh_u, new_size_neigh_v);
+                    }
+                }     
+                return tc_u;
+            },
+            [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+                return x + y;
+            });
+        return total_s;
+    }
+}
+
+void relabel_by_greater_degree(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
+                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count,
+                                std::int32_t* vertex_neighbors_relabel, std::int64_t* edge_offsets_relabel, 
+                                std::int32_t* degrees_relabel) {
+    using Allocator = std::allocator<char>;
+    using int32_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
+    using int32_allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<std::int32_t>;
+    
+    using pair_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<std::pair<std::int32_t, std::size_t>>;
+    using pair_allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<std::pair<std::int32_t, std::size_t>>;
+
+    using int64_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
+    using int64_allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<std::int64_t>;
+
+    int64_allocator_type int64_allocator;
+    pair_allocator_type pair_allocator;
+    int32_allocator_type int32_allocator;
+
+    std::pair<std::int32_t, std::size_t>* degree_id_pairs = pair_allocator_traits::allocate(pair_allocator, vertex_count);
+    
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t n) {
+        degree_id_pairs[n] = std::make_pair(degrees[n], (size_t)n);
+    });
+
+    dal::detail::parallel_sort(degree_id_pairs, degree_id_pairs + vertex_count);
+
+    std::int32_t* degrees_local = int32_allocator_traits::allocate(int32_allocator, vertex_count);
+    std::int32_t* new_ids = int32_allocator_traits::allocate(int32_allocator, vertex_count);
+
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t n) {
+                degrees_local[n] = degree_id_pairs[n].first;
+                new_ids[degree_id_pairs[n].second] = n;
+    });
+
+    pair_allocator_traits::deallocate(pair_allocator, degree_id_pairs, vertex_count);
+
+    std::int64_t* offsets = int64_allocator_traits::allocate(int64_allocator, vertex_count + 1);
+
+    const std::int32_t size_degrees = vertex_count;
+
+    const size_t block_size = 1 << 20; 
+    const std::int64_t num_blocks = (size_degrees + block_size - 1) / block_size; 
+    std::int64_t* local_sums = int64_allocator_traits::allocate(int64_allocator, num_blocks);
+
+    dal::detail::threader_for(num_blocks, num_blocks, [&](std::int64_t block) {
+        std::int64_t local_sum = 0;
+        std::int64_t block_end = std::min((std::int64_t)((block + 1) * block_size), (std::int64_t)size_degrees);
+        for (std::int64_t i=block * block_size; i < block_end; i++) {
+            local_sum += degrees_local[i];
+        }
+        local_sums[block] = local_sum;
+    });
+
+    std::int64_t* part_prefix = int64_allocator_traits::allocate(int64_allocator, num_blocks + 1);
+
+    std::int64_t total = 0;
+    for (size_t block=0; block < num_blocks; block++) {
+        part_prefix[block] = total;
+        total += local_sums[block];
+    }
+    part_prefix[num_blocks] = total;
+
+    int64_allocator_traits::deallocate(int64_allocator, local_sums, num_blocks);
+
+    dal::detail::threader_for(num_blocks, num_blocks, [&](std::int64_t block) {
+        std::int64_t local_total = part_prefix[block];
+        std::int64_t block_end = std::min((std::int64_t)((block + 1) * block_size), (std::int64_t)size_degrees);
+        for (std::int64_t i=block * block_size; i < block_end; i++) {
+            offsets[i] = local_total;
+            local_total += degrees_local[i];
+        }
+    });
+
+    int32_allocator_traits::deallocate(int32_allocator, degrees_local, vertex_count);
+    offsets[size_degrees] = part_prefix[num_blocks];     
+    int64_allocator_traits::deallocate(int64_allocator, part_prefix, num_blocks + 1);
+
+    dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](std::int32_t n) {
+        edge_offsets_relabel[n] =  offsets[n];
+    });
+     
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+        for (const std::int32_t* v = vertex_neighbors + edge_offsets[u]; v != vertex_neighbors + edge_offsets[u + 1]; ++v) {
+            vertex_neighbors_relabel[offsets[new_ids[u]]++] = new_ids[*v];
+        }
+
+        dal::detail::parallel_sort(vertex_neighbors_relabel + edge_offsets_relabel[new_ids[u]], vertex_neighbors_relabel + edge_offsets_relabel[new_ids[u]+1]);
+    });
+
+    for (std::int32_t i = 0; i < vertex_count; i++) {
+        degrees_relabel[i] = edge_offsets_relabel[i+1] - edge_offsets_relabel[i];
+    }
+
+    int64_allocator_traits::deallocate(int64_allocator, offsets, vertex_count + 1);
+    int32_allocator_traits::deallocate(int32_allocator, new_ids, vertex_count);
+}
+
 template <typename Cpu>
 vertex_ranking_result<task::global> call_triangle_counting_default_kernel_avx512(
     const detail::descriptor_base<task::global> &desc,
@@ -449,18 +617,53 @@ vertex_ranking_result<task::global> call_triangle_counting_default_kernel_avx512
     std::int64_t triangles = 0;
 
     const std::int32_t average_degree_sparsity_boundary = 4;
-    if (g_edge_count / g_vertex_count > average_degree_sparsity_boundary && relabel == relabel::yes) {
+    if (g_edge_count / g_vertex_count > average_degree_sparsity_boundary /*&& relabel == relabel::yes*/) {
+        std::cout << "relabel" << std::endl;
         std::int32_t* g_vertex_neighbors_relabel = nullptr;
         std::int64_t* g_edge_offsets_relabel = nullptr;
         std::int32_t* g_degrees_relabel = nullptr;
+
+        using Allocator = std::allocator<char>;
+        using int32_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
+        using int32_allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<std::int32_t>;
+
+        using int64_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
+        using int64_allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<std::int64_t>;
+
+        int64_allocator_type int64_allocator;
+        int32_allocator_type int32_allocator;
+
+        g_vertex_neighbors_relabel = int32_allocator_traits::allocate(int32_allocator, g_edge_offsets[g_vertex_count]);
+        g_degrees_relabel = int32_allocator_traits::allocate(int32_allocator, g_vertex_count);
+        g_edge_offsets_relabel = int64_allocator_traits::allocate(int64_allocator, g_vertex_count + 1);
+
         relabel_by_greater_degree(g_vertex_neighbors, g_edge_offsets, g_degrees, g_vertex_count, g_edge_count,
                                   g_vertex_neighbors_relabel, g_edge_offsets_relabel, g_degrees_relabel);
+        triangles = triangle_counting_relabel(g_vertex_neighbors_relabel, g_edge_offsets_relabel, g_degrees_relabel, g_vertex_count, g_edge_count);
+
+        if (g_vertex_neighbors_relabel != nullptr) {
+            int32_allocator_traits::deallocate(int32_allocator,
+                                                g_vertex_neighbors_relabel,
+                                                g_edge_count);
+        }
+
+        if (g_degrees_relabel != nullptr) {
+            int32_allocator_traits::deallocate(int32_allocator,
+                                                g_degrees_relabel,
+                                                g_vertex_count);
+        }
+
+        if (g_edge_offsets_relabel != nullptr) {
+            int64_allocator_traits::deallocate(int64_allocator,
+                                                g_edge_offsets_relabel,
+                                                g_vertex_count + 1);
+        }
 
     }
-    else {
-
+    /*else {
+        std::cout << "no relabel" << std::endl;
         triangles = triangle_counting_(g_vertex_neighbors, g_edge_offsets, g_degrees, g_vertex_count, g_edge_count);
-    }
+    }*/
 
     vertex_ranking_result<task::global> res;
     res.set_global_rank(triangles);
