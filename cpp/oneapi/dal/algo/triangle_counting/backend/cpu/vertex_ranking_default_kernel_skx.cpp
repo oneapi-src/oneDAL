@@ -55,33 +55,70 @@ vertex_ranking_result<task::local> call_triangle_counting_default_kernel_int32<d
 }
 */
 
-template std::int64_t triangle_counting_global_scalar_avx512<dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count);
+template std::int64_t triangle_counting_global_scalar_avx512<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count);
 
-template std::int64_t triangle_counting_global_vector_avx512<dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count);
+template std::int64_t triangle_counting_global_vector_avx512<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count);
 
-template std::int64_t triangle_counting_global_vector_relabel_avx512<dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count);
-
-
+template std::int64_t triangle_counting_global_vector_relabel_avx512<
+    dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors,
+                                       const std::int64_t* edge_offsets,
+                                       const std::int32_t* degrees,
+                                       std::int64_t vertex_count,
+                                       std::int64_t edge_count);
 
 template <>
-std::int64_t triangle_counting_global_scalar_cpu<dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
-    return triangle_counting_global_scalar_avx512<dal::backend::cpu_dispatch_avx512>(vertex_neighbors, edge_offsets, degrees, vertex_count, edge_count);
+std::int64_t triangle_counting_global_scalar_cpu<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    return triangle_counting_global_scalar_avx512<dal::backend::cpu_dispatch_avx512>(
+        vertex_neighbors,
+        edge_offsets,
+        degrees,
+        vertex_count,
+        edge_count);
 }
 
 template <>
-std::int64_t triangle_counting_global_vector_cpu<dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
-    return triangle_counting_global_vector_avx512<dal::backend::cpu_dispatch_avx512>(vertex_neighbors, edge_offsets, degrees, vertex_count, edge_count);
+std::int64_t triangle_counting_global_vector_cpu<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    return triangle_counting_global_vector_avx512<dal::backend::cpu_dispatch_avx512>(
+        vertex_neighbors,
+        edge_offsets,
+        degrees,
+        vertex_count,
+        edge_count);
 }
 
 template <>
-std::int64_t triangle_counting_global_vector_relabel_cpu<dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
-    return triangle_counting_global_vector_relabel_avx512<dal::backend::cpu_dispatch_avx512>(vertex_neighbors, edge_offsets, degrees, vertex_count, edge_count);
+std::int64_t triangle_counting_global_vector_relabel_cpu<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    return triangle_counting_global_vector_relabel_avx512<dal::backend::cpu_dispatch_avx512>(
+        vertex_neighbors,
+        edge_offsets,
+        degrees,
+        vertex_count,
+        edge_count);
 }
 
 } // namespace detail

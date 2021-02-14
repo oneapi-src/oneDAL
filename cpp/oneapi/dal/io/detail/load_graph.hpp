@@ -257,18 +257,21 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using edge_vertex_t = typename graph_traits<Graph>::impl_type::edge_vertex_type;
         using edge_vertex_set = typename graph_traits<Graph>::impl_type::edge_vertex_set;
-        using edge_vertex_allocator_type = typename graph_traits<Graph>::impl_type::edge_vertex_allocator_type;
-        using edge_vertex_allocator_traits = typename graph_traits<Graph>::impl_type::edge_vertex_allocator_traits;
+        using edge_vertex_allocator_type =
+            typename graph_traits<Graph>::impl_type::edge_vertex_allocator_type;
+        using edge_vertex_allocator_traits =
+            typename graph_traits<Graph>::impl_type::edge_vertex_allocator_traits;
 
         edge_vertex_allocator_type edge_vertex_allocator = graph_impl._edge_vertex_allocator;
         edge_vertex_t *rows_vertex =
-        edge_vertex_allocator_traits::allocate(edge_vertex_allocator, vertex_count + 1);
+            edge_vertex_allocator_traits::allocate(edge_vertex_allocator, vertex_count + 1);
 
         dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](edge_vertex_t u) {
             rows_vertex[u] = static_cast<edge_vertex_t>(edge_offsets_data[u]);
         });
 
-        graph_impl.get_topology()._rows_vertex = edge_vertex_set::wrap(rows_vertex, vertex_count + 1);
+        graph_impl.get_topology()._rows_vertex =
+            edge_vertex_set::wrap(rows_vertex, vertex_count + 1);
     }
 
     return;

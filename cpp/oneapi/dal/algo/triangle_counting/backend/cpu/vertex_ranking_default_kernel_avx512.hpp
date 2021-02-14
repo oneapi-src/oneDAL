@@ -39,12 +39,12 @@ namespace triangle_counting {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     return _popcnt32(x);
 }
 #define GRAPH_STACK_ALING(x) __declspec(align(x))
 #else
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
+DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     std::int32_t count = 0;
     std::int32_t a = x;
     while (a != 0) {
@@ -57,8 +57,8 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     {}
 #endif
 
-DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
-                                           const std::int32_t *neigh_v,
+DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t* neigh_u,
+                                           const std::int32_t* neigh_v,
                                            std::int32_t n_u,
                                            std::int32_t n_v) {
     std::int64_t total = 0;
@@ -86,8 +86,8 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
             i_u += 16;
             continue;
         }
-        __m512i v_u = _mm512_loadu_si512((void *)(neigh_u + i_u)); // load 16 neighbors of u
-        __m512i v_v = _mm512_loadu_si512((void *)(neigh_v + i_v)); // load 16 neighbors of v
+        __m512i v_u = _mm512_loadu_si512((void*)(neigh_u + i_u)); // load 16 neighbors of u
+        __m512i v_v = _mm512_loadu_si512((void*)(neigh_v + i_v)); // load 16 neighbors of v
         if (max_neigh_u >= max_neigh_v)
             i_v += 16;
         if (max_neigh_u <= max_neigh_v)
@@ -155,7 +155,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
     }
 
     while (i_u < (n_u / 16) * 16 && i_v < n_v) {
-        __m512i v_u = _mm512_loadu_si512((void *)(neigh_u + i_u));
+        __m512i v_u = _mm512_loadu_si512((void*)(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 15] && i_v < n_v) {
             __m512i tmp_v_v = _mm512_set1_epi32(neigh_v[i_v]);
             __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -166,7 +166,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
         i_u += 16;
     }
     while (i_v < (n_v / 16) * 16 && i_u < n_u) {
-        __m512i v_v = _mm512_loadu_si512((void *)(neigh_v + i_v));
+        __m512i v_v = _mm512_loadu_si512((void*)(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 15] && i_u < n_u) {
             __m512i tmp_v_u = _mm512_set1_epi32(neigh_u[i_u]);
             __mmask16 match = _mm512_cmpeq_epi32_mask(v_v, tmp_v_u);
@@ -199,9 +199,9 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
             continue;
         }
         __m256i v_u = _mm256_loadu_si256(
-            reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
+            reinterpret_cast<const __m256i*>(neigh_u + i_u)); // load 8 neighbors of u
         __m256i v_v = _mm256_loadu_si256(
-            reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
+            reinterpret_cast<const __m256i*>(neigh_v + i_v)); // load 8 neighbors of v
 
         if (max_neigh_u >= max_neigh_v)
             i_v += 8;
@@ -242,7 +242,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
         total += _popcnt32_redef(_cvtmask8_u32(match)); //count number of matches
     }
     if (i_u <= (n_u - 8) && i_v < n_v) {
-        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u));
+        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 7] && i_v < n_v) {
             __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
             __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -253,7 +253,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
         i_u += 8;
     }
     if (i_v <= (n_v - 8) && i_u < n_u) {
-        __m256i v_v = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_v + i_v));
+        __m256i v_v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 7] && i_u < n_u) {
             __m256i tmp_v_u = _mm256_set1_epi32(neigh_u[i_u]);
             __mmask8 match = _mm256_cmpeq_epi32_mask(v_v, tmp_v_u);
@@ -286,9 +286,9 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
             continue;
         }
         __m128i v_u = _mm_loadu_si128(
-            reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
+            reinterpret_cast<const __m128i*>(neigh_u + i_u)); // load 8 neighbors of u
         __m128i v_v = _mm_loadu_si128(
-            reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
+            reinterpret_cast<const __m128i*>(neigh_v + i_v)); // load 8 neighbors of v
 
         if (max_neigh_u >= max_neigh_v)
             i_v += 4;
@@ -311,7 +311,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
         total += _popcnt32_redef(_cvtmask8_u32(match)); //count number of matches
     }
     if (i_u <= (n_u - 4) && i_v < n_v) {
-        __m128i v_u = _mm_loadu_si128(reinterpret_cast<const __m128i *>(neigh_u + i_u));
+        __m128i v_u = _mm_loadu_si128(reinterpret_cast<const __m128i*>(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 3] && i_v < n_v) {
             __m128i tmp_v_v = _mm_set1_epi32(neigh_v[i_v]);
             __mmask8 match = _mm_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -322,7 +322,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
         i_u += 4;
     }
     if (i_v <= (n_v - 4) && i_u < n_u) {
-        __m128i v_v = _mm_loadu_si128(reinterpret_cast<const __m128i *>(neigh_v + i_v));
+        __m128i v_v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 3] && i_u < n_u) {
             __m128i tmp_v_u = _mm_set1_epi32(neigh_u[i_u]);
             __mmask8 match = _mm_cmpeq_epi32_mask(v_v, tmp_v_u);
@@ -347,28 +347,37 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
     return total;
 }
 
-template<typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
-    
-        std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(vertex_count, (std::int64_t)0,
-        [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
-            for (auto u = begin_u; u!= end_u; ++u) {
-                for (auto v_ = vertex_neighbors + edge_offsets[u]; v_ != vertex_neighbors + edge_offsets[u+1]; ++v_) {
+template <typename Cpu>
+DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(
+        vertex_count,
+        (std::int64_t)0,
+        [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
+            for (auto u = begin_u; u != end_u; ++u) {
+                for (auto v_ = vertex_neighbors + edge_offsets[u];
+                     v_ != vertex_neighbors + edge_offsets[u + 1];
+                     ++v_) {
                     std::int32_t v = *v_;
                     if (v > u) {
                         break;
                     }
                     auto u_neighbors_ptr = vertex_neighbors + edge_offsets[u];
-                    for (auto w_ = vertex_neighbors + edge_offsets[v]; v_ != vertex_neighbors + edge_offsets[v+1]; ++w_) {
+                    for (auto w_ = vertex_neighbors + edge_offsets[v];
+                         v_ != vertex_neighbors + edge_offsets[v + 1];
+                         ++w_) {
                         std::int32_t w = *w_;
-                        if (w > v){
+                        if (w > v) {
                             break;
                         }
-                        while (*u_neighbors_ptr < w){
+                        while (*u_neighbors_ptr < w) {
                             u_neighbors_ptr++;
                         }
-                        if (w == *u_neighbors_ptr){
+                        if (w == *u_neighbors_ptr) {
                             tc_u++;
                         }
                     }
@@ -376,28 +385,38 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(const std::
             }
             return tc_u;
         },
-        [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+        [&](std::int64_t x, std::int64_t y) -> std::int64_t {
             return x + y;
         });
-        return total_s;
-} 
+    return total_s;
+}
 
-template<typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
-        std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(vertex_count, (std::int64_t)0,
-        [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
-            for (auto u = begin_u; u!= end_u; ++u) {                                     
-                if (degrees[u] < 2){
-                    continue; 
+template <typename Cpu>
+DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+        vertex_count,
+        (std::int64_t)0,
+        [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
+            for (auto u = begin_u; u != end_u; ++u) {
+                if (degrees[u] < 2) {
+                    continue;
                 }
                 const std::int32_t* neigh_u = vertex_neighbors + edge_offsets[u];
-                std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u+1] - neigh_u;
+                std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u + 1] - neigh_u;
 
-                tc_u += oneapi::dal::detail::parallel_reduce_int32ptr_int64_t_simple(vertex_neighbors + edge_offsets[u], vertex_neighbors + edge_offsets[u+1], (std::int64_t)0,
-                        [&] (const std::int32_t* begin_v, const std::int32_t* end_v, std::int64_t total) -> std::int64_t {
-                            for (auto v_ = begin_v; v_!= end_v; ++v_) {
-                
+                tc_u += oneapi::dal::detail::parallel_reduce_int32ptr_int64_t_simple(
+                    vertex_neighbors + edge_offsets[u],
+                    vertex_neighbors + edge_offsets[u + 1],
+                    (std::int64_t)0,
+                    [&](const std::int32_t* begin_v,
+                        const std::int32_t* end_v,
+                        std::int64_t total) -> std::int64_t {
+                        for (auto v_ = begin_v; v_ != end_v; ++v_) {
                             std::int32_t v = *v_;
 
                             if (v > u) {
@@ -405,41 +424,52 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(const std::
                             }
 
                             const std::int32_t* neigh_v = vertex_neighbors + edge_offsets[v];
-                            std::int32_t size_neigh_v = vertex_neighbors + edge_offsets[v+1] - neigh_v;   
+                            std::int32_t size_neigh_v =
+                                vertex_neighbors + edge_offsets[v + 1] - neigh_v;
 
                             std::int32_t new_size_neigh_v = 0;
-                            for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
-                            
+                            for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) &&
+                                                       (neigh_v[new_size_neigh_v] <= v);
+                                 new_size_neigh_v++)
+                                ;
 
                             total += intersection(neigh_u, neigh_v, size_neigh_u, new_size_neigh_v);
                         }
                         return total;
                     },
-                    [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+                    [&](std::int64_t x, std::int64_t y) -> std::int64_t {
                         return x + y;
                     });
-            }     
+            }
             return tc_u;
         },
-        [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+        [&](std::int64_t x, std::int64_t y) -> std::int64_t {
             return x + y;
         });
     return total_s;
 }
 
-template<typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count) {
-        std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(vertex_count, (std::int64_t)0,
-        [&] (std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
-            for (auto u = begin_u; u!= end_u; ++u) {                                     
-                if (degrees[u] < 2){
-                    continue; 
+template <typename Cpu>
+DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+        vertex_count,
+        (std::int64_t)0,
+        [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
+            for (auto u = begin_u; u != end_u; ++u) {
+                if (degrees[u] < 2) {
+                    continue;
                 }
                 const std::int32_t* neigh_u = vertex_neighbors + edge_offsets[u];
-                std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u+1] - neigh_u;
+                std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u + 1] - neigh_u;
 
-                for (auto v_ = vertex_neighbors + edge_offsets[u]; v_ != vertex_neighbors + edge_offsets[u+1]; ++v_) {
+                for (auto v_ = vertex_neighbors + edge_offsets[u];
+                     v_ != vertex_neighbors + edge_offsets[u + 1];
+                     ++v_) {
                     std::int32_t v = *v_;
 
                     if (v > u) {
@@ -447,18 +477,20 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(con
                     }
 
                     const std::int32_t* neigh_v = vertex_neighbors + edge_offsets[v];
-                    std::int32_t size_neigh_v = vertex_neighbors + edge_offsets[v+1] - neigh_v;   
+                    std::int32_t size_neigh_v = vertex_neighbors + edge_offsets[v + 1] - neigh_v;
 
                     std::int32_t new_size_neigh_v = 0;
-                    for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
-                    
+                    for (new_size_neigh_v = 0;
+                         (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v);
+                         new_size_neigh_v++)
+                        ;
 
                     tc_u += intersection(neigh_u, neigh_v, size_neigh_u, new_size_neigh_v);
                 }
-            }     
+            }
             return tc_u;
         },
-        [&](std::int64_t x, std::int64_t y) -> std::int64_t  {
+        [&](std::int64_t x, std::int64_t y) -> std::int64_t {
             return x + y;
         });
     return total_s;

@@ -36,8 +36,7 @@ auto vertex_ranking_dispatch_by_input(const Descriptor &desc, Head &&head, Tail 
 
 template <typename Head, typename... Tail>
 auto vertex_ranking_dispatch(Head &&head, Tail &&... tail) {
-    return vertex_ranking_dispatch_by_input(std::forward<Head>(head),
-                                               std::forward<Tail>(tail)...);
+    return vertex_ranking_dispatch_by_input(std::forward<Head>(head), std::forward<Tail>(tail)...);
 }
 
 } // namespace detail

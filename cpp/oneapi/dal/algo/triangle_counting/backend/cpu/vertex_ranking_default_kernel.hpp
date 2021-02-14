@@ -30,16 +30,25 @@ namespace triangle_counting {
 namespace detail {
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_scalar_cpu(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count);
+std::int64_t triangle_counting_global_scalar_cpu(const std::int32_t* vertex_neighbors,
+                                                 const std::int64_t* edge_offsets,
+                                                 const std::int32_t* degrees,
+                                                 std::int64_t vertex_count,
+                                                 std::int64_t edge_count);
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_vector_cpu(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count);
+std::int64_t triangle_counting_global_vector_cpu(const std::int32_t* vertex_neighbors,
+                                                 const std::int64_t* edge_offsets,
+                                                 const std::int32_t* degrees,
+                                                 std::int64_t vertex_count,
+                                                 std::int64_t edge_count);
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_vector_relabel_cpu(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count);
+std::int64_t triangle_counting_global_vector_relabel_cpu(const std::int32_t* vertex_neighbors,
+                                                         const std::int64_t* edge_offsets,
+                                                         const std::int32_t* degrees,
+                                                         std::int64_t vertex_count,
+                                                         std::int64_t edge_count);
 
 /*
 template <typename Cpu>
@@ -53,11 +62,11 @@ vertex_ranking_result<task::global> call_triangle_counting_default_kernel_int32(
     const dal::preview::detail::topology<int32_t> &data);
     */
 
-DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
+DAAL_FORCEINLINE std::int32_t min(const std::int32_t& a, const std::int32_t& b) {
     return (a >= b) ? b : a;
 }
 
-DAAL_FORCEINLINE std::int32_t max(const std::int32_t &a, const std::int32_t &b) {
+DAAL_FORCEINLINE std::int32_t max(const std::int32_t& a, const std::int32_t& b) {
     return (a <= b) ? b : a;
 }
 

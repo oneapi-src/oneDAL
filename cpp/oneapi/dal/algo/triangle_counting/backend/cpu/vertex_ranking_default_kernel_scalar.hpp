@@ -30,8 +30,8 @@ namespace triangle_counting {
 namespace detail {
 
 template <typename Index>
-DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
-                                          const Index *neigh_v,
+DAAL_FORCEINLINE std::size_t intersection(const Index* neigh_u,
+                                          const Index* neigh_v,
                                           Index n_u,
                                           Index n_v) {
     std::size_t total = 0;
@@ -52,8 +52,8 @@ DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
 
 template <typename Cpu, typename Index>
 vertex_ranking_result<task::local> call_triangle_counting_default_kernel_scalar(
-    const detail::descriptor_base<task::local> &desc,
-    const dal::preview::detail::topology<Index> &data) {
+    const detail::descriptor_base<task::local>& desc,
+    const dal::preview::detail::topology<Index>& data) {
     std::cout << "local scalar" << std::endl;
 
     vertex_ranking_result<task::local> res;
@@ -62,8 +62,8 @@ vertex_ranking_result<task::local> call_triangle_counting_default_kernel_scalar(
 
 template <typename Cpu, typename Index>
 vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar(
-    const detail::descriptor_base<task::global> &desc,
-    const dal::preview::detail::topology<Index> &data) {
+    const detail::descriptor_base<task::global>& desc,
+    const dal::preview::detail::topology<Index>& data) {
     std::cout << "global scalar" << std::endl;
 
     vertex_ranking_result<task::global> res;
@@ -71,17 +71,31 @@ vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar
 }
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_scalar_novec(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count){return 15;}
+std::int64_t triangle_counting_global_scalar_novec(const std::int32_t* vertex_neighbors,
+                                                   const std::int64_t* edge_offsets,
+                                                   const std::int32_t* degrees,
+                                                   std::int64_t vertex_count,
+                                                   std::int64_t edge_count) {
+    return 15;
+}
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_vector_novec(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count){return 15;}
+std::int64_t triangle_counting_global_vector_novec(const std::int32_t* vertex_neighbors,
+                                                   const std::int64_t* edge_offsets,
+                                                   const std::int32_t* degrees,
+                                                   std::int64_t vertex_count,
+                                                   std::int64_t edge_count) {
+    return 15;
+}
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_vector_relabel_novec(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
-                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count){return 15;}
-
+std::int64_t triangle_counting_global_vector_relabel_novec(const std::int32_t* vertex_neighbors,
+                                                           const std::int64_t* edge_offsets,
+                                                           const std::int32_t* degrees,
+                                                           std::int64_t vertex_count,
+                                                           std::int64_t edge_count) {
+    return 15;
+}
 
 } // namespace detail
 } // namespace triangle_counting

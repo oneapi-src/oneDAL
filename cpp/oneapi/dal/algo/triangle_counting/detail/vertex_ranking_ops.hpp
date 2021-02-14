@@ -30,16 +30,16 @@ template <typename Policy, typename Descriptor, typename Graph>
 struct ONEDAL_EXPORT vertex_ranking_ops_dispatcher {
     using task_t = typename Descriptor::task_t;
     vertex_ranking_result<task_t> operator()(const Policy &policy,
-                                        const Descriptor &descriptor,
-                                        vertex_ranking_input<Graph, task_t> &input) const {
-    const auto &csr_topology =
-        dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-    //const kind kind = descriptor.get_kind();
-    //const relabel relabel = descriptor.get_relabel();
+                                             const Descriptor &descriptor,
+                                             vertex_ranking_input<Graph, task_t> &input) const {
+        const auto &csr_topology =
+            dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
+        //const kind kind = descriptor.get_kind();
+        //const relabel relabel = descriptor.get_relabel();
 
-    static auto impl = get_backend<Policy, Descriptor>(descriptor, csr_topology);
-    return (*impl)(policy, descriptor, csr_topology);
-}
+        static auto impl = get_backend<Policy, Descriptor>(descriptor, csr_topology);
+        return (*impl)(policy, descriptor, csr_topology);
+    }
 };
 
 template <typename Descriptor, typename Graph>
@@ -58,13 +58,9 @@ struct vertex_ranking_ops {
     }
 
     template <typename Policy>
-    auto operator()(const Policy &policy,
-                    const Descriptor &desc,
-                    input_t &input) const {
+    auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
         check_preconditions(desc, input);
-        return vertex_ranking_ops_dispatcher<Policy, Descriptor, Graph>()(policy,
-                                                                          desc,
-                                                                          input);
+        return vertex_ranking_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
 };
 

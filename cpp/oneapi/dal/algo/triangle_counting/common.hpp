@@ -45,12 +45,12 @@ using v1::by_default;
 } // namespace method
 
 namespace v1 {
-// Kind of triangles to compute 
+// Kind of triangles to compute
 enum class kind { undirected_clique, directed_cycle, directed_closed_triplet };
 
-// Option to allow relabeling that is potentially additional memory consuming. 
-enum class relabel {yes, no };
-}
+// Option to allow relabeling that is potentially additional memory consuming.
+enum class relabel { yes, no };
+} // namespace v1
 
 using v1::kind;
 using v1::relabel;
@@ -63,29 +63,32 @@ template <typename Task>
 class descriptor_impl;
 
 template <typename T>
-using enable_if_local_t =
-    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::local> || std::is_same_v<std::decay_t<T>, task::local_and_global>>;
+using enable_if_local_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::local> ||
+                                           std::is_same_v<std::decay_t<T>, task::local_and_global>>;
 
 template <typename T>
 using enable_if_global_t =
-    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::global> || std::is_same_v<std::decay_t<T>, task::local_and_global>>;
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::global> ||
+                     std::is_same_v<std::decay_t<T>, task::local_and_global>>;
 
 template <typename Task>
-constexpr bool is_local_t = dal::detail::is_one_of_v<Task, task::local, task::local_and_global>; 
+constexpr bool is_local_t = dal::detail::is_one_of_v<Task, task::local, task::local_and_global>;
 
 template <typename Task>
-constexpr bool is_global_t = dal::detail::is_one_of_v<Task, task::global, task::local_and_global>; 
+constexpr bool is_global_t = dal::detail::is_one_of_v<Task, task::global, task::local_and_global>;
 
 template <typename Method>
-constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::ordered_count>; 
+constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::ordered_count>;
 
 template <typename Task>
-constexpr bool is_valid_task = dal::detail::is_one_of_v<Task, task::global, task::local_and_global, task::local>; 
+constexpr bool is_valid_task =
+    dal::detail::is_one_of_v<Task, task::global, task::local_and_global, task::local>;
 
 /// The base class for the Triangle Counting algorithm descriptor
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task<Task>);
+
 public:
     using tag_t = descriptor_tag;
     using float_t = float;
@@ -97,6 +100,7 @@ public:
 
     kind get_kind() const;
     relabel get_relabel() const;
+
 protected:
     void set_kind(kind value);
     void set_relabel(relabel value);
@@ -135,13 +139,14 @@ public:
     static_assert(detail::is_valid_method<Method>);
     static_assert(detail::is_valid_task<Task>);
     using base_t = detail::descriptor_base<Task>;
-public: 
+
+public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
     using allocator_t = Allocator;
 
-    explicit descriptor(kind triangle, relabel mode){}
+    explicit descriptor(kind triangle, relabel mode) {}
 
     auto& set_kind(kind value);
     auto& set_relabel(relabel value);
