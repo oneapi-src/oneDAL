@@ -198,6 +198,7 @@ DAAL_EXPORT void _daal_parallel_sort_template(F * begin_p, F * end_p)
 
 DAAL_PARALLEL_SORT_IMPL(int, int32)
 DAAL_PARALLEL_SORT_IMPL(size_t, uint64)
+DAAL_PARALLEL_SORT_IMPL(daal::IdxValType<int>, pair_int32_uint64)
 DAAL_PARALLEL_SORT_IMPL(daal::IdxValType<float>, pair_fp32_uint64)
 DAAL_PARALLEL_SORT_IMPL(daal::IdxValType<double>, pair_fp64_uint64)
 

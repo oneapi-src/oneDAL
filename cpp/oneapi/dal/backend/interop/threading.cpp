@@ -73,6 +73,8 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32ptr_int64_simple(
 
 namespace oneapi::dal::detail {
 
+typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;
+
 #define ONEDAL_PARALLEL_SORT_SPECIALIZATION(TYPE, DAALTYPE, NAMESUFFIX)               \
     template <>                                                                       \
     ONEDAL_EXPORT void parallel_sort(TYPE *begin_ptr, TYPE *end_ptr) {                \
@@ -82,6 +84,7 @@ namespace oneapi::dal::detail {
 
 ONEDAL_PARALLEL_SORT_SPECIALIZATION(std::int32_t, int, int32)
 ONEDAL_PARALLEL_SORT_SPECIALIZATION(std::uint64_t, size_t, uint64)
+ONEDAL_PARALLEL_SORT_SPECIALIZATION(pair_int32_t_size_t, daal::IdxValType<int>, pair_int32_uint64)
 
 #undef ONEDAL_PARALLEL_SORT_SPECIALIZATION
 

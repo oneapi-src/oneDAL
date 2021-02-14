@@ -102,6 +102,7 @@ extern "C"
 #define DAAL_PARALLEL_SORT_DECL(TYPE, NAMESUFFIX) DAAL_EXPORT void _daal_parallel_sort_##NAMESUFFIX(TYPE * begin_ptr, TYPE * end_ptr);
     DAAL_PARALLEL_SORT_DECL(int, int32)
     DAAL_PARALLEL_SORT_DECL(size_t, uint64)
+    DAAL_PARALLEL_SORT_DECL(daal::IdxValType<int>, pair_int32_uint64)
     DAAL_PARALLEL_SORT_DECL(daal::IdxValType<float>, pair_fp32_uint64)
     DAAL_PARALLEL_SORT_DECL(daal::IdxValType<double>, pair_fp64_uint64)
 #undef DAAL_PARALLEL_SORT_DECL
@@ -112,6 +113,12 @@ namespace daal
 template <typename FPType>
 inline void parallel_sort(daal::IdxValType<FPType> * beginPtr, daal::IdxValType<FPType> * endPtr)
 {}
+
+template <>
+inline void parallel_sort<int>(daal::IdxValType<int> * beginPtr, daal::IdxValType<int> * endPtr)
+{
+    _daal_parallel_sort_pair_int32_uint64(beginPtr, endPtr);
+}
 
 template <>
 inline void parallel_sort<float>(daal::IdxValType<float> * beginPtr, daal::IdxValType<float> * endPtr)
