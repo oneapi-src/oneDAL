@@ -70,6 +70,19 @@ vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar
     return res;
 }
 
+template <typename Cpu>
+std::int64_t triangle_counting_global_scalar_novec(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
+                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count){return 15;}
+
+template <typename Cpu>
+std::int64_t triangle_counting_global_vector_novec(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
+                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count){return 15;}
+
+template <typename Cpu>
+std::int64_t triangle_counting_global_vector_relabel_novec(const std::int32_t* vertex_neighbors, const std::int64_t* edge_offsets, 
+                                const std::int32_t* degrees, std::int64_t vertex_count, std::int64_t edge_count){return 15;}
+
+
 } // namespace detail
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview

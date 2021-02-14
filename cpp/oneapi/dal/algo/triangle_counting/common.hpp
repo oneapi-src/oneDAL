@@ -139,6 +139,7 @@ public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
+    using allocator_t = Allocator;
 
     explicit descriptor(kind triangle, relabel mode){}
 
