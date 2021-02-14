@@ -17,6 +17,14 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
 
+ONEDAL_EXPORT int _onedal_threader_get_max_threads() {
+    return _daal_threader_get_max_threads();
+}
+
+ONEDAL_EXPORT int _onedal_threader_get_current_thread_index() {
+    return _daal_threader_get_current_thread_index();
+}
+
 ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
                                         std::int32_t threads_request,
                                         const void *a,

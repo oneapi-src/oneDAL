@@ -41,6 +41,10 @@ typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;
 } // namespace oneapi::dal::preview
 
 extern "C" {
+ONEDAL_EXPORT int _onedal_threader_get_max_threads();
+
+ONEDAL_EXPORT int _onedal_threader_get_current_thread_index();
+
 ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
                                         std::int32_t threads_request,
                                         const void *a,
@@ -73,6 +77,14 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32ptr_int64_simple(
 }
 
 namespace oneapi::dal::detail {
+inline int threader_get_max_threads() {
+    return _onedal_threader_get_max_threads();
+}
+
+inline int threader_get_current_thread_index() {
+    return _onedal_threader_get_current_thread_index();
+}
+
 template <typename F>
 inline void threader_func(std::int32_t i, const void *a) {
     const F &lambda = *static_cast<const F *>(a);
@@ -161,8 +173,6 @@ template <typename F>
 ONEDAL_EXPORT void parallel_sort(F *begin_ptr, F *end_ptr) {
     throw unimplemented(dal::detail::error_messages::unimplemented_sorting_procedure());
 }
-
-
 
 #define ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(TYPE) \
     template <>                                        \

@@ -249,6 +249,7 @@ typedef void (*_daal_threader_for_t)(int, int, const void *, daal::functype);
 typedef void (*_daal_static_threader_for_t)(size_t, const void *, daal::functype_static);
 typedef void (*_daal_threader_for_blocked_t)(int, int, const void *, daal::functype2);
 typedef int (*_daal_threader_get_max_threads_t)(void);
+typedef int (*_daal_threader_get_current_thread_index_t)(void);
 typedef void (*_daal_threader_for_break_t)(int, int, const void *, daal::functype_break);
 
 typedef int64_t (*_daal_parallel_reduce_size_t_int64_t)(size_t, int64_t, const void *, daal::loop_functype_size_t_int64_T, const void *, daal::reduction_functype_int64);
@@ -308,6 +309,7 @@ static _daal_static_threader_for_t _daal_static_threader_for_ptr           = NUL
 static _daal_threader_for_blocked_t _daal_threader_for_blocked_ptr         = NULL;
 static _daal_threader_for_t _daal_threader_for_optional_ptr                = NULL;
 static _daal_threader_get_max_threads_t _daal_threader_get_max_threads_ptr = NULL;
+static _daal_threader_get_current_thread_index_t _daal_threader_get_current_thread_index_ptr = NULL;
 static _daal_threader_for_break_t _daal_threader_for_break_ptr             = NULL;
 
 static _daal_parallel_reduce_size_t_int64_t _daal_parallel_reduce_size_t_int64_ptr                   = NULL;
@@ -521,6 +523,16 @@ DAAL_EXPORT int _daal_threader_get_max_threads()
         _daal_threader_get_max_threads_ptr = (_daal_threader_get_max_threads_t)load_daal_thr_func("_daal_threader_get_max_threads");
     }
     return _daal_threader_get_max_threads_ptr();
+}
+
+DAAL_EXPORT int _daal_threader_get_current_thread_index()
+{
+    load_daal_thr_dll();
+    if (_daal_threader_get_current_thread_index_ptr == NULL)
+    {
+        _daal_threader_get_current_thread_index_ptr = (_daal_threader_get_current_thread_index_t)load_daal_thr_func("_daal_threader_get_current_thread_index");
+    }
+    return _daal_threader_get_current_thread_index_ptr();
 }
 
 DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func)

@@ -269,6 +269,15 @@ DAAL_EXPORT int _daal_threader_get_max_threads()
 #endif
 }
 
+DAAL_EXPORT int _daal_threader_get_current_thread_index()
+{
+#if defined(__DO_TBB_LAYER__)
+    return tbb::this_task_arena::current_thread_index();
+#elif defined(__DO_SEQ_LAYER__)
+    return 1;
+#endif
+}
+
 DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func)
 {
 #if defined(__DO_TBB_LAYER__)

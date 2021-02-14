@@ -55,6 +55,7 @@ class task;
 extern "C"
 {
     DAAL_EXPORT int _daal_threader_get_max_threads();
+    DAAL_EXPORT int _daal_threader_get_current_thread_index();
     DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func);
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
@@ -135,6 +136,11 @@ inline void parallel_sort<double>(daal::IdxValType<double> * beginPtr, daal::Idx
 inline int threader_get_max_threads_number()
 {
     return _daal_threader_get_max_threads();
+}
+
+inline int threader_get_max_current_thread_index()
+{
+    return _daal_threader_get_current_thread_index();
 }
 
 inline void * threaded_scalable_malloc(const size_t size, const size_t alignment)

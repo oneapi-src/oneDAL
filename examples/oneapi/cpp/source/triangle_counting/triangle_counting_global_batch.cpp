@@ -24,6 +24,8 @@
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
+#include "tbb/global_control.h"
+
 namespace dal = oneapi::dal;
 using namespace dal::preview::triangle_counting;
 
@@ -35,9 +37,11 @@ int main(int argc, char **argv) {
     const dal::preview::load_graph::descriptor<> d;
     const auto my_graph = dal::preview::load_graph::load(d, ds);
 
+    tbb::global_control c(tbb::global_control::max_allowed_parallelism, std::stoi(argv[2]));
+
     // set algorithm parameters
     const auto tc_desc =
-        descriptor<float, method::ordered_count, task::global>(kind::undirected_clique, relabel::no);
+        descriptor<float, method::ordered_count, task::global>(kind::undirected_clique, relabel::yes);
 
     // compute local triangles
     const auto result_vertex_ranking =
