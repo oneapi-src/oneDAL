@@ -787,7 +787,6 @@ array<std::int64_t> triangle_counting_local_avx512(
             triangles_ptr[u] += triangles_local[idx_glob + u];
         }
     });
-
     return arr_triangles;
 }
 
