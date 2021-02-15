@@ -142,4 +142,12 @@ void fill_relabeled_topology(const dal::detail::host_policy& policy,
     });
 }
 
+std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
+                                      const array<std::int64_t>& local_triangles,
+                                      std::int64_t vertex_count) {
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+        return compute_global_triangles_cpu<decltype(cpu)>(local_triangles, vertex_count);
+    });
+}
+
 } // namespace oneapi::dal::preview::triangle_counting::detail

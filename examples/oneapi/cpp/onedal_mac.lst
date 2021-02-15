@@ -1,3 +1,4 @@
+
 #===============================================================================
 # Copyright 2020-2021 Intel Corporation
 #
@@ -32,4 +33,6 @@ ONEDAL = column_accessor_homogen           \
          jaccard_batch                     \
          load_graph                        \
          graph_service_functions           \
-         triangle_counting_local_batch
+         triangle_counting_local_batch     \
+         triangle_counting_global_batch     \
+         triangle_counting_local_and_global_batch

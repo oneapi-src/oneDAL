@@ -24,6 +24,7 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {
@@ -54,6 +55,25 @@ template <typename Cpu>
 array<std::int64_t> triangle_counting_local_cpu(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local);
+
+template <typename Cpu>
+std::int64_t compute_global_triangles_cpu(const array<std::int64_t>& local_triangles,
+                                          std::int64_t vertex_count) {
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
+        vertex_count,
+        (std::int64_t)0,
+        [&](std::int32_t begin_u, std::int32_t end_u, std::int64_t tc) -> std::int64_t {
+            for (auto u = begin_u; u != end_u; ++u) {
+                tc += local_triangles[u];
+            }
+            return tc;
+        },
+        [&](std::int64_t x, std::int64_t y) -> std::int64_t {
+            return x + y;
+        });
+    total_s /= 3;
+    return total_s;
+}
 
 DAAL_FORCEINLINE std::int32_t min(const std::int32_t& a, const std::int32_t& b) {
     return (a >= b) ? b : a;
