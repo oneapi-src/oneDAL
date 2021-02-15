@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <limits>
+#include <cmath>
 
 #include "oneapi/dal/algo/kmeans/train.hpp"
 #include "oneapi/dal/algo/kmeans/infer.hpp"
@@ -25,8 +26,6 @@
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
-
-#include <iostream>
 
 namespace oneapi::dal::kmeans::test {
 
@@ -46,6 +45,10 @@ public:
             .set_cluster_count(cluster_count)
             .set_max_iteration_count(max_iteration_count)
             .set_accuracy_threshold(accuracy_threshold);
+    }
+
+    auto get_descriptor(std::int64_t cluster_count) const {
+        return kmeans::descriptor<Float, Method>{cluster_count};
     }
 
     te::table_id get_homogen_table_id() const {
@@ -70,7 +73,6 @@ public:
         INFO("run training");
         const auto train_result = train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
-        std::cout << "Check training" << std::endl;
         check_train_result(kmeans_desc,
                            train_result,
                            ref_centroids,
@@ -79,11 +81,10 @@ public:
 
         INFO("run inference");
         const auto infer_result = infer(kmeans_desc, model, data);
-        std::cout << "Check inference" << std::endl;
         check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
     }
 
-    void exact_checks_with_reoredering(const table& data,
+    void exact_checks_with_reordering(const table& data,
                                        const table& initial_centroids,
                                        const table& ref_centroids,
                                        const table& ref_labels,
@@ -121,6 +122,45 @@ public:
                            ref_labels,
                            ref_objective_function);
     }
+
+    void train_with_initialization_checks(const table& data,
+                                               const table& ref_centroids,
+                                           const table& ref_labels,
+                                             std::int64_t cluster_count,
+                                       std::int64_t max_iteration_count,
+                                       Float accuracy_threshold,
+                                             kmeans::model<>& model) {
+        CAPTURE(cluster_count);
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        INFO("run training");
+        const auto train_result = train(kmeans_desc, data);
+        check_train_result(kmeans_desc,
+                           train_result,
+                           ref_centroids,
+                           ref_labels,
+                           false);
+        model = train_result.get_model();
+    }
+
+    void infer_checks(const table& data,
+                      kmeans::model<>& model,
+                      const table& ref_labels,
+                      Float ref_objective_function = -1.0) {
+        CAPTURE(model.get_cluster_count());
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(model.get_cluster_count());
+
+        INFO("run inference");
+        const auto infer_result = infer(kmeans_desc, model, data);
+        check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
+    }
+
 
     void check_train_result(const kmeans::descriptor<Float, Method>& desc,
                             const kmeans::train_result<>& result,
@@ -173,8 +213,7 @@ public:
         Float alpha = std::numeric_limits<Float>::min();
         if (!(ref_objective_function < 0.0)) {
             REQUIRE(fabs(objective_function - ref_objective_function) /
-                        (fabs(objective_function) + (ref_objective_function) + alpha) <
-                    rel_tol);
+                        (fabs(objective_function) + (ref_objective_function) + alpha) < rel_tol);
         }
     }
 
@@ -183,6 +222,7 @@ public:
                             const table& ref_labels,
                             Float ref_objective_function) {
         const auto [labels, objective_function] = unpack_result(result);
+
         check_base_infer_result(desc, result, ref_objective_function);
         check_label_match(ref_labels, labels);
     }
@@ -206,21 +246,17 @@ public:
             const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
             const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
             const Float alpha = std::numeric_limits<Float>::min();
-            bool failed = false;
             for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
                 const Float l = left_rows[i];
                 const Float r = right_rows[i];
-                std::cout << "Centroids: " << l << " " << r << " " << alpha << " " << rel_tol << std::endl;
-                if (fabs(l - r) < alpha) {
-                    std::cout << "Skipped" << std::endl;
-                    continue;
-                }
+                if (fabs(l - r) < alpha) continue;
                 const Float denom = fabs(l) + fabs(r) + alpha;
-                std::cout << (fabs(l - r) / denom) << std::endl;
-                failed |= fabs(l - r) / denom > rel_tol;
+                if (fabs(l - r) / denom > rel_tol) {
+                    CAPTURE(l, r);
+                    FAIL("Centroid feature mismatch");
+                }
+
             }
-            std::cout << "Failed: " << failed << std::endl;
-            REQUIRE(!failed);
         }
     }
 
@@ -236,7 +272,6 @@ public:
             const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
             const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
             const Float alpha = std::numeric_limits<Float>::min();
-            bool failed = false;
             std::int64_t cluster_count = left.get_row_count();
             std::int64_t feature_count = left.get_column_count();
             for (std::int64_t i = 0; i < cluster_count; i++) {
@@ -246,10 +281,12 @@ public:
                     if (fabs(l - r) < alpha)
                         continue;
                     const Float denom = fabs(l) + fabs(r) + alpha;
-                    failed |= fabs(l - r) / denom > rel_tol;
+                    if (fabs(l - r) / denom > rel_tol) {
+                        CAPTURE(l, r);
+                        FAIL("Centroid feature mismatch for mapped centroids");
+                    }
                 }
             }
-            REQUIRE(!failed);
         }
     }
 
@@ -306,14 +343,14 @@ public:
         SECTION("label match is expected") {
             const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
             const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            bool failed = false;
             for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
                 const Float l = left_rows[i];
                 const Float r = right_rows[i];
-                std::cout << "Labels: " << l << " " << r << std::endl;
-                failed |= l != r;
+                if (l != r) {
+                    CAPTURE(l, r);
+                    FAIL("Label mismatch");
+                }
             }
-            REQUIRE(!failed);
         }
     }
 
@@ -326,13 +363,14 @@ public:
         SECTION("label match is expected") {
             const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
             const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            bool failed = false;
             for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
                 const Float l = left_rows[i];
                 const Float r = right_rows[i];
-                failed |= l != match_map[r];
+                if (l != match_map[r]) {
+                    CAPTURE(l, r, match_map[r]);
+                    FAIL("Label mismatch for mapped centroids");
+                }
             }
-            REQUIRE(!failed);
         }
     }
 
@@ -342,12 +380,18 @@ public:
         SECTION("there is no NaN in centroids") {
             REQUIRE(te::has_no_nans(centroids));
         }
+        SECTION("there is no NaN in labels") {
+            REQUIRE(te::has_no_nans(labels));
+        }
     }
 
     void check_nans(const kmeans::infer_result<>& result) {
         const auto [labels, objective_function] = unpack_result(result);
 
         SECTION("there is no NaN in objective function values") {
+            REQUIRE(!std::isnan(objective_function));
+        }
+        SECTION("there is no NaN in labels") {
             REQUIRE(te::has_no_nans(labels));
         }
     }
@@ -367,7 +411,7 @@ private:
 };
 
 using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
-/*
+
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans degenerated test",
                      "[kmeans][batch]",
@@ -375,9 +419,10 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
     Float data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
-    homogen_table x{ data, 3, 5, empty_delete<const Float>() };
+    const auto x = homogen_table::wrap(data, 3, 5);
+
     Float labels[] = { 0, 1, 2 };
-    homogen_table y{ labels, 3, 1, empty_delete<const Float>() };
+    const auto y = homogen_table::wrap(labels, 3, 1);
     this->exact_checks(x, x, x, y, 3, 2, 0.0, 0.0, false);
 }
 
@@ -389,17 +434,17 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
     const auto x = homogen_table::wrap(data, 4, 2);
 
     Float initial_centroids[] = { 0.5, 0.5, 3, 3 };
-    homogen_table c_init{ initial_centroids, 2, 2, empty_delete<const Float>() };
+    const auto c_init = homogen_table::wrap(initial_centroids, 2, 2);
 
     Float final_centroids[] = { 0.25, 0, 0.75, 1 };
-    homogen_table c_final{ final_centroids, 2, 2, empty_delete<const Float>() };
+    const auto c_final = homogen_table::wrap(final_centroids, 2, 2);
 
     std::int64_t labels[] = { 0, 0, 1, 1 };
-    homogen_table y{ labels, 4, 1, empty_delete<const std::int64_t>() };
+    const auto y = homogen_table::wrap(labels, 4, 1);
 
     Float expected_obj_function = 0.25;
     std::int64_t expected_n_iters = 4;
-    this->exact_checks_with_reoredering(x,
+    this->exact_checks_with_reordering(x,
                                         c_init,
                                         c_final,
                                         y,
@@ -409,7 +454,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
                                         expected_obj_function,
                                         false);
 }
-*/
+
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans empty clusters test",
                      "[kmeans][batch]",
@@ -418,18 +463,46 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     using Float = std::tuple_element_t<0, TestType>;
 
     Float data[] = { -10, -9.5, -9, -8.5, -8, -1, 1, 9, 9.5, 10 };
-    homogen_table x{ data, 10, 1, empty_delete<const Float>() };
+    const auto x = homogen_table::wrap(data, 10, 1);
 
     Float initial_centroids[] = { -10, -10, -10 };
-    homogen_table c_init{ initial_centroids, 3, 1, empty_delete<const Float>() };
+    const auto c_init = homogen_table::wrap(initial_centroids, 3, 1);
 
     Float final_centroids[] = { -1.65, 10, 9.5 };
-    homogen_table c_final{ final_centroids, 3, 1, empty_delete<const Float>() };
+    const auto c_final = homogen_table::wrap(final_centroids, 3, 1);
 
     Float labels[] = { 0, 0, 0, 0, 0, 0, 0, 2, 2, 1 };
-    homogen_table y{ labels, 10, 1, empty_delete<const Float>() };
+    const auto y = homogen_table::wrap(labels, 10, 1);
 
     this->exact_checks(x, c_init, c_final, y, 3, 1, 0.0);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "kmeans train/infer test",
+                     "[kmeans][batch]",
+                     kmeans_types) {
+    using oneapi::dal::detail::empty_delete;
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const Float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
+                           -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
+    const auto x = homogen_table::wrap(data, 8, 2);
+
+    const Float final_centroids[] = { -1.5, -1.5, 1.5, 1.5 };
+    const auto c_final = homogen_table::wrap(final_centroids, 2, 2);
+
+    const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
+    const auto y = homogen_table::wrap(labels, 8, 1);
+
+    model<> model;
+
+    this->train_with_initialization_checks(x, c_final, y, 2, 4, 0.001, model);
+
+    const Float data_infer[] = { 1.0, 1.0,  0.0, 1.0,  1.0,  0.0,  2.0, 2.0,  7.0,
+                                 0.0, -1.0, 0.0, -5.0, -5.0, -5.0, 0.0, -2.0, 1.0 };
+    const auto x2 = homogen_table::wrap(data_infer, 9, 2);
+    Float expected_obj_function = 4;
+    this->infer_checks(x, model, y, expected_obj_function);
 }
 
 } // namespace oneapi::dal::kmeans::test

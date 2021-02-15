@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 #include <src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
@@ -31,21 +32,22 @@ using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_kmeans = daal::algorithms::kmeans;
+namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
 
 template <typename Float>
 using daal_kmeans_lloyd_dense_ucapi_kernel_t =
     daal_kmeans::internal::KMeansDenseLloydBatchKernelUCAPI<Float>;
 
+template <typename Float, daal::CpuType Cpu>
+using daal_kmeans_init_plus_plus_dense_kernel_t =
+    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
+
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
-        if (!(input.get_initial_centroids().has_data())) {
-            throw domain_error(dal::detail::error_messages::input_initial_centroids_are_empty());
-        }
-
         auto& queue = ctx.get_queue();
         interop::execution_context_guard guard(queue);
 
@@ -66,30 +68,54 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         const auto daal_data =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
 
-        auto arr_initial_centroids =
-            row_accessor<const Float>{ input.get_initial_centroids() }.pull(queue);
+        daal::data_management::NumericTablePtr daal_initial_centroids;
 
+        if (!input.get_initial_centroids().has_data()) {
+            daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
+
+            const size_t init_len_input = 1;
+            daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
+
+            daal_initial_centroids =
+                interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
+            const size_t init_len_output = 1;
+            daal::data_management::NumericTable* init_output[init_len_output] = {
+                daal_initial_centroids.get()
+            };
+
+            const dal::backend::context_cpu cpu_ctx;
+            interop::status_to_exception(
+                interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_dense_kernel_t>(
+                    cpu_ctx,
+                    init_len_input,
+                    init_input,
+                    init_len_output,
+                    init_output,
+                    &par,
+                    *(par.engine)));
+        }
+        else {
+            auto arr_initial_centroids =
+                row_accessor<const Float>{ input.get_initial_centroids() }.pull(queue);
+            daal_initial_centroids = interop::convert_to_daal_sycl_homogen_table<Float>(queue, arr_initial_centroids, cluster_count, column_count);
+        }
         dal::detail::check_mul_overflow(cluster_count, column_count);
         array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
         array<int> arr_labels = array<int>::empty(queue, row_count);
         array<Float> arr_objective_function_value = array<Float>::empty(queue, 1);
         array<int> arr_iteration_count = array<int>::empty(queue, 1);
 
-        const auto daal_initial_centroids =
-            interop::convert_to_daal_sycl_homogen_table(queue,
-                                                        arr_initial_centroids,
-                                                        cluster_count,
-                                                        column_count);
-        const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                                arr_centroids,
-                                                                                cluster_count,
-                                                                                column_count);
         const auto daal_labels =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
         const auto daal_objective_function_value =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_objective_function_value, 1, 1);
         const auto daal_iteration_count =
             interop::convert_to_daal_sycl_homogen_table(queue, arr_iteration_count, 1, 1);
+
+        const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
+                                                                                arr_centroids,
+                                                                                cluster_count,
+                                                                                column_count);
 
         daal::data_management::NumericTable* daal_input[2] = { daal_data.get(),
                                                                daal_initial_centroids.get() };
