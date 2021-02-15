@@ -26,6 +26,12 @@ public:
         return policy_;
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    sycl::queue& get_queue() {
+        return policy_.get_queue();
+    }
+#endif
+
 private:
     DECLARE_TEST_POLICY(policy_);
 };

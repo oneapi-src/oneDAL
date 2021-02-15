@@ -9,6 +9,10 @@ build --flag_alias=test_thread_mode=@config//:test_thread_mode
 build --flag_alias=release_dpc=@config//:release_dpc
 build --flag_alias=cpu=@config//:cpu
 
+# Always pass this env variable to test rules, because SYCL
+# OpenCL backend uses it to determine available devices
+test --test_env=OCL_ICD_FILENAMES
+
 # Configuration: 'host'
 build:host \
     --build_tag_filters="host"
@@ -26,7 +30,6 @@ run:dpc-cpu \
 
 test:dpc-cpu \
     --test_tag_filters="dpc" \
-    --test_env=OCL_ICD_FILENAMES \
     --test_arg="--device=cpu"
 
 
@@ -39,5 +42,4 @@ run:dpc-gpu \
 
 test:dpc-gpu \
     --test_tag_filters="dpc" \
-    --test_env=OCL_ICD_FILENAMES \
     --test_arg="--device=gpu"
