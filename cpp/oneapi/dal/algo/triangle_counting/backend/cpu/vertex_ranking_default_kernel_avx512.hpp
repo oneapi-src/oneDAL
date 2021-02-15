@@ -728,26 +728,26 @@ array<std::int64_t> triangle_counting_local_avx512(
         });
     }
     else {//average_degree >= average_degree_sparsity_boundary
-        dal::detail::threader_for_simple(g_vertex_count, g_vertex_count, [&](std::int32_t u) {                                    
+        dal::detail::threader_for_simple(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
             if (g_degrees[u] >= 2)
-                dal::detail::threader_for_int32ptr(g_vertex_neighbors + g_edge_offsets[u], g_vertex_neighbors + g_edge_offsets[u+1], 
+                dal::detail::threader_for_int32ptr(g_vertex_neighbors + g_edge_offsets[u], g_vertex_neighbors + g_edge_offsets[u+1],
                                                  [&](const std::int32_t* v_) {
                     std::int32_t v = *v_;
                     if (v <= u) {
                         const std::int32_t* neigh_u = g_vertex_neighbors + g_edge_offsets[u];
                         std::int32_t size_neigh_u = g_vertex_neighbors + g_edge_offsets[u+1] - neigh_u;
                         const std::int32_t* neigh_v = g_vertex_neighbors + g_edge_offsets[v];;
-                        std::int32_t size_neigh_v = g_vertex_neighbors + g_edge_offsets[v+1]- neigh_v;                                         
+                        std::int32_t size_neigh_v = g_vertex_neighbors + g_edge_offsets[v+1]- neigh_v;
                         std::int32_t new_size_neigh_v;
 
                         for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
-                        size_neigh_v = new_size_neigh_v; 
+                        size_neigh_v = new_size_neigh_v;
 
                         int thread_id = dal::detail::threader_get_current_thread_index();
                         int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
 
-                        auto tc = intersection_local_tc(neigh_u, neigh_v, size_neigh_u, size_neigh_v, 
-                            triangles_local + indx, 
+                        auto tc = intersection_local_tc(neigh_u, neigh_v, size_neigh_u, size_neigh_v,
+                            triangles_local + indx,
                             g_vertex_count);
 
                         triangles_local[indx + u] += tc;
@@ -765,11 +765,11 @@ array<std::int64_t> triangle_counting_local_avx512(
     dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
         for (int j = 0; j < thread_cnt; j++) {
             int64_t idx_glob = (int64_t)j * (int64_t)g_vertex_count;
-            triangles_ptr[u] += triangles_local[idx_glob + u]; 
+            triangles_ptr[u] += triangles_local[idx_glob + u];
         }
 
     std::int64_t checksum = 0;
-    for (int i = 0; i < g_vertex_count; i++) 
+    for (int i = 0; i < g_vertex_count; i++)
         checksum += triangles_ptr[i];
 
     std::cout << "TC checksum: " << checksum << std::endl;

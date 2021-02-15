@@ -46,10 +46,10 @@ int main(int argc, char **argv) {
     // extract the result
     const auto triangles = result_vertex_ranking.get_ranks();
 
-    /*auto arr = oneapi::dal::column_accessor<const std::int64_t>(triangles).pull(); 
-    const auto x = arr.get_data(); 
+    /*auto arr = oneapi::dal::column_accessor<const std::int64_t>(triangles).pull();
+    const auto x = arr.get_data();
 
-    for(auto i = 0; i < get_vertex_count(my_graph); i++) { 
-        std::cout << "Vertex " << i <<":/t" << x[i] << std::endl; 
+    for(auto i = 0; i < get_vertex_count(my_graph); i++) {
+        std::cout << "Vertex " << i <<":/t" << x[i] << std::endl;
     } */
 }
