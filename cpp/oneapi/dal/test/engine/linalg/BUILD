@@ -19,7 +19,7 @@ dal_test_module(
 dal_test_suite(
     name = "tests",
     framework = "catch2",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob(["test/*.cpp"]),
     dal_deps = [
         ":linalg",

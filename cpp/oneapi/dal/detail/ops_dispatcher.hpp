@@ -65,7 +65,7 @@ struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ false> {
     auto operator()(Descriptor&& desc, Head&& head, Tail&&... tail) {
         using ops_t = Ops<std::decay_t<Descriptor>>;
         using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
-        return dispatcher_t{}(host_policy{},
+        return dispatcher_t{}(host_policy::get_default(),
                               std::forward<Descriptor>(desc),
                               std::forward<Head>(head),
                               std::forward<Tail>(tail)...);
@@ -105,14 +105,14 @@ struct ops_policy_dispatcher_object<Object, T, Ops, /* IsPolicy = */ false> {
     auto operator()(Descriptor&& desc) {
         using ops_t = Ops<std::decay_t<Object>, std::decay_t<Descriptor>>;
         using input_t = typename ops_t::args_t;
-        return ops_t{}(host_policy{}, std::forward<Descriptor>(desc), input_t{});
+        return ops_t{}(host_policy::get_default(), std::forward<Descriptor>(desc), input_t{});
     }
 
     template <typename Descriptor, typename Head, typename... Tail>
     auto operator()(Descriptor&& desc, Head&& head, Tail&&... tail) {
         using ops_t = Ops<std::decay_t<Object>, std::decay_t<Descriptor>>;
         using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
-        return dispatcher_t{}(host_policy{},
+        return dispatcher_t{}(host_policy::get_default(),
                               std::forward<Descriptor>(desc),
                               std::forward<Head>(head),
                               std::forward<Tail>(tail)...);
