@@ -50,17 +50,10 @@ std::int64_t triangle_counting_global_vector_relabel_cpu(const std::int32_t* ver
                                                          std::int64_t vertex_count,
                                                          std::int64_t edge_count);
 
-/*
 template <typename Cpu>
-vertex_ranking_result<task::local> call_triangle_counting_default_kernel_int32(
-    const detail::descriptor_base<task::local> &desc,
-    const dal::preview::detail::topology<int32_t> &data);
-
-template <typename Cpu>
-vertex_ranking_result<task::global> call_triangle_counting_default_kernel_int32(
-    const detail::descriptor_base<task::global> &desc,
-    const dal::preview::detail::topology<int32_t> &data);
-    */
+array<std::int64_t> triangle_counting_local_cpu(
+    const dal::preview::detail::topology<std::int32_t>& data,
+    int64_t* triangles_local);
 
 DAAL_FORCEINLINE std::int32_t min(const std::int32_t& a, const std::int32_t& b) {
     return (a >= b) ? b : a;

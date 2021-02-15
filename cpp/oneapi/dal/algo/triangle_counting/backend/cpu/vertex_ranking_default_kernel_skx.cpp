@@ -29,31 +29,16 @@ namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
 
-/*
-template vertex_ranking_result<task::global> call_triangle_counting_default_kernel_avx512<
-    dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::global> &desc,
-                                       const dal::preview::detail::topology<std::int32_t> &data);
+template array<std::int64_t> triangle_counting_local_avx512<dal::backend::cpu_dispatch_avx512>(
+    const dal::preview::detail::topology<std::int32_t>& data,
+    int64_t* triangles_local);
 
 template <>
-vertex_ranking_result<task::global> call_triangle_counting_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
-    const detail::descriptor_base<task::global> &desc,
-    const dal::preview::detail::topology<std::int32_t> &data) {
-    return call_triangle_counting_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc,
-                                                                                 data);
+array<std::int64_t> triangle_counting_local_cpu<dal::backend::cpu_dispatch_avx512>(
+    const dal::preview::detail::topology<std::int32_t>& data,
+    int64_t* triangles_local) {
+    return triangle_counting_local_avx512<dal::backend::cpu_dispatch_avx512>(data, triangles_local);
 }
-
-template vertex_ranking_result<task::local> call_triangle_counting_default_kernel_avx512<
-    dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::local> &desc,
-                                       const dal::preview::detail::topology<std::int32_t> &data);
-
-template <>
-vertex_ranking_result<task::local> call_triangle_counting_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
-    const detail::descriptor_base<task::local> &desc,
-    const dal::preview::detail::topology<std::int32_t> &data) {
-    return call_triangle_counting_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc,
-                                                                                 data);
-}
-*/
 
 template std::int64_t triangle_counting_global_scalar_avx512<dal::backend::cpu_dispatch_avx512>(
     const std::int32_t* vertex_neighbors,

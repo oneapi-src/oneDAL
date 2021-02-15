@@ -27,37 +27,17 @@
 namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
-/*
-template vertex_ranking_result<task::local> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
-    const detail::descriptor_base<task::local> &desc,
-    const dal::preview::detail::topology<std::int32_t> &data);
 
-template vertex_ranking_result<task::local> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
-    const detail::descriptor_base<task::local> &desc,
-    const dal::preview::detail::topology<std::int64_t> &data);
+template array<std::int64_t> triangle_counting_local_novec<__CPU_TAG__>(
+    const dal::preview::detail::topology<std::int32_t>& data,
+    int64_t* triangles_local);
 
 template <>
-vertex_ranking_result<task::local> call_triangle_counting_default_kernel_int32<__CPU_TAG__>(
-    const detail::descriptor_base<task::local> &desc,
-    const dal::preview::detail::topology<std::int32_t> &data) {
-    return call_triangle_counting_default_kernel_scalar<__CPU_TAG__>(desc, data);
+array<std::int64_t> triangle_counting_local_cpu<__CPU_TAG__>(
+    const dal::preview::detail::topology<std::int32_t>& data,
+    int64_t* triangles_local) {
+    return triangle_counting_local_novec<__CPU_TAG__>(data, triangles_local);
 }
-
-
-template vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
-    const detail::descriptor_base<task::global> &desc,
-    const dal::preview::detail::topology<std::int32_t> &data);
-
-template vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
-    const detail::descriptor_base<task::global> &desc,
-    const dal::preview::detail::topology<std::int64_t> &data);
-
-template <>
-vertex_ranking_result<task::global> call_triangle_counting_default_kernel_int32<__CPU_TAG__>(
-    const detail::descriptor_base<task::global> &desc,
-    const dal::preview::detail::topology<std::int32_t> &data) {
-    return call_triangle_counting_default_kernel_scalar<__CPU_TAG__>(desc, data);
-}*/
 
 template std::int64_t triangle_counting_global_scalar_novec<__CPU_TAG__>(
     const std::int32_t* vertex_neighbors,

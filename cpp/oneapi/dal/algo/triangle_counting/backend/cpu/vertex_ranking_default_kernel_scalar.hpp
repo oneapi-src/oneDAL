@@ -50,24 +50,11 @@ DAAL_FORCEINLINE std::size_t intersection(const Index* neigh_u,
     return total;
 }
 
-template <typename Cpu, typename Index>
-vertex_ranking_result<task::local> call_triangle_counting_default_kernel_scalar(
-    const detail::descriptor_base<task::local>& desc,
-    const dal::preview::detail::topology<Index>& data) {
-    std::cout << "local scalar" << std::endl;
-
-    vertex_ranking_result<task::local> res;
-    return res;
-}
-
-template <typename Cpu, typename Index>
-vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar(
-    const detail::descriptor_base<task::global>& desc,
-    const dal::preview::detail::topology<Index>& data) {
-    std::cout << "global scalar" << std::endl;
-
-    vertex_ranking_result<task::global> res;
-    return res;
+template <typename Cpu>
+array<std::int64_t> triangle_counting_local_novec(
+    const dal::preview::detail::topology<std::int32_t>& data,
+    int64_t* triangles_local) {
+    return array<std::int64_t>::empty(data._vertex_count);
 }
 
 template <typename Cpu>

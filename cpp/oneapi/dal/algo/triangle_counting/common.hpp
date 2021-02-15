@@ -154,8 +154,16 @@ public:
     kind get_kind() const;
     relabel get_relabel() const;
 
-    auto& set_allocator(Allocator alloc);
-    Allocator& get_allocator() const;
+    auto& set_allocator(Allocator alloc) {
+        _alloc = alloc;
+        return *this;
+    }
+    const Allocator& get_allocator() const {
+        return _alloc;
+    }
+
+private:
+    Allocator _alloc;
 };
 
 } // namespace v1
