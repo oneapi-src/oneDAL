@@ -144,6 +144,7 @@ public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
+    using allocator_t = Allocator;
 
     auto& set_kind(kind value) {
         base_t::set_kind(value);
@@ -162,8 +163,16 @@ public:
         return base_t::get_relabel();
     }
 
-    auto& set_allocator(Allocator alloc);
-    Allocator& get_allocator() const;
+    auto& set_allocator(Allocator alloc) {
+        _alloc = alloc;
+        return *this;
+    }
+    const Allocator& get_allocator() const {
+        return _alloc;
+    }
+
+private:
+    Allocator _alloc;
 };
 
 } // namespace v1

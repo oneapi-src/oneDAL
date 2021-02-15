@@ -26,11 +26,18 @@
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-template <typename Policy, typename Float, class Task, class Method, typename Graph>
+template <typename Policy, typename Descriptor, typename Graph>
 struct ONEDAL_EXPORT vertex_ranking_ops_dispatcher {
-    vertex_ranking_result<Task> operator()(const Policy &policy,
-                                           const descriptor_base<Task> &descriptor,
-                                           vertex_ranking_input<Graph, Task> &input) const;
+    using task_t = typename Descriptor::task_t;
+    vertex_ranking_result<task_t> operator()(const Policy &policy,
+                                             const Descriptor &descriptor,
+                                             vertex_ranking_input<Graph, task_t> &input) const {
+        const auto &csr_topology =
+            dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
+
+        static auto impl = get_backend<Policy, Descriptor>(descriptor, csr_topology);
+        return (*impl)(policy, descriptor, csr_topology);
+    }
 };
 
 template <typename Descriptor, typename Graph>
@@ -38,6 +45,7 @@ struct vertex_ranking_ops {
     using float_t = typename Descriptor::float_t;
     using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
+    using allocator_t = typename Descriptor::allocator_t;
     using graph_t = Graph;
     using input_t = vertex_ranking_input<graph_t, task_t>;
     using result_t = vertex_ranking_result<task_t>;
@@ -50,25 +58,8 @@ struct vertex_ranking_ops {
     template <typename Policy>
     auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
         check_preconditions(desc, input);
-        return vertex_ranking_ops_dispatcher<Policy, float_t, task_t, method_t, Graph>()(policy,
-                                                                                         desc,
-                                                                                         input);
+        return vertex_ranking_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
 };
-
-template <typename Policy, typename Float, class Task, class Method, typename Graph>
-vertex_ranking_result<Task>
-vertex_ranking_ops_dispatcher<Policy, Float, Task, Method, Graph>::operator()(
-    const Policy &policy,
-    const descriptor_base<Task> &desc,
-    vertex_ranking_input<Graph, Task> &input) const {
-    const auto &csr_topology =
-        dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-    const kind kind = desc.get_kind();
-    const relabel relabel = desc.get_relabel();
-
-    static auto impl = get_backend<Policy, Task, Float, Method>(desc, csr_topology);
-    return (*impl)(policy, desc, csr_topology);
-}
 
 } // namespace oneapi::dal::preview::triangle_counting::detail
