@@ -179,6 +179,7 @@ public:
     const table& get_eigenvectors() const;
 
     auto& set_eigenvectors(const table& value) {
+        std::printf("set_eigenvectors\n");
         set_eigenvectors_impl(value);
         return *this;
     }
