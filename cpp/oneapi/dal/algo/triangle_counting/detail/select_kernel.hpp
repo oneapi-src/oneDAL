@@ -209,7 +209,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
             g_edge_offsets_relabel =
                 int64_allocator_traits::allocate(int64_allocator, g_vertex_count + 1);
 
-            auto start = high_resolution_clock::now();
             relabel_by_greater_degree(ctx,
                                       g_vertex_neighbors,
                                       g_edge_offsets,
@@ -221,22 +220,12 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
                                       g_degrees_relabel,
                                       alloc);
 
-            auto stop = high_resolution_clock::now();
-             std::cout <<  " Relabel: "
-                  << std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count()
-                  << std::endl;
-
-            start = high_resolution_clock::now();
             triangles = triangle_counting_global_vector_relabel(ctx,
                                                         g_vertex_neighbors_relabel,
                                                         g_edge_offsets_relabel,
                                                         g_degrees_relabel,
                                                         g_vertex_count,
                                                         g_edge_count);
-            stop = high_resolution_clock::now();
-            std::cout <<  " TC: "
-                  << std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count()
-                  << std::endl;
 
             if (g_vertex_neighbors_relabel != nullptr) {
                 int32_allocator_traits::deallocate(int32_allocator,
