@@ -32,9 +32,9 @@ namespace detail {
 
 template <typename Index>
 DAAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
-                                          const Index* neigh_v,
-                                          Index n_u,
-                                          Index n_v) {
+                                           const Index* neigh_v,
+                                           Index n_u,
+                                           Index n_v) {
     std::int64_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {

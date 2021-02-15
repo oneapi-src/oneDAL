@@ -152,13 +152,13 @@ DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end,
 #endif
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func,
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
                                                        const void * b, daal::reduction_functype_int64 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(
-        tbb::blocked_range<size_t>(0, n), init,
-        [&](const tbb::blocked_range<size_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+        tbb::blocked_range<int32_t>(0, n), init,
+        [&](const tbb::blocked_range<int32_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
         [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::auto_partitioner {});
 
 #elif defined(__DO_SEQ_LAYER__)
@@ -167,13 +167,13 @@ DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, c
 #endif
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func,
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64_simple(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
                                                               const void * b, daal::reduction_functype_int64 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(
-        tbb::blocked_range<size_t>(0, n), init,
-        [&](const tbb::blocked_range<size_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+        tbb::blocked_range<int32_t>(0, n), init,
+        [&](const tbb::blocked_range<int32_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
         [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner {});
 
 #elif defined(__DO_SEQ_LAYER__)

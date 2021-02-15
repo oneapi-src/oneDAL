@@ -16,10 +16,16 @@
 
 #pragma once
 
+#include <iostream>
+
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/detail/vertex_ranking_default_kernel.hpp"
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+
+#include <chrono>
+
+using namespace std::chrono;
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 

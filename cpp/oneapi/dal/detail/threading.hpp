@@ -25,13 +25,13 @@ typedef void (*functype)(std::int32_t i, const void *a);
 
 typedef void (*functype_int32ptr)(const std::int32_t *i, const void *a);
 
-typedef std::int64_t (*loop_functype_size_t_int64)(size_t start_idx,
-                                                   size_t end_idx,
-                                                   std::int64_t value_for_reduce,
-                                                   const void *a);
+typedef std::int64_t (*loop_functype_int32_int64)(std::int32_t start_idx,
+                                                  std::int32_t end_idx,
+                                                  std::int64_t value_for_reduce,
+                                                  const void *a);
 
-typedef std::int64_t (*loop_functype_int32ptr_int64)(const int32_t *begin,
-                                                     const int32_t *end,
+typedef std::int64_t (*loop_functype_int32ptr_int64)(const std::int32_t *begin,
+                                                     const std::int32_t *end,
                                                      std::int64_t value_for_reduce,
                                                      const void *a);
 
@@ -62,19 +62,19 @@ ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
                                                  const void *a,
                                                  oneapi::dal::preview::functype_int32ptr func);
 
-ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_size_t_int64(
-    size_t n,
+ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
+    std::int32_t n,
     std::int64_t init,
     const void *a,
-    oneapi::dal::preview::loop_functype_size_t_int64 loop_func,
+    oneapi::dal::preview::loop_functype_int32_int64 loop_func,
     const void *b,
     oneapi::dal::preview::reduction_functype_int64 reduction_func);
 
-ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_size_t_int64_simple(
-    size_t n,
+ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64_simple(
+    std::int32_t n,
     std::int64_t init,
     const void *a,
-    oneapi::dal::preview::loop_functype_size_t_int64 loop_func,
+    oneapi::dal::preview::loop_functype_int32_int64 loop_func,
     const void *b,
     oneapi::dal::preview::reduction_functype_int64 reduction_func);
 
@@ -137,10 +137,10 @@ inline ONEDAL_EXPORT void threader_for_int32ptr(const std::int32_t *begin,
 }
 
 template <typename F>
-inline std::int64_t parallel_reduce_loop_size_t_int64(size_t start_idx,
-                                                      size_t end_idx,
-                                                      std::int64_t value_for_reduce,
-                                                      const void *a) {
+inline std::int64_t parallel_reduce_loop_int32_int64(std::int32_t start_idx,
+                                                     std::int32_t end_idx,
+                                                     std::int64_t value_for_reduce,
+                                                     const void *a) {
     const F &lambda = *static_cast<const F *>(a);
     return lambda(start_idx, end_idx, value_for_reduce);
 }
@@ -164,32 +164,32 @@ inline std::int64_t parallel_reduce_reduction_int64(std::int64_t a,
 
 template <typename Value, typename Func, typename Reduction>
 ONEDAL_EXPORT Value
-parallel_reduce_size_t_int64_t(size_t n, Value init, const Func &func, const Reduction &reduction) {
+parallel_reduce_int32_int64_t(int32_t n, Value init, const Func &func, const Reduction &reduction) {
     const void *const lf = static_cast<const void *>(&func);
     const void *const rf = static_cast<const void *>(&reduction);
 
-    return _onedal_parallel_reduce_size_t_int64(n,
-                                                init,
-                                                lf,
-                                                parallel_reduce_loop_size_t_int64<Func>,
-                                                rf,
-                                                parallel_reduce_reduction_int64<Reduction>);
+    return _onedal_parallel_reduce_int32_int64(n,
+                                               init,
+                                               lf,
+                                               parallel_reduce_loop_int32_int64<Func>,
+                                               rf,
+                                               parallel_reduce_reduction_int64<Reduction>);
 }
 
 template <typename Value, typename Func, typename Reduction>
-ONEDAL_EXPORT Value parallel_reduce_size_t_int64_t_simple(size_t n,
-                                                          Value init,
-                                                          const Func &func,
-                                                          const Reduction &reduction) {
+ONEDAL_EXPORT Value parallel_reduce_int32_int64_t_simple(int32_t n,
+                                                         Value init,
+                                                         const Func &func,
+                                                         const Reduction &reduction) {
     const void *const lf = static_cast<const void *>(&func);
     const void *const rf = static_cast<const void *>(&reduction);
 
-    return _onedal_parallel_reduce_size_t_int64_simple(n,
-                                                       init,
-                                                       lf,
-                                                       parallel_reduce_loop_size_t_int64<Func>,
-                                                       rf,
-                                                       parallel_reduce_reduction_int64<Reduction>);
+    return _onedal_parallel_reduce_int32_int64_simple(n,
+                                                      init,
+                                                      lf,
+                                                      parallel_reduce_loop_int32_int64<Func>,
+                                                      rf,
+                                                      parallel_reduce_reduction_int64<Reduction>);
 }
 
 template <typename Value, typename Func, typename Reduction>

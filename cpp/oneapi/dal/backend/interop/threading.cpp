@@ -46,34 +46,34 @@ ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
     _daal_threader_for_int32ptr(begin, end, a, static_cast<daal::functype_int32ptr>(func));
 }
 
-ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_size_t_int64(
-    size_t n,
+ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64(
+    int32_t n,
     std::int64_t init,
     const void *a,
-    oneapi::dal::preview::loop_functype_size_t_int64 loop_func,
+    oneapi::dal::preview::loop_functype_int32_int64 loop_func,
     const void *b,
     oneapi::dal::preview::reduction_functype_int64 reduction_func) {
-    return _daal_parallel_reduce_size_t_int64(
+    return _daal_parallel_reduce_int32_int64(
         n,
         (std::int64_t)init,
         a,
-        static_cast<daal::loop_functype_size_t_int64>(loop_func),
+        static_cast<daal::loop_functype_int32_int64>(loop_func),
         b,
         static_cast<daal::reduction_functype_int64>(reduction_func));
 }
 
-ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_size_t_int64_simple(
-    size_t n,
+ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32_int64_simple(
+    int32_t n,
     std::int64_t init,
     const void *a,
-    oneapi::dal::preview::loop_functype_size_t_int64 loop_func,
+    oneapi::dal::preview::loop_functype_int32_int64 loop_func,
     const void *b,
     oneapi::dal::preview::reduction_functype_int64 reduction_func) {
-    return _daal_parallel_reduce_size_t_int64_simple(
+    return _daal_parallel_reduce_int32_int64_simple(
         n,
         (std::int64_t)init,
         a,
-        static_cast<daal::loop_functype_size_t_int64>(loop_func),
+        static_cast<daal::loop_functype_int32_int64>(loop_func),
         b,
         static_cast<daal::reduction_functype_int64>(reduction_func));
 }
