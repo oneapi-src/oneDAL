@@ -167,7 +167,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
     const detail::descriptor_base<task::global>& desc,
     const Allocator& alloc,
     const dal::preview::detail::topology<std::int32_t>& data) {
-    std::cout << "global tc int32" << std::endl;
     const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
@@ -178,8 +177,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
     std::int64_t triangles = 0;
 
     if (relabel == relabel::yes) {
-        std::cout << "relabel" << std::endl;
-
         std::int32_t average_degree = g_edge_count / g_vertex_count;
         const std::int32_t average_degree_sparsity_boundary = 4;
         if (average_degree < average_degree_sparsity_boundary) {
@@ -225,14 +222,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
                                       g_degrees_relabel,
                                       alloc);
 
-            for (int i = 0; i < g_vertex_count; i++) {
-                std::cout << i << ": ";
-                for (int j = 0; j < g_degrees_relabel[i]; j++) {
-                    std::cout << g_vertex_neighbors_relabel[g_edge_offsets_relabel[i] + j] << " ";
-                }
-                std::cout << std::endl;
-            }
-
             triangles = triangle_counting_global_scalar(ctx,
                                                         g_vertex_neighbors_relabel,
                                                         g_edge_offsets_relabel,
@@ -260,7 +249,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
         }
     }
     else {
-        std::cout << "no relabel" << std::endl;
         std::int32_t average_degree = g_edge_count / g_vertex_count;
         const std::int32_t average_degree_sparsity_boundary = 4;
         if (average_degree < average_degree_sparsity_boundary) {
