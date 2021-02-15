@@ -34,8 +34,6 @@ struct ONEDAL_EXPORT vertex_ranking_ops_dispatcher {
                                              vertex_ranking_input<Graph, task_t> &input) const {
         const auto &csr_topology =
             dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-        //const kind kind = descriptor.get_kind();
-        //const relabel relabel = descriptor.get_relabel();
 
         static auto impl = get_backend<Policy, Descriptor>(descriptor, csr_topology);
         return (*impl)(policy, descriptor, csr_topology);
@@ -63,20 +61,5 @@ struct vertex_ranking_ops {
         return vertex_ranking_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
 };
-
-/*
-template <typename Policy, typename Descriptor, typename Graph>
-vertex_ranking_result<task_t> vertex_ranking_ops_dispatcher<Policy, Descriptor, Graph>::operator()(
-    const Policy &policy,
-    const Descriptor &desc,
-    vertex_ranking_input<Graph, task_t> &input) const {
-    const auto &csr_topology =
-        dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-    const kind kind = desc.get_kind();
-    const relabel relabel = desc.get_relabel();
-
-    static auto impl = get_backend<Policy, Descriptor>(desc, csr_topology);
-    return (*impl)(policy, desc, csr_topology);
-}*/
 
 } // namespace oneapi::dal::preview::triangle_counting::detail

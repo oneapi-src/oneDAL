@@ -23,6 +23,8 @@
 namespace oneapi::dal::preview {
 typedef void (*functype)(std::int32_t i, const void *a);
 
+typedef void (*functype_int32ptr)(const std::int32_t *i, const void *a);
+
 typedef std::int64_t (*loop_functype_size_t_int64)(size_t start_idx,
                                                    size_t end_idx,
                                                    std::int64_t value_for_reduce,
@@ -41,10 +43,24 @@ typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;
 } // namespace oneapi::dal::preview
 
 extern "C" {
+ONEDAL_EXPORT int _onedal_threader_get_max_threads();
+
+ONEDAL_EXPORT int _onedal_threader_get_current_thread_index();
+
 ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
                                         std::int32_t threads_request,
                                         const void *a,
                                         oneapi::dal::preview::functype func);
+
+ONEDAL_EXPORT void _onedal_threader_for_simple(std::int32_t n,
+                                               std::int32_t threads_request,
+                                               const void *a,
+                                               oneapi::dal::preview::functype func);
+
+ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
+                                                 const std::int32_t *end,
+                                                 const void *a,
+                                                 oneapi::dal::preview::functype_int32ptr func);
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_size_t_int64(
     size_t n,
@@ -73,8 +89,22 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32ptr_int64_simple(
 }
 
 namespace oneapi::dal::detail {
+inline int threader_get_max_threads() {
+    return _onedal_threader_get_max_threads();
+}
+
+inline int threader_get_current_thread_index() {
+    return _onedal_threader_get_current_thread_index();
+}
+
 template <typename F>
 inline void threader_func(std::int32_t i, const void *a) {
+    const F &lambda = *static_cast<const F *>(a);
+    lambda(i);
+}
+
+template <typename F>
+inline void threader_func_int32ptr(const std::int32_t *i, const void *a) {
     const F &lambda = *static_cast<const F *>(a);
     lambda(i);
 }
@@ -86,6 +116,24 @@ inline ONEDAL_EXPORT void threader_for(std::int32_t n,
     const void *a = static_cast<const void *>(&lambda);
 
     _onedal_threader_for(n, threads_request, a, threader_func<F>);
+}
+
+template <typename F>
+inline ONEDAL_EXPORT void threader_for_simple(std::int32_t n,
+                                              std::int32_t threads_request,
+                                              const F &lambda) {
+    const void *a = static_cast<const void *>(&lambda);
+
+    _onedal_threader_for_simple(n, threads_request, a, threader_func<F>);
+}
+
+template <typename F>
+inline ONEDAL_EXPORT void threader_for_int32ptr(const std::int32_t *begin,
+                                                const std::int32_t *end,
+                                                const F &lambda) {
+    const void *a = static_cast<const void *>(&lambda);
+
+    _onedal_threader_for_int32ptr(begin, end, a, threader_func_int32ptr<F>);
 }
 
 template <typename F>

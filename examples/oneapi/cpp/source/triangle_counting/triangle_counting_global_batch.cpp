@@ -24,6 +24,8 @@
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
+#include "tbb/global_control.h"
+
 namespace dal = oneapi::dal;
 using namespace dal::preview::triangle_counting;
 
@@ -35,9 +37,11 @@ int main(int argc, char **argv) {
     const dal::preview::load_graph::descriptor<> d;
     const auto my_graph = dal::preview::load_graph::load(d, ds);
 
+    tbb::global_control c(tbb::global_control::max_allowed_parallelism, std::stoi(argv[2]));
+
     // set algorithm parameters
     const auto tc_desc =
-        descriptor<float, method::ordered_count, task::global>(kind::undirected_clique, relabel::no);
+        descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::yes);
 
     // compute local triangles
     const auto result_vertex_ranking =
@@ -47,10 +51,17 @@ int main(int argc, char **argv) {
     const auto triangles = result_vertex_ranking.get_global_rank();
 
     std::cout << "Global triangles count: " << triangles << std::endl;
-    /*auto arr = oneapi::dal::column_accessor<const std::int64_t>(triangles).pull();
-    const auto x = arr.get_data();
 
-    for(auto i = 0; i < get_vertex_count(my_graph); i++) {
-        std::cout << "Vertex " << i <<":/t" << x[i] << std::endl;
-    } */
+    // set algorithm parameters
+    const auto tc_desc1 =
+        descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::no);
+
+    // compute local triangles
+    const auto result_vertex_ranking1 =
+        dal::preview::vertex_ranking(tc_desc1, my_graph);
+
+    // extract the result
+    const auto triangles1 = result_vertex_ranking1.get_global_rank();
+
+    std::cout << "Global triangles count: " << triangles1 << std::endl;
 }

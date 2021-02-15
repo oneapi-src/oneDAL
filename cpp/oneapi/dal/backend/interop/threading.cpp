@@ -17,11 +17,33 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "src/threading/threading.h"
 
+ONEDAL_EXPORT int _onedal_threader_get_max_threads() {
+    return _daal_threader_get_max_threads();
+}
+
+ONEDAL_EXPORT int _onedal_threader_get_current_thread_index() {
+    return _daal_threader_get_current_thread_index();
+}
+
 ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
                                         std::int32_t threads_request,
                                         const void *a,
                                         oneapi::dal::preview::functype func) {
     _daal_threader_for(n, threads_request, a, static_cast<daal::functype>(func));
+}
+
+ONEDAL_EXPORT void _onedal_threader_for_simple(std::int32_t n,
+                                               std::int32_t threads_request,
+                                               const void *a,
+                                               oneapi::dal::preview::functype func) {
+    _daal_threader_for_simple(n, threads_request, a, static_cast<daal::functype>(func));
+}
+
+ONEDAL_EXPORT void _onedal_threader_for_int32ptr(const std::int32_t *begin,
+                                                 const std::int32_t *end,
+                                                 const void *a,
+                                                 oneapi::dal::preview::functype_int32ptr func) {
+    _daal_threader_for_int32ptr(begin, end, a, static_cast<daal::functype_int32ptr>(func));
 }
 
 ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_size_t_int64(

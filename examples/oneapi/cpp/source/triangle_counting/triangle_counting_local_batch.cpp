@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
     // read the graph
-    const dal::preview::graph_csv_data_source ds(filename);
+    const dal::preview::graph_csv_data_source ds(argv[1]);
     const dal::preview::load_graph::descriptor<> d;
     const auto my_graph = dal::preview::load_graph::load(d, ds);
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
         dal::preview::vertex_ranking(tc_desc, my_graph);
 
     // extract the result
-    const auto triangles = result_vertex_ranking.get_ranks();
+    //std::cout << result_vertex_ranking.get_ranks();
 
     /*auto arr = oneapi::dal::column_accessor<const std::int64_t>(triangles).pull();
     const auto x = arr.get_data();

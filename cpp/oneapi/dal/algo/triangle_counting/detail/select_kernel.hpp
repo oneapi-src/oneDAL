@@ -171,10 +171,19 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
     const auto relabel = desc.get_relabel();
     std::int64_t triangles = 0;
 
-    const std::int32_t average_degree_sparsity_boundary = 4;
-    if (g_edge_count / g_vertex_count >
-        average_degree_sparsity_boundary /*&& relabel == relabel::yes*/) {
+    if (relabel == relabel::yes) {
         std::cout << "relabel" << std::endl;
+
+        std::int32_t average_degree = g_edge_count / g_vertex_count;
+        const std::int32_t average_degree_sparsity_boundary = 4;
+        if (average_degree < average_degree_sparsity_boundary) {
+            triangles = triangle_counting_global_scalar(g_vertex_neighbors,
+                                                        g_edge_offsets,
+                                                        g_degrees,
+                                                        g_vertex_count,
+                                                        g_edge_count);
+        }
+        else {
         std::int32_t* g_vertex_neighbors_relabel = nullptr;
         std::int64_t* g_edge_offsets_relabel = nullptr;
         std::int32_t* g_degrees_relabel = nullptr;
@@ -209,15 +218,13 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
                                   g_degrees_relabel,
                                   alloc);
 
-        std::int32_t average_degree = g_edge_count / g_vertex_count;
-        const std::int32_t average_degree_sparsity_boundary = 4;
-        if (average_degree < average_degree_sparsity_boundary) {
-            triangles = triangle_counting_global_scalar(ctx,
-                                                        g_vertex_neighbors_relabel,
-                                                        g_edge_offsets_relabel,
-                                                        g_degrees_relabel,
-                                                        g_vertex_count,
-                                                        g_edge_count);
+
+        triangles = triangle_counting_global_scalar(ctx,
+                                                g_vertex_neighbors_relabel,
+                                                g_edge_offsets_relabel,
+                                                g_degrees_relabel,
+                                                g_vertex_count,
+                                                g_edge_count);
         }
         else {
             triangles = triangle_counting_global_vector_relabel(ctx,
@@ -226,7 +233,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
                                                                 g_degrees_relabel,
                                                                 g_vertex_count,
                                                                 g_edge_count);
-        }
 
         if (g_vertex_neighbors_relabel != nullptr) {
             int32_allocator_traits::deallocate(int32_allocator,
@@ -270,6 +276,7 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
     res.set_global_rank(triangles);
     return res;
 }
+  
 template <typename Allocator>
 vertex_ranking_result<task::local> triangle_counting_default_kernel_int32(
     const dal::detail::host_policy& ctx,
@@ -278,7 +285,7 @@ vertex_ranking_result<task::local> triangle_counting_default_kernel_int32(
     const dal::preview::detail::topology<std::int32_t>& data) {
     const auto g_vertex_count = data._vertex_count;
 
-    int thread_cnt = 8; //dal::detail::threader_get_max_threads();
+    int thread_cnt = dal::detail::threader_get_max_threads();
 
     using int64_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
@@ -320,6 +327,7 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
     virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
                                                      const Topology& data) {
+
         return call_triangle_counting_default_kernel_general(descriptor, data);
     }
     virtual ~backend_default() {}

@@ -32,8 +32,10 @@ DECLARE_SOURCE(
     df_tree_level_build_helper_kernels,
 
     __kernel void initializeTreeOrder(__global int * treeOrder) {
-        const int id  = get_global_id(0);
-        treeOrder[id] = id;
+        const int id                 = get_global_id(0);
+        const int nRows              = get_global_size(0);
+        const int tree               = get_global_id(1);
+        treeOrder[nRows * tree + id] = id;
     }
 
     __kernel void partitionCopy(const __global int * treeOrderBuf, __global int * treeOrder, int offset) {
@@ -151,7 +153,8 @@ DECLARE_SOURCE(
         nodeList[id * nNodeProp + 3] = leafMark;
     }
 
-    __kernel void doNodesSplit(const __global int * nodeList, int nNodes, __global int * nodeListNew) {
+    __kernel void doNodesSplit(const __global int * nodeList, int nNodes, __global int * nodeListNew, const __global int * nodeVsTreeMap,
+                               __global int * nodeVsTreeMapNew) {
         const int nNodeProp  = NODE_PROPS; // num of split attributes for node
         const int badVal     = -1;
         const int local_id   = get_sub_group_local_id();
@@ -180,6 +183,9 @@ DECLARE_SOURCE(
                 nodeR[2] = badVal;
                 nodeR[3] = badVal;
                 nodeR[4] = nodeR[1]; // num of items in Left part = nRows in new node
+
+                nodeVsTreeMapNew[newLeftNodePos]     = nodeVsTreeMap[i];
+                nodeVsTreeMapNew[newLeftNodePos + 1] = nodeVsTreeMap[i];
             }
             nCreatedNodes += sub_group_reduce_add(splitNode) * 2;
         }
@@ -310,7 +316,7 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void markPresentRows(const __global int * rowsList, __global int * rowsBuffer, int nRows) {
+    __kernel void markPresentRows(const __global int * rowsList, __global int * rowsBuffer, int nRows, int tree) {
         const int n_groups             = get_num_groups(0);
         const int n_sub_groups         = get_num_sub_groups();
         const int n_total_sub_groups   = n_sub_groups * n_groups;
@@ -331,11 +337,11 @@ DECLARE_SOURCE(
 
         for (int i = iStart + local_id; i < iEnd; i += local_size)
         {
-            rowsBuffer[rowsList[i]] = itemPresentMark;
+            rowsBuffer[nRows * tree + rowsList[nRows * tree + i]] = itemPresentMark;
         }
     }
 
-    __kernel void countAbsentRowsForBlocks(const __global int * rowsBuffer, __global int * partialSums, int nRows) {
+    __kernel void countAbsentRowsForBlocks(const __global int * rowsBuffer, __global int * partialSums, int nRows, int tree) {
         const int n_groups             = get_num_groups(0);
         const int n_sub_groups         = get_num_sub_groups();
         const int n_total_sub_groups   = n_sub_groups * n_groups;
@@ -358,7 +364,7 @@ DECLARE_SOURCE(
 
         for (int i = iStart + local_id; i < iEnd; i += local_size)
         {
-            subSum += (int)(itemAbsentMark == rowsBuffer[i]);
+            subSum += (int)(itemAbsentMark == rowsBuffer[nRows * tree + i]);
         }
 
         int sum = sub_group_reduce_add(subSum);
@@ -369,8 +375,8 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void countAbsentRowsTotal(const __global int * partialSums, __global int * partialPrefixSums, __global int * totalSum,
-                                       int nSubgroupSums) {
+    __kernel void countAbsentRowsTotal(const __global int * partialSums, __global int * partialPrefixSums, __global int * totalSum, int nSubgroupSums,
+                                       int tree) {
         if (get_sub_group_id() > 0) return;
 
         const int local_size = get_sub_group_size();
@@ -380,20 +386,20 @@ DECLARE_SOURCE(
 
         for (int i = local_id; i < nSubgroupSums; i += local_size)
         {
-            int value            = partialSums[i];
-            int boundary         = sub_group_scan_exclusive_add(value);
-            partialPrefixSums[i] = sum + boundary;
+            int value                                   = partialSums[i];
+            int boundary                                = sub_group_scan_exclusive_add(value);
+            partialPrefixSums[nSubgroupSums * tree + i] = sum + boundary;
             sum += sub_group_reduce_add(value);
         }
 
         if (local_id == 0)
         {
-            totalSum[0] = sum;
+            totalSum[tree + 1] = totalSum[tree] + sum;
         }
     }
 
-    __kernel void fillOOBRowsListByBlocks(const __global int * rowsBuffer, const __global int * partialPrefixSums, __global int * oobRowsList,
-                                          int nRows) {
+    __kernel void fillOOBRowsListByBlocks(const __global int * rowsBuffer, const __global int * partialPrefixSums, int nRows, int tree,
+                                          const __global int * oobRowsNumList, __global int * oobRowsList) {
         const int n_groups           = get_num_groups(0);
         const int n_sub_groups       = get_num_sub_groups();
         const int n_total_sub_groups = n_sub_groups * n_groups;
@@ -408,21 +414,23 @@ DECLARE_SOURCE(
 
         const int itemAbsentMark = -1;
 
+        const int oobRowsListOffset = oobRowsNumList[tree];
+
         int iStart = group_id * nElementsForSubgroup;
         int iEnd   = (group_id + 1) * nElementsForSubgroup;
 
         iEnd = (iEnd > nRows) ? nRows : iEnd;
 
-        int groupOffset = partialPrefixSums[group_id];
+        int groupOffset = partialPrefixSums[n_groups * tree + group_id];
         int sum         = 0;
 
         for (int i = iStart + local_id; i < iEnd; i += local_size)
         {
-            int oobRow = (int)(itemAbsentMark == rowsBuffer[i]);
+            int oobRow = (int)(itemAbsentMark == rowsBuffer[nRows * tree + i]);
             int pos    = groupOffset + sum + sub_group_scan_exclusive_add(oobRow);
             if (oobRow)
             {
-                oobRowsList[pos] = i;
+                oobRowsList[oobRowsListOffset + pos] = i;
             }
             sum += sub_group_reduce_add(oobRow);
         }

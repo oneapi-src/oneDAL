@@ -124,7 +124,7 @@ using v1::is_valid_task;
 } // namespace detail
 
 namespace v1 {
-/// Class for the Jaccard similarity algorithm descriptor
+/// Class for the Triangle Counting algorithm descriptor
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
@@ -146,13 +146,22 @@ public:
     using task_t = Task;
     using allocator_t = Allocator;
 
-    explicit descriptor(kind triangle, relabel mode) {}
+    auto& set_kind(kind value) {
+        base_t::set_kind(value);
+        return *this;
+    }
+    auto& set_relabel(relabel value) {
+        base_t::set_relabel(value);
+        return *this;
+    }
 
-    auto& set_kind(kind value);
-    auto& set_relabel(relabel value);
+    kind get_kind() const {
+        return base_t::get_kind();
+    }
 
-    kind get_kind() const;
-    relabel get_relabel() const;
+    relabel get_relabel() const {
+        return base_t::get_relabel();
+    }
 
     auto& set_allocator(Allocator alloc) {
         _alloc = alloc;

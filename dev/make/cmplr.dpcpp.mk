@@ -33,6 +33,7 @@ COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu
 COMPILER.win.dpcpp = dpcpp -nologo -WX -Wno-deprecated-declarations
 
 link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
+link.dynamic.win.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
 
 pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wall \

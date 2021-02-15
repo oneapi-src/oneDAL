@@ -27,17 +27,17 @@ load("@onedal//dev/bazel:release.bzl",
 load("@onedal//dev/bazel:utils.bzl",
     "sets",
     "paths",
+    "utils",
 )
 load("@onedal//dev/bazel/config:config.bzl",
     "CpuInfo",
 )
 
-def dal_module(name, hdrs=[], srcs=[],
-               dal_deps=[], extra_deps=[],
-               host_hdrs=[], host_srcs=[], host_deps=[],
-               dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
-               auto=False, host=True, dpc=True, auto_exclude=[], **kwargs):
-    _check_target_name(name, host, dpc)
+def dal_module(name, hdrs=[], srcs=[], dal_deps=[], extra_deps=[],
+               host_hdrs=[], host_srcs=[], host_deps=[], dpc_hdrs=[],
+               dpc_srcs=[], dpc_deps=[], auto=False, auto_exclude=[],
+               compile_as=[ "c++", "dpc++" ], **kwargs):
+    # TODO: Check `compile_as` parameter
     if auto:
         hpp_filt = ["**/*.hpp"] + auto_exclude
         cpp_filt = ["**/*.cpp"] + auto_exclude
@@ -53,25 +53,25 @@ def dal_module(name, hdrs=[], srcs=[],
         host_auto_srcs = []
         dpc_auto_hdrs = []
         dpc_auto_srcs = []
-    _add_module_if_condition(
-        condition = host,
-        name = _remove_dpc_suffix(name),
-        hdrs = hdrs + host_auto_hdrs + host_hdrs,
-        srcs = srcs + host_auto_srcs + host_srcs,
-        deps = dal_deps + host_deps + extra_deps,
-        **kwargs,
-    )
-    _add_module_if_condition(
-        condition = dpc,
-        name = _get_dpc_target_name(name, host, dpc),
-        hdrs = hdrs + dpc_auto_hdrs + dpc_hdrs,
-        srcs = srcs + dpc_auto_srcs + dpc_srcs,
-        deps = _get_dpc_deps(dal_deps) + dpc_deps + extra_deps,
-        is_dpc = True,
-        **kwargs,
-    )
+    if "c++" in compile_as:
+        _dal_module(
+            name = name,
+            hdrs = hdrs + host_auto_hdrs + host_hdrs,
+            srcs = srcs + host_auto_srcs + host_srcs,
+            deps = dal_deps + host_deps + extra_deps,
+            **kwargs,
+        )
+    if "dpc++" in compile_as:
+        _dal_module(
+            name = name + "_dpc",
+            hdrs = hdrs + dpc_auto_hdrs + dpc_hdrs,
+            srcs = srcs + dpc_auto_srcs + dpc_srcs,
+            deps = _get_dpc_deps(dal_deps) + dpc_deps + extra_deps,
+            is_dpc = True,
+            **kwargs,
+        )
 
-def dal_test_module(name, dal_deps=[], dal_test_deps = [], **kwargs):
+def dal_test_module(name, dal_deps=[], dal_test_deps=[], **kwargs):
     dal_module(
         name = name,
         dal_deps = _test_link_mode_deps(dal_deps) + dal_test_deps,
@@ -81,11 +81,12 @@ def dal_test_module(name, dal_deps=[], dal_test_deps = [], **kwargs):
 
 def dal_collect_modules(name, root, modules, dal_deps=[], **kwargs):
     module_deps = []
-    for module_name in modules:
-        module_label = "{0}/{1}".format(root, module_name)
+    for module_path in modules:
+        module_name = module_path.replace("/", "_")
+        module_label = "{0}/{1}".format(root, module_path)
         dal_module(
             name = module_name,
-            hdrs = native.glob(["{}*.hpp".format(module_name)]),
+            hdrs = native.glob(["{}*.hpp".format(module_path)]),
             dal_deps = [ module_label ],
         )
         module_deps.append(":" + module_name)
@@ -120,8 +121,8 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
     cc_static_lib(
-        name = _get_dpc_target_name(name, True, True),
-        lib_name = _get_dpc_target_name(lib_name, True, True),
+        name = name + "_dpc",
+        lib_name = lib_name + "_dpc",
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
         **kwargs
@@ -138,27 +139,24 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
         **kwargs
     )
     cc_dynamic_lib(
-        name = _get_dpc_target_name(name, True, True),
-        lib_name = _get_dpc_target_name(lib_name, True, True),
+        name = name + "_dpc",
+        lib_name = lib_name + "_dpc",
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
         **kwargs
     )
 
-def dal_test(name, hdrs=[], srcs=[],
-             dal_deps=[], dal_test_deps=[], extra_deps=[],
-             host_hdrs=[], host_srcs=[], host_deps=[],
-             dpc_hdrs=[], dpc_srcs=[], dpc_deps=[],
-             host=True, dpc=True, framework="gtest",
-             data=[], tags=[], **kwargs):
+def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
+             extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
+             dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
+             framework="gtest", data=[], tags=[], **kwargs):
+    # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
         fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
     is_gtest = framework == "gtest"
     is_catch2 = framework == "catch2"
-    module_name = "__" + name
-    if not host and dpc:
-        module_name = _remove_dpc_suffix(module_name) + "_dpc"
+    module_name = "_" + name
     dal_module(
         name = module_name,
         hdrs = hdrs,
@@ -169,8 +167,7 @@ def dal_test(name, hdrs=[], srcs=[],
         dpc_hdrs = dpc_hdrs,
         dpc_srcs = dpc_srcs,
         dpc_deps = dpc_deps,
-        host = host,
-        dpc = dpc,
+        compile_as = compile_as,
         dal_deps = (
             dal_test_deps +
             _test_link_mode_deps(dal_deps)
@@ -184,19 +181,19 @@ def dal_test(name, hdrs=[], srcs=[],
         testonly = True,
         **kwargs,
     )
-    if host:
+    if "c++" in compile_as:
         cc_test(
             name = name,
             deps = [ ":" + module_name ],
             data = data,
             tags = tags + ["host"],
         )
-    if dpc:
+    if "dpc++" in compile_as:
         cc_test(
-            name = _get_dpc_target_name(name, host, dpc),
+            name = name + "_dpc",
             features = [ "dpc++" ],
             deps = [
-                ":" + _get_dpc_target_name(module_name, host, dpc),
+                ":" + module_name + "_dpc",
                 # TODO: Remove once all GPU algorithms are migrated to DPC++
                 "@opencl//:opencl_binary",
             ],
@@ -204,24 +201,32 @@ def dal_test(name, hdrs=[], srcs=[],
             tags = tags + ["dpc"],
         )
 
-def dal_test_suite(name, srcs=[], tests=[],
-                   host=True, dpc=True, **kwargs):
-    _check_target_name(name, host, dpc)
+def dal_test_suite(name, srcs=[], tests=[], compile_as=[ "c++", "dpc++" ], **kwargs):
+    # TODO: Check `compile_as` parameter
     targets = []
     targets_dpc = []
     for test_file in srcs:
         target = test_file.replace(".cpp", "").replace("/", "_")
+        is_dpc_target = target.endswith("_dpc")
+
+        # No need to have `_dpc` suffix if test source already contains it
+        if is_dpc_target:
+            target = utils.remove_substring(target, "_dpc")
+
         dal_test(
             name = target,
             srcs = [test_file],
-            host = host,
-            dpc = dpc,
+            compile_as = compile_as,
             **kwargs,
         )
-        if host:
+        if "c++" in compile_as:
+            if is_dpc_target:
+                utils.warn("Test source file `{}` has `_dpc` suffix, ".format(test_file) +
+                           "but is going to be compiled by C++ compiler, " +
+                           "make sure BUILD file content is correct")
             targets.append(":" + target)
-        if dpc:
-            targets_dpc.append(":" + _get_dpc_target_name(target, host, dpc))
+        if "dpc++" in compile_as:
+            targets_dpc.append(":" + target + "_dpc")
     native.test_suite(
         name = name,
         tests = tests + targets + targets_dpc,
@@ -332,7 +337,7 @@ dal_generate_cpu_dispatcher = rule(
 
 def dal_global_header_test(name, algo_dir, algo_exclude=[], algo_preview=[], dal_deps=[]):
     _generate_global_header_test_cpp(
-        name = "_" + name,
+        name = "_global_header_test_" + name,
         algo_dir = algo_dir,
         algo_exclude = algo_exclude,
         algo_preview = algo_preview,
@@ -341,7 +346,7 @@ def dal_global_header_test(name, algo_dir, algo_exclude=[], algo_preview=[], dal
     dal_test(
         name = name,
         srcs = [
-            ":_" + name,
+            ":_global_header_test_" + name,
         ],
         dal_deps = dal_deps,
     )
@@ -427,12 +432,6 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         **kwargs,
     )
 
-def _add_module_if_condition(condition, name, is_dpc=False, **kwargs):
-    if condition:
-        _dal_module(name=name, is_dpc=is_dpc, **kwargs)
-    else:
-        _dal_module(name=name, is_dpc=is_dpc)
-
 def _select(x):
     return [x]
 
@@ -470,30 +469,3 @@ def _expand_select(deps):
         else:
             expanded += [dep]
     return expanded
-
-def _check_target_name(name, host, dpc, suffix="_dpc"):
-    if not (host or dpc):
-        fail("Target must specify at leat one of " +
-             "`host = True` or `dpc = True`")
-    if not host and dpc and not name.endswith(suffix):
-        fail("Target names that defined with `host = False` " +
-             "and `dpc = True` must end with `{}` suffix".format(suffix))
-
-def _get_dpc_target_name(name, host, dpc, suffix="_dpc"):
-    return name + (suffix if host else "")
-
-def _remove_dpc_suffix(name, suffix="_dpc"):
-    index = name.rfind(suffix)
-    if index > 0:
-        return name[:index + 1]
-    else:
-        return name
-
-def _check_test_target_name(name, host, dpc, suffix="_dpc_test"):
-    _check_target_name(name, host, dpc, suffix)
-
-def _get_dpc_test_target_name(name, host, dpc, suffix="_dpc_test"):
-    return _get_dpc_target_name(name, host, dpc, suffix)
-
-def _remove_dpc_test_suffix(name, suffix="_dpc_test"):
-    return _remove_dpc_suffix(name, suffix)

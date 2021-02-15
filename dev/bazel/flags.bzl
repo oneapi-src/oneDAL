@@ -30,6 +30,7 @@ lnx_cc_pedantic_flags = [
     "-Wall",
     "-Wextra",
     "-Wno-unused-parameter",
+    "-Wno-unused-but-set-parameter",
 ]
 
 lnx_cc_flags = {

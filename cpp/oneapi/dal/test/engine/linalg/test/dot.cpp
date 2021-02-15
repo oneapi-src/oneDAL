@@ -17,9 +17,8 @@
 #include <iostream>
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/backend/linalg/dot.hpp"
-#include "oneapi/dal/backend/linalg/io.hpp"
-#include "oneapi/dal/backend/linalg/loops.hpp"
+#include "oneapi/dal/test/engine/linalg/dot.hpp"
+#include "oneapi/dal/test/engine/linalg/loops.hpp"
 
 namespace oneapi::dal::test::engine::linalg::test {
 

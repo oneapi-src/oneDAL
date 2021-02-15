@@ -34,6 +34,14 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include <iostream>
 
+#if defined(__INTEL_COMPILER)
+#define PRAGMA_IVDEP         _Pragma("ivdep")
+#define PRAGMA_VECTOR_ALWAYS _Pragma("vector always")
+#else
+#define PRAGMA_IVDEP
+#define PRAGMA_VECTOR_ALWAYS
+#endif
+
 namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
@@ -686,37 +694,44 @@ array<std::int64_t> triangle_counting_local_avx512(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
     std::cout << "local tc avx512" << std::endl;
+
     const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
     const auto g_vertex_count = data._vertex_count;
     const auto g_edge_count = data._edge_count;
-    /*
+
     std::int32_t average_degree = g_edge_count / g_vertex_count;
     int thread_cnt = dal::detail::threader_get_max_threads();
 
-    dal::detail::threader_for(thread_cnt * g_vertex_count, thread_cnt * g_vertex_count, [&](std::int64_t u) {
-        triangles_local[u] = 0;
-    });
+    dal::detail::threader_for(thread_cnt * g_vertex_count,
+                              thread_cnt * g_vertex_count,
+                              [&](std::int64_t u) {
+                                  triangles_local[u] = 0;
+                              });
 
     const std::int32_t average_degree_sparsity_boundary = 4;
     if (average_degree < average_degree_sparsity_boundary) {
         dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
-            for (auto v_ = g_vertex_neighbors + g_edge_offsets[u]; v_ != g_vertex_neighbors + g_edge_offsets[u+1]; ++v_) {
+            for (auto v_ = g_vertex_neighbors + g_edge_offsets[u];
+                 v_ != g_vertex_neighbors + g_edge_offsets[u + 1];
+                 ++v_) {
                 std::int32_t v = *v_;
                 if (v > u) {
                     break;
                 }
                 auto u_neighbors_ptr = g_vertex_neighbors + g_edge_offsets[u];
-                for (auto w_ = g_vertex_neighbors + g_edge_offsets[v]; v_ != g_vertex_neighbors + g_edge_offsets[v+1]; ++w_) {
+                for (auto w_ = g_vertex_neighbors + g_edge_offsets[v];
+                     v_ != g_vertex_neighbors + g_edge_offsets[v + 1];
+                     ++w_) {
                     std::int32_t w = *w_;
-                    if (w > v){
+                    if (w > v) {
                         break;
                     }
-                    while (*u_neighbors_ptr < w){
+                    while (*u_neighbors_ptr < w) {
                         u_neighbors_ptr++;
                     }
-                    if (w == *u_neighbors_ptr){
+                    if (w == *u_neighbors_ptr) {
                         int thread_id = dal::detail::threader_get_current_thread_index();
                         int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
                         triangles_local[indx + u]++;
@@ -727,39 +742,49 @@ array<std::int64_t> triangle_counting_local_avx512(
             }
         });
     }
-    else {//average_degree >= average_degree_sparsity_boundary
+    else { //average_degree >= average_degree_sparsity_boundary
         dal::detail::threader_for_simple(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
             if (g_degrees[u] >= 2)
-                dal::detail::threader_for_int32ptr(g_vertex_neighbors + g_edge_offsets[u], g_vertex_neighbors + g_edge_offsets[u+1],
-                                                 [&](const std::int32_t* v_) {
-                    std::int32_t v = *v_;
-                    if (v <= u) {
-                        const std::int32_t* neigh_u = g_vertex_neighbors + g_edge_offsets[u];
-                        std::int32_t size_neigh_u = g_vertex_neighbors + g_edge_offsets[u+1] - neigh_u;
-                        const std::int32_t* neigh_v = g_vertex_neighbors + g_edge_offsets[v];;
-                        std::int32_t size_neigh_v = g_vertex_neighbors + g_edge_offsets[v+1]- neigh_v;
-                        std::int32_t new_size_neigh_v;
+                dal::detail::threader_for_int32ptr(
+                    g_vertex_neighbors + g_edge_offsets[u],
+                    g_vertex_neighbors + g_edge_offsets[u + 1],
+                    [&](const std::int32_t* v_) {
+                        std::int32_t v = *v_;
+                        if (v <= u) {
+                            const std::int32_t* neigh_u = g_vertex_neighbors + g_edge_offsets[u];
+                            std::int32_t size_neigh_u =
+                                g_vertex_neighbors + g_edge_offsets[u + 1] - neigh_u;
+                            const std::int32_t* neigh_v = g_vertex_neighbors + g_edge_offsets[v];
+                            ;
+                            std::int32_t size_neigh_v =
+                                g_vertex_neighbors + g_edge_offsets[v + 1] - neigh_v;
+                            std::int32_t new_size_neigh_v;
 
-                        for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
-                        size_neigh_v = new_size_neigh_v;
+                            for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) &&
+                                                       (neigh_v[new_size_neigh_v] <= v);
+                                 new_size_neigh_v++)
+                                ;
+                            size_neigh_v = new_size_neigh_v;
 
-                        int thread_id = dal::detail::threader_get_current_thread_index();
-                        int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
+                            int thread_id = dal::detail::threader_get_current_thread_index();
+                            int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
 
-                        auto tc = intersection_local_tc(neigh_u, neigh_v, size_neigh_u, size_neigh_v,
-                            triangles_local + indx,
-                            g_vertex_count);
+                            auto tc = intersection_local_tc(neigh_u,
+                                                            neigh_v,
+                                                            size_neigh_u,
+                                                            size_neigh_v,
+                                                            triangles_local + indx,
+                                                            g_vertex_count);
 
-                        triangles_local[indx + u] += tc;
-                        triangles_local[indx + v] += tc;
-                    }
-                });
+                            triangles_local[indx + u] += tc;
+                            triangles_local[indx + v] += tc;
+                        }
+                    });
         });
     }
-    */
+
     auto arr_triangles = array<std::int64_t>::empty(g_vertex_count);
 
-    /*
     int64_t* triangles_ptr = arr_triangles.get_mutable_data();
 
     dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
@@ -767,24 +792,23 @@ array<std::int64_t> triangle_counting_local_avx512(
             int64_t idx_glob = (int64_t)j * (int64_t)g_vertex_count;
             triangles_ptr[u] += triangles_local[idx_glob + u];
         }
+    });
 
     std::int64_t checksum = 0;
     for (int i = 0; i < g_vertex_count; i++)
         checksum += triangles_ptr[i];
 
     std::cout << "TC checksum: " << checksum << std::endl;
-    });*/
-
+    
     return arr_triangles;
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(const std::int32_t* vertex_neighbors,
+                                                              const std::int64_t* edge_offsets,
+                                                              const std::int32_t* degrees,
+                                                              std::int64_t vertex_count,
+                                                              std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(
         vertex_count,
         (std::int64_t)0,
@@ -823,12 +847,11 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(const std::int32_t* vertex_neighbors,
+                                                              const std::int64_t* edge_offsets,
+                                                              const std::int32_t* degrees,
+                                                              std::int64_t vertex_count,
+                                                              std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
@@ -926,7 +949,6 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(
         });
     return total_s;
 }
-
 } // namespace detail
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview

@@ -17,7 +17,6 @@
 #pragma once
 
 #ifdef ONEDAL_DATA_PARALLEL
-#include <cstring>
 
 #include "oneapi/dal/detail/policy.hpp"
 

@@ -111,6 +111,44 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
+DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
+{
+#if defined(__DO_TBB_LAYER__)
+    tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
+        int i;
+        for (i = r.begin(); i < r.end(); i++)
+        {
+            func(i, a);
+        }
+    }, tbb::simple_partitioner{});
+#elif defined(__DO_SEQ_LAYER__)
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        func(i, a);
+    }
+#endif
+}
+
+DAAL_EXPORT void _daal_threader_for_int32ptr(const int* begin, const int* end, const void * a, daal::functype_int32ptr func)
+{
+#if defined(__DO_TBB_LAYER__)
+    tbb::parallel_for(tbb::blocked_range<const int*>(begin, end, 1), [&](tbb::blocked_range<const int*> r) {
+        const int* i;
+        for (i = r.begin(); i != r.end(); i++)
+        {
+            func(i, a);
+        }
+    });
+#elif defined(__DO_SEQ_LAYER__)
+    const int* i;
+    for (i = begin; i != end; ++i)
+    {
+        func(i, a);
+    }
+#endif
+}
+
 DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func, const void * b,
                                             daal::reduction_functype_int64 reduction_func)
 {
@@ -264,6 +302,15 @@ DAAL_EXPORT int _daal_threader_get_max_threads()
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::this_task_arena::max_concurrency();
+#elif defined(__DO_SEQ_LAYER__)
+    return 1;
+#endif
+}
+
+DAAL_EXPORT int _daal_threader_get_current_thread_index()
+{
+#if defined(__DO_TBB_LAYER__)
+    return tbb::this_task_arena::current_thread_index();
 #elif defined(__DO_SEQ_LAYER__)
     return 1;
 #endif
