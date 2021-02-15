@@ -49,7 +49,7 @@ namespace v1 {
 enum class kind { undirected_clique, directed_cycle, directed_closed_triplet };
 
 // Option to allow relabeling that is potentially additional memory consuming. 
-enum class relabel {yes, no };
+enum class relabel { yes, no };
 }
 
 using v1::kind;
@@ -120,7 +120,7 @@ using v1::is_valid_task;
 } // namespace detail
 
 namespace v1 {
-/// Class for the Jaccard similarity algorithm descriptor
+/// Class for the Triangle Counting algorithm descriptor
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
@@ -140,13 +140,22 @@ public:
     using method_t = Method;
     using task_t = Task;
 
-    explicit descriptor(kind triangle, relabel mode){}
+    auto& set_kind(kind value) {
+        base_t::set_kind(value);
+        return *this;
+    }
+    auto& set_relabel(relabel value){
+        base_t::set_relabel(value);
+        return *this;
+    }
 
-    auto& set_kind(kind value);
-    auto& set_relabel(relabel value);
-
-    kind get_kind() const;
-    relabel get_relabel() const;
+    kind get_kind() const {
+        return base_t::get_kind();
+    }   
+    
+    relabel get_relabel() const {
+        return base_t::get_relabel();
+    }   
 
     auto& set_allocator(Allocator alloc);
     Allocator& get_allocator() const;

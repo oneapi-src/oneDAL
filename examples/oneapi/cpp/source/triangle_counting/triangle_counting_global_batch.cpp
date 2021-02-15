@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
     // set algorithm parameters
     const auto tc_desc =
-        descriptor<float, method::ordered_count, task::global>(kind::undirected_clique, relabel::yes);
+        descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::yes);
 
     // compute local triangles
     const auto result_vertex_ranking =
@@ -51,6 +51,19 @@ int main(int argc, char **argv) {
     const auto triangles = result_vertex_ranking.get_global_rank();
 
     std::cout << "Global triangles count: " << triangles << std::endl;
+
+    // set algorithm parameters
+    const auto tc_desc1 =
+        descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::no);
+
+    // compute local triangles
+    const auto result_vertex_ranking1 =
+        dal::preview::vertex_ranking(tc_desc1, my_graph);
+
+    // extract the result
+    const auto triangles1 = result_vertex_ranking1.get_global_rank();
+
+    std::cout << "Global triangles count: " << triangles1 << std::endl;
     /*auto arr = oneapi::dal::column_accessor<const std::int64_t>(triangles).pull(); 
     const auto x = arr.get_data(); 
 
