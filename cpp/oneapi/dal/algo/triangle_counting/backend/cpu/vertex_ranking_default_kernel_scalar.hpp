@@ -31,11 +31,11 @@ namespace triangle_counting {
 namespace detail {
 
 template <typename Index>
-DAAL_FORCEINLINE std::size_t intersection(const Index* neigh_u,
+DAAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
                                           const Index* neigh_v,
                                           Index n_u,
                                           Index n_v) {
-    std::size_t total = 0;
+    std::int64_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
         if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
@@ -188,7 +188,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_novec(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
@@ -232,7 +232,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_novec(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
@@ -290,7 +290,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_novec(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {

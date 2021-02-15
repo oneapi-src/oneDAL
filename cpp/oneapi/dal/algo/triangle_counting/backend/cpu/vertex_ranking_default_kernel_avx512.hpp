@@ -799,7 +799,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
@@ -843,7 +843,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
@@ -901,7 +901,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
