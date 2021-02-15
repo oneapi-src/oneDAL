@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/detail/vertex_ranking_default_kernel.hpp"
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
@@ -161,7 +159,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
     const detail::descriptor_base<task::global>& desc,
     const Allocator& alloc,
     const dal::preview::detail::topology<std::int32_t>& data) {
-    std::cout << "global tc int32" << std::endl;
     const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
@@ -172,8 +169,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
     std::int64_t triangles = 0;
 
     if (relabel == relabel::yes) {
-        std::cout << "relabel" << std::endl;
-
         std::int32_t average_degree = g_edge_count / g_vertex_count;
         const std::int32_t average_degree_sparsity_boundary = 4;
         if (average_degree < average_degree_sparsity_boundary) {
@@ -246,7 +241,6 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
         }
     }
     else {
-        std::cout << "no relabel" << std::endl;
         std::int32_t average_degree = g_edge_count / g_vertex_count;
         const std::int32_t average_degree_sparsity_boundary = 4;
         if (average_degree < average_degree_sparsity_boundary) {

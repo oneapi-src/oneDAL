@@ -40,14 +40,15 @@ struct IdxValType
     bool operator<=(const IdxValType & o) const { return value < o.value || (value == o.value && index == o.index); }
 };
 typedef void (*functype)(int i, const void * a);
-typedef void (*functype_int32ptr)(const int* i, const void * a);
+typedef void (*functype_int32ptr)(const int * i, const void * a);
 typedef void (*functype_static)(size_t i, size_t tid, const void * a);
 typedef void (*functype2)(int i, int n, const void * a);
 typedef void * (*tls_functype)(const void * a);
 typedef void (*tls_reduce_functype)(void * p, const void * a);
 typedef void (*functype_break)(int i, bool & needBreak, const void * a);
 typedef int64_t (*loop_functype_size_t_int64)(size_t start_idx_reduce, size_t end_idx_reduce, int64_t value_for_reduce, const void * a);
-typedef int64_t (*loop_functype_int32ptr_int64)(const int32_t* start_idx_reduce, const int32_t* end_idx_reduce, int64_t value_for_reduce, const void * a);
+typedef int64_t (*loop_functype_int32ptr_int64)(const int32_t * start_idx_reduce, const int32_t * end_idx_reduce, int64_t value_for_reduce,
+                                                const void * a);
 typedef int64_t (*reduction_functype_int64)(int64_t a, int64_t b, const void * reduction);
 
 class task;
@@ -59,18 +60,19 @@ extern "C"
     DAAL_EXPORT int _daal_threader_get_current_thread_index();
     DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func);
-    DAAL_EXPORT void _daal_threader_for_int32ptr(const int* begin, const int* end, const void * a, daal::functype_int32ptr func);
+    DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end, const void * a, daal::functype_int32ptr func);
     DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func);
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
     DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func);
 
-    DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func, const void * b,
-                                                daal::reduction_functype_int64 reduction_func);
-    DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func, const void * b,
-                                                daal::reduction_functype_int64 reduction_func);
-    DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t* begin, const int32_t* end, int64_t init, const void * a, daal::loop_functype_int32ptr_int64 loop_func, const void * b,
-                                                daal::reduction_functype_int64 reduction_func);
+    DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func,
+                                                           const void * b, daal::reduction_functype_int64 reduction_func);
+    DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func,
+                                                                  const void * b, daal::reduction_functype_int64 reduction_func);
+    DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t * begin, const int32_t * end, int64_t init, const void * a,
+                                                                    daal::loop_functype_int32ptr_int64 loop_func, const void * b,
+                                                                    daal::reduction_functype_int64 reduction_func);
 
     DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func);
     DAAL_EXPORT void * _daal_get_tls_local(void * tlsPtr);
@@ -227,7 +229,7 @@ inline void threader_for_simple(int n, int threads_request, const F & lambda)
 }
 
 template <typename F>
-inline void threader_for_int32ptr(const int* begin, const int*end, const F & lambda)
+inline void threader_for_int32ptr(const int * begin, const int * end, const F & lambda)
 {
     const void * a = static_cast<const void *>(&lambda);
 
