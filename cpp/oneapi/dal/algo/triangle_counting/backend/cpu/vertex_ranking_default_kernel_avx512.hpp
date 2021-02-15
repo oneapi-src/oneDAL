@@ -736,45 +736,35 @@ vertex_ranking_result<task::local> call_triangle_counting_default_kernel_avx512(
             }
         });
     }
-    /*else {//average_degree >= average_degree_sparsity_boundary
-        tbb::parallel_for(tbb::blocked_range<std::int32_t>(0, g_vertex_count),    
-            [&](const auto& r) {
-                for (auto u = r.begin(); u != r.end(); ++u) {                                     
-                    if (g_degrees[u] < 2){
-                        continue; 
+    else {//average_degree >= average_degree_sparsity_boundary
+        dal::detail::threader_for_simple(g_vertex_count, g_vertex_count, [&](std::int32_t u) {                                    
+            if (g_degrees[u] >= 2)
+                dal::detail::threader_for_int32ptr(g_vertex_neighbors + g_edge_offsets[u], g_vertex_neighbors + g_edge_offsets[u+1], 
+                                                 [&](const std::int32_t* v_) {
+                    std::int32_t v = *v_;
+                    if (v <= u) {
+                        const std::int32_t* neigh_u = g_vertex_neighbors + g_edge_offsets[u];
+                        std::int32_t size_neigh_u = g_vertex_neighbors + g_edge_offsets[u+1] - neigh_u;
+                        const std::int32_t* neigh_v = g_vertex_neighbors + g_edge_offsets[v];;
+                        std::int32_t size_neigh_v = g_vertex_neighbors + g_edge_offsets[v+1]- neigh_v;                                         
+                        std::int32_t new_size_neigh_v;
+
+                        for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
+                        size_neigh_v = new_size_neigh_v; 
+
+                        int thread_id = dal::detail::threader_get_current_thread_index();
+                        int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
+
+                        auto tc = intersection_local_tc(neigh_u, neigh_v, size_neigh_u, size_neigh_v, 
+                            triangles_local + indx, 
+                            g_vertex_count);
+
+                        triangles_local[indx + u] += tc;
+                        triangles_local[indx + v] += tc;
                     }
-                    tbb::parallel_for(tbb::blocked_range<std::int32_t*>(g_vertex_neighbors + g_edge_offsets[u], g_vertex_neighbors + g_edge_offsets[u+1]),
-                    [&](const auto &r_nested) {
-                        for (auto v_ = r_nested.begin(); v_ != r_nested.end(); ++v_) {  
-                            std::int32_t v = *v_;
-                            if (v > u) {
-                                break;
-                            }
-                            std::int32_t* neigh_u = g_vertex_neighbors + g_edge_offsets[u];
-                            std::int32_t size_neigh_u = g_vertex_neighbors + g_edge_offsets[u+1] - neigh_u;
-                            std::int32_t* neigh_v = g_vertex_neighbors + g_edge_offsets[v];;
-                            std::int32_t size_neigh_v = g_vertex_neighbors + g_edge_offsets[v+1]- neigh_v;                                         
-                            std::int32_t new_size_neigh_v;
-
-                            for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) && (neigh_v[new_size_neigh_v] <= v); new_size_neigh_v++);
-                            size_neigh_v = new_size_neigh_v; 
-
-                            int thread_id = tbb::this_task_arena::current_thread_index();
-                            int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
-
-                            auto tc = intersection_local_tc(neigh_u, neigh_v, size_neigh_u, size_neigh_v, 
-                                triangles_local + indx, 
-                                g_vertex_count);
-
-                            triangles_local[indx + u] += tc;
-                            triangles_local[indx + v] += tc;
-                        }
-                    });
-                }     
-            }
-            , tbb::simple_partitioner{}
-        );
-    }*/
+                });
+        });
+    }
 
     auto arr_triangles = array<std::int64_t>::empty(g_vertex_count);
 
@@ -789,6 +779,11 @@ vertex_ranking_result<task::local> call_triangle_counting_default_kernel_avx512(
 
     int64_allocator_traits::deallocate(int64_allocator, triangles_local, (int64_t)thread_cnt * (int64_t)g_vertex_count);
 
+    std::int64_t checksum = 0;
+    for (int i = 0; i < g_vertex_count; i++) 
+        checksum += triangles_ptr[i];
+
+    std::cout << "TC checksum: " << checksum << std::endl;
     return vertex_ranking_result<task::local>()
         .set_ranks(
             dal::detail::homogen_table_builder{}
