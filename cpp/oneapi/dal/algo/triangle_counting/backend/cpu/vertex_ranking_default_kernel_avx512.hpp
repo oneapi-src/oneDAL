@@ -799,16 +799,17 @@ array<std::int64_t> triangle_counting_local_avx512(
         checksum += triangles_ptr[i];
 
     std::cout << "TC checksum: " << checksum << std::endl;
-    
+
     return arr_triangles;
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(const std::int32_t* vertex_neighbors,
-                                                              const std::int64_t* edge_offsets,
-                                                              const std::int32_t* degrees,
-                                                              std::int64_t vertex_count,
-                                                              std::int64_t edge_count) {
+DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(
         vertex_count,
         (std::int64_t)0,
@@ -847,11 +848,12 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(const std::
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(const std::int32_t* vertex_neighbors,
-                                                              const std::int64_t* edge_offsets,
-                                                              const std::int32_t* degrees,
-                                                              std::int64_t vertex_count,
-                                                              std::int64_t edge_count) {
+DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
         vertex_count,
         (std::int64_t)0,

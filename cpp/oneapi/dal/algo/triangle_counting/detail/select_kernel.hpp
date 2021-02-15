@@ -177,77 +177,72 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
         std::int32_t average_degree = g_edge_count / g_vertex_count;
         const std::int32_t average_degree_sparsity_boundary = 4;
         if (average_degree < average_degree_sparsity_boundary) {
-            triangles = triangle_counting_global_scalar(g_vertex_neighbors,
+            triangles = triangle_counting_global_scalar(ctx,
+                                                        g_vertex_neighbors,
                                                         g_edge_offsets,
                                                         g_degrees,
                                                         g_vertex_count,
                                                         g_edge_count);
         }
         else {
-        std::int32_t* g_vertex_neighbors_relabel = nullptr;
-        std::int64_t* g_edge_offsets_relabel = nullptr;
-        std::int32_t* g_degrees_relabel = nullptr;
+            std::int32_t* g_vertex_neighbors_relabel = nullptr;
+            std::int64_t* g_edge_offsets_relabel = nullptr;
+            std::int32_t* g_degrees_relabel = nullptr;
 
-        using int32_allocator_type =
-            typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
-        using int32_allocator_traits =
-            typename std::allocator_traits<Allocator>::template rebind_traits<std::int32_t>;
+            using int32_allocator_type =
+                typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
+            using int32_allocator_traits =
+                typename std::allocator_traits<Allocator>::template rebind_traits<std::int32_t>;
 
-        using int64_allocator_type =
-            typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
-        using int64_allocator_traits =
-            typename std::allocator_traits<Allocator>::template rebind_traits<std::int64_t>;
+            using int64_allocator_type =
+                typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
+            using int64_allocator_traits =
+                typename std::allocator_traits<Allocator>::template rebind_traits<std::int64_t>;
 
-        int64_allocator_type int64_allocator(alloc);
-        int32_allocator_type int32_allocator(alloc);
+            int64_allocator_type int64_allocator(alloc);
+            int32_allocator_type int32_allocator(alloc);
 
-        g_vertex_neighbors_relabel =
-            int32_allocator_traits::allocate(int32_allocator, g_edge_offsets[g_vertex_count]);
-        g_degrees_relabel = int32_allocator_traits::allocate(int32_allocator, g_vertex_count);
-        g_edge_offsets_relabel =
-            int64_allocator_traits::allocate(int64_allocator, g_vertex_count + 1);
+            g_vertex_neighbors_relabel =
+                int32_allocator_traits::allocate(int32_allocator, g_edge_offsets[g_vertex_count]);
+            g_degrees_relabel = int32_allocator_traits::allocate(int32_allocator, g_vertex_count);
+            g_edge_offsets_relabel =
+                int64_allocator_traits::allocate(int64_allocator, g_vertex_count + 1);
 
-        relabel_by_greater_degree(ctx,
-                                  g_vertex_neighbors,
-                                  g_edge_offsets,
-                                  g_degrees,
-                                  g_vertex_count,
-                                  g_edge_count,
-                                  g_vertex_neighbors_relabel,
-                                  g_edge_offsets_relabel,
-                                  g_degrees_relabel,
-                                  alloc);
+            relabel_by_greater_degree(ctx,
+                                      g_vertex_neighbors,
+                                      g_edge_offsets,
+                                      g_degrees,
+                                      g_vertex_count,
+                                      g_edge_count,
+                                      g_vertex_neighbors_relabel,
+                                      g_edge_offsets_relabel,
+                                      g_degrees_relabel,
+                                      alloc);
 
+            triangles = triangle_counting_global_scalar(ctx,
+                                                        g_vertex_neighbors_relabel,
+                                                        g_edge_offsets_relabel,
+                                                        g_degrees_relabel,
+                                                        g_vertex_count,
+                                                        g_edge_count);
 
-        triangles = triangle_counting_global_scalar(ctx,
-                                                g_vertex_neighbors_relabel,
-                                                g_edge_offsets_relabel,
-                                                g_degrees_relabel,
-                                                g_vertex_count,
-                                                g_edge_count);
-        }
-        else {
-            triangles = triangle_counting_global_vector_relabel(ctx,
-                                                                g_vertex_neighbors_relabel,
-                                                                g_edge_offsets_relabel,
-                                                                g_degrees_relabel,
-                                                                g_vertex_count,
-                                                                g_edge_count);
+            if (g_vertex_neighbors_relabel != nullptr) {
+                int32_allocator_traits::deallocate(int32_allocator,
+                                                   g_vertex_neighbors_relabel,
+                                                   g_edge_count);
+            }
 
-        if (g_vertex_neighbors_relabel != nullptr) {
-            int32_allocator_traits::deallocate(int32_allocator,
-                                               g_vertex_neighbors_relabel,
-                                               g_edge_count);
-        }
+            if (g_degrees_relabel != nullptr) {
+                int32_allocator_traits::deallocate(int32_allocator,
+                                                   g_degrees_relabel,
+                                                   g_vertex_count);
+            }
 
-        if (g_degrees_relabel != nullptr) {
-            int32_allocator_traits::deallocate(int32_allocator, g_degrees_relabel, g_vertex_count);
-        }
-
-        if (g_edge_offsets_relabel != nullptr) {
-            int64_allocator_traits::deallocate(int64_allocator,
-                                               g_edge_offsets_relabel,
-                                               g_vertex_count + 1);
+            if (g_edge_offsets_relabel != nullptr) {
+                int64_allocator_traits::deallocate(int64_allocator,
+                                                   g_edge_offsets_relabel,
+                                                   g_vertex_count + 1);
+            }
         }
     }
     else {
@@ -276,7 +271,7 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
     res.set_global_rank(triangles);
     return res;
 }
-  
+
 template <typename Allocator>
 vertex_ranking_result<task::local> triangle_counting_default_kernel_int32(
     const dal::detail::host_policy& ctx,
@@ -327,7 +322,6 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
     virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
                                                      const Topology& data) {
-
         return call_triangle_counting_default_kernel_general(descriptor, data);
     }
     virtual ~backend_default() {}
