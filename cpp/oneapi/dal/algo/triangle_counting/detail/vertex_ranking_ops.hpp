@@ -29,8 +29,8 @@ namespace oneapi::dal::preview::triangle_counting::detail {
 template <typename Policy, typename Float, class Task, class Method, typename Graph>
 struct ONEDAL_EXPORT vertex_ranking_ops_dispatcher {
     vertex_ranking_result<Task> operator()(const Policy &policy,
-                                        const descriptor_base<Task> &descriptor,
-                                        vertex_ranking_input<Graph, Task> &input) const;
+                                           const descriptor_base<Task> &descriptor,
+                                           vertex_ranking_input<Graph, Task> &input) const;
 };
 
 template <typename Descriptor, typename Graph>
@@ -48,18 +48,17 @@ struct vertex_ranking_ops {
     }
 
     template <typename Policy>
-    auto operator()(const Policy &policy,
-                    const Descriptor &desc,
-                    input_t &input) const {
+    auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
         check_preconditions(desc, input);
         return vertex_ranking_ops_dispatcher<Policy, float_t, task_t, method_t, Graph>()(policy,
-                                                                                    desc,
-                                                                                    input);
+                                                                                         desc,
+                                                                                         input);
     }
 };
 
 template <typename Policy, typename Float, class Task, class Method, typename Graph>
-vertex_ranking_result<Task> vertex_ranking_ops_dispatcher<Policy, Float, Task, Method, Graph>::operator()(
+vertex_ranking_result<Task>
+vertex_ranking_ops_dispatcher<Policy, Float, Task, Method, Graph>::operator()(
     const Policy &policy,
     const descriptor_base<Task> &desc,
     vertex_ranking_input<Graph, Task> &input) const {

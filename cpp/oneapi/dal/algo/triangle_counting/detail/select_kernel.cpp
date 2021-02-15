@@ -22,10 +22,11 @@
 namespace oneapi::dal::preview::triangle_counting::detail {
 
 template <typename Task, typename Float, typename Method>
-vertex_ranking_result<Task> backend_default<dal::detail::host_policy, Task, 
-                                         Float,
-                                         Method,
-                                         dal::preview::detail::topology<std::int32_t>>::
+vertex_ranking_result<Task> backend_default<dal::detail::host_policy,
+                                            Task,
+                                            Float,
+                                            Method,
+                                            dal::preview::detail::topology<std::int32_t>>::
 operator()(const dal::detail::host_policy &policy,
            const descriptor_base<Task> &desc,
            const dal::preview::detail::topology<std::int32_t> &data) {
@@ -34,14 +35,18 @@ operator()(const dal::detail::host_policy &policy,
     });
 }
 
-template struct ONEDAL_EXPORT backend_default<dal::detail::host_policy, dal::preview::triangle_counting::task::local, 
-                                              float,
-                                              dal::preview::triangle_counting::method::ordered_count,
-                                              dal::preview::detail::topology<std::int32_t>>;
+template struct ONEDAL_EXPORT
+    backend_default<dal::detail::host_policy,
+                    dal::preview::triangle_counting::task::local,
+                    float,
+                    dal::preview::triangle_counting::method::ordered_count,
+                    dal::preview::detail::topology<std::int32_t>>;
 
-template struct ONEDAL_EXPORT backend_default<dal::detail::host_policy, dal::preview::triangle_counting::task::global, 
-                                              float,
-                                              dal::preview::triangle_counting::method::ordered_count,
-                                              dal::preview::detail::topology<std::int32_t>>;
+template struct ONEDAL_EXPORT
+    backend_default<dal::detail::host_policy,
+                    dal::preview::triangle_counting::task::global,
+                    float,
+                    dal::preview::triangle_counting::method::ordered_count,
+                    dal::preview::detail::topology<std::int32_t>>;
 
 } // namespace oneapi::dal::preview::triangle_counting::detail

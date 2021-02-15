@@ -28,11 +28,13 @@ namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
 
-template vertex_ranking_result<task::local> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
+template vertex_ranking_result<task::local>
+call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
     const detail::descriptor_base<task::local> &desc,
     const dal::preview::detail::topology<std::int32_t> &data);
 
-template vertex_ranking_result<task::local> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
+template vertex_ranking_result<task::local>
+call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
     const detail::descriptor_base<task::local> &desc,
     const dal::preview::detail::topology<std::int64_t> &data);
 
@@ -43,11 +45,13 @@ vertex_ranking_result<task::local> call_triangle_counting_default_kernel_int32<_
     return call_triangle_counting_default_kernel_scalar<__CPU_TAG__>(desc, data);
 }
 
-template vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
+template vertex_ranking_result<task::global>
+call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
     const detail::descriptor_base<task::global> &desc,
     const dal::preview::detail::topology<std::int32_t> &data);
 
-template vertex_ranking_result<task::global> call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
+template vertex_ranking_result<task::global>
+call_triangle_counting_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
     const detail::descriptor_base<task::global> &desc,
     const dal::preview::detail::topology<std::int64_t> &data);
 

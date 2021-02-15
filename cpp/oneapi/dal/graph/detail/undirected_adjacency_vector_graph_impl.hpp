@@ -152,8 +152,8 @@ public:
         }
         if (rows_vertex.get_data() != nullptr && rows_vertex.has_mutable_data()) {
             edge_vertex_allocator_traits::deallocate(_edge_vertex_allocator,
-                                              rows_vertex.get_mutable_data(),
-                                              rows_vertex.get_count());
+                                                     rows_vertex.get_mutable_data(),
+                                                     rows_vertex.get_count());
         }
         if (_vertex_values.get_data() != nullptr && _vertex_values.has_mutable_data()) {
             vertex_user_value_allocator_traits::deallocate(_vertex_user_value_allocator,

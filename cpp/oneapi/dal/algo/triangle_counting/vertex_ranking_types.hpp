@@ -34,6 +34,7 @@ namespace v1 {
 template <typename Graph, typename Task = task::by_default>
 class ONEDAL_EXPORT vertex_ranking_input : public base {
     static_assert(detail::is_valid_task<Task>);
+
 public:
     using task_t = Task;
     static_assert(detail::is_valid_graph<Graph>,
@@ -57,6 +58,7 @@ private:
 template <typename Task = task::by_default>
 class ONEDAL_EXPORT vertex_ranking_result {
     static_assert(detail::is_valid_task<Task>);
+
 public:
     using task_t = Task;
     /// Constructs the empty result
@@ -69,20 +71,20 @@ public:
     }
 
     /// Returns the total number of triangles in the graph
-    template <typename T = Task, typename = detail::enable_if_global_t<T>> 
+    template <typename T = Task, typename = detail::enable_if_global_t<T>>
     int64_t get_global_rank() const {
         return get_global_rank_impl();
     }
 
     /// Sets the table with computed number of local triangles for each vertex
-    template <typename T = Task, typename = detail::enable_if_local_t<T>> 
+    template <typename T = Task, typename = detail::enable_if_local_t<T>>
     auto& set_ranks(const table& value) {
         set_ranks_impl(value);
         return *this;
     }
 
     /// Sets the total number of triangles in the graph
-    template <typename T = Task, typename = detail::enable_if_global_t<T>> 
+    template <typename T = Task, typename = detail::enable_if_global_t<T>>
     auto& set_global_rank(int64_t value) {
         set_global_rank_impl(value);
         return *this;

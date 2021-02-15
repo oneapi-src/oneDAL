@@ -34,11 +34,12 @@ template vertex_ranking_result<task::global> call_triangle_counting_default_kern
                                        const dal::preview::detail::topology<std::int32_t> &data);
 
 template <>
-vertex_ranking_result<task::global> call_triangle_counting_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
+vertex_ranking_result<task::global>
+call_triangle_counting_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::global> &desc,
     const dal::preview::detail::topology<std::int32_t> &data) {
     return call_triangle_counting_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc,
-                                                                                 data);
+                                                                                           data);
 }
 
 template vertex_ranking_result<task::local> call_triangle_counting_default_kernel_avx512<
@@ -46,12 +47,12 @@ template vertex_ranking_result<task::local> call_triangle_counting_default_kerne
                                        const dal::preview::detail::topology<std::int32_t> &data);
 
 template <>
-vertex_ranking_result<task::local> call_triangle_counting_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
+vertex_ranking_result<task::local>
+call_triangle_counting_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
     const detail::descriptor_base<task::local> &desc,
     const dal::preview::detail::topology<std::int32_t> &data) {
     return call_triangle_counting_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc,
-                                                                                 data);
-
+                                                                                           data);
 }
 } // namespace detail
 } // namespace triangle_counting

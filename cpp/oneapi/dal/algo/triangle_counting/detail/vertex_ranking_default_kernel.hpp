@@ -27,7 +27,6 @@ namespace oneapi::dal::preview::triangle_counting::detail {
 template <typename Index>
 inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Index n_u, Index n_v);
 
-
 template <typename Index>
 vertex_ranking_result<task::local> call_triangle_counting_default_kernel_general(
     const detail::descriptor_base<task::local> &desc,
