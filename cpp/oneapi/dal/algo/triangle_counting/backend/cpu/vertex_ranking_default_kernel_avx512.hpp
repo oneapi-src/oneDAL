@@ -18,7 +18,6 @@
 
 #include <immintrin.h>
 #include <functional>
-#include <memory>
 
 #include <daal/src/services/service_defines.h>
 
@@ -32,7 +31,6 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include <iostream>
 
 #if defined(__INTEL_COMPILER)
 #define PRAGMA_IVDEP         _Pragma("ivdep")

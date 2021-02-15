@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/detail/vertex_ranking_default_kernel.hpp"
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
