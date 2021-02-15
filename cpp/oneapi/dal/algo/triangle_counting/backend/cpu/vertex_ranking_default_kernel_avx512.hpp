@@ -748,12 +748,10 @@ array<std::int64_t> triangle_counting_local_avx512(
                         std::int32_t v = *v_;
                         if (v <= u) {
                             const std::int32_t* neigh_u = g_vertex_neighbors + g_edge_offsets[u];
-                            std::int32_t size_neigh_u =
-                                g_vertex_neighbors + g_edge_offsets[u + 1] - neigh_u;
+                            std::int32_t size_neigh_u = g_degrees[u];
                             const std::int32_t* neigh_v = g_vertex_neighbors + g_edge_offsets[v];
                             ;
-                            std::int32_t size_neigh_v =
-                                g_vertex_neighbors + g_edge_offsets[v + 1] - neigh_v;
+                            std::int32_t size_neigh_v = g_degrees[v];
                             std::int32_t new_size_neigh_v;
 
                             for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) &&
@@ -800,7 +798,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_avx512(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
@@ -844,7 +842,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
@@ -853,7 +851,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(
                     continue;
                 }
                 const std::int32_t* neigh_u = vertex_neighbors + edge_offsets[u];
-                std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u + 1] - neigh_u;
+                std::int32_t size_neigh_u = degrees[u];
 
                 tc_u += oneapi::dal::detail::parallel_reduce_int32ptr_int64_t_simple(
                     vertex_neighbors + edge_offsets[u],
@@ -870,8 +868,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_avx512(
                             }
 
                             const std::int32_t* neigh_v = vertex_neighbors + edge_offsets[v];
-                            std::int32_t size_neigh_v =
-                                vertex_neighbors + edge_offsets[v + 1] - neigh_v;
+                            std::int32_t size_neigh_v = degrees[v];
 
                             std::int32_t new_size_neigh_v = 0;
                             for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) &&
@@ -902,7 +899,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_size_t_int64_t_simple(
+    std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
         [&](std::int64_t begin_u, std::int64_t end_u, std::int64_t tc_u) -> std::int64_t {
@@ -911,7 +908,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(
                     continue;
                 }
                 const std::int32_t* neigh_u = vertex_neighbors + edge_offsets[u];
-                std::int32_t size_neigh_u = vertex_neighbors + edge_offsets[u + 1] - neigh_u;
+                std::int32_t size_neigh_u = degrees[u];
 
                 for (auto v_ = vertex_neighbors + edge_offsets[u];
                      v_ != vertex_neighbors + edge_offsets[u + 1];
@@ -923,7 +920,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(
                     }
 
                     const std::int32_t* neigh_v = vertex_neighbors + edge_offsets[v];
-                    std::int32_t size_neigh_v = vertex_neighbors + edge_offsets[v + 1] - neigh_v;
+                    std::int32_t size_neigh_v = degrees[v];
 
                     std::int32_t new_size_neigh_v = 0;
                     for (new_size_neigh_v = 0;
