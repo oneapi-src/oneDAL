@@ -259,6 +259,7 @@ public:
             : impl_(new dataframe_builder_impl{ row_count, column_count }) {}
 
     dataframe_builder& fill_uniform(double a, double b, std::int64_t seed = 7777);
+    dataframe_builder& fill_cluster(double a, double b, std::int64_t seed = 7777);
 
     dataframe build() const;
 

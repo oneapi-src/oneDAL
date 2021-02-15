@@ -197,7 +197,8 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
 
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
-                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
+                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5),
+                           te::dataframe_builder{ 100000, 10 }.fill_cluster(5.0, 2.0));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();
