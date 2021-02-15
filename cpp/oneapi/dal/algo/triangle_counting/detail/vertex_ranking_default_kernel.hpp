@@ -25,8 +25,7 @@
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-
-template<typename Index>
+template <typename Index>
 std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& policy,
                                              const Index* vertex_neighbors,
                                              const std::int64_t* edge_offsets,
@@ -34,7 +33,7 @@ std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& pol
                                              std::int64_t vertex_count,
                                              std::int64_t edge_count);
 
-template<typename Index>
+template <typename Index>
 std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& policy,
                                              const Index* vertex_neighbors,
                                              const std::int64_t* edge_offsets,
@@ -42,7 +41,7 @@ std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& pol
                                              std::int64_t vertex_count,
                                              std::int64_t edge_count);
 
-template<typename Index>
+template <typename Index>
 std::int64_t triangle_counting_global_vector_relabel(const dal::detail::host_policy& policy,
                                                      const Index* vertex_neighbors,
                                                      const std::int64_t* edge_offsets,
@@ -50,11 +49,10 @@ std::int64_t triangle_counting_global_vector_relabel(const dal::detail::host_pol
                                                      std::int64_t vertex_count,
                                                      std::int64_t edge_count);
 
-template<typename Index>
-array<std::int64_t> triangle_counting_local(
-    const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<Index>& data,
-    int64_t* triangles_local);
+template <typename Index>
+array<std::int64_t> triangle_counting_local(const dal::detail::host_policy& policy,
+                                            const dal::preview::detail::topology<Index>& data,
+                                            int64_t* triangles_local);
 
 void sort_ids_by_degree(const dal::detail::host_policy& policy,
                         const std::int32_t* degrees,
@@ -307,16 +305,10 @@ vertex_ranking_result<task::local> triangle_counting_default_kernel(
         dal::detail::homogen_table_builder{}.reset(arr_triangles, 1, g_vertex_count).build());
 }
 
-
-
-
-
-
+template <typename Index>
+inline std::int64_t intersection(const Index* neigh_u, const Index* neigh_v, Index n_u, Index n_v);
 
 template <typename Index>
-inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Index n_u, Index n_v);
-
-template<typename Index>
 std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& policy,
                                              const Index* vertex_neighbors,
                                              const std::int64_t* edge_offsets,
@@ -324,7 +316,7 @@ std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& pol
                                              std::int64_t vertex_count,
                                              std::int64_t edge_count);
 
-template<typename Index>
+template <typename Index>
 std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& policy,
                                              const Index* vertex_neighbors,
                                              const std::int64_t* edge_offsets,
@@ -332,7 +324,7 @@ std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& pol
                                              std::int64_t vertex_count,
                                              std::int64_t edge_count);
 
-template<typename Index>
+template <typename Index>
 std::int64_t triangle_counting_global_vector_relabel(const dal::detail::host_policy& policy,
                                                      const Index* vertex_neighbors,
                                                      const std::int64_t* edge_offsets,
@@ -340,14 +332,13 @@ std::int64_t triangle_counting_global_vector_relabel(const dal::detail::host_pol
                                                      std::int64_t vertex_count,
                                                      std::int64_t edge_count);
 
-template<typename Index>
-array<std::int64_t> triangle_counting_local(
-    const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<Index>& data,
-    int64_t* triangles_local);
+template <typename Index>
+array<std::int64_t> triangle_counting_local(const dal::detail::host_policy& policy,
+                                            const dal::preview::detail::topology<Index>& data,
+                                            int64_t* triangles_local);
 
 template <typename Index>
-inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Index n_u, Index n_v) {
+inline std::int64_t intersection(const Index* neigh_u, const Index* neigh_v, Index n_u, Index n_v) {
     std::int64_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {

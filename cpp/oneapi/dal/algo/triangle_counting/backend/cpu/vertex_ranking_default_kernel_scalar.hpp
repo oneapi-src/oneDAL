@@ -76,7 +76,6 @@ DAAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
     return total;
 }
 
-
 template <typename Cpu>
 array<std::int64_t> triangle_counting_local_novec(
     const dal::preview::detail::topology<std::int32_t>& data,

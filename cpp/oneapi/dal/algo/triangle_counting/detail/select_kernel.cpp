@@ -23,13 +23,13 @@
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-template<>
+template <>
 std::int64_t triangle_counting_global_scalar<std::int32_t>(const dal::detail::host_policy& policy,
-                                             const std::int32_t* vertex_neighbors,
-                                             const std::int64_t* edge_offsets,
-                                             const std::int32_t* degrees,
-                                             std::int64_t vertex_count,
-                                             std::int64_t edge_count) {
+                                                           const std::int32_t* vertex_neighbors,
+                                                           const std::int64_t* edge_offsets,
+                                                           const std::int32_t* degrees,
+                                                           std::int64_t vertex_count,
+                                                           std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return triangle_counting_global_scalar_cpu<decltype(cpu)>(vertex_neighbors,
                                                                   edge_offsets,
@@ -39,13 +39,13 @@ std::int64_t triangle_counting_global_scalar<std::int32_t>(const dal::detail::ho
     });
 }
 
-template<>
+template <>
 std::int64_t triangle_counting_global_vector<std::int32_t>(const dal::detail::host_policy& policy,
-                                             const std::int32_t* vertex_neighbors,
-                                             const std::int64_t* edge_offsets,
-                                             const std::int32_t* degrees,
-                                             std::int64_t vertex_count,
-                                             std::int64_t edge_count) {
+                                                           const std::int32_t* vertex_neighbors,
+                                                           const std::int64_t* edge_offsets,
+                                                           const std::int32_t* degrees,
+                                                           std::int64_t vertex_count,
+                                                           std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return triangle_counting_global_vector_cpu<decltype(cpu)>(vertex_neighbors,
                                                                   edge_offsets,
@@ -55,13 +55,14 @@ std::int64_t triangle_counting_global_vector<std::int32_t>(const dal::detail::ho
     });
 }
 
-template<>
-std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(const dal::detail::host_policy& policy,
-                                                     const std::int32_t* vertex_neighbors,
-                                                     const std::int64_t* edge_offsets,
-                                                     const std::int32_t* degrees,
-                                                     std::int64_t vertex_count,
-                                                     std::int64_t edge_count) {
+template <>
+std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(
+    const dal::detail::host_policy& policy,
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return triangle_counting_global_vector_relabel_cpu<decltype(cpu)>(vertex_neighbors,
                                                                           edge_offsets,
@@ -71,7 +72,7 @@ std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(const dal::de
     });
 }
 
-template<>
+template <>
 array<std::int64_t> triangle_counting_local<std::int32_t>(
     const dal::detail::host_policy& policy,
     const dal::preview::detail::topology<std::int32_t>& data,

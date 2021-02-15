@@ -25,7 +25,6 @@
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-
 template <typename Policy, typename Descriptor, typename Topology>
 struct backend_base {
     using float_t = typename Descriptor::float_t;
@@ -49,23 +48,15 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
 };
 
 template <typename Descriptor, typename Topology>
-struct backend_default<dal::detail::host_policy,
-                       Descriptor,
-                       Topology>
-        : public backend_base<dal::detail::host_policy,
-                              Descriptor,
-                              Topology> {
+struct backend_default<dal::detail::host_policy, Descriptor, Topology>
+        : public backend_base<dal::detail::host_policy, Descriptor, Topology> {
     using task_t = typename Descriptor::task_t;
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual vertex_ranking_result<task_t> operator()(
-        const dal::detail::host_policy& ctx,
-        const Descriptor& descriptor,
-        const Topology& data) {
-        return triangle_counting_default_kernel(ctx,
-                                                descriptor,
-                                                descriptor.get_allocator(),
-                                                data);
+    virtual vertex_ranking_result<task_t> operator()(const dal::detail::host_policy& ctx,
+                                                     const Descriptor& descriptor,
+                                                     const Topology& data) {
+        return triangle_counting_default_kernel(ctx, descriptor, descriptor.get_allocator(), data);
     }
     virtual ~backend_default() {}
 };
