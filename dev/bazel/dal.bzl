@@ -149,7 +149,7 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
 def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
-             framework="gtest", data=[], tags=[], **kwargs):
+             framework="gtest", data=[], tags=[], private=False, **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
@@ -181,12 +181,13 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         testonly = True,
         **kwargs,
     )
+    iface_access_tag = "private" if private else "public"
     if "c++" in compile_as:
         cc_test(
             name = name,
             deps = [ ":" + module_name ],
             data = data,
-            tags = tags + ["host"],
+            tags = tags + ["host", iface_access_tag],
         )
     if "dpc++" in compile_as:
         cc_test(
@@ -198,7 +199,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
                 "@opencl//:opencl_binary",
             ],
             data = data,
-            tags = tags + ["dpc"],
+            tags = tags + ["dpc", iface_access_tag],
         )
 
 def dal_test_suite(name, srcs=[], tests=[], compile_as=[ "c++", "dpc++" ], **kwargs):
