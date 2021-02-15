@@ -26,9 +26,9 @@ typedef void (*functype)(std::int32_t i, const void *a);
 typedef void (*functype_int32ptr)(const std::int32_t *i, const void *a);
 
 typedef std::int64_t (*loop_functype_int32_int64)(std::int32_t start_idx,
-                                                   std::int32_t end_idx,
-                                                   std::int64_t value_for_reduce,
-                                                   const void *a);
+                                                  std::int32_t end_idx,
+                                                  std::int64_t value_for_reduce,
+                                                  const void *a);
 
 typedef std::int64_t (*loop_functype_int32ptr_int64)(const std::int32_t *begin,
                                                      const std::int32_t *end,
@@ -138,9 +138,9 @@ inline ONEDAL_EXPORT void threader_for_int32ptr(const std::int32_t *begin,
 
 template <typename F>
 inline std::int64_t parallel_reduce_loop_int32_int64(std::int32_t start_idx,
-                                                      std::int32_t end_idx,
-                                                      std::int64_t value_for_reduce,
-                                                      const void *a) {
+                                                     std::int32_t end_idx,
+                                                     std::int64_t value_for_reduce,
+                                                     const void *a) {
     const F &lambda = *static_cast<const F *>(a);
     return lambda(start_idx, end_idx, value_for_reduce);
 }
@@ -169,27 +169,27 @@ parallel_reduce_int32_int64_t(int32_t n, Value init, const Func &func, const Red
     const void *const rf = static_cast<const void *>(&reduction);
 
     return _onedal_parallel_reduce_int32_int64(n,
-                                                init,
-                                                lf,
-                                                parallel_reduce_loop_int32_int64<Func>,
-                                                rf,
-                                                parallel_reduce_reduction_int64<Reduction>);
+                                               init,
+                                               lf,
+                                               parallel_reduce_loop_int32_int64<Func>,
+                                               rf,
+                                               parallel_reduce_reduction_int64<Reduction>);
 }
 
 template <typename Value, typename Func, typename Reduction>
 ONEDAL_EXPORT Value parallel_reduce_int32_int64_t_simple(int32_t n,
-                                                          Value init,
-                                                          const Func &func,
-                                                          const Reduction &reduction) {
+                                                         Value init,
+                                                         const Func &func,
+                                                         const Reduction &reduction) {
     const void *const lf = static_cast<const void *>(&func);
     const void *const rf = static_cast<const void *>(&reduction);
 
     return _onedal_parallel_reduce_int32_int64_simple(n,
-                                                       init,
-                                                       lf,
-                                                       parallel_reduce_loop_int32_int64<Func>,
-                                                       rf,
-                                                       parallel_reduce_reduction_int64<Reduction>);
+                                                      init,
+                                                      lf,
+                                                      parallel_reduce_loop_int32_int64<Func>,
+                                                      rf,
+                                                      parallel_reduce_reduction_int64<Reduction>);
 }
 
 template <typename Value, typename Func, typename Reduction>

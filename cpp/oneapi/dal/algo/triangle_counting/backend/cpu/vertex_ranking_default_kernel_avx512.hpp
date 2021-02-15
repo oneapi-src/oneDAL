@@ -902,7 +902,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_avx512(
         vertex_count,
         (std::int64_t)0,
         [&](std::int32_t begin_u, std::int32_t end_u, std::int64_t tc_u) -> std::int64_t {
-            for (auto u = begin_u; u != end_u; ++u) {  
+            for (auto u = begin_u; u != end_u; ++u) {
                 if (degrees[u] < 2) {
                     continue;
                 }
