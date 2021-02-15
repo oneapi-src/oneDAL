@@ -1,4 +1,4 @@
-/* file: pca_dense_distributed_oneccl.cpp */
+/* file: pca_dense_batch_distributed_oneccl.cpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -41,7 +41,7 @@ using namespace daal::algorithms;
 //typedef std::vector<char> ByteBuffer;
 typedef float algorithmFPType; /* Algorithm floating-point type */
 
-/* Covariance algorithm parameters */
+/* PCA algorithm parameters */
 const size_t nProcs = 4;
 
 /* Input data set parameters */
@@ -80,9 +80,6 @@ NumericTablePtr loadData(int rankId)
     dataSource.loadDataBlock();
     return dataSource.getNumericTable();
 }
-
-NumericTablePtr init(int rankId, const NumericTablePtr & pData, ccl::communicator & comm);
-NumericTablePtr compute(int rankId, const NumericTablePtr & pData, const NumericTablePtr & initialCentroids, ccl::communicator & comm);
 
 int main(int argc, char * argv[])
 {

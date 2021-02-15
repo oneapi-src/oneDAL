@@ -130,3 +130,5 @@ For more details, see :ref:`algorithms`.
      - Estimates for the standard deviations
    * - ``variation``
      - Estimates for the variations
+
+.. include:: ../../../opt-notice.rst

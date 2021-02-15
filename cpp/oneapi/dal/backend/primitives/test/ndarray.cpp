@@ -401,9 +401,6 @@ TEST("ndarray reshape", "[ndarray]") {
     test_nd_reshape<ndarray>();
 }
 
-template <typename Float, ndorder order>
-void test_pass_non_const_to_const(const ndview<std::add_const_t<Float>, 2, order>&);
-
 TEST("can cast ndarray to ndview", "[ndarray]") {
     float data[] = { 0.1 };
     const auto x = ndarray<float, 2>::wrap(data, { 1, 1 });

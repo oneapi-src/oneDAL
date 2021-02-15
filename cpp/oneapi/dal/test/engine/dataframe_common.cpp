@@ -219,15 +219,15 @@ dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int6
 
 dataframe dataframe_builder::build() const {
     const auto& program = impl_->get_program();
-    const auto [df, hit] = get_dataframe_builder_cache().lookup(program);
+    const auto df_hit = get_dataframe_builder_cache().lookup(program);
 #ifdef ONEDAL_DEBUG_DATAFRAMES_CACHE
-    const std::string hit_or_miss = hit ? "hit" : "miss";
+    const std::string hit_or_miss = std::get<1>(df_hit) ? "hit" : "miss";
     fmt::print("{}\t{}\t{:.2f}Mb\n",
                hit_or_miss,
                program.get_code(),
                get_dataframe_builder_cache().get_occupied_size_mb());
 #endif
-    return df;
+    return std::get<0>(df_hit);
 }
 
 template <typename Float>

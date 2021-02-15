@@ -37,9 +37,10 @@ sycl::event gemm(sycl::queue& queue,
                  Float alpha,
                  Float beta,
                  const event_vector& deps) {
-    ONEDAL_ASSERT(a.get_shape(0) == c.get_shape(0));
-    ONEDAL_ASSERT(a.get_shape(1) == b.get_shape(0));
-    ONEDAL_ASSERT(b.get_shape(1) == c.get_shape(1));
+
+    ONEDAL_ASSERT(a.get_dimension(0) == c.get_dimension(0));
+    ONEDAL_ASSERT(a.get_dimension(1) == b.get_dimension(0));
+    ONEDAL_ASSERT(b.get_dimension(1) == c.get_dimension(1));
     ONEDAL_ASSERT(c.has_mutable_data());
 
     constexpr bool is_c_trans = (co == ndorder::c);
@@ -47,9 +48,9 @@ sycl::event gemm(sycl::queue& queue,
         return mkl::blas::gemm(queue,
                                f_order_as_transposed(bo),
                                f_order_as_transposed(ao),
-                               c.get_shape(1),
-                               c.get_shape(0),
-                               a.get_shape(1),
+                               c.get_dimension(1),
+                               c.get_dimension(0),
+                               a.get_dimension(1),
                                alpha,
                                b.get_data(),
                                b.get_leading_stride(),
@@ -64,9 +65,9 @@ sycl::event gemm(sycl::queue& queue,
         return mkl::blas::gemm(queue,
                                c_order_as_transposed(ao),
                                c_order_as_transposed(bo),
-                               c.get_shape(0),
-                               c.get_shape(1),
-                               a.get_shape(1),
+                               c.get_dimension(0),
+                               c.get_dimension(1),
+                               a.get_dimension(1),
                                alpha,
                                a.get_data(),
                                a.get_leading_stride(),

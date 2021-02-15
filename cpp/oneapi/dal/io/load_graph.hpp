@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
@@ -39,4 +38,5 @@ template <typename Descriptor = descriptor<>, typename DataSource = graph_csv_da
 ONEDAL_EXPORT output_type<Descriptor> load(const Descriptor &desc, const DataSource &data_source) {
     return detail::load_impl(desc, data_source);
 }
+
 } // namespace oneapi::dal::preview::load_graph

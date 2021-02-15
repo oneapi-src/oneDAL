@@ -334,3 +334,5 @@ To get the best overall performance of the K-Means algorithm:
   of the int type.
 
 
+
+.. include:: ../../../opt-notice.rst

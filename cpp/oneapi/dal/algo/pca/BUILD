@@ -27,7 +27,6 @@ dal_test_suite(
     ],
     tags = [
         "backend",
-        "cpu-only",
     ]
 )
 
@@ -42,7 +41,6 @@ dal_test_suite(
     ],
     tags = [
         "backend",
-        "gpu-only",
     ]
 )
 

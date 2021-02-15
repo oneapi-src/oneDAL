@@ -1,3 +1,4 @@
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -13,14 +14,13 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+#pragma once
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_array_graph_impl.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview::detail {
 
-template class ONEDAL_EXPORT undirected_adjacency_array_graph_impl<empty_value,
-                                                                   empty_value,
-                                                                   empty_value,
-                                                                   std::int32_t,
-                                                                   std::allocator<char>>;
+template <typename T = std::int32_t, typename Allocator = std::allocator<char>>
+using edge_list_container = vector_container<T, Allocator>;
+
 } // namespace oneapi::dal::preview::detail

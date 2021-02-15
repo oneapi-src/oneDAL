@@ -46,7 +46,7 @@ struct kernel_dispatcher<CpuKernel, GpuKernel> {
     auto operator()(const detail::data_parallel_policy& policy, Args&&... args) const {
         const auto device = policy.get_queue().get_device();
         if (device.is_host() || device.is_cpu()) {
-            const auto cpu_policy = context_cpu{ detail::host_policy{} };
+            const auto cpu_policy = context_cpu{ detail::host_policy::get_default() };
             return CpuKernel()(cpu_policy, std::forward<Args>(args)...);
         }
         else if (device.is_gpu()) {

@@ -209,11 +209,12 @@ Status UpdateKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, 
     if (!nBlocks) ++nBlocks;
 
     /* Create TLS */
-    daal::tls<ThreadingTaskType *> tls([=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses); });
+    daal::static_tls<ThreadingTaskType *> tls(
+        [=]() -> ThreadingTaskType * { return ThreadingTaskType::create(nBetasIntercept, nRowsInBlock, nResponses); });
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [=, &tls, &xTable, &yTable, &safeStat](int iBlock) {
-        ThreadingTaskType * tlsLocal = tls.local();
+    daal::static_threader_for(nBlocks, [=, &tls, &xTable, &yTable, &safeStat](size_t iBlock, size_t tid) {
+        ThreadingTaskType * tlsLocal = tls.local(tid);
         if (!tlsLocal)
         {
             safeStat.add(services::ErrorMemoryAllocationFailed);

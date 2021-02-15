@@ -38,16 +38,16 @@ sycl::event correlation(sycl::queue& queue,
     ONEDAL_ASSERT(means.has_mutable_data());
     ONEDAL_ASSERT(vars.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
-    ONEDAL_ASSERT(corr.get_shape(0) == corr.get_shape(1), "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_shape(0) == data.get_column_count(),
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1), "Correlation matrix must be square");
+    ONEDAL_ASSERT(corr.get_dimension(0) == data.get_column_count(),
                   "Dimensions of correlation matrix must match column count of input data");
-    ONEDAL_ASSERT(sums.get_shape(0) == data.get_column_count(),
+    ONEDAL_ASSERT(sums.get_dimension(0) == data.get_column_count(),
                   "Element count of sums must match column count of input data");
-    ONEDAL_ASSERT(vars.get_shape(0) == data.get_column_count(),
+    ONEDAL_ASSERT(vars.get_dimension(0) == data.get_column_count(),
                   "Element count of vars must match column count of input data");
-    ONEDAL_ASSERT(means.get_shape(0) == data.get_column_count(),
+    ONEDAL_ASSERT(means.get_dimension(0) == data.get_column_count(),
                   "Element count of means must match column count of input data");
-    ONEDAL_ASSERT(tmp.get_shape(0) == data.get_column_count(),
+    ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_column_count(),
                   "Element count of temporary buffer must match column count of input data");
 
     // TODO: Determine optimal block size

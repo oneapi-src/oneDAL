@@ -22,5 +22,4 @@ dal_test_suite(
     dal_deps = [
         ":blas",
     ],
-    tags = [ "gpu-only" ],
 )

@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'Intel(R) oneAPI Data Analytics Library Documentation'
-copyright = '2014 - 2020, Intel Corporation' # pylint: disable=redefined-builtin
+copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
 author = 'Intel'
 
 # The full version, including alpha/beta/rc tags
@@ -78,7 +78,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['daal/data-management/numeric-tables/*.rst', 'onedal/get-started/*.rst',
+exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst', 'onedal/get-started/*.rst',
                     'daal/algorithms/dbscan/distributed-steps/*',
                     'daal/algorithms/kmeans/includes/*',
                     'notes/issues/2021.1-beta06/includes/*',

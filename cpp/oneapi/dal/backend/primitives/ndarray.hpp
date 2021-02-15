@@ -85,7 +85,7 @@ public:
         return strides_;
     }
 
-    std::int64_t get_shape(std::int64_t axis) const {
+    std::int64_t get_dimension(std::int64_t axis) const {
         return shape_[axis];
     }
 
