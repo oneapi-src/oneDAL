@@ -54,6 +54,10 @@ array<std::int64_t> triangle_counting_local(const dal::detail::host_policy& poli
                                             const dal::preview::detail::topology<Index>& data,
                                             int64_t* triangles_local);
 
+std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
+                                      const array<std::int64_t>& local_triangles,
+                                      std::int64_t vertex_count);
+
 void sort_ids_by_degree(const dal::detail::host_policy& policy,
                         const std::int32_t* degrees,
                         std::pair<std::int32_t, std::size_t>* degree_id_pairs,
@@ -221,6 +225,14 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
                                       g_degrees_relabel,
                                       alloc);
 
+            for (int i = 0; i < g_vertex_count; i++) {
+                std::cout << i << ": ";
+                for (int j = 0; j < g_degrees_relabel[i]; j++) {
+                    std::cout << g_vertex_neighbors_relabel[g_edge_offsets_relabel[i] + j] << " ";
+                }
+                std::cout << std::endl;
+            }
+
             triangles = triangle_counting_global_scalar(ctx,
                                                         g_vertex_neighbors_relabel,
                                                         g_edge_offsets_relabel,
@@ -275,9 +287,8 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
 }
 
 template <typename Allocator>
-vertex_ranking_result<task::local> triangle_counting_default_kernel(
+array<std::int64_t> triangle_counting_local_default_kernel(
     const dal::detail::host_policy& ctx,
-    const detail::descriptor_base<task::local>& desc,
     const Allocator& alloc,
     const dal::preview::detail::topology<std::int32_t>& data) {
     const auto g_vertex_count = data._vertex_count;
@@ -301,8 +312,37 @@ vertex_ranking_result<task::local> triangle_counting_default_kernel(
                                        triangles_local,
                                        (int64_t)thread_cnt * (int64_t)g_vertex_count);
 
+    return arr_triangles;
+}
+
+template <typename Allocator>
+vertex_ranking_result<task::local> triangle_counting_default_kernel(
+    const dal::detail::host_policy& ctx,
+    const detail::descriptor_base<task::local>& desc,
+    const Allocator& alloc,
+    const dal::preview::detail::topology<std::int32_t>& data) {
+    auto local_triangles = triangle_counting_local_default_kernel(ctx, alloc, data);
+
     return vertex_ranking_result<task::local>().set_ranks(
-        dal::detail::homogen_table_builder{}.reset(arr_triangles, 1, g_vertex_count).build());
+        dal::detail::homogen_table_builder{}.reset(local_triangles, 1, data._vertex_count).build());
+}
+
+template <typename Allocator>
+vertex_ranking_result<task::local_and_global> triangle_counting_default_kernel(
+    const dal::detail::host_policy& ctx,
+    const detail::descriptor_base<task::local_and_global>& desc,
+    const Allocator& alloc,
+    const dal::preview::detail::topology<std::int32_t>& data) {
+    const auto vertex_count = data._vertex_count;
+
+    auto local_triangles = triangle_counting_local_default_kernel(ctx, alloc, data);
+
+    std::int64_t total_s = compute_global_triangles(ctx, local_triangles, vertex_count);
+
+    return vertex_ranking_result<task::local_and_global>()
+        .set_ranks(
+            dal::detail::homogen_table_builder{}.reset(local_triangles, 1, vertex_count).build())
+        .set_global_rank(total_s);
 }
 
 template <typename Index>

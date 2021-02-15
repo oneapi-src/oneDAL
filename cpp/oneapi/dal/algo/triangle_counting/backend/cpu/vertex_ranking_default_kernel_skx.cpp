@@ -106,6 +106,10 @@ std::int64_t triangle_counting_global_vector_relabel_cpu<dal::backend::cpu_dispa
         edge_count);
 }
 
+template std::int64_t compute_global_triangles_cpu<dal::backend::cpu_dispatch_avx512>(
+    const array<std::int64_t>& local_triangles,
+    std::int64_t vertex_count);
+
 } // namespace detail
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview

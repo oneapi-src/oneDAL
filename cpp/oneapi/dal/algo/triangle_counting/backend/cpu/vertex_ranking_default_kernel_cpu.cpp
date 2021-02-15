@@ -100,6 +100,10 @@ std::int64_t triangle_counting_global_vector_relabel_cpu<__CPU_TAG__>(
                                                                       edge_count);
 }
 
+template std::int64_t compute_global_triangles_cpu<__CPU_TAG__>(
+    const array<std::int64_t>& local_triangles,
+    std::int64_t vertex_count);
+
 } // namespace detail
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview
