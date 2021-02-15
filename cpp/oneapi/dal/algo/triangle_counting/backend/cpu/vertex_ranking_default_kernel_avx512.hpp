@@ -693,8 +693,6 @@ template <typename Cpu>
 array<std::int64_t> triangle_counting_local_avx512(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
-    std::cout << "local tc avx512" << std::endl;
-
     const auto g_edge_offsets = data._rows.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
@@ -793,13 +791,6 @@ array<std::int64_t> triangle_counting_local_avx512(
             triangles_ptr[u] += triangles_local[idx_glob + u];
         }
     });
-
-    std::int64_t checksum = 0;
-    for (int i = 0; i < g_vertex_count; i++)
-        checksum += triangles_ptr[i];
-
-    std::cout << "TC checksum: " << checksum << std::endl;
-
     return arr_triangles;
 }
 
