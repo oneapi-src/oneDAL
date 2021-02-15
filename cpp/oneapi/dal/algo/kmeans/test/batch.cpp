@@ -48,7 +48,7 @@ public:
     }
 
     auto get_descriptor(std::int64_t cluster_count) const {
-        return kmeans::descriptor<Float, Method>{cluster_count};
+        return kmeans::descriptor<Float, Method>{ cluster_count };
     }
 
     te::table_id get_homogen_table_id() const {
@@ -73,11 +73,7 @@ public:
         INFO("run training");
         const auto train_result = train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
-        check_train_result(kmeans_desc,
-                           train_result,
-                           ref_centroids,
-                           ref_labels,
-                           test_convergence);
+        check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, test_convergence);
 
         INFO("run inference");
         const auto infer_result = infer(kmeans_desc, model, data);
@@ -85,14 +81,14 @@ public:
     }
 
     void exact_checks_with_reordering(const table& data,
-                                       const table& initial_centroids,
-                                       const table& ref_centroids,
-                                       const table& ref_labels,
-                                       std::int64_t cluster_count,
-                                       std::int64_t max_iteration_count,
-                                       Float accuracy_threshold,
-                                       Float ref_objective_function = -1.0,
-                                       bool test_convergence = false) {
+                                      const table& initial_centroids,
+                                      const table& ref_centroids,
+                                      const table& ref_labels,
+                                      std::int64_t cluster_count,
+                                      std::int64_t max_iteration_count,
+                                      Float accuracy_threshold,
+                                      Float ref_objective_function = -1.0,
+                                      bool test_convergence = false) {
         CAPTURE(cluster_count);
 
         INFO("create descriptor")
@@ -124,12 +120,12 @@ public:
     }
 
     void train_with_initialization_checks(const table& data,
-                                               const table& ref_centroids,
-                                           const table& ref_labels,
-                                             std::int64_t cluster_count,
-                                       std::int64_t max_iteration_count,
-                                       Float accuracy_threshold,
-                                             kmeans::model<>& model) {
+                                          const table& ref_centroids,
+                                          const table& ref_labels,
+                                          std::int64_t cluster_count,
+                                          std::int64_t max_iteration_count,
+                                          Float accuracy_threshold,
+                                          kmeans::model<>& model) {
         CAPTURE(cluster_count);
 
         INFO("create descriptor")
@@ -138,11 +134,7 @@ public:
 
         INFO("run training");
         const auto train_result = train(kmeans_desc, data);
-        check_train_result(kmeans_desc,
-                           train_result,
-                           ref_centroids,
-                           ref_labels,
-                           false);
+        check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, false);
         model = train_result.get_model();
     }
 
@@ -153,14 +145,12 @@ public:
         CAPTURE(model.get_cluster_count());
 
         INFO("create descriptor")
-        const auto kmeans_desc =
-            get_descriptor(model.get_cluster_count());
+        const auto kmeans_desc = get_descriptor(model.get_cluster_count());
 
         INFO("run inference");
         const auto infer_result = infer(kmeans_desc, model, data);
         check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
     }
-
 
     void check_train_result(const kmeans::descriptor<Float, Method>& desc,
                             const kmeans::train_result<>& result,
@@ -213,7 +203,8 @@ public:
         Float alpha = std::numeric_limits<Float>::min();
         if (!(ref_objective_function < 0.0)) {
             REQUIRE(fabs(objective_function - ref_objective_function) /
-                        (fabs(objective_function) + (ref_objective_function) + alpha) < rel_tol);
+                        (fabs(objective_function) + (ref_objective_function) + alpha) <
+                    rel_tol);
         }
     }
 
@@ -249,13 +240,13 @@ public:
             for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
                 const Float l = left_rows[i];
                 const Float r = right_rows[i];
-                if (fabs(l - r) < alpha) continue;
+                if (fabs(l - r) < alpha)
+                    continue;
                 const Float denom = fabs(l) + fabs(r) + alpha;
                 if (fabs(l - r) / denom > rel_tol) {
                     CAPTURE(l, r);
                     FAIL("Centroid feature mismatch");
                 }
-
             }
         }
     }
@@ -445,14 +436,14 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
     Float expected_obj_function = 0.25;
     std::int64_t expected_n_iters = 4;
     this->exact_checks_with_reordering(x,
-                                        c_init,
-                                        c_final,
-                                        y,
-                                        2,
-                                        expected_n_iters + 1,
-                                        0.0,
-                                        expected_obj_function,
-                                        false);
+                                       c_init,
+                                       c_final,
+                                       y,
+                                       2,
+                                       expected_n_iters + 1,
+                                       0.0,
+                                       expected_obj_function,
+                                       false);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,

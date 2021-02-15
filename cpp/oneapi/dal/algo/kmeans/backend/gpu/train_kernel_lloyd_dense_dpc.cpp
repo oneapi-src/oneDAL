@@ -97,7 +97,11 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         else {
             auto arr_initial_centroids =
                 row_accessor<const Float>{ input.get_initial_centroids() }.pull(queue);
-            daal_initial_centroids = interop::convert_to_daal_sycl_homogen_table<Float>(queue, arr_initial_centroids, cluster_count, column_count);
+            daal_initial_centroids =
+                interop::convert_to_daal_sycl_homogen_table<Float>(queue,
+                                                                   arr_initial_centroids,
+                                                                   cluster_count,
+                                                                   column_count);
         }
         dal::detail::check_mul_overflow(cluster_count, column_count);
         array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
