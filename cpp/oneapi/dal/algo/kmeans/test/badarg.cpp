@@ -37,7 +37,8 @@ public:
     static constexpr std::int64_t huge_cluster_count = 10;
     static constexpr std::int64_t bad_cluster_count = 2;
     static constexpr std::int64_t bad_column_count = 3;
-    static constexpr std::int64_t bad_element_count = cluster_count * bad_column_count;
+    static constexpr std::int64_t cluster_element_count = cluster_count * column_count;
+    static constexpr std::int64_t bad_cluster_element_count = cluster_count * bad_column_count;
 
     auto get_descriptor() const {
         return kmeans::descriptor<float, Method, kmeans::task::clustering>{};
@@ -76,17 +77,18 @@ private:
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<float, bad_element_count> infer_data_ = {
+    static constexpr std::array<float, element_count> infer_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<float, bad_element_count> bad_initial_centroids = { 0.0, 0.0, 0.0,
-                                                                                    0.0, 0.0, 0.0 };
+    static constexpr std::array<float, bad_cluster_element_count> bad_initial_centroids = {
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    };
 
-    static constexpr std::array<float, bad_element_count> initial_centroids = { 0.0,
-                                                                                0.0,
-                                                                                0.0,
-                                                                                0.0 };
+    static constexpr std::array<float, cluster_element_count> initial_centroids = { 0.0,
+                                                                                    0.0,
+                                                                                    0.0,
+                                                                                    0.0 };
 };
 
 #define KMEANS_BADARG_TEST(name) \
