@@ -114,13 +114,16 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
 {
 #if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<int>(0, n, 1), [&](tbb::blocked_range<int> r) {
-        int i;
-        for (i = r.begin(); i < r.end(); i++)
-        {
-            func(i, a);
-        }
-    }, tbb::simple_partitioner{});
+    tbb::parallel_for(
+        tbb::blocked_range<int>(0, n, 1),
+        [&](tbb::blocked_range<int> r) {
+            int i;
+            for (i = r.begin(); i < r.end(); i++)
+            {
+                func(i, a);
+            }
+        },
+        tbb::simple_partitioner {});
 #elif defined(__DO_SEQ_LAYER__)
     int i;
     for (i = 0; i < n; i++)
@@ -130,18 +133,18 @@ DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const voi
 #endif
 }
 
-DAAL_EXPORT void _daal_threader_for_int32ptr(const int* begin, const int* end, const void * a, daal::functype_int32ptr func)
+DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end, const void * a, daal::functype_int32ptr func)
 {
 #if defined(__DO_TBB_LAYER__)
-    tbb::parallel_for(tbb::blocked_range<const int*>(begin, end, 1), [&](tbb::blocked_range<const int*> r) {
-        const int* i;
+    tbb::parallel_for(tbb::blocked_range<const int *>(begin, end, 1), [&](tbb::blocked_range<const int *> r) {
+        const int * i;
         for (i = r.begin(); i != r.end(); i++)
         {
             func(i, a);
         }
     });
 #elif defined(__DO_SEQ_LAYER__)
-    const int* i;
+    const int * i;
     for (i = begin; i != end; ++i)
     {
         func(i, a);
@@ -149,14 +152,14 @@ DAAL_EXPORT void _daal_threader_for_int32ptr(const int* begin, const int* end, c
 #endif
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func, const void * b,
-                                            daal::reduction_functype_int64 reduction_func)
+DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func,
+                                                       const void * b, daal::reduction_functype_int64 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(
         tbb::blocked_range<size_t>(0, n), init,
         [&](const tbb::blocked_range<size_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
-        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::auto_partitioner{});
+        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::auto_partitioner {});
 
 #elif defined(__DO_SEQ_LAYER__)
     int64_t value_for_reduce = init;
@@ -164,14 +167,14 @@ DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, c
 #endif
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func, const void * b,
-                                            daal::reduction_functype_int64 reduction_func)
+DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64 loop_func,
+                                                              const void * b, daal::reduction_functype_int64 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(
         tbb::blocked_range<size_t>(0, n), init,
         [&](const tbb::blocked_range<size_t> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
-        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner{});
+        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner {});
 
 #elif defined(__DO_SEQ_LAYER__)
     int64_t value_for_reduce = init;
@@ -179,14 +182,15 @@ DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t 
 #endif
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t* begin, const int32_t* end, int64_t init, const void * a, daal::loop_functype_int32ptr_int64 loop_func, const void * b,
-                                            daal::reduction_functype_int64 reduction_func)
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t * begin, const int32_t * end, int64_t init, const void * a,
+                                                                daal::loop_functype_int32ptr_int64 loop_func, const void * b,
+                                                                daal::reduction_functype_int64 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(
-        tbb::blocked_range<const int32_t*>(begin, end), init,
-        [&](const tbb::blocked_range<const int32_t*> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
-        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner{});
+        tbb::blocked_range<const int32_t *>(begin, end), init,
+        [&](const tbb::blocked_range<const int32_t *> & r, int64_t value_for_reduce) { return loop_func(r.begin(), r.end(), value_for_reduce, a); },
+        [&](int64_t x, int64_t y) { return reduction_func(x, y, b); }, tbb::simple_partitioner {});
 
 #elif defined(__DO_SEQ_LAYER__)
     int64_t value_for_reduce = init;

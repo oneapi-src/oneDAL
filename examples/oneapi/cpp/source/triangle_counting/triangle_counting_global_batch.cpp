@@ -23,8 +23,9 @@
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include <chrono>
 
-#include "tbb/global_control.h"
+using namespace std::chrono;
 
 namespace dal = oneapi::dal;
 using namespace dal::preview::triangle_counting;
@@ -36,32 +37,43 @@ int main(int argc, char **argv) {
     const dal::preview::graph_csv_data_source ds(filename);
     const dal::preview::load_graph::descriptor<> d;
     const auto my_graph = dal::preview::load_graph::load(d, ds);
+    std::cout << "Load graph completed" << std::endl;
+    int trials = std::stoi(argv[2]);
 
-    tbb::global_control c(tbb::global_control::max_allowed_parallelism, std::stoi(argv[2]));
+    for (int i = 0; i < trials; i++) {
+        auto start = high_resolution_clock::now();
+        // set algorithm parameters
+        const auto tc_desc =
+            descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::yes);
 
-    // set algorithm parameters
-    const auto tc_desc =
-        descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::yes);
+        // compute local triangles
+        const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, my_graph);
 
-    // compute local triangles
-    const auto result_vertex_ranking =
-        dal::preview::vertex_ranking(tc_desc, my_graph);
+        // extract the result
+        const auto triangles = result_vertex_ranking.get_global_rank();
+        auto stop = high_resolution_clock::now();
+        std::cout << i << " iter: "
+                  << std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count()
+                  << std::endl;
+        std::cout << "Global triangles (with relabel) count: " << triangles << std::endl;
+    }
 
-    // extract the result
-    const auto triangles = result_vertex_ranking.get_global_rank();
+    for (int i = 0; i < trials; i++) {
+        auto start = high_resolution_clock::now();
+        // set algorithm parameters
+        const auto tc_desc1 =
+            descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::no);
 
-    std::cout << "Global triangles count: " << triangles << std::endl;
+        // compute local triangles
+        const auto result_vertex_ranking1 = dal::preview::vertex_ranking(tc_desc1, my_graph);
 
-    // set algorithm parameters
-    const auto tc_desc1 =
-        descriptor<float, method::ordered_count, task::global>().set_relabel(relabel::no);
+        // extract the result
+        const auto triangles1 = result_vertex_ranking1.get_global_rank();
 
-    // compute local triangles
-    const auto result_vertex_ranking1 =
-        dal::preview::vertex_ranking(tc_desc1, my_graph);
-
-    // extract the result
-    const auto triangles1 = result_vertex_ranking1.get_global_rank();
-
-    std::cout << "Global triangles count: " << triangles1 << std::endl;
+        auto stop = high_resolution_clock::now();
+        std::cout << i << " iter: "
+                  << std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count()
+                  << std::endl;
+        std::cout << "Global triangles (without relabel) count: " << triangles1 << std::endl;
+    }
 }

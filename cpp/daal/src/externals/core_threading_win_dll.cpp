@@ -246,7 +246,7 @@ typedef void * (*_threaded_malloc_t)(const size_t, const size_t);
 typedef void (*_threaded_free_t)(void *);
 
 typedef void (*_daal_threader_for_t)(int, int, const void *, daal::functype);
-typedef void (*_daal_threader_for_int32ptr_t)(const int*, const int*, const void *, daal::functype_int32ptr);
+typedef void (*_daal_threader_for_int32ptr_t)(const int *, const int *, const void *, daal::functype_int32ptr);
 typedef void (*_daal_threader_for_simple_t)(int, int, const void *, daal::functype);
 typedef void (*_daal_static_threader_for_t)(size_t, const void *, daal::functype_static);
 typedef void (*_daal_threader_for_blocked_t)(int, int, const void *, daal::functype2);
@@ -254,9 +254,12 @@ typedef int (*_daal_threader_get_max_threads_t)(void);
 typedef int (*_daal_threader_get_current_thread_index_t)(void);
 typedef void (*_daal_threader_for_break_t)(int, int, const void *, daal::functype_break);
 
-typedef int64_t (*_daal_parallel_reduce_size_t_int64_t)(size_t, int64_t, const void *, daal::loop_functype_size_t_int64_T, const void *, daal::reduction_functype_int64);
-typedef int64_t (*_daal_parallel_reduce_size_t_int64_t_simple)(size_t, int64_t, const void *, daal::loop_functype_size_t_int64_t, const void *, daal::reduction_functype_int64);
-typedef int64_t (*_daal_parallel_reduce_int32ptr_int64_t_simple)(const int32_t*, const int32_t*, int64_t, const void *, daal::loop_functype_int32ptr_int64_t, const void *, daal::reduction_functype_int64);
+typedef int64_t (*_daal_parallel_reduce_size_t_int64_t)(size_t, int64_t, const void *, daal::loop_functype_size_t_int64_T, const void *,
+                                                        daal::reduction_functype_int64);
+typedef int64_t (*_daal_parallel_reduce_size_t_int64_t_simple)(size_t, int64_t, const void *, daal::loop_functype_size_t_int64_t, const void *,
+                                                               daal::reduction_functype_int64);
+typedef int64_t (*_daal_parallel_reduce_int32ptr_int64_t_simple)(const int32_t *, const int32_t *, int64_t, const void *,
+                                                                 daal::loop_functype_int32ptr_int64_t, const void *, daal::reduction_functype_int64);
 
 typedef void * (*_daal_get_tls_ptr_t)(void *, daal::tls_functype);
 typedef void (*_daal_del_tls_ptr_t)(void *);
@@ -405,7 +408,7 @@ DAAL_EXPORT void _daal_threader_simple_for(int n, int threads_request, const voi
     _daal_threader_for_simple_ptr(n, threads_request, a, func);
 }
 
-DAAL_EXPORT void _daal_threader_int32ptr_for(const int* begin, const int* end, const void * a, daal::functype_int32ptr func)
+DAAL_EXPORT void _daal_threader_int32ptr_for(const int * begin, const int * end, const void * a, daal::functype_int32ptr func)
 {
     load_daal_thr_dll();
     if (_daal_threader_for_int32ptr_ptr == NULL)
@@ -450,7 +453,8 @@ DAAL_EXPORT void _daal_parallel_sort_pair_int32_uint64(daal::IdxValType<int> * b
     load_daal_thr_dll();
     if (_daal_parallel_sort_pair_int32_uint64_ptr == NULL)
     {
-        _daal_parallel_sort_pair_int32_uint64_ptr = (_daal_parallel_sort_pair_int32_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_int32_uint64");
+        _daal_parallel_sort_pair_int32_uint64_ptr =
+            (_daal_parallel_sort_pair_int32_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_int32_uint64");
     }
     _daal_parallel_sort_pair_int32_uint64_ptr(begin_ptr, end_ptr);
 }
@@ -495,8 +499,8 @@ DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const v
     _daal_threader_for_optional_ptr(n, threads_request, a, func);
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64_t loop_func, const void * b,
-                                            daal::reduction_functype_int64 reduction_func)
+DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64_t loop_func,
+                                                       const void * b, daal::reduction_functype_int64 reduction_func)
 {
     load_daal_thr_dll();
     if (_daal_parallel_reduce_size_t_int64_ptr == NULL)
@@ -506,28 +510,30 @@ DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64(size_t n, int64_t init, c
     return _daal_parallel_reduce_size_t_int64_ptr(n, init, a, loop_func, b, reduction_func);
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64_t loop_func, const void * b,
-                                            daal::reduction_functype_int64 reduction_func)
+DAAL_EXPORT int64_t _daal_parallel_reduce_size_t_int64_simple(size_t n, int64_t init, const void * a, daal::loop_functype_size_t_int64_t loop_func,
+                                                              const void * b, daal::reduction_functype_int64 reduction_func)
 {
     load_daal_thr_dll();
     if (_daal_parallel_reduce_size_t_int64_ptr_simple == NULL)
     {
-        _daal_parallel_reduce_size_t_int64_ptr_simple = (_daal_parallel_reduce_size_t_int64_t_simple)load_daal_thr_func("_daal_parallel_reduce_size_t_int64_simple");
+        _daal_parallel_reduce_size_t_int64_ptr_simple =
+            (_daal_parallel_reduce_size_t_int64_t_simple)load_daal_thr_func("_daal_parallel_reduce_size_t_int64_simple");
     }
     return _daal_parallel_reduce_size_t_int64_simple(n, init, a, loop_func, b, reduction_func);
 }
 
-DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t* begin, const int32_t* end, int64_t init, const void * a, daal::loop_functype_int32ptr_int64_t loop_func, const void * b,
-                                            daal::reduction_functype_int64 reduction_func)
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t * begin, const int32_t * end, int64_t init, const void * a,
+                                                                daal::loop_functype_int32ptr_int64_t loop_func, const void * b,
+                                                                daal::reduction_functype_int64 reduction_func)
 {
     load_daal_thr_dll();
     if (_daal_parallel_reduce_int32ptr_int64_ptr_simple == NULL)
     {
-        _daal_parallel_reduce_int32ptr_int64_ptr_simple = (_daal_parallel_reduce_int32ptr_int64_t_simple)load_daal_thr_func("_daal_parallel_reduce_int32ptr_int64_simple");
+        _daal_parallel_reduce_int32ptr_int64_ptr_simple =
+            (_daal_parallel_reduce_int32ptr_int64_t_simple)load_daal_thr_func("_daal_parallel_reduce_int32ptr_int64_simple");
     }
     return _daal_parallel_reduce_int32ptr_int64_simple(begin, end, init, a, loop_func, b, reduction_func);
 }
-
 
 DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func)
 {
@@ -554,7 +560,8 @@ DAAL_EXPORT int _daal_threader_get_current_thread_index()
     load_daal_thr_dll();
     if (_daal_threader_get_current_thread_index_ptr == NULL)
     {
-        _daal_threader_get_current_thread_index_ptr = (_daal_threader_get_current_thread_index_t)load_daal_thr_func("_daal_threader_get_current_thread_index");
+        _daal_threader_get_current_thread_index_ptr =
+            (_daal_threader_get_current_thread_index_t)load_daal_thr_func("_daal_threader_get_current_thread_index");
     }
     return _daal_threader_get_current_thread_index_ptr();
 }
