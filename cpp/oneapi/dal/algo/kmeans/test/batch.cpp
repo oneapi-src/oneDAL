@@ -386,7 +386,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
     using Float = std::tuple_element_t<0, TestType>;
 
     Float data[] = { 0, 0, 0.5, 0, 0.5, 1, 1, 1 };
-    homogen_table x{ data, 4, 2, empty_delete<const Float>() };
+    const auto x = homogen_table::wrap(data, 4, 2);
 
     Float initial_centroids[] = { 0.5, 0.5, 3, 3 };
     homogen_table c_init{ initial_centroids, 2, 2, empty_delete<const Float>() };
