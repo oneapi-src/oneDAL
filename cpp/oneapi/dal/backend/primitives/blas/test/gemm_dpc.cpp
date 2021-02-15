@@ -93,22 +93,22 @@ public:
         auto [bt, bt_e] = Bt();
 
         SECTION("A x B") {
-            gemm<float_t>(get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
+            gemm(get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("A x Bt") {
-            gemm<float_t>(get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
+            gemm(get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x B") {
-            gemm<float_t>(get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
+            gemm(get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x Bt") {
-            gemm<float_t>(get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
+            gemm(get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
             check_ones_matrix(c);
         }
     }

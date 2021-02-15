@@ -38,7 +38,8 @@ sycl::event correlation(sycl::queue& queue,
     ONEDAL_ASSERT(means.has_mutable_data());
     ONEDAL_ASSERT(vars.has_mutable_data());
     ONEDAL_ASSERT(tmp.has_mutable_data());
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1), "Correlation matrix must be square");
+    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
+                  "Correlation matrix must be square");
     ONEDAL_ASSERT(corr.get_dimension(0) == data.get_column_count(),
                   "Dimensions of correlation matrix must match column count of input data");
     ONEDAL_ASSERT(sums.get_dimension(0) == data.get_column_count(),

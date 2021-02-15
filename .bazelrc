@@ -23,7 +23,7 @@ test:host \
 
 # Configuration: 'dpc-cpu'
 build:dpc-cpu \
-    --build_tag_filters="dpc,-gpu-only"
+    --build_tag_filters="dpc"
 
 run:dpc-cpu \
     -- --device=cpu
@@ -35,7 +35,7 @@ test:dpc-cpu \
 
 # Configuration: 'dpc-gpu'
 build:dpc-gpu \
-    --build_tag_filters="dpc,-cpu-only"
+    --build_tag_filters="dpc"
 
 run:dpc-gpu \
     -- --device=gpu
