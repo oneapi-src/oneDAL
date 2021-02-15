@@ -214,7 +214,7 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel_int32(
                                       g_degrees_relabel,
                                       alloc);
 
-            triangles = triangle_counting_global_scalar(ctx,
+            triangles = triangle_counting_global_vector_relabel(ctx,
                                                         g_vertex_neighbors_relabel,
                                                         g_edge_offsets_relabel,
                                                         g_degrees_relabel,
