@@ -24,7 +24,6 @@
 #include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include <iostream>
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {
@@ -85,7 +84,6 @@ array<std::int64_t> triangle_counting_local_novec(
     const auto g_degrees = data._degrees.get_data();
     const auto g_vertex_count = data._vertex_count;
     const auto g_edge_count = data._edge_count;
-
     std::int32_t average_degree = g_edge_count / g_vertex_count;
     int thread_cnt = dal::detail::threader_get_max_threads();
 
