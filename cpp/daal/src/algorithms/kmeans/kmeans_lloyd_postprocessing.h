@@ -163,8 +163,7 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
             for (size_t k = 0; k < blockSize; k++)
             {
                 const size_t assk = assignments[k];
-                PRAGMA_ICC_NO16(omp simd reduction(+ : goal))
-                PRAGMA_IVDEP
+                PRAGMA_NOVECTOR
                 for (size_t j = 0; j < p; j++)
                 {
                     goal += (data[k * p + j] - inClusters[assk * p + j]) * (data[k * p + j] - inClusters[assk * p + j]);
@@ -176,8 +175,7 @@ struct PostProcessing<lloydDense, algorithmFPType, cpu>
         DAAL_CHECK_SAFE_STATUS();
 
         objectiveFunction = algorithmFPType(0);
-        PRAGMA_IVDEP
-        PRAGMA_ICC_NO16(omp simd reduction(+ : objectiveFunction))
+        PRAGMA_NOVECTOR
         for (size_t j = 0; j < nBlocks; j++)
         {
             objectiveFunction += goalLocalData[j];
@@ -304,9 +302,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
                 const size_t jFinish = rowIdx[k + 1] - 1;
 
                 const size_t assk = assignments[k];
-                PRAGMA_ICC_NO16(omp simd reduction(+ : goal))
-                PRAGMA_IVDEP
-
+                PRAGMA_NOVECTOR
                 for (size_t j = jStart; j < jFinish; j++)
                 {
                     const size_t m = colIdx[j] - 1;
@@ -318,8 +314,7 @@ struct PostProcessing<lloydCSR, algorithmFPType, cpu>
         DAAL_CHECK_SAFE_STATUS();
 
         objectiveFunction = algorithmFPType(0);
-        PRAGMA_IVDEP
-        PRAGMA_ICC_NO16(omp simd reduction(+ : objectiveFunction))
+        PRAGMA_NOVECTOR
         for (size_t j = 0; j < nBlocks; j++)
         {
             objectiveFunction += goalLocalData[j];
