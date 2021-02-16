@@ -60,8 +60,15 @@ Training
 Given :math:`n` feature vectors :math:`X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,x_n=(x_{n1},\ldots,x_{np})\}` of
 size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}` and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`, 
 
-    - :math:`y_i \in \{0, \ldots, C-1\}`, where :math:`C` is the number of classes, for classification
-    - :math:`y_i \in \mathbb{R}`, for regression 
+.. tabs::
+
+  .. tab:: Classification
+
+    - :math:`y_i \in \{0, \ldots, C-1\}`, where :math:`C` is the number of classes
+
+  .. tab:: Regression
+
+    - :math:`y_i \in \mathbb{R}` 
 
 the problem is to build a decision forest classification or regression model.
 
@@ -111,7 +118,10 @@ The metric for measuring the best split is called *impurity*,
 :math:`i(t)`. It generally reflects the homogeneity of responses within
 the subset :math:`D_t` in the node :math:`t`.
 
-#.
+.. tabs::
+
+  .. tab:: Classification
+
    *Gini index* is an impurity metric for classification, calculated as follows:
    
    .. math::
@@ -136,7 +146,8 @@ the subset :math:`D_t` in the node :math:`t`.
    
              p_i = \frac{\sum_{d \in \{d \in D | y_d = i \}} W_d}{\sum_{d \in D} W_d}
    
-#.
+  .. tab:: Regression
+
    *MSE* is an impurity metric for regression, calculated as follows:
    
    .. list-table::
@@ -250,11 +261,17 @@ Inference methods: *Dense* and *Hist*
 to solve the problem for each given query vector :math:`x_i`, the
 algorithm does the following:
 
--  For classification it finds the leaf node in a tree in the forest that gives the label by that tree. The
-   forest chooses the label :math:`y` taking the majority of trees in the forest voting for that label.
+.. tabs::
 
--  For regression it finds the leaf node in a tree in the forest that gives the response by that tree as the mean of
-   dependent variables. The forest predicts the response as the mean of responses from trees.
+  .. tab:: Classification
+
+    For each tree in the forest it finds the leaf node that gives the label. The
+    forest chooses the label :math:`y` taking the majority of trees in the forest voting for that label.
+
+  .. tab:: Regression
+
+    For each tree in the forest it finds the leaf node that gives the response as the mean of
+    dependent variables. The forest predicts the response as the mean of responses from trees.
 
 Additional Characteristics Calculated by the Decision Forest
 ------------------------------------------------------------
@@ -269,7 +286,10 @@ Out-of-bag Error
 The estimate of the generalization error based on the training
 data can be obtained and calculated as follows:
 
--  For classification:
+.. tabs::
+
+  .. tab:: Classification
+
     - For each vector :math:`x_i` in the dataset :math:`X`, predict its label :math:`\hat{y_i}` by having the majority of votes from the trees that
       contain :math:`x_i` in their OOB set, and vote for that label.
 
@@ -281,7 +301,8 @@ data can be obtained and calculated as follows:
 
     - If OOB error value per each observation is required, then calculate the prediction error for :math:`x_i`: :math:`OOB(x_i) = I\{{y}_{i}\ne \hat{{y}_{i}}\}`
 
--  For regression:
+  .. tab:: Regression
+
     - For each vector :math:`x_i` in the dataset :math:`X`, predict its response :math:`\hat{y_i}`
       as the mean of prediction from the trees that contain :math:`x_i` in their OOB set:
 
