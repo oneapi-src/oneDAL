@@ -126,3 +126,5 @@ variance-covariance matrices:
 -  If input data is non-homogeneous, use AOS layout rather than SOA
    layout.
 
+
+.. include:: ../../../opt-notice.rst

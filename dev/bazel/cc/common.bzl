@@ -88,8 +88,11 @@ def _unpack_linking_contexts(linking_contexts):
     pic_objects = []
     dynamic_libs = []
     static_libs = []
+    libs_to_link = []
     dynamic_libs_to_link = []
     static_libs_to_link = []
+    # IMPORTANT: We need to preserve order of objects when
+    #            iterate over linking contexts
     for linking_context in linking_contexts:
         for linker_input in linking_context.linker_inputs.to_list():
             for lib_to_link in linker_input.libraries:
@@ -98,9 +101,11 @@ def _unpack_linking_contexts(linking_contexts):
                 elif lib_to_link.pic_objects:
                     pic_objects += lib_to_link.pic_objects
                 elif lib_to_link.dynamic_library:
+                    libs_to_link.append(lib_to_link)
                     dynamic_libs_to_link.append(lib_to_link)
                     dynamic_libs.append(lib_to_link.dynamic_library)
                 elif lib_to_link.static_library or lib_to_link.pic_static_library:
+                    libs_to_link.append(lib_to_link)
                     static_libs_to_link.append(lib_to_link)
                     static_libs.append(lib_to_link.static_library or
                                        lib_to_link.pic_static_library)
@@ -112,7 +117,7 @@ def _unpack_linking_contexts(linking_contexts):
         dynamic_libraries_to_link = dynamic_libs_to_link,
         static_libraries = depset(static_libs).to_list(),
         static_libraries_to_link = static_libs_to_link,
-        libraries_to_link = static_libs_to_link + dynamic_libs_to_link,
+        libraries_to_link = libs_to_link,
         user_link_flags = utils.unique(link_flags),
     )
 

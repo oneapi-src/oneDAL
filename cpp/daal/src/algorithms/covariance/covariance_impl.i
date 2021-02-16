@@ -163,7 +163,7 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 
         /* TLS data initialization */
         SafeStatus safeStat;
-        daal::tls<tls_data_t<algorithmFPType, cpu> *> tls_data([=, &safeStat]() {
+        daal::static_tls<tls_data_t<algorithmFPType, cpu> *> tls_data([=, &safeStat]() {
             auto tlsData = tls_data_t<algorithmFPType, cpu>::create(isNormalized, nFeatures);
             if (!tlsData)
             {
@@ -173,8 +173,8 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         });
 
         /* Threaded loop with syrk seq calls */
-        daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
-            struct tls_data_t<algorithmFPType, cpu> * tls_data_local = tls_data.local();
+        daal::static_threader_for(numBlocks, [&](int iBlock, size_t tid) {
+            struct tls_data_t<algorithmFPType, cpu> * tls_data_local = tls_data.local(tid);
             if (!tls_data_local)
             {
                 return;

@@ -15,30 +15,16 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 
 namespace oneapi::dal::detail::v1 {
 
 void* malloc(const data_parallel_policy& policy, std::size_t size, const sycl::usm::alloc& alloc) {
-    auto& queue = policy.get_queue();
-
-    auto ptr = sycl::malloc(size, queue, alloc);
-    if (ptr == nullptr) {
-        if (alloc == sycl::usm::alloc::shared || alloc == sycl::usm::alloc::host) {
-            throw dal::host_bad_alloc();
-        }
-        else if (alloc == sycl::usm::alloc::device) {
-            throw dal::device_bad_alloc();
-        }
-        else {
-            throw dal::invalid_argument(detail::error_messages::unknown_usm_pointer_type());
-        }
-    }
-    return ptr;
+    return backend::malloc(policy.get_queue(), size, alloc);
 }
 
 void free(const data_parallel_policy& policy, void* pointer) {
-    ONEDAL_ASSERT(pointer == nullptr || is_known_usm_pointer_type(policy, pointer));
-    sycl::free(pointer, policy.get_queue());
+    return backend::free(policy.get_queue(), pointer);
 }
 
 void memset(const data_parallel_policy& policy, void* dest, std::int32_t value, std::int64_t size) {
@@ -54,12 +40,7 @@ void memcpy(const data_parallel_policy& policy, void* dest, const void* src, std
 }
 
 bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* pointer) {
-    auto& queue = policy.get_queue();
-    auto context = queue.get_context();
-
-    auto pointer_type = sycl::get_pointer_type(pointer, context);
-
-    return pointer_type != sycl::usm::alloc::unknown;
+    return backend::is_known_usm_pointer_type(policy.get_queue(), pointer);
 }
 
 } // namespace oneapi::dal::detail::v1

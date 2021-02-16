@@ -55,29 +55,35 @@ public:
 
     services::Status init(const char * buildOptions, size_t nNodeProps);
 
-    services::Status initializeTreeOrder(size_t nRows, services::internal::sycl::UniversalBuffer & treeOrder);
+    services::Status initializeTreeOrder(size_t nRows, size_t nTrees, services::internal::sycl::UniversalBuffer & treeOrder);
 
     services::Status convertSplitToLeaf(services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes);
 
     services::Status markPresentRows(const services::internal::sycl::UniversalBuffer & rowsList,
-                                     services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows, size_t localSize, size_t nSubgroupSums);
+                                     services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows, size_t localSize, size_t nSubgroupSums,
+                                     size_t nTrees, size_t tree);
     services::Status countAbsentRowsForBlocks(const services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
-                                              services::internal::sycl::UniversalBuffer & partialSums, size_t localSize, size_t nSubgroupSums);
+                                              services::internal::sycl::UniversalBuffer & partialSums, size_t localSize, size_t nSubgroupSums,
+                                              size_t nTrees, size_t tree);
     services::Status countAbsentRowsTotal(const services::internal::sycl::UniversalBuffer & partialSums,
                                           services::internal::sycl::UniversalBuffer & partialPrefixSums,
-                                          services::internal::sycl::UniversalBuffer & totalSum, size_t localSize, size_t nSubgroupSums);
+                                          services::internal::sycl::UniversalBuffer & oobRowsNumList, size_t localSize, size_t nSubgroupSums,
+                                          size_t nTrees, size_t tree);
     services::Status fillOOBRowsListByBlocks(const services::internal::sycl::UniversalBuffer & rowsBuffer, size_t nRows,
-                                             const services::internal::sycl::UniversalBuffer & partialPrefixSums,
-                                             services::internal::sycl::UniversalBuffer & oobRowsList, size_t localSize, size_t nSubgroupSums,
-                                             size_t nOOBRows);
+                                             const services::internal::sycl::UniversalBuffer & partialPrefixSums, size_t localSize,
+                                             size_t nSubgroupSums, services::internal::sycl::UniversalBuffer & oobRowsNumList, size_t totalOOBRowsNum,
+                                             size_t nTrees, size_t tree, services::internal::sycl::UniversalBuffer & oobRowsList);
 
-    services::Status getOOBRows(const services::internal::sycl::UniversalBuffer & rowsList, size_t nRows, size_t & nOOBRows,
-                                services::internal::sycl::UniversalBuffer & oobRowsList);
+    size_t getOOBRowsRequiredMemSize(size_t nRows, size_t nTrees, double observationsPerTreeFraction);
+    services::Status getOOBRows(const services::internal::sycl::UniversalBuffer & rowsList, size_t nRows, size_t nTrees,
+                                services::internal::sycl::UniversalBuffer & oobRowsNumList, services::internal::sycl::UniversalBuffer & oobRowsList);
 
     services::Status getNumOfSplitNodes(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes, size_t & nSplitNodes);
 
     services::Status doNodesSplit(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
-                                  services::internal::sycl::UniversalBuffer & nodeListNew, size_t nNodesNew);
+                                  services::internal::sycl::UniversalBuffer & nodeListNew, size_t nNodesNew,
+                                  const services::internal::sycl::UniversalBuffer & nodeVsTreeMap,
+                                  services::internal::sycl::UniversalBuffer & nodeVsTreeMapNew);
 
     services::Status splitNodeListOnGroupsBySize(const services::internal::sycl::UniversalBuffer & nodeList, size_t nNodes,
                                                  services::internal::sycl::UniversalBuffer & bigNodesGroups, const size_t nGroups,
@@ -122,8 +128,8 @@ private:
     const size_t _preferableSubGroup           = 16;  // preferable maximal sub-group size
     const size_t _auxNodeBufferProps           = 2;   // auxilliary buffer for nodes partitioning
     const size_t _partitionMaxBlocksNum        = 256; // max blocks number for one node
-
-    const size_t _int32max = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
+    const double _aproximateOOBRowsFraction    = 0.6;
+    const size_t _int32max                     = static_cast<size_t>(services::internal::MaxVal<int32_t>::get());
     size_t _nNodeProps;
 };
 
