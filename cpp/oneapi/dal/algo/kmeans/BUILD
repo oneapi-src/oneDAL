@@ -17,6 +17,7 @@ dal_module(
 
 dal_test_suite(
     name = "cpu_tests",
+    private = True,
     compile_as = [ "c++" ],
     srcs = glob([
         "backend/cpu/test/*.cpp",
