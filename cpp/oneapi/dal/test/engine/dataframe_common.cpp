@@ -219,28 +219,34 @@ private:
     std::int64_t column_count_;
 };
 
-class dataframe_builder_action_set : public dataframe_builder_action {
+class dataframe_builder_action_read_external_dataset : public dataframe_builder_action {
 public:
-    explicit dataframe_builder_action_set(const array<float>& data,
-                                          std::int64_t row_count,
-                                          std::int64_t column_count)
-            : array_(data),
-              row_count_(row_count),
-              column_count_(column_count) {}
+    explicit dataframe_builder_action_read_external_dataset(std::string dataset)
+            : dataset_(dataset) {}
 
     std::string get_opcode() const override {
-        return fmt::format("set({},{})", row_count_, column_count_);
+        return fmt::format("read_external_dataset({})", dataset_);
     }
 
     dataframe_impl* execute(dataframe_impl* df) const override {
         delete df;
-        return new dataframe_impl{ array_, row_count_, column_count_ };
+
+        const char* dataset_root_ptr = std::getenv("DATASETSROOT");
+        if (dataset_root_ptr == nullptr) {
+            throw invalid_argument{ "DATASETSROOT environment variable is unset" };
+        }
+        const std::string datasets_root(dataset_root_ptr);
+
+        const auto data_table =
+            dal::read<dal::table>(dal::csv::data_source{ datasets_root + '/' + dataset_ });
+
+        return new dataframe_impl{ dal::row_accessor<const float>{ data_table }.pull(),
+                                   data_table.get_row_count(),
+                                   data_table.get_column_count() };
     }
 
 private:
-    array<float> array_;
-    std::int64_t row_count_;
-    std::int64_t column_count_;
+    std::string dataset_;
 };
 
 class dataframe_builder_action_fill_uniform : public dataframe_builder_action {
@@ -298,16 +304,7 @@ dataframe_builder_impl::dataframe_builder_impl(std::int64_t row_count, std::int6
 }
 
 dataframe_builder_impl::dataframe_builder_impl(std::string dataset) {
-    const char* dataset_root_ptr = std::getenv("DATASETSROOT");
-    if (dataset_root_ptr == nullptr) {
-        throw invalid_argument{ "DATASETSROOT environment variable is unset" };
-    }
-    const std::string datasets_root(dataset_root_ptr);
-
-    const auto data_table = dal::read<dal::table>(dal::csv::data_source{ datasets_root + dataset });
-    program_.add<dataframe_builder_action_set>(dal::row_accessor<const float>{ data_table }.pull(),
-                                               data_table.get_row_count(),
-                                               data_table.get_column_count());
+    program_.add<dataframe_builder_action_read_external_dataset>(dataset);
 }
 
 dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int64_t seed) {
@@ -387,39 +384,36 @@ static homogen_table build_homogen_table(Policy& policy,
                                          std::int64_t row_count,
                                          std::int64_t first_column,
                                          std::int64_t last_column) {
-    const std::int64_t data_column_count = data.get_count() / row_count;
-    const std::int64_t column_count = last_column - first_column;
+    const std::int64_t actual_column_count = data.get_count() / row_count;
+    const std::int64_t required_column_count = last_column - first_column;
 
-    if (first_column == 0 && data_column_count == column_count) {
-        return wrap_to_homogen_table(policy, data, id, row_count, column_count);
+    if (first_column == 0 && actual_column_count == required_column_count) {
+        return wrap_to_homogen_table(policy, data, id, row_count, required_column_count);
     }
     else {
-        auto arr = array<float>::empty(row_count * column_count);
-        float* arr_ptr = arr.get_mutable_data();
-        const auto data_ptr = data.get_data();
+        auto dst = array<float>::empty(row_count * required_column_count);
+        float* dst_ptr = dst.get_mutable_data();
+        const float* src_ptr = data.get_data();
 
         for (std::int64_t i = 0; i < row_count; ++i) {
-            for (std::int64_t j = 0; j < column_count; ++j) {
-                arr_ptr[i * column_count + j] = data_ptr[i * data_column_count + first_column + j];
+            for (std::int64_t j = 0; j < required_column_count; ++j) {
+                dst_ptr[i * required_column_count + j] =
+                    src_ptr[i * actual_column_count + first_column + j];
             }
         }
 
-        return wrap_to_homogen_table(policy, arr, id, row_count, column_count);
+        return wrap_to_homogen_table(policy, dst, id, row_count, required_column_count);
     }
 }
 
 template <typename Policy>
 static table build_table(Policy& policy, const dataframe& df, const table_id& id, range r) {
-    if (r.start_idx == 0 && r.end_idx == 0) {
-        r.end_idx = df.get_column_count();
-    }
-
-    if (r.end_idx < 0) {
-        r.end_idx += df.get_column_count();
-    }
-
     std::int64_t first_column = r.start_idx;
     std::int64_t last_column = r.end_idx;
+
+    if (last_column <= 0) {
+        last_column += df.get_column_count();
+    }
 
     const auto data = df.get_array();
     const std::int64_t row_count = df.get_row_count();
