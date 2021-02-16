@@ -44,10 +44,11 @@ using daal_kmeans_init_plus_plus_dense_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
 
 template <typename Float>
-static daal::data_management::NumericTablePtr get_initial_centroids(const context_cpu& ctx,
-                                            const descriptor_t& desc,
-                                           const table& data,
-                                           const table& initial_centroids) {
+static daal::data_management::NumericTablePtr get_initial_centroids(
+    const context_cpu& ctx,
+    const descriptor_t& desc,
+    const table& data,
+    const table& initial_centroids) {
     const int64_t column_count = data.get_column_count();
     const int64_t cluster_count = desc.get_cluster_count();
 
