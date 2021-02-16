@@ -149,7 +149,7 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
 def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              extra_deps=[], host_hdrs=[], host_srcs=[], host_deps=[],
              dpc_hdrs=[], dpc_srcs=[], dpc_deps=[], compile_as=[ "c++", "dpc++" ],
-             framework="gtest", data=[], tags=[], private=False, **kwargs):
+             framework="gtest", data=[], tags=[], private=False, args=[], **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
     if not framework in ["gtest", "catch2", "none"]:
@@ -182,13 +182,21 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         **kwargs,
     )
     iface_access_tag = "private" if private else "public"
+    test_args = _expand_select(
+        _test_eternal_datasets_args(framework) +
+        _test_device_args() +
+        args
+    )
+    tests_for_test_suite = []
     if "c++" in compile_as:
         cc_test(
-            name = name,
+            name = name + "_host",
             deps = [ ":" + module_name ],
             data = data,
             tags = tags + ["host", iface_access_tag],
+            args = test_args,
         )
+        tests_for_test_suite.append(name + "_host")
     if "dpc++" in compile_as:
         cc_test(
             name = name + "_dpc",
@@ -200,37 +208,27 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             ],
             data = data,
             tags = tags + ["dpc", iface_access_tag],
+            args = test_args,
         )
+        tests_for_test_suite.append(name + "_dpc")
+    native.test_suite(
+        name = name,
+        tests = tests_for_test_suite,
+    )
 
-def dal_test_suite(name, srcs=[], tests=[], compile_as=[ "c++", "dpc++" ], **kwargs):
-    # TODO: Check `compile_as` parameter
+def dal_test_suite(name, srcs=[], tests=[], **kwargs):
     targets = []
-    targets_dpc = []
     for test_file in srcs:
         target = test_file.replace(".cpp", "").replace("/", "_")
-        is_dpc_target = target.endswith("_dpc")
-
-        # No need to have `_dpc` suffix if test source already contains it
-        if is_dpc_target:
-            target = utils.remove_substring(target, "_dpc")
-
         dal_test(
             name = target,
             srcs = [test_file],
-            compile_as = compile_as,
             **kwargs,
         )
-        if "c++" in compile_as:
-            if is_dpc_target:
-                utils.warn("Test source file `{}` has `_dpc` suffix, ".format(test_file) +
-                           "but is going to be compiled by C++ compiler, " +
-                           "make sure BUILD file content is correct")
-            targets.append(":" + target)
-        if "dpc++" in compile_as:
-            targets_dpc.append(":" + target + "_dpc")
+        targets.append(":" + target)
     native.test_suite(
         name = name,
-        tests = tests + targets + targets_dpc,
+        tests = tests + targets,
     )
 
 def dal_collect_test_suites(name, root, modules, tests=[], **kwargs):
@@ -284,29 +282,50 @@ def dal_algo_example_suite(algos, dal_deps=[], **kwargs):
 
 def _test_link_mode_deps(dal_deps):
     return _select({
-        "@config//:dev_test_link_mode": dal_deps,
-        "@config//:release_static_test_link_mode": [
+        "@config//:test_link_mode_dev": dal_deps,
+        "@config//:test_link_mode_release_static": [
             "@onedal_release//:onedal_static",
         ],
-        "@config//:release_dynamic_test_link_mode": [
+        "@config//:test_link_mode_release_dynamic": [
             "@onedal_release//:onedal_dynamic",
         ],
     })
 
 def _test_deps_on_daal():
     return _select({
-        "@config//:dev_test_link_mode": [
+        "@config//:test_link_mode_dev": [
             "@onedal//cpp/daal:threading_static",
         ],
-        "@config//:release_static_test_link_mode": [
+        "@config//:test_link_mode_release_static": [
             "@onedal_release//:core_static",
             "@onedal//cpp/daal:threading_release_static",
         ],
-        "@config//:release_dynamic_test_link_mode": [
+        "@config//:test_link_mode_release_dynamic": [
             "@onedal_release//:core_dynamic",
             "@onedal//cpp/daal:threading_release_dynamic",
         ],
     })
+
+def _test_device_args():
+    return _select({
+        "@config//:device_cpu": [
+            "--device=cpu",
+        ],
+        "@config//:device_gpu": [
+            "--device=gpu",
+        ],
+        "//conditions:default": [],
+    })
+
+def _test_eternal_datasets_args(framework):
+    if framework == "catch2":
+        return _select({
+            "@config//:test_external_datasets_enabled": [],
+            "//conditions:default": [
+                "~[external-dataset]",
+            ],
+        })
+    return []
 
 def _dal_generate_cpu_dispatcher_impl(ctx):
     cpus = sets.make(ctx.attr._cpus[CpuInfo].enabled)
