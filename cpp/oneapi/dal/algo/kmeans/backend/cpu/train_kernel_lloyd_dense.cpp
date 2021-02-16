@@ -43,25 +43,17 @@ template <typename Float, daal::CpuType Cpu>
 using daal_kmeans_init_plus_plus_dense_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
 
-template <typename Float, typename Task>
-static train_result<Task> call_daal_kernel(const context_cpu& ctx,
-                                           const descriptor_t& desc,
+template <typename Float>
+static daal::data_management::NumericTablePtr get_initial_centroids(const context_cpu& ctx,
+                                            const descriptor_t& desc,
                                            const table& data,
                                            const table& initial_centroids) {
-    const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
-
     const int64_t cluster_count = desc.get_cluster_count();
-    const int64_t max_iteration_count = desc.get_max_iteration_count();
-    const double accuracy_threshold = desc.get_accuracy_threshold();
-
-    daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
-                               dal::detail::integral_cast<std::size_t>(max_iteration_count));
-    par.accuracyThreshold = accuracy_threshold;
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    
     daal::data_management::NumericTablePtr daal_initial_centroids;
-
     if (!initial_centroids.has_data()) {
         daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
@@ -88,6 +80,28 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     else {
         daal_initial_centroids = interop::convert_to_daal_table<Float>(initial_centroids);
     }
+    return daal_initial_centroids;
+}
+
+template <typename Float, typename Task>
+static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const descriptor_t& desc,
+                                           const table& data,
+                                           const table& initial_centroids) {
+    const int64_t row_count = data.get_row_count();
+    const int64_t column_count = data.get_column_count();
+
+    const int64_t cluster_count = desc.get_cluster_count();
+    const int64_t max_iteration_count = desc.get_max_iteration_count();
+    const double accuracy_threshold = desc.get_accuracy_threshold();
+
+    daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
+                               dal::detail::integral_cast<std::size_t>(max_iteration_count));
+    par.accuracyThreshold = accuracy_threshold;
+
+    auto daal_initial_centroids = get_initial_centroids<Float>(ctx, desc, data, initial_centroids);
+
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
     array<Float> arr_centroids = array<Float>::empty(cluster_count * column_count);
