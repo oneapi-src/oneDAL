@@ -407,6 +407,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans degenerated test",
                      "[kmeans][batch]",
                      kmeans_types) {
+    // number of observations is equal to number of centroids (obvious clustering)
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
     Float data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
@@ -418,6 +419,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batch]", kmeans_types) {
+    // relocation of empty cluster to the best candidate
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
 
@@ -450,6 +452,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans empty clusters test",
                      "[kmeans][batch]",
                      kmeans_types) {
+    // proper relocation order for multiple empty clusters
     using oneapi::dal::detail::empty_delete;
     using Float = std::tuple_element_t<0, TestType>;
 
