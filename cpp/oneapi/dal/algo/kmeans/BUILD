@@ -25,9 +25,6 @@ dal_test_suite(
     dal_deps = [
         ":kmeans",
     ],
-    tags = [
-        "backend",
-    ]
 )
 
 dal_test_suite(
@@ -40,9 +37,6 @@ dal_test_suite(
     dal_deps = [
         ":kmeans",
     ],
-    tags = [
-        "backend",
-    ]
 )
 
 dal_test_suite(
@@ -54,9 +48,6 @@ dal_test_suite(
     dal_deps = [
         ":kmeans",
     ],
-    tags = [
-        "interface",
-    ]
 )
 
 dal_test_suite(
