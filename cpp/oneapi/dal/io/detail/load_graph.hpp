@@ -196,8 +196,8 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
     auto &vertex_allocator = graph_impl._vertex_allocator;
     auto &edge_allocator = graph_impl._edge_allocator;
-    atomic_vertex_allocator_type atomic_vertex_allocator;
-    atomic_edge_allocator_type atomic_edge_allocator;
+    atomic_vertex_allocator_type atomic_vertex_allocator(vertex_allocator);
+    atomic_edge_allocator_type atomic_edge_allocator(edge_allocator);
 
     atomic_vertex_t *degrees_cv =
         atomic_vertex_allocator_traits::allocate(atomic_vertex_allocator, vertex_count);
@@ -262,23 +262,23 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                             degrees_data);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
-        using edge_vertex_t = typename graph_traits<Graph>::impl_type::edge_vertex_type;
-        using edge_vertex_set = typename graph_traits<Graph>::impl_type::edge_vertex_set;
-        using edge_vertex_allocator_type =
-            typename graph_traits<Graph>::impl_type::edge_vertex_allocator_type;
-        using edge_vertex_allocator_traits =
-            typename graph_traits<Graph>::impl_type::edge_vertex_allocator_traits;
+        using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
+        using vertex_edge_set = typename graph_traits<Graph>::impl_type::vertex_edge_set;
+        using vertex_edge_allocator_type =
+            typename graph_traits<Graph>::impl_type::vertex_edge_allocator_type;
+        using vertex_edge_allocator_traits =
+            typename graph_traits<Graph>::impl_type::vertex_edge_allocator_traits;
 
-        edge_vertex_allocator_type edge_vertex_allocator = graph_impl._edge_vertex_allocator;
-        edge_vertex_t *rows_vertex =
-            edge_vertex_allocator_traits::allocate(edge_vertex_allocator, vertex_count + 1);
+        vertex_edge_allocator_type vertex_edge_allocator = graph_impl._vertex_edge_allocator;
+        vertex_edge_t *rows_vertex =
+            vertex_edge_allocator_traits::allocate(vertex_edge_allocator, vertex_count + 1);
 
-        dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](edge_vertex_t u) {
-            rows_vertex[u] = static_cast<edge_vertex_t>(edge_offsets_data[u]);
+        dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](vertex_edge_t u) {
+            rows_vertex[u] = static_cast<vertex_edge_t>(edge_offsets_data[u]);
         });
 
         graph_impl.get_topology()._rows_vertex =
-            edge_vertex_set::wrap(rows_vertex, vertex_count + 1);
+            vertex_edge_set::wrap(rows_vertex, vertex_count + 1);
     }
 
     return;

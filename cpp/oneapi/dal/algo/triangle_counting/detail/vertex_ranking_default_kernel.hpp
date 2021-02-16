@@ -222,12 +222,12 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
                                       g_degrees_relabel,
                                       alloc);
 
-            triangles = triangle_counting_global_scalar(ctx,
-                                                        g_vertex_neighbors_relabel,
-                                                        g_edge_offsets_relabel,
-                                                        g_degrees_relabel,
-                                                        g_vertex_count,
-                                                        g_edge_count);
+            triangles = triangle_counting_global_vector_relabel(ctx,
+                                                                g_vertex_neighbors_relabel,
+                                                                g_edge_offsets_relabel,
+                                                                g_degrees_relabel,
+                                                                g_vertex_count,
+                                                                g_edge_count);
 
             if (g_vertex_neighbors_relabel != nullptr) {
                 int32_allocator_traits::deallocate(int32_allocator,
@@ -331,56 +331,6 @@ vertex_ranking_result<task::local_and_global> triangle_counting_default_kernel(
         .set_ranks(
             dal::detail::homogen_table_builder{}.reset(local_triangles, 1, vertex_count).build())
         .set_global_rank(total_s);
-}
-
-template <typename Index>
-inline std::int64_t intersection(const Index* neigh_u, const Index* neigh_v, Index n_u, Index n_v);
-
-template <typename Index>
-std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& policy,
-                                             const Index* vertex_neighbors,
-                                             const std::int64_t* edge_offsets,
-                                             const Index* degrees,
-                                             std::int64_t vertex_count,
-                                             std::int64_t edge_count);
-
-template <typename Index>
-std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& policy,
-                                             const Index* vertex_neighbors,
-                                             const std::int64_t* edge_offsets,
-                                             const Index* degrees,
-                                             std::int64_t vertex_count,
-                                             std::int64_t edge_count);
-
-template <typename Index>
-std::int64_t triangle_counting_global_vector_relabel(const dal::detail::host_policy& policy,
-                                                     const Index* vertex_neighbors,
-                                                     const std::int64_t* edge_offsets,
-                                                     const Index* degrees,
-                                                     std::int64_t vertex_count,
-                                                     std::int64_t edge_count);
-
-template <typename Index>
-array<std::int64_t> triangle_counting_local(const dal::detail::host_policy& policy,
-                                            const dal::preview::detail::topology<Index>& data,
-                                            int64_t* triangles_local);
-
-template <typename Index>
-inline std::int64_t intersection(const Index* neigh_u, const Index* neigh_v, Index n_u, Index n_v) {
-    std::int64_t total = 0;
-    Index i_u = 0, i_v = 0;
-    while (i_u < n_u && i_v < n_v) {
-        if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
-            return total;
-        }
-        if (neigh_u[i_u] == neigh_v[i_v])
-            total++, i_u++, i_v++;
-        else if (neigh_u[i_u] < neigh_v[i_v])
-            i_u++;
-        else if (neigh_u[i_u] > neigh_v[i_v])
-            i_v++;
-    }
-    return total;
 }
 
 } // namespace oneapi::dal::preview::triangle_counting::detail
