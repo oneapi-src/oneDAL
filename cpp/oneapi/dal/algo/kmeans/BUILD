@@ -32,6 +32,7 @@ dal_test_suite(
 
 dal_test_suite(
     name = "gpu_tests",
+    private = True,
     compile_as = [ "dpc++" ],
     srcs = glob([
         "backend/gpu/test/*.cpp",
