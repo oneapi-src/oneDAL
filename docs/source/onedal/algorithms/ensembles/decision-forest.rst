@@ -35,8 +35,8 @@ For more details, see [Breiman84]_ and [Breiman2001]_.
 .. |t_op| replace:: `train(...) <df_t_api_>`_
 
 .. |i_math| replace:: `Inference <df_i_math_>`_
-.. |i_dense| replace:: `Dense <df_i_math_dense_>`_
-.. |i_hist| replace:: `Hist <df_i_math_hist_>`_
+.. |i_dense| replace:: `Dense <df_i_math_dense_hist_>`_
+.. |i_hist| replace:: `Hist <df_i_math_dense_hist_>`_
 .. |i_input| replace:: `infer_input <df_i_api_input_>`_
 .. |i_result| replace:: `infer_result <df_i_api_result_>`_
 .. |i_op| replace:: `infer(...) <df_i_api_>`_
@@ -76,7 +76,7 @@ The library uses the following algorithmic framework for the training
 stage. Let :math:`S = (X, Y)` be the set of observations. Given positive
 integer parameters, such as the number of trees :math:`B`, the bootstrap
 parameter :math:`N = f*n`, where :math:`f` is a fraction of observations used for
-a training of one tree, and the number of features per node :math:`m`, the
+a training of each tree in the forest, and the number of features per node :math:`m`, the
 algorithm does the following for :math:`b = 1, \ldots, B`:
 
 - Selects randomly with replacement the set :math:`D_b` of :math:`N`
@@ -251,8 +251,7 @@ Inference
 Given decision forest classification or regression model and vectors :math:`x_1, \ldots, x_r`,
 the problem is to calculate the responses for those vectors. 
 
-.. _df_i_math_dense:
-.. _df_i_math_hist:
+.. _df_i_math_dense_hist:
 
 Inference methods: *Dense* and *Hist*
 -------------------------------------
