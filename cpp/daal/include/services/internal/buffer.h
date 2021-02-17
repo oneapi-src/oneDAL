@@ -90,8 +90,8 @@ public:
      *  \param[in] allocType  USM allocation type
      *  \param[out] status    Status of operation
      */
-    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType, Status & status)
-        : _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status))
+    Buffer(T * usmData, size_t size, const cl::sycl::queue & queue, Status & status)
+        : _impl(internal::UsmBuffer<T>::create(usmData, size, queue, status))
     {}
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
@@ -102,10 +102,10 @@ public:
      *  \param[in] size       Number of elements of type T stored in USM memory block
      *  \param[in] allocType  USM allocation type
      */
-    Buffer(T * usmData, size_t size, cl::sycl::usm::alloc allocType)
+    Buffer(T * usmData, size_t size, const cl::sycl::queue & queue)
     {
         Status status;
-        _impl.reset(internal::UsmBuffer<T>::create(usmData, size, allocType, status));
+        _impl.reset(internal::UsmBuffer<T>::create(usmData, size, queue, status));
         throwIfPossible(status);
     }
     #endif // DAAL_NOTHROW_EXCEPTIONS
@@ -120,8 +120,8 @@ public:
      *  \param[in] allocType  USM allocation type
      *  \param[out] status    Status of operation
      */
-    Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType, Status & status)
-        : _impl(internal::UsmBuffer<T>::create(usmData, size, allocType, status))
+    Buffer(const SharedPtr<T> & usmData, size_t size, const cl::sycl::queue & queue, Status & status)
+        : _impl(internal::UsmBuffer<T>::create(usmData, size, queue, status))
     {}
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
@@ -132,10 +132,10 @@ public:
      *  \param[in] size       Number of elements of type T stored in USM block
      *  \param[in] allocType  USM allocation type
      */
-    Buffer(const SharedPtr<T> & usmData, size_t size, cl::sycl::usm::alloc allocType)
+    Buffer(const SharedPtr<T> & usmData, size_t size, const cl::sycl::queue & queue)
     {
         Status status;
-        _impl.reset(internal::UsmBuffer<T>::create(usmData, size, allocType, status));
+        _impl.reset(internal::UsmBuffer<T>::create(usmData, size, queue, status));
         throwIfPossible(status);
     }
     #endif // DAAL_NOTHROW_EXCEPTIONS
