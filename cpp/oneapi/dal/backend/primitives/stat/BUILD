@@ -24,6 +24,9 @@ dal_test_suite(
     dal_deps = [
         ":stat",
     ],
+    tags = [
+        "exclusive",
+    ],
 )
 
 dal_test_suite(
@@ -37,5 +40,8 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":stat",
+    ],
+    tags = [
+        "exclusive",
     ],
 )
