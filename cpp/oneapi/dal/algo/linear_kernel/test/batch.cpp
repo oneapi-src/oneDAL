@@ -33,7 +33,7 @@ public:
     using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor(double scale, double shift) const {
-        return linear_kernel::descriptor<float, Method>{}.set_scale(scale).set_shift(shift);
+        return linear_kernel::descriptor<Float, Method>{}.set_scale(scale).set_shift(shift);
     }
 
     te::table_id get_homogen_table_id() const {
@@ -86,7 +86,7 @@ public:
                              const table& y_data,
                              const table& result_values) {
         auto reference = compute_reference(scale, shift, x_data, y_data);
-        const double tol = te::get_tolerance<Float>(1e-2, 1e-2);
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
         const double diff = la::l_inf_norm(reference, la::matrix<double>::wrap(result_values));
         CHECK(diff < tol);
     }
@@ -115,19 +115,19 @@ TEMPLATE_LIST_TEST_M(linear_kernel_batch_test,
                      "[linear_kernel][integration][batch]",
                      linear_kernel_types) {
     const te::dataframe x_data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 100, 50 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 250, 50 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 1100, 50 }.fill_uniform(-30, 30, 7777));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_uniform(-2, 2, 7777),
+                           te::dataframe_builder{ 100, 50 }.fill_uniform(-2, 2, 7777),
+                           te::dataframe_builder{ 250, 50 }.fill_uniform(-2, 2, 7777),
+                           te::dataframe_builder{ 1100, 50 }.fill_uniform(-2, 2, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto x_data_table_id = this->get_homogen_table_id();
 
     const te::dataframe y_data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 100, 50 }.fill_uniform(-30, 30, 8888),
-                           te::dataframe_builder{ 200, 50 }.fill_uniform(-30, 30, 8888),
-                           te::dataframe_builder{ 1000, 50 }.fill_uniform(-30, 30, 8888));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_uniform(-2, 2, 7777),
+                           te::dataframe_builder{ 100, 50 }.fill_uniform(-2, 2, 8888),
+                           te::dataframe_builder{ 200, 50 }.fill_uniform(-2, 2, 8888),
+                           te::dataframe_builder{ 1000, 50 }.fill_uniform(-2, 2, 8888));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto y_data_table_id = this->get_homogen_table_id();
@@ -143,13 +143,13 @@ TEMPLATE_LIST_TEST_M(linear_kernel_batch_test,
                      "[linear_kernel][integration][batch]",
                      linear_kernel_types) {
     const te::dataframe x_data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_uniform(-30, 30, 7777));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_uniform(-2, 2, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto x_data_table_id = this->get_homogen_table_id();
 
     const te::dataframe y_data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_uniform(-30, 30, 8888));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_uniform(-2, 2, 8888));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto y_data_table_id = this->get_homogen_table_id();
