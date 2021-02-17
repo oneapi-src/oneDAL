@@ -230,7 +230,7 @@ dataframe dataframe_builder::build() const {
     return std::get<0>(df_hit);
 }
 
-template <typename Float>
+template <typename Float, typename... Args>
 static homogen_table wrap_to_homogen_table(host_test_policy& policy,
                                            const array<Float>& data,
                                            std::int64_t row_count,
@@ -239,12 +239,15 @@ static homogen_table wrap_to_homogen_table(host_test_policy& policy,
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-template <typename Float>
+template <typename Float, typename... Args>
 static homogen_table wrap_to_homogen_table(device_test_policy& policy,
                                            const array<Float>& data,
                                            std::int64_t row_count,
-                                           std::int64_t column_count) {
+                                           std::int64_t column_count,
+                                           Args&&... args) {
     return dal::detail::homogen_table_builder{}
+        .set_data_type(dal::detail::make_data_type<Float>())
+        .allocate(policy.get_queue(), row_count, column_count, std::forward<Args>(args)...)
         .copy_data(policy.get_queue(), data.get_data(), row_count, column_count)
         .build();
 }
@@ -263,31 +266,48 @@ static array<double> convert_to_f64(const array<float>& data) {
     return data_f64;
 }
 
-template <typename Policy>
+template <typename Policy, typename... Args>
 static homogen_table build_homogen_table(Policy& policy,
                                          const array<float>& data,
                                          const table_id& id,
                                          std::int64_t row_count,
-                                         std::int64_t column_count) {
+                                         std::int64_t column_count,
+                                         Args&&... args) {
     if (id.get_float_type() == table_float_type::f32) {
-        return wrap_to_homogen_table(policy, data, row_count, column_count);
+        return wrap_to_homogen_table(policy,
+                                     data,
+                                     row_count,
+                                     column_count,
+                                     std::forward<Args>(args)...);
     }
     else if (id.get_float_type() == table_float_type::f64) {
         auto data_f64 = convert_to_f64(data);
-        return wrap_to_homogen_table(policy, data_f64, row_count, column_count);
+        return wrap_to_homogen_table(policy,
+                                     data_f64,
+                                     row_count,
+                                     column_count,
+                                     std::forward<Args>(args)...);
     }
     else {
         throw unimplemented{ "Only f32 and f64 floating point types are supported" };
     }
 }
 
-template <typename Policy>
-static table build_table(Policy& policy, const dataframe& df, const table_id& id) {
+template <typename Policy, typename... Args>
+static table build_table(Policy& policy,
+                         const dataframe& df,
+                         const table_id& id,
+                         Args&&... args) {
     const auto data = df.get_array();
     const std::int64_t row_count = df.get_row_count();
     const std::int64_t column_count = df.get_column_count();
     if (id.get_kind() == table_kind::homogen) {
-        return build_homogen_table(policy, data, id, row_count, column_count);
+        return build_homogen_table(policy,
+                                   data,
+                                   id,
+                                   row_count,
+                                   column_count,
+                                   std::forward<Args>(args)...);
     }
     else {
         throw unimplemented{ "Only homogen table is supported" };
@@ -299,8 +319,10 @@ table dataframe::get_table(host_test_policy& policy, const table_id& id) const {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-table dataframe::get_table(device_test_policy& policy, const table_id& id) const {
-    return build_table(policy, *this, id);
+table dataframe::get_table(device_test_policy& policy,
+                           const table_id& id,
+                           sycl::usm::alloc alloc) const {
+    return build_table(policy, *this, id, alloc);
 }
 #endif
 

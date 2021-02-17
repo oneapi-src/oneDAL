@@ -48,28 +48,32 @@ public:
         });
     }
 
-    void check_constant_variance(const ndarray<Float, 1>& vars, double expected_var) {
+    void check_constant_variance(const ndarray<Float, 1>& vars,
+                                 std::int64_t row_count,
+                                 double expected_var) {
         const auto vars_mat =
             te::linalg::matrix<Float>::wrap(vars.get_data(), { vars.get_count(), 1 });
 
-        const double eps = te::get_tolerance<Float>(1e-6, 1e-12);
+        const double eps = std::abs(expected_var) * te::get_tolerance_for_sum<Float>(row_count);
 
         te::linalg::enumerate_linear(vars_mat, [&](std::int64_t i, Float var) {
-            if (std::abs(double(var) - expected_var) >= eps) {
+            if (std::abs(double(var) - expected_var) > eps) {
                 CAPTURE(i, var, expected_var);
                 FAIL("Unexpected variance");
             }
         });
     }
 
-    void check_constant_mean(const ndarray<Float, 1>& means, double expected_mean) {
+    void check_constant_mean(const ndarray<Float, 1>& means,
+                             std::int64_t row_count,
+                             double expected_mean) {
         const auto means_mat =
             te::linalg::matrix<Float>::wrap(means.get_data(), { means.get_count(), 1 });
 
         const double eps = te::get_tolerance<Float>(1e-6, 1e-12);
 
         te::linalg::enumerate_linear(means_mat, [&](std::int64_t i, Float mean) {
-            if (std::abs(double(mean) - expected_mean) >= eps) {
+            if (std::abs((double(mean) - expected_mean) / expected_mean) >= eps) {
                 CAPTURE(i, mean, expected_mean);
                 FAIL("Unexpected mean");
             }
@@ -78,21 +82,24 @@ public:
 };
 
 TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, double) {
+    // DPC++ GEMM used underneath correlation is not supported on GPU
+    SKIP_IF(this->get_policy().is_cpu());
+
     using float_t = TestType;
     auto& queue = this->get_queue();
 
     const float_t diag_element = 10.5;
-    const std::int64_t row_count = 5000;
 
     const auto df =
-        GENERATE_DATAFRAME(te::dataframe_builder{ row_count, 100 }.fill_diag(diag_element));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1000000, 100 }.fill_diag(diag_element));
 
-    auto corr = ndarray<float_t, 2>::empty(queue, { 100, 100 });
-    auto means = ndarray<float_t, 1>::empty(queue, { 100 });
-    auto vars = ndarray<float_t, 1>::empty(queue, { 100 });
-    auto tmp = ndarray<float_t, 1>::empty(queue, { 100 });
+    const auto column_count = df.get_column_count();
+    auto corr = ndarray<float_t, 2>::empty(queue, { column_count, column_count });
+    auto means = ndarray<float_t, 1>::empty(queue, { column_count });
+    auto vars = ndarray<float_t, 1>::empty(queue, { column_count });
+    auto tmp = ndarray<float_t, 1>::empty(queue, { column_count });
 
-    auto [sums, sums_event] = ndarray<float_t, 1>::full(queue, { 100 }, diag_element);
+    auto [sums, sums_event] = ndarray<float_t, 1>::full(queue, { column_count }, diag_element);
     const auto data = df.get_table(this->get_policy(), te::table_id::homogen<float_t>());
 
     correlation(queue, data, sums, corr, means, vars, tmp, { sums_event }).wait_and_throw();
@@ -101,17 +108,21 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
         this->check_correlation_for_uncorrelated_data(corr);
     }
 
+    // The upper part of data matrix is diagonal. In diagonal matrix each column contains only one
+    // non-zero element (`diag_element`), so mean and variances for each feature can be computed
+    // trivially using `diag_element` value.
+
     SECTION("mean is expected") {
-        const double n = row_count;
+        const double n = df.get_row_count();
         const double expected_mean = double(diag_element) / n;
-        this->check_constant_mean(means, expected_mean);
+        this->check_constant_mean(means, n, expected_mean);
     }
 
     SECTION("variance is expected") {
-        const double n = row_count;
+        const double n = df.get_row_count();
         const double d = double(diag_element) * double(diag_element);
         const double expected_var = (d - d / n) / (n - 1.0);
-        this->check_constant_variance(vars, expected_var);
+        this->check_constant_variance(vars, n, expected_var);
     }
 }
 

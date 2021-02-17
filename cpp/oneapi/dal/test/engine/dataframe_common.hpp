@@ -150,7 +150,9 @@ public:
     table get_table(host_test_policy& policy, const table_id& id) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    table get_table(device_test_policy& policy, const table_id& id) const;
+    table get_table(device_test_policy& policy,
+                    const table_id& id,
+                    sycl::usm::alloc alloc = sycl::usm::alloc::shared) const;
 #endif
 
     table get_table(const table_id& id) const {

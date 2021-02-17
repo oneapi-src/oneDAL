@@ -51,6 +51,8 @@ sycl::event correlation(sycl::queue& queue,
     ONEDAL_ASSERT(tmp.get_dimension(0) == data.get_column_count(),
                   "Element count of temporary buffer must match column count of input data");
 
+    sycl::event::wait_and_throw(deps);
+
     // TODO: Determine optimal block size
     constexpr std::int64_t block_max_row_count = 4096;
 

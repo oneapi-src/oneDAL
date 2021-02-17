@@ -173,7 +173,6 @@ public:
     template <typename Data>
     auto& copy_data(const Data* data, std::int64_t row_count, std::int64_t column_count) {
         auto& impl = get_impl();
-        impl.set_data_type(detail::make_data_type<Data>());
         impl.copy_data(data, row_count, column_count);
         return *this;
     }
@@ -196,7 +195,6 @@ public:
                     const sycl::vector_class<sycl::event>& dependencies = {}) {
         sycl::event::wait_and_throw(dependencies);
         auto& impl = get_impl();
-        impl.set_data_type(detail::make_data_type<Data>());
         impl.copy_data(queue, data, row_count, column_count);
         return *this;
     }
