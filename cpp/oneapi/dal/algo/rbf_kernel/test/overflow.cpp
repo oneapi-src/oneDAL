@@ -45,13 +45,17 @@ public:
     }
 };
 
-#define RBF_KERNEL_OVERFLOW_TEST(name) \
-    TEMPLATE_TEST_M(rbf_kernel_overflow_test, name, "[rbf_kernel][overflow]", rbf_kernel::method::dense)
+#define RBF_KERNEL_OVERFLOW_TEST(name)        \
+    TEMPLATE_TEST_M(rbf_kernel_overflow_test, \
+                    name,                     \
+                    "[rbf_kernel][overflow]", \
+                    rbf_kernel::method::dense)
 
 RBF_KERNEL_OVERFLOW_TEST("compute throws if result values table leads to overflow") {
     const auto rbf_kernel_desc = this->get_descriptor();
 
-    REQUIRE_THROWS_AS(this->compute(rbf_kernel_desc, this->get_x_data(), this->get_y_data()), range_error);
+    REQUIRE_THROWS_AS(this->compute(rbf_kernel_desc, this->get_x_data(), this->get_y_data()),
+                      range_error);
 }
 
 } // namespace oneapi::dal::rbf_kernel::test

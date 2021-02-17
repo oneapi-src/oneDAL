@@ -40,46 +40,55 @@ public:
     }
 
     table get_x_data(std::int64_t override_row_count = row_count_x,
-                         std::int64_t override_column_count = column_count) const {
+                     std::int64_t override_column_count = column_count) const {
         ONEDAL_ASSERT(override_row_count * override_column_count <= element_count_x);
         return homogen_table::wrap(x_data_.data(), override_row_count, override_column_count);
     }
 
     table get_y_data(std::int64_t override_row_count = row_count_y,
-                         std::int64_t override_column_count = column_count) const {
+                     std::int64_t override_column_count = column_count) const {
         ONEDAL_ASSERT(override_row_count * override_column_count <= element_count_y);
         return homogen_table::wrap(y_data_.data(), override_row_count, override_column_count);
     }
 
 private:
-    static constexpr std::array<float, element_count_x> x_data_ = {
-        1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0, -1.0, -2.0, 1.0, 2.0
-    };
+    static constexpr std::array<float, element_count_x> x_data_ = { 1.0,  1.0,  2.0,  2.0,  1.0,
+                                                                    2.0,  2.0,  1.0,  -1.0, -1.0,
+                                                                    -1.0, -2.0, -2.0, -1.0, -2.0,
+                                                                    -2.0, -1.0, -2.0, 1.0,  2.0 };
 
-    static constexpr std::array<float, element_count_y> y_data_ = {
-        1.0, 1.0, 2.0, 2.0, 1.0, 2.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
-    };
+    static constexpr std::array<float, element_count_y> y_data_ = { 1.0,  1.0,  2.0,  2.0,
+                                                                    1.0,  2.0,  -1.0, -2.0,
+                                                                    -2.0, -1.0, -2.0, -2.0 };
 };
 
-#define LINEAR_KERNEL_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(linear_kernel_badarg_test, name, "[linear_kernel][badarg]", linear_kernel::method::dense)
+#define LINEAR_KERNEL_BADARG_TEST(name)        \
+    TEMPLATE_TEST_M(linear_kernel_badarg_test, \
+                    name,                      \
+                    "[linear_kernel][badarg]", \
+                    linear_kernel::method::dense)
 
 LINEAR_KERNEL_BADARG_TEST("throws if x data is empty") {
     const auto linear_kernel_desc = this->get_descriptor();
 
-    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc, homogen_table{}, this->get_y_data()), domain_error);
+    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc, homogen_table{}, this->get_y_data()),
+                      domain_error);
 }
 
 LINEAR_KERNEL_BADARG_TEST("throws if y data is empty") {
     const auto linear_kernel_desc = this->get_descriptor();
 
-    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc, this->get_x_data(), homogen_table{}), domain_error);
+    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc, this->get_x_data(), homogen_table{}),
+                      domain_error);
 }
 
 LINEAR_KERNEL_BADARG_TEST("throws if x columns count neq y columns count") {
     const auto linear_kernel_desc = this->get_descriptor();
 
-    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc, this->get_x_data(this->row_count_x, 3), this->get_y_data()), invalid_argument);
+    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc,
+                                    this->get_x_data(this->row_count_x, 3),
+                                    this->get_y_data()),
+                      invalid_argument);
 }
 
 } // namespace oneapi::dal::linear_kernel::test

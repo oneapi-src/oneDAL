@@ -33,9 +33,7 @@ public:
     using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor(double scale, double shift) const {
-        return linear_kernel::descriptor<float, Method>{}
-            .set_scale(scale)
-            .set_shift(shift);
+        return linear_kernel::descriptor<float, Method>{}.set_scale(scale).set_shift(shift);
     }
 
     te::table_id get_homogen_table_id() const {
@@ -44,7 +42,7 @@ public:
 
     void general_checks(const te::dataframe& x_data,
                         const te::dataframe& y_data,
-                        double scale, 
+                        double scale,
                         double shift,
                         const te::table_id& x_data_table_id,
                         const te::table_id& y_data_table_id) {
@@ -60,10 +58,10 @@ public:
         const auto compute_result = this->compute(linear_kernel_desc, x, y);
         check_compute_result(scale, shift, x, y, compute_result);
     }
-    
-    void check_compute_result(double scale, 
-                        double shift,
-                        const table& x_data,
+
+    void check_compute_result(double scale,
+                              double shift,
+                              const table& x_data,
                               const table& y_data,
                               const linear_kernel::compute_result<>& result) {
         const auto result_values = result.get_values();
@@ -82,9 +80,9 @@ public:
         }
     }
 
-    void check_result_values(double scale, 
-                        double shift,
-                            const table& x_data,
+    void check_result_values(double scale,
+                             double shift,
+                             const table& x_data,
                              const table& y_data,
                              const table& result_values) {
         auto reference = compute_reference(scale, shift, x_data, y_data);
@@ -93,10 +91,10 @@ public:
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference(double scale, 
-                        double shift,
-                        const table& x_data,
-                           const table& y_data) {
+    la::matrix<double> compute_reference(double scale,
+                                         double shift,
+                                         const table& x_data,
+                                         const table& y_data) {
         const auto x_data_matrix = la::matrix<double>::wrap(x_data);
         const auto y_data_matrix = la::matrix<double>::wrap(y_data);
 
@@ -108,15 +106,16 @@ public:
 
         return reference;
     }
-
 };
 
 using linear_kernel_types = COMBINE_TYPES((float, double), (linear_kernel::method::dense));
 
-TEMPLATE_LIST_TEST_M(linear_kernel_batch_test, "linear_kernel common flow", "[linear_kernel][integration][batch]", linear_kernel_types) {
+TEMPLATE_LIST_TEST_M(linear_kernel_batch_test,
+                     "linear_kernel common flow",
+                     "[linear_kernel][integration][batch]",
+                     linear_kernel_types) {
     const te::dataframe x_data =
-        GENERATE_DATAFRAME(
-            te::dataframe_builder{ 50, 50 }.fill_uniform(-30, 30, 7777),
+        GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_uniform(-30, 30, 7777),
                            te::dataframe_builder{ 100, 50 }.fill_uniform(-30, 30, 7777),
                            te::dataframe_builder{ 250, 50 }.fill_uniform(-30, 30, 7777),
                            te::dataframe_builder{ 1100, 50 }.fill_uniform(-30, 30, 7777));
@@ -125,8 +124,7 @@ TEMPLATE_LIST_TEST_M(linear_kernel_batch_test, "linear_kernel common flow", "[li
     const auto x_data_table_id = this->get_homogen_table_id();
 
     const te::dataframe y_data =
-        GENERATE_DATAFRAME(
-            te::dataframe_builder{ 50, 50 }.fill_uniform(-30, 30, 7777),
+        GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_uniform(-30, 30, 7777),
                            te::dataframe_builder{ 100, 50 }.fill_uniform(-30, 30, 8888),
                            te::dataframe_builder{ 200, 50 }.fill_uniform(-30, 30, 8888),
                            te::dataframe_builder{ 1000, 50 }.fill_uniform(-30, 30, 8888));
@@ -140,19 +138,18 @@ TEMPLATE_LIST_TEST_M(linear_kernel_batch_test, "linear_kernel common flow", "[li
     this->general_checks(x_data, y_data, scale, shift, x_data_table_id, y_data_table_id);
 }
 
-TEMPLATE_LIST_TEST_M(linear_kernel_batch_test, "linear_kernel compute one element matrix", "[linear_kernel][integration][batch]", linear_kernel_types) {
+TEMPLATE_LIST_TEST_M(linear_kernel_batch_test,
+                     "linear_kernel compute one element matrix",
+                     "[linear_kernel][integration][batch]",
+                     linear_kernel_types) {
     const te::dataframe x_data =
-        GENERATE_DATAFRAME(
-            te::dataframe_builder{ 1, 1 }.fill_uniform(-30, 30, 7777)
-                           );
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_uniform(-30, 30, 7777));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto x_data_table_id = this->get_homogen_table_id();
 
     const te::dataframe y_data =
-        GENERATE_DATAFRAME(
-            te::dataframe_builder{ 1, 1 }.fill_uniform(-30, 30, 8888)
-                           );
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_uniform(-30, 30, 8888));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto y_data_table_id = this->get_homogen_table_id();

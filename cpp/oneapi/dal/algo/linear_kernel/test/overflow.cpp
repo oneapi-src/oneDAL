@@ -45,13 +45,17 @@ public:
     }
 };
 
-#define LINEAR_KERNEL_OVERFLOW_TEST(name) \
-    TEMPLATE_TEST_M(linear_kernel_overflow_test, name, "[linear_kernel][overflow]", linear_kernel::method::dense)
+#define LINEAR_KERNEL_OVERFLOW_TEST(name)        \
+    TEMPLATE_TEST_M(linear_kernel_overflow_test, \
+                    name,                        \
+                    "[linear_kernel][overflow]", \
+                    linear_kernel::method::dense)
 
 LINEAR_KERNEL_OVERFLOW_TEST("compute throws if result values table leads to overflow") {
     const auto linear_kernel_desc = this->get_descriptor();
 
-    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc, this->get_x_data(), this->get_y_data()), range_error);
+    REQUIRE_THROWS_AS(this->compute(linear_kernel_desc, this->get_x_data(), this->get_y_data()),
+                      range_error);
 }
 
 } // namespace oneapi::dal::linear_kernel::test
