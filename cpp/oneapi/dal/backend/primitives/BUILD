@@ -29,6 +29,7 @@ dal_collect_modules(
 
 dal_test_suite(
     name = "common_tests",
+    private = True,
     framework = "catch2",
     srcs = glob([
         "test/*.cpp",

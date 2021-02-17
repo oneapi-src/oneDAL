@@ -231,8 +231,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         clusters = inClusters;
     }
 
-    if ((kIter != nIter || nIter == 0)
-        && (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction))
+    if (par->resultsToEvaluate & computeAssignments || par->assignFlag || par->resultsToEvaluate & computeExactObjectiveFunction)
     {
         PostProcessing<method, algorithmFPType, cpu>::computeAssignments(p, nClusters, clusters, ntData, catCoef.get(), assignmetsNT, blockSize);
     }
