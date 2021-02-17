@@ -62,11 +62,11 @@ size :math:`p`, their non-negative observation weights :math:`W=\{w_1,\ldots,w_n
 
 .. tabs::
 
-  .. tab:: Classification
+  .. group-tab:: Classification
 
     - :math:`y_i \in \{0, \ldots, C-1\}`, where :math:`C` is the number of classes
 
-  .. tab:: Regression
+  .. group-tab:: Regression
 
     - :math:`y_i \in \mathbb{R}` 
 
@@ -120,7 +120,7 @@ the subset :math:`D_t` in the node :math:`t`.
 
 .. tabs::
 
-  .. tab:: Classification
+  .. group-tab:: Classification
 
    *Gini index* is an impurity metric for classification, calculated as follows:
    
@@ -146,7 +146,7 @@ the subset :math:`D_t` in the node :math:`t`.
    
              p_i = \frac{\sum_{d \in \{d \in D | y_d = i \}} W_d}{\sum_{d \in D} W_d}
    
-  .. tab:: Regression
+  .. group-tab:: Regression
 
    *MSE* is an impurity metric for regression, calculated as follows:
    
@@ -262,12 +262,12 @@ algorithm does the following:
 
 .. tabs::
 
-  .. tab:: Classification
+  .. group-tab:: Classification
 
     For each tree in the forest it finds the leaf node that gives the label. The
     forest chooses the label :math:`y` taking the majority of trees in the forest voting for that label.
 
-  .. tab:: Regression
+  .. group-tab:: Regression
 
     For each tree in the forest it finds the leaf node that gives the response as the mean of
     dependent variables. The forest predicts the response as the mean of responses from trees.
@@ -287,7 +287,7 @@ data can be obtained and calculated as follows:
 
 .. tabs::
 
-  .. tab:: Classification
+  .. group-tab:: Classification
 
     - For each vector :math:`x_i` in the dataset :math:`X`, predict its label :math:`\hat{y_i}` by having the majority of votes from the trees that
       contain :math:`x_i` in their OOB set, and vote for that label.
@@ -300,7 +300,7 @@ data can be obtained and calculated as follows:
 
     - If OOB error value per each observation is required, then calculate the prediction error for :math:`x_i`: :math:`OOB(x_i) = I\{{y}_{i}\ne \hat{{y}_{i}}\}`
 
-  .. tab:: Regression
+  .. group-tab:: Regression
 
     - For each vector :math:`x_i` in the dataset :math:`X`, predict its response :math:`\hat{y_i}`
       as the mean of prediction from the trees that contain :math:`x_i` in their OOB set:
