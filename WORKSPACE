@@ -58,6 +58,18 @@ load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
 mkl_repo(
     name = "mkl",
     root_env_var = "MKLROOT",
+    urls = [
+        "https://files.pythonhosted.org/packages/bd/74/556cd5efce782ebee2832bd29a49426e88caf2e3cfae38e1d23c0abd41d7/mkl_static-2021.1.1-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/7d/70/86d0db59598c34a5c1d334ba996271dddad89108127b743c84beb6354afd/mkl_include-2021.1.1-py2.py3-none-manylinux1_x86_64.whl",
+    ],
+    sha256s = [
+        "1db75a53f58cad32935bfbd63206124f6218d71193eea1e75a16aadb9c078370",
+        "865c884473b0a76da201fe972e68c3b2591e6580753485548acc32169db3ffe7",
+    ],
+    strip_prefixes = [
+        "mkl_static-2021.1.1.data/data",
+        "mkl_include-2021.1.1.data/data",
+    ],
 )
 
 load("@onedal//dev/bazel/deps:onedal.bzl", "onedal_repo")

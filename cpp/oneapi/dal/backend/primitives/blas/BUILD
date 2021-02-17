@@ -14,6 +14,7 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
+    private = True,
     framework = "catch2",
     compile_as = [ "dpc++" ],
     srcs = glob([
