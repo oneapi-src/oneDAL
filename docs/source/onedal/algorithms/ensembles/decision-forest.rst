@@ -269,8 +269,8 @@ algorithm does the following:
 
   .. group-tab:: Regression
 
-    For each tree in the forest it finds the leaf node that gives the response as the mean of
-    dependent variables. The forest predicts the response as the mean of responses from trees.
+    For each tree in the forest, it finds the leaf node that gives :math:`x_i` the response as the mean of
+    dependent variables. The mean of responses from all trees in the forest is the predicted response for the query vector :math:`x_i`.
 
 Additional Characteristics Calculated by the Decision Forest
 ------------------------------------------------------------
