@@ -256,8 +256,8 @@ the problem is to calculate the responses for those vectors.
 Inference methods: *Dense* and *Hist*
 -------------------------------------
 
-*Dense* and *hist* inference methods perform prediction in the same way:
-to solve the problem for each given query vector :math:`x_i`, the
+*Dense* and *hist* inference methods perform prediction in the same way.
+To solve the problem for each given query vector :math:`x_i`, the
 algorithm does the following:
 
 .. tabs::
