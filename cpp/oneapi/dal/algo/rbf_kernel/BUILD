@@ -19,8 +19,7 @@ dal_test_suite(
     name = "cpu_tests",
     compile_as = [ "c++" ],
     srcs = glob([
-        "backend/cpu/*_test.cpp",
-        "*_host_test.cpp",
+        "backend/cpu/test/*.cpp",
     ]),
     dal_deps = [
         ":rbf_kernel",
@@ -31,21 +30,29 @@ dal_test_suite(
     name = "gpu_tests",
     compile_as = [ "dpc++" ],
     srcs = glob([
-        "backend/gpu/*_test.cpp",
-        "*_dpc_test.cpp",
+        "backend/gpu/test/*.cpp",
     ]),
     dal_deps = [
         ":rbf_kernel",
     ],
-    tags = ["gpu", "exclusive"],
+)
+
+dal_test_suite(
+    name = "interface_tests",
+    framework = "catch2",
+    srcs = glob([
+        "test/*.cpp",
+    ]),
+    dal_deps = [
+        ":rbf_kernel",
+    ],
 )
 
 dal_test_suite(
     name = "tests",
-    host_tests = [
+    tests = [
         ":cpu_tests",
-    ],
-    dpc_tests = [
         ":gpu_tests",
+        ":interface_tests",
     ],
 )
