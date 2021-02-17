@@ -264,8 +264,8 @@ algorithm does the following:
 
   .. group-tab:: Classification
 
-    For each tree in the forest it finds the leaf node that gives the label. The
-    forest chooses the label :math:`y` taking the majority of trees in the forest voting for that label.
+    For each tree in the forest, it finds the leaf node that gives :math:`x_i` its label. The label :math:`y` that the majority of
+    trees in the forest vote for is chosen as the predicted label for the query vector :math:`x_i`.
 
   .. group-tab:: Regression
 
