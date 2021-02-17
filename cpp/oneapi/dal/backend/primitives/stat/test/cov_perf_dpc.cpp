@@ -32,8 +32,7 @@ TEST("400K x 1K", "[cor][perf]") {
     const auto alloc = sycl::usm::alloc::shared;
 
     // 4 x 400K x 1K ~ 1.526Gb
-    const auto df =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 400000, 1000 }.fill_uniform(-1, 1));
+    const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ 400000, 1000 }.fill_uniform(-1, 1));
 
     const auto column_count = df.get_column_count();
     auto corr = ndarray<float_t, 2>::empty(queue, { column_count, column_count }, alloc);

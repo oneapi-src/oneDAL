@@ -138,7 +138,8 @@ public:
                    const void* data,
                    std::int64_t row_count,
                    std::int64_t column_count) {
-        ONEDAL_ASSERT(sycl::get_pointer_type(data_.get_data(), queue.get_context()) != sycl::usm::alloc::unknown);
+        ONEDAL_ASSERT(sycl::get_pointer_type(data_.get_data(), queue.get_context()) !=
+                      sycl::usm::alloc::unknown);
         check_copy_data_preconditions(row_count, column_count);
         detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
     }
@@ -221,7 +222,8 @@ private:
         const std::int64_t allocated_size = get_data_size(row_count_, column_count_, dtype_);
         if (allocated_size < reqired_size) {
             throw dal::invalid_argument{
-                dal::detail::error_messages::allocated_memory_size_is_not_enough_to_copy_data() };
+                dal::detail::error_messages::allocated_memory_size_is_not_enough_to_copy_data()
+            };
         }
     }
 

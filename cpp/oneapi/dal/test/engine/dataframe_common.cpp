@@ -294,10 +294,7 @@ static homogen_table build_homogen_table(Policy& policy,
 }
 
 template <typename Policy, typename... Args>
-static table build_table(Policy& policy,
-                         const dataframe& df,
-                         const table_id& id,
-                         Args&&... args) {
+static table build_table(Policy& policy, const dataframe& df, const table_id& id, Args&&... args) {
     const auto data = df.get_array();
     const std::int64_t row_count = df.get_row_count();
     const std::int64_t column_count = df.get_column_count();
