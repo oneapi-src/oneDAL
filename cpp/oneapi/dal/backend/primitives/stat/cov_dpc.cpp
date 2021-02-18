@@ -96,7 +96,7 @@ sycl::event correlation(sycl::queue& queue,
 
                 means_ptr[i] = s * inv_n;
                 vars_ptr[i] = inv_n1 * (c - m);
-                tmp_ptr[i] = sycl::sqrt(c);
+                tmp_ptr[i] = c;
             }
         });
     });
@@ -116,7 +116,7 @@ sycl::event correlation(sycl::queue& queue,
 
                 Float c = corr_ptr[gi];
                 c -= inv_n * sums_ptr[i] * sums_ptr[j];
-                c /= tmp_ptr[i] * tmp_ptr[j];
+                c *= sycl::rsqrt(tmp_ptr[i] * tmp_ptr[j]);
                 corr_ptr[gi] = c * (is_diag - 1) + is_diag;
             }
         });

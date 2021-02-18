@@ -187,6 +187,17 @@ public:
         return wrap(t_flat, { t.get_row_count(), t.get_column_count() });
     }
 
+    template <typename NdArrayLike>
+    static matrix wrap_nd(const NdArrayLike& x) {
+        static_assert(NdArrayLike::axis_count_v == 1 || NdArrayLike::axis_count_v == 2);
+
+        if constexpr (NdArrayLike::axis_count_v == 1) {
+            return wrap(x.get_data(), { 1, x.get_dimension(0) });
+        }
+
+        return wrap(x.get_data(), { x.get_dimension(0), x.get_dimension(1) });
+    }
+
     static matrix empty(const shape& s) {
         return wrap(array<Float>::empty(s.get_count()), s);
     }
@@ -270,6 +281,24 @@ public:
             ptr[i] = filler;
         }
         return *this;
+    }
+
+    template <typename T = Float, typename = std::enable_if_t<std::is_same_v<T, bool>>>
+    bool all() const {
+        bool result = true;
+        for (std::int64_t i = 0; i < get_count(); i++) {
+            result = result && get(i);
+        }
+        return result;
+    }
+
+    template <typename T = Float, typename = std::enable_if_t<std::is_same_v<T, bool>>>
+    bool any() const {
+        bool result = false;
+        for (std::int64_t i = 0; i < get_count(); i++) {
+            result = result || get(i);
+        }
+        return result;
     }
 
 private:

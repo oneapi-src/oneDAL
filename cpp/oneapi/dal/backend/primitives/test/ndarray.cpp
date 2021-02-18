@@ -25,10 +25,16 @@ namespace oneapi::dal::backend::primitives::test {
 class ndarray_test {
 public:
     template <typename T, std::int64_t axis_count>
-    void check_if_all_equal(const ndarray<T, axis_count>& x, const T& value) const {
+    void check_if_all_equal(const ndarray<T, axis_count>& x,
+                            const T& value,
+                            std::int64_t count = -1) const {
+        if (count < 0) {
+            count = x.get_count();
+        }
         const T* x_ptr = x.get_data();
-        for (std::int64_t i = 0; i < x.get_count(); i++) {
+        for (std::int64_t i = 0; i < count; i++) {
             if (x_ptr[i] != value) {
+                CAPTURE(x_ptr[i], value);
                 FAIL();
             }
         }
@@ -438,6 +444,50 @@ TEST_M(ndarray_test, "can allocate ones ndarray", "[ndarray]") {
     auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 });
     event.wait_and_throw();
     check_if_all_ones(x);
+}
+
+TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    const float c = 42.2;
+    auto x = ndarray<float, 2>::empty(queue, { 7, 5 });
+
+    x.fill(queue, c).wait_and_throw();
+
+    check_if_all_equal(x, c);
+}
+
+TEST_M(ndarray_test, "can assign ndarray", "[ndarray]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    const std::int64_t n = 11;
+    const std::int64_t m = 23;
+    const float c = 42.2;
+
+    INFO("prepare source USM array");
+    float* x_ptr = sycl::malloc_shared<float>(n * m, queue);
+    for (std::int64_t i = 0; i < n * m; i++) {
+        x_ptr[i] = c;
+    }
+
+    auto x = ndarray<float, 2>::empty(queue, { n, m });
+
+    SECTION("assign full") {
+        x.assign(queue, x_ptr, n * m).wait_and_throw();
+        check_if_all_equal(x, c);
+    }
+
+    SECTION("assign half") {
+        for (std::int64_t i = 0; i < n * m / 2; i++) {
+            x_ptr[i] = c / 2;
+        }
+        x.assign(queue, x_ptr, n * m / 2).wait_and_throw();
+        check_if_all_equal(x, c / 2, n * m / 2);
+    }
+
+    sycl::free(x_ptr, queue);
 }
 
 #endif

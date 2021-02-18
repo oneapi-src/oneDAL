@@ -49,6 +49,8 @@ class ndarray_base {
     static_assert(order == ndorder::c || order == ndorder::f, "Only C or F orders are supported");
 
 public:
+    static constexpr std::int64_t axis_count_v = axis_count;
+
     ndarray_base() = default;
 
     explicit ndarray_base(const ndshape<axis_count>& shape, const ndshape<axis_count>& strides)
@@ -371,32 +373,38 @@ public:
         T* ptr = malloc<T>(q, shape.get_count(), alloc_kind);
         return wrap(ptr, shape, usm_deleter<T>{ q });
     }
+#endif
 
+#ifdef ONEDAL_DATA_PARALLEL
     static std::tuple<ndarray, sycl::event> full(
         sycl::queue& q,
         const shape_t& shape,
         const T& value,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         auto ary = empty(q, shape, alloc_kind);
-        auto event = q.fill(ary.get_mutable_data(), value, ary.get_count());
+        auto event = ary.fill(q, value);
         return { ary, event };
     }
+#endif
 
+#ifdef ONEDAL_DATA_PARALLEL
     static std::tuple<ndarray, sycl::event> zeros(
         sycl::queue& q,
         const shape_t& shape,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         return full(q, shape, T(0), alloc_kind);
     }
+#endif
 
+#ifdef ONEDAL_DATA_PARALLEL
     static std::tuple<ndarray, sycl::event> ones(
         sycl::queue& q,
         const shape_t& shape,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         return full(q, shape, T(1), alloc_kind);
     }
-
 #endif
+
     const base& get_view() const {
         return *this;
     }
@@ -419,6 +427,30 @@ public:
         base::check_reshape_conditions(new_shape);
         return reshaped_ndarray_t{ data_, new_shape }.set_mutability(this->has_mutable_data());
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
+        return q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.fill(this->get_mutable_data(), value, this->get_count());
+        });
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    sycl::event assign(sycl::queue& q,
+                       const T* source_ptr,
+                       std::int64_t source_count,
+                       const event_vector& deps = {}) {
+        ONEDAL_ASSERT(source_ptr != nullptr);
+        ONEDAL_ASSERT(source_count > 0);
+        ONEDAL_ASSERT(source_count <= this->get_count());
+        return q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.memcpy(this->get_mutable_data(), source_ptr, sizeof(T) * source_count);
+        });
+    }
+#endif
 
 private:
     explicit ndarray(const shared_t& data, const shape_t& shape, const shape_t& strides)
