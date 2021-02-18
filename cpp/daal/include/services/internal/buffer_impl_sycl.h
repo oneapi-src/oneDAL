@@ -329,16 +329,12 @@ public:
 
         if (_rwFlag & data_management::readOnly)
         {
-            auto result = services::internal::daal_memcpy_s(usmData, size, hostData.get(), size);
-            if (result)
-            {
-                return services::ErrorMemoryCopyFailedInternal;
-            }
-
             st |= internal::sycl::catchSyclExceptions([&]() mutable {
                 auto event = _q.memcpy(usmData, hostData.get(), size);
                 event.wait_and_throw();
             });
+
+            DAAL_CHECK_STATUS_VAR(st);
         }
 
         _data = SharedPtr<T>(usmData, [q = this->_q, rwFlag = this->_rwFlag, hostData, size](const void * data) mutable {
