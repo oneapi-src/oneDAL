@@ -243,7 +243,7 @@ private:
 class dataframe_builder_impl {
 public:
     explicit dataframe_builder_impl(std::int64_t row_count, std::int64_t column_count);
-    explicit dataframe_builder_impl(std::string dataset);
+    explicit dataframe_builder_impl(const std::string& dataset);
     dataframe_builder_impl(const dataframe_builder_impl&) = delete;
     dataframe_builder_impl& operator=(const dataframe_builder_impl&) = delete;
 
@@ -260,7 +260,7 @@ public:
     explicit dataframe_builder(std::int64_t row_count, std::int64_t column_count)
             : impl_(new dataframe_builder_impl{ row_count, column_count }) {}
 
-    explicit dataframe_builder(std::string dataset)
+    explicit dataframe_builder(const std::string& dataset)
             : impl_(new dataframe_builder_impl{ dataset }) {}
 
     dataframe_builder& fill_uniform(double a, double b, std::int64_t seed = 7777);

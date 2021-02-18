@@ -221,8 +221,11 @@ private:
 
 class dataframe_builder_action_read_external_dataset : public dataframe_builder_action {
 public:
-    explicit dataframe_builder_action_read_external_dataset(std::string dataset)
-            : dataset_(dataset) {}
+    explicit dataframe_builder_action_read_external_dataset(const std::string& dataset)
+            : dataset_(dataset) {
+        dataset_ = trim_path_left(dataset_);
+        dataset_ = trim_path_right(dataset_);
+    }
 
     std::string get_opcode() const override {
         return fmt::format("read_external_dataset({})", dataset_);
@@ -231,21 +234,43 @@ public:
     dataframe_impl* execute(dataframe_impl* df) const override {
         delete df;
 
-        const char* dataset_root_ptr = std::getenv("DATASETSROOT");
+        const char* dataset_root_ptr = std::getenv("DAAL_DATASETS");
         if (dataset_root_ptr == nullptr) {
-            throw invalid_argument{ "DATASETSROOT environment variable is unset" };
+            throw invalid_argument{ "DAAL_DATASETS environment variable is unset" };
         }
-        const std::string datasets_root(dataset_root_ptr);
+        std::string datasets_root(dataset_root_ptr);
+        datasets_root = trim_path_right(datasets_root);
 
-        const auto data_table =
-            dal::read<dal::table>(dal::csv::data_source{ datasets_root + '/' + dataset_ });
+        if (dataset_.size() > 3 && dataset_.substr(dataset_.size() - 4, 4) == ".csv") {
+            const auto data_table =
+                dal::read<dal::table>(dal::csv::data_source{ datasets_root + '/' + dataset_ });
 
-        return new dataframe_impl{ dal::row_accessor<const float>{ data_table }.pull(),
-                                   data_table.get_row_count(),
-                                   data_table.get_column_count() };
+            return new dataframe_impl{ dal::row_accessor<const float>{ data_table }.pull(),
+                                       data_table.get_row_count(),
+                                       data_table.get_column_count() };
+        }
+        else {
+            throw unimplemented{ "Only CSV datasets are supported" };
+        }
     }
 
 private:
+    std::string trim_path_left(const std::string& path) const {
+        std::string tmp(path);
+        if (tmp.size() > 0 && tmp[0] == '/') {
+            tmp.erase(0, 1);
+        }
+        return tmp;
+    }
+
+    std::string trim_path_right(const std::string& path) const {
+        std::string tmp(path);
+        if (tmp.size() > 0 && tmp[tmp.size() - 1] == '/') {
+            tmp.erase(tmp.size() - 1, 1);
+        }
+        return tmp;
+    }
+
     std::string dataset_;
 };
 
@@ -303,7 +328,7 @@ dataframe_builder_impl::dataframe_builder_impl(std::int64_t row_count, std::int6
     program_.add<dataframe_builder_action_allocate>(row_count, column_count);
 }
 
-dataframe_builder_impl::dataframe_builder_impl(std::string dataset) {
+dataframe_builder_impl::dataframe_builder_impl(const std::string& dataset) {
     program_.add<dataframe_builder_action_read_external_dataset>(dataset);
 }
 
@@ -382,12 +407,15 @@ static homogen_table build_homogen_table(Policy& policy,
                                          const array<float>& data,
                                          const table_id& id,
                                          std::int64_t row_count,
-                                         std::int64_t first_column,
-                                         std::int64_t last_column) {
-    const std::int64_t actual_column_count = data.get_count() / row_count;
-    const std::int64_t required_column_count = last_column - first_column;
+                                         std::int64_t column_count,
+                                         std::int64_t first_column_idx,
+                                         std::int64_t last_column_idx) {
+    const std::int64_t actual_column_count = column_count;
+    const std::int64_t required_column_count = last_column_idx - first_column_idx;
 
-    if (first_column == 0 && actual_column_count == required_column_count) {
+    ONEDAL_ASSERT(required_column_count >= 0);
+
+    if (first_column_idx == 0 && actual_column_count == required_column_count) {
         return wrap_to_homogen_table(policy, data, id, row_count, required_column_count);
     }
     else {
@@ -398,7 +426,7 @@ static homogen_table build_homogen_table(Policy& policy,
         for (std::int64_t i = 0; i < row_count; ++i) {
             for (std::int64_t j = 0; j < required_column_count; ++j) {
                 dst_ptr[i * required_column_count + j] =
-                    src_ptr[i * actual_column_count + first_column + j];
+                    src_ptr[i * actual_column_count + first_column_idx + j];
             }
         }
 
@@ -408,29 +436,35 @@ static homogen_table build_homogen_table(Policy& policy,
 
 template <typename Policy>
 static table build_table(Policy& policy, const dataframe& df, const table_id& id, range r) {
-    std::int64_t first_column = r.start_idx;
-    std::int64_t last_column = r.end_idx;
+    std::int64_t first_column_idx = r.start_idx;
+    std::int64_t last_column_idx = r.end_idx;
 
-    if (last_column <= 0) {
-        last_column += df.get_column_count();
+    if (last_column_idx <= 0) {
+        last_column_idx += df.get_column_count();
     }
 
     const auto data = df.get_array();
     const std::int64_t row_count = df.get_row_count();
-    const std::int64_t data_column_count = df.get_column_count();
+    const std::int64_t column_count = df.get_column_count();
 
-    if (first_column < 0) {
-        throw invalid_argument{ "first_column should be >= 0" };
+    if (first_column_idx < 0) {
+        throw invalid_argument{ "first_column_idx should be >= 0" };
     }
-    if (first_column >= last_column) {
-        throw invalid_argument{ "first_column should be < last_column" };
+    if (first_column_idx >= last_column_idx) {
+        throw invalid_argument{ "first_column_idx should be < last_column_idx" };
     }
-    if (last_column > data_column_count) {
-        throw invalid_argument{ "last_column should be <= data column count" };
+    if (last_column_idx > column_count) {
+        throw invalid_argument{ "last_column_idx should be <= data column count" };
     }
 
     if (id.get_kind() == table_kind::homogen) {
-        return build_homogen_table(policy, data, id, row_count, first_column, last_column);
+        return build_homogen_table(policy,
+                                   data,
+                                   id,
+                                   row_count,
+                                   column_count,
+                                   first_column_idx,
+                                   last_column_idx);
     }
     else {
         throw unimplemented{ "Only homogen table is supported" };
