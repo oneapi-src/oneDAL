@@ -220,6 +220,9 @@ private:
 };
 
 class dataframe_builder_action_read_external_dataset : public dataframe_builder_action {
+private:
+    enum dataset_extensions { csv };
+
 public:
     explicit dataframe_builder_action_read_external_dataset(const std::string& dataset)
             : dataset_(dataset) {
@@ -234,14 +237,9 @@ public:
     dataframe_impl* execute(dataframe_impl* df) const override {
         delete df;
 
-        const char* dataset_root_ptr = std::getenv("DAAL_DATASETS");
-        if (dataset_root_ptr == nullptr) {
-            throw invalid_argument{ "DAAL_DATASETS environment variable is unset" };
-        }
-        std::string datasets_root(dataset_root_ptr);
-        datasets_root = trim_path_right(datasets_root);
+        std::string datasets_root = get_dataset_root();
 
-        if (dataset_.size() > 3 && dataset_.substr(dataset_.size() - 4, 4) == ".csv") {
+        if (get_extension(dataset_) == dataset_extensions::csv) {
             const auto data_table =
                 dal::read<dal::table>(dal::csv::data_source{ datasets_root + '/' + dataset_ });
 
@@ -250,7 +248,8 @@ public:
                                        data_table.get_column_count() };
         }
         else {
-            throw unimplemented{ "Only CSV datasets are supported" };
+            throw internal_error{ fmt::format("{} dataset extension was not handled",
+                                              get_extension(dataset_)) };
         }
     }
 
@@ -269,6 +268,31 @@ private:
             tmp.erase(tmp.size() - 1, 1);
         }
         return tmp;
+    }
+
+    std::string get_dataset_root() const {
+        const char* dataset_root_ptr = std::getenv("DAAL_DATASETS");
+        if (dataset_root_ptr == nullptr) {
+            throw invalid_argument{ "DAAL_DATASETS environment variable is unset" };
+        }
+        return trim_path_right(dataset_root_ptr);
+    }
+
+    dataset_extensions get_extension(const std::string& path) const {
+        std::int64_t dot = static_cast<std::int64_t>(path.size()) - 1;
+        while (dot >= 0 && path[dot] != '.') {
+            --dot;
+        }
+
+        if (dot >= 0) {
+            const std::string extension =
+                path.substr(dot, static_cast<std::int64_t>(path.size()) - dot);
+            if (extension == ".csv") {
+                return dataset_extensions::csv;
+            }
+            throw unimplemented{ fmt::format("{} dataset extension is not supported", extension) };
+        }
+        throw invalid_argument{ "Dataset doesn't have any extension" };
     }
 
     std::string dataset_;
