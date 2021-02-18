@@ -48,7 +48,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
                                dal::detail::integral_cast<std::size_t>(max_iteration_count));
-    par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments);
+    par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments) |
+                            static_cast<DAAL_UINT64>(daal_kmeans::computeExactObjectiveFunction);
 
     array<int> arr_labels = array<int>::empty(row_count);
     array<Float> arr_objective_function_value = array<Float>::empty(1);
