@@ -202,4 +202,11 @@ KNN_BADARG_TEST("throws if the number of infer data columns is less then the num
     REQUIRE_THROWS_AS(this->infer(knn_desc, infer_data, train_result.get_model()), invalid_argument);
 }*/
 
+KNN_BADARG_TEST("throws if infer data is empty") {
+    SKIP_IF(this->not_available_on_device());
+    const auto knn_desc = this->get_descriptor();
+    const auto train_result = this->train(knn_desc, this->get_train_data(), this->get_train_labels());
+    REQUIRE_THROWS_AS(this->infer(knn_desc, homogen_table{}, train_result.get_model()), domain_error);
+}
+
 } // namespace oneapi::dal::knn::test
