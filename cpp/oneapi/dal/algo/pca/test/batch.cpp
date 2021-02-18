@@ -215,14 +215,14 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(pca_batch_test,
-                     "pca common flow normail distribution",
-                     "[pca][integration][batch]",
+                     "pca common flow higgs",
+                     "[external-dataset][pca][integration][batch]",
                      pca_types) {
     SKIP_IF(this->not_available_on_device());
 
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_normal(2.0, 0.5),
-                           te::dataframe_builder{ 100000, 10 }.fill_normal(5.0, 1.5));
+    const std::string higgs = "higgs/dataset/higgs_100t_train.csv";
+
+    const te::dataframe data = GENERATE_DATAFRAME(te::dataframe_builder{ higgs });
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();
