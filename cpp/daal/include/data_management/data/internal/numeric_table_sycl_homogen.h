@@ -339,7 +339,7 @@ protected:
         }
         else
         {
-            const auto hostData = _buffer.toHost(data_management::readOnly, st);
+            const auto hostData = _buffer.toHost(onDeserialize ? data_management::writeOnly : data_management::readOnly, st);
             if (!st) return services::throwIfPossible(st);
 
             archive->set(hostData.get(), size);
