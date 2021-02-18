@@ -512,6 +512,22 @@ void conditional_threader_for(const bool inParallel, const size_t n, Func func)
     }
 }
 
+template <typename Func>
+void conditional_static_threader_for(const bool inParallel, const size_t n, Func func)
+{
+    if (inParallel)
+    {
+        static_threader_for(n, [&](size_t i, size_t tid) { func(i, tid); });
+    }
+    else
+    {
+        for (size_t i = 0; i < n; ++i)
+        {
+            func(i, 0);
+        }
+    }
+}
+
 } // namespace daal
 
 #endif
