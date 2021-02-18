@@ -17,6 +17,7 @@
 #pragma once
 
 #include <random>
+#include <fstream>
 
 #include "oneapi/dal/test/engine/dataframe_common.hpp"
 
@@ -147,6 +148,92 @@ public:
 
 private:
     double value_ = 0.0;
+};
+
+class dataframe_builder_action_read_external_dataset : public dataframe_builder_action {
+private:
+    enum dataset_extension { csv };
+
+public:
+    explicit dataframe_builder_action_read_external_dataset(const std::string& dataset)
+            : dataset_(dataset) {
+        dataset_ = trim_path_left(dataset_);
+        dataset_ = trim_path_right(dataset_);
+    }
+
+    std::string get_opcode() const override {
+        return fmt::format("read_external_dataset({})", dataset_);
+    }
+
+    dataframe_impl* execute(dataframe_impl* df) const override {
+        delete df;
+
+        std::string datasets_root = get_dataset_root();
+
+        if (get_extension(dataset_) == dataset_extension::csv) {
+            const std::string dataset_path = datasets_root + '/' + dataset_;
+            check_if_file_exists(dataset_path);
+            const auto data_table = dal::read<dal::table>(dal::csv::data_source{ dataset_path });
+
+            return new dataframe_impl{ dal::row_accessor<const float>{ data_table }.pull(),
+                                       data_table.get_row_count(),
+                                       data_table.get_column_count() };
+        }
+        else {
+            throw internal_error{ fmt::format("{} dataset extension was not handled",
+                                              get_extension(dataset_)) };
+        }
+    }
+
+private:
+    std::string trim_path_left(const std::string& path) const {
+        std::string tmp(path);
+        if (tmp.size() > 0 && tmp[0] == '/') {
+            tmp.erase(0, 1);
+        }
+        return tmp;
+    }
+
+    std::string trim_path_right(const std::string& path) const {
+        std::string tmp(path);
+        if (tmp.size() > 0 && tmp[tmp.size() - 1] == '/') {
+            tmp.erase(tmp.size() - 1, 1);
+        }
+        return tmp;
+    }
+
+    std::string get_dataset_root() const {
+        const char* dataset_root_ptr = std::getenv("DAAL_DATASETS");
+        if (dataset_root_ptr == nullptr) {
+            throw invalid_argument{ "DAAL_DATASETS environment variable is unset" };
+        }
+        return trim_path_right(dataset_root_ptr);
+    }
+
+    dataset_extension get_extension(const std::string& path) const {
+        std::int64_t dot = static_cast<std::int64_t>(path.size()) - 1;
+        while (dot >= 0 && path[dot] != '.') {
+            --dot;
+        }
+
+        if (dot >= 0) {
+            const std::string extension =
+                path.substr(dot, static_cast<std::int64_t>(path.size()) - dot);
+            if (extension == ".csv") {
+                return dataset_extension::csv;
+            }
+            throw unimplemented{ fmt::format("{} dataset extension is not supported", extension) };
+        }
+        throw invalid_argument{ "Dataset doesn't have any extension" };
+    }
+
+    void check_if_file_exists(const std::string& path) const {
+        if (!std::fstream{ path, std::ios::in }.good()) {
+            throw std::runtime_error{ fmt::format("Cannot open file '{}'", path) };
+        }
+    }
+
+    std::string dataset_;
 };
 
 } // namespace oneapi::dal::test::engine

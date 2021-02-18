@@ -212,6 +212,10 @@ dataframe_builder& dataframe_builder::fill_diag(double value) {
     return *this;
 }
 
+dataframe_builder_impl::dataframe_builder_impl(const std::string& dataset) {
+    program_.add<dataframe_builder_action_read_external_dataset>(dataset);
+}
+
 dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int64_t seed) {
     impl_->get_program().add<dataframe_builder_action_fill_uniform>(a, b, seed);
     return *this;
@@ -267,12 +271,12 @@ static array<double> convert_to_f64(const array<float>& data) {
 }
 
 template <typename Policy, typename... Args>
-static homogen_table build_homogen_table(Policy& policy,
-                                         const array<float>& data,
-                                         const table_id& id,
-                                         std::int64_t row_count,
-                                         std::int64_t column_count,
-                                         Args&&... args) {
+static homogen_table convert_to_homogen_table(Policy& policy,
+                                              const array<float>& data,
+                                              const table_id& id,
+                                              std::int64_t row_count,
+                                              std::int64_t column_count,
+                                              Args&&... args) {
     if (id.get_float_type() == table_float_type::f32) {
         return wrap_to_homogen_table(policy,
                                      data,
@@ -294,16 +298,82 @@ static homogen_table build_homogen_table(Policy& policy,
 }
 
 template <typename Policy, typename... Args>
-static table build_table(Policy& policy, const dataframe& df, const table_id& id, Args&&... args) {
+static homogen_table build_homogen_table(Policy& policy,
+                                         const array<float>& data,
+                                         const table_id& id,
+                                         std::int64_t row_count,
+                                         std::int64_t column_count,
+                                         std::int64_t first_column_idx,
+                                         std::int64_t last_column_idx,
+                                         Args&&... args) {
+    const std::int64_t actual_column_count = column_count;
+    const std::int64_t required_column_count = last_column_idx - first_column_idx;
+    ONEDAL_ASSERT(required_column_count >= 0);
+
+    if (first_column_idx == 0 && actual_column_count == required_column_count) {
+        return convert_to_homogen_table(policy,
+                                        data,
+                                        id,
+                                        row_count,
+                                        required_column_count,
+                                        std::forward<Args>(args)...);
+    }
+    else {
+        auto dst = array<float>::empty(row_count * required_column_count);
+        float* dst_ptr = dst.get_mutable_data();
+        const float* src_ptr = data.get_data();
+
+        for (std::int64_t i = 0; i < row_count; ++i) {
+            for (std::int64_t j = 0; j < required_column_count; ++j) {
+                dst_ptr[i * required_column_count + j] =
+                    src_ptr[i * actual_column_count + first_column_idx + j];
+            }
+        }
+
+        return convert_to_homogen_table(policy,
+                                        dst,
+                                        id,
+                                        row_count,
+                                        required_column_count,
+                                        std::forward<Args>(args)...);
+    }
+}
+
+template <typename Policy, typename... Args>
+static table build_table(Policy& policy,
+                         const dataframe& df,
+                         const table_id& id,
+                         const range& r,
+                         Args&&... args) {
+    std::int64_t first_column_idx = r.start_idx;
+    std::int64_t last_column_idx = r.end_idx;
+
+    if (last_column_idx <= 0) {
+        last_column_idx += df.get_column_count();
+    }
+
     const auto data = df.get_array();
     const std::int64_t row_count = df.get_row_count();
     const std::int64_t column_count = df.get_column_count();
+
+    if (first_column_idx < 0) {
+        throw invalid_argument{ "first_column_idx should be >= 0" };
+    }
+    if (first_column_idx >= last_column_idx) {
+        throw invalid_argument{ "first_column_idx should be < last_column_idx" };
+    }
+    if (last_column_idx > column_count) {
+        throw invalid_argument{ "last_column_idx should be <= data column count" };
+    }
+
     if (id.get_kind() == table_kind::homogen) {
         return build_homogen_table(policy,
                                    data,
                                    id,
                                    row_count,
                                    column_count,
+                                   first_column_idx,
+                                   last_column_idx,
                                    std::forward<Args>(args)...);
     }
     else {
@@ -311,15 +381,16 @@ static table build_table(Policy& policy, const dataframe& df, const table_id& id
     }
 }
 
-table dataframe::get_table(host_test_policy& policy, const table_id& id) const {
-    return build_table(policy, *this, id);
+table dataframe::get_table(host_test_policy& policy, const table_id& id, const range& r) const {
+    return build_table(policy, *this, id, r);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 table dataframe::get_table(device_test_policy& policy,
                            const table_id& id,
+                           const range& r,
                            sycl::usm::alloc alloc) const {
-    return build_table(policy, *this, id, alloc);
+    return build_table(policy, *this, id, r, alloc);
 }
 #endif
 
