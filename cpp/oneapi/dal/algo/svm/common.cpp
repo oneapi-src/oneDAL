@@ -106,7 +106,7 @@ void descriptor_base<Task>::set_max_iteration_count_impl(std::int64_t value) {
 
 template <typename Task>
 void descriptor_base<Task>::set_cache_size_impl(double value) {
-    if (value <= 0.0) {
+    if (value < 0.0) {
         throw domain_error(dal::detail::error_messages::cache_size_leq_zero());
     }
     impl_->cache_size = value;
