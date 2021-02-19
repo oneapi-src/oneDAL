@@ -22,12 +22,12 @@
 #include <type_traits>
 
 #include <fmt/core.h>
-#include <catch2/catch.hpp>
 
 #include "oneapi/dal/train.hpp"
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/test/engine/catch.hpp"
 #include "oneapi/dal/test/engine/macro.hpp"
 #include "oneapi/dal/test/engine/type_traits.hpp"
 
