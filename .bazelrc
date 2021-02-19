@@ -15,6 +15,12 @@ build --flag_alias=cpu=@config//:cpu
 # OpenCL backend uses it to determine available devices
 test --test_env=OCL_ICD_FILENAMES
 
+# These variables enable double emulation on platforms
+# that do not support it on hardware level
+test --test_env=OverrideDefaultFP64Settings
+test --test_env=IGC_ForceDPEmulation
+test --test_env=IGC_EnableDPEmulation
+
 # Configuration: 'host'
 # Build & run all host tests
 build:host \
@@ -48,7 +54,4 @@ build:dpc-public \
     --build_tag_filters="dpc,-private"
 
 test:dpc-public \
-    --test_tag_filters="dpc,-private" \
-    --test_env=OverrideDefaultFP64Settings \
-    --test_env=IGC_ForceDPEmulation \
-    --test_env=IGC_EnableDPEmulation
+    --test_tag_filters="dpc,-private"
