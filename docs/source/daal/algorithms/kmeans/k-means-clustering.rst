@@ -118,7 +118,7 @@ Centroids initialization can be done using these methods:
 	:math:`C` reaches the desired size :math:`k`.
 
 -
- Parallel K-Means++ algorithm [Bahmani2012]
+ Parallel K-Means++ algorithm [Bahmani2012]_
  that does the following:
 
  #.
@@ -170,7 +170,7 @@ Centroids initialization can be done using these methods:
 	Choose nRounds as :math:`O(\log({\text{Φ}}_{X}(C)))`, where :math:`{\text{Φ}}_{X}(C)`
 	is the estimation of the goal function when the first center
 	is chosen.
-	[Bahmani2012] recommends to set :math:`nRounds` to a constant value not greater
+	[Bahmani2012]_ recommends to set :math:`nRounds` to a constant value not greater
 	than :math:`8`.
 
 

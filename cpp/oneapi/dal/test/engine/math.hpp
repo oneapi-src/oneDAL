@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <limits>
 #include "oneapi/dal/test/engine/linalg.hpp"
 
 namespace oneapi::dal::test::engine {
@@ -34,6 +35,13 @@ inline double get_tolerance(double f32_tol, double f64_tol) {
     }
 
     return 0.0;
+}
+
+template <typename Float>
+inline double get_tolerance_for_sum(std::int64_t element_count) {
+    constexpr Float eps = std::numeric_limits<Float>::epsilon();
+    const Float nu = eps * element_count;
+    return nu / (1.0 - nu);
 }
 
 template <typename Reference, typename Actual>
