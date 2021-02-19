@@ -25,11 +25,12 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 namespace oneapi::dal::test::engine {
 
 #define GENERATE_DATAFRAME(...) \
-    GENERATE(as<oneapi::dal::test::engine::dataframe_builder>{}, __VA_ARGS__).build()
+    GENERATE_COPY(as<oneapi::dal::test::engine::dataframe_builder>{}, __VA_ARGS__).build()
 
 enum class table_kind { homogen };
 
@@ -147,15 +148,15 @@ public:
 
     explicit dataframe(dataframe_impl* impl) : impl_(impl) {}
 
-    table get_table(host_test_policy& policy, const table_id& id) const;
+    table get_table(host_test_policy& policy, const table_id& id, range r = { 0, 0 }) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    table get_table(device_test_policy& policy, const table_id& id) const;
+    table get_table(device_test_policy& policy, const table_id& id, range r = { 0, 0 }) const;
 #endif
 
-    table get_table(const table_id& id) const {
+    table get_table(const table_id& id, range r = { 0, 0 }) const {
         host_test_policy policy;
-        return get_table(policy, id);
+        return get_table(policy, id, r);
     }
 
     std::int64_t get_row_count() const {
@@ -242,6 +243,7 @@ private:
 class dataframe_builder_impl {
 public:
     explicit dataframe_builder_impl(std::int64_t row_count, std::int64_t column_count);
+    explicit dataframe_builder_impl(const std::string& dataset);
     dataframe_builder_impl(const dataframe_builder_impl&) = delete;
     dataframe_builder_impl& operator=(const dataframe_builder_impl&) = delete;
 
@@ -257,6 +259,9 @@ class dataframe_builder {
 public:
     explicit dataframe_builder(std::int64_t row_count, std::int64_t column_count)
             : impl_(new dataframe_builder_impl{ row_count, column_count }) {}
+
+    explicit dataframe_builder(const std::string& dataset)
+            : impl_(new dataframe_builder_impl{ dataset }) {}
 
     dataframe_builder& fill_uniform(double a, double b, std::int64_t seed = 7777);
 

@@ -233,7 +233,7 @@ DECLARE_SOURCE(
             if (i < numgrp - 1 || local_id < rem || rem == 0)
             {
                 int offset                = local_id + lsize * i;
-                algorithmFPType initValue = (global_id == 0 && !Reset) ? candidateDistances[offset] : -HUGE;
+                algorithmFPType initValue = (global_id == 0 && !Reset) ? candidateDistances[offset] : HUGE;
                 int initIndex             = (global_id == 0 && !Reset) ? candidates[offset] : -1;
                 maxDist[offset]           = initValue;
                 maxItem[offset]           = initIndex;
@@ -243,13 +243,13 @@ DECLARE_SOURCE(
         {
             algorithmFPType newVal = 2.0 * (mindistances[iblock] + distSq[iblock]);
             if (newVal <= maxDist[K - 1]) continue;
-            int valCentroid = assignments[iblock];
+            int valCentroid = iblock;
             int maxInd      = -1;
             for (int i = 0; i < numgrp; i++)
             {
                 algorithmFPType curVal = HUGE;
                 if (i < numgrp - 1 || local_id < rem) curVal = maxDist[local_id + i * lsize] - newVal;
-                int valInd = curVal > 0 ? 1 : local_id - lsize;
+                int valInd = curVal > 0.0 ? 1 : local_id - lsize;
                 int locInd = sub_group_reduce_min(valInd);
                 if (locInd < 0)
                 {

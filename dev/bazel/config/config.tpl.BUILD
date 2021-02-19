@@ -33,27 +33,6 @@ config_flag(
     ],
 )
 
-config_setting(
-    name = "dev_test_link_mode",
-    flag_values  = {
-        ":test_link_mode": "dev",
-    },
-)
-
-config_setting(
-    name = "release_static_test_link_mode",
-    flag_values  = {
-        ":test_link_mode": "release_static",
-    },
-)
-
-config_setting(
-    name = "release_dynamic_test_link_mode",
-    flag_values  = {
-        ":test_link_mode": "release_dynamic",
-    },
-)
-
 config_flag(
     name = "test_thread_mode",
     build_setting_default = "par",
@@ -63,17 +42,25 @@ config_flag(
     ],
 )
 
-config_setting(
-    name = "par_test_thread_mode",
-    flag_values  = {
-        ":test_thread_mode": "par",
-    },
+config_flag(
+    name = "device",
+    build_setting_default = "auto",
+    allowed_build_setting_values = [
+        "auto",
+        "cpu",
+        "gpu",
+    ],
+)
+
+config_bool_flag(
+    name = "test_external_datasets",
+    build_setting_default = False,
 )
 
 config_setting(
-    name = "seq_test_thread_mode",
+    name = "test_external_datasets_enabled",
     flag_values  = {
-        ":test_thread_mode": "seq",
+        ":test_external_datasets": "True",
     },
 )
 
