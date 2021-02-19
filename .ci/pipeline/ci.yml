@@ -78,7 +78,6 @@ jobs:
                            openjdk-11-jdk \
                            $(BAZEL_VERSION)
 
-      .ci/env/oneapi.sh mkl
     displayName: 'install-deps'
 
   - task: Cache@2
