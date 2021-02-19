@@ -61,7 +61,7 @@ jobs:
   variables:
     BAZEL_VERSION: bazel-4.0.0
     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
-    BAZEL_CACHE_MAX_SIZE_KB: 5242880 # Size in kilobytes ~ 5Gb
+    BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
       # Add bazel repository
@@ -93,10 +93,10 @@ jobs:
     displayName: 'bazel-cache'
 
   - script: |
-      if [ -f "${BAZEL_CACHE_DIR}/.cache-clean-timestamp" ]; then
+      if [ -f "${BAZEL_CACHE_DIR}/cache-clean-timestamp" ]; then
         echo
         echo "Last time the cache is cleaned:"
-        cat "${BAZEL_CACHE_DIR}/.cache-clean-timestamp"
+        cat "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
         echo
       fi
 
@@ -148,7 +148,7 @@ jobs:
       if [ ${cache_size} -ge ${BAZEL_CACHE_MAX_SIZE_KB} ]; then
           echo "Cleanup cache"
           rm -rf "${BAZEL_CACHE_DIR}/*"
-          date > "${BAZEL_CACHE_DIR}/.cache-clean-timestamp"
+          date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
       else
           cache_size_mb=$(du -sm "${BAZEL_CACHE_DIR}" | cut -f1)
           echo "Bazel cache size is ${cache_size_mb}Mb"
