@@ -295,22 +295,25 @@ services::Status LowOrderMomentsDistributedTaskOneAPI<algorithmFPType, scope>::c
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(bNVec, algorithmFPType, nDistrBlocks);
 
-    for (uint32_t distrBlockId = 0; distrBlockId < nDistrBlocks; distrBlockId++)
     {
-        PartialResult * inputPartialResult = static_cast<PartialResult *>((*partResultsCollection)[distrBlockId].get());
-        BlockDescriptor<algorithmFPType> blockDesc;
-
-        NumericTablePtr tablePtr = inputPartialResult->get((PartialResultId)nObservations);
-        DAAL_CHECK_STATUS_VAR(tablePtr ? tablePtr->getBlockOfRows(0, 1, readOnly, blockDesc) : services::Status(ErrorNullPartialResult));
-        algorithmFPType * pBlockObsCount = blockDesc.getBlockPtr();
-        DAAL_CHECK_MALLOC(pBlockObsCount);
-
-        auto bNVecHost = bNVec.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite, status);
+        auto bNVecHost = bNVec.template get<algorithmFPType>().toHost(ReadWriteMode::writeOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
-        bNVecHost.get()[distrBlockId] = *pBlockObsCount;
 
-        *pNObservations += *pBlockObsCount;
-        tablePtr->releaseBlockOfRows(blockDesc);
+        for (uint32_t distrBlockId = 0; distrBlockId < nDistrBlocks; distrBlockId++)
+        {
+            PartialResult * inputPartialResult = static_cast<PartialResult *>((*partResultsCollection)[distrBlockId].get());
+            BlockDescriptor<algorithmFPType> blockDesc;
+
+            NumericTablePtr tablePtr = inputPartialResult->get((PartialResultId)nObservations);
+            DAAL_CHECK_STATUS_VAR(tablePtr ? tablePtr->getBlockOfRows(0, 1, readOnly, blockDesc) : services::Status(ErrorNullPartialResult));
+            algorithmFPType * pBlockObsCount = blockDesc.getBlockPtr();
+            DAAL_CHECK_MALLOC(pBlockObsCount);
+
+            bNVecHost.get()[distrBlockId] = *pBlockObsCount;
+
+            *pNObservations += *pBlockObsCount;
+            tablePtr->releaseBlockOfRows(blockDesc);
+        }
     }
 
     const size_t rowSize = nFeatures * sizeof(algorithmFPType);
