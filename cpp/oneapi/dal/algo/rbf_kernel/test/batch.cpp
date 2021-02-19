@@ -46,8 +46,8 @@ public:
                         const te::table_id& x_data_table_id,
                         const te::table_id& y_data_table_id) {
         CAPTURE(sigma);
-        const table x = x_data.get_table(x_data_table_id);
-        const table y = y_data.get_table(y_data_table_id);
+        const table x = x_data.get_table(this->get_policy(), x_data_table_id);
+        const table y = y_data.get_table(this->get_policy(), y_data_table_id);
 
         INFO("create descriptor")
         const auto rbf_kernel_desc = get_descriptor(sigma);
