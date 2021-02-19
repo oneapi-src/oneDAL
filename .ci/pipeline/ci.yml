@@ -148,15 +148,19 @@ jobs:
       echo "Bazel cache dir is ${BAZEL_CACHE_DIR}"
       echo "Bazel cache size is ${cache_size_mb}Mb"
       if [ ${cache_size} -ge ${BAZEL_CACHE_MAX_SIZE_KB} ]; then
-          echo "Cleanup cache"
-          ls "${BAZEL_CACHE_DIR}"
-          bazel clean --expunge
-          ls "${BAZEL_CACHE_DIR}"
+          echo "Run cache cleanup..."
+          echo "Current cache directory content:"
+          ls -1 "${BAZEL_CACHE_DIR}"
+          echo "--------------------------------"
+          echo "Run bazel clean with expunge"
+          echo "Remove cache directory"
           rm -r "${BAZEL_CACHE_DIR}"
           mkdir -p "${BAZEL_CACHE_DIR}"
-          ls "${BAZEL_CACHE_DIR}"
+          echo "Write timestamp to the cache"
           date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
-          ls "${BAZEL_CACHE_DIR}"
+          echo "Current cache directory content:"
+          ls -1 "${BAZEL_CACHE_DIR}"
+          echo "--------------------------------"
       else
           echo "No need for cleanup"
       fi
