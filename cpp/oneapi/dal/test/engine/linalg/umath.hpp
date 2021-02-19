@@ -64,7 +64,7 @@ binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
 
     const T* lhs_ptr = lhs.get_data();
     const T* rhs_ptr = rhs.get_data();
-    T* res_ptr = res.get_mutable_data();
+    auto res_ptr = res.get_mutable_data();
 
     for (std::int64_t i = 0; i < lhs.get_count(); i++) {
         res_ptr[i] = op(lhs_ptr[i], rhs_ptr[i]);

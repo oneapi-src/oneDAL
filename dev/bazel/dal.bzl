@@ -216,13 +216,26 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
         tests = tests_for_test_suite,
     )
 
-def dal_test_suite(name, srcs=[], tests=[], **kwargs):
+def dal_test_suite(name, srcs=[], tests=[],
+                   compile_as=[ "c++", "dpc++" ], **kwargs):
     targets = []
     for test_file in srcs:
         target = test_file.replace(".cpp", "").replace("/", "_")
+        if target.endswith("_dpc"):
+            is_dpc_only = ("dpc++" in compile_as) and (not "c++" in compile_as)
+            if is_dpc_only:
+                # We need to remove `_dpc` suffix here as `dal_test` rule
+                # adds `_dpc` suffix if `compile_as` attribute contains 'dpc++' target.
+                # Otherwise the generated test will have '_dpc_dpc' suffix.
+                target = target.replace("_dpc", "")
+            else:
+                utils.warn("Test name ends with '_dpc' suffix but compiled for both " +
+                           "C++ and DPC++. Please check 'compile_as' attribute of the " +
+                           "'dal_test_suite(name = {})'. ".format(name))
         dal_test(
             name = target,
             srcs = [test_file],
+            compile_as = compile_as,
             **kwargs,
         )
         targets.append(":" + target)
