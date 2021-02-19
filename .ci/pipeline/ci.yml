@@ -152,7 +152,8 @@ jobs:
           ls "${BAZEL_CACHE_DIR}"
           bazel clean --expunge
           ls "${BAZEL_CACHE_DIR}"
-          rm -rf "${BAZEL_CACHE_DIR}/*"
+          rm -r "${BAZEL_CACHE_DIR}"
+          mkdir -p "${BAZEL_CACHE_DIR}"
           ls "${BAZEL_CACHE_DIR}"
           date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
           ls "${BAZEL_CACHE_DIR}"
