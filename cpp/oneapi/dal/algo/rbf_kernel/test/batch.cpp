@@ -83,7 +83,7 @@ public:
                              const table& result_values) {
         auto reference = compute_reference(sigma, x_data, y_data);
         const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
-        const double diff = compute_relative_error(reference, la::matrix<double>::wrap(result_values));
+        const double diff = la::l_inf_norm(reference, la::matrix<double>::wrap(result_values));
         CHECK(diff < tol);
     }
 
@@ -105,14 +105,6 @@ public:
                 reference.set(i, j) = std::exp(-0.5 * inv_sigma * reference.get(i, j));
             }
         return reference;
-    }
-
-    double compute_relative_error(const la::matrix<double>& reference, const la::matrix<double>& actual) {
-        const double tol = te::get_tolerance<Float>(1e-6, 1e-15);
-        return max(elementwise(reference, actual, [&](double lhs, double rhs) {
-            auto diff = std::abs(lhs - rhs);
-            return diff > tol ? diff / lhs : 0.0;
-        }));
     }
 };
 
