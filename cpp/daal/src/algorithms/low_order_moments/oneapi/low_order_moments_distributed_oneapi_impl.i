@@ -305,7 +305,7 @@ services::Status LowOrderMomentsDistributedTaskOneAPI<algorithmFPType, scope>::c
         algorithmFPType * pBlockObsCount = blockDesc.getBlockPtr();
         DAAL_CHECK_MALLOC(pBlockObsCount);
 
-        auto bNVecHost = bNVec.template get<algorithmFPType>().toHost(ReadWriteMode::writeOnly, status);
+        auto bNVecHost = bNVec.template get<algorithmFPType>().toHost(ReadWriteMode::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
         bNVecHost.get()[distrBlockId] = *pBlockObsCount;
 
