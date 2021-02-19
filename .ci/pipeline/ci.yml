@@ -144,13 +144,19 @@ jobs:
   - script: |
       # Clear cache if its size exceeds some predefined value
       cache_size=$(du -sk "${BAZEL_CACHE_DIR}" | cut -f1)
+      cache_size_mb=$(du -sm "${BAZEL_CACHE_DIR}" | cut -f1)
+      echo "Bazel cache dir is ${BAZEL_CACHE_DIR}"
+      echo "Bazel cache size is ${cache_size_mb}Mb"
       if [ ${cache_size} -ge ${BAZEL_CACHE_MAX_SIZE_KB} ]; then
           echo "Cleanup cache"
+          ls "${BAZEL_CACHE_DIR}"
+          bazel clean --expunge
+          ls "${BAZEL_CACHE_DIR}"
           rm -rf "${BAZEL_CACHE_DIR}/*"
+          ls "${BAZEL_CACHE_DIR}"
           date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
+          ls "${BAZEL_CACHE_DIR}"
       else
-          cache_size_mb=$(du -sm "${BAZEL_CACHE_DIR}" | cut -f1)
-          echo "Bazel cache size is ${cache_size_mb}Mb"
           echo "No need for cleanup"
       fi
     displayName: 'bazel-cache-limit'
