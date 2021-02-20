@@ -73,14 +73,6 @@ std::int64_t compute_global_triangles_(const array<std::int64_t>& local_triangle
     return total_s;
 }
 
-DAAL_FORCEINLINE std::int32_t min(const std::int32_t& a, const std::int32_t& b) {
-    return (a >= b) ? b : a;
-}
-
-DAAL_FORCEINLINE std::int32_t max(const std::int32_t& a, const std::int32_t& b) {
-    return (a <= b) ? b : a;
-}
-
 } // namespace detail
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview

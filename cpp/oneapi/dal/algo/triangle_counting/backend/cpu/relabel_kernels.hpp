@@ -57,8 +57,8 @@ void parallel_prefix_sum_(const std::int32_t* degrees_relabel,
                           std::int64_t vertex_count) {
     dal::detail::threader_for(num_blocks, num_blocks, [&](std::int64_t block) {
         std::int64_t local_sum = 0;
-        std::int64_t block_end =
-            std::min((std::int64_t)((block + 1) * block_size), (std::int64_t)vertex_count);
+        std::int64_t block_end = std::min((std::int64_t)((block + 1) * block_size), vertex_count);
+        PRAGMA_VECTOR_ALWAYS
         for (std::int64_t i = block * block_size; i < block_end; i++) {
             local_sum += degrees_relabel[i];
         }
@@ -94,11 +94,11 @@ void fill_relabeled_topology_(const std::int32_t* vertex_neighbors,
                               std::int64_t* offsets,
                               const std::int32_t* new_ids,
                               std::int64_t vertex_count) {
-    dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](std::int32_t n) {
+    dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](std::int64_t n) {
         edge_offsets_relabel[n] = offsets[n];
     });
 
-    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
         for (const std::int32_t* v = vertex_neighbors + edge_offsets[u];
              v != vertex_neighbors + edge_offsets[u + 1];
              ++v) {

@@ -20,37 +20,12 @@ namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
 
-template array<std::int64_t> triangle_counting_local_novec<__CPU_TAG__>(
-    const dal::preview::detail::topology<std::int32_t>& data,
-    int64_t* triangles_local);
-
 template <>
 array<std::int64_t> triangle_counting_local_<__CPU_TAG__>(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
     return triangle_counting_local_novec<__CPU_TAG__>(data, triangles_local);
 }
-
-template std::int64_t triangle_counting_global_scalar_novec<__CPU_TAG__>(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count);
-
-template std::int64_t triangle_counting_global_vector_novec<__CPU_TAG__>(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count);
-
-template std::int64_t triangle_counting_global_vector_relabel_novec<__CPU_TAG__>(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count);
 
 template <>
 std::int64_t triangle_counting_global_scalar_<__CPU_TAG__>(const std::int32_t* vertex_neighbors,

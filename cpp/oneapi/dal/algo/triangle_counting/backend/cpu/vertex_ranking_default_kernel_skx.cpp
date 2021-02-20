@@ -20,37 +20,12 @@ namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
 
-template array<std::int64_t> triangle_counting_local_avx512<dal::backend::cpu_dispatch_avx512>(
-    const dal::preview::detail::topology<std::int32_t>& data,
-    int64_t* triangles_local);
-
 template <>
 array<std::int64_t> triangle_counting_local_<dal::backend::cpu_dispatch_avx512>(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
     return triangle_counting_local_avx512<dal::backend::cpu_dispatch_avx512>(data, triangles_local);
 }
-
-template std::int64_t triangle_counting_global_scalar_avx512<dal::backend::cpu_dispatch_avx512>(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count);
-
-template std::int64_t triangle_counting_global_vector_avx512<dal::backend::cpu_dispatch_avx512>(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count);
-
-template std::int64_t triangle_counting_global_vector_relabel_avx512<
-    dal::backend::cpu_dispatch_avx512>(const std::int32_t* vertex_neighbors,
-                                       const std::int64_t* edge_offsets,
-                                       const std::int32_t* degrees,
-                                       std::int64_t vertex_count,
-                                       std::int64_t edge_count);
 
 template <>
 std::int64_t triangle_counting_global_scalar_<dal::backend::cpu_dispatch_avx512>(
