@@ -17,8 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/exceptions.hpp"
-#include <iostream>
 
 #if defined(__INTEL_COMPILER)
 #define PRAGMA_IVDEP         _Pragma("ivdep")

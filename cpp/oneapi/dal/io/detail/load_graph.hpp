@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <atomic>
 #include <fstream>
-#include <iostream>
-#include <memory>
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/threading.hpp"
