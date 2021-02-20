@@ -21,12 +21,12 @@
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {
-namespace detail {
+namespace backend {
 
 template <typename Cpu>
-void sort_ids_by_degree_(const std::int32_t* degrees,
-                         std::pair<std::int32_t, std::size_t>* degree_id_pairs,
-                         std::int64_t vertex_count) {
+void sort_ids_by_degree(const std::int32_t* degrees,
+                        std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+                        std::int64_t vertex_count) {
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t n) {
         degree_id_pairs[n] = std::make_pair(degrees[n], (size_t)n);
     });
@@ -37,10 +37,10 @@ void sort_ids_by_degree_(const std::int32_t* degrees,
 }
 
 template <typename Cpu>
-void fill_new_degrees_and_ids_(const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
-                               std::int32_t* new_ids,
-                               std::int32_t* degrees_relabel,
-                               std::int64_t vertex_count) {
+void fill_new_degrees_and_ids(const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+                              std::int32_t* new_ids,
+                              std::int32_t* degrees_relabel,
+                              std::int64_t vertex_count) {
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t n) {
         degrees_relabel[n] = degree_id_pairs[n].first;
         new_ids[degree_id_pairs[n].second] = n;
@@ -48,13 +48,13 @@ void fill_new_degrees_and_ids_(const std::pair<std::int32_t, std::size_t>* degre
 }
 
 template <typename Cpu>
-void parallel_prefix_sum_(const std::int32_t* degrees_relabel,
-                          std::int64_t* offsets,
-                          std::int64_t* part_prefix,
-                          std::int64_t* local_sums,
-                          std::int64_t block_size,
-                          std::int64_t num_blocks,
-                          std::int64_t vertex_count) {
+void parallel_prefix_sum(const std::int32_t* degrees_relabel,
+                         std::int64_t* offsets,
+                         std::int64_t* part_prefix,
+                         std::int64_t* local_sums,
+                         std::int64_t block_size,
+                         std::int64_t num_blocks,
+                         std::int64_t vertex_count) {
     dal::detail::threader_for(num_blocks, num_blocks, [&](std::int64_t block) {
         std::int64_t local_sum = 0;
         std::int64_t block_end = std::min((std::int64_t)((block + 1) * block_size), vertex_count);
@@ -87,13 +87,13 @@ void parallel_prefix_sum_(const std::int32_t* degrees_relabel,
 }
 
 template <typename Cpu>
-void fill_relabeled_topology_(const std::int32_t* vertex_neighbors,
-                              const std::int64_t* edge_offsets,
-                              std::int32_t* vertex_neighbors_relabel,
-                              std::int64_t* edge_offsets_relabel,
-                              std::int64_t* offsets,
-                              const std::int32_t* new_ids,
-                              std::int64_t vertex_count) {
+void fill_relabeled_topology(const std::int32_t* vertex_neighbors,
+                             const std::int64_t* edge_offsets,
+                             std::int32_t* vertex_neighbors_relabel,
+                             std::int64_t* edge_offsets_relabel,
+                             std::int64_t* offsets,
+                             const std::int32_t* new_ids,
+                             std::int64_t vertex_count) {
     dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](std::int64_t n) {
         edge_offsets_relabel[n] = offsets[n];
     });
@@ -110,6 +110,6 @@ void fill_relabeled_topology_(const std::int32_t* vertex_neighbors,
     });
 }
 
-} // namespace detail
+} // namespace backend
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview

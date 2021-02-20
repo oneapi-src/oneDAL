@@ -18,23 +18,51 @@
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {
-namespace detail {
+namespace backend {
 
 template <>
-array<std::int64_t> triangle_counting_local_<dal::backend::cpu_dispatch_avx512>(
+array<std::int64_t> triangle_counting_local<dal::backend::cpu_dispatch_avx512>(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
-    return triangle_counting_local_avx512<dal::backend::cpu_dispatch_avx512>(data, triangles_local);
+    return triangle_counting_local_<dal::backend::cpu_dispatch_avx512>(data, triangles_local);
 }
 
 template <>
-std::int64_t triangle_counting_global_scalar_<dal::backend::cpu_dispatch_avx512>(
+std::int64_t triangle_counting_global_scalar<dal::backend::cpu_dispatch_avx512>(
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
-    return triangle_counting_global_scalar_avx512<dal::backend::cpu_dispatch_avx512>(
+    return triangle_counting_global_scalar_<dal::backend::cpu_dispatch_avx512>(vertex_neighbors,
+                                                                               edge_offsets,
+                                                                               degrees,
+                                                                               vertex_count,
+                                                                               edge_count);
+}
+
+template <>
+std::int64_t triangle_counting_global_vector<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    return triangle_counting_global_vector_<dal::backend::cpu_dispatch_avx512>(vertex_neighbors,
+                                                                               edge_offsets,
+                                                                               degrees,
+                                                                               vertex_count,
+                                                                               edge_count);
+}
+
+template <>
+std::int64_t triangle_counting_global_vector_relabel<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
+    return triangle_counting_global_vector_relabel_<dal::backend::cpu_dispatch_avx512>(
         vertex_neighbors,
         edge_offsets,
         degrees,
@@ -42,40 +70,10 @@ std::int64_t triangle_counting_global_scalar_<dal::backend::cpu_dispatch_avx512>
         edge_count);
 }
 
-template <>
-std::int64_t triangle_counting_global_vector_<dal::backend::cpu_dispatch_avx512>(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
-    return triangle_counting_global_vector_avx512<dal::backend::cpu_dispatch_avx512>(
-        vertex_neighbors,
-        edge_offsets,
-        degrees,
-        vertex_count,
-        edge_count);
-}
-
-template <>
-std::int64_t triangle_counting_global_vector_relabel_<dal::backend::cpu_dispatch_avx512>(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
-    return triangle_counting_global_vector_relabel_avx512<dal::backend::cpu_dispatch_avx512>(
-        vertex_neighbors,
-        edge_offsets,
-        degrees,
-        vertex_count,
-        edge_count);
-}
-
-template std::int64_t compute_global_triangles_<dal::backend::cpu_dispatch_avx512>(
+template std::int64_t compute_global_triangles<dal::backend::cpu_dispatch_avx512>(
     const array<std::int64_t>& local_triangles,
     std::int64_t vertex_count);
 
-} // namespace detail
+} // namespace backend
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview
