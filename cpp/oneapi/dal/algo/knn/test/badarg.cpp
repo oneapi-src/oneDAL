@@ -27,9 +27,12 @@ namespace oneapi::dal::knn::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class knn_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+
     static constexpr std::int64_t class_count = 2;
     static constexpr std::int64_t neighbor_count = 3;
 
@@ -48,7 +51,7 @@ public:
 
     auto get_descriptor(std::int64_t override_class_count = class_count,
                         std::int64_t override_neighbor_count = neighbor_count) const {
-        return knn::descriptor<float, Method, knn::task::classification>(
+        return knn::descriptor<Float, Method, knn::task::classification>(
                                         override_class_count, override_neighbor_count);
     }
 
@@ -71,29 +74,35 @@ public:
     }
 
 private:
-    static constexpr std::array<float, train_element_count> train_data_ = {
+    static constexpr std::array<Float, train_element_count> train_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<float, train_row_count> train_labels_ = {
+    static constexpr std::array<Float, train_row_count> train_labels_ = {
              0.0,      0.0,      0.0,      0.0,        1.0,        1.0,        1.0,        1.0
     };
 
-    static constexpr std::array<float, infer_element_count> infer_data_ = {
+    static constexpr std::array<Float, infer_element_count> infer_data_ = {
         1.0, 1.0, 2.0, 2.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0
     };
 
 };
 
+using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
+
 #define KNN_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(knn_badarg_test, name, "[knn][badarg]", knn::method::brute_force, knn::method::kd_tree)
+    TEMPLATE_LIST_TEST_M(knn_badarg_test, name, "[knn][badarg]", knn_types)
 
 KNN_BADARG_TEST("accepts positive class_count in constructor") {
     REQUIRE_NOTHROW(this->get_descriptor(this->class_count, this->neighbor_count));
 }
 
-KNN_BADARG_TEST("accepts positive class_count in set_class_count") {
+KNN_BADARG_TEST("accepts class_count more than one in set_class_count") {
     REQUIRE_NOTHROW(this->get_descriptor().set_class_count(this->class_count));
+}
+
+KNN_BADARG_TEST("throws if class_count is one in constructor") {
+    REQUIRE_THROWS_AS(this->get_descriptor(0, this->neighbor_count), domain_error);
 }
 
 KNN_BADARG_TEST("throws if class_count is zero in constructor") {
@@ -130,6 +139,10 @@ KNN_BADARG_TEST("throws if neighbor_count is negative in constructor") {
 
 KNN_BADARG_TEST("throws if neighbor_count is negative in set_neighbor_count") {
     REQUIRE_THROWS_AS(this->get_descriptor().set_neighbor_count(-1), domain_error);
+}
+
+KNN_BADARG_TEST("throws if class_count = 1 and neighbor_count = 0 in constructor") {
+    REQUIRE_THROWS_AS(this->get_descriptor(0, 0), domain_error);
 }
 
 KNN_BADARG_TEST("throws if both class_count and neighbor_count are zero in constructor") {
