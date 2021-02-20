@@ -88,16 +88,16 @@ void fill_relabeled_topology(const dal::detail::host_policy& policy,
                              std::int64_t vertex_count);
 
 template <typename Allocator>
-void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
-                               const std::int32_t* vertex_neighbors,
-                               const std::int64_t* edge_offsets,
-                               const std::int32_t* degrees,
-                               std::int64_t vertex_count,
-                               std::int64_t edge_count,
-                               std::int32_t* vertex_neighbors_relabel,
-                               std::int64_t* edge_offsets_relabel,
-                               std::int32_t* degrees_relabel,
-                               const Allocator& alloc) {
+inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
+                                      const std::int32_t* vertex_neighbors,
+                                      const std::int64_t* edge_offsets,
+                                      const std::int32_t* degrees,
+                                      std::int64_t vertex_count,
+                                      std::int64_t edge_count,
+                                      std::int32_t* vertex_neighbors_relabel,
+                                      std::int64_t* edge_offsets_relabel,
+                                      std::int32_t* degrees_relabel,
+                                      const Allocator& alloc) {
     using int32_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
 
@@ -158,7 +158,7 @@ void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
 }
 
 template <typename Allocator>
-vertex_ranking_result<task::global> triangle_counting_default_kernel(
+inline vertex_ranking_result<task::global> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::global>& desc,
     const Allocator& alloc,
@@ -261,7 +261,7 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
 }
 
 template <typename Allocator>
-array<std::int64_t> triangle_counting_local_default_kernel(
+inline array<std::int64_t> triangle_counting_local_default_kernel(
     const dal::detail::host_policy& ctx,
     const Allocator& alloc,
     const dal::preview::detail::topology<std::int32_t>& data) {
@@ -288,7 +288,7 @@ array<std::int64_t> triangle_counting_local_default_kernel(
 }
 
 template <typename Allocator>
-vertex_ranking_result<task::local> triangle_counting_default_kernel(
+inline vertex_ranking_result<task::local> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::local>& desc,
     const Allocator& alloc,
@@ -300,7 +300,7 @@ vertex_ranking_result<task::local> triangle_counting_default_kernel(
 }
 
 template <typename Allocator>
-vertex_ranking_result<task::local_and_global> triangle_counting_default_kernel(
+inline vertex_ranking_result<task::local_and_global> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::local_and_global>& desc,
     const Allocator& alloc,
