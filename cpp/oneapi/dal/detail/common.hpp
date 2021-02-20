@@ -285,3 +285,27 @@ using v1::check_mul_overflow;
 using v1::integral_cast;
 
 } // namespace oneapi::dal::detail
+
+namespace oneapi::dal::preview::detail {
+//to make forceinline
+template <typename Alloc>
+static constexpr auto allocate(Alloc& alloc, std::int64_t count) {
+    using t_allocator_traits =
+        typename std::allocator_traits<Alloc>::template rebind_traits<typename Alloc::value_type>;
+    typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(alloc, count);
+    if (ptr == nullptr) {
+        throw host_bad_alloc();
+    }
+    return ptr;
+}
+
+template <typename Alloc>
+static constexpr void deallocate(Alloc& alloc, typename Alloc::pointer ptr, std::int64_t count) {
+    using t_allocator_traits =
+        typename std::allocator_traits<Alloc>::template rebind_traits<typename Alloc::value_type>;
+    if (ptr != nullptr) {
+        t_allocator_traits::deallocate(alloc, ptr, count);
+    }
+}
+
+} // namespace oneapi::dal::preview::detail

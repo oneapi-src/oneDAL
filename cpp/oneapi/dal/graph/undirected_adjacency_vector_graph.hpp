@@ -113,7 +113,6 @@ struct graph_traits<
     using vertex_edge_size_type = typename impl_type::vertex_edge_size_type;
     using vertex_edge_set = typename impl_type::vertex_edge_set;
     using vertex_edge_allocator_type = typename impl_type::vertex_edge_allocator_type;
-    using vertex_edge_allocator_traits = typename impl_type::vertex_edge_allocator_traits;
     using vertex_edge_iterator = typename impl_type::vertex_edge_iterator;
     using const_vertex_edge_iterator = typename impl_type::const_vertex_edge_iterator;
 

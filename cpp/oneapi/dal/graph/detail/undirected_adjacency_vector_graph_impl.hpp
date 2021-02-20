@@ -85,8 +85,6 @@ public:
     using vertex_type = typename topology_type::vertex_type;
     using vertex_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_type>;
-    using vertex_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<vertex_type>;
 
     using vertex_set = typename topology_type::vertex_set;
     using vertex_iterator = typename topology_type::vertex_iterator;
@@ -100,14 +98,10 @@ public:
     using const_vertex_edge_iterator = typename topology_type::const_vertex_edge_iterator;
     using vertex_edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_edge_type>;
-    using vertex_edge_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<vertex_edge_type>;
 
     using edge_type = typename topology_type::edge_type;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
-    using edge_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<edge_type>;
     using edge_set = typename topology_type::edge_set;
 
     using edge_size_type = typename topology_type::edge_size_type;
@@ -115,15 +109,11 @@ public:
     using vertex_user_value_type = VertexValue;
     using vertex_user_value_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_user_value_type>;
-    using vertex_user_value_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<vertex_user_value_type>;
     using vertex_user_value_set = container<vertex_user_value_type>;
 
     using edge_user_value_type = EdgeValue;
     using edge_user_value_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_user_value_type>;
-    using edge_user_value_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<edge_user_value_type>;
     using edge_user_value_set = container<edge_user_value_type>;
 
     // ranges
@@ -138,36 +128,36 @@ public:
         auto& rows = _topology._rows;
         auto& rows_vertex = _topology._rows_vertex;
 
-        if (cols.get_data() != nullptr && cols.has_mutable_data()) {
-            vertex_allocator_traits::deallocate(_vertex_allocator,
-                                                cols.get_mutable_data(),
-                                                cols.get_count());
+        if (cols.has_mutable_data()) {
+            oneapi::dal::preview::detail::deallocate(_vertex_allocator,
+                                                     cols.get_mutable_data(),
+                                                     cols.get_count());
         }
-        if (degrees.get_data() != nullptr && degrees.has_mutable_data()) {
-            vertex_allocator_traits::deallocate(_vertex_allocator,
-                                                degrees.get_mutable_data(),
-                                                degrees.get_count());
+        if (degrees.has_mutable_data()) {
+            oneapi::dal::preview::detail::deallocate(_vertex_allocator,
+                                                     degrees.get_mutable_data(),
+                                                     degrees.get_count());
         }
-        if (rows.get_data() != nullptr && rows.has_mutable_data()) {
-            edge_allocator_traits::deallocate(_edge_allocator,
-                                              rows.get_mutable_data(),
-                                              rows.get_count());
+        if (rows.has_mutable_data()) {
+            oneapi::dal::preview::detail::deallocate(_edge_allocator,
+                                                     rows.get_mutable_data(),
+                                                     rows.get_count());
         }
-        if (rows_vertex.get_data() != nullptr && rows_vertex.has_mutable_data()) {
-            vertex_edge_allocator_traits::deallocate(_vertex_edge_allocator,
+        if (rows_vertex.has_mutable_data()) {
+            oneapi::dal::preview::detail::deallocate(_vertex_edge_allocator,
                                                      rows_vertex.get_mutable_data(),
                                                      rows_vertex.get_count());
         }
 
-        if (_vertex_values.get_data() != nullptr && _vertex_values.has_mutable_data()) {
-            vertex_user_value_allocator_traits::deallocate(_vertex_user_value_allocator,
-                                                           _vertex_values.get_mutable_data(),
-                                                           _vertex_values.get_count());
+        if (_vertex_values.has_mutable_data()) {
+            oneapi::dal::preview::detail::deallocate(_vertex_user_value_allocator,
+                                                     _vertex_values.get_mutable_data(),
+                                                     _vertex_values.get_count());
         }
-        if (_edge_values.get_data() != nullptr && _edge_values.has_mutable_data()) {
-            edge_user_value_allocator_traits::deallocate(_edge_user_value_allocator,
-                                                         _edge_values.get_mutable_data(),
-                                                         _edge_values.get_count());
+        if (_edge_values.has_mutable_data()) {
+            oneapi::dal::preview::detail::deallocate(_edge_user_value_allocator,
+                                                     _edge_values.get_mutable_data(),
+                                                     _edge_values.get_count());
         }
     }
 

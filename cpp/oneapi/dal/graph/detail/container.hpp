@@ -17,6 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/exceptions.hpp"
+#include <iostream>
 
 #if defined(__INTEL_COMPILER)
 #define PRAGMA_IVDEP         _Pragma("ivdep")
@@ -37,20 +39,23 @@ public:
     using data_t = T;
     using impl_t = array<data_t>;
     using allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
-    using allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<T>;
     using empty_delete = dal::detail::empty_delete<const T>;
 
     vector_container() : impl_(new impl_t()), allocator_(allocator_type()) {
-        impl_->reset(allocator_traits::allocate(allocator_, capacity_), capacity_, empty_delete{});
+        T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
+        impl_->reset(data_ptr, capacity_, empty_delete{});
     }
 
     vector_container(const allocator_type& a) : impl_(new impl_t()), allocator_(a) {
-        impl_->reset(allocator_traits::allocate(allocator_, capacity_), capacity_, empty_delete{});
+        T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
+        impl_->reset(data_ptr, capacity_, empty_delete{});
     }
 
     virtual ~vector_container() {
         if (impl_->has_mutable_data()) {
-            allocator_traits::deallocate(allocator_, impl_->get_mutable_data(), capacity_);
+            oneapi::dal::preview::detail::deallocate(allocator_,
+                                                     impl_->get_mutable_data(),
+                                                     capacity_);
         }
     }
 
@@ -84,7 +89,7 @@ public:
         return impl_->get_mutable_data();
     }
 
-    constexpr void resize(std::int64_t count) {
+    void resize(std::int64_t count) {
         if (count > capacity_) {
             std::int64_t count_temp = count;
             std::int64_t new_capacity = 1;
@@ -97,26 +102,26 @@ public:
         this->count_ = count;
     }
 
-    constexpr void reserve(std::int64_t new_capacity) {
+    void reserve(std::int64_t new_capacity) {
         if (new_capacity > capacity_) {
-            T* data_ptr = allocator_traits::allocate(allocator_, new_capacity);
+            T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, new_capacity);
             T* old_data_ptr = impl_->get_mutable_data();
-            const std::int64_t old_count = this->count_;
+            const std::int64_t old_count = count_;
             PRAGMA_IVDEP
             PRAGMA_VECTOR_ALWAYS
             for (std::int64_t i = 0; i < old_count; i++) {
                 data_ptr[i] = old_data_ptr[i];
             }
 
-            allocator_traits::deallocate(allocator_, old_data_ptr, capacity_);
             impl_->reset(data_ptr, new_capacity, empty_delete{});
+            oneapi::dal::preview::detail::deallocate(allocator_, old_data_ptr, capacity_);
             capacity_ = new_capacity;
         }
     }
 
-    constexpr void push_back(const T& value) {
-        resize(this->count_ + 1);
-        operator[](this->count_ - 1) = value;
+    void push_back(const T& value) {
+        resize(count_ + 1);
+        operator[](count_ - 1) = value;
     }
 
     using iterator = T*;
@@ -126,7 +131,7 @@ public:
     }
 
     iterator end() {
-        return impl_->get_mutable_data() + this->count_;
+        return impl_->get_mutable_data() + count_;
     }
 
 private:
