@@ -297,7 +297,7 @@ inline vertex_ranking_result<task::local> triangle_counting_default_kernel(
     auto local_triangles = triangle_counting_local_default_kernel(ctx, alloc, data);
 
     return vertex_ranking_result<task::local>().set_ranks(
-        dal::detail::homogen_table_builder{}.reset(local_triangles, 1, data._vertex_count).build());
+        dal::detail::homogen_table_builder{}.reset(local_triangles, data._vertex_count, 1).build());
 }
 
 template <typename Allocator>
@@ -314,7 +314,7 @@ inline vertex_ranking_result<task::local_and_global> triangle_counting_default_k
 
     return vertex_ranking_result<task::local_and_global>()
         .set_ranks(
-            dal::detail::homogen_table_builder{}.reset(local_triangles, 1, vertex_count).build())
+            dal::detail::homogen_table_builder{}.reset(local_triangles, vertex_count, 1).build())
         .set_global_rank(total_s);
 }
 
