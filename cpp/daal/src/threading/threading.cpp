@@ -153,7 +153,7 @@ DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end,
 }
 
 DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
-                                                       const void * b, daal::reduction_functype_int64 reduction_func)
+                                                      const void * b, daal::reduction_functype_int64 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(
@@ -168,7 +168,7 @@ DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, c
 }
 
 DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64_simple(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
-                                                              const void * b, daal::reduction_functype_int64 reduction_func)
+                                                             const void * b, daal::reduction_functype_int64 reduction_func)
 {
 #if defined(__DO_TBB_LAYER__)
     return tbb::parallel_reduce(

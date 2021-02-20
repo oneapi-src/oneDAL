@@ -33,37 +33,28 @@ struct backend_base {
     virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
                                                      const Topology& data) = 0;
-    virtual ~backend_base() {}
+    virtual ~backend_base() = default;
 };
 
 template <typename Policy, typename Descriptor, typename Topology>
 struct backend_default : public backend_base<Policy, Descriptor, Topology> {
-    using task_t = typename Descriptor::task_t;
-    virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
-                                                     const Descriptor& descriptor,
-                                                     const Topology& data);
-    virtual ~backend_default() {}
-};
+    static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
+                  "Host policy only is supported.");
 
-template <typename Descriptor, typename Topology>
-struct backend_default<dal::detail::host_policy, Descriptor, Topology>
-        : public backend_base<dal::detail::host_policy, Descriptor, Topology> {
     using task_t = typename Descriptor::task_t;
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual vertex_ranking_result<task_t> operator()(const dal::detail::host_policy& ctx,
+    virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
                                                      const Topology& data) {
         return triangle_counting_default_kernel(ctx, descriptor, descriptor.get_allocator(), data);
     }
-    virtual ~backend_default() {}
 };
 
 template <typename Policy, typename Descriptor, typename Topology>
-dal::detail::pimpl<backend_base<Policy, Descriptor, Topology>> get_backend(const Descriptor& desc,
-                                                                           const Topology& data) {
-    return dal::detail::pimpl<backend_base<Policy, Descriptor, Topology>>(
-        new backend_default<Policy, Descriptor, Topology>);
+dal::detail::shared<backend_base<Policy, Descriptor, Topology>> get_backend(const Descriptor& desc,
+                                                                            const Topology& data) {
+    return std::make_shared<backend_default<Policy, Descriptor, Topology>>();
 }
 
 } // namespace oneapi::dal::preview::triangle_counting::detail

@@ -18,10 +18,10 @@
 
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include <iostream>
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
@@ -64,17 +64,17 @@ void sort_ids_by_degree(const dal::detail::host_policy& policy,
                         std::int64_t vertex_count);
 
 void fill_new_degrees_and_ids(const dal::detail::host_policy& policy,
-                              std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+                              const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
                               std::int32_t* new_ids,
                               std::int32_t* degrees_relabel,
                               std::int64_t vertex_count);
 
 void parallel_prefix_sum(const dal::detail::host_policy& policy,
-                         std::int32_t* degrees_relabel,
+                         const std::int32_t* degrees_relabel,
                          std::int64_t* offsets,
                          std::int64_t* part_prefix,
                          std::int64_t* local_sums,
-                         size_t block_size,
+                         std::int64_t block_size,
                          std::int64_t num_blocks,
                          std::int64_t vertex_count);
 
@@ -84,34 +84,28 @@ void fill_relabeled_topology(const dal::detail::host_policy& policy,
                              std::int32_t* vertex_neighbors_relabel,
                              std::int64_t* edge_offsets_relabel,
                              std::int64_t* offsets,
-                             std::int32_t* new_ids,
+                             const std::int32_t* new_ids,
                              std::int64_t vertex_count);
 
 template <typename Allocator>
-void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
-                               const std::int32_t* vertex_neighbors,
-                               const std::int64_t* edge_offsets,
-                               const std::int32_t* degrees,
-                               std::int64_t vertex_count,
-                               std::int64_t edge_count,
-                               std::int32_t* vertex_neighbors_relabel,
-                               std::int64_t* edge_offsets_relabel,
-                               std::int32_t* degrees_relabel,
-                               const Allocator& alloc) {
+inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
+                                      const std::int32_t* vertex_neighbors,
+                                      const std::int64_t* edge_offsets,
+                                      const std::int32_t* degrees,
+                                      std::int64_t vertex_count,
+                                      std::int64_t edge_count,
+                                      std::int32_t* vertex_neighbors_relabel,
+                                      std::int64_t* edge_offsets_relabel,
+                                      std::int32_t* degrees_relabel,
+                                      const Allocator& alloc) {
     using int32_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
-    using int32_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<std::int32_t>;
 
     using pair_allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<
-        std::pair<std::int32_t, std::size_t>>;
-    using pair_allocator_traits = typename std::allocator_traits<Allocator>::template rebind_traits<
         std::pair<std::int32_t, std::size_t>>;
 
     using int64_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
-    using int64_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<std::int64_t>;
 
     int64_allocator_type int64_allocator(alloc);
     pair_allocator_type pair_allocator(alloc);
@@ -119,22 +113,24 @@ void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
 
     std::pair<std::int32_t, std::size_t>* degree_id_pairs =
 
-        pair_allocator_traits::allocate(pair_allocator, vertex_count);
+        oneapi::dal::preview::detail::allocate(pair_allocator, vertex_count);
 
     sort_ids_by_degree(ctx, degrees, degree_id_pairs, vertex_count);
 
-    std::int32_t* new_ids = int32_allocator_traits::allocate(int32_allocator, vertex_count);
+    std::int32_t* new_ids = oneapi::dal::preview::detail::allocate(int32_allocator, vertex_count);
 
     fill_new_degrees_and_ids(ctx, degree_id_pairs, new_ids, degrees_relabel, vertex_count);
 
-    pair_allocator_traits::deallocate(pair_allocator, degree_id_pairs, vertex_count);
+    oneapi::dal::preview::detail::deallocate(pair_allocator, degree_id_pairs, vertex_count);
 
-    std::int64_t* offsets = int64_allocator_traits::allocate(int64_allocator, vertex_count + 1);
+    std::int64_t* offsets =
+        oneapi::dal::preview::detail::allocate(int64_allocator, vertex_count + 1);
 
     const size_t block_size = 1 << 20;
     const std::int64_t num_blocks = (vertex_count + block_size - 1) / block_size;
-    std::int64_t* local_sums = int64_allocator_traits::allocate(int64_allocator, num_blocks);
-    std::int64_t* part_prefix = int64_allocator_traits::allocate(int64_allocator, num_blocks + 1);
+    std::int64_t* local_sums = oneapi::dal::preview::detail::allocate(int64_allocator, num_blocks);
+    std::int64_t* part_prefix =
+        oneapi::dal::preview::detail::allocate(int64_allocator, num_blocks + 1);
 
     parallel_prefix_sum(ctx,
                         degrees_relabel,
@@ -145,8 +141,8 @@ void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
                         num_blocks,
                         vertex_count);
 
-    int64_allocator_traits::deallocate(int64_allocator, local_sums, num_blocks);
-    int64_allocator_traits::deallocate(int64_allocator, part_prefix, num_blocks + 1);
+    oneapi::dal::preview::detail::deallocate(int64_allocator, local_sums, num_blocks);
+    oneapi::dal::preview::detail::deallocate(int64_allocator, part_prefix, num_blocks + 1);
 
     fill_relabeled_topology(ctx,
                             vertex_neighbors,
@@ -157,12 +153,12 @@ void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
                             new_ids,
                             vertex_count);
 
-    int64_allocator_traits::deallocate(int64_allocator, offsets, vertex_count + 1);
-    int32_allocator_traits::deallocate(int32_allocator, new_ids, vertex_count);
+    oneapi::dal::preview::detail::deallocate(int64_allocator, offsets, vertex_count + 1);
+    oneapi::dal::preview::detail::deallocate(int32_allocator, new_ids, vertex_count);
 }
 
 template <typename Allocator>
-vertex_ranking_result<task::global> triangle_counting_default_kernel(
+inline vertex_ranking_result<task::global> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::global>& desc,
     const Allocator& alloc,
@@ -194,22 +190,19 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
 
             using int32_allocator_type =
                 typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
-            using int32_allocator_traits =
-                typename std::allocator_traits<Allocator>::template rebind_traits<std::int32_t>;
 
             using int64_allocator_type =
                 typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
-            using int64_allocator_traits =
-                typename std::allocator_traits<Allocator>::template rebind_traits<std::int64_t>;
 
             int64_allocator_type int64_allocator(alloc);
             int32_allocator_type int32_allocator(alloc);
 
             g_vertex_neighbors_relabel =
-                int32_allocator_traits::allocate(int32_allocator, g_edge_offsets[g_vertex_count]);
+                oneapi::dal::preview::detailallocate(int32_allocator,
+                                                     g_edge_offsets[g_vertex_count]);
             g_degrees_relabel = int32_allocator_traits::allocate(int32_allocator, g_vertex_count);
             g_edge_offsets_relabel =
-                int64_allocator_traits::allocate(int64_allocator, g_vertex_count + 1);
+                oneapi::dal::preview::detail::allocate(int64_allocator, g_vertex_count + 1);
 
             relabel_by_greater_degree(ctx,
                                       g_vertex_neighbors,
@@ -229,23 +222,16 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
                                                                 g_vertex_count,
                                                                 g_edge_count);
 
-            if (g_vertex_neighbors_relabel != nullptr) {
-                int32_allocator_traits::deallocate(int32_allocator,
-                                                   g_vertex_neighbors_relabel,
-                                                   g_edge_count);
-            }
+            oneapi::dal::preview::detail::deallocate(int32_allocator,
+                                                     g_vertex_neighbors_relabel,
+                                                     g_edge_count);
+            oneapi::dal::preview::detail::deallocate(int32_allocator,
+                                                     g_degrees_relabel,
+                                                     g_vertex_count);
 
-            if (g_degrees_relabel != nullptr) {
-                int32_allocator_traits::deallocate(int32_allocator,
-                                                   g_degrees_relabel,
-                                                   g_vertex_count);
-            }
-
-            if (g_edge_offsets_relabel != nullptr) {
-                int64_allocator_traits::deallocate(int64_allocator,
-                                                   g_edge_offsets_relabel,
-                                                   g_vertex_count + 1);
-            }
+            oneapi::dal::preview::detail::deallocate(int64_allocator,
+                                                     g_edge_offsets_relabel,
+                                                     g_vertex_count + 1);
         }
     }
     else {
@@ -275,7 +261,7 @@ vertex_ranking_result<task::global> triangle_counting_default_kernel(
 }
 
 template <typename Allocator>
-array<std::int64_t> triangle_counting_local_default_kernel(
+inline array<std::int64_t> triangle_counting_local_default_kernel(
     const dal::detail::host_policy& ctx,
     const Allocator& alloc,
     const dal::preview::detail::topology<std::int32_t>& data) {
@@ -285,26 +271,24 @@ array<std::int64_t> triangle_counting_local_default_kernel(
 
     using int64_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
-    using int64_allocator_traits =
-        typename std::allocator_traits<Allocator>::template rebind_traits<std::int64_t>;
 
     int64_allocator_type int64_allocator(alloc);
 
     int64_t* triangles_local =
-        int64_allocator_traits::allocate(int64_allocator,
-                                         (int64_t)thread_cnt * (int64_t)g_vertex_count);
+        oneapi::dal::preview::detail::allocate(int64_allocator,
+                                               (int64_t)thread_cnt * (int64_t)g_vertex_count);
 
     auto arr_triangles = triangle_counting_local(ctx, data, triangles_local);
 
-    int64_allocator_traits::deallocate(int64_allocator,
-                                       triangles_local,
-                                       (int64_t)thread_cnt * (int64_t)g_vertex_count);
+    oneapi::dal::preview::detail::deallocate(int64_allocator,
+                                             triangles_local,
+                                             (int64_t)thread_cnt * (int64_t)g_vertex_count);
 
     return arr_triangles;
 }
 
 template <typename Allocator>
-vertex_ranking_result<task::local> triangle_counting_default_kernel(
+inline vertex_ranking_result<task::local> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::local>& desc,
     const Allocator& alloc,
@@ -316,7 +300,7 @@ vertex_ranking_result<task::local> triangle_counting_default_kernel(
 }
 
 template <typename Allocator>
-vertex_ranking_result<task::local_and_global> triangle_counting_default_kernel(
+inline vertex_ranking_result<task::local_and_global> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::local_and_global>& desc,
     const Allocator& alloc,

@@ -23,40 +23,24 @@ namespace oneapi::dal::preview {
 namespace triangle_counting {
 
 namespace task {
-namespace v1 {
 struct local {};
 struct global {};
 struct local_and_global {};
 using by_default = local;
-} // namespace v1
-using v1::local;
-using v1::global;
-using v1::local_and_global;
-using v1::by_default;
 } // namespace task
 
 namespace method {
-namespace v1 {
 struct ordered_count {};
 using by_default = ordered_count;
-} // namespace v1
-using v1::ordered_count;
-using v1::by_default;
 } // namespace method
 
-namespace v1 {
 // Kind of triangles to compute
 enum class kind { undirected_clique, directed_cycle, directed_closed_triplet };
 
 // Option to allow relabeling that is potentially additional memory consuming.
 enum class relabel { yes, no };
-} // namespace v1
-
-using v1::kind;
-using v1::relabel;
 
 namespace detail {
-namespace v1 {
 struct descriptor_tag {};
 
 template <typename Task>
@@ -108,22 +92,8 @@ protected:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-} // namespace v1
-
-using v1::descriptor_tag;
-using v1::descriptor_impl;
-using v1::descriptor_base;
-
-using v1::enable_if_local_t;
-using v1::enable_if_global_t;
-using v1::is_local_t;
-using v1::is_global_t;
-using v1::is_valid_method;
-using v1::is_valid_task;
-
 } // namespace detail
 
-namespace v1 {
 /// Class for the Triangle Counting algorithm descriptor
 ///
 /// @tparam Float The data type of the result
@@ -135,10 +105,9 @@ template <typename Float = detail::descriptor_base<>::float_t,
           typename Task = detail::descriptor_base<>::task_t,
           typename Allocator = std::allocator<char>>
 class descriptor : public detail::descriptor_base<Task> {
-public:
+    using base_t = detail::descriptor_base<Task>;
     static_assert(detail::is_valid_method<Method>);
     static_assert(detail::is_valid_task<Task>);
-    using base_t = detail::descriptor_base<Task>;
 
 public:
     using float_t = Float;
@@ -155,14 +124,6 @@ public:
         return *this;
     }
 
-    kind get_kind() const {
-        return base_t::get_kind();
-    }
-
-    relabel get_relabel() const {
-        return base_t::get_relabel();
-    }
-
     auto& set_allocator(Allocator alloc) {
         _alloc = alloc;
         return *this;
@@ -174,10 +135,6 @@ public:
 private:
     Allocator _alloc;
 };
-
-} // namespace v1
-
-using v1::descriptor;
 
 namespace detail {
 

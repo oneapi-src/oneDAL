@@ -16,49 +16,45 @@
 
 #pragma once
 
-#include <memory>
-
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/common.hpp"
-#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace detail {
-
-template <typename Cpu>
-std::int64_t triangle_counting_global_scalar_cpu(const std::int32_t* vertex_neighbors,
-                                                 const std::int64_t* edge_offsets,
-                                                 const std::int32_t* degrees,
-                                                 std::int64_t vertex_count,
-                                                 std::int64_t edge_count);
+namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_vector_cpu(const std::int32_t* vertex_neighbors,
-                                                 const std::int64_t* edge_offsets,
-                                                 const std::int32_t* degrees,
-                                                 std::int64_t vertex_count,
-                                                 std::int64_t edge_count);
+std::int64_t triangle_counting_global_scalar(const std::int32_t* vertex_neighbors,
+                                             const std::int64_t* edge_offsets,
+                                             const std::int32_t* degrees,
+                                             std::int64_t vertex_count,
+                                             std::int64_t edge_count);
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_vector_relabel_cpu(const std::int32_t* vertex_neighbors,
-                                                         const std::int64_t* edge_offsets,
-                                                         const std::int32_t* degrees,
-                                                         std::int64_t vertex_count,
-                                                         std::int64_t edge_count);
+std::int64_t triangle_counting_global_vector(const std::int32_t* vertex_neighbors,
+                                             const std::int64_t* edge_offsets,
+                                             const std::int32_t* degrees,
+                                             std::int64_t vertex_count,
+                                             std::int64_t edge_count);
 
 template <typename Cpu>
-array<std::int64_t> triangle_counting_local_cpu(
+std::int64_t triangle_counting_global_vector_relabel(const std::int32_t* vertex_neighbors,
+                                                     const std::int64_t* edge_offsets,
+                                                     const std::int32_t* degrees,
+                                                     std::int64_t vertex_count,
+                                                     std::int64_t edge_count);
+
+template <typename Cpu>
+array<std::int64_t> triangle_counting_local(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local);
 
 template <typename Cpu>
-std::int64_t compute_global_triangles_cpu(const array<std::int64_t>& local_triangles,
-                                          std::int64_t vertex_count) {
+std::int64_t compute_global_triangles(const array<std::int64_t>& local_triangles,
+                                      std::int64_t vertex_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
@@ -75,14 +71,4 @@ std::int64_t compute_global_triangles_cpu(const array<std::int64_t>& local_trian
     return total_s;
 }
 
-DAAL_FORCEINLINE std::int32_t min(const std::int32_t& a, const std::int32_t& b) {
-    return (a >= b) ? b : a;
-}
-
-DAAL_FORCEINLINE std::int32_t max(const std::int32_t& a, const std::int32_t& b) {
-    return (a <= b) ? b : a;
-}
-
-} // namespace detail
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend

@@ -25,19 +25,48 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/common.hpp"
 
+template <class T>
+struct custom_allocator {
+    using value_type = T;
+    using pointer = T*;
+    custom_allocator() noexcept {}
+    template <class U>
+    custom_allocator(const custom_allocator<U>&) noexcept {}
+    T* allocate(std::size_t n) {
+        std::cout << "Allocated" << n * sizeof(T) << "\n";
+        return static_cast<T*>(::operator new(n * sizeof(T)));
+    }
+    void deallocate(T* p, std::size_t n) {
+        std::cout << "Deallocated" << n * sizeof(T) << "\n";
+        ::delete (p);
+    }
+};
+
+template <class T, class U>
+constexpr bool operator==(const custom_allocator<T>&, const custom_allocator<U>&) noexcept {
+    return true;
+}
+
+template <class T, class U>
+constexpr bool operator!=(const custom_allocator<T>&, const custom_allocator<U>&) noexcept {
+    return false;
+}
+
 namespace dal = oneapi::dal;
 using namespace dal::preview::triangle_counting;
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     const auto filename = get_data_path("graph.csv");
 
     // read the graph
     const dal::preview::graph_csv_data_source ds(argv[1]);
     const dal::preview::load_graph::descriptor<> d;
     const auto my_graph = dal::preview::load_graph::load(d, ds);
-
+    custom_allocator<char> alloc;
     // set algorithm parameters
-    const auto tc_desc = descriptor<float, method::ordered_count, task::local_and_global>();
+    const auto tc_desc =
+        descriptor<float, method::ordered_count, task::local_and_global, custom_allocator<char>>()
+            .set_allocator(alloc);
 
     // compute local and global triangles
     const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, my_graph);
@@ -45,6 +74,6 @@ int main(int argc, char **argv) {
     // extract the result
 
     std::cout << "Global triangles: " << result_vertex_ranking.get_global_rank() << std::endl;
-    
+
     return 0;
 }

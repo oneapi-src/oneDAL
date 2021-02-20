@@ -15,45 +15,33 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernels.hpp"
-#include "oneapi/dal/algo/triangle_counting/common.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace detail {
+namespace oneapi::dal::preview::triangle_counting::backend {
 
-template void sort_ids_by_degree_cpu<__CPU_TAG__>(
-    const std::int32_t* degrees,
-    std::pair<std::int32_t, std::size_t>* degree_id_pairs,
-    std::int64_t vertex_count);
+template void sort_ids_by_degree<__CPU_TAG__>(const std::int32_t* degrees,
+                                              std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+                                              std::int64_t vertex_count);
 
-template void fill_new_degrees_and_ids_cpu<__CPU_TAG__>(
-    std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+template void fill_new_degrees_and_ids<__CPU_TAG__>(
+    const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
     std::int32_t* new_ids,
     std::int32_t* degrees_relabel,
     std::int64_t vertex_count);
 
-template void parallel_prefix_sum_cpu<__CPU_TAG__>(std::int32_t* degrees_relabel,
+template void parallel_prefix_sum<__CPU_TAG__>(const std::int32_t* degrees_relabel,
+                                               std::int64_t* offsets,
+                                               std::int64_t* part_prefix,
+                                               std::int64_t* local_sums,
+                                               std::int64_t block_size,
+                                               std::int64_t num_blocks,
+                                               std::int64_t vertex_count);
+
+template void fill_relabeled_topology<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
+                                                   const std::int64_t* edge_offsets,
+                                                   std::int32_t* vertex_neighbors_relabel,
+                                                   std::int64_t* edge_offsets_relabel,
                                                    std::int64_t* offsets,
-                                                   std::int64_t* part_prefix,
-                                                   std::int64_t* local_sums,
-                                                   size_t block_size,
-                                                   std::int64_t num_blocks,
+                                                   const std::int32_t* new_ids,
                                                    std::int64_t vertex_count);
 
-template void fill_relabeled_topology_cpu<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
-                                                       const std::int64_t* edge_offsets,
-                                                       std::int32_t* vertex_neighbors_relabel,
-                                                       std::int64_t* edge_offsets_relabel,
-                                                       std::int64_t* offsets,
-                                                       std::int32_t* new_ids,
-                                                       std::int64_t vertex_count);
-
-} // namespace detail
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend

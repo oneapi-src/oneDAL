@@ -255,9 +255,9 @@ typedef int (*_daal_threader_get_current_thread_index_t)(void);
 typedef void (*_daal_threader_for_break_t)(int, int, const void *, daal::functype_break);
 
 typedef int64_t (*_daal_parallel_reduce_int32_int64_t)(int32_t, int64_t, const void *, daal::loop_functype_int32_int64_t, const void *,
-                                                        daal::reduction_functype_int64);
+                                                       daal::reduction_functype_int64);
 typedef int64_t (*_daal_parallel_reduce_int32_int64_t_simple)(int32_t, int64_t, const void *, daal::loop_functype_int32_int64_t, const void *,
-                                                               daal::reduction_functype_int64);
+                                                              daal::reduction_functype_int64);
 typedef int64_t (*_daal_parallel_reduce_int32ptr_int64_t_simple)(const int32_t *, const int32_t *, int64_t, const void *,
                                                                  daal::loop_functype_int32ptr_int64_t, const void *, daal::reduction_functype_int64);
 
@@ -319,8 +319,8 @@ static _daal_threader_get_max_threads_t _daal_threader_get_max_threads_ptr      
 static _daal_threader_get_current_thread_index_t _daal_threader_get_current_thread_index_ptr = NULL;
 static _daal_threader_for_break_t _daal_threader_for_break_ptr                               = NULL;
 
-static _daal_parallel_reduce_int32_int64_t _daal_parallel_reduce_int32_int64_ptr                   = NULL;
-static _daal_parallel_reduce_int32_int64_t_simple _daal_parallel_reduce_int32_int64_ptr_simple     = NULL;
+static _daal_parallel_reduce_int32_int64_t _daal_parallel_reduce_int32_int64_ptr                     = NULL;
+static _daal_parallel_reduce_int32_int64_t_simple _daal_parallel_reduce_int32_int64_ptr_simple       = NULL;
 static _daal_parallel_reduce_int32ptr_int64_t_simple _daal_parallel_reduce_int32ptr_int64_ptr_simple = NULL;
 
 static _daal_get_tls_ptr_t _daal_get_tls_ptr_ptr                 = NULL;
@@ -500,7 +500,7 @@ DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const v
 }
 
 DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64_t loop_func,
-                                                       const void * b, daal::reduction_functype_int64 reduction_func)
+                                                      const void * b, daal::reduction_functype_int64 reduction_func)
 {
     load_daal_thr_dll();
     if (_daal_parallel_reduce_int32_int64_ptr == NULL)
@@ -511,7 +511,7 @@ DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, c
 }
 
 DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64_simple(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64_t loop_func,
-                                                              const void * b, daal::reduction_functype_int64 reduction_func)
+                                                             const void * b, daal::reduction_functype_int64 reduction_func)
 {
     load_daal_thr_dll();
     if (_daal_parallel_reduce_int32_int64_ptr_simple == NULL)

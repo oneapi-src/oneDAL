@@ -67,9 +67,9 @@ extern "C"
     DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func);
 
     DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
-                                                           const void * b, daal::reduction_functype_int64 reduction_func);
+                                                          const void * b, daal::reduction_functype_int64 reduction_func);
     DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64_simple(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
-                                                                  const void * b, daal::reduction_functype_int64 reduction_func);
+                                                                 const void * b, daal::reduction_functype_int64 reduction_func);
     DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t * begin, const int32_t * end, int64_t init, const void * a,
                                                                     daal::loop_functype_int32ptr_int64 loop_func, const void * b,
                                                                     daal::reduction_functype_int64 reduction_func);

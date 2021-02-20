@@ -17,23 +17,14 @@
 #pragma once
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
-#include "oneapi/dal/algo/triangle_counting/common.hpp"
-#include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
-#include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/detail/threading.hpp"
-#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace detail {
+namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Index>
-DAAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
-                                           const Index* neigh_v,
-                                           Index n_u,
-                                           Index n_v) {
+ONEDAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
+                                             const Index* neigh_v,
+                                             Index n_u,
+                                             Index n_v) {
     std::int64_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
@@ -51,12 +42,12 @@ DAAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
 }
 
 template <typename Index>
-DAAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
-                                                    const Index* neigh_v,
-                                                    Index n_u,
-                                                    Index n_v,
-                                                    std::int64_t* tc,
-                                                    std::int64_t tc_size) {
+ONEDAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
+                                                      const Index* neigh_v,
+                                                      Index n_u,
+                                                      Index n_v,
+                                                      std::int64_t* tc,
+                                                      std::int64_t tc_size) {
     std::int64_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
@@ -76,7 +67,7 @@ DAAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
 }
 
 template <typename Cpu>
-array<std::int64_t> triangle_counting_local_novec(
+ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
     const auto g_edge_offsets = data._rows.get_data();
@@ -180,7 +171,7 @@ array<std::int64_t> triangle_counting_local_novec(
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_novec(
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
     const std::int32_t* degrees,
@@ -224,7 +215,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_novec(
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_novec(
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
     const std::int32_t* degrees,
@@ -282,7 +273,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_novec(
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_novec(
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_(
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
     const std::int32_t* degrees,
@@ -328,6 +319,4 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_novec(
     return total_s;
 }
 
-} // namespace detail
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend

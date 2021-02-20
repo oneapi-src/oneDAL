@@ -29,10 +29,10 @@ namespace jaccard {
 namespace detail {
 
 template <typename Index>
-DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
-                                          const Index *neigh_v,
-                                          Index n_u,
-                                          Index n_v) {
+ONEDAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
+                                            const Index *neigh_v,
+                                            Index n_u,
+                                            Index n_v) {
     std::size_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
