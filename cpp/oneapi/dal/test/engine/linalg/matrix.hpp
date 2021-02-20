@@ -215,6 +215,17 @@ public:
         return x_;
     }
 
+    void print() const {
+        for (size_t i = 0; i < get_row_count(); ++i) {
+            for (size_t j = 0; j < get_column_count(); ++j) {
+                const Float* ptr = get_data();
+                std::cout << ptr[i * get_column_count() + j] << ' ';
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
     array<Float>& get_array() {
         return x_;
     }

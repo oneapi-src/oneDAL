@@ -145,8 +145,36 @@ T max(const matrix<T, lyt>& m) {
 }
 
 template <typename T, layout lyt>
+matrix<T, lyt> max(const matrix<T, lyt>& lhs,
+                   const matrix<T, lyt>& rhs) {
+    return elementwise(lhs, rhs, [&](T x, T y) {
+        return std::max(x, y);
+    });
+}
+
+template <typename T, layout lyt>
 T l_inf_norm(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return max(abs(subtract(lhs, rhs)));
+}
+
+template <typename T, layout lyt>
+T a_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+    return l_inf_norm(lhs, rhs);
+}
+
+template <typename T, layout lyt>
+T r_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+    std::cout << "r_error start" << std::endl;
+    abs(subtract(lhs, rhs)).print();
+    std::cout << std::endl;
+    max(abs(lhs), abs(rhs)).print();
+    std::cout << std::endl;
+    divide(abs(subtract(lhs, rhs)), max(abs(lhs), abs(rhs))).print();
+    std::cout << std::endl;
+    
+    std::cout << "r_error end" << std::endl;
+
+    return max(divide(abs(subtract(lhs, rhs)), max(abs(lhs), abs(rhs))));
 }
 
 } // namespace oneapi::dal::test::engine::linalg

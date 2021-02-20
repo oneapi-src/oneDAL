@@ -22,6 +22,8 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
+#include <iomanip>
+
 namespace oneapi::dal::pca::test {
 
 namespace te = dal::test::engine;
@@ -163,21 +165,51 @@ public:
         const auto V = la::matrix<double>::wrap(eigenvectors);
         const auto E = la::matrix<double>::eye(V.get_row_count());
         const auto VxVT = la::dot(V, V.t());
-        const double diff = la::l_inf_norm(VxVT, E);
+
+        std::cout << "*********************" << std::endl;
+
+        VxVT.print();
+        E.print();
+
+        auto X = subtract(VxVT, E);
+        X.print();
+        std::cout << "before r_error" << std::endl;
+
+        const double diff = la::r_error(VxVT, E);
         const double tol = te::get_tolerance<Float>(1.5e-2, 3.0e-3);
+
+        std::cout << "check " << bool(diff < tol) << std::endl;
         CHECK(diff < tol);
     }
 
     void check_means(const te::basic_statistics<double>& reference, const table& means) {
         const double tol = te::get_tolerance<Float>(1.5e-2, 3.0e-3);
-        const double diff = te::l_inf_norm(reference.get_means(), means);
+        const double diff = te::r_error(reference.get_means(), means);
+
+        // std::cout << std::setprecision(50) << "diff tol " << diff << ' ' << tol << ' ' << bool(diff < tol) << std::endl;
+        // // const float* ref = row_accessor<const float>{ reference.get_means() }.pull().get_data();
+        // const double* ref = reference.get_means().get_data();
+        // fmt::print("ref\n");
+        // for (size_t i = 0; i < means.get_column_count(); ++i) {
+        //     fmt::print("{} ", ref[i]);
+        // }
+        // fmt::print("\n\n");
+
+        // const double* m = row_accessor<const double>{means}.pull().get_data();
+        // fmt::print("m\n");
+        // for (size_t i = 0; i < means.get_column_count(); ++i) {
+        //     fmt::print("{} ", m[i]);
+        // }
+        // fmt::print("\n\n");
+
         CHECK(diff < tol);
     }
 
     void check_variances(const te::basic_statistics<double>& reference, const table& variances) {
         const double tol = te::get_tolerance<Float>(1.5e-2, 3.0e-3);
-        const double diff = te::l_inf_norm(reference.get_variances(), variances);
+        const double diff = te::r_error(reference.get_variances(), variances);
         CHECK(diff < tol);
+        // std::cout << std::setprecision(50) << diff << ' ' << tol << std::endl;
     }
 
 private:
@@ -192,16 +224,37 @@ private:
 
 using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
 
+// TEMPLATE_LIST_TEST_M(pca_batch_test,
+//                      "pca common flow uniform distribution",
+//                      "[pca][integration][batch]",
+//                      pca_types) {
+//     SKIP_IF(this->not_available_on_device());
+
+//     const te::dataframe data =
+//         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
+//                            te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
+
+//     // Homogen floating point type is the same as algorithm's floating point type
+//     const auto data_table_id = this->get_homogen_table_id();
+
+//     const std::int64_t component_count = GENERATE_COPY(0,
+//                                                        1,
+//                                                        data.get_column_count(),
+//                                                        data.get_column_count() - 1,
+//                                                        data.get_column_count() / 2);
+
+//     this->general_checks(data, component_count, data_table_id);
+// }
+
 TEMPLATE_LIST_TEST_M(pca_batch_test,
-                     "pca common flow uniform distribution",
+                     "pca common flow normal distribution",
                      "[pca][integration][batch]",
                      pca_types) {
     SKIP_IF(this->not_available_on_device());
 
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
-                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5),
-                           te::dataframe_builder{ 100000, 10 }.fill_normal(5.0, 2.0));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 10, 10 }.fill_normal(5.0, 2.0));
+                        //    te::dataframe_builder{ 100000, 10 }.fill_normal(5.0, 2.0));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();
@@ -215,26 +268,26 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
     this->general_checks(data, component_count, data_table_id);
 }
 
-TEMPLATE_LIST_TEST_M(pca_batch_test,
-                     "pca common flow higgs",
-                     "[external-dataset][pca][integration][batch]",
-                     pca_types) {
-    SKIP_IF(this->not_available_on_device());
+// TEMPLATE_LIST_TEST_M(pca_batch_test,
+//                      "pca common flow higgs",
+//                      "[external-dataset][pca][integration][batch]",
+//                      pca_types) {
+//     SKIP_IF(this->not_available_on_device());
 
-    const std::string higgs = "higgs/dataset/higgs_100t_train.csv";
+//     const std::string higgs = "higgs/dataset/higgs_100t_train.csv";
 
-    const te::dataframe data = GENERATE_DATAFRAME(te::dataframe_builder{ higgs });
+//     const te::dataframe data = GENERATE_DATAFRAME(te::dataframe_builder{ higgs });
 
-    // Homogen floating point type is the same as algorithm's floating point type
-    const auto data_table_id = this->get_homogen_table_id();
+//     // Homogen floating point type is the same as algorithm's floating point type
+//     const auto data_table_id = this->get_homogen_table_id();
 
-    const std::int64_t component_count = GENERATE_COPY(0,
-                                                       1,
-                                                       data.get_column_count(),
-                                                       data.get_column_count() - 1,
-                                                       data.get_column_count() / 2);
+//     const std::int64_t component_count = GENERATE_COPY(0,
+//                                                        1,
+//                                                        data.get_column_count(),
+//                                                        data.get_column_count() - 1,
+//                                                        data.get_column_count() / 2);
 
-    this->general_checks(data, component_count, data_table_id);
-}
+//     this->general_checks(data, component_count, data_table_id);
+// }
 
 } // namespace oneapi::dal::pca::test

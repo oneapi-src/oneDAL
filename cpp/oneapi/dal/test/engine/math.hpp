@@ -43,6 +43,20 @@ inline double l_inf_norm(const Reference& ref, const Actual& actual) {
     return linalg::l_inf_norm(ref_mat, act_mat);
 }
 
+template <typename Reference, typename Actual>
+inline double a_error(const Reference& ref, const Actual& actual) {
+    const auto ref_mat = linalg::matrix<double>::wrap(ref);
+    const auto act_mat = linalg::matrix<double>::wrap(actual);
+    return linalg::a_error(ref_mat, act_mat);
+}
+
+template <typename Reference, typename Actual>
+inline double r_error(const Reference& ref, const Actual& actual) {
+    const auto ref_mat = linalg::matrix<double>::wrap(ref);
+    const auto act_mat = linalg::matrix<double>::wrap(actual);
+    return linalg::r_error(ref_mat, act_mat);
+}
+
 template <typename Container>
 inline bool has_nans(const Container& container) {
     const auto container_mat = linalg::matrix<double>::wrap(container);
