@@ -24,6 +24,12 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
+#if defined(_MSC_VER)
+#define ONEDAL_FORCEINLINE __forceinline
+#else
+#define ONEDAL_FORCEINLINE inline __attribute__((always_inline))
+#endif
+
 #ifndef ONEDAL_ENABLE_ASSERT
 #define ONEDAL_ASSERT_SUM_OVERFLOW(...)
 #define ONEDAL_ASSERT_MUL_OVERFLOW(...)

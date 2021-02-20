@@ -163,8 +163,10 @@ inline std::int64_t parallel_reduce_reduction_int64(std::int64_t a,
 }
 
 template <typename Value, typename Func, typename Reduction>
-ONEDAL_EXPORT Value
-parallel_reduce_int32_int64_t(int32_t n, Value init, const Func &func, const Reduction &reduction) {
+inline Value parallel_reduce_int32_int64_t(int32_t n,
+                                           Value init,
+                                           const Func &func,
+                                           const Reduction &reduction) {
     const void *const lf = static_cast<const void *>(&func);
     const void *const rf = static_cast<const void *>(&reduction);
 
@@ -177,10 +179,10 @@ parallel_reduce_int32_int64_t(int32_t n, Value init, const Func &func, const Red
 }
 
 template <typename Value, typename Func, typename Reduction>
-ONEDAL_EXPORT Value parallel_reduce_int32_int64_t_simple(int32_t n,
-                                                         Value init,
-                                                         const Func &func,
-                                                         const Reduction &reduction) {
+inline Value parallel_reduce_int32_int64_t_simple(int32_t n,
+                                                  Value init,
+                                                  const Func &func,
+                                                  const Reduction &reduction) {
     const void *const lf = static_cast<const void *>(&func);
     const void *const rf = static_cast<const void *>(&reduction);
 
@@ -193,11 +195,11 @@ ONEDAL_EXPORT Value parallel_reduce_int32_int64_t_simple(int32_t n,
 }
 
 template <typename Value, typename Func, typename Reduction>
-ONEDAL_EXPORT Value parallel_reduce_int32ptr_int64_t_simple(const std::int32_t *begin,
-                                                            const std::int32_t *end,
-                                                            Value init,
-                                                            const Func &func,
-                                                            const Reduction &reduction) {
+inline Value parallel_reduce_int32ptr_int64_t_simple(const std::int32_t *begin,
+                                                     const std::int32_t *end,
+                                                     Value init,
+                                                     const Func &func,
+                                                     const Reduction &reduction) {
     const void *const lf = static_cast<const void *>(&func);
     const void *const rf = static_cast<const void *>(&reduction);
 

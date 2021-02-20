@@ -23,10 +23,10 @@ namespace triangle_counting {
 namespace backend {
 
 template <typename Index>
-DAAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
-                                           const Index* neigh_v,
-                                           Index n_u,
-                                           Index n_v) {
+ONEDAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
+                                             const Index* neigh_v,
+                                             Index n_u,
+                                             Index n_v) {
     std::int64_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
@@ -44,12 +44,12 @@ DAAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
 }
 
 template <typename Index>
-DAAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
-                                                    const Index* neigh_v,
-                                                    Index n_u,
-                                                    Index n_v,
-                                                    std::int64_t* tc,
-                                                    std::int64_t tc_size) {
+ONEDAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
+                                                      const Index* neigh_v,
+                                                      Index n_u,
+                                                      Index n_v,
+                                                      std::int64_t* tc,
+                                                      std::int64_t tc_size) {
     std::int64_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
@@ -69,7 +69,7 @@ DAAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
+ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
     const auto g_edge_offsets = data._rows.get_data();
@@ -173,11 +173,12 @@ DAAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(const std::int32_t* vertex_neighbors,
-                                                               const std::int64_t* edge_offsets,
-                                                               const std::int32_t* degrees,
-                                                               std::int64_t vertex_count,
-                                                               std::int64_t edge_count) {
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
@@ -216,11 +217,12 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(const std::int32_
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(const std::int32_t* vertex_neighbors,
-                                                               const std::int64_t* edge_offsets,
-                                                               const std::int32_t* degrees,
-                                                               std::int64_t vertex_count,
-                                                               std::int64_t edge_count) {
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
@@ -273,7 +275,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(const std::int32_
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_(
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_(
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
     const std::int32_t* degrees,

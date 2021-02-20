@@ -27,12 +27,12 @@ namespace triangle_counting {
 namespace backend {
 
 #if defined(__INTEL_COMPILER)
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
+ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     return _popcnt32(x);
 }
 #define GRAPH_STACK_ALING(x) __declspec(align(x))
 #else
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
+ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     std::int32_t count = 0;
     std::int32_t a = x;
     while (a != 0) {
@@ -45,10 +45,10 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     {}
 #endif
 
-DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t* neigh_u,
-                                           const std::int32_t* neigh_v,
-                                           std::int32_t n_u,
-                                           std::int32_t n_v) {
+ONEDAL_FORCEINLINE std::int64_t intersection(const std::int32_t* neigh_u,
+                                             const std::int32_t* neigh_v,
+                                             std::int32_t n_u,
+                                             std::int32_t n_v) {
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
 #if defined(__INTEL_COMPILER)
@@ -335,12 +335,12 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t* neigh_u,
     return total;
 }
 
-DAAL_FORCEINLINE std::int64_t intersection_local_tc(const std::int32_t* neigh_u,
-                                                    const std::int32_t* neigh_v,
-                                                    std::int32_t n_u,
-                                                    std::int32_t n_v,
-                                                    std::int64_t* tc,
-                                                    std::int64_t tc_size) {
+ONEDAL_FORCEINLINE std::int64_t intersection_local_tc(const std::int32_t* neigh_u,
+                                                      const std::int32_t* neigh_v,
+                                                      std::int32_t n_u,
+                                                      std::int32_t n_v,
+                                                      std::int64_t* tc,
+                                                      std::int64_t tc_size) {
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
 #if defined(__INTEL_COMPILER)
@@ -773,11 +773,12 @@ array<std::int64_t> triangle_counting_local_(
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(const std::int32_t* vertex_neighbors,
-                                                               const std::int64_t* edge_offsets,
-                                                               const std::int32_t* degrees,
-                                                               std::int64_t vertex_count,
-                                                               std::int64_t edge_count) {
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
@@ -816,11 +817,12 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(const std::int32_
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(const std::int32_t* vertex_neighbors,
-                                                               const std::int64_t* edge_offsets,
-                                                               const std::int32_t* degrees,
-                                                               std::int64_t vertex_count,
-                                                               std::int64_t edge_count) {
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
@@ -872,7 +874,7 @@ DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(const std::int32_
 }
 
 template <typename Cpu>
-DAAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_(
+ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_(
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
     const std::int32_t* degrees,
