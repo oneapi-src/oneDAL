@@ -47,10 +47,12 @@ template <typename Task>
 class descriptor_impl;
 
 template <typename T>
-using enable_if_local_t = std::enable_if_t<dal::detail::is_one_of_v<T, task::local, task::local_and_global>>;
+using enable_if_local_t =
+    std::enable_if_t<dal::detail::is_one_of_v<T, task::local, task::local_and_global>>;
 
 template <typename T>
-using enable_if_global_t = std::enable_if_t<dal::detail::is_one_of_v<T, task::global, task::local_and_global>>;
+using enable_if_global_t =
+    std::enable_if_t<dal::detail::is_one_of_v<T, task::global, task::local_and_global>>;
 
 template <typename Method>
 constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::ordered_count>;
