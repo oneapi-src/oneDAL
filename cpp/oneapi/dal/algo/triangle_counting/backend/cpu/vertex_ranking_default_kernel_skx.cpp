@@ -16,9 +16,7 @@
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel_avx512.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace backend {
+namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <>
 array<std::int64_t> triangle_counting_local<dal::backend::cpu_dispatch_avx512>(
@@ -74,6 +72,4 @@ template std::int64_t compute_global_triangles<dal::backend::cpu_dispatch_avx512
     const array<std::int64_t>& local_triangles,
     std::int64_t vertex_count);
 
-} // namespace backend
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend

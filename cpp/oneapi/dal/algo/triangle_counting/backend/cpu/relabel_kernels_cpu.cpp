@@ -16,9 +16,7 @@
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernels.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace backend {
+namespace oneapi::dal::preview::triangle_counting::backend {
 
 template void sort_ids_by_degree<__CPU_TAG__>(const std::int32_t* degrees,
                                               std::pair<std::int32_t, std::size_t>* degree_id_pairs,
@@ -46,6 +44,4 @@ template void fill_relabeled_topology<__CPU_TAG__>(const std::int32_t* vertex_ne
                                                    const std::int32_t* new_ids,
                                                    std::int64_t vertex_count);
 
-} // namespace backend
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend

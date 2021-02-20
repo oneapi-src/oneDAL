@@ -18,9 +18,7 @@
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace backend {
+namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Index>
 ONEDAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
@@ -321,6 +319,4 @@ ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_(
     return total_s;
 }
 
-} // namespace backend
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend

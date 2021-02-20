@@ -19,9 +19,7 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace backend {
+namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Cpu>
 void sort_ids_by_degree(const std::int32_t* degrees,
@@ -110,6 +108,4 @@ void fill_relabeled_topology(const std::int32_t* vertex_neighbors,
     });
 }
 
-} // namespace backend
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend

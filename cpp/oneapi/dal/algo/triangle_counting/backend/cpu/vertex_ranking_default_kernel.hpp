@@ -24,9 +24,7 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
-namespace backend {
+namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Cpu>
 std::int64_t triangle_counting_global_scalar(const std::int32_t* vertex_neighbors,
@@ -73,6 +71,4 @@ std::int64_t compute_global_triangles(const array<std::int64_t>& local_triangles
     return total_s;
 }
 
-} // namespace backend
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting::backend
