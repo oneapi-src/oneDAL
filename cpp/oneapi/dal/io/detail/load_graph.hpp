@@ -20,16 +20,13 @@
 #include <atomic>
 #include <fstream>
 
-#include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/threading.hpp"
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
 #include "oneapi/dal/io/common.hpp"
-#include "oneapi/dal/io/detail/common.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
 
@@ -42,12 +39,12 @@ template <>
 inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;
 
-    edge_list<int_t> elist;
-    elist.reserve(1024);
     std::ifstream file(name);
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
+    edge_list<int_t> elist;
+    elist.reserve(1024);
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
         auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),

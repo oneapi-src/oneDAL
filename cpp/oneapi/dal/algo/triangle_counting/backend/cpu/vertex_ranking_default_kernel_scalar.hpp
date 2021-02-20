@@ -17,13 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
-#include "oneapi/dal/algo/triangle_counting/common.hpp"
-#include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
-#include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/detail/threading.hpp"
-#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {

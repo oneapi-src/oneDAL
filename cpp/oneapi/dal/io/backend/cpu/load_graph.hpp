@@ -16,10 +16,6 @@
 
 #pragma once
 
-#include <memory>
-
-#include "oneapi/dal/algo/triangle_counting/common.hpp"
-#include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/detail/threading.hpp"

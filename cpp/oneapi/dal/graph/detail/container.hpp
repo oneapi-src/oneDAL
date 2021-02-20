@@ -87,7 +87,7 @@ public:
         return impl_->get_mutable_data();
     }
 
-    void resize(std::int64_t count) {
+    constexpr void resize(std::int64_t count) {
         if (count > capacity_) {
             std::int64_t count_temp = count;
             std::int64_t new_capacity = 1;
@@ -100,7 +100,7 @@ public:
         this->count_ = count;
     }
 
-    void reserve(std::int64_t new_capacity) {
+    constexpr void reserve(std::int64_t new_capacity) {
         if (new_capacity > capacity_) {
             T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, new_capacity);
             T* old_data_ptr = impl_->get_mutable_data();
@@ -117,7 +117,7 @@ public:
         }
     }
 
-    void push_back(const T& value) {
+    constexpr void push_back(const T& value) {
         resize(count_ + 1);
         operator[](count_ - 1) = value;
     }

@@ -15,13 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernels.hpp"
-#include "oneapi/dal/algo/triangle_counting/common.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {

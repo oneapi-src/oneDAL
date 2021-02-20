@@ -14,16 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <immintrin.h>
-
-#include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel_avx512.hpp"
-#include "oneapi/dal/algo/triangle_counting/common.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/detail/policy.hpp"
-#include "oneapi/dal/graph/detail/service_functions_impl.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {
