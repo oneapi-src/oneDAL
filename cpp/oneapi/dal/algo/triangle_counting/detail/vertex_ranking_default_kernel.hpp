@@ -198,9 +198,10 @@ inline vertex_ranking_result<task::global> triangle_counting_default_kernel(
             int32_allocator_type int32_allocator(alloc);
 
             g_vertex_neighbors_relabel =
-                oneapi::dal::preview::detailallocate(int32_allocator,
-                                                     g_edge_offsets[g_vertex_count]);
-            g_degrees_relabel = int32_allocator_traits::allocate(int32_allocator, g_vertex_count);
+                oneapi::dal::preview::detail::allocate(int32_allocator,
+                                                       g_edge_offsets[g_vertex_count]);
+            g_degrees_relabel =
+                oneapi::dal::preview::detail::allocate(int32_allocator, g_vertex_count);
             g_edge_offsets_relabel =
                 oneapi::dal::preview::detail::allocate(int64_allocator, g_vertex_count + 1);
 
