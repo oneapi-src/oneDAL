@@ -28,7 +28,7 @@ namespace load_graph {
 namespace detail {
 
 template <typename Cpu>
-std::int64_t get_vertex_count_from_edge_list_cpu(const edge_list<std::int32_t> &edges) {
+std::int64_t get_vertex_count_from_edge_list_(const edge_list<std::int32_t> &edges) {
     std::int32_t max_id = edges[0].first;
     for (std::int64_t i = 0; i < edges.size(); i++) {
         std::int32_t edge_max = std::max(edges[i].first, edges[i].second);
@@ -39,7 +39,7 @@ std::int64_t get_vertex_count_from_edge_list_cpu(const edge_list<std::int32_t> &
 }
 
 template <typename Cpu>
-std::int64_t compute_prefix_sum_cpu(const std::int32_t *degrees,
+std::int64_t compute_prefix_sum_(const std::int32_t *degrees,
                                     std::int64_t degrees_count,
                                     std::int64_t *edge_offsets) {
     std::int64_t total_sum_degrees = 0;
@@ -52,7 +52,7 @@ std::int64_t compute_prefix_sum_cpu(const std::int32_t *degrees,
 }
 
 template <typename Cpu>
-void fill_filtered_neighs_cpu(const std::int64_t *unfiltered_offsets,
+void fill_filtered_neighs_(const std::int64_t *unfiltered_offsets,
                               const std::int32_t *unfiltered_neighs,
                               const std::int32_t *filtered_degrees,
                               const std::int64_t *filtered_offsets,
@@ -68,7 +68,7 @@ void fill_filtered_neighs_cpu(const std::int64_t *unfiltered_offsets,
 }
 
 template <typename Cpu>
-void filter_neighbors_and_fill_new_degrees_cpu(std::int32_t *unfiltered_neighs,
+void filter_neighbors_and_fill_new_degrees_(std::int32_t *unfiltered_neighs,
                                                std::int64_t *unfiltered_offsets,
                                                std::int32_t *new_degrees,
                                                std::int64_t vertex_count) {

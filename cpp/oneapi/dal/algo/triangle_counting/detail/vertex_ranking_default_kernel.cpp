@@ -29,7 +29,7 @@ std::int64_t triangle_counting_global_scalar<std::int32_t>(const dal::detail::ho
                                                            std::int64_t vertex_count,
                                                            std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return triangle_counting_global_scalar_cpu<decltype(cpu)>(vertex_neighbors,
+        return triangle_counting_global_scalar_<decltype(cpu)>(vertex_neighbors,
                                                                   edge_offsets,
                                                                   degrees,
                                                                   vertex_count,
@@ -45,7 +45,7 @@ std::int64_t triangle_counting_global_vector<std::int32_t>(const dal::detail::ho
                                                            std::int64_t vertex_count,
                                                            std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return triangle_counting_global_vector_cpu<decltype(cpu)>(vertex_neighbors,
+        return triangle_counting_global_vector_<decltype(cpu)>(vertex_neighbors,
                                                                   edge_offsets,
                                                                   degrees,
                                                                   vertex_count,
@@ -62,7 +62,7 @@ std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(
     std::int64_t vertex_count,
     std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return triangle_counting_global_vector_relabel_cpu<decltype(cpu)>(vertex_neighbors,
+        return triangle_counting_global_vector_relabel_<decltype(cpu)>(vertex_neighbors,
                                                                           edge_offsets,
                                                                           degrees,
                                                                           vertex_count,
@@ -76,7 +76,7 @@ array<std::int64_t> triangle_counting_local<std::int32_t>(
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return triangle_counting_local_cpu<decltype(cpu)>(data, triangles_local);
+        return triangle_counting_local_<decltype(cpu)>(data, triangles_local);
     });
 }
 
@@ -85,7 +85,7 @@ void sort_ids_by_degree(const dal::detail::host_policy& policy,
                         std::pair<std::int32_t, std::size_t>* degree_id_pairs,
                         std::int64_t vertex_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return sort_ids_by_degree_cpu<decltype(cpu)>(degrees, degree_id_pairs, vertex_count);
+        return sort_ids_by_degree_<decltype(cpu)>(degrees, degree_id_pairs, vertex_count);
     });
 }
 
@@ -95,7 +95,7 @@ void fill_new_degrees_and_ids(const dal::detail::host_policy& policy,
                               std::int32_t* degrees_relabel,
                               std::int64_t vertex_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return fill_new_degrees_and_ids_cpu<decltype(cpu)>(degree_id_pairs,
+        return fill_new_degrees_and_ids_<decltype(cpu)>(degree_id_pairs,
                                                            new_ids,
                                                            degrees_relabel,
                                                            vertex_count);
@@ -111,7 +111,7 @@ void parallel_prefix_sum(const dal::detail::host_policy& policy,
                          std::int64_t num_blocks,
                          std::int64_t vertex_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return parallel_prefix_sum_cpu<decltype(cpu)>(degrees_relabel,
+        return parallel_prefix_sum_<decltype(cpu)>(degrees_relabel,
                                                       offsets,
                                                       part_prefix,
                                                       local_sums,
@@ -130,7 +130,7 @@ void fill_relabeled_topology(const dal::detail::host_policy& policy,
                              std::int32_t* new_ids,
                              std::int64_t vertex_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return fill_relabeled_topology_cpu<decltype(cpu)>(vertex_neighbors,
+        return fill_relabeled_topology_<decltype(cpu)>(vertex_neighbors,
                                                           edge_offsets,
                                                           vertex_neighbors_relabel,
                                                           edge_offsets_relabel,
@@ -144,7 +144,7 @@ std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
                                       const array<std::int64_t>& local_triangles,
                                       std::int64_t vertex_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return compute_global_triangles_cpu<decltype(cpu)>(local_triangles, vertex_count);
+        return compute_global_triangles_<decltype(cpu)>(local_triangles, vertex_count);
     });
 }
 

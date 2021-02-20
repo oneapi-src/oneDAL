@@ -20,18 +20,18 @@ namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {
 
-template void sort_ids_by_degree_cpu<__CPU_TAG__>(
+template void sort_ids_by_degree_<__CPU_TAG__>(
     const std::int32_t* degrees,
     std::pair<std::int32_t, std::size_t>* degree_id_pairs,
     std::int64_t vertex_count);
 
-template void fill_new_degrees_and_ids_cpu<__CPU_TAG__>(
+template void fill_new_degrees_and_ids_<__CPU_TAG__>(
     std::pair<std::int32_t, std::size_t>* degree_id_pairs,
     std::int32_t* new_ids,
     std::int32_t* degrees_relabel,
     std::int64_t vertex_count);
 
-template void parallel_prefix_sum_cpu<__CPU_TAG__>(std::int32_t* degrees_relabel,
+template void parallel_prefix_sum_<__CPU_TAG__>(std::int32_t* degrees_relabel,
                                                    std::int64_t* offsets,
                                                    std::int64_t* part_prefix,
                                                    std::int64_t* local_sums,
@@ -39,7 +39,7 @@ template void parallel_prefix_sum_cpu<__CPU_TAG__>(std::int32_t* degrees_relabel
                                                    std::int64_t num_blocks,
                                                    std::int64_t vertex_count);
 
-template void fill_relabeled_topology_cpu<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
+template void fill_relabeled_topology_<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
                                                        const std::int64_t* edge_offsets,
                                                        std::int32_t* vertex_neighbors_relabel,
                                                        std::int64_t* edge_offsets_relabel,

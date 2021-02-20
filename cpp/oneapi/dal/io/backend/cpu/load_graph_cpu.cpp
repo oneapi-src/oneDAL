@@ -20,21 +20,21 @@ namespace oneapi::dal::preview {
 namespace load_graph {
 namespace detail {
 
-template std::int64_t get_vertex_count_from_edge_list_cpu<__CPU_TAG__>(
+template std::int64_t get_vertex_count_from_edge_list_<__CPU_TAG__>(
     const edge_list<std::int32_t> &edges);
 
-template std::int64_t compute_prefix_sum_cpu<__CPU_TAG__>(const std::int32_t *degrees,
+template std::int64_t compute_prefix_sum_<__CPU_TAG__>(const std::int32_t *degrees,
                                                           std::int64_t degrees_count,
                                                           std::int64_t *edge_offsets);
 
-template void fill_filtered_neighs_cpu<__CPU_TAG__>(const std::int64_t *unfiltered_offsets,
+template void fill_filtered_neighs_<__CPU_TAG__>(const std::int64_t *unfiltered_offsets,
                                                     const std::int32_t *unfiltered_neighs,
                                                     const std::int32_t *filtered_degrees,
                                                     const std::int64_t *filtered_offsets,
                                                     std::int32_t *filtered_neighs,
                                                     std::int64_t vertex_count);
 
-template void filter_neighbors_and_fill_new_degrees_cpu<__CPU_TAG__>(
+template void filter_neighbors_and_fill_new_degrees_<__CPU_TAG__>(
     std::int32_t *unfiltered_neighs,
     std::int64_t *unfiltered_offsets,
     std::int32_t *new_degrees,

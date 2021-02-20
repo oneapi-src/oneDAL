@@ -25,7 +25,7 @@ std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edge
     return dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
-            return get_vertex_count_from_edge_list_cpu<decltype(cpu)>(edges);
+            return get_vertex_count_from_edge_list_<decltype(cpu)>(edges);
         });
 }
 
@@ -36,7 +36,7 @@ std::int64_t compute_prefix_sum(const std::int32_t *degrees,
     return dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
-            return compute_prefix_sum_cpu<decltype(cpu)>(degrees, degrees_count, edge_offsets);
+            return compute_prefix_sum_<decltype(cpu)>(degrees, degrees_count, edge_offsets);
         });
 }
 
@@ -50,7 +50,7 @@ void fill_filtered_neighs(const std::int64_t *unfiltered_offsets,
     return dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
-            return fill_filtered_neighs_cpu<decltype(cpu)>(unfiltered_offsets,
+            return fill_filtered_neighs_<decltype(cpu)>(unfiltered_offsets,
                                                            unfiltered_neighs,
                                                            filtered_degrees,
                                                            filtered_offsets,
@@ -67,7 +67,7 @@ void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
     return dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
-            return filter_neighbors_and_fill_new_degrees_cpu<decltype(cpu)>(unfiltered_neighs,
+            return filter_neighbors_and_fill_new_degrees_<decltype(cpu)>(unfiltered_neighs,
                                                                             unfiltered_offsets,
                                                                             new_degrees,
                                                                             vertex_count);

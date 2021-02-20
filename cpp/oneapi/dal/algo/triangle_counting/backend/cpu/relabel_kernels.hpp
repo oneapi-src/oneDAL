@@ -24,7 +24,7 @@ namespace triangle_counting {
 namespace detail {
 
 template <typename Cpu>
-void sort_ids_by_degree_cpu(const std::int32_t* degrees,
+void sort_ids_by_degree_(const std::int32_t* degrees,
                             std::pair<std::int32_t, std::size_t>* degree_id_pairs,
                             std::int64_t vertex_count) {
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t n) {
@@ -37,7 +37,7 @@ void sort_ids_by_degree_cpu(const std::int32_t* degrees,
 }
 
 template <typename Cpu>
-void fill_new_degrees_and_ids_cpu(std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+void fill_new_degrees_and_ids_(std::pair<std::int32_t, std::size_t>* degree_id_pairs,
                                   std::int32_t* new_ids,
                                   std::int32_t* degrees_relabel,
                                   std::int64_t vertex_count) {
@@ -48,7 +48,7 @@ void fill_new_degrees_and_ids_cpu(std::pair<std::int32_t, std::size_t>* degree_i
 }
 
 template <typename Cpu>
-void parallel_prefix_sum_cpu(std::int32_t* degrees_relabel,
+void parallel_prefix_sum_(std::int32_t* degrees_relabel,
                              std::int64_t* offsets,
                              std::int64_t* part_prefix,
                              std::int64_t* local_sums,
@@ -86,7 +86,7 @@ void parallel_prefix_sum_cpu(std::int32_t* degrees_relabel,
 }
 
 template <typename Cpu>
-void fill_relabeled_topology_cpu(const std::int32_t* vertex_neighbors,
+void fill_relabeled_topology_(const std::int32_t* vertex_neighbors,
                                  const std::int64_t* edge_offsets,
                                  std::int32_t* vertex_neighbors_relabel,
                                  std::int64_t* edge_offsets_relabel,
