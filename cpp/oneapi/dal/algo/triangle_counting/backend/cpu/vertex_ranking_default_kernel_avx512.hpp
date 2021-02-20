@@ -22,14 +22,6 @@
 
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
 
-#if defined(__INTEL_COMPILER)
-#define PRAGMA_IVDEP         _Pragma("ivdep")
-#define PRAGMA_VECTOR_ALWAYS _Pragma("vector always")
-#else
-#define PRAGMA_IVDEP
-#define PRAGMA_VECTOR_ALWAYS
-#endif
-
 namespace oneapi::dal::preview {
 namespace triangle_counting {
 namespace detail {

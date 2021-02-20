@@ -54,10 +54,10 @@ template std::int64_t triangle_counting_global_vector_relabel_novec<__CPU_TAG__>
 
 template <>
 std::int64_t triangle_counting_global_scalar_<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
-                                                              const std::int64_t* edge_offsets,
-                                                              const std::int32_t* degrees,
-                                                              std::int64_t vertex_count,
-                                                              std::int64_t edge_count) {
+                                                           const std::int64_t* edge_offsets,
+                                                           const std::int32_t* degrees,
+                                                           std::int64_t vertex_count,
+                                                           std::int64_t edge_count) {
     return triangle_counting_global_scalar_novec<__CPU_TAG__>(vertex_neighbors,
                                                               edge_offsets,
                                                               degrees,
@@ -67,10 +67,10 @@ std::int64_t triangle_counting_global_scalar_<__CPU_TAG__>(const std::int32_t* v
 
 template <>
 std::int64_t triangle_counting_global_vector_<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
-                                                              const std::int64_t* edge_offsets,
-                                                              const std::int32_t* degrees,
-                                                              std::int64_t vertex_count,
-                                                              std::int64_t edge_count) {
+                                                           const std::int64_t* edge_offsets,
+                                                           const std::int32_t* degrees,
+                                                           std::int64_t vertex_count,
+                                                           std::int64_t edge_count) {
     return triangle_counting_global_vector_novec<__CPU_TAG__>(vertex_neighbors,
                                                               edge_offsets,
                                                               degrees,

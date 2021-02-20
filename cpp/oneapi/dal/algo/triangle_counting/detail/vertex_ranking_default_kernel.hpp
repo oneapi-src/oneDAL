@@ -64,17 +64,17 @@ void sort_ids_by_degree(const dal::detail::host_policy& policy,
                         std::int64_t vertex_count);
 
 void fill_new_degrees_and_ids(const dal::detail::host_policy& policy,
-                              std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+                              const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
                               std::int32_t* new_ids,
                               std::int32_t* degrees_relabel,
                               std::int64_t vertex_count);
 
 void parallel_prefix_sum(const dal::detail::host_policy& policy,
-                         std::int32_t* degrees_relabel,
+                         const std::int32_t* degrees_relabel,
                          std::int64_t* offsets,
                          std::int64_t* part_prefix,
                          std::int64_t* local_sums,
-                         size_t block_size,
+                         std::int64_t block_size,
                          std::int64_t num_blocks,
                          std::int64_t vertex_count);
 
@@ -84,7 +84,7 @@ void fill_relabeled_topology(const dal::detail::host_policy& policy,
                              std::int32_t* vertex_neighbors_relabel,
                              std::int64_t* edge_offsets_relabel,
                              std::int64_t* offsets,
-                             std::int32_t* new_ids,
+                             const std::int32_t* new_ids,
                              std::int64_t vertex_count);
 
 template <typename Allocator>

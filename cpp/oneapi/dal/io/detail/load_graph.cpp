@@ -51,11 +51,11 @@ void fill_filtered_neighs(const std::int64_t *unfiltered_offsets,
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
             return fill_filtered_neighs_<decltype(cpu)>(unfiltered_offsets,
-                                                           unfiltered_neighs,
-                                                           filtered_degrees,
-                                                           filtered_offsets,
-                                                           filtered_neighs,
-                                                           vertex_count);
+                                                        unfiltered_neighs,
+                                                        filtered_degrees,
+                                                        filtered_offsets,
+                                                        filtered_neighs,
+                                                        vertex_count);
         });
 }
 
@@ -68,9 +68,9 @@ void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
             return filter_neighbors_and_fill_new_degrees_<decltype(cpu)>(unfiltered_neighs,
-                                                                            unfiltered_offsets,
-                                                                            new_degrees,
-                                                                            vertex_count);
+                                                                         unfiltered_offsets,
+                                                                         new_degrees,
+                                                                         vertex_count);
         });
 }
 

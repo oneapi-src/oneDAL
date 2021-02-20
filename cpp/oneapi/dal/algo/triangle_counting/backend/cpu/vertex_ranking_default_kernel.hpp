@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/detail/threading.hpp"
@@ -30,24 +30,24 @@ namespace detail {
 
 template <typename Cpu>
 std::int64_t triangle_counting_global_scalar_(const std::int32_t* vertex_neighbors,
-                                                 const std::int64_t* edge_offsets,
-                                                 const std::int32_t* degrees,
-                                                 std::int64_t vertex_count,
-                                                 std::int64_t edge_count);
+                                              const std::int64_t* edge_offsets,
+                                              const std::int32_t* degrees,
+                                              std::int64_t vertex_count,
+                                              std::int64_t edge_count);
 
 template <typename Cpu>
 std::int64_t triangle_counting_global_vector_(const std::int32_t* vertex_neighbors,
-                                                 const std::int64_t* edge_offsets,
-                                                 const std::int32_t* degrees,
-                                                 std::int64_t vertex_count,
-                                                 std::int64_t edge_count);
+                                              const std::int64_t* edge_offsets,
+                                              const std::int32_t* degrees,
+                                              std::int64_t vertex_count,
+                                              std::int64_t edge_count);
 
 template <typename Cpu>
 std::int64_t triangle_counting_global_vector_relabel_(const std::int32_t* vertex_neighbors,
-                                                         const std::int64_t* edge_offsets,
-                                                         const std::int32_t* degrees,
-                                                         std::int64_t vertex_count,
-                                                         std::int64_t edge_count);
+                                                      const std::int64_t* edge_offsets,
+                                                      const std::int32_t* degrees,
+                                                      std::int64_t vertex_count,
+                                                      std::int64_t edge_count);
 
 template <typename Cpu>
 array<std::int64_t> triangle_counting_local_(
@@ -56,7 +56,7 @@ array<std::int64_t> triangle_counting_local_(
 
 template <typename Cpu>
 std::int64_t compute_global_triangles_(const array<std::int64_t>& local_triangles,
-                                          std::int64_t vertex_count) {
+                                       std::int64_t vertex_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,

@@ -40,8 +40,8 @@ std::int64_t get_vertex_count_from_edge_list_(const edge_list<std::int32_t> &edg
 
 template <typename Cpu>
 std::int64_t compute_prefix_sum_(const std::int32_t *degrees,
-                                    std::int64_t degrees_count,
-                                    std::int64_t *edge_offsets) {
+                                 std::int64_t degrees_count,
+                                 std::int64_t *edge_offsets) {
     std::int64_t total_sum_degrees = 0;
     edge_offsets[0] = total_sum_degrees;
     for (std::int64_t i = 0; i < degrees_count; ++i) {
@@ -53,11 +53,11 @@ std::int64_t compute_prefix_sum_(const std::int32_t *degrees,
 
 template <typename Cpu>
 void fill_filtered_neighs_(const std::int64_t *unfiltered_offsets,
-                              const std::int32_t *unfiltered_neighs,
-                              const std::int32_t *filtered_degrees,
-                              const std::int64_t *filtered_offsets,
-                              std::int32_t *filtered_neighs,
-                              std::int64_t vertex_count) {
+                           const std::int32_t *unfiltered_neighs,
+                           const std::int32_t *filtered_degrees,
+                           const std::int64_t *filtered_offsets,
+                           std::int32_t *filtered_neighs,
+                           std::int64_t vertex_count) {
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
         auto u_neighs = filtered_neighs + filtered_offsets[u];
         auto u_neighs_unf = unfiltered_neighs + unfiltered_offsets[u];
@@ -69,9 +69,9 @@ void fill_filtered_neighs_(const std::int64_t *unfiltered_offsets,
 
 template <typename Cpu>
 void filter_neighbors_and_fill_new_degrees_(std::int32_t *unfiltered_neighs,
-                                               std::int64_t *unfiltered_offsets,
-                                               std::int32_t *new_degrees,
-                                               std::int64_t vertex_count) {
+                                            std::int64_t *unfiltered_offsets,
+                                            std::int32_t *new_degrees,
+                                            std::int64_t vertex_count) {
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
