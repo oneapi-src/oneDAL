@@ -210,7 +210,7 @@ private:
         if (nClasses != 2)
         {
             daal_dm::BlockDescriptor<Fptype> bd;
-            _workPoint->getBlockOfRows(0, nBetas*nBetaCols, daal_dm::writeOnly, bd);
+            _workPoint->getBlockOfRows(0, nBetas*nBetaCols, daal_dm::readWrite, bd);
             auto ptr = bd.getBlockPtr();
 
             for (size_t i = 0; i < bd.getNumberOfRows(); i += nBetaCols)
