@@ -25,7 +25,6 @@
 
 namespace oneapi::dal::preview {
 namespace triangle_counting {
-namespace v1 {
 
 /// Class for the description of the input parameters of the Triangle Counting
 /// algorithm
@@ -106,10 +105,6 @@ template <typename Graph, typename Task>
 const Graph& vertex_ranking_input<Graph, Task>::get_graph() const {
     return impl_->graph_data;
 }
-} // namespace v1
-
-using v1::vertex_ranking_input;
-using v1::vertex_ranking_result;
 
 } // namespace triangle_counting
 } // namespace oneapi::dal::preview
