@@ -105,10 +105,9 @@ template <typename Float = detail::descriptor_base<>::float_t,
           typename Task = detail::descriptor_base<>::task_t,
           typename Allocator = std::allocator<char>>
 class descriptor : public detail::descriptor_base<Task> {
-public:
+    using base_t = detail::descriptor_base<Task>;
     static_assert(detail::is_valid_method<Method>);
     static_assert(detail::is_valid_task<Task>);
-    using base_t = detail::descriptor_base<Task>;
 
 public:
     using float_t = Float;
@@ -123,14 +122,6 @@ public:
     auto& set_relabel(relabel value) {
         base_t::set_relabel(value);
         return *this;
-    }
-
-    kind get_kind() const {
-        return base_t::get_kind();
-    }
-
-    relabel get_relabel() const {
-        return base_t::get_relabel();
     }
 
     auto& set_allocator(Allocator alloc) {
