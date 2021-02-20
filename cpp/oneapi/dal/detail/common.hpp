@@ -287,7 +287,6 @@ using v1::integral_cast;
 } // namespace oneapi::dal::detail
 
 namespace oneapi::dal::preview::detail {
-//to make forceinline
 template <typename Alloc>
 static constexpr auto allocate(Alloc& alloc, std::int64_t count) {
     using t_allocator_traits =
