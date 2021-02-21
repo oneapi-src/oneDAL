@@ -83,8 +83,9 @@ private:
 };
 
 template <typename Graph>
-graph_matching_input<Graph>::graph_matching_input(const Graph& data, caching_builder& builder_input)
-        : impl_(new detail::graph_matching_input_impl<Graph>(data, builder_input)) {}
+graph_matching_input<Graph>::graph_matching_input(const Graph& target_graph,
+                                                  const Graph& pattern_graph)
+        : impl_(new detail::graph_matching_input_impl<Graph>(target_graph, pattern_graph)) {}
 
 template <typename Graph>
 const Graph& graph_matching_input<Graph>::get_target_graph() const {

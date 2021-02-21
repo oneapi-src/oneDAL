@@ -32,7 +32,7 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
-class enum kind { induced, non_induced };
+enum class kind { induced, non_induced };
 
 /// The base class for the subgraph_isomorphism similarity algorithm descriptor
 class ONEDAL_EXPORT descriptor_base : public base {
@@ -54,9 +54,9 @@ public:
     auto get_max_match_count() const -> std::int64_t;
 
 protected:
-    void descriptor_base::set_kind_impl(kind value);
-    void descriptor_base::set_semantic_match_impl(bool semantic_match);
-    void descriptor_base::set_max_match_count_impl(std::int64_t max_match_count);
+    void set_kind_impl(kind value);
+    void set_semantic_match_impl(bool semantic_match);
+    void set_max_match_count_impl(std::int64_t max_match_count);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -74,7 +74,7 @@ public:
     ///
     /// @param [in] begin  The begin of the row of the graph block
     /// @param [in] end    The end of the row of the graph block
-    auto& descriptor_base::set_kind(kind value) {
+    auto& set_kind(kind value) {
         this->set_kind_impl(value);
         return *this;
     }
@@ -83,7 +83,7 @@ public:
     ///
     /// @param [in] begin  The begin of the column of the graph block
     /// @param [in] end    The end of the column of the graph block
-    auto& descriptor_base::set_semantic_match(bool semantic_match) {
+    auto& set_semantic_match(bool semantic_match) {
         this->set_semantic_match_impl(semantic_match);
         return *this;
     }
@@ -93,7 +93,7 @@ public:
     ///
     /// @param [in] row_range     The range of the rows of the graph block
     /// @param [in] column_range  The range of the columns of the graph block
-    auto& descriptor_base::set_max_match_count(std::int64_t max_match_count) {
+    auto& set_max_match_count(std::int64_t max_match_count) {
         this->set_max_match_count_impl(max_match_count);
         return *this;
     }

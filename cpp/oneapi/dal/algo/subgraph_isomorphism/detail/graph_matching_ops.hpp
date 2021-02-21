@@ -35,10 +35,10 @@ struct ONEDAL_EXPORT graph_matching_ops_dispatcher {
 
 template <typename Descriptor, typename Graph>
 struct graph_matching_ops {
-    using float_t           = typename Descriptor::float_t;
-    using method_t          = typename Descriptor::method_t;
-    using input_t           = graph_matching_input<Graph>;
-    using result_t          = graph_matching_result;
+    using float_t = typename Descriptor::float_t;
+    using method_t = typename Descriptor::method_t;
+    using input_t = graph_matching_input<Graph>;
+    using result_t = graph_matching_result;
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor &param, graph_matching_input<Graph> &input) const {
@@ -77,7 +77,9 @@ graph_matching_result graph_matching_ops_dispatcher<Policy, Float, Method, Graph
         dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
     static auto impl =
         get_backend<Policy, Float, Method>(desc, csr_target_topology, csr_pattern_topology);
-    return (*impl)(policy, desc, csr_target_topology, csr_pattern_topology);
+    const auto result =
+        graph_matching_ops_dispatcher<Policy, Float, Method, Graph>()(policy, desc, input);
+    return (*impl)(policy, desc, csr_target_topology, csr_pattern_topology, (void *)&result);
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

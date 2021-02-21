@@ -7,6 +7,7 @@ load("@onedal//dev/bazel:dal.bzl",
 ALGOS = [
     "decision_forest",
     "jaccard",
+    "subgraph_isomorphism",
     "kmeans",
     "kmeans_init",
     "knn",
