@@ -14,17 +14,20 @@
 * limitations under the License.
 *******************************************************************************/
 
+/// @file
+/// Contains the definition of the main processing function for vertex
+/// similarity family of the algorithms
+
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/graph_matching_ops.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
-#include "oneapi/dal/graph_matching.hpp"
+#include "oneapi/dal/detail/graph_matching_ops.hpp"
 
-namespace oneapi::dal::preview::detail {
+namespace oneapi::dal::preview {
 
-template <typename Descriptor, typename Graph>
-struct graph_matching_ops<Descriptor, Graph, subgraph_isomorphism::detail::tag>
-        : subgraph_isomorphism::detail::graph_matching_ops<Descriptor, Graph> {};
+/// The main processing function for vertex similarity family of the algorithms
+template <typename... Args>
+auto graph_matching(Args &&... args) {
+    return detail::graph_matching_dispatch(std::forward<Args>(args)...);
+}
 
-} // namespace oneapi::dal::preview::detail
+} // namespace oneapi::dal::preview

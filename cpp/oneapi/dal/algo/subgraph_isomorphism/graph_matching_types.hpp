@@ -15,23 +15,23 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the input and output for Jaccard Similarity
+/// Contains the definition of the input and output for subgraph_isomorphism Similarity
 /// algorithm
 
 #pragma once
 
-#include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/detail/vertex_similarity_types.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/graph_matching_types.hpp"
 
 namespace oneapi::dal::preview {
-namespace jaccard {
+namespace subgraph_isomorphism {
 
-/// Class for the description of the input parameters of the Jaccard Similarity
+/// Class for the description of the input parameters of the subgraph_isomorphism Similarity
 /// algorithm
 ///
 /// @tparam Graph  Type of the input graph
 template <typename Graph>
-class ONEDAL_EXPORT vertex_similarity_input {
+class ONEDAL_EXPORT graph_matching_input {
 public:
     static_assert(detail::is_valid_graph<Graph>,
                   "Only undirected_adjacency_vector_graph is supported.");
@@ -39,7 +39,7 @@ public:
     ///
     /// @param [in]   graph  The input graph
     /// @param [in/out]  builder  The caching builder
-    vertex_similarity_input(const Graph& graph, caching_builder& builder);
+    graph_matching_input(const Graph& graph, caching_builder& builder);
 
     /// Returns the constant reference to the input graph
     const Graph& get_graph() const;
@@ -48,58 +48,57 @@ public:
     caching_builder& get_caching_builder();
 
 private:
-    dal::detail::pimpl<detail::vertex_similarity_input_impl<Graph>> impl_;
+    dal::detail::pimpl<detail::graph_matching_input_impl<Graph>> impl_;
 };
 
-/// Class for the description of the result of the Jaccard Similarity algorithm
-class ONEDAL_EXPORT vertex_similarity_result {
+/// Class for the description of the result of the subgraph_isomorphism Similarity algorithm
+class ONEDAL_EXPORT graph_matching_result {
 public:
     /// Constructs the empty result
-    vertex_similarity_result();
+    graph_matching_result();
 
     /// Constructs the algorithm result initialized with the table of vertex pairs,
-    /// the table of the corresponding computed Jaccard similarity coefficients, and
-    /// the number of non-zero Jaccard similarity coefficients in the block.
+    /// the table of the corresponding computed subgraph_isomorphism similarity coefficients, and
+    /// the number of non-zero subgraph_isomorphism similarity coefficients in the block.
     ///
     /// @param [in]   vertex_pairs        The table of size [nonzero_coeff_count x 2] with
-    ///                                   vertex pairs which have non-zero Jaccard
+    ///                                   vertex pairs which have non-zero subgraph_isomorphism
     ///                                   similarity coefficients
     /// @param [in]   coeffs              The table of size [nonzero_coeff_count x 1] with
-    ///                                   non-zero Jaccard similarity coefficients
-    /// @param [in]   nonzero_coeff_count The number of non-zero Jaccard coefficients
-    vertex_similarity_result(const table& vertex_pairs,
-                             const table& coeffs,
-                             std::int64_t nonzero_coeff_count);
+    ///                                   non-zero subgraph_isomorphism similarity coefficients
+    /// @param [in]   nonzero_coeff_count The number of non-zero subgraph_isomorphism coefficients
+    graph_matching_result(const table& vertex_pairs,
+                          const table& coeffs,
+                          std::int64_t nonzero_coeff_count);
 
-    /// Returns the table of size [nonzero_coeff_count x 1] with non-zero Jaccard
+    /// Returns the table of size [nonzero_coeff_count x 1] with non-zero subgraph_isomorphism
     /// similarity coefficients
     table get_coeffs() const;
 
     /// Returns the table of size [nonzero_coeff_count x 2] with vertex pairs which have
-    /// non-zero Jaccard similarity coefficients
+    /// non-zero subgraph_isomorphism similarity coefficients
     table get_vertex_pairs() const;
 
-    /// The number of non-zero Jaccard similarity coefficients in the block
+    /// The number of non-zero subgraph_isomorphism similarity coefficients in the block
     std::int64_t get_nonzero_coeff_count() const;
 
 private:
-    dal::detail::pimpl<detail::vertex_similarity_result_impl> impl_;
+    dal::detail::pimpl<detail::graph_matching_result_impl> impl_;
 };
 
 template <typename Graph>
-vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data,
-                                                        caching_builder& builder_input)
-        : impl_(new detail::vertex_similarity_input_impl<Graph>(data, builder_input)) {}
+graph_matching_input<Graph>::graph_matching_input(const Graph& data, caching_builder& builder_input)
+        : impl_(new detail::graph_matching_input_impl<Graph>(data, builder_input)) {}
 
 template <typename Graph>
-const Graph& vertex_similarity_input<Graph>::get_graph() const {
+const Graph& graph_matching_input<Graph>::get_graph() const {
     return impl_->graph_data;
 }
 
 template <typename Graph>
-caching_builder& vertex_similarity_input<Graph>::get_caching_builder() {
+caching_builder& graph_matching_input<Graph>::get_caching_builder() {
     return impl_->builder;
 }
 
-} // namespace jaccard
+} // namespace subgraph_isomorphism
 } // namespace oneapi::dal::preview

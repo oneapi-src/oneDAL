@@ -18,9 +18,9 @@
 
 #include <immintrin.h>
 
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
-#include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_matching_default_kernel.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -29,7 +29,7 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal::preview {
-namespace jaccard {
+namespace subgraph_isomorphism {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
@@ -263,7 +263,7 @@ DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
 }
 
 template <typename Cpu>
-vertex_similarity_result call_jaccard_default_kernel_avx2(
+graph_matching_result call_subgraph_isomorphism_default_kernel_avx2(
     const descriptor_base &desc,
     const dal::preview::detail::topology<std::int32_t> &data,
     void *result_ptr) {
@@ -280,7 +280,8 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
         compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
     int *first_vertices = reinterpret_cast<int *>(result_ptr);
     int *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
+    float *subgraph_isomorphism =
+        reinterpret_cast<float *>(second_vertices + number_elements_in_block);
     std::int64_t nnz = 0;
     for (std::int32_t i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
@@ -294,8 +295,9 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
                 auto intersection_value =
                     intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 if (intersection_value) {
-                    jaccard[nnz] = float(intersection_value) /
-                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
+                    subgraph_isomorphism[nnz] =
+                        float(intersection_value) /
+                        float(i_neighbor_size + j_neighbor_size - intersection_value);
                     first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     nnz++;
@@ -305,7 +307,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
         }
 
         if (diagonal >= column_begin && diagonal < column_end) {
-            jaccard[nnz] = 1.0;
+            subgraph_isomorphism[nnz] = 1.0;
             first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
@@ -320,8 +322,9 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
                 auto intersection_value =
                     intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 if (intersection_value) {
-                    jaccard[nnz] = float(intersection_value) /
-                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
+                    subgraph_isomorphism[nnz] =
+                        float(intersection_value) /
+                        float(i_neighbor_size + j_neighbor_size - intersection_value);
                     first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     nnz++;
@@ -330,12 +333,15 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
             }
         }
     }
-    vertex_similarity_result res(
+    graph_matching_result res(
         homogen_table::wrap(first_vertices, number_elements_in_block, 2, data_layout::column_major),
-        homogen_table::wrap(jaccard, number_elements_in_block, 1, data_layout::column_major),
+        homogen_table::wrap(subgraph_isomorphism,
+                            number_elements_in_block,
+                            1,
+                            data_layout::column_major),
         nnz);
     return res;
 }
 } // namespace detail
-} // namespace jaccard
+} // namespace subgraph_isomorphism
 } // namespace oneapi::dal::preview

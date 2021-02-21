@@ -16,32 +16,32 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/detail/select_kernel.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/select_kernel.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_topology_builder.hpp"
 
-namespace oneapi::dal::preview::jaccard::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 template <typename Policy, typename Float, class Method, typename Graph>
-struct ONEDAL_EXPORT vertex_similarity_ops_dispatcher {
-    vertex_similarity_result operator()(const Policy &policy,
-                                        const descriptor_base &descriptor,
-                                        vertex_similarity_input<Graph> &input) const;
+struct ONEDAL_EXPORT graph_matching_ops_dispatcher {
+    graph_matching_result operator()(const Policy &policy,
+                                     const descriptor_base &descriptor,
+                                     graph_matching_input<Graph> &input) const;
 };
 
 template <typename Descriptor, typename Graph>
-struct vertex_similarity_ops {
+struct graph_matching_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
-    using input_t = vertex_similarity_input<Graph>;
-    using result_t = vertex_similarity_result;
+    using input_t = graph_matching_input<Graph>;
+    using result_t = graph_matching_result;
     using descriptor_base_t = descriptor_base;
 
-    void check_preconditions(const Descriptor &param, vertex_similarity_input<Graph> &input) const {
+    void check_preconditions(const Descriptor &param, graph_matching_input<Graph> &input) const {
         using msg = dal::detail::error_messages;
 
         const std::int64_t row_begin = param.get_row_range_begin();
@@ -72,19 +72,19 @@ struct vertex_similarity_ops {
     template <typename Policy>
     auto operator()(const Policy &policy,
                     const Descriptor &desc,
-                    vertex_similarity_input<Graph> &input) const {
+                    graph_matching_input<Graph> &input) const {
         check_preconditions(desc, input);
-        return vertex_similarity_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
-                                                                                    desc,
-                                                                                    input);
+        return graph_matching_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
+                                                                                 desc,
+                                                                                 input);
     }
 };
 
 template <typename Policy, typename Float, class Method, typename Graph>
-vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
+graph_matching_result graph_matching_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
     const Policy &policy,
     const descriptor_base &desc,
-    vertex_similarity_input<Graph> &input) const {
+    graph_matching_input<Graph> &input) const {
     const auto &csr_topology =
         dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
     const std::int64_t row_begin = desc.get_row_range_begin();
@@ -100,4 +100,4 @@ vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method,
     return (*impl)(policy, desc, csr_topology, result_ptr);
 }
 
-} // namespace oneapi::dal::preview::jaccard::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

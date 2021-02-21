@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::preview::jaccard::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 inline std::int64_t get_number_elements_in_block(const std::int32_t &row_range_begin,
                                                  const std::int32_t &row_range_end,
@@ -41,13 +41,14 @@ inline std::int64_t get_number_elements_in_block(const std::int32_t &row_range_b
 template <typename Float, typename Index>
 inline std::int64_t get_max_block_size(const std::int64_t &vertex_pairs_count) {
     const std::int64_t vertex_pair_element_count = 2; // 2 elements in the vertex pair
-    const std::int64_t jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
+    const std::int64_t subgraph_isomorphism_coeff_element_count =
+        1; // 1 subgraph_isomorphism coeff for the vertex pair
 
     const std::int64_t vertex_pair_size =
         vertex_pair_element_count * sizeof(Index); // size in bytes
-    const std::int64_t jaccard_coeff_size =
-        jaccard_coeff_element_count * sizeof(Float); // size in bytes
-    const std::int64_t element_result_size = vertex_pair_size + jaccard_coeff_size;
+    const std::int64_t subgraph_isomorphism_coeff_size =
+        subgraph_isomorphism_coeff_element_count * sizeof(Float); // size in bytes
+    const std::int64_t element_result_size = vertex_pair_size + subgraph_isomorphism_coeff_size;
 
     const std::int64_t block_result_size = element_result_size * vertex_pairs_count;
     ONEDAL_ASSERT(block_result_size / vertex_pairs_count == element_result_size,
@@ -69,7 +70,7 @@ template <typename Index>
 inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Index n_u, Index n_v);
 
 template <typename Index>
-vertex_similarity_result call_jaccard_default_kernel_general(
+graph_matching_result call_subgraph_isomorphism_default_kernel_general(
     const descriptor_base &desc,
     const dal::preview::detail::topology<Index> &data,
     void *result_ptr) {
@@ -84,7 +85,8 @@ vertex_similarity_result call_jaccard_default_kernel_general(
         get_number_elements_in_block(row_begin, row_end, column_begin, column_end);
     Index *first_vertices = reinterpret_cast<Index *>(result_ptr);
     Index *second_vertices = first_vertices + number_elements_in_block;
-    float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
+    float *subgraph_isomorphism =
+        reinterpret_cast<float *>(second_vertices + number_elements_in_block);
     std::int64_t nnz = 0;
     for (Index i = row_begin; i < row_end; ++i) {
         const auto i_neighbor_size = g_degrees[i];
@@ -98,8 +100,9 @@ vertex_similarity_result call_jaccard_default_kernel_general(
                 auto intersection_value =
                     intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 if (intersection_value) {
-                    jaccard[nnz] = float(intersection_value) /
-                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
+                    subgraph_isomorphism[nnz] =
+                        float(intersection_value) /
+                        float(i_neighbor_size + j_neighbor_size - intersection_value);
                     first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     // Safe incrementing of nnz
@@ -111,7 +114,7 @@ vertex_similarity_result call_jaccard_default_kernel_general(
         }
 
         if (diagonal >= column_begin && diagonal < column_end) {
-            jaccard[nnz] = 1.0;
+            subgraph_isomorphism[nnz] = 1.0;
             first_vertices[nnz] = i;
             second_vertices[nnz] = diagonal;
             nnz++;
@@ -125,8 +128,9 @@ vertex_similarity_result call_jaccard_default_kernel_general(
                 auto intersection_value =
                     intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
                 if (intersection_value) {
-                    jaccard[nnz] = float(intersection_value) /
-                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
+                    subgraph_isomorphism[nnz] =
+                        float(intersection_value) /
+                        float(i_neighbor_size + j_neighbor_size - intersection_value);
                     first_vertices[nnz] = i;
                     second_vertices[nnz] = j;
                     nnz++;
@@ -135,9 +139,12 @@ vertex_similarity_result call_jaccard_default_kernel_general(
             }
         }
     }
-    vertex_similarity_result res(
+    graph_matching_result res(
         homogen_table::wrap(first_vertices, number_elements_in_block, 2, data_layout::column_major),
-        homogen_table::wrap(jaccard, number_elements_in_block, 1, data_layout::column_major),
+        homogen_table::wrap(subgraph_isomorphism,
+                            number_elements_in_block,
+                            1,
+                            data_layout::column_major),
         nnz);
     return res;
 }
@@ -160,4 +167,4 @@ inline std::int64_t intersection(const Index *neigh_u, const Index *neigh_v, Ind
     return total;
 }
 
-} // namespace oneapi::dal::preview::jaccard::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

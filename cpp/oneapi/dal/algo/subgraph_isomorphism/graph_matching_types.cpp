@@ -14,41 +14,41 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 
 namespace oneapi::dal::preview {
-namespace jaccard {
+namespace subgraph_isomorphism {
 
-class detail::vertex_similarity_result_impl : public base {
+class detail::graph_matching_result_impl : public base {
 public:
     table coeffs;
     table vertex_pairs;
     std::int64_t nonzero_coeff_count;
 };
 
-using detail::vertex_similarity_result_impl;
+using detail::graph_matching_result_impl;
 
-vertex_similarity_result::vertex_similarity_result() : impl_(new vertex_similarity_result_impl()) {}
+graph_matching_result::graph_matching_result() : impl_(new graph_matching_result_impl()) {}
 
-vertex_similarity_result::vertex_similarity_result(const table& vertex_pairs,
-                                                   const table& coeffs,
-                                                   std::int64_t nonzero_coeff_count)
-        : impl_(new vertex_similarity_result_impl()) {
+graph_matching_result::graph_matching_result(const table& vertex_pairs,
+                                             const table& coeffs,
+                                             std::int64_t nonzero_coeff_count)
+        : impl_(new graph_matching_result_impl()) {
     impl_->vertex_pairs = vertex_pairs;
     impl_->coeffs = coeffs;
     impl_->nonzero_coeff_count = nonzero_coeff_count;
 }
 
-table vertex_similarity_result::get_coeffs() const {
+table graph_matching_result::get_coeffs() const {
     return impl_->coeffs;
 }
 
-table vertex_similarity_result::get_vertex_pairs() const {
+table graph_matching_result::get_vertex_pairs() const {
     return impl_->vertex_pairs;
 }
 
-int64_t vertex_similarity_result::get_nonzero_coeff_count() const {
+int64_t graph_matching_result::get_nonzero_coeff_count() const {
     return impl_->nonzero_coeff_count;
 }
-} // namespace jaccard
+} // namespace subgraph_isomorphism
 } // namespace oneapi::dal::preview

@@ -15,21 +15,21 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the input and output for Jaccard Similarity
+/// Contains the definition of the input and output for subgraph_isomorphism Similarity
 /// algorithm
 
 #pragma once
 
-#include "oneapi/dal/algo/jaccard/common.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
-namespace oneapi::dal::preview::jaccard::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-class vertex_similarity_result_impl;
+class graph_matching_result_impl;
 
 template <typename Graph>
-class vertex_similarity_input_impl : public base {
+class graph_matching_input_impl : public base {
 public:
-    vertex_similarity_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
+    graph_matching_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
             : graph_data(graph_data_input),
               builder(builder_input) {}
 
@@ -37,4 +37,4 @@ public:
     caching_builder& builder;
 };
 
-} // namespace oneapi::dal::preview::jaccard::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

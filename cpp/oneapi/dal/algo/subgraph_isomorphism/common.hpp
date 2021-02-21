@@ -20,7 +20,7 @@
 #include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::preview {
-namespace jaccard {
+namespace subgraph_isomorphism {
 namespace detail {
 struct tag {};
 class descriptor_impl;
@@ -32,7 +32,7 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
-/// The base class for the Jaccard similarity algorithm descriptor
+/// The base class for the subgraph_isomorphism similarity algorithm descriptor
 class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
@@ -63,7 +63,7 @@ protected:
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
 
-/// Class for the Jaccard similarity algorithm descriptor
+/// Class for the subgraph_isomorphism similarity algorithm descriptor
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
@@ -72,7 +72,7 @@ class descriptor : public descriptor_base {
 public:
     using method_t = Method;
 
-    /// Sets the range of the rows of the graph block for Jaccard similarity computation
+    /// Sets the range of the rows of the graph block for subgraph_isomorphism similarity computation
     ///
     /// @param [in] begin  The begin of the row of the graph block
     /// @param [in] end    The end of the row of the graph block
@@ -81,7 +81,7 @@ public:
         return *this;
     }
 
-    /// Sets the range of the columns of the graph block for Jaccard similarity computation
+    /// Sets the range of the columns of the graph block for subgraph_isomorphism similarity computation
     ///
     /// @param [in] begin  The begin of the column of the graph block
     /// @param [in] end    The end of the column of the graph block
@@ -90,7 +90,7 @@ public:
         return *this;
     }
 
-    /// Sets the range of the rows and columns of the graph block for Jaccard similarity
+    /// Sets the range of the rows and columns of the graph block for subgraph_isomorphism similarity
     /// computation
     ///
     /// @param [in] row_range     The range of the rows of the graph block
@@ -127,5 +127,5 @@ constexpr bool is_valid_graph =
 
 } // namespace detail
 
-} // namespace jaccard
+} // namespace subgraph_isomorphism
 } // namespace oneapi::dal::preview

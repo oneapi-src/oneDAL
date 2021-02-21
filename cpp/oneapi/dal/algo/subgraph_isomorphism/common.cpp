@@ -14,10 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/jaccard/common.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
 namespace oneapi::dal::preview {
-namespace jaccard {
+namespace subgraph_isomorphism {
 
 class detail::descriptor_impl : public base {
 public:
@@ -74,5 +74,5 @@ void* caching_builder::operator()(std::int64_t block_max_size) {
     return static_cast<void*>(result_ptr.get());
 }
 
-} // namespace jaccard
+} // namespace subgraph_isomorphism
 } // namespace oneapi::dal::preview

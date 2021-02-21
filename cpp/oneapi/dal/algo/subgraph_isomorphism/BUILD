@@ -5,7 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "jaccard",
+    name = "subgraph_isomorphism",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
