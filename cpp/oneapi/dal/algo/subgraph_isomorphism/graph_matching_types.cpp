@@ -21,34 +21,26 @@ namespace subgraph_isomorphism {
 
 class detail::graph_matching_result_impl : public base {
 public:
-    table coeffs;
-    table vertex_pairs;
-    std::int64_t nonzero_coeff_count;
+    table vertex_match;
+    std::int64_t match_count;
 };
 
 using detail::graph_matching_result_impl;
 
 graph_matching_result::graph_matching_result() : impl_(new graph_matching_result_impl()) {}
 
-graph_matching_result::graph_matching_result(const table& vertex_pairs,
-                                             const table& coeffs,
-                                             std::int64_t nonzero_coeff_count)
+graph_matching_result::graph_matching_result(const table& vertex_match, std::int64_t match_count)
         : impl_(new graph_matching_result_impl()) {
-    impl_->vertex_pairs = vertex_pairs;
-    impl_->coeffs = coeffs;
-    impl_->nonzero_coeff_count = nonzero_coeff_count;
+    impl_->vertex_match = vertex_match;
+    impl_->match_count = match_count;
 }
 
-table graph_matching_result::get_coeffs() const {
-    return impl_->coeffs;
+table graph_matching_result::get_vertex_match() const {
+    return impl_->vertex_match;
 }
 
-table graph_matching_result::get_vertex_pairs() const {
-    return impl_->vertex_pairs;
-}
-
-int64_t graph_matching_result::get_nonzero_coeff_count() const {
-    return impl_->nonzero_coeff_count;
+int64_t graph_matching_result::get_match_count() const {
+    return impl_->match_count;
 }
 } // namespace subgraph_isomorphism
 } // namespace oneapi::dal::preview

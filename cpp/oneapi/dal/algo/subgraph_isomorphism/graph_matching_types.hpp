@@ -39,13 +39,13 @@ public:
     ///
     /// @param [in]   graph  The input graph
     /// @param [in/out]  builder  The caching builder
-    graph_matching_input(const Graph& graph, caching_builder& builder);
+    graph_matching_input(const Graph& target_graph, const Graph& patter_graph);
 
     /// Returns the constant reference to the input graph
-    const Graph& get_graph() const;
+    const Graph& get_target_graph() const;
 
-    /// Returns the caching_builder for the result
-    caching_builder& get_caching_builder();
+    /// Returns the constant reference to the input graph
+    const Graph& get_pattern_graph() const;
 
 private:
     dal::detail::pimpl<detail::graph_matching_input_impl<Graph>> impl_;
@@ -73,14 +73,10 @@ public:
 
     /// Returns the table of size [nonzero_coeff_count x 1] with non-zero subgraph_isomorphism
     /// similarity coefficients
-    table get_coeffs() const;
-
-    /// Returns the table of size [nonzero_coeff_count x 2] with vertex pairs which have
-    /// non-zero subgraph_isomorphism similarity coefficients
-    table get_vertex_pairs() const;
+    table get_vertex_match() const;
 
     /// The number of non-zero subgraph_isomorphism similarity coefficients in the block
-    std::int64_t get_nonzero_coeff_count() const;
+    std::int64_t get_match_count() const;
 
 private:
     dal::detail::pimpl<detail::graph_matching_result_impl> impl_;
@@ -91,13 +87,13 @@ graph_matching_input<Graph>::graph_matching_input(const Graph& data, caching_bui
         : impl_(new detail::graph_matching_input_impl<Graph>(data, builder_input)) {}
 
 template <typename Graph>
-const Graph& graph_matching_input<Graph>::get_graph() const {
-    return impl_->graph_data;
+const Graph& graph_matching_input<Graph>::get_target_graph() const {
+    return impl_->target_graph;
 }
 
 template <typename Graph>
-caching_builder& graph_matching_input<Graph>::get_caching_builder() {
-    return impl_->builder;
+const Graph& graph_matching_input<Graph>::get_pattern_graph() const {
+    return impl_->pattern_graph;
 }
 
 } // namespace subgraph_isomorphism

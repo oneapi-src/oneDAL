@@ -32,6 +32,8 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
+class enum kind { induced, non_induced };
+
 /// The base class for the subgraph_isomorphism similarity algorithm descriptor
 class ONEDAL_EXPORT descriptor_base : public base {
 public:
@@ -43,22 +45,18 @@ public:
     descriptor_base();
 
     /// Returns the begin of the row of the graph block
-    auto get_row_range_begin() const -> std::int64_t;
+    auto get_kind() const -> subgraph_isomorphism::kind;
 
     /// Returns the end of the row of the graph block
-    auto get_row_range_end() const -> std::int64_t;
+    auto get_semantic_match() const -> bool;
 
     /// Returns the begin of the column of the graph block
-    auto get_column_range_begin() const -> std::int64_t;
-
-    /// Returns the end of the column of the graph block
-    auto get_column_range_end() const -> std::int64_t;
+    auto get_max_match_count() const -> std::int64_t;
 
 protected:
-    void set_row_range_impl(std::int64_t begin, std::int64_t end);
-    void set_column_range_impl(std::int64_t begin, std::int64_t end);
-    void set_block_impl(const std::initializer_list<std::int64_t>& row_range,
-                        const std::initializer_list<std::int64_t>& column_range);
+    void descriptor_base::set_kind_impl(kind value);
+    void descriptor_base::set_semantic_match_impl(bool semantic_match);
+    void descriptor_base::set_max_match_count_impl(std::int64_t max_match_count);
 
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
@@ -76,8 +74,8 @@ public:
     ///
     /// @param [in] begin  The begin of the row of the graph block
     /// @param [in] end    The end of the row of the graph block
-    auto& set_row_range(std::int64_t begin, std::int64_t end) {
-        this->set_row_range_impl(begin, end);
+    auto& descriptor_base::set_kind(kind value) {
+        this->set_kind_impl(value);
         return *this;
     }
 
@@ -85,8 +83,8 @@ public:
     ///
     /// @param [in] begin  The begin of the column of the graph block
     /// @param [in] end    The end of the column of the graph block
-    auto& set_column_range(std::int64_t begin, std::int64_t end) {
-        this->set_column_range_impl(begin, end);
+    auto& descriptor_base::set_semantic_match(bool semantic_match) {
+        this->set_semantic_match_impl(semantic_match);
         return *this;
     }
 
@@ -95,23 +93,10 @@ public:
     ///
     /// @param [in] row_range     The range of the rows of the graph block
     /// @param [in] column_range  The range of the columns of the graph block
-    auto& set_block(const std::initializer_list<std::int64_t>& row_range,
-                    const std::initializer_list<std::int64_t>& column_range) {
-        this->set_block_impl(row_range, column_range);
+    auto& descriptor_base::set_max_match_count(std::int64_t max_match_count) {
+        this->set_max_match_count_impl(max_match_count);
         return *this;
     }
-};
-
-/// Structure for the caching builder
-struct ONEDAL_EXPORT caching_builder {
-    /// Returns the pointer to the allocated memory of size block_max_size.
-    ///
-    /// @param [in]   block_max_size  The required size of memory
-    /// @param [in/out]  builder  The caching builder
-    void* operator()(std::int64_t block_max_size);
-
-    std::shared_ptr<byte_t> result_ptr;
-    std::int64_t size = 0;
 };
 
 namespace detail {
