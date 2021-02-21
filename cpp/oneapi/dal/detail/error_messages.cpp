@@ -43,6 +43,8 @@ MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 
 /* Tables */
+MSG(allocated_memory_size_is_not_enough_to_copy_data,
+    "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
