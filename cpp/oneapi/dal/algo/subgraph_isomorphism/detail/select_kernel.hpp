@@ -27,7 +27,8 @@ template <typename Policy, typename Topology>
 struct ONEDAL_EXPORT backend_base {
     virtual graph_matching_result operator()(const Policy &ctx,
                                              const descriptor_base &descriptor,
-                                             const Topology &data,
+                                             const Topology &t_data,
+                                             const Topology &p_data,
                                              void *result_ptr) = 0;
     virtual ~backend_base() {}
 };
@@ -36,9 +37,13 @@ template <typename Policy, typename Float, typename Method, typename Topology>
 struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Topology> {
     virtual graph_matching_result operator()(const Policy &ctx,
                                              const descriptor_base &descriptor,
-                                             const Topology &data,
+                                             const Topology &t_data,
+                                             const Topology &p_data,
                                              void *result_ptr) {
-        return call_subgraph_isomorphism_default_kernel_general(descriptor, data, result_ptr);
+        return call_subgraph_isomorphism_default_kernel_general(descriptor,
+                                                                t_data,
+                                                                p_data,
+                                                                result_ptr);
     }
     virtual ~backend_default() {}
 };
@@ -53,14 +58,16 @@ struct backend_default<dal::detail::host_policy,
     virtual graph_matching_result operator()(
         const dal::detail::host_policy &ctx,
         const descriptor_base &descriptor,
-        const dal::preview::detail::topology<std::int32_t> &data,
+        const dal::preview::detail::topology<std::int32_t> &target_data,
+        const dal::preview::detail::topology<std::int32_t> &pattern_data,
         void *result_ptr);
     virtual ~backend_default() {}
 };
 
 template <typename Policy, typename Float, class Method, typename Topology>
 dal::detail::pimpl<backend_base<Policy, Topology>> get_backend(const descriptor_base &desc,
-                                                               const Topology &data) {
+                                                               const Topology &target_data,
+                                                               const Topology &pattern_data) {
     return dal::detail::pimpl<backend_base<Policy, Topology>>(
         new backend_default<Policy, float, method::by_default, Topology>);
 }

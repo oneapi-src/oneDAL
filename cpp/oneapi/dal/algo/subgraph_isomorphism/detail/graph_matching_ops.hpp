@@ -35,37 +35,23 @@ struct ONEDAL_EXPORT graph_matching_ops_dispatcher {
 
 template <typename Descriptor, typename Graph>
 struct graph_matching_ops {
-    using float_t = typename Descriptor::float_t;
-    using method_t = typename Descriptor::method_t;
-    using input_t = graph_matching_input<Graph>;
-    using result_t = graph_matching_result;
+    using float_t           = typename Descriptor::float_t;
+    using method_t          = typename Descriptor::method_t;
+    using input_t           = graph_matching_input<Graph>;
+    using result_t          = graph_matching_result;
     using descriptor_base_t = descriptor_base;
 
     void check_preconditions(const Descriptor &param, graph_matching_input<Graph> &input) const {
         using msg = dal::detail::error_messages;
 
-        const std::int64_t row_begin = param.get_row_range_begin();
-        const std::int64_t row_end = param.get_row_range_end();
-        const std::int64_t column_begin = param.get_column_range_begin();
-        const std::int64_t column_end = param.get_column_range_end();
-        if (row_begin < 0 || column_begin < 0) {
-            throw invalid_argument(msg::negative_interval());
+        if (param.get_kind() != kind::induced) {
+            throw invalid_argument(msg::unsupported_kind());
         }
-        if (row_begin > row_end) {
-            throw invalid_argument(msg::row_begin_gt_row_end());
+        if (param.get_max_match_count() < 0) {
+            throw invalid_argument(msg::max_match_count_lt_zero());
         }
-        if (column_begin > column_end) {
-            throw invalid_argument(msg::column_begin_gt_column_end());
-        }
-        const std::int64_t vertex_count =
-            dal::detail::get_impl(input.get_graph()).get_topology()._vertex_count;
-        // Safe conversion as ranges were checked
-        if (row_end > vertex_count || column_end > vertex_count) {
-            throw out_of_range(msg::interval_gt_vertex_count());
-        }
-        if (row_end >= dal::detail::limits<std::int32_t>::max() ||
-            column_end >= dal::detail::limits<std::int32_t>::max()) {
-            throw invalid_argument(msg::range_idx_gt_max_int32());
+        if (param.get_semantic_match() != false) {
+            throw invalid_argument(msg::unsupported_semantic_match());
         }
     }
 
@@ -85,19 +71,13 @@ graph_matching_result graph_matching_ops_dispatcher<Policy, Float, Method, Graph
     const Policy &policy,
     const descriptor_base &desc,
     graph_matching_input<Graph> &input) const {
-    const auto &csr_topology =
-        dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-    const std::int64_t row_begin = desc.get_row_range_begin();
-    const std::int64_t row_end = desc.get_row_range_end();
-    const std::int64_t column_begin = desc.get_column_range_begin();
-    const std::int64_t column_end = desc.get_column_range_end();
-    const std::int64_t number_elements_in_block =
-        get_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const std::int64_t max_block_size =
-        get_max_block_size<Float, vertex_type<Graph>>(number_elements_in_block);
-    void *result_ptr = input.get_caching_builder()(max_block_size);
-    static auto impl = get_backend<Policy, Float, Method>(desc, csr_topology);
-    return (*impl)(policy, desc, csr_topology, result_ptr);
+    const auto &csr_target_topology =
+        dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
+    const auto &csr_pattern_topology =
+        dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
+    static auto impl =
+        get_backend<Policy, Float, Method>(desc, csr_target_topology, csr_pattern_topology);
+    return (*impl)(policy, desc, csr_target_topology, csr_pattern_topology);
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

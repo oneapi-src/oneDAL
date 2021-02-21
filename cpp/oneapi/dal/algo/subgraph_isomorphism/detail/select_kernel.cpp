@@ -28,11 +28,13 @@ graph_matching_result backend_default<dal::detail::host_policy,
                                       dal::preview::detail::topology<std::int32_t>>::
 operator()(const dal::detail::host_policy &policy,
            const descriptor_base &desc,
-           const dal::preview::detail::topology<std::int32_t> &data,
+           const dal::preview::detail::topology<std::int32_t> &t_data,
+           const dal::preview::detail::topology<std::int32_t> &p_data,
            void *result_ptr) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return call_subgraph_isomorphism_default_kernel_int32<decltype(cpu)>(desc,
-                                                                             data,
+                                                                             t_data,
+                                                                             p_data,
                                                                              result_ptr);
     });
 }

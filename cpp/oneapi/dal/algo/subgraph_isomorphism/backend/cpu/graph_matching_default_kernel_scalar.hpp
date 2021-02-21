@@ -28,104 +28,14 @@ namespace oneapi::dal::preview {
 namespace subgraph_isomorphism {
 namespace detail {
 
-template <typename Index>
-DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
-                                          const Index *neigh_v,
-                                          Index n_u,
-                                          Index n_v) {
-    std::size_t total = 0;
-    Index i_u = 0, i_v = 0;
-    while (i_u < n_u && i_v < n_v) {
-        if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
-            return total;
-        }
-        if (neigh_u[i_u] == neigh_v[i_v])
-            total++, i_u++, i_v++;
-        else if (neigh_u[i_u] < neigh_v[i_v])
-            i_u++;
-        else if (neigh_u[i_u] > neigh_v[i_v])
-            i_v++;
-    }
-    return total;
-}
-
 template <typename Cpu, typename Index>
 graph_matching_result call_subgraph_isomorphism_default_kernel_scalar(
     const descriptor_base &desc,
-    const dal::preview::detail::topology<Index> &data,
+    const dal::preview::detail::topology<std::int32_t> &t_data,
+    const dal::preview::detail::topology<std::int32_t> &p_data,
     void *result_ptr) {
-    const auto g_edge_offsets = data._rows.get_data();
-    const auto g_vertex_neighbors = data._cols.get_data();
-    const auto g_degrees = data._degrees.get_data();
-    const auto row_begin = dal::detail::integral_cast<Index>(desc.get_row_range_begin());
-    const auto row_end = dal::detail::integral_cast<Index>(desc.get_row_range_end());
-    const auto column_begin = dal::detail::integral_cast<Index>(desc.get_column_range_begin());
-    const auto column_end = dal::detail::integral_cast<Index>(desc.get_column_range_end());
-    const auto number_elements_in_block =
-        compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    Index *first_vertices = reinterpret_cast<Index *>(result_ptr);
-    Index *second_vertices = first_vertices + number_elements_in_block;
-    float *subgraph_isomorphism =
-        reinterpret_cast<float *>(second_vertices + number_elements_in_block);
-    std::int64_t nnz = 0;
-    for (Index i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = g_degrees[i];
-        const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal = min(i, column_end);
-        for (Index j = column_begin; j < diagonal; j++) {
-            const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-            if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_value =
-                    intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                if (intersection_value) {
-                    subgraph_isomorphism[nnz] =
-                        float(intersection_value) /
-                        float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    first_vertices[nnz] = i;
-                    second_vertices[nnz] = j;
-                    // Safe incrementing of nnz
-                    //max nnz = (2^(31)  * 2^(31))=(2^62) < 2^63 = max size of std::int64_t
-                    nnz++;
-                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                }
-            }
-        }
-
-        if (diagonal >= column_begin && diagonal < column_end) {
-            subgraph_isomorphism[nnz] = 1.0;
-            first_vertices[nnz] = i;
-            second_vertices[nnz] = diagonal;
-            nnz++;
-        }
-
-        for (Index j = max(column_begin, diagonal + 1); j < column_end; j++) {
-            const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
-            if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
-                !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_value =
-                    intersection(i_neigbhors, j_neigbhors, i_neighbor_size, j_neighbor_size);
-                if (intersection_value) {
-                    subgraph_isomorphism[nnz] =
-                        float(intersection_value) /
-                        float(i_neighbor_size + j_neighbor_size - intersection_value);
-                    first_vertices[nnz] = i;
-                    second_vertices[nnz] = j;
-                    nnz++;
-                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
-                }
-            }
-        }
-    }
-    graph_matching_result res(
-        homogen_table::wrap(first_vertices, number_elements_in_block, 2, data_layout::column_major),
-        homogen_table::wrap(subgraph_isomorphism,
-                            number_elements_in_block,
-                            1,
-                            data_layout::column_major),
-        nnz);
+    std::cout << "KERNEL scalar" << std::endl;
+    graph_matching_result res;
     return res;
 }
 } // namespace detail

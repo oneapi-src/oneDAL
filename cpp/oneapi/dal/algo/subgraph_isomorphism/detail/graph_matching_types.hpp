@@ -29,12 +29,12 @@ class graph_matching_result_impl;
 template <typename Graph>
 class graph_matching_input_impl : public base {
 public:
-    graph_matching_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
-            : graph_data(graph_data_input),
-              builder(builder_input) {}
+    graph_matching_input_impl(const Graph& target_graph, const Graph& pattern_graph)
+            : target_graph(target_graph),
+              pattern_graph(pattern_graph) {}
 
-    const Graph& graph_data;
-    caching_builder& builder;
+    const Graph& target_graph;
+    const Graph& pattern_graph;
 };
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail
