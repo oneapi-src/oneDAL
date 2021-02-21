@@ -43,8 +43,6 @@ MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 
 /* Tables */
-MSG(allocated_memory_size_is_not_enough_to_copy_data,
-    "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
@@ -125,6 +123,11 @@ MSG(interval_gt_vertex_count, "Interval is greater than vertex count")
 MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
 MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
+
+/* SUbgraph Isomorphism */
+MSG(unsupported_kind, "Unsupported kind of subgraph");
+MSG(max_match_count_lt_zero, "Maximum number of match count less that zero");
+MSG(unsupported_semantic_match, "Unsupported semantic match mode");
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
