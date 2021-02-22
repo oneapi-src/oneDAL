@@ -77,9 +77,7 @@ graph_matching_result graph_matching_ops_dispatcher<Policy, Float, Method, Graph
         dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
     static auto impl =
         get_backend<Policy, Float, Method>(desc, csr_target_topology, csr_pattern_topology);
-    const auto result =
-        graph_matching_ops_dispatcher<Policy, Float, Method, Graph>()(policy, desc, input);
-    return (*impl)(policy, desc, csr_target_topology, csr_pattern_topology, (void *)&result);
+    return (*impl)(policy, desc, csr_target_topology, csr_pattern_topology);
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

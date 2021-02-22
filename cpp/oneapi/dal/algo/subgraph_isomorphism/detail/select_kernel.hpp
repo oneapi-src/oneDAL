@@ -28,8 +28,7 @@ struct ONEDAL_EXPORT backend_base {
     virtual graph_matching_result operator()(const Policy &ctx,
                                              const descriptor_base &descriptor,
                                              const Topology &t_data,
-                                             const Topology &p_data,
-                                             void *result_ptr) = 0;
+                                             const Topology &p_data) = 0;
     virtual ~backend_base() {}
 };
 
@@ -38,12 +37,8 @@ struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Topology> {
     virtual graph_matching_result operator()(const Policy &ctx,
                                              const descriptor_base &descriptor,
                                              const Topology &t_data,
-                                             const Topology &p_data,
-                                             void *result_ptr) {
-        return call_subgraph_isomorphism_default_kernel_general(descriptor,
-                                                                t_data,
-                                                                p_data,
-                                                                result_ptr);
+                                             const Topology &p_data) {
+        return call_subgraph_isomorphism_default_kernel_general(descriptor, t_data, p_data);
     }
     virtual ~backend_default() {}
 };
@@ -59,8 +54,7 @@ struct backend_default<dal::detail::host_policy,
         const dal::detail::host_policy &ctx,
         const descriptor_base &descriptor,
         const dal::preview::detail::topology<std::int32_t> &target_data,
-        const dal::preview::detail::topology<std::int32_t> &pattern_data,
-        void *result_ptr);
+        const dal::preview::detail::topology<std::int32_t> &pattern_data);
     virtual ~backend_default() {}
 };
 

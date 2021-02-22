@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     const auto subgraph_isomorphism_desc =
         dal::preview::subgraph_isomorphism::descriptor<>()
             .set_kind(dal::preview::subgraph_isomorphism::kind::induced)
-            .set_semantic_match(true)
+            .set_semantic_match(false)
             .set_max_match_count(100);
 
     // compute matchings

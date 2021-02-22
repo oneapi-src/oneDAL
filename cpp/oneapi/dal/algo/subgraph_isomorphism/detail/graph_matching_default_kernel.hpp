@@ -27,8 +27,7 @@ template <typename Index>
 graph_matching_result call_subgraph_isomorphism_default_kernel_general(
     const descriptor_base &desc,
     const dal::preview::detail::topology<std::int32_t> &t_data,
-    const dal::preview::detail::topology<std::int32_t> &p_data,
-    void *result_ptr) {
+    const dal::preview::detail::topology<std::int32_t> &p_data) {
     std::cout << "KERNEL avx512" << std::endl;
     graph_matching_result res;
     return res;
