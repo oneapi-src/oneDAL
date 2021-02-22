@@ -35,7 +35,7 @@ using by_default = fast;
 
 enum class kind { induced, non_induced };
 
-/// The base class for the subgraph_isomorphism similarity algorithm descriptor
+/// The base class for the Subgraph Isomorphism algorithm descriptor
 class ONEDAL_EXPORT descriptor_base : public base {
 public:
     using tag_t = detail::tag;
@@ -45,13 +45,13 @@ public:
     /// Constructs the empty descriptor
     descriptor_base();
 
-    /// Returns the begin of the row of the graph block
+    /// Returns the kind of searched subgraph which is isomorphic to pattern graph
     auto get_kind() const -> subgraph_isomorphism::kind;
 
-    /// Returns the end of the row of the graph block
+    /// Returns if semantic search is required
     auto get_semantic_match() const -> bool;
 
-    /// Returns the begin of the column of the graph block
+    /// Returns the maximum number of matches to search
     auto get_max_match_count() const -> std::int64_t;
 
 protected:
@@ -62,7 +62,7 @@ protected:
     dal::detail::pimpl<detail::descriptor_impl> impl_;
 };
 
-/// Class for the subgraph_isomorphism similarity algorithm descriptor
+/// Class for the Subgraph Isomorphism algorithm descriptor
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
@@ -71,29 +71,25 @@ class descriptor : public descriptor_base {
 public:
     using method_t = Method;
 
-    /// Sets the range of the rows of the graph block for subgraph_isomorphism similarity computation
+    /// Sets the type of searched subgraph in Subgraph Isomorphism computation
     ///
-    /// @param [in] begin  The begin of the row of the graph block
-    /// @param [in] end    The end of the row of the graph block
+    /// @param [in] value  The begin of the row of the graph block
     auto& set_kind(kind value) {
         this->set_kind_impl(value);
         return *this;
     }
 
-    /// Sets the range of the columns of the graph block for subgraph_isomorphism similarity computation
+    /// Sets the flag if semantic search is requred in Subgraph Isomorphism computation
     ///
-    /// @param [in] begin  The begin of the column of the graph block
-    /// @param [in] end    The end of the column of the graph block
+    /// @param [in] semantic_match The flag if semantic search is requred
     auto& set_semantic_match(bool semantic_match) {
         this->set_semantic_match_impl(semantic_match);
         return *this;
     }
 
-    /// Sets the range of the rows and columns of the graph block for subgraph_isomorphism similarity
-    /// computation
+    /// Sets the maximum number of matchings to search in Subgraph Isomorphism computation
     ///
-    /// @param [in] row_range     The range of the rows of the graph block
-    /// @param [in] column_range  The range of the columns of the graph block
+    /// @param [in] max_match_count  The maximum number of matchings
     auto& set_max_match_count(std::int64_t max_match_count) {
         this->set_max_match_count_impl(max_match_count);
         return *this;

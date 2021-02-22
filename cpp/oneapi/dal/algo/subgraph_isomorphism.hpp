@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /// @file
-/// Includes the entry point for the Jaccard Similarity algorithm
+/// Includes the entry point for the Subgraph Isomorphism algorithm
 
 #pragma once
 

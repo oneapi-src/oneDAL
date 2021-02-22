@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the input and output for subgraph_isomorphism Similarity
+/// Contains the definition of the input and output for Subgraph Isomorphism
 /// algorithm
 
 #pragma once

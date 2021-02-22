@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the input and output for subgraph_isomorphism Similarity
+/// Contains the definition of the input and output for Subgraph Isomorphism
 /// algorithm
 
 #pragma once
@@ -26,7 +26,7 @@
 namespace oneapi::dal::preview {
 namespace subgraph_isomorphism {
 
-/// Class for the description of the input parameters of the subgraph_isomorphism Similarity
+/// Class for the description of the input parameters of the Subgraph Isomorphism
 /// algorithm
 ///
 /// @tparam Graph  Type of the input graph
@@ -35,45 +35,44 @@ class ONEDAL_EXPORT graph_matching_input {
 public:
     static_assert(detail::is_valid_graph<Graph>,
                   "Only undirected_adjacency_vector_graph is supported.");
-    /// Constructs the algorithm input initialized with the graph and the caching builder.
+    /// Constructs the algorithm input initialized with the target and pattern graphs.
     ///
-    /// @param [in]   graph  The input graph
-    /// @param [in/out]  builder  The caching builder
+    /// @param [in] target_graph  The input target (big) graph
+    /// @param [in] pattern_graph  The input patern (small) graph
     graph_matching_input(const Graph& target_graph, const Graph& patter_graph);
 
-    /// Returns the constant reference to the input graph
+    /// Returns the constant reference to the input target graph
     const Graph& get_target_graph() const;
 
-    /// Returns the constant reference to the input graph
+    /// Returns the constant reference to the input pattern graph
     const Graph& get_pattern_graph() const;
 
 private:
     dal::detail::pimpl<detail::graph_matching_input_impl<Graph>> impl_;
 };
 
-/// Class for the description of the result of the subgraph_isomorphism Similarity algorithm
+/// Class for the description of the result of the Subgraph Isomorphism algorithm
 class ONEDAL_EXPORT graph_matching_result {
 public:
     /// Constructs the empty result
     graph_matching_result();
 
-    /// Constructs the algorithm result initialized with the table of vertex pairs,
-    /// the table of the corresponding computed subgraph_isomorphism similarity coefficients, and
-    /// the number of non-zero subgraph_isomorphism similarity coefficients in the block.
+    /// Constructs the algorithm result initialized with the table of vertex matchings and
+    /// the number of pattern matchings in target graph.
     ///
-    /// @param [in]   vertex_pairs        The table of size [nonzero_coeff_count x 2] with
-    ///                                   vertex pairs which have non-zero subgraph_isomorphism
-    ///                                   similarity coefficients
-    /// @param [in]   coeffs              The table of size [nonzero_coeff_count x 1] with
-    ///                                   non-zero subgraph_isomorphism similarity coefficients
-    /// @param [in]   nonzero_coeff_count The number of non-zero subgraph_isomorphism coefficients
+    /// @param [in]   vertex_match        The table of size [match_count x pattern_vertex_count] with
+    ///                                   matchings of pattern graph in target graph. Each row of the table
+    ///                                   contain ids of vertices in target graph sorted by pattern vertex ids.
+    ///                                   I.e. j-th element of i-th row contain id of target graph vertex which
+    ///                                   was matched with j-th vertex of pattern graph in i-th match.
+    /// @param [in]   match_count         The number pattern matches in the target graph.
     graph_matching_result(const table& vertex_match, std::int64_t match_count);
 
-    /// Returns the table of size [nonzero_coeff_count x 1] with non-zero subgraph_isomorphism
-    /// similarity coefficients
+    /// Returns the table of size [match_count x pattern_vertex_count] with matchings of pattern graph
+    /// in target graph.
     table get_vertex_match() const;
 
-    /// The number of non-zero subgraph_isomorphism similarity coefficients in the block
+    /// The number pattern matches in the target graph.
     std::int64_t get_match_count() const;
 
 private:

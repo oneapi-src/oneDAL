@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the main processing function for vertex
-/// similarity family of the algorithms
+/// Contains the definition of the main processing function for graph matching
+/// family of the algorithms
 
 #pragma once
 
@@ -24,7 +24,7 @@
 
 namespace oneapi::dal::preview {
 
-/// The main processing function for vertex similarity family of the algorithms
+/// The main processing function for graph matching family of the algorithms
 template <typename... Args>
 auto graph_matching(Args &&... args) {
     return detail::graph_matching_dispatch(std::forward<Args>(args)...);
