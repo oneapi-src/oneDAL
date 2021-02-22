@@ -67,9 +67,7 @@ public:
     /// @param [in]   coeffs              The table of size [nonzero_coeff_count x 1] with
     ///                                   non-zero subgraph_isomorphism similarity coefficients
     /// @param [in]   nonzero_coeff_count The number of non-zero subgraph_isomorphism coefficients
-    graph_matching_result(const table& vertex_pairs,
-                          const table& coeffs,
-                          std::int64_t nonzero_coeff_count);
+    graph_matching_result(const table& vertex_match, std::int64_t match_count);
 
     /// Returns the table of size [nonzero_coeff_count x 1] with non-zero subgraph_isomorphism
     /// similarity coefficients
