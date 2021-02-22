@@ -30,8 +30,10 @@
 #include "services/internal/sycl/types.h"
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
+#include "src/sycl/reducer.h"
 
 #include "src/externals/service_ittnotify.h"
+#include <iostream>
 
 DAAL_ITTNOTIFY_DOMAIN(kmeans.dense.lloyd.batch.oneapi);
 
@@ -172,37 +174,14 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const se
                                                                         UniversalBuffer & dataSq, uint32_t nRows, uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeSquares);
-    Status status;
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel(getComputeSquaresKernelName(nFeatures), status);
-    DAAL_CHECK_STATUS_VAR(status);
-
+    Status st;
     DAAL_ASSERT(data.size() >= nRows * nFeatures);
     DAAL_ASSERT_UNIVERSAL_BUFFER(dataSq, algorithmFPType, nRows);
 
     DAAL_ASSERT(nRows <= maxInt32AsUint32T);
     DAAL_ASSERT(nFeatures <= maxInt32AsUint32T);
-
-    KernelArguments args(4, status);
-    DAAL_CHECK_STATUS_VAR(status);
-    args.set(0, data, AccessModeIds::read);
-    args.set(1, dataSq, AccessModeIds::write);
-    args.set(2, static_cast<int32_t>(nRows));
-    args.set(3, static_cast<int32_t>(nFeatures));
-
-    uint32_t workItemsPerGroup = getComputeSquaresWorkgroupsCount(nFeatures);
-
-    KernelRange local_range(1, workItemsPerGroup);
-    KernelRange global_range(nRows, workItemsPerGroup);
-
-    KernelNDRange range(2);
-    range.global(global_range, status);
-    DAAL_CHECK_STATUS_VAR(status);
-    range.local(local_range, status);
-    DAAL_CHECK_STATUS_VAR(status);
-    context.run(range, kernel, args, status);
-    return status;
+    dataSq = math::SumReducer::sum(math::Layout::RowMajor, data, nRows, nFeatures, st).sumOfSquares;
+    return st;
 }
 
 template <typename algorithmFPType>
@@ -211,8 +190,9 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getNumEmptyClusters(uin
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countEmptyClusters);
     Status st;
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel("count_empty_clusters", st);
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
+    auto kernel           = kernelFactory.getKernel("count_empty_clusters", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(_partialCentroidsCounters, int, _nPartialCentroids * nClusters);
@@ -249,6 +229,16 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeDistances(const 
     Status st = BlasGpu<algorithmFPType>::xgemm(math::Layout::ColMajor, math::Transpose::Trans, math::Transpose::NoTrans, blockSize, nClusters,
                                                 nFeatures, algorithmFPType(-1.0), data, nFeatures, 0, centroids, nFeatures, 0, algorithmFPType(0.0),
                                                 _distances.get<algorithmFPType>(), blockSize, 0);
+    {
+        Status st;
+        auto dist = _distances.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, st);
+        for(int j = 0; j < 10; j++) {
+            std::cout << "GEMM distance i=" << j; 
+            for(int i = 0; i < nClusters; i++)
+                std::cout << " " << (dist.get()[j + i * blockSize]);
+            std::cout << std::endl;
+        }
+    }
     return st;
 }
 
@@ -259,8 +249,9 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(cons
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeAssignments);
     Status st;
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel("reduce_assignments", st);
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
+    auto kernel           = kernelFactory.getKernel("reduce_assignments", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(_centroidsSq, algorithmFPType, nClusters);
@@ -270,6 +261,17 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(cons
 
     DAAL_ASSERT(blockSize <= maxInt32AsUint32T);
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
+    {
+        auto sq = _centroidsSq.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, st);
+        auto dist = _distances.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, st);
+        for(int j = 0; j < 10; j++) {
+            std::cout << "distance i=" << j; 
+            for(int i = 0; i < nClusters; i++)
+                std::cout << " " << (dist.get()[j + i * blockSize] + sq.get()[i]);
+            std::cout << std::endl;
+        }
+    }
+
 
     KernelArguments args(7, st);
     DAAL_CHECK_STATUS_VAR(st);
@@ -297,6 +299,13 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(cons
     range.local(local_range, st);
     DAAL_CHECK_STATUS_VAR(st);
     context.run(range, kernel, args, st);
+    {
+        auto as = assignments.template get<int>().toHost(ReadWriteMode::readOnly, st);
+        auto md = _mindistances.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, st);
+        for(int i = 0; i < 10; i++) {
+            std::cout << "mindist: " << i << " " << as.get()[i] << " " << md.get()[i] <<  std::endl;
+        }
+    }
     return st;
 }
 
@@ -307,8 +316,9 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidate
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialCandidates);
     Status st;
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel("partial_candidates", st);
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
+    auto kernel           = kernelFactory.getKernel("partial_candidates", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     int numParts = getCandidatePartNum(nClusters);
@@ -356,8 +366,9 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergePartialCandidates);
     Status st;
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel("merge_candidates", st);
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
+    auto kernel           = kernelFactory.getKernel("merge_candidates", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     int numParts = getCandidatePartNum(nClusters);
@@ -398,8 +409,9 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partialReduceCentroids);
     Status st;
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel("partial_reduce_centroids", st);
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
+    auto kernel           = kernelFactory.getKernel("partial_reduce_centroids", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT(data.size() >= blockSize * nFeatures);
@@ -439,8 +451,9 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(co
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
     Status st;
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel("merge_reduce_centroids", st);
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
+    auto kernel           = kernelFactory.getKernel("merge_reduce_centroids", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT(centroids.size() >= nClusters * nFeatures);
@@ -485,8 +498,9 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction
     }
 
     auto & context        = Environment::getInstance()->getDefaultExecutionContext();
-    auto & kernel_factory = context.getClKernelFactory();
-    auto kernel           = kernel_factory.getKernel("update_objective_function", st);
+    auto & kernelFactory = context.getClKernelFactory();
+    DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
+    auto kernel           = kernelFactory.getKernel("update_objective_function", st);
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_ASSERT(objFunction.size() >= 1);
@@ -495,6 +509,14 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction
 
     DAAL_ASSERT(blockSize <= maxInt32AsUint32T);
     DAAL_ASSERT(nClusters <= maxInt32AsUint32T);
+
+    {
+        auto sq = _dataSq.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, st);
+        auto md = _mindistances.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, st);
+        for(int i = 0; i < 100; i++) {
+            std::cout << "dist: " << i << " " << sq.get()[i] << " " << md.get()[i] <<  std::endl;
+        }
+    }
 
     KernelArguments args(5, st);
     DAAL_CHECK_STATUS_VAR(st);

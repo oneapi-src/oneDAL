@@ -29,6 +29,7 @@
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step1_kernel_ucapi.h"
 
 #include "src/externals/service_ittnotify.h"
+#include <iostream>
 
 constexpr size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
 
@@ -131,12 +132,24 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(range.startIndex, range.count, readOnly, dataRows));
         auto data = dataRows.getBuffer();
         DAAL_CHECK_STATUS_VAR(this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures));
+//        this->_centroidsSq = math::SumReducer::sum(math::Layout::RowMajor, inCentroids, nClusters, nFeatures, st).sumOfSquares;
+        DAAL_CHECK_STATUS_VAR(st);
+        {
+            Status st;
+            auto sq = this->_centroidsSq.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, st);
+            for(int j = 0; j < 10; j++) {
+                std::cout << "newsq: " << sq.get()[j] << std::endl;
+            }
+        }
         DAAL_CHECK_STATUS_VAR(this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures));
         DAAL_CHECK_STATUS_VAR(this->computeAssignments(assignments, range.count, nClusters));
         DAAL_CHECK_STATUS_VAR(this->computeSquares(data, this->_dataSq, range.count, nFeatures));
+//        this->_dataSq = math::SumReducer::sum(math::Layout::RowMajor, data, range.count, nFeatures, st).sumOfSquares;
+        DAAL_CHECK_STATUS_VAR(st);
         DAAL_CHECK_STATUS_VAR(this->partialReduceCentroids(data, assignments, range.count, nClusters, nFeatures, int(block == 0)));
         if (needCandidates)
         {
+            std::cout << "needCandidates" << std::endl;
             DAAL_CHECK_STATUS_VAR(this->getNumEmptyClusters(nClusters));
             DAAL_CHECK_STATUS_VAR(st);
             int numEmpty = 0;
@@ -149,12 +162,17 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             bool hasEmptyClusters = numEmpty > 0;
             if (hasEmptyClusters)
             {
+                std::cout << "updating empty" << std::endl;
                 DAAL_CHECK_STATUS_VAR(this->computePartialCandidates(assignments, range.count, nClusters, int(block == 0)));
                 DAAL_CHECK_STATUS_VAR(this->mergePartialCandidates(nClusters));
             }
             needCandidates = hasEmptyClusters;
         }
         DAAL_CHECK_STATUS_VAR(this->updateObjectiveFunction(outObjFunction, range.count, nClusters, int(block == 0)));
+        {
+            auto obj = outObjFunction.toHost(ReadWriteMode::readOnly, st);
+            std::cout << "obj: " << (*obj.get()) << std::endl;
+        }
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
         if (par->assignFlag)
         {

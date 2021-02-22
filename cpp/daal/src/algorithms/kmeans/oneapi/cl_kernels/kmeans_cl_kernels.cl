@@ -145,7 +145,7 @@ DECLARE_SOURCE(
         {
             algorithmFPType dist   = distances[global_id + N * i];
             algorithmFPType sq     = centroidsSq[i];
-            algorithmFPType curVal = dist + sq;
+            algorithmFPType curVal = dist + 0.5 * sq;
             minIdx                 = curVal < minVal ? i : minIdx;
             minVal                 = curVal < minVal ? curVal : minVal;
         }
@@ -241,7 +241,7 @@ DECLARE_SOURCE(
         }
         for (int iblock = global_id; iblock < N; iblock += gsize)
         {
-            algorithmFPType newVal = 2.0 * (mindistances[iblock] + distSq[iblock]);
+            algorithmFPType newVal = 2.0 * mindistances[iblock] + distSq[iblock];
             if (newVal <= maxDist[K - 1]) continue;
             int valCentroid = assignments[iblock];
             int maxInd      = -1;
@@ -412,7 +412,7 @@ DECLARE_SOURCE(
 
         for (int i = local_id; i < N; i += local_size)
         {
-            local_sum[local_id] += 2 * (dataSq[i] + distances[i]);
+            local_sum[local_id] += dataSq[i] + 2.0 * distances[i];
         }
 
         __sum_reduce(local_sum, local_id, local_size);
