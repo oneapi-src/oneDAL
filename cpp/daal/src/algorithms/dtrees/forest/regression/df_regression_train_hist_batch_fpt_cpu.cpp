@@ -41,7 +41,7 @@ template class BatchContainer<DAAL_FPTYPE, hist, DAAL_CPU>;
 } // namespace interface2
 namespace internal
 {
-template class RegressionTrainBatchKernel<DAAL_FPTYPE, hist, DAAL_CPU>;
+template class DAAL_EXPORT RegressionTrainBatchKernel<DAAL_FPTYPE, hist, DAAL_CPU>;
 }
 
 } // namespace training
