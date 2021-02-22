@@ -45,7 +45,11 @@ template <typename Float, daal::CpuType Cpu>
 using cls_dense_kernel_t = daal_df_cls_train::internal::
     ClassificationTrainBatchKernel<Float, daal_df_cls_train::defaultDense, Cpu>;
 
-template <typename Float>
+template <typename Float, daal::CpuType Cpu>
+using cls_hist_kernel_t = daal_df_cls_train::internal::
+    ClassificationTrainBatchKernel<Float, daal_df_cls_train::hist, Cpu>;
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
@@ -82,6 +86,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
     daal_parameter.maxLeafNodes =
         dal::detail::integral_cast<std::size_t>(desc.get_max_leaf_nodes());
+    daal_parameter.maxBins = dal::detail::integral_cast<std::size_t>(desc.get_max_bins());
+    daal_parameter.minBinSize = dal::detail::integral_cast<std::size_t>(desc.get_min_bin_size());
 
     daal_parameter.resultsToCompute = static_cast<std::uint64_t>(desc.get_error_metric_mode());
 
@@ -125,15 +131,15 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_df::classification::ModelPtr mptr = daal_df::classification::ModelPtr(
         new daal_df::classification::internal::ModelImpl(column_count));
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, cls_dense_kernel_t>(
-        ctx,
-        daal::services::internal::hostApp(daal_input),
-        daal_data.get(),
-        daal_labels.get(),
-        nullptr, // no weights
-        *mptr,
-        daal_result,
-        daal_parameter));
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, CpuKernel>(ctx,
+                                                    daal::services::internal::hostApp(daal_input),
+                                                    daal_data.get(),
+                                                    daal_labels.get(),
+                                                    nullptr, // no weights
+                                                    *mptr,
+                                                    daal_result,
+                                                    daal_parameter));
 
     /* extract results from daal objects */
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
@@ -162,9 +168,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     return res.set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
-template <typename Float>
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float, CpuKernel>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float, typename Task>
@@ -172,11 +178,22 @@ struct train_kernel_cpu<Float, Task, method::dense> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float, cls_dense_kernel_t>(ctx, desc, input);
+    }
+};
+
+template <typename Float, typename Task>
+struct train_kernel_cpu<Float, Task, method::hist> {
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return train<Float, cls_hist_kernel_t>(ctx, desc, input);
     }
 };
 
 template struct train_kernel_cpu<float, task::classification, method::dense>;
+template struct train_kernel_cpu<float, task::classification, method::hist>;
 template struct train_kernel_cpu<double, task::classification, method::dense>;
+template struct train_kernel_cpu<double, task::classification, method::hist>;
 
 } // namespace oneapi::dal::decision_forest::backend

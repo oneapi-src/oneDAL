@@ -112,8 +112,8 @@ static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const in
     return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 
-template <typename Float, typename Task>
-struct infer_kernel_cpu<Float, Task, method::dense> {
+template <typename Float, typename Method>
+struct infer_kernel_cpu<Float, task::classification, Method> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -122,6 +122,8 @@ struct infer_kernel_cpu<Float, Task, method::dense> {
 };
 
 template struct infer_kernel_cpu<float, task::classification, method::dense>;
+template struct infer_kernel_cpu<float, task::classification, method::hist>;
 template struct infer_kernel_cpu<double, task::classification, method::dense>;
+template struct infer_kernel_cpu<double, task::classification, method::hist>;
 
 } // namespace oneapi::dal::decision_forest::backend
