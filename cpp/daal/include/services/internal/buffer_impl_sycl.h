@@ -277,7 +277,24 @@ public:
         return status;
     }
 
-    Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE { return ErrorMethodNotImplemented; }
+    Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
+    {
+        Status status;
+        auto hostPtr = buffer.getHostReadWrite(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        _nativeBuffer = internal::sycl::catchSyclExceptions(
+            status,
+            [&]() {
+                const auto bufferProperties = cl::sycl::property_list { cl::sycl::property::buffer::use_host_ptr() };
+
+                return SyclBufferType(std::shared_ptr<T> { hostPtr.get(), [owner = hostPtr](T * ptr) {} }, cl::sycl::range<1>(buffer.size()),
+                                      bufferProperties);
+            },
+            [&]() { return createEmptySyclBuffer<T>(); });
+
+        return status;
+    }
 
     Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
     {
