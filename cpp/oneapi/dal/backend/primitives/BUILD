@@ -11,6 +11,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
+        "@onedal//cpp/oneapi/dal:table",
     ],
 )
 
@@ -58,6 +59,7 @@ dal_collect_test_suites(
     modules = [
         "blas",
         "reduction",
+        "stat",
     ],
     tests = [
         ":common_tests",

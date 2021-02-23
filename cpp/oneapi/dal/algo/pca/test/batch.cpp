@@ -52,7 +52,7 @@ public:
                         std::int64_t component_count,
                         const te::table_id& data_table_id) {
         CAPTURE(component_count);
-        const table x = data.get_table(data_table_id);
+        const table x = data.get_table(this->get_policy(), data_table_id);
 
         INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
@@ -149,14 +149,14 @@ public:
 
     void check_eigenvalues_order(const table& eigenvalues) const {
         const auto W = la::matrix<double>::wrap(eigenvalues);
-        bool is_descinding = true;
+        bool is_descending = true;
         la::enumerate_linear(W, [&](std::int64_t i, double) {
             if (i > 0) {
                 CAPTURE(i, W.get(i - 1), W.get(i));
-                is_descinding = is_descinding && (W.get(i - 1) >= W.get(i));
+                is_descending = is_descending && (W.get(i - 1) >= W.get(i));
             }
         });
-        CHECK(is_descinding);
+        CHECK(is_descending);
     }
 
     void check_eigenvectors_orthogonality(const table& eigenvectors) {
@@ -217,18 +217,11 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
                      pca_types) {
     SKIP_IF(this->not_available_on_device());
 
-    const std::string higgs = "higgs/dataset/higgs_100t_train.csv";
+    const std::int64_t component_count = 0;
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_100t_train.csv" });
 
-    const te::dataframe data = GENERATE_DATAFRAME(te::dataframe_builder{ higgs });
-
-    // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();
-
-    const std::int64_t component_count = GENERATE_COPY(0,
-                                                       1,
-                                                       data.get_column_count(),
-                                                       data.get_column_count() - 1,
-                                                       data.get_column_count() / 2);
 
     this->general_checks(data, component_count, data_table_id);
 }

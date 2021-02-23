@@ -148,13 +148,16 @@ public:
 
     explicit dataframe(dataframe_impl* impl) : impl_(impl) {}
 
-    table get_table(host_test_policy& policy, const table_id& id, range r = { 0, 0 }) const;
+    table get_table(host_test_policy& policy, const table_id& id, const range& r = { 0, 0 }) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    table get_table(device_test_policy& policy, const table_id& id, range r = { 0, 0 }) const;
+    table get_table(device_test_policy& policy,
+                    const table_id& id,
+                    const range& r = { 0, 0 },
+                    sycl::usm::alloc alloc = sycl::usm::alloc::shared) const;
 #endif
 
-    table get_table(const table_id& id, range r = { 0, 0 }) const {
+    table get_table(const table_id& id, const range& r = { 0, 0 }) const {
         host_test_policy policy;
         return get_table(policy, id, r);
     }
@@ -262,6 +265,10 @@ public:
 
     explicit dataframe_builder(const std::string& dataset)
             : impl_(new dataframe_builder_impl{ dataset }) {}
+
+    dataframe_builder& fill(double value);
+
+    dataframe_builder& fill_diag(double value);
 
     dataframe_builder& fill_uniform(double a, double b, std::int64_t seed = 7777);
 

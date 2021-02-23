@@ -16,29 +16,33 @@
 
 #pragma once
 
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-sycl::event gemm(sycl::queue& queue,
-                 const ndview<Float, 2, ao>& a,
-                 const ndview<Float, 2, bo>& b,
-                 ndview<Float, 2, co>& c,
-                 Float alpha = Float(1),
-                 Float beta = Float(0),
-                 const event_vector& deps = {});
-
-template <typename Float, ndorder ao, ndorder bo, ndorder co>
-inline sycl::event gemm(sycl::queue& queue,
-                        const ndview<Float, 2, ao>& a,
-                        const ndview<Float, 2, bo>& b,
-                        ndview<Float, 2, co>& c,
-                        const event_vector& deps = {}) {
-    return gemm<Float>(queue, a, b, c, Float(1), Float(0), deps);
-}
+/// Computes correlation matrix and variances
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  data  The [n x p] input dataset
+/// @param[in]  sums  The [p] sums computed along each column of the data
+/// @param[out] corr  The [p x p] correlation matrix
+/// @param[out] means The [p] means for each feature
+/// @param[out] vars  The [p] variances for each feature
+/// @param[out] tmp   The [p] temporary buffer
+template <typename Float>
+sycl::event correlation(sycl::queue& queue,
+                        const table& data,
+                        const ndview<Float, 1>& sums,
+                        ndview<Float, 2>& corr,
+                        ndview<Float, 1>& means,
+                        ndview<Float, 1>& vars,
+                        ndview<Float, 1>& tmp,
+                        const event_vector& deps = {});
 
 #endif
 

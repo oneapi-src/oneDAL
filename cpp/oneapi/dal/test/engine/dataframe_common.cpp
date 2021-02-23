@@ -17,12 +17,12 @@
 #include "oneapi/dal/test/engine/dataframe_common.hpp"
 
 #include <list>
-#include <random>
 #include <unordered_map>
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/test/engine/dataframe_actions.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -190,156 +190,6 @@ static dataframe_builder_cache& get_dataframe_builder_cache() {
     return dataframe_builder_cache::get_instance();
 }
 
-class dataframe_builder_action_allocate : public dataframe_builder_action {
-public:
-    explicit dataframe_builder_action_allocate(std::int64_t row_count, std::int64_t column_count)
-            : row_count_(row_count),
-              column_count_(column_count) {
-        if (row_count == 0 || column_count == 0) {
-            throw invalid_argument{ fmt::format(
-                "Invalid dataframe shape, row and column count must be positive, "
-                "but got row_count = {}, column_count = {}",
-                row_count,
-                column_count) };
-        }
-    }
-
-    std::string get_opcode() const override {
-        return fmt::format("allocate({},{})", row_count_, column_count_);
-    }
-
-    dataframe_impl* execute(dataframe_impl* df) const override {
-        delete df;
-        const auto arr = array<float>::empty(row_count_ * column_count_);
-        return new dataframe_impl{ arr, row_count_, column_count_ };
-    }
-
-private:
-    std::int64_t row_count_;
-    std::int64_t column_count_;
-};
-
-class dataframe_builder_action_read_external_dataset : public dataframe_builder_action {
-private:
-    enum dataset_extensions { csv };
-
-public:
-    explicit dataframe_builder_action_read_external_dataset(const std::string& dataset)
-            : dataset_(dataset) {
-        dataset_ = trim_path_left(dataset_);
-        dataset_ = trim_path_right(dataset_);
-    }
-
-    std::string get_opcode() const override {
-        return fmt::format("read_external_dataset({})", dataset_);
-    }
-
-    dataframe_impl* execute(dataframe_impl* df) const override {
-        delete df;
-
-        std::string datasets_root = get_dataset_root();
-
-        if (get_extension(dataset_) == dataset_extensions::csv) {
-            const auto data_table =
-                dal::read<dal::table>(dal::csv::data_source{ datasets_root + '/' + dataset_ });
-
-            return new dataframe_impl{ dal::row_accessor<const float>{ data_table }.pull(),
-                                       data_table.get_row_count(),
-                                       data_table.get_column_count() };
-        }
-        else {
-            throw internal_error{ fmt::format("{} dataset extension was not handled",
-                                              get_extension(dataset_)) };
-        }
-    }
-
-private:
-    std::string trim_path_left(const std::string& path) const {
-        std::string tmp(path);
-        if (tmp.size() > 0 && tmp[0] == '/') {
-            tmp.erase(0, 1);
-        }
-        return tmp;
-    }
-
-    std::string trim_path_right(const std::string& path) const {
-        std::string tmp(path);
-        if (tmp.size() > 0 && tmp[tmp.size() - 1] == '/') {
-            tmp.erase(tmp.size() - 1, 1);
-        }
-        return tmp;
-    }
-
-    std::string get_dataset_root() const {
-        const char* dataset_root_ptr = std::getenv("DAAL_DATASETS");
-        if (dataset_root_ptr == nullptr) {
-            throw invalid_argument{ "DAAL_DATASETS environment variable is unset" };
-        }
-        return trim_path_right(dataset_root_ptr);
-    }
-
-    dataset_extensions get_extension(const std::string& path) const {
-        std::int64_t dot = static_cast<std::int64_t>(path.size()) - 1;
-        while (dot >= 0 && path[dot] != '.') {
-            --dot;
-        }
-
-        if (dot >= 0) {
-            const std::string extension =
-                path.substr(dot, static_cast<std::int64_t>(path.size()) - dot);
-            if (extension == ".csv") {
-                return dataset_extensions::csv;
-            }
-            throw unimplemented{ fmt::format("{} dataset extension is not supported", extension) };
-        }
-        throw invalid_argument{ "Dataset doesn't have any extension" };
-    }
-
-    std::string dataset_;
-};
-
-class dataframe_builder_action_fill_uniform : public dataframe_builder_action {
-public:
-    explicit dataframe_builder_action_fill_uniform(double a, double b, std::int64_t seed)
-            : a_(a),
-              b_(b),
-              seed_(seed) {
-        if (a >= b) {
-            throw invalid_argument{ fmt::format("Invalid uniform distribution interval, "
-                                                "expected b > a, but got a = {}, b = {}",
-                                                a,
-                                                b) };
-        }
-    }
-
-    std::string get_opcode() const override {
-        return fmt::format("fill_uniform({},{},{})", a_, b_, seed_);
-    }
-
-    dataframe_impl* execute(dataframe_impl* df) const override {
-        if (!df) {
-            throw invalid_argument{ "Action fill_uniform got null dataframe" };
-        }
-
-        float* data = df->get_array().need_mutable_data().get_mutable_data();
-
-        // TODO: Migrate to MKL's random generators
-        std::mt19937 rng(seed_);
-
-        std::uniform_real_distribution<float> distr(a_, b_);
-        for (std::int64_t i = 0; i < df->get_count(); i++) {
-            data[i] = distr(rng);
-        }
-
-        return df;
-    }
-
-private:
-    double a_ = 0.0;
-    double b_ = 1.0;
-    std::int64_t seed_ = 7777;
-};
-
 dataframe dataframe_builder_program::execute() const {
     dataframe_impl* impl = nullptr;
     for (const auto& action : actions_) {
@@ -350,6 +200,16 @@ dataframe dataframe_builder_program::execute() const {
 
 dataframe_builder_impl::dataframe_builder_impl(std::int64_t row_count, std::int64_t column_count) {
     program_.add<dataframe_builder_action_allocate>(row_count, column_count);
+}
+
+dataframe_builder& dataframe_builder::fill(double value) {
+    impl_->get_program().add<dataframe_builder_action_fill>(value);
+    return *this;
+}
+
+dataframe_builder& dataframe_builder::fill_diag(double value) {
+    impl_->get_program().add<dataframe_builder_action_fill_diag>(value);
+    return *this;
 }
 
 dataframe_builder_impl::dataframe_builder_impl(const std::string& dataset) {
@@ -374,7 +234,7 @@ dataframe dataframe_builder::build() const {
     return std::get<0>(df_hit);
 }
 
-template <typename Float>
+template <typename Float, typename... Args>
 static homogen_table wrap_to_homogen_table(host_test_policy& policy,
                                            const array<Float>& data,
                                            std::int64_t row_count,
@@ -383,13 +243,15 @@ static homogen_table wrap_to_homogen_table(host_test_policy& policy,
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-template <typename Float>
+template <typename Float, typename... Args>
 static homogen_table wrap_to_homogen_table(device_test_policy& policy,
                                            const array<Float>& data,
                                            std::int64_t row_count,
-                                           std::int64_t column_count) {
+                                           std::int64_t column_count,
+                                           Args&&... args) {
     return dal::detail::homogen_table_builder{}
-        .allocate(policy.get_queue(), row_count, column_count)
+        .set_data_type(dal::detail::make_data_type<Float>())
+        .allocate(policy.get_queue(), row_count, column_count, std::forward<Args>(args)...)
         .copy_data(policy.get_queue(), data.get_data(), row_count, column_count)
         .build();
 }
@@ -408,39 +270,53 @@ static array<double> convert_to_f64(const array<float>& data) {
     return data_f64;
 }
 
-template <typename Policy>
-static homogen_table wrap_to_homogen_table(Policy& policy,
-                                           const array<float>& data,
-                                           const table_id& id,
-                                           std::int64_t row_count,
-                                           std::int64_t column_count) {
+template <typename Policy, typename... Args>
+static homogen_table convert_to_homogen_table(Policy& policy,
+                                              const array<float>& data,
+                                              const table_id& id,
+                                              std::int64_t row_count,
+                                              std::int64_t column_count,
+                                              Args&&... args) {
     if (id.get_float_type() == table_float_type::f32) {
-        return wrap_to_homogen_table(policy, data, row_count, column_count);
+        return wrap_to_homogen_table(policy,
+                                     data,
+                                     row_count,
+                                     column_count,
+                                     std::forward<Args>(args)...);
     }
     else if (id.get_float_type() == table_float_type::f64) {
         auto data_f64 = convert_to_f64(data);
-        return wrap_to_homogen_table(policy, data_f64, row_count, column_count);
+        return wrap_to_homogen_table(policy,
+                                     data_f64,
+                                     row_count,
+                                     column_count,
+                                     std::forward<Args>(args)...);
     }
     else {
         throw unimplemented{ "Only f32 and f64 floating point types are supported" };
     }
 }
 
-template <typename Policy>
+template <typename Policy, typename... Args>
 static homogen_table build_homogen_table(Policy& policy,
                                          const array<float>& data,
                                          const table_id& id,
                                          std::int64_t row_count,
                                          std::int64_t column_count,
                                          std::int64_t first_column_idx,
-                                         std::int64_t last_column_idx) {
+                                         std::int64_t last_column_idx,
+                                         Args&&... args) {
     const std::int64_t actual_column_count = column_count;
     const std::int64_t required_column_count = last_column_idx - first_column_idx;
-
     ONEDAL_ASSERT(required_column_count >= 0);
 
     if (first_column_idx == 0 && actual_column_count == required_column_count) {
-        return wrap_to_homogen_table(policy, data, id, row_count, required_column_count);
+        return convert_to_homogen_table(policy,
+                                        data,
+                                        id,
+                                        row_count,
+                                        required_column_count,
+                                        std::forward<Args>(args)...);
     }
     else {
         auto dst = array<float>::empty(row_count * required_column_count);
@@ -454,12 +330,21 @@ static homogen_table build_homogen_table(Policy& policy,
             }
         }
 
-        return wrap_to_homogen_table(policy, dst, id, row_count, required_column_count);
+        return convert_to_homogen_table(policy,
+                                        dst,
+                                        id,
+                                        row_count,
+                                        required_column_count,
+                                        std::forward<Args>(args)...);
     }
 }
 
-template <typename Policy>
-static table build_table(Policy& policy, const dataframe& df, const table_id& id, range r) {
+template <typename Policy, typename... Args>
+static table build_table(Policy& policy,
+                         const dataframe& df,
+                         const table_id& id,
+                         const range& r,
+                         Args&&... args) {
     std::int64_t first_column_idx = r.start_idx;
     std::int64_t last_column_idx = r.end_idx;
 
@@ -488,20 +373,24 @@ static table build_table(Policy& policy, const dataframe& df, const table_id& id
                                    row_count,
                                    column_count,
                                    first_column_idx,
-                                   last_column_idx);
+                                   last_column_idx,
+                                   std::forward<Args>(args)...);
     }
     else {
         throw unimplemented{ "Only homogen table is supported" };
     }
 }
 
-table dataframe::get_table(host_test_policy& policy, const table_id& id, range r) const {
+table dataframe::get_table(host_test_policy& policy, const table_id& id, const range& r) const {
     return build_table(policy, *this, id, r);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-table dataframe::get_table(device_test_policy& policy, const table_id& id, range r) const {
-    return build_table(policy, *this, id, r);
+table dataframe::get_table(device_test_policy& policy,
+                           const table_id& id,
+                           const range& r,
+                           sycl::usm::alloc alloc) const {
+    return build_table(policy, *this, id, r, alloc);
 }
 #endif
 
