@@ -74,7 +74,7 @@ private:
         algorithmFPType * scratchpad = nullptr;
         if (scratchpadSize > 0)
         {
-            scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
+            scratchpad = cl::sycl::malloc_device<algorithmFPType>(scratchpadSize, _queue);
             if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
         }
 
@@ -132,7 +132,7 @@ private:
         algorithmFPType * scratchpad = nullptr;
         if (scratchpadSize > 0)
         {
-            scratchpad = cl::sycl::malloc<algorithmFPType>(scratchpadSize, _queue, cl::sycl::usm::alloc::shared);
+            scratchpad = cl::sycl::malloc_device<algorithmFPType>(scratchpadSize, _queue);
             if (scratchpad == nullptr) return ErrorMemoryAllocationFailed;
         }
 

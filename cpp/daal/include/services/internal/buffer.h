@@ -87,7 +87,7 @@ public:
      *  Does not copy the data from the USM pointer
      *  \param[in] usmData    Pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM memory block
-     *  \param[in] allocType  USM allocation type
+     *  \param[in] queue      The SYCL* queue object
      *  \param[out] status    Status of operation
      */
     Buffer(T * usmData, size_t size, const cl::sycl::queue & queue, Status & status)
@@ -100,7 +100,7 @@ public:
      *  Does not copy the data from the USM pointer
      *  \param[in] usmData    Pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM memory block
-     *  \param[in] allocType  USM allocation type
+     *  \param[in] queue      The SYCL* queue object
      */
     Buffer(T * usmData, size_t size, const cl::sycl::queue & queue)
     {
@@ -117,7 +117,7 @@ public:
      *  Does not copy the data from the USM pointer
      *  \param[in] usmData    Shared pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM block
-     *  \param[in] allocType  USM allocation type
+     *  \param[in] queue      The SYCL* queue object
      *  \param[out] status    Status of operation
      */
     Buffer(const SharedPtr<T> & usmData, size_t size, const cl::sycl::queue & queue, Status & status)
@@ -130,7 +130,7 @@ public:
      *  Does not copy the data from the USM pointer
      *  \param[in] usmData    Shared pointer to the USM-allocated data
      *  \param[in] size       Number of elements of type T stored in USM block
-     *  \param[in] allocType  USM allocation type
+     *  \param[in] queue      The SYCL* queue object
      */
     Buffer(const SharedPtr<T> & usmData, size_t size, const cl::sycl::queue & queue)
     {
@@ -257,32 +257,32 @@ public:
 #ifdef DAAL_SYCL_INTERFACE_USM
     /**
      *  Converts buffer to the USM shared pointer
-     *  \param[in]  q      The SYCL* queue object
+     *  \param[in] queue   The SYCL* queue object
      *  \param[in] rwFlag  Flag specifying read/write access to the buffer
      *  \param[out] status Status of operation
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue & q, const data_management::ReadWriteMode & rwFlag, Status & status) const
+    SharedPtr<T> toUSM(cl::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag, Status & status) const
     {
         if (!_impl)
         {
             status |= ErrorEmptyBuffer;
             return SharedPtr<T>();
         }
-        return internal::SyclBufferConverter<T>().toUSM(*_impl, q, rwFlag, status);
+        return internal::SyclBufferConverter<T>().toUSM(*_impl, queue, rwFlag, status);
     }
 
     #ifndef DAAL_NOTHROW_EXCEPTIONS
     /**
      *  Converts buffer to the USM shared pointer, throws exception if conversion fails
-     *  \param[in]  q      The SYCL* queue object
+     *  \param[in] queue      The SYCL* queue object
      *  \param[in] rwFlag  Flag specifying read/write access to the buffer
      *  \return USM shared pointer
      */
-    SharedPtr<T> toUSM(cl::sycl::queue & q, const data_management::ReadWriteMode & rwFlag) const
+    SharedPtr<T> toUSM(cl::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag) const
     {
         Status status;
-        const SharedPtr<T> ptr = toUSM(q, rwFlag, status);
+        const SharedPtr<T> ptr = toUSM(queue, rwFlag, status);
         throwIfPossible(status);
         return ptr;
     }
