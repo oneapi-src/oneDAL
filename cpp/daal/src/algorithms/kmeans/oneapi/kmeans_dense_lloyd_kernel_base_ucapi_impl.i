@@ -126,12 +126,10 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const se
                                                                         UniversalBuffer & dataSq, uint32_t nRows, uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeSquares);
-    Status st;
     DAAL_ASSERT(data.size() >= nRows * nFeatures);
-    DAAL_ASSERT_UNIVERSAL_BUFFER(dataSq, algorithmFPType, nRows);
-
     DAAL_ASSERT(nRows <= maxInt32AsUint32T);
     DAAL_ASSERT(nFeatures <= maxInt32AsUint32T);
+    Status st;
     dataSq = math::SumReducer::sum(math::Layout::RowMajor, data, nRows, nFeatures, st).sumOfSquares;
     return st;
 }
