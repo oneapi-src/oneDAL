@@ -25,12 +25,12 @@
 #define __KERNEL_FUNCTION_RBF_CSR_FAST_IMPL_I__
 
 #include "algorithms/kernel_function/kernel_function_types_rbf.h"
-#include "src/externals/service_math.h"
 #include "src/data_management/service_numeric_table.h"
-#include "src/algorithms/kernel_function/kernel_function_csr_impl.i"
 #include "src/threading/threading.h"
-
 #include "src/externals/service_spblas.h"
+#include "src/algorithms/kernel_function/kernel_function_rbf_helper.h"
+#include "src/algorithms/kernel_function/kernel_function_csr_impl.i"
+#include "src/algorithms/service_error_handling.h"
 
 using namespace daal::data_management;
 
@@ -147,18 +147,10 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
                                                                                            NumericTable * r, const ParameterBase * par)
 {
     //prepareData
-    const size_t nVectors1 = a1->getNumberOfRows();
-    const size_t nVectors2 = a2->getNumberOfRows();
-
-    ReadRowsCSR<algorithmFPType, cpu> mtA1(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a1)), 0, nVectors1);
-    DAAL_CHECK_BLOCK_STATUS(mtA1);
-    const algorithmFPType * dataA1 = mtA1.values();
-    const size_t * colIndicesA1    = mtA1.cols();
-    const size_t * rowOffsetsA1    = mtA1.rows();
-
-    WriteOnlyRows<algorithmFPType, cpu> mtR(r, 0, nVectors1);
-    DAAL_CHECK_BLOCK_STATUS(mtR);
-    algorithmFPType * dataR = mtR.get();
+    const size_t nVectors1   = a1->getNumberOfRows();
+    const size_t nVectors2   = a2->getNumberOfRows();
+    const size_t nFeatures   = a1->getNumberOfColumns();
+    const bool isEqualMatrix = a1 == a2;
 
     //compute
     const Parameter * rbfPar     = static_cast<const Parameter *>(par);
@@ -166,91 +158,121 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
     const algorithmFPType zero   = 0.0;
     const algorithmFPType negTwo = -2.0;
 
-    if (a1 == a2)
-    {
-        SpBlas<algorithmFPType, cpu>::xsyrk_a_at(dataA1, colIndicesA1, rowOffsetsA1, nVectors1, a1->getNumberOfColumns(), dataR);
+    const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
 
-        daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
-            for (size_t k = 0; k < i; k++)
+    DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
+
+    const size_t blockSize = 256;
+    const size_t nBlocks1  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
+    const size_t nBlocks2  = nVectors2 / blockSize + !!(nVectors2 % blockSize);
+
+    const algorithmFPType expExpThreshold = Math<algorithmFPType, cpu>::vExpThreshold();
+
+    SafeStatus safeStat;
+    daal::tls<KernelRBFTask<algorithmFPType, cpu> *> tslTask([=, &safeStat]() {
+        auto tlsData = KernelRBFTask<algorithmFPType, cpu>::create(blockSize, isEqualMatrix);
+        if (!tlsData)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+        }
+        return tlsData;
+    });
+
+    daal::conditional_threader_for((nVectors1 > 512), nBlocks1, [&, isSOARes](const size_t iBlock1) {
+        const size_t nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
+        const size_t startRow1     = iBlock1 * blockSize;
+
+        ReadRowsCSR<algorithmFPType, cpu> mtA1(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a1)), startRow1, nRowsInBlock1, true);
+        DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
+        const algorithmFPType * dataA1 = mtA1.values();
+        const size_t * colIndicesA1    = mtA1.cols();
+        const size_t * rowOffsetsA1    = mtA1.rows();
+
+        WriteOnlyRows<algorithmFPType, cpu> mtRRows;
+        if (!isSOARes)
+        {
+            mtRRows.set(r, startRow1, nRowsInBlock1);
+            DAAL_CHECK_MALLOC_THR(mtRRows.get());
+        }
+        daal::conditional_threader_for((nVectors2 > 512), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+            const size_t nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
+            const size_t startRow2     = iBlock2 * blockSize;
+
+            ReadRowsCSR<algorithmFPType, cpu> mtA2(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a2)), startRow2, nRowsInBlock2,
+                                                   true);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
+            const algorithmFPType * dataA2 = mtA2.values();
+            const size_t * colIndicesA2    = mtA2.cols();
+            const size_t * rowOffsetsA2    = mtA2.rows();
+
+            KernelRBFTask<algorithmFPType, cpu> * const tlsLocal = tslTask.local();
+
+            algorithmFPType * const mklBuff   = tlsLocal->mklBuff;
+            algorithmFPType * const sqrDataA1 = tlsLocal->sqrDataA1;
+            algorithmFPType * const sqrDataA2 = tlsLocal->sqrDataA2;
+
+            if (!isEqualMatrix)
             {
-                dataR[i * nVectors1 + k] = coeff * (dataR[i * nVectors1 + i] + dataR[k * nVectors1 + k] + negTwo * dataR[i * nVectors1 + k]);
-            }
-        });
-        daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
-            dataR[i * nVectors1 + i] = zero;
-            daal::internal::Math<algorithmFPType, cpu>::vExp(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
-        });
-        daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
-            for (size_t k = i + 1; k < nVectors1; k++)
-            {
-                dataR[i * nVectors1 + k] = dataR[k * nVectors1 + i];
-            }
-        });
-    }
-    else
-    {
-        ReadRowsCSR<algorithmFPType, cpu> mtA2(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a2)), 0, nVectors2);
-        DAAL_CHECK_BLOCK_STATUS(mtA2);
-        const algorithmFPType * dataA2 = mtA2.values();
-        const size_t * colIndicesA2    = mtA2.cols();
-        const size_t * rowOffsetsA2    = mtA2.rows();
-
-        DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
-
-        daal::internal::TArray<algorithmFPType, cpu> aBuf((nVectors1 + nVectors2));
-        DAAL_CHECK(aBuf.get(), services::ErrorMemoryAllocationFailed);
-        algorithmFPType * buffer = aBuf.get();
-
-        algorithmFPType * sqrDataA1 = buffer;
-        algorithmFPType * sqrDataA2 = buffer + nVectors1;
-
-        SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nVectors1, nVectors2,
-                                                 a1->getNumberOfColumns(), dataR);
-
-        daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
-            sqrDataA1[i] = zero;
-            for (size_t j = rowOffsetsA1[i] - 1; j < rowOffsetsA1[i + 1] - 1; j++)
-            {
-                sqrDataA1[i] += dataA1[j] * dataA1[j];
-            }
-        });
-        daal::threader_for_optional(nVectors2, nVectors2, [=](size_t i) {
-            sqrDataA2[i] = zero;
-            for (size_t j = rowOffsetsA2[i] - 1; j < rowOffsetsA2[i + 1] - 1; j++)
-            {
-                sqrDataA2[i] += dataA2[j] * dataA2[j];
-            }
-        });
-        daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
-            for (size_t k = 0; k < nVectors2; k++)
-            {
-                dataR[i * nVectors2 + k] *= negTwo;
-                dataR[i * nVectors2 + k] += (sqrDataA1[i] + sqrDataA2[k]);
-                dataR[i * nVectors2 + k] *= coeff;
-
-                // make all values less than threshold as threshold value
-                // to fix slow work on vExp on large negative inputs
-                if (dataR[i * nVectors2 + k] < Math<algorithmFPType, cpu>::vExpThreshold())
+                for (size_t i = 0; i < nRowsInBlock1; ++i)
                 {
-                    dataR[i * nVectors2 + k] = Math<algorithmFPType, cpu>::vExpThreshold();
+                    sqrDataA1[i] = zero;
+                    for (size_t j = rowOffsetsA1[i] - 1; j < rowOffsetsA1[i + 1] - 1; j++)
+                    {
+                        sqrDataA1[i] += dataA1[j] * dataA1[j];
+                    }
+                }
+            }
+            for (size_t i = 0; i < nRowsInBlock2; ++i)
+            {
+                sqrDataA2[i] = zero;
+                for (size_t j = rowOffsetsA2[i] - 1; j < rowOffsetsA2[i + 1] - 1; j++)
+                {
+                    sqrDataA2[i] += dataA2[j] * dataA2[j];
+                }
+            }
+
+            if (!isSOARes)
+            {
+                algorithmFPType * const dataR = mtRRows.get();
+                SpBlas<algorithmFPType, cpu>::xxgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
+                                                          nRowsInBlock2, nFeatures, mklBuff, blockSize);
+
+                for (size_t i = 0; i < nRowsInBlock1; ++i)
+                {
+                    const algorithmFPType sqrA1i         = sqrDataA1[i];
+                    algorithmFPType * const dataRBlock   = &dataR[i * nVectors2 + startRow2];
+                    algorithmFPType * const mklBuffBlock = &mklBuff[i * blockSize];
+                    HelperKernelRBF<algorithmFPType, cpu>::postGemmPart(mklBuffBlock, sqrDataA2, sqrA1i, coeff, expExpThreshold, nRowsInBlock2,
+                                                                        dataRBlock);
+                }
+            }
+            else
+            {
+                SpBlas<algorithmFPType, cpu>::xxgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
+                                                          nRowsInBlock1, nFeatures, mklBuff, blockSize);
+
+                for (size_t j = 0; j < nRowsInBlock2; ++j)
+                {
+                    const algorithmFPType sqrA2i = sqrDataA2[j];
+                    WriteOnlyColumns<algorithmFPType, cpu> mtRColumns(r, startRow2 + j, startRow1, nRowsInBlock1);
+                    DAAL_CHECK_BLOCK_STATUS_THR(mtRColumns);
+                    algorithmFPType * const dataRBlock   = mtRColumns.get();
+                    algorithmFPType * const mklBuffBlock = &mklBuff[j * blockSize];
+                    HelperKernelRBF<algorithmFPType, cpu>::postGemmPart(mklBuffBlock, sqrDataA1, sqrA2i, coeff, expExpThreshold, nRowsInBlock1,
+                                                                        dataRBlock);
                 }
             }
         });
+    });
 
-        daal::internal::Math<algorithmFPType, cpu>::vExp(nVectors1 * nVectors2, dataR, dataR);
-    }
     return services::Status();
 }
 
 } // namespace internal
-
 } // namespace rbf
-
 } // namespace kernel_function
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif
