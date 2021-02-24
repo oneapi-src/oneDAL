@@ -50,13 +50,14 @@ std::int64_t triangle_counting_global_vector_relabel(const dal::detail::host_pol
                                                      std::int64_t edge_count);
 
 template <typename Index>
-array<std::int64_t> triangle_counting_local(const dal::detail::host_policy& policy,
-                                            const dal::preview::detail::topology<Index>& data,
-                                            int64_t* triangles_local);
+ONEDAL_EXPORT array<std::int64_t> triangle_counting_local(
+    const dal::detail::host_policy& policy,
+    const dal::preview::detail::topology<Index>& data,
+    int64_t* triangles_local);
 
-std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
-                                      const array<std::int64_t>& local_triangles,
-                                      std::int64_t vertex_count);
+ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
+                                                    const array<std::int64_t>& local_triangles,
+                                                    std::int64_t vertex_count);
 
 void sort_ids_by_degree(const dal::detail::host_policy& policy,
                         const std::int32_t* degrees,

@@ -21,7 +21,7 @@
 namespace oneapi::dal::preview::load_graph::detail {
 
 template <>
-std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges) {
+ONEDAL_EXPORT std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges) {
     return dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {

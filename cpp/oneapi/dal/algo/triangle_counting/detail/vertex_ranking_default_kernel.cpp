@@ -71,7 +71,7 @@ std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(
 }
 
 template <>
-array<std::int64_t> triangle_counting_local<std::int32_t>(
+ONEDAL_EXPORT array<std::int64_t> triangle_counting_local<std::int32_t>(
     const dal::detail::host_policy& policy,
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
@@ -80,9 +80,9 @@ array<std::int64_t> triangle_counting_local<std::int32_t>(
     });
 }
 
-std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
-                                      const array<std::int64_t>& local_triangles,
-                                      std::int64_t vertex_count) {
+ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
+                                                    const array<std::int64_t>& local_triangles,
+                                                    std::int64_t vertex_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::compute_global_triangles<decltype(cpu)>(local_triangles, vertex_count);
     });
