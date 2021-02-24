@@ -22,7 +22,7 @@
 namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Index>
-inline Index min(const Index &a, const Index &b) {
+inline Index min(const Index& a, const Index& b) {
     return (a >= b) ? b : a;
 }
 
