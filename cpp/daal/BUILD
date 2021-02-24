@@ -285,10 +285,10 @@ daal_dynamic_lib(
 daal_module(
     name = "threading_static",
     deps = select({
-        "@config//:par_test_thread_mode": [
+        "@config//:test_thread_mode_par": [
             "@onedal//cpp/daal:thread_static",
         ],
-        "@config//:seq_test_thread_mode": [
+        "@config//:test_thread_mode_seq": [
             "@onedal//cpp/daal:sequential_static",
         ],
     }),
@@ -297,10 +297,10 @@ daal_module(
 daal_module(
     name = "threading_dynamic",
     deps = select({
-        "@config//:par_test_thread_mode": [
+        "@config//:test_thread_mode_par": [
             "@onedal//cpp/daal:thread_dynamic",
         ],
-        "@config//:seq_test_thread_mode": [
+        "@config//:test_thread_mode_seq": [
             "@onedal//cpp/daal:sequential_dynamic",
         ],
     }),
@@ -309,10 +309,10 @@ daal_module(
 daal_module(
     name = "threading_release_static",
     deps = select({
-        "@config//:par_test_thread_mode": [
+        "@config//:test_thread_mode_par": [
             "@onedal_release//:thread_static",
         ],
-        "@config//:seq_test_thread_mode": [
+        "@config//:test_thread_mode_seq": [
             "@onedal_release//:sequential_static",
         ],
     }),
@@ -321,10 +321,10 @@ daal_module(
 daal_module(
     name = "threading_release_dynamic",
     deps = select({
-        "@config//:par_test_thread_mode": [
+        "@config//:test_thread_mode_par": [
             "@onedal_release//:thread_dynamic",
         ],
-        "@config//:seq_test_thread_mode": [
+        "@config//:test_thread_mode_seq": [
             "@onedal_release//:sequential_dynamic",
         ],
     }),

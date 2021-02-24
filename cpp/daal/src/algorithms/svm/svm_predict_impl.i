@@ -209,7 +209,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
         size_t nSVPerBlock = 0;
-        DAAL_SAFE_CPU_CALL((nSVPerBlock = 256), (nRowsPerBlock = nSV));
+        DAAL_SAFE_CPU_CALL((nSVPerBlock = 256), (nSVPerBlock = nSV));
         const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
 
         const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;

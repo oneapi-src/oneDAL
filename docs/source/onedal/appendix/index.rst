@@ -21,4 +21,5 @@ Appendix
 .. toctree::
    :titlesonly:
 
+   decision-tree.rst
    kd_tree.rst

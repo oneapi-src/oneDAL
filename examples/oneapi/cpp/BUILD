@@ -20,7 +20,7 @@ _DATA_DEPS = [
 
 dal_example_suite(
     name = "graph",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob(["source/graph/*.cpp"]),
     dal_deps = [
         "@onedal//cpp/oneapi/dal/graph",
@@ -31,7 +31,7 @@ dal_example_suite(
 
 dal_example_suite(
     name = "table",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob(["source/table/*.cpp"]),
     dal_deps = [
         "@onedal//cpp/oneapi/dal/table",
@@ -42,7 +42,7 @@ dal_example_suite(
 
 dal_example_suite(
     name = "kmeans_init",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob(["source/kmeans_init/*.cpp"]),
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo:kmeans",
@@ -54,7 +54,7 @@ dal_example_suite(
 
 dal_example_suite(
     name = "jaccard",
-    dpc = False,
+    compile_as = [ "c++" ],
     srcs = glob(["source/jaccard/*.cpp"]),
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo:jaccard",
@@ -75,7 +75,7 @@ dal_algo_example_suite(
         "rbf_kernel",
         "svm",
     ],
-    dpc = False,
+    compile_as = [ "c++" ],
     data = _DATA_DEPS,
     extra_deps = _TEST_DEPS,
 )

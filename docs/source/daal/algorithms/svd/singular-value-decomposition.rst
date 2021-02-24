@@ -134,3 +134,5 @@ When the amount of local-node work is small, that is, when the local-node data s
 the network data transfer may become a bottleneck.
 To avoid this situation, ensure that local nodes have a sufficient amount of work. 
 For example, distribute input data set across a smaller number of nodes.
+
+.. include:: ../../../opt-notice.rst

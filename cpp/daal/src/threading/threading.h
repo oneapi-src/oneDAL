@@ -400,7 +400,7 @@ public:
         {
             for (size_t i = 0; i < _nThreads; ++i)
             {
-                lambda(_storage[i]);
+                if (_storage[i]) lambda(_storage[i]);
             }
         }
     }
@@ -508,6 +508,22 @@ void conditional_threader_for(const bool inParallel, const size_t n, Func func)
         for (size_t i = 0; i < n; ++i)
         {
             func(i);
+        }
+    }
+}
+
+template <typename Func>
+void conditional_static_threader_for(const bool inParallel, const size_t n, Func func)
+{
+    if (inParallel)
+    {
+        static_threader_for(n, [&](size_t i, size_t tid) { func(i, tid); });
+    }
+    else
+    {
+        for (size_t i = 0; i < n; ++i)
+        {
+            func(i, 0);
         }
     }
 }
