@@ -1,9 +1,7 @@
-#include <fstream>
 #include <array>
 
 #include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 
@@ -12,25 +10,6 @@ namespace oneapi::dal::graph::test {
 class graph_base_data {
 public:
     graph_base_data() = default;
-
-    void write_test_data() {
-        std::ofstream outf(filename);
-        if (outf.is_open()) {
-            outf << file_content;
-        }
-        else {
-            throw invalid_argument(dal::detail::error_messages::file_not_found());
-        }
-        outf.close();
-    }
-
-    void delete_test_data() {
-        std::remove(filename.c_str());
-    }
-
-    const std::string get_filename() const {
-        return filename;
-    }
 
     std::int64_t get_correct_vertex_count() const {
         return vertex_count;
@@ -45,67 +24,62 @@ public:
     }
 
 protected:
-    std::string filename;
-    std::string file_content;
     std::int64_t vertex_count;
     std::int64_t edge_count;
     std::int64_t neighbors_count;
 };
 
+class common_graph_type : public graph_base_data {
+public:
+    common_graph_type() {
+        vertex_count = 7;
+        edge_count = 8;
+        neighbors_count = 16;
+    }
+    std::array<std::int64_t, 7> degrees = { 1, 3, 4, 2, 3, 1, 2 };
+    std::array<std::int64_t, 16> cols = { 1, 0, 2, 4, 1, 3, 4, 5, 2, 6, 1, 2, 6, 2, 3, 4 };
+    std::array<std::int64_t, 8> rows = { 0, 1, 4, 8, 10, 13, 14, 16 };
+};
+
 class two_vertices_graph_type : public graph_base_data {
 public:
     two_vertices_graph_type() {
-        filename = "test_two_vertices_graph.csv";
-        file_content = "0 1";
         vertex_count = 2;
         edge_count = 1;
         neighbors_count = 2;
     }
 
     std::array<std::int64_t, 2> degrees = { 1, 1 };
-    std::array<std::int64_t, 2> neighbors = { 1, 0 };
+    std::array<std::int64_t, 2> cols = { 1, 0 };
+    std::array<std::int64_t, 3> rows = { 0, 1, 2 };
 };
 
 class acyclic_graph_type : public graph_base_data {
 public:
     acyclic_graph_type() {
-        filename = "test_acyclic_graph.csv";
-        file_content = "0 1 0 2 0 4 2 3 2 6 3 5 3 7";
         vertex_count = 8;
         edge_count = 7;
         neighbors_count = 14;
     }
 
     std::array<std::int64_t, 8> degrees = { 3, 1, 3, 3, 1, 1, 1, 1 };
-    std::array<std::int64_t, 14> neighbors = { 1, 2, 4, 0, 0, 3, 6, 2, 5, 7, 0, 3, 2, 3 };
+    std::array<std::int64_t, 14> cols = { 1, 2, 4, 0, 0, 3, 6, 2, 5, 7, 0, 3, 2, 3 };
+    std::array<std::int64_t, 9> rows = { 0, 3, 4, 7, 10, 11, 12, 13, 14 };
 };
 
 class complete_graph_type : public graph_base_data {
 public:
     complete_graph_type() {
-        filename = "test_complete_graph.csv";
-        file_content = "0 1 0 2 0 3 0 4 1 2 1 3 1 4 2 3 2 4 3 4";
         vertex_count = 5;
         edge_count = 10;
         neighbors_count = 20;
     }
 
     std::array<std::int64_t, 5> degrees = { 4, 4, 4, 4, 4 };
-    std::array<std::int64_t, 20> neighbors = { 1, 2, 3, 4, 0, 2, 3, 4, 0, 1,
-                                               3, 4, 0, 1, 2, 4, 0, 1, 2, 3 };
-};
-
-class pseudograph_type : public graph_base_data {
-public:
-    pseudograph_type() {
-        filename = "test_pseudograph.csv";
-        file_content = "0 0 1 1 2 2 3 3";
-        vertex_count = 4;
-        edge_count = 0;
-        neighbors_count = 0;
-    }
-
-    std::array<std::int64_t, 4> degrees = { 0, 0, 0, 0 };
+    std::array<std::int64_t, 20> cols = {
+        1, 2, 3, 4, 0, 2, 3, 4, 0, 1, 3, 4, 0, 1, 2, 4, 0, 1, 2, 3
+    };
+    std::array<std::int64_t, 6> rows = { 0, 4, 8, 12, 16, 20 };
 };
 
 class service_functions_test {
@@ -115,12 +89,46 @@ public:
     template <typename GraphType>
     auto create_graph() {
         GraphType graph_data;
-        graph_data.write_test_data();
-        const dal::preview::graph_csv_data_source ds(graph_data.get_filename());
-        const dal::preview::load_graph::descriptor<dal::preview::edge_list<int32_t>, my_graph_type>
-            desc;
-        auto my_graph = dal::preview::load_graph::load(desc, ds);
-        graph_data.delete_test_data();
+        my_graph_type my_graph;
+
+        auto &graph_impl = oneapi::dal::detail::get_impl(my_graph);
+        auto &vertex_allocator = graph_impl._vertex_allocator;
+        auto &edge_allocator = graph_impl._edge_allocator;
+
+        const std::int64_t vertex_count = graph_data.get_correct_vertex_count();
+        const std::int64_t edge_count = graph_data.get_correct_edge_count();
+        const std::int64_t rows_count = vertex_count + 1;
+        const std::int64_t cols_count = edge_count * 2;
+
+        std::int32_t *degrees_ =
+            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
+                vertex_allocator,
+                vertex_count);
+        std::int32_t *cols_ =
+            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
+                vertex_allocator,
+                cols_count);
+        std::int32_t *rows_ =
+            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
+                edge_allocator,
+                rows_count);
+
+        std::int32_t *degrees = new (degrees_) std::int32_t[vertex_count];
+        std::int32_t *cols = new (cols_) std::int32_t[cols_count];
+        std::int32_t *rows = new (rows_) std::int32_t[rows_count];
+
+        for (int i = 0; i < vertex_count; i++) {
+            degrees[i] = graph_data.degrees[i];
+        }
+
+        for (int i = 0; i < cols_count; i++) {
+            cols[i] = graph_data.cols[i];
+        }
+        for (int i = 0; i < rows_count; i++) {
+            rows[i] = graph_data.rows[i];
+        }
+        graph_impl.set_topology(vertex_count, edge_count, rows, cols, degrees);
+
         return my_graph;
     }
 
@@ -155,78 +163,80 @@ public:
     }
 
     void general_checks() {
+        common_graph_type common_graph;
         two_vertices_graph_type two_vertices_graph;
         acyclic_graph_type acyclic_graph;
         complete_graph_type complete_graph;
-        pseudograph_type pseudograph;
 
+        const auto my_common_graph = create_graph<common_graph_type>();
         const auto my_two_vertices_graph = create_graph<two_vertices_graph_type>();
         const auto my_acyclic_graph = create_graph<acyclic_graph_type>();
         const auto my_complete_graph = create_graph<complete_graph_type>();
-        const auto my_pseudograph = create_graph<pseudograph_type>();
         my_graph_type my_empty_graph;
 
-        INFO("check get_vertex_count")
-        REQUIRE(dal::preview::get_vertex_count(my_two_vertices_graph) ==
-                two_vertices_graph.get_correct_vertex_count());
-        REQUIRE(dal::preview::get_vertex_count(my_acyclic_graph) ==
-                acyclic_graph.get_correct_vertex_count());
-        REQUIRE(dal::preview::get_vertex_count(my_complete_graph) ==
-                complete_graph.get_correct_vertex_count());
-        REQUIRE(dal::preview::get_vertex_count(my_pseudograph) ==
-                pseudograph.get_correct_vertex_count());
-        REQUIRE(dal::preview::get_vertex_count(my_empty_graph) == 0);
+        SECTION("check get_vertex_count") {
+            REQUIRE(dal::preview::get_vertex_count(my_common_graph) ==
+                    common_graph.get_correct_vertex_count());
+            REQUIRE(dal::preview::get_vertex_count(my_two_vertices_graph) ==
+                    two_vertices_graph.get_correct_vertex_count());
 
-        INFO("check get_edge_count")
-        REQUIRE(dal::preview::get_edge_count(my_two_vertices_graph) ==
-                two_vertices_graph.get_correct_edge_count());
-        REQUIRE(dal::preview::get_edge_count(my_acyclic_graph) ==
-                acyclic_graph.get_correct_edge_count());
-        REQUIRE(dal::preview::get_edge_count(my_complete_graph) ==
-                complete_graph.get_correct_edge_count());
-        REQUIRE(dal::preview::get_edge_count(my_pseudograph) ==
-                pseudograph.get_correct_edge_count());
-        REQUIRE(dal::preview::get_edge_count(my_empty_graph) == 0);
-
-        INFO("check get_vertex_degree")
-        check_vertex_degree(my_two_vertices_graph,
-                            two_vertices_graph.degrees,
-                            two_vertices_graph.get_correct_vertex_count());
-        check_vertex_degree(my_acyclic_graph,
-                            acyclic_graph.degrees,
-                            acyclic_graph.get_correct_vertex_count());
-        check_vertex_degree(my_complete_graph,
-                            complete_graph.degrees,
-                            complete_graph.get_correct_vertex_count());
-        check_vertex_degree(my_pseudograph,
-                            pseudograph.degrees,
-                            pseudograph.get_correct_vertex_count());
-        REQUIRE_THROWS_WITH(dal::preview::get_vertex_degree(my_empty_graph, 0),
-                            "Vertex index is out of range, expect index in [0, vertex_count)");
-
-        INFO("check get_vertex_neighbors")
-        check_vertex_neighbors(my_two_vertices_graph,
-                               two_vertices_graph.neighbors,
-                               two_vertices_graph.get_correct_vertex_count(),
-                               two_vertices_graph.get_neighbors_count());
-        check_vertex_neighbors(my_acyclic_graph,
-                               acyclic_graph.neighbors,
-                               acyclic_graph.get_correct_vertex_count(),
-                               acyclic_graph.get_neighbors_count());
-        check_vertex_neighbors(my_complete_graph,
-                               complete_graph.neighbors,
-                               complete_graph.get_correct_vertex_count(),
-                               complete_graph.get_neighbors_count());
-        for (std::int64_t j = 0; j < pseudograph.get_correct_vertex_count(); j++) {
-            const auto [start, end] = dal::preview::get_vertex_neighbors(my_pseudograph, j);
-            REQUIRE(start == end);
+            REQUIRE(dal::preview::get_vertex_count(my_two_vertices_graph) ==
+                    two_vertices_graph.get_correct_vertex_count());
+            REQUIRE(dal::preview::get_vertex_count(my_acyclic_graph) ==
+                    acyclic_graph.get_correct_vertex_count());
+            REQUIRE(dal::preview::get_vertex_count(my_complete_graph) ==
+                    complete_graph.get_correct_vertex_count());
+            REQUIRE(dal::preview::get_vertex_count(my_empty_graph) == 0);
         }
-        REQUIRE_THROWS_WITH(dal::preview::get_vertex_neighbors(my_empty_graph, 0),
-                            "Vertex index is out of range, expect index in [0, vertex_count)");
+        SECTION("check get_edge_count") {
+            REQUIRE(dal::preview::get_edge_count(my_common_graph) ==
+                    common_graph.get_correct_edge_count());
+            REQUIRE(dal::preview::get_edge_count(my_two_vertices_graph) ==
+                    two_vertices_graph.get_correct_edge_count());
+            REQUIRE(dal::preview::get_edge_count(my_acyclic_graph) ==
+                    acyclic_graph.get_correct_edge_count());
+            REQUIRE(dal::preview::get_edge_count(my_complete_graph) ==
+                    complete_graph.get_correct_edge_count());
+            REQUIRE(dal::preview::get_edge_count(my_empty_graph) == 0);
+        }
+        SECTION("check get_vertex_degree") {
+            check_vertex_degree(my_common_graph,
+                                common_graph.degrees,
+                                common_graph.get_correct_vertex_count());
+            check_vertex_degree(my_two_vertices_graph,
+                                two_vertices_graph.degrees,
+                                two_vertices_graph.get_correct_vertex_count());
+            check_vertex_degree(my_acyclic_graph,
+                                acyclic_graph.degrees,
+                                acyclic_graph.get_correct_vertex_count());
+            check_vertex_degree(my_complete_graph,
+                                complete_graph.degrees,
+                                complete_graph.get_correct_vertex_count());
+            REQUIRE_THROWS_AS(dal::preview::get_vertex_degree(my_empty_graph, 0), out_of_range);
+        }
+        SECTION("check get_vertex_neighbors") {
+            check_vertex_neighbors(my_common_graph,
+                                   common_graph.cols,
+                                   common_graph.get_correct_vertex_count(),
+                                   common_graph.get_neighbors_count());
+            check_vertex_neighbors(my_two_vertices_graph,
+                                   two_vertices_graph.cols,
+                                   two_vertices_graph.get_correct_vertex_count(),
+                                   two_vertices_graph.get_neighbors_count());
+            check_vertex_neighbors(my_acyclic_graph,
+                                   acyclic_graph.cols,
+                                   acyclic_graph.get_correct_vertex_count(),
+                                   acyclic_graph.get_neighbors_count());
+            check_vertex_neighbors(my_complete_graph,
+                                   complete_graph.cols,
+                                   complete_graph.get_correct_vertex_count(),
+                                   complete_graph.get_neighbors_count());
+            REQUIRE_THROWS_AS(dal::preview::get_vertex_neighbors(my_empty_graph, 0), out_of_range);
+        }
     }
 };
 
-TEST_M(service_functions_test, "graph service functions test") {
+TEST_M(service_functions_test, "check service function") {
     this->general_checks();
 }
 

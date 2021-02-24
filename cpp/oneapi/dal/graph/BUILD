@@ -21,6 +21,5 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":graph",
-        "@onedal//cpp/oneapi/dal/io",
     ],
 )
