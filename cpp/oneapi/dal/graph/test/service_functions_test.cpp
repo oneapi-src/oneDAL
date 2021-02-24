@@ -236,7 +236,7 @@ public:
     }
 };
 
-TEST_M(service_functions_test, "check service function") {
+TEST_M(service_functions_test, "check service functions") {
     this->general_checks();
 }
 
