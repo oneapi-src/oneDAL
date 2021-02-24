@@ -161,6 +161,7 @@ public:
         DAAL_ASSERT(_indexedFeatures);
         return *_indexedFeatures;
     }
+    bool providedWeights() const { return _weights; }
     void init(const NumericTable * data, const NumericTable * resp, const NumericTable * weights = nullptr)
     {
         _data                                            = const_cast<NumericTable *>(data);

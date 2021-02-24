@@ -698,9 +698,17 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
 
     setupHostApp();
 
-    algorithmFPType totalWeights = 0.;
+    double totalWeights = double(0);
     typename DataHelper::ImpurityData initialImpurity;
-    _helper.calcImpurity(_aSample.get(), _nSamples, initialImpurity, totalWeights);
+    const bool noWeights = !_helper.providedWeights();
+    if (noWeights)
+    {
+        _helper.template calcImpurity<true>(_aSample.get(), _nSamples, initialImpurity, totalWeights);
+    }
+    else
+    {
+        _helper.template calcImpurity<false>(_aSample.get(), _nSamples, initialImpurity, totalWeights);
+    }
     bool bUnorderedFeaturesUsed = false;
     services::Status s;
     typename DataHelper::NodeType::Base * nd =
@@ -1081,8 +1089,17 @@ bool TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, cpu>::findBes
     {
         //sorted feature was used
         //calculate impurity and get split to bestSplitIdx
-        _helper.finalizeBestSplit(aIdx, _binIndex + _data->getNumberOfRows() * iBestFeature, n, iBestFeature, idxFeatureValueBestSplit, bestSplit,
-                                  bestSplitIdx);
+        const bool noWeights = !_helper.providedWeights();
+        if (noWeights)
+        {
+            _helper.template finalizeBestSplit<true>(aIdx, _binIndex + _data->getNumberOfRows() * iBestFeature, n, iBestFeature,
+                                                     idxFeatureValueBestSplit, bestSplit, bestSplitIdx);
+        }
+        else
+        {
+            _helper.template finalizeBestSplit<false>(aIdx, _binIndex + _data->getNumberOfRows() * iBestFeature, n, iBestFeature,
+                                                      idxFeatureValueBestSplit, bestSplit, bestSplitIdx);
+        }
     }
     else if (bestSplit.featureUnordered)
     {
