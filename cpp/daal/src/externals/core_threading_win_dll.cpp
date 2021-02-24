@@ -398,7 +398,7 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
     _daal_threader_for_ptr(n, threads_request, a, func);
 }
 
-DAAL_EXPORT void _daal_threader_simple_for(int n, int threads_request, const void * a, daal::functype func)
+DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
 {
     load_daal_thr_dll();
     if (_daal_threader_for_simple_ptr == NULL)
@@ -408,7 +408,7 @@ DAAL_EXPORT void _daal_threader_simple_for(int n, int threads_request, const voi
     _daal_threader_for_simple_ptr(n, threads_request, a, func);
 }
 
-DAAL_EXPORT void _daal_threader_int32ptr_for(const int * begin, const int * end, const void * a, daal::functype_int32ptr func)
+DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end, const void * a, daal::functype_int32ptr func)
 {
     load_daal_thr_dll();
     if (_daal_threader_for_int32ptr_ptr == NULL)
