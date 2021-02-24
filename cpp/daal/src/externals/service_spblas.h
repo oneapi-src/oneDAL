@@ -180,7 +180,7 @@ private:
 public:
     static services::Status xsyrk_a_at(const fpType * a, const size_t * ja, const size_t * ia, size_t m, size_t n, fpType * c, const size_t ldC)
     {
-        size_t nBlocks = 50;
+        size_t nBlocks = 8;
         if (m < nBlocks) nBlocks = 1;
 
         const size_t nRowsInCommonBlock = m / nBlocks;
@@ -201,7 +201,7 @@ public:
 
         splitCSR2CSC(a, ja, ia, n, nRowsInCommonBlock, nRowsInTailBlock, nBlocks, valuesCSC, colIdxCSC, rowIdxCSC);
 
-        daal::conditional_threader_for((m * m > 256 * 256), nBlocks * nBlocks, [=](size_t idx) {
+        daal::conditional_threader_for((m * m > 512 * 512), nBlocks * nBlocks, [=](size_t idx) {
             const size_t i = idx / nBlocks;
             const size_t j = idx % nBlocks;
 
@@ -254,8 +254,8 @@ public:
             return xsyrk_a_at(a, ja, ia, ma, n, c, ldC);
         }
 
-        const size_t nRowsInCommonBlock_a = 256;
-        const size_t nRowsInCommonBlock_b = 256;
+        const size_t nRowsInCommonBlock_a = 512;
+        const size_t nRowsInCommonBlock_b = 512;
 
         size_t nBlocks_a = ma / nRowsInCommonBlock_a + !!(ma % nRowsInCommonBlock_a);
         size_t nBlocks_b = mb / nRowsInCommonBlock_b + !!(mb % nRowsInCommonBlock_b);
@@ -291,7 +291,7 @@ public:
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, ma, mb);
 
-        daal::conditional_threader_for((ma * mb > 256 * 256), nBlocks_a * nBlocks_b, [=](size_t idx) {
+        daal::conditional_threader_for((ma * mb > 512 * 512), nBlocks_a * nBlocks_b, [=](size_t idx) {
             const size_t i = idx / nBlocks_b;
             const size_t j = idx % nBlocks_b;
 
