@@ -89,7 +89,7 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
     DAAL_CHECK_STATUS_VAR(ntObjFunction->getBlockOfRows(0, 1, writeOnly, ntObjFunctionRows));
 
     DAAL_ASSERT(ntObjFunctionRows.getBuffer().size() >= 1);
-    auto outObjFunction = ntObjFunctionRows.getBuffer().toHost(data_management::readOnly, st);
+    auto outObjFunction = ntObjFunctionRows.getBuffer().toHost(data_management::writeOnly, st);
     DAAL_CHECK_STATUS_VAR(st);
 
     BlockDescriptor<algorithmFPType> ntCValuesRows;
