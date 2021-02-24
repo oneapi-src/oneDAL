@@ -20,6 +20,5 @@ dal_test_suite(
     ]),
     dal_deps = [
         ":jaccard",
-        "@onedal//cpp/oneapi/dal/io",
     ],
 )
