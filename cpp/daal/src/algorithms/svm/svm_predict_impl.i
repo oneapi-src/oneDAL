@@ -216,18 +216,16 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
         /* TLS data initialization */
         using TPredictTask = PredictTask<algorithmFPType, cpu>;
-        daal::ls<TPredictTask *> lsTask(
-            [&]() {
-                if (isSparse)
-                {
-                    return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
-                }
-                else
-                {
-                    return PredictTaskDense<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
-                }
-            },
-            !isSparse);
+        daal::tls<TPredictTask *> tlsTask([&]() {
+            if (isSparse)
+            {
+                return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+            }
+            else
+            {
+                return PredictTaskDense<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+            }
+        });
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocksSV, nRowsPerBlock);
         daal::LsMem<algorithmFPType, cpu> lsDistance(nBlocksSV * nRowsPerBlock, nSV <= 256);
@@ -238,12 +236,11 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
             algorithmFPType * const distanceLocal = lsDistance.local();
             DAAL_CHECK_MALLOC_THR(distanceLocal);
-            DAAL_LS_RELEASE(algorithmFPType, lsDistance, distanceLocal); //releases local storage when leaving this scope
+            DAAL_LS_RELEASE(algorithmFPType, lsDistance, distanceLocal);
 
             daal::conditional_threader_for((nSV > 256), nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
-                TPredictTask * lsLocal = lsTask.local();
+                TPredictTask * lsLocal = tlsTask.local();
                 DAAL_CHECK_MALLOC_THR(lsLocal);
-                DAAL_LS_RELEASE(TPredictTask, lsTask, lsLocal); //releases local storage when leaving this scope
 
                 const size_t startSV         = iBlockSV * nSVPerBlock;
                 const size_t nSVPerBlockReal = (iBlockSV != nBlocksSV - 1) ? nSVPerBlock : nSV - startSV;
@@ -291,7 +288,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             }
         });
 
-        lsTask.reduce([](PredictTask<algorithmFPType, cpu> * local) { delete local; });
+        tlsTask.reduce([](PredictTask<algorithmFPType, cpu> * local) { delete local; });
         return safeStat.detach();
     }
 }; // namespace internal
