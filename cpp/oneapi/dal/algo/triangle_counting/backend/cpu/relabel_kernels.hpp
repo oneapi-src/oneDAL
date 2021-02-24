@@ -21,6 +21,11 @@
 
 namespace oneapi::dal::preview::triangle_counting::backend {
 
+template <typename Index>
+inline Index min(const Index &a, const Index &b) {
+    return (a >= b) ? b : a;
+}
+
 template <typename Cpu>
 void sort_ids_by_degree(const std::int32_t* degrees,
                         std::pair<std::int32_t, std::size_t>* degree_id_pairs,
@@ -55,7 +60,7 @@ void parallel_prefix_sum(const std::int32_t* degrees_relabel,
                          std::int64_t vertex_count) {
     dal::detail::threader_for(num_blocks, num_blocks, [&](std::int64_t block) {
         std::int64_t local_sum = 0;
-        std::int64_t block_end = std::min((std::int64_t)((block + 1) * block_size), vertex_count);
+        std::int64_t block_end = min((std::int64_t)((block + 1) * block_size), vertex_count);
         PRAGMA_VECTOR_ALWAYS
         for (std::int64_t i = block * block_size; i < block_end; i++) {
             local_sum += degrees_relabel[i];
@@ -74,7 +79,7 @@ void parallel_prefix_sum(const std::int32_t* degrees_relabel,
     dal::detail::threader_for(num_blocks, num_blocks, [&](std::int64_t block) {
         std::int64_t local_total = part_prefix[block];
         std::int64_t block_end =
-            std::min((std::int64_t)((block + 1) * block_size), (std::int64_t)vertex_count);
+            min((std::int64_t)((block + 1) * block_size), (std::int64_t)vertex_count);
         for (std::int64_t i = block * block_size; i < block_end; i++) {
             offsets[i] = local_total;
             local_total += degrees_relabel[i];
