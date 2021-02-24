@@ -115,7 +115,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
     algorithmFPType b        = (algorithmFPType)(linPar->b);
     algorithmFPType k        = (algorithmFPType)(linPar->k);
 
-    const size_t blockSize = 256;
+    const size_t blockSize = 512;
     const size_t nBlocks1  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
     const size_t nBlocks2  = nVectors2 / blockSize + !!(nVectors2 % blockSize);
 
@@ -123,7 +123,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
 
     TlsMem<algorithmFPType, cpu> tlsMklBuff(blockSize * blockSize);
     SafeStatus safeStat;
-    daal::conditional_threader_for((nVectors1 > 512), nBlocks1, [&, isSOARes](const size_t iBlock1) {
+    daal::conditional_threader_for((nVectors1 > 1024), nBlocks1, [&, isSOARes](const size_t iBlock1) {
         const size_t nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         const size_t startRow1     = iBlock1 * blockSize;
 
@@ -139,7 +139,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
             mtRRows.set(r, startRow1, nRowsInBlock1);
             DAAL_CHECK_MALLOC_THR(mtRRows.get());
         }
-        daal::conditional_threader_for((nVectors2 > 512), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+        daal::conditional_threader_for((nVectors2 > 1024), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
             const size_t nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
             const size_t startRow2     = iBlock2 * blockSize;
 

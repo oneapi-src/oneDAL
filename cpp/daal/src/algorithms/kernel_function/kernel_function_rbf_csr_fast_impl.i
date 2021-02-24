@@ -163,7 +163,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
     DAAL_OVERFLOW_CHECK_BY_ADDING(size_t, nVectors1, nVectors2);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors1 + nVectors2, sizeof(algorithmFPType));
 
-    const size_t blockSize = 256;
+    const size_t blockSize = 512;
     const size_t nBlocks1  = nVectors1 / blockSize + !!(nVectors1 % blockSize);
     const size_t nBlocks2  = nVectors2 / blockSize + !!(nVectors2 % blockSize);
 
@@ -179,7 +179,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
         return tlsData;
     });
 
-    daal::conditional_threader_for((nVectors1 > 512), nBlocks1, [&, isSOARes](const size_t iBlock1) {
+    daal::conditional_threader_for((nVectors1 > 1024), nBlocks1, [&, isSOARes](const size_t iBlock1) {
         const size_t nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         const size_t startRow1     = iBlock1 * blockSize;
 
@@ -195,7 +195,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
             mtRRows.set(r, startRow1, nRowsInBlock1);
             DAAL_CHECK_MALLOC_THR(mtRRows.get());
         }
-        daal::conditional_threader_for((nVectors2 > 512), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+        daal::conditional_threader_for((nVectors2 > 1024), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
             const size_t nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
             const size_t startRow2     = iBlock2 * blockSize;
 
@@ -265,6 +265,8 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
             }
         });
     });
+
+    tslTask.reduce([](KernelRBFTask<algorithmFPType, cpu> * tlsLocal) { delete tlsLocal; });
 
     return services::Status();
 }

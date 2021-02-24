@@ -115,7 +115,7 @@ services::Status HelperKernelRBF<double, avx512>::postGemmPart(double * const mk
     }
     for (; i < n; i++)
     {
-        const double rbf = (mklBuff[i] + sqrA2i + sqrA1i[i]) * coeff;
+        const double rbf = (mklBuff[i] * negTwo + sqrA2i + sqrA1i[i]) * coeff;
         mklBuff[i]       = rbf > expExpThreshold ? rbf : expExpThreshold;
     }
 
@@ -165,7 +165,7 @@ services::Status HelperKernelRBF<float, avx512>::postGemmPart(float * const mklB
     }
     for (; i < n; i++)
     {
-        const float rbf = (mklBuff[i] + sqrA2i + sqrA1i[i]) * coeff;
+        const float rbf = (mklBuff[i] * negTwo + sqrA2i + sqrA1i[i]) * coeff;
         mklBuff[i]      = rbf > expExpThreshold ? rbf : expExpThreshold;
     }
 
