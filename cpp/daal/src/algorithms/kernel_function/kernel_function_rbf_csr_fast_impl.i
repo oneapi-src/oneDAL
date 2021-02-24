@@ -235,8 +235,8 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
             if (!isSOARes)
             {
                 algorithmFPType * const dataR = mtRRows.get();
-                SpBlas<algorithmFPType, cpu>::xxgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
-                                                          nRowsInBlock2, nFeatures, mklBuff, blockSize);
+                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
+                                                         nRowsInBlock2, nFeatures, mklBuff, blockSize);
 
                 for (size_t i = 0; i < nRowsInBlock1; ++i)
                 {
@@ -249,8 +249,8 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
             }
             else
             {
-                SpBlas<algorithmFPType, cpu>::xxgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
-                                                          nRowsInBlock1, nFeatures, mklBuff, blockSize);
+                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
+                                                         nRowsInBlock1, nFeatures, mklBuff, blockSize);
 
                 for (size_t j = 0; j < nRowsInBlock2; ++j)
                 {

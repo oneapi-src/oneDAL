@@ -216,7 +216,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
 
         /* TLS data initialization */
         using TPredictTask = PredictTask<algorithmFPType, cpu>;
-        daal::tls<TPredictTask *> tlsTask([&]() {
+        daal::ls<TPredictTask *> tlsTask([&]() {
             if (isSparse)
             {
                 return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
@@ -241,6 +241,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             daal::conditional_threader_for((nSV > 256), nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
                 TPredictTask * lsLocal = tlsTask.local();
                 DAAL_CHECK_MALLOC_THR(lsLocal);
+                DAAL_LS_RELEASE(TPredictTask, tlsTask, lsLocal);
 
                 const size_t startSV         = iBlockSV * nSVPerBlock;
                 const size_t nSVPerBlockReal = (iBlockSV != nBlocksSV - 1) ? nSVPerBlock : nSV - startSV;

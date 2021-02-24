@@ -154,8 +154,8 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
             {
                 const size_t ldc              = nVectors2;
                 algorithmFPType * const dataR = mtRRows.get();
-                SpBlas<algorithmFPType, cpu>::xxgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
-                                                          nRowsInBlock2, nFeatures, dataR + startRow2, ldc);
+                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
+                                                         nRowsInBlock2, nFeatures, dataR + startRow2, ldc);
 
                 if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
                 {
@@ -173,8 +173,8 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
                 const size_t ldc                = blockSize;
                 algorithmFPType * const mklBuff = tlsMklBuff.local();
 
-                SpBlas<algorithmFPType, cpu>::xxgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
-                                                          nRowsInBlock1, nFeatures, mklBuff, ldc);
+                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
+                                                         nRowsInBlock1, nFeatures, mklBuff, ldc);
 
                 if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
                 {

@@ -65,8 +65,6 @@ services::Status KernelImplRBFOneAPI<fastCSR, algorithmFPType>::computeInternalM
                                                                                             NumericTable * result, const ParameterBase * par)
 {
     services::Status status;
-    printf("RBF computeInternalMatrixMatrix\n");
-
     auto & context = services::internal::getDefaultContext();
 
     const size_t nMatLeft  = matLeft->getNumberOfRows();

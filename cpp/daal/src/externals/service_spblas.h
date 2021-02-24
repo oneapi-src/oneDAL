@@ -178,7 +178,7 @@ private:
     }
 
 public:
-    static services::Status xsyrk_a_at(const fpType * a, const size_t * ja, const size_t * ia, size_t m, size_t n, fpType * c)
+    static services::Status xsyrk_a_at(const fpType * a, const size_t * ja, const size_t * ia, size_t m, size_t n, fpType * c, const size_t ldC)
     {
         size_t nBlocks = 50;
         if (m < nBlocks) nBlocks = 1;
@@ -201,7 +201,7 @@ public:
 
         splitCSR2CSC(a, ja, ia, n, nRowsInCommonBlock, nRowsInTailBlock, nBlocks, valuesCSC, colIdxCSC, rowIdxCSC);
 
-        daal::threader_for(nBlocks * nBlocks, nBlocks * nBlocks, [=](size_t idx) {
+        daal::conditional_threader_for((m * m > 256 * 256), nBlocks * nBlocks, [=](size_t idx) {
             const size_t i = idx / nBlocks;
             const size_t j = idx % nBlocks;
 
@@ -209,7 +209,7 @@ public:
 
             CSCBlock block1, block2;
             DenseBlock block_res;
-            block_res.stride = m;
+            block_res.stride = ldC;
 
             SizeType offset_i = i * nRowsInCommonBlock;
             SizeType offset_j = j * nRowsInCommonBlock;
@@ -222,7 +222,7 @@ public:
             block2.colIdx = colIdxCSC + j * (n + 1);
             block2.rowIdx = rowIdxCSC + ia[offset_j] - ia[0];
 
-            block_res.ptr = c + i * nRowsInCommonBlock * m + j * nRowsInCommonBlock;
+            block_res.ptr = c + i * nRowsInCommonBlock * ldC + j * nRowsInCommonBlock;
 
             size_t rows = nRowsInCommonBlock;
             if (i == nBlocks - 1) rows = nRowsInTailBlock;
@@ -236,7 +236,7 @@ public:
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t col = 0; col < cols; ++col)
                 {
-                    block_res.ptr[row * m + col] = 0.0;
+                    block_res.ptr[row * ldC + col] = 0.0;
                 }
             }
 
@@ -249,6 +249,11 @@ public:
     static services::Status xgemm_a_bt(const fpType * a, const size_t * ja, const size_t * ia, const fpType * b, const size_t * jb, const size_t * ib,
                                        size_t ma, size_t mb, size_t n, fpType * c, const size_t ldC)
     {
+        if (a == b && ja == jb && ia == ib)
+        {
+            return xsyrk_a_at(a, ja, ia, ma, n, c, ldC);
+        }
+
         const size_t nRowsInCommonBlock_a = 256;
         const size_t nRowsInCommonBlock_b = 256;
 
@@ -325,67 +330,6 @@ public:
 
             csc_mm_a_bt(n, block1, block2, block_res);
         });
-
-        return services::Status();
-    }
-
-    static services::Status xxgemm_a_bt(const fpType * a, const size_t * ja, const size_t * ia, const fpType * b, const size_t * jb,
-                                        const size_t * ib, size_t ma, size_t mb, size_t n, fpType * c, const size_t ldC)
-    {
-        const size_t nnzTotal_a = ia[ma] - ia[0];
-        const size_t nnzTotal_b = ib[mb] - ib[0];
-
-        const size_t nBlocks_a = 1;
-        const size_t nBlocks_b = 1;
-
-        TArray<uint32_t, cpu> rowIdxCSCArr_a(nnzTotal_a);
-        uint32_t * rowIdxCSC_a = rowIdxCSCArr_a.get();
-
-        TArray<uint32_t, cpu> colIdxCSCArr_a((n + 1) * nBlocks_a);
-        uint32_t * colIdxCSC_a = colIdxCSCArr_a.get();
-
-        TArray<fpType, cpu> valuesCSCArr_a(nnzTotal_a);
-        fpType * valuesCSC_a = valuesCSCArr_a.get();
-
-        TArray<uint32_t, cpu> rowIdxCSCArr_b(nnzTotal_b);
-        uint32_t * rowIdxCSC_b = rowIdxCSCArr_b.get();
-
-        TArray<uint32_t, cpu> colIdxCSCArr_b((n + 1) * nBlocks_b);
-        uint32_t * colIdxCSC_b = colIdxCSCArr_b.get();
-
-        TArray<fpType, cpu> valuesCSCArr_b(nnzTotal_b);
-        fpType * valuesCSC_b = valuesCSCArr_b.get();
-
-        DAAL_CHECK(rowIdxCSC_a && colIdxCSC_a && valuesCSC_a && rowIdxCSC_b && colIdxCSC_b && valuesCSC_b, services::ErrorMemoryAllocationFailed);
-
-        splitCSR2CSC(a, ja, ia, n, ma, ma, 1, valuesCSC_a, colIdxCSC_a, rowIdxCSC_a);
-        splitCSR2CSC(b, jb, ib, n, mb, mb, 1, valuesCSC_b, colIdxCSC_b, rowIdxCSC_b);
-
-        CSCBlock block1, block2;
-        DenseBlock block_res;
-
-        block1.values = valuesCSC_a;
-        block1.colIdx = colIdxCSC_a;
-        block1.rowIdx = rowIdxCSC_a;
-
-        block2.values = valuesCSC_b;
-        block2.colIdx = colIdxCSC_b;
-        block2.rowIdx = rowIdxCSC_b;
-
-        block_res.ptr    = c;
-        block_res.stride = ldC;
-
-        for (size_t row = 0; row < ma; ++row)
-        {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t col = 0; col < mb; ++col)
-            {
-                block_res.ptr[row * block_res.stride + col] = 0.0;
-            }
-        }
-
-        csc_mm_a_bt(n, block1, block2, block_res);
 
         return services::Status();
     }
