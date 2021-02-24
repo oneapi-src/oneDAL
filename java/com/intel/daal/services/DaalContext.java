@@ -63,10 +63,8 @@ public class DaalContext {
      */
     public void dispose() {
         Disposable obj = null;
-        synchronized(queue) {
-            while ((obj = queue.poll()) != null) {
-                obj.dispose();
-            }
+        while ((obj = queue.poll()) != null) {
+            obj.dispose();
         }
     }
 
