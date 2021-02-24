@@ -35,8 +35,8 @@ int main(int argc, char** argv) {
     std::allocator<char> alloc;
     // set algorithm parameters
     const auto tc_desc =
-        descriptor<float, method::ordered_count, task::local_and_global, std::allocator<char>>()
-            .set_allocator(alloc);
+        descriptor<float, method::ordered_count, task::local_and_global, std::allocator<char>>(
+            alloc);
 
     // compute local and global triangles
     const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, my_graph);

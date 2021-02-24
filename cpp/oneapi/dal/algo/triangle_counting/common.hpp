@@ -38,7 +38,7 @@ using by_default = ordered_count;
 enum class kind { undirected_clique, directed_cycle, directed_closed_triplet };
 
 // Option to allow relabeling that is potentially additional memory consuming.
-enum class relabel { yes, no };
+enum class relabel { no, yes };
 
 namespace detail {
 struct descriptor_tag {};
@@ -108,6 +108,10 @@ public:
     using task_t = Task;
     using allocator_t = Allocator;
 
+    explicit descriptor(Allocator allocator) {
+        _alloc = allocator;
+    }
+
     auto& set_kind(kind value) {
         base_t::set_kind(value);
         return *this;
@@ -117,11 +121,7 @@ public:
         return *this;
     }
 
-    auto& set_allocator(Allocator alloc) {
-        _alloc = alloc;
-        return *this;
-    }
-    const Allocator& get_allocator() const {
+    Allocator get_allocator() const {
         return _alloc;
     }
 
