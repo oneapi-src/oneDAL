@@ -16,6 +16,24 @@ build --flag_alias=cpu=@config//:cpu
 test --test_env=OCL_ICD_FILENAMES \
      --test_env=DAAL_DATASETS
 
+# Configuration: 'public'
+# Build & run all tests for public interface
+build:public \
+    --build_tag_filters="-private"
+
+test:public \
+    --test_tag_filters="-private"
+
+
+# Configuration: 'private'
+# Build & run all tests for internal functionality
+build:private \
+    --build_tag_filters="-public"
+
+test:private \
+    --test_tag_filters="-public"
+
+
 # Configuration: 'host'
 # Build & run all host tests
 build:host \
@@ -23,15 +41,6 @@ build:host \
 
 test:host \
     --test_tag_filters="host"
-
-
-# Configuration: host-public
-# Build & run all host tests for public interface
-build:host-public \
-    --build_tag_filters="host,-private"
-
-test:host-public \
-    --test_tag_filters="host,-private"
 
 
 # Configuration: 'dpc'
@@ -43,6 +52,24 @@ test:dpc \
     --test_tag_filters="dpc"
 
 
+# Configuration: 'host-public'
+# Build & run all host tests for public interface
+build:host-public \
+    --build_tag_filters="host,-private"
+
+test:host-public \
+    --test_tag_filters="host,-private"
+
+
+# Configuration: 'host-private'
+# Build & run all host tests for internal functionality
+build:host-private \
+    --build_tag_filters="host,-public"
+
+test:host-private \
+    --test_tag_filters="host,-public"
+
+
 # Configuration: 'dpc-public'
 # Build & run all DPC++ tests for public interface
 build:dpc-public \
@@ -50,3 +77,12 @@ build:dpc-public \
 
 test:dpc-public \
     --test_tag_filters="dpc,-private"
+
+
+# Configuration: 'dpc-private'
+# Build & run all DPC++ tests for internal functionality
+build:dpc-private \
+    --build_tag_filters="dpc,-public"
+
+test:dpc-private \
+    --test_tag_filters="dpc,-public"
