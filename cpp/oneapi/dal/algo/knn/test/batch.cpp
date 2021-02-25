@@ -78,7 +78,8 @@ public:
         for(std::int64_t j = 0; j < m; ++j) {
             const auto gt_indices_row = row_accessor<const Float>(indices).pull({ j, j + 1 });
             const auto te_indices_row = row_accessor<const Float>(labels).pull({ j, j + 1 });
-            const auto l = gt_indices_row[0], r = te_indices_row[0];
+            const auto l = gt_indices_row[0];
+            const auto r = te_indices_row[0];
             if (l != r) {
                 CAPTURE(l, r);
                 FAIL("Indices of nearest neighbors are unequal");
@@ -118,8 +119,8 @@ public:
     }
 
     static auto argsort(const table& distances) {
-        const auto m = distances.get_row_count();
-        const auto n = distances.get_column_count();
+        const auto n = distances.get_row_count();
+        const auto m = distances.get_column_count();
         
         auto indices = array<std::int32_t>::zeros(m * n);
         auto indices_ptr = indices.get_mutable_data();
@@ -191,7 +192,34 @@ using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn:
 KNN_TEST("knn nearest points test predefined") {
     SKIP_IF(this->not_available_on_device());
 
-    constexpr std::int64_t row_count = 6;
+    constexpr std::int64_t train_row_count = 7;
+    constexpr std::int64_t infer_row_count = 5;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t train_element_count = train_row_count * column_count;
+    constexpr std::int64_t infer_element_count = infer_row_count * column_count;
+
+    constexpr std::array<float, train_element_count> train = 
+        { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f, +100.f, -1024.f };
+
+    constexpr std::array<float, infer_element_count> infer = 
+        { +2.f, +1.f, -1.f, +3.f, -1.f, -1.f, +1.f, +2.f, +1.f, +2.f};
+
+    const auto x_train_table = homogen_table::wrap(train.data(), train_row_count, column_count);
+    const auto x_infer_table = homogen_table::wrap(infer.data(), infer_row_count, column_count);
+    const auto y_train_table = this->arange(train_row_count);
+
+    const auto knn_desc = this->get_descriptor( train_row_count, 1 );
+
+    auto train_result = this->train(knn_desc, x_train_table, y_train_table);
+    auto infer_result = this->infer(knn_desc, x_infer_table, train_result.get_model());
+
+    this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
+}
+
+/*KNN_TEST("knn nearest points test random") {
+    SKIP_IF(this->not_available_on_device());
+
+    constexpr std::int64_t row_count = ;
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t element_count = row_count * column_count;
 
@@ -199,7 +227,7 @@ KNN_TEST("knn nearest points test predefined") {
         { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f };
 
     constexpr std::array<float, element_count> infer = 
-        { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f };
+        { +2.f, -1.f, -1.f, +3.f, -1.f, -1.f, +1.f, +2.f, +1.f, +2.f, +2.f, +4.f };
 
     const auto x_train_table = homogen_table::wrap(train.data(), row_count, column_count);
     const auto x_infer_table = homogen_table::wrap(infer.data(), row_count, column_count);
@@ -211,7 +239,7 @@ KNN_TEST("knn nearest points test predefined") {
     auto infer_result = this->infer(knn_desc, x_infer_table, train_result.get_model());
 
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
-}
+}*/
 
 
 } // namespace oneapi::dal::kmeans::test
