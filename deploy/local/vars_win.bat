@@ -42,6 +42,7 @@ exit /b 0
 
 :GoodArgs
 set "DAALROOT=%DAAL%"
+set "oneDAL_DIR=%DAAL%\lib\cmake\oneDAL"
 set "INCLUDE=%DAAL%\include;%INCLUDE%"
 set "CPATH=%DAAL%\include;%CPATH%"
 set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
@@ -56,6 +57,7 @@ set DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__& ^
 set DAL_MINOR_BINARY=__DAL_MINOR_BINARY__& ^
 set DALROOT=%DAALROOT%& ^
 set DAALROOT=%DAALROOT%& ^
+set oneDAL_DIR=%oneDAL_DIR%& ^
 set INCLUDE=%INCLUDE%& ^
 set CPATH=%CPATH%& ^
 set LIB=%LIB%& ^

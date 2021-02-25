@@ -88,6 +88,7 @@ setenv          DAL_MAJOR_BINARY   __DAL_MAJOR_BINARY__
 setenv          DAL_MINOR_BINARY   __DAL_MINOR_BINARY__
 setenv          DALROOT            $daalroot
 setenv          DAALROOT           $daalroot
+setenv          oneDAL_DIR         $daalroot/lib/cmake/oneDAL
 
 prepend-path    LD_LIBRARY_PATH    $daalroot/lib/$daal_target_arch
 prepend-path    LIBRARY_PATH       $daalroot/lib/$daal_target_arch
