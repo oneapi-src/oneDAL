@@ -60,8 +60,15 @@ public:
         return te::table_id::homogen<Float>();
     }
 
+    void classification(const table& train_data, const table& infer_data,
+                        const table& groundtruth) {
+        
+
+    }
+
     void exact_nearest_indices_check(const table& train_data, const table& infer_data,
                                      const knn::infer_result<>& result) {
+        check_nans(result);
 
         const auto [labels] = unpack_result(result);
 
@@ -239,10 +246,10 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 4096x4095x17") {
 
     const auto train_dataframe = 
         GENERATE_DATAFRAME(te::dataframe_builder{ train_row_count, column_count}.fill_uniform(-0.2, 0.5));
-    const table x_train_table = train_dataframe.get_table(this->get_policy(), this->get_homogen_table_id());
+    const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id());
     const auto infer_dataframe = 
         GENERATE_DATAFRAME(te::dataframe_builder{ infer_row_count, column_count}.fill_uniform(-0.3, 1.));
-    const table x_infer_table = infer_dataframe.get_table(this->get_policy(), this->get_homogen_table_id());
+    const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id());
 
     const table y_train_table = this->arange(train_row_count);
 
@@ -265,10 +272,10 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
 
     const auto train_dataframe = 
         GENERATE_DATAFRAME(te::dataframe_builder{ train_row_count, column_count}.fill_uniform(-0.2, 0.5));
-    const table x_train_table = train_dataframe.get_table(this->get_policy(), this->get_homogen_table_id());
+    const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id());
     const auto infer_dataframe = 
         GENERATE_DATAFRAME(te::dataframe_builder{ infer_row_count, column_count}.fill_uniform(-0.3, 1.));
-    const table x_infer_table = infer_dataframe.get_table(this->get_policy(), this->get_homogen_table_id());
+    const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id());
 
     const table y_train_table = this->arange(train_row_count);
 
@@ -280,7 +287,26 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
+KNN_EXTERNAL_TEST("knn classification mnist") {
+    SKIP_IF(this->not_available_on_device());
+
+    constexpr std::int64_t column_count = 784;
+
+    const te::dataframe train_dataframe =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/mnist/dataset/mnist_train.csv" });
+
+    const te::dataframe infer_dataframe =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" });
+
+    const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+    const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+
+    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(), range(column_count, column_count + 1));
+    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(), range(column_count, column_count + 1));
 
 
+
+
+}
 
 } // namespace oneapi::dal::kmeans::test
