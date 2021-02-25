@@ -42,7 +42,7 @@ template <typename VertexValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEDAL_EXPORT undirected_adjacency_vector_graph {
+class ONEDAL_EXPORT undirected_adjacency_vector_graph : public graph_base {
 public:
     using graph_type =
         undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;

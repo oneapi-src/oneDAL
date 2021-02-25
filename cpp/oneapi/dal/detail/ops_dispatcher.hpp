@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/detail/policy.hpp"
+#include <iostream>
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -28,6 +29,7 @@ template <typename T, typename Ops>
 struct ops_input_dispatcher<T, Ops, /* IsInput = */ true> {
     template <typename... Args>
     auto operator()(Args&&... args) {
+        std::cout << "111" << std::endl;
         return Ops{}(std::forward<Args>(args)...);
     }
 };
@@ -36,6 +38,7 @@ template <typename T, typename Ops>
 struct ops_input_dispatcher<T, Ops, /* IsInput = */ false> {
     template <typename Policy, typename Descriptor, typename... Args>
     auto operator()(Policy&& policy, Descriptor&& desc, Args&&... args) {
+        std::cout << "222" << std::endl;
         using input_t = typename Ops::input_t;
         return Ops{}(std::forward<Policy>(policy),
                      std::forward<Descriptor>(desc),

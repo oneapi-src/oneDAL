@@ -18,6 +18,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/graph/common.hpp"
 
 namespace oneapi::dal::csv {
 
@@ -27,9 +28,17 @@ public:
     read_args_impl() {}
 };
 
+template <>
+class detail::v1::read_args_impl<preview::graph_base> : public base {
+public:
+    read_args_impl() {}
+};
+
 namespace v1 {
 
 read_args<table>::read_args() : impl_(new detail::read_args_impl<table>()) {}
+read_args<preview::graph_base>::read_args()
+        : impl_(new detail::read_args_impl<preview::graph_base>()) {}
 
 } // namespace v1
 } // namespace oneapi::dal::csv

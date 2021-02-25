@@ -35,6 +35,7 @@ struct read_ops_dispatcher<Object, host_policy> {
 };
 
 template struct ONEDAL_EXPORT read_ops_dispatcher<table, host_policy>;
+template struct ONEDAL_EXPORT read_ops_dispatcher<preview::graph_base, host_policy>;
 
 } // namespace v1
 } // namespace oneapi::dal::csv::detail

@@ -44,6 +44,14 @@ private:
     dal::detail::pimpl<detail::read_args_impl<table>> impl_;
 };
 
+template <>
+class ONEDAL_EXPORT read_args<preview::graph_base> : public base {
+public:
+    read_args();
+
+private:
+    dal::detail::pimpl<detail::read_args_impl<preview::graph_base>> impl_;
+};
 } // namespace v1
 
 using v1::read_args;
