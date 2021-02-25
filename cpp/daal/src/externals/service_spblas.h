@@ -180,7 +180,7 @@ private:
 public:
     static services::Status xsyrk_a_at(const fpType * a, const size_t * ja, const size_t * ia, size_t m, size_t n, fpType * c, const size_t ldC)
     {
-        size_t nBlocks = 8;
+        size_t nBlocks = 50;
         if (m < nBlocks) nBlocks = 1;
 
         const size_t nRowsInCommonBlock = m / nBlocks;
@@ -249,11 +249,6 @@ public:
     static services::Status xgemm_a_bt(const fpType * a, const size_t * ja, const size_t * ia, const fpType * b, const size_t * jb, const size_t * ib,
                                        size_t ma, size_t mb, size_t n, fpType * c, const size_t ldC)
     {
-        if (a == b && ja == jb && ia == ib)
-        {
-            return xsyrk_a_at(a, ja, ia, ma, n, c, ldC);
-        }
-
         const size_t nRowsInCommonBlock_a = 512;
         const size_t nRowsInCommonBlock_b = 512;
 

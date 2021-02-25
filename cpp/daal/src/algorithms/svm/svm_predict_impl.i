@@ -228,7 +228,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         });
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocksSV, nRowsPerBlock);
-        daal::LsMem<algorithmFPType, cpu> lsDistance(nBlocksSV * nRowsPerBlock, nSV <= 256);
+        daal::LsMem<algorithmFPType, cpu> lsDistance(nBlocksSV * nRowsPerBlock, nSV <= 512);
         SafeStatus safeStat;
         daal::threader_for(nBlocks, nBlocks, [&, nVectors, nBlocks](const size_t iBlock) {
             const size_t startRow          = iBlock * nRowsPerBlock;
@@ -238,7 +238,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             DAAL_CHECK_MALLOC_THR(distanceLocal);
             DAAL_LS_RELEASE(algorithmFPType, lsDistance, distanceLocal);
 
-            daal::conditional_threader_for((nSV > 256), nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
+            daal::conditional_threader_for((nSV > 512), nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
                 TPredictTask * lsLocal = tlsTask.local();
                 DAAL_CHECK_MALLOC_THR(lsLocal);
                 DAAL_LS_RELEASE(TPredictTask, tlsTask, lsLocal);
@@ -265,7 +265,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
                 const algorithmFPType * const svCoeff = mtSVCoeff.get();
                 algorithmFPType * const distanceSV    = &distanceLocal[iBlockSV * nRowsPerBlock];
 
-                if (nBlocks == 1)
+                if (nBlocks == 1 && nBlocksSV == 1)
                 {
                     Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
                 }
