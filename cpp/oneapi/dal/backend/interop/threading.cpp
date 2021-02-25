@@ -34,7 +34,7 @@ ONEDAL_EXPORT void _onedal_threader_for(std::int32_t n,
 
 ONEDAL_EXPORT void _onedal_threader_for_int64(std::int64_t n,
                                               const void *a,
-                                              oneapi::dal::preview::functype func) {
+                                              oneapi::dal::preview::functype_int64 func) {
     _daal_threader_for_int64(n, a, static_cast<daal::functype_int64>(func));
 }
 

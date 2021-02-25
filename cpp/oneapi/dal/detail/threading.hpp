@@ -132,7 +132,7 @@ template <typename F>
 inline ONEDAL_EXPORT void threader_for_int64(std::int64_t n, const F &lambda) {
     const void *a = static_cast<const void *>(&lambda);
 
-    _onedal_threader_for_int64(n, a, threader_func<F>);
+    _onedal_threader_for_int64(n, a, threader_func_int64<F>);
 }
 
 template <typename F>
