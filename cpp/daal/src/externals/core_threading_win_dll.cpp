@@ -246,6 +246,7 @@ typedef void * (*_threaded_malloc_t)(const size_t, const size_t);
 typedef void (*_threaded_free_t)(void *);
 
 typedef void (*_daal_threader_for_t)(int, int, const void *, daal::functype);
+typedef void (*_daal_threader_for_int64_t)(int64_t, const void *, daal::functype_int64);
 typedef void (*_daal_threader_for_int32ptr_t)(const int *, const int *, const void *, daal::functype_int32ptr);
 typedef void (*_daal_threader_for_simple_t)(int, int, const void *, daal::functype);
 typedef void (*_daal_static_threader_for_t)(size_t, const void *, daal::functype_static);
@@ -311,6 +312,7 @@ static _threaded_free_t _threaded_free_ptr     = NULL;
 
 static _daal_threader_for_t _daal_threader_for_ptr                                           = NULL;
 static _daal_threader_for_simple_t _daal_threader_for_simple_ptr                             = NULL;
+static _daal_threader_for_int64_t _daal_threader_for_int64_ptr                               = NULL;
 static _daal_threader_for_int32ptr_t _daal_threader_for_int32ptr_ptr                         = NULL;
 static _daal_static_threader_for_t _daal_static_threader_for_ptr                             = NULL;
 static _daal_threader_for_blocked_t _daal_threader_for_blocked_ptr                           = NULL;
@@ -416,6 +418,16 @@ DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end,
         _daal_threader_for_int32ptr_ptr = (_daal_threader_for_int32ptr_t)load_daal_thr_func("_daal_threader_for_int32ptr");
     }
     _daal_threader_for_int32ptr_ptr(begin, end, a, func);
+}
+
+DAAL_EXPORT void _daal_threader_for_int64(int64_t n, const void * a, daal::functype_int64 func)
+{
+    load_daal_thr_dll();
+    if (_daal_threader_for_int64_ptr == NULL)
+    {
+        _daal_threader_for_int64_ptr = (_daal_threader_for_int64_t)load_daal_thr_func("_daal_threader_for_int64");
+    }
+    _daal_threader_for_int64_ptr(n, a, func);
 }
 
 DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func)

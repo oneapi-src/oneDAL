@@ -74,7 +74,7 @@ ONEDAL_EXPORT std::int64_t get_vertex_count_from_edge_list<std::int32_t>(
 
 template <typename Index, typename AtomicType>
 void collect_degrees_from_edge_list(const edge_list<Index> &edges, AtomicType *degrees_cv) {
-    dal::detail::threader_for(edges.size(), edges.size(), [&](std::int64_t u) {
+    dal::detail::threader_for_int64(edges.size(), [&](std::int64_t u) {
         ++degrees_cv[edges[u].first];
         ++degrees_cv[edges[u].second];
     });
@@ -108,7 +108,7 @@ EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
 
 template <typename Index, typename AtomicIndex>
 void fill_from_atomics(Index *arr, AtomicIndex *atomic_arr, std::int64_t elements_count) {
-    dal::detail::threader_for(elements_count, elements_count, [&](std::int64_t n) {
+    dal::detail::threader_for_int64(elements_count, [&](std::int64_t n) {
         arr[n] = atomic_arr[n].load();
     });
 }
@@ -117,7 +117,7 @@ template <typename Vertex, typename AtomicEdge>
 void fill_unfiltered_neighs(const edge_list<Vertex> &edges,
                             AtomicEdge *rows_vec_atomic,
                             Vertex *unfiltered_neighs) {
-    dal::detail::threader_for(edges.size(), edges.size(), [&](std::int64_t u) {
+    dal::detail::threader_for_int64(edges.size(), [&](std::int64_t u) {
         unfiltered_neighs[++rows_vec_atomic[edges[u].first] - 1] = edges[u].second;
         unfiltered_neighs[++rows_vec_atomic[edges[u].second] - 1] = edges[u].first;
     });
@@ -130,7 +130,7 @@ void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
                           const EdgeIndex *filtered_offsets,
                           VertexIndex *filtered_neighs,
                           std::int64_t vertex_count) {
-    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
+    dal::detail::threader_for_int64(vertex_count, [&](std::int64_t u) {
         auto u_neighs = filtered_neighs + filtered_offsets[u];
         auto u_neighs_unf = unfiltered_neighs + unfiltered_offsets[u];
         for (VertexIndex i = 0; i < filtered_degrees[u]; i++) {
@@ -145,7 +145,7 @@ void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
                                            VertexIndex *new_degrees,
                                            std::int64_t vertex_count) {
     //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
-    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
+    dal::detail::threader_for_int64(vertex_count, [&](std::int64_t u) {
         auto start_p = unfiltered_neighs + unfiltered_offsets[u];
         auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
 
@@ -266,7 +266,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
         vertex_edge_t *rows_vertex =
             oneapi::dal::preview::detail::allocate(vertex_edge_allocator, vertex_count + 1);
 
-        dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](std::int64_t u) {
+        dal::detail::threader_for_int64(vertex_count + 1, [&](std::int64_t u) {
             rows_vertex[u] = static_cast<vertex_edge_t>(edge_offsets_data[u]);
         });
 
