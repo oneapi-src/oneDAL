@@ -281,4 +281,6 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
 }
 
 
+
+
 } // namespace oneapi::dal::kmeans::test
