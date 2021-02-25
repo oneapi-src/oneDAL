@@ -24,7 +24,7 @@ import glob
 
 def get_rules_list(directory):
     cpp_paths = glob.glob('{}/**/*.cpp'.format(directory))
-    exclude_example = ['jaccard_batch_app', 'triangle_counting_batch'] 
+    exclude_example = ['jaccard_batch_app', 'triangle_counting_batch']
     get_name_from_path = lambda x: os.path.basename(x).split('.')[0]
     relative_cpp_paths = []
     exe_names = []
