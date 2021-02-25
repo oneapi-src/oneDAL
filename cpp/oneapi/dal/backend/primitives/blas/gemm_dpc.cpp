@@ -33,13 +33,14 @@ template <typename Float, ndorder ao, ndorder bo, ndorder co>
 sycl::event gemm(sycl::queue& queue,
                  const ndview<Float, 2, ao>& a,
                  const ndview<Float, 2, bo>& b,
-                 const ndview<Float, 2, co>& c,
+                 ndview<Float, 2, co>& c,
                  Float alpha,
                  Float beta,
                  const event_vector& deps) {
     ONEDAL_ASSERT(a.get_dimension(0) == c.get_dimension(0));
     ONEDAL_ASSERT(a.get_dimension(1) == b.get_dimension(0));
     ONEDAL_ASSERT(b.get_dimension(1) == c.get_dimension(1));
+    ONEDAL_ASSERT(c.has_mutable_data());
 
     constexpr bool is_c_trans = (co == ndorder::c);
     if constexpr (is_c_trans) {
@@ -55,7 +56,7 @@ sycl::event gemm(sycl::queue& queue,
                                a.get_data(),
                                a.get_leading_stride(),
                                beta,
-                               c.get_data(),
+                               c.get_mutable_data(),
                                c.get_leading_stride(),
                                deps);
     }
@@ -72,7 +73,7 @@ sycl::event gemm(sycl::queue& queue,
                                b.get_data(),
                                b.get_leading_stride(),
                                beta,
-                               c.get_data(),
+                               c.get_mutable_data(),
                                c.get_leading_stride(),
                                deps);
     }
@@ -82,7 +83,7 @@ sycl::event gemm(sycl::queue& queue,
     template ONEDAL_EXPORT sycl::event gemm<F, ao, bo, co>(sycl::queue & queue,       \
                                                            const ndview<F, 2, ao>& a, \
                                                            const ndview<F, 2, bo>& b, \
-                                                           const ndview<F, 2, co>& c, \
+                                                           ndview<F, 2, co>& c,       \
                                                            F alpha,                   \
                                                            F beta,                    \
                                                            const event_vector& deps);
