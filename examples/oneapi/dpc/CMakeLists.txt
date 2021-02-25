@@ -1,22 +1,15 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(daal_cpp_examples)
+project(oneapi_dpc_examples)
 
 set(CMAKE_BUILD_TYPE Release)
 
-if (WIN32)
-    set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_RELEASE)
-    foreach(CompilerFlag ${CompilerFlags})
-        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-    endforeach()
-endif()
+set(USE_DPCPP yes)
+set(USE_NEW_IFACES yes)
 
-set(USE_DPCPP no)
-set(USE_NEW_IFACES no)
+if (WIN32)
+    set(TARGET_LINK dynamic)
+endif()
 
 if ("${TARGET_LINK}" STREQUAL "static")
     set(LINK_TYPE "a")
@@ -42,6 +35,6 @@ endfunction()
 include(FindPackageHandleStandardArgs)
 find_package(oneDAL REQUIRED)
 
-include_directories(source/utils)
+include_directories(source)
 
 add_subdirectory(source/pca)

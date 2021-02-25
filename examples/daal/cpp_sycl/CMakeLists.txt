@@ -2,8 +2,14 @@ cmake_minimum_required(VERSION 3.1)
 
 project(daal_cpp_sycl_examples)
 
+set(CMAKE_BUILD_TYPE Release)
+
 set(USE_DPCPP yes)
 set(USE_NEW_IFACES no)
+
+if (WIN32)
+    set(TARGET_LINK dynamic)
+endif()
 
 if ("${TARGET_LINK}" STREQUAL "static")
     set(LINK_TYPE "a")

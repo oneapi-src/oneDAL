@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(daal_cpp_examples)
+project(oneapi_cpp_examples)
 
 set(CMAKE_BUILD_TYPE Release)
 
@@ -16,7 +16,7 @@ if (WIN32)
 endif()
 
 set(USE_DPCPP no)
-set(USE_NEW_IFACES no)
+set(USE_NEW_IFACES yes)
 
 if ("${TARGET_LINK}" STREQUAL "static")
     set(LINK_TYPE "a")
@@ -42,6 +42,6 @@ endfunction()
 include(FindPackageHandleStandardArgs)
 find_package(oneDAL REQUIRED)
 
-include_directories(source/utils)
+include_directories(source)
 
 add_subdirectory(source/pca)
