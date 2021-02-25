@@ -36,6 +36,7 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/services/service_arrays.h"
 #include "algorithms/decision_forest/decision_forest_classification_model.h"
+#include "src/algorithms/dtrees/dtrees_train_data_helper.i"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -1002,6 +1003,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
                     {
                         sum += commonBufVal[i * _nClasses + j];
                     }
+                    sum = daal::algorithms::dtrees::training::internal::isZero<algorithmFPType, cpu>(sum) ? algorithmFPType(1) : sum;
 
                     for (size_t j = 0; j < _nClasses; ++j)
                     {
@@ -1050,6 +1052,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
                         {
                             sum += commonBufVal[i * _nClasses + j];
                         }
+                        sum = daal::algorithms::dtrees::training::internal::isZero<algorithmFPType, cpu>(sum) ? algorithmFPType(1) : sum;
 
                         for (size_t j = 0; j < _nClasses; ++j)
                         {
