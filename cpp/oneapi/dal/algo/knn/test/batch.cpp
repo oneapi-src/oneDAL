@@ -30,6 +30,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/test/engine/metrics/classification.hpp"
 
 namespace oneapi::dal::knn::test {
 
@@ -60,10 +61,28 @@ public:
         return te::table_id::homogen<Float>();
     }
 
-    void classification(const table& train_data, const table& infer_data,
-                        const table& groundtruth) {
-        
+    Float classification(const table& train_data, const table& train_labels,
+                        const table& infer_data, const table& infer_labels,
+                        const std::int64_t n_classes, const std::int64_t n_neighbors = 1,
+                        const Float tolerance = Float(1.e-5)) {
+        SECTION("data shape is expected") {
+            REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
+            REQUIRE(train_labels.get_column_count() == 1);
+            REQUIRE(train_labels.get_column_count() == 1);
+            REQUIRE(infer_data.get_row_count() == infer_labels.get_row_count());
+            REQUIRE(train_data.get_row_count() == train_labels.get_row_count());
+        }
 
+        const auto knn_desc = this->get_descriptor( n_classes, n_neighbors );
+
+        auto train_result = this->train(knn_desc, train_data, train_labels);
+        auto train_model = train_result.get_model();
+        auto infer_result = this->infer(knn_desc, infer_data, train_model);
+        auto [prediction] = this->unpack_result(infer_result);
+
+        const auto score_table = te::accuracy_score<Float>(infer_labels, prediction, tolerance);
+        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
+        return score;
     }
 
     void exact_nearest_indices_check(const table& train_data, const table& infer_data,
@@ -186,7 +205,6 @@ public:
         }
     }
 
-private:
     static auto unpack_result(const knn::infer_result<>& result) {
         const auto labels = result.get_labels();
         return std::make_tuple(labels);
@@ -290,7 +308,13 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
 KNN_EXTERNAL_TEST("knn classification mnist") {
     SKIP_IF(this->not_available_on_device());
 
+    using Float = double;
+
+    constexpr Float target_score = 0.9;
+
     constexpr std::int64_t column_count = 784;
+    constexpr std::int64_t n_classes = 10;
+    constexpr std::int64_t n_neighbors = 3;
 
     const te::dataframe train_dataframe =
         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/mnist/dataset/mnist_train.csv" });
@@ -304,8 +328,9 @@ KNN_EXTERNAL_TEST("knn classification mnist") {
     const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(), range(column_count, column_count + 1));
     const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(), range(column_count, column_count + 1));
 
-
-
+    const auto score = this->classification(x_train_table, y_train_table, x_infer_table, y_infer_table, n_classes, n_neighbors);
+    CAPTURE(score);
+    REQUIRE(score >= target_score);
 
 }
 
