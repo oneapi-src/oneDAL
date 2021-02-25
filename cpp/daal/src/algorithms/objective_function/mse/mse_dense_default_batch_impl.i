@@ -379,7 +379,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     DAAL_INT blockSizeDim  = (DAAL_INT)blockSize;
                     size_t nBlocks         = nDataRows / blockSize;
                     nBlocks += (nBlocks * blockSize != nDataRows);
-                    StaticTlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(dim * yDim + (nTheta) * (nTheta));
+                    StaticTlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(dim * yDim
+                                                                                                                          + (nTheta) * (nTheta));
                     const size_t disp = dim * yDim;
                     if (soaPtr)
                     {
