@@ -104,9 +104,6 @@ services::String KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getBuildOptio
     buildOptions.add(" -D CND_PART_SIZE=");
     daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, nClusters);
     buildOptions.add(buffer);
-    buildOptions.add(" -D CND_PART_SIZE=");
-    daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, nClusters);
-    buildOptions.add(buffer);
     buildOptions.add(" -D NUM_PARTS_CND=");
     daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, numParts);
     buildOptions.add(buffer);
@@ -559,6 +556,20 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getBlockSize(uint32_t n
     if (blockSize > nRows)
     {
         blockSize = nRows;
+    }
+    return Status();
+}
+
+template <typename algorithmFPType>
+Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::fitPartialCentroidSize(uint32_t nClusters, uint32_t nFeatures)
+{
+    while (_nPartialCentroids > _nValuesInBlock / nClusters / nFeatures)
+    {
+        _nPartialCentroids >>= 1;
+    }
+    if (_nPartialCentroids < _nMinRows)
+    {
+        return Status(ErrorKMeansNumberOfClustersIsTooLarge);
     }
     return Status();
 }

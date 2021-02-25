@@ -88,6 +88,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
 
     uint32_t blockSize = 0;
     DAAL_CHECK_STATUS_VAR(this->getBlockSize(nRows, nClusters, nFeatures, blockSize));
+    DAAL_CHECK_STATUS_VAR(this->fitPartialCentroidSize(nClusters, nFeatures));
     DAAL_CHECK_STATUS_VAR(this->initializeBuffers(nClusters, nFeatures, blockSize));
 
     BlockDescriptor<algorithmFPType> inCentroidsRows;
