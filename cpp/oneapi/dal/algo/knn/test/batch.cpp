@@ -305,22 +305,22 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_EXTERNAL_TEST("knn classification mnist") {
+KNN_EXTERNAL_TEST("knn classification hepmass") {
     SKIP_IF(this->not_available_on_device());
 
     using Float = double;
 
-    constexpr Float target_score = 0.9;
+    constexpr Float target_score = 0.8;
 
-    constexpr std::int64_t column_count = 784;
-    constexpr std::int64_t n_classes = 10;
+    constexpr std::int64_t column_count = 28;
+    constexpr std::int64_t n_classes = 2;
     constexpr std::int64_t n_neighbors = 3;
 
     const te::dataframe train_dataframe =
-        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/mnist/dataset/mnist_train.csv" });
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
 
     const te::dataframe infer_dataframe =
-        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/mnist/dataset/mnist_test.csv" });
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
 
     const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
     const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
