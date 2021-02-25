@@ -38,10 +38,14 @@ struct infer_ops_dispatcher<host_policy, Float, Task, Method> {
     template struct ONEDAL_EXPORT infer_ops_dispatcher<host_policy, F, T, M>;
 
 INSTANTIATE(float, task::classification, method::dense)
+INSTANTIATE(float, task::classification, method::hist)
 INSTANTIATE(double, task::classification, method::dense)
+INSTANTIATE(double, task::classification, method::hist)
 
 INSTANTIATE(float, task::regression, method::dense)
+INSTANTIATE(float, task::regression, method::hist)
 INSTANTIATE(double, task::regression, method::dense)
+INSTANTIATE(double, task::regression, method::hist)
 
 } // namespace v1
 } // namespace oneapi::dal::decision_forest::detail

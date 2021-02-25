@@ -74,3 +74,17 @@ dal_test_suite(
         ":gpu_tests",
     ],
 )
+
+dal_test_suite(
+    name = "interface_cls_tests",
+    framework = "catch2",
+    srcs = glob([
+        "test/batch_classification.cpp",
+    ]),
+    dal_deps = [
+        ":decision_forest",
+    ],
+    tags = [
+        "interface",
+    ]
+)

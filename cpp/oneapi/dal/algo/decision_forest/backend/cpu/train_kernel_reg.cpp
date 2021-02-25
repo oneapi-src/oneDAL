@@ -45,7 +45,11 @@ template <typename Float, daal::CpuType Cpu>
 using reg_dense_kernel_t = daal_df_reg_train::internal::
     RegressionTrainBatchKernel<Float, daal_df_reg_train::defaultDense, Cpu>;
 
-template <typename Float>
+template <typename Float, daal::CpuType Cpu>
+using reg_hist_kernel_t =
+    daal_df_reg_train::internal::RegressionTrainBatchKernel<Float, daal_df_reg_train::hist, Cpu>;
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
@@ -81,6 +85,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
     daal_parameter.maxLeafNodes =
         dal::detail::integral_cast<std::size_t>(desc.get_max_leaf_nodes());
+    daal_parameter.maxBins = dal::detail::integral_cast<std::size_t>(desc.get_max_bins());
+    daal_parameter.minBinSize = dal::detail::integral_cast<std::size_t>(desc.get_min_bin_size());
 
     daal_parameter.resultsToCompute = static_cast<std::uint64_t>(desc.get_error_metric_mode());
 
@@ -124,15 +130,15 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_df::regression::ModelPtr mptr =
         daal_df::regression::ModelPtr(new daal_df::regression::internal::ModelImpl(column_count));
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, reg_dense_kernel_t>(
-        ctx,
-        daal::services::internal::hostApp(daal_input),
-        daal_data.get(),
-        daal_labels.get(),
-        nullptr, // no weights
-        *mptr,
-        daal_result,
-        daal_parameter));
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, CpuKernel>(ctx,
+                                                    daal::services::internal::hostApp(daal_input),
+                                                    daal_data.get(),
+                                                    daal_labels.get(),
+                                                    nullptr, // no weights
+                                                    *mptr,
+                                                    daal_result,
+                                                    daal_parameter));
 
     /* extract results from daal objects */
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
@@ -160,9 +166,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     return res.set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
-template <typename Float>
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float, CpuKernel>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float, typename Task>
@@ -170,11 +176,22 @@ struct train_kernel_cpu<Float, Task, method::dense> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float, reg_dense_kernel_t>(ctx, desc, input);
+    }
+};
+
+template <typename Float, typename Task>
+struct train_kernel_cpu<Float, Task, method::hist> {
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return train<Float, reg_hist_kernel_t>(ctx, desc, input);
     }
 };
 
 template struct train_kernel_cpu<float, task::regression, method::dense>;
+template struct train_kernel_cpu<float, task::regression, method::hist>;
 template struct train_kernel_cpu<double, task::regression, method::dense>;
+template struct train_kernel_cpu<double, task::regression, method::hist>;
 
 } // namespace oneapi::dal::decision_forest::backend
