@@ -71,7 +71,7 @@ public:
         SECTION("data shape is expected") {
             REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
             REQUIRE(train_labels.get_column_count() == 1);
-            REQUIRE(train_labels.get_column_count() == 1);
+            REQUIRE(infer_labels.get_column_count() == 1);
             REQUIRE(infer_data.get_row_count() == infer_labels.get_row_count());
             REQUIRE(train_data.get_row_count() == train_labels.get_row_count());
         }
@@ -176,26 +176,6 @@ public:
 
     static auto arange(std::int64_t to) {
         return arange(0, to);
-    }
-
-    void check_label_match(const array<Float>& match_map, const table& left, const table& right) {
-        SECTION("label shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-            REQUIRE(left.get_column_count() == 1);
-        }
-        SECTION("label match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (l != match_map[r]) {
-                    CAPTURE(l, r, match_map[r]);
-                    FAIL("Label mismatch");
-                }
-            }
-        }
     }
 
     void check_nans(const knn::infer_result<>& result) {

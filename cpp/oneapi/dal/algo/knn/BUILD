@@ -26,3 +26,10 @@ dal_test_suite(
         ":knn",
     ],
 )
+
+dal_test_suite(
+    name = "tests",
+    tests = [
+        ":interface_tests",
+    ],
+)

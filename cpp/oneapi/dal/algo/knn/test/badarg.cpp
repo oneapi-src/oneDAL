@@ -100,7 +100,7 @@ KNN_BADARG_TEST("accepts class_count more than one in set_class_count") {
 }
 
 KNN_BADARG_TEST("throws if class_count is one in constructor") {
-    REQUIRE_THROWS_AS(this->get_descriptor(0, this->neighbor_count), domain_error);
+    REQUIRE_THROWS_AS(this->get_descriptor(1, this->neighbor_count), domain_error);
 }
 
 KNN_BADARG_TEST("throws if class_count is zero in constructor") {
@@ -140,7 +140,7 @@ KNN_BADARG_TEST("throws if neighbor_count is negative in set_neighbor_count") {
 }
 
 KNN_BADARG_TEST("throws if class_count = 1 and neighbor_count = 0 in constructor") {
-    REQUIRE_THROWS_AS(this->get_descriptor(0, 0), domain_error);
+    REQUIRE_THROWS_AS(this->get_descriptor(1, 0), domain_error);
 }
 
 KNN_BADARG_TEST("throws if both class_count and neighbor_count are zero in constructor") {
@@ -194,7 +194,7 @@ KNN_BADARG_TEST("throws if the number of columns in labels is greater then one")
                       domain_error);
 }
 
-KNN_BADARG_TEST("accept if infer data has suitable shape and not zero") {
+KNN_BADARG_TEST("accept if infer data has suitable shape and not empty") {
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
     const auto train_result =
