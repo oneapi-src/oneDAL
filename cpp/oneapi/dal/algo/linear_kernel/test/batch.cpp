@@ -85,14 +85,9 @@ public:
                              const table& x_data,
                              const table& y_data,
                              const table& result_values) {
-        auto reference = compute_reference(scale, shift, x_data, y_data);
-        const table reference_table = dal::detail::homogen_table_builder{}
-                                          .reset(reference.get_array(),
-                                                 reference.get_row_count(),
-                                                 reference.get_column_count())
-                                          .build();
+        const auto reference = compute_reference(scale, shift, x_data, y_data);
         const double tol = te::get_tolerance<Float>(3e-4, 1e-9);
-        const double diff = te::abs_error(reference_table, result_values);
+        const double diff = te::abs_error(reference, result_values);
         CHECK(diff < tol);
     }
 
