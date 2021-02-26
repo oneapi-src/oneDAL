@@ -42,10 +42,10 @@ exit /b 0
 
 :GoodArgs
 set "DAALROOT=%DAAL%"
-set "oneDAL_DIR=%DAAL%\lib\cmake\oneDAL"
 set "INCLUDE=%DAAL%\include;%INCLUDE%"
 set "CPATH=%DAAL%\include;%CPATH%"
 set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
+set "CMAKE_PREFIX_PATH=%DAAL%;%CMAKE_PREFIX_PATH%"
 if exist "%DAAL_UP_OLD%\redist" (
     set "PATH=%DAAL_UP_OLD%\redist\%DAAL_IA%_win\daal;%PATH%"
 ) else (
@@ -57,11 +57,11 @@ set DAL_MAJOR_BINARY=__DAL_MAJOR_BINARY__& ^
 set DAL_MINOR_BINARY=__DAL_MINOR_BINARY__& ^
 set DALROOT=%DAALROOT%& ^
 set DAALROOT=%DAALROOT%& ^
-set oneDAL_DIR=%oneDAL_DIR%& ^
 set INCLUDE=%INCLUDE%& ^
 set CPATH=%CPATH%& ^
 set LIB=%LIB%& ^
 set PATH=%PATH%& ^
 set LD_LIBRARY_PATH=%LD_LIBRARY_PATH%& ^
 set CLASSPATH=%CLASSPATH%& ^
+set CMAKE_PREFIX_PATH=%CMAKE_PREFIX_PATH%& ^
 goto:eof

@@ -9,25 +9,26 @@ endfunction()
 
 function (set_link_and_threading_types)
     if ("${TARGET_LINK}" STREQUAL "static")
-        set(LINK_TYPE "a")
+        set(LINK_TYPE "a" PARENT_SCOPE)
     else()
-        set(LINK_TYPE "so")
+        set(LINK_TYPE "so" PARENT_SCOPE)
     endif()
 
     if ("${USE_PARALLEL}" STREQUAL "yes")
-        set(THREADING_TYPE "parallel")
+        set(THREADING_TYPE "parallel" PARENT_SCOPE)
     else()
-        set(THREADING_TYPE "sequential")
+        set(THREADING_TYPE "sequential" PARENT_SCOPE)
     endif()
 endfunction()
 
 function (change_md_to_mt)
-    set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_RELEASE)
-    foreach(CompilerFlag ${CompilerFlags})
-        string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+    set(flags
+            CMAKE_CXX_FLAGS
+            CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_C_FLAGS
+            CMAKE_C_FLAGS_RELEASE
+        PARENT_SCOPE)
+    foreach(flag ${flags})
+        string(REPLACE "/MD" "/MT" ${flag} "${${flag}}")
     endforeach()
 endfunction()
