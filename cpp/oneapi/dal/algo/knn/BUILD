@@ -16,34 +16,20 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "common_tests",
-    compile_as = [ "c++" ],
+    name = "interface_tests",
+    framework = "catch2",
     srcs = glob([
-        "common_*_host_test.cpp",
+        "test/*.cpp",
     ]),
     dal_deps = [
+        "@onedal//cpp/oneapi/dal/test/engine/metrics",
         ":knn",
     ],
-)
-
-dal_test_suite(
-    name = "gpu_tests",
-    compile_as = [ "dpc++" ],
-    srcs = glob([
-        "common_*_dpc_test.cpp",
-    ]),
-    dal_deps = [
-        ":knn",
-    ],
-    tags = ["gpu"],
 )
 
 dal_test_suite(
     name = "tests",
-    host_tests = [
-        ":common_tests",
-    ],
-    dpc_tests = [
-        ":gpu_tests",
+    tests = [
+        ":interface_tests",
     ],
 )
