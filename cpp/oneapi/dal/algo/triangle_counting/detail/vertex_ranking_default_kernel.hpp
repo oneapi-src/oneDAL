@@ -26,28 +26,29 @@
 namespace oneapi::dal::preview::triangle_counting::detail {
 
 template <typename Index>
-std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& policy,
-                                             const Index* vertex_neighbors,
-                                             const std::int64_t* edge_offsets,
-                                             const Index* degrees,
-                                             std::int64_t vertex_count,
-                                             std::int64_t edge_count);
+ONEDAL_EXPORT std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& policy,
+                                                           const Index* vertex_neighbors,
+                                                           const std::int64_t* edge_offsets,
+                                                           const Index* degrees,
+                                                           std::int64_t vertex_count,
+                                                           std::int64_t edge_count);
 
 template <typename Index>
-std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& policy,
-                                             const Index* vertex_neighbors,
-                                             const std::int64_t* edge_offsets,
-                                             const Index* degrees,
-                                             std::int64_t vertex_count,
-                                             std::int64_t edge_count);
+ONEDAL_EXPORT std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& policy,
+                                                           const Index* vertex_neighbors,
+                                                           const std::int64_t* edge_offsets,
+                                                           const Index* degrees,
+                                                           std::int64_t vertex_count,
+                                                           std::int64_t edge_count);
 
 template <typename Index>
-std::int64_t triangle_counting_global_vector_relabel(const dal::detail::host_policy& policy,
-                                                     const Index* vertex_neighbors,
-                                                     const std::int64_t* edge_offsets,
-                                                     const Index* degrees,
-                                                     std::int64_t vertex_count,
-                                                     std::int64_t edge_count);
+ONEDAL_EXPORT std::int64_t triangle_counting_global_vector_relabel(
+    const dal::detail::host_policy& policy,
+    const Index* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const Index* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count);
 
 template <typename Index>
 ONEDAL_EXPORT array<std::int64_t> triangle_counting_local(
@@ -59,34 +60,35 @@ ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_poli
                                                     const array<std::int64_t>& local_triangles,
                                                     std::int64_t vertex_count);
 
-void sort_ids_by_degree(const dal::detail::host_policy& policy,
-                        const std::int32_t* degrees,
-                        std::pair<std::int32_t, std::size_t>* degree_id_pairs,
-                        std::int64_t vertex_count);
+ONEDAL_EXPORT void sort_ids_by_degree(const dal::detail::host_policy& policy,
+                                      const std::int32_t* degrees,
+                                      std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+                                      std::int64_t vertex_count);
 
-void fill_new_degrees_and_ids(const dal::detail::host_policy& policy,
-                              const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
-                              std::int32_t* new_ids,
-                              std::int32_t* degrees_relabel,
-                              std::int64_t vertex_count);
+ONEDAL_EXPORT void fill_new_degrees_and_ids(
+    const dal::detail::host_policy& policy,
+    const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
+    std::int32_t* new_ids,
+    std::int32_t* degrees_relabel,
+    std::int64_t vertex_count);
 
-void parallel_prefix_sum(const dal::detail::host_policy& policy,
-                         const std::int32_t* degrees_relabel,
-                         std::int64_t* offsets,
-                         std::int64_t* part_prefix,
-                         std::int64_t* local_sums,
-                         std::int64_t block_size,
-                         std::int64_t num_blocks,
-                         std::int64_t vertex_count);
+ONEDAL_EXPORT void parallel_prefix_sum(const dal::detail::host_policy& policy,
+                                       const std::int32_t* degrees_relabel,
+                                       std::int64_t* offsets,
+                                       std::int64_t* part_prefix,
+                                       std::int64_t* local_sums,
+                                       std::int64_t block_size,
+                                       std::int64_t num_blocks,
+                                       std::int64_t vertex_count);
 
-void fill_relabeled_topology(const dal::detail::host_policy& policy,
-                             const std::int32_t* vertex_neighbors,
-                             const std::int64_t* edge_offsets,
-                             std::int32_t* vertex_neighbors_relabel,
-                             std::int64_t* edge_offsets_relabel,
-                             std::int64_t* offsets,
-                             const std::int32_t* new_ids,
-                             std::int64_t vertex_count);
+ONEDAL_EXPORT void fill_relabeled_topology(const dal::detail::host_policy& policy,
+                                           const std::int32_t* vertex_neighbors,
+                                           const std::int64_t* edge_offsets,
+                                           std::int32_t* vertex_neighbors_relabel,
+                                           std::int64_t* edge_offsets_relabel,
+                                           std::int64_t* offsets,
+                                           const std::int32_t* new_ids,
+                                           std::int64_t vertex_count);
 
 template <typename Allocator>
 inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
