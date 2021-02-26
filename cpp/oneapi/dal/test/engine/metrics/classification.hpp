@@ -28,8 +28,9 @@ namespace de = oneapi::dal::detail;
 
 namespace oneapi::dal::test::engine {
 
-template<typename Float = double>
-auto accuracy_score(const table& groundtruth, const table& prediction, 
+template <typename Float = double>
+auto accuracy_score(const table& groundtruth,
+                    const table& prediction,
                     const Float tolerance = Float(0)) {
     SECTION("label shape is expected to be eual") {
         REQUIRE(prediction.get_row_count() == groundtruth.get_row_count());
@@ -41,17 +42,17 @@ auto accuracy_score(const table& groundtruth, const table& prediction,
 
     auto result = array<Float>::zeros(n_responses);
     auto* res_ptr = result.get_mutable_data();
-    for(std::int64_t j = 0; j < n_samples; ++j) {
+    for (std::int64_t j = 0; j < n_samples; ++j) {
         const auto gt_row = row_accessor<const Float>(groundtruth).pull({ j, j + 1 });
         const auto pr_row = row_accessor<const Float>(prediction).pull({ j, j + 1 });
-        for(std::int64_t i = 0; i < n_responses; ++i){
+        for (std::int64_t i = 0; i < n_responses; ++i) {
             const auto diff = gt_row[i] - pr_row[i];
             const bool is_correct = (-tolerance <= diff) && (diff <= tolerance);
             CAPTURE(diff, is_correct);
             res_ptr[i] += Float(is_correct);
         }
     }
-    for(std::int64_t i = 0; i < n_responses; ++i){
+    for (std::int64_t i = 0; i < n_responses; ++i) {
         res_ptr[i] /= Float(n_samples);
     }
     return de::homogen_table_builder{}.reset(result, 1, n_responses).build();

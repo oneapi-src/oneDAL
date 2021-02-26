@@ -51,8 +51,8 @@ public:
 
     auto get_descriptor(std::int64_t override_class_count = class_count,
                         std::int64_t override_neighbor_count = neighbor_count) const {
-        return knn::descriptor<Float, Method, knn::task::classification>(
-                                        override_class_count, override_neighbor_count);
+        return knn::descriptor<Float, Method, knn::task::classification>(override_class_count,
+                                                                         override_neighbor_count);
     }
 
     table get_train_data(std::int64_t override_row_count = train_row_count,
@@ -78,14 +78,12 @@ private:
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<Float, train_row_count> train_labels_ = {
-             0.0,      0.0,      0.0,      0.0,        1.0,        1.0,        1.0,        1.0
-    };
+    static constexpr std::array<Float, train_row_count> train_labels_ = { 0.0, 0.0, 0.0, 0.0,
+                                                                          1.0, 1.0, 1.0, 1.0 };
 
-    static constexpr std::array<Float, infer_element_count> infer_data_ = {
-        1.0, 1.0, 2.0, 2.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0
-    };
-
+    static constexpr std::array<Float, infer_element_count> infer_data_ = { 1.0,  1.0,  2.0,  2.0,
+                                                                            -1.0, -1.0, -1.0, -2.0,
+                                                                            -2.0, -1.0 };
 };
 
 using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
@@ -175,26 +173,32 @@ KNN_BADARG_TEST("throws if train labels are empty") {
 KNN_BADARG_TEST("throws if train data is empty") {
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
-    REQUIRE_THROWS_AS(this->train(knn_desc, homogen_table{}, this->get_train_labels()), domain_error);
+    REQUIRE_THROWS_AS(this->train(knn_desc, homogen_table{}, this->get_train_labels()),
+                      domain_error);
 }
 
-KNN_BADARG_TEST("throws if the number of train samples is not equal to the number of train labels") {
+KNN_BADARG_TEST(
+    "throws if the number of train samples is not equal to the number of train labels") {
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
-    REQUIRE_THROWS_AS(this->train(knn_desc, this->get_train_data(3), this->get_train_labels()), domain_error);
-    REQUIRE_THROWS_AS(this->train(knn_desc, this->get_train_data(), this->get_train_labels(3)), domain_error);
+    REQUIRE_THROWS_AS(this->train(knn_desc, this->get_train_data(3), this->get_train_labels()),
+                      domain_error);
+    REQUIRE_THROWS_AS(this->train(knn_desc, this->get_train_data(), this->get_train_labels(3)),
+                      domain_error);
 }
 
 KNN_BADARG_TEST("throws if the number of columns in labels is greater then one") {
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
-    REQUIRE_THROWS_AS(this->train(knn_desc, this->get_train_data(3), this->get_train_labels(3, 2)), domain_error);
+    REQUIRE_THROWS_AS(this->train(knn_desc, this->get_train_data(3), this->get_train_labels(3, 2)),
+                      domain_error);
 }
 
 KNN_BADARG_TEST("accept if infer data has suitable shape and not zero") {
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
-    const auto train_result = this->train(knn_desc, this->get_train_data(), this->get_train_labels());
+    const auto train_result =
+        this->train(knn_desc, this->get_train_data(), this->get_train_labels());
     const auto infer_data = this->get_infer_data();
     REQUIRE_NOTHROW(this->infer(knn_desc, infer_data, train_result.get_model()));
 }
@@ -218,8 +222,10 @@ KNN_BADARG_TEST("throws if the number of infer data columns is less then the num
 KNN_BADARG_TEST("throws if infer data is empty") {
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
-    const auto train_result = this->train(knn_desc, this->get_train_data(), this->get_train_labels());
-    REQUIRE_THROWS_AS(this->infer(knn_desc, homogen_table{}, train_result.get_model()), domain_error);
+    const auto train_result =
+        this->train(knn_desc, this->get_train_data(), this->get_train_labels());
+    REQUIRE_THROWS_AS(this->infer(knn_desc, homogen_table{}, train_result.get_model()),
+                      domain_error);
 }
 
 } // namespace oneapi::dal::knn::test

@@ -46,8 +46,8 @@ public:
 
     auto get_descriptor(std::int64_t override_class_count,
                         std::int64_t override_neighbor_count) const {
-        return knn::descriptor<Float, Method, knn::task::classification>(
-                                        override_class_count, override_neighbor_count);
+        return knn::descriptor<Float, Method, knn::task::classification>(override_class_count,
+                                                                         override_neighbor_count);
     }
 
     static constexpr bool is_kd_tree = std::is_same_v<Method, knn::method::kd_tree>;
@@ -61,10 +61,13 @@ public:
         return te::table_id::homogen<Float>();
     }
 
-    Float classification(const table& train_data, const table& train_labels,
-                        const table& infer_data, const table& infer_labels,
-                        const std::int64_t n_classes, const std::int64_t n_neighbors = 1,
-                        const Float tolerance = Float(1.e-5)) {
+    Float classification(const table& train_data,
+                         const table& train_labels,
+                         const table& infer_data,
+                         const table& infer_labels,
+                         const std::int64_t n_classes,
+                         const std::int64_t n_neighbors = 1,
+                         const Float tolerance = Float(1.e-5)) {
         SECTION("data shape is expected") {
             REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
             REQUIRE(train_labels.get_column_count() == 1);
@@ -73,7 +76,7 @@ public:
             REQUIRE(train_data.get_row_count() == train_labels.get_row_count());
         }
 
-        const auto knn_desc = this->get_descriptor( n_classes, n_neighbors );
+        const auto knn_desc = this->get_descriptor(n_classes, n_neighbors);
 
         auto train_result = this->train(knn_desc, train_data, train_labels);
         auto train_model = train_result.get_model();
@@ -85,7 +88,8 @@ public:
         return score;
     }
 
-    void exact_nearest_indices_check(const table& train_data, const table& infer_data,
+    void exact_nearest_indices_check(const table& train_data,
+                                     const table& infer_data,
                                      const knn::infer_result<>& result) {
         check_nans(result);
 
@@ -102,10 +106,10 @@ public:
         }
 
         const auto m = infer_data.get_row_count();
-        
+
         const auto indices = naive_knn_search(train_data, infer_data);
 
-        for(std::int64_t j = 0; j < m; ++j) {
+        for (std::int64_t j = 0; j < m; ++j) {
             const auto gt_indices_row = row_accessor<const Float>(indices).pull({ j, j + 1 });
             const auto te_indices_row = row_accessor<const Float>(labels).pull({ j, j + 1 });
             const auto l = gt_indices_row[0];
@@ -115,11 +119,9 @@ public:
                 FAIL("Indices of nearest neighbors are unequal");
             }
         }
-
     }
 
     static auto naive_knn_search(const table& train_data, const table& infer_data) {
-
         const auto distances_matrix = distances(train_data, infer_data);
         const auto indices_matrix = argsort(distances_matrix);
 
@@ -134,12 +136,12 @@ public:
         auto distances_arr = array<Float>::zeros(m * n);
         auto* distances_ptr = distances_arr.get_mutable_data();
 
-        for(std::int64_t j = 0; j < n; ++j) {
+        for (std::int64_t j = 0; j < n; ++j) {
             const auto queue_row = row_accessor<const Float>(infer_data).pull({ j, j + 1 });
-            for(std::int64_t i = 0; i < m; ++i) {
+            for (std::int64_t i = 0; i < m; ++i) {
                 const auto train_row = row_accessor<const Float>(train_data).pull({ i, i + 1 });
-                for(std::int64_t s = 0; s < d; ++s) {
-                    const auto diff = queue_row[s] - train_row[s]; 
+                for (std::int64_t s = 0; s < d; ++s) {
+                    const auto diff = queue_row[s] - train_row[s];
                     distances_ptr[j * m + i] += diff * diff;
                 }
             }
@@ -150,15 +152,14 @@ public:
     static auto argsort(const table& distances) {
         const auto n = distances.get_row_count();
         const auto m = distances.get_column_count();
-        
+
         auto indices = array<std::int32_t>::zeros(m * n);
         auto indices_ptr = indices.get_mutable_data();
-        for(std::int64_t j = 0; j < n; ++j){
+        for (std::int64_t j = 0; j < n; ++j) {
             const auto dist_row = row_accessor<const Float>(distances).pull({ j, j + 1 });
             auto idcs_row = &indices_ptr[j * m];
             std::iota(idcs_row, idcs_row + m, std::int32_t(0));
-            const auto compare = 
-            [&](std::int32_t x, std::int32_t y) -> bool {
+            const auto compare = [&](std::int32_t x, std::int32_t y) -> bool {
                 return dist_row[x] < dist_row[y];
             };
             std::sort(idcs_row, idcs_row + m, compare);
@@ -209,19 +210,27 @@ public:
         const auto labels = result.get_labels();
         return std::make_tuple(labels);
     }
-
 };
 
 using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
 
-#define KNN_SMALL_TEST(name) \
-    TEMPLATE_LIST_TEST_M(knn_batch_test, name, "[small-dataset][knn][integration][batch][test]", knn_types)
+#define KNN_SMALL_TEST(name)                                               \
+    TEMPLATE_LIST_TEST_M(knn_batch_test,                                   \
+                         name,                                             \
+                         "[small-dataset][knn][integration][batch][test]", \
+                         knn_types)
 
-#define KNN_SYNTHETIC_TEST(name) \
-    TEMPLATE_LIST_TEST_M(knn_batch_test, name, "[synthetic-dataset][knn][integration][batch][test]", knn_types)
+#define KNN_SYNTHETIC_TEST(name)                                               \
+    TEMPLATE_LIST_TEST_M(knn_batch_test,                                       \
+                         name,                                                 \
+                         "[synthetic-dataset][knn][integration][batch][test]", \
+                         knn_types)
 
-#define KNN_EXTERNAL_TEST(name) \
-    TEMPLATE_LIST_TEST_M(knn_batch_test, name, "[external-dataset][knn][integration][batch][test]", knn_types)
+#define KNN_EXTERNAL_TEST(name)                                               \
+    TEMPLATE_LIST_TEST_M(knn_batch_test,                                      \
+                         name,                                                \
+                         "[external-dataset][knn][integration][batch][test]", \
+                         knn_types)
 
 KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     SKIP_IF(this->not_available_on_device());
@@ -235,17 +244,18 @@ KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     constexpr std::int64_t train_element_count = train_row_count * column_count;
     constexpr std::int64_t infer_element_count = infer_row_count * column_count;
 
-    constexpr std::array<float, train_element_count> train = 
-        { -2.f, -1.f, -1.f, -1.f, -1.f, -2.f, +1.f, +1.f, +1.f, +2.f, +2.f, +1.f, +100.f, -1024.f };
+    constexpr std::array<float, train_element_count> train = { -2.f, -1.f, -1.f,   -1.f,   -1.f,
+                                                               -2.f, +1.f, +1.f,   +1.f,   +2.f,
+                                                               +2.f, +1.f, +100.f, -1024.f };
 
-    constexpr std::array<float, infer_element_count> infer = 
-        { +2.f, +1.f, -1.f, +3.f, -1.f, -1.f, +1.f, +2.f, +1.f, +2.f};
+    constexpr std::array<float, infer_element_count> infer = { +2.f, +1.f, -1.f, +3.f, -1.f,
+                                                               -1.f, +1.f, +2.f, +1.f, +2.f };
 
     const auto x_train_table = homogen_table::wrap(train.data(), train_row_count, column_count);
     const auto x_infer_table = homogen_table::wrap(infer.data(), infer_row_count, column_count);
     const auto y_train_table = this->arange(train_row_count);
 
-    const auto knn_desc = this->get_descriptor( train_row_count, 1 );
+    const auto knn_desc = this->get_descriptor(train_row_count, 1);
 
     auto train_result = this->train(knn_desc, x_train_table, y_train_table);
     auto infer_result = this->infer(knn_desc, x_infer_table, train_result.get_model());
@@ -253,25 +263,27 @@ KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_SYNTHETIC_TEST("knn nearest points test random uniform 4096x4095x17") {
+KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
     SKIP_IF(this->not_available_on_device());
 
-    constexpr std::int64_t train_row_count = 4097;
-    constexpr std::int64_t infer_row_count = 4095;
+    SKIP_IF(this->is_kd_tree);
+
+    constexpr std::int64_t train_row_count = 513;
+    constexpr std::int64_t infer_row_count = 301;
     constexpr std::int64_t column_count = 17;
 
     CAPTURE(train_row_count, infer_row_count, column_count);
 
-    const auto train_dataframe = 
-        GENERATE_DATAFRAME(te::dataframe_builder{ train_row_count, column_count}.fill_uniform(-0.2, 0.5));
+    const auto train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ train_row_count, column_count }.fill_uniform(-0.2, 0.5));
     const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id());
-    const auto infer_dataframe = 
-        GENERATE_DATAFRAME(te::dataframe_builder{ infer_row_count, column_count}.fill_uniform(-0.3, 1.));
+    const auto infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ infer_row_count, column_count }.fill_uniform(-0.3, 1.));
     const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id());
 
     const table y_train_table = this->arange(train_row_count);
 
-    const auto knn_desc = this->get_descriptor( train_row_count, 1 );
+    const auto knn_desc = this->get_descriptor(train_row_count, 1);
 
     auto train_result = this->train(knn_desc, x_train_table, y_train_table);
     auto infer_result = this->infer(knn_desc, x_infer_table, train_result.get_model());
@@ -282,22 +294,24 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 4096x4095x17") {
 KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     SKIP_IF(this->not_available_on_device());
 
+    SKIP_IF(this->is_kd_tree);
+
     constexpr std::int64_t train_row_count = 16390;
     constexpr std::int64_t infer_row_count = 20;
     constexpr std::int64_t column_count = 5;
 
     CAPTURE(train_row_count, infer_row_count, column_count);
 
-    const auto train_dataframe = 
-        GENERATE_DATAFRAME(te::dataframe_builder{ train_row_count, column_count}.fill_uniform(-0.2, 0.5));
+    const auto train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ train_row_count, column_count }.fill_uniform(-0.2, 0.5));
     const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id());
-    const auto infer_dataframe = 
-        GENERATE_DATAFRAME(te::dataframe_builder{ infer_row_count, column_count}.fill_uniform(-0.3, 1.));
+    const auto infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ infer_row_count, column_count }.fill_uniform(-0.3, 1.));
     const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id());
 
     const table y_train_table = this->arange(train_row_count);
 
-    const auto knn_desc = this->get_descriptor( train_row_count, 1 );
+    const auto knn_desc = this->get_descriptor(train_row_count, 1);
 
     auto train_result = this->train(knn_desc, x_train_table, y_train_table);
     auto infer_result = this->infer(knn_desc, x_infer_table, train_result.get_model());
@@ -305,7 +319,7 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     this->exact_nearest_indices_check(x_train_table, x_infer_table, infer_result);
 }
 
-KNN_EXTERNAL_TEST("knn classification hepmass") {
+KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
     SKIP_IF(this->not_available_on_device());
 
     using Float = double;
@@ -316,22 +330,67 @@ KNN_EXTERNAL_TEST("knn classification hepmass") {
     constexpr std::int64_t n_classes = 2;
     constexpr std::int64_t n_neighbors = 3;
 
-    const te::dataframe train_dataframe =
-        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
+    const te::dataframe train_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_50t_test.csv" });
 
-    const te::dataframe infer_dataframe =
-        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
+    const te::dataframe infer_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
 
-    const table x_train_table = train_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
-    const table x_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+    const table x_train_table =
+        train_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+    const table x_infer_table =
+        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
 
-    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(), range(column_count, column_count + 1));
-    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(), range(column_count, column_count + 1));
+    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(column_count, column_count + 1));
+    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(column_count, column_count + 1));
 
-    const auto score = this->classification(x_train_table, y_train_table, x_infer_table, y_infer_table, n_classes, n_neighbors);
+    const auto score = this->classification(x_train_table,
+                                            y_train_table,
+                                            x_infer_table,
+                                            y_infer_table,
+                                            n_classes,
+                                            n_neighbors);
     CAPTURE(score);
     REQUIRE(score >= target_score);
-
 }
 
-} // namespace oneapi::dal::kmeans::test
+KNN_EXTERNAL_TEST("knn classification susy small") {
+    SKIP_IF(this->not_available_on_device());
+
+    using Float = double;
+
+    constexpr Float target_score = 0.8;
+
+    constexpr std::int64_t column_count = 18;
+    constexpr std::int64_t n_classes = 2;
+    constexpr std::int64_t n_neighbors = 5;
+
+    const te::dataframe train_dataframe =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_train_small.csv" });
+
+    const te::dataframe infer_dataframe =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test_small.csv" });
+
+    const table x_train_table =
+        train_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+    const table x_infer_table =
+        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+
+    const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(column_count, column_count + 1));
+    const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
+                                                          range(column_count, column_count + 1));
+
+    const auto score = this->classification(x_train_table,
+                                            y_train_table,
+                                            x_infer_table,
+                                            y_infer_table,
+                                            n_classes,
+                                            n_neighbors);
+    CAPTURE(score);
+    REQUIRE(score >= target_score);
+}
+
+} // namespace oneapi::dal::knn::test

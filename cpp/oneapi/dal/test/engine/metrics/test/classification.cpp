@@ -34,24 +34,24 @@ TEST("Simple accuracy check", "[classification][accuracy]") {
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t element_count = row_count * column_count;
 
-    constexpr std::array<Float, element_count> groundtruth = 
-        { 3.f, -1.f, 7.f, 8.f, -2.f, -8.f, -9.f, 13.f, 128.f, 0.f };
+    constexpr std::array<Float, element_count> groundtruth = { 3.f,  -1.f, 7.f,  8.f,   -2.f,
+                                                               -8.f, -9.f, 13.f, 128.f, 0.f };
     const auto gt_table = homogen_table::wrap(groundtruth.data(), row_count, column_count);
 
-    constexpr std::array<Float, element_count> prediction = 
-        { 3.f, -2.f, 0.f, 8.f, -2.f, -8.f, -9.f, 13.f, 128.f, 3.f };
+    constexpr std::array<Float, element_count> prediction = { 3.f,  -2.f, 0.f,  8.f,   -2.f,
+                                                              -8.f, -9.f, 13.f, 128.f, 3.f };
     const auto pr_table = homogen_table::wrap(prediction.data(), row_count, column_count);
 
-    constexpr std::array<Float, column_count> gt_res = { 4. / 5., 3. / 5.};
+    constexpr std::array<Float, column_count> gt_res = { 4. / 5., 3. / 5. };
 
     const auto res = accuracy_score(gt_table, pr_table, tol);
     const auto res_ptr = row_accessor<const Float>(res).pull({ 0, -1 });
-    for(std::int64_t i = 0; i < column_count; ++i) {
+    for (std::int64_t i = 0; i < column_count; ++i) {
         CAPTURE(res_ptr[i], gt_res[i]);
         const auto diff = res_ptr[i] - gt_res[i];
         REQUIRE(-tol <= diff);
         REQUIRE(diff <= tol);
-    } 
+    }
 }
 
 } // namespace oneapi::dal::test::engine::test
