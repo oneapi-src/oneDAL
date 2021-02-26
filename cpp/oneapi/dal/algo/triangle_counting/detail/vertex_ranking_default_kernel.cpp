@@ -22,12 +22,13 @@
 namespace oneapi::dal::preview::triangle_counting::detail {
 
 template <>
-std::int64_t triangle_counting_global_scalar<std::int32_t>(const dal::detail::host_policy& policy,
-                                                           const std::int32_t* vertex_neighbors,
-                                                           const std::int64_t* edge_offsets,
-                                                           const std::int32_t* degrees,
-                                                           std::int64_t vertex_count,
-                                                           std::int64_t edge_count) {
+ONEDAL_EXPORT std::int64_t triangle_counting_global_scalar<std::int32_t>(
+    const dal::detail::host_policy& policy,
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::triangle_counting_global_scalar<decltype(cpu)>(vertex_neighbors,
                                                                        edge_offsets,
@@ -38,12 +39,13 @@ std::int64_t triangle_counting_global_scalar<std::int32_t>(const dal::detail::ho
 }
 
 template <>
-std::int64_t triangle_counting_global_vector<std::int32_t>(const dal::detail::host_policy& policy,
-                                                           const std::int32_t* vertex_neighbors,
-                                                           const std::int64_t* edge_offsets,
-                                                           const std::int32_t* degrees,
-                                                           std::int64_t vertex_count,
-                                                           std::int64_t edge_count) {
+ONEDAL_EXPORT std::int64_t triangle_counting_global_vector<std::int32_t>(
+    const dal::detail::host_policy& policy,
+    const std::int32_t* vertex_neighbors,
+    const std::int64_t* edge_offsets,
+    const std::int32_t* degrees,
+    std::int64_t vertex_count,
+    std::int64_t edge_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::triangle_counting_global_vector<decltype(cpu)>(vertex_neighbors,
                                                                        edge_offsets,
@@ -54,7 +56,7 @@ std::int64_t triangle_counting_global_vector<std::int32_t>(const dal::detail::ho
 }
 
 template <>
-std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(
+ONEDAL_EXPORT std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(
     const dal::detail::host_policy& policy,
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
@@ -71,7 +73,7 @@ std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(
 }
 
 template <>
-array<std::int64_t> triangle_counting_local<std::int32_t>(
+ONEDAL_EXPORT array<std::int64_t> triangle_counting_local<std::int32_t>(
     const dal::detail::host_policy& policy,
     const dal::preview::detail::topology<std::int32_t>& data,
     int64_t* triangles_local) {
