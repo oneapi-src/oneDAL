@@ -32,7 +32,7 @@ template <typename Float = double>
 auto accuracy_score(const table& groundtruth,
                     const table& prediction,
                     const Float tolerance = Float(0)) {
-    SECTION("label shape is expected to be eual") {
+    SECTION("label shape is expected to be equal") {
         REQUIRE(prediction.get_row_count() == groundtruth.get_row_count());
         REQUIRE(prediction.get_column_count() == groundtruth.get_column_count());
     }
