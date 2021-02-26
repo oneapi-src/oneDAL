@@ -43,7 +43,4 @@ dal_test_suite(
         ":common_tests",
         ":cpu_tests",
     ],
-    dpc_tests = [
-        ":gpu_tests",
-    ],
 )
