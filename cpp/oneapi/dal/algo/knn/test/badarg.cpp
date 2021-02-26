@@ -203,6 +203,7 @@ KNN_BADARG_TEST("accept if infer data has suitable shape and not zero") {
     REQUIRE_NOTHROW(this->infer(knn_desc, infer_data, train_result.get_model()));
 }
 
+//TODO: Model class should be extended to provide information about task dimensionality
 /*KNN_BADARG_TEST("throws if the number of infer data columns exceeds the number of columns in train") {
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
