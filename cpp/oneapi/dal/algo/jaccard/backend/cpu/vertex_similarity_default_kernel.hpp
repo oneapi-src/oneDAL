@@ -35,15 +35,15 @@ vertex_similarity_result call_jaccard_default_kernel_int32(
     const dal::preview::detail::topology<int32_t> &data,
     void *result_ptr);
 
-DAAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
+ONEDAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
     return (a >= b) ? b : a;
 }
 
-DAAL_FORCEINLINE std::int32_t max(const std::int32_t &a, const std::int32_t &b) {
+ONEDAL_FORCEINLINE std::int32_t max(const std::int32_t &a, const std::int32_t &b) {
     return (a <= b) ? b : a;
 }
 
-DAAL_FORCEINLINE std::int64_t compute_number_elements_in_block(
+ONEDAL_FORCEINLINE std::int64_t compute_number_elements_in_block(
     const std::int32_t &row_range_begin,
     const std::int32_t &row_range_end,
     const std::int32_t &column_range_begin,
@@ -60,7 +60,7 @@ DAAL_FORCEINLINE std::int64_t compute_number_elements_in_block(
 }
 
 template <typename Float, typename Index>
-DAAL_FORCEINLINE std::int64_t compute_max_block_size(const std::int64_t &vertex_pairs_count) {
+ONEDAL_FORCEINLINE std::int64_t compute_max_block_size(const std::int64_t &vertex_pairs_count) {
     const std::int64_t vertex_pair_element_count = 2; // 2 elements in the vertex pair
     const std::int64_t jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
 
