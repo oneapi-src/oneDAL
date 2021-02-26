@@ -29,7 +29,6 @@ if (WIN32)
     change_md_to_mt()
 endif()
 
-include(FindPackageHandleStandardArgs)
 find_package(oneDAL REQUIRED)
 
 include_directories(source/utils)

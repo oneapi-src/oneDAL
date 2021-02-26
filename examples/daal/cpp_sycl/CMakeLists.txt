@@ -30,7 +30,6 @@ endif()
 include(../../common.cmake)
 set_link_and_threading_types()
 
-include(FindPackageHandleStandardArgs)
 find_package(oneDAL REQUIRED)
 
 include_directories(source/utils)
