@@ -306,7 +306,7 @@ KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
 
     constexpr Float target_score = 0.8;
 
-    constexpr std::int64_t column_count = 28;
+    constexpr std::int64_t feature_count = 28;
     constexpr std::int64_t n_classes = 2;
     constexpr std::int64_t n_neighbors = 3;
 
@@ -317,14 +317,14 @@ KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
         te::dataframe_builder{ "workloads/hepmass/dataset/hepmass_10t_test.csv" });
 
     const table x_train_table =
-        train_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+        train_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
     const table x_infer_table =
-        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, column_count));
+        infer_dataframe.get_table(this->get_homogen_table_id(), range(0, feature_count));
 
     const table y_train_table = train_dataframe.get_table(this->get_homogen_table_id(),
-                                                          range(column_count, column_count + 1));
+                                                          range(feature_count, feature_count + 1));
     const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
-                                                          range(column_count, column_count + 1));
+                                                          range(feature_count, feature_count + 1));
 
     const auto score = this->classification(x_train_table,
                                             y_train_table,
