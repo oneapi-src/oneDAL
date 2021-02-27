@@ -78,9 +78,10 @@ services::Status HelperKernelRBF<algorithmFPType, cpu>::postGemmPart(algorithmFP
                                                                      const algorithmFPType expExpThreshold, const size_t n,
                                                                      algorithmFPType * const dataRBlock)
 {
+    const algorithmFPType negTwo = algorithmFPType(-2.0);
     for (size_t i = 0; i < n; ++i)
     {
-        const algorithmFPType rbf = (mklBuff[i] * algorithmFPType(-2) + sqrA2i + sqrA1i[i]) * coeff;
+        const algorithmFPType rbf = (mklBuff[i] * negTwo + sqrA2i + sqrA1i[i]) * coeff;
         mklBuff[i]                = rbf > expExpThreshold ? rbf : expExpThreshold;
     }
     Math<algorithmFPType, cpu>::vExp(n, mklBuff, dataRBlock);
