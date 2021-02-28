@@ -119,9 +119,9 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         size_t nBlocks         = nRows / blockSize;
         nBlocks += (nBlocks * blockSize != nRows);
 
-        TlsSum<algorithmFPType, cpu> yTlsData(nDependentVariables);
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            algorithmFPType * local = yTlsData.local();
+        StaticTlsSum<algorithmFPType, cpu> yTlsData(nDependentVariables);
+        daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+            algorithmFPType * local = yTlsData.local(tid);
             const size_t startRow   = iBlock * blockSize;
             const size_t finishRow  = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
             DAAL_INT numRowsInBlock = finishRow - startRow;
@@ -177,9 +177,9 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nFeatures, sizeof(algorithmFPType));
 
-        TlsSum<algorithmFPType, cpu> tlsData(nFeatures);
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            algorithmFPType * const sum = tlsData.local();
+        StaticTlsSum<algorithmFPType, cpu> tlsData(nFeatures);
+        daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+            algorithmFPType * const sum = tlsData.local(tid);
             const size_t startRow       = iBlock * blockSize;
             const size_t finishRow      = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
             DAAL_INT numRowsInBlock     = finishRow - startRow;
