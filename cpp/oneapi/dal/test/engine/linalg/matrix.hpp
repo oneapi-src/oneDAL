@@ -187,6 +187,10 @@ public:
         return wrap(t_flat, { t.get_row_count(), t.get_column_count() });
     }
 
+    static matrix wrap(const matrix<Float>& x) {
+        return matrix{ x.get_array(), { x.get_row_count(), x.get_column_count() } };
+    }
+
     template <typename NdArrayLike>
     static matrix wrap_nd(const NdArrayLike& x) {
         static_assert(NdArrayLike::axis_count_v == 1 || NdArrayLike::axis_count_v == 2);

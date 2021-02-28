@@ -1,3 +1,4 @@
+
 #===============================================================================
 # Copyright 2020-2021 Intel Corporation
 #
@@ -31,4 +32,5 @@ ONEDAL = column_accessor_homogen           \
          svm_two_class_smo_dense_batch     \
          jaccard_batch                     \
          load_graph                        \
-         graph_service_functions
+         graph_service_functions           \
+         triangle_counting_batch

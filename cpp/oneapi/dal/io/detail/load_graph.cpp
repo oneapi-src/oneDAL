@@ -15,47 +15,63 @@
 *******************************************************************************/
 
 #include "oneapi/dal/io/detail/load_graph.hpp"
-#include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/graph/detail/container.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
-#include "oneapi/dal/graph/common.hpp"
-#include "oneapi/dal/common.hpp"
-#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/detail/threading.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph_descriptor.hpp"
+#include "oneapi/dal/io/backend/cpu/load_graph.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
 
-template std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges);
+template <>
+ONEDAL_EXPORT std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges) {
+    return dal::backend::dispatch_by_cpu(
+        dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
+        [&](auto cpu) {
+            return backend::get_vertex_count_from_edge_list<decltype(cpu)>(edges);
+        });
+}
 
-template std::int32_t compute_prefix_sum(std::int32_t *const &degrees,
-                                         std::int64_t degrees_count,
-                                         std::int32_t *&edge_offsets);
+template <>
+std::int64_t compute_prefix_sum(const std::int32_t *degrees,
+                                std::int64_t degrees_count,
+                                std::int64_t *edge_offsets) {
+    return dal::backend::dispatch_by_cpu(
+        dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
+        [&](auto cpu) {
+            return backend::compute_prefix_sum<decltype(cpu)>(degrees, degrees_count, edge_offsets);
+        });
+}
 
-template void fill_filtered_neighs(const std::int32_t *unfiltered_offsets,
-                                   const std::int32_t *unfiltered_neighs,
-                                   const std::int32_t *filtered_degrees,
-                                   const std::int32_t *filtered_offsets,
-                                   std::int32_t *filtered_neighs,
-                                   std::int64_t vertex_count);
+template <>
+void fill_filtered_neighs(const std::int64_t *unfiltered_offsets,
+                          const std::int32_t *unfiltered_neighs,
+                          const std::int32_t *filtered_degrees,
+                          const std::int64_t *filtered_offsets,
+                          std::int32_t *filtered_neighs,
+                          std::int64_t vertex_count) {
+    return dal::backend::dispatch_by_cpu(
+        dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
+        [&](auto cpu) {
+            return backend::fill_filtered_neighs<decltype(cpu)>(unfiltered_offsets,
+                                                                unfiltered_neighs,
+                                                                filtered_degrees,
+                                                                filtered_offsets,
+                                                                filtered_neighs,
+                                                                vertex_count);
+        });
+}
 
 template <>
 void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
-                                           std::int32_t *&unfiltered_offsets,
-                                           std::int32_t *&new_degrees,
+                                           std::int64_t *unfiltered_offsets,
+                                           std::int32_t *new_degrees,
                                            std::int64_t vertex_count) {
-    //removing self-loops,  multiple edges from graph, and make neighbors in CSR sorted
-    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
-        auto start_p = unfiltered_neighs + unfiltered_offsets[u];
-        auto end_p = unfiltered_neighs + unfiltered_offsets[u + 1];
-        dal::detail::parallel_sort(start_p, end_p);
-        auto neighs_u_new_end = std::unique(start_p, end_p);
-        neighs_u_new_end = std::remove(start_p, neighs_u_new_end, u);
-        new_degrees[u] = (std::int32_t)std::distance(start_p, neighs_u_new_end);
-    });
+    return dal::backend::dispatch_by_cpu(
+        dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
+        [&](auto cpu) {
+            return backend::filter_neighbors_and_fill_new_degrees<decltype(cpu)>(unfiltered_neighs,
+                                                                                 unfiltered_offsets,
+                                                                                 new_degrees,
+                                                                                 vertex_count);
+        });
 }
 
 } // namespace oneapi::dal::preview::load_graph::detail
