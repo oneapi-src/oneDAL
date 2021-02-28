@@ -237,7 +237,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             algorithmFPType * const distanceLocal = lsDistance.local(tid);
             DAAL_CHECK_MALLOC_THR(distanceLocal);
 
-            daal::threader_for(nBlocksSV, nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
+            daal::conditional_threader_for(nSV > 256, nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
                 TPredictTask * lsLocal = tlsTask.local();
                 DAAL_CHECK_MALLOC_THR(lsLocal);
 
