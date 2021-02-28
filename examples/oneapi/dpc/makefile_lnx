@@ -77,15 +77,15 @@ else
 endif
 
 ifeq ($(RES_EXT),so)
-    ONEDAL_LIBS := -Wl,-Bdynamic -lonedal_dpc \
-                   -Wl,-Bdynamic -lonedal_core \
-                   -Wl,-Bdynamic -l$(THREADING_LIB) \
-                   -Wl,"$(DAAL_PATH)"/libonedal_sycl.a
+    ONEDAL_LIBS := -lonedal_dpc \
+                   -lonedal_core \
+                   -l$(THREADING_LIB) \
+                   "$(DAAL_PATH)"/libonedal_sycl.a
 else
-    ONEDAL_LIBS := -Wl,"$(DAAL_PATH)"/libonedal_dpc.a \
-                   -Wl,"$(DAAL_PATH)"/libonedal_core.a \
-                   -Wl,"$(DAAL_PATH)"/lib$(THREADING_LIB).a \
-                   -Wl,"$(DAAL_PATH)"/libonedal_sycl.a
+    ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a \
+                   "$(DAAL_PATH)"/libonedal_core.a \
+                   "$(DAAL_PATH)"/lib$(THREADING_LIB).a \
+                   "$(DAAL_PATH)"/libonedal_sycl.a
 endif
 
 COPTS := -std=c++17 \
@@ -98,11 +98,11 @@ COPTS := -std=c++17 \
          -I"$(DAALROOT)/include"
 
 LIBS := $(ONEDAL_LIBS) \
-        -Wl,-Bdynamic -ltbb \
-        -Wl,-Bdynamic -ltbbmalloc \
-        -Wl,-Bdynamic -lpthread \
-        -Wl,-Bdynamic -lOpenCL \
-        -Wl,-Bdynamic -ldl
+        -ltbb \
+        -ltbbmalloc \
+        -lpthread \
+        -lOpenCL \
+        -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
