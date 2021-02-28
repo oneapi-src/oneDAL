@@ -140,7 +140,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 
     char trans = 'T', notrans = 'N';
     DAAL_INT one         = 1;
-    algorithmFPType zero = 0.0, onef = 1.0;
+    algorithmFPType zero = algorithmFPType(0.0), onef = algorithmFPType(1.0);
 
     const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
 
@@ -161,7 +161,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
         return tlsData;
     });
 
-    daal::conditional_threader_for((nVectors1 > 512), nBlocks1, [&, isSOARes](const size_t iBlock1) {
+    daal::conditional_threader_for((nVectors1 >= blockSize * 2), nBlocks1, [&, isSOARes](const size_t iBlock1) {
         DAAL_INT nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         DAAL_INT startRow1     = iBlock1 * blockSize;
 
@@ -175,15 +175,14 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
             mtRRows.set(r, startRow1, nRowsInBlock1);
             DAAL_CHECK_MALLOC_THR(mtRRows.get());
         }
-        daal::conditional_threader_for((nVectors2 > 512), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+        daal::conditional_threader_for((nVectors2 >= blockSize * 2), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
             DAAL_INT nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
             DAAL_INT startRow2     = iBlock2 * blockSize;
 
-            KernelRBFTask<algorithmFPType, cpu> * const tlsLocal = tslTask.local();
-
-            algorithmFPType * const mklBuff   = tlsLocal->mklBuff;
-            algorithmFPType * const sqrDataA1 = tlsLocal->sqrDataA1;
-            algorithmFPType * const sqrDataA2 = tlsLocal->sqrDataA2;
+            KernelRBFTask<algorithmFPType, cpu> * tlsLocal = tslTask.local();
+            algorithmFPType * const mklBuff                = tlsLocal->mklBuff;
+            algorithmFPType * const sqrDataA1              = tlsLocal->sqrDataA1;
+            algorithmFPType * const sqrDataA2              = tlsLocal->sqrDataA2;
 
             if (!isEqualMatrix)
             {
