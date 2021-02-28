@@ -44,7 +44,6 @@ inline auto accuracy_score(const table& groundtruth,
         for (std::int64_t i = 0; i < n_responses; ++i) {
             const auto diff = gt_row[i] - pr_row[i];
             const bool is_correct = (-tolerance <= diff) && (diff <= tolerance);
-            CAPTURE(diff, is_correct);
             res_ptr[i] += Float(is_correct);
         }
     }
