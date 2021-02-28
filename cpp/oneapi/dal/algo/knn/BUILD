@@ -22,7 +22,6 @@ dal_test_suite(
         "test/*.cpp",
     ]),
     dal_deps = [
-        "@onedal//cpp/oneapi/dal/test/engine/metrics:metrics",
         ":knn",
     ],
 )
