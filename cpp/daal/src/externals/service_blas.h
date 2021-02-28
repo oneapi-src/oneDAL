@@ -227,51 +227,55 @@ struct Blas
         const bool isSOARes = tc->getDataLayout() & NumericTableIface::soa;
         TlsMem<fpType, cpu> tlsMklBuff(blockSizeA * blockSizeB);
 
-        const bool isPar = nRowsB * nRowsA > (reqBlockSizeB * 2) * (reqBlockSizeA * 2);
-
         /* Threaded loop by whole number of blocks */
-        daal::conditional_threader_for(isPar, nBlocksB * nBlocksA, [&, isSOARes](SizeType iBlock) {
-            const size_t iBlockB = iBlock / nBlocksA;
-            const size_t iBlockA = iBlock % nBlocksA;
-
+        daal::conditional_threader_for((nRowsB > blockSizeB * 2), nBlocksB, [&, isSOARes](SizeType iBlockB) {
             /* Current block size - can be less than general block size for last block */
             SizeType nRowsInBlockB   = (iBlockB < (nBlocksB - 1)) ? blockSizeB : lastBlockSizeB;
             const SizeType startRowB = iBlockB * blockSizeB;
-
-            /* Current block size - can be less than general block size for last block */
-            SizeType nRowsInBlockA   = (iBlockA < (nBlocksA - 1)) ? blockSizeA : lastBlockSizeA;
-            const SizeType startRowA = iBlockA * blockSizeA;
 
             ReadRows<fpType, cpu> mtb(*const_cast<NumericTable *>(tb), startRowB, nRowsInBlockB);
             DAAL_CHECK_BLOCK_STATUS_THR(mtb);
             const fpType * const b = mtb.get();
 
-            /* Read rows for numeric tables */
-            ReadRows<fpType, cpu> mta(*const_cast<NumericTable *>(ta), startRowA, nRowsInBlockA);
-            DAAL_CHECK_BLOCK_STATUS_THR(mta);
-            const fpType * const a = mta.get();
-
-            /* Call to sequential GEMM */
+            WriteOnlyRows<fpType, cpu> mtcRows;
             if (!isSOARes)
             {
-                WriteOnlyRows<fpType, cpu> mtcRows(tc, startRowB, nRowsInBlockB);
-                fpType * const c = mtcRows.get() + startRowA;
-                xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, c, ldc);
+                /* Get pointer to write resulted rows */
+                mtcRows.set(tc, startRowB, nRowsInBlockB);
+                DAAL_CHECK_MALLOC_THR(mtcRows.get());
             }
-            else
-            {
-                fpType * const c = tlsMklBuff.local();
-                DAAL_CHECK_MALLOC_THR(c);
-                DAAL_INT ldc2 = blockSizeB;
 
-                xxgemm(transa, transb, &nRowsInBlockB, &nRowsInBlockA, &nCols, alpha, b, ldb, a, lda, beta, c, &ldc2);
-                for (size_t i = 0; i < nRowsInBlockA; ++i)
+            daal::conditional_threader_for((nRowsA > blockSizeA * 2), nBlocksA, [&](SizeType iBlockA) {
+                /* Current block size - can be less than general block size for last block */
+                SizeType nRowsInBlockA   = (iBlockA < (nBlocksA - 1)) ? blockSizeA : lastBlockSizeA;
+                const SizeType startRowA = iBlockA * blockSizeA;
+
+                /* Read rows for numeric tables */
+                ReadRows<fpType, cpu> mta(*const_cast<NumericTable *>(ta), startRowA, nRowsInBlockA);
+                DAAL_CHECK_BLOCK_STATUS_THR(mta);
+                const fpType * const a = mta.get();
+
+                /* Call to sequential GEMM */
+                if (!isSOARes)
                 {
-                    WriteOnlyColumns<fpType, cpu> mtcColumns(tc, startRowA + i, startRowB, nRowsInBlockB);
-                    DAAL_CHECK_BLOCK_STATUS_THR(mtcColumns);
-                    Helper<fpType, cpu>::copy(mtcColumns.get(), c + i * ldc2, nRowsInBlockB);
+                    fpType * const c = mtcRows.get() + startRowA;
+                    xxgemm(transa, transb, &nRowsInBlockA, &nRowsInBlockB, &nCols, alpha, a, lda, b, ldb, beta, c, ldc);
                 }
-            }
+                else
+                {
+                    fpType * const c = tlsMklBuff.local();
+                    DAAL_CHECK_MALLOC_THR(c);
+                    DAAL_INT ldc2 = blockSizeB;
+
+                    xxgemm(transa, transb, &nRowsInBlockB, &nRowsInBlockA, &nCols, alpha, b, ldb, a, lda, beta, c, &ldc2);
+                    for (size_t i = 0; i < nRowsInBlockA; ++i)
+                    {
+                        WriteOnlyColumns<fpType, cpu> mtcColumns(tc, startRowA + i, startRowB, nRowsInBlockB);
+                        DAAL_CHECK_BLOCK_STATUS_THR(mtcColumns);
+                        Helper<fpType, cpu>::copy(mtcColumns.get(), c + i * ldc2, nRowsInBlockB);
+                    }
+                }
+            });
         });
 
         return safeStat.detach();

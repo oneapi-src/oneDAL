@@ -160,15 +160,9 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
 
     TlsMem<algorithmFPType, cpu> tlsMklBuff(blockSize * blockSize);
     SafeStatus safeStat;
-    daal::conditional_threader_for((nVectors1 * nVectors2 > 512 * 512), nBlocks1 * nBlocks2, [&, isSOARes](const size_t iBlock) {
-        const size_t iBlock1 = iBlock / nBlocks2;
-        const size_t iBlock2 = iBlock % nBlocks2;
-
+    daal::conditional_threader_for((nVectors1 >= blockSize * 2), nBlocks1, [&, isSOARes](const size_t iBlock1) {
         const size_t nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         const size_t startRow1     = iBlock1 * blockSize;
-
-        const size_t nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
-        const size_t startRow2     = iBlock2 * blockSize;
 
         ReadRowsCSR<algorithmFPType, cpu> mtA1(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a1)), startRow1, nRowsInBlock1, true);
         DAAL_CHECK_BLOCK_STATUS_THR(mtA1);
@@ -176,61 +170,71 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
         const size_t * colIndicesA1    = mtA1.cols();
         const size_t * rowOffsetsA1    = mtA1.rows();
 
-        ReadRowsCSR<algorithmFPType, cpu> mtA2(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a2)), startRow2, nRowsInBlock2, true);
-        DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
-        const algorithmFPType * dataA2 = mtA2.values();
-        const size_t * colIndicesA2    = mtA2.cols();
-        const size_t * rowOffsetsA2    = mtA2.rows();
-
+        WriteOnlyRows<algorithmFPType, cpu> mtRRows;
         if (!isSOARes)
         {
-            WriteOnlyRows<algorithmFPType, cpu> mtRRows(r, startRow1, nRowsInBlock1);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtRRows);
-            algorithmFPType * const dataR = mtRRows.get();
+            mtRRows.set(r, startRow1, nRowsInBlock1);
+            DAAL_CHECK_MALLOC_THR(mtRRows.get());
+        }
+        daal::conditional_threader_for((nVectors2 >= blockSize * 2), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+            const size_t nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
+            const size_t startRow2     = iBlock2 * blockSize;
 
-            const size_t ldc = nVectors2;
-            SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
-                                                     nRowsInBlock2, nFeatures, dataR + startRow2, ldc);
+            ReadRowsCSR<algorithmFPType, cpu> mtA2(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a2)), startRow2, nRowsInBlock2,
+                                                   true);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtA2);
+            const algorithmFPType * dataA2 = mtA2.values();
+            const size_t * colIndicesA2    = mtA2.cols();
+            const size_t * rowOffsetsA2    = mtA2.rows();
 
-            if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
+            if (!isSOARes)
             {
-                for (size_t i = 0; i < nRowsInBlock1; i++)
+                algorithmFPType * const dataR = mtRRows.get();
+
+                const size_t ldc = nVectors2;
+                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
+                                                         nRowsInBlock2, nFeatures, dataR + startRow2, ldc);
+
+                if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
                 {
-                    for (size_t j = 0; j < nRowsInBlock2; j++)
+                    for (size_t i = 0; i < nRowsInBlock1; i++)
                     {
-                        dataR[i * ldc + j + startRow2] = dataR[i * ldc + j + startRow2] * k + b;
+                        for (size_t j = 0; j < nRowsInBlock2; j++)
+                        {
+                            dataR[i * ldc + j + startRow2] = dataR[i * ldc + j + startRow2] * k + b;
+                        }
                     }
                 }
             }
-        }
-        else
-        {
-            const size_t ldc                = blockSize;
-            algorithmFPType * const mklBuff = tlsMklBuff.local();
-
-            SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
-                                                     nRowsInBlock1, nFeatures, mklBuff, ldc);
-
-            if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
+            else
             {
-                for (size_t i = 0; i < nRowsInBlock2; i++)
+                const size_t ldc                = blockSize;
+                algorithmFPType * const mklBuff = tlsMklBuff.local();
+
+                SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
+                                                         nRowsInBlock1, nFeatures, mklBuff, ldc);
+
+                if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
                 {
-                    for (size_t j = 0; j < nRowsInBlock1; j++)
+                    for (size_t i = 0; i < nRowsInBlock2; i++)
                     {
-                        mklBuff[i * ldc + j] = mklBuff[i * ldc + j] * k + b;
+                        for (size_t j = 0; j < nRowsInBlock1; j++)
+                        {
+                            mklBuff[i * ldc + j] = mklBuff[i * ldc + j] * k + b;
+                        }
                     }
                 }
-            }
 
-            for (size_t j = 0; j < nRowsInBlock2; ++j)
-            {
-                WriteOnlyColumns<algorithmFPType, cpu> mtRColumns(r, startRow2 + j, startRow1, nRowsInBlock1);
-                DAAL_CHECK_BLOCK_STATUS_THR(mtRColumns);
-                algorithmFPType * const dataRBlock   = mtRColumns.get();
-                algorithmFPType * const mklBuffBlock = &mklBuff[j * blockSize];
-                internal::Helper<algorithmFPType, cpu>::copy(dataRBlock, mklBuffBlock, nRowsInBlock1);
+                for (size_t j = 0; j < nRowsInBlock2; ++j)
+                {
+                    WriteOnlyColumns<algorithmFPType, cpu> mtRColumns(r, startRow2 + j, startRow1, nRowsInBlock1);
+                    DAAL_CHECK_BLOCK_STATUS_THR(mtRColumns);
+                    algorithmFPType * const dataRBlock   = mtRColumns.get();
+                    algorithmFPType * const mklBuffBlock = &mklBuff[j * blockSize];
+                    internal::Helper<algorithmFPType, cpu>::copy(dataRBlock, mklBuffBlock, nRowsInBlock1);
+                }
             }
-        }
+        });
     });
 
     return services::Status();
