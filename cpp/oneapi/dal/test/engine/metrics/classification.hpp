@@ -24,14 +24,12 @@
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace de = oneapi::dal::detail;
-
 namespace oneapi::dal::test::engine {
 
 template <typename Float = double>
-auto accuracy_score(const table& groundtruth,
-                    const table& prediction,
-                    const Float tolerance = Float(0)) {
+inline auto accuracy_score(const table& groundtruth,
+                           const table& prediction,
+                           const Float tolerance = Float(0)) {
     SECTION("label shape is expected to be equal") {
         REQUIRE(prediction.get_row_count() == groundtruth.get_row_count());
         REQUIRE(prediction.get_column_count() == groundtruth.get_column_count());
@@ -55,7 +53,8 @@ auto accuracy_score(const table& groundtruth,
     for (std::int64_t i = 0; i < n_responses; ++i) {
         res_ptr[i] /= Float(n_samples);
     }
-    return de::homogen_table_builder{}.reset(result, 1, n_responses).build();
+    using oneapi::dal::detail::homogen_table_builder;
+    return homogen_table_builder{}.reset(result, 1, n_responses).build();
 }
 
 } // namespace oneapi::dal::test::engine
