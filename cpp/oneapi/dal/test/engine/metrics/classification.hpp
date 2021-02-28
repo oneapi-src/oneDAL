@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "oneapi/dal/test/engine/common.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
