@@ -205,45 +205,41 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nSV      = svTable->getNumberOfRows();
 
         size_t nRowsPerBlock = 0;
-        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 256), (nRowsPerBlock = nVectors));
+        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 128), (nRowsPerBlock = nVectors));
         const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
         size_t nSVPerBlock = 0;
-        DAAL_SAFE_CPU_CALL((nSVPerBlock = 256), (nSVPerBlock = nSV));
+        DAAL_SAFE_CPU_CALL((nSVPerBlock = 128), (nSVPerBlock = nSV));
         const size_t nBlocksSV = nSV / nSVPerBlock + !!(nSV % nSVPerBlock);
 
         const bool isSparse = xTable->getDataLayout() == NumericTableIface::csrArray;
 
         /* TLS data initialization */
         using TPredictTask = PredictTask<algorithmFPType, cpu>;
-        daal::ls<TPredictTask *> lsTask(
-            [&]() {
-                if (isSparse)
-                {
-                    return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
-                }
-                else
-                {
-                    return PredictTaskDense<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
-                }
-            },
-            !isSparse);
+        daal::tls<TPredictTask *> tlsTask([&]() {
+            if (isSparse)
+            {
+                return PredictTaskCSR<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+            }
+            else
+            {
+                return PredictTaskDense<algorithmFPType, cpu>::create(nRowsPerBlock, nSVPerBlock, xTable, svTable, kernel);
+            }
+        });
 
         DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nBlocksSV, nRowsPerBlock);
-        daal::LsMem<algorithmFPType, cpu> lsDistance(nBlocksSV * nRowsPerBlock, nSV <= 256);
+        daal::StaticTlsMem<algorithmFPType, cpu> lsDistance(nBlocksSV * nRowsPerBlock);
         SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [&, nVectors, nBlocks](const size_t iBlock) {
+        daal::static_threader_for(nBlocks, [&, nVectors, nBlocks](const size_t iBlock, const size_t tid) {
             const size_t startRow          = iBlock * nRowsPerBlock;
             const size_t nRowsPerBlockReal = (iBlock != nBlocks - 1) ? nRowsPerBlock : nVectors - startRow;
 
-            algorithmFPType * const distanceLocal = lsDistance.local();
+            algorithmFPType * const distanceLocal = lsDistance.local(tid);
             DAAL_CHECK_MALLOC_THR(distanceLocal);
-            DAAL_LS_RELEASE(algorithmFPType, lsDistance, distanceLocal); //releases local storage when leaving this scope
 
-            daal::conditional_threader_for((nSV > 256), nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
-                TPredictTask * lsLocal = lsTask.local();
+            daal::conditional_threader_for(nSV > 256, nBlocksSV, [&, nSV, nBlocksSV](const size_t iBlockSV) {
+                TPredictTask * lsLocal = tlsTask.local();
                 DAAL_CHECK_MALLOC_THR(lsLocal);
-                DAAL_LS_RELEASE(TPredictTask, lsTask, lsLocal); //releases local storage when leaving this scope
 
                 const size_t startSV         = iBlockSV * nSVPerBlock;
                 const size_t nSVPerBlockReal = (iBlockSV != nBlocksSV - 1) ? nSVPerBlock : nSV - startSV;
@@ -267,7 +263,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
                 const algorithmFPType * const svCoeff = mtSVCoeff.get();
                 algorithmFPType * const distanceSV    = &distanceLocal[iBlockSV * nRowsPerBlock];
 
-                if (nBlocks == 1)
+                if (nBlocks == 1 && nBlocksSV == 1)
                 {
                     Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
                 }
@@ -291,10 +287,10 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
             }
         });
 
-        lsTask.reduce([](PredictTask<algorithmFPType, cpu> * local) { delete local; });
+        tlsTask.reduce([](PredictTask<algorithmFPType, cpu> * local) { delete local; });
         return safeStat.detach();
     }
-}; // namespace internal
+};
 
 } // namespace internal
 } // namespace prediction
