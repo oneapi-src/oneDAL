@@ -22,8 +22,10 @@
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/dataframe_math.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
+#include "oneapi/dal/test/engine/metrics/clustering.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
@@ -119,6 +121,40 @@ public:
                            ref_objective_function);
     }
 
+    void dbi_determenistic_checks(const table& data,
+                                  std::int64_t cluster_count,
+                                  std::int64_t max_iteration_count,
+                                  Float accuracy_threshold,
+                                  Float ref_dbi,
+                                  Float ref_obj_func) {
+        CAPTURE(cluster_count);
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        const auto data_rows = row_accessor<const Float>(data).pull({ 0, cluster_count });
+        const auto initial_centroids =
+            homogen_table::wrap(data_rows, cluster_count, data.get_column_count());
+
+        INFO("run training");
+        const auto train_result = train(kmeans_desc, data, initial_centroids);
+        const auto model = train_result.get_model();
+        check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, test_convergence);
+
+        INFO("run inference");
+        const auto infer_result = infer(kmeans_desc, model, data);
+        check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
+
+        check_nans(model.get_centroids());
+        check_nans(infer_result.get_labels());
+        auto res =
+            te::test::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, ref_tol));
+        REQUIRE(
+            check_value_with_ref_tol(infer_result.get_objective_function(), ref_obj_func, ref_tol));
+    }
+
     void train_with_initialization_checks(const table& data,
                                           const table& ref_centroids,
                                           const table& ref_labels,
@@ -188,6 +224,14 @@ public:
         }
     }
 
+    bool check_value_with_ref_tol(Float val, Float ref_val, Float ref_tol) {
+        Float alpha = std::numeric_limits<Float>::min();
+        Float max_abs = std::max(fabs(val), fabs(ref_val));
+        if (max_abs == 0.0)
+            return true;
+        REQUIRE(fabs(val - ref_val) / max_abs < ref_tol);
+    }
+
     void check_base_infer_result(const kmeans::descriptor<Float, Method>& desc,
                                  const kmeans::infer_result<>& result,
                                  Float ref_objective_function) {
@@ -198,13 +242,9 @@ public:
         SECTION("non-negative objective function value is expected") {
             REQUIRE(objective_function >= 0.0);
         }
-
         Float rel_tol = 1.0e-5;
-        Float alpha = std::numeric_limits<Float>::min();
         if (!(ref_objective_function < 0.0)) {
-            REQUIRE(fabs(objective_function - ref_objective_function) /
-                        (fabs(objective_function) + (ref_objective_function) + alpha) <
-                    rel_tol);
+            REQUIRE(check_value_with_ref_tol(objective_function, ref_objective_function, rel_tol));
         }
     }
 
@@ -497,6 +537,147 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     const auto x2 = homogen_table::wrap(data_infer, 9, 2);
     Float expected_obj_function = 4;
     this->infer_checks(x, model, y, expected_obj_function);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "kmeans block test",
+                     "[kmeans][batch][nightly]",
+                     kmeans_types) {
+    constexpr std::int64_t row_count = 1024 * 1024;
+    constexpr std::int64_t column_count = 1024;
+    constexpr std::int64_t cluster_count = 1;
+
+    const auto x_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
+    const table x_table = train_dataframe.get_table(this->get_homogen_table_id());
+
+    const auto first_row = row_accessor<const Float>(x_table).pull({ 0, 1 });
+    const auto c_init = homogen_table::wrap(first_row, 1, column_count);
+
+    auto labels = array<float>::zeros(row_count);
+    const auto y = homogen_table::wrap(labels, row_count, 1);
+
+    auto means = compute_column_means(x_dataframe);
+    const auto c_final = homogen_table::wrap(means, 1, column_count);
+    auto variance = compute_column_variances(x_dataframe, means);
+    double obj_function = 0.0;
+    for (std::int64_t i = 0; i < n; ++i) {
+        obj_function += variance[i];
+    }
+    obj_function *= column_count - 1;
+
+    this->exact_checks(x, c_init, c_final, y, 3, 1, obj_function);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "kmeans partial centroid adjustment test",
+                     "[kmeans][batch][nightly]",
+                     kmeans_types) {
+    constexpr std::int64_t row_count = 8 * 1024;
+    constexpr std::int64_t column_count = 2 * 1024;
+    constexpr std::int64_t cluster_count = 8 * 1024;
+
+    const auto x_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
+    const table x_table = train_dataframe.get_table(this->get_homogen_table_id());
+
+    const auto first_row = row_accessor<const Float>(x_table).pull({ 0, 1 });
+    const auto c_init = homogen_table::wrap(first_row, 1, column_count);
+
+    auto labels = array<std::int32_t>::zeros(1 * cluster_count);
+    auto label_ptr = labels.get_mutable_data();
+    auto first_label = &label_ptr[0];
+    std::iota(first_label, first_label + row_count, std::int32_t(0));
+    const auto y = homogen_table::wrap(labels, row_count, 1);
+
+    auto means = compute_column_means(x_dataframe);
+    const auto c_final = homogen_table::wrap(means, 1, column_count);
+
+    this->exact_checks(x, x, x, y, 3, 1, 0.0);
+}
+
+TEMPLATE_LIST_TEST_M(df_batch_test,
+                     "higgs/17/101",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     df_types) {
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/dataset/higgs/higgs_1m_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 17;
+    constexpr std::int64_t max_iteration_count = 101;
+    constexpr Float ref_dbi = 0.0;
+    constexpr Float ref_obj_func = 0.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(df_batch_test,
+                     "susy/250/10",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     df_types) {
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 250;
+    constexpr std::int64_t max_iteration_count = 10;
+    constexpr Float ref_dbi = 0.0;
+    constexpr Float ref_obj_func = 0.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(df_batch_test,
+                     "road_network_20t/111/13",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     df_types) {
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/dataset/road_network/road_network_100t_cluster.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 111;
+    constexpr std::int64_t max_iteration_count = 13;
+    constexpr Float ref_dbi = 0.0;
+    constexpr Float ref_obj_func = 0.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(df_batch_test,
+                     "epsilon/4001/17",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     df_types) {
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/dataset/epsilon_80k_train.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 4001;
+    constexpr std::int64_t max_iteration_count = 17;
+    constexpr Float ref_dbi = 0.0;
+    constexpr Float ref_obj_func = 0.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
 }
 
 } // namespace oneapi::dal::kmeans::test
