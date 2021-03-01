@@ -111,9 +111,11 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
     const size_t nVectors2 = a2->getNumberOfRows();
     const size_t nFeatures = a1->getNumberOfColumns();
 
-    const Parameter * linPar = static_cast<const Parameter *>(par);
-    algorithmFPType b        = (algorithmFPType)(linPar->b);
-    algorithmFPType k        = (algorithmFPType)(linPar->k);
+    const Parameter * linPar   = static_cast<const Parameter *>(par);
+    const algorithmFPType b    = (algorithmFPType)(linPar->b);
+    const algorithmFPType k    = (algorithmFPType)(linPar->k);
+    const algorithmFPType zero = algorithmFPType(0.0);
+    const algorithmFPType one  = algorithmFPType(1.0);
 
     if (a1 == a2)
     {
@@ -129,7 +131,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
 
         SpBlas<algorithmFPType, cpu>::xsyrk_a_at(dataA1, colIndicesA1, rowOffsetsA1, nVectors1, a1->getNumberOfColumns(), dataR, nVectors2);
 
-        if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
+        if (k != one || b != zero)
         {
             daal::threader_for_optional(nVectors1, nVectors1, [=](size_t i) {
                 PRAGMA_IVDEP
@@ -160,7 +162,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
 
     TlsMem<algorithmFPType, cpu> tlsMklBuff(blockSize * blockSize);
     SafeStatus safeStat;
-    daal::conditional_threader_for((nVectors1 >= blockSize * 2), nBlocks1, [&, isSOARes](const size_t iBlock1) {
+    daal::conditional_threader_for(nBlocks1 > 2, nBlocks1, [&, isSOARes](const size_t iBlock1) {
         const size_t nRowsInBlock1 = (iBlock1 != nBlocks1 - 1) ? blockSize : nVectors1 - iBlock1 * blockSize;
         const size_t startRow1     = iBlock1 * blockSize;
 
@@ -176,7 +178,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
             mtRRows.set(r, startRow1, nRowsInBlock1);
             DAAL_CHECK_MALLOC_THR(mtRRows.get());
         }
-        daal::conditional_threader_for((nVectors2 >= blockSize * 2), nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
+        daal::conditional_threader_for(nBlocks2 > 2, nBlocks2, [&, nVectors2, nBlocks2](const size_t iBlock2) {
             const size_t nRowsInBlock2 = (iBlock2 != nBlocks2 - 1) ? blockSize : nVectors2 - iBlock2 * blockSize;
             const size_t startRow2     = iBlock2 * blockSize;
 
@@ -195,7 +197,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
                 SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA1, colIndicesA1, rowOffsetsA1, dataA2, colIndicesA2, rowOffsetsA2, nRowsInBlock1,
                                                          nRowsInBlock2, nFeatures, dataR + startRow2, ldc);
 
-                if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
+                if (k != one || b != zero)
                 {
                     for (size_t i = 0; i < nRowsInBlock1; i++)
                     {
@@ -214,7 +216,7 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
                 SpBlas<algorithmFPType, cpu>::xgemm_a_bt(dataA2, colIndicesA2, rowOffsetsA2, dataA1, colIndicesA1, rowOffsetsA1, nRowsInBlock2,
                                                          nRowsInBlock1, nFeatures, mklBuff, ldc);
 
-                if (k != (algorithmFPType)1.0 || b != (algorithmFPType)0.0)
+                if (k != one || b != zero)
                 {
                     for (size_t i = 0; i < nRowsInBlock2; i++)
                     {

@@ -187,6 +187,7 @@ public:
         const size_t nRowsInTailBlock   = nRowsInCommonBlock + m % nBlocks;
 
         const size_t nnzTotal = ia[m] - ia[0];
+        const fpType zero     = fpType(0.0);
 
         TArray<uint32_t, cpu> rowIdxCSCArr(nnzTotal);
         uint32_t * rowIdxCSC = rowIdxCSCArr.get();
@@ -201,7 +202,7 @@ public:
 
         splitCSR2CSC(a, ja, ia, n, nRowsInCommonBlock, nRowsInTailBlock, nBlocks, valuesCSC, colIdxCSC, rowIdxCSC);
 
-        daal::conditional_threader_for((m * m > 512 * 512), nBlocks * nBlocks, [=](size_t idx) {
+        daal::conditional_threader_for(m > 512, nBlocks * nBlocks, [=](size_t idx) {
             const size_t i = idx / nBlocks;
             const size_t j = idx % nBlocks;
 
@@ -232,12 +233,7 @@ public:
 
             for (size_t row = 0; row < rows; ++row)
             {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t col = 0; col < cols; ++col)
-                {
-                    block_res.ptr[row * ldC + col] = 0.0;
-                }
+                services::internal::service_memset_seq<fpType, cpu>(&block_res.ptr[row * block_res.stride], zero, cols);
             }
 
             csc_mm_a_bt(n, block1, block2, block_res);
@@ -257,6 +253,8 @@ public:
 
         const size_t nRowsInTailBlock_a = ma - (nBlocks_a - 1) * nRowsInCommonBlock_a;
         const size_t nRowsInTailBlock_b = mb - (nBlocks_b - 1) * nRowsInCommonBlock_b;
+
+        const fpType zero = fpType(0.0);
 
         const size_t nnzTotal_a = ia[ma] - ia[0];
         const size_t nnzTotal_b = ib[mb] - ib[0];
@@ -315,12 +313,7 @@ public:
 
             for (size_t row = 0; row < rows; ++row)
             {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t col = 0; col < cols; ++col)
-                {
-                    block_res.ptr[row * block_res.stride + col] = 0.0;
-                }
+                services::internal::service_memset_seq<fpType, cpu>(&block_res.ptr[row * block_res.stride], zero, cols);
             }
 
             csc_mm_a_bt(n, block1, block2, block_res);
