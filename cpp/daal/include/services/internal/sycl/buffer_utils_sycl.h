@@ -190,18 +190,26 @@ private:
 
             Status status;
 
-            auto dst = dstBuffer.toUSM(queue, data_management::writeOnly, status);
+            auto sub = dstBuffer.getSubBuffer(dstOffset, count, status);
             DAAL_CHECK_STATUS_VAR(status);
 
-            auto dst_raw = dst.get() + dstOffset;
+            {
+                // TODO: change to use toUSM() and queue.memcpy()
+                auto dst = sub.toHost(data_management::writeOnly, status);
+                DAAL_CHECK_STATUS_VAR(status);
 
-            const size_t size = sizeof(T) * count;
-            DAAL_ASSERT(size >= count);
+                auto dst_raw = dst.get();
 
-            return catchSyclExceptions([&]() mutable {
-                auto event = queue.memcpy(dst_raw, src, size);
-                event.wait_and_throw();
-            });
+                const size_t size = sizeof(T) * count;
+                DAAL_ASSERT(size >= count);
+
+                int result = daal_memcpy_s(dst_raw, size, src, size);
+                if (result)
+                {
+                    return services::ErrorMemoryCopyFailedInternal;
+                }
+            }
+            return status;
         }
 #endif
 
