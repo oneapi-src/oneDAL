@@ -52,17 +52,13 @@ static NumericTablePtr get_initial_centroids(const dal::backend::context_gpu& ct
 
     const auto data = input.get_data();
 
-    const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
-
     const int64_t cluster_count = params.get_cluster_count();
 
     daal::data_management::NumericTablePtr daal_initial_centroids;
 
     if (!input.get_initial_centroids().has_data()) {
-        auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-        const auto daal_data =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
+        const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
         daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
         const size_t init_len_input = 1;
@@ -87,13 +83,8 @@ static NumericTablePtr get_initial_centroids(const dal::backend::context_gpu& ct
                 *(par.engine)));
     }
     else {
-        auto arr_initial_centroids =
-            row_accessor<const Float>{ input.get_initial_centroids() }.pull(queue);
         daal_initial_centroids =
-            interop::convert_to_daal_sycl_homogen_table<Float>(queue,
-                                                               arr_initial_centroids,
-                                                               cluster_count,
-                                                               column_count);
+            interop::convert_to_daal_table<Float>(queue, input.get_initial_centroids());
     }
     return daal_initial_centroids;
 }
@@ -121,9 +112,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                    dal::detail::integral_cast<std::size_t>(max_iteration_count));
         par.accuracyThreshold = accuracy_threshold;
 
-        auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-        const auto daal_data =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
+        const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
         array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);

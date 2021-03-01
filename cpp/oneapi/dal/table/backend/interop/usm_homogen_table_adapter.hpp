@@ -20,25 +20,32 @@
 
 namespace oneapi::dal::backend::interop {
 
+#ifdef ONEDAL_DATA_PARALLEL
 // This class shall be used only to represent immutable data on DAAL side. Any
 // attempts to change the data inside objects of that class lead to undefined
 // behavior.
 template <typename Data>
-class host_homogen_table_adapter : public homogen_table_adapter<Data> {
+class usm_homogen_table_adapter : public homogen_table_adapter<Data> {
     using base = homogen_table_adapter<Data>;
     using status_t = daal::services::Status;
     using rw_mode_t = daal::data_management::ReadWriteMode;
-    using ptr_t = daal::services::SharedPtr<host_homogen_table_adapter>;
+    using ptr_t = daal::services::SharedPtr<usm_homogen_table_adapter>;
     using ptr_data_t = daal::services::SharedPtr<Data>;
 
     template <typename T>
     using block_desc_t = daal::data_management::BlockDescriptor<T>;
 
+    template <typename T>
+    using daal_buffer_t = daal::services::internal::Buffer<T>;
+
+    template <typename T>
+    using daal_buffer_and_status_t = std::tuple<daal_buffer_t<T>, status_t>;
+
 public:
-    static ptr_t create(const homogen_table& table);
+    static ptr_t create(sycl::queue& q, const homogen_table& table);
 
 private:
-    explicit host_homogen_table_adapter(const homogen_table& table, status_t& stat);
+    explicit usm_homogen_table_adapter(sycl::queue& q, const homogen_table& table, status_t& stat);
 
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
@@ -86,8 +93,17 @@ private:
                                      rw_mode_t rwflag,
                                      block_desc_t<BlockData>& block);
 
-private:
-    const bool is_rowmajor_;
+    template <typename BlockData>
+    daal_buffer_and_status_t<BlockData> convert_to_daal_buffer(const array<BlockData>& ary) const;
+
+    template <typename BlockData>
+    daal_buffer_and_status_t<BlockData> pull_rows_buffer(const block_info& info);
+
+    template <typename BlockData>
+    daal_buffer_and_status_t<BlockData> pull_columns_buffer(const block_info& info);
+
+    sycl::queue queue_;
 };
+#endif
 
 } // namespace oneapi::dal::backend::interop

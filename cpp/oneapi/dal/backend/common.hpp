@@ -20,11 +20,11 @@
 #include <CL/sycl.hpp>
 #endif
 
-#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::backend {
 
-/// Finds the smallest multiple of `multiple` not smaller than `x`
+/// Finds the largest multiple of `multiple` not larger than `x`
 /// Return `x`, if `x` is already multiple of `multiple`
 /// Example: down_multiple(10, 4) == 8
 /// Example: down_multiple(10, 5) == 10
@@ -36,7 +36,7 @@ inline constexpr Integer down_multiple(Integer x, Integer multiple) {
     return (x / multiple) * multiple;
 }
 
-/// Finds the smallest multiple of `multiple` larger than `x`.
+/// Finds the smallest multiple of `multiple` not smaller than `x`.
 /// Return `x`, if `x` is already multiple of `multiple`
 /// Example: up_multiple(10, 4) == 12
 /// Example: up_multiple(10, 5) == 10
@@ -49,6 +49,36 @@ inline constexpr Integer up_multiple(Integer x, Integer multiple) {
     const Integer z = multiple * Integer((x % multiple) != 0);
     ONEDAL_ASSERT_SUM_OVERFLOW(Integer, y, z);
     return y + z;
+}
+
+/// Finds the largest power of 2 number not larger than `x`.
+/// Return `x`, if `x` is already power of 2
+/// Example: down_pow2(10) == 8
+/// Example: down_pow2(16) == 16
+template <typename Integer>
+inline constexpr Integer down_pow2(Integer x) {
+    static_assert(std::is_integral_v<Integer>);
+    ONEDAL_ASSERT(x > 0);
+    Integer power = 1;
+    while (power < x / 2) {
+        power *= 2;
+    }
+    return power;
+}
+
+/// Finds the smallest power of 2 number not smaller than `x`.
+/// Return `x`, if `x` is already power of 2
+/// Example: up_pow2(10) == 16
+/// Example: up_pow2(16) == 16
+template <typename Integer>
+inline constexpr Integer up_pow2(Integer x) {
+    static_assert(std::is_integral_v<Integer>);
+    ONEDAL_ASSERT(x > 0);
+    Integer power = 1;
+    while (power < x) {
+        power *= 2;
+    }
+    return power;
 }
 
 #ifdef ONEDAL_DATA_PARALLEL

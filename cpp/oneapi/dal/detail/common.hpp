@@ -27,24 +27,18 @@
 #define ONEDAL_ASSERT_SUM_OVERFLOW(...)
 #define ONEDAL_ASSERT_MUL_OVERFLOW(...)
 #else
-#define ONEDAL_ASSERT_SUM_OVERFLOW(Data, first, second)                                       \
-    do {                                                                                      \
-        static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
-        Data result;                                                                          \
-        ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_sum((first),  \
-                                                                                    (second), \
-                                                                                    result),  \
-                      "Sum overflow assertion failed with operands" #first " and " #second);  \
+#define ONEDAL_ASSERT_SUM_OVERFLOW(Data, first, second)                                      \
+    do {                                                                                     \
+        Data result;                                                                         \
+        ONEDAL_ASSERT(oneapi::dal::detail::is_safe_sum<Data>((first), (second), result),     \
+                      "Sum overflow assertion failed with operands" #first " and " #second); \
     } while (0)
 
-#define ONEDAL_ASSERT_MUL_OVERFLOW(Data, first, second)                                       \
-    do {                                                                                      \
-        static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
-        Data result;                                                                          \
-        ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_mul((first),  \
-                                                                                    (second), \
-                                                                                    result),  \
-                      "Mul overflow assertion failed with operands" #first " and " #second);  \
+#define ONEDAL_ASSERT_MUL_OVERFLOW(Data, first, second)                                      \
+    do {                                                                                     \
+        Data result;                                                                         \
+        ONEDAL_ASSERT(oneapi::dal::detail::is_safe_mul<Data>((first), (second), result),     \
+                      "Mul overflow assertion failed with operands" #first " and " #second); \
     } while (0)
 #endif
 
@@ -213,18 +207,6 @@ struct integer_overflow_ops {
 };
 
 template <typename Data>
-inline void check_sum_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
-    integer_overflow_ops<Data>{}.check_sum_overflow(first, second);
-}
-
-template <typename Data>
-inline void check_mul_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
-    integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
-}
-
-template <typename Data>
 struct limits {
     static constexpr Data min() {
         return std::numeric_limits<Data>::min();
@@ -259,6 +241,43 @@ inline Out integral_cast(const In& value) {
 
 } // namespace v1
 
+namespace v2 {
+
+template <typename Data>
+struct integer_overflow_ops {
+    Data check_mul_overflow(const Data& first, const Data& second);
+    Data check_sum_overflow(const Data& first, const Data& second);
+
+    bool is_safe_sum(const Data& first, const Data& second, Data& sum_result);
+    bool is_safe_mul(const Data& first, const Data& second, Data& mul_result);
+};
+
+template <typename Data>
+inline Data check_sum_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.check_sum_overflow(first, second);
+}
+
+template <typename Data>
+inline Data check_mul_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
+}
+
+template <typename Data>
+inline bool is_safe_sum(const Data& first, const Data& second, Data& sum_result) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.is_safe_sum(first, second, sum_result);
+}
+
+template <typename Data>
+inline bool is_safe_mul(const Data& first, const Data& second, Data& mul_result) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.is_safe_mul(first, second, mul_result);
+}
+
+} // namespace v2
+
 using v1::is_one_of;
 using v1::is_one_of_v;
 using v1::is_tagged;
@@ -278,9 +297,10 @@ using v1::make_private;
 using v1::make_data_type;
 using v1::get_data_type_size;
 using v1::is_floating_point;
-using v1::integer_overflow_ops;
-using v1::check_sum_overflow;
-using v1::check_mul_overflow;
+using v2::check_sum_overflow;
+using v2::check_mul_overflow;
+using v2::is_safe_sum;
+using v2::is_safe_mul;
 using v1::integral_cast;
 
 } // namespace oneapi::dal::detail

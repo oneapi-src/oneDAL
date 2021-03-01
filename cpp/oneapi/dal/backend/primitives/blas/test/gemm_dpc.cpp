@@ -127,6 +127,11 @@ public:
         SUCCEED();
     }
 
+    bool not_float64_friendly() {
+        constexpr bool is_double = std::is_same_v<float_t, double>;
+        return is_double && this->get_policy().has_float64_emulation();
+    }
+
     bool is_initialized() const {
         return m_ > 0 && n_ > 0 && k_ > 0;
     }
@@ -151,6 +156,10 @@ using gemm_types = COMBINE_TYPES((float, double),
 TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on small sizes", "[gemm][small]", gemm_types) {
     // DPC++ GEMM from micro MKL libs is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
+
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
+
     this->generate_small_dimensions();
     this->test_gemm();
 }
@@ -158,6 +167,10 @@ TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on small sizes", "[gemm][small
 TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on medium sizes", "[gemm][medium]", gemm_types) {
     // DPC++ GEMM from micro MKL libs is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
+
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
+
     this->generate_medium_dimensions();
     this->test_gemm();
 }

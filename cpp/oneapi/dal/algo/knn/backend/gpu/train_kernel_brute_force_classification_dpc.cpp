@@ -46,16 +46,9 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
-
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-    auto arr_labels = row_accessor<const Float>{ labels }.pull(queue);
-
-    const auto daal_data =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_labels =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
+    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
+    const auto daal_labels = interop::convert_to_daal_table<Float>(queue, labels);
 
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(

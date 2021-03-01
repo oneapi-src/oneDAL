@@ -235,8 +235,8 @@ public:
                                         dst_data,
                                         origin_.dtype,
                                         block_dtype,
-                                        origin_dtype_size * origin_.column_count,
-                                        block_dtype_size,
+                                        origin_.column_count,
+                                        1,
                                         block_.element_count);
             }
         }
@@ -273,8 +273,8 @@ public:
                                     dst_data + row_idx * block_.column_count,
                                     origin_.dtype,
                                     block_dtype,
-                                    origin_dtype_size * origin_.row_count,
-                                    block_dtype_size,
+                                    origin_.row_count,
+                                    1,
                                     block_.column_count);
         }
     }
@@ -341,8 +341,8 @@ public:
                                         dst_data,
                                         block_dtype,
                                         origin_.dtype,
-                                        block_dtype_size,
-                                        origin_dtype_size * origin_.column_count,
+                                        1,
+                                        origin_.column_count,
                                         block_.element_count);
             }
         }
@@ -379,8 +379,8 @@ public:
                                     dst_data + row_idx * origin_dtype_size,
                                     block_dtype,
                                     origin_.dtype,
-                                    block_dtype_size,
-                                    origin_dtype_size * origin_.row_count,
+                                    1,
+                                    origin_.row_count,
                                     block_.column_count);
         }
     }

@@ -16,8 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher_cpu.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/dispatcher_cpu.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -63,7 +64,7 @@ inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension
 }
 
 template <typename Op>
-constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
+inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     using detail::cpu_extension;
 
     const cpu_extension cpu_ex = ctx.get_enabled_cpu_extensions();
@@ -79,6 +80,25 @@ constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
     ONEDAL_IF_CPU_DISPATCH_SSSE3(
         if (test_cpu_extension(cpu_ex, cpu_extension::ssse3)) { return op(cpu_dispatch_ssse3{}); })
     return op(cpu_dispatch_default{});
+}
+
+template <typename Op>
+inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op) {
+    using msg = dal::detail::error_messages;
+
+    switch (dtype) {
+        case data_type::int8: return op(std::int8_t{});
+        case data_type::uint8: return op(std::uint8_t{});
+        case data_type::int16: return op(std::int16_t{});
+        case data_type::uint16: return op(std::uint16_t{});
+        case data_type::int32: return op(std::int32_t{});
+        case data_type::uint32: return op(std::uint32_t{});
+        case data_type::int64: return op(std::int64_t{});
+        case data_type::uint64: return op(std::uint64_t{});
+        case data_type::float32: return op(float{});
+        case data_type::float64: return op(double{});
+        default: throw unimplemented{ msg::unsupported_conversion_types() };
+    }
 }
 
 } // namespace oneapi::dal::backend

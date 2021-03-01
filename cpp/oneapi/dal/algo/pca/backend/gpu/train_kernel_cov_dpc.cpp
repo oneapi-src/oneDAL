@@ -73,11 +73,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = get_component_count(desc, data);
-
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
 
     dal::detail::check_mul_overflow(column_count, component_count);
     auto arr_eigvec = array<Float>::empty(queue, column_count * component_count);
@@ -85,8 +82,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto arr_means = array<Float>::empty(queue, 1 * column_count);
     auto arr_vars = array<Float>::empty(queue, 1 * column_count);
 
-    const auto daal_data =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
     const auto daal_eigvec = interop::convert_to_daal_sycl_homogen_table(queue,
                                                                          arr_eigvec,
                                                                          component_count,

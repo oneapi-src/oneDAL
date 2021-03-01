@@ -90,11 +90,19 @@ public:
             }
         });
     }
+
+    bool not_float64_friendly() {
+        constexpr bool is_double = std::is_same_v<Float, double>;
+        return is_double && this->get_policy().has_float64_emulation();
+    }
 };
 
 TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, double) {
     // DPC++ GEMM used underneath correlation is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
+
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
 
     const float_t diag_element = 10.5;
 
