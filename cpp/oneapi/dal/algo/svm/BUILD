@@ -16,8 +16,3 @@ dal_module(
         "@onedal//cpp/daal/src/algorithms/svm:kernel",
     ]
 )
-
-dal_test_suite(
-    name = "tests",
-    tests = [],
-)
