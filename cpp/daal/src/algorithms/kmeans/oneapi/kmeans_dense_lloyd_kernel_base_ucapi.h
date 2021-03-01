@@ -92,8 +92,6 @@ protected:
     services::Status getBlockSize(uint32_t nRows, uint32_t nClusters, uint32_t nFeatures, uint32_t & blockSize);
     uint32_t getCandidatePartNum(uint32_t nClusters);
     uint32_t getWorkgroupsCount(uint32_t rows);
-    uint32_t getComputeSquaresWorkgroupsCount(uint32_t nFeatures);
-    const char * getComputeSquaresKernelName(uint32_t nFeatures);
     services::String getBuildOptions(uint32_t nClusters);
 
     services::internal::sycl::UniversalBuffer _dataSq;
