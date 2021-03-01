@@ -33,7 +33,8 @@ struct read_ops;
 
 template <typename Object>
 struct read_ops<Object, data_source> {
-    static_assert(std::is_same_v<Object, table>, "CSV data source is defined only for table");
+    static_assert(std::is_same_v<Object, table> || std::is_same_v<Object, preview::graph_base>,
+                  "CSV data source is defined only for table and graphs");
 
     using args_t = read_args<Object>;
     using result_t = Object;
