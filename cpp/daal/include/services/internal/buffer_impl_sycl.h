@@ -111,7 +111,7 @@ private:
                                                  auto event = q.memcpy(data.get(), hostData, size * sizeof(T));
                                                  event.wait_and_throw();
                                              }
-                                             cl::sycl::free(const_cast<void *>(hostData), _queue);
+                                             cl::sycl::free(const_cast<void *>(hostData), q);
                                          });
             if (!host_ptr)
             {
