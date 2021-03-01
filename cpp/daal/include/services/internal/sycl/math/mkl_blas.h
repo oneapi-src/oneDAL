@@ -26,7 +26,7 @@
 
 #include "services/internal/buffer.h"
 #include "services/internal/sycl/error_handling_sycl.h"
-#include "services/internal/sycl/math/mkl_dal.h"
+#include "services/internal/sycl/math/mkl_dal_utils.h"
 
 namespace daal
 {
@@ -60,23 +60,28 @@ struct MKLGemm
     {
         Status status;
 
-        const MKL_TRANSPOSE transamkl = transa == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
-        const MKL_TRANSPOSE transbmkl = transb == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
+#ifdef DAAL_SYCL_INTERFACE_USM
+        const auto transamkl = to_fpk_transpose(transa);
+        const auto transbmkl = to_fpk_transpose(transb);
 
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl(status);
+        auto a_usm = a_buffer.toUSM(_queue, data_management::readOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        auto b_usm = b_buffer.toUSM(_queue, data_management::readOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        auto c_usm = c_buffer.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        cl::sycl::buffer<algorithmFPType, 1> b_sycl_buff = b_buffer.toSycl(status);
-        DAAL_CHECK_STATUS_VAR(status);
-
-        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl(status);
-        DAAL_CHECK_STATUS_VAR(status);
+        auto a_ptr = a_usm.get() + offsetA;
+        auto b_ptr = b_usm.get() + offsetB;
+        auto c_ptr = c_usm.get() + offsetC;
 
         status |= catchSyclExceptions([&]() mutable {
-            innerGemm(transamkl, transbmkl, m, n, k, alpha, a_sycl_buff, lda, b_sycl_buff, ldb, beta, c_sycl_buff, ldc, offsetA, offsetB, offsetC);
+            ::oneapi::fpk::blas::gemm(_queue, transamkl, transbmkl, m, n, k, alpha, a_ptr, lda, b_ptr, ldb, beta, c_ptr, ldc);
             _queue.wait_and_throw();
         });
-
+#else
+        static_assert(false, "USM support required");
+#endif
         return status;
     }
 
@@ -120,20 +125,25 @@ struct MKLSyrk
     {
         Status status;
 
-        const MKL_TRANSPOSE transmkl = trans == math::Transpose::Trans ? MKL_TRANS : MKL_NOTRANS;
-        const MKL_UPLO uplomkl       = upper_lower == math::UpLo::Upper ? MKL_UPPER : MKL_LOWER;
+#ifdef DAAL_SYCL_INTERFACE_USM
+        const auto transmkl = to_fpk_transpose(trans);
+        const auto uplomkl  = to_fpk_uplo(upper_lower);
 
-        cl::sycl::buffer<algorithmFPType, 1> a_sycl_buff = a_buffer.toSycl(status);
+        auto a_usm = a_buffer.toUSM(_queue, data_management::readOnly, status);
+        DAAL_CHECK_STATUS_VAR(status);
+        auto c_usm = c_buffer.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        cl::sycl::buffer<algorithmFPType, 1> c_sycl_buff = c_buffer.toSycl(status);
-        DAAL_CHECK_STATUS_VAR(status);
+        auto a_ptr = a_usm.get() + offsetA;
+        auto c_ptr = c_usm.get() + offsetC;
 
         status |= catchSyclExceptions([&]() mutable {
-            innerSyrk(uplomkl, transmkl, n, k, alpha, a_sycl_buff, lda, beta, c_sycl_buff, ldc, offsetA, offsetC);
+            ::oneapi::fpk::blas::syrk(_queue, uplomkl, transmkl, n, k, alpha, a_ptr, lda, beta, c_ptr, ldc);
             _queue.wait_and_throw();
         });
-
+#else
+        static_assert(false, "USM support required");
+#endif
         return status;
     }
 
@@ -173,17 +183,20 @@ struct MKLAxpy
     {
         Status status;
 
-        cl::sycl::buffer<algorithmFPType, 1> x_sycl_buff = x_buffer.toSycl(status);
+#ifdef DAAL_SYCL_INTERFACE_USM
+        auto x_usm = x_buffer.toUSM(_queue, data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        cl::sycl::buffer<algorithmFPType, 1> y_sycl_buff = y_buffer.toSycl(status);
+        auto y_usm = y_buffer.toUSM(_queue, data_management::readWrite, status);
         DAAL_CHECK_STATUS_VAR(status);
 
         status |= catchSyclExceptions([&]() mutable {
-            ::oneapi::fpk::blas::axpy(_queue, n, a, x_sycl_buff, incx, y_sycl_buff, incy);
+            ::oneapi::fpk::blas::axpy(_queue, n, a, x_usm.get(), incx, y_usm.get(), incy);
             _queue.wait_and_throw();
         });
-
+#else
+        static_assert(false, "USM support required");
+#endif
         return status;
     }
 

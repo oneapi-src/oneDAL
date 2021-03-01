@@ -24,6 +24,11 @@ template <typename Task>
 class descriptor_impl : public base {
 public:
     explicit descriptor_impl() {
+        _kind = kind::undirected_clique;
+        _relabel = relabel::yes;
+        global = false;
+        local = false;
+
         if constexpr (std::is_same_v<Task, task::global>) {
             global = true;
         }
@@ -35,8 +40,8 @@ public:
         }
     }
 
-    bool local = false;
-    bool global = false;
+    bool local;
+    bool global;
 
     kind _kind;
     relabel _relabel;

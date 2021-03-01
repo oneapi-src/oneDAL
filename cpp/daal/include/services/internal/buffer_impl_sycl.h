@@ -53,21 +53,21 @@ template <typename T>
 class UsmBuffer : public Base, public UsmBufferIface<T>
 {
 public:
-    static UsmBuffer<T> * create(const SharedPtr<T> & data, size_t size, cl::sycl::usm::alloc allocType, Status & status)
+    static UsmBuffer<T> * create(const SharedPtr<T> & data, size_t size, const cl::sycl::queue & queue, Status & status)
     {
         if (!data && size != size_t(0))
         {
             status |= ErrorNullPtr;
             return nullptr;
         }
-        const auto newBuffer = new UsmBuffer<T>(data, size, allocType);
+        const auto newBuffer = new UsmBuffer<T>(data, size, queue);
         DAAL_CHECK_COND_ERROR(newBuffer, status, ErrorMemoryAllocationFailed);
         return newBuffer;
     }
 
-    static UsmBuffer<T> * create(T * data, size_t size, cl::sycl::usm::alloc allocType, Status & status)
+    static UsmBuffer<T> * create(T * data, size_t size, const cl::sycl::queue & queue, Status & status)
     {
-        return create(SharedPtr<T> { data, EmptyDeleter() }, size, allocType, status);
+        return create(SharedPtr<T> { data, EmptyDeleter() }, size, queue, status);
     }
 
     size_t size() const DAAL_C11_OVERRIDE { return _size; }
@@ -77,40 +77,69 @@ public:
     UsmBuffer<T> * getSubBuffer(size_t offset, size_t size, Status & status) const DAAL_C11_OVERRIDE
     {
         DAAL_ASSERT(offset + size <= _size);
-        return create(SharedPtr<T>(_data, _data.get() + offset), size, _allocType, status);
+        return create(SharedPtr<T>(_data, _data.get() + offset), size, _queue, status);
     }
 
-    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
+    SharedPtr<T> getHostRead(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(true, false, status); }
 
-    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
+    SharedPtr<T> getHostWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(false, true, status); }
 
-    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(status); }
+    SharedPtr<T> getHostReadWrite(Status & status) const DAAL_C11_OVERRIDE { return getHostPtr(true, true, status); }
 
     const SharedPtr<T> & get() const DAAL_C11_OVERRIDE { return _data; }
 
-    cl::sycl::usm::alloc getAllocType() const { return _allocType; }
-
 private:
-    UsmBuffer(const SharedPtr<T> & data, size_t size, cl::sycl::usm::alloc allocType) : _data(data), _size(size), _allocType(allocType) {}
+    UsmBuffer(const SharedPtr<T> & data, size_t size, const cl::sycl::queue & queue) : _data(data), _size(size), _queue(queue)
+    {
+        _allocType = cl::sycl::get_pointer_type(data.get(), _queue.get_context());
+        DAAL_ASSERT(_allocType != cl::sycl::usm::alloc::unknown);
+    }
 
-    SharedPtr<T> getHostPtr(Status & status) const
+    SharedPtr<T> getHostPtr(bool needCopyToHost, bool needSynchronize, Status & status) const
     {
         using namespace cl::sycl::usm;
         if (_allocType == alloc::host || _allocType == alloc::shared)
         {
             return _data;
         }
+        else if (_allocType == alloc::device)
+        {
+            auto host_ptr = SharedPtr<T>(cl::sycl::malloc_host<T>(_size, _queue), // TODO: use daal_malloc
+                                         [q = this->_queue, data = this->_data, size = this->_size, needSynchronize](const void * hostData) mutable {
+                                             if (needSynchronize)
+                                             {
+                                                 auto event = q.memcpy(data.get(), hostData, size * sizeof(T));
+                                                 event.wait_and_throw();
+                                             }
+                                             cl::sycl::free(const_cast<void *>(hostData), q);
+                                         });
+            if (!host_ptr)
+            {
+                status |= services::ErrorMemoryAllocationFailed;
+                return host_ptr;
+            }
+
+            if (needCopyToHost)
+            {
+                status |= internal::sycl::catchSyclExceptions([&, q = this->_queue]() mutable {
+                    auto event = q.memcpy(host_ptr.get(), _data.get(), _size * sizeof(T));
+                    event.wait_and_throw();
+                });
+            }
+            return host_ptr;
+        }
 
         /* Note: `cl::sycl::get_pointer_info` is not implemented right now. With
          * the `get_pointer_info` logic shall be the following: If device is
          * host or CPU, return `_data`, otherwise throw exception. */
-        status |= Error::create(ErrorAccessUSMPointerOnOtherDevice, Sycl, "Cannot access device pointer on host");
+        status |= Error::create(ErrorAccessUSMPointerOnOtherDevice, Sycl, "Cannot access unknown USM pointer on host");
 
         return SharedPtr<T>();
     }
 
     SharedPtr<T> _data;
     size_t _size;
+    cl::sycl::queue _queue;
     cl::sycl::usm::alloc _allocType;
 };
 #endif
@@ -251,7 +280,19 @@ public:
     Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
     {
         Status status;
-        _nativeBuffer = wrap(status, buffer.get(), buffer.size(), true);
+        auto hostPtr = buffer.getHostReadWrite(status);
+        DAAL_CHECK_STATUS_VAR(status);
+
+        _nativeBuffer = internal::sycl::catchSyclExceptions(
+            status,
+            [&]() {
+                const auto bufferProperties = cl::sycl::property_list { cl::sycl::property::buffer::use_host_ptr() };
+
+                return SyclBufferType(std::shared_ptr<T> { hostPtr.get(), [owner = hostPtr](T * ptr) {} }, cl::sycl::range<1>(buffer.size()),
+                                      bufferProperties);
+            },
+            [&]() { return createEmptySyclBuffer<T>(); });
+
         return status;
     }
 
@@ -289,10 +330,44 @@ template <typename T>
 class ConvertToUsm : public BufferVisitor<T>
 {
 public:
+    ConvertToUsm(cl::sycl::queue & queue, const data_management::ReadWriteMode & rwFlag) : _q(queue), _rwFlag(rwFlag) {}
+
+    Status makeCopyToUSM(const SharedPtr<T> & hostData, size_t count)
+    {
+        Status st;
+        // TODO: use malloc_device and queue.memcpy()
+        auto usmData = cl::sycl::malloc_shared<T>(count, _q);
+        if (usmData == nullptr)
+        {
+            return services::ErrorMemoryAllocationFailed;
+        }
+
+        const size_t size = sizeof(T) * count;
+        DAAL_ASSERT(size / sizeof(T) == count);
+
+        if (_rwFlag & data_management::readOnly)
+        {
+            int result = daal_memcpy_s(usmData, size, hostData.get(), size);
+            if (result)
+            {
+                return services::ErrorMemoryCopyFailedInternal;
+            }
+        }
+
+        _data = SharedPtr<T>(usmData, [q = this->_q, rwFlag = this->_rwFlag, hostData, size](const void * data) mutable {
+            if (rwFlag & data_management::writeOnly)
+            {
+                daal_memcpy_s(hostData.get(), size, data, size);
+            }
+            cl::sycl::free(const_cast<void *>(data), q);
+        });
+        return st;
+    }
+
     Status operator()(const HostBuffer<T> & buffer) DAAL_C11_OVERRIDE
     {
-        _data = buffer.get();
-        return Status();
+        auto hostData = buffer.get();
+        return makeCopyToUSM(hostData, buffer.size());
     }
 
     Status operator()(const UsmBufferIface<T> & buffer) DAAL_C11_OVERRIDE
@@ -303,20 +378,18 @@ public:
 
     Status operator()(const SyclBufferIface<T> & buffer) DAAL_C11_OVERRIDE
     {
-        Status status;
-        /* NOTE: Performance might be not quite satisfactory. If the SYCL* buffer
-       * is a wrapper over pointer (e.g., was created using `use_host_ptr`
-       * property), `getHostReadWrite` will not create overhead. Otherwise,
-       * getting host pointer will result in graph synchronization and potential
-       * data copy. */
-        _data = buffer.getHostReadWrite(status);
-        return status;
+        Status st;
+        auto hostData = buffer.getHostReadWrite(st);
+        DAAL_CHECK_STATUS_VAR(st);
+        return makeCopyToUSM(hostData, buffer.size());
     }
 
     const SharedPtr<T> & get() const { return _data; }
 
 private:
     SharedPtr<T> _data;
+    cl::sycl::queue & _q;
+    data_management::ReadWriteMode _rwFlag;
 };
 #endif
 
@@ -337,9 +410,9 @@ public:
     }
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, Status & status)
+    SharedPtr<T> toUSM(const internal::BufferIface<T> & buffer, cl::sycl::queue & q, const data_management::ReadWriteMode & rwFlag, Status & status)
     {
-        ConvertToUsm<T> action;
+        ConvertToUsm<T> action(q, rwFlag);
         status |= buffer.apply(action);
         DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, SharedPtr<T>());
         return action.get();
