@@ -17,6 +17,7 @@ dal_test_module(
     ],
     dal_test_deps = [
         "@onedal//cpp/oneapi/dal/test/engine/linalg",
+        "@onedal//cpp/oneapi/dal/test/engine/metrics",
     ],
     extra_deps = [
         "@catch2//:catch2",

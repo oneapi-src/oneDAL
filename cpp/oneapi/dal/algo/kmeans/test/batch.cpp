@@ -135,24 +135,27 @@ public:
 
         const auto data_rows = row_accessor<const Float>(data).pull({ 0, cluster_count });
         const auto initial_centroids =
-            homogen_table::wrap(data_rows, cluster_count, data.get_column_count());
+            homogen_table::wrap(data_rows.get_data(), cluster_count, data.get_column_count());
 
         INFO("run training");
         const auto train_result = train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
-        check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, test_convergence);
+        SECTION("there is no NaN in centroids") {
+            REQUIRE(te::has_no_nans(model.get_centroids()));
+        }
 
         INFO("run inference");
         const auto infer_result = infer(kmeans_desc, model, data);
-        check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
+        SECTION("there is no NaN in labels") {
+            REQUIRE(te::has_no_nans(infer_result.get_labels()));
+        }
 
-        check_nans(model.get_centroids());
-        check_nans(infer_result.get_labels());
-        auto res =
-            te::test::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        Float ref_tol = 1.0e-5;
+        auto dbi =
+            te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, ref_tol));
         REQUIRE(
-            check_value_with_ref_tol(infer_result.get_objective_function(), ref_obj_func, ref_tol));
+            check_value_with_ref_tol(infer_result.get_objective_function_value(), ref_obj_func, ref_tol));
     }
 
     void train_with_initialization_checks(const table& data,
@@ -225,7 +228,6 @@ public:
     }
 
     bool check_value_with_ref_tol(Float val, Float ref_val, Float ref_tol) {
-        Float alpha = std::numeric_limits<Float>::min();
         Float max_abs = std::max(fabs(val), fabs(ref_val));
         if (max_abs == 0.0)
             return true;
@@ -543,23 +545,25 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans block test",
                      "[kmeans][batch][nightly]",
                      kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
     constexpr std::int64_t row_count = 1024 * 1024;
     constexpr std::int64_t column_count = 1024;
     constexpr std::int64_t cluster_count = 1;
 
     const auto x_dataframe = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
-    const table x_table = train_dataframe.get_table(this->get_homogen_table_id());
+    const table x_table = x_dataframe.get_table(this->get_homogen_table_id());
 
     const auto first_row = row_accessor<const Float>(x_table).pull({ 0, 1 });
-    const auto c_init = homogen_table::wrap(first_row, 1, column_count);
+    const auto c_init = homogen_table::wrap(first_row.get_data(), 1, column_count);
 
     auto labels = array<float>::zeros(row_count);
     const auto y = homogen_table::wrap(labels, row_count, 1);
 
-    auto means = compute_column_means(x_dataframe);
-    const auto c_final = homogen_table::wrap(means, 1, column_count);
-    auto variance = compute_column_variances(x_dataframe, means);
+    auto stat = te::compute_basic_statistics<Float>(x_dataframe);
+    const auto c_final = homogen_table::wrap(stat.get_means().get_data(), 1, column_count);
+    auto variance = stat.get_vaiance().get_data();
     double obj_function = 0.0;
     for (std::int64_t i = 0; i < n; ++i) {
         obj_function += variance[i];
@@ -573,33 +577,34 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans partial centroid adjustment test",
                      "[kmeans][batch][nightly]",
                      kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
     constexpr std::int64_t row_count = 8 * 1024;
     constexpr std::int64_t column_count = 2 * 1024;
     constexpr std::int64_t cluster_count = 8 * 1024;
 
     const auto x_dataframe = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
-    const table x_table = train_dataframe.get_table(this->get_homogen_table_id());
+    const table x = x_dataframe.get_table(this->get_homogen_table_id());
 
-    const auto first_row = row_accessor<const Float>(x_table).pull({ 0, 1 });
-    const auto c_init = homogen_table::wrap(first_row, 1, column_count);
+    const auto first_row = row_accessor<const Float>(x).pull({ 0, 1 });
+    const auto c_init = homogen_table::wrap(first_row.get_data(), 1, column_count);
 
     auto labels = array<std::int32_t>::zeros(1 * cluster_count);
     auto label_ptr = labels.get_mutable_data();
     auto first_label = &label_ptr[0];
     std::iota(first_label, first_label + row_count, std::int32_t(0));
-    const auto y = homogen_table::wrap(labels, row_count, 1);
-
-    auto means = compute_column_means(x_dataframe);
-    const auto c_final = homogen_table::wrap(means, 1, column_count);
+    const auto y = homogen_table::wrap(labels.get_data(), row_count, 1);
 
     this->exact_checks(x, x, x, y, 3, 1, 0.0);
 }
 
-TEMPLATE_LIST_TEST_M(df_batch_test,
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs/17/101",
                      "[kmeans][nightly][batch][external-dataset]",
-                     df_types) {
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/dataset/higgs/higgs_1m_test.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
@@ -617,10 +622,12 @@ TEMPLATE_LIST_TEST_M(df_batch_test,
                                    ref_obj_func);
 }
 
-TEMPLATE_LIST_TEST_M(df_batch_test,
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "susy/250/10",
                      "[kmeans][nightly][batch][external-dataset]",
-                     df_types) {
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
@@ -638,10 +645,12 @@ TEMPLATE_LIST_TEST_M(df_batch_test,
                                    ref_obj_func);
 }
 
-TEMPLATE_LIST_TEST_M(df_batch_test,
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "road_network_20t/111/13",
                      "[kmeans][nightly][batch][external-dataset]",
-                     df_types) {
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
     const te::dataframe data = GENERATE_DATAFRAME(
         te::dataframe_builder{ "workloads/dataset/road_network/road_network_100t_cluster.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
@@ -659,10 +668,12 @@ TEMPLATE_LIST_TEST_M(df_batch_test,
                                    ref_obj_func);
 }
 
-TEMPLATE_LIST_TEST_M(df_batch_test,
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "epsilon/4001/17",
                      "[kmeans][nightly][batch][external-dataset]",
-                     df_types) {
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
     const te::dataframe data =
         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/dataset/epsilon_80k_train.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
