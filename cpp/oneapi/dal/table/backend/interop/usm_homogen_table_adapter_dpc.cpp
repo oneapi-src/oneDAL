@@ -156,11 +156,18 @@ template <typename Data>
 template <typename BlockData>
 auto usm_homogen_table_adapter<Data>::convert_to_daal_buffer(const array<BlockData>& ary) const
     -> daal_buffer_and_status_t<BlockData> {
+    using daal::services::SharedPtr;
+
     status_t status;
+    ONEDAL_ASSERT(ary.get_data() != nullptr);
+
     // `const_cast` is safe assuming read-only access to the table on DAAL side and
     // correct `rwflag` passed to `getBlockOfRows` or `getBlockOfColumnValues`.
+    SharedPtr<BlockData> ary_data_shared(const_cast<BlockData*>(ary.get_data()),
+                                         daal_object_owner{ ary });
+
     const auto buffer =
-        daal_buffer_t<BlockData>{ const_cast<BlockData*>(ary.get_data()),
+        daal_buffer_t<BlockData>{ std::move(ary_data_shared),
                                   dal::detail::integral_cast<std::size_t>(ary.get_count()),
                                   queue_,
                                   status };
