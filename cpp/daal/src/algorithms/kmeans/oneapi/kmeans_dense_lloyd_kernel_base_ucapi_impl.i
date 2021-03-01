@@ -563,7 +563,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getBlockSize(uint32_t n
 template <typename algorithmFPType>
 Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::fitPartialCentroidSize(uint32_t nClusters, uint32_t nFeatures)
 {
-    while (_nPartialCentroids > _nValuesInBlock / nClusters / nFeatures)
+    while (_nPartialCentroids * nClusters * nFeatures > _nValuesInBlock)
     {
         _nPartialCentroids >>= 1;
     }
