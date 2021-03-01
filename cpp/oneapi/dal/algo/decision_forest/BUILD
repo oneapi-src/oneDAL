@@ -15,3 +15,8 @@ dal_module(
         "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:kernel",
     ]
 )
+
+dal_test_suite(
+    name = "tests",
+    tests = [],
+)
