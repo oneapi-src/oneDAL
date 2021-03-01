@@ -221,6 +221,13 @@ dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int6
     return *this;
 }
 
+dataframe_builder& dataframe_builder::fill_normal(double mean,
+                                                  double deviation,
+                                                  std::int64_t seed) {
+    impl_->get_program().add<dataframe_builder_action_fill_normal>(mean, deviation, seed);
+    return *this;
+}
+
 dataframe dataframe_builder::build() const {
     const auto& program = impl_->get_program();
     const auto df_hit = get_dataframe_builder_cache().lookup(program);

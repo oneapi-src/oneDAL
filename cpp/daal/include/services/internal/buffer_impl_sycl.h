@@ -104,14 +104,14 @@ private:
         }
         else if (_allocType == alloc::device)
         {
-            auto host_ptr = SharedPtr<T>((T *)daal::services::daal_malloc(_size * sizeof(T)),
+            auto host_ptr = SharedPtr<T>(cl::sycl::malloc_host<T>(_size, _queue), // TODO: use daal_malloc
                                          [q = this->_queue, data = this->_data, size = this->_size, needSynchronize](const void * hostData) mutable {
                                              if (needSynchronize)
                                              {
                                                  auto event = q.memcpy(data.get(), hostData, size * sizeof(T));
                                                  event.wait_and_throw();
                                              }
-                                             daal::services::daal_free(const_cast<void *>(hostData));
+                                             cl::sycl::free(const_cast<void *>(hostData), q);
                                          });
             if (!host_ptr)
             {
@@ -335,7 +335,8 @@ public:
     Status makeCopyToUSM(const SharedPtr<T> & hostData, size_t count)
     {
         Status st;
-        auto usmData = cl::sycl::malloc_device<T>(count, _q);
+        // TODO: use malloc_device and queue.memcpy()
+        auto usmData = cl::sycl::malloc_shared<T>(count, _q);
         if (usmData == nullptr)
         {
             return services::ErrorMemoryAllocationFailed;
@@ -346,19 +347,17 @@ public:
 
         if (_rwFlag & data_management::readOnly)
         {
-            st |= internal::sycl::catchSyclExceptions([&]() mutable {
-                auto event = _q.memcpy(usmData, hostData.get(), size);
-                event.wait_and_throw();
-            });
-
-            DAAL_CHECK_STATUS_VAR(st);
+            int result = daal_memcpy_s(usmData, size, hostData.get(), size);
+            if (result)
+            {
+                return services::ErrorMemoryCopyFailedInternal;
+            }
         }
 
         _data = SharedPtr<T>(usmData, [q = this->_q, rwFlag = this->_rwFlag, hostData, size](const void * data) mutable {
             if (rwFlag & data_management::writeOnly)
             {
-                auto event = q.memcpy(hostData.get(), data, size);
-                event.wait_and_throw();
+                daal_memcpy_s(hostData.get(), size, data, size);
             }
             cl::sycl::free(const_cast<void *>(data), q);
         });

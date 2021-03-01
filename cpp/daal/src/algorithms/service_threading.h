@@ -106,6 +106,20 @@ public:
 };
 
 template <typename T, CpuType cpu, typename Allocator = services::internal::ScalableMalloc<T, cpu> >
+class StaticTlsMem : public daal::static_tls<T *>
+{
+public:
+    typedef daal::static_tls<T *> super;
+    StaticTlsMem(size_t n) : super([=]() -> T * { return Allocator::allocate(n); }) {}
+    ~StaticTlsMem()
+    {
+        this->reduce([](T * ptr) -> void {
+            if (ptr) Allocator::deallocate(ptr);
+        });
+    }
+};
+
+template <typename T, CpuType cpu, typename Allocator = services::internal::ScalableMalloc<T, cpu> >
 class LsMem : public daal::ls<T *>
 {
 public:
@@ -125,6 +139,30 @@ class TlsSum : public daal::TlsMem<algorithmFPType, cpu, services::internal::Sca
 public:
     typedef daal::TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > super;
     TlsSum(size_t n) : super(n) {}
+    void reduceTo(algorithmFPType * res, size_t n)
+    {
+        bool bFirst = true;
+        this->reduce([=, &bFirst](algorithmFPType * ptr) -> void {
+            if (!ptr) return;
+            if (bFirst)
+            {
+                for (size_t i = 0; i < n; ++i) res[i] = ptr[i];
+                bFirst = false;
+            }
+            else
+            {
+                for (size_t i = 0; i < n; ++i) res[i] += ptr[i];
+            }
+        });
+    }
+};
+
+template <typename algorithmFPType, CpuType cpu>
+class StaticTlsSum : public daal::StaticTlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> >
+{
+public:
+    typedef daal::StaticTlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > super;
+    StaticTlsSum(size_t n) : super(n) {}
     void reduceTo(algorithmFPType * res, size_t n)
     {
         bool bFirst = true;

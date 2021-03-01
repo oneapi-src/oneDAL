@@ -271,6 +271,7 @@ public:
     dataframe_builder& fill_diag(double value);
 
     dataframe_builder& fill_uniform(double a, double b, std::int64_t seed = 7777);
+    dataframe_builder& fill_normal(double mean, double deviation, std::int64_t seed = 7777);
 
     dataframe build() const;
 

@@ -804,7 +804,7 @@ Status TaskParallelPlusUpdateDist<algorithmFPType, cpu, DataHelper>::updateMinDi
 {
     const size_t nCandidates  = iFirstOfNewCandidates + nNewCandidates;
     const size_t gemmDataSize = _nRowsInBlock * nCandidates;
-    daal::tls<TlsPPData_t *> tlsData([=]() -> TlsPPData_t * {
+    daal::static_tls<TlsPPData_t *> tlsData([=]() -> TlsPPData_t * {
         const size_t sz     = sizeof(TlsPPData_t) + (nCandidates - 1) * sizeof(int);
         byte * ptr          = service_scalable_calloc<byte, cpu>(sz);
         TlsPPData_t * pData = new (ptr) TlsPPData_t;
@@ -823,8 +823,8 @@ Status TaskParallelPlusUpdateDist<algorithmFPType, cpu, DataHelper>::updateMinDi
     bool bMemoryAllocationFailed = false;
     algorithmFPType newOverallError(0.);
     SafeStatus safeStat;
-    daal::threader_for(this->_nBlocks, this->_nBlocks, [=, &tlsData, &bMemoryAllocationFailed, &safeStat](size_t iBlock) {
-        TlsPPData_t * tlsLocal = tlsData.local();
+    daal::static_threader_for(this->_nBlocks, [=, &tlsData, &bMemoryAllocationFailed, &safeStat](size_t iBlock, size_t tid) {
+        TlsPPData_t * tlsLocal = tlsData.local(tid);
         if (!tlsLocal)
         {
             bMemoryAllocationFailed = true;
