@@ -145,8 +145,28 @@ T max(const matrix<T, lyt>& m) {
 }
 
 template <typename T, layout lyt>
+matrix<T, lyt> max(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+    return elementwise(lhs, rhs, [&](T x, T y) {
+        return std::max(x, y);
+    });
+}
+
+template <typename T, layout lyt>
 T l_inf_norm(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return max(abs(subtract(lhs, rhs)));
+}
+
+template <typename T, layout lyt>
+T abs_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+    return l_inf_norm(lhs, rhs);
+}
+
+template <typename T, layout lyt>
+T rel_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs, T tol) {
+    return max(elementwise(lhs, rhs, [&](T x, T y) {
+        const auto div = std::max(std::abs(x), std::abs(y));
+        return (div > tol) ? (std::abs(x - y) / div) : T(0);
+    }));
 }
 
 } // namespace oneapi::dal::test::engine::linalg

@@ -163,20 +163,20 @@ public:
         const auto V = la::matrix<double>::wrap(eigenvectors);
         const auto E = la::matrix<double>::eye(V.get_row_count());
         const auto VxVT = la::dot(V, V.t());
-        const double diff = la::l_inf_norm(VxVT, E);
+        const double diff = la::abs_error(VxVT, E);
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
         CHECK(diff < tol);
     }
 
     void check_means(const te::basic_statistics<double>& reference, const table& means) {
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        const double diff = te::l_inf_norm(reference.get_means(), means);
+        const double diff = te::rel_error(reference.get_means(), means, tol);
         CHECK(diff < tol);
     }
 
     void check_variances(const te::basic_statistics<double>& reference, const table& variances) {
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        const double diff = te::l_inf_norm(reference.get_variances(), variances);
+        const double diff = te::rel_error(reference.get_variances(), variances, tol);
         CHECK(diff < tol);
     }
 
