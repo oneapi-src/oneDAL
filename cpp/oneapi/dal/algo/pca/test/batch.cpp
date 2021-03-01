@@ -40,7 +40,7 @@ public:
 
     bool not_float64_friendly() {
         constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && this->get_policy().has_float64_emulation();
+        return is_double && !this->get_policy().has_native_float64();
     }
 
     auto get_descriptor(std::int64_t component_count) const {

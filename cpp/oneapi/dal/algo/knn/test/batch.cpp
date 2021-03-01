@@ -54,7 +54,13 @@ public:
     static constexpr bool is_brute_force = std::is_same_v<Method, knn::method::brute_force>;
 
     bool not_available_on_device() {
-        return (get_policy().is_gpu() && is_kd_tree) || (get_policy().is_cpu() && is_brute_force);
+        return (get_policy().is_gpu() && is_kd_tree) || //
+               (get_policy().is_cpu() && is_brute_force);
+    }
+
+    bool not_float64_friendly() {
+        constexpr bool is_double = std::is_same_v<Float, double>;
+        return is_double && !this->get_policy().has_native_float64();
     }
 
     te::table_id get_homogen_table_id() const {
@@ -214,6 +220,7 @@ using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn:
 
 KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     constexpr std::int64_t train_row_count = 7;
     constexpr std::int64_t infer_row_count = 5;
@@ -245,7 +252,7 @@ KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
 
 KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
     SKIP_IF(this->not_available_on_device());
-
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
 
     constexpr std::int64_t train_row_count = 513;
@@ -273,7 +280,7 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
 
 KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     SKIP_IF(this->not_available_on_device());
-
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
 
     constexpr std::int64_t train_row_count = 16390;
@@ -301,10 +308,9 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
 
 KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
-    using Float = double;
-
-    constexpr Float target_score = 0.8;
+    constexpr double target_score = 0.8;
 
     constexpr std::int64_t feature_count = 28;
     constexpr std::int64_t n_classes = 2;

@@ -27,4 +27,6 @@
 // To make USM work, we disable signal handling in Catch2.
 #define CATCH_CONFIG_NO_POSIX_SIGNALS
 
+#define CATCH_CONFIG_DISABLE_EXCEPTIONS
+
 #include <catch2/catch.hpp>

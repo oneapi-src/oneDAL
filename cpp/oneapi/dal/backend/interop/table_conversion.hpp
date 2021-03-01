@@ -47,6 +47,7 @@ inline auto convert_to_daal_homogen_table(array<Data>& data,
         data.need_mutable_data();
     }
 
+    ONEDAL_ASSERT(data.has_mutable_data());
     const auto daal_data =
         daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_object_owner{ data });
 
@@ -57,7 +58,8 @@ inline auto convert_to_daal_homogen_table(array<Data>& data,
 }
 
 template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_homogen_table(const table& table) {
+inline daal::data_management::NumericTablePtr copy_to_daal_homogen_table(const table& table) {
+    // TODO: Preserve information about features
     const bool allow_copy = true;
     auto rows = row_accessor<const Data>{ table }.pull();
     return convert_to_daal_homogen_table(rows,
@@ -82,6 +84,7 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
         data.need_mutable_data(queue);
     }
 
+    ONEDAL_ASSERT(data.has_mutable_data());
     const auto daal_data =
         daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_object_owner{ data });
 
@@ -95,7 +98,8 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Data>
-inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue, const table& table) {
+inline auto copy_to_daal_sycl_homogen_table(sycl::queue& queue, const table& table) {
+    // TODO: Preserve information about features
     const bool allow_copy = true;
     auto rows = row_accessor<const Data>{ table }.pull(queue);
     return convert_to_daal_sycl_homogen_table(queue,
@@ -152,7 +156,7 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const homoge
     if (auto wrapper = wrap_by_host_homogen_adapter(table)) {
         return wrapper;
     }
-    return convert_to_daal_homogen_table<Data>(table);
+    return copy_to_daal_homogen_table<Data>(table);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -162,7 +166,7 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(sycl::queue&
     if (auto wrapper = wrap_by_usm_homogen_adapter(queue, table)) {
         return wrapper;
     }
-    return convert_to_daal_sycl_homogen_table<Data>(queue, table);
+    return copy_to_daal_sycl_homogen_table<Data>(queue, table);
 }
 #endif
 
@@ -173,7 +177,7 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const table&
         return convert_to_daal_table<Data>(homogen);
     }
     else {
-        return convert_to_daal_homogen_table<Data>(table);
+        return copy_to_daal_homogen_table<Data>(table);
     }
 }
 
@@ -186,7 +190,7 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(sycl::queue&
         return convert_to_daal_table<Data>(queue, homogen);
     }
     else {
-        return convert_to_daal_sycl_homogen_table<Data>(queue, table);
+        return copy_to_daal_sycl_homogen_table<Data>(queue, table);
     }
 }
 #endif

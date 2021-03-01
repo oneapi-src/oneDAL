@@ -122,8 +122,8 @@ public:
         return false;
     }
 
-    bool has_float64_emulation() const {
-        return false;
+    bool has_native_float64() const {
+        return true;
     }
 };
 
@@ -190,7 +190,7 @@ public:
         return queue_.get_device().is_gpu();
     }
 
-    bool has_float64_emulation() const;
+    bool has_native_float64() const;
 
 private:
     sycl::queue queue_;

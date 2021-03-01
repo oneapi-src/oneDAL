@@ -129,7 +129,7 @@ public:
 
     bool not_float64_friendly() {
         constexpr bool is_double = std::is_same_v<float_t, double>;
-        return is_double && this->get_policy().has_float64_emulation();
+        return is_double && !this->get_policy().has_native_float64();
     }
 
     bool is_initialized() const {

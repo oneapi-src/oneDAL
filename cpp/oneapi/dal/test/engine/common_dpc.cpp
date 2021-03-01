@@ -33,9 +33,8 @@ static bool check_if_env_knob_is_enabled(const char* env_var) {
         return std::stoi(var) > 0;
     }
     catch (std::invalid_argument&) {
+        return false;
     }
-
-    return false;
 }
 
 static bool check_if_env_overrides_fp64_settings() {
@@ -47,9 +46,13 @@ static bool check_if_env_forces_dp_emulation() {
            check_if_env_knob_is_enabled("IGC_ForceDPEmulation");
 }
 
-bool device_test_policy::has_float64_emulation() const {
-    return check_if_env_overrides_fp64_settings() && //
-           check_if_env_forces_dp_emulation();
+bool device_test_policy::has_native_float64() const {
+    const auto device = queue_.get_device();
+    const auto fp_config = device.get_info<sycl::info::device::double_fp_config>();
+    const bool float64_support = !fp_config.empty();
+    const bool emulated = check_if_env_overrides_fp64_settings() && //
+                          check_if_env_forces_dp_emulation();
+    return float64_support && !emulated;
 }
 
 } // namespace oneapi::dal::test::engine
