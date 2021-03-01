@@ -222,16 +222,10 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static matrix empty(sycl::queue& q, const shape& s, sycl::usm::alloc alloc) {
+    static matrix empty(sycl::queue& q,
+                        const shape& s,
+                        sycl::usm::alloc alloc = sycl::usm::alloc::device) {
         return wrap(q.get_context(), array<Float>::empty(q, s.get_count(), alloc), s);
-    }
-
-    static matrix empty_device(sycl::queue& q, const shape& s) {
-        return empty(q, s, sycl::usm::alloc::device);
-    }
-
-    static matrix empty_shared(sycl::queue& q, const shape& s) {
-        return empty(q, s, sycl::usm::alloc::shared);
     }
 #endif
 
@@ -240,13 +234,39 @@ public:
         return empty(s).fill(std::forward<Filler>(filler));
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename Filler>
+    static matrix full(sycl::queue& q,
+                       const shape& s,
+                       Filler&& filler,
+                       sycl::usm::alloc alloc = sycl::usm::alloc::device) {
+        return empty(q, s, alloc).fill(q, std::forward<Filler>(filler));
+    }
+#endif
+
     static matrix ones(const shape& s) {
         return full(s, Float(1));
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    static matrix ones(sycl::queue& q,
+                       const shape& s,
+                       sycl::usm::alloc alloc = sycl::usm::alloc::device) {
+        return full(q, s, Float(1), alloc);
+    }
+#endif
+
     static matrix zeros(const shape& s) {
         return full(s, Float(0));
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    static matrix zeros(sycl::queue& q,
+                        const shape& s,
+                        sycl::usm::alloc alloc = sycl::usm::alloc::device) {
+        return full(q, s, Float(0), alloc);
+    }
+#endif
 
     static matrix eye(std::int64_t dim) {
         auto m = zeros({ dim, dim });
@@ -324,6 +344,24 @@ public:
         return is_host_alloc() || is_shared_alloc();
     }
 
+    bool is_accessible_on(const sycl::queue& q) const {
+        if (is_host_alloc()) {
+            return q.is_host() || q.get_device().is_cpu();
+        }
+
+        ONEDAL_ASSERT(context_.has_value());
+        const auto this_data_device = sycl::get_pointer_device(get_data(), context_.value());
+        if (this_data_device == q.get_device()) {
+            return true;
+        }
+
+        if (context_.value() == q.get_context()) {
+            return is_shared_alloc();
+        }
+
+        return false;
+    }
+
     bool is_migratable_to(const sycl::queue& q) const {
         if (is_host_alloc()) {
             return true;
@@ -398,6 +436,14 @@ public:
         return *this;
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    auto& fill(sycl::queue& q, Float filler) {
+        check_if_accessible_on(q);
+        q.fill(get_mutable_data(), filler, get_count()).wait_and_throw();
+        return *this;
+    }
+#endif
+
     template <typename T = Float, typename = std::enable_if_t<std::is_same_v<T, bool>>>
     bool all() const {
         bool result = true;
@@ -449,8 +495,15 @@ private:
 #ifdef ONEDAL_DATA_PARALLEL
     void check_if_migratable_to(const sycl::queue& q) const {
         if (!is_migratable_to(q)) {
-            throw std::invalid_argument{ "Provided queue is incompatible with the "
-                                         "context was used to create matrix" };
+            throw std::invalid_argument{ "Cannot migrate data to the device "
+                                         "represented by the given queue" };
+        }
+    }
+
+    void check_if_accessible_on(const sycl::queue& q) const {
+        if (!is_accessible_on(q)) {
+            throw std::invalid_argument{ "Cannot access data on the device "
+                                         "represented by the given queue" };
         }
     }
 #endif
