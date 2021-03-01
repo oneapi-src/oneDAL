@@ -151,11 +151,11 @@ public:
         }
 
         Float ref_tol = 1.0e-5;
-        auto dbi =
-            te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, ref_tol));
-        REQUIRE(
-            check_value_with_ref_tol(infer_result.get_objective_function_value(), ref_obj_func, ref_tol));
+        REQUIRE(check_value_with_ref_tol(infer_result.get_objective_function_value(),
+                                         ref_obj_func,
+                                         ref_tol));
     }
 
     void train_with_initialization_checks(const table& data,
@@ -231,7 +231,7 @@ public:
         Float max_abs = std::max(fabs(val), fabs(ref_val));
         if (max_abs == 0.0)
             return true;
-        REQUIRE(fabs(val - ref_val) / max_abs < ref_tol);
+        return fabs(val - ref_val) / max_abs < ref_tol;
     }
 
     void check_base_infer_result(const kmeans::descriptor<Float, Method>& desc,
@@ -550,6 +550,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     constexpr std::int64_t row_count = 1024 * 1024;
     constexpr std::int64_t column_count = 1024;
     constexpr std::int64_t cluster_count = 1;
+    constexpr std::int64_t max_iteration_count = 3;
 
     const auto x_dataframe = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
@@ -559,18 +560,24 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     const auto c_init = homogen_table::wrap(first_row.get_data(), 1, column_count);
 
     auto labels = array<float>::zeros(row_count);
-    const auto y = homogen_table::wrap(labels, row_count, 1);
+    const auto y = homogen_table::wrap(labels.get_data(), row_count, 1);
 
     auto stat = te::compute_basic_statistics<Float>(x_dataframe);
     const auto c_final = homogen_table::wrap(stat.get_means().get_data(), 1, column_count);
-    auto variance = stat.get_vaiance().get_data();
+    auto variance = stat.get_variances().get_data();
     double obj_function = 0.0;
-    for (std::int64_t i = 0; i < n; ++i) {
+    for (std::int64_t i = 0; i < column_count; ++i) {
         obj_function += variance[i];
     }
     obj_function *= column_count - 1;
 
-    this->exact_checks(x, c_init, c_final, y, 3, 1, obj_function);
+    this->exact_checks(x_table,
+                       c_init,
+                       c_final,
+                       y,
+                       cluster_count,
+                       max_iteration_count,
+                       obj_function);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
