@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
-#include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
-
-#include "algorithms/svm/svm_train.h"
-#include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>
+#include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/model_interop.hpp"
@@ -40,22 +37,12 @@ using result_t = train_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
-namespace daal_multiclass = daal::algorithms::multi_class_classifier;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
 using daal_svm_kernel_t =
     daal_svm::training::internal::SVMTrainImpl<to_daal_method<Method>::value, Float, Cpu>;
-
-template <typename Float, daal::CpuType Cpu>
-using daal_multiclass_kernel_t =
-    daal_multiclass::training::internal::MultiClassClassifierTrainKernel<
-        daal_multiclass::training::oneAgainstOne,
-        Float,
-        daal::algorithms::classifier::training::Batch,
-        daal_multiclass::Parameter,
-        Cpu>;
 
 template <typename Float, typename Method>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -70,12 +57,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     binary_label_t<Float> unique_label;
     auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
-    const std::uint64_t class_count = desc.get_class_count();
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
@@ -87,7 +73,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     dal::detail::check_mul_overflow(cache_megabyte, megabyte);
     const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
-    daal_svm::Parameter daal_svm_parameter(
+    daal_svm::Parameter daal_parameter(
         daal_kernel,
         desc.get_c(),
         desc.get_accuracy_threshold(),
@@ -96,49 +82,24 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         cache_byte,
         desc.get_shrinking());
 
-    if (class_count > 2) {
-        daal_multiclass::Parameter daal_multiclass_parameter(class_count);
-        auto daal_model = daal_multiclass::Model::create(column_count, &daal_multiclass_parameter);
-        auto svm_batch = daal_svm::training::Batch<Float, to_daal_method<Method>::value>();
-        svm_batch.parameter = daal_svm_parameter;
-        daal_multiclass_parameter.training =
-            daal::services::SharedPtr<daal::algorithms::classifier::training::Batch>(&svm_batch);
+    auto daal_model = daal_svm::Model::create<Float>(column_count);
 
-        //
+    interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return daal_svm_kernel_t<
+                   Float,
+                   oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
+                   Method>()
+            .compute(daal_data, daal_weights, *daal_labels, daal_model.get(), &daal_parameter);
+    }));
 
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_multiclass_kernel_t>(ctx,
-                                                                       daal_data.get(),
-                                                                       daal_labels.get(),
-                                                                       daal_weights.get(),
-                                                                       daal_model.get(),
-                                                                       &daal_multiclass_parameter));
+    auto table_support_indices =
+        interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
-        return result_t();
-    }
-    else {
-        auto daal_model = daal_svm::Model::create<Float>(column_count);
-        interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            return daal_svm_kernel_t<
-                       Float,
-                       oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
-                       Method>()
-                .compute(daal_data,
-                         daal_weights,
-                         *daal_labels,
-                         daal_model.get(),
-                         &daal_svm_parameter);
-        }));
+    auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
+                             .set_first_class_label(unique_label.first)
+                             .set_second_class_label(unique_label.second);
 
-        auto table_support_indices =
-            interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
-
-        auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
-                                 .set_first_class_label(unique_label.first)
-                                 .set_second_class_label(unique_label.second);
-
-        return result_t().set_model(trained_model).set_support_indices(table_support_indices);
-    }
+    return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }
 
 template <typename Float, typename Method>
