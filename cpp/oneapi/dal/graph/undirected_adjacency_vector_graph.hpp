@@ -108,6 +108,14 @@ struct graph_traits<
     using vertex_key_type = vertex_type;
     using const_vertex_key_type = const vertex_key_type;
 
+    // vertex edge types
+    using vertex_edge_type = typename impl_type::vertex_edge_type;
+    using vertex_edge_size_type = typename impl_type::vertex_edge_size_type;
+    using vertex_edge_set = typename impl_type::vertex_edge_set;
+    using vertex_edge_allocator_type = typename impl_type::vertex_edge_allocator_type;
+    using vertex_edge_iterator = typename impl_type::vertex_edge_iterator;
+    using const_vertex_edge_iterator = typename impl_type::const_vertex_edge_iterator;
+
     // vertex weight types
     using vertex_user_value_type = typename impl_type::vertex_user_value_type;
     using vertex_user_value_allocator_type = typename impl_type::vertex_user_value_allocator_type;
@@ -117,8 +125,6 @@ struct graph_traits<
     using edge_type = typename impl_type::edge_type;
     using edge_allocator_type = typename impl_type::edge_allocator_type;
     using edge_set = typename impl_type::edge_set;
-    using edge_iterator = typename impl_type::edge_iterator;
-    using const_edge_iterator = typename impl_type::const_edge_iterator;
     using edge_size_type = typename impl_type::edge_size_type;
 
     // edge weight types
@@ -132,8 +138,8 @@ struct graph_traits<
     using edge_index = IndexType;
 
     // ranges
-    using edge_range = typename impl_type::edge_range;
-    using const_edge_range = typename impl_type::const_edge_range;
+    using vertex_edge_range = typename impl_type::vertex_edge_range;
+    using const_vertex_edge_range = typename impl_type::const_vertex_edge_range;
 };
 
 template <typename VertexValue,

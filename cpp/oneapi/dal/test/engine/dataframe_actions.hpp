@@ -94,6 +94,47 @@ private:
     std::int64_t seed_ = 7777;
 };
 
+class dataframe_builder_action_fill_normal : public dataframe_builder_action {
+public:
+    explicit dataframe_builder_action_fill_normal(double mean, double deviation, std::int64_t seed)
+            : mean_(mean),
+              deviation_(deviation),
+              seed_(seed) {
+        if (deviation < 0) {
+            throw invalid_argument{ fmt::format("Invalid normal distribution interval, "
+                                                "expected deviation >= 0, but got deviation = {}",
+                                                deviation) };
+        }
+    }
+
+    std::string get_opcode() const override {
+        return fmt::format("fill_normal({},{},{})", mean_, deviation_, seed_);
+    }
+
+    dataframe_impl* execute(dataframe_impl* df) const override {
+        if (!df) {
+            throw invalid_argument{ "Action fill_normal got null dataframe" };
+        }
+
+        float* data = df->get_array().need_mutable_data().get_mutable_data();
+
+        // TODO: Migrate to MKL's random generators
+        std::mt19937 rng(seed_);
+
+        std::normal_distribution<float> distr(mean_, deviation_);
+        for (std::int64_t i = 0; i < df->get_count(); i++) {
+            data[i] = distr(rng);
+        }
+
+        return df;
+    }
+
+private:
+    double mean_ = 5.0;
+    double deviation_ = 2.0;
+    std::int64_t seed_ = 7777;
+};
+
 class dataframe_builder_action_fill : public dataframe_builder_action {
 public:
     explicit dataframe_builder_action_fill(double value) : value_(value) {}
