@@ -28,6 +28,9 @@ namespace dal = oneapi::dal;
 using namespace dal;
 
 int main(int argc, char **argv) {
+    std::cout << "__________________" << std::endl;
+    std::cout << "   Hello World" << std::endl;
+    std::cout << "__________________" << std::endl;
     const auto filename = get_data_path("graph.csv");
 
     // const dal::preview::graph_csv_data_source ds(filename);
@@ -38,7 +41,6 @@ int main(int argc, char **argv) {
     // std::cout << "Number of vertices: " << dal::preview::get_vertex_count(my_graph) << std::endl;
     // std::cout << "Number of edges: " << dal::preview::get_edge_count(my_graph) << std::endl;
 
-    using graph_t = dal::preview::graph_base;
     // using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
 
     // Short (graph)
@@ -48,6 +50,8 @@ int main(int argc, char **argv) {
     // Short (table)
     // read<table>(csv::data_source{ filename }, preview::read_mode::table);
     read<table>(csv::data_source{ filename }); // read_mode::table is default for table
+    using graph_t = dal::preview::graph_base;
+    read<graph_t>(csv::data_source{ filename });
 
     // {
     //     std::allocator<int> my_allocator;
@@ -59,12 +63,12 @@ int main(int argc, char **argv) {
     //     read<graph_t>(csv::data_source{ filename }, read_args);
     // }
 
-    {
-        // Verbose (table)
-        const auto read_args = csv::read_args<table>{};
-        // .set_read_mode(preview::read_mode::table);
+    // {
+    //     // Verbose (table)
+    //     const auto read_args = csv::read_args<table>{};
+    //     // .set_read_mode(preview::read_mode::table);
 
-        read<table>(csv::data_source{ filename }, read_args);
-    }
+    //     read<table>(csv::data_source{ filename }, read_args);
+    // }
     return 0;
 }
