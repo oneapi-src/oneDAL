@@ -1,0 +1,55 @@
+#===============================================================================
+# Copyright 2014-2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+##  Content:
+##     Intel(R) oneAPI Data Analytics Library examples list
+##******************************************************************************
+
+DAAL  = datastructures_soa                    \
+        datastructures_usm                    \
+        datastructures_csr                    \
+        dbscan_dense_batch                    \
+        cor_dense_batch                       \
+        cor_dense_distr                       \
+        cor_dense_online                      \
+        lin_reg_norm_eq_dense_batch           \
+        lin_reg_norm_eq_dense_online          \
+        log_reg_binary_dense_batch            \
+        log_reg_dense_batch                   \
+        log_reg_binary_dense_online           \
+        log_reg_dense_online                  \
+        sgd_mini_log_loss_dense_batch         \
+        pca_cor_dense_batch                   \
+        pca_cor_dense_distr                   \
+        pca_cor_dense_online                  \
+        pca_transform_dense_batch             \
+        kernel_func_lin_dense_batch           \
+        kernel_func_lin_csr_batch             \
+        kernel_func_rbf_dense_batch           \
+        kernel_func_rbf_csr_batch             \
+        kmeans_dense_batch                    \
+        kmeans_dense_distr                    \
+        kmeans_init_dense_batch               \
+        low_order_moms_dense_batch            \
+        low_order_moms_dense_online           \
+        gbt_reg_dense_batch                   \
+        bf_knn_dense_batch                    \
+        bf_knn_dense_search_batch             \
+        bf_knn_dense_regression_batch         \
+        svm_two_class_thunder_dense_batch     \
+        svm_two_class_thunder_csr_batch       \
+        df_reg_dense_batch                    \
+        df_cls_dense_batch

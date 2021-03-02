@@ -5,7 +5,14 @@
 __release*
 __work*
 
+# External dependencies
+__deps*
+
+# Bazel directories
+bazel-*
+
 # Visual Studio related files, e.g., ".vscode"
 .vs*
 
-
+# Bazel directories
+bazel-*

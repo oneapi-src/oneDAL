@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2019 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-
-.. _bibliography:
+.. _dg_bibliography:
 
 Bibliography
 ============
 
 For more information about algorithms implemented in |short_name|, refer to the following publications:
+
+.. [Adams2003]
+   Adams, Robert A., and John JF Fournier. Sobolev spaces. Vol. 140. Elsevier, 2003
 
 .. [Agrawal94] 
    Rakesh Agrawal, Ramakrishnan Srikant. *Fast Algorithms for Mining
@@ -39,6 +41,20 @@ For more information about algorithms implemented in |short_name|, refer to the 
    *Scalable K-means++*. Proceedings of the VLDB Endowment, 2012.
    Available from
    http://vldb.org/pvldb/vol5/p622_bahmanbahmani_vldb2012.pdf.
+
+.. [Ben2005]
+   Ben-Gal I. Outlier detection. In: Maimon O. and Rockach L. (Eds.)
+   Data Mining and Knowledge Discovery Handbook: A Complete Guide for Practitioners and Researchers",
+   Kluwer Academic Publishers, 2005, ISBN 0-387-24435-2.
+
+.. [Bentley80]
+   J. L. Bentley. Multidimensional Divide and Conquer. Communications of the
+   ACM, 23(4):214--229, 1980.
+
+.. [Billor2000]
+   Nedret Billor, Ali S. Hadib, and Paul F. Velleman.
+   BACON: blocked adaptive computationally efficient outlier nominators.
+   Computational Statistics & Data Analysis, 34, 279-298, 2000.
 
 .. [Bishop2006] 
    Christopher M. Bishop. *Pattern Recognition and Machine Learning*,
@@ -77,16 +93,70 @@ For more information about algorithms implemented in |short_name|, refer to the 
    KDD '16 Proceedings of the 22nd ACM SIGKDD International
    Conference on Knowledge Discovery and Data Mining.
 
+.. [Defazio2014]
+   Defazio, Aaron, Francis Bach, and Simon Lacoste-Julien.
+   SAGA: A fast incremental gradient method with support for non-strongly convex composite objectives.
+   Advances in neural information processing systems. 2014.
+
+.. [Demmel90]
+   J. W. Demmel and W. Kahan. *Accurate singular values of
+   bidiagonal matrices*. SIAM J. Sci. Stat. Comput., 11 (1990), pp. 873-912.
+
 .. [Dempster77] 
    A.P.Dempster, N.M. Laird, and D.B. Rubin. *Maximum-likelihood from
    incomplete data via the em algorithm*. J. Royal Statist. Soc. Ser.
    B., 39, 1977.
+
+.. [Duchi2011]
+   Elad Hazan, John Duchi, and Yoram Singer.
+   Adaptive subgradient methods for online learning and stochastic optimization.
+   The Journal of Machine Learning Research, 12:21212159, 2011.
+
+.. [Ester96]
+   Martin Ester, Hans-Peter Kriegel, Jörg Sander, and Xiaowei Xu.
+   A density-based algorithm for discovering clusters in large spatial databases with noise..
+   In Proceedings of the 2nd ACM International Conference on Knowledge Discovery and Data Mining (KDD).
+   226-231, 1996.
 
 .. [Fan05] 
    Rong-En Fan, Pai-Hsuen Chen, Chih-Jen Lin. *Working Set Selection
    Using Second Order Information for Training Support Vector
    Machines.*. Journal of Machine Learning Research 6 (2005), pp:
    1889–1918.
+
+.. [Fleischer2008]
+   Rudolf Fleischer, Jinhui Xu.
+   Algorithmic Aspects in Information and Management.
+   4th International conference, AAIM 2008, Shanghai, China, June 23-25, 2008. Proceedings, Springer.
+
+.. [Freund99] 
+   Yoav Freund, Robert E. Schapire. *Additive Logistic regression: a
+   statistical view of boosting*. Journal of Japanese Society for
+   Artificial Intelligence (14(5)), 771-780, 1999.
+
+.. [Friedman98] 
+   Friedman, Jerome H., Trevor J. Hastie and Robert Tibshirani.
+   *Additive Logistic Regression: a Statistical View of Boosting.*.
+   1998.
+
+.. [Friedman00]
+   Jerome Friedman, Trevor Hastie, and Robert Tibshirani.
+   Additive Logistic regression: a statistical view of boosting.
+   The Annals of Statistics, 28(2), pp: 337-407, 2000.
+
+.. [Friedman2010] 
+   Friedman, Jerome, Trevor Hastie, and Rob Tibshirani.
+   *Regularization paths for generalized linear models via coordinate
+   descent.*. Journal of statistical software 33.1 (2010): 1.
+
+.. [Friedman2017] 
+   Jerome Friedman, Trevor Hastie, Robert Tibshirani. 2017. *The
+   Elements of Statistical Learning Data Mining, Inference, and
+   Prediction.* Springer.
+
+.. [Freund01]
+   Yoav Freund. An adaptive version of the boost by majority algorithm.
+   Machine Learning (43), pp. 293-318, 2001.
 
 .. [Hastie2009] 
    Trevor Hastie, Robert Tibshirani, Jerome Friedman. *The Elements
@@ -104,6 +174,11 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Multiclass Support Vector Machines*. IEEE Transactions on Neural
    Networks, Vol. 13, No. 2, pp: 415-425, 2002.
 
+.. [Hu2008]
+   Yifan Hu, Yehuda Koren, Chris Volinsky.
+   Collaborative Filtering for Implicit Feedback Datasets.
+   ICDM'08. Eighth IEEE International Conference, 2008.
+
 .. [James2013] 
    Gareth James, Daniela Witten, Trevor Hastie, and Rob Tibshirani.
    *An Introduction to Statistical Learning with Applications in R*.
@@ -116,6 +191,31 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Schölkopf, C. Burges, and A. Smola (ed.), pp: 169 – 184, MIT Press
    Cambridge, MA, USA 1999.
 
+.. [Lang87]
+   S. Lang. *Linear Algebra*. Springer-Verlag New York, 1987.
+
+.. [Li2015]
+   Li, Shengren, and Nina Amenta. 
+   "Brute-force k-nearest neighbors search on the GPU."
+   In International Conference on Similarity Search and Applications, pp. 259-270.
+   Springer, Cham, 2015.
+
+.. [Lloyd82] 
+   Stuart P Lloyd. *Least squares quantization in PCM*. IEEE
+   Transactions on Information Theory 1982, 28 (2): 1982pp: 129–137.
+
+.. [Matsumoto98]
+   Matsumoto, M., Nishimura, T. Mersenne Twister:
+   A 623-Dimensionally Equidistributed Uniform Pseudo-Random Number Generator.
+   ACM Transactions on Modeling and Computer Simulation,
+   Vol. 8, No. 1, pp. 3-30, January 1998.
+
+.. [Matsumoto2000]
+   Matsumoto, M., Nishimura, T.
+   Dynamic Creation of Pseudorandom Number Generators Monte Carlo and Quasi-Monte Carlo Methods
+   1998, Ed. Niederreiter, H. and Spanier, J., Springer 2000, pp. 56-69,
+   available from http://www.math.sci.hiroshima-u.ac.jp/%7Em-mat/MT/DC/dc.html.
+
 .. [Mitchell97] 
    Tom M. Mitchell. *Machine Learning*. McGraw-Hill Education, 1997.
 
@@ -124,12 +224,26 @@ For more information about algorithms implemented in |short_name|, refer to the 
    Mini-batch Training for Stochastic Optimization*, 2014. Available
    from https://www.cs.cmu.edu/~muli/file/minibatch_sgd.pdf.
 
+.. [OpenCLSpec]
+   Khronos OpenCL Working Group, The OpenCL Specification
+   Version:2.1 Document Revision:24
+   Available from `opencl-2.1.pdf <https://www.khronos.org/registry/OpenCL/specs/opencl-2.1.pdf>`_
+
 .. [Patwary2016] 
    Md. Mostofa Ali Patwary, Nadathur Rajagopalan Satish, Narayanan
    Sundaram, Jialin Liu, Peter Sadowski, Evan Racah, Suren Byna,
    Craig Tull, Wahid Bhimji, Prabhat, Pradeep Dubey. *PANDA: Extreme
    Scale Parallel K-Nearest Neighbor on Distributed Architectures*,
    2016. Available from https://arxiv.org/abs/1607.08220.
+
+.. [Ping14]
+   Ping Tak Peter and Eric Polizzi. *FEAST as a Subspace Iteration Eigensolver
+   Accelerated by Approximate Spectral Projection.* 2014.
+
+.. [Platt98]
+   Platt, John. "Sequential minimal optimization:
+   A fast algorithm for training support vector machines." (1998).
+   Available from https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-98-14.pdf.
 
 .. [Quinlan86] 
    J. R. Quinlan. *Induction of Decision Trees*. Machine Learning,
@@ -150,13 +264,37 @@ For more information about algorithms implemented in |short_name|, refer to the 
    *Learning representations by back-propagating errors*. Nature
    (323), pp. 533-536, 1986.
 
+.. [Sokolova09]
+   Marina Sokolova, Guy Lapalme. A systematic analysis of performance measures for classification tasks.
+   Information Processing and Management 45 (2009), pp. 427–437.
+   Available from http://atour.iro.umontreal.ca/rali/sites/default/files/publis/SokolovaLapalme-JIPM09.pdf.
+
+.. [SYCLSpec]
+   Khronos®OpenCL™ Working Group --- SYCL™ subgroup, SYCL™ Specification SYCL™
+   integrates OpenCL™ devices with modern C++, Version 1.2.1 Available from
+   `sycl-1.2.1.pdf <https://www.khronos.org/registry/SYCL/specs/sycl-1.2.1.pdf>`_
+
 .. [Tan2005] 
    Pang-Ning Tan, Michael Steinbach, Vipin Kumar, Introduction to
    Data Mining, (First Edition) Addison-Wesley Longman Publishing
-   Co., Inc. Boston, MA, USA, 2005, ISBN: 032132136. Available from:
-   https://www-users.cs.umn.edu/~kumar001/dmbook/index.php
+   Co., Inc. Boston, MA, USA, 2005, ISBN: 032132136.
+
+.. [Verma2014]
+   Verma, Deepika, Namita Kakkar, and Neha Mehan.
+   "Comparison of brute-force and KD tree algorithm."
+   International Journal of Advanced Research in Computer and Communication Engineering 3,
+   no. 1 (2014): 5291-5294.
+
+.. [Wen2018]
+    Wen, Zeyi, Jiashuai Shi, Qinbin Li, Bingsheng He, and Jian Chen.
+    ThunderSVM: A fast SVM library on GPUs and CPUs.
+    The Journal of Machine Learning Research, 19, 1-5 (2018). 
 
 .. [Wu04] 
    Ting-Fan Wu, Chih-Jen Lin, Ruby C. Weng. *Probability Estimates
    for Multi-class Classification by Pairwise Coupling*. Journal of
    Machine Learning Research 5, pp: 975-1005, 2004.
+
+.. [Zhu2005] 
+   Zhu, Ji, Hui Zou, Saharon Rosset and Trevor J. Hastie.
+   *Multi-class AdaBoost*. 2005

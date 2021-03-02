@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2019 Intel Corporation
+# Copyright 2014-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) DAAL configuration file for the Sphinx documentation builder
+##     Intel(R) oneDAL configuration file for the Sphinx documentation builder
 ##******************************************************************************
 
 # Configuration file for the Sphinx documentation builder.
@@ -30,19 +30,18 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Intel&reg; oneAPI Data Analytics Library Documentation'
-copyright = '2014 - 2019, Intel Corporation'
+project = 'Intel(R) oneAPI Data Analytics Library Documentation'
+copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
 author = 'Intel'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '2021'
 
 rst_prolog = """
 .. |full_name| replace:: Intel\ |reg|\  oneAPI Data Analytics Library
@@ -53,7 +52,7 @@ rst_prolog = """
 .. |reg| unicode:: U+000AE
 .. |copy| unicode:: U+000A9
 .. |base_tk| replace:: Intel\ |reg|\  oneAPI Base Toolkit
-.. |dpcpp| replace:: Intel\ |reg|\  oneAPI DPC++ Compiler
+.. |dpcpp| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler
 """
 
 
@@ -68,7 +67,10 @@ substitutions = [
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx_tabs.tabs', 'sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks']
+
+# sys.path.insert(0, path_relative_to_repo_root('source/elements/oneDAL'))
+
+extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -76,12 +78,19 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["opt-notice.rst", 'dev_guide/data-management/numeric-tables/*.rst', 'topics/*.rst']
+exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst', 'onedal/get-started/*.rst',
+                    'daal/algorithms/dbscan/distributed-steps/*',
+                    'daal/algorithms/kmeans/includes/*',
+                    'notes/issues/2021.1-beta06/includes/*',
+                    'daal/includes/*', 'onedal/algorithms/.*/includes/*']
 
-extlinks = {'cpp_example': ('https://github.com/intel/daal/tree/master/examples/cpp/source/%s', ''),
-'java_example': ('https://github.com/intel/daal/tree/master/examples/java/com/intel/daal/examples/%s', ''),
-'daal4py_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/%s', ''),
-'cpp_sample': ('https://github.com/intel/daal/tree/master/samples/cpp/%s', '')}
+extlinks = {
+    'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
+    'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
+    'daal4py_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/%s', ''),
+    'daal4py_sycl_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/sycl/%s', ''),
+    'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
+}
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -95,18 +104,16 @@ extlinks = {'cpp_example': ('https://github.com/intel/daal/tree/master/examples/
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/style.css',  # override wide tables in RTD theme
-        ],
-    }
+# html_context = {
+#     'css_files': [
+#         '_static/style.css',  # override wide tables in RTD theme
+#         ],
+#     }
 
 
 # html_theme = 'otc_tcs_sphinx_theme'
 # html_theme_path = ['_themes']
 
-import sys
-import os
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -126,3 +133,148 @@ html_theme_options = {
     # 'display_version': True,  # Display the docs version
     'navigation_depth': 4  # Depth of the headers shown in the navigation bar
 }
+
+# oneDAL project directory is needed for `dalapi` extension
+onedal_enable_listing = False
+onedal_relative_doxyfile_dir = '../doxygen/oneapi'
+onedal_relative_sources_dir = '../../cpp/oneapi/dal'
+
+# ignore these missing references during a doc build
+nitpick_ignore = [
+    # method
+    ('cpp:identifier', 'method'),
+    ('cpp:identifier', 'method::v1'),
+    # task
+    ('cpp:identifier', 'task'),
+    ('cpp:identifier', 'task::v1'),
+    ('cpp:identifier', 'task::by_default'),
+    ('cpp:identifier', 'Task'),
+    # detail
+    ('cpp:identifier', 'detail'),
+    ('cpp:identifier', 'detail::descriptor_base<>'),
+    ('cpp:identifier', 'detail::descriptor_base<>::float_t'),
+    ('cpp:identifier', 'detail::descriptor_base<>::method_t'),
+    ('cpp:identifier', 'detail::descriptor_base<>::task_t'),
+    ('cpp:identifier', 'detail::table_builder'),
+    ('cpp:identifier', 'detail::is_table_impl_v<ImplType>'),
+    ('cpp:identifier', 'detail::is_homogen_table_impl_v<ImplType>'),
+    ('cpp:identifier', 'detail::enable_if_classification_t<T>'),
+    ('cpp:identifier', 'detail::descriptor_base<>::kernel_t'),
+    # data types
+    ('cpp:identifier', 'int64_t'),
+    ('cpp:identifier', 'data_t'),
+    ('cpp:identifier', 'kernel_t'),
+    # knn
+    ('cpp:identifier', 'knn'),
+    ('cpp:identifier', 'knn::desc'),
+    ('cpp:identifier', 'knn::train_result'),
+    ('cpp:identifier', 'knn::train_input'),
+    ('cpp:identifier', 'knn::infer_result'),
+    ('cpp:identifier', 'knn::infer_input'),
+    # kmeans
+    ('cpp:identifier', 'kmeans'),
+    ('cpp:identifier', 'kmeans::desc'),
+    ('cpp:identifier', 'kmeans::train_result'),
+    ('cpp:identifier', 'kmeans::train_input'),
+    ('cpp:identifier', 'kmeans::infer_result'),
+    ('cpp:identifier', 'kmeans::infer_input'),
+    ('cpp:identifier', 'i'),
+    ('cpp:identifier', 'kmeans::v1'),
+    ('cpp:identifier', 'kmeans::v1::model'),
+    ('cpp:identifier', 'kmeans::v1::model::centroids'),
+    ('cpp:identifier', 'infer_input'),
+    ('cpp:identifier', 'infer_input::model'),
+    ('cpp:identifier', 'infer_input::model::centroids'),
+    ('cpp:identifier', ),
+    # kmeans_init
+    ('cpp:identifier', 'kmeans_init'),
+    ('cpp:identifier', 'kmeans_init::desc'),
+    ('cpp:identifier', 'kmeans_init::compute_input'),
+    ('cpp:identifier', 'kmeans_init::compute_result'),
+    ('cpp:identifier', 'compute'),
+    # pca
+    ('cpp:identifier', 'pca'),
+    ('cpp:identifier', 'pca::desc'),
+    ('cpp:identifier', 'pca::train_result'),
+    ('cpp:identifier', 'pca::train_input'),
+    ('cpp:identifier', 'pca::infer_result'),
+    ('cpp:identifier', 'pca::infer_input'),
+    # svm
+    ('cpp:identifier', 'svm'),
+    ('cpp:identifier', 'svm::desc'),
+    ('cpp:identifier', 'svm::train_result'),
+    ('cpp:identifier', 'svm::train_input'),
+    ('cpp:identifier', 'svm::infer_result'),
+    ('cpp:identifier', 'svm::infer_input'),
+    ('cpp:identifier', 'Kernel'),
+    # linear kernel
+    ('cpp:identifier', 'linear_kernel'),
+    ('cpp:identifier', 'linear_kernel::desc'),
+    ('cpp:identifier', 'linear_kernel::compute_result'),
+    ('cpp:identifier', 'linear_kernel::compute_input'),
+    # rbf kernel
+    ('cpp:identifier', 'rbf_kernel'),
+    ('cpp:identifier', 'rbf_kernel::desc'),
+    ('cpp:identifier', 'rbf_kernel::compute_result'),
+    ('cpp:identifier', 'rbf_kernel::compute_input'),
+    # decision forest
+    ('cpp:identifier', 'decision_forest'),
+    ('cpp:identifier', 'decision_forest::infer_result'),
+    ('cpp:identifier', 'decision_forest::infer_input'),
+    ('cpp:identifier', 'decision_forest::train_result'),
+    ('cpp:identifier', 'decision_forest::train_input'),
+    ('cpp:identifier', 'decision_forest::desc'),
+    ('cpp:identifier', 'variable_importance_mode'),
+    ('cpp:identifier', 'variable_importance_mode::none'),
+    ('cpp:identifier', 'variable_importance_mode::mda_raw'),
+    ('cpp:identifier', 'variable_importance_mode::mda_scaled'),
+    ('cpp:identifier', 'error_metric_mode'),
+    ('cpp:identifier', 'error_metric_mode::none'),
+    ('cpp:identifier', 'error_metric_mode::out_of_bag_error'),
+    ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
+    # common for algorithms
+    ('cpp:identifier', 'result'),
+    # tables
+    ('cpp:identifier', 'table'),
+    ('cpp:identifier', 'row_count'),
+    ('cpp:identifier', 'column_count'),
+    ('cpp:identifier', 'is_readonly'),
+    ('cpp:identifier', 'range'),
+    ('cpp:identifier', 'empty_table_kind'),
+    ('cpp:identifier', 'data_layout'),
+    ('cpp:identifier', 'data_layout::row_major'),
+    ('cpp:identifier', 'data_layout::unknown'),
+    ('cpp:identifier', 'feature_type'),
+    ('cpp:identifier', 'data_type'),
+    ('cpp:identifier', 'table_metadata'),
+    ('cpp:identifier', 'mutable_data'),
+    ('cpp:identifier', 'data'),
+    ('cpp:identifier', 'count'),
+    # array
+    ('cpp:identifier', 'array'),
+    ('cpp:identifier', 'T'),
+    ('cpp:identifier', 'array<T>'),
+    ('cpp:identifier', 'array<Y>'),
+    ('cpp:identifier', 'has_mutable_data'),
+    # csv
+    ('cpp:identifier', 'csv'),
+    ('cpp:identifier', 'read'),
+    ('cpp:identifier', 'read_options'),
+    ('cpp:identifier', 'default_read_options'),
+    ('cpp:identifier', 'default_delimiter'),
+    ('cpp:identifier', 'Object'),
+    # oneapi
+    ('cpp:identifier', 'oneapi'),
+    ('cpp:identifier', 'oneapi::dal'),
+    ('cpp:identifier', 'oneapi::dal::v1'),
+    # oneapi - kmeans
+    ('cpp:identifier', 'oneapi::dal::kmeans'),
+    ('cpp:identifier', 'oneapi::dal::kmeans::task'),
+    ('cpp:identifier', 'oneapi::dal::kmeans::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
+    ('cpp:identifier', 'oneapi::dal::svm'),
+    ('cpp:identifier', 'oneapi::dal::svm::method'),
+    ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
+    ]

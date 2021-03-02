@@ -1,0 +1,161 @@
+#===============================================================================
+# Copyright 2014-2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+##  Content:
+##     Intel(R) oneAPI Data Analytics Library examples creation and run
+##******************************************************************************
+
+help:
+	@echo "Usage: make {lib|so|libintel64|sointel64|help}"
+	@echo "lib is alias for libintel64, so is alias for sointel64"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo
+	@echo "name              - example name. Please see daal.lst file"
+	@echo
+	@echo "compiler_name     - can be intel, gnu, clang or icx. Default value is intel."
+	@echo "                    Intel(R) C++ Compiler as default"
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
+	@echo
+	@echo "mode_name         - can be build or run. Default is run"
+
+##------------------------------------------------------------------------------
+## examples of using:
+##
+## make lib example=pca_cor_dense_batch - build  by Intel(R) C++ Compiler (as default)
+##                                 and run pca_cor_dense_batch example, static linking
+##
+## make so compiler=gnu          - build by GNU C++ compiler and run all examples,
+##                                 dynamic linking
+##
+## make libintel64 compiler=gnu  - build by GNU C++ compiler and run all example
+##                                 of Intel(R) oneDAL for
+##                                 Intel(R) 64 processor family applications,
+##                                 static linking
+##
+## make sointel64                - build by Intel(R) C++ Compiler (as default)
+##                                 and run all examples for Intel(R)64 processor
+##                                 family  applications, dynamic linking
+##
+## make sointel64 mode=build     - build only (not run) by Intel(R) C++ Compiler
+##                                 (as default) all examples for Intel(R)64
+##                                 processor family  applications, dynamic linking
+##
+## make help                     - show help
+##
+##------------------------------------------------------------------------------
+
+include daal.lst
+
+ifndef example
+    example = $(DAAL)
+endif
+
+ifneq ($(compiler),gnu)
+    ifneq ($(compiler),clang)
+        ifneq ($(compiler),icx)
+            override compiler = intel
+        endif
+    endif
+endif
+
+ifneq ($(mode),build)
+    override mode = run
+endif
+
+ifndef DAALROOT
+    DAALROOT = ./../../..
+endif
+DAAL_PATH = "$(DAALROOT)/lib/intel64"
+
+ifndef TBBROOT
+    TBBROOT = ./../../../../../tbb/latest
+endif
+TBB_PATH = "$(TBBROOT)/lib/intel64/gcc4.8"
+
+EXT_LIB := -lpthread -ldl
+
+ifeq ($(threading),sequential)
+    DAAL_LIB_T := $(DAAL_PATH)/libonedal_sequential.$(RES_EXT)
+    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+else
+    override threading = parallel
+    DAAL_LIB_T := $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
+    EXT_LIB += $(addprefix -L,$(TBB_PATH)) -ltbb -ltbbmalloc
+endif
+
+DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_LIB_T)
+
+COPTS := -pedantic -Wall -Wextra -Werror \
+         -Wno-deprecated-declarations \
+         -Wno-unused-parameter \
+         -I./source/utils
+
+LOPTS := -Wl,--start-group $(DAAL_LIB) $(EXT_LIB) -Wl,--end-group
+
+RES_DIR=_results/$(compiler)_intel64_$(threading)_$(RES_EXT)
+RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(example)), $(addsuffix .exe,$(example))))
+
+ifeq ($(compiler),intel)
+    CC = icc
+    COPTS += $(if $(COVFILE), -m64) -diag-disable=remark
+endif
+
+ifeq ($(compiler),gnu)
+    CC = g++
+    # Add extra flags to check if DAAL headers can be used in C++03 mode
+    COPTS += -m64 -std=c++03 -Wno-variadic-macros -Wno-long-long
+endif
+
+ifeq ($(compiler),clang)
+    gcc_toolchain := $(realpath $(dir $(shell which gcc))/..)
+    CC = clang++ --gcc-toolchain=$(gcc_toolchain)
+    COPTS += -m64
+endif
+
+ifeq ($(compiler),icx)
+    gcc_toolchain := $(realpath $(dir $(shell which g++))/..)
+    CC = icx --gcc-toolchain=$(gcc_toolchain)
+    COPTS += -Wno-deprecated-copy -m64 -lstdc++
+endif
+
+CC := $(if $(COVFILE), cov01 -1; covc -i  $(CC),$(CC))
+
+
+lib libintel64:
+	$(MAKE) _make_ex RES_EXT=a
+so sointel64:
+	$(MAKE) _make_ex RES_EXT=so
+
+_make_ex: $(RES)
+
+vpath
+vpath %.cpp $(addprefix ./source/,association_rules boosting cholesky compression covariance datasource decision_forest distance em \
+                                  gradient_boosted_trees host_app kernel_function kmeans linear_regression logistic_regression \
+                                  moments naive_bayes outlier_detection qr quality_metrics serialization stump svd svm utils services  \
+                                  quantiles pivoted_qr pca implicit_als set_number_of_threads sorting error_handling \
+                                  optimization_solvers optimization_solver/objective_function normalization ridge_regression \
+                                  k_nearest_neighbors decision_tree distributions enable_thread_pinning pca_transform dbscan \
+                                  lasso_regression elastic_net)
+
+.SECONDARY:
+$(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
+	$(CC) $(COPTS) $< -o $@ $(LOPTS)
+
+$(RES_DIR)/%.res: $(RES_DIR)/%.exe
+	$< > $@
+
+%/.:; mkdir -p $*

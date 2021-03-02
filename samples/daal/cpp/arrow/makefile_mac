@@ -1,0 +1,115 @@
+#===============================================================================
+# Copyright 2020-2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+##  Content:
+##     Intel(R) oneAPI Data Analytics Library samples creation and run
+##******************************************************************************
+
+help:
+	@echo "Usage: make {libintel64|dylibintel64|help}"
+	@echo "[compiler=compiler_name] [mode=mode_name] [sample=sample_name]"
+	@echo
+	@echo "compiler_name       - intel or gnu"
+	@echo "                      Intel(R) C++ Compiler as default"
+	@echo
+	@echo "mode_name           - can be build or run. Default is run"
+	@echo "sample_name         - sample name. Please see daal.lst file"
+
+##------------------------------------------------------------------------------
+## samples of using:
+##
+## make dylibintel64             - build by Intel(R) C++ Compiler
+##                                 and run all samples for Intel(R)64 processor
+##                                 family  applications, dynamic linking
+##
+## make dylibintel64 mode=build  - build only (not run) by Intel(R) C++ Compiler
+##                                 (as default) all samples for Intel(R)64
+##                                 processor family  applications, dynamic linking
+##
+## make help                     - show help
+##
+##------------------------------------------------------------------------------
+
+include daal.lst
+
+ifndef compiler
+    compiler = intel
+endif
+
+ifndef DAALROOT
+    DAALROOT = ./../../../..
+endif
+
+
+ifndef sample
+    sample = $(ARROW)
+endif
+
+DAAL_PATH = "$(DAALROOT)/lib"
+TBB_PATH = "$(TBBROOT)/lib"
+DAAL_LIB := $(DAAL_PATH)/libonedal_core.$(RES_EXT) $(DAAL_PATH)/libonedal_thread.$(RES_EXT)
+
+ifneq ($(mode),build)
+    override mode = run
+endif
+
+LIB_DOUBLE_CONV = $(ARROWROOT)/cpp/$(ARROWCONFIG)/double-conversion_ep-prefix/src/double-conversion_ep-build/libdouble-conversion.a
+TO_INCLUDE = ""
+
+ifeq ($(shell test -e $(LIB_DOUBLE_CONV) && echo -n yes),yes)
+    TO_INCLUDE=$(LIB_DOUBLE_CONV)
+endif
+
+EXT_LIB := -ltbb -ltbbmalloc -ldl \
+			$(ARROWROOT)/cpp/$(ARROWCONFIG)/$(ARROWCONFIG)/libarrow.a \
+           	$(ARROWROOT)/cpp/$(ARROWCONFIG)/glog_ep-prefix/src/glog_ep/libglog.a \
+           	$(ARROWROOT)/cpp/$(ARROWCONFIG)/jemalloc_ep-prefix/src/jemalloc_ep/lib/libjemalloc.a \
+           	$(BOOST_SYSTEM_LIBRARY_PATH)/libboost_system.a \
+           	$(BOOST_FILESYSTEM_LIBRARY_PATH)/libboost_filesystem.a \
+           	$(TO_INCLUDE)
+
+COPTS := -Wall -w -DDAAL_CHECK_PARAMETER -stdlib=libc++ -std=c++14\
+		 -I$(ARROWROOT)/cpp/src -I$(ARROWROOT)/cpp/$(ARROWCONFIG)/src -I$(DAALROOT)/include
+LOPTS := $(DAAL_LIB) $(EXT_LIB)
+
+RES_DIR=_results/$(compiler)_$(_IA)_$(RES_EXT)
+RES = $(addprefix $(RES_DIR)/, $(if $(filter run, $(mode)), $(addsuffix .res ,$(sample)), $(addsuffix .exe,$(sample))))
+
+ifeq ($(compiler),intel)
+    CC = icc
+endif
+
+ifeq ($(compiler),gnu)
+    CC = g++
+    COPTS += -m64
+endif
+
+
+.SECONDARY:
+$(RES_DIR)/%.exe: ./sources/%.cpp | $(RES_DIR)/.
+	$(CC) $(COPTS) $< -o $@ $(LOPTS)
+
+$(RES_DIR)/%.res: $(RES_DIR)/%.exe
+	export DYLD_LIBRARY_PATH=$(DAAL_PATH):$(TBB_PATH):$(DYLD_LIBRARY_PATH); $< > $@
+
+_make_ex: $(RES)
+
+%/.:; mkdir -p $*
+
+libintel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=a
+dylibintel64:
+	$(MAKE) _make_ex _IA=intel64 RES_EXT=dylib

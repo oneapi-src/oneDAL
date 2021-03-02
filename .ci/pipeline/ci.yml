@@ -4,73 +4,296 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/c-cpp/gcc
 
 trigger:
-- master
+  branches:
+    include:
+    - master
+    - rls/*
+
+pr:
+  branches:
+    include:
+    - master
+    - rls/*
 
 jobs:
-- job: Linux
-  timeoutInMinutes: 0
+- job: 'ClangFormat'
   pool:
-    vmImage: 'ubuntu-18.04'
-  strategy:
-    matrix:
-      lnx32:
-        platform.type : 'lnx32'
-      lnx32e:
-        platform.type : 'lnx32e'
-    maxParallel: 2
+    vmImage: 'ubuntu-20.04'
+  steps:
+    - script: |
+        .ci/env/clang.sh
+      displayName: 'apt-get'
+    - script: |
+        .ci/scripts/clang-format.sh
+      displayName: 'clang-format check'
+      failOnStderr: true
+- job: 'LinuxMake'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-20.04'
   steps:
   - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
-      scripts/tbb.sh ${$(platform.type):3}
-      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      export PATH=$JAVA_HOME/bin:$PATH
-      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH 
-      make daal -j4 PLAT=$(platform.type) COMPILER=gnu REQCPU="avx2"
-    displayName: 'make'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
+    displayName: 'make daal'
   - script: |
-      cp -R __release_lnx_gnu $(Build.ArtifactStagingDirectory)/
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+    displayName: 'make oneapi_c'
+  - script: |
+      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: '$(platform.type) build'
-      targetPath: '__release_lnx_gnu'
-- job: macOS
+      targetPath: '$(release.dir)'
+  - script: |
+      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
+    displayName: 'examples'
+
+- job: 'LinuxBazel'
   timeoutInMinutes: 0
   pool:
-    vmImage: 'macOS-10.14'
-  strategy:
-    matrix:
-      mac32e:
-        platform.type : 'mac32e'
+    vmImage: 'ubuntu-20.04'
+  variables:
+    BAZEL_VERSION: bazel-4.0.0
+    BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
+    BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
-      scripts/mklfpk.sh ${$(platform.type):3}
-      scripts/tbb.sh ${$(platform.type):3}
-      export JAVA_HOME=$(/usr/libexec/java_home -v 12)
-      export PATH=$JAVA_HOME/bin:$PATH
-      export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/darwin:$CPATH
-      make daal -j4 PLAT=$(platform.type) COMPILER=clang REQCPU="avx2"
-    displayName: 'make'
+      # Add bazel repository
+      sudo apt install curl gnupg
+      curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
+      sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
+      echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
+        sudo tee /etc/apt/sources.list.d/bazel.list
+
+      sudo apt-get update
+      sudo apt-get install gcc-multilib \
+                           g++-multilib \
+                           binutils \
+                           openjdk-11-jdk \
+                           $(BAZEL_VERSION)
+
+    displayName: 'install-deps'
+
+  - task: Cache@2
+    inputs:
+      # Commit ID is added to a cache key. Caches are immutable by design,
+      # so we always need to change a key to upload the last version
+      # of the Bazel cache. Cache lookup is based on `restoreKeys` option.
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2" | "$(Build.SourceVersion)"'
+      restoreKeys: |
+        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2"
+      path: $(BAZEL_CACHE_DIR)
+    displayName: 'bazel-cache'
+
   - script: |
-      cp -R __release_mac_clang $(Build.ArtifactStagingDirectory)/
+      if [ -f "${BAZEL_CACHE_DIR}/cache-clean-timestamp" ]; then
+        echo
+        echo "Last time the cache is cleaned:"
+        cat "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
+        echo
+      fi
+
+      # Create `.bazelrc` and set cache directory
+      # Minimal CPU instruction set in Azure is AVX2
+      echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
+
+      # Display oneDAL build configuration
+      bazel build @config//:dump
+      echo
+      cat bazel-bin/external/config/config.json
+      echo
+    displayName: 'bazel-configure'
+
+  - script: |
+      bazel build :release
+    displayName: 'release'
+
+  - script: |
+      bazel test //examples/oneapi/cpp:all \
+                 --test_link_mode=dev \
+                 --test_thread_mode=par
+    displayName: 'cpp-examples-thread-dev'
+
+  - script: |
+      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      bazel test //examples/oneapi/cpp:all \
+                 --test_link_mode=release_static \
+                 --test_thread_mode=par
+    displayName: 'cpp-examples-thread-release-static'
+
+  - script: |
+      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+      bazel test //examples/oneapi/cpp:all \
+                 --test_link_mode=release_dynamic \
+                 --test_thread_mode=par
+    displayName: 'cpp-examples-thread-release-dynamic'
+
+  - script: |
+      bazel test //cpp/oneapi/dal:tests \
+                 --config=host \
+                 --test_link_mode=dev \
+                 --test_thread_mode=par
+    displayName: 'cpp-tests-thread-dev'
+
+  - script: |
+      # Clear cache if its size exceeds some predefined value
+      cache_size=$(du -sk "${BAZEL_CACHE_DIR}" | cut -f1)
+      cache_size_mb=$(du -sm "${BAZEL_CACHE_DIR}" | cut -f1)
+      echo "Bazel cache dir is ${BAZEL_CACHE_DIR}"
+      echo "Bazel cache size is ${cache_size_mb}Mb"
+      if [ ${cache_size} -ge ${BAZEL_CACHE_MAX_SIZE_KB} ]; then
+          echo "Run cache cleanup..."
+          echo "Current cache directory content:"
+          ls -1 "${BAZEL_CACHE_DIR}"
+          echo "--------------------------------"
+          echo "Run bazel clean with expunge"
+          echo "Remove cache directory"
+          rm -r "${BAZEL_CACHE_DIR}"
+          mkdir -p "${BAZEL_CACHE_DIR}"
+          echo "Write timestamp to the cache"
+          date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
+          echo "Current cache directory content:"
+          ls -1 "${BAZEL_CACHE_DIR}"
+          echo "--------------------------------"
+      else
+          echo "No need for cleanup"
+      fi
+    displayName: 'bazel-cache-limit'
+
+- job: daal4py
+  dependsOn: LinuxMake
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_lnx_gnu'
+    platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-20.04'
+    maxParallel: 2
+  strategy:
+    matrix:
+      Python38:
+        python.version: '3.8'
+  steps:
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: '$(platform.type) build'
+      path: $(Pipeline.Workspace)
+  - script: |
+        .ci/env/oneapi.sh dpcpp
+    displayName: 'Create dpcpp enviroment'
+  - script: |
+      sudo apt-get install git
+      git clone https://github.com/IntelPython/daal4py.git
+    displayName: Clone daal4py
+  - script: |
+      .ci/env/clang.sh
+      python -m venv venv
+      source venv/bin/activate
+      pip install -r .ci/scripts/conformance-scripts/requirements.txt
+    displayName: Create python environment
+  - script: |
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      cd daal4py
+      export NO_DIST=1
+      export CC=dpcpp
+      export CXX=dpcpp
+      export LDFLAGS="-fPIC"
+      python setup.py install --single-version-externally-managed --record=record.txt
+    displayName: daal4py build
+  - script: |
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
+      export NO_DIST=1
+      cd daal4py
+      ./conda-recipe/run_test.sh
+    displayName: daal4py test
+  - script: |
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
+      cd daal4py
+      ret_code=0
+      python -m daal4py examples/run_examples.py
+      ret_code=$(($ret_code + $?))
+      python -m daal4py examples/sycl/sklearn_sycl.py
+      ret_code=$(($ret_code + $?))
+      exit $ret_code
+    displayName: daal4py examples
+  - script: |
+      source venv/bin/activate
+      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
+      source ${DPCPPROOT}/env/vars.sh
+      export DALROOT=$(Pipeline.Workspace)/daal/latest
+      source ${DALROOT}/env/vars.sh
+      export TBBROOT=/opt/intel/oneapi/tbb/latest
+      source ${TBBROOT}/env/vars.sh
+      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
+    timeoutInMinutes: 15
+    displayName: Conformance tests
+  - script: |
+      cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/_log_* $(Build.ArtifactStagingDirectory)/
+      cp -R $(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/report.html $(Build.ArtifactStagingDirectory)/
+    displayName: copy report
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: '$(platform.type) conformance tests report'
+      targetPath: '$(Build.ArtifactStagingDirectory)/'
+
+- job: 'macOSMake'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_mac_clang'
+    platform.type : 'mac32e'
+  pool:
+    vmImage:  'macOS-10.15'
+  steps:
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+    displayName: 'make oneapi_c'
+  - script: |
+      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'Mac build'
-      targetPath: '__release_mac_clang'
-# Windows build is temporary disabled
+      targetPath: '$(release.dir)'
+
 #- job: Windows
+#  timeoutInMinutes: 0
 #  pool:
-#    vmImage: 'vs2017-win2016'
+#    vmImage: 'windows-2019'
 #  steps:
 #  - script: |
 #      java -version
-#      set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
-#      call .\scripts\mklfpk.bat && call .\scripts\tbb.bat
-#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-#      call .\externals\tbb\bin\tbbvars.bat intel64 14_uwp
-#     make daal COMPILER=vc PLAT="win32e"
-
-
+#      set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
+#      echo "call .ci\env\tbb.bat"
+#      call .ci\env\tbb.bat
+#      echo "call .\dev\download_micromkl.bat"
+#      call .\dev\download_micromkl.bat
+#      echo call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+#      call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+#      echo make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
+#      make daal COMPILER=vc PLAT="win32e" REQCPU="avx2"
+#    displayName: 'Build'

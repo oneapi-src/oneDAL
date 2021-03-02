@@ -1,8 +1,0 @@
-/** \mainpage Python* Language Application Programming Interface Reference for Intel(R) Data Analytics Acceleration Library 
- *    
- *	
- * 
-*/
-
-
-

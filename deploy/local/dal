@@ -1,0 +1,96 @@
+#%Module1.0###################################################################
+#===============================================================================
+# Copyright 2020-2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+set min_tcl_ver 8.4
+if { $tcl_version < $min_tcl_ver } {
+    puts stderr " "
+    puts stderr "ERROR: This modulefile requires tcl $min_tcl_ver or greater."
+    puts stderr "Your system reports that tclsh version $tcl_version is installed."
+    exit 1
+}
+
+# get full pathname for this script file
+set scriptpath "${ModulesCurrentModulefile}"
+
+# if modulefile script name is a symlink, resolve it
+if { "[file type "$scriptpath"]" eq "link" } {
+    set scriptpath "[file readlink "$scriptpath"]"
+}
+
+# if fullpath contains links, resolve them
+set scriptpath "[file normalize "$scriptpath"]"
+
+# get directory holding this modulefile script and others
+set modulefileroot "[file dirname "$scriptpath"]"
+
+# get name of modulefile script we are loading
+set modulefilename "[file tail "$scriptpath"]"
+
+# determine modulefile script version
+set modulefilever "[file dirname "$modulefileroot"]"
+set modulefilever "[file tail "$modulefilever"]"
+
+# point to component top-level root folder
+set componentroot "[file dirname "$modulefileroot"]"
+set componentroot "[file dirname "$componentroot"]"
+
+# get component folder name
+set componentname "[file tail "$componentroot"]"
+
+# get oneAPI top-level root folder
+set oneapiroot "[file dirname "$componentroot"]"
+
+# disallow loading multiple copies of 64-bit and 32-bit versions of modulefile
+# first assemble 64-bit and 32-bit name pairs for this modulefile
+# then specify conflict for each (assumes "name" and "name32" pattern)
+set mname32 $modulefilename
+set mname64 [string trimright $mname32 "32"]
+if { [string equal "$mname32" "$mname64"] } {
+    append mname32 "32"
+}
+conflict $mname32
+conflict $mname64
+
+# On load print component name and version being loaded
+if { [ module-info mode load ] } {
+    puts stderr "Loading $modulefilename version $modulefilever"
+}
+
+# On remove print component name and version being removed
+if { [ module-info mode ] == "unload" || [ module-info mode ] == "remove" } {
+    puts stderr "Removing $modulefilename version $modulefilever"
+}
+
+# ###### Component Specific env vars setup ######
+
+# Set intermediate variables
+set daalroot "$componentroot/$modulefilever"
+set daal_target_arch         "intel64"
+
+module-whatis "Intel(R) oneAPI Data Analytics Library for $daal_target_arch."
+
+# Setup environment variables
+setenv          DAL_MAJOR_BINARY   __DAL_MAJOR_BINARY__
+setenv          DAL_MINOR_BINARY   __DAL_MINOR_BINARY__
+setenv          DALROOT            $daalroot
+setenv          DAALROOT           $daalroot
+
+prepend-path    LD_LIBRARY_PATH    $daalroot/lib/$daal_target_arch
+prepend-path    LIBRARY_PATH       $daalroot/lib/$daal_target_arch
+prepend-path    CPATH              $daalroot/include
+prepend-path    CLASSPATH          $daalroot/lib/onedal.jar
+prepend-path    CMAKE_PREFIX_PATH  $daalroot

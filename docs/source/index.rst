@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2014-2019 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -19,11 +19,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. |daal-docs| replace:: official Intel\ |reg|\  DAAL website
-.. _daal-docs: https://software.intel.com/en-us/intel-daal
+.. |daal-docs| replace:: oneAPI Data Analytics Library
+.. _daal-docs: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onedal.html
 
 .. |github| replace:: |short_name| GitHub\* page
-.. _github: https://github.com/intel/daal
+.. _github: https://github.com/oneapi-src/oneDAL
+
+.. |spec| replace:: |short_name| specification
+.. _spec: https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html
 
 |full_name|
 ------------------------------------------------------
@@ -33,32 +36,46 @@ that helps speed up big data analysis by providing highly optimized
 algorithmic building blocks for all stages of data analytics
 (preprocessing, transformation, analysis, modeling, validation, and
 decision making) in batch, online, and distributed processing modes of
-computation. The current version of |short_name| provides
-Data Parallel C++ (DPC++) API extensions to the traditional C++ interface.
+computation. The library provides two different sets of C++ interfaces: :ref:`oneAPI and DAAL <oneapi_vs_daal>`.
 
-For general information, visit |github|_. The complete
-list of features and documentation are available at |daal-docs|_.
+For general information, refer to |daal-docs|_ official page.
+
+.. _oneapi_vs_daal:
+
+oneAPI vs. DAAL Interfaces
+==========================
+
+- :ref:`oneapi_dal_guide` are based on open |spec|_ and are currently under an active development.
+  They work on various hardware but only a limited set of algorithms is available at the moment.
+
+- :ref:`daal_guide` are CPU-only interfaces that provide implementations for a wide range of algorithms.
+
+.. toctree::
+   :hidden:
+   :caption: Introduction
+
+   installation.rst
 
 .. toctree::
    :maxdepth: 3
-   :caption: Introduction
+   :caption: Developer Guide and Reference
 
-   getstarted.rst
-   build_app/build-application.rst
-   legal.rst
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Developer Guide
-
-   dev_guide/data-management/data-management.rst
-   dev_guide/analysis.rst
-   dev_guide/training-prediction.rst
-   dev_guide/services/services.rst
+   data-analytics-pipeline.rst
+   oneapi-interfaces.rst
+   daal-interfaces.rst
    bibliography.rst
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples
+   :hidden:
+   :caption: Notes
 
-   sycl_examples.rst
+   notes/known_issues.rst
+   legal.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Contributing Guide
+
+   contribution/coding_guide.rst

@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2014-2019 Intel Corporation
+# Copyright 2014-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,9 +27,20 @@ BUILDDIR      = build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile
+create_rst_examples:
+	@echo "Creating rST files for oneAPI Examples..."
+	python3 rst_examples.py
+
+doxygen:
+	doxygen doxygen/oneapi/Doxyfile
+
+parse-doxygen: doxygen
+	mkdir -p build
+	python3 -m dalapi.doxypy.cli doxygen/xml --compact > build/tree.yaml
+
+.PHONY: help Makefile create_rst_examples doxygen parse-doxygen
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+%: create_rst_examples Makefile
+	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

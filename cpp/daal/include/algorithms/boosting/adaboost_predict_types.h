@@ -1,0 +1,161 @@
+/* file: adaboost_predict_types.h */
+/*******************************************************************************
+* Copyright 2014-2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
+/*
+//++
+//  Implementation of the base classes used in the prediction stage
+//  of the classifier algorithm
+//--
+*/
+
+#ifndef __ADABOOST_PREDICT_TYPES_H__
+#define __ADABOOST_PREDICT_TYPES_H__
+
+#include "algorithms/algorithm.h"
+#include "algorithms/boosting/adaboost_model.h"
+
+namespace daal
+{
+namespace algorithms
+{
+namespace adaboost
+{
+/**
+ * @defgroup adaboost_prediction Prediction
+ * \copydoc daal::algorithms::adaboost::prediction
+ * @ingroup adaboost
+ * @{
+ */
+namespace prediction
+{
+namespace interface1
+{
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__INPUT"></a>
+ * \brief Input objects in the prediction stage of the adaboost algorithm  \DAAL_DEPRECATED
+ */
+class DAAL_EXPORT Input : public classifier::prediction::interface1::Input
+{
+    typedef classifier::prediction::interface1::Input super;
+
+public:
+    DAAL_DEPRECATED Input() {}
+    DAAL_DEPRECATED Input(const Input & other) : classifier::prediction::interface1::Input(other) {}
+    DAAL_DEPRECATED_VIRTUAL virtual ~Input() {}
+
+    using super::get;
+    using super::set;
+
+    /**
+     * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+     * \param[in] id    Identifier of the input NumericTable object
+     * \return          %Input object that corresponds to the given identifier
+     */
+    DAAL_DEPRECATED data_management::NumericTablePtr get(classifier::prediction::NumericTableInputId id) const;
+
+    /**
+     * Returns the input Model object in the prediction stage of the AdaBoost algorithm
+     * \param[in] id    Identifier of the input Model object
+     * \return          %Input object that corresponds to the given identifier
+     */
+    DAAL_DEPRECATED daal::algorithms::adaboost::interface1::ModelPtr get(classifier::prediction::ModelInputId id) const;
+
+    /**
+     * Sets the input NumericTable object in the prediction stage of the classification algorithm
+     * \param[in] id    Identifier of the input object
+     * \param[in] ptr   Pointer to the input object
+     */
+    DAAL_DEPRECATED void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
+
+    /**
+     * Sets the input Model object in the prediction stage of the AdaBoost algorithm
+     * \param[in] id    Identifier of the input object
+     * \param[in] ptr   Pointer to the input object
+     */
+    DAAL_DEPRECATED void set(classifier::prediction::ModelInputId id, const daal::algorithms::adaboost::interface1::ModelPtr & ptr);
+
+    /**
+     * Checks the correctness of the input object
+     * \param[in] parameter Pointer to the structure of the algorithm parameters
+     * \param[in] method    Computation method
+     */
+    DAAL_DEPRECATED services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+};
+} // namespace interface1
+
+namespace interface2
+{
+/**
+ * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__PREDICTION__INPUT"></a>
+ * \brief Input objects in the prediction stage of the adaboost algorithm
+ */
+class DAAL_EXPORT Input : public classifier::prediction::Input
+{
+    typedef classifier::prediction::Input super;
+
+public:
+    Input() {}
+    Input(const Input & other) : classifier::prediction::Input(other) {}
+    virtual ~Input() {}
+
+    using super::get;
+    using super::set;
+
+    /**
+     * Returns the input Numeric Table object in the prediction stage of the classification algorithm
+     * \param[in] id    Identifier of the input NumericTable object
+     * \return          %Input object that corresponds to the given identifier
+     */
+    data_management::NumericTablePtr get(classifier::prediction::NumericTableInputId id) const;
+
+    /**
+     * Returns the input Model object in the prediction stage of the AdaBoost algorithm
+     * \param[in] id    Identifier of the input Model object
+     * \return          %Input object that corresponds to the given identifier
+     */
+    ModelPtr get(classifier::prediction::ModelInputId id) const;
+
+    /**
+     * Sets the input NumericTable object in the prediction stage of the classification algorithm
+     * \param[in] id    Identifier of the input object
+     * \param[in] ptr   Pointer to the input object
+     */
+    void set(classifier::prediction::NumericTableInputId id, const data_management::NumericTablePtr & ptr);
+
+    /**
+     * Sets the input Model object in the prediction stage of the AdaBoost algorithm
+     * \param[in] id    Identifier of the input object
+     * \param[in] ptr   Pointer to the input object
+     */
+    void set(classifier::prediction::ModelInputId id, const ModelPtr & ptr);
+
+    /**
+     * Checks the correctness of the input object
+     * \param[in] parameter Pointer to the structure of the algorithm parameters
+     * \param[in] method    Computation method
+     */
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+};
+
+} // namespace interface2
+using interface2::Input;
+} // namespace prediction
+/** @} */
+} // namespace adaboost
+} // namespace algorithms
+} // namespace daal
+#endif // __ADABOOST_PREDICT_TYPES_H__

@@ -18,17 +18,20 @@
 # Installation from Sources
 
 Required Software:
-* C/C++ compiler (see [System Requirements](README.md#system-requirements))
-* Java\* JDK (see [System Requirements](README.md#system-requirements))
+* C/C++ Compiler
+* DPC++ Compiler
+* Java\* JDK
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2 installer](http://msys2.github.io) with the msys/make package (Windows\* only); install the package as follows:
 
         pacman -S msys/make
 
+For details, see [System Requirements for oneDAL](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html).
+
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
 
-        git clone --recursive https://github.com/intel/daal.git
+        git clone https://github.com/oneapi-src/oneDAL.git
 
 
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
@@ -37,17 +40,21 @@ Required Software:
 
 3. Set the environment variables for one of the supported C/C++ compilers. For example:
 
-    - **Microsoft Visual Studio\***:
+    - **Microsoft Visual Studio\* 2019**:
 
-            call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
-    - **Intel Compiler (Windows\*)**:
+    - **Intel(R) C++ Compiler 19.1 (Windows\*)**:
 
             call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" intel64
 
-    - **Intel Compiler (Linux\*)**:
+    - **Intel(R) C++ Compiler 19.1 (Linux\*)**:
 
             source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh intel64
+
+    - **Intel(R) oneAPI DPC++/C++ Compiler 2021.1 (Windows\*)**:
+
+            call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat" intel64
 
 4. Set the environment variables for one of the supported Java\* compilers. For example:
 
@@ -55,7 +62,7 @@ Required Software:
 
             set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_77
             set PATH=%JAVA_HOME%\bin;%PATH%
-            set INCLUDE=%JAVA_HOME%\include;%JAVA_HOME%\include\win32;%INCLUDE%
+            set INCLUDE=%JAVA_HOME%\include;%INCLUDE%
 
     - **Linux\***:
 
@@ -63,46 +70,52 @@ Required Software:
             export PATH=$JAVA_HOME/bin:$PATH
             export CPATH=$JAVA_HOME/include:$JAVA_HOME/include/linux:$CPATH
 
-5. Download and set an environment for mklfpk libs:
+5. Download and set an environment for micromkl libs:
 
     - **Windows\***:
 
-            call .\scripts\mklfpk.bat
+            .\dev\download_micromkl.bat
 
     - **Linux\***:
 
-            scripts/mklfpk.sh [32|32e]
+            ./dev/download_micromkl.sh
 
 6. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
 
-    - **Windows\***:
-        - Download and install free Community License Intel TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)) or build your own Intel TBB from [Intel(R) TBB GitHub repository](https://github.com/intel/tbb).
-        - Set the environment variables for Intel TBB. For example:
+    Download and install free Community License Intel(R) TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)).
+    Set the environment variables for for Intel(R) TBB. For example:
 
-            call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\tbb\bin\tbbvars.bat" intel64 all
+    - oneTBB (Windows\*):
 
-    - **Linux\***:
-        - Use pre-build package or build Intel TBB on your own. Alternatively, you can use scripts to do this for you:
+            call "C:\Program Files (x86)\Intel\oneAPI\tbb\latest\env\vars.bat" intel64
 
-            scripts/tbb.sh [32|32e]
+    - oneTBB (Linux\*):
 
-7. Build oneDAL via command-line interface. Choose the appropriate commands based on the platform and the compiler you use:
+            source /opt/intel/oneapi/tbb/latest/env/vars.sh intel64
 
-    - on **Linux\*** using **Intel(R) C++ Compiler**:
+    Alternatively, you can use scripts to do this for you (Linux\*):
+
+            ./dev/download_tbb.sh
+
+7. Download and install Python 3.7 (Windows\* only).
+
+8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform and the compiler you use:
+
+    - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
 
             make -f makefile daal PLAT=lnx32e
 
-    - on **Linux\*** using **GNU Compiler Collection\***:
+    - DAAL interfaces on **Linux\*** using **GNU Compiler Collection\***:
 
             make -f makefile daal PLAT=lnx32e COMPILER=gnu
 
-    - on **Windows\*** using **Intel(R) C++ Compiler**:
+    - oneAPI C++/DPC++ interfaces on **Windows\*** using **Intel(R) DPC++ compiler**:
 
-            make -f makefile daal PLAT=win32e
+            make -f makefile oneapi PLAT=win32e
 
-    - on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
+    - oneAPI C++ interfaces on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
 
-            make -f makefile daal PLAT=win32e COMPILER=vc
+            make -f makefile oneapi_c PLAT=win32e COMPILER=vc
 
 It is possible to build oneDAL libraries with selected set of algorithms and/or CPU optimizations. `CORE.ALGORITHMS.CUSTOM` and `REQCPUS` makefile defines are used for it.
 

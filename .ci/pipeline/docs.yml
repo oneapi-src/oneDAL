@@ -1,0 +1,51 @@
+trigger:
+  branches:
+    include:
+    - master
+    - releases
+    - rls/*
+  paths:
+    include:
+    - cpp/daal/include
+    - cpp/oneapi
+    - docs
+    - examples
+
+pr:
+  branches:
+    include:
+    - master
+    - releases
+    - rls/*
+  paths:
+    include:
+    - cpp/daal/include
+    - cpp/oneapi
+    - docs
+    - examples
+
+pool:
+  vmImage: 'ubuntu-20.04'
+
+steps:
+- script: |
+    cd docs
+    sudo apt-get install python3-setuptools
+    sudo pip3 install -r requirements.txt
+    sudo apt-get update
+    sudo apt-get install doxygen
+  displayName: 'Install requirements'
+
+- script: |
+    cd docs
+    make html
+  displayName: 'Build documentation'
+
+- script: |
+    cp -R docs/build $(Build.ArtifactStagingDirectory)/html
+  displayName: 'Copy build'
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'onedal-documentation'
+    targetPath: '$(Build.ArtifactStagingDirectory)/html'

@@ -1,0 +1,148 @@
+#===============================================================================
+# Copyright 2020-2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+##  Content:
+##     oneAPI Data Analytics Library examples creation and run
+##******************************************************************************
+
+help:
+	@echo "Usage: nmake {{lib|dll|help}}"
+	@echo "[example=name] [compiler=compiler_name] [mode=mode_name] [threading=threading_name]"
+	@echo
+	@echo "name              - example name."
+	@echo
+	@echo "compiler_name     - can be intel, msvs, clang or icx. Default value is intel."
+	@echo "                    Intel(R) C++ Compiler as default."
+	@echo
+	@echo "threading_name    - can be parallel or sequential. Default value is parallel."
+	@echo
+	@echo "mode_name         - can be build or run. Default is run."
+
+##------------------------------------------------------------------------------
+## examples of using:
+##
+## nmake lib example=kmeans_dense_batch+  - build by Intel(R) C++ Compiler (as default)
+##                                          and run kmeans_dense_batch example for 32-bit
+##                                          applications, static linking
+##
+## nmake dll compiler=msvs                - build by Microsoft(R) C++ compiler and run all examples
+##                                          of oneDAL for 64-bit applications, dynamic linking
+##
+## nmake lib example=kmeans_dense_batch+  - build by Intel(R) C++ Compiler (as default)
+##                                          and run kmeans_dense_batch example for 64-bit
+##                                          applications, static linking
+##
+## nmake dll                              - build by Intel(R) C++ Compiler (as default)
+##                                          and run all examples for Intel(R) 64 processor
+##                                          family applications, dynamic linking
+##
+## nmake dll mode=build                   - build only (not run) by Intel(R) C++ Compiler
+##                                          (as default) all examples for Intel(R) 64
+##                                          processor family applications, dynamic linking
+##
+## nmake help                             - show help
+##
+##------------------------------------------------------------------------------
+
+{examples_list}
+
+!IFNDEF example
+example = $(EXAMPLES_LIST)
+!ENDIF
+
+!IFNDEF compiler
+compiler = intel
+!ENDIF
+
+!IFNDEF mode
+mode = run
+!ENDIF
+
+!IFNDEF threading
+threading = parallel
+!ENDIF
+
+!IFNDEF DAALROOT
+DAALROOT = ..\..\..
+!ENDIF
+
+DAAL_PATH = $(DAALROOT)\lib\$(_IA)
+
+!IF ("$(mode)"=="build")
+RES = $(example:+=.exe)
+!ENDIF
+
+!IF ("$(mode)"=="run")
+RES = $(example:+=.res)
+!ENDIF
+
+COMMON_COPTS=/W3 /EHsc
+
+!IF ("$(compiler)"=="msvs")
+CC=cl
+COPTS=$(COMMON_COPTS) /std:c++17
+!ENDIF
+
+!IF ("$(compiler)"=="intel")
+CC=icl
+COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
+!ENDIF
+
+!IF ("$(compiler)"=="clang")
+CC=clang-cl
+COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
+!ENDIF
+
+!IF ("$(compiler)"=="icx")
+CC=icx
+COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
+!ENDIF
+
+!IF ("$(threading)"=="sequential")
+DAAL_LIB_T = $(DAAL_PATH)\onedal_sequential.lib
+!ELSE
+threading = parallel
+DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
+
+!IF ("$(compiler)"!="clang"&&"$(compiler)"!="icx")
+EXT_LIB = tbb12.lib tbbmalloc.lib
+!ELSE
+EXT_LIB = /link /DEFAULTLIB:tbb12.lib /DEFAULTLIB:tbbmalloc.lib
+!ENDIF
+!ENDIF
+
+DAAL_LIB = "$(DAAL_PATH)\onedal$(EXT)" "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_LIB_T)"
+
+RES_DIR = _results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+COPTS = /Isource /I"$(DAALROOT)\include" $(COPTS) /Fe$(RES_DIR)\\
+LOPTS = $(DAAL_LIB) $(EXT_LIB)
+
+lib libintel64:
+	nmake comm_func $(RES) $(CLEAN) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
+dll dllintel64:
+	nmake comm_func $(RES) $(CLEAN) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)
+
+comm_func:
+	if not exist _results md _results
+	if not exist $(RES_DIR) md $(RES_DIR)
+
+del_objs:
+	del /Q $(RES_DIR)\*.obj
+
+{make_build_rules}
+{make_run_rules}
+
+#-------------------------------------------------------------------------------
