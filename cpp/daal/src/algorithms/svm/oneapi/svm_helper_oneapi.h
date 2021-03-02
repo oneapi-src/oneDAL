@@ -253,7 +253,7 @@ struct HelperSVM
         ctx.run(range, kernel, args, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        auto svValuesHosrPtr = dataSizeU.get<size_t>().toHost(data_management::writeOnly, status);
+        auto svValuesHosrPtr = dataSizeU.get<size_t>().toHost(data_management::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
         dataSize = *svValuesHosrPtr;
 

@@ -117,7 +117,7 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
     return SyclHomogenNumericTable<T>::create(daal_data,
                                               dal::detail::integral_cast<std::size_t>(column_count),
                                               dal::detail::integral_cast<std::size_t>(row_count),
-                                              cl::sycl::usm::alloc::shared);
+                                              queue);
 }
 
 #endif
