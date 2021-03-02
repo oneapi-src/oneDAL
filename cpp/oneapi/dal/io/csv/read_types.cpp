@@ -18,8 +18,6 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/graph/common.hpp"
-#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::csv {
 
@@ -34,39 +32,22 @@ public:
     preview::read_mode mode;
 };
 
-template <>
-class detail::v1::read_args_impl<preview::graph_base> : public base {
-public:
-    read_args_impl(preview::read_mode mode = preview::read_mode::edge_list) : mode(mode) {
-        if (mode != preview::read_mode::edge_list)
-            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
-    }
-
-private:
-    preview::read_mode mode;
-};
-
 namespace v1 {
 
-read_args<table>::read_args() : impl_(new detail::read_args_impl<table>()) {}
+read_args<table, std::allocator<char>>::read_args() : impl_(new detail::read_args_impl<table>()) {}
 
-read_args<table>::read_args(preview::read_mode mode)
+read_args<table, std::allocator<char>>::read_args(preview::read_mode mode)
         : impl_(new detail::read_args_impl<table>(mode)) {}
 
-preview::read_mode read_args<table>::get_read_mode() {
+preview::read_mode read_args<table, std::allocator<char>>::get_read_mode() {
     return impl_->mode;
 }
 
-void read_args<table>::set_read_mode_impl(preview::read_mode mode) {
+void read_args<table, std::allocator<char>>::set_read_mode_impl(preview::read_mode mode) {
     if (mode != preview::read_mode::table)
         throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     impl_->mode = mode;
 }
-
-read_args<preview::graph_base>::read_args()
-        : impl_(new detail::read_args_impl<preview::graph_base>()) {}
-read_args<preview::graph_base>::read_args(preview::read_mode mode)
-        : impl_(new detail::read_args_impl<preview::graph_base>(mode)) {}
 
 } // namespace v1
 } // namespace oneapi::dal::csv
