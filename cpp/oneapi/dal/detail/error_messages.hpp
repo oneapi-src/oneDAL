@@ -120,6 +120,7 @@ public:
 
     /* I/O */
     MSG(file_not_found);
+    MSG(unsupported_read_mode);
 
     /* Decision Forest */
     MSG(bootstrap_is_incompatible_with_error_metric);

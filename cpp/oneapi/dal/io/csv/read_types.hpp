@@ -39,6 +39,15 @@ template <>
 class ONEDAL_EXPORT read_args<table> : public base {
 public:
     read_args();
+    read_args(oneapi::dal::preview::read_mode mode);
+    auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
+        set_read_mode_impl(mode);
+        return *this;
+    }
+    oneapi::dal::preview::read_mode get_read_mode();
+
+protected:
+    void set_read_mode_impl(oneapi::dal::preview::read_mode mode);
 
 private:
     dal::detail::pimpl<detail::read_args_impl<table>> impl_;
@@ -48,6 +57,7 @@ template <>
 class ONEDAL_EXPORT read_args<preview::graph_base> : public base {
 public:
     read_args();
+    read_args(oneapi::dal::preview::read_mode mode);
 
 private:
     dal::detail::pimpl<detail::read_args_impl<preview::graph_base>> impl_;

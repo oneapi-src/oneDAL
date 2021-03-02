@@ -92,6 +92,7 @@ MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
 
 /* IO */
 MSG(file_not_found, "File not found")
+MSG(unsupported_read_mode, "Unsupported read mode")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")

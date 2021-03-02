@@ -50,8 +50,19 @@ int main(int argc, char **argv) {
     // Short (table)
     // read<table>(csv::data_source{ filename }, preview::read_mode::table);
     read<table>(csv::data_source{ filename }); // read_mode::table is default for table
+    read<table>(csv::data_source{ filename }, preview::read_mode::table);
+    // read<table>(csv::data_source{ filename }, preview::read_mode::edge_list);
     using graph_t = dal::preview::graph_base;
     read<graph_t>(csv::data_source{ filename });
+    read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
+    // read<graph_t>(csv::data_source{ filename }, preview::read_mode::table);
+
+    {
+        // Verbose (table)
+        const auto read_args = csv::read_args<table>{}.set_read_mode(preview::read_mode::table);
+
+        read<table>(csv::data_source{ filename }, read_args);
+    }
 
     // {
     //     std::allocator<int> my_allocator;
@@ -63,12 +74,5 @@ int main(int argc, char **argv) {
     //     read<graph_t>(csv::data_source{ filename }, read_args);
     // }
 
-    // {
-    //     // Verbose (table)
-    //     const auto read_args = csv::read_args<table>{};
-    //     // .set_read_mode(preview::read_mode::table);
-
-    //     read<table>(csv::data_source{ filename }, read_args);
-    // }
     return 0;
 }
