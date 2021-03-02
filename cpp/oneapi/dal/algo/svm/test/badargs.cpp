@@ -165,31 +165,46 @@ SVM_BADARG_TEST("throws if train data rows neq train weights rows") {
     REQUIRE_THROWS_AS(this->train(svm_desc, this->get_train_data(), this->get_train_labels(), this->get_train_labels(4)), invalid_argument);
 }
 
+SVM_BADARG_TEST("throws if infer data is empty") {
+    SKIP_IF(this->not_available_on_device());
+    const auto svm_desc = this->get_descriptor();
+    const auto model = this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model();
 
-// SVM_BADARG_TEST("throws if infer data is empty") {
-//     SKIP_IF(this->not_available_on_device());
-//     const auto svm_desc = this->get_descriptor().set_component_count(2);
-//     const auto model = this->train(svm_desc, this->get_train_data()).get_model();
+    REQUIRE_THROWS_AS(this->infer(svm_desc, model, homogen_table{}), domain_error);
+}
 
-//     REQUIRE_THROWS_AS(this->infer(svm_desc, model, homogen_table{}), domain_error);
-// }
+SVM_BADARG_TEST("throws if infer model support vectors is empty") {
+    SKIP_IF(this->not_available_on_device());
+    const auto svm_desc = this->get_descriptor();
+    auto model = this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model();
 
-// SVM_BADARG_TEST("throws if component count neq eigenvector_rows") {
-//     SKIP_IF(this->not_available_on_device());
-//     auto svm_desc = this->get_descriptor().set_component_count(2);
-//     const auto model = this->train(svm_desc, this->get_train_data()).get_model();
-//     svm_desc.set_component_count(4);
+    REQUIRE_THROWS_AS(this->infer(svm_desc, model.set_support_vectors(homogen_table{}), this->get_infer_data()), domain_error);
+}
 
-//     REQUIRE_THROWS_AS(this->infer(svm_desc, model, this->get_infer_data()), invalid_argument);
-// }
+SVM_BADARG_TEST("throws if infer model coeffs is empty") {
+    SKIP_IF(this->not_available_on_device());
+    const auto svm_desc = this->get_descriptor();
+    auto model = this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model();
 
-// SVM_BADARG_TEST("throws if infer data column count neq eigenvector columns") {
-//     SKIP_IF(this->not_available_on_device());
-//     const auto svm_desc = this->get_descriptor().set_component_count(2);
-//     const auto model = this->train(svm_desc, this->get_train_data()).get_model();
-//     const auto infer_data = this->get_infer_data(4, 4);
+    REQUIRE_THROWS_AS(this->infer(svm_desc, model.set_coeffs(homogen_table{}), this->get_infer_data()), domain_error);
+}
 
-//     REQUIRE_THROWS_AS(this->infer(svm_desc, model, infer_data), invalid_argument);
-// }
+SVM_BADARG_TEST("throws if infer model support vectors cols neq infer data cols") {
+    SKIP_IF(this->not_available_on_device());
+    const auto svm_desc = this->get_descriptor();
+    const auto model = this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model();
+
+    REQUIRE_THROWS_AS(this->infer(svm_desc, model, this->get_infer_data(8, 1)), invalid_argument);
+}
+
+SVM_BADARG_TEST("throws if infer model coeffs rows neq support vector count") {
+    SKIP_IF(this->not_available_on_device());
+    const auto svm_desc = this->get_descriptor();
+    auto model = this->train(svm_desc, this->get_train_data(), this->get_train_labels()).get_model();
+    const auto support_vector_count = model.get_support_vector_count();
+    model.set_coeffs(this->get_infer_data(support_vector_count - 1, 2));
+
+    REQUIRE_THROWS_AS(this->infer(svm_desc, model, this->get_infer_data()), invalid_argument);
+}
 
 } // namespace oneapi::dal::svm::test
