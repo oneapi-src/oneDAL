@@ -25,7 +25,6 @@ test --test_env=OverrideDefaultFP64Settings \
      --test_env=IGC_ForceDPEmulation \
      --test_env=IGC_EnableDPEmulation
 
-
 # Configuration: 'public'
 # Build & run all tests for public interface
 build:public \
