@@ -20,6 +20,7 @@
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
+#include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/usm_homogen_table_adapter.hpp"
@@ -81,7 +82,7 @@ inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
     }
 
     if (allow_copy) {
-        data.need_mutable_data(queue);
+        data.need_mutable_data(queue, sycl::usm::alloc::device);
     }
 
     ONEDAL_ASSERT(data.has_mutable_data());
@@ -163,8 +164,13 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const homoge
 template <typename Data>
 inline daal::data_management::NumericTablePtr convert_to_daal_table(sycl::queue& queue,
                                                                     const homogen_table& table) {
-    if (auto wrapper = wrap_by_usm_homogen_adapter(queue, table)) {
-        return wrapper;
+    // If the memory stored in table is accessible on the target device,
+    // we can wrap into homogen table adapter, otherwise we should copy
+    // data to device.
+    if (is_device_accessible_usm_pointer(queue, table.get_data())) {
+        if (auto wrapper = wrap_by_usm_homogen_adapter(queue, table)) {
+            return wrapper;
+        }
     }
     return copy_to_daal_sycl_homogen_table<Data>(queue, table);
 }
