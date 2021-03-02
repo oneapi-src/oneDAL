@@ -38,24 +38,9 @@ dal_test_suite(
 )
 
 dal_test_suite(
-    name = "gpu_tests",
-    compile_as = [ "dpc++" ],
-    srcs = glob([
-        "backend/gpu/*_test.cpp",
-    ]),
-    dal_deps = [
-        ":kmeans_init",
-    ],
-    tags = ["gpu", "exclusive"],
-)
-
-dal_test_suite(
     name = "tests",
     host_tests = [
         ":common_tests",
         ":cpu_tests",
-    ],
-    dpc_tests = [
-        ":gpu_tests",
     ],
 )

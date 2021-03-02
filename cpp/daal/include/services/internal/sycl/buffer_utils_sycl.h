@@ -38,26 +38,54 @@ namespace interface1
 class BufferAllocator
 {
 private:
-    struct Allocate
+#ifdef DAAL_SYCL_INTERFACE_USM
+    struct UsmDeleter
     {
-        UniversalBuffer buffer;
-        size_t bufferSize;
+        cl::sycl::queue queue;
 
-        explicit Allocate(size_t size) : bufferSize(size) {}
+        explicit UsmDeleter(const cl::sycl::queue & q) : queue(q) {}
+
+        void operator()(const void * ptr) const { cl::sycl::free(const_cast<void *>(ptr), queue); }
+    };
+
+    struct AllocateUSMBacked
+    {
+        const cl::sycl::queue & queue;
+        size_t bufferSize;
+        UniversalBuffer buffer;
+
+        explicit AllocateUSMBacked(const cl::sycl::queue & q, size_t size) : queue(q), bufferSize(size) {}
 
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
-            status |= catchSyclExceptions([&]() mutable { buffer = Buffer<T>(cl::sycl::buffer<T, 1>(bufferSize), status); });
+            T * usmPtr = cl::sycl::malloc_device<T>(bufferSize, queue);
+            if (usmPtr == nullptr)
+            {
+                status |= services::ErrorMemoryAllocationFailed;
+                return;
+            }
+            services::SharedPtr<T> usmSharedPtr(usmPtr, UsmDeleter { queue });
+            buffer = services::internal::Buffer<T>(usmSharedPtr, bufferSize, queue, status);
         }
     };
 
-public:
-    static UniversalBuffer allocate(TypeId type, size_t bufferSize, Status & status)
+    static UniversalBuffer allocateUSMBacked(const cl::sycl::queue & q, TypeId type, size_t bufferSize, Status & status)
     {
-        Allocate allocateOp(bufferSize);
+        AllocateUSMBacked allocateOp(q, bufferSize);
         TypeDispatcher::dispatch(type, allocateOp, status);
         return allocateOp.buffer;
+    }
+#endif
+
+public:
+    static UniversalBuffer allocate(const cl::sycl::queue & q, TypeId type, size_t bufferSize, Status & status)
+    {
+#ifdef DAAL_SYCL_INTERFACE_USM
+        return BufferAllocator::allocateUSMBacked(q, type, bufferSize, status);
+#else
+        static_assert(false, "Allocations of sycl buffers are no longer supported");
+#endif // DAAL_SYCL_INTERFACE_USM
     }
 };
 
@@ -77,29 +105,49 @@ private:
             : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcUnivers(src), srcOffset(srcOffset), count(count)
         {}
 
+#ifdef DAAL_SYCL_INTERFACE_USM
+        template <typename T>
+        Status copyOp(const Buffer<T> & srcBuffer, const Buffer<T> & dstBuffer)
+        {
+            using namespace cl::sycl;
+
+            Status status;
+            auto src = srcBuffer.toUSM(queue, data_management::readOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            auto dst = dstBuffer.toUSM(queue, data_management::writeOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            auto * src_raw = src.get() + srcOffset;
+            auto * dst_raw = dst.get() + dstOffset;
+
+            const size_t bytes_count = sizeof(T) * count;
+            DAAL_ASSERT(bytes_count >= count);
+
+            return catchSyclExceptions([&]() mutable {
+                auto event = queue.memcpy(dst_raw, src_raw, bytes_count);
+                event.wait_and_throw();
+            });
+        }
+#endif
+
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
             DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(srcUnivers, T);
             DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
 
-            auto src = srcUnivers.get<T>().toSycl(status);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+            const auto & srcBuffer = srcUnivers.get<T>();
+            const auto & dstBuffer = dstUnivers.get<T>();
 
-            auto dst = dstUnivers.get<T>().toSycl(status);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+            DAAL_ASSERT(srcBuffer.size() >= srcOffset + count);
+            DAAL_ASSERT(dstBuffer.size() >= dstOffset + count);
 
-            DAAL_ASSERT(src.get_count() >= srcOffset + count);
-            DAAL_ASSERT(dst.get_count() >= dstOffset + count);
-
-            status |= catchSyclExceptions([&]() mutable {
-                cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                    auto src_acc = src.template get_access<cl::sycl::access::mode::read>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(srcOffset));
-                    auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                    cgh.copy(src_acc, dst_acc);
-                });
-                event.wait_and_throw();
-            });
+#ifdef DAAL_SYCL_INTERFACE_USM
+            status |= copyOp(srcBuffer, dstBuffer);
+#else
+            static_assert(false, "Support of USM memory is required to copy data in service::Buffer");
+#endif
         }
     };
 
@@ -134,26 +182,54 @@ private:
             : queue(queue), dstUnivers(dst), dstOffset(desOffset), srcArray(src), srcCount(srcCount), srcOffset(srcOffset), count(count)
         {}
 
+#ifdef DAAL_SYCL_INTERFACE_USM
+        template <typename T>
+        Status copyOp(const T * src, const Buffer<T> & dstBuffer)
+        {
+            using namespace cl::sycl;
+
+            Status status;
+
+            auto sub = dstBuffer.getSubBuffer(dstOffset, count, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            {
+                // TODO: change to use toUSM() and queue.memcpy()
+                auto dst = sub.toHost(data_management::writeOnly, status);
+                DAAL_CHECK_STATUS_VAR(status);
+
+                auto dst_raw = dst.get();
+
+                const size_t size = sizeof(T) * count;
+                DAAL_ASSERT(size >= count);
+
+                int result = daal_memcpy_s(dst_raw, size, src, size);
+                if (result)
+                {
+                    return services::ErrorMemoryCopyFailedInternal;
+                }
+            }
+            return status;
+        }
+#endif
+
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
             DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
 
-            auto src = (T *)srcArray;
-            auto dst = dstUnivers.get<T>().toSycl(status);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+            auto src               = (T *)srcArray;
+            const auto & dstBuffer = dstUnivers.get<T>();
 
             DAAL_ASSERT(srcArray);
             DAAL_ASSERT(srcCount >= srcOffset + count);
-            DAAL_ASSERT(dst.get_count() >= dstOffset + count);
+            DAAL_ASSERT(dstBuffer.size() >= dstOffset + count);
 
-            status |= catchSyclExceptions([&]() mutable {
-                cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                    auto dst_acc = dst.template get_access<cl::sycl::access::mode::write>(cgh, cl::sycl::range<1>(count), cl::sycl::id<1>(dstOffset));
-                    cgh.copy(src + srcOffset, dst_acc);
-                });
-                event.wait_and_throw();
-            });
+#ifdef DAAL_SYCL_INTERFACE_USM
+            status |= copyOp(src, dstBuffer);
+#else
+            static_assert(false, "Support of USM memory is required to copy data in service::Buffer");
+#endif
         }
     };
 
@@ -179,21 +255,33 @@ private:
 
         explicit Execute(cl::sycl::queue & queue, UniversalBuffer & dest, double value) : queue(queue), dstUnivers(dest), value(value) {}
 
+#ifdef DAAL_SYCL_INTERFACE_USM
+        template <typename T>
+        Status fillOp(const Buffer<T> & dstBuffer)
+        {
+            Status status;
+            auto dstPtr = dstBuffer.toUSM(queue, data_management::writeOnly, status);
+            DAAL_CHECK_STATUS_VAR(status);
+
+            return catchSyclExceptions([&]() mutable {
+                auto event = queue.fill(dstPtr.get(), static_cast<T>(value), dstBuffer.size());
+                event.wait_and_throw();
+            });
+        }
+#endif
+
         template <typename T>
         void operator()(Typelist<T>, Status & status)
         {
             DAAL_ASSERT_UNIVERSAL_BUFFER_TYPE(dstUnivers, T);
 
-            auto dst = dstUnivers.get<T>().toSycl(status);
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
+            const auto & dstBuffer = dstUnivers.get<T>();
 
-            status |= catchSyclExceptions([&]() mutable {
-                cl::sycl::event event = queue.submit([&](cl::sycl::handler & cgh) {
-                    auto acc = dst.template get_access<cl::sycl::access::mode::write>(cgh);
-                    cgh.fill(acc, static_cast<T>(value));
-                });
-                event.wait_and_throw();
-            });
+#ifdef DAAL_SYCL_INTERFACE_USM
+            status |= fillOp(dstBuffer);
+#else
+            static_assert(false, "Support of USM memory is required to fill data in service::Buffer");
+#endif
         }
     };
 

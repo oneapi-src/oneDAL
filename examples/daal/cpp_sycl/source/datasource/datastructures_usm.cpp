@@ -118,7 +118,7 @@ int main(int argc, char * argv[])
         generateData(queue, dataDevice, nRows, nCols).wait();
 
         /* Create numeric table from shared memory */
-        NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(dataDevice, nCols, nRows, cl::sycl::usm::alloc::shared);
+        NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(dataDevice, nCols, nRows, queue);
 
         /* Compute correlation matrix of generated dataset */
         NumericTablePtr covariance = computeCorrelationMatrix(dataTable);

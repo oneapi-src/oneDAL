@@ -84,6 +84,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
 
     uint32_t blockSize = 0;
     DAAL_CHECK_STATUS_VAR(this->getBlockSize(nRows, nClusters, nFeatures, blockSize));
+    DAAL_CHECK_STATUS_VAR(this->fitPartialCentroidSize(nClusters, nFeatures));
     DAAL_CHECK_STATUS_VAR(this->initializeBuffers(nClusters, nFeatures, blockSize));
     DAAL_ASSERT_UNIVERSAL_BUFFER(this->_numEmptyClusters, int, 1);
 

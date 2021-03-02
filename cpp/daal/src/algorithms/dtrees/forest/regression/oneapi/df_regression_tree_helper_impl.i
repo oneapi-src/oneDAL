@@ -90,7 +90,7 @@ public:
 template <typename algorithmFPType>
 struct TreeLevelRecord
 {
-    TreeLevelRecord() : _nodeList(nullptr), _impInfo(nullptr), _nNodes(0) {}
+    TreeLevelRecord() : _isInitialized(false), _nNodes(0) {}
     services::Status init(services::internal::sycl::UniversalBuffer & nodeList, services::internal::sycl::UniversalBuffer & impInfo, size_t nNodes)
     {
         services::Status status;
@@ -103,26 +103,31 @@ struct TreeLevelRecord
         auto impInfoHost  = impInfo.template get<algorithmFPType>().toHost(ReadWriteMode::readOnly, status);
         DAAL_CHECK_STATUS_VAR(status);
 
-        _nodeList = nodeListHost.get();
-        _impInfo  = impInfoHost.get();
+        _nodeList = nodeListHost;
+        _impInfo  = impInfoHost;
+
+        _isInitialized = true;
 
         return status;
     }
 
+    bool isInitialized() const { return _isInitialized; }
     size_t getNodesNum() { return _nNodes; }
-    int getRowsNum(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 1]; }
-    int getFtrIdx(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 2]; }
-    int getFtrVal(size_t nodeIdx) { return _nodeList[nodeIdx * _nNodeSplitProps + 3]; }
-    algorithmFPType getImpurity(size_t nodeIdx) { return _impInfo[nodeIdx * _nNodeImpProps + 0]; }
-    algorithmFPType getResponse(size_t nodeIdx) { return _impInfo[nodeIdx * _nNodeImpProps + 1]; }
+    int getRowsNum(size_t nodeIdx) { return _nodeList.get()[nodeIdx * _nNodeSplitProps + 1]; }
+    int getFtrIdx(size_t nodeIdx) { return _nodeList.get()[nodeIdx * _nNodeSplitProps + 2]; }
+    int getFtrVal(size_t nodeIdx) { return _nodeList.get()[nodeIdx * _nNodeSplitProps + 3]; }
+    algorithmFPType getImpurity(size_t nodeIdx) { return _impInfo.get()[nodeIdx * _nNodeImpProps + 0]; }
+    algorithmFPType getResponse(size_t nodeIdx) { return _impInfo.get()[nodeIdx * _nNodeImpProps + 1]; }
     bool hasUnorderedFtr(size_t nodeIdx) { return false; }
 
     constexpr static int _nNodeImpProps   = 2;
     constexpr static int _nNodeSplitProps = 5;
 
-    int * _nodeList;
-    algorithmFPType * _impInfo;
+    SharedPtr<int> _nodeList;
+    SharedPtr<algorithmFPType> _impInfo;
     size_t _nNodes;
+
+    bool _isInitialized;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -141,8 +146,6 @@ struct DFTreeConverter
         bool unorderedFeaturesUsed = false;
         const int notFoundVal      = -1;
 
-        TreeLevelRecord<algorithmFPType> & r0 = treeLevelsList[0];
-
         size_t level = treeLevelsList.size();
         DAAL_ASSERT(level);
 
@@ -150,6 +153,8 @@ struct DFTreeConverter
         {
             level--;
             TreeLevelRecord<algorithmFPType> & record = treeLevelsList[level];
+            DAAL_ASSERT(record.isInitialized());
+
             DFTreeNodesArrPtr dfTreeLevelNodes(new DFTreeNodesArr(record.getNodesNum()));
             DAAL_CHECK_MALLOC(dfTreeLevelNodes.get());
             DAAL_CHECK_MALLOC(dfTreeLevelNodes->get());
