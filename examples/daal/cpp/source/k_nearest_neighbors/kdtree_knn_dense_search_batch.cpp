@@ -180,9 +180,10 @@ void printIndicesResults(
     kdtree_knn_classification::prediction::ResultPtr &predictionResult) {
   NumericTablePtr indicesResult =
       predictionResult->get(kdtree_knn_classification::prediction::indices);
-  printNumericTable(testGroundTruth,
-                    "Indices Ground Truth (first 10 rows):", 10);
-  printNumericTable(indicesResult, "Computed Indices (first 10 rows):", 10);
+  printNumericTables<int, int>(
+      testGroundTruth.get(), indicesResult.get(),
+      "Ground Truth indices:", "Computed indices:",
+      "KD-tree based kNN search results (first 10 observations):", 10);
 }
 
 void printDistancesResults(
@@ -190,7 +191,8 @@ void printDistancesResults(
     kdtree_knn_classification::prediction::ResultPtr &predictionResult) {
   NumericTablePtr distancesResult =
       predictionResult->get(kdtree_knn_classification::prediction::distances);
-  printNumericTable(testGroundTruth,
-                    "Distances Ground Truth (first 10 rows):", 10);
-  printNumericTable(distancesResult, "Computed Distances (first 10 rows):", 10);
+  printNumericTables<float, float>(
+      testGroundTruth.get(), distancesResult.get(),
+      "Ground Truth distances:", "Computed distances:",
+      "KD-tree based kNN search results (first 10 observations):", 10);
 }

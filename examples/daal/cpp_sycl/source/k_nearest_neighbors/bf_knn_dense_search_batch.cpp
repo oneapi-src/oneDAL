@@ -158,16 +158,24 @@ void readGroundTruth(NumericTablePtr & groundTruthIndices, NumericTablePtr & gro
     distancesDataSource.loadDataBlock(groundTruthDistances.get());
 }
 
-void printIndicesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult)
-{
-    auto indicesResult = predictionResult->get(bf_knn_classification::prediction::indices);
-    printNumericTable<int>(testGroundTruth, "Indices Ground Truth (first 10 rows):", 10);
-    printNumericTable<int>(indicesResult, "Computed Indices (first 10 rows):", 10);
+void printIndicesResults(
+    NumericTablePtr &testGroundTruth,
+    bf_knn_classification::prediction::ResultPtr &predictionResult) {
+  NumericTablePtr indicesResult =
+      predictionResult->get(bf_knn_classification::prediction::indices);
+  printNumericTables<int, int>(
+      testGroundTruth.get(), indicesResult.get(),
+      "Ground Truth indices:", "Computed indices:",
+      "Brute force kNN search results (first 10 observations):", 10);
 }
 
-void printDistancesResults(NumericTablePtr & testGroundTruth, bf_knn_classification::prediction::ResultPtr & predictionResult)
-{
-    auto distancesResult = predictionResult->get(bf_knn_classification::prediction::distances);
-    printNumericTable(testGroundTruth, "Distances Ground Truth (first 10 rows):", 10);
-    printNumericTable(distancesResult, "Computed Distances (first 10 rows):", 10);
+void printDistancesResults(
+    NumericTablePtr &testGroundTruth,
+    bf_knn_classification::prediction::ResultPtr &predictionResult) {
+  NumericTablePtr distancesResult =
+      predictionResult->get(bf_knn_classification::prediction::distances);
+  printNumericTables<float, float>(
+      testGroundTruth.get(), distancesResult.get(),
+      "Ground Truth distances:", "Computed distances:",
+      "Brute force kNN search results (first 10 observations):", 10);
 }
