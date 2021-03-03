@@ -48,6 +48,7 @@ namespace kmeans
 {
 namespace internal
 {
+using namespace daal::services::internal::sycl;
 template <typename algorithmFPType>
 Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, const NumericTable * const * a, size_t nr,
                                                                    const NumericTable * const * r, const Parameter * par)
@@ -121,6 +122,11 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     auto assignments = context.allocate(TypeIds::id<int>(), blockSize, st);
     DAAL_CHECK_STATUS_VAR(st);
 
+    math::SumReducer::Result dataSums(context, blockSize, TypeIds::id<algorithmFPType>(), st);
+    DAAL_CHECK_STATUS_VAR(st);
+    math::SumReducer::Result centroidsSums(context, blockSize, TypeIds::id<algorithmFPType>(), st);
+    DAAL_CHECK_STATUS_VAR(st);
+
     size_t nPartNum = this->getCandidatePartNum(nClusters);
     size_t nBlocks  = nRows / blockSize + int(nRows % blockSize != 0);
 
@@ -131,10 +137,10 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
         BlockDescriptor<algorithmFPType> dataRows;
         DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(range.startIndex, range.count, readOnly, dataRows));
         auto data = dataRows.getBuffer();
-        DAAL_CHECK_STATUS_VAR(this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures));
+        DAAL_CHECK_STATUS_VAR(this->computeSquares(inCentroids, centroidsSums, this->_centroidsSq, nClusters, nFeatures));
         DAAL_CHECK_STATUS_VAR(this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures));
         DAAL_CHECK_STATUS_VAR(this->computeAssignments(assignments, range.count, nClusters));
-        DAAL_CHECK_STATUS_VAR(this->computeSquares(data, this->_dataSq, range.count, nFeatures));
+        DAAL_CHECK_STATUS_VAR(this->computeSquares(data, dataSums, this->_dataSq, range.count, nFeatures));
         DAAL_CHECK_STATUS_VAR(this->partialReduceCentroids(data, assignments, range.count, nClusters, nFeatures, int(block == 0)));
         if (needCandidates)
         {

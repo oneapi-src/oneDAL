@@ -36,32 +36,29 @@ void run(sycl::queue &q) {
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
 
-    const auto df_train_desc = df::descriptor<float, df::method::hist, df::task::classification>{}
-                                   .set_class_count(5)
-                                   .set_tree_count(10)
-                                   .set_features_per_node(1)
-                                   .set_min_observations_in_leaf_node(8)
-                                   .set_min_observations_in_split_node(16)
-                                   .set_min_weight_fraction_in_leaf_node(0.0)
-                                   .set_min_impurity_decrease_in_split_node(0.0)
-                                   .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
-                                   .set_variable_importance_mode(df::variable_importance_mode::mdi);
-
-    const auto df_infer_desc =
-        df::descriptor<>{}
+    const auto df_desc =
+        df::descriptor<float, df::method::hist, df::task::classification>{}
             .set_class_count(5)
+            .set_tree_count(10)
+            .set_features_per_node(1)
+            .set_min_observations_in_leaf_node(8)
+            .set_min_observations_in_split_node(16)
+            .set_min_weight_fraction_in_leaf_node(0.0)
+            .set_min_impurity_decrease_in_split_node(0.0)
+            .set_error_metric_mode(df::error_metric_mode::out_of_bag_error)
+            .set_variable_importance_mode(df::variable_importance_mode::mdi)
             .set_infer_mode(df::infer_mode::class_labels | df::infer_mode::class_probabilities)
             .set_voting_mode(df::voting_mode::weighted);
 
     try {
-        const auto result_train = dal::train(q, df_train_desc, x_train, y_train);
+        const auto result_train = dal::train(q, df_desc, x_train, y_train);
 
         std::cout << "Variable importance results:\n"
                   << result_train.get_var_importance() << std::endl;
 
         std::cout << "OOB error: " << result_train.get_oob_err() << std::endl;
 
-        const auto result_infer = dal::infer(q, df_infer_desc, result_train.get_model(), x_test);
+        const auto result_infer = dal::infer(q, df_desc, result_train.get_model(), x_test);
 
         std::cout << "Prediction results:\n" << result_infer.get_labels() << std::endl;
         std::cout << "Probabilities results:\n" << result_infer.get_probabilities() << std::endl;
