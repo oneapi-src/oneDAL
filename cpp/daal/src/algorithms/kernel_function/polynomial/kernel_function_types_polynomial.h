@@ -28,7 +28,6 @@ namespace kernel_function
 {
 namespace polynomial
 {
-
 enum Method
 {
     defaultDense = 0, /*!< Default method for computing polynomial kernel functions */
@@ -37,8 +36,7 @@ enum Method
 
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
-    Parameter(double scale = 1.0, double shift = 0.0, size_t degree = 3) : ParameterBase(),
-        scale(scale), shift(shift), degree(degree) {}
+    Parameter(double scale = 1.0, double shift = 0.0, size_t degree = 3) : ParameterBase(), scale(scale), shift(shift), degree(degree) {}
     double scale;  /*!< Polynomial kernel coefficient k in the (k(X,Y) + b)^d model */
     double shift;  /*!< Polynomial kernel coefficient b in the (k(X,Y) + b)^d model */
     size_t degree; /*!< Polynomial kernel coefficient d in the (k(X,Y) + b)^d model */

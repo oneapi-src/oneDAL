@@ -33,8 +33,8 @@ namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_polynomial_kernel_t =
-    daal_polynomial_kernel::internal::KernelImplPolynomial<daal_polynomial_kernel::defaultDense, Float, Cpu>;
+using daal_polynomial_kernel_t = daal_polynomial_kernel::internal::
+    KernelImplPolynomial<daal_polynomial_kernel::defaultDense, Float, Cpu>;
 
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -52,7 +52,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_values =
         interop::convert_to_daal_homogen_table(arr_values, row_count_x, row_count_y);
 
-    daal_polynomial_kernel::Parameter daal_parameter(desc.get_scale(), desc.get_shift(), desc.get_degree());
+    daal_polynomial_kernel::Parameter daal_parameter(desc.get_scale(),
+                                                     desc.get_shift(),
+                                                     desc.get_degree());
 
     interop::call_daal_kernel<Float, daal_polynomial_kernel_t>(ctx,
                                                                daal_x.get(),

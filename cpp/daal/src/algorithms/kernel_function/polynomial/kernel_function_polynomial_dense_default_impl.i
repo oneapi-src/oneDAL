@@ -43,22 +43,25 @@ namespace polynomial
 namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                                       NumericTable * r, const ParameterBase * par)
+services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1,
+                                                                                                       const NumericTable * a2, NumericTable * r,
+                                                                                                       const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                                       NumericTable * r, const ParameterBase * par)
+services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1,
+                                                                                                       const NumericTable * a2, NumericTable * r,
+                                                                                                       const ParameterBase * par)
 {
     return services::ErrorMethodNotImplemented;
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
-                                                                                                       NumericTable * r, const ParameterBase * par)
+services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1,
+                                                                                                       const NumericTable * a2, NumericTable * r,
+                                                                                                       const ParameterBase * par)
 {
     SafeStatus safeStat;
 
