@@ -117,7 +117,7 @@ public:
         check_if_initialized();
         REQUIRE(mat.get_shape() == ndshape<2>{ m_, n_ });
 
-        float_t* mat_ptr = mat.get_data();
+        const float_t* mat_ptr = mat.get_data();
         for (std::int64_t i = 0; i < mat.get_count(); i++) {
             if (std::int64_t(mat_ptr[i]) != k_) {
                 CAPTURE(i, mat_ptr[i]);

@@ -228,7 +228,7 @@ struct Blas
         TlsMem<fpType, cpu> tlsMklBuff(blockSizeA * blockSizeB);
 
         /* Threaded loop by whole number of blocks */
-        daal::conditional_threader_for((nRowsB > 512), nBlocksB, [&, isSOARes](SizeType iBlockB) {
+        daal::conditional_threader_for((nRowsB > blockSizeB * 2), nBlocksB, [&, isSOARes](SizeType iBlockB) {
             /* Current block size - can be less than general block size for last block */
             SizeType nRowsInBlockB   = (iBlockB < (nBlocksB - 1)) ? blockSizeB : lastBlockSizeB;
             const SizeType startRowB = iBlockB * blockSizeB;
@@ -245,7 +245,7 @@ struct Blas
                 DAAL_CHECK_MALLOC_THR(mtcRows.get());
             }
 
-            daal::conditional_threader_for((nRowsA > 512), nBlocksA, [&](SizeType iBlockA) {
+            daal::conditional_threader_for((nRowsA > blockSizeA * 2), nBlocksA, [&](SizeType iBlockA) {
                 /* Current block size - can be less than general block size for last block */
                 SizeType nRowsInBlockA   = (iBlockA < (nBlocksA - 1)) ? blockSizeA : lastBlockSizeA;
                 const SizeType startRowA = iBlockA * blockSizeA;
