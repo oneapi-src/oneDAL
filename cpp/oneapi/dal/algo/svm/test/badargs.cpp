@@ -18,10 +18,11 @@
 
 #include "oneapi/dal/algo/svm/infer.hpp"
 #include "oneapi/dal/algo/svm/train.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+
+#include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::svm::test {
 

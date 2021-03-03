@@ -22,7 +22,6 @@
 #include "oneapi/dal/test/engine/math.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::svm::test {
 
@@ -41,6 +40,10 @@ public:
     bool not_available_on_device() {
         constexpr bool is_smo = std::is_same_v<Method, svm::method::smo>;
         return get_policy().is_gpu() && is_smo;
+    }
+
+    bool weights_not_available_on_device() {
+        return get_policy().is_gpu();
     }
 
     void check_linear_kernel(
@@ -103,6 +106,31 @@ public:
         }
     }
 
+    void check_weights(
+        const table& train_data,
+        const table& train_labels,
+        const table& train_weights,
+        const svm::descriptor<Float, Method, svm::task::classification, KernelTypeLinear>& desc,
+        const std::int64_t support_vector_count,
+        const table& support_indices,
+        const table& test_data,
+        const table& expected_decision_function) {
+        CAPTURE(support_vector_count);
+
+        INFO("run training");
+        auto train_result = this->train(desc, train_data, train_labels, train_weights);
+        const auto model = train_result.get_model();
+        check_train_result(train_data, train_result, support_vector_count, support_indices);
+
+        INFO("run inference");
+        const auto infer_result = infer(desc, model, test_data);
+        const auto decision_function = infer_result.get_decision_function();
+
+        SECTION("decision fuction is expected") {
+            check_table_match(expected_decision_function, decision_function);
+        }
+    }
+
     void check_train_result(const table& train_data,
                             const svm::train_result<>& result,
                             const std::int64_t support_vector_count,
@@ -111,7 +139,7 @@ public:
         check_nans(result);
 
         SECTION("support_indices values is expected") {
-            check_support_indices(support_indices, result.get_support_indices());
+            check_table_match(support_indices, result.get_support_indices());
         }
     }
 
@@ -124,29 +152,17 @@ public:
 
         if (decision_function.has_data())
             SECTION("decision_function values is expected") {
-                check_decision_function(decision_function, result.get_decision_function());
+                check_table_match(decision_function, result.get_decision_function());
             }
 
         SECTION("labels values is expected") {
-            check_labels(labels, result.get_labels());
+            check_table_match(labels, result.get_labels());
         }
     }
 
-    void check_decision_function(const table& reference, const table& decision_function) {
+    void check_table_match(const table& reference, const table& actual_value) {
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        const double diff = te::rel_error(reference, decision_function, tol);
-        CHECK(diff < tol);
-    }
-
-    void check_labels(const table& reference, const table& labels) {
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        const double diff = te::rel_error(reference, labels, tol);
-        CHECK(diff < tol);
-    }
-
-    void check_support_indices(const table& reference, const table& support_indices) {
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        const double diff = te::rel_error(reference, support_indices, tol);
+        const double diff = te::rel_error(reference, actual_value, tol);
         CHECK(diff < tol);
     }
 
@@ -214,26 +230,6 @@ public:
 
         SECTION("there is no NaN in decision_function") {
             REQUIRE(te::has_no_nans(decision_function));
-        }
-    }
-
-    void check_tables_values_match(const table& left, const table& right) {
-        SECTION("tables values shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-            REQUIRE(left.get_column_count() == 1);
-        }
-        SECTION("tables values match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (l != r) {
-                    CAPTURE(l, r);
-                    FAIL("tables values mismatch");
-                }
-            }
         }
     }
 
@@ -489,46 +485,41 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
 
     LabelsPair labels = GENERATE_COPY(LabelsPair({ {
-                                                       -1.f,
-                                                       -1.f,
-                                                       -1.f,
-                                                       +1.f,
-                                                       +1.f,
-                                                       +1.f,
+                                                       -1.0,
+                                                       -1.0,
+                                                       -1.0,
+                                                       1.0,
+                                                       1.0,
+                                                       1.0,
                                                    },
-                                                   { -1.f, +1.f } }),
+                                                   { -1.0, 1.0 } }),
                                       LabelsPair({ {
-                                                       0.f,
-                                                       0.f,
-                                                       0.f,
-                                                       +1.f,
-                                                       +1.f,
-                                                       +1.f,
+                                                       0.0,
+                                                       0.0,
+                                                       0.0,
+                                                       1.0,
+                                                       1.0,
+                                                       1.0,
                                                    },
-                                                   { +0.f, +1.f } }),
-                                      LabelsPair({
-                                          {
-                                              0.f,
-                                              0.f,
-                                              0.f,
-                                              +2.f,
-                                              +2.f,
-                                              +2.f,
-                                          },
-                                          { +0.f, +2.f },
-                                      }),
-                                      LabelsPair({
-                                          {
-                                              -1.f,
-                                              -1.f,
-                                              -1.f,
-                                              0.f,
-                                              0.f,
-                                              0.f,
-                                          },
-                                          { -1.f, +0.f },
-                                      })
-                                      );
+                                                   { 0.0, 1.0 } }),
+                                      LabelsPair({ {
+                                                       0.0,
+                                                       0.0,
+                                                       0.0,
+                                                       2.0,
+                                                       2.0,
+                                                       2.0,
+                                                   },
+                                                   { 0.0, 2.0 } }),
+                                      LabelsPair({ {
+                                                       -1.0,
+                                                       -1.0,
+                                                       -1.0,
+                                                       0.0,
+                                                       0.0,
+                                                       0.0,
+                                                   },
+                                                   { -1.0, 0.0 } }));
 
     const auto y = homogen_table::wrap(labels.first.data(), row_count_train, 1);
 
@@ -551,6 +542,66 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                                  support_vector_count,
                                  support_indices,
                                  labels.second.data());
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm can classify linear separable surface with weights",
+                     "[svm][integration][batch]",
+                     svm_types) {
+    SKIP_IF(this->weights_not_available_on_device());
+
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+    using KernelTypeLinear = typename linear::descriptor<Float, linear::method::dense>;
+
+    constexpr std::int64_t row_count_train = 6;
+    constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
+
+    using WeightsPair = std::pair<std::array<Float, row_count_train>, std::array<Float, 1>>;
+
+    constexpr std::array<Float, element_count_train> x_data = { -2.0, 0.0, -1.0, -1.0, 0.0, -2.0,
+                                                                0.0,  2.0, 1.0,  1.0,  2.0, 0.0 };
+    const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
+
+    constexpr std::array<Float, row_count_train> y_data = {
+        -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
+    };
+    const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
+
+    WeightsPair weights_data =
+        GENERATE_COPY(WeightsPair({ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }, { 0.0 }),
+                      WeightsPair({ 10.0, 0.1, 0.1, 0.1, 0.1, 10.0 }, { -0.44 }),
+                      WeightsPair({ 0.1, 0.1, 10.0, 10.0, 0.1, 0.1 }, { 0.44 }));
+
+    const auto weights = homogen_table::wrap(weights_data.first.data(), row_count_train, 1);
+
+    constexpr std::array<Float, 2> x_test_data = { -1.0, 1.0 };
+    const auto x_test = homogen_table::wrap(x_test_data.data(), 1, column_count);
+
+    const double scale = 1.0;
+    const double c = 1e-1;
+
+    const auto kernel_desc = KernelTypeLinear{}.set_scale(scale);
+    const auto svm_desc =
+        svm::descriptor<Float, Method, svm::task::classification, KernelTypeLinear>{}.set_c(c);
+
+    constexpr std::int64_t support_vector_count = 6;
+
+    constexpr std::array<Float, support_vector_count> support_indices_data = { 0, 1, 2, 3, 4, 5 };
+    const auto support_indices =
+        homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
+
+    const auto decision_function = homogen_table::wrap(weights_data.second.data(), 1, 1);
+
+    this->check_weights(x,
+                        y,
+                        weights,
+                        svm_desc,
+                        support_vector_count,
+                        support_indices,
+                        x_test,
+                        decision_function);
 }
 
 } // namespace oneapi::dal::svm::test
