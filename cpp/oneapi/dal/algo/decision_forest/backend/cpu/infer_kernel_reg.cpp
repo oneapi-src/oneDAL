@@ -86,7 +86,7 @@ static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const in
 }
 
 template <typename Float>
-struct infer_kernel_cpu<Float, task::regression, method::by_default> {
+struct infer_kernel_cpu<Float, method::by_default, task::regression> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -94,7 +94,7 @@ struct infer_kernel_cpu<Float, task::regression, method::by_default> {
     }
 };
 
-template struct infer_kernel_cpu<float, task::regression, method::by_default>;
-template struct infer_kernel_cpu<double, task::regression, method::by_default>;
+template struct infer_kernel_cpu<float, method::by_default, task::regression>;
+template struct infer_kernel_cpu<double, method::by_default, task::regression>;
 
 } // namespace oneapi::dal::decision_forest::backend

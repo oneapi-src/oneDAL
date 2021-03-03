@@ -29,7 +29,7 @@ struct infer_ops_dispatcher<host_policy, Float, Task, Method> {
                                   const detail::descriptor_base<Task>& desc,
                                   const infer_input<Task>& input) const {
         using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Task, Method>>;
+            dal::backend::kernel_dispatcher<backend::infer_kernel_cpu<Float, Method, Task>>;
         return kernel_dispatcher_t()(ctx, desc, input);
     }
 };

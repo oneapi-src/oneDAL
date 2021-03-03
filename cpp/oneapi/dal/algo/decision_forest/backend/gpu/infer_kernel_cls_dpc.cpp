@@ -129,7 +129,7 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
 }
 
 template <typename Float>
-struct infer_kernel_gpu<Float, task::classification, method::by_default> {
+struct infer_kernel_gpu<Float, method::by_default, task::classification> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -137,7 +137,7 @@ struct infer_kernel_gpu<Float, task::classification, method::by_default> {
     }
 };
 
-template struct infer_kernel_gpu<float, task::classification, method::by_default>;
-template struct infer_kernel_gpu<double, task::classification, method::by_default>;
+template struct infer_kernel_gpu<float, method::by_default, task::classification>;
+template struct infer_kernel_gpu<double, method::by_default, task::classification>;
 
 } // namespace oneapi::dal::decision_forest::backend

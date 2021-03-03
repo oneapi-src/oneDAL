@@ -174,7 +174,7 @@ static result_t train(const context_cpu& ctx, const descriptor_t& desc, const in
 }
 
 template <typename Float, typename Task>
-struct train_kernel_cpu<Float, Task, method::dense> {
+struct train_kernel_cpu<Float, method::dense, Task> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -183,7 +183,7 @@ struct train_kernel_cpu<Float, Task, method::dense> {
 };
 
 template <typename Float, typename Task>
-struct train_kernel_cpu<Float, Task, method::hist> {
+struct train_kernel_cpu<Float, method::hist, Task> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -191,9 +191,9 @@ struct train_kernel_cpu<Float, Task, method::hist> {
     }
 };
 
-template struct train_kernel_cpu<float, task::classification, method::dense>;
-template struct train_kernel_cpu<float, task::classification, method::hist>;
-template struct train_kernel_cpu<double, task::classification, method::dense>;
-template struct train_kernel_cpu<double, task::classification, method::hist>;
+template struct train_kernel_cpu<float, method::dense, task::classification>;
+template struct train_kernel_cpu<float, method::hist, task::classification>;
+template struct train_kernel_cpu<double, method::dense, task::classification>;
+template struct train_kernel_cpu<double, method::hist, task::classification>;
 
 } // namespace oneapi::dal::decision_forest::backend
