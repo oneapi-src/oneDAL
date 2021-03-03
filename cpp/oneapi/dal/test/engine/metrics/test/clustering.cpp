@@ -15,13 +15,11 @@
 *******************************************************************************/
 
 #include <array>
+#include <cmath>
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
-
 #include "oneapi/dal/table/detail/table_builder.hpp"
-
-namespace de = oneapi::dal::detail;
 
 namespace oneapi::dal::test::engine::test {
 
@@ -35,26 +33,26 @@ TEST("Simple accuracy check", "[clustering][accuracy]") {
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t element_count = row_count * column_count;
 
-    constexpr std::array<Float, element_count> centroids = { -1.f, -1.f, 0.f, 0.f, 1.f, 1.f };
+    constexpr std::array<Float, element_count> centroids = { -2.f, -2.f, 0.f, 0.f, 1.f, 1.f };
     const auto centroids_table = homogen_table::wrap(centroids.data(), cluster_count, column_count);
 
-    constexpr std::array<Float, element_count> data = { -2.f, -2.f, -1.f, -1.f, 0.f,
-                                                        0.f,  1.5f, 1.5f, 2.f,  2.f };
+    constexpr std::array<Float, element_count> data = { -3.f, -3.f, -4.f, -4.f, 0.f,
+                                                        0.f,  1.5f, 1.5f, 5.f,  5.f };
     const auto data_table = homogen_table::wrap(data.data(), row_count, column_count);
 
-    constexpr std::array<Float, element_count> assignments = { 0.f, 0.f, 0.f, 1.f, 2.f, 2.f };
-    const auto assignments_table =
-        homogen_table::wrap(centroids.data(), cluster_count, column_count);
+    constexpr std::array<Float, element_count> assignments = { 0.f, 0.f, 1.f, 2.f, 2.f };
+    const auto assignments_table = homogen_table::wrap(assignments.data(), row_count, 1);
 
-    constexpr expected = 1 / sqrt(2.0);
+    const Float expected = (1.25f + 2.25f + 2.25f) / 3.f;
 
     const auto res = davies_bouldin_index(data_table, centroids_table, assignments_table);
     const auto diff = expected - res;
+    CAPTURE(expected, res);
     if (res == 0.0f || expected == 0.f) {
-        REQUIRE(fabs(diff) <= tol);
+        REQUIRE(std::fabs(diff) <= tol);
     }
     else {
-        REQUIRE(fabs(diff) / (std::max(fabs(expected, fabs(res)))) <= tol);
+        REQUIRE(std::fabs(diff) / (std::max(std::fabs(expected), std::fabs(res))) <= tol);
     }
 }
 

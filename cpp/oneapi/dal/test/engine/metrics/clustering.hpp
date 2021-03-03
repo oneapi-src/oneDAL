@@ -16,20 +16,17 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/linalg/matrix.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace de = oneapi::dal::detail;
-
 namespace oneapi::dal::test::engine {
 
 template <typename Float = double>
-auto davies_bouldin_index(const table& data, const table& centroids, const table& assignments) {
+Float davies_bouldin_index(const table& data, const table& centroids, const table& assignments) {
     SECTION("data shape is expected to be consistent") {
         REQUIRE(data.get_row_count() == assignments.get_row_count());
         REQUIRE(data.get_column_count() == centroids.get_column_count());
@@ -44,36 +41,43 @@ auto davies_bouldin_index(const table& data, const table& centroids, const table
     auto counters = array<std::int32_t>::zeros(cluster_count);
     auto scatter_ptr = scatter.get_mutable_data();
     auto counter_ptr = counters.get_mutable_data();
+
+    const auto data_matrix =
+        linalg::matrix<Float>::wrap(row_accessor<const Float>(data).pull({ 0, -1 }),
+                                    { row_count, feature_count });
+    const auto centroid_matrix =
+        linalg::matrix<Float>::wrap(row_accessor<const Float>(centroids).pull({ 0, -1 }),
+                                    { cluster_count, feature_count });
+
+    const auto cluster_ids = row_accessor<const std::int32_t>(assignments).pull({ 0, -1 });
+
     for (std::int64_t i = 0; i < row_count; ++i) {
-        const auto data_row = row_accessor<const Float>(data).pull({ i, i + 1 });
-        auto cluster_id = row_accessor<const std::int32_t>(assignments).pull({ i, i + 1 })[0];
-        const auto centroid_row =
-            row_accessor<const Float>(centroids).pull({ cluster_id, cluster_id + 1 });
+        auto cluster_id = cluster_ids[i];
         counter_ptr[cluster_id]++;
+        Float distance_sq = 0.0;
         for (std::int64_t j = 0; j < feature_count; ++j) {
-            const auto diff = centroid_row[j] - centroid_row[j];
-            scatter_ptr[cluster_id] += diff * diff;
+            const auto diff = data_matrix.get(i, j) - centroid_matrix.get(cluster_id, j);
+            distance_sq += diff * diff;
         }
+        scatter_ptr[cluster_id] += sqrt(distance_sq);
     }
     for (std::int64_t i = 0; i < cluster_count; ++i) {
-        scatter_ptr[i] = sqrt(scatter_ptr[i] / counter_ptr[i]);
+        scatter_ptr[i] = scatter_ptr[i] / counter_ptr[i];
     }
     Float dbi = 0.0;
     for (std::int64_t i = 0; i < cluster_count; ++i) {
-        const auto centroid_i = row_accessor<const Float>(centroids).pull({ i, i + 1 });
         Float r = 0;
         for (std::int64_t j = 0; j < cluster_count; ++j) {
             if (j == i)
                 continue;
-            const auto centroid_j = row_accessor<const Float>(centroids).pull({ j, j + 1 });
             Float separation_ij = 0.0;
-            for (std::int64_t k = 0; k < cluster_count; ++k) {
-                auto diff = centroid_i[k] - centroid_i[k];
+            for (std::int64_t k = 0; k < feature_count; ++k) {
+                auto diff = centroid_matrix.get(i, k) - centroid_matrix.get(j, k);
                 separation_ij += diff * diff;
             }
             separation_ij = sqrt(separation_ij);
             if (separation_ij > 0.0) {
-                auto cur_r = (scatter_ptr[i] - scatter_ptr[j]) / separation_ij;
+                auto cur_r = (scatter_ptr[i] + scatter_ptr[j]) / separation_ij;
                 r = std::max(r, cur_r);
             }
         }
