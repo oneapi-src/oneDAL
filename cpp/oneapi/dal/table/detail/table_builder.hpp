@@ -44,11 +44,11 @@ struct is_homogen_table_builder_impl {
                              std::int64_t column_count),
                             reset_from_array)
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_data_type, (data_type dt))
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft))
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
                                    allocate,
                                    (std::int64_t row_count, std::int64_t column_count))
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_layout, (data_layout layout))
+    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft, std::int64_t idx))
     ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
                                    copy_data,
                                    (const void* data,
@@ -154,19 +154,19 @@ public:
         impl.set_data_type(dt);
         return *this;
     }
-    auto& set_feature_type(feature_type ft) {
+    auto& set_layout(data_layout layout) {
         auto& impl = get_impl();
-        impl.set_feature_type(ft);
+        impl.set_layout(layout);
+        return *this;
+    }
+    auto& set_feature_type(feature_type ft, std::int64_t idx) {
+        auto& impl = get_impl();
+        impl.set_feature_type(ft, idx);
         return *this;
     }
     auto& allocate(std::int64_t row_count, std::int64_t column_count) {
         auto& impl = get_impl();
         impl.allocate(row_count, column_count);
-        return *this;
-    }
-    auto& set_layout(data_layout layout) {
-        auto& impl = get_impl();
-        impl.set_layout(layout);
         return *this;
     }
 

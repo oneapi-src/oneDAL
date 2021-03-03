@@ -34,9 +34,9 @@ public:
                        std::int64_t row_count,
                        std::int64_t column_count) = 0;
     virtual void set_data_type(data_type dt) = 0;
-    virtual void set_feature_type(feature_type ft) = 0;
     virtual void allocate(std::int64_t row_count, std::int64_t column_count) = 0;
     virtual void set_layout(data_layout layout) = 0;
+    virtual void set_feature_type(feature_type ft, std::int64_t idx) = 0;
     virtual void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) = 0;
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -125,14 +125,14 @@ public:
     virtual void set_data_type(data_type dt) override {
         impl_.set_data_type(dt);
     }
-    virtual void set_feature_type(feature_type ft) override {
-        impl_.set_feature_type(ft);
+    virtual void set_layout(data_layout layout) override {
+        impl_.set_layout(layout);
+    }
+    virtual void set_feature_type(feature_type ft, std::int64_t idx) override {
+        impl_.set_feature_type(ft, idx);
     }
     virtual void allocate(std::int64_t row_count, std::int64_t column_count) override {
         impl_.allocate(row_count, column_count);
-    }
-    virtual void set_layout(data_layout layout) override {
-        impl_.set_layout(layout);
     }
     virtual void copy_data(const void* data,
                            std::int64_t row_count,

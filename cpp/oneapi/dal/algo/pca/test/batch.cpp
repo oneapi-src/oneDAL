@@ -19,6 +19,7 @@
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/feature_types.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -53,6 +54,20 @@ public:
                         const te::table_id& data_table_id) {
         CAPTURE(component_count);
         const table x = data.get_table(this->get_policy(), data_table_id);
+
+        const auto meta = x.get_metadata();
+        if (meta.get_feature_type(0) == feature_type::nominal) {
+            fmt::print("it works1!");
+        }
+        if (meta.get_feature_type(2) == feature_type::nominal) {
+            fmt::print("it works2!");
+        }
+        if (meta.get_feature_type(3) == feature_type::nominal) {
+            fmt::print("it works3!");
+        }
+        if (meta.get_feature_type(4) == feature_type::ordinal) {
+            fmt::print("it works4!");
+        }
 
         INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
@@ -183,9 +198,15 @@ using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method:
 TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
     SKIP_IF(this->not_available_on_device());
 
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5),
-                           te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5));
+    const auto ft = te::feature_types_builder{ 10 }
+                        .set_default(feature_type::ordinal)
+                        .set(0, feature_type::nominal)
+                        .set(range(2, 4), feature_type::nominal)
+                        .build();
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ 100, 10 }.fill_uniform(0.2, 0.5).set_feature_types(ft),
+        te::dataframe_builder{ 100000, 10 }.fill_uniform(-0.2, 1.5).set_feature_types(ft));
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto data_table_id = this->get_homogen_table_id();

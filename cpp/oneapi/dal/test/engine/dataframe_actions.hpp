@@ -94,6 +94,29 @@ private:
     std::int64_t seed_ = 7777;
 };
 
+class dataframe_builder_action_set_feature_types : public dataframe_builder_action {
+public:
+    explicit dataframe_builder_action_set_feature_types(const feature_types& ftypes)
+            : ftypes_(ftypes) {}
+
+    std::string get_opcode() const override {
+        return fmt::format("set_feature_types({})", ftypes_.get_feature_count());
+    }
+
+    dataframe_impl* execute(dataframe_impl* df) const override {
+        if (!df) {
+            throw invalid_argument{ "Action set_feature_types got null dataframe" };
+        }
+
+        df->get_ftypes() = ftypes_.get_array();
+
+        return df;
+    }
+
+private:
+    feature_types ftypes_;
+};
+
 class dataframe_builder_action_fill_normal : public dataframe_builder_action {
 public:
     explicit dataframe_builder_action_fill_normal(double mean, double deviation, std::int64_t seed)

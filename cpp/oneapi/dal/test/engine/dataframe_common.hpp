@@ -26,6 +26,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/io/csv.hpp"
+#include "oneapi/dal/test/engine/feature_types.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -73,6 +74,15 @@ public:
               row_count_(row_count),
               column_count_(column_count) {}
 
+    explicit dataframe_impl(const array<float>& data,
+                            const array<feature_type> ftypes,
+                            std::int64_t row_count,
+                            std::int64_t column_count)
+            : array_(data),
+              ftypes_(ftypes),
+              row_count_(row_count),
+              column_count_(column_count) {}
+
     dataframe_impl(const dataframe_impl&) = delete;
     dataframe_impl& operator=(const dataframe_impl&) = delete;
 
@@ -98,6 +108,14 @@ public:
 
     array<float>& get_array() {
         return array_;
+    }
+
+    const array<feature_type>& get_ftypes() const {
+        return ftypes_;
+    }
+
+    array<feature_type>& get_ftypes() {
+        return ftypes_;
     }
 
     dataframe_impl* copy() const {
@@ -136,6 +154,7 @@ public:
 
 private:
     array<float> array_;
+    array<feature_type> ftypes_;
     std::int64_t row_count_;
     std::int64_t column_count_;
     std::unordered_map<std::string, std::any> user_fields_;
@@ -145,6 +164,12 @@ class dataframe {
 public:
     explicit dataframe(const array<float>& data, std::int64_t row_count, std::int64_t column_count)
             : dataframe(new dataframe_impl{ data, row_count, column_count }) {}
+
+    explicit dataframe(const array<float>& data,
+                       const array<feature_type>& ftypes,
+                       std::int64_t row_count,
+                       std::int64_t column_count)
+            : dataframe(new dataframe_impl{ data, ftypes, row_count, column_count }) {}
 
     explicit dataframe(dataframe_impl* impl) : impl_(impl) {}
 
@@ -180,6 +205,10 @@ public:
 
     const array<float>& get_array() const {
         return impl_->get_array();
+    }
+
+    const array<feature_type>& get_ftypes() const {
+        return impl_->get_ftypes();
     }
 
     template <typename T>
@@ -272,6 +301,8 @@ public:
 
     dataframe_builder& fill_uniform(double a, double b, std::int64_t seed = 7777);
     dataframe_builder& fill_normal(double mean, double deviation, std::int64_t seed = 7777);
+
+    dataframe_builder& set_feature_types(const feature_types& ftypes);
 
     dataframe build() const;
 

@@ -221,6 +221,11 @@ dataframe_builder& dataframe_builder::fill_uniform(double a, double b, std::int6
     return *this;
 }
 
+dataframe_builder& dataframe_builder::set_feature_types(const feature_types& ftypes) {
+    impl_->get_program().add<dataframe_builder_action_set_feature_types>(ftypes);
+    return *this;
+}
+
 dataframe_builder& dataframe_builder::fill_normal(double mean,
                                                   double deviation,
                                                   std::int64_t seed) {
@@ -241,26 +246,40 @@ dataframe dataframe_builder::build() const {
     return std::get<0>(df_hit);
 }
 
+static void set_ftypes_to_builder(dal::detail::homogen_table_builder& builder,
+                                  const array<feature_type>& ftypes) {
+    const auto ftypes_ptr = ftypes.get_data();
+    for (std::int64_t i = 0; i < ftypes.get_count(); ++i) {
+        builder.set_feature_type(ftypes[i], i);
+    }
+}
+
 template <typename Float, typename... Args>
 static homogen_table wrap_to_homogen_table(host_test_policy& policy,
                                            const array<Float>& data,
+                                           const array<feature_type>& ftypes,
                                            std::int64_t row_count,
                                            std::int64_t column_count) {
-    return dal::detail::homogen_table_builder{}.reset(data, row_count, column_count).build();
+    auto builder = dal::detail::homogen_table_builder{}.reset(data, row_count, column_count);
+    set_ftypes_to_builder(builder, ftypes);
+    return builder.build();
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float, typename... Args>
 static homogen_table wrap_to_homogen_table(device_test_policy& policy,
                                            const array<Float>& data,
+                                           const array<feature_type>& ftypes,
                                            std::int64_t row_count,
                                            std::int64_t column_count,
                                            Args&&... args) {
-    return dal::detail::homogen_table_builder{}
-        .set_data_type(dal::detail::make_data_type<Float>())
-        .allocate(policy.get_queue(), row_count, column_count, std::forward<Args>(args)...)
-        .copy_data(policy.get_queue(), data.get_data(), row_count, column_count)
-        .build();
+    auto builder =
+        dal::detail::homogen_table_builder{}
+            .set_data_type(dal::detail::make_data_type<Float>())
+            .allocate(policy.get_queue(), row_count, column_count, std::forward<Args>(args)...)
+            .copy_data(policy.get_queue(), data.get_data(), row_count, column_count);
+    set_ftypes_to_builder(builder, ftypes);
+    return builder.build();
 }
 #endif
 
@@ -280,6 +299,7 @@ static array<double> convert_to_f64(const array<float>& data) {
 template <typename Policy, typename... Args>
 static homogen_table convert_to_homogen_table(Policy& policy,
                                               const array<float>& data,
+                                              const array<feature_type>& ftypes,
                                               const table_id& id,
                                               std::int64_t row_count,
                                               std::int64_t column_count,
@@ -287,6 +307,7 @@ static homogen_table convert_to_homogen_table(Policy& policy,
     if (id.get_float_type() == table_float_type::f32) {
         return wrap_to_homogen_table(policy,
                                      data,
+                                     ftypes,
                                      row_count,
                                      column_count,
                                      std::forward<Args>(args)...);
@@ -295,6 +316,7 @@ static homogen_table convert_to_homogen_table(Policy& policy,
         auto data_f64 = convert_to_f64(data);
         return wrap_to_homogen_table(policy,
                                      data_f64,
+                                     ftypes,
                                      row_count,
                                      column_count,
                                      std::forward<Args>(args)...);
@@ -304,9 +326,28 @@ static homogen_table convert_to_homogen_table(Policy& policy,
     }
 }
 
+template <typename T>
+static void take_subset(const array<T>& src,
+                        array<T>& dst,
+                        std::int64_t row_count,
+                        std::int64_t actual_column_count,
+                        std::int64_t required_column_count,
+                        std::int64_t first_column_idx) {
+    T* dst_ptr = dst.get_mutable_data();
+    const T* src_ptr = src.get_data();
+
+    for (std::int64_t i = 0; i < row_count; ++i) {
+        for (std::int64_t j = 0; j < required_column_count; ++j) {
+            dst_ptr[i * required_column_count + j] =
+                src_ptr[i * actual_column_count + first_column_idx + j];
+        }
+    }
+}
+
 template <typename Policy, typename... Args>
 static homogen_table build_homogen_table(Policy& policy,
                                          const array<float>& data,
+                                         const array<feature_type>& ftypes,
                                          const table_id& id,
                                          std::int64_t row_count,
                                          std::int64_t column_count,
@@ -320,25 +361,41 @@ static homogen_table build_homogen_table(Policy& policy,
     if (first_column_idx == 0 && actual_column_count == required_column_count) {
         return convert_to_homogen_table(policy,
                                         data,
+                                        ftypes,
                                         id,
                                         row_count,
                                         required_column_count,
                                         std::forward<Args>(args)...);
     }
     else {
-        auto dst = array<float>::empty(row_count * required_column_count);
-        float* dst_ptr = dst.get_mutable_data();
-        const float* src_ptr = data.get_data();
+        auto new_data = array<float>::empty(row_count * required_column_count);
+        auto new_ftypes = array<feature_type>::empty(required_column_count);
+        take_subset(data,
+                    new_data,
+                    row_count,
+                    actual_column_count,
+                    required_column_count,
+                    first_column_idx);
+        take_subset(ftypes,
+                    new_ftypes,
+                    1,
+                    actual_column_count,
+                    required_column_count,
+                    first_column_idx);
 
-        for (std::int64_t i = 0; i < row_count; ++i) {
-            for (std::int64_t j = 0; j < required_column_count; ++j) {
-                dst_ptr[i * required_column_count + j] =
-                    src_ptr[i * actual_column_count + first_column_idx + j];
-            }
-        }
+        // float* dst_ptr = dst.get_mutable_data();
+        // const float* src_ptr = data.get_data();
+
+        // for (std::int64_t i = 0; i < row_count; ++i) {
+        //     for (std::int64_t j = 0; j < required_column_count; ++j) {
+        //         dst_ptr[i * required_column_count + j] =
+        //             src_ptr[i * actual_column_count + first_column_idx + j];
+        //     }
+        // }
 
         return convert_to_homogen_table(policy,
-                                        dst,
+                                        new_data,
+                                        new_ftypes,
                                         id,
                                         row_count,
                                         required_column_count,
@@ -360,6 +417,7 @@ static table build_table(Policy& policy,
     }
 
     const auto data = df.get_array();
+    const auto ftypes = df.get_ftypes();
     const std::int64_t row_count = df.get_row_count();
     const std::int64_t column_count = df.get_column_count();
 
@@ -376,6 +434,7 @@ static table build_table(Policy& policy,
     if (id.get_kind() == table_kind::homogen) {
         return build_homogen_table(policy,
                                    data,
+                                   ftypes,
                                    id,
                                    row_count,
                                    column_count,

@@ -75,8 +75,20 @@ public:
         column_count_ = 0;
     }
 
-    void set_feature_type(feature_type ft) {
-        throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
+    void set_feature_type(feature_type ft, std::int64_t idx) {
+        if (column_count_ == 0) {
+            throw dal::domain_error{ "column_count should be > 0 " };
+        }
+        ONEDAL_ASSERT(idx >= 0);
+        ONEDAL_ASSERT(idx < column_count_);
+
+        allocate_ftypes_if_need();
+        feature_type* ftypes_ptr = ftypes_.need_mutable_data().get_mutable_data();
+        ftypes_ptr[idx] = ft;
+    }
+
+    void set_layout(data_layout layout) {
+        layout_ = layout;
     }
 
     void allocate(std::int64_t row_count, std::int64_t column_count) {
@@ -94,10 +106,6 @@ public:
         column_count_ = column_count;
     }
 
-    void set_layout(data_layout layout) {
-        layout_ = layout;
-    }
-
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
         check_copy_data_preconditions(row_count, column_count);
         detail::memcpy(detail::default_host_policy{},
@@ -108,7 +116,7 @@ public:
 
     homogen_table build() {
         homogen_table new_table{
-            homogen_table_impl{ row_count_, column_count_, data_, dtype_, layout_ }
+            homogen_table_impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ }
         };
 
         reset();
@@ -150,25 +158,25 @@ public:
     // pull_*() methods can be generalized between table and builder
     template <typename T>
     void pull_rows(array<T>& a, const range& r) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.pull_rows(a, r);
     }
 
     template <typename T>
     void push_rows(const array<T>& a, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.push_rows(a, r);
     }
 
     template <typename T>
     void pull_column(array<T>& a, std::int64_t idx, const range& r) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.pull_column(a, idx, r);
     }
 
     template <typename T>
     void push_column(const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.push_column(a, idx, r);
     }
 
@@ -178,13 +186,13 @@ public:
                    array<T>& a,
                    const range& r,
                    const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.pull_rows(q, a, r, kind);
     }
 
     template <typename T>
     void push_rows(sycl::queue& q, const array<T>& a, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.push_rows(q, a, r);
     }
 
@@ -194,13 +202,13 @@ public:
                      std::int64_t idx,
                      const range& r,
                      const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.pull_column(q, a, idx, r, kind);
     }
 
     template <typename T>
     void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
+        homogen_table_impl impl{ row_count_, column_count_, data_, ftypes_, dtype_, layout_ };
         impl.push_column(q, a, idx, r);
     }
 #endif
@@ -227,11 +235,23 @@ private:
         }
     }
 
+    void allocate_ftypes_if_need() {
+        ONEDAL_ASSERT(column_count_ != 0);
+        if (ftypes_.get_count() == 0) {
+            auto default_ftype =
+                detail::is_floating_point(dtype_) ? feature_type::ratio : feature_type::ordinal;
+
+            ftypes_ = array<feature_type>::full(column_count_, default_ftype);
+        }
+        ONEDAL_ASSERT(column_count_ == ftypes_.get_count());
+    }
+
     array<byte_t> data_;
     std::int64_t row_count_;
     std::int64_t column_count_;
     data_layout layout_;
     data_type dtype_;
+    array<feature_type> ftypes_;
 };
 
 } // namespace oneapi::dal::backend

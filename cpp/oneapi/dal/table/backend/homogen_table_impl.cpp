@@ -30,6 +30,21 @@ table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dty
     return table_metadata{ dtypes, ftypes };
 }
 
+table_metadata create_homogen_metadata(std::int64_t feature_count,
+                                       data_type dtype,
+                                       const array<feature_type>& ftypes) {
+    auto dtypes = array<data_type>::full(feature_count, dtype);
+    if (ftypes.get_count() != 0) {
+        ONEDAL_ASSERT(dtypes.get_count() == ftypes.get_count());
+        return table_metadata{ dtypes, ftypes };
+    }
+
+    auto default_ftype =
+        detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal;
+    auto new_ftypes = array<feature_type>::full(feature_count, default_ftype);
+    return table_metadata{ dtypes, new_ftypes };
+}
+
 template <typename Policy, typename Data>
 static void make_mutable_data(const Policy& policy, array<Data>& array) {
     if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
