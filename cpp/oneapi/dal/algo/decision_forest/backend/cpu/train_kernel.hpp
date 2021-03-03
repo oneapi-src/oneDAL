@@ -21,7 +21,7 @@
 
 namespace oneapi::dal::decision_forest::backend {
 
-template <typename Float, typename Task, typename Method>
+template <typename Float, typename Method, typename Task>
 struct train_kernel_cpu {
     train_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                   const detail::descriptor_base<Task>& params,

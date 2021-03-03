@@ -425,21 +425,31 @@ using df_reg_types = _TE_COMBINE_TYPES_3((float, double),
 
 #define DF_BATCH_CLS_TEST(name) \
     TEMPLATE_LIST_TEST_M(df_batch_test, name, "[df][integration][batch]", df_cls_types)
-#define DF_BATCH_CLS_TEST_EXT(name)                                             \
-    TEMPLATE_LIST_TEST_M(df_batch_test,                                         \
-                         name,                                                  \
-                         "[df][integration][batch][nightly][external-dataset]", \
+#define DF_BATCH_CLS_TEST_EXT(name)                                      \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                  \
+                         name,                                           \
+                         "[df][integration][batch][external-dataset__]", \
+                         df_cls_types)
+#define DF_BATCH_CLS_TEST_NIGHTLY_EXT(name)                                       \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                           \
+                         name,                                                    \
+                         "[df][integration][batch][nightly][external-dataset__]", \
                          df_cls_types)
 
 #define DF_BATCH_REG_TEST(name) \
     TEMPLATE_LIST_TEST_M(df_batch_test, name, "[df][integration][batch]", df_reg_types)
-#define DF_BATCH_REG_TEST_EXT(name)                                             \
-    TEMPLATE_LIST_TEST_M(df_batch_test,                                         \
-                         name,                                                  \
-                         "[df][integration][batch][nightly][external-dataset]", \
+#define DF_BATCH_REG_TEST_EXT(name)                                      \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                  \
+                         name,                                           \
+                         "[df][integration][batch][external-dataset__]", \
+                         df_reg_types)
+#define DF_BATCH_REG_TEST_NIGHTLY_EXT(name)                                       \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                           \
+                         name,                                                    \
+                         "[df][integration][batch][nightly][external-dataset__]", \
                          df_reg_types)
 
-DF_BATCH_CLS_TEST_EXT("df cls default flow") {
+DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
     SKIP_IF(this->not_available_on_device());
 
     const workload_cls wl =
@@ -488,7 +498,7 @@ DF_BATCH_CLS_TEST_EXT("df cls corner flow") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST_EXT("df var importance flow") {
+DF_BATCH_CLS_TEST_NIGHTLY_EXT("df var importance flow") {
     SKIP_IF(this->is_gpu()); // var importance differes on GPU due to difference in built model
     SKIP_IF(this->not_available_on_device());
     const workload_cls wl = { df_ds_pendigits };
@@ -549,7 +559,7 @@ DF_BATCH_CLS_TEST_EXT("df cls small flow") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST_EXT("df cls impurity flow") {
+DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
     SKIP_IF(this->not_available_on_device());
     const workload_cls wl = { df_ds_segment, 0.738 };
 
@@ -574,7 +584,7 @@ DF_BATCH_CLS_TEST_EXT("df cls impurity flow") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST_EXT("df cls all features flow") {
+DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
     SKIP_IF(this->not_available_on_device());
     const workload_cls wl = { df_ds_segment, 0.738 };
 
@@ -597,7 +607,7 @@ DF_BATCH_CLS_TEST_EXT("df cls all features flow") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST_EXT("df cls bootstrap flow") {
+DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
     SKIP_IF(this->not_available_on_device());
     const workload_cls wl = { df_ds_ion, 0.95 };
 
@@ -617,27 +627,21 @@ DF_BATCH_CLS_TEST_EXT("df cls bootstrap flow") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST_EXT("df cls oob per observation flow") {
+DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
     SKIP_IF(this->not_available_on_device());
     const workload_cls wl = { df_ds_ion, 0.95 };
 
     const auto [data, data_test, checker_list] =
         this->get_cls_dataframe(wl.ds_info.name, wl.required_accuracy);
 
-    const auto error_metric_mode_val = GENERATE_COPY(
-        error_metric_mode::out_of_bag_error,
-        error_metric_mode::out_of_bag_error | error_metric_mode::out_of_bag_error_per_observation);
-    const auto variable_importance_mode_val = GENERATE_COPY(variable_importance_mode::none,
-                                                            variable_importance_mode::mdi,
-                                                            variable_importance_mode::mda_raw,
-                                                            variable_importance_mode::mda_scaled);
+    const auto error_metric_mode_val =
+        error_metric_mode::out_of_bag_error | error_metric_mode::out_of_bag_error_per_observation;
     const std::int64_t features_per_node_val = GENERATE_COPY(0, 4);
     const double observations_per_tree_fraction_val = GENERATE_COPY(1.0, 0.5);
 
     auto desc = this->get_default_descriptor();
 
     desc.set_error_metric_mode(error_metric_mode_val);
-    desc.set_variable_importance_mode(variable_importance_mode_val);
     desc.set_features_per_node(features_per_node_val);
     desc.set_max_tree_depth(10);
     desc.set_observations_per_tree_fraction(observations_per_tree_fraction_val);
@@ -732,7 +736,7 @@ DF_BATCH_REG_TEST("df reg base check with non default paarams") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_REG_TEST_EXT("df reg default flow") {
+DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
     SKIP_IF(this->not_available_on_device());
 
     const workload_reg wl = { df_ds_white_wine, 0.45, 0.5 };
@@ -759,13 +763,14 @@ DF_BATCH_REG_TEST_EXT("df reg small flow") {
 
     auto desc = this->get_default_descriptor();
     desc.set_tree_count(tree_count);
+    desc.set_min_observations_in_leaf_node(1);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_REG_TEST_EXT("df reg impurity flow") {
+DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
     SKIP_IF(this->not_available_on_device());
 
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
@@ -785,7 +790,8 @@ DF_BATCH_REG_TEST_EXT("df reg impurity flow") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_REG_TEST_EXT("df reg bootstrap  flow") {
+DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg bootstrap flow") {
+    SKIP_IF(this->not_available_on_device());
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
     const auto [data, data_test, checker_list] =

@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include <CL/sycl.hpp>
-#include <iostream>
 
 #include "gtest/gtest.h"
 #include "oneapi/dal/algo/decision_forest/train.hpp"
@@ -91,7 +90,7 @@ TEST(df_bad_arg_tests, test_overflow_checks_in_train) {
                              df_hist_classifier{}.set_tree_count(0x7FFFFFFFFFFFFFFF),
                              x_train_table,
                              y_train_table)),
-                 dal::domain_error);
+                 dal::internal_error);
 }
 
 TEST(df_bad_arg_tests, set_infer_params_over_int32) {
