@@ -47,13 +47,12 @@ services::Status buildProgram(ClKernelFactoryIface & kernelFactory, const TypeId
     return status;
 }
 
-services::Status sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, Layout vectorsLayout,
-                                const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, uint32_t workItemsPerGroup,
-                                SumReducer::Result & result)
+services::Status sum_singlepass(ExecutionContextIface & context, ClKernelFactoryIface & kernelFactory, const UniversalBuffer & vectors,
+                                uint32_t nVectors, uint32_t vectorSize, SumReducer::Result & result)
 {
     services::Status status;
 
-    auto sum_kernel = kernelFactory.getKernel("sum_singlepass", status);
+    auto sum_kernel = kernelFactory.getKernel("sum_singlesubgroup", status);
     DAAL_CHECK_STATUS_VAR(status);
 
     // no need to check overflow for nVectors * vectorSize due to we already have buffer vectors of such size
@@ -70,8 +69,10 @@ services::Status sum_singlepass(ExecutionContextIface & context, ClKernelFactory
         DAAL_ASSERT_UNIVERSAL_BUFFER(result.sumOfSquares, double, nVectors);
     }
 
-    KernelRange localRange(workItemsPerGroup, 1);
-    KernelRange globalRange(workItemsPerGroup, nVectors);
+    const uint32_t maxWorkItemsPerSubGroup = 32;
+
+    KernelRange localRange(1, maxWorkItemsPerSubGroup);
+    KernelRange globalRange(nVectors, maxWorkItemsPerSubGroup);
 
     KernelNDRange range(2);
     range.global(globalRange, status);
@@ -79,17 +80,13 @@ services::Status sum_singlepass(ExecutionContextIface & context, ClKernelFactory
     range.local(localRange, status);
     DAAL_CHECK_STATUS_VAR(status);
 
-    KernelArguments args(6 /*8*/, status);
+    KernelArguments args(5, status);
     DAAL_CHECK_STATUS_VAR(status);
-    uint32_t vectorsAreRows = vectorsLayout == Layout::RowMajor ? 1 : 0;
-    args.set(0, vectorsAreRows);
-    args.set(1, vectors, AccessModeIds::read);
-    args.set(2, nVectors);
-    args.set(3, vectorSize);
-    args.set(4, result.sum, AccessModeIds::write);
-    args.set(5, result.sumOfSquares, AccessModeIds::write);
-    //args.set(6, LocalBuffer(vectors.type(), workItemsPerGroup));
-    //args.set(7, LocalBuffer(vectors.type(), workItemsPerGroup));
+    args.set(0, vectors, AccessModeIds::read);
+    args.set(1, nVectors);
+    args.set(2, vectorSize);
+    args.set(3, result.sum, AccessModeIds::write);
+    args.set(4, result.sumOfSquares, AccessModeIds::write);
 
     context.run(range, sum_kernel, args, status);
     return status;
@@ -190,8 +187,15 @@ services::Status runFinalStepRowmajor(ExecutionContextIface & context, ClKernelF
 
     return status;
 }
-
 SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize,
+                                   services::Status & status)
+{
+    auto & context = services::internal::getDefaultContext();
+    Result result(context, nVectors, vectors.type(), status);
+    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
+    return sum(vectorsLayout, vectors, nVectors, vectorSize, result, status);
+}
+SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, Result & result,
                                    services::Status & status)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SumReducer.sum);
@@ -207,12 +211,9 @@ SumReducer::Result SumReducer::sum(Layout vectorsLayout, const UniversalBuffer &
     const uint32_t maxWorkItemsPerGroup = 256;
     const uint32_t maxNumSubSlices      = 9;
 
-    Result result(context, nVectors, vectors.type(), status);
-    DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, result);
-
     if (vectorsLayout == Layout::RowMajor)
     {
-        status |= sum_singlepass(context, kernelFactory, vectorsLayout, vectors, nVectors, vectorSize, maxWorkItemsPerGroup, result);
+        status |= sum_singlepass(context, kernelFactory, vectors, nVectors, vectorSize, result);
     }
     else
     {
