@@ -58,7 +58,7 @@ struct TaskKMeansLloyd
         cCenters = _centroids;
 
         /* Allocate memory for all arrays inside TLS */
-        tls_task = new daal::tls<TlsTask<algorithmFPType, cpu> *>([=]() -> TlsTask<algorithmFPType, cpu> * {
+        tls_task = new daal::static_tls<TlsTask<algorithmFPType, cpu> *>([=]() -> TlsTask<algorithmFPType, cpu> * {
             return TlsTask<algorithmFPType, cpu>::create(dim, clNum, max_block_size);
         }); /* Allocate memory for all arrays inside TLS: end */
 
@@ -124,7 +124,7 @@ struct TaskKMeansLloyd
 
     void kmeansClearClusters(algorithmFPType * goalFunc);
 
-    daal::tls<TlsTask<algorithmFPType, cpu> *> * tls_task;
+    daal::static_tls<TlsTask<algorithmFPType, cpu> *> * tls_task;
     algorithmFPType * clSq;
     algorithmFPType * cCenters;
 
@@ -144,8 +144,8 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedDense(const Num
     nBlocks += (nBlocks * blockSizeDefault != n);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](const int k) {
-        struct TlsTask<algorithmFPType, cpu> * tt = tls_task->local();
+    daal::static_threader_for(nBlocks, [=, &safeStat](const int k, size_t tid) {
+        struct TlsTask<algorithmFPType, cpu> * tt = tls_task->local(tid);
         DAAL_CHECK_MALLOC_THR(tt);
         const size_t blockSize = (k == nBlocks - 1) ? n - k * blockSizeDefault : blockSizeDefault;
 
@@ -259,8 +259,8 @@ Status TaskKMeansLloyd<algorithmFPType, cpu>::addNTToTaskThreadedCSR(const Numer
     nBlocks += (nBlocks * blockSizeDefault != n);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](const int k) {
-        struct TlsTask<algorithmFPType, cpu> * tt = tls_task->local();
+    daal::static_threader_for(nBlocks, [=, &safeStat](const int k, size_t tid) {
+        struct TlsTask<algorithmFPType, cpu> * tt = tls_task->local(tid);
         DAAL_CHECK_MALLOC_THR(tt);
 
         const size_t blockSize = (k == nBlocks - 1) ? n - k * blockSizeDefault : blockSizeDefault;

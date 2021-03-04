@@ -16,21 +16,11 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "common_tests",
-    compile_as = [ "c++" ],
-    srcs = glob([
-        "common_*_test.cpp",
-    ]),
-    dal_deps = [
-        ":kmeans",
-    ],
-)
-
-dal_test_suite(
     name = "cpu_tests",
+    private = True,
     compile_as = [ "c++" ],
     srcs = glob([
-        "backend/cpu/*_test.cpp",
+        "backend/cpu/test/*.cpp",
     ]),
     dal_deps = [
         ":kmeans",
@@ -39,23 +29,32 @@ dal_test_suite(
 
 dal_test_suite(
     name = "gpu_tests",
+    private = True,
     compile_as = [ "dpc++" ],
     srcs = glob([
-        "backend/gpu/*_test.cpp",
+        "backend/gpu/test/*.cpp",
     ]),
     dal_deps = [
         ":kmeans",
     ],
-    tags = ["gpu", "exclusive"],
+)
+
+dal_test_suite(
+    name = "interface_tests",
+    framework = "catch2",
+    srcs = glob([
+        "test/*.cpp",
+    ]),
+    dal_deps = [
+        ":kmeans",
+    ],
 )
 
 dal_test_suite(
     name = "tests",
-    host_tests = [
-        ":common_tests",
+    tests = [
         ":cpu_tests",
-    ],
-    dpc_tests = [
         ":gpu_tests",
+        ":interface_tests",
     ],
 )

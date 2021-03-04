@@ -13,6 +13,7 @@ dal_test_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
         "@onedal//cpp/oneapi/dal:table",
+        "@onedal//cpp/oneapi/dal/io:csv",
     ],
     dal_test_deps = [
         "@onedal//cpp/oneapi/dal/test/engine/linalg",

@@ -34,13 +34,27 @@ def _config_flag_impl(ctx):
         allowed = allowed,
     )
 
-config_flag = rule(
+_config_flag = rule(
     implementation = _config_flag_impl,
     build_setting = config.string(flag = True),
     attrs = {
         "allowed_build_setting_values": attr.string_list(),
     },
 )
+
+def config_flag(name, build_setting_default, allowed_build_setting_values):
+    _config_flag(
+        name = name,
+        build_setting_default = build_setting_default,
+        allowed_build_setting_values = allowed_build_setting_values,
+    )
+    for value in allowed_build_setting_values:
+        native.config_setting(
+            name = "{}_{}".format(name, value),
+            flag_values  = {
+                ":" + name: value,
+            },
+        )
 
 def _config_bool_flag_impl(ctx):
     return ConfigFlagInfo(

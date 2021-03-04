@@ -111,6 +111,25 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
 #endif
 }
 
+DAAL_EXPORT void _daal_threader_for_int64(int64_t n, const void * a, daal::functype_int64 func)
+{
+#if defined(__DO_TBB_LAYER__)
+    tbb::parallel_for(tbb::blocked_range<int64_t>(0, n, 1), [&](tbb::blocked_range<int64_t> r) {
+        int64_t i;
+        for (i = r.begin(); i < r.end(); i++)
+        {
+            func(i, a);
+        }
+    });
+#elif defined(__DO_SEQ_LAYER__)
+    int64_t i;
+    for (i = 0; i < n; i++)
+    {
+        func(i, a);
+    }
+#endif
+}
+
 DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
 {
 #if defined(__DO_TBB_LAYER__)

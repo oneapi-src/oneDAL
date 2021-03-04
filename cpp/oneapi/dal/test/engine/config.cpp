@@ -20,7 +20,11 @@
 
 #ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
+
+namespace oneapi::dal::backend::interop {
+void enable_daal_sycl_execution_context_cache();
+void cleanup_daal_sycl_execution_context_cache();
+} // namespace oneapi::dal::backend::interop
 #endif
 
 namespace oneapi::dal::test::engine {
