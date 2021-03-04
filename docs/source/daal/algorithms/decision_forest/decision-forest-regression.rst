@@ -173,7 +173,7 @@ Examples
 
     Batch Processing:
 
-    - :ref:`dpc_df_reg_dense_batch.cpp`
+    - :ref:`dpc_df_reg_hist_batch.cpp`
 
   .. tab:: oneAPI C++
 

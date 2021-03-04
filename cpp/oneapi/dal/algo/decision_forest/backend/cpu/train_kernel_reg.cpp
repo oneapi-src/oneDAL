@@ -15,11 +15,11 @@
 *******************************************************************************/
 
 #include <daal/include/services/error_handling.h>
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
+#include <daal/src/algorithms/dtrees/forest/regression/df_regression_model_impl.h>
 #include <daal/src/services/service_algo_utils.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_training_batch.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_training_types.h>
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_train_kernel.h>
+#include <daal/include/algorithms/decision_forest/decision_forest_regression_training_batch.h>
+#include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
+#include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h>
 
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 
@@ -32,20 +32,24 @@
 namespace oneapi::dal::decision_forest::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::classification>;
-using input_t = train_input<task::classification>;
-using result_t = train_result<task::classification>;
-using descriptor_t = detail::descriptor_base<task::classification>;
+using model_t = model<task::regression>;
+using input_t = train_input<task::regression>;
+using result_t = train_result<task::regression>;
+using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_df = daal::algorithms::decision_forest;
-namespace daal_df_cls_train = daal_df::classification::training;
+namespace daal_df_reg_train = daal_df::regression::training;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using cls_dense_kernel_t = daal_df_cls_train::internal::
-    ClassificationTrainBatchKernel<Float, daal_df_cls_train::defaultDense, Cpu>;
+using reg_dense_kernel_t = daal_df_reg_train::internal::
+    RegressionTrainBatchKernel<Float, daal_df_reg_train::defaultDense, Cpu>;
 
-template <typename Float>
+template <typename Float, daal::CpuType Cpu>
+using reg_hist_kernel_t =
+    daal_df_reg_train::internal::RegressionTrainBatchKernel<Float, daal_df_reg_train::hist, Cpu>;
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
@@ -57,12 +61,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 
     /* init param for daal kernel */
-    auto daal_input = daal::algorithms::classifier::training::Input();
-    daal_input.set(daal::algorithms::classifier::training::data, daal_data);
-    daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
+    auto daal_input = daal_df_reg_train::Input();
+    daal_input.set(daal_df_reg_train::data, daal_data);
+    daal_input.set(daal_df_reg_train::dependentVariable, daal_labels);
 
-    auto daal_parameter = daal_df_cls_train::Parameter(
-        dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
+    auto daal_parameter = daal_df_reg_train::Parameter();
     daal_parameter.nTrees = dal::detail::integral_cast<std::size_t>(desc.get_tree_count());
     daal_parameter.observationsPerTreeFraction = desc.get_observations_per_tree_fraction();
     daal_parameter.featuresPerNode =
@@ -82,6 +85,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_parameter.minImpurityDecreaseInSplitNode = desc.get_min_impurity_decrease_in_split_node();
     daal_parameter.maxLeafNodes =
         dal::detail::integral_cast<std::size_t>(desc.get_max_leaf_nodes());
+    daal_parameter.maxBins = dal::detail::integral_cast<std::size_t>(desc.get_max_bins());
+    daal_parameter.minBinSize = dal::detail::integral_cast<std::size_t>(desc.get_min_bin_size());
 
     daal_parameter.resultsToCompute = static_cast<std::uint64_t>(desc.get_error_metric_mode());
 
@@ -91,7 +96,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     result_t res;
 
-    auto daal_result = daal_df_cls_train::Result();
+    auto daal_result = daal_df_reg_train::Result();
 
     /* init daal result's objects */
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
@@ -99,7 +104,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         res.set_oob_err(dal::detail::homogen_table_builder{}.reset(arr_oob_err, 1, 1).build());
 
         const auto res_oob_err = interop::convert_to_daal_homogen_table(arr_oob_err, 1, 1);
-        daal_result.set(daal_df_cls_train::outOfBagError, res_oob_err);
+        daal_result.set(daal_df_reg_train::outOfBagError, res_oob_err);
     }
 
     if (check_mask_flag(desc.get_error_metric_mode(),
@@ -110,7 +115,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
         const auto res_oob_per_obs_err =
             interop::convert_to_daal_homogen_table(arr_oob_per_obs_err, row_count, 1);
-        daal_result.set(daal_df_cls_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
+        daal_result.set(daal_df_reg_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
     if (variable_importance_mode::none != vimp) {
         auto arr_var_imp = array<Float>::empty(1 * column_count);
@@ -119,64 +124,74 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
         const auto res_var_imp =
             interop::convert_to_daal_homogen_table(arr_var_imp, 1, column_count);
-        daal_result.set(daal_df_cls_train::variableImportance, res_var_imp);
+        daal_result.set(daal_df_reg_train::variableImportance, res_var_imp);
     }
 
-    daal_df::classification::ModelPtr mptr = daal_df::classification::ModelPtr(
-        new daal_df::classification::internal::ModelImpl(column_count));
+    daal_df::regression::ModelPtr mptr =
+        daal_df::regression::ModelPtr(new daal_df::regression::internal::ModelImpl(column_count));
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, cls_dense_kernel_t>(
-        ctx,
-        daal::services::internal::hostApp(daal_input),
-        daal_data.get(),
-        daal_labels.get(),
-        nullptr, // no weights
-        *mptr,
-        daal_result,
-        daal_parameter));
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, CpuKernel>(ctx,
+                                                    daal::services::internal::hostApp(daal_input),
+                                                    daal_data.get(),
+                                                    daal_labels.get(),
+                                                    nullptr, // no weights
+                                                    *mptr,
+                                                    daal_result,
+                                                    daal_parameter));
 
     /* extract results from daal objects */
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
         auto table_oob_err = interop::convert_from_daal_homogen_table<Float>(
-            daal_result.get(daal_df_cls_train::outOfBagError));
+            daal_result.get(daal_df_reg_train::outOfBagError));
         res.set_oob_err(table_oob_err);
     }
 
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_per_observation)) {
         auto table_oob_per_obs_err = interop::convert_from_daal_homogen_table<Float>(
-            daal_result.get(daal_df_cls_train::outOfBagErrorPerObservation));
+            daal_result.get(daal_df_reg_train::outOfBagErrorPerObservation));
         res.set_oob_err_per_observation(table_oob_per_obs_err);
     }
 
     if (variable_importance_mode::none != vimp) {
         auto table_var_imp = interop::convert_from_daal_homogen_table<Float>(
-            daal_result.get(daal_df_cls_train::variableImportance));
+            daal_result.get(daal_df_reg_train::variableImportance));
         res.set_var_importance(table_var_imp);
     }
 
-    auto model_impl = std::make_shared<model_impl_cls>(new model_interop_cls{ mptr });
+    const auto model_impl = std::make_shared<model_impl_reg>(new model_interop_reg{ mptr });
     model_impl->tree_count = mptr->getNumberOfTrees();
-    model_impl->class_count = mptr->getNumberOfClasses();
 
     return res.set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
-template <typename Float>
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float, CpuKernel>(ctx, desc, input.get_data(), input.get_labels());
 }
 
 template <typename Float, typename Task>
-struct train_kernel_cpu<Float, Task, method::dense> {
+struct train_kernel_cpu<Float, method::dense, Task> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float, reg_dense_kernel_t>(ctx, desc, input);
     }
 };
 
-template struct train_kernel_cpu<float, task::classification, method::dense>;
-template struct train_kernel_cpu<double, task::classification, method::dense>;
+template <typename Float, typename Task>
+struct train_kernel_cpu<Float, method::hist, Task> {
+    result_t operator()(const context_cpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return train<Float, reg_hist_kernel_t>(ctx, desc, input);
+    }
+};
+
+template struct train_kernel_cpu<float, method::dense, task::regression>;
+template struct train_kernel_cpu<float, method::hist, task::regression>;
+template struct train_kernel_cpu<double, method::dense, task::regression>;
+template struct train_kernel_cpu<double, method::hist, task::regression>;
 
 } // namespace oneapi::dal::decision_forest::backend

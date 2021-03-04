@@ -443,12 +443,14 @@ protected:
             }
             else
             {
-                services::SharedPtr<size_t> hostColIndices = _colIndices.toHost(data_management::readOnly, status);
+                const auto accessMode = onDeserialize ? data_management::writeOnly : data_management::readOnly;
+
+                services::SharedPtr<size_t> hostColIndices = _colIndices.toHost(accessMode, status);
                 DAAL_CHECK_STATUS_VAR(status);
-                services::SharedPtr<size_t> hostRowOffsets = _rowOffsets.toHost(data_management::readOnly, status);
+                services::SharedPtr<size_t> hostRowOffsets = _rowOffsets.toHost(accessMode, status);
                 DAAL_CHECK_STATUS_VAR(status);
 
-                BufferHostReinterpreter<char> reinterpreter(_values, data_management::readOnly, dataSize);
+                BufferHostReinterpreter<char> reinterpreter(_values, accessMode, dataSize);
                 TypeDispatcher::dispatch(_values.type(), reinterpreter, status);
                 DAAL_CHECK_STATUS_VAR(status);
                 services::SharedPtr<char> charPtr = reinterpreter.getResult();

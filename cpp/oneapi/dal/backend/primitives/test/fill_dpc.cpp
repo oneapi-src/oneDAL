@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,18 +14,30 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/test/engine/common.hpp"
 
-#include "oneapi/dal/algo/decision_forest/train_types.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
+namespace oneapi::dal::backend::primitives::test {
 
-namespace oneapi::dal::decision_forest::backend {
+TEST("just fill", "[dpc++]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
 
-template <typename Float, typename Method, typename Task>
-struct train_kernel_cpu {
-    train_result<Task> operator()(const dal::backend::context_cpu& ctx,
-                                  const detail::descriptor_base<Task>& params,
-                                  const train_input<Task>& input) const;
-};
+    float* x = sycl::malloc_shared<float>(10000, q);
+    q.fill(x, -1.0f, 10000).wait_and_throw();
 
-} // namespace oneapi::dal::decision_forest::backend
+    sycl::free(x, q);
+}
+
+TEST_CASE("fill and write on host", "[dpc++]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+
+    float* x = sycl::malloc_shared<float>(10000, q);
+    q.fill(x, -1.0f, 10000).wait_and_throw();
+
+    x[0] = 0.0f;
+
+    sycl::free(x, q);
+}
+
+} // namespace oneapi::dal::backend::primitives::test

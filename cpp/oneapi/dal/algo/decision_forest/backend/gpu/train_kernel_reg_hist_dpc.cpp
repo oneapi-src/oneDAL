@@ -168,7 +168,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 }
 
 template <typename Float, typename Task>
-struct train_kernel_gpu<Float, Task, method::hist> {
+struct train_kernel_gpu<Float, method::hist, Task> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -176,7 +176,7 @@ struct train_kernel_gpu<Float, Task, method::hist> {
     }
 };
 
-template struct train_kernel_gpu<float, task::regression, method::hist>;
-template struct train_kernel_gpu<double, task::regression, method::hist>;
+template struct train_kernel_gpu<float, method::hist, task::regression>;
+template struct train_kernel_gpu<double, method::hist, task::regression>;
 
 } // namespace oneapi::dal::decision_forest::backend
