@@ -85,19 +85,12 @@ ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
     const std::int32_t average_degree_sparsity_boundary = 4;
     if (average_degree < average_degree_sparsity_boundary) {
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
-            for (auto v_ = get_topology_vertex_neighbors_begin(t, u);
-                 v_ != get_topology_vertex_neighbors_end(t, u);
-                 ++v_) {
-                std::int32_t v = *v_;
+            for (auto v: get_topology_vertex_neighbors(t, u)) {
                 if (v > u) {
                     break;
                 }
                 auto u_neighbors_ptr = get_topology_vertex_neighbors_begin(t, u);
-                ;
-                for (auto w_ = get_topology_vertex_neighbors_begin(t, v);
-                     v_ != get_topology_vertex_neighbors_end(t, v);
-                     ++w_) {
-                    std::int32_t w = *w_;
+                for (auto w: get_topology_vertex_neighbors(t, v)) {
                     if (w > v) {
                         break;
                     }
