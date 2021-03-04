@@ -90,8 +90,8 @@ public:
 #endif
 
 #ifdef DAAL_SYCL_INTERFACE_USM
-    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(DataType * usmData, size_t nColumns, size_t nRows, const cl::sycl::queue & queue,
-                                                                          services::Status * stat = NULL)
+    static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(DataType * usmData, size_t nColumns, size_t nRows,
+                                                                          const cl::sycl::queue & queue, services::Status * stat = NULL)
     {
         const auto overflow_status = checkSizeOverflow(nRows, nColumns);
         if (!overflow_status)
