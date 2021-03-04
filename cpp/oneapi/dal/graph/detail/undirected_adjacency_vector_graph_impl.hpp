@@ -228,13 +228,25 @@ constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
 }
 
 template <typename IndexType>
+constexpr auto get_topology_vertex_neighbors_begin(const topology<IndexType>& _topology,
+                                                   const IndexType& vertex) noexcept ->
+    typename topology<IndexType>::const_vertex_edge_iterator {
+    return _topology._cols.get_data() + _topology._rows[vertex];
+}
+
+template <typename IndexType>
+constexpr auto get_topology_vertex_neighbors_end(const topology<IndexType>& _topology,
+                                                 const IndexType& vertex) noexcept ->
+    typename topology<IndexType>::const_vertex_edge_iterator {
+    return _topology._cols.get_data() + _topology._rows[vertex + 1];
+}
+
+template <typename IndexType>
 constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
                                              const IndexType& vertex) noexcept ->
     typename topology<IndexType>::const_vertex_edge_range {
-    const IndexType* vertex_neighbors_begin = _topology._cols.get_data() + _topology._rows[vertex];
-    const IndexType* vertex_neighbors_end =
-        _topology._cols.get_data() + _topology._rows[vertex + 1];
-    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
+    return std::make_pair(get_topology_vertex_neighbors_begin(_topology, vertex),
+                          get_topology_vertex_neighbors_end(_topology, vertex));
 }
 
 } // namespace oneapi::dal::preview::detail

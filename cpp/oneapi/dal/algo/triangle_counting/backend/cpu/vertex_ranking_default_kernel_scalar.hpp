@@ -20,6 +20,8 @@
 
 namespace oneapi::dal::preview::triangle_counting::backend {
 
+using namespace oneapi::dal::preview::detail;
+
 template <typename Index>
 ONEDAL_FORCEINLINE std::int64_t intersection(const Index* neigh_u,
                                              const Index* neigh_v,
@@ -68,35 +70,32 @@ ONEDAL_FORCEINLINE std::int64_t intersection_local_tc(const Index* neigh_u,
 
 template <typename Cpu>
 ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
-    const dal::preview::detail::topology<std::int32_t>& data,
+    const dal::preview::detail::topology<std::int32_t>& t,
     int64_t* triangles_local) {
-    const auto g_edge_offsets = data._rows.get_data();
-    const auto g_vertex_neighbors = data._cols.get_data();
-    const auto g_degrees = data._degrees.get_data();
-    const auto g_vertex_count = data._vertex_count;
-    const auto g_edge_count = data._edge_count;
-    std::int32_t average_degree = g_edge_count / g_vertex_count;
-    int thread_cnt = dal::detail::threader_get_max_threads();
+    const auto vertex_count = get_topology_vertex_count(t);
+    std::int32_t average_degree = get_topology_edge_count(t) / vertex_count;
+    int thread_count = dal::detail::threader_get_max_threads();
 
-    dal::detail::threader_for(thread_cnt * g_vertex_count,
-                              thread_cnt * g_vertex_count,
+    dal::detail::threader_for(thread_count * vertex_count,
+                              thread_count * vertex_count,
                               [&](std::int64_t u) {
                                   triangles_local[u] = 0;
                               });
 
     const std::int32_t average_degree_sparsity_boundary = 4;
     if (average_degree < average_degree_sparsity_boundary) {
-        dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
-            for (auto v_ = g_vertex_neighbors + g_edge_offsets[u];
-                 v_ != g_vertex_neighbors + g_edge_offsets[u + 1];
+        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+            for (auto v_ = get_topology_vertex_neighbors_begin(t, u);
+                 v_ != get_topology_vertex_neighbors_end(t, u);
                  ++v_) {
                 std::int32_t v = *v_;
                 if (v > u) {
                     break;
                 }
-                auto u_neighbors_ptr = g_vertex_neighbors + g_edge_offsets[u];
-                for (auto w_ = g_vertex_neighbors + g_edge_offsets[v];
-                     v_ != g_vertex_neighbors + g_edge_offsets[v + 1];
+                auto u_neighbors_ptr = get_topology_vertex_neighbors_begin(t, u);
+                ;
+                for (auto w_ = get_topology_vertex_neighbors_begin(t, v);
+                     v_ != get_topology_vertex_neighbors_end(t, v);
                      ++w_) {
                     std::int32_t w = *w_;
                     if (w > v) {
@@ -107,68 +106,71 @@ ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
                     }
                     if (w == *u_neighbors_ptr) {
                         int thread_id = dal::detail::threader_get_current_thread_index();
-                        int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
-                        triangles_local[indx + u]++;
-                        triangles_local[indx + v]++;
-                        triangles_local[indx + w]++;
+                        int64_t index_stride = (int64_t)thread_id * (int64_t)vertex_count;
+                        triangles_local[index_stride + u]++;
+                        triangles_local[index_stride + v]++;
+                        triangles_local[index_stride + w]++;
                     }
                 }
             }
         });
     }
     else { //average_degree >= average_degree_sparsity_boundary
-        dal::detail::threader_for_simple(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
-            if (g_degrees[u] >= 2)
+        dal::detail::threader_for_simple(vertex_count, vertex_count, [&](std::int32_t u) {
+            if (get_topology_vertex_degree(t, u) >= 2)
                 dal::detail::threader_for_int32ptr(
-                    g_vertex_neighbors + g_edge_offsets[u],
-                    g_vertex_neighbors + g_edge_offsets[u + 1],
+                    get_topology_vertex_neighbors_begin(t, u),
+                    get_topology_vertex_neighbors_end(t, u),
                     [&](const std::int32_t* v_) {
                         std::int32_t v = *v_;
                         if (v <= u) {
-                            const std::int32_t* neigh_u = g_vertex_neighbors + g_edge_offsets[u];
-                            std::int32_t size_neigh_u =
-                                g_vertex_neighbors + g_edge_offsets[u + 1] - neigh_u;
-                            const std::int32_t* neigh_v = g_vertex_neighbors + g_edge_offsets[v];
-                            ;
-                            std::int32_t size_neigh_v =
-                                g_vertex_neighbors + g_edge_offsets[v + 1] - neigh_v;
-                            std::int32_t new_size_neigh_v;
+                            const std::int32_t* v_neighbors_ptr =
+                                get_topology_vertex_neighbors_begin(t, v);
+                            std::int32_t v_neighbors_count =
+                                get_topology_vertex_neighbors_end(t, v) -
+                                get_topology_vertex_neighbors_begin(t, v);
+                            std::int32_t u_neighbors_count =
+                                get_topology_vertex_neighbors_end(t, u) -
+                                get_topology_vertex_neighbors_begin(t, u);
+                            std::int32_t new_v_neighbors_count;
 
-                            for (new_size_neigh_v = 0; (new_size_neigh_v < size_neigh_v) &&
-                                                       (neigh_v[new_size_neigh_v] <= v);
-                                 new_size_neigh_v++)
+                            for (new_v_neighbors_count = 0;
+                                 (new_v_neighbors_count < v_neighbors_count) &&
+                                 (v_neighbors_ptr[new_v_neighbors_count] <= v);
+                                 new_v_neighbors_count++)
                                 ;
-                            size_neigh_v = new_size_neigh_v;
+                            v_neighbors_count = new_v_neighbors_count;
 
                             int thread_id = dal::detail::threader_get_current_thread_index();
-                            int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
+                            int64_t index_stride = (int64_t)thread_id * (int64_t)vertex_count;
 
-                            auto tc = intersection_local_tc(neigh_u,
-                                                            neigh_v,
-                                                            size_neigh_u,
-                                                            size_neigh_v,
-                                                            triangles_local + indx,
-                                                            g_vertex_count);
+                            auto tc =
+                                intersection_local_tc(get_topology_vertex_neighbors_begin(t, u),
+                                                      v_neighbors_ptr,
+                                                      u_neighbors_count,
+                                                      v_neighbors_count,
+                                                      triangles_local + index_stride,
+                                                      vertex_count);
 
-                            triangles_local[indx + u] += tc;
-                            triangles_local[indx + v] += tc;
+                            triangles_local[index_stride + u] += tc;
+                            triangles_local[index_stride + v] += tc;
                         }
                     });
         });
     }
 
-    auto arr_triangles = array<std::int64_t>::empty(g_vertex_count);
+    auto arr_triangles = array<std::int64_t>::empty(vertex_count);
 
     int64_t* triangles_ptr = arr_triangles.get_mutable_data();
 
-    dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
         triangles_ptr[u] = 0;
     });
 
-    dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
-        for (int j = 0; j < thread_cnt; j++) {
-            int64_t idx_glob = (int64_t)j * (int64_t)g_vertex_count;
-            triangles_ptr[u] += triangles_local[idx_glob + u];
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+        for (int thread_id = 0; thread_id < thread_count; thread_id++) {
+            int64_t index_stride = (int64_t)thread_id * (int64_t)vertex_count;
+            triangles_ptr[u] += triangles_local[index_stride + u];
         }
     });
     return arr_triangles;
