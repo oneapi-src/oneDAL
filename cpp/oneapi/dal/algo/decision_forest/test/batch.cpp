@@ -405,16 +405,16 @@ struct workload_reg {
 
 // dataset configuration
 const std::int64_t df_ds_ion_ftrs_list[] = { 0 };
-const dataset_info df_ds_ion = { "ionosphere/dataset/ionosphere",
+const dataset_info df_ds_ion = { "workloads/ionosphere/dataset/ionosphere",
                                  2 /* class count */,
                                  sizeofa(df_ds_ion_ftrs_list),
                                  df_ds_ion_ftrs_list };
-const dataset_info df_ds_segment = { "segment/dataset/segment", 7 /* class count */ };
-const dataset_info df_ds_classification = { "classification/dataset/df_classification",
+const dataset_info df_ds_segment = { "workloads/segment/dataset/segment", 7 /* class count */ };
+const dataset_info df_ds_classification = { "workloads/classification/dataset/df_classification",
                                             2 /* class count */ };
-const dataset_info df_ds_pendigits = { "pendigits/dataset/pendigits", 10 /* class count */ };
+const dataset_info df_ds_pendigits = { "workloads/pendigits/dataset/pendigits", 10 /* class count */ };
 
-const dataset_info df_ds_white_wine = { "white_wine/dataset/white_wine" };
+const dataset_info df_ds_white_wine = { "workloads/white_wine/dataset/white_wine" };
 
 using df_cls_types = _TE_COMBINE_TYPES_3((float, double),
                                          (df::method::dense, df::method::hist),
@@ -428,12 +428,12 @@ using df_reg_types = _TE_COMBINE_TYPES_3((float, double),
 #define DF_BATCH_CLS_TEST_EXT(name)                                      \
     TEMPLATE_LIST_TEST_M(df_batch_test,                                  \
                          name,                                           \
-                         "[df][integration][batch][external-dataset__]", \
+                         "[df][integration][batch][external-dataset]", \
                          df_cls_types)
 #define DF_BATCH_CLS_TEST_NIGHTLY_EXT(name)                                       \
     TEMPLATE_LIST_TEST_M(df_batch_test,                                           \
                          name,                                                    \
-                         "[df][integration][batch][nightly][external-dataset__]", \
+                         "[df][integration][batch][nightly][external-dataset]", \
                          df_cls_types)
 
 #define DF_BATCH_REG_TEST(name) \
@@ -441,12 +441,12 @@ using df_reg_types = _TE_COMBINE_TYPES_3((float, double),
 #define DF_BATCH_REG_TEST_EXT(name)                                      \
     TEMPLATE_LIST_TEST_M(df_batch_test,                                  \
                          name,                                           \
-                         "[df][integration][batch][external-dataset__]", \
+                         "[df][integration][batch][external-dataset]", \
                          df_reg_types)
 #define DF_BATCH_REG_TEST_NIGHTLY_EXT(name)                                       \
     TEMPLATE_LIST_TEST_M(df_batch_test,                                           \
                          name,                                                    \
-                         "[df][integration][batch][nightly][external-dataset__]", \
+                         "[df][integration][batch][nightly][external-dataset]", \
                          df_reg_types)
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
