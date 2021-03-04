@@ -412,7 +412,8 @@ const dataset_info df_ds_ion = { "workloads/ionosphere/dataset/ionosphere",
 const dataset_info df_ds_segment = { "workloads/segment/dataset/segment", 7 /* class count */ };
 const dataset_info df_ds_classification = { "workloads/classification/dataset/df_classification",
                                             2 /* class count */ };
-const dataset_info df_ds_pendigits = { "workloads/pendigits/dataset/pendigits", 10 /* class count */ };
+const dataset_info df_ds_pendigits = { "workloads/pendigits/dataset/pendigits",
+                                       10 /* class count */ };
 
 const dataset_info df_ds_white_wine = { "workloads/white_wine/dataset/white_wine" };
 
@@ -425,27 +426,27 @@ using df_reg_types = _TE_COMBINE_TYPES_3((float, double),
 
 #define DF_BATCH_CLS_TEST(name) \
     TEMPLATE_LIST_TEST_M(df_batch_test, name, "[df][integration][batch]", df_cls_types)
-#define DF_BATCH_CLS_TEST_EXT(name)                                      \
-    TEMPLATE_LIST_TEST_M(df_batch_test,                                  \
-                         name,                                           \
+#define DF_BATCH_CLS_TEST_EXT(name)                                    \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                \
+                         name,                                         \
                          "[df][integration][batch][external-dataset]", \
                          df_cls_types)
-#define DF_BATCH_CLS_TEST_NIGHTLY_EXT(name)                                       \
-    TEMPLATE_LIST_TEST_M(df_batch_test,                                           \
-                         name,                                                    \
+#define DF_BATCH_CLS_TEST_NIGHTLY_EXT(name)                                     \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                         \
+                         name,                                                  \
                          "[df][integration][batch][nightly][external-dataset]", \
                          df_cls_types)
 
 #define DF_BATCH_REG_TEST(name) \
     TEMPLATE_LIST_TEST_M(df_batch_test, name, "[df][integration][batch]", df_reg_types)
-#define DF_BATCH_REG_TEST_EXT(name)                                      \
-    TEMPLATE_LIST_TEST_M(df_batch_test,                                  \
-                         name,                                           \
+#define DF_BATCH_REG_TEST_EXT(name)                                    \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                \
+                         name,                                         \
                          "[df][integration][batch][external-dataset]", \
                          df_reg_types)
-#define DF_BATCH_REG_TEST_NIGHTLY_EXT(name)                                       \
-    TEMPLATE_LIST_TEST_M(df_batch_test,                                           \
-                         name,                                                    \
+#define DF_BATCH_REG_TEST_NIGHTLY_EXT(name)                                     \
+    TEMPLATE_LIST_TEST_M(df_batch_test,                                         \
+                         name,                                                  \
                          "[df][integration][batch][nightly][external-dataset]", \
                          df_reg_types)
 
