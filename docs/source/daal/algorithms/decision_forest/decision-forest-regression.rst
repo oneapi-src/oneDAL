@@ -173,7 +173,7 @@ Examples
 
     Batch Processing:
 
-    - :ref:`dpc_df_reg_dense_batch.cpp`
+    - :ref:`dpc_df_reg_hist_batch.cpp`
 
   .. tab:: oneAPI C++
 
@@ -200,5 +200,6 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`decision_forest_regression_batch.py`
+    - :daal4py_example:`decision_forest_regression_default_dense_batch.py`
+    - :daal4py_example:`decision_forest_regression_hist_batch.py`
     - :daal4py_example:`decision_forest_regression_traverse_batch.py`

@@ -64,7 +64,7 @@ binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
 
     const T* lhs_ptr = lhs.get_data();
     const T* rhs_ptr = rhs.get_data();
-    T* res_ptr = res.get_mutable_data();
+    auto res_ptr = res.get_mutable_data();
 
     for (std::int64_t i = 0; i < lhs.get_count(); i++) {
         res_ptr[i] = op(lhs_ptr[i], rhs_ptr[i]);
@@ -145,8 +145,28 @@ T max(const matrix<T, lyt>& m) {
 }
 
 template <typename T, layout lyt>
+matrix<T, lyt> max(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+    return elementwise(lhs, rhs, [&](T x, T y) {
+        return std::max(x, y);
+    });
+}
+
+template <typename T, layout lyt>
 T l_inf_norm(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return max(abs(subtract(lhs, rhs)));
+}
+
+template <typename T, layout lyt>
+T abs_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+    return l_inf_norm(lhs, rhs);
+}
+
+template <typename T, layout lyt>
+T rel_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs, T tol) {
+    return max(elementwise(lhs, rhs, [&](T x, T y) {
+        const auto div = std::max(std::abs(x), std::abs(y));
+        return (div > tol) ? (std::abs(x - y) / div) : T(0);
+    }));
 }
 
 } // namespace oneapi::dal::test::engine::linalg

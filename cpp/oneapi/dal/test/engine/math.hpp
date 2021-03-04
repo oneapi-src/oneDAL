@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <limits>
 #include "oneapi/dal/test/engine/linalg.hpp"
 
 namespace oneapi::dal::test::engine {
@@ -36,11 +37,32 @@ inline double get_tolerance(double f32_tol, double f64_tol) {
     return 0.0;
 }
 
+template <typename Float>
+inline double get_tolerance_for_sum(std::int64_t element_count) {
+    constexpr Float eps = std::numeric_limits<Float>::epsilon();
+    const Float nu = eps * element_count;
+    return nu / (1.0 - nu);
+}
+
 template <typename Reference, typename Actual>
 inline double l_inf_norm(const Reference& ref, const Actual& actual) {
     const auto ref_mat = linalg::matrix<double>::wrap(ref);
     const auto act_mat = linalg::matrix<double>::wrap(actual);
     return linalg::l_inf_norm(ref_mat, act_mat);
+}
+
+template <typename Reference, typename Actual>
+inline double abs_error(const Reference& ref, const Actual& actual) {
+    const auto ref_mat = linalg::matrix<double>::wrap(ref);
+    const auto act_mat = linalg::matrix<double>::wrap(actual);
+    return linalg::abs_error(ref_mat, act_mat);
+}
+
+template <typename Reference, typename Actual>
+inline double rel_error(const Reference& ref, const Actual& actual, double tol) {
+    const auto ref_mat = linalg::matrix<double>::wrap(ref);
+    const auto act_mat = linalg::matrix<double>::wrap(actual);
+    return linalg::rel_error(ref_mat, act_mat, tol);
 }
 
 template <typename Container>

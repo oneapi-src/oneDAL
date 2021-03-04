@@ -174,7 +174,7 @@ protected:
 
         SafeStatus safeStat;
 
-        daal::tls<BruteForceTask *> tlsTask([=, &safeStat]() {
+        daal::static_tls<BruteForceTask *> tlsTask([=, &safeStat]() {
             auto tlsData = BruteForceTask::create(inBlockSize, iSize, k);
             if (!tlsData)
             {
@@ -184,12 +184,12 @@ protected:
         });
 
         const size_t nThreads = _daal_threader_get_max_threads();
-        daal::conditional_threader_for(nOuterBlocks < 2 * nThreads, nInBlocks, [&](size_t inBlock) {
+        daal::conditional_static_threader_for(nOuterBlocks < 2 * nThreads, nInBlocks, [&](size_t inBlock, size_t tid) {
             const size_t j1    = inBlock * inBlockSize;
             const size_t j2    = (inBlock + 1 == nInBlocks ? inRows : j1 + inBlockSize);
             const size_t jSize = j2 - j1;
 
-            const BruteForceTask * tls = tlsTask.local();
+            const BruteForceTask * tls = tlsTask.local(tid);
             DAAL_CHECK_MALLOC_THR(tls);
 
             FPType * distancesBuff = tlsDistances.local();

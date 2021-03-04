@@ -52,7 +52,7 @@ constexpr auto get_edge_count(const Graph &graph) noexcept -> edge_size_type<Gra
 /// @return The degree of the vertex
 template <typename Graph>
 constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
-    -> edge_size_type<Graph>;
+    -> vertex_edge_size_type<Graph>;
 
 /// Returns the range of the vertex neighbors for the specified vertex
 ///
@@ -63,7 +63,7 @@ constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
 /// @return The range of the vertex neighbors
 template <typename Graph>
 constexpr auto get_vertex_neighbors(const Graph &graph, vertex_type<Graph> vertex)
-    -> const_edge_range_type<Graph>;
+    -> const_vertex_edge_range_type<Graph>;
 
 //Functions implementation
 template <typename Graph>
@@ -78,7 +78,7 @@ constexpr auto get_edge_count(const Graph &graph) noexcept -> edge_size_type<Gra
 
 template <typename Graph>
 constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
-    -> edge_size_type<Graph> {
+    -> vertex_edge_size_type<Graph> {
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
@@ -88,7 +88,7 @@ constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
 
 template <typename Graph>
 constexpr auto get_vertex_neighbors(const Graph &graph, vertex_type<Graph> vertex)
-    -> const_edge_range_type<Graph> {
+    -> const_vertex_edge_range_type<Graph> {
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());

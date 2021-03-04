@@ -23,7 +23,7 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 kernel_function sorting normalization optimization_solver objective_function decision_tree             \
                 dtrees/gbt dtrees/forest linear_regression ridge_regression naivebayes stump adaboost brownboost       \
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
-                coordinate_descent jaccard
+                coordinate_descent jaccard triangle_counting
 
 low_order_moments +=
 quantiles +=
@@ -243,7 +243,8 @@ ONEAPI.ALGOS :=     \
     pca             \
     rbf_kernel      \
     svm             \
-    jaccard
+    jaccard         \
+    triangle_counting
 
 ONEAPI.IO :=     \
     csv

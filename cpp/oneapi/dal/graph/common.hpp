@@ -47,6 +47,12 @@ struct graph_traits {
     // vertex weight types
     using vertex_user_value_type = empty_value;
 
+    // vertex edge types
+    using vertex_edge_type = empty_value;
+    using vertex_edge_iterator = empty_value;
+    using const_vertex_edge_iterator = empty_value;
+    using vertex_edge_size_type = empty_value;
+
     // edge types
     using edge_type = empty_value;
     using edge_iterator = empty_value;
@@ -61,8 +67,8 @@ struct graph_traits {
     using edge_index = empty_value;
 
     // ranges
-    using edge_range = empty_value;
-    using const_edge_range = empty_value;
+    using vertex_edge_range = empty_value;
+    using const_vertex_edge_range = empty_value;
 };
 
 /// Type of the graph properties
@@ -95,25 +101,30 @@ using vertex_size_type = typename graph_traits<Graph>::vertex_size_type;
 template <typename Graph>
 using edge_size_type = typename graph_traits<Graph>::edge_size_type;
 
-/// Type of the graph edge iterator
+/// Type of the graph vertex-edge size
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using edge_iterator_type = typename graph_traits<Graph>::edge_iterator;
+using vertex_edge_size_type = typename graph_traits<Graph>::vertex_edge_size_type;
 
-/// Type of the constant graph edge iterator
+/// Type of the graph vertex-edge iterator
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using const_edge_iterator_type = typename graph_traits<Graph>::const_edge_iterator;
+using vertex_edge_iterator_type = typename graph_traits<Graph>::vertex_edge_iterator;
 
-/// Type of the graph range of the edges
+/// Type of the constant graph vertex-edge iterator
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using edge_range_type = typename graph_traits<Graph>::edge_range;
+using const_vertex_edge_iterator_type = typename graph_traits<Graph>::const_vertex_edge_iterator;
 
-/// Type of the constant graph range of the edges
+/// Type of the graph range of the vertex-edges
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using const_edge_range_type = typename graph_traits<Graph>::const_edge_range;
+using vertex_edge_range_type = typename graph_traits<Graph>::vertex_edge_range;
+
+/// Type of the constant graph range of the vertex-edges
+/// @tparam Graph Type of the graph
+template <typename Graph>
+using const_vertex_edge_range_type = typename graph_traits<Graph>::const_vertex_edge_range;
 
 /// Type of the graph allocator
 /// @tparam Graph Type of the graph
