@@ -33,28 +33,38 @@ int main(int argc, char **argv) {
     std::cout << "__________________" << std::endl;
     const auto filename = get_data_path("graph.csv");
 
+    std::cout << "TTT" << std::endl;
     read<table>(csv::data_source{ filename });
-    read<table>(csv::data_source{ filename }, preview::read_mode::table);
-    // read<table>(csv::data_source{ filename }, preview::read_mode::edge_list);
+
+    // std::cout << "T" << std::endl;
+    // read<table>(csv::data_source{ filename });
+
+    // std::cout << "T" << std::endl;
+    // read<table>(csv::data_source{ filename }, preview::read_mode::table);
+    // // read<table>(csv::data_source{ filename }, preview::read_mode::edge_list);
 
     using graph_t = dal::preview::graph_base;
+    std::cout << "G" << std::endl;
     read<graph_t>(csv::data_source{ filename });
-    read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
-    // read<graph_t>(csv::data_source{ filename }, preview::read_mode::table);
+    // std::cout << "G" << std::endl;
+    // read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
+    // // read<graph_t>(csv::data_source{ filename }, preview::read_mode::table);
 
-    {
-        const auto read_args = csv::read_args<table>{}.set_read_mode(preview::read_mode::table);
-        read<table>(csv::data_source{ filename }, read_args);
-    }
+    // {
+    //     std::cout << "T" << std::endl;
+    //     const auto read_args = csv::read_args<table>{}.set_read_mode(preview::read_mode::table);
+    //     read<table>(csv::data_source{ filename }, read_args);
+    // }
 
-    {
-        std::allocator<int> my_allocator;
-        const auto read_args = csv::read_args<graph_t>{}
-                                   .set_read_mode(preview::read_mode::edge_list)
-                                   .set_allocator(my_allocator);
+    // {
+    //     std::cout << "G" << std::endl;
+    //     std::allocator<int> my_allocator;
+    //     const auto read_args = csv::read_args<graph_t>{}
+    //                                .set_read_mode(preview::read_mode::edge_list)
+    //                                .set_allocator(my_allocator);
 
-        read<graph_t>(csv::data_source{ filename }, read_args);
-    }
+    //     read<graph_t>(csv::data_source{ filename }, read_args);
+    // }
 
     return 0;
 }

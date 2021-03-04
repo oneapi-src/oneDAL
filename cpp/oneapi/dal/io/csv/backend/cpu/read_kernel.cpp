@@ -51,6 +51,8 @@ table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
                                                                          csv_options);
     interop::status_to_exception(daal_data_source.status());
 
+    std::cout << "Table" << std::endl;
+
     daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
     interop::status_to_exception(daal_data_source.status());
@@ -58,14 +60,4 @@ table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
     return oneapi::dal::backend::interop::convert_from_daal_homogen_table<DAAL_DATA_TYPE>(
         daal_data_source.getNumericTable());
 }
-
-template <>
-preview::graph_base read_kernel_cpu<preview::graph_base>::operator()(
-    const dal::backend::context_cpu& ctx,
-    const detail::data_source_base& ds,
-    const read_args<preview::graph_base>& args) const {
-    std::cout << "EDGE LIST HERE" << std::endl;
-    return preview::graph_base();
-}
-
 } // namespace oneapi::dal::csv::backend

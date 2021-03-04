@@ -19,14 +19,48 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/io/csv/read_types.hpp"
+// #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/io/csv/detail/select_kernel.hpp"
+#include <iostream>
+// #include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
 
 namespace oneapi::dal::csv::detail {
 namespace v1 {
 
 template <typename Object, typename Policy, typename... Options>
-struct read_ops_dispatcher {
-    Object operator()(const Policy&, const data_source_base&, const read_args<Object>&) const;
+struct read_ops_dispatcher;
+// {
+//     Object operator()(const Policy& policy,
+//                       const data_source_base& ds,
+//                       const read_args<Object>& args) const;
+// };
+
+template <typename Object> // Object = Graph
+struct read_ops_dispatcher<Object, dal::detail::host_policy> {
+    Object operator()(const dal::detail::host_policy& policy,
+                      const data_source_base& ds,
+                      const read_args<Object>& args) const {
+        Object g;
+        // const auto& csr_topology = dal::preview::detail::csr_topology_builder<Object>()(g);
+        // static auto impl = get_backend<Policy, Descriptor>(csr_topology);
+        std::cout << "Object" << std::endl;
+        return g; //(*impl)(policy, descriptor, csr_topology);
+    }
 };
+
+template <>
+struct read_ops_dispatcher<table, dal::detail::host_policy> {
+    table operator()(const dal::detail::host_policy& policy,
+                     const data_source_base& ds,
+                     const read_args<table>& args) const;
+};
+
+// template <>
+// struct read_ops_dispatcher<table, dal::detail::host_policy> {
+//     table operator()(const dal::detail::host_policy& policy,
+//                      const data_source_base& ds,
+//                      const read_args<table>& args) const;
+// };
 
 template <typename Object, typename DataSource>
 struct read_ops;

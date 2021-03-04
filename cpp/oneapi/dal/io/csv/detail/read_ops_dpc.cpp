@@ -37,7 +37,6 @@ struct read_ops_dispatcher<Object, data_parallel_policy> {
 };
 
 template struct ONEDAL_EXPORT read_ops_dispatcher<table, data_parallel_policy>;
-template struct ONEDAL_EXPORT read_ops_dispatcher<preview::graph_base, data_parallel_policy>;
 
 } // namespace v1
 } // namespace oneapi::dal::csv::detail
