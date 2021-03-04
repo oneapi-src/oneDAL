@@ -94,7 +94,7 @@ using df_common_types = _TE_COMBINE_TYPES_3((float, double),
 #define DF_BADARG_TEST(name) \
     TEMPLATE_LIST_TEST_M(df_badarg_test, name, "[df][badarg]", df_common_types)
 
-DF_BADARG_CLS_TEST("throws if class_count is le 0") {
+DF_BADARG_CLS_TEST("throws if class_count is le 1") {
     SKIP_IF(this->not_available_on_device());
     REQUIRE_THROWS_AS(this->get_default_descriptor().set_class_count(0), domain_error);
     REQUIRE_THROWS_AS(this->get_default_descriptor().set_class_count(-1), domain_error);
