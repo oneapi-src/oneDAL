@@ -264,7 +264,7 @@ Examples
 
     Batch Processing:
 
-    - :ref:`dpc_df_cls_dense_batch.cpp`
+    - :ref:`dpc_df_cls_hist_batch.cpp`
 
   .. tab:: oneAPI C++
 
