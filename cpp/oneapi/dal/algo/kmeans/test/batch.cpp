@@ -140,22 +140,21 @@ public:
         INFO("run training");
         const auto train_result = train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
-        SECTION("there is no NaN in centroids") {
-            REQUIRE(te::has_no_nans(model.get_centroids()));
-        }
+        REQUIRE(te::has_no_nans(model.get_centroids()));
 
         INFO("run inference");
         const auto infer_result = infer(kmeans_desc, model, data);
-        SECTION("there is no NaN in labels") {
-            REQUIRE(te::has_no_nans(infer_result.get_labels()));
-        }
+        REQUIRE(te::has_no_nans(infer_result.get_labels()));
 
-        Float ref_tol = 1.0e-5;
+        Float obj_ref_tol = 1.0e-4;
+        Float dbi_ref_tol = 1.0e-4;
         auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
-        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, ref_tol));
+        CAPTURE(dbi, ref_dbi);
+        CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
+        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
         REQUIRE(check_value_with_ref_tol(infer_result.get_objective_function_value(),
                                          ref_obj_func,
-                                         ref_tol));
+                                         obj_ref_tol));
     }
 
     void train_with_initialization_checks(const table& data,
@@ -199,7 +198,8 @@ public:
         const auto [centroids, labels, iteration_count] = unpack_result(result);
 
         check_nans(result);
-        const Float strict_rel_tol = std::numeric_limits<Float>::epsilon() * iteration_count * 10;
+        const Float strict_rel_tol =
+            5.f * std::numeric_limits<Float>::epsilon() * iteration_count * 100;
         check_centroid_match_with_rel_tol(strict_rel_tol, ref_centroids, centroids);
         check_label_match(ref_labels, labels);
         if (test_convergence) {
@@ -286,7 +286,7 @@ public:
                     continue;
                 const Float denom = fabs(l) + fabs(r) + alpha;
                 if (fabs(l - r) / denom > rel_tol) {
-                    CAPTURE(l, r);
+                    CAPTURE(l, r, l - r, rel_tol, (l - r) / denom / rel_tol);
                     FAIL("Centroid feature mismatch");
                 }
             }
@@ -540,7 +540,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     Float expected_obj_function = 4;
     this->infer_checks(x, model, y, expected_obj_function);
 }
-
+/*
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans block test",
                      "[kmeans][batch][nightly]",
@@ -548,9 +548,9 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     using Float = std::tuple_element_t<0, TestType>;
 
     constexpr std::int64_t row_count = 1024 * 1024;
-    constexpr std::int64_t column_count = 1024;
+    constexpr std::int64_t column_count = 1024 * 2 / sizeof(Float);
     constexpr std::int64_t cluster_count = 1;
-    constexpr std::int64_t max_iteration_count = 3;
+    constexpr std::int64_t max_iteration_count = 1;
 
     const auto x_dataframe = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
@@ -603,23 +603,23 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     std::iota(first_label, first_label + row_count, std::int32_t(0));
     const auto y = homogen_table::wrap(labels.get_data(), row_count, 1);
 
-    this->exact_checks(x, x, x, y, 3, 1, 0.0);
+    this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
 }
-
+*/
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "higgs/17/101",
+                     "higgs/10/3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/dataset/higgs/higgs_1m_test.csv" });
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_1m_test.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
 
-    constexpr std::int64_t cluster_count = 17;
-    constexpr std::int64_t max_iteration_count = 101;
-    constexpr Float ref_dbi = 0.0;
-    constexpr Float ref_obj_func = 0.0;
+    constexpr std::int64_t cluster_count = 10;
+    constexpr std::int64_t max_iteration_count = 3;
+    constexpr Float ref_dbi = 3.1997724684;
+    constexpr Float ref_obj_func = 14717484.0;
 
     this->dbi_determenistic_checks(x,
                                    cluster_count,
@@ -630,7 +630,53 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "susy/250/10",
+                     "higgs/100/3",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_1m_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 100;
+    constexpr std::int64_t max_iteration_count = 3;
+    constexpr Float ref_dbi = 2.7450205195;
+    constexpr Float ref_obj_func = 10704352.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "higgs/250/3",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_1m_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 250;
+    constexpr std::int64_t max_iteration_count = 3;
+    constexpr Float ref_dbi = 2.5923397174;
+    constexpr Float ref_obj_func = 9335216.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "susy/10/3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -639,10 +685,10 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
 
-    constexpr std::int64_t cluster_count = 250;
+    constexpr std::int64_t cluster_count = 10;
     constexpr std::int64_t max_iteration_count = 10;
-    constexpr Float ref_dbi = 0.0;
-    constexpr Float ref_obj_func = 0.0;
+    constexpr Float ref_dbi = 1.7730860782;
+    constexpr Float ref_obj_func = 3183696.0;
 
     this->dbi_determenistic_checks(x,
                                    cluster_count,
@@ -653,42 +699,111 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "road_network_20t/111/13",
-                     "[kmeans][nightly][batch][external-dataset]",
-                     kmeans_types) {
-    using Float = std::tuple_element_t<0, TestType>;
-
-    const te::dataframe data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "workloads/dataset/road_network/road_network_100t_cluster.csv" });
-    const table x = data.get_table(this->get_homogen_table_id());
-
-    constexpr std::int64_t cluster_count = 111;
-    constexpr std::int64_t max_iteration_count = 13;
-    constexpr Float ref_dbi = 0.0;
-    constexpr Float ref_obj_func = 0.0;
-
-    this->dbi_determenistic_checks(x,
-                                   cluster_count,
-                                   max_iteration_count,
-                                   0.0,
-                                   ref_dbi,
-                                   ref_obj_func);
-}
-
-TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "epsilon/4001/17",
+                     "susy/100/3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/dataset/epsilon_80k_train.csv" });
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
 
-    constexpr std::int64_t cluster_count = 4001;
-    constexpr std::int64_t max_iteration_count = 17;
-    constexpr Float ref_dbi = 0.0;
-    constexpr Float ref_obj_func = 0.0;
+    constexpr std::int64_t cluster_count = 100;
+    constexpr std::int64_t max_iteration_count = 10;
+    constexpr Float ref_dbi = 1.9384844916;
+    constexpr Float ref_obj_func = 1757022.625;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "susy/250/3",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 10;
+    constexpr std::int64_t max_iteration_count = 10;
+    constexpr Float ref_dbi = 1.7730860782;
+    constexpr Float ref_obj_func = 3183696.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "epsilon/512/2",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 512;
+    constexpr std::int64_t max_iteration_count = 2;
+    constexpr Float ref_dbi = 6.9367580565;
+    constexpr Float ref_obj_func = 50128.640625;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "epsilon/1024/2",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 1024;
+    constexpr std::int64_t max_iteration_count = 2;
+    constexpr Float ref_dbi = 5.59003873;
+    constexpr Float ref_obj_func = 49518.75;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "epsilon/2048/2",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 2048;
+    constexpr std::int64_t max_iteration_count = 2;
+    constexpr Float ref_dbi = 4.3202752143;
+    constexpr Float ref_obj_func = 48437.6015625;
 
     this->dbi_determenistic_checks(x,
                                    cluster_count,
