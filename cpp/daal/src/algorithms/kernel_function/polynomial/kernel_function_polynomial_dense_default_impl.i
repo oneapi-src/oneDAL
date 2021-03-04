@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Polynomial kernel functions implementation
-//--
-*/
-
 #ifndef __KERNEL_FUNCTION_POLYNOMIAL_DENSE_DEFAULT_IMPL_I__
 #define __KERNEL_FUNCTION_POLYNOMIAL_DENSE_DEFAULT_IMPL_I__
 

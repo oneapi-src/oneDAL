@@ -15,12 +15,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Declaration of template structs that calculate SVM Polynomial Kernel functions.
-//--
-*/
-
 #ifndef __KERNEL_FUNCTION_DENSE_KERNEL_H__
 #define __KERNEL_FUNCTION_DENSE_KERNEL_H__
 

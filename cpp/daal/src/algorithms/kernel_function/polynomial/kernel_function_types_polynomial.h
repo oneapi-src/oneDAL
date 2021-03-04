@@ -42,6 +42,26 @@ struct DAAL_EXPORT Parameter : public ParameterBase
     size_t degree; /*!< Polynomial kernel coefficient d in the (k(X,Y) + b)^d model */
 };
 
+class DAAL_EXPORT Input : public kernel_function::Input
+{
+public:
+    Input() : kernel_function::Input() {}
+    Input(const Input & other) : kernel_function::Input(other) {}
+    virtual ~Input() {}
+
+    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE
+    {
+        switch (method)
+        {
+        // case fastCSR: return checkCSR();
+        case defaultDense: return checkDense();
+        default: DAAL_ASSERT(false); break;
+        }
+
+        return services::Status();
+    }
+};
+
 } // namespace polynomial
 } // namespace kernel_function
 } // namespace algorithms

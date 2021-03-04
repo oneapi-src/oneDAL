@@ -15,6 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_batch_container.h"
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_kernel.h"
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_impl.i"
 
@@ -26,6 +27,7 @@ namespace kernel_function
 {
 namespace polynomial
 {
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 namespace internal
 {
 template class DAAL_EXPORT KernelImplPolynomial<defaultDense, DAAL_FPTYPE, DAAL_CPU>;

@@ -1,5 +1,6 @@
+/* file: kernel_function_polynomial_dense_default_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,26 +15,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_batch_container.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_kernel.h"
 
-#include "oneapi/dal/algo/svm/common.hpp"
-
-#include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
-#include "daal/src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
-#include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
-
-namespace oneapi::dal::svm::detail {
-namespace v1 {
-
-class kernel_function_impl : public base {
-public:
-    virtual ~kernel_function_impl() = default;
-
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function() = 0;
-};
-
-} // namespace v1
-
-using v1::kernel_function_impl;
-
-} // namespace oneapi::dal::svm::detail
+namespace daal
+{
+namespace algorithms
+{
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kernel_function::polynomial::BatchContainer, batch, DAAL_FPTYPE, kernel_function::polynomial::defaultDense)
+} // namespace algorithms
+} // namespace daal
