@@ -541,6 +541,8 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     this->infer_checks(x, model, y, expected_obj_function);
 }
 /*
+// This stress test is commented due to CPU K-Means crash.
+// Will be added when the issue is resolved.
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans block test",
                      "[kmeans][batch][nightly]",
@@ -579,7 +581,10 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                        max_iteration_count,
                        obj_function);
 }
-
+*/
+/*
+// This stress test is commented due to GPU K-Means crash.
+// Will be added when the issue is resolved.
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans partial centroid adjustment test",
                      "[kmeans][batch][nightly]",
