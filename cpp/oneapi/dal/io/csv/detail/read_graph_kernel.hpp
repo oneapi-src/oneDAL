@@ -14,21 +14,24 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/csv/detail/read_ops.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
+#pragma once
+
+#include "oneapi/dal/algo/triangle_counting/common.hpp"
+#include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
+#include <iostream>
 
 namespace oneapi::dal::csv::detail {
-namespace v1 {
 
-using dal::detail::host_policy;
-
-table read_ops_dispatcher<table, host_policy>::operator()(const host_policy& policy,
-                                                          const data_source_base& ds,
-                                                          const read_args<table>& args) const {
-    using kernel_dispatcher_t = dal::backend::kernel_dispatcher<backend::read_kernel_cpu<table>>;
-    return kernel_dispatcher_t()(policy, ds, args);
+template <typename Allocator, typename Graph>
+inline void read_graph_default_kernel(const dal::detail::host_policy& ctx,
+                                      const detail::data_source_base& ds,
+                                      const Allocator& alloc,
+                                      const Graph& g) {
+    std::cout << "GRAPH KERNEL" << std::endl;
+    return;
 }
-
-} // namespace v1
 } // namespace oneapi::dal::csv::detail
