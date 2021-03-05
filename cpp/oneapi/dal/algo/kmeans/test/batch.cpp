@@ -607,7 +607,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 */
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "higgs/10/3",
+                     "higgs: samples=1M, clusters=10, iters=3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -630,7 +630,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "higgs/100/3",
+                     "higgs: samples=1M, clusters=100, iters=3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -653,7 +653,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "higgs/250/3",
+                     "higgs: samples=1M, clusters=250, iters=3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -676,7 +676,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "susy/10/3",
+                     "susy: samples=0.5M, clusters=10, iters=10",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -699,7 +699,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "susy/100/3",
+                     "susy: samples=0.5M, clusters=100, iters=10",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -722,7 +722,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "susy/250/3",
+                     "susy: samples=0.5M, clusters=250, iters=10",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -731,10 +731,10 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
         GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
     const table x = data.get_table(this->get_homogen_table_id());
 
-    constexpr std::int64_t cluster_count = 10;
+    constexpr std::int64_t cluster_count = 250;
     constexpr std::int64_t max_iteration_count = 10;
-    constexpr Float ref_dbi = 1.7730860782;
-    constexpr Float ref_obj_func = 3183696.0;
+    constexpr Float ref_dbi = 1.8950113604;
+    constexpr Float ref_obj_func = 1400958.5;
 
     this->dbi_determenistic_checks(x,
                                    cluster_count,
@@ -745,7 +745,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "epsilon/512/2",
+                     "epsilon: samples=80K, clusters=512, iters=2",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -768,7 +768,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "epsilon/1024/2",
+                     "epsilon: samples=80K, clusters=1024, iters=2",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
@@ -791,7 +791,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "epsilon/2048/2",
+                     "epsilon: samples=80K, clusters=2048, iters=2",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
     using Float = std::tuple_element_t<0, TestType>;
