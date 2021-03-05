@@ -268,7 +268,7 @@ void descriptor_base<Task>::set_variable_importance_mode_impl(variable_importanc
 
 template <typename Task>
 void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
-    check_domain_cond((value > 0), "class_count should be > 0");
+    check_domain_cond((value > 1), "class_count should be > 1");
     impl_->class_count = value;
 }
 
