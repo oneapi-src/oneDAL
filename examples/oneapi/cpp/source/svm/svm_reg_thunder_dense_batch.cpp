@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,12 +32,15 @@ int main(int argc, char const *argv[]) {
 
     const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
-    const auto svm_desc = dal::svm::descriptor{ kernel_desc }
-                              .set_c(1.0)
-                              .set_accuracy_threshold(0.001)
-                              .set_max_iteration_count(100)
-                              .set_cache_size(200.0)
-                              .set_tau(1e-6);
+    const auto svm_desc =
+        dal::svm::descriptor<float, dal::svm::method::thunder, dal::svm::task::regression>{
+            kernel_desc
+        }
+            .set_c(1.0)
+            .set_accuracy_threshold(0.001)
+            .set_max_iteration_count(100)
+            .set_cache_size(200.0)
+            .set_tau(1e-6);
 
     const auto result_train = dal::train(svm_desc, x_train, y_train);
 
