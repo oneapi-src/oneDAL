@@ -48,6 +48,7 @@ namespace kmeans
 {
 namespace internal
 {
+using namespace daal::services::internal::sycl;
 template <typename algorithmFPType>
 Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * const * a, const NumericTable * const * r,
                                                                   const Parameter * par)
@@ -88,6 +89,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
 
     uint32_t blockSize = 0;
     DAAL_CHECK_STATUS_VAR(this->getBlockSize(nRows, nClusters, nFeatures, blockSize));
+    DAAL_CHECK_STATUS_VAR(this->fitPartialCentroidSize(nClusters, nFeatures));
     DAAL_CHECK_STATUS_VAR(this->initializeBuffers(nClusters, nFeatures, blockSize));
 
     BlockDescriptor<algorithmFPType> inCentroidsRows;
@@ -101,6 +103,11 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
     BlockDescriptor<algorithmFPType> objFunctionRows;
     DAAL_CHECK_STATUS_VAR(ntObjFunction->getBlockOfRows(0, 1, readWrite, objFunctionRows));
     auto objFunction = objFunctionRows.getBuffer();
+
+    math::SumReducer::Result dataSums(context, blockSize, TypeIds::id<algorithmFPType>(), st);
+    DAAL_CHECK_STATUS_VAR(st);
+    math::SumReducer::Result centroidsSums(context, blockSize, TypeIds::id<algorithmFPType>(), st);
+    DAAL_CHECK_STATUS_VAR(st);
 
     algorithmFPType prevObjFunction = (algorithmFPType)0.0;
 
@@ -120,10 +127,10 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
             BlockDescriptor<int> assignmentsRows;
             DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(range.startIndex, range.count, writeOnly, assignmentsRows));
             auto assignments = assignmentsRows.getBuffer();
-            DAAL_CHECK_STATUS_VAR(this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures));
+            DAAL_CHECK_STATUS_VAR(this->computeSquares(inCentroids, centroidsSums, this->_centroidsSq, nClusters, nFeatures));
             DAAL_CHECK_STATUS_VAR(this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures));
             DAAL_CHECK_STATUS_VAR(this->computeAssignments(assignments, range.count, nClusters));
-            DAAL_CHECK_STATUS_VAR(this->computeSquares(data, this->_dataSq, range.count, nFeatures));
+            DAAL_CHECK_STATUS_VAR(this->computeSquares(data, dataSums, this->_dataSq, range.count, nFeatures));
             DAAL_CHECK_STATUS_VAR(this->partialReduceCentroids(data, assignments, range.count, nClusters, nFeatures, int(block == 0)));
             if (needCandidates)
             {
@@ -189,10 +196,10 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
         DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(range.startIndex, range.count, writeOnly, assignmentsRows));
         auto assignments = assignmentsRows.getBuffer();
 
-        DAAL_CHECK_STATUS_VAR(this->computeSquares(inCentroids, this->_centroidsSq, nClusters, nFeatures));
+        DAAL_CHECK_STATUS_VAR(this->computeSquares(inCentroids, centroidsSums, this->_centroidsSq, nClusters, nFeatures));
         DAAL_CHECK_STATUS_VAR(this->computeDistances(data, inCentroids, range.count, nClusters, nFeatures));
         DAAL_CHECK_STATUS_VAR(this->computeAssignments(assignments, range.count, nClusters));
-        DAAL_CHECK_STATUS_VAR(this->computeSquares(data, this->_dataSq, range.count, nFeatures));
+        DAAL_CHECK_STATUS_VAR(this->computeSquares(data, dataSums, this->_dataSq, range.count, nFeatures));
         DAAL_CHECK_STATUS_VAR(this->updateObjectiveFunction(objFunction, range.count, nClusters, int(block == 0)));
         DAAL_CHECK_STATUS_VAR(ntData->releaseBlockOfRows(dataRows));
         DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));

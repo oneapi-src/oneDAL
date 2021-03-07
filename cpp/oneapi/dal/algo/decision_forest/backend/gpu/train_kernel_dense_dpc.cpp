@@ -20,7 +20,7 @@
 namespace oneapi::dal::decision_forest::backend {
 
 template <typename Float, typename Task>
-struct train_kernel_gpu<Float, Task, method::dense> {
+struct train_kernel_gpu<Float, method::dense, Task> {
     train_result<Task> operator()(const dal::backend::context_gpu& ctx,
                                   const detail::descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
@@ -29,9 +29,9 @@ struct train_kernel_gpu<Float, Task, method::dense> {
     }
 };
 
-template struct train_kernel_gpu<float, task::classification, method::dense>;
-template struct train_kernel_gpu<double, task::classification, method::dense>;
-template struct train_kernel_gpu<float, task::regression, method::dense>;
-template struct train_kernel_gpu<double, task::regression, method::dense>;
+template struct train_kernel_gpu<float, method::dense, task::classification>;
+template struct train_kernel_gpu<double, method::dense, task::classification>;
+template struct train_kernel_gpu<float, method::dense, task::regression>;
+template struct train_kernel_gpu<double, method::dense, task::regression>;
 
 } // namespace oneapi::dal::decision_forest::backend

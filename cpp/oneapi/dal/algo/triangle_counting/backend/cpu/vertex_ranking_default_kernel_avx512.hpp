@@ -762,11 +762,16 @@ array<std::int64_t> triangle_counting_local_(
     int64_t* triangles_ptr = arr_triangles.get_mutable_data();
 
     dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
+        triangles_ptr[u] = 0;
+    });
+
+    dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
         for (int j = 0; j < thread_cnt; j++) {
             int64_t idx_glob = (int64_t)j * (int64_t)g_vertex_count;
             triangles_ptr[u] += triangles_local[idx_glob + u];
         }
     });
+
     return arr_triangles;
 }
 

@@ -30,7 +30,6 @@
 #include "services/internal/sycl/types.h"
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
-#include "src/sycl/reducer.h"
 
 #include "src/externals/service_ittnotify.h"
 
@@ -101,9 +100,6 @@ services::String KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getBuildOptio
     buildOptions.add(" -D CND_PART_SIZE=");
     daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, nClusters);
     buildOptions.add(buffer);
-    buildOptions.add(" -D CND_PART_SIZE=");
-    daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, nClusters);
-    buildOptions.add(buffer);
     buildOptions.add(" -D NUM_PARTS_CND=");
     daal::services::daal_int_to_string(buffer, DAAL_MAX_STRING_SIZE, numParts);
     buildOptions.add(buffer);
@@ -123,14 +119,15 @@ uint32_t KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getWorkgroupsCount(ui
 
 template <typename algorithmFPType>
 Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const services::internal::Buffer<algorithmFPType> & data,
-                                                                        UniversalBuffer & dataSq, uint32_t nRows, uint32_t nFeatures)
+                                                                        math::SumReducer::Result & result, UniversalBuffer & dataSq, uint32_t nRows,
+                                                                        uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeSquares);
     DAAL_ASSERT(data.size() >= nRows * nFeatures);
     DAAL_ASSERT(nRows <= maxInt32AsUint32T);
     DAAL_ASSERT(nFeatures <= maxInt32AsUint32T);
     Status st;
-    dataSq = math::SumReducer::sum(math::Layout::RowMajor, data, nRows, nFeatures, st).sumOfSquares;
+    dataSq = math::SumReducer::sum(math::Layout::RowMajor, data, nRows, nFeatures, result, st).sumOfSquares;
     return st;
 }
 
@@ -495,6 +492,20 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getBlockSize(uint32_t n
     if (blockSize > nRows)
     {
         blockSize = nRows;
+    }
+    return Status();
+}
+
+template <typename algorithmFPType>
+Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::fitPartialCentroidSize(uint32_t nClusters, uint32_t nFeatures)
+{
+    while (_nPartialCentroids * nClusters * nFeatures > _nValuesInBlock)
+    {
+        _nPartialCentroids >>= 1;
+    }
+    if (_nPartialCentroids < _nMinRows)
+    {
+        return Status(ErrorKMeansNumberOfClustersIsTooLarge);
     }
     return Status();
 }
