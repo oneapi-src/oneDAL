@@ -23,7 +23,50 @@ set(CMAKE_BUILD_TYPE Release)
 set(USE_DPCPP no)
 set(USE_NEW_IFACES no)
 
-include(../../common.cmake)
+function (add_examples examples)
+    foreach(example ${examples})
+        add_executable(${example} "${example}.cpp")
+        target_include_directories(${example} PRIVATE ${oneDAL_INCLUDE_DIRS})
+        target_link_libraries(${example} PRIVATE ${oneDAL_IMPORTED_TARGETS})
+        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${THREADING_TYPE}_${LINK_TYPE}")
+    endforeach()
+endfunction()
+
+function (set_link_and_threading_types)
+    if ("${TARGET_LINK}" STREQUAL "static")
+        set(LINK_TYPE "a" PARENT_SCOPE)
+    else()
+        set(LINK_TYPE "so" PARENT_SCOPE)
+    endif()
+
+    if ("${USE_PARALLEL}" STREQUAL "yes")
+        set(THREADING_TYPE "parallel" PARENT_SCOPE)
+    else()
+        set(THREADING_TYPE "sequential" PARENT_SCOPE)
+    endif()
+endfunction()
+
+function (change_md_to_mt)
+    set(cxx_flag ${CMAKE_CXX_FLAGS})
+    set(cxxr_flag ${CMAKE_CXX_FLAGS_RELEASE})
+    set(c_flag ${CMAKE_C_FLAGS})
+    set(cr_flag ${CMAKE_C_FLAGS_RELEASE})
+
+    set(flags
+            cxx_flag
+            cxxr_flag
+            c_flag
+            cr_flag)
+    foreach(flag ${flags})
+        string(REPLACE "/MD" "/MT" ${flag} "${${flag}}")
+    endforeach()
+
+    set(CMAKE_CXX_FLAGS ${cxx_flag} PARENT_SCOPE)
+    set(CMAKE_CXX_FLAGS_RELEASE ${cxxr_flag} PARENT_SCOPE)
+    set(CMAKE_C_FLAGS ${c_flag} PARENT_SCOPE)
+    set(CMAKE_C_FLAGS_RELEASE ${cr_flag} PARENT_SCOPE)
+endfunction()
+
 set_link_and_threading_types()
 if (WIN32)
     change_md_to_mt()

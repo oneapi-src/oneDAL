@@ -268,6 +268,8 @@ public:
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
 
+    const cl::sycl::queue & getQueue() const { return _deviceQueue; }
+
 private:
     cl::sycl::queue _deviceQueue;
     OpenClKernelFactory _kernelFactory;
