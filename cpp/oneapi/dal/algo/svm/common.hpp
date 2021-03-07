@@ -89,7 +89,8 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::smo, method::thunder>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+constexpr bool is_valid_task_v =
+    dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
 template <typename Kernel>
 constexpr bool is_valid_kernel_v =
@@ -354,6 +355,7 @@ protected:
     void set_second_class_label_impl(std::int64_t);
 
 private:
+    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 

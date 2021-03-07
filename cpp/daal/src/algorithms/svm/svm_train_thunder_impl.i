@@ -72,85 +72,52 @@ namespace internal
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
                                                                       NumericTable & yTable, daal::algorithms::Model * r,
-                                                                      const svm::Parameter * svmPar)
+                                                                      const KernelParameter & svmPar)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(COMPUTE);
 
     services::Status status;
 
-    const algorithmFPType C(svmPar->C);
-    const algorithmFPType eps(svmPar->accuracyThreshold);
-    const algorithmFPType tau(svmPar->tau);
-    const size_t maxIterations(svmPar->maxIterations);
-    const size_t cacheSize(svmPar->cacheSize);
-    kernel_function::KernelIfacePtr kernel = svmPar->kernel->clone();
+    const algorithmFPType C       = svmPar.C;
+    const algorithmFPType eps     = svmPar.accuracyThreshold;
+    const algorithmFPType tau     = svmPar.tau;
+    const algorithmFPType epsilon = svmPar.epsilon;
+    const size_t maxIterations    = svmPar.maxIterations;
+    const size_t cacheSize        = svmPar.cacheSize;
+    auto kernel                   = svmPar.kernel->clone();
+    auto svmType                  = svmPar.svmType;
 
-    const size_t nVectors = xTable->getNumberOfRows();
+    const size_t nVectors      = xTable->getNumberOfRows();
+    const size_t nTrainVectors = svmType == SvmType::REGRESSION ? nVectors * 2 : nVectors;
 
-    TArray<algorithmFPType, cpu> alphaTArray(nVectors);
-    DAAL_CHECK_MALLOC(alphaTArray.get());
-    algorithmFPType * const alpha = alphaTArray.get();
-
-    TArray<algorithmFPType, cpu> gradTArray(nVectors);
-    DAAL_CHECK_MALLOC(gradTArray.get());
-    algorithmFPType * const grad = gradTArray.get();
-
-    TArray<algorithmFPType, cpu> cwTArray(nVectors);
-    DAAL_CHECK_MALLOC(cwTArray.get());
-    algorithmFPType * const cw = cwTArray.get();
-
-    TArray<algorithmFPType, cpu> yTArray(nVectors);
+    TArray<algorithmFPType, cpu> yTArray(nTrainVectors);
     DAAL_CHECK_MALLOC(yTArray.get());
     algorithmFPType * const y = yTArray.get();
 
-    SafeStatus safeStat;
+    TArray<algorithmFPType, cpu> gradTArray(nTrainVectors);
+    DAAL_CHECK_MALLOC(gradTArray.get());
+    algorithmFPType * const grad = gradTArray.get();
 
-    size_t nNonZeroWeights = nVectors;
+    TArray<algorithmFPType, cpu> alphaTArray(nTrainVectors);
+    DAAL_CHECK_MALLOC(alphaTArray.get());
+    algorithmFPType * const alpha = alphaTArray.get();
+
+    TArray<algorithmFPType, cpu> cwTArray(nTrainVectors);
+    DAAL_CHECK_MALLOC(cwTArray.get());
+    algorithmFPType * const cw = cwTArray.get();
+
+    size_t nNonZeroWeights = nTrainVectors;
+
+    if (svmType == SvmType::CLASSIFICATION)
     {
-        /* The operation copy is lightweight, therefore a large size is chosen
-            so that the number of blocks is a reasonable number. */
-        const size_t blockSize = 16384;
-        const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
-
-        DAAL_ITTNOTIFY_SCOPED_TASK(init.set);
-        TlsSum<size_t, cpu> weightsCounter(1);
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-            const size_t startRow     = iBlock * blockSize;
-            const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? blockSize : nVectors - iBlock * blockSize;
-
-            ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, startRow, nRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtY);
-            const algorithmFPType * const yIn = mtY.get();
-
-            ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, startRow, nRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(mtW);
-            const algorithmFPType * weights = mtW.get();
-
-            size_t * wc = nullptr;
-            if (weights)
-            {
-                wc = weightsCounter.local();
-            }
-            for (size_t i = 0; i < nRowsInBlock; ++i)
-            {
-                y[i + startRow]     = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
-                grad[i + startRow]  = -y[i + startRow];
-                alpha[i + startRow] = algorithmFPType(0);
-                cw[i + startRow]    = weights ? weights[i] * C : C;
-                if (weights)
-                {
-                    *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
-                }
-            }
-        });
-
-        if (wTable.get())
-        {
-            weightsCounter.reduceTo(&nNonZeroWeights, 1);
-        }
+        DAAL_CHECK_STATUS(status, classificationInit(yTable, wTable, C, y, grad, alpha, cw, nNonZeroWeights));
+    }
+    else
+    {
+        DAAL_CHECK_STATUS(status, regressionInit(yTable, wTable, C, epsilon, y, grad, alpha, cw, nNonZeroWeights));
     }
 
-    TaskWorkingSet<algorithmFPType, cpu> workSet(nNonZeroWeights, nVectors, maxBlockSize);
+    TaskWorkingSet<algorithmFPType, cpu> workSet(nNonZeroWeights, nTrainVectors, maxBlockSize);
     DAAL_CHECK_STATUS(status, workSet.init());
     const size_t nWS = workSet.getSize();
 
@@ -171,11 +138,11 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
     defaultCacheSize        = services::internal::max<cpu, size_t>(nWS, defaultCacheSize);
-    auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
+    auto cachePtr = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, svmType, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     _blockSizeWS = services::internal::min<cpu, algorithmFPType>(nWS, 256);
-    TArrayScalable<algorithmFPType, cpu> gradBuff((nWS / _blockSizeWS) * nVectors);
+    TArrayScalable<algorithmFPType, cpu> gradBuff((nWS / _blockSizeWS) * nTrainVectors);
     DAAL_CHECK_MALLOC(gradBuff.get());
 
     size_t iter = 0;
@@ -195,18 +162,139 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
             DAAL_CHECK_STATUS(status, cachePtr->getRowsBlock(wsIndices, nWS, kernelSOARes));
         }
 
-        DAAL_CHECK_STATUS(status, SMOBlockSolver(y, grad, wsIndices, kernelSOARes, nVectors, nWS, cw, eps, tau, buffer.get(), I.get(), alpha,
+        DAAL_CHECK_STATUS(status, SMOBlockSolver(y, grad, wsIndices, kernelSOARes, nTrainVectors, nWS, cw, eps, tau, buffer.get(), I.get(), alpha,
                                                  deltaAlpha.get(), diff));
 
-        DAAL_CHECK_STATUS(status, updateGrad(kernelSOARes, deltaAlpha.get(), gradBuff.get(), grad, nVectors, nWS));
+        DAAL_CHECK_STATUS(status, updateGrad(kernelSOARes, deltaAlpha.get(), gradBuff.get(), grad, nTrainVectors, nWS));
         if (checkStopCondition(diff, diffPrev, eps, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
 
+    if (svmType == SvmType::REGRESSION)
+    {
+        for (size_t i = 0; i < nVectors; ++i)
+        {
+            alpha[i] = alpha[i] - alpha[i + nVectors];
+        }
+    }
+
     cachePtr->clear();
-    SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
+    SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get(), svmType);
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
 
+    return status;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit(NumericTable & yTable, const NumericTablePtr & wTable,
+                                                                                 const algorithmFPType C, algorithmFPType * y, algorithmFPType * grad,
+                                                                                 algorithmFPType * alpha, algorithmFPType * cw,
+                                                                                 size_t & nNonZeroWeights)
+{
+    services::Status status;
+    const size_t nVectors = yTable.getNumberOfRows();
+    /* The operation copy is lightweight, therefore a large size is chosen
+            so that the number of blocks is a reasonable number. */
+    const size_t blockSize = 16384;
+    const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
+
+    DAAL_ITTNOTIFY_SCOPED_TASK(init.set);
+    TlsSum<size_t, cpu> weightsCounter(1);
+    SafeStatus safeStat;
+    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        const size_t startRow     = iBlock * blockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? blockSize : nVectors - iBlock * blockSize;
+
+        ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, startRow, nRowsInBlock);
+        DAAL_CHECK_BLOCK_STATUS_THR(mtY);
+        const algorithmFPType * const yIn = mtY.get();
+
+        ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, startRow, nRowsInBlock);
+        DAAL_CHECK_BLOCK_STATUS_THR(mtW);
+        const algorithmFPType * weights = mtW.get();
+
+        size_t * wc = nullptr;
+        if (weights)
+        {
+            wc = weightsCounter.local();
+        }
+        for (size_t i = 0; i < nRowsInBlock; ++i)
+        {
+            y[i + startRow]     = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
+            grad[i + startRow]  = -y[i + startRow];
+            alpha[i + startRow] = algorithmFPType(0);
+            cw[i + startRow]    = weights ? weights[i] * C : C;
+            if (weights)
+            {
+                *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+            }
+        }
+    });
+
+    if (wTable.get())
+    {
+        weightsCounter.reduceTo(&nNonZeroWeights, 1);
+    }
+    return status;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(NumericTable & yTable, const NumericTablePtr & wTable,
+                                                                             const algorithmFPType C, const algorithmFPType epsilon,
+                                                                             algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha,
+                                                                             algorithmFPType * cw, size_t & nNonZeroWeights)
+{
+    services::Status status;
+    const size_t nVectors = yTable.getNumberOfRows();
+    /* The operation copy is lightweight, therefore a large size is chosen
+            so that the number of blocks is a reasonable number. */
+    const size_t blockSize = 16384;
+    const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
+
+    DAAL_ITTNOTIFY_SCOPED_TASK(init.set);
+    TlsSum<size_t, cpu> weightsCounter(1);
+    SafeStatus safeStat;
+    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        const size_t startRow     = iBlock * blockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? blockSize : nVectors - iBlock * blockSize;
+
+        ReadColumns<algorithmFPType, cpu> mtY(yTable, 0, startRow, nRowsInBlock);
+        DAAL_CHECK_BLOCK_STATUS_THR(mtY);
+        const algorithmFPType * const yIn = mtY.get();
+
+        ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, startRow, nRowsInBlock);
+        DAAL_CHECK_BLOCK_STATUS_THR(mtW);
+        const algorithmFPType * weights = mtW.get();
+
+        size_t * wc = nullptr;
+        if (weights)
+        {
+            wc = weightsCounter.local();
+        }
+        for (size_t i = 0; i < nRowsInBlock; ++i)
+        {
+            y[i + startRow]            = algorithmFPType(1.0);
+            y[i + startRow + nVectors] = algorithmFPType(-1.0);
+
+            grad[i + startRow]            = epsilon - yIn[i + startRow];
+            grad[i + startRow + nVectors] = -epsilon - yIn[i + startRow];
+
+            alpha[i + startRow]            = algorithmFPType(0);
+            alpha[i + startRow + nVectors] = algorithmFPType(0);
+
+            cw[i + startRow]            = weights ? weights[i] * C : C;
+            cw[i + startRow + nVectors] = weights ? weights[i] * C : C;
+            if (weights)
+            {
+                *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+            }
+        }
+    });
+
+    if (wTable.get())
+    {
+        weightsCounter.reduceTo(&nNonZeroWeights, 1);
+    }
     return status;
 }
 

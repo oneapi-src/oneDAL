@@ -47,9 +47,16 @@ template <typename algorithmFPType, CpuType cpu>
 struct SVMTrainImpl<thunder, algorithmFPType, cpu> : public Kernel
 {
     services::Status compute(const data_management::NumericTablePtr & xTable, const data_management::NumericTablePtr & wTable,
-                             data_management::NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * par);
+                             data_management::NumericTable & yTable, daal::algorithms::Model * r, const KernelParameter & par);
 
 private:
+    services::Status classificationInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, algorithmFPType * y,
+                                        algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw, size_t & nNonZeroWeights);
+
+    services::Status regressionInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType epsilon,
+                                    algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw,
+                                    size_t & nNonZeroWeights);
+
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS,
                                     const size_t nVectors, const size_t nWS, const algorithmFPType * cw, const double eps, const double tau,
                                     algorithmFPType * buffer, char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,

@@ -60,13 +60,14 @@ public:
     virtual services::Status clear() = 0;
 
 protected:
-    SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
-        : _lineSize(lineSize), _cacheSize(cacheSize), _kernel(kernel)
+    SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel, const SvmType svmType)
+        : _lineSize(lineSize), _cacheSize(cacheSize), _kernel(kernel), _svmType(svmType)
     {}
 
     const size_t _lineSize;                        /*!< Number of elements in the cache line */
     const size_t _cacheSize;                       /*!< Number of cache lines */
     const kernel_function::KernelIfacePtr _kernel; /*!< Kernel function */
+    const SvmType _svmType;                        /*!< Type task for SVM */
 };
 
 /**
@@ -88,9 +89,9 @@ public:
 
     static SVMCachePtr<thunder, algorithmFPType, cpu> create(const size_t cacheSize, const size_t nSize, const size_t lineSize,
                                                              const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
-                                                             services::Status & status)
+                                                             const SvmType svmType, services::Status & status)
     {
-        services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(cacheSize, lineSize, xTable, kernel));
+        services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(cacheSize, lineSize, xTable, kernel, svmType));
         if (!res)
         {
             status.add(ErrorMemoryAllocationFailed);
@@ -120,6 +121,8 @@ public:
     services::Status getRowsBlock(const uint32_t * const indices, const size_t n, algorithmFPType **& soablock) override
     {
         services::Status status;
+
+        const size_t nVectors = _xTable->getNumberOfColumns();
         if (_soaData.size() < n)
         {
             _soaData.reset(n);
@@ -127,28 +130,28 @@ public:
         }
 
         size_t nIndicesForKernel = 0;
+
+        for (int i = 0; i < n; ++i)
         {
-            for (int i = 0; i < n; ++i)
+            const uint32_t dataIndex = indices[i] % nVectors;
+            int64_t cacheIndex       = _lruCache.get(dataIndex);
+            if (cacheIndex != -1)
             {
-                int64_t cacheIndex = _lruCache.get(indices[i]);
-                if (cacheIndex != -1)
-                {
-                    // If index in cache
-                    DAAL_ASSERT(cacheIndex < _cacheSize)
-                    algorithmFPType * cachei = _cache[cacheIndex];
-                    _soaData[i]              = cachei;
-                }
-                else
-                {
-                    _lruCache.put(indices[i]);
-                    cacheIndex = _lruCache.getFreeIndex();
-                    DAAL_ASSERT(cacheIndex < _cacheSize)
-                    algorithmFPType * cachei                = _cache[cacheIndex];
-                    _soaData[i]                             = cachei;
-                    _kernelIndex[nIndicesForKernel]         = cacheIndex;
-                    _kernelOriginalIndex[nIndicesForKernel] = indices[i];
-                    ++nIndicesForKernel;
-                }
+                // If index in cache
+                DAAL_ASSERT(cacheIndex < _cacheSize)
+                algorithmFPType * cachei = _cache[cacheIndex];
+                _soaData[i]              = cachei;
+            }
+            else
+            {
+                _lruCache.put(dataIndex);
+                cacheIndex = _lruCache.getFreeIndex();
+                DAAL_ASSERT(cacheIndex < _cacheSize)
+                algorithmFPType * cachei                = _cache[cacheIndex];
+                _soaData[i]                             = cachei;
+                _kernelIndex[nIndicesForKernel]         = cacheIndex;
+                _kernelOriginalIndex[nIndicesForKernel] = dataIndex;
+                ++nIndicesForKernel;
             }
         }
         if (nIndicesForKernel != 0)
@@ -161,8 +164,9 @@ public:
     }
 
 protected:
-    SVMCache(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
-        : super(cacheSize, lineSize, kernel), _lruCache(cacheSize), _xTable(xTable)
+    SVMCache(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
+             const SvmType svmType)
+        : super(cacheSize, lineSize, kernel, svmType), _lruCache(cacheSize), _xTable(xTable)
     {}
 
     services::Status computeKernel(const size_t nWorkElements, const uint32_t * indices)

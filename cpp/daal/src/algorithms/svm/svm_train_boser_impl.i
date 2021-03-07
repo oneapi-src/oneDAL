@@ -64,13 +64,14 @@ using namespace daal::services::internal;
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<boser, algorithmFPType, cpu>::compute(const NumericTablePtr & xTable, const NumericTablePtr & wTable,
-                                                                    NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * svmPar)
+                                                                    NumericTable & yTable, daal::algorithms::Model * r,
+                                                                    const KernelParameter & svmPar)
 {
     SVMTrainTask<algorithmFPType, cpu> task(xTable->getNumberOfRows());
-    services::Status s = task.setup(*svmPar, xTable);
+    services::Status s = task.setup(svmPar, xTable);
     if (!s) return s;
-    DAAL_CHECK_STATUS(s, task.init(svmPar->C, wTable, yTable));
-    DAAL_CHECK_STATUS(s, task.compute(*svmPar));
+    DAAL_CHECK_STATUS(s, task.init(svmPar.C, wTable, yTable));
+    DAAL_CHECK_STATUS(s, task.compute(svmPar));
     DAAL_CHECK_STATUS(s, task.setResultsToModel(*xTable, *static_cast<Model *>(r)));
     return s;
 }
@@ -83,7 +84,7 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::setResultsToModel(const Num
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, cpu>::compute(const svm::Parameter & svmPar)
+services::Status SVMTrainTask<algorithmFPType, cpu>::compute(const KernelParameter & svmPar)
 {
     const algorithmFPType eps(svmPar.accuracyThreshold);
     const algorithmFPType tau(svmPar.tau);
@@ -452,7 +453,7 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::reconstructGradient(size_t 
  * \param[in] xTable        Pointer to numeric table that contains input data set
  */
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, cpu>::setup(const svm::Parameter & svmPar, const NumericTablePtr & xTable)
+services::Status SVMTrainTask<algorithmFPType, cpu>::setup(const KernelParameter & svmPar, const NumericTablePtr & xTable)
 {
     _alpha.reset(_nVectors);
     daal::services::internal::service_memset<algorithmFPType, cpu>(_alpha.get(), algorithmFPType(0.0), _nVectors);

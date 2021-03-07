@@ -52,8 +52,8 @@ class SaveResultTask
 {
 public:
     SaveResultTask(const size_t nVectors, const algorithmFPType * y, const algorithmFPType * alpha, const algorithmFPType * grad,
-                   SVMCacheCommonIface<algorithmFPType, cpu> * cache)
-        : _nVectors(nVectors), _y(y), _alpha(alpha), _grad(grad), _cache(cache)
+                   SVMCacheCommonIface<algorithmFPType, cpu> * cache, const SvmType svmType = SvmType::CLASSIFICATION)
+        : _nVectors(nVectors), _y(y), _alpha(alpha), _grad(grad), _cache(cache), _svmType(svmType)
     {}
 
     services::Status compute(const NumericTable & xTable, Model & model, const algorithmFPType * cw) const
@@ -66,7 +66,11 @@ public:
         size_t nSV = 0;
         for (size_t i = 0; i < _nVectors; ++i)
         {
-            if (_alpha[i] > zero) nSV++;
+            // if (_svmType == SvmType::REGRESSION)
+            // {
+            //     _alpha[i] = _alpha[i] - _alpha[i + _nVectors];
+            // }
+            if (_alpha[i] != zero) nSV++;
         }
 
         model.setNFeatures(xTable.getNumberOfColumns());
@@ -320,6 +324,7 @@ private:
     const algorithmFPType * _alpha;                     //Array of classification coefficients
     const algorithmFPType * _grad;                      //Array of classification coefficients
     SVMCacheCommonIface<algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
+    const SvmType _svmType;                             //
 };
 
 } // namespace internal

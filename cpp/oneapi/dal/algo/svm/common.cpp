@@ -15,10 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/common.hpp"
+#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm {
+
 namespace detail {
 namespace v1 {
 
@@ -36,16 +38,6 @@ public:
     bool shrinking = true;
     std::int64_t class_count = 2;
     double epsilon = 0.1;
-};
-
-template <typename Task>
-class model_impl : public base {
-public:
-    table support_vectors;
-    table coeffs;
-    double bias;
-    double first_class_label;
-    double second_class_label;
 };
 
 template <typename Task>
@@ -176,6 +168,9 @@ template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
 
 template <typename Task>
+model<Task>::model(const std::shared_ptr<model_impl<Task>>& impl) : impl_(impl) {}
+
+template <typename Task>
 const table& model<Task>::get_support_vectors() const {
     return impl_->support_vectors;
 }
@@ -231,6 +226,7 @@ void model<Task>::set_second_class_label_impl(std::int64_t value) {
 }
 
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::svm
