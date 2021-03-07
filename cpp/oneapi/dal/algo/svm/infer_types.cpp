@@ -90,6 +90,8 @@ void infer_result<Task>::set_decision_function_impl(const table& value) {
 
 template class ONEDAL_EXPORT infer_input<task::classification>;
 template class ONEDAL_EXPORT infer_result<task::classification>;
+template class ONEDAL_EXPORT infer_input<task::regression>;
+template class ONEDAL_EXPORT infer_result<task::regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::svm

@@ -156,6 +156,7 @@ const detail::kernel_function_ptr& descriptor_base<Task>::get_kernel_impl() cons
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
 
 } // namespace v1
 } // namespace detail
