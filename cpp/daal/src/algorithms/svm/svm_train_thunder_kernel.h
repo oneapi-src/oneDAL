@@ -63,7 +63,7 @@ private:
                                     algorithmFPType & localDiff) const;
 
     services::Status updateGrad(algorithmFPType ** kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * tmpgrad, algorithmFPType * grad,
-                                const size_t nVectors, const size_t nWS);
+                                const size_t nVectors, const size_t nTrainVectors, const size_t nWS);
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
 

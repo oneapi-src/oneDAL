@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
-#include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
+#include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
 #include "algorithms/svm/svm_train.h"
 #include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>

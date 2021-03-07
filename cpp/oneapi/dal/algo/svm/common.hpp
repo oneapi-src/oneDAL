@@ -92,6 +92,10 @@ template <typename Task>
 constexpr bool is_valid_task_v =
     dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
+template <typename Method, typename Task>
+constexpr bool is_no_valid_method_task_v = dal::detail::is_one_of_v<Method, method::smo>&&
+    dal::detail::is_one_of_v<Task, task::regression>;
+
 template <typename Kernel>
 constexpr bool is_valid_kernel_v =
     dal::detail::is_tag_one_of_v<Kernel,
@@ -188,6 +192,7 @@ using v1::enable_if_regression_t;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+using v1::is_no_valid_method_task_v;
 using v1::is_valid_kernel_v;
 
 } // namespace detail
@@ -200,7 +205,7 @@ namespace v1 {
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
 ///                be :expr:`method::v1::thunder` or :expr:`method::v1::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t,
@@ -209,6 +214,7 @@ class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
+    static_assert(!detail::is_no_valid_method_task_v<Method, Task>);
     static_assert(detail::is_valid_kernel_v<Kernel>,
                   "Custom kernel for SVM is not supported. "
                   "Use one of the predefined kernels.");

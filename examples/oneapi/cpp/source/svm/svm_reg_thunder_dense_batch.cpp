@@ -22,10 +22,10 @@
 namespace dal = oneapi::dal;
 
 int main(int argc, char const *argv[]) {
-    const auto train_data_file_name = get_data_path("svm_two_class_train_dense_data.csv");
-    const auto train_label_file_name = get_data_path("svm_two_class_train_dense_label.csv");
-    const auto test_data_file_name = get_data_path("svm_two_class_test_dense_data.csv");
-    const auto test_label_file_name = get_data_path("svm_two_class_test_dense_label.csv");
+    const auto train_data_file_name = get_data_path("svm_reg_train_dense_data.csv");
+    const auto train_label_file_name = get_data_path("svm_reg_train_dense_label.csv");
+    const auto test_data_file_name = get_data_path("svm_reg_test_dense_data.csv");
+    const auto test_label_file_name = get_data_path("svm_reg_test_dense_label.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_label_file_name });
@@ -36,8 +36,8 @@ int main(int argc, char const *argv[]) {
         dal::svm::descriptor<float, dal::svm::method::thunder, dal::svm::task::regression>{
             kernel_desc
         }
-            .set_c(1.0)
-            .set_epsilon(0.4)
+            .set_c(100.0)
+            .set_epsilon(0.3)
             .set_accuracy_threshold(0.001)
             .set_cache_size(200.0)
             .set_tau(1e-6);
@@ -52,7 +52,6 @@ int main(int argc, char const *argv[]) {
 
     const auto result_infer = dal::infer(svm_desc, result_train.get_model(), x_test);
 
-    std::cout << "Decision function result:\n" << result_infer.get_decision_function() << std::endl;
     std::cout << "Labels result:\n" << result_infer.get_labels() << std::endl;
     std::cout << "Labels true:\n" << y_true << std::endl;
 

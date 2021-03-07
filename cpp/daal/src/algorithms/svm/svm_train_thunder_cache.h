@@ -122,7 +122,7 @@ public:
     {
         services::Status status;
 
-        const size_t nVectors = _xTable->getNumberOfColumns();
+        const size_t nVectors = _xTable->getNumberOfRows();
         if (_soaData.size() < n)
         {
             _soaData.reset(n);
@@ -154,6 +154,7 @@ public:
                 ++nIndicesForKernel;
             }
         }
+        printf("nIndicesForKernel: %lu\n", nIndicesForKernel);
         if (nIndicesForKernel != 0)
         {
             DAAL_CHECK_STATUS(status, computeKernel(nIndicesForKernel, _kernelOriginalIndex.get()));

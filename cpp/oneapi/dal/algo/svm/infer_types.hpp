@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -76,7 +76,7 @@ private:
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
 class infer_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -99,8 +99,12 @@ public:
     /// The $n \\times 1$ table with the predicted class
     /// decision function for each observation
     /// @remark default = table{}
-    const table& get_decision_function() const;
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    const table& get_decision_function() const {
+        return get_decision_function_impl();
+    }
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_decision_function(const table& value) {
         set_decision_function_impl(value);
         return *this;
@@ -108,6 +112,7 @@ public:
 
 protected:
     void set_labels_impl(const table&);
+    const table& get_decision_function_impl() const;
     void set_decision_function_impl(const table&);
 
 private:
