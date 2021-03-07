@@ -60,14 +60,13 @@ public:
     virtual services::Status clear() = 0;
 
 protected:
-    SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel, const SvmType svmType)
-        : _lineSize(lineSize), _cacheSize(cacheSize), _kernel(kernel), _svmType(svmType)
+    SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
+        : _lineSize(lineSize), _cacheSize(cacheSize), _kernel(kernel)
     {}
 
     const size_t _lineSize;                        /*!< Number of elements in the cache line */
     const size_t _cacheSize;                       /*!< Number of cache lines */
     const kernel_function::KernelIfacePtr _kernel; /*!< Kernel function */
-    const SvmType _svmType;                        /*!< Type task for SVM */
 };
 
 /**
@@ -89,9 +88,9 @@ public:
 
     static SVMCachePtr<thunder, algorithmFPType, cpu> create(const size_t cacheSize, const size_t nSize, const size_t lineSize,
                                                              const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
-                                                             const SvmType svmType, services::Status & status)
+                                                             services::Status & status)
     {
-        services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(cacheSize, lineSize, xTable, kernel, svmType));
+        services::SharedPtr<thisType> res = services::SharedPtr<thisType>(new thisType(cacheSize, lineSize, xTable, kernel));
         if (!res)
         {
             status.add(ErrorMemoryAllocationFailed);
@@ -154,7 +153,6 @@ public:
                 ++nIndicesForKernel;
             }
         }
-        printf("nIndicesForKernel: %lu\n", nIndicesForKernel);
         if (nIndicesForKernel != 0)
         {
             DAAL_CHECK_STATUS(status, computeKernel(nIndicesForKernel, _kernelOriginalIndex.get()));
@@ -165,9 +163,8 @@ public:
     }
 
 protected:
-    SVMCache(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
-             const SvmType svmType)
-        : super(cacheSize, lineSize, kernel, svmType), _lruCache(cacheSize), _xTable(xTable)
+    SVMCache(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
+        : super(cacheSize, lineSize, kernel), _lruCache(cacheSize), _xTable(xTable)
     {}
 
     services::Status computeKernel(const size_t nWorkElements, const uint32_t * indices)

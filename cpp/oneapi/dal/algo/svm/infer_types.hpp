@@ -96,7 +96,8 @@ public:
         return *this;
     }
 
-    /// The $n \\times 1$ table with the predicted class
+    /// The $n \\times 1$ table with the predicted class.
+    /// Used with :expr:`task::v1::classification` only.
     /// decision function for each observation
     /// @remark default = table{}
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>

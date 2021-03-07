@@ -30,6 +30,7 @@ namespace v1 {
 struct classification {};
 
 /// Tag-type that parameterizes entities used for solving
+/// :capterm:`regression problem <regression>`.
 struct regression {};
 
 /// Alias tag-type for classification task.
@@ -138,12 +139,13 @@ public:
     /// @remark default = 1e-6
     double get_tau() const;
 
-    /// A flag that enables the use of a shrinking optimization technique. Used with :expr:`oneapi::dal::svm::method::v1::thunder` split-finding method only.
+    /// A flag that enables the use of a shrinking optimization technique.
+    /// Used with :expr:`oneapi::dal::svm::method::v1::smo` split-finding method only.
     /// @remark default = true
     bool get_shrinking() const;
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`task::classification` only.
+    /// The class count. Used with :expr:`task::v1::classification` only.
     /// @invariant :expr:`class_count >= 2`
     /// @remark default = 2
     std::int64_t get_class_count() const {
@@ -151,8 +153,8 @@ public:
     }
 
     template <typename T = Task, typename = enable_if_regression_t<T>>
-    /// The epsilon. Used with :expr:`task::regression` only.
-    /// @invariant :expr:`epsilon > 0`
+    /// The epsilon. Used with :expr:`task::v1::regression` only.
+    /// @invariant :expr:`epsilon >= 0`
     /// @remark default = 0.1
     double get_epsilon() const {
         return get_epsilon_impl();
@@ -289,7 +291,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::v1::classification`.
+///              be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -334,19 +336,27 @@ public:
         return *this;
     }
 
-    /// The first unique value in class labels
+    /// The first unique value in class labels. Used with :expr:`task::v1::classification` only.
     /// @remark default = 0
-    std::int64_t get_first_class_label() const;
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    std::int64_t get_first_class_label() const {
+        return get_first_class_label_impl();
+    }
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_first_class_label(std::int64_t value) {
         set_first_class_label_impl(value);
         return *this;
     }
 
-    /// The second unique value in class labels
+    /// The second unique value in class labels. Used with :expr:`task::v1::classification` only.
     /// @remark default = 0
-    std::int64_t get_second_class_label() const;
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    std::int64_t get_second_class_label() const {
+        return get_second_class_label_impl();
+    }
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_second_class_label(std::int64_t value) {
         set_second_class_label_impl(value);
         return *this;
@@ -358,6 +368,8 @@ protected:
     void set_bias_impl(double);
     void set_first_class_label_impl(std::int64_t);
     void set_second_class_label_impl(std::int64_t);
+    std::int64_t get_first_class_label_impl() const;
+    std::int64_t get_second_class_label_impl() const;
 
 private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);

@@ -40,9 +40,6 @@ using result_t = train_result<task::regression>;
 using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_svm = daal::algorithms::svm;
-namespace daal_classifier = daal::algorithms::classifier;
-namespace daal_multiclass = daal::algorithms::multi_class_classifier;
-namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
@@ -82,7 +79,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_svm_parameter.cacheSize = cache_byte;
     daal_svm_parameter.epsilon = desc.get_epsilon();
     daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::REGRESSION;
-    printf("start regression to daal\n");
+
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
         return daal_svm_kernel_t<
@@ -91,13 +88,12 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                    Method>()
             .compute(daal_data, daal_weights, *daal_labels, daal_model.get(), daal_svm_parameter);
     }));
-    printf("finish regression to daal\n");
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     auto trained_model = convert_from_daal_model<task::regression, Float>(*daal_model);
     return result_t().set_model(trained_model).set_support_indices(table_support_indices);
-} // namespace oneapi::dal::svm::backend
+}
 
 template <typename Float, typename Method>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {

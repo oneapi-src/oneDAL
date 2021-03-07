@@ -138,13 +138,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
     defaultCacheSize        = services::internal::max<cpu, size_t>(nWS, defaultCacheSize);
-    auto cachePtr = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, svmType, status);
+    auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
     DAAL_CHECK_STATUS_VAR(status);
 
     _blockSizeWS = services::internal::min<cpu, algorithmFPType>(nWS, 256);
     TArrayScalable<algorithmFPType, cpu> gradBuff((nWS / _blockSizeWS) * nTrainVectors);
     DAAL_CHECK_MALLOC(gradBuff.get());
-    printf("nWS: %lu; nVectors: %lu\n", nWS, nVectors);
 
     size_t iter = 0;
     for (; iter < maxIterations; ++iter)
@@ -156,18 +155,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
         DAAL_CHECK_STATUS(status, workSet.select(y, alpha, grad, cw));
         const uint32_t * const wsIndices = workSet.getIndices();
-        for (size_t i = 0; i < 10; i++)
-        {
-            printf("%u ", wsIndices[i]);
-        }
-        printf("...");
-        for (size_t i = nWS - 1; i >= nWS - 10; i--)
-        {
-            printf("%u ", wsIndices[i]);
-        }
-        printf("\n");
-
-        algorithmFPType ** kernelSOARes = nullptr;
+        algorithmFPType ** kernelSOARes  = nullptr;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(getRowsBlock);
 
@@ -181,10 +169,11 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         if (checkStopCondition(diff, diffPrev, accuracyThreshold, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
-    printf("iter: %lu diff: %.3lf\n", iter, diff);
 
     if (svmType == SvmType::REGRESSION)
     {
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nVectors; ++i)
         {
             alpha[i] = alpha[i] - alpha[i + nVectors];
@@ -192,7 +181,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     }
 
     cachePtr->clear();
-    SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get(), svmType);
+    SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
     DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
 
     return status;
@@ -206,7 +195,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
 {
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
-    printf("nVectors: %lu\n", nVectors);
     /* The operation copy is lightweight, therefore a large size is chosen
             so that the number of blocks is a reasonable number. */
     const size_t blockSize = 16384;
@@ -438,7 +426,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(con
             gradLocal[i] += delta * (KiBi - KiBj);
         }
     }
-    printf(">> iter: %lu diff: %.3lf\n", iter, localDiff);
 
     /* Compute diff and scatter to alpha vector */
     PRAGMA_IVDEP

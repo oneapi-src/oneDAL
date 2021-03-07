@@ -41,7 +41,6 @@ using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_classifier = daal::algorithms::classifier;
-namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
@@ -117,7 +116,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
         return result_t().set_model(trained_model).set_support_indices(table_support_indices);
     }
-} // namespace oneapi::dal::svm::backend
+}
 
 template <typename Float, typename Method>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
