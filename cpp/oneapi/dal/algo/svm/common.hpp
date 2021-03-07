@@ -30,7 +30,6 @@ namespace v1 {
 struct classification {};
 
 /// Tag-type that parameterizes entities used for solving
-/// :capterm:`regression problem <regression>`.
 struct regression {};
 
 /// Alias tag-type for classification task.

@@ -18,7 +18,6 @@
 #include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
 #include "algorithms/svm/svm_train.h"
-#include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/model_interop.hpp"
@@ -42,22 +41,12 @@ using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_classifier = daal::algorithms::classifier;
-namespace daal_multiclass = daal::algorithms::multi_class_classifier;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
 using daal_svm_kernel_t =
     daal_svm::training::internal::SVMTrainImpl<to_daal_method<Method>::value, Float, Cpu>;
-
-template <typename Float, daal::CpuType Cpu>
-using daal_multiclass_kernel_t =
-    daal_multiclass::training::internal::MultiClassClassifierTrainKernel<
-        daal_multiclass::training::oneAgainstOne,
-        Float,
-        daal::algorithms::classifier::training::Batch,
-        daal_multiclass::Parameter,
-        Cpu>;
 
 template <typename Float, typename Method>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -102,31 +91,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::CLASSIFICATION;
 
     if (class_count > 2) {
-        daal_multiclass::Parameter daal_multiclass_parameter(class_count);
-        daal_multiclass::ModelPtr daal_model =
-            daal_multiclass::Model::create(column_count, &daal_multiclass_parameter);
-        using svm_batch_t =
-            typename daal_svm::training::Batch<Float, to_daal_method<Method>::value>;
-        auto svm_batch = daal::services::SharedPtr<svm_batch_t>(new svm_batch_t());
-        // svm_batch->parameter = daal_svm_parameter;
-        daal_multiclass_parameter.training =
-            daal::services::staticPointerCast<daal_classifier::training::Batch>(svm_batch);
-
-        //
-
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_multiclass_kernel_t>(ctx,
-                                                                       daal_data.get(),
-                                                                       daal_labels.get(),
-                                                                       daal_weights.get(),
-                                                                       daal_model.get(),
-                                                                       &daal_multiclass_parameter));
-        // auto trained_model =
-        //     convert_from_daal_multiclass_model<task::classification, Float>(*daal_model);
-        const auto trained_model =
-            std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
-        printf("multiclassclassifier compute finish\n");
-        // return result_t().set_model(dal::detail::make_private<model_t>(trained_model));
+        // TODO
         return result_t();
     }
     else {
