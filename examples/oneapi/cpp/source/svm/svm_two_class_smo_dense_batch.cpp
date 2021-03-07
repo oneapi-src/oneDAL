@@ -20,6 +20,7 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
+namespace svm = dal::svm;
 
 int main(int argc, char const *argv[]) {
     const auto train_data_file_name = get_data_path("svm_two_class_train_dense_data.csv");
@@ -33,9 +34,7 @@ int main(int argc, char const *argv[]) {
     const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
     const auto svm_desc =
-        dal::svm::descriptor<float, dal::svm::method::smo, dal::svm::task::classification>{
-            kernel_desc
-        }
+        svm::descriptor<float, svm::method::smo, svm::task::classification>{ kernel_desc }
             .set_c(1.0)
             .set_accuracy_threshold(0.001)
             .set_max_iteration_count(1000)
