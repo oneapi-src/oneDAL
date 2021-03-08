@@ -43,7 +43,7 @@ void run(sycl::queue &q) {
 
     const auto result_train = dal::train(q, svm_desc, x_train, y_train);
 
-    std::cout << "Bias:\n" << result_train.get_bias() << std::endl;
+    std::cout << "Biases:\n" << result_train.get_biases() << std::endl;
     std::cout << "Support indices:\n" << result_train.get_support_indices() << std::endl;
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });

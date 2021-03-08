@@ -187,6 +187,11 @@ double model<Task>::get_bias() const {
 }
 
 template <typename Task>
+const table& model<Task>::get_biases() const {
+    return impl_->biases;
+}
+
+template <typename Task>
 std::int64_t model<Task>::get_support_vector_count() const {
     return impl_->support_vectors.get_row_count();
 }
@@ -214,6 +219,11 @@ void model<Task>::set_coeffs_impl(const table& value) {
 template <typename Task>
 void model<Task>::set_bias_impl(double value) {
     impl_->bias = value;
+}
+
+template <typename Task>
+void model<Task>::set_biases_impl(const table& value) {
+    impl_->biases = value;
 }
 
 template <typename Task>

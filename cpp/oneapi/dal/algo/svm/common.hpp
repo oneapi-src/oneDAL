@@ -326,8 +326,6 @@ public:
         return *this;
     }
 
-    /// The bias
-    /// @remark default = 0.0
     double get_bias() const;
 
     auto& set_bias(double value) {
@@ -335,8 +333,14 @@ public:
         return *this;
     }
 
-    /// The first unique value in class labels
-    /// @remark default = 0
+    /// A $class_count*(class_count-1)/2 \\times 1$ table constants in decision function
+    const table& get_biases() const;
+
+    auto& set_biases(const table& value) {
+        set_biases_impl(value);
+        return *this;
+    }
+
     std::int64_t get_first_class_label() const;
 
     auto& set_first_class_label(std::int64_t value) {
@@ -344,8 +348,6 @@ public:
         return *this;
     }
 
-    /// The second unique value in class labels
-    /// @remark default = 0
     std::int64_t get_second_class_label() const;
 
     auto& set_second_class_label(std::int64_t value) {
@@ -357,6 +359,7 @@ protected:
     void set_support_vectors_impl(const table&);
     void set_coeffs_impl(const table&);
     void set_bias_impl(double);
+    void set_biases_impl(const table&);
     void set_first_class_label_impl(std::int64_t);
     void set_second_class_label_impl(std::int64_t);
 

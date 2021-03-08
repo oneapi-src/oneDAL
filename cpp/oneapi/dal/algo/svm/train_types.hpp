@@ -147,12 +147,21 @@ public:
         return *this;
     }
 
+    /// A $class_count*(class_count-1)/2 \\times 1$ table constants in decision function
+    const table& get_biases() const;
+
+    auto& set_biases(const table& value) {
+        set_biases_impl(value);
+        return *this;
+    }
+
 protected:
     void set_model_impl(const model<Task>&);
     void set_support_vectors_impl(const table&);
     void set_support_indices_impl(const table&);
     void set_coeffs_impl(const table&);
     void set_bias_impl(double);
+    void set_biases_impl(const table&);
 
 private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;

@@ -80,11 +80,13 @@ inline auto convert_from_daal_model(daal_svm::Model& model) {
     auto table_classification_coeffs =
         interop::convert_from_daal_homogen_table<Float>(model.getClassificationCoefficients());
     const double bias = model.getBias();
+    auto arr_biases = array<Float>::full(1, static_cast<Float>(bias));
 
     return dal::svm::model<Task>()
         .set_support_vectors(table_support_vectors)
         .set_coeffs(table_classification_coeffs)
-        .set_bias(bias);
+        .set_bias(bias)
+        .set_biases(dal::detail::homogen_table_builder{}.reset(arr_biases, 1, 1).build());
 }
 
 template <typename Task, typename Float>

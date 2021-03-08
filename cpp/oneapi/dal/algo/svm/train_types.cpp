@@ -106,6 +106,11 @@ double train_result<Task>::get_bias() const {
 }
 
 template <typename Task>
+const table& train_result<Task>::get_biases() const {
+    return impl_->trained_model.get_biases();
+}
+
+template <typename Task>
 std::int64_t train_result<Task>::get_support_vector_count() const {
     return impl_->trained_model.get_support_vector_count();
 }
@@ -133,6 +138,11 @@ void train_result<Task>::set_coeffs_impl(const table& value) {
 template <typename Task>
 void train_result<Task>::set_bias_impl(double value) {
     impl_->trained_model.set_bias(value);
+}
+
+template <typename Task>
+void train_result<Task>::set_biases_impl(const table& value) {
+    impl_->trained_model.set_biases(value);
 }
 
 template class ONEDAL_EXPORT train_input<task::classification>;

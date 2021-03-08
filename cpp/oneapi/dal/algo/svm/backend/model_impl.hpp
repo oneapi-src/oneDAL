@@ -32,6 +32,7 @@ public:
     table support_vectors;
     table coeffs;
     double bias;
+    table biases;
     double first_class_label;
     double second_class_label;
     std::int64_t class_count = 2;
