@@ -87,7 +87,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                 dal::detail::error_messages::input_model_does_not_match_kernel_function());
         }
         auto daal_model = static_cast<const model_interop_cls*>(interop_model)->get_model();
-
+        const std::int64_t model_count = class_count * (class_count - 1) / 2;
         using svm_batch_t = typename daal_svm::prediction::Batch<Float>;
 
         daal_multiclass::Parameter daal_multiclass_parameter(class_count);
@@ -97,12 +97,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
         const auto daal_label = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
 
-        auto arr_decision_function =
-            array<Float>::empty(row_count * class_count * (class_count - 1) / 2);
+        auto arr_decision_function = array<Float>::empty(row_count * model_count);
         const auto daal_decision_function =
-            interop::convert_to_daal_homogen_table(arr_decision_function,
-                                                   row_count,
-                                                   class_count * (class_count - 1) / 2);
+            interop::convert_to_daal_homogen_table(arr_decision_function, row_count, model_count);
 
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_multiclass_kernel_t>(ctx,
@@ -113,13 +110,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                        &daal_multiclass_parameter));
 
         return result_t()
-            .set_decision_function(
-                dal::detail::homogen_table_builder{}
-                    .reset(arr_decision_function, row_count, class_count * (class_count - 1) / 2)
-                    .build())
+            .set_decision_function(dal::detail::homogen_table_builder{}
+                                       .reset(arr_decision_function, row_count, model_count)
+                                       .build())
             .set_labels(
                 dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
-        ;
     }
     else {
         const auto daal_support_vectors =
