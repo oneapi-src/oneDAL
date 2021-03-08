@@ -20,11 +20,13 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include <daal/include/algorithms/svm/svm_model.h>
+#include <daal/include/algorithms/multi_class_classifier/multi_class_classifier_model.h>
 
 namespace oneapi::dal::svm::backend {
 
 namespace interop = dal::backend::interop;
 namespace daal_svm = daal::algorithms::svm;
+namespace daal_multiclass = daal::algorithms::multi_class_classifier;
 
 struct daal_model_builder : public daal::algorithms::svm::Model {
     daal_model_builder() = default;
@@ -46,6 +48,31 @@ struct daal_model_builder : public daal::algorithms::svm::Model {
     }
 };
 
+class model_interop : public base {
+public:
+    virtual ~model_interop() = default;
+    virtual void clear() {}
+};
+
+template <typename DaalModel>
+class model_interop_impl : public model_interop {
+public:
+    model_interop_impl(DaalModel& model) : daal_model_(model) {}
+
+    const DaalModel get_model() const {
+        return daal_model_;
+    }
+
+    void clear() override {
+        // daal_model_->clear();
+    }
+
+private:
+    DaalModel daal_model_;
+};
+
+using model_interop_cls = model_interop_impl<daal_multiclass::ModelPtr>;
+
 template <typename Task, typename Float>
 inline auto convert_from_daal_model(daal_svm::Model& model) {
     auto table_support_vectors =
@@ -58,6 +85,29 @@ inline auto convert_from_daal_model(daal_svm::Model& model) {
         .set_support_vectors(table_support_vectors)
         .set_coeffs(table_classification_coeffs)
         .set_bias(bias);
+}
+
+template <typename Task, typename Float>
+inline auto convert_from_daal_multiclass_model(daal_multiclass::Model& model) {
+    std::int64_t model_count = model.getNumberOfTwoClassClassifierModels();
+    printf("model_count: %lu \n", model_count);
+    for (std::int64_t i = 0; i < model_count; ++i) {
+        auto svm_model =
+            daal::services::staticPointerCast<daal_svm::Model>(model.getTwoClassClassifierModel(i));
+    }
+
+    return dal::svm::model<Task>();
+
+    //     auto table_support_vectors =
+    //         interop::convert_from_daal_homogen_table<Float>(model.getSupportVectors());
+    // auto table_classification_coeffs =
+    //     interop::convert_from_daal_homogen_table<Float>(model.getClassificationCoefficients());
+    // const double bias = model.getBias();
+
+    // return dal::svm::model<Task>()
+    //     .set_support_vectors(table_support_vectors)
+    //     .set_coeffs(table_classification_coeffs)
+    //     .set_bias(bias);
 }
 
 } // namespace oneapi::dal::svm::backend
