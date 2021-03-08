@@ -66,16 +66,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    auto arr_label = row_accessor<const Float>{ labels }.pull();
-
-    binary_label_t<Float> unique_label;
-    auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
+    const std::uint64_t class_count = desc.get_class_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
-    const std::uint64_t class_count = desc.get_class_count();
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
@@ -97,6 +92,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         desc.get_shrinking());
 
     if (class_count > 2) {
+        printf("%multiclass start\n");
+        const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
+
         daal_multiclass::Parameter daal_multiclass_parameter(class_count);
         auto daal_model = daal_multiclass::Model::create(column_count, &daal_multiclass_parameter);
         auto svm_batch = daal_svm::training::Batch<Float, to_daal_method<Method>::value>();
@@ -113,10 +111,17 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                        daal_weights.get(),
                                                                        daal_model.get(),
                                                                        &daal_multiclass_parameter));
+        printf("%multiclass finish\n");
 
         return result_t();
     }
     else {
+        auto arr_label = row_accessor<const Float>{ labels }.pull();
+        binary_label_t<Float> unique_label;
+        auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
+        const auto daal_labels =
+            interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
+
         auto daal_model = daal_svm::Model::create<Float>(column_count);
         interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
             return daal_svm_kernel_t<
