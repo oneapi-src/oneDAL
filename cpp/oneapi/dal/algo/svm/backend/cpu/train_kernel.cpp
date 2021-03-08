@@ -15,9 +15,9 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
+#include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>
 
 #include "algorithms/svm/svm_train.h"
-#include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>
 
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/model_interop.hpp"
@@ -116,7 +116,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         printf("%multiclass finish\n");
         const auto trained_model =
             std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
-        return result_t();
+        trained_model->class_count = class_count;
+        return result_t().set_model(dal::detail::make_private<model_t>(trained_model));
     }
     else {
         auto arr_label = row_accessor<const Float>{ labels }.pull();

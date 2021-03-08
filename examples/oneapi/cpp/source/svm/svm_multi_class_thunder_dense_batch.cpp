@@ -24,8 +24,8 @@ namespace dal = oneapi::dal;
 int main(int argc, char const *argv[]) {
     const auto train_data_file_name = get_data_path("svm_multi_class_train_dense_data.csv");
     const auto train_label_file_name = get_data_path("svm_multi_class_train_dense_label.csv");
-    // const auto test_data_file_name = get_data_path("svm_multi_class_test_dense.csv");
-    // const auto test_label_file_name = get_data_path("svm_multi_class_train_dense_label.csv");
+    const auto test_data_file_name = get_data_path("svm_multi_class_test_dense_data.csv");
+    const auto test_label_file_name = get_data_path("svm_multi_class_test_dense_label.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     const auto y_train = dal::read<dal::table>(dal::csv::data_source{ train_label_file_name });
@@ -36,15 +36,15 @@ int main(int argc, char const *argv[]) {
 
     // std::cout << "Bias:\n" << result_train.get_bias() << std::endl;
     // std::cout << "Support indices:\n" << result_train.get_support_indices() << std::endl;
+    //
+    const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
+    const auto y_true = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
 
-    // const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
-    // const auto y_true = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
+    const auto result_test = dal::infer(svm_desc, result_train.get_model(), x_test);
 
-    // const auto result_test = dal::infer(svm_desc, result_train.get_model(), x_test);
-
-    // std::cout << "Decision function result:\n" << result_test.get_decision_function() << std::endl;
-    // std::cout << "Labels result:\n" << result_test.get_labels() << std::endl;
-    // std::cout << "Labels true:\n" << y_true << std::endl;
+    std::cout << "Decision function result:\n" << result_test.get_decision_function() << std::endl;
+    std::cout << "Labels result:\n" << result_test.get_labels() << std::endl;
+    std::cout << "Labels true:\n" << y_true << std::endl;
 
     return 0;
 }

@@ -34,6 +34,7 @@ public:
     double bias;
     double first_class_label;
     double second_class_label;
+    std::int64_t class_count = 2;
 
     backend::model_interop* get_interop() const {
         return interop_;
