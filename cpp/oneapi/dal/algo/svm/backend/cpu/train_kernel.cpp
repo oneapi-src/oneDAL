@@ -93,7 +93,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         desc.get_shrinking());
 
     if (class_count > 2) {
-        printf("%multiclass start\n");
         const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 
         daal_multiclass::Parameter daal_multiclass_parameter(class_count);
@@ -114,7 +113,6 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                        daal_weights.get(),
                                                                        daal_model.get(),
                                                                        &daal_multiclass_parameter));
-        printf("%multiclass finish\n");
         const auto trained_model =
             std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
         trained_model->class_count = class_count;
