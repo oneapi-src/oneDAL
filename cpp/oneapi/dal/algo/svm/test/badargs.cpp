@@ -28,9 +28,11 @@ namespace oneapi::dal::svm::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class svm_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count = 8;
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t element_count = row_count * column_count;
@@ -41,7 +43,7 @@ public:
     }
 
     auto get_descriptor() const {
-        return svm::descriptor<float, Method, svm::task::classification>{};
+        return svm::descriptor<Float, Method, svm::task::classification>{};
     }
 
     table get_train_data(std::int64_t override_row_count = row_count,
@@ -62,20 +64,22 @@ public:
     }
 
 private:
-    static constexpr std::array<float, element_count> train_data_ = {
+    static constexpr std::array<Float, element_count> train_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<float, row_count> train_labels_ = { 0.0, 1.0, 0.0, 0.0,
+    static constexpr std::array<Float, row_count> train_labels_ = { 0.0, 1.0, 0.0, 0.0,
                                                                     1.0, 1.0, 0.0, 1.0 };
 
-    static constexpr std::array<float, element_count> infer_data_ = {
+    static constexpr std::array<Float, element_count> infer_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 };
 
+using svm_types = COMBINE_TYPES((float, double), (svm::method::thunder, svm::method::smo));
+
 #define SVM_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(svm_badarg_test, name, "[svm][badarg]", svm::method::thunder, svm::method::smo)
+    TEMPLATE_LIST_TEST_M(svm_badarg_test, name, "[svm][badarg]", svm_types)
 
 SVM_BADARG_TEST("accepts positive c") {
     SKIP_IF(this->not_available_on_device());
