@@ -84,7 +84,7 @@ public:
     /// @remark default = 0.0
     double get_shift() const;
 
-    /// The degree $b$ of the polynomial kernel.
+    /// The degree $d$ of the polynomial kernel.
     /// @remark default = 3
     std::int64_t get_degree() const;
 
