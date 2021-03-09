@@ -51,11 +51,10 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     const std::int64_t row_count = data.get_row_count();
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
     const auto daal_support_vectors =
-        interop::convert_to_daal_table<Float>(queue, trained_model.get_support_vectors());
-    const auto daal_coeffs =
-        interop::convert_to_daal_table<Float>(queue, trained_model.get_coeffs());
+        interop::convert_to_daal_table(queue, trained_model.get_support_vectors());
+    const auto daal_coeffs = interop::convert_to_daal_table(queue, trained_model.get_coeffs());
 
     auto daal_model = daal_model_builder{}
                           .set_support_vectors(daal_support_vectors)
@@ -72,7 +71,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     auto arr_decision_function = array<Float>::empty(queue, row_count * 1);
     const auto daal_decision_function =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_decision_function, row_count, 1);
+        interop::convert_to_daal_table(queue, arr_decision_function, row_count, 1);
 
     interop::status_to_exception(daal_svm_predict_kernel_t<Float>().compute(daal_data,
                                                                             &daal_model,

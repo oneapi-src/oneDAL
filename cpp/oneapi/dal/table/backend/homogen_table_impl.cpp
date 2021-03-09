@@ -14,7 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <iostream>
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
+
+#include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/backend/convert.hpp"
 
 namespace oneapi::dal::backend {
@@ -32,69 +35,34 @@ table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dty
 
 template <typename Policy, typename Data>
 static void make_mutable_data(const Policy& policy, array<Data>& array) {
-    if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
-        array.need_mutable_data();
-    }
-#ifdef ONEDAL_DATA_PARALLEL
-    else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
-        auto& queue = policy.get_queue();
-        auto kind = sycl::get_pointer_type(array.get_data(), queue.get_context());
-        array.need_mutable_data(queue, kind);
-    }
-#endif
-    else {
-        static_assert("make_mutable_data(): undefined policy type");
-    }
+    array.need_mutable_data();
 }
 
-template <typename Policy, typename Data, typename Alloc>
+template <typename Policy, typename Data>
 static void reset_array(const Policy& policy,
                         array<Data>& array,
                         std::int64_t count,
-                        const Alloc& kind) {
+                        const alloc_kind& kind) {
     if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
+        ONEDAL_ASSERT(kind == alloc_kind::host, "Incompatible policy and type of allocation");
+    }
+#ifdef ONEDAL_DATA_PARALLEL
+    if (kind == alloc_kind::host) {
         array.reset(count);
     }
-#ifdef ONEDAL_DATA_PARALLEL
-    else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
-        array.reset(policy.get_queue(), count, kind);
-    }
-#endif
     else {
-        static_assert("reset_array(): undefined policy type");
+        if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
+            const auto alloc = alloc_kind_to_sycl(kind);
+            array.reset(policy.get_queue(), count, alloc);
+        }
     }
-}
-
-template <typename Policy, typename Data, typename Alloc>
-static bool has_array_data_kind(const Policy& policy, const array<Data>& array, const Alloc& kind) {
-    if (array.get_count() <= 0) {
-        return false;
-    }
-
-    if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
-        // We assume that no sycl::usm::alloc::device pointers used with host policies.
-        // It is responsibility of user to pass right pointers because we cannot check
-        // the right pointer type with the host policy.
-        static_assert(std::is_same_v<Alloc, homogen_table_impl::host_alloc_t>);
-        return true;
-    }
-#ifdef ONEDAL_DATA_PARALLEL
-    else if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
-        static_assert(std::is_same_v<Alloc, sycl::usm::alloc>);
-        auto array_data_kind =
-            sycl::get_pointer_type(array.get_data(), policy.get_queue().get_context());
-        return array_data_kind == kind;
-    }
+#else
+    array.reset(count);
 #endif
-    else {
-        static_assert("has_array_data_kind(): undefined policy type");
-    }
-
-    return false;
 }
 
 template <typename DataSrc, typename DataDest>
-static void refer_source_data(const array<DataSrc>& src,
+static void refer_origin_data(const array<DataSrc>& src,
                               std::int64_t src_start_index,
                               std::int64_t dst_count,
                               array<DataDest>& dst) {
@@ -172,41 +140,42 @@ public:
               origin_(origin_data_type, origin_row_count, origin_column_count) {
         ONEDAL_ASSERT(block_.row_count + block_.row_offset <= origin_.row_count);
         ONEDAL_ASSERT(block_.column_count + block_.column_offset <= origin_.column_count);
-        // thowable checks done in homogen_table_impl, including overflows
+        // throwable checks done in homogen_table_impl, including overflows
     }
 
-    template <typename Policy, typename BlockData, typename Alloc>
+    template <typename Policy, typename BlockData>
     void pull_by_row_major(const Policy& policy,
                            const array<byte_t>& origin_data,
                            array<BlockData>& block_data,
-                           const Alloc& kind) const {
+                           const alloc_kind& requested_alloc_kind) const {
         constexpr std::int64_t block_dtype_size = sizeof(BlockData);
         const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
-
-        // overflows checked here
-        check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
-
         const auto block_dtype = detail::make_data_type<BlockData>();
 
+        // Overflows are checked here
+        check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
+
+        // Arithmetic operations are safe because block offsets do not exceed origin element count
         const std::int64_t origin_offset =
             (block_.row_offset * origin_.column_count + block_.column_offset);
-        // operation is safe because block offsets do not exceed origin element count
 
         const bool contiguous_block_requested =
-            block_.column_count == origin_.column_count || block_.row_count == 1;
+            (block_.column_count == origin_.column_count) || (block_.row_count == 1);
+        const bool nocopy_alloc_kind =
+            !alloc_kind_requires_copy(get_alloc_kind(origin_data), requested_alloc_kind);
+        const bool same_data_type = (block_dtype == origin_.dtype);
+        const bool block_has_enough_space = (block_data.get_count() >= block_.element_count);
+        const bool block_has_mutable_data = block_data.has_mutable_data();
 
-        if (block_dtype == origin_.dtype && contiguous_block_requested == true &&
-            has_array_data_kind(policy, origin_data, kind)) {
-            refer_source_data(origin_data,
+        if (contiguous_block_requested && same_data_type && nocopy_alloc_kind) {
+            refer_origin_data(origin_data,
                               origin_offset * block_dtype_size,
                               block_.element_count,
                               block_data);
         }
         else {
-            if (block_data.get_count() < block_.element_count ||
-                block_data.has_mutable_data() == false ||
-                has_array_data_kind(policy, block_data, kind) == false) {
-                reset_array(policy, block_data, block_.element_count, kind);
+            if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
+                reset_array(policy, block_data, block_.element_count, requested_alloc_kind);
             }
 
             auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
@@ -218,15 +187,13 @@ public:
                 const std::int64_t subblock_size =
                     contiguous_block_requested ? block_.element_count : block_.column_count;
 
-                for (std::int64_t subblock_idx = 0; subblock_idx < subblocks_count;
-                     subblock_idx++) {
-                    backend::convert_vector(
-                        policy,
-                        src_data + subblock_idx * origin_.column_count * origin_dtype_size,
-                        dst_data + subblock_idx * block_.column_count,
-                        origin_.dtype,
-                        block_dtype,
-                        subblock_size);
+                for (std::int64_t i = 0; i < subblocks_count; i++) {
+                    backend::convert_vector(policy,
+                                            src_data + i * origin_.column_count * origin_dtype_size,
+                                            dst_data + i * block_.column_count,
+                                            origin_.dtype,
+                                            block_dtype,
+                                            subblock_size);
                 }
             }
             else {
@@ -242,35 +209,38 @@ public:
         }
     }
 
-    template <typename Policy, typename BlockData, typename Alloc>
+    template <typename Policy, typename BlockData>
     void pull_by_column_major(const Policy& policy,
                               const array<byte_t>& origin_data,
                               array<BlockData>& block_data,
-                              const Alloc& kind) const {
+                              const alloc_kind& requested_alloc_kind) const {
         constexpr std::int64_t block_dtype_size = sizeof(BlockData);
         const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
+        const auto block_dtype = detail::make_data_type<BlockData>();
 
         // overflows checked here
         check_origin_data(origin_data, origin_dtype_size, block_dtype_size);
 
-        const auto block_dtype = detail::make_data_type<BlockData>();
+        // operation is safe because block offsets do not exceed origin element count
         const std::int64_t origin_offset =
             block_.row_offset + block_.column_offset * origin_.row_count;
-        // operation is safe because block offsets do not exceed origin element count
 
-        if (block_data.get_count() < block_.element_count ||
-            block_data.has_mutable_data() == false ||
-            has_array_data_kind(policy, block_data, kind) == false) {
-            reset_array(policy, block_data, block_.element_count, kind);
+        const bool nocopy_alloc_kind =
+            !alloc_kind_requires_copy(get_alloc_kind(origin_data), requested_alloc_kind);
+        const bool block_has_enough_space = (block_data.get_count() >= block_.element_count);
+        const bool block_has_mutable_data = block_data.has_mutable_data();
+
+        if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
+            reset_array(policy, block_data, block_.element_count, requested_alloc_kind);
         }
 
         auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
         auto dst_data = block_data.get_mutable_data();
 
-        for (std::int64_t row_idx = 0; row_idx < block_.row_count; row_idx++) {
+        for (std::int64_t i = 0; i < block_.row_count; i++) {
             backend::convert_vector(policy,
-                                    src_data + row_idx * origin_dtype_size,
-                                    dst_data + row_idx * block_.column_count,
+                                    src_data + i * origin_dtype_size,
+                                    dst_data + i * block_.column_count,
                                     origin_.dtype,
                                     block_dtype,
                                     origin_.row_count,
@@ -413,30 +383,36 @@ static void check_block_column_index(std::int64_t column_index, std::int64_t ori
     }
 }
 
-template <typename Policy, typename Data, typename Alloc>
+template <typename Policy, typename Data>
 void homogen_table_impl::pull_rows_impl(const Policy& policy,
                                         array<Data>& block,
                                         const range& rows,
-                                        const Alloc& kind) const {
+                                        const alloc_kind& kind) const {
     check_block_row_range(rows, row_count_);
 
     const auto& data_type = meta_.get_data_type(0);
     const range cols{ 0, -1 };
     const block_access_provider p{ row_count_, col_count_, data_type, rows, cols };
 
-    switch (layout_) {
-        case data_layout::row_major: p.pull_by_row_major(policy, data_, block, kind); break;
-        case data_layout::column_major: p.pull_by_column_major(policy, data_, block, kind); break;
-        default: throw dal::domain_error(error_msg::unsupported_data_layout());
-    }
+    override_policy(policy, block, [&](auto overriden_policy) {
+        switch (layout_) {
+            case data_layout::row_major:
+                p.pull_by_row_major(overriden_policy, data_, block, kind);
+                break;
+            case data_layout::column_major:
+                p.pull_by_column_major(overriden_policy, data_, block, kind);
+                break;
+            default: throw dal::domain_error(error_msg::unsupported_data_layout());
+        }
+    });
 }
 
-template <typename Policy, typename Data, typename Alloc>
+template <typename Policy, typename Data>
 void homogen_table_impl::pull_column_impl(const Policy& policy,
                                           array<Data>& block,
                                           std::int64_t column_index,
                                           const range& rows,
-                                          const Alloc& kind) const {
+                                          const alloc_kind& kind) const {
     check_block_row_range(rows, row_count_);
     check_block_column_index(column_index, col_count_);
 
@@ -444,11 +420,17 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
     const range column{ column_index, column_index + 1 };
     const block_access_provider p{ col_count_, row_count_, data_type, column, rows };
 
-    switch (layout_) {
-        case data_layout::row_major: p.pull_by_column_major(policy, data_, block, kind); break;
-        case data_layout::column_major: p.pull_by_row_major(policy, data_, block, kind); break;
-        default: throw dal::domain_error(error_msg::unsupported_data_layout());
-    }
+    override_policy(policy, block, [&](auto overriden_policy) {
+        switch (layout_) {
+            case data_layout::row_major:
+                p.pull_by_column_major(overriden_policy, data_, block, kind);
+                break;
+            case data_layout::column_major:
+                p.pull_by_row_major(overriden_policy, data_, block, kind);
+                break;
+            default: throw dal::domain_error(error_msg::unsupported_data_layout());
+        }
+    });
 }
 
 template <typename Policy, typename Data>
@@ -461,11 +443,17 @@ void homogen_table_impl::push_rows_impl(const Policy& policy,
     const range cols{ 0, -1 };
     const block_access_provider p{ row_count_, col_count_, data_type, rows, cols };
 
-    switch (layout_) {
-        case data_layout::row_major: p.push_by_row_major(policy, data_, block); break;
-        case data_layout::column_major: p.push_by_column_major(policy, data_, block); break;
-        default: throw dal::domain_error(error_msg::unsupported_data_layout());
-    }
+    override_policy(policy, block, [&](auto overriden_policy) {
+        switch (layout_) {
+            case data_layout::row_major: //
+                p.push_by_row_major(overriden_policy, data_, block);
+                break;
+            case data_layout::column_major:
+                p.push_by_column_major(overriden_policy, data_, block);
+                break;
+            default: throw dal::domain_error(error_msg::unsupported_data_layout());
+        }
+    });
 }
 
 template <typename Policy, typename Data>
@@ -480,45 +468,124 @@ void homogen_table_impl::push_column_impl(const Policy& policy,
     const range column{ column_index, column_index + 1 };
     const block_access_provider p{ col_count_, row_count_, data_type, column, rows };
 
-    switch (layout_) {
-        case data_layout::row_major: p.push_by_column_major(policy, data_, block); break;
-        case data_layout::column_major: p.push_by_row_major(policy, data_, block); break;
-        default: throw dal::domain_error(error_msg::unsupported_data_layout());
+    override_policy(policy, block, [&](auto overriden_policy) {
+        switch (layout_) {
+            case data_layout::row_major: //
+                p.push_by_column_major(overriden_policy, data_, block);
+                break;
+            case data_layout::column_major: //
+                p.push_by_row_major(overriden_policy, data_, block);
+                break;
+            default: throw dal::domain_error(error_msg::unsupported_data_layout());
+        }
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+inline void check_queues_compatibility_impl(const std::vector<sycl::queue>& queues) {
+    if (queues.empty()) {
+        return;
+    }
+
+    const auto first_queue = queues.front();
+    for (std::size_t i = 1; i < queues.size(); i++) {
+        const auto queue = queues[i];
+        if (first_queue.get_context() != queue.get_context()) {
+            throw invalid_argument{ error_msg::queues_in_different_contexts() };
+        }
     }
 }
 
-#define INSTANTIATE_IMPL(Policy, Data, Alloc)                                     \
-    template void homogen_table_impl::pull_rows_impl(const Policy& policy,        \
-                                                     array<Data>& block,          \
-                                                     const range& rows,           \
-                                                     const Alloc& kind) const;    \
-    template void homogen_table_impl::pull_column_impl(const Policy& policy,      \
-                                                       array<Data>& block,        \
-                                                       std::int64_t column_index, \
-                                                       const range& rows,         \
-                                                       const Alloc& kind) const;  \
-    template void homogen_table_impl::push_rows_impl(const Policy& policy,        \
-                                                     const array<Data>& block,    \
-                                                     const range& rows);          \
-    template void homogen_table_impl::push_column_impl(const Policy& policy,      \
-                                                       const array<Data>& block,  \
-                                                       std::int64_t column_index, \
+template <typename QueueLike>
+inline void extract_queue_to_contrainer(std::vector<sycl::queue>& container,
+                                        QueueLike&& queue_like) {
+    using queue_like_t = std::decay_t<QueueLike>;
+    constexpr bool is_queue = std::is_same_v<queue_like_t, sycl::queue>;
+    constexpr bool is_opt_queue = std::is_same_v<queue_like_t, std::optional<sycl::queue>>;
+    constexpr bool is_dp_policy = std::is_same_v<queue_like_t, detail::data_parallel_policy>;
+    constexpr bool is_host_policy = std::is_same_v<queue_like_t, detail::default_host_policy>;
+
+    static_assert(is_queue || is_opt_queue || is_dp_policy || is_host_policy,
+                  "Unknown object type, cannot extract queue");
+
+    if constexpr (is_queue) {
+        container.push_back(std::forward<QueueLike>(queue_like));
+    }
+    else if constexpr (is_opt_queue) {
+        if (queue_like.has_value()) {
+            container.push_back(*queue_like);
+        }
+    }
+    else if constexpr (is_dp_policy) {
+        container.push_back(queue_like.get_queue());
+    }
+}
+
+template <typename... QueueLike>
+inline void check_queues_compatibility(QueueLike&&... queues_like) {
+    constexpr std::size_t arg_count = std::tuple_size_v<std::tuple<QueueLike...>>;
+    std::vector<sycl::queue> queues;
+    queues.reserve(arg_count);
+    (extract_queue_to_contrainer(queues, std::forward<QueueLike>(queues_like)), ...);
+    return check_queues_compatibility_impl(queues);
+}
+#endif
+
+template <typename Policy, typename Data, typename Body>
+void homogen_table_impl::override_policy(const Policy& policy,
+                                         const array<Data>& block,
+                                         Body&& body) const {
+    // The function tries to select correct policy for pull/push implementation
+    // depending on the queues stored in the numberic table or requested data block
+#ifdef ONEDAL_DATA_PARALLEL
+    const auto data_queue_opt = data_.get_queue();
+    const auto block_queue_opt = block.get_queue();
+    check_queues_compatibility(policy, data_queue_opt, block_queue_opt);
+    if constexpr (detail::is_data_parallel_policy_v<Policy>) {
+        body(policy);
+    }
+    else if (block_queue_opt.has_value()) {
+        body(detail::data_parallel_policy{ *block_queue_opt });
+    }
+    else if (data_queue_opt.has_value()) {
+        body(detail::data_parallel_policy{ *data_queue_opt });
+    }
+    else {
+        body(detail::default_host_policy{});
+    }
+#else
+    body(policy);
+#endif
+} // namespace oneapi::dal::backend
+
+#define INSTANTIATE_IMPL(Policy, Data)                                                \
+    template void homogen_table_impl::pull_rows_impl(const Policy& policy,            \
+                                                     array<Data>& block,              \
+                                                     const range& rows,               \
+                                                     const alloc_kind& kind) const;   \
+    template void homogen_table_impl::pull_column_impl(const Policy& policy,          \
+                                                       array<Data>& block,            \
+                                                       std::int64_t column_index,     \
+                                                       const range& rows,             \
+                                                       const alloc_kind& kind) const; \
+    template void homogen_table_impl::push_rows_impl(const Policy& policy,            \
+                                                     const array<Data>& block,        \
+                                                     const range& rows);              \
+    template void homogen_table_impl::push_column_impl(const Policy& policy,          \
+                                                       const array<Data>& block,      \
+                                                       std::int64_t column_index,     \
                                                        const range& rows);
 
 #ifdef ONEDAL_DATA_PARALLEL
-#define INSTANTIATE_IMPL_ALL_POLICIES(Data)                                               \
-    INSTANTIATE_IMPL(detail::default_host_policy, Data, homogen_table_impl::host_alloc_t) \
-    INSTANTIATE_IMPL(detail::data_parallel_policy, Data, sycl::usm::alloc)
+#define INSTANTIATE_IMPL_ALL_POLICIES(Data)             \
+    INSTANTIATE_IMPL(detail::default_host_policy, Data) \
+    INSTANTIATE_IMPL(detail::data_parallel_policy, Data)
 #else
-#define INSTANTIATE_IMPL_ALL_POLICIES(Data) \
-    INSTANTIATE_IMPL(detail::default_host_policy, Data, homogen_table_impl::host_alloc_t)
+#define INSTANTIATE_IMPL_ALL_POLICIES(Data) INSTANTIATE_IMPL(detail::default_host_policy, Data)
 #endif
 
 INSTANTIATE_IMPL_ALL_POLICIES(float)
 INSTANTIATE_IMPL_ALL_POLICIES(double)
 INSTANTIATE_IMPL_ALL_POLICIES(int32_t)
-
-#undef INSTANTIATE_IMPL_ALL_POLICIES
-#undef INSTANTIATE_IMPL
 
 } // namespace oneapi::dal::backend

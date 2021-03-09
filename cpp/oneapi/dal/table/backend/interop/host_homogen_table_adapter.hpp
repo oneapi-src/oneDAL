@@ -16,7 +16,14 @@
 
 #pragma once
 
-#include "oneapi/dal/table/backend/interop/homogen_table_adapter.hpp"
+#include <daal/include/data_management/data/homogen_numeric_table.h>
+
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/column_accessor.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/interop/daal_object_owner.hpp"
+#include "oneapi/dal/table/backend/interop/block_info.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -24,8 +31,8 @@ namespace oneapi::dal::backend::interop {
 // attempts to change the data inside objects of that class lead to undefined
 // behavior.
 template <typename Data>
-class host_homogen_table_adapter : public homogen_table_adapter<Data> {
-    using base = homogen_table_adapter<Data>;
+class host_homogen_table_adapter : public daal::data_management::HomogenNumericTable<Data> {
+    using base = daal::data_management::HomogenNumericTable<Data>;
     using status_t = daal::services::Status;
     using rw_mode_t = daal::data_management::ReadWriteMode;
     using ptr_t = daal::services::SharedPtr<host_homogen_table_adapter>;
@@ -73,6 +80,26 @@ private:
                                     rw_mode_t rwflag,
                                     block_desc_t<int>& block) override;
 
+    status_t releaseBlockOfRows(block_desc_t<double>& block) override;
+    status_t releaseBlockOfRows(block_desc_t<float>& block) override;
+    status_t releaseBlockOfRows(block_desc_t<int>& block) override;
+
+    status_t releaseBlockOfColumnValues(block_desc_t<double>& block) override;
+    status_t releaseBlockOfColumnValues(block_desc_t<float>& block) override;
+    status_t releaseBlockOfColumnValues(block_desc_t<int>& block) override;
+
+    status_t assign(float value) override;
+    status_t assign(double value) override;
+    status_t assign(int value) override;
+
+    int getSerializationTag() const override;
+    status_t serializeImpl(daal::data_management::InputDataArchive* arch) override;
+    status_t deserializeImpl(const daal::data_management::OutputDataArchive* arch) override;
+
+    status_t allocateDataMemoryImpl(daal::MemType) override;
+    status_t setNumberOfColumnsImpl(std::size_t) override;
+    void freeDataMemoryImpl() override;
+
     template <typename BlockData>
     status_t read_rows_impl(std::size_t vector_idx,
                             std::size_t vector_num,
@@ -86,8 +113,34 @@ private:
                                      rw_mode_t rwflag,
                                      block_desc_t<BlockData>& block);
 
-private:
+    bool check_row_indexes_in_range(const block_info& info) const {
+        const std::int64_t row_count = original_table_.get_row_count();
+        return info.row_begin_index < row_count && info.row_end_index <= row_count;
+    }
+
+    bool check_column_index_in_range(const block_info& info) const {
+        const std::int64_t column_count = original_table_.get_column_count();
+        return info.single_column_requested && info.column_index < column_count;
+    }
+
+    template <typename Body>
+    daal::services::Status convert_exception_to_status(Body&& body) {
+        try {
+            return body();
+        }
+        catch (const bad_alloc&) {
+            return daal::services::ErrorMemoryAllocationFailed;
+        }
+        catch (const out_of_range&) {
+            return daal::services::ErrorIncorrectDataRange;
+        }
+        catch (...) {
+            return daal::services::UnknownError;
+        }
+    }
+
     const bool is_rowmajor_;
+    homogen_table original_table_;
 };
 
 } // namespace oneapi::dal::backend::interop

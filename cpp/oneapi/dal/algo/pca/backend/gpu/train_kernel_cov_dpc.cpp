@@ -82,17 +82,12 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto arr_means = array<Float>::empty(queue, 1 * column_count);
     auto arr_vars = array<Float>::empty(queue, 1 * column_count);
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
-    const auto daal_eigvec = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                         arr_eigvec,
-                                                                         component_count,
-                                                                         column_count);
-    const auto daal_eigval =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_eigval, 1, component_count);
-    const auto daal_means =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_means, 1, column_count);
-    const auto daal_variances =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_vars, 1, column_count);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    const auto daal_eigvec =
+        interop::convert_to_daal_table(queue, arr_eigvec, component_count, column_count);
+    const auto daal_eigval = interop::convert_to_daal_table(queue, arr_eigval, 1, component_count);
+    const auto daal_means = interop::convert_to_daal_table(queue, arr_means, 1, column_count);
+    const auto daal_variances = interop::convert_to_daal_table(queue, arr_vars, 1, column_count);
 
     daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
     covariance_alg.input.set(daal_cov::data, daal_data);

@@ -62,14 +62,11 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     // Need to create special immutable homogen table on daal interop side
 
     // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
-    const auto daal_data =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_eigenvectors = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                               arr_eigvec,
-                                                                               component_count,
-                                                                               column_count);
+    const auto daal_data = interop::convert_to_daal_table(queue, arr_data, row_count, column_count);
+    const auto daal_eigenvectors =
+        interop::convert_to_daal_table(queue, arr_eigvec, component_count, column_count);
     const auto daal_result =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_result, row_count, component_count);
+        interop::convert_to_daal_table(queue, arr_result, row_count, component_count);
 
     interop::status_to_exception(
         daal_pca_transform_oneapi_kernel_t<Float>()

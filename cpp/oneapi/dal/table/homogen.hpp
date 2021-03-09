@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/detail/array_via_policy.hpp"
 
 namespace oneapi::dal {
 
@@ -241,16 +242,16 @@ private:
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
-        dal::detail::check_mul_overflow(row_count, column_count);
-        array<Data> data_array{ data_pointer,
-                                row_count * column_count,
-                                std::forward<ConstDeleter>(data_deleter) };
+        auto data_array = detail::array_via_policy<Data>::wrap(
+            policy,
+            data_pointer,
+            detail::check_mul_overflow(row_count, column_count),
+            std::forward<ConstDeleter>(data_deleter));
 
         auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
-        dal::detail::check_mul_overflow(data_array.get_count(),
-                                        static_cast<std::int64_t>(sizeof(Data)));
         const std::int64_t byte_count =
-            data_array.get_count() * static_cast<std::int64_t>(sizeof(Data));
+            detail::check_mul_overflow(data_array.get_count(),
+                                       static_cast<std::int64_t>(sizeof(Data)));
 
         auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
 

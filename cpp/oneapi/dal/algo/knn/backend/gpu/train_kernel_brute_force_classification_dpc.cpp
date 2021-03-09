@@ -47,8 +47,8 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
     interop::execution_context_guard guard(queue);
 
     const std::int64_t column_count = data.get_column_count();
-    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table<Float>(queue, labels);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    const auto daal_labels = interop::convert_to_daal_table(queue, labels);
 
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(

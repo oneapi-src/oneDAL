@@ -22,8 +22,8 @@
 
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/table/backend/interop/sycl_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
-#include "oneapi/dal/table/backend/interop/usm_homogen_table_adapter.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -69,48 +69,6 @@ inline daal::data_management::NumericTablePtr copy_to_daal_homogen_table(const t
                                          allow_copy);
 }
 
-#ifdef ONEDAL_DATA_PARALLEL
-template <typename Data>
-inline auto convert_to_daal_sycl_homogen_table(sycl::queue& queue,
-                                               array<Data>& data,
-                                               std::int64_t row_count,
-                                               std::int64_t column_count,
-                                               bool allow_copy = false) {
-    using daal::data_management::internal::SyclHomogenNumericTable;
-    if (!data.get_count()) {
-        return daal::services::SharedPtr<SyclHomogenNumericTable<Data>>();
-    }
-
-    if (allow_copy) {
-        data.need_mutable_data(queue, sycl::usm::alloc::device);
-    }
-
-    ONEDAL_ASSERT(data.has_mutable_data());
-    const auto daal_data =
-        daal::services::SharedPtr<Data>(data.get_mutable_data(), daal_object_owner{ data });
-
-    return SyclHomogenNumericTable<Data>::create(
-        daal_data,
-        dal::detail::integral_cast<std::size_t>(column_count),
-        dal::detail::integral_cast<std::size_t>(row_count),
-        queue);
-}
-#endif
-
-#ifdef ONEDAL_DATA_PARALLEL
-template <typename Data>
-inline auto copy_to_daal_sycl_homogen_table(sycl::queue& queue, const table& table) {
-    // TODO: Preserve information about features
-    const bool allow_copy = true;
-    auto rows = row_accessor<const Data>{ table }.pull(queue);
-    return convert_to_daal_sycl_homogen_table(queue,
-                                              rows,
-                                              table.get_row_count(),
-                                              table.get_column_count(),
-                                              allow_copy);
-}
-#endif
-
 template <typename Data>
 inline table convert_from_daal_homogen_table(const daal::data_management::NumericTablePtr& nt) {
     daal::data_management::BlockDescriptor<Data> block;
@@ -137,21 +95,6 @@ inline daal::data_management::NumericTablePtr wrap_by_host_homogen_adapter(
     }
 }
 
-#ifdef ONEDAL_DATA_PARALLEL
-inline daal::data_management::NumericTablePtr wrap_by_usm_homogen_adapter(
-    sycl::queue& queue,
-    const homogen_table& table) {
-    const auto& dtype = table.get_metadata().get_data_type(0);
-
-    switch (dtype) {
-        case data_type::float32: return usm_homogen_table_adapter<float>::create(queue, table);
-        case data_type::float64: return usm_homogen_table_adapter<double>::create(queue, table);
-        case data_type::int32: return usm_homogen_table_adapter<std::int32_t>::create(queue, table);
-        default: return daal::data_management::NumericTablePtr();
-    }
-}
-#endif
-
 template <typename Data>
 inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table) {
     if (auto wrapper = wrap_by_host_homogen_adapter(table)) {
@@ -159,22 +102,6 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const homoge
     }
     return copy_to_daal_homogen_table<Data>(table);
 }
-
-#ifdef ONEDAL_DATA_PARALLEL
-template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(sycl::queue& queue,
-                                                                    const homogen_table& table) {
-    // If the memory stored in table is accessible on the target device,
-    // we can wrap into homogen table adapter, otherwise we should copy
-    // data to device.
-    if (is_device_accessible_usm_pointer(queue, table.get_data())) {
-        if (auto wrapper = wrap_by_usm_homogen_adapter(queue, table)) {
-            return wrapper;
-        }
-    }
-    return copy_to_daal_sycl_homogen_table<Data>(queue, table);
-}
-#endif
 
 template <typename Data>
 inline daal::data_management::NumericTablePtr convert_to_daal_table(const table& table) {
@@ -188,16 +115,42 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const table&
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(sycl::queue& queue,
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const sycl::queue& queue,
                                                                     const table& table) {
-    if (table.get_kind() == homogen_table::kind()) {
-        const auto& homogen = static_cast<const homogen_table&>(table);
-        return convert_to_daal_table<Data>(queue, homogen);
-    }
-    else {
-        return copy_to_daal_sycl_homogen_table<Data>(queue, table);
-    }
+    return interop::sycl_table_adapter::create(queue, table);
+}
+
+template <typename Data>
+inline daal::data_management::NumericTablePtr convert_to_daal_table(const sycl::queue& queue,
+                                                                    const array<Data>& data,
+                                                                    std::int64_t row_count,
+                                                                    std::int64_t column_count) {
+    using daal::services::Status;
+    using daal::services::SharedPtr;
+    using daal::services::internal::Buffer;
+    using daal::data_management::internal::SyclHomogenNumericTable;
+    using dal::detail::integral_cast;
+
+    ONEDAL_ASSERT(data.get_count() == row_count * column_count);
+    ONEDAL_ASSERT(data.has_mutable_data());
+
+    const SharedPtr<Data> data_shared{ data.get_mutable_data(), daal_object_owner{ data } };
+
+    Status status;
+    const Buffer<Data> buffer{ data_shared,
+                               integral_cast<std::size_t>(data.get_count()),
+                               queue,
+                               status };
+    status_to_exception(status);
+
+    const auto table =
+        SyclHomogenNumericTable<Data>::create(buffer,
+                                              integral_cast<std::size_t>(column_count),
+                                              integral_cast<std::size_t>(row_count),
+                                              &status);
+    status_to_exception(status);
+
+    return table;
 }
 #endif
 

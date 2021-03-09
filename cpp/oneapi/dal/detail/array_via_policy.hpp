@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,16 +14,33 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <gtest/gtest.h>
-#include "oneapi/dal/test/engine/config.hpp"
+#pragma once
 
-int main(int argc, char** argv) {
-    using oneapi::dal::test::engine::global_config;
-    oneapi::dal::test::engine::global_setup(global_config{});
+#include "oneapi/dal/array.hpp"
 
-    ::testing::InitGoogleTest(&argc, argv);
-    const int status = RUN_ALL_TESTS();
+namespace oneapi::dal::detail {
+namespace v1 {
 
-    oneapi::dal::test::engine::global_cleanup();
-    return status;
-}
+template <typename T>
+class array_via_policy {
+public:
+    array_via_policy() = delete;
+
+    template <typename... Args>
+    static array<T> wrap(const default_host_policy& policy, Args&&... args) {
+        return array<T>{ std::forward<Args>(args)... };
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename... Args>
+    static array<T> wrap(const data_parallel_policy& policy, Args&&... args) {
+        return array<T>{ policy.get_queue(), std::forward<Args>(args)... };
+    }
+#endif
+};
+
+} // namespace v1
+
+using v1::array_via_policy;
+
+} // namespace oneapi::dal::detail

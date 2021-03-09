@@ -56,8 +56,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table<Float>(queue, data);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    const auto daal_labels = interop::convert_to_daal_table(queue, data);
 
     /* init param for daal kernel */
     auto daal_input = daal::algorithms::classifier::training::Input();
@@ -103,8 +103,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
         arr_oob_err = array<Float>::empty(queue, 1 * 1);
 
-        const auto res_oob_err =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_err, 1, 1);
+        const auto res_oob_err = interop::convert_to_daal_table(queue, arr_oob_err, 1, 1);
         daal_result.set(daal_df_cls_train::outOfBagError, res_oob_err);
     }
 
@@ -114,7 +113,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1);
 
         const auto res_oob_per_obs_err =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_per_obs_err, row_count, 1);
+            interop::convert_to_daal_table(queue, arr_oob_per_obs_err, row_count, 1);
         daal_result.set(daal_df_cls_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
 
@@ -123,7 +122,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         arr_var_imp = array<Float>::empty(queue, 1 * column_count);
 
         const auto res_var_imp =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_var_imp, 1, column_count);
+            interop::convert_to_daal_table(queue, arr_var_imp, 1, column_count);
         daal_result.set(daal_df_cls_train::variableImportance, res_var_imp);
     }
 

@@ -22,13 +22,38 @@
 
 namespace oneapi::dal::backend {
 
+static void convert_vector(const void* src,
+                           void* dst,
+                           data_type src_type,
+                           data_type dst_type,
+                           std::int64_t src_stride,
+                           std::int64_t dst_stride,
+                           std::int64_t element_count) {
+    if (src_stride == 1 && dst_stride == 1) {
+        interop::daal_convert(src, dst, src_type, dst_type, element_count);
+    }
+    else {
+        const std::int64_t src_element_size = dal::detail::get_data_type_size(src_type);
+        const std::int64_t dst_element_size = dal::detail::get_data_type_size(dst_type);
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, src_stride, src_element_size);
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, dst_stride, dst_element_size);
+        interop::daal_convert(src,
+                              dst,
+                              src_type,
+                              dst_type,
+                              src_stride * src_element_size,
+                              dst_stride * dst_element_size,
+                              element_count);
+    }
+}
+
 void convert_vector(const detail::default_host_policy& policy,
                     const void* src,
                     void* dst,
                     data_type src_type,
                     data_type dst_type,
                     std::int64_t element_count) {
-    interop::daal_convert(src, dst, src_type, dst_type, element_count);
+    convert_vector(src, dst, src_type, dst_type, 1, 1, element_count);
 }
 
 void convert_vector(const detail::default_host_policy& policy,
