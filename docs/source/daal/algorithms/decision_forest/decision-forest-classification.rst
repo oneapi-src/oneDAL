@@ -163,11 +163,6 @@ Examples
     - :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
     - :java_example:`DfClsTraversedModelBuilder.java <decision_forest/DfClsTraversedModelBuilder.java>`
 
-  .. tab:: Python*
-
-    - :daal4py_example:`df_cls_dense_batch_model_builder.py`
-    - :daal4py_example:`df_cls_traversed_model_builder.py`
-
 Batch Processing
 ================
 
@@ -278,6 +273,7 @@ Examples
 
     - :cpp_example:`df_cls_default_dense_batch.cpp <decision_forest/df_cls_default_dense_batch.cpp>`
     - :cpp_example:`df_cls_hist_dense_batch.cpp <decision_forest/df_cls_hist_dense_batch.cpp>`
+    - :cpp_example:`df_cls_traverse_model.cpp <decision_forest/df_cls_traverse_model.cpp>`
 
   .. tab:: Java*
   
@@ -287,6 +283,7 @@ Examples
     
     - :java_example:`DfClsDefaultDenseBatch.java <decision_forest/DfClsDefaultDenseBatch.java>`
     - :java_example:`DfClsHistDenseBatch.java <decision_forest/DfClsHistDenseBatch.java>`
+    - :java_example:`DfClsTraverseModel.java <decision_forest/DfClsTraverseModel.java>`
 
   .. tab:: Python*
 
