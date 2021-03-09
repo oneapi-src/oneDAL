@@ -459,6 +459,72 @@ public:
     }
 };
 
+/// Struct containing base description of node in descision tree
+struct node_descriptor {
+    std::int64_t level = 0; /// Number of connections between the node and the root
+    double impurity =
+        0.; /// Measure of the homogeneity of the response variable at the node (i.e., the value of the criterion)
+    std::int64_t node_sample_count = 0; /// Number of samples at the node
+};
+
+/// Struct containing description of split node in descision tree
+struct split_node_descriptor : public node_descriptor {
+    std::int64_t feature_index = 0; /// Feature used for splitting the node
+    double feature_value = 0.; /// Threshold value at the node
+};
+
+template <typename Task>
+struct leaf_node_descriptor;
+
+/// Struct containing description of leaf node in classification descision tree
+template <>
+struct leaf_node_descriptor<task::classification> : public node_descriptor {
+    std::int64_t label = 0; /// Label to be predicted when reaching the leaf
+    const double* prob = nullptr; /// Probabilities estimation for the leaf
+};
+
+/// Struct containing description of leaf node in regression descision tree
+template <>
+struct leaf_node_descriptor<task::regression> : public node_descriptor {
+    double label = 0.; /// Label to be predicted when reaching the leaf
+};
+
+template <typename T>
+struct is_leaf_node_descriptor {
+    static constexpr bool value = std::is_same_v<T, leaf_node_descriptor<task::classification>> ||
+                                  std::is_same_v<T, leaf_node_descriptor<task::regression>>;
+};
+
+template <typename T>
+struct is_split_node_descriptor {
+    static constexpr bool value = std::is_same_v<T, split_node_descriptor>;
+};
+
+template <typename T>
+inline constexpr bool is_leaf_node_descriptor_v = is_leaf_node_descriptor<T>::value;
+
+template <typename T>
+inline constexpr bool is_split_node_descriptor_v = is_split_node_descriptor<T>::value;
+
+} // namespace v1
+
+namespace detail {
+namespace v1 {
+
+template <typename Task>
+class tree_node_visitor_iface;
+
+template <typename Task, typename Op>
+std::shared_ptr<tree_node_visitor_iface<Task>> get_tree_node_visitor(Op&& op);
+} // namespace v1
+
+using v1::tree_node_visitor_iface;
+using v1::get_tree_node_visitor;
+
+} // namespace detail
+
+namespace v1 {
+
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task = task::by_default>
@@ -468,6 +534,7 @@ class model : public base {
 
 public:
     using task_t = Task;
+    using visitor_t = std::shared_ptr<detail::tree_node_visitor_iface<task_t>>;
 
     /// Creates a new instance of the class with the default property values.
     model();
@@ -484,8 +551,27 @@ public:
         return get_class_count_impl();
     }
 
+    /// Performs Depth First Traversal of i-th tree
+    /// @tparam[in] tree_idx    Index of the tree to traverse
+    /// @tparam[in] op          This functor gets notified when tree nodes are visited
+    template <typename Op>
+    void traverse_dfs(std::int64_t tree_idx, Op&& op) const {
+        traverse_dfs_impl(tree_idx, detail::get_tree_node_visitor<task_t>(std::forward<Op>(op)));
+    }
+
+    /// Performs Breadth First Traversal of i-th tree
+    /// @tparam[in] tree_idx    Index of the tree to traverse
+    /// @tparam[in] op          This functor gets notified when tree nodes are visited
+    template <typename Op>
+    void traverse_bfs(std::int64_t tree_idx, Op&& op) const {
+        traverse_bfs_impl(tree_idx, detail::get_tree_node_visitor<task_t>(std::forward<Op>(op)));
+    }
+
 protected:
     std::int64_t get_class_count_impl() const;
+
+    void traverse_dfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const;
+    void traverse_bfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const;
 
 private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
@@ -495,6 +581,15 @@ private:
 } // namespace v1
 
 using v1::descriptor;
+using v1::node_descriptor;
+using v1::split_node_descriptor;
+using v1::leaf_node_descriptor;
+using v1::is_leaf_node_descriptor;
+using v1::is_leaf_node_descriptor_v;
+using v1::is_split_node_descriptor;
+using v1::is_split_node_descriptor_v;
 using v1::model;
 
 } // namespace oneapi::dal::decision_forest
+
+#include "oneapi/dal/algo/decision_forest/detail/tree_node_visitor.hpp"

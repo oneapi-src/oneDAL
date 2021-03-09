@@ -303,6 +303,16 @@ std::int64_t model<Task>::get_class_count_impl() const {
     return impl_->class_count;
 }
 
+template <typename Task>
+void model<Task>::traverse_dfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
+    impl_->traverse_dfs_impl(tree_idx, std::forward<visitor_t>(visitor));
+}
+
+template <typename Task>
+void model<Task>::traverse_bfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
+    impl_->traverse_dfs_impl(tree_idx, std::forward<visitor_t>(visitor));
+}
+
 template class ONEDAL_EXPORT model<task::classification>;
 template class ONEDAL_EXPORT model<task::regression>;
 
