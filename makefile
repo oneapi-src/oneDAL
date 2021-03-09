@@ -383,7 +383,6 @@ release.EXAMPLES.JAVA  := $(filter $(expat),$(shell find examples/daal/java -typ
 release.ONEAPI.EXAMPLES.CPP  := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
 release.ONEAPI.EXAMPLES.DPC  := $(filter $(expat),$(shell find examples/oneapi/dpc -type f))
 release.ONEAPI.EXAMPLES.DATA := $(filter $(expat),$(shell find examples/oneapi/data -type f))
-release.EXAMPLES.COMMON_CMAKE  := $(filter $(expat),$(shell find examples/common.cmake -type f))
 
 # List env files to populate release.
 release.ENV = deploy/local/vars_$(_OS).$(scr)
