@@ -72,12 +72,12 @@ POLYNOMIAL_KERNEL_BADARG_TEST("accepts positive degree") {
     REQUIRE_NOTHROW(this->get_descriptor().set_degree(3));
 }
 
-POLYNOMIAL_KERNEL_BADARG_TEST("throws if degree is negative") {
-    REQUIRE_THROWS_AS(this->get_descriptor().set_degree(-3), domain_error);
+POLYNOMIAL_KERNEL_BADARG_TEST("accepts zero degree") {
+    REQUIRE_NOTHROW(this->get_descriptor().set_degree(0));
 }
 
-POLYNOMIAL_KERNEL_BADARG_TEST("throws if degree is zero") {
-    REQUIRE_THROWS_AS(this->get_descriptor().set_degree(0), domain_error);
+POLYNOMIAL_KERNEL_BADARG_TEST("throws if degree is negative") {
+    REQUIRE_THROWS_AS(this->get_descriptor().set_degree(-3), domain_error);
 }
 
 POLYNOMIAL_KERNEL_BADARG_TEST("throws if x data is empty") {
