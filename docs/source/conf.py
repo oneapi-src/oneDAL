@@ -159,6 +159,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'detail::is_table_impl_v<ImplType>'),
     ('cpp:identifier', 'detail::is_homogen_table_impl_v<ImplType>'),
     ('cpp:identifier', 'detail::enable_if_classification_t<T>'),
+    ('cpp:identifier', 'detail::enable_if_regression_t<T>'),
     ('cpp:identifier', 'detail::descriptor_base<>::kernel_t'),
     # data types
     ('cpp:identifier', 'int64_t'),

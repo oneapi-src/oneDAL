@@ -145,7 +145,7 @@ public:
     bool get_shrinking() const;
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`task::v1::classification` only.
+    /// The class count. Used with :expr:`task::classification` only.
     /// @invariant :expr:`class_count >= 2`
     /// @remark default = 2
     std::int64_t get_class_count() const {
@@ -153,7 +153,7 @@ public:
     }
 
     template <typename T = Task, typename = enable_if_regression_t<T>>
-    /// The epsilon. Used with :expr:`task::v1::regression` only.
+    /// The epsilon. Used with :expr:`task::regression` only.
     /// @invariant :expr:`epsilon >= 0`
     /// @remark default = 0.1
     double get_epsilon() const {
@@ -206,7 +206,7 @@ namespace v1 {
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
 ///                be :expr:`method::v1::thunder` or :expr:`method::v1::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t,
@@ -291,7 +291,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///              be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -336,8 +336,7 @@ public:
         return *this;
     }
 
-    /// The first unique value in class labels. Used with :expr:`task::v1::classification` only.
-    /// @remark default = 0
+    /// The first unique value in class labels. Used with :expr:`task::classification` only.
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     std::int64_t get_first_class_label() const {
         return get_first_class_label_impl();
@@ -349,8 +348,7 @@ public:
         return *this;
     }
 
-    /// The second unique value in class labels. Used with :expr:`task::v1::classification` only.
-    /// @remark default = 0
+    /// The second unique value in class labels. Used with :expr:`task::classification` only.
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     std::int64_t get_second_class_label() const {
         return get_second_class_label_impl();
