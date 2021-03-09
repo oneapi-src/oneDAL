@@ -142,7 +142,7 @@ MSG(pca_svd_based_method_is_not_implemented_for_gpu,
 /* SVM */
 MSG(c_leq_zero, "C is lower than or equal to zero")
 MSG(cache_size_lt_zero, "Cache size is lower than zero")
-MSG(degree_leq_zero, "Degree lower than or equal to zero")
+MSG(degree_lt_zero, "Degree lower than zero")
 MSG(input_model_coeffs_are_empty, "Input model coeffs are empty")
 MSG(input_model_coeffs_rc_neq_input_model_support_vector_count,
     "Input model coeffs row count is not equal to support vector count provided in input model")

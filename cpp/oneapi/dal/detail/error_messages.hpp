@@ -168,7 +168,7 @@ public:
     /* SVM */
     MSG(c_leq_zero);
     MSG(cache_size_lt_zero);
-    MSG(degree_leq_zero);
+    MSG(degree_lt_zero);
     MSG(input_model_coeffs_are_empty);
     MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
     MSG(input_model_does_not_match_kernel_function);

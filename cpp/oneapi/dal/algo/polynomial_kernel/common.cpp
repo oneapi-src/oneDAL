@@ -58,8 +58,8 @@ void descriptor_base<Task>::set_shift_impl(double value) {
 
 template <typename Task>
 void descriptor_base<Task>::set_degree_impl(std::int64_t value) {
-    if (value <= 0.0) {
-        throw domain_error(dal::detail::error_messages::degree_leq_zero());
+    if (value < 0) {
+        throw domain_error(dal::detail::error_messages::degree_lt_zero());
     }
     impl_->degree = value;
 }
