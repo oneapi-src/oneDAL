@@ -184,7 +184,7 @@ SVM_BADARG_TEST("throws if infer data is empty") {
     REQUIRE_THROWS_AS(this->infer(svm_desc, model, homogen_table{}), domain_error);
 }
 
-SVM_BADARG_TEST("throws if infer model support vectors is empty") {
+SVM_BADARG_TEST("throws if infer model support_vectors is empty") {
     SKIP_IF(this->not_available_on_device());
     const auto svm_desc = this->get_descriptor();
     auto model =
@@ -206,7 +206,7 @@ SVM_BADARG_TEST("throws if infer model coeffs is empty") {
         domain_error);
 }
 
-SVM_BADARG_TEST("throws if infer model support vectors cols neq infer data cols") {
+SVM_BADARG_TEST("throws if infer model support_vectors cols neq infer data cols") {
     SKIP_IF(this->not_available_on_device());
     const auto svm_desc = this->get_descriptor();
     const auto model =
@@ -215,7 +215,7 @@ SVM_BADARG_TEST("throws if infer model support vectors cols neq infer data cols"
     REQUIRE_THROWS_AS(this->infer(svm_desc, model, this->get_infer_data(8, 1)), invalid_argument);
 }
 
-SVM_BADARG_TEST("throws if infer model coeffs rows neq support vector count") {
+SVM_BADARG_TEST("throws if infer model coeffs rows neq support_vector count") {
     SKIP_IF(this->not_available_on_device());
     const auto svm_desc = this->get_descriptor();
     auto model =
