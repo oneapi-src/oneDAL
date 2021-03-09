@@ -51,7 +51,7 @@ public:
     interop_visitor& operator=(const interop_visitor&) = delete;
 
     explicit interop_visitor(visitor_t&& vis) : _visitor(std::forward<visitor_t>(vis)) {}
-    virtual bool onLeafNode(const typename daal_model_map<Task>::daal_leaf_desc_t& desc) override {
+    bool onLeafNode(const typename daal_model_map<Task>::daal_leaf_desc_t& desc) override {
         leaf_node_descriptor<Task> leaf_desc;
         leaf_desc.level = desc.level;
         leaf_desc.impurity = desc.impurity;
@@ -70,8 +70,7 @@ public:
         return _visitor->on_leaf_node(leaf_desc);
     }
 
-    virtual bool onSplitNode(
-        const typename daal_model_map<Task>::daal_split_desc_t& desc) override {
+    bool onSplitNode(const typename daal_model_map<Task>::daal_split_desc_t& desc) override {
         split_node_descriptor split_desc;
         split_desc.level = desc.level;
         split_desc.impurity = desc.impurity;

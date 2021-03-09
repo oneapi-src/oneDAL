@@ -47,10 +47,10 @@ public:
 
     explicit tree_node_visitor_impl(Op&& op) : _op(std::forward<Op>(op)) {}
 
-    virtual bool on_leaf_node(const leaf_t& desc) override {
+    bool on_leaf_node(const leaf_t& desc) override {
         return _op(desc);
     }
-    virtual bool on_split_node(const split_t& desc) override {
+    bool on_split_node(const split_t& desc) override {
         return _op(desc);
     }
 
