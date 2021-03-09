@@ -36,7 +36,7 @@ void run(sycl::queue &q) {
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
     const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
 
-    const auto df_train_desc =
+    const auto df_desc =
         df::descriptor<float, df::method::hist, df::task::regression>{}
             .set_tree_count(100)
             .set_features_per_node(0)
@@ -45,10 +45,8 @@ void run(sycl::queue &q) {
                                    df::error_metric_mode::out_of_bag_error_per_observation)
             .set_variable_importance_mode(df::variable_importance_mode::mdi);
 
-    const auto df_infer_desc = df::descriptor<float, df::method::dense, df::task::regression>();
-
     try {
-        const auto result_train = dal::train(q, df_train_desc, x_train, y_train);
+        const auto result_train = dal::train(q, df_desc, x_train, y_train);
 
         std::cout << "Variable importance results:\n"
                   << result_train.get_var_importance() << std::endl;
@@ -57,7 +55,7 @@ void run(sycl::queue &q) {
         std::cout << "OOB error per observation:\n"
                   << result_train.get_oob_err_per_observation() << std::endl;
 
-        const auto result_infer = dal::infer(q, df_infer_desc, result_train.get_model(), x_test);
+        const auto result_infer = dal::infer(q, df_desc, result_train.get_model(), x_test);
 
         std::cout << "Prediction results:\n" << result_infer.get_labels() << std::endl;
 

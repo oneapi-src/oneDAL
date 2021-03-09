@@ -30,7 +30,6 @@
 #include "services/internal/sycl/types.h"
 #include "src/services/service_data_utils.h"
 #include "src/sycl/blas_gpu.h"
-#include "src/sycl/reducer.h"
 
 #include "src/externals/service_ittnotify.h"
 
@@ -120,14 +119,15 @@ uint32_t KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getWorkgroupsCount(ui
 
 template <typename algorithmFPType>
 Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeSquares(const services::internal::Buffer<algorithmFPType> & data,
-                                                                        UniversalBuffer & dataSq, uint32_t nRows, uint32_t nFeatures)
+                                                                        math::SumReducer::Result & result, UniversalBuffer & dataSq, uint32_t nRows,
+                                                                        uint32_t nFeatures)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeSquares);
     DAAL_ASSERT(data.size() >= nRows * nFeatures);
     DAAL_ASSERT(nRows <= maxInt32AsUint32T);
     DAAL_ASSERT(nFeatures <= maxInt32AsUint32T);
     Status st;
-    dataSq = math::SumReducer::sum(math::Layout::RowMajor, data, nRows, nFeatures, st).sumOfSquares;
+    dataSq = math::SumReducer::sum(math::Layout::RowMajor, data, nRows, nFeatures, result, st).sumOfSquares;
     return st;
 }
 
@@ -435,7 +435,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction
     args.set(1, _mindistances, AccessModeIds::read);
     args.set(2, blockSize);
     args.set(3, nClusters);
-    args.set(4, objFunction, AccessModeIds::write);
+    args.set(4, objFunction, AccessModeIds::readwrite);
 
     KernelRange local_range(_maxWorkItemsPerGroup);
     KernelRange global_range(_maxWorkItemsPerGroup);

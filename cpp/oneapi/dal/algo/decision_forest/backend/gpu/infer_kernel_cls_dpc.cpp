@@ -128,8 +128,8 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
     return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
 }
 
-template <typename Float, typename Task>
-struct infer_kernel_gpu<Float, Task, method::dense> {
+template <typename Float>
+struct infer_kernel_gpu<Float, method::by_default, task::classification> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -137,7 +137,7 @@ struct infer_kernel_gpu<Float, Task, method::dense> {
     }
 };
 
-template struct infer_kernel_gpu<float, task::classification, method::dense>;
-template struct infer_kernel_gpu<double, task::classification, method::dense>;
+template struct infer_kernel_gpu<float, method::by_default, task::classification>;
+template struct infer_kernel_gpu<double, method::by_default, task::classification>;
 
 } // namespace oneapi::dal::decision_forest::backend
