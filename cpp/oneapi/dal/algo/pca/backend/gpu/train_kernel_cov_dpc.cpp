@@ -77,10 +77,11 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const std::int64_t component_count = get_component_count(desc, data);
 
     dal::detail::check_mul_overflow(column_count, component_count);
-    auto arr_eigvec = array<Float>::empty(queue, column_count * component_count);
-    auto arr_eigval = array<Float>::empty(queue, 1 * component_count);
-    auto arr_means = array<Float>::empty(queue, 1 * column_count);
-    auto arr_vars = array<Float>::empty(queue, 1 * column_count);
+    auto arr_eigvec =
+        array<Float>::empty(queue, column_count * component_count, sycl::usm::alloc::device);
+    auto arr_eigval = array<Float>::empty(queue, 1 * component_count, sycl::usm::alloc::device);
+    auto arr_means = array<Float>::empty(queue, 1 * column_count, sycl::usm::alloc::device);
+    auto arr_vars = array<Float>::empty(queue, 1 * column_count, sycl::usm::alloc::device);
 
     const auto daal_data = interop::convert_to_daal_table(queue, data);
     const auto daal_eigvec =

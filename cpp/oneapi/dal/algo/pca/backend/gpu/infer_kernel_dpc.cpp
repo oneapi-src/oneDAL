@@ -56,7 +56,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto arr_eigvec = row_accessor<const Float>{ model.get_eigenvectors() }.pull(queue);
 
     dal::detail::check_mul_overflow(row_count, component_count);
-    auto arr_result = array<Float>::empty(queue, row_count * component_count);
+    auto arr_result =
+        array<Float>::empty(queue, row_count * component_count, sycl::usm::alloc::device);
 
     // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
     // Need to create special immutable homogen table on daal interop side

@@ -49,7 +49,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const int64_t row_count_y = y.get_row_count();
 
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
-    auto arr_values = array<Float>::empty(queue, row_count_x * row_count_y);
+    auto arr_values =
+        array<Float>::empty(queue, row_count_x * row_count_y, sycl::usm::alloc::device);
 
     const auto daal_x = interop::convert_to_daal_table(queue, x);
     const auto daal_y = interop::convert_to_daal_table(queue, y);

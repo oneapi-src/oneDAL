@@ -53,7 +53,8 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
     const auto daal_data = interop::convert_to_daal_table(queue, data);
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
-    array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
+    array<Float> arr_centroids =
+        array<Float>::empty(queue, cluster_count * column_count, sycl::usm::alloc::device);
     const auto daal_centroids =
         interop::convert_to_daal_table(queue, arr_centroids, cluster_count, column_count);
 
