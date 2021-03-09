@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/detail/array_via_policy.hpp"
+#include "oneapi/dal/detail/array_utils.hpp"
 
 namespace oneapi::dal {
 

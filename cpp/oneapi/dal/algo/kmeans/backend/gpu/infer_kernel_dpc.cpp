@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -94,12 +95,8 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         interop::status_to_exception(
             daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
 
-        array<Float> arr_objective_function_value_host =
-            array<Float>::empty(queue, 1, sycl::usm::alloc::host);
-        queue.memcpy(arr_objective_function_value.get_mutable_data(),
-                     arr_iteration_count.get_data(),
-                     sizeof(Float) * arr_objective_function_value.get_count());
-        queue.wait_and_throw();
+        const auto arr_objective_function_value_host =
+            dal::backend::to_host_sync(arr_objective_function_value);
 
         return infer_result<task::clustering>()
             .set_labels(

@@ -18,12 +18,12 @@
 #include <src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/exceptions.hpp"
-
-#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -119,16 +119,15 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         dal::detail::check_mul_overflow(cluster_count, column_count);
         array<Float> arr_centroids =
             array<Float>::empty(queue, cluster_count * column_count, sycl::usm::alloc::device);
+        array<Float> arr_obj_func = array<Float>::empty(queue, 1, sycl::usm::alloc::device);
         array<int> arr_labels = array<int>::empty(queue, row_count, sycl::usm::alloc::device);
-        array<Float> arr_objective_function_value =
-            array<Float>::empty(queue, 1, sycl::usm::alloc::device);
-        array<int> arr_iteration_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
+        array<int> arr_iter_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
 
         const auto daal_labels = interop::convert_to_daal_table(queue, arr_labels, row_count, 1);
         const auto daal_objective_function_value =
-            interop::convert_to_daal_table(queue, arr_objective_function_value, 1, 1);
+            interop::convert_to_daal_table(queue, arr_obj_func, 1, 1);
         const auto daal_iteration_count =
-            interop::convert_to_daal_table(queue, arr_iteration_count, 1, 1);
+            interop::convert_to_daal_table(queue, arr_iter_count, 1, 1);
 
         const auto daal_centroids =
             interop::convert_to_daal_table(queue, arr_centroids, cluster_count, column_count);
@@ -143,22 +142,15 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         interop::status_to_exception(
             daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
 
-        array<int> arr_iteration_count_host = array<int>::empty(queue, 1, sycl::usm::alloc::host);
-        array<Float> arr_objective_function_value_host =
-            array<Float>::empty(queue, 1, sycl::usm::alloc::host);
-        queue.memcpy(arr_iteration_count_host.get_mutable_data(),
-                     arr_iteration_count.get_data(),
-                     sizeof(int) * arr_iteration_count_host.get_count());
-        queue.memcpy(arr_objective_function_value_host.get_mutable_data(),
-                     arr_objective_function_value.get_data(),
-                     sizeof(Float) * arr_objective_function_value_host.get_count());
-        queue.wait_and_throw();
+        auto [arr_iter_count_host, arr_iter_count_event] = dal::backend::to_host(arr_iter_count);
+        auto [arr_obj_func_host, arr_obj_func_event] = dal::backend::to_host(arr_obj_func);
+        sycl::event::wait_and_throw({ arr_iter_count_event, arr_obj_func_event });
 
         return train_result<task::clustering>()
             .set_labels(
                 dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
-            .set_iteration_count(static_cast<std::int64_t>(arr_iteration_count_host[0]))
-            .set_objective_function_value(static_cast<double>(arr_objective_function_value_host[0]))
+            .set_iteration_count(static_cast<std::int64_t>(arr_iter_count_host[0]))
+            .set_objective_function_value(static_cast<double>(arr_obj_func_host[0]))
             .set_model(model<task::clustering>().set_centroids(
                 dal::detail::homogen_table_builder{}
                     .reset(arr_centroids, cluster_count, column_count)

@@ -251,6 +251,7 @@ public:
         }
         Float rel_tol = 1.0e-5;
         if (!(ref_objective_function < 0.0)) {
+            CAPTURE(objective_function, ref_objective_function, rel_tol);
             REQUIRE(check_value_with_ref_tol(objective_function, ref_objective_function, rel_tol));
         }
     }
@@ -553,6 +554,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans block test",
                      "[kmeans][batch][nightly]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     constexpr std::int64_t row_count = 1024 * 1024;
@@ -595,6 +597,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans partial centroid adjustment test",
                      "[kmeans][batch][nightly]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     constexpr std::int64_t row_count = 8 * 1024;
@@ -621,6 +624,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, clusters=10, iters=3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
@@ -644,6 +648,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, clusters=100, iters=3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
@@ -667,6 +672,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, clusters=250, iters=3",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
@@ -690,6 +696,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "susy: samples=0.5M, clusters=10, iters=10",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
@@ -713,6 +720,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "susy: samples=0.5M, clusters=100, iters=10",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
@@ -736,6 +744,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "susy: samples=0.5M, clusters=250, iters=10",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data =
@@ -759,6 +768,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "epsilon: samples=80K, clusters=512, iters=2",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data = GENERATE_DATAFRAME(
@@ -782,6 +792,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "epsilon: samples=80K, clusters=1024, iters=2",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data = GENERATE_DATAFRAME(
@@ -805,6 +816,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "epsilon: samples=80K, clusters=2048, iters=2",
                      "[kmeans][nightly][batch][external-dataset]",
                      kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
     const te::dataframe data = GENERATE_DATAFRAME(

@@ -81,10 +81,10 @@ public:
     }
 };
 
-using df_cls_types = _TE_COMBINE_TYPES_3((float, double),
+using df_cls_types = _TE_COMBINE_TYPES_3((float),
                                          (df::method::dense, df::method::hist),
                                          (df::task::classification));
-using df_common_types = _TE_COMBINE_TYPES_3((float, double),
+using df_common_types = _TE_COMBINE_TYPES_3((float),
                                             (df::method::dense, df::method::hist),
                                             (df::task::classification, df::task::regression));
 

@@ -57,7 +57,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table(queue, data);
+    const auto daal_labels = interop::convert_to_daal_table(queue, labels);
 
     /* init param for daal kernel */
     auto daal_input = daal::algorithms::classifier::training::Input();
@@ -101,7 +101,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     /* init daal result's objects */
     array<Float> arr_oob_err;
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-        arr_oob_err = array<Float>::empty(queue, 1 * 1);
+        arr_oob_err = array<Float>::empty(queue, 1 * 1, sycl::usm::alloc::device);
 
         const auto res_oob_err = interop::convert_to_daal_table(queue, arr_oob_err, 1, 1);
         daal_result.set(daal_df_cls_train::outOfBagError, res_oob_err);
@@ -110,7 +110,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     array<Float> arr_oob_per_obs_err;
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_per_observation)) {
-        arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1);
+        arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1, sycl::usm::alloc::device);
 
         const auto res_oob_per_obs_err =
             interop::convert_to_daal_table(queue, arr_oob_per_obs_err, row_count, 1);
@@ -119,7 +119,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     array<Float> arr_var_imp;
     if (variable_importance_mode::none != vimp) {
-        arr_var_imp = array<Float>::empty(queue, 1 * column_count);
+        arr_var_imp = array<Float>::empty(queue, 1 * column_count, sycl::usm::alloc::device);
 
         const auto res_var_imp =
             interop::convert_to_daal_table(queue, arr_var_imp, 1, column_count);

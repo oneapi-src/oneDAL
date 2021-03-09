@@ -78,13 +78,15 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     array<Float> arr_labels_prob;
 
     if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
-        arr_labels = array<Float>::empty(queue, 1 * row_count);
+        arr_labels = array<Float>::empty(queue, 1 * row_count, sycl::usm::alloc::device);
         daal_labels = interop::convert_to_daal_table(queue, arr_labels, row_count, 1);
     }
 
     if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
         dal::detail::check_mul_overflow(desc.get_class_count(), row_count);
-        arr_labels_prob = array<Float>::empty(queue, desc.get_class_count() * row_count);
+        arr_labels_prob = array<Float>::empty(queue,
+                                              desc.get_class_count() * row_count,
+                                              sycl::usm::alloc::device);
         daal_labels_prob = interop::convert_to_daal_table(queue,
                                                           arr_labels_prob,
                                                           row_count,

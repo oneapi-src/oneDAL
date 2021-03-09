@@ -57,6 +57,11 @@ public:
         return get_policy().is_gpu() && is_dense;
     }
 
+    bool not_float64_friendly() {
+        constexpr bool is_double = std::is_same_v<Float, double>;
+        return is_double && !this->get_policy().has_native_float64();
+    }
+
     auto get_default_descriptor() {
         return df::descriptor<Float, Method, Task>{};
     }
@@ -452,6 +457,7 @@ using df_reg_types = _TE_COMBINE_TYPES_3((float, double),
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_cls wl =
         GENERATE_COPY(workload_cls{ df_ds_ion, 0.95 }, workload_cls{ df_ds_segment, 0.938 });
@@ -482,6 +488,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
 
 DF_BATCH_CLS_TEST_EXT("df cls corner flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_classification, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -500,8 +508,10 @@ DF_BATCH_CLS_TEST_EXT("df cls corner flow") {
 }
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df var importance flow") {
-    SKIP_IF(this->is_gpu()); // var importance differes on GPU due to difference in built model
+    SKIP_IF(this->is_gpu()); // var importance differs on GPU due to difference in built model
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_pendigits };
     const double oob_required_accuracy = 0.65;
     const double oob_required_error = 0.00867361;
@@ -543,6 +553,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df var importance flow") {
 
 DF_BATCH_CLS_TEST_EXT("df cls small flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -562,6 +574,8 @@ DF_BATCH_CLS_TEST_EXT("df cls small flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -587,6 +601,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -610,6 +626,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_ion, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -630,6 +648,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_ion, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -656,8 +676,9 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
                                                         1 - wl.required_accuracy);
 }
 
-DF_BATCH_CLS_TEST("df cls base check with default paarams") {
+DF_BATCH_CLS_TEST("df cls base check with default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
@@ -670,8 +691,9 @@ DF_BATCH_CLS_TEST("df cls base check with default paarams") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST("df cls base check with non default paarams") {
+DF_BATCH_CLS_TEST("df cls base check with non default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
@@ -702,8 +724,9 @@ DF_BATCH_CLS_TEST("df cls base check with non default paarams") {
 
 // regression tests
 
-DF_BATCH_REG_TEST("df reg base check with default paarams") {
+DF_BATCH_REG_TEST("df reg base check with default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, checker_list] = this->get_reg_dataframe_base();
 
@@ -714,8 +737,9 @@ DF_BATCH_REG_TEST("df reg base check with default paarams") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_REG_TEST("df reg base check with non default paarams") {
+DF_BATCH_REG_TEST("df reg base check with non default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, checker_list] = this->get_reg_dataframe_base();
 
@@ -739,6 +763,7 @@ DF_BATCH_REG_TEST("df reg base check with non default paarams") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.45, 0.5 };
 
@@ -754,6 +779,7 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
 
 DF_BATCH_REG_TEST_EXT("df reg small flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
@@ -773,6 +799,7 @@ DF_BATCH_REG_TEST_EXT("df reg small flow") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
@@ -793,6 +820,8 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg bootstrap flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
     const auto [data, data_test, checker_list] =
