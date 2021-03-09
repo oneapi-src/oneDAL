@@ -135,7 +135,7 @@ public:
     double get_cache_size() const;
 
     /// The parameter of the WSS scheme $\\tau$.
-    /// @invariant :expr:`tau >= 0.0`
+    /// @invariant :expr:`tau > 0.0`
     /// @remark default = 1e-6
     double get_tau() const;
 
