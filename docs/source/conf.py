@@ -279,5 +279,5 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
-    ('cpp:identifier', 'oneapi::dal::svm::task::v1')
+    ('cpp:identifier', 'oneapi::dal::svm::task::v1'),
     ]
