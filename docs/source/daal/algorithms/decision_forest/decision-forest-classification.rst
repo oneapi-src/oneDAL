@@ -163,6 +163,11 @@ Examples
     - :java_example:`DfClsDenseBatchModelBuilder.java <decision_forest/DfClsDenseBatchModelBuilder.java>`
     - :java_example:`DfClsTraversedModelBuilder.java <decision_forest/DfClsTraversedModelBuilder.java>`
 
+  .. tab:: Python*
+
+    - :daal4py_example:`df_cls_dense_batch_model_builder.py`
+    - :daal4py_example:`df_cls_traversed_model_builder.py`
+
 Batch Processing
 ================
 
