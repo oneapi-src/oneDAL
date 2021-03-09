@@ -20,7 +20,9 @@
 
 ONEDAL = column_accessor_homogen           \
          df_cls_hist_batch                 \
+         df_cls_traverse_model             \
          df_reg_hist_batch                 \
+         df_reg_traverse_model             \
          kmeans_lloyd_dense_batch          \
          kmeans_init_dense                 \
          knn_cls_brute_force_dense_batch   \
