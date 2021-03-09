@@ -22,7 +22,6 @@
     #include <CL/sycl.hpp>
 #endif
 
-#include <iostream>
 #include "data_management/data/internal/numeric_table_sycl.h"
 #include "data_management/data/internal/conversion.h"
 #include "data_management/data/homogen_numeric_table.h"
