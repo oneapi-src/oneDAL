@@ -16,4 +16,12 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+
+namespace oneapi::dal::backend::primitives {
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+#endif
+
+} // namespace oneapi::dal::backend::primitives
