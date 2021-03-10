@@ -25,7 +25,7 @@
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
 #include "oneapi/dal/io/csv/detail/common.hpp"
 
 namespace oneapi::dal::preview::read_graph::detail {
@@ -276,16 +276,6 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
 
     return;
 }
-
-// template <typename Descriptor, typename DataSource>
-// output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
-//     using graph_type = output_type<Descriptor>;
-//     graph_type graph;
-//     const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
-//         data_source.get_filename());
-//     convert_to_csr_impl(el, graph);
-//     return graph;
-// }
 
 template <typename Graph, typename DataSource>
 void read_impl(Graph &graph, DataSource data_source) {

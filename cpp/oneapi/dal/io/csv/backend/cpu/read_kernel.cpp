@@ -52,8 +52,6 @@ table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
                                                                          csv_options);
     interop::status_to_exception(daal_data_source.status());
 
-    std::cout << "Table" << std::endl;
-
     daal_data_source.getFeatureManager().setDelimiter(ds.get_delimiter());
     daal_data_source.loadDataBlock();
     interop::status_to_exception(daal_data_source.status());

@@ -31,15 +31,6 @@ struct read_kernel_cpu {
                       const read_args<Object>& args) const;
 };
 
-template <typename Graph>
-Graph read_kernel_cpu<Graph>::operator()(const dal::backend::context_cpu& ctx,
-                                         const detail::data_source_base& ds_,
-                                         const read_args<Graph>& args) const {
-    std::cout << "GRAPHGRAPHGRAPH EDGE LIST HERE" << std::endl;
-    Graph my_graph;
-    return my_graph;
-}
-
 template <>
 table read_kernel_cpu<table>::operator()(const dal::backend::context_cpu& ctx,
                                          const detail::data_source_base& ds_,

@@ -28,8 +28,6 @@ inline void read_graph_default_kernel(const dal::detail::host_policy& ctx,
                                       const detail::data_source_base& ds,
                                       const Allocator& alloc,
                                       Graph& g) {
-    std::cout << "GRAPH KERNEL 2" << std::endl;
-
     oneapi::dal::preview::read_graph::detail::read_impl(g, ds);
     return;
 }

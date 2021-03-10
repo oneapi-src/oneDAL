@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
+#include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
 #include "src/externals/service_service.h"
 
 namespace oneapi::dal::preview::read_graph::detail {

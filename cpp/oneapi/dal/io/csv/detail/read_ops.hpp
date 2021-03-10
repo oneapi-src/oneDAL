@@ -19,66 +19,26 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/io/csv/read_types.hpp"
-// #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/io/csv/detail/select_kernel.hpp"
-#include <iostream>
-// #include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
 
 namespace oneapi::dal::csv::detail {
 namespace v1 {
 
-// template <typename Policy, typename Descriptor, typename Graph>
-// struct backend_base {
-//     // using float_t = typename Descriptor::float_t;
-//     // using task_t = typename Descriptor::task_t;
-//     // using method_t = typename Descriptor::method_t;
-//     // using allocator_t = typename Descriptor::allocator_t;
-
-//     virtual void operator()(const Policy &ctx, const Descriptor &descriptor, const Graph &g) = 0;
-//     virtual ~backend_base() = default;
-// };
-
-// template <typename Policy, typename Descriptor, typename Graph>
-// struct backend_default : public backend_base<Policy, Descriptor, Graph> {
-//     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
-//                   "Host policy only is supported.");
-
-//     // using task_t = typename Descriptor::task_t;
-//     // using allocator_t = typename Descriptor::allocator_t;
-
-//     virtual void operator()(const Policy &ctx, const Descriptor &descriptor, const Graph &data) {
-//         std::allocator<int> my_allocator;
-//         return read_graph_default_kernel(ctx, descriptor, my_allocator, data);
-//     }
-// };
-
-// template <typename Policy, typename Descriptor, typename Graph>
-// dal::detail::shared<backend_base<Policy, Descriptor, Graph>> get_backend(const Descriptor &desc,
-//                                                                          const Graph &g) {
-//     return std::make_shared<backend_default<Policy, Descriptor, Graph>>();
-// }
-
 template <typename Object, typename Policy, typename... Options>
 struct read_ops_dispatcher;
 
-template <typename Graph> // Object = Graph
+template <typename Graph>
 struct read_ops_dispatcher<Graph, dal::detail::host_policy> {
     Graph operator()(const dal::detail::host_policy& policy,
                      const data_source_base& ds,
                      const read_args<Graph>& args) const {
         Graph g;
-        // const auto& csr_topology = dal::preview::detail::csr_topology_builder<Graph>()(g);
-        // static auto impl = get_backend<Policy, Descriptor>(csr_topology);
         std::cout << "Graph" << std::endl;
 
-        //         read_graph_default_kernel(const dal::detail::host_policy& ctx,
-        //                                       const detail::data_source_base& ds,
-        //                                       const Allocator& alloc,
-        //                                       const Graph& g)
         std::allocator<int> my_allocator;
         static auto impl = get_backend<dal::detail::host_policy, data_source_base, Graph>(ds, g);
         (*impl)(policy, ds, g);
-        return g; //(*impl)(policy, descriptor, csr_topology);
+        return g;
     }
 };
 
@@ -94,9 +54,6 @@ struct read_ops;
 
 template <typename Object>
 struct read_ops<Object, data_source> {
-    // static_assert(std::is_same_v<Object, table> || std::is_same_v<Object, preview::graph_base>,
-    //               "CSV data source is defined only for table and graphs");
-
     using args_t = read_args<Object>;
     using result_t = Object;
 
