@@ -89,11 +89,11 @@ sycl::event block_select_single_pass(sycl::queue& queue,
                 Float final_values[32];
                 int final_indices[32];
                 for (int i = 0; i < k; i++) {
-                    Float min_val = sycl::ONEAPI::reduce(sg, values[bias], sycl::ONEAPI::minimum());
+                    Float min_val = reduce(sg, values[bias], sycl::ONEAPI::minimum());
                     bool present = (min_val == values[bias]);
                     int pos = exclusive_scan(sg, present ? 1 : 0, std::plus<int>());
                     bool owner = present && pos == 0;
-                    final_indices[i] = -sycl::ONEAPI::reduce(sg,
+                    final_indices[i] = - reduce(sg,
                                                              owner ? -private_indices[bias] : 1,
                                                              sycl::ONEAPI::minimum());
                     final_values[i] = min_val;
