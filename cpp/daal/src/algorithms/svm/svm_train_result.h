@@ -66,7 +66,10 @@ public:
         size_t nSV = 0;
         for (size_t i = 0; i < _nVectors; ++i)
         {
-            if (!isZero(_alpha[i])) nSV++;
+            if (!isZero(_alpha[i]))
+            {
+                nSV++;
+            }
         }
 
         model.setNFeatures(xTable.getNumberOfColumns());
@@ -317,7 +320,7 @@ protected:
 private:
     static bool isZero(const algorithmFPType val)
     {
-        const algorithmFPType eps = algorithmFPType(10) * services::internal::EpsilonVal<algorithmFPType>::get();
+        const algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
         return (val <= eps) && (val >= -eps);
     }
 
