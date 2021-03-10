@@ -240,8 +240,8 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::update(size_t nActiveVector
     /* Update alpha */
     algorithmFPType newDeltai, newDeltaj;
     updateAlpha(Bi, Bj, delta, newDeltai, newDeltaj);
-    updateI(Bj);
-    updateI(Bi);
+    updateFlag(Bj);
+    updateFlag(Bi);
 
     const algorithmFPType * y = _y.get();
     const algorithmFPType dyi = newDeltai * y[Bi];
@@ -514,7 +514,7 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::init(algorithmFPType C, con
         y[i]    = yIn[i] == 0 ? algorithmFPType(-1) : yIn[i];
         grad[i] = -y[i];
         cw[i]   = weights ? weights[i] * C : C;
-        updateI(i);
+        updateFlag(i);
     }
 
     services::Status s;
@@ -535,7 +535,7 @@ services::Status SVMTrainTask<algorithmFPType, cpu>::init(algorithmFPType C, con
  * \param[in] index Index of the feature vector
  */
 template <typename algorithmFPType, CpuType cpu>
-inline void SVMTrainTask<algorithmFPType, cpu>::updateI(size_t index)
+inline void SVMTrainTask<algorithmFPType, cpu>::updateFlag(size_t index)
 {
     char Ii                      = _flags[index];
     const algorithmFPType alphai = _alpha[index];

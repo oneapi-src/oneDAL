@@ -63,7 +63,7 @@ struct SVMTrainTask
     ~SVMTrainTask();
 
 protected:
-    inline void updateI(size_t index);
+    inline void updateFlag(size_t index);
 
     bool findMaximumViolatingPair(size_t nActiveVectors, algorithmFPType tau, int & Bi, int & Bj, algorithmFPType & delta, algorithmFPType & ma,
                                   algorithmFPType & Ma, algorithmFPType & curEps, Status & s) const;
