@@ -27,6 +27,7 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
+#include "oneapi/dal/io/csv/backend/cpu/read_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/graph/common.hpp"
 

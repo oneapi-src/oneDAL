@@ -16,12 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/triangle_counting/common.hpp"
-#include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
-#include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/detail/threading.hpp"
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
+// #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/io/csv/common.hpp"
+#include "oneapi/dal/io/csv/detail/read_graph_kernel_impl.hpp"
 #include <iostream>
 
 namespace oneapi::dal::csv::detail {
@@ -30,8 +27,10 @@ template <typename Allocator, typename Graph>
 inline void read_graph_default_kernel(const dal::detail::host_policy& ctx,
                                       const detail::data_source_base& ds,
                                       const Allocator& alloc,
-                                      const Graph& g) {
-    std::cout << "GRAPH KERNEL" << std::endl;
+                                      Graph& g) {
+    std::cout << "GRAPH KERNEL 2" << std::endl;
+
+    oneapi::dal::preview::read_graph::detail::read_impl(g, ds);
     return;
 }
 } // namespace oneapi::dal::csv::detail

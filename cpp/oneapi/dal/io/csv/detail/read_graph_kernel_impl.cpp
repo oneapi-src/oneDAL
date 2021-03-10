@@ -14,11 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph.hpp"
-#include "oneapi/dal/io/backend/cpu/load_graph.hpp"
+#include "oneapi/dal/io/csv/detail/read_graph_kernel_impl.hpp"
+#include "oneapi/dal/io/csv/backend/cpu/read_graph.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::preview::load_graph::detail {
+namespace oneapi::dal::preview::read_graph::detail {
 
 template <>
 ONEDAL_EXPORT std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges) {
@@ -74,4 +74,4 @@ void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
         });
 }
 
-} // namespace oneapi::dal::preview::load_graph::detail
+} // namespace oneapi::dal::preview::read_graph::detail

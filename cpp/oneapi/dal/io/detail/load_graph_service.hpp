@@ -18,6 +18,6 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::preview::load_graph::detail {
+namespace oneapi::dal::preview::read_graph::detail {
 ONEDAL_EXPORT std::int32_t daal_string_to_int(const char *nptr, char **endptr);
-} // namespace oneapi::dal::preview::load_graph::detail
+} // namespace oneapi::dal::preview::read_graph::detail

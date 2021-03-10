@@ -26,18 +26,17 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "oneapi/dal/io/common.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph_descriptor.hpp"
+#include "oneapi/dal/io/csv/detail/common.hpp"
 
-namespace oneapi::dal::preview::load_graph::detail {
+namespace oneapi::dal::preview::read_graph::detail {
 
 template <typename Vertex>
-inline edge_list<Vertex> load_edge_list(const std::string &name);
+inline edge_list<Vertex> read_edge_list(const std::string &name);
 
 template <>
-inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
+inline edge_list<std::int32_t> read_edge_list(const std::string &name) {
     using int_t = std::int32_t;
+    using namespace oneapi::dal::preview::read_graph::detail;
 
     std::ifstream file(name);
     if (!file.is_open()) {
@@ -157,6 +156,7 @@ void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
     });
 }
 
+//
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_type> &edges,
                          Graph &g) {
@@ -277,13 +277,20 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
     return;
 }
 
-template <typename Descriptor, typename DataSource>
-output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
-    using graph_type = output_type<Descriptor>;
-    graph_type graph;
-    const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
-        data_source.get_filename());
+// template <typename Descriptor, typename DataSource>
+// output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
+//     using graph_type = output_type<Descriptor>;
+//     graph_type graph;
+//     const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
+//         data_source.get_filename());
+//     convert_to_csr_impl(el, graph);
+//     return graph;
+// }
+
+template <typename Graph, typename DataSource>
+void read_impl(Graph &graph, DataSource data_source) {
+    const auto el = read_edge_list<std::int32_t>(data_source.get_file_name());
     convert_to_csr_impl(el, graph);
-    return graph;
+    return;
 }
-} // namespace oneapi::dal::preview::load_graph::detail
+} // namespace oneapi::dal::preview::read_graph::detail

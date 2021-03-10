@@ -58,6 +58,9 @@ public:
     /// Move constructor for undirected_adjacency_vector_graph
     undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other) = default;
 
+    /// Copy constructor for undirected_adjacency_vector_graph
+    undirected_adjacency_vector_graph(const undirected_adjacency_vector_graph &other) = default;
+
     /// Constructs an empty undirected_adjacency_vector_graph with specified graph properties
     /// and allocator
     undirected_adjacency_vector_graph(const GraphValue &value, Allocator allocator = Allocator()){};

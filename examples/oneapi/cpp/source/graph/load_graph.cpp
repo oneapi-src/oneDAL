@@ -19,8 +19,6 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/io/csv.hpp"
 
 namespace dal = oneapi::dal;
@@ -43,28 +41,29 @@ int main(int argc, char **argv) {
     read<table>(csv::data_source{ filename }, preview::read_mode::table);
     // read<table>(csv::data_source{ filename }, preview::read_mode::edge_list);
 
-    using graph_t = dal::preview::graph_base;
+    using graph_t = dal::preview::undirected_adjacency_vector_graph<>;
+    dal::preview::undirected_adjacency_vector_graph<> g1;
     std::cout << "G" << std::endl;
     read<graph_t>(csv::data_source{ filename });
-    std::cout << "G" << std::endl;
-    read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
-    // read<graph_t>(csv::data_source{ filename }, preview::read_mode::table);
+    // std::cout << "G" << std::endl;
+    // read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
+    // // read<graph_t>(csv::data_source{ filename }, preview::read_mode::table);
 
-    {
-        std::cout << "T" << std::endl;
-        const auto read_args = csv::read_args<table>{}.set_read_mode(preview::read_mode::table);
-        read<table>(csv::data_source{ filename }, read_args);
-    }
+    // {
+    //     std::cout << "T" << std::endl;
+    //     const auto read_args = csv::read_args<table>{}.set_read_mode(preview::read_mode::table);
+    //     read<table>(csv::data_source{ filename }, read_args);
+    // }
 
-    {
-        std::cout << "G" << std::endl;
-        std::allocator<int> my_allocator;
-        const auto read_args = csv::read_args<graph_t>{}
-                                   .set_read_mode(preview::read_mode::edge_list)
-                                   .set_allocator(my_allocator);
+    // {
+    //     std::cout << "G" << std::endl;
+    //     std::allocator<int> my_allocator;
+    //     const auto read_args = csv::read_args<graph_t>{}
+    //                                .set_read_mode(preview::read_mode::edge_list)
+    //                                .set_allocator(my_allocator);
 
-        read<graph_t>(csv::data_source{ filename }, read_args);
-    }
+    //     read<graph_t>(csv::data_source{ filename }, read_args);
+    // }
 
     return 0;
 }

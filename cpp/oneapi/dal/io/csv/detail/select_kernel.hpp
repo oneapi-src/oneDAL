@@ -30,7 +30,7 @@ struct backend_base {
     // using method_t = typename Descriptor::method_t;
     // using allocator_t = typename Descriptor::allocator_t;
 
-    virtual void operator()(const Policy &ctx, const Descriptor &descriptor, const Graph &g) = 0;
+    virtual void operator()(const Policy &ctx, const Descriptor &descriptor, Graph &g) = 0;
     virtual ~backend_base() = default;
 };
 
@@ -42,15 +42,15 @@ struct backend_default : public backend_base<Policy, Descriptor, Graph> {
     // using task_t = typename Descriptor::task_t;
     // using allocator_t = typename Descriptor::allocator_t;
 
-    virtual void operator()(const Policy &ctx, const Descriptor &descriptor, const Graph &data) {
+    virtual void operator()(const Policy &ctx, const Descriptor &descriptor, Graph &g) {
         std::allocator<int> my_allocator;
-        return read_graph_default_kernel(ctx, descriptor, my_allocator, data);
+        return read_graph_default_kernel(ctx, descriptor, my_allocator, g);
     }
 };
 
 template <typename Policy, typename Descriptor, typename Graph>
 dal::detail::shared<backend_base<Policy, Descriptor, Graph>> get_backend(const Descriptor &desc,
-                                                                         const Graph &data) {
+                                                                         Graph &data) {
     return std::make_shared<backend_default<Policy, Descriptor, Graph>>();
 }
 

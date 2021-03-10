@@ -17,9 +17,9 @@
 #include "oneapi/dal/io/detail/load_graph_service.hpp"
 #include "src/externals/service_service.h"
 
-namespace oneapi::dal::preview::load_graph::detail {
+namespace oneapi::dal::preview::read_graph::detail {
 
 ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
     return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
 }
-} // namespace oneapi::dal::preview::load_graph::detail
+} // namespace oneapi::dal::preview::read_graph::detail
