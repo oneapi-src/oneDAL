@@ -41,7 +41,6 @@ void run(sycl::queue &q) {
             .set_tree_count(100)
             .set_features_per_node(0)
             .set_min_observations_in_leaf_node(1)
-
             .set_error_metric_mode(df::error_metric_mode::out_of_bag_error |
                                    df::error_metric_mode::out_of_bag_error_per_observation)
             .set_variable_importance_mode(df::variable_importance_mode::mdi);

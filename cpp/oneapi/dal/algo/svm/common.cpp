@@ -192,12 +192,12 @@ std::int64_t model<Task>::get_support_vector_count() const {
 }
 
 template <typename Task>
-std::int64_t model<Task>::get_first_class_label_impl() const {
+std::int64_t model<Task>::get_first_class_label() const {
     return impl_->first_class_label;
 }
 
 template <typename Task>
-std::int64_t model<Task>::get_second_class_label_impl() const {
+std::int64_t model<Task>::get_second_class_label() const {
     return impl_->second_class_label;
 }
 

@@ -102,10 +102,7 @@ public:
     /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     /// decision function for each observation
     /// @remark default = table{}
-    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    const table& get_decision_function() const {
-        return get_decision_function_impl();
-    }
+    const table& get_decision_function() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_decision_function(const table& value) {
@@ -115,7 +112,6 @@ public:
 
 protected:
     void set_labels_impl(const table&);
-    const table& get_decision_function_impl() const;
     void set_decision_function_impl(const table&);
 
 private:
