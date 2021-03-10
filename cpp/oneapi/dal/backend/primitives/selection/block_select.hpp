@@ -33,11 +33,11 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float, bool selected_out, bool indices_out>
 sycl::event block_select(sycl::queue& queue,
-                 ndview<Float, 2>& block,
-                 std::int64_t k,
-                 ndview<Float, 2>& selected,
-                 ndview<int, 2>& indices,
-                 const event_vector& deps = {});
+                         ndview<Float, 2>& block,
+                         std::int64_t k,
+                         ndview<Float, 2>& selected,
+                         ndview<int, 2>& indices,
+                         const event_vector& deps = {});
 
 #endif
 

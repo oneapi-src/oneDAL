@@ -20,14 +20,13 @@
 
 namespace oneapi::dal::backend::primitives {
 
-
 template <typename Float, bool selected_out, bool indices_out>
 sycl::event block_select_single_pass(sycl::queue& queue,
-                 const ndview<Float, 2>& block,
-                 std::int64_t k,
-                 ndview<Float, 2>& selected,
-                 ndview<int, 2>& indices,
-                 const event_vector& deps) {
+                                     const ndview<Float, 2>& block,
+                                     std::int64_t k,
+                                     ndview<Float, 2>& selected,
+                                     ndview<int, 2>& indices,
+                                     const event_vector& deps) {
     ONEDAL_ASSERT(block.get_dimension(1) == selected.get_dimension(1));
     ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
     ONEDAL_ASSERT(indices.get_dimension(0) == k);
@@ -47,82 +46,82 @@ sycl::event block_select_single_pass(sycl::queue& queue,
     auto fp_max = std::numeric_limits<Float>::max();
 
     auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for_work_group({ny}, {nx}, [=](sycl::group<1> grp) {
-            const int in_offset = grp.get_id(0) * nx;
-            const int out_offset = grp.get_id(0) * k;
+        cgh.parallel_for(
+            sycl::nd_range<2>(sycl::range<2>(16, ny), sycl::range<2>(16, 1)),
+            [=](sycl::nd_item<2> item) {
+                const int in_offset = item.get_global_id(1) * nx;
+                const int out_offset = item.get_global_id(1) * k;
 
-            Float values[32];
-            int private_indices[32];
+                auto sg = item.get_sub_group();
+                if (sg.get_group_id()[0] > 0)
+                    return;
 
-            grp.parallel_for_work_item([&](sycl::h_item<2> item) {
+                Float values[32];
+                int private_indices[32];
 
-                for(int i = 0; i < 32; i++) {
+                for (int i = 0; i < 32; i++) {
                     values[i] = fp_max;
                     private_indices[i] = -1;
                 }
 
-                for(int i = item.get_physical_local_id(0); i < nx; i += item.get_physical_local_range(0)) {
+                for (int i = sg.get_local_id()[0]; i < nx; i += sg.get_local_range()[0]) {
                     Float cur_val = block_ptr[in_offset + i];
-                    int index             = i;
-                    int pos               = -1;
+                    int index = i;
+                    int pos = -1;
 
-                    for (int j = k - 1; j > -1; j--)
-                    {
+                    for (int j = k - 1; j > -1; j--) {
                         bool do_shift = values[j] > cur_val;
-                        pos           = do_shift ? j : pos;
-                        if (j < k - 1)
-                        {
-                            values[j + 1]  = do_shift ? values[j] : values[j + 1];
-                            private_indices[j + 1] = do_shift ? private_indices[j] : private_indices[j + 1];
+                        pos = do_shift ? j : pos;
+                        if (j < k - 1) {
+                            values[j + 1] = do_shift ? values[j] : values[j + 1];
+                            private_indices[j + 1] =
+                                do_shift ? private_indices[j] : private_indices[j + 1];
                         }
                     }
-                    if (pos != -1)
-                    {
-                        values[pos]  = cur_val;
+                    if (pos != -1) {
+                        values[pos] = cur_val;
                         private_indices[pos] = index;
                     }
                 }
-            });
-            grp.parallel_for_work_item([&](sycl::h_item<2> item) {
+                sg.barrier();
 
                 int bias = 0;
                 Float final_values[32];
                 int final_indices[32];
-                for (int i = 0; i < k; i++)
-                {
-                    Float min_val = reduce_over_group(grp, values[bias], std::min<Float>());
-                    bool present            = (min_val == values[bias]);
-                    int pos                 = exclusive_scan_over_group(grp, present ? 1 : 0, std::plus<Float>());
-                    bool owner              = present && pos == 0;
-                    final_indices[i]        = - reduce_over_group(grp, owner ? -private_indices[bias] : 1, std::min<Float>());
-                    final_values[i]         = min_val;
+                for (int i = 0; i < k; i++) {
+                    Float min_val = sycl::ONEAPI::reduce(sg, values[bias], sycl::ONEAPI::minimum());
+                    bool present = (min_val == values[bias]);
+                    int pos = exclusive_scan(sg, present ? 1 : 0, std::plus<int>());
+                    bool owner = present && pos == 0;
+                    final_indices[i] = -sycl::ONEAPI::reduce(sg,
+                                                             owner ? -private_indices[bias] : 1,
+                                                             sycl::ONEAPI::minimum());
+                    final_values[i] = min_val;
                     bias += owner ? 1 : 0;
                 }
                 if constexpr (selected_out) {
-                    for(int i = item.get_local_id(0); i < nx; i += grp.get_local_range(0))
-                    {
+                    for (int i = sg.get_local_id()[0]; i < nx; i += sg.get_local_range()[0]) {
                         indices_ptr[out_offset + i] = final_indices[i];
                     }
                 }
                 if constexpr (indices_out) {
-                    for(int i = item.get_local_id(0); i < nx; i += grp.get_local_range(0))
-                    {
+                    for (int i = sg.get_local_id()[0]; i < nx; i += sg.get_local_range()[0]) {
                         selected_ptr[out_offset + i] = final_values[i];
                     }
                 }
             });
-        });
     });
     return event;
 }
 
-#define INSTANTIATE(F, selected_out, indices_out)                                                    \
-    template ONEDAL_EXPORT sycl::event block_select_single_pass<F, selected_out, indices_out>(sycl::queue & queue,       \
-                 const ndview<F, 2>& block, \
-                 std::int64_t k, \
-                 ndview<F, 2>& selected, \
-                 ndview<int, 2>& indices, \
-                 const event_vector& deps);
+#define INSTANTIATE(F, selected_out, indices_out)                                              \
+    template ONEDAL_EXPORT sycl::event block_select_single_pass<F, selected_out, indices_out>( \
+        sycl::queue & queue,                                                                   \
+        const ndview<F, 2>& block,                                                             \
+        std::int64_t k,                                                                        \
+        ndview<F, 2>& selected,                                                                \
+        ndview<int, 2>& indices,                                                               \
+        const event_vector& deps);
 
 #define INSTANTIATE_FLOAT(selected_out, indices_out) \
     INSTANTIATE(float, selected_out, indices_out)    \
@@ -131,6 +130,5 @@ sycl::event block_select_single_pass(sycl::queue& queue,
 INSTANTIATE_FLOAT(true, false)
 INSTANTIATE_FLOAT(false, true)
 INSTANTIATE_FLOAT(true, true)
-
 
 } // namespace oneapi::dal::backend::primitives
