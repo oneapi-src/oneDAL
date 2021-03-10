@@ -57,13 +57,13 @@ public:
         set_allocator_impl(allocator);
         return *this;
     }
-    Allocator get_allocator();
+    Allocator get_allocator() const;
 
     auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
         set_read_mode_impl(mode);
         return *this;
     }
-    oneapi::dal::preview::read_mode get_read_mode();
+    oneapi::dal::preview::read_mode get_read_mode() const;
 
 protected:
     void set_read_mode_impl(oneapi::dal::preview::read_mode mode);
@@ -92,7 +92,7 @@ private:
 };
 
 template <typename Graph, typename Allocator>
-preview::read_mode read_args<Graph, Allocator>::get_read_mode() {
+preview::read_mode read_args<Graph, Allocator>::get_read_mode() const {
     return impl_->mode;
 }
 
@@ -104,7 +104,7 @@ void read_args<Graph, Allocator>::set_read_mode_impl(preview::read_mode mode) {
 }
 
 template <typename Graph, typename Allocator>
-Allocator read_args<Graph, Allocator>::get_allocator() {
+Allocator read_args<Graph, Allocator>::get_allocator() const {
     return impl_->allocator;
 }
 

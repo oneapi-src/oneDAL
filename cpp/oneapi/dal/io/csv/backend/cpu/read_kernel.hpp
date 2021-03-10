@@ -20,8 +20,6 @@
 #include "oneapi/dal/io/csv/read_types.hpp"
 
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
-#include <iostream>
-
 namespace oneapi::dal::csv::backend {
 
 template <typename Object>

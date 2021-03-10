@@ -31,8 +31,6 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/graph/common.hpp"
 
-#include <iostream>
-
 namespace oneapi::dal::csv::backend {
 
 namespace interop = dal::backend::interop;

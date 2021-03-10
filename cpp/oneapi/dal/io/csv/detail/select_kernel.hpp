@@ -23,7 +23,10 @@ namespace oneapi::dal::csv::detail {
 
 template <typename Policy, typename Descriptor, typename Graph>
 struct backend_base {
-    virtual void operator()(const Policy &ctx, const Descriptor &descriptor, Graph &g) = 0;
+    virtual void operator()(const Policy &ctx,
+                            const Descriptor &descriptor,
+                            Graph &g,
+                            const read_args<Graph> &args) = 0;
     virtual ~backend_base() = default;
 };
 
@@ -32,15 +35,18 @@ struct backend_default : public backend_base<Policy, Descriptor, Graph> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
-    virtual void operator()(const Policy &ctx, const Descriptor &descriptor, Graph &g) {
-        std::allocator<int> my_allocator;
-        return read_graph_default_kernel(ctx, descriptor, my_allocator, g);
+    virtual void operator()(const Policy &ctx,
+                            const Descriptor &descriptor,
+                            Graph &g,
+                            const read_args<Graph> &args) {
+        auto allocator = args.get_allocator();
+        return read_graph_default_kernel(ctx, descriptor, allocator, g);
     }
 };
 
 template <typename Policy, typename Descriptor, typename Graph>
-dal::detail::shared<backend_base<Policy, Descriptor, Graph>> get_backend(const Descriptor &desc,
-                                                                         Graph &data) {
+dal::detail::shared<backend_base<Policy, Descriptor, Graph>>
+get_backend(const Descriptor &desc, Graph &data, const read_args<Graph> &args) {
     return std::make_shared<backend_default<Policy, Descriptor, Graph>>();
 }
 

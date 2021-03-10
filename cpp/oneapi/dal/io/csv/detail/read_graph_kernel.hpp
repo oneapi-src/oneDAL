@@ -19,7 +19,6 @@
 // #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/io/csv/common.hpp"
 #include "oneapi/dal/io/csv/detail/read_graph_kernel_impl.hpp"
-#include <iostream>
 
 namespace oneapi::dal::csv::detail {
 
