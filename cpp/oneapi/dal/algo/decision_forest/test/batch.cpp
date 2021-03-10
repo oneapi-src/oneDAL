@@ -170,12 +170,12 @@ public:
         const auto infer_result = this->infer(desc, model, x_test);
         check_infer_shapes(desc, data, infer_result);
 
-        SECTION("infer accuracy is expected") {
-            for (auto ch : checker_list) {
-                CAPTURE(ch.name);
-                REQUIRE(ch.check(infer_result.get_labels(), y_test) < ch.required_accuracy + eps);
-            }
+        for (auto ch : checker_list) {
+            CAPTURE(ch.name);
+            REQUIRE(ch.check(infer_result.get_labels(), y_test) < ch.required_accuracy + eps);
         }
+        INFO("infer accuracy is expected")
+
         return infer_result;
     }
 
@@ -184,38 +184,32 @@ public:
                             const df::train_result<Task>& result) {
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
 
-        SECTION("model shape is expected") {
-            REQUIRE(result.get_model().get_tree_count() == desc.get_tree_count());
-            if constexpr (is_cls) {
-                REQUIRE(result.get_model().get_class_count() == desc.get_class_count());
-            }
+        REQUIRE(result.get_model().get_tree_count() == desc.get_tree_count());
+        if constexpr (is_cls) {
+            REQUIRE(result.get_model().get_class_count() == desc.get_class_count());
         }
+        INFO("model shape is expected")
 
         if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-            SECTION("oob error shape is expected") {
-                REQUIRE(result.get_oob_err().has_data());
-                REQUIRE(result.get_oob_err().get_row_count() == 1);
-                REQUIRE(result.get_oob_err().get_column_count() == 1);
-            }
+            REQUIRE(result.get_oob_err().has_data());
+            REQUIRE(result.get_oob_err().get_row_count() == 1);
+            REQUIRE(result.get_oob_err().get_column_count() == 1);
+            INFO("oob error shape is expected")
         }
 
         if (check_mask_flag(desc.get_error_metric_mode(),
                             error_metric_mode::out_of_bag_error_per_observation)) {
-            SECTION("oob error per observation shape is expected") {
-                REQUIRE(result.get_oob_err_per_observation().has_data());
-                REQUIRE(result.get_oob_err_per_observation().get_row_count() ==
-                        data.get_row_count());
-                REQUIRE(result.get_oob_err_per_observation().get_column_count() == 1);
-            }
+            REQUIRE(result.get_oob_err_per_observation().has_data());
+            REQUIRE(result.get_oob_err_per_observation().get_row_count() == data.get_row_count());
+            REQUIRE(result.get_oob_err_per_observation().get_column_count() == 1);
+            INFO("oob error per observation shape is expected")
         }
 
         if (variable_importance_mode::none != desc.get_variable_importance_mode()) {
-            SECTION("variable improtance shape is expected") {
-                REQUIRE(result.get_var_importance().has_data());
-                REQUIRE(result.get_var_importance().get_row_count() == 1);
-                REQUIRE(result.get_var_importance().get_column_count() ==
-                        data.get_column_count() - 1);
-            }
+            REQUIRE(result.get_var_importance().has_data());
+            REQUIRE(result.get_var_importance().get_row_count() == 1);
+            REQUIRE(result.get_var_importance().get_column_count() == data.get_column_count() - 1);
+            INFO("variable improtance shape is expected")
         }
     }
 
@@ -225,28 +219,24 @@ public:
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
         if constexpr (is_cls) {
             if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
-                SECTION("infer labels shape is expected") {
-                    REQUIRE(result.get_labels().has_data());
-                    REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
-                    REQUIRE(result.get_labels().get_column_count() == 1);
-                }
-            }
-
-            if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
-                SECTION("infer probabilities shape is expected") {
-                    REQUIRE(result.get_probabilities().has_data());
-                    REQUIRE(result.get_probabilities().get_row_count() == data.get_row_count());
-                    REQUIRE(result.get_probabilities().get_column_count() ==
-                            desc.get_class_count());
-                }
-            }
-        }
-        else {
-            SECTION("infer labels shape is expected") {
                 REQUIRE(result.get_labels().has_data());
                 REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
                 REQUIRE(result.get_labels().get_column_count() == 1);
+                INFO("infer labels shape is expected")
             }
+
+            if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
+                REQUIRE(result.get_probabilities().has_data());
+                REQUIRE(result.get_probabilities().get_row_count() == data.get_row_count());
+                REQUIRE(result.get_probabilities().get_column_count() == desc.get_class_count());
+                INFO("infer probabilities shape is expected")
+            }
+        }
+        else {
+            REQUIRE(result.get_labels().has_data());
+            REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
+            REQUIRE(result.get_labels().get_column_count() == 1);
+            INFO("infer labels shape is expected")
         }
     }
 
@@ -256,27 +246,26 @@ public:
                                                const te::table_id& data_table_id,
                                                double accuracy_threshold) {
         if (variable_importance_mode::none != desc.get_variable_importance_mode()) {
-            SECTION("match of variable importance vs required one is expected") {
-                const auto required_var_imp = var_imp_data.get_table(data_table_id);
-                std::int64_t row_ind = 0;
-                switch (desc.get_variable_importance_mode()) {
-                    case variable_importance_mode::mda_raw: row_ind = 1; break;
-                    case variable_importance_mode::mda_scaled: row_ind = 2; break;
-                    default: row_ind = 0; break;
-                };
+            const auto required_var_imp = var_imp_data.get_table(data_table_id);
+            std::int64_t row_ind = 0;
+            switch (desc.get_variable_importance_mode()) {
+                case variable_importance_mode::mda_raw: row_ind = 1; break;
+                case variable_importance_mode::mda_scaled: row_ind = 2; break;
+                default: row_ind = 0; break;
+            };
 
-                const auto var_imp_val =
-                    dal::row_accessor<const Float>(train_result.get_var_importance()).pull();
-                const auto required_var_imp_val =
-                    dal::row_accessor<const float>(required_var_imp).pull({ row_ind, row_ind + 1 });
+            const auto var_imp_val =
+                dal::row_accessor<const Float>(train_result.get_var_importance()).pull();
+            const auto required_var_imp_val =
+                dal::row_accessor<const float>(required_var_imp).pull({ row_ind, row_ind + 1 });
 
-                for (std::int32_t i = 0; i < var_imp_val.get_count(); i++) {
-                    if (required_var_imp_val[i] > 0.0) {
-                        REQUIRE(((required_var_imp_val[i] - var_imp_val[i]) /
-                                 required_var_imp_val[i]) < accuracy_threshold + eps);
-                    }
+            for (std::int32_t i = 0; i < var_imp_val.get_count(); i++) {
+                if (required_var_imp_val[i] > 0.0) {
+                    REQUIRE(((required_var_imp_val[i] - var_imp_val[i]) / required_var_imp_val[i]) <
+                            accuracy_threshold + eps);
                 }
             }
+            INFO("match of variable importance vs required one is expected")
         }
     }
 
@@ -285,14 +274,13 @@ public:
                                         double required_oob_error,
                                         double accuracy_threshold) {
         if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-            SECTION("match of oob error vs required one is expected") {
-                const auto oob_err_val =
-                    dal::row_accessor<const double>(train_result.get_oob_err()).pull();
-                if (required_oob_error > 0.0) {
-                    REQUIRE(std::abs((required_oob_error - oob_err_val[0]) / required_oob_error) <
-                            accuracy_threshold + eps);
-                }
+            const auto oob_err_val =
+                dal::row_accessor<const double>(train_result.get_oob_err()).pull();
+            if (required_oob_error > 0.0) {
+                REQUIRE(std::abs((required_oob_error - oob_err_val[0]) / required_oob_error) <
+                        accuracy_threshold + eps);
             }
+            INFO("match of oob error vs required one is expected")
         }
     }
 
@@ -302,30 +290,28 @@ public:
         double accuracy_threshold) {
         if (check_mask_flag(desc.get_error_metric_mode(),
                             error_metric_mode::out_of_bag_error_per_observation)) {
-            SECTION("match of oob error vs cumulative oob error per observation is expected") {
-                const auto oob_err_val =
-                    dal::row_accessor<const double>(train_result.get_oob_err()).pull();
-                const auto oob_err_per_obs_arr =
-                    dal::row_accessor<const double>(train_result.get_oob_err_per_observation())
-                        .pull();
+            const auto oob_err_val =
+                dal::row_accessor<const double>(train_result.get_oob_err()).pull();
+            const auto oob_err_per_obs_arr =
+                dal::row_accessor<const double>(train_result.get_oob_err_per_observation()).pull();
 
-                std::int64_t oob_err_obs_count = 0;
-                double ref_oob_err = 0.0;
-                for (std::int64_t i = 0; i < oob_err_per_obs_arr.get_count(); i++) {
-                    if (oob_err_per_obs_arr[i] >= 0.0) {
-                        oob_err_obs_count++;
-                        ref_oob_err += oob_err_per_obs_arr[i];
-                    }
-                    else {
-                        REQUIRE(oob_err_per_obs_arr[i] >= -1.0);
-                    }
+            std::int64_t oob_err_obs_count = 0;
+            double ref_oob_err = 0.0;
+            for (std::int64_t i = 0; i < oob_err_per_obs_arr.get_count(); i++) {
+                if (oob_err_per_obs_arr[i] >= 0.0) {
+                    oob_err_obs_count++;
+                    ref_oob_err += oob_err_per_obs_arr[i];
                 }
-
-                if (oob_err_val[0] > 0.0) {
-                    REQUIRE(((oob_err_val[0] - ref_oob_err) / oob_err_val[0]) <
-                            accuracy_threshold + eps);
+                else {
+                    REQUIRE(oob_err_per_obs_arr[i] >= -1.0);
                 }
             }
+
+            if (oob_err_val[0] > 0.0) {
+                REQUIRE(((oob_err_val[0] - ref_oob_err) / oob_err_val[0]) <
+                        accuracy_threshold + eps);
+            }
+            INFO("match of oob error vs cumulative oob error per observation is expected")
         }
     }
 

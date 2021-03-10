@@ -75,23 +75,19 @@ public:
         check_shapes(desc, data, result);
         check_nans(result);
 
-        SECTION("eigenvectors order is descending") {
-            this->check_eigenvalues_order(eigenvalues);
-        }
+        this->check_eigenvalues_order(eigenvalues);
+        INFO("eigenvectors order is descending")
 
-        SECTION("eigenvectors matrix is orthogonal") {
-            check_eigenvectors_orthogonality(eigenvectors);
-        }
+        check_eigenvectors_orthogonality(eigenvectors);
+        INFO("eigenvectors matrix is orthogonal")
 
         const auto bs = te::compute_basic_statistics<double>(data);
 
-        SECTION("means are expected") {
-            check_means(bs, means);
-        }
+        check_means(bs, means);
+        INFO("means are expected")
 
-        SECTION("variances are expected") {
-            check_variances(bs, variances);
-        }
+        check_variances(bs, variances);
+        INFO("variances are expected")
     }
 
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
@@ -106,45 +102,37 @@ public:
         const std::int64_t expected_component_count =
             (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
 
-        SECTION("eigenvalues shape is expected") {
-            REQUIRE(eigenvalues.get_row_count() == 1);
-            REQUIRE(eigenvalues.get_column_count() == expected_component_count);
-        }
+        REQUIRE(eigenvalues.get_row_count() == 1);
+        REQUIRE(eigenvalues.get_column_count() == expected_component_count);
+        INFO("eigenvalues shape is expected")
 
-        SECTION("eigenvectors shape is expected") {
-            REQUIRE(eigenvectors.get_row_count() == expected_component_count);
-            REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
-        }
+        REQUIRE(eigenvectors.get_row_count() == expected_component_count);
+        REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
+        INFO("eigenvectors shape is expected")
 
-        SECTION("means shape is expected") {
-            REQUIRE(means.get_row_count() == 1);
-            REQUIRE(means.get_column_count() == data.get_column_count());
-        }
+        REQUIRE(means.get_row_count() == 1);
+        REQUIRE(means.get_column_count() == data.get_column_count());
+        INFO("means shape is expected")
 
-        SECTION("variances shape is expected") {
-            REQUIRE(variances.get_row_count() == 1);
-            REQUIRE(variances.get_column_count() == data.get_column_count());
-        }
+        REQUIRE(variances.get_row_count() == 1);
+        REQUIRE(variances.get_column_count() == data.get_column_count());
+        INFO("variances shape is expected")
     }
 
     void check_nans(const pca::train_result<>& result) {
         const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
 
-        SECTION("there is no NaN in eigenvalues") {
-            REQUIRE(te::has_no_nans(eigenvalues));
-        }
+        REQUIRE(te::has_no_nans(eigenvalues));
+        INFO("there is no NaN in eigenvalues")
 
-        SECTION("there is no NaN in eigenvectors") {
-            REQUIRE(te::has_no_nans(eigenvectors));
-        }
+        REQUIRE(te::has_no_nans(eigenvectors));
+        INFO("there is no NaN in eigenvectors")
 
-        SECTION("there is no NaN in means") {
-            REQUIRE(te::has_no_nans(means));
-        }
+        REQUIRE(te::has_no_nans(means));
+        INFO("there is no NaN in means")
 
-        SECTION("there is no NaN in variances") {
-            REQUIRE(te::has_no_nans(variances));
-        }
+        REQUIRE(te::has_no_nans(variances));
+        INFO("there is no NaN in variances")
     }
 
     void check_eigenvalues_order(const table& eigenvalues) const {
