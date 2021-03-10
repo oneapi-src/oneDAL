@@ -101,10 +101,9 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         using svm_batch_t =
             typename daal_svm::training::Batch<Float, to_daal_method<Method>::value>;
         auto svm_batch = daal::services::SharedPtr<svm_batch_t>(new svm_batch_t());
-        // svm_batch->parameter = daal_svm_parameter;
+        svm_batch->parameter = daal_svm_parameter;
         daal_multiclass_parameter.training =
             daal::services::staticPointerCast<daal_classifier::training::Batch>(svm_batch);
-        //
 
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_multiclass_kernel_t>(ctx,

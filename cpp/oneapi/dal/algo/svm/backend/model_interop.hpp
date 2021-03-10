@@ -51,7 +51,6 @@ struct daal_model_builder : public daal::algorithms::svm::Model {
 class model_interop : public base {
 public:
     virtual ~model_interop() = default;
-    virtual void clear() {}
 };
 
 template <typename DaalModel>
@@ -63,10 +62,6 @@ public:
         return daal_model_;
     }
 
-    void clear() override {
-        // daal_model_->clear();
-    }
-
 private:
     DaalModel daal_model_;
 };
@@ -74,28 +69,33 @@ private:
 using model_interop_cls = model_interop_impl<daal_multiclass::ModelPtr>;
 
 template <typename Task, typename Float>
-inline auto convert_from_daal_model(daal_svm::Model& model) {
+inline auto convert_from_daal_model(daal_svm::Model& daal_model) {
     auto table_support_vectors =
-        interop::convert_from_daal_homogen_table<Float>(model.getSupportVectors());
+        interop::convert_from_daal_homogen_table<Float>(daal_model.getSupportVectors());
     auto table_classification_coeffs =
-        interop::convert_from_daal_homogen_table<Float>(model.getClassificationCoefficients());
-    const double bias = model.getBias();
+        interop::convert_from_daal_homogen_table<Float>(daal_model.getClassificationCoefficients());
+    const double bias = daal_model.getBias();
     auto arr_biases = array<Float>::full(1, static_cast<Float>(bias));
 
-    return dal::svm::model<Task>()
-        .set_support_vectors(table_support_vectors)
-        .set_coeffs(table_classification_coeffs)
-        .set_bias(bias)
-        .set_biases(dal::detail::homogen_table_builder{}.reset(arr_biases, 1, 1).build());
+    auto model =
+        dal::svm::model<Task>()
+            .set_support_vectors(table_support_vectors)
+            .set_coeffs(table_classification_coeffs)
+            .set_biases(dal::detail::homogen_table_builder{}.reset(arr_biases, 1, 1).build());
+
+    // auto model_impl = dal::detail::pimpl_accessor().get_pimpl(model);
+    // auto model_impl = dal::detail::get_impl(model);
+    // model_impl->bias = bias;
+    return model;
 }
 
 template <typename Task, typename Float>
-inline auto convert_from_daal_multiclass_model(daal_multiclass::Model& model) {
-    std::int64_t model_count = model.getNumberOfTwoClassClassifierModels();
+inline auto convert_from_daal_multiclass_model(daal_multiclass::Model& daal_model) {
+    std::int64_t model_count = daal_model.getNumberOfTwoClassClassifierModels();
     printf("model_count: %lu \n", model_count);
     for (std::int64_t i = 0; i < model_count; ++i) {
-        auto svm_model =
-            daal::services::staticPointerCast<daal_svm::Model>(model.getTwoClassClassifierModel(i));
+        auto svm_model = daal::services::staticPointerCast<daal_svm::Model>(
+            daal_model.getTwoClassClassifierModel(i));
     }
 
     return dal::svm::model<Task>();
