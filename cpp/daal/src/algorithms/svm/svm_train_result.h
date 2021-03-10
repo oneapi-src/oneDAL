@@ -66,7 +66,7 @@ public:
         size_t nSV = 0;
         for (size_t i = 0; i < _nVectors; ++i)
         {
-            if (_alpha[i] != zero) nSV++;
+            if (!isZero(_alpha[i])) nSV++;
         }
 
         model.setNFeatures(xTable.getNumberOfColumns());
@@ -105,7 +105,7 @@ protected:
 
         for (size_t i = 0, iSV = 0; i < _nVectors; ++i)
         {
-            if (_alpha[i] != zero)
+            if (!isZero(_alpha[i]))
             {
                 svCoeff[iSV] = _y[i] * _alpha[i];
                 ++iSV;
@@ -133,7 +133,7 @@ protected:
         const algorithmFPType zero(0.0);
         for (size_t i = 0, iSV = 0; i < _nVectors; ++i)
         {
-            if (_alpha[i] != zero)
+            if (!isZero(_alpha[i]))
             {
                 DAAL_ASSERT(_cache->getDataRowIndex(i) < _nVectors)
                 DAAL_ASSERT(_cache->getDataRowIndex(i) <= services::internal::MaxVal<int>::get())
@@ -207,7 +207,7 @@ protected:
         size_t iSV            = 0;
         for (size_t i = 0; i < _nVectors; ++i)
         {
-            if (_alpha[i] > zero)
+            if (!isZero(_alpha[i]))
             {
                 const size_t rowIndex = _cache->getDataRowIndex(i);
                 mtX.set(csrIface, rowIndex, 1);
@@ -244,7 +244,7 @@ protected:
 
         for (size_t i = 0, iSV = 0, svOffset = 0; i < _nVectors; ++i)
         {
-            if (_alpha[i] == zero) continue;
+            if (isZero(_alpha[i])) continue;
             const size_t rowIndex = _cache->getDataRowIndex(i);
             mtX.set(csrIface, rowIndex, 1);
             DAAL_CHECK_BLOCK_STATUS(mtX);
@@ -315,6 +315,12 @@ protected:
     }
 
 private:
+    static bool isZero(const algorithmFPType val)
+    {
+        const algorithmFPType eps = algorithmFPType(10) * services::internal::EpsilonVal<algorithmFPType>::get();
+        return (val <= eps) && (val >= -eps);
+    }
+
     const size_t _nVectors;                             //Number of observations in the input data set
     const algorithmFPType * _y;                         //Array of class labels
     const algorithmFPType * _alpha;                     //Array of classification coefficients
