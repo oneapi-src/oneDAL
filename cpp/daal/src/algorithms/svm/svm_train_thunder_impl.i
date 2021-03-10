@@ -84,12 +84,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     const algorithmFPType epsilon           = svmPar.epsilon;
     const size_t maxIterations              = svmPar.maxIterations;
     const size_t cacheSize                  = svmPar.cacheSize;
-    auto kernel                             = svmPar.kernel->clone();
-    auto svmType                            = svmPar.svmType;
+    const auto kernel                       = svmPar.kernel->clone();
+    const auto svmType                      = svmPar.svmType;
 
-    const size_t nVectors      = xTable->getNumberOfRows();
-    const size_t nTrainVectors = svmType == SvmType::REGRESSION ? nVectors * 2 : nVectors;
-
+    const size_t nVectors = xTable->getNumberOfRows();
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, 2);
+    const size_t nTrainVectors = svmType == SvmType::regression ? nVectors * 2 : nVectors;
     TArray<algorithmFPType, cpu> yTArray(nTrainVectors);
     DAAL_CHECK_MALLOC(yTArray.get());
     algorithmFPType * const y = yTArray.get();
@@ -107,8 +107,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     algorithmFPType * const cw = cwTArray.get();
 
     size_t nNonZeroWeights = nTrainVectors;
-
-    if (svmType == SvmType::CLASSIFICATION)
+    if (svmType == SvmType::classification)
     {
         DAAL_CHECK_STATUS(status, classificationInit(yTable, wTable, C, y, grad, alpha, cw, nNonZeroWeights));
     }
@@ -170,8 +169,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         diffPrev = diff;
     }
 
-    if (svmType == SvmType::REGRESSION)
+    if (svmType == SvmType::regression)
     {
+        DAAL_ASSERT(alphaTArray.size() == 2 * nVectors);
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nVectors; ++i)
@@ -213,13 +213,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
 
         ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, startRow, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS_THR(mtW);
-        const algorithmFPType * weights = mtW.get();
+        const algorithmFPType * const weights = mtW.get();
 
-        size_t * wc = nullptr;
-        if (weights)
-        {
-            wc = weightsCounter.local();
-        }
+        size_t * const wc = weights ? weightsCounter.local() : nullptr;
         for (size_t i = 0; i < nRowsInBlock; ++i)
         {
             y[i + startRow]     = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
@@ -266,13 +262,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
 
         ReadColumns<algorithmFPType, cpu> mtW(wTable.get(), 0, startRow, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS_THR(mtW);
-        const algorithmFPType * weights = mtW.get();
+        const algorithmFPType * const weights = mtW.get();
 
-        size_t * wc = nullptr;
-        if (weights)
-        {
-            wc = weightsCounter.local();
-        }
+        size_t * const wc = weights ? weightsCounter.local() : nullptr;
         for (size_t i = 0; i < nRowsInBlock; ++i)
         {
             y[i + startRow]            = algorithmFPType(1.0);
@@ -493,7 +485,7 @@ template <typename algorithmFPType, CpuType cpu>
 bool SVMTrainImpl<thunder, algorithmFPType, cpu>::checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev,
                                                                      const algorithmFPType accuracyThreshold, size_t & sameLocalDiff)
 {
-    sameLocalDiff = internal::Math<algorithmFPType, cpu>::sFabs(diff - diffPrev) < accuracyThreshold * 1e-3 ? sameLocalDiff + 1 : 0;
+    sameLocalDiff = internal::Math<algorithmFPType, cpu>::sFabs(diff - diffPrev) < accuracyThreshold * accuracyThresholdInner ? sameLocalDiff + 1 : 0;
     if (sameLocalDiff > nNoChanges || diff < accuracyThreshold)
     {
         return true;

@@ -75,7 +75,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    svm::interface2::Parameter * par = static_cast<svm::interface2::Parameter *>(_par);
+    const svm::interface2::Parameter * const par = static_cast<svm::interface2::Parameter *>(_par);
 
     internal::KernelParameter kernelPar;
     kernelPar.C                 = par->C;

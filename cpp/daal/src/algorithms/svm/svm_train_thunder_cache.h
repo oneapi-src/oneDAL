@@ -146,7 +146,7 @@ public:
                 _lruCache.put(dataIndex);
                 cacheIndex = _lruCache.getFreeIndex();
                 DAAL_ASSERT(cacheIndex < _cacheSize)
-                algorithmFPType * cachei                = _cache[cacheIndex];
+                algorithmFPType * const cachei          = _cache[cacheIndex];
                 _soaData[i]                             = cachei;
                 _kernelIndex[nIndicesForKernel]         = cacheIndex;
                 _kernelOriginalIndex[nIndicesForKernel] = dataIndex;

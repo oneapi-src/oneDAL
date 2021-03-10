@@ -89,7 +89,7 @@ protected:
     TArray<algorithmFPType, cpu> _grad;                  //Objective function gradient
     TArray<algorithmFPType, cpu> _cw;                    //C[i] = C * weight[i]
     TArray<algorithmFPType, cpu> _kernelDiag;            //diagonal elements of the matrix Q (kernel(x[i], x[i]))
-    TArray<char, cpu> _I;                                //array of flags I_LOW and I_UP
+    TArray<char, cpu> _flags;                            //array of flags I_LOW and I_UP
     SVMCacheIface<boser, algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
 };
 

@@ -45,8 +45,8 @@ using namespace daal::services;
 
 enum class SvmType
 {
-    CLASSIFICATION,
-    REGRESSION
+    classification,
+    regression
 };
 
 struct KernelParameter
@@ -60,7 +60,7 @@ struct KernelParameter
     bool doShrinking;
     size_t shrinkingStep;
     algorithms::kernel_function::KernelIfacePtr kernel;
-    SvmType svmType = SvmType::CLASSIFICATION;
+    SvmType svmType = SvmType::classification;
 };
 
 template <Method method, typename algorithmFPType, CpuType cpu>

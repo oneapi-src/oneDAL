@@ -87,7 +87,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
     daal_svm_parameter.doShrinking = desc.get_shrinking();
     daal_svm_parameter.cacheSize = cache_byte;
-    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::CLASSIFICATION;
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
 
     if (class_count > 2) {
         // TODO

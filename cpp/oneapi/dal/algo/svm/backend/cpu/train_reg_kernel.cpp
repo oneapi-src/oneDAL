@@ -78,7 +78,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_svm_parameter.doShrinking = desc.get_shrinking();
     daal_svm_parameter.cacheSize = cache_byte;
     daal_svm_parameter.epsilon = desc.get_epsilon();
-    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::REGRESSION;
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::regression;
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {

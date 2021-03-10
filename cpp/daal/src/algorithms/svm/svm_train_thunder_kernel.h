@@ -78,6 +78,8 @@ private:
     // Need of (maxBlockSize*6 + maxBlockSize*maxBlockSize)*sizeof(algorithmFPType) internal memory.
     // It should fit into the cache L2 including the use of hardware prefetch.
     static const size_t maxBlockSize = 2048;
+    // Inner threshold for break from SVM
+    static constexpr algorithmFPType accuracyThresholdInner = algorithmFPType(1e-3);
 
     enum MemSmoId
     {
