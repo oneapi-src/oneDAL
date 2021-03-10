@@ -14,9 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/blas/block_select.hpp"
-#include "oneapi/dal/backend/primitives/blas/single_pass_select.hpp"
-#include "oneapi/dal/backend/primitives/blas/quick_select.hpp"
+#include "oneapi/dal/backend/primitives/selection/block_select.hpp"
+#include "oneapi/dal/backend/primitives/selection//block_select_single_pass.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -25,9 +24,8 @@ template <typename Float, bool selected_out, bool indices_out>
 sycl::event block_select(sycl::queue& queue,
                  ndview<Float, 2>& block,
                  std::int64_t k,
-                 std::int64_t register_width,
                  ndview<Float, 2>& selected,
-                 ndview<std::int64_t, 2>& indices,
+                 ndview<int, 2>& indices,
                  const event_vector& deps) {
     ONEDAL_ASSERT(block.get_dimension(1) == selected.get_dimension(1));
     ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
@@ -37,7 +35,7 @@ sycl::event block_select(sycl::queue& queue,
     ONEDAL_ASSERT(selection.has_mutable_data());
 
 //    if (k <= register_width) {
-        return single_pass_select<Float, selected_out, indices_out>(queue,
+        return block_select_single_pass<Float, selected_out, indices_out>(queue,
                                block,
                                k,
                                selected,
@@ -45,7 +43,7 @@ sycl::event block_select(sycl::queue& queue,
                                deps);
 //    }
 //    else {
-//        return quick_select<Float, selected_out, indices_out>(queue,
+//        return block_quick_select<Float, selected_out, indices_out>(queue,
 //                               block,
 //                               selected,
 //                               indices,
@@ -55,12 +53,11 @@ sycl::event block_select(sycl::queue& queue,
 }
 
 #define INSTANTIATE(F, selected_out, indices_out)                                                    \
-    template ONEDAL_EXPORT sycl::event block_select<F, sel_out, ind_out>(sycl::queue & queue,       \
-                 ndview<Float, 2>& block, \
+    template ONEDAL_EXPORT sycl::event block_select<F, selected_out, indices_out>(sycl::queue & queue,       \
+                 ndview<F, 2>& block, \
                  std::int64_t k, \
-                 std::int64_t register_width, \
-                 ndview<Float, 2>& selected, \
-                 ndview<std::int64_t, 2>& indices, \
+                 ndview<F, 2>& selected, \
+                 ndview<int, 2>& indices, \
                  const event_vector& deps);
 
 #define INSTANTIATE_FLOAT(selected_out, indices_out) \

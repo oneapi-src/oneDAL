@@ -26,9 +26,8 @@ template <typename Float, bool selected_out, bool indices_out>
 sycl::event block_select_single_pass(sycl::queue& queue,
                  const ndview<Float, 2>& block,
                  std::int64_t k,
-                 std::int64_t register_width,
                  ndview<Float, 2>& selected,
-                 ndview<std::int64_t, 2>& indices,
+                 ndview<int, 2>& indices,
                  const event_vector& deps = {});
 
 #endif
