@@ -15,8 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/selection/block_select.hpp"
-#include "oneapi/dal/backend/primitives/selection//block_simd_select.hpp"
-#include "oneapi/dal/backend/primitives/selection//block_quick_select.hpp"
+#include "oneapi/dal/backend/primitives/selection/block_simd_select.hpp"
+#include "oneapi/dal/backend/primitives/selection/block_quick_select.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
