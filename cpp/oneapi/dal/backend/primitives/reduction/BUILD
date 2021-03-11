@@ -15,6 +15,7 @@ dal_module(
 dal_test_suite(
     name = "tests",
     framework = "catch2",
+    compile_as = [ "dpc++" ],
     srcs = glob([
         "test/*.cpp",
     ]),

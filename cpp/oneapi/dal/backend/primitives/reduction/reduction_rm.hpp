@@ -34,8 +34,8 @@ public:
     typedef kernel_reduction_rm_rw_wide<Float, BinaryOp, UnaryOp> kernel_t;
 
 public:
-    reduction_rm_rw_wide(const sycl::queue& q_, const std::int64_t wg_);
-    reduction_rm_rw_wide(const sycl::queue& q_);
+    reduction_rm_rw_wide(sycl::queue& q_, const std::int64_t wg_);
+    reduction_rm_rw_wide(sycl::queue& q_);
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
@@ -62,7 +62,9 @@ private:
                                const UnaryOp unary);
 
 private:
-    const sycl::queue& q;
+    sycl::queue& q;
+
+public:
     const std::int64_t wg;
 };
 
@@ -77,8 +79,8 @@ public:
     typedef kernel_reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp> kernel_t;
 
 public:
-    reduction_rm_rw_narrow(const sycl::queue& q_, const std::int64_t wg_);
-    reduction_rm_rw_narrow(const sycl::queue& q_);
+    reduction_rm_rw_narrow(sycl::queue& q_, const std::int64_t wg_);
+    reduction_rm_rw_narrow(sycl::queue& q_);
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
@@ -96,16 +98,19 @@ public:
                            const event_vector& deps = {}) const;
 
 private:
-    sycl::nd_range<2> get_range(const std::size_t height) const;
+    sycl::nd_range<1> get_range(const std::size_t height) const;
     static kernel_t get_kernel(inp_t input,
                                out_t output,
                                const std::int64_t width,
+                               const std::int64_t height,
                                const std::int64_t stride,
                                const BinaryOp binary,
                                const UnaryOp unary);
 
 private:
-    const sycl::queue& q;
+    sycl::queue& q;
+
+public:
     const std::int64_t wg;
 };
 
@@ -117,7 +122,7 @@ public:
     typedef reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp> narrow_t;
     typedef reduction_rm_rw_wide<Float, BinaryOp, UnaryOp> wide_t;
 public: 
-    reduction_rm_rw(const sycl::queue& q_);
+    reduction_rm_rw(sycl::queue& q_);
     enum reduction_scale { wide, narrow };
     reduction_scale propose_scale(std::int64_t width) const;
     sycl::event operator()(const reduction_scale scale,
@@ -153,7 +158,7 @@ public:
                            const UnaryOp unary = UnaryOp{},
                            const event_vector& deps = {}) const;
 private:
-    const sycl::queue& q;
+    sycl::queue& q;
 };
 
 #endif

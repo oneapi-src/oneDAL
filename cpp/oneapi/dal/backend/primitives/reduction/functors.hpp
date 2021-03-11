@@ -68,17 +68,19 @@ struct binary_functor {
 template <typename T>
 struct binary_functor<T, binary_operation::sum> {
     constexpr static inline T init_value = 0;
+    constexpr static inline sycl::ONEAPI::plus<T> native{};
     inline T operator()(T a, T b) const {
         return (a + b);
     }
 };
 
 template <typename T>
-using sum = binary_functor<T, binary_operation::square>;
+using sum = binary_functor<T, binary_operation::sum>;
 
 template <typename T>
 struct binary_functor<T, binary_operation::mul> {
     constexpr static inline T init_value = 1;
+    constexpr static inline sycl::ONEAPI::multiplies<T> native{};
     inline T operator()(T a, T b) const {
         return (a * b);
     }
@@ -90,6 +92,7 @@ using mul = binary_functor<T, binary_operation::mul>;
 template <typename T>
 struct binary_functor<T, binary_operation::max> {
     constexpr static inline T init_value = std::numeric_limits<T>::min();
+    constexpr static inline sycl::ONEAPI::maximum<T> native{};
     inline T operator()(T a, T b) const {
         return (a < b) ? b : a;
     }
@@ -101,8 +104,9 @@ using max = binary_functor<T, binary_operation::max>;
 template <typename T>
 struct binary_functor<T, binary_operation::min> {
     constexpr static inline T init_value = std::numeric_limits<T>::max();
+    constexpr static inline sycl::ONEAPI::minimum<T> native{};
     inline T operator()(T a, T b) const {
-        return (b < a) ? b : a;
+        return (a < b) ? a : b;
     }
 };
 
