@@ -64,7 +64,7 @@ sycl::event block_select_single_pass(sycl::queue& queue,
                     private_indices[i] = -1;
                 }
 
-                for (int i = sg.get_local_id()[0]; i < nx; i += sg.get_local_range()[0]) {
+                for (int i = sg.get_local_id(0); i < nx; i += sg.get_local_range(0)) {
                     Float cur_val = block_ptr[in_offset + i];
                     int index = i;
                     int pos = -1;
