@@ -26,8 +26,6 @@
 
 namespace oneapi::dal::preview {
 
-class ONEDAL_EXPORT graph_base {};
-
 template <typename Graph>
 struct graph_traits {
     using graph_type = empty_value;
