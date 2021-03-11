@@ -15,57 +15,144 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/selection/block_select.hpp"
-#include "oneapi/dal/backend/primitives/selection//block_select_single_pass.hpp"
+#include "oneapi/dal/backend/primitives/selection//block_simd_select.hpp"
+#include "oneapi/dal/backend/primitives/selection//block_quick_select.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, bool selected_out, bool indices_out>
-sycl::event block_select(sycl::queue& queue,
-                         ndview<Float, 2>& block,
-                         std::int64_t k,
-                         ndview<Float, 2>& selected,
-                         ndview<int, 2>& indices,
-                         const event_vector& deps) {
-    ONEDAL_ASSERT(block.get_dimension(1) == selected.get_dimension(1));
+template <typename type>
+struct device_type_info_id {
+    static constexpr sycl::info::device preferred_vector_width =
+        sycl::info::device::native_vector_width_char;
+};
+
+template <>
+struct device_type_info_id<float> {
+    static constexpr sycl::info::device preferred_vector_width =
+        sycl::info::device::native_vector_width_float;
+};
+
+template <>
+struct device_type_info_id<long> {
+    static constexpr sycl::info::device preferred_vector_width =
+        sycl::info::device::native_vector_width_double;
+};
+
+template <>
+struct device_type_info_id<short> {
+    static constexpr sycl::info::device preferred_vector_width =
+        sycl::info::device::native_vector_width_short;
+};
+
+template <>
+struct device_type_info_id<int> {
+    static constexpr sycl::info::device preferred_vector_width =
+        sycl::info::device::native_vector_width_int;
+};
+
+template <typename Float, bool selection_out, bool indices_out>
+sycl::event block_select_impl(sycl::queue& queue,
+                              const ndview<Float, 2>& block,
+                              std::int64_t k,
+                              ndview<Float, 2>& selection,
+                              ndview<int, 2>& indices,
+                              const event_vector& deps) {
+    ONEDAL_ASSERT(block.get_dimension(1) == selection.get_dimension(1));
     ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
     ONEDAL_ASSERT(indices.get_dimension(0) == k);
-    ONEDAL_ASSERT(selected.get_dimension(0) == k);
+    ONEDAL_ASSERT(selection.get_dimension(0) == k);
     ONEDAL_ASSERT(indices.has_mutable_data());
     ONEDAL_ASSERT(selection.has_mutable_data());
 
-    //    if (k <= register_width) {
-    return block_select_single_pass<Float, selected_out, indices_out>(queue,
-                                                                      block,
-                                                                      k,
-                                                                      selected,
-                                                                      indices,
-                                                                      deps);
-    //    }
-    //    else {
-    //        return block_quick_select<Float, selected_out, indices_out>(queue,
-    //                               block,
-    //                               selected,
-    //                               indices,
-    //                               k,
-    //                               deps);
-    //    }
+    uint32_t fp_simd_width =
+        queue.get_device().get_info<device_type_info_id<Float>::preferred_vector_width>();
+    uint32_t int_simd_width =
+        queue.get_device().get_info<device_type_info_id<int>::preferred_vector_width>();
+
+    if (k <= std::min(fp_simd_width, int_simd_width)) {
+        return block_simd_select<Float, selection_out, indices_out>(queue,
+                                                                    block,
+                                                                    k,
+                                                                    selection,
+                                                                    indices,
+                                                                    deps);
+    }
+    else {
+        return block_quick_select<Float, selection_out, indices_out>(queue,
+                                                                     block,
+                                                                     k,
+                                                                     selection,
+                                                                     indices,
+                                                                     deps);
+    }
 }
 
-#define INSTANTIATE(F, selected_out, indices_out)                                  \
-    template ONEDAL_EXPORT sycl::event block_select<F, selected_out, indices_out>( \
-        sycl::queue & queue,                                                       \
-        ndview<F, 2> & block,                                                      \
-        std::int64_t k,                                                            \
-        ndview<F, 2> & selected,                                                   \
-        ndview<int, 2> & indices,                                                  \
+template <typename Float>
+sycl::event block_select(sycl::queue& queue,
+                         const ndview<Float, 2>& block,
+                         std::int64_t k,
+                         ndview<Float, 2>& selection,
+                         ndview<int, 2>& indices,
+                         const event_vector& deps) {
+    return block_select_impl<Float, true, true>(queue, block, k, selection, indices, deps);
+}
+
+template <typename Float>
+sycl::event block_select(sycl::queue& queue,
+                         const ndview<Float, 2>& block,
+                         std::int64_t k,
+                         ndview<Float, 2>& selection,
+                         const event_vector& deps) {
+    ndarray<int, 2> dummy_array;
+    return block_select_impl<Float, true, false>(queue, block, k, selection, dummy_array, deps);
+}
+
+template <typename Float>
+sycl::event block_select(sycl::queue& queue,
+                         const ndview<Float, 2>& block,
+                         std::int64_t k,
+                         ndview<int, 2>& indices,
+                         const event_vector& deps) {
+    ndarray<Float, 2> dummy_array;
+    return block_select_impl<Float, false, true>(queue, block, k, dummy_array, indices, deps);
+}
+
+#define INSTANTIATE_IMPL(F, selection_out, indices_out)                                  \
+    template ONEDAL_EXPORT sycl::event block_select_impl<F, selection_out, indices_out>( \
+        sycl::queue & queue,                                                             \
+        const ndview<F, 2>& block,                                                       \
+        std::int64_t k,                                                                  \
+        ndview<F, 2>& selection,                                                         \
+        ndview<int, 2>& indices,                                                         \
         const event_vector& deps);
 
-#define INSTANTIATE_FLOAT(selected_out, indices_out) \
-    INSTANTIATE(float, selected_out, indices_out)    \
-    INSTANTIATE(double, selected_out, indices_out)
+#define INSTANTIATE_IMPL_FLOAT(selection_out, indices_out) \
+    INSTANTIATE_IMPL(float, selection_out, indices_out)    \
+    INSTANTIATE_IMPL(double, selection_out, indices_out)
 
-INSTANTIATE_FLOAT(true, false)
-INSTANTIATE_FLOAT(false, true)
-INSTANTIATE_FLOAT(true, true)
+INSTANTIATE_IMPL_FLOAT(true, false)
+INSTANTIATE_IMPL_FLOAT(false, true)
+INSTANTIATE_IMPL_FLOAT(true, true)
+
+#define INSTANTIATE(F)                                                            \
+    template ONEDAL_EXPORT sycl::event block_select<F>(sycl::queue & queue,       \
+                                                       const ndview<F, 2>& block, \
+                                                       std::int64_t k,            \
+                                                       ndview<F, 2>& selection,   \
+                                                       ndview<int, 2>& indices,   \
+                                                       const event_vector& deps); \
+    template ONEDAL_EXPORT sycl::event block_select<F>(sycl::queue & queue,       \
+                                                       const ndview<F, 2>& block, \
+                                                       std::int64_t k,            \
+                                                       ndview<F, 2>& selection,   \
+                                                       const event_vector& deps); \
+    template ONEDAL_EXPORT sycl::event block_select<F>(sycl::queue & queue,       \
+                                                       const ndview<F, 2>& block, \
+                                                       std::int64_t k,            \
+                                                       ndview<int, 2>& indices,   \
+                                                       const event_vector& deps);
+
+INSTANTIATE(float)
+INSTANTIATE(double)
 
 } // namespace oneapi::dal::backend::primitives

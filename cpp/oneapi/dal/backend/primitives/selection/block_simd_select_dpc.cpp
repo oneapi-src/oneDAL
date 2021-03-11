@@ -16,28 +16,28 @@
 
 #include <limits>
 
-#include "oneapi/dal/backend/primitives/selection/block_select_single_pass.hpp"
+#include "oneapi/dal/backend/primitives/selection/block_simd_select.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, bool selected_out, bool indices_out>
-sycl::event block_select_single_pass(sycl::queue& queue,
-                                     const ndview<Float, 2>& block,
-                                     std::int64_t k,
-                                     ndview<Float, 2>& selected,
-                                     ndview<int, 2>& indices,
-                                     const event_vector& deps) {
-    ONEDAL_ASSERT(block.get_dimension(1) == selected.get_dimension(1));
+template <typename Float, bool selection_out, bool indices_out>
+sycl::event block_simd_select(sycl::queue& queue,
+                              const ndview<Float, 2>& block,
+                              std::int64_t k,
+                              ndview<Float, 2>& selection,
+                              ndview<int, 2>& indices,
+                              const event_vector& deps) {
+    ONEDAL_ASSERT(block.get_dimension(1) == selection.get_dimension(1));
     ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
     ONEDAL_ASSERT(indices.get_dimension(0) == k);
-    ONEDAL_ASSERT(selected.get_dimension(0) == k);
+    ONEDAL_ASSERT(selection.get_dimension(0) == k);
     ONEDAL_ASSERT(indices.has_mutable_data());
     ONEDAL_ASSERT(selection.has_mutable_data());
 
     sycl::event::wait_and_throw(deps);
 
     const Float* block_ptr = block.get_data();
-    Float* selected_ptr = selected_out ? selected.get_mutable_data() : nullptr;
+    Float* selection_ptr = selection_out ? selection.get_mutable_data() : nullptr;
     int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
 
     const std::int64_t nx = block.get_dimension(1);
@@ -56,6 +56,9 @@ sycl::event block_select_single_pass(sycl::queue& queue,
                 if (sg.get_group_id()[0] > 0)
                     return;
 
+                const auto sg_id = sg.get_local_id()[0];
+                const auto sg_range = sg.get_local_range()[0];
+
                 Float values[32];
                 int private_indices[32];
 
@@ -64,7 +67,7 @@ sycl::event block_select_single_pass(sycl::queue& queue,
                     private_indices[i] = -1;
                 }
 
-                for (int i = sg.get_local_id(0); i < nx; i += sg.get_local_range(0)) {
+                for (int i = sg_id; i < nx; i += sg_range) {
                     Float cur_val = block_ptr[in_offset + i];
                     int index = i;
                     int pos = -1;
@@ -88,25 +91,24 @@ sycl::event block_select_single_pass(sycl::queue& queue,
                 int bias = 0;
                 Float final_values[32];
                 int final_indices[32];
-                for (int i = 0; i < k; i++) {
+                for (uint32_t i = 0; i < k; i++) {
                     Float min_val = reduce(sg, values[bias], sycl::ONEAPI::minimum());
                     bool present = (min_val == values[bias]);
                     int pos = exclusive_scan(sg, present ? 1 : 0, std::plus<int>());
                     bool owner = present && pos == 0;
-                    final_indices[i] = - reduce(sg,
-                                                             owner ? -private_indices[bias] : 1,
-                                                             sycl::ONEAPI::minimum());
+                    final_indices[i] =
+                        -reduce(sg, owner ? -private_indices[bias] : 1, sycl::ONEAPI::minimum());
                     final_values[i] = min_val;
                     bias += owner ? 1 : 0;
                 }
-                if constexpr (selected_out) {
-                    for (int i = sg.get_local_id()[0]; i < nx; i += sg.get_local_range()[0]) {
+                if constexpr (selection_out) {
+                    for (uint32_t i = sg_id; i < nx; i += sg_range) {
                         indices_ptr[out_offset + i] = final_indices[i];
                     }
                 }
                 if constexpr (indices_out) {
-                    for (int i = sg.get_local_id()[0]; i < nx; i += sg.get_local_range()[0]) {
-                        selected_ptr[out_offset + i] = final_values[i];
+                    for (uint32_t i = sg_id; i < nx; i += sg_range) {
+                        selection_ptr[out_offset + i] = final_values[i];
                     }
                 }
             });
@@ -114,18 +116,18 @@ sycl::event block_select_single_pass(sycl::queue& queue,
     return event;
 }
 
-#define INSTANTIATE(F, selected_out, indices_out)                                              \
-    template ONEDAL_EXPORT sycl::event block_select_single_pass<F, selected_out, indices_out>( \
-        sycl::queue & queue,                                                                   \
-        const ndview<F, 2>& block,                                                             \
-        std::int64_t k,                                                                        \
-        ndview<F, 2>& selected,                                                                \
-        ndview<int, 2>& indices,                                                               \
+#define INSTANTIATE(F, selection_out, indices_out)                                       \
+    template ONEDAL_EXPORT sycl::event block_simd_select<F, selection_out, indices_out>( \
+        sycl::queue & queue,                                                             \
+        const ndview<F, 2>& block,                                                       \
+        std::int64_t k,                                                                  \
+        ndview<F, 2>& selection,                                                         \
+        ndview<int, 2>& indices,                                                         \
         const event_vector& deps);
 
-#define INSTANTIATE_FLOAT(selected_out, indices_out) \
-    INSTANTIATE(float, selected_out, indices_out)    \
-    INSTANTIATE(double, selected_out, indices_out)
+#define INSTANTIATE_FLOAT(selection_out, indices_out) \
+    INSTANTIATE(float, selection_out, indices_out)    \
+    INSTANTIATE(double, selection_out, indices_out)
 
 INSTANTIATE_FLOAT(true, false)
 INSTANTIATE_FLOAT(false, true)

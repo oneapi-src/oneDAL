@@ -27,15 +27,42 @@ namespace oneapi::dal::backend::primitives {
 /// @param[in]  queue The queue
 /// @param[in]  block  The [n x m] input matrix (m >= k)
 /// @param[in]  k      The number of minimal values to be selected in each row
-/// @param[in] register_width  The maximal possible size of array in private memory
-/// @param[out] selected The [n x k] matrix of selected values (if selected_out == true)
+/// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
 /// @param[out] indices  The [n x k] matrix of indices of selected values (if indices_out == true)
 
-template <typename Float, bool selected_out, bool indices_out>
+template <typename Float>
 sycl::event block_select(sycl::queue& queue,
-                         ndview<Float, 2>& block,
+                         const ndview<Float, 2>& block,
                          std::int64_t k,
                          ndview<Float, 2>& selection,
+                         ndview<int, 2>& indices,
+                         const event_vector& deps = {});
+
+/// Performs K-selection on each row in matrix
+///
+/// @param[in]  queue The queue
+/// @param[in]  block  The [n x m] input matrix (m >= k)
+/// @param[in]  k      The number of minimal values to be selected in each row
+/// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
+
+template <typename Float>
+sycl::event block_select(sycl::queue& queue,
+                         const ndview<Float, 2>& block,
+                         std::int64_t k,
+                         ndview<Float, 2>& selection,
+                         const event_vector& deps = {});
+
+/// Performs K-selection on each row in matrix
+///
+/// @param[in]  queue The queue
+/// @param[in]  block  The [n x m] input matrix (m >= k)
+/// @param[in]  k      The number of minimal values to be selected in each row
+/// @param[out] indices  The [n x k] matrix of indices of selected values (if indices_out == true)
+
+template <typename Float>
+sycl::event block_select(sycl::queue& queue,
+                         const ndview<Float, 2>& block,
+                         std::int64_t k,
                          ndview<int, 2>& indices,
                          const event_vector& deps = {});
 

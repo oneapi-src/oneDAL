@@ -38,88 +38,85 @@ public:
     }
 
     void test_selection(ndarray<Float, 2>& data, std::int64_t n, std::int64_t m, std::int64_t k) {
-        SECTION("Output of selected values") {
+        INFO("Output of selected values") {
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { n, k });
             ndarray<int, 2> dummy_array;
-            block_select<Float, true, false>(get_queue(), data, k, value_array, dummy_array)
-                .wait_and_throw();
+            block_select<Float>(get_queue(), data, k, value_array).wait_and_throw();
             check_results<true, false>(data, value_array, dummy_array);
         }
 
-        SECTION("Output of selected indices") {
+        INFO("Output of selected indices") {
             auto index_array = ndarray<int, 2>::empty(get_queue(), { n, k });
             ndarray<Float, 2> dummy_array;
-            block_select<Float, false, true>(get_queue(), data, k, dummy_array, index_array)
-                .wait_and_throw();
+            block_select<Float>(get_queue(), data, k, index_array).wait_and_throw();
             check_results<false, true>(data, dummy_array, index_array);
         }
 
-        SECTION("Output of both") {
+        INFO("Output of both") {
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { n, k });
             auto index_array = ndarray<int, 2>::empty(get_queue(), { n, k });
-            block_select<Float, true, true>(get_queue(), data, k, value_array, index_array)
-                .wait_and_throw();
+            block_select<Float>(get_queue(), data, k, value_array, index_array).wait_and_throw();
             check_results<true, true>(data, value_array, index_array);
         }
     }
 
-    template <bool selected_out, bool indices_out>
+    template <bool selection_out, bool indices_out>
     void check_results(const ndarray<Float, 2>& block,
-                       const ndarray<Float, 2>& selected,
+                       const ndarray<Float, 2>& selection,
                        const ndarray<int, 2>& indices) {
-        ONEDAL_ASSERT(block.get_dimension(1) == selected.get_dimension(1));
+        ONEDAL_ASSERT(block.get_dimension(1) == selection.get_dimension(1));
         ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
 
-        auto k = selected.get_dimension(0);
+        auto k = selection.get_dimension(0);
         auto row_size = block.get_dimension(0);
         auto row_count = block.get_dimension(1);
 
         for (std::int64_t i = 0; i < row_count; i++) {
             auto max_val = std::numeric_limits<Float>::min();
             for (std::int64_t j = 0; j < k; j++) {
-                Float cur_val = get_value<selected_out, indices_out>(block,
-                                                                     selected,
-                                                                     indices,
-                                                                     k,
-                                                                     row_size,
-                                                                     i,
-                                                                     j);
-                check_presence_in_data<selected_out, indices_out>(block,
-                                                                  selected,
-                                                                  indices,
-                                                                  k,
-                                                                  row_size,
-                                                                  i,
-                                                                  j,
-                                                                  cur_val);
+                Float cur_val = get_value<selection_out, indices_out>(block,
+                                                                      selection,
+                                                                      indices,
+                                                                      k,
+                                                                      row_size,
+                                                                      i,
+                                                                      j);
+                check_presence_in_data<selection_out, indices_out>(block,
+                                                                   selection,
+                                                                   indices,
+                                                                   k,
+                                                                   row_size,
+                                                                   i,
+                                                                   j,
+                                                                   cur_val);
                 if (max_val < cur_val)
                     max_val = cur_val;
             }
             for (std::int64_t j = 0; j < row_size; j++) {
                 Float cur_val = block.get_data()[i * row_size + j];
                 if (cur_val < max_val) {
-                    check_presence_in_selection<selected_out, indices_out>(selected,
-                                                                           indices,
-                                                                           k,
-                                                                           row_size,
-                                                                           i,
-                                                                           j,
-                                                                           cur_val);
+                    check_presence_in_selection<selection_out, indices_out>(selection,
+                                                                            indices,
+                                                                            k,
+                                                                            row_size,
+                                                                            i,
+                                                                            j,
+                                                                            cur_val);
                 }
             }
         }
     }
 
-    template <bool selected_out, bool indices_out>
+    template <bool selection_out, bool indices_out>
     Float get_value(const ndarray<Float, 2>& block,
-                    const ndarray<Float, 2>& selected,
+                    const ndarray<Float, 2>& selection,
                     const ndarray<int, 2>& indices,
                     std::int64_t k,
                     std::int64_t row_size,
                     std::int64_t row,
                     std::int64_t pos) {
-        if constexpr (selected_out) {
-            return selected.get_data()[row * k + pos];
+        if constexpr (selection_out) {
+            return selection.get_data()[row * k + pos];
         }
         if constexpr (indices_out) {
             auto cur_index = indices.get_data()[row * k + pos];
@@ -129,17 +126,17 @@ public:
         }
     }
 
-    template <bool selected_out, bool indices_out>
+    template <bool selection_out, bool indices_out>
     void check_presence_in_data(const ndarray<Float, 2>& block,
-                                const ndarray<Float, 2>& selected,
+                                const ndarray<Float, 2>& selection,
                                 const ndarray<int, 2>& indices,
                                 std::int64_t k,
                                 std::int64_t row_size,
                                 std::int64_t row,
                                 std::int64_t pos,
                                 Float cur_val) {
-        if constexpr (indices_out && selected_out) {
-            REQUIRE(selected.get_data()[row * k + pos] ==
+        if constexpr (indices_out && selection_out) {
+            REQUIRE(selection.get_data()[row * k + pos] ==
                     block.get_data()[row * row_size + indices.get_data()[row * k + pos]]);
         }
         if constexpr (!indices_out) {
@@ -151,8 +148,8 @@ public:
         }
     }
 
-    template <bool selected_out, bool indices_out>
-    void check_presence_in_selection(const ndarray<Float, 2>& selected,
+    template <bool selection_out, bool indices_out>
+    void check_presence_in_selection(const ndarray<Float, 2>& selection,
                                      const ndarray<int, 2>& indices,
                                      std::int64_t k,
                                      std::int64_t row_size,
@@ -162,7 +159,7 @@ public:
         std::int64_t count = 0;
         if constexpr (!indices_out) {
             for (std::int64_t l = 0; l < k; l++) {
-                count += (std::int64_t)(selected.get_data()[row * row_size + l] == cur_val);
+                count += (std::int64_t)(selection.get_data()[row * row_size + l] == cur_val);
             }
         }
         else {
