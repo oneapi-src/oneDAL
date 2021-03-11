@@ -29,7 +29,6 @@
 #include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
 #include "oneapi/dal/io/csv/backend/cpu/read_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/graph/common.hpp"
 
 namespace oneapi::dal::csv::backend {
 
