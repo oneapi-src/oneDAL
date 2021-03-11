@@ -72,8 +72,7 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(const services::SharedPtr<DataType> & usmData, size_t nColumns,
-                                                                          size_t nRows, const cl::sycl::usm::alloc & usmAllocType,
-                                                                          services::Status * stat = NULL)
+                                                                          size_t nRows, const cl::sycl::queue & queue, services::Status * stat = NULL)
     {
         const size_t bufferSize = nColumns * nRows;
 
@@ -82,7 +81,7 @@ public:
         // do not perform any data allocations in case of input usm data - we can create it even with wrong bufferSize
 
         services::Status localStatus;
-        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, queue, localStatus);
         services::internal::tryAssignStatusAndThrow(stat, localStatus);
         DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
 
@@ -92,7 +91,7 @@ public:
 
 #ifdef DAAL_SYCL_INTERFACE_USM
     static services::SharedPtr<SyclHomogenNumericTable<DataType> > create(DataType * usmData, size_t nColumns, size_t nRows,
-                                                                          const cl::sycl::usm::alloc & usmAllocType, services::Status * stat = NULL)
+                                                                          const cl::sycl::queue & queue, services::Status * stat = NULL)
     {
         const auto overflow_status = checkSizeOverflow(nRows, nColumns);
         if (!overflow_status)
@@ -104,7 +103,7 @@ public:
         const size_t bufferSize = nColumns * nRows;
 
         services::Status localStatus;
-        services::internal::Buffer<DataType> buffer(usmData, bufferSize, usmAllocType, localStatus);
+        services::internal::Buffer<DataType> buffer(usmData, bufferSize, queue, localStatus);
         services::internal::tryAssignStatusAndThrow(stat, localStatus);
         DAAL_CHECK_STATUS_RETURN_IF_FAIL(localStatus, services::SharedPtr<SyclHomogenNumericTable<DataType> >());
 
@@ -340,7 +339,7 @@ protected:
         }
         else
         {
-            const auto hostData = _buffer.toHost(data_management::readOnly, st);
+            const auto hostData = _buffer.toHost(onDeserialize ? data_management::writeOnly : data_management::readOnly, st);
             if (!st) return services::throwIfPossible(st);
 
             archive->set(hostData.get(), size);

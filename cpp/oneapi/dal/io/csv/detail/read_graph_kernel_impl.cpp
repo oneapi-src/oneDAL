@@ -47,7 +47,7 @@ void fill_filtered_neighs(const std::int64_t *unfiltered_offsets,
                           const std::int64_t *filtered_offsets,
                           std::int32_t *filtered_neighs,
                           std::int64_t vertex_count) {
-    return dal::backend::dispatch_by_cpu(
+    dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
             return backend::fill_filtered_neighs<decltype(cpu)>(unfiltered_offsets,
@@ -64,7 +64,7 @@ void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
                                            std::int64_t *unfiltered_offsets,
                                            std::int32_t *new_degrees,
                                            std::int64_t vertex_count) {
-    return dal::backend::dispatch_by_cpu(
+    dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
             return backend::filter_neighbors_and_fill_new_degrees<decltype(cpu)>(unfiltered_neighs,

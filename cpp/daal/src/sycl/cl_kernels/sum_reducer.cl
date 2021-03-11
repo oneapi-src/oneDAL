@@ -78,6 +78,34 @@ DECLARE_SOURCE(
         }
     }
 
+    __kernel void sum_singlesubgroup(__global algorithmFPType * vectors, uint nVectors, uint vectorSize, __global algorithmFPType * sums,
+                                     __global algorithmFPType * sq_sums) {
+        const uint localId   = get_local_id(1);
+        const uint localSize = get_local_size(1);
+        const uint groupId   = get_global_id(0);
+        const uint offset    = groupId * vectorSize;
+        if (get_sub_group_id() > 0) return;
+
+        algorithmFPType partial_sums    = 0;
+        algorithmFPType partial_sq_sums = 0;
+
+        for (uint i = localId; i < vectorSize; i += localSize)
+        {
+            algorithmFPType el = vectors[offset + i];
+            partial_sums += el;
+            partial_sq_sums += el * el;
+        }
+
+        partial_sums    = sub_group_reduce_add(partial_sums);
+        partial_sq_sums = sub_group_reduce_add(partial_sq_sums);
+
+        if (localId == 0)
+        {
+            sums[groupId]    = partial_sums;
+            sq_sums[groupId] = partial_sq_sums;
+        }
+    }
+
     void __sum_reduce_colmajor(__global const algorithmFPType * vectors, const uint nVectors, const uint vectorSize,
                                __global algorithmFPType * mergedSums, __global algorithmFPType * mergedSqSums, const uint rowPartIndex,
                                const uint rowParts, const uint colPartIndex, const uint colParts, const uint tid, const uint tnum) {
