@@ -79,6 +79,7 @@ public:
     MSG(unknown_usm_pointer_type);
 
     /* Tables */
+    MSG(allocated_memory_size_is_not_enough_to_copy_data);
     MSG(cannot_get_data_type_from_empty_metadata);
     MSG(cannot_get_feature_type_from_empty_metadata);
     MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match);
@@ -166,7 +167,7 @@ public:
 
     /* SVM */
     MSG(c_leq_zero);
-    MSG(cache_size_leq_zero);
+    MSG(cache_size_lt_zero);
     MSG(input_model_coeffs_are_empty);
     MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
     MSG(input_model_does_not_match_kernel_function);

@@ -249,7 +249,7 @@ public:
 
     UniversalBuffer allocate(TypeId type, size_t bufferSize, Status & status) DAAL_C11_OVERRIDE
     {
-        return BufferAllocator::allocate(type, bufferSize, status);
+        return BufferAllocator::allocate(_deviceQueue, type, bufferSize, status);
     }
 
     void copy(UniversalBuffer dest, size_t desOffset, UniversalBuffer src, size_t srcOffset, size_t count, Status & status) DAAL_C11_OVERRIDE
@@ -267,6 +267,8 @@ public:
     ClKernelFactoryIface & getClKernelFactory() DAAL_C11_OVERRIDE { return _kernelFactory; }
 
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE { return _infoDevice; }
+
+    const cl::sycl::queue & getQueue() const { return _deviceQueue; }
 
 private:
     cl::sycl::queue _deviceQueue;

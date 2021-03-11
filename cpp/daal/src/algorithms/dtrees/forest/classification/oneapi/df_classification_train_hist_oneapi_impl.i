@@ -1020,7 +1020,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
             if (nSelectedFeatures != _nFeatures)
             {
                 daal::internal::RNGs<int, sse2> rng;
-                auto treeMap = nodeVsTreeMap.template get<int32_t>().toHost(ReadWriteMode::writeOnly, status);
+                auto treeMap = nodeVsTreeMap.template get<int32_t>().toHost(ReadWriteMode::readOnly, status);
                 DAAL_CHECK_STATUS_VAR(status);
 
                 for (size_t node = 0; node < nNodes; node++)

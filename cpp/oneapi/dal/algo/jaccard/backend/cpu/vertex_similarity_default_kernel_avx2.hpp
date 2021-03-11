@@ -33,11 +33,11 @@ namespace jaccard {
 namespace detail {
 
 #if defined(__INTEL_COMPILER)
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
+ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     return _popcnt32(x);
 }
 #else
-DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
+ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     std::int32_t count = 0;
     std::int32_t a = x;
     while (a != 0) {
@@ -48,10 +48,10 @@ DAAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
 }
 #endif
 
-DAAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
-                                           const std::int32_t *neigh_v,
-                                           std::int32_t n_u,
-                                           std::int32_t n_v) {
+ONEDAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
+                                             const std::int32_t *neigh_v,
+                                             std::int32_t n_u,
+                                             std::int32_t n_v) {
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
 
@@ -267,7 +267,7 @@ vertex_similarity_result call_jaccard_default_kernel_avx2(
     const descriptor_base &desc,
     const dal::preview::detail::topology<std::int32_t> &data,
     void *result_ptr) {
-    const auto g_edge_offsets = data._rows.get_data();
+    const auto g_edge_offsets = data._rows_vertex.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
 

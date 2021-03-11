@@ -42,97 +42,6 @@ DECLARE_SOURCE(
         }
     }
 
-    __kernel void compute_squares(__global const algorithmFPType * data, __global algorithmFPType * dataSq, int K, int P) {
-        const int global_id_0 = get_global_id(0);
-
-        const int local_id_1   = get_local_id(1);
-        const int local_size_1 = get_local_size(1);
-
-        __local algorithmFPType local_sum[LOCAL_SUM_SIZE];
-
-        local_sum[local_id_1] = 0.0f;
-        for (int i = local_id_1; i < P; i += local_size_1)
-        {
-            local_sum[local_id_1] += data[global_id_0 * P + i] * data[global_id_0 * P + i];
-        }
-
-        __sum_reduce(local_sum, local_id_1, local_size_1);
-
-        if (local_id_1 == 0)
-        {
-            dataSq[global_id_0] = local_sum[0] * 0.5;
-        }
-    }
-
-    __kernel void compute_squares_128(__global const algorithmFPType * data, __global algorithmFPType * dataSq, int K, int P) {
-        const int global_id_0               = get_global_id(0);
-        const int local_id_1                = get_global_id(1);
-        const int local_size_1              = get_global_size(1);
-        const int j                         = global_id_0 * P + local_id_1 * 4;
-        const int s                         = (local_id_1 == local_size_1 - 1) ? P % 4 : 0;
-        algorithmFPType res                 = 0.0;
-        __global const algorithmFPType4 * p = (__global const algorithmFPType4 *)&data[j];
-        switch (s)
-        {
-        case 0: res = 0.5 * dot(*p, *p); break;
-        case 1: res = 0.5 * (*p).x * (*p).x; break;
-        case 2: res = 0.5 * dot(p->xy, p->xy); break;
-        case 3: res = 0.5 * dot(p->xyz, p->xyz); break;
-        }
-        dataSq[global_id_0] = sub_group_reduce_add(res);
-    }
-
-    __kernel void compute_squares_64(__global const algorithmFPType * data, __global algorithmFPType * dataSq, int K, int P) {
-        const int global_id_0               = get_global_id(0);
-        const int local_id_1                = get_global_id(1);
-        const int local_size_1              = get_global_size(1);
-        const int j                         = global_id_0 * P + local_id_1 * 2;
-        const int s                         = (local_id_1 == local_size_1 - 1) ? P % 2 : 0;
-        algorithmFPType res                 = 1.0;
-        __global const algorithmFPType2 * p = (__global const algorithmFPType2 *)&data[j];
-        switch (s)
-        {
-        case 0: res = 0.5 * dot(*p, *p); break;
-        case 1: res = 0.5 * (*p).x * (*p).x; break;
-        }
-        dataSq[global_id_0] = sub_group_reduce_add(res);
-    }
-
-    __kernel void compute_squares_32(__global const algorithmFPType * data, __global algorithmFPType * dataSq, int K, int P) {
-        const int global_id_0  = get_global_id(0);
-        const int local_id_1   = get_local_id(1);
-        const int local_size_1 = get_local_size(1);
-        const int j            = global_id_0 * P + local_id_1;
-        algorithmFPType res;
-        __global const algorithmFPType * p = (__global const algorithmFPType *)&data[j];
-        res                                = 0.5 * data[j] * data[j];
-        dataSq[global_id_0]                = sub_group_reduce_add(res);
-    }
-
-    __kernel void compute_squares_init_32(__global const algorithmFPType * data, __global algorithmFPType * dataSq,
-                                          __global algorithmFPType * distances, int K, int P) {
-        const int global_id_0  = get_global_id(0);
-        const int local_id_1   = get_local_id(1);
-        const int local_size_1 = get_local_size(1);
-        const int j            = global_id_0 * P + local_id_1;
-        algorithmFPType res;
-        __global const algorithmFPType * p = (__global const algorithmFPType *)&data[j];
-        res                                = 0.5 * data[j] * data[j];
-        algorithmFPType val                = sub_group_reduce_add(res);
-        dataSq[global_id_0]                = val;
-        for (int i = local_id_1; i < K; i += local_size_1) distances[global_id_0 + i] = val;
-    }
-
-    __kernel void init_distances(__global const algorithmFPType * centroidsSq, __global algorithmFPType * distances, int N, int K) {
-        const int global_id_0 = get_global_id(0);
-        const int global_id_1 = get_global_id(1);
-
-        if (global_id_0 < N)
-        {
-            distances[global_id_0 + global_id_1 * N] = centroidsSq[global_id_1];
-        }
-    }
-
     __kernel void reduce_assignments(__global const algorithmFPType * centroidsSq, __global const algorithmFPType * distances, int N, int K,
                                      algorithmFPType huge, __global int * assignments, __global algorithmFPType * mindistances) {
         const int global_id = get_global_id(0);
@@ -145,7 +54,7 @@ DECLARE_SOURCE(
         {
             algorithmFPType dist   = distances[global_id + N * i];
             algorithmFPType sq     = centroidsSq[i];
-            algorithmFPType curVal = dist + sq;
+            algorithmFPType curVal = dist + 0.5 * sq;
             minIdx                 = curVal < minVal ? i : minIdx;
             minVal                 = curVal < minVal ? curVal : minVal;
         }
@@ -241,7 +150,7 @@ DECLARE_SOURCE(
         }
         for (int iblock = global_id; iblock < N; iblock += gsize)
         {
-            algorithmFPType newVal = 2.0 * (mindistances[iblock] + distSq[iblock]);
+            algorithmFPType newVal = 2.0 * mindistances[iblock] + distSq[iblock];
             if (newVal <= maxDist[K - 1]) continue;
             int valCentroid = iblock;
             int maxInd      = -1;
@@ -412,14 +321,14 @@ DECLARE_SOURCE(
 
         for (int i = local_id; i < N; i += local_size)
         {
-            local_sum[local_id] += 2 * (dataSq[i] + distances[i]);
+            local_sum[local_id] += dataSq[i] + 2.0 * distances[i];
         }
 
         __sum_reduce(local_sum, local_id, local_size);
 
         if (local_id == 0)
         {
-            objFunction[0] = local_sum[0];
+            objFunction[0] += local_sum[0];
         }
     }
 

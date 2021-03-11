@@ -29,10 +29,10 @@ namespace jaccard {
 namespace detail {
 
 template <typename Index>
-DAAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
-                                          const Index *neigh_v,
-                                          Index n_u,
-                                          Index n_v) {
+ONEDAL_FORCEINLINE std::size_t intersection(const Index *neigh_u,
+                                            const Index *neigh_v,
+                                            Index n_u,
+                                            Index n_v) {
     std::size_t total = 0;
     Index i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
@@ -54,7 +54,7 @@ vertex_similarity_result call_jaccard_default_kernel_scalar(
     const descriptor_base &desc,
     const dal::preview::detail::topology<Index> &data,
     void *result_ptr) {
-    const auto g_edge_offsets = data._rows.get_data();
+    const auto g_edge_offsets = data._rows_vertex.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
     const auto row_begin = dal::detail::integral_cast<Index>(desc.get_row_range_begin());

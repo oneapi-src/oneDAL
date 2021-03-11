@@ -197,11 +197,11 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         hessianDiagonalPtr           = hessianDiagonal.get();
                         algorithmFPType inverseNData = (algorithmFPType)(1.0) / nDataRows;
 
-                        TlsSum<algorithmFPType, cpu> tlsData(nTheta);
+                        StaticTlsSum<algorithmFPType, cpu> tlsData(nTheta);
                         if (soaPtr)
                         {
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
+                            daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local(tid);
 
                                 const size_t startRow   = iBlock * blockSize;
                                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
@@ -220,8 +220,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         }
                         else
                         {
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
+                            daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local(tid);
 
                                 const size_t startRow   = iBlock * blockSize;
                                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
@@ -379,12 +379,13 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     DAAL_INT blockSizeDim  = (DAAL_INT)blockSize;
                     size_t nBlocks         = nDataRows / blockSize;
                     nBlocks += (nBlocks * blockSize != nDataRows);
-                    TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(dim * yDim + (nTheta) * (nTheta));
+                    StaticTlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(dim * yDim
+                                                                                                                          + (nTheta) * (nTheta));
                     const size_t disp = dim * yDim;
                     if (soaPtr)
                     {
-                        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                            algorithmFPType * localXY   = tlsData.local();
+                        daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+                            algorithmFPType * localXY   = tlsData.local(tid);
                             algorithmFPType * localGram = localXY + disp;
                             const size_t startRow       = iBlock * blockSize;
                             DAAL_INT localBlockSizeDim  = (((iBlock + 1) == nBlocks) ? (nDataRows - startRow) : blockSizeDim);
@@ -400,8 +401,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     }
                     else
                     {
-                        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                            algorithmFPType * localXY   = tlsData.local();
+                        daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+                            algorithmFPType * localXY   = tlsData.local(tid);
                             algorithmFPType * localGram = localXY + disp;
                             const size_t startRow       = iBlock * blockSize;
                             DAAL_INT localBlockSizeDim  = (((iBlock + 1) == nBlocks) ? (nDataRows - startRow) : blockSizeDim);
@@ -534,11 +535,11 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         size_t nBlocks         = nDataRows / blockSize;
                         nBlocks += (nBlocks * blockSize != nDataRows);
 
-                        TlsSum<algorithmFPType, cpu> tlsData(nTheta);
+                        StaticTlsSum<algorithmFPType, cpu> tlsData(nTheta);
                         if (soaPtr)
                         {
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
+                            daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local(tid);
 
                                 const size_t startRow   = iBlock * blockSize;
                                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
@@ -557,8 +558,8 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         }
                         else
                         {
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-                                algorithmFPType * const hessianDiagonalLocal = tlsData.local();
+                            daal::static_threader_for(nBlocks, [&](const size_t iBlock, size_t tid) {
+                                algorithmFPType * const hessianDiagonalLocal = tlsData.local(tid);
 
                                 const size_t startRow   = iBlock * blockSize;
                                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);

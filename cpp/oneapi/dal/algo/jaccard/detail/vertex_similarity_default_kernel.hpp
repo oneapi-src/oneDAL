@@ -73,7 +73,7 @@ vertex_similarity_result call_jaccard_default_kernel_general(
     const descriptor_base &desc,
     const dal::preview::detail::topology<Index> &data,
     void *result_ptr) {
-    const auto g_edge_offsets = data._rows.get_data();
+    const auto g_edge_offsets = data._rows_vertex.get_data();
     const auto g_vertex_neighbors = data._cols.get_data();
     const auto g_degrees = data._degrees.get_data();
     const auto row_begin = dal::detail::integral_cast<Index>(desc.get_row_range_begin());

@@ -20,8 +20,7 @@
 #include <unordered_map>
 
 #define CATCH_CONFIG_RUNNER
-#include <catch2/catch.hpp>
-
+#include "oneapi/dal/test/engine/catch.hpp"
 #include "oneapi/dal/test/engine/config.hpp"
 
 int main(int argc, char** argv) {

@@ -24,6 +24,7 @@
 #ifndef __THREADING_H__
 #define __THREADING_H__
 
+#include <stdint.h>
 #include "services/daal_defines.h"
 
 namespace daal
@@ -39,22 +40,41 @@ struct IdxValType
     bool operator<=(const IdxValType & o) const { return value < o.value || (value == o.value && index == o.index); }
 };
 typedef void (*functype)(int i, const void * a);
+typedef void (*functype_int64)(int64_t i, const void * a);
+typedef void (*functype_int32ptr)(const int * i, const void * a);
 typedef void (*functype_static)(size_t i, size_t tid, const void * a);
 typedef void (*functype2)(int i, int n, const void * a);
 typedef void * (*tls_functype)(const void * a);
 typedef void (*tls_reduce_functype)(void * p, const void * a);
 typedef void (*functype_break)(int i, bool & needBreak, const void * a);
+typedef int64_t (*loop_functype_int32_int64)(int32_t start_idx_reduce, int32_t end_idx_reduce, int64_t value_for_reduce, const void * a);
+typedef int64_t (*loop_functype_int32ptr_int64)(const int32_t * start_idx_reduce, const int32_t * end_idx_reduce, int64_t value_for_reduce,
+                                                const void * a);
+typedef int64_t (*reduction_functype_int64)(int64_t a, int64_t b, const void * reduction);
+
 class task;
 } // namespace daal
 
 extern "C"
 {
     DAAL_EXPORT int _daal_threader_get_max_threads();
+    DAAL_EXPORT int _daal_threader_get_current_thread_index();
     DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func);
+    DAAL_EXPORT void _daal_threader_for_int64(int64_t n, const void * a, daal::functype_int64 func);
+    DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func);
+    DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end, const void * a, daal::functype_int32ptr func);
     DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func);
     DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func);
     DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const void * a, daal::functype func);
     DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func);
+
+    DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
+                                                          const void * b, daal::reduction_functype_int64 reduction_func);
+    DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64_simple(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
+                                                                 const void * b, daal::reduction_functype_int64 reduction_func);
+    DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t * begin, const int32_t * end, int64_t init, const void * a,
+                                                                    daal::loop_functype_int32ptr_int64 loop_func, const void * b,
+                                                                    daal::reduction_functype_int64 reduction_func);
 
     DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func);
     DAAL_EXPORT void * _daal_get_tls_local(void * tlsPtr);
@@ -90,6 +110,7 @@ extern "C"
 #define DAAL_PARALLEL_SORT_DECL(TYPE, NAMESUFFIX) DAAL_EXPORT void _daal_parallel_sort_##NAMESUFFIX(TYPE * begin_ptr, TYPE * end_ptr);
     DAAL_PARALLEL_SORT_DECL(int, int32)
     DAAL_PARALLEL_SORT_DECL(size_t, uint64)
+    DAAL_PARALLEL_SORT_DECL(daal::IdxValType<int>, pair_int32_uint64)
     DAAL_PARALLEL_SORT_DECL(daal::IdxValType<float>, pair_fp32_uint64)
     DAAL_PARALLEL_SORT_DECL(daal::IdxValType<double>, pair_fp64_uint64)
 #undef DAAL_PARALLEL_SORT_DECL
@@ -100,6 +121,12 @@ namespace daal
 template <typename FPType>
 inline void parallel_sort(daal::IdxValType<FPType> * beginPtr, daal::IdxValType<FPType> * endPtr)
 {}
+
+template <>
+inline void parallel_sort<int>(daal::IdxValType<int> * beginPtr, daal::IdxValType<int> * endPtr)
+{
+    _daal_parallel_sort_pair_int32_uint64(beginPtr, endPtr);
+}
 
 template <>
 inline void parallel_sort<float>(daal::IdxValType<float> * beginPtr, daal::IdxValType<float> * endPtr)
@@ -116,6 +143,11 @@ inline void parallel_sort<double>(daal::IdxValType<double> * beginPtr, daal::Idx
 inline int threader_get_max_threads_number()
 {
     return _daal_threader_get_max_threads();
+}
+
+inline int threader_get_max_current_thread_index()
+{
+    return _daal_threader_get_current_thread_index();
 }
 
 inline void * threaded_scalable_malloc(const size_t size, const size_t alignment)
@@ -188,6 +220,30 @@ inline void threader_for(int n, int threads_request, const F & lambda)
     const void * a = static_cast<const void *>(&lambda);
 
     _daal_threader_for(n, threads_request, a, threader_func<F>);
+}
+
+template <typename F>
+inline void threader_for_int64(int64_t n, const F & lambda)
+{
+    const void * a = static_cast<const void *>(&lambda);
+
+    _daal_threader_for_int64(n, a, threader_func<F>);
+}
+
+template <typename F>
+inline void threader_for_simple(int n, int threads_request, const F & lambda)
+{
+    const void * a = static_cast<const void *>(&lambda);
+
+    _daal_threader_for_simple(n, threads_request, a, threader_func<F>);
+}
+
+template <typename F>
+inline void threader_for_int32ptr(const int * begin, const int * end, const F & lambda)
+{
+    const void * a = static_cast<const void *>(&lambda);
+
+    _daal_threader_for_int32ptr(begin, end, a, threader_func<F>);
 }
 
 template <typename F>
@@ -508,6 +564,22 @@ void conditional_threader_for(const bool inParallel, const size_t n, Func func)
         for (size_t i = 0; i < n; ++i)
         {
             func(i);
+        }
+    }
+}
+
+template <typename Func>
+void conditional_static_threader_for(const bool inParallel, const size_t n, Func func)
+{
+    if (inParallel)
+    {
+        static_threader_for(n, [&](size_t i, size_t tid) { func(i, tid); });
+    }
+    else
+    {
+        for (size_t i = 0; i < n; ++i)
+        {
+            func(i, 0);
         }
     }
 }

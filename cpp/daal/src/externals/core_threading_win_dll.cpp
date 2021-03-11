@@ -246,10 +246,21 @@ typedef void * (*_threaded_malloc_t)(const size_t, const size_t);
 typedef void (*_threaded_free_t)(void *);
 
 typedef void (*_daal_threader_for_t)(int, int, const void *, daal::functype);
+typedef void (*_daal_threader_for_int64_t)(int64_t, const void *, daal::functype_int64);
+typedef void (*_daal_threader_for_int32ptr_t)(const int *, const int *, const void *, daal::functype_int32ptr);
+typedef void (*_daal_threader_for_simple_t)(int, int, const void *, daal::functype);
 typedef void (*_daal_static_threader_for_t)(size_t, const void *, daal::functype_static);
 typedef void (*_daal_threader_for_blocked_t)(int, int, const void *, daal::functype2);
 typedef int (*_daal_threader_get_max_threads_t)(void);
+typedef int (*_daal_threader_get_current_thread_index_t)(void);
 typedef void (*_daal_threader_for_break_t)(int, int, const void *, daal::functype_break);
+
+typedef int64_t (*_daal_parallel_reduce_int32_int64_t)(int32_t, int64_t, const void *, daal::loop_functype_int32_int64, const void *,
+                                                       daal::reduction_functype_int64);
+typedef int64_t (*_daal_parallel_reduce_int32_int64_t_simple)(int32_t, int64_t, const void *, daal::loop_functype_int32_int64, const void *,
+                                                              daal::reduction_functype_int64);
+typedef int64_t (*_daal_parallel_reduce_int32ptr_int64_t_simple)(const int32_t *, const int32_t *, int64_t, const void *,
+                                                                 daal::loop_functype_int32ptr_int64, const void *, daal::reduction_functype_int64);
 
 typedef void * (*_daal_get_tls_ptr_t)(void *, daal::tls_functype);
 typedef void (*_daal_del_tls_ptr_t)(void *);
@@ -280,6 +291,7 @@ typedef void * (*_daal_threader_env_t)();
 
 typedef void (*_daal_parallel_sort_int32_t)(int *, int *);
 typedef void (*_daal_parallel_sort_uint64_t)(size_t *, size_t *);
+typedef void (*_daal_parallel_sort_pair_int32_uint64_t)(daal::IdxValType<int> *, daal::IdxValType<int> *);
 typedef void (*_daal_parallel_sort_pair_fp32_uint64_t)(daal::IdxValType<float> *, daal::IdxValType<float> *);
 typedef void (*_daal_parallel_sort_pair_fp64_uint64_t)(daal::IdxValType<double> *, daal::IdxValType<double> *);
 
@@ -298,12 +310,20 @@ typedef void * (*_getThreadPinner_t)(bool create_pinner, void (*read_topo)(int &
 static _threaded_malloc_t _threaded_malloc_ptr = NULL;
 static _threaded_free_t _threaded_free_ptr     = NULL;
 
-static _daal_threader_for_t _daal_threader_for_ptr                         = NULL;
-static _daal_static_threader_for_t _daal_static_threader_for_ptr           = NULL;
-static _daal_threader_for_blocked_t _daal_threader_for_blocked_ptr         = NULL;
-static _daal_threader_for_t _daal_threader_for_optional_ptr                = NULL;
-static _daal_threader_get_max_threads_t _daal_threader_get_max_threads_ptr = NULL;
-static _daal_threader_for_break_t _daal_threader_for_break_ptr             = NULL;
+static _daal_threader_for_t _daal_threader_for_ptr                                           = NULL;
+static _daal_threader_for_simple_t _daal_threader_for_simple_ptr                             = NULL;
+static _daal_threader_for_int64_t _daal_threader_for_int64_ptr                               = NULL;
+static _daal_threader_for_int32ptr_t _daal_threader_for_int32ptr_ptr                         = NULL;
+static _daal_static_threader_for_t _daal_static_threader_for_ptr                             = NULL;
+static _daal_threader_for_blocked_t _daal_threader_for_blocked_ptr                           = NULL;
+static _daal_threader_for_t _daal_threader_for_optional_ptr                                  = NULL;
+static _daal_threader_get_max_threads_t _daal_threader_get_max_threads_ptr                   = NULL;
+static _daal_threader_get_current_thread_index_t _daal_threader_get_current_thread_index_ptr = NULL;
+static _daal_threader_for_break_t _daal_threader_for_break_ptr                               = NULL;
+
+static _daal_parallel_reduce_int32_int64_t _daal_parallel_reduce_int32_int64_ptr                     = NULL;
+static _daal_parallel_reduce_int32_int64_t_simple _daal_parallel_reduce_int32_int64_simple_ptr       = NULL;
+static _daal_parallel_reduce_int32ptr_int64_t_simple _daal_parallel_reduce_int32ptr_int64_simple_ptr = NULL;
 
 static _daal_get_tls_ptr_t _daal_get_tls_ptr_ptr                 = NULL;
 static _daal_del_tls_ptr_t _daal_del_tls_ptr_ptr                 = NULL;
@@ -332,10 +352,11 @@ static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr = NULL;
 static _setNumberOfThreads_t _setNumberOfThreads_ptr                     = NULL;
 static _daal_threader_env_t _daal_threader_env_ptr                       = NULL;
 
-static _daal_parallel_sort_int32_t _daal_parallel_sort_int32_ptr                       = NULL;
-static _daal_parallel_sort_uint64_t _daal_parallel_sort_uint64_ptr                     = NULL;
-static _daal_parallel_sort_pair_fp32_uint64_t _daal_parallel_sort_pair_fp32_uint64_ptr = NULL;
-static _daal_parallel_sort_pair_fp64_uint64_t _daal_parallel_sort_pair_fp64_uint64_ptr = NULL;
+static _daal_parallel_sort_int32_t _daal_parallel_sort_int32_ptr                         = NULL;
+static _daal_parallel_sort_uint64_t _daal_parallel_sort_uint64_ptr                       = NULL;
+static _daal_parallel_sort_pair_int32_uint64_t _daal_parallel_sort_pair_int32_uint64_ptr = NULL;
+static _daal_parallel_sort_pair_fp32_uint64_t _daal_parallel_sort_pair_fp32_uint64_ptr   = NULL;
+static _daal_parallel_sort_pair_fp64_uint64_t _daal_parallel_sort_pair_fp64_uint64_ptr   = NULL;
 
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 static _thread_pinner_thread_pinner_init_t _thread_pinner_thread_pinner_init_ptr = NULL;
@@ -379,6 +400,36 @@ DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, 
     _daal_threader_for_ptr(n, threads_request, a, func);
 }
 
+DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
+{
+    load_daal_thr_dll();
+    if (_daal_threader_for_simple_ptr == NULL)
+    {
+        _daal_threader_for_simple_ptr = (_daal_threader_for_simple_t)load_daal_thr_func("_daal_threader_for_simple");
+    }
+    _daal_threader_for_simple_ptr(n, threads_request, a, func);
+}
+
+DAAL_EXPORT void _daal_threader_for_int32ptr(const int * begin, const int * end, const void * a, daal::functype_int32ptr func)
+{
+    load_daal_thr_dll();
+    if (_daal_threader_for_int32ptr_ptr == NULL)
+    {
+        _daal_threader_for_int32ptr_ptr = (_daal_threader_for_int32ptr_t)load_daal_thr_func("_daal_threader_for_int32ptr");
+    }
+    _daal_threader_for_int32ptr_ptr(begin, end, a, func);
+}
+
+DAAL_EXPORT void _daal_threader_for_int64(int64_t n, const void * a, daal::functype_int64 func)
+{
+    load_daal_thr_dll();
+    if (_daal_threader_for_int64_ptr == NULL)
+    {
+        _daal_threader_for_int64_ptr = (_daal_threader_for_int64_t)load_daal_thr_func("_daal_threader_for_int64");
+    }
+    _daal_threader_for_int64_ptr(n, a, func);
+}
+
 DAAL_EXPORT void _daal_static_threader_for(size_t n, const void * a, daal::functype_static func)
 {
     load_daal_thr_dll();
@@ -407,6 +458,17 @@ DAAL_EXPORT void _daal_parallel_sort_uint64(size_t * begin_ptr, size_t * end_ptr
         _daal_parallel_sort_uint64_ptr = (_daal_parallel_sort_uint64_t)load_daal_thr_func("_daal_parallel_sort_uint64");
     }
     _daal_parallel_sort_uint64_ptr(begin_ptr, end_ptr);
+}
+
+DAAL_EXPORT void _daal_parallel_sort_pair_int32_uint64(daal::IdxValType<int> * begin_ptr, daal::IdxValType<int> * end_ptr)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_sort_pair_int32_uint64_ptr == NULL)
+    {
+        _daal_parallel_sort_pair_int32_uint64_ptr =
+            (_daal_parallel_sort_pair_int32_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_int32_uint64");
+    }
+    _daal_parallel_sort_pair_int32_uint64_ptr(begin_ptr, end_ptr);
 }
 
 DAAL_EXPORT void _daal_parallel_sort_pair_fp32_uint64(daal::IdxValType<float> * begin_ptr, daal::IdxValType<float> * end_ptr)
@@ -449,6 +511,42 @@ DAAL_EXPORT void _daal_threader_for_optional(int n, int threads_request, const v
     _daal_threader_for_optional_ptr(n, threads_request, a, func);
 }
 
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
+                                                      const void * b, daal::reduction_functype_int64 reduction_func)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_reduce_int32_int64_ptr == NULL)
+    {
+        _daal_parallel_reduce_int32_int64_ptr = (_daal_parallel_reduce_int32_int64_t)load_daal_thr_func("_daal_parallel_reduce_int32_int64");
+    }
+    return _daal_parallel_reduce_int32_int64_ptr(n, init, a, loop_func, b, reduction_func);
+}
+
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64_simple(int32_t n, int64_t init, const void * a, daal::loop_functype_int32_int64 loop_func,
+                                                             const void * b, daal::reduction_functype_int64 reduction_func)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_reduce_int32_int64_simple_ptr == NULL)
+    {
+        _daal_parallel_reduce_int32_int64_simple_ptr =
+            (_daal_parallel_reduce_int32_int64_t_simple)load_daal_thr_func("_daal_parallel_reduce_int32_int64_simple");
+    }
+    return _daal_parallel_reduce_int32_int64_simple_ptr(n, init, a, loop_func, b, reduction_func);
+}
+
+DAAL_EXPORT int64_t _daal_parallel_reduce_int32ptr_int64_simple(const int32_t * begin, const int32_t * end, int64_t init, const void * a,
+                                                                daal::loop_functype_int32ptr_int64 loop_func, const void * b,
+                                                                daal::reduction_functype_int64 reduction_func)
+{
+    load_daal_thr_dll();
+    if (_daal_parallel_reduce_int32ptr_int64_simple_ptr == NULL)
+    {
+        _daal_parallel_reduce_int32ptr_int64_simple_ptr =
+            (_daal_parallel_reduce_int32ptr_int64_t_simple)load_daal_thr_func("_daal_parallel_reduce_int32ptr_int64_simple");
+    }
+    return _daal_parallel_reduce_int32ptr_int64_simple_ptr(begin, end, init, a, loop_func, b, reduction_func);
+}
+
 DAAL_EXPORT void _daal_threader_for_break(int n, int threads_request, const void * a, daal::functype_break func)
 {
     load_daal_thr_dll();
@@ -467,6 +565,17 @@ DAAL_EXPORT int _daal_threader_get_max_threads()
         _daal_threader_get_max_threads_ptr = (_daal_threader_get_max_threads_t)load_daal_thr_func("_daal_threader_get_max_threads");
     }
     return _daal_threader_get_max_threads_ptr();
+}
+
+DAAL_EXPORT int _daal_threader_get_current_thread_index()
+{
+    load_daal_thr_dll();
+    if (_daal_threader_get_current_thread_index_ptr == NULL)
+    {
+        _daal_threader_get_current_thread_index_ptr =
+            (_daal_threader_get_current_thread_index_t)load_daal_thr_func("_daal_threader_get_current_thread_index");
+    }
+    return _daal_threader_get_current_thread_index_ptr();
 }
 
 DAAL_EXPORT void * _daal_get_tls_ptr(void * a, daal::tls_functype func)

@@ -53,6 +53,8 @@ public:
 
 public:
     static Result sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, services::Status & status);
+    static Result sum(Layout vectorsLayout, const UniversalBuffer & vectors, uint32_t nVectors, uint32_t vectorSize, Result & result,
+                      services::Status & status);
 };
 
 class Reducer

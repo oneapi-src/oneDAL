@@ -61,6 +61,7 @@ jobs:
   variables:
     BAZEL_VERSION: bazel-4.0.0
     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
+    BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
       # Add bazel repository
@@ -77,20 +78,37 @@ jobs:
                            openjdk-11-jdk \
                            $(BAZEL_VERSION)
 
-      # Create .bazelrc and set cache directory
+    displayName: 'install-deps'
+
+  - task: Cache@2
+    inputs:
+      # Commit ID is added to a cache key. Caches are immutable by design,
+      # so we always need to change a key to upload the last version
+      # of the Bazel cache. Cache lookup is based on `restoreKeys` option.
+      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2" | "$(Build.SourceVersion)"'
+      restoreKeys: |
+        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2"
+      path: $(BAZEL_CACHE_DIR)
+    displayName: 'bazel-cache'
+
+  - script: |
+      if [ -f "${BAZEL_CACHE_DIR}/cache-clean-timestamp" ]; then
+        echo
+        echo "Last time the cache is cleaned:"
+        cat "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
+        echo
+      fi
+
+      # Create `.bazelrc` and set cache directory
       # Minimal CPU instruction set in Azure is AVX2
       echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
 
       # Display oneDAL build configuration
       bazel build @config//:dump
+      echo
       cat bazel-bin/external/config/config.json
-    displayName: 'configure'
-
-  - task: Cache@2
-    inputs:
-      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v1"'
-      path: $(BAZEL_CACHE_DIR)
-    displayName: 'bazel-cache'
+      echo
+    displayName: 'bazel-configure'
 
   - script: |
       bazel build :release
@@ -122,6 +140,31 @@ jobs:
                  --test_link_mode=dev \
                  --test_thread_mode=par
     displayName: 'cpp-tests-thread-dev'
+
+  - script: |
+      # Clear cache if its size exceeds some predefined value
+      cache_size=$(du -sk "${BAZEL_CACHE_DIR}" | cut -f1)
+      cache_size_mb=$(du -sm "${BAZEL_CACHE_DIR}" | cut -f1)
+      echo "Bazel cache dir is ${BAZEL_CACHE_DIR}"
+      echo "Bazel cache size is ${cache_size_mb}Mb"
+      if [ ${cache_size} -ge ${BAZEL_CACHE_MAX_SIZE_KB} ]; then
+          echo "Run cache cleanup..."
+          echo "Current cache directory content:"
+          ls -1 "${BAZEL_CACHE_DIR}"
+          echo "--------------------------------"
+          echo "Run bazel clean with expunge"
+          echo "Remove cache directory"
+          rm -r "${BAZEL_CACHE_DIR}"
+          mkdir -p "${BAZEL_CACHE_DIR}"
+          echo "Write timestamp to the cache"
+          date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
+          echo "Current cache directory content:"
+          ls -1 "${BAZEL_CACHE_DIR}"
+          echo "--------------------------------"
+      else
+          echo "No need for cleanup"
+      fi
+    displayName: 'bazel-cache-limit'
 
 - job: daal4py
   dependsOn: LinuxMake

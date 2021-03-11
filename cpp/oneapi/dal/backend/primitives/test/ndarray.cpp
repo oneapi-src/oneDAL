@@ -1,4 +1,3 @@
-
 /*******************************************************************************
 * Copyright 2021 Intel Corporation
 *
@@ -25,10 +24,16 @@ namespace oneapi::dal::backend::primitives::test {
 class ndarray_test {
 public:
     template <typename T, std::int64_t axis_count>
-    void check_if_all_equal(const ndarray<T, axis_count>& x, const T& value) const {
+    void check_if_all_equal(const ndarray<T, axis_count>& x,
+                            const T& value,
+                            std::int64_t count = -1) const {
+        if (count < 0) {
+            count = x.get_count();
+        }
         const T* x_ptr = x.get_data();
-        for (std::int64_t i = 0; i < x.get_count(); i++) {
+        for (std::int64_t i = 0; i < count; i++) {
             if (x_ptr[i] != value) {
+                CAPTURE(x_ptr[i], value);
                 FAIL();
             }
         }
@@ -154,6 +159,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
 
         REQUIRE(x.get_data() == data);
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
     }
 
     SECTION("shared pointer") {
@@ -161,6 +167,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
 
         REQUIRE(x.get_data() == data);
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
     }
 
     SECTION("shared pointer rvalue") {
@@ -170,14 +177,16 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
 
         REQUIRE(x.get_data() == data);
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
         REQUIRE(movable_data_shared.get() == nullptr);
     }
 
     SECTION("immutable array") {
-        const auto x = ndarray<const float, axis_count>::wrap(data_array_immutable, shape);
+        const auto x = ndarray<float, axis_count>::wrap(data_array_immutable, shape);
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == false);
 
         auto data_array = data_array_immutable;
         data_array.need_mutable_data();
@@ -188,10 +197,11 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
         auto movable_data_array_immutable = data_array_immutable;
 
         const auto x =
-            ndarray<const float, axis_count>::wrap(std::move(movable_data_array_immutable), shape);
+            ndarray<float, axis_count>::wrap(std::move(movable_data_array_immutable), shape);
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == false);
         REQUIRE(movable_data_array_immutable.get_data() == nullptr);
 
         auto data_array = data_array_immutable;
@@ -205,6 +215,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
         REQUIRE(x.get_data() == data_array_mutable.get_data());
         REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
     }
 
     SECTION("mutable array rvalue") {
@@ -216,6 +227,7 @@ TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUN
         REQUIRE(x.get_data() == data_array_mutable.get_data());
         REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
         REQUIRE(x.get_shape() == shape);
+        REQUIRE(x.has_mutable_data() == true);
         REQUIRE(movable_data_array_mutable.get_data() == nullptr);
     }
 }
@@ -226,7 +238,7 @@ TEST("can wrap array into ndarray without shape", "[ndarray]") {
     const auto data_array_immutable = array<float>::wrap(const_cast<const float*>(data), 1);
 
     SECTION("immutable array") {
-        const auto x = ndarray<const float, 1>::wrap(data_array_immutable);
+        const auto x = ndarray<float, 1>::wrap(data_array_immutable);
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == ndshape<1>{ 1 });
@@ -239,7 +251,7 @@ TEST("can wrap array into ndarray without shape", "[ndarray]") {
     SECTION("immutable array rvalue") {
         auto movable_data_array_immutable = data_array_immutable;
 
-        const auto x = ndarray<const float, 1>::wrap(std::move(movable_data_array_immutable));
+        const auto x = ndarray<float, 1>::wrap(std::move(movable_data_array_immutable));
 
         REQUIRE(x.get_data() == data_array_immutable.get_data());
         REQUIRE(x.get_shape() == ndshape<1>{ 1 });
@@ -394,6 +406,16 @@ TEST("ndarray reshape", "[ndarray]") {
     test_nd_reshape<ndarray>();
 }
 
+TEST("can cast ndarray to ndview", "[ndarray]") {
+    float data[] = { 0.1 };
+    const auto x = ndarray<float, 2>::wrap(data, { 1, 1 });
+
+    const ndview<float, 2> x_view = x;
+    REQUIRE(x_view.get_data() == x.get_data());
+    REQUIRE(x_view.get_shape() == x.get_shape());
+    REQUIRE(x_view.get_strides() == x.get_strides());
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 TEST("can allocate empty ndarray", "[ndarray]") {
@@ -421,6 +443,50 @@ TEST_M(ndarray_test, "can allocate ones ndarray", "[ndarray]") {
     auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 });
     event.wait_and_throw();
     check_if_all_ones(x);
+}
+
+TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    const float c = 42.2;
+    auto x = ndarray<float, 2>::empty(queue, { 7, 5 });
+
+    x.fill(queue, c).wait_and_throw();
+
+    check_if_all_equal(x, c);
+}
+
+TEST_M(ndarray_test, "can assign ndarray", "[ndarray]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    const std::int64_t n = 11;
+    const std::int64_t m = 23;
+    const float c = 42.2;
+
+    INFO("prepare source USM array");
+    float* x_ptr = sycl::malloc_shared<float>(n * m, queue);
+    for (std::int64_t i = 0; i < n * m; i++) {
+        x_ptr[i] = c;
+    }
+
+    auto x = ndarray<float, 2>::empty(queue, { n, m });
+
+    SECTION("assign full") {
+        x.assign(queue, x_ptr, n * m).wait_and_throw();
+        check_if_all_equal(x, c);
+    }
+
+    SECTION("assign half") {
+        for (std::int64_t i = 0; i < n * m / 2; i++) {
+            x_ptr[i] = c / 2;
+        }
+        x.assign(queue, x_ptr, n * m / 2).wait_and_throw();
+        check_if_all_equal(x, c / 2, n * m / 2);
+    }
+
+    sycl::free(x_ptr, queue);
 }
 
 #endif

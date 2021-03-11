@@ -52,7 +52,7 @@ public:
                         std::int64_t component_count,
                         const te::table_id& data_table_id) {
         CAPTURE(component_count);
-        const table x = data.get_table(data_table_id);
+        const table x = data.get_table(this->get_policy(), data_table_id);
 
         INFO("create descriptor")
         const auto pca_desc = get_descriptor(component_count);
@@ -149,34 +149,34 @@ public:
 
     void check_eigenvalues_order(const table& eigenvalues) const {
         const auto W = la::matrix<double>::wrap(eigenvalues);
-        bool is_descinding = true;
+        bool is_descending = true;
         la::enumerate_linear(W, [&](std::int64_t i, double) {
             if (i > 0) {
                 CAPTURE(i, W.get(i - 1), W.get(i));
-                is_descinding = is_descinding && (W.get(i - 1) >= W.get(i));
+                is_descending = is_descending && (W.get(i - 1) >= W.get(i));
             }
         });
-        CHECK(is_descinding);
+        CHECK(is_descending);
     }
 
     void check_eigenvectors_orthogonality(const table& eigenvectors) {
         const auto V = la::matrix<double>::wrap(eigenvectors);
         const auto E = la::matrix<double>::eye(V.get_row_count());
         const auto VxVT = la::dot(V, V.t());
-        const double diff = la::l_inf_norm(VxVT, E);
+        const double diff = la::abs_error(VxVT, E);
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
         CHECK(diff < tol);
     }
 
     void check_means(const te::basic_statistics<double>& reference, const table& means) {
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        const double diff = te::l_inf_norm(reference.get_means(), means);
+        const double diff = te::rel_error(reference.get_means(), means, tol);
         CHECK(diff < tol);
     }
 
     void check_variances(const te::basic_statistics<double>& reference, const table& variances) {
         const double tol = te::get_tolerance<Float>(1e-4, 1e-10);
-        const double diff = te::l_inf_norm(reference.get_variances(), variances);
+        const double diff = te::rel_error(reference.get_variances(), variances, tol);
         CHECK(diff < tol);
     }
 
@@ -207,6 +207,21 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
                                                        data.get_column_count(),
                                                        data.get_column_count() - 1,
                                                        data.get_column_count() / 2);
+
+    this->general_checks(data, component_count, data_table_id);
+}
+
+TEMPLATE_LIST_TEST_M(pca_batch_test,
+                     "pca common flow higgs",
+                     "[external-dataset][pca][integration][batch]",
+                     pca_types) {
+    SKIP_IF(this->not_available_on_device());
+
+    const std::int64_t component_count = 0;
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_100t_train.csv" });
+
+    const auto data_table_id = this->get_homogen_table_id();
 
     this->general_checks(data, component_count, data_table_id);
 }
