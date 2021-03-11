@@ -38,14 +38,14 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes `Covariance <pca_t_math_cov_>`_ computational
+/// Tag-type that denotes :ref:`Covariance <pca_t_math_cov>` computational
 /// method.
 struct cov {};
 
-/// Tag-type that denotes `SVD <pca_t_math_svd_>`_ computational method.
+/// Tag-type that denotes :ref:`SVD <pca_t_math_svd>` computational method.
 struct svd {};
 
-/// Alias tag-type for `Covariance <pca_t_math_cov_>`_ computational
+/// Alias tag-type for :ref:`Covariance <pca_t_math_cov>` computational
 /// method.
 using by_default = cov;
 } // namespace v1
