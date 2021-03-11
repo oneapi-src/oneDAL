@@ -62,7 +62,7 @@ sycl::event block_simd_select(sycl::queue& queue,
     Float* selection_ptr = selection_out ? selection.get_mutable_data() : nullptr;
     int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
 
-    auto fp_max = std::numeric_limits<Float>::max();
+    auto fp_max = detail::limits<Float>::max();
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
