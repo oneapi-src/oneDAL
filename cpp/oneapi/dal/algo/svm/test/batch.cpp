@@ -177,9 +177,9 @@ public:
         REQUIRE(support_indices.get_row_count() == support_vector_count);
         REQUIRE(support_indices.get_column_count() == 1);
 
+        INFO("check if coeffs shape is expected")
         REQUIRE(coeffs.get_row_count() == support_vector_count);
         REQUIRE(coeffs.get_column_count() == 1);
-        INFO("check if coeffs shape is expected")
     }
 
     void check_nans(const svm::train_result<>& result) {
