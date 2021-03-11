@@ -68,12 +68,12 @@ public:
                          const std::int64_t n_classes,
                          const std::int64_t n_neighbors = 1,
                          const Float tolerance = Float(1.e-5)) {
+        INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(train_labels.get_column_count() == 1);
         REQUIRE(infer_labels.get_column_count() == 1);
         REQUIRE(infer_data.get_row_count() == infer_labels.get_row_count());
         REQUIRE(train_data.get_row_count() == train_labels.get_row_count());
-        INFO("data shape is expected")
 
         const auto knn_desc = this->get_descriptor(n_classes, n_neighbors);
 
@@ -96,12 +96,12 @@ public:
 
         const auto gtruth = naive_knn_search(train_data, infer_data);
 
+        INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
         REQUIRE(infer_data.get_row_count() == labels.get_row_count());
         REQUIRE(labels.get_column_count() == 1);
         REQUIRE(infer_data.get_row_count() == gtruth.get_row_count());
         REQUIRE(train_data.get_row_count() == gtruth.get_column_count());
-        INFO("data shape is expected")
 
         const auto m = infer_data.get_row_count();
 
@@ -179,8 +179,8 @@ public:
     void check_nans(const knn::infer_result<>& result) {
         const auto [labels] = unpack_result(result);
 
+        INFO("check if there is no NaN in labels")
         REQUIRE(te::has_no_nans(labels));
-        INFO("there is no NaN in labels")
     }
 
     static auto unpack_result(const knn::infer_result<>& result) {

@@ -241,8 +241,8 @@ public:
 
         check_nans(result);
 
+        INFO("check if non-negative objective function value is expected")
         REQUIRE(objective_function >= 0.0);
-        INFO("non-negative objective function value is expected")
 
         Float rel_tol = 1.0e-5;
         if (!(ref_objective_function < 0.0)) {
@@ -271,10 +271,11 @@ public:
     }
 
     void check_centroid_match_with_rel_tol(Float rel_tol, const table& left, const table& right) {
+        INFO("check if centroid shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
-        INFO("centroid shape is expected")
 
+        INFO("check if centroid match is expected")
         const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
         const Float alpha = std::numeric_limits<Float>::min();
@@ -289,17 +290,17 @@ public:
                 FAIL("Centroid feature mismatch");
             }
         }
-        INFO("centroid match is expected")
     }
 
     void check_centroid_match_with_rel_tol(const array<Float>& match_map,
                                            Float rel_tol,
                                            const table& left,
                                            const table& right) {
+        INFO("check if centroid shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
-        INFO("centroid shape is expected")
 
+        INFO("check if centroid match is expected")
         const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
         const Float alpha = std::numeric_limits<Float>::min();
@@ -318,7 +319,6 @@ public:
                 }
             }
         }
-        INFO("centroid match is expected")
     }
 
     Float squared_euclidian_distance(std::int64_t x_offset,
@@ -366,10 +366,11 @@ public:
     }
 
     void check_label_match(const table& left, const table& right) {
+        INFO("check if label shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
         REQUIRE(left.get_column_count() == 1);
-        INFO("label shape is expected")
+        INFO("check if label match is expected")
         const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
@@ -380,15 +381,15 @@ public:
                 FAIL("Label mismatch");
             }
         }
-        INFO("label match is expected")
     }
 
     void check_label_match(const array<Float>& match_map, const table& left, const table& right) {
+        INFO("check if label shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
         REQUIRE(left.get_column_count() == 1);
-        INFO("label shape is expected")
 
+        INFO("check if label match is expected")
         const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
@@ -399,27 +400,26 @@ public:
                 FAIL("Label mismatch for mapped centroids");
             }
         }
-        INFO("label match is expected")
     }
 
     void check_nans(const kmeans::train_result<>& result) {
         const auto [centroids, labels, iteration_count] = unpack_result(result);
 
+        INFO("check if there is no NaN in centroids")
         REQUIRE(te::has_no_nans(centroids));
-        INFO("there is no NaN in centroids")
 
+        INFO("check if there is no NaN in labels")
         REQUIRE(te::has_no_nans(labels));
-        INFO("there is no NaN in labels")
     }
 
     void check_nans(const kmeans::infer_result<>& result) {
         const auto [labels, objective_function] = unpack_result(result);
 
+        INFO("check if there is no NaN in objective function values")
         REQUIRE(!std::isnan(objective_function));
-        INFO("there is no NaN in objective function values")
 
+        INFO("check if there is no NaN in labels")
         REQUIRE(te::has_no_nans(labels));
-        INFO("there is no NaN in labels")
     }
 
 private:

@@ -75,19 +75,19 @@ public:
         check_shapes(desc, data, result);
         check_nans(result);
 
+        INFO("check if eigenvectors order is descending")
         this->check_eigenvalues_order(eigenvalues);
-        INFO("eigenvectors order is descending")
 
+        INFO("check if eigenvectors matrix is orthogonal")
         check_eigenvectors_orthogonality(eigenvectors);
-        INFO("eigenvectors matrix is orthogonal")
 
         const auto bs = te::compute_basic_statistics<double>(data);
 
+        INFO("check if means are expected")
         check_means(bs, means);
-        INFO("means are expected")
 
+        INFO("check if variances are expected")
         check_variances(bs, variances);
-        INFO("variances are expected")
     }
 
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
@@ -102,37 +102,37 @@ public:
         const std::int64_t expected_component_count =
             (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
 
+        INFO("check if eigenvalues shape is expected")
         REQUIRE(eigenvalues.get_row_count() == 1);
         REQUIRE(eigenvalues.get_column_count() == expected_component_count);
-        INFO("eigenvalues shape is expected")
 
+        INFO("check if eigenvectors shape is expected")
         REQUIRE(eigenvectors.get_row_count() == expected_component_count);
         REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
-        INFO("eigenvectors shape is expected")
 
+        INFO("check if means shape is expected")
         REQUIRE(means.get_row_count() == 1);
         REQUIRE(means.get_column_count() == data.get_column_count());
-        INFO("means shape is expected")
 
+        INFO("check if variances shape is expected")
         REQUIRE(variances.get_row_count() == 1);
         REQUIRE(variances.get_column_count() == data.get_column_count());
-        INFO("variances shape is expected")
     }
 
     void check_nans(const pca::train_result<>& result) {
         const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
 
+        INFO("check if there is no NaN in eigenvalues")
         REQUIRE(te::has_no_nans(eigenvalues));
-        INFO("there is no NaN in eigenvalues")
 
+        INFO("check if there is no NaN in eigenvectors")
         REQUIRE(te::has_no_nans(eigenvectors));
-        INFO("there is no NaN in eigenvectors")
 
+        INFO("check if there is no NaN in means")
         REQUIRE(te::has_no_nans(means));
-        INFO("there is no NaN in means")
 
+        INFO("check if there is no NaN in variances")
         REQUIRE(te::has_no_nans(variances));
-        INFO("there is no NaN in variances")
     }
 
     void check_eigenvalues_order(const table& eigenvalues) const {

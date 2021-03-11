@@ -66,15 +66,15 @@ public:
                               const linear_kernel::compute_result<>& result) {
         const auto result_values = result.get_values();
 
+        INFO("check if result values table shape is expected")
         REQUIRE(result_values.get_row_count() == x_data.get_row_count());
         REQUIRE(result_values.get_column_count() == y_data.get_row_count());
-        INFO("result values table shape is expected")
 
+        INFO("check if there is no NaN in result values table")
         REQUIRE(te::has_no_nans(result_values));
-        INFO("there is no NaN in result values table")
 
+        INFO("check if result values are expected")
         check_result_values(scale, shift, x_data, y_data, result_values);
-        INFO("result values are expected")
     }
 
     void check_result_values(double scale,
