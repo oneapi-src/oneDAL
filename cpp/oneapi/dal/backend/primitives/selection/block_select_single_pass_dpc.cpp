@@ -40,8 +40,8 @@ sycl::event block_select_single_pass(sycl::queue& queue,
     Float* selected_ptr = selected_out ? selected.get_mutable_data() : nullptr;
     int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
 
-    auto nx = block.get_dimension(1);
-    auto ny = block.get_dimension(0);
+    const std::int64_t nx = block.get_dimension(1);
+    const std::int64_t ny = block.get_dimension(0);
 
     auto fp_max = std::numeric_limits<Float>::max();
 
@@ -64,7 +64,7 @@ sycl::event block_select_single_pass(sycl::queue& queue,
                     private_indices[i] = -1;
                 }
 
-                for (int i = sg.get_local_id()[0]; i < nx; i += sg.get_local_range()[0]) {
+                for (int i = sg.get_local_id(0); i < nx; i += sg.get_local_range(0)) {
                     Float cur_val = block_ptr[in_offset + i];
                     int index = i;
                     int pos = -1;
