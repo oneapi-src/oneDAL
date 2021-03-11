@@ -22,7 +22,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float, bool selection_out, bool indices_out>
+template <typename Float, uint32_t simd_width, bool selection_out, bool indices_out>
 sycl::event block_simd_select(sycl::queue& queue,
                               const ndview<Float, 2>& block,
                               std::int64_t k,

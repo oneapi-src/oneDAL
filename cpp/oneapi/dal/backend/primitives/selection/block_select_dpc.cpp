@@ -50,6 +50,11 @@ struct device_type_info_id<int> {
         sycl::info::device::native_vector_width_int;
 };
 
+constexpr uint32_t simd16 = 16;
+constexpr uint32_t simd32 = 32;
+constexpr uint32_t simd64 = 64;
+constexpr uint32_t simd128 = 128;
+
 template <typename Float, bool selection_out, bool indices_out>
 sycl::event block_select_impl(sycl::queue& queue,
                               const ndview<Float, 2>& block,
@@ -64,18 +69,48 @@ sycl::event block_select_impl(sycl::queue& queue,
     ONEDAL_ASSERT(indices.has_mutable_data());
     ONEDAL_ASSERT(selection.has_mutable_data());
 
-    uint32_t fp_simd_width =
+    const uint32_t fp_simd_width =
         queue.get_device().get_info<device_type_info_id<Float>::preferred_vector_width>();
-    uint32_t int_simd_width =
+    const uint32_t int_simd_width =
         queue.get_device().get_info<device_type_info_id<int>::preferred_vector_width>();
 
-    if (k <= std::min(fp_simd_width, int_simd_width)) {
-        return block_simd_select<Float, selection_out, indices_out>(queue,
-                                                                    block,
-                                                                    k,
-                                                                    selection,
-                                                                    indices,
-                                                                    deps);
+    const uint32_t simd_width = std::min(fp_simd_width, int_simd_width);
+
+    if (k <= simd_width) {
+        if (simd_width == simd16) {
+            return block_simd_select<Float, simd16, selection_out, indices_out>(queue,
+                                                                                block,
+                                                                                k,
+                                                                                selection,
+                                                                                indices,
+                                                                                deps);
+        }
+        if (simd_width == simd32) {
+            return block_simd_select<Float, simd32, selection_out, indices_out>(queue,
+                                                                                block,
+                                                                                k,
+                                                                                selection,
+                                                                                indices,
+                                                                                deps);
+        }
+        if (simd_width == simd64) {
+            return block_simd_select<Float, simd64, selection_out, indices_out>(queue,
+                                                                                block,
+                                                                                k,
+                                                                                selection,
+                                                                                indices,
+                                                                                deps);
+        }
+        if (simd_width == simd128) {
+            return block_simd_select<Float, simd128, selection_out, indices_out>(queue,
+                                                                                 block,
+                                                                                 k,
+                                                                                 selection,
+                                                                                 indices,
+                                                                                 deps);
+        }
+        ONEDAL_ASSERT(false);
+        return sycl::event();
     }
     else {
         return block_quick_select<Float, selection_out, indices_out>(queue,
