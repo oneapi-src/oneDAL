@@ -25,4 +25,4 @@ Support Vector Machines
 
 .. rubric:: Examples: SVM
 
-.. include:: ./includes/svm-examples.rst
+.. include:: ../../../includes/svm/svm-examples.rst

@@ -187,6 +187,7 @@ Examples
 
     - :cpp_example:`df_reg_default_dense_batch.cpp <decision_forest/df_reg_default_dense_batch.cpp>`
     - :cpp_example:`df_reg_hist_dense_batch.cpp <decision_forest/df_reg_hist_dense_batch.cpp>`
+    - :cpp_example:`df_reg_traverse_model.cpp <decision_forest/df_reg_traverse_model.cpp>`
 
   .. tab:: Java*
   
@@ -195,6 +196,8 @@ Examples
     Batch Processing:
 
     - :java_example:`DfRegDefaultDenseBatch.java <decision_forest/DfRegDefaultDenseBatch.java>`
+    - :java_example:`DfRegHistDenseBatch.java <decision_forest/DfRegHistDenseBatch.java>`
+    - :java_example:`DfRegTraverseModel.java <decision_forest/DfRegTraverseModel.java>`
 
   .. tab:: Python*
 
