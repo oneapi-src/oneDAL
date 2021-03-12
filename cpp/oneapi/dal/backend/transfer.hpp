@@ -23,27 +23,32 @@ namespace oneapi::dal::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T>
+inline bool is_device_usm(const array<T>& ary) {
+    if (ary.get_queue().has_value()) {
+        auto q = ary.get_queue().value();
+        return is_device_usm_pointer(q, ary.get_data());
+    }
+    else {
+        return false;
+    }
+}
+
+template <typename T>
 inline std::tuple<array<T>, sycl::event> to_device(sycl::queue& q, const array<T>& ary) {
     if (!ary.get_count()) {
         return { ary, sycl::event{} };
     }
 
     if (ary.get_queue().has_value()) {
-        // TODO: Consider replacing by exception
-        ONEDAL_ASSERT(ary.get_queue().value() == q,
-                      "We do not support data tranfer between different queues yet");
-
-        const auto ary_alloc = sycl::get_pointer_type(ary.get_data(), q.get_context());
-        if (ary_alloc == sycl::usm::alloc::device) {
+        auto ary_q = ary.get_queue().value();
+        check_if_same_context(q, ary_q);
+        if (is_same_device(q, ary_q) && is_device_usm(ary)) {
             return { ary, sycl::event{} };
         }
     }
 
-    const std::int64_t element_count = ary.get_count();
-    const auto ary_device = array<T>::empty(q, element_count, sycl::usm::alloc::device);
-    const auto event = q.memcpy(ary_device.get_mutable_data(),
-                                ary.get_data(),
-                                sizeof(T) * dal::detail::integral_cast<std::size_t>(element_count));
+    const auto ary_device = array<T>::empty(q, ary.get_count(), sycl::usm::alloc::device);
+    const auto event = q.memcpy(ary_device.get_mutable_data(), ary.get_data(), ary.get_size());
     return { ary_device, event };
 }
 
@@ -54,21 +59,16 @@ inline std::tuple<array<T>, sycl::event> to_host(const array<T>& ary) {
     }
 
     if (!ary.get_queue().has_value()) {
-        // Data is already on host
         return { ary, sycl::event{} };
     }
-
-    const std::int64_t element_count = ary.get_count();
 
     ONEDAL_ASSERT(ary.get_queue().has_value());
     auto q = ary.get_queue().value();
 
     // TODO: Change allocation kind to normal host memory once
     //       bug in `memcpy` with the host memory is fixed
-    const auto ary_host = array<T>::empty(q, element_count, sycl::usm::alloc::host);
-    const auto event = q.memcpy(ary_host.get_mutable_data(),
-                                ary.get_data(),
-                                sizeof(T) * dal::detail::integral_cast<std::size_t>(element_count));
+    const auto ary_host = array<T>::empty(q, ary.get_count(), sycl::usm::alloc::host);
+    const auto event = q.memcpy(ary_host.get_mutable_data(), ary.get_data(), ary.get_size());
     return { ary_host, event };
 }
 
