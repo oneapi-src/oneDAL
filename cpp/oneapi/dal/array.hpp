@@ -164,6 +164,25 @@ public:
     /// for mutable data. It is the responsibility of the calling application to free the memory block
     /// as the array does not free it when the reference count is zero.
     ///
+    /// @param data         The pointer to externally-allocated memory block.
+    /// @param count        The number of elements of type :literal:`Data` in the memory block.
+    /// @param dependencies Events indicating availability of the :literal:`Data` for reading or writing.
+    /// @pre :expr:`data != nullptr`
+    /// @pre :expr:`count > 0`
+    template <typename Y>
+    [[deprecated]] static array<T> wrap(Y* data,
+                                        std::int64_t count,
+                                        const sycl::vector_class<sycl::event>& dependencies) {
+        sycl::event::wait_and_throw(dependencies);
+        return array<T>{ data, count, dal::detail::empty_delete<const T>{} };
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new array instance by passing the pointer to externally-allocated memory block
+    /// for mutable data. It is the responsibility of the calling application to free the memory block
+    /// as the array does not free it when the reference count is zero.
+    ///
     /// @param queue        The SYCL* queue object.
     /// @param data         The pointer to externally-allocated memory block.
     /// @param count        The number of elements of type :literal:`T` in the memory block.
