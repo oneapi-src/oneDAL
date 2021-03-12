@@ -38,10 +38,10 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate() {
-        arg    = GENERATE(-3., -1.e-3,   0, 1.e-3,   3.);
-        width  = GENERATE(  7,    707,   1,   251,    5);
-        stride = GENERATE(707,    812, 999,  1001, 1024);
-        height = GENERATE( 17,    999,   1,     5, 1001);
+        arg = GENERATE(-3., -1.e-3, 0, 1.e-3, 3.);
+        width = GENERATE(7, 707, 1, 251, 5);
+        stride = GENERATE(707, 812, 999, 1001, 1024);
+        height = GENERATE(17, 999, 1, 5, 1001);
         REQUIRE(width <= stride);
         CAPTURE(arg, width, stride, height);
     }
@@ -68,49 +68,48 @@ public:
 
     float_t val() const {
         if (std::is_same_v<sum<float_t>, binary_t>) {
-            if(std::is_same_v<identity<float_t>, unary_t>) {
+            if (std::is_same_v<identity<float_t>, unary_t>) {
                 return width * arg;
             }
-            if(std::is_same_v<abs<float_t>, unary_t>) {
+            if (std::is_same_v<abs<float_t>, unary_t>) {
                 return width * std::abs(arg);
             }
-            if(std::is_same_v<square<float_t>, unary_t>) {
+            if (std::is_same_v<square<float_t>, unary_t>) {
                 return width * (arg * arg);
             }
         }
         if (std::is_same_v<min<float_t>, binary_t>) {
-            if(std::is_same_v<identity<float_t>, unary_t>) {
+            if (std::is_same_v<identity<float_t>, unary_t>) {
                 return arg;
             }
-            if(std::is_same_v<abs<float_t>, unary_t>) {
+            if (std::is_same_v<abs<float_t>, unary_t>) {
                 return std::abs(arg);
             }
-            if(std::is_same_v<square<float_t>, unary_t>) {
+            if (std::is_same_v<square<float_t>, unary_t>) {
                 return (arg * arg);
             }
         }
         if (std::is_same_v<max<float_t>, binary_t>) {
-            if(std::is_same_v<identity<float_t>, unary_t>) {
+            if (std::is_same_v<identity<float_t>, unary_t>) {
                 return arg;
             }
-            if(std::is_same_v<abs<float_t>, unary_t>) {
+            if (std::is_same_v<abs<float_t>, unary_t>) {
                 return std::abs(arg);
             }
-            if(std::is_same_v<square<float_t>, unary_t>) {
+            if (std::is_same_v<square<float_t>, unary_t>) {
                 return (arg * arg);
             }
         }
         REQUIRE(false);
         return 0;
-    } 
+    }
 
-    void check_output(ndarray<float_t, 1, rm_order>& outarr, 
-                                const float_t tol = 1.e-5) {
+    void check_output(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-5) {
         const auto gtv = val();
         const auto arr = outarr.flatten();
-        for(auto i = 0; i < height; ++i) {
+        for (auto i = 0; i < height; ++i) {
             const auto diff = arr[i] - gtv;
-            if(diff < -tol || tol < diff) {
+            if (diff < -tol || tol < diff) {
                 CAPTURE(gtv, arr[i], diff, tol);
                 FAIL();
             }
@@ -127,15 +126,10 @@ public:
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(get_queue());
-        reducer(inp_ptr, 
-                out_ptr,
-                width,
-                height,
-                binary_t{},
-                unary_t{},
-                {inp_event, out_event}).wait_and_throw();    
+        reducer(inp_ptr, out_ptr, width, height, binary_t{}, unary_t{}, { inp_event, out_event })
+            .wait_and_throw();
 
-        check_output(out_array);     
+        check_output(out_array);
     }
 
     void test_raw_reduce_wide() {
@@ -148,17 +142,11 @@ public:
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(get_queue());
-        reducer(inp_ptr, 
-                out_ptr,
-                width,
-                height,
-                binary_t{},
-                unary_t{},
-                {inp_event, out_event}).wait_and_throw(); 
+        reducer(inp_ptr, out_ptr, width, height, binary_t{}, unary_t{}, { inp_event, out_event })
+            .wait_and_throw();
 
-        check_output(out_array);     
+        check_output(out_array);
     }
-
 
 private:
     float_t arg;
@@ -167,15 +155,17 @@ private:
     std::int64_t height;
 };
 
-using reduction_types = std::tuple< std::tuple<float, sum<float>, square<float>   >,
-                                    std::tuple<float, sum<float>, identity<float> >,
-                                    std::tuple<float, sum<float>, abs<float>      >,
-                                    std::tuple<double, sum<double>, square<double>   >,
-                                    std::tuple<double, sum<double>, identity<double> >,
-                                    std::tuple<double, sum<double>, abs<double>      > >;
+using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
+                                   std::tuple<float, sum<float>, identity<float>>,
+                                   std::tuple<float, sum<float>, abs<float>>,
+                                   std::tuple<double, sum<double>, square<double>>,
+                                   std::tuple<double, sum<double>, identity<double>>,
+                                   std::tuple<double, sum<double>, abs<double>>>;
 
-TEMPLATE_LIST_TEST_M(reduction_rm_rw_test, "Uniformly filled Row-Major Row-Wise reduction", 
-                                                    "[reduction][rm][small]", reduction_types) {
+TEMPLATE_LIST_TEST_M(reduction_rm_rw_test,
+                     "Uniformly filled Row-Major Row-Wise reduction",
+                     "[reduction][rm][small]",
+                     reduction_types) {
     this->generate();
     this->test_raw_reduce_wide();
     this->test_raw_reduce_narrow();

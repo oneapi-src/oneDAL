@@ -121,7 +121,8 @@ public:
     typedef Float* out_t;
     typedef reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp> narrow_t;
     typedef reduction_rm_rw_wide<Float, BinaryOp, UnaryOp> wide_t;
-public: 
+
+public:
     reduction_rm_rw(sycl::queue& q_);
     enum reduction_scale { wide, narrow };
     reduction_scale propose_scale(std::int64_t width) const;
@@ -157,6 +158,7 @@ public:
                            const BinaryOp binary = BinaryOp{},
                            const UnaryOp unary = UnaryOp{},
                            const event_vector& deps = {}) const;
+
 private:
     sycl::queue& q;
 };

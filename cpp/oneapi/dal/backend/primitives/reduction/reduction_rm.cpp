@@ -132,12 +132,11 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
     return kernel_t(input, output, width, stride, binary, unary);
 }
 
-#define INSTANTIATE(F, B, U)                      \
-    template class reduction_rm_rw_wide<F, B, U>;
+#define INSTANTIATE(F, B, U) template class reduction_rm_rw_wide<F, B, U>;
 
-#define INSTANTIATE_FLOAT(B, U)                   \
-    INSTANTIATE(double, B<double>, U<double>);    \
-    INSTANTIATE(float, B<float>, U<float>);       
+#define INSTANTIATE_FLOAT(B, U)                \
+    INSTANTIATE(double, B<double>, U<double>); \
+    INSTANTIATE(float, B<float>, U<float>);
 
 INSTANTIATE_FLOAT(min, identity)
 INSTANTIATE_FLOAT(min, abs)
@@ -265,12 +264,11 @@ reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_kernel(inp_t input,
     return kernel_t(input, output, width, height, stride, binary, unary);
 }
 
-#define INSTANTIATE(F, B, U)                      \
-    template class reduction_rm_rw_narrow<F, B, U>;
+#define INSTANTIATE(F, B, U) template class reduction_rm_rw_narrow<F, B, U>;
 
-#define INSTANTIATE_FLOAT(B, U)                   \
-    INSTANTIATE(double, B<double>, U<double>);    \
-    INSTANTIATE(float, B<float>, U<float>);  
+#define INSTANTIATE_FLOAT(B, U)                \
+    INSTANTIATE(double, B<double>, U<double>); \
+    INSTANTIATE(float, B<float>, U<float>);
 
 INSTANTIATE_FLOAT(min, identity)
 INSTANTIATE_FLOAT(min, abs)
