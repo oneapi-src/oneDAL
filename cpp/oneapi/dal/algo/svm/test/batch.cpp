@@ -17,7 +17,6 @@
 #include "oneapi/dal/algo/svm/infer.hpp"
 #include "oneapi/dal/algo/svm/train.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -26,11 +25,11 @@
 namespace oneapi::dal::svm::test {
 
 namespace te = dal::test::engine;
-namespace rbf = oneapi::dal::rbf_kernel;
-namespace linear = oneapi::dal::linear_kernel;
+namespace rbf = dal::rbf_kernel;
+namespace linear = dal::linear_kernel;
 
 template <typename TestType>
-class svm_batch_test : public te::algo_fixture {
+class svm_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -39,16 +38,11 @@ public:
 
     bool not_available_on_device() {
         constexpr bool is_smo = std::is_same_v<Method, svm::method::smo>;
-        return get_policy().is_gpu() && is_smo;
+        return this->get_policy().is_gpu() && is_smo;
     }
 
     bool weights_not_available_on_device() {
-        return get_policy().is_gpu();
-    }
-
-    bool not_float64_friendly() {
-        constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && !this->get_policy().has_native_float64();
+        return this->get_policy().is_gpu();
     }
 
     void check_linear_kernel(

@@ -17,8 +17,6 @@
 #include "oneapi/dal/algo/decision_forest/train.hpp"
 #include "oneapi/dal/algo/decision_forest/infer.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -42,32 +40,23 @@ struct checker_info {
 };
 
 template <typename TestType>
-class df_batch_test : public te::algo_fixture {
+class df_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
     using Task = std::tuple_element_t<2, TestType>;
 
     bool is_gpu() {
-        return get_policy().is_gpu();
+        return this->get_policy().is_gpu();
     }
 
     bool not_available_on_device() {
         constexpr bool is_dense = std::is_same_v<Method, decision_forest::method::dense>;
-        return get_policy().is_gpu() && is_dense;
-    }
-
-    bool not_float64_friendly() {
-        constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && !this->get_policy().has_native_float64();
+        return this->get_policy().is_gpu() && is_dense;
     }
 
     auto get_default_descriptor() {
         return df::descriptor<Float, Method, Task>{};
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     auto get_cls_dataframe_base() {

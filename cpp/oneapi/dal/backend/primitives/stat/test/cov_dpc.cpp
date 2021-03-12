@@ -27,7 +27,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename Float>
-class cov_test : public te::policy_fixture {
+class cov_test : public te::float_algo_fixture<Float> {
 public:
     auto allocate_arrays(std::int64_t column_count) {
         auto& q = this->get_queue();
@@ -37,10 +37,6 @@ public:
         auto vars = ndarray<Float, 1>::empty(q, { column_count });
         auto tmp = ndarray<Float, 1>::empty(q, { column_count });
         return std::make_tuple(sums, corr, means, vars, tmp);
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) const {
@@ -89,11 +85,6 @@ public:
                 FAIL("Unexpected mean");
             }
         });
-    }
-
-    bool not_float64_friendly() {
-        constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && !this->get_policy().has_native_float64();
     }
 };
 

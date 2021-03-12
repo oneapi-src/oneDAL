@@ -23,23 +23,21 @@
 #include "oneapi/dal/algo/knn/train.hpp"
 #include "oneapi/dal/algo/knn/infer.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/metrics/classification.hpp"
 
 namespace oneapi::dal::knn::test {
 
 namespace te = dal::test::engine;
-namespace de = oneapi::dal::detail;
+namespace de = dal::detail;
 namespace la = te::linalg;
 
 template <typename TestType>
-class knn_batch_test : public te::algo_fixture {
+class knn_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -54,17 +52,8 @@ public:
     static constexpr bool is_brute_force = std::is_same_v<Method, knn::method::brute_force>;
 
     bool not_available_on_device() {
-        return (get_policy().is_gpu() && is_kd_tree) || //
-               (get_policy().is_cpu() && is_brute_force);
-    }
-
-    bool not_float64_friendly() {
-        constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && !this->get_policy().has_native_float64();
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
+        return (this->get_policy().is_gpu() && is_kd_tree) || //
+               (this->get_policy().is_cpu() && is_brute_force);
     }
 
     Float classification(const table& train_data,

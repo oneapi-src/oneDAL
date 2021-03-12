@@ -20,14 +20,11 @@
 #include "oneapi/dal/algo/kmeans/train.hpp"
 #include "oneapi/dal/algo/kmeans/infer.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
-#include "oneapi/dal/test/engine/dataframe_math.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/test/engine/metrics/clustering.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::kmeans::test {
 
@@ -35,7 +32,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class kmeans_batch_test : public te::algo_fixture {
+class kmeans_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -51,15 +48,6 @@ public:
 
     auto get_descriptor(std::int64_t cluster_count) const {
         return kmeans::descriptor<Float, Method>{ cluster_count };
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
-    }
-
-    bool not_float64_friendly() {
-        constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && !this->get_policy().has_native_float64();
     }
 
     void exact_checks(const table& data,
