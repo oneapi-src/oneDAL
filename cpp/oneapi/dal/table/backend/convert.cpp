@@ -16,8 +16,8 @@
 
 #include "oneapi/dal/table/backend/convert.hpp"
 
-#include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
 #include "oneapi/dal/backend/interop/data_conversion.hpp"
 
 namespace oneapi::dal::backend {

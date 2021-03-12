@@ -86,6 +86,21 @@ inline array<T> to_host_sync(const array<T>& ary) {
     return ary_host;
 }
 
+sycl::event gather_device2host(sycl::queue& q,
+                               void* dst_host,
+                               const void* src_device,
+                               std::int64_t block_count,
+                               std::int64_t src_stride_in_bytes,
+                               std::int64_t block_size_in_bytes,
+                               const event_vector& deps = {});
+
+sycl::event scatter_host2device(sycl::queue& q,
+                                void* dst_device,
+                                const void* src_host,
+                                std::int64_t block_count,
+                                std::int64_t dst_stride_in_bytes,
+                                std::int64_t block_size_in_bytes,
+                                const event_vector& deps = {});
 #endif
 
 } // namespace oneapi::dal::backend
