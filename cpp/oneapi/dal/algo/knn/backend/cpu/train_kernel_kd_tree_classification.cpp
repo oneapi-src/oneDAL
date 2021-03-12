@@ -63,7 +63,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-    // Data or labels sould not be copied, copy is already happend when
+    // Data or labels should not be copied, copy is already happened when
     // the tables are converted to NumericTables
     const bool copy_data_labels = data_use_in_model == daal_knn::doNotUse;
     knn_model->impl()->setData<Float>(daal_data, copy_data_labels);

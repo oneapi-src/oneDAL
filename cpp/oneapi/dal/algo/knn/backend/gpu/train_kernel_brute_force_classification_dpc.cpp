@@ -62,7 +62,7 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
     }
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-    // No need fo data copy in case of brute-force. The data and labels
+    // No need for data copy in case of brute-force. The data and labels
     // are not modified by the algorithm.
     const bool copy_data_labels = false;
     knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
