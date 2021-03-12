@@ -89,16 +89,142 @@ inline auto convert_from_daal_model(daal_svm::Model& daal_model) {
     return model;
 }
 
+template <typename T>
+inline array<T> convert_from_daal_table_to_array(const daal::data_management::NumericTablePtr& nt) {
+    daal::data_management::BlockDescriptor<T> block;
+    const std::int64_t row_count = nt->getNumberOfRows();
+    const std::int64_t column_count = nt->getNumberOfColumns();
+
+    nt->getBlockOfRows(0, row_count, daal::data_management::readOnly, block);
+    T* data = block.getBlockPtr();
+    array<T> arr(data, row_count * column_count, [nt, block](T* p) mutable {
+        nt->releaseBlockOfRows(block);
+    });
+    return arr;
+}
+
 template <typename Task, typename Float>
-inline auto convert_from_daal_multiclass_model(daal_multiclass::Model& daal_model) {
-    std::int64_t model_count = daal_model.getNumberOfTwoClassClassifierModels();
+inline auto convert_from_daal_multiclass_model(const daal_multiclass::ModelPtr& daal_model,
+                                               const table& labels,
+                                               const std::int64_t class_count) {
+    const std::int64_t model_count = daal_model->getNumberOfTwoClassClassifierModels();
+    const int64_t row_count = labels.get_row_count();
+    auto arr_label = row_accessor<const Float>{ labels }.pull();
+
+    auto arr_biases = array<Float>::empty(model_count);
+    auto arr_label_indexes = array<std::int64_t>::empty(row_count);
+
+    // auto arr_is_sv = array<bool>::full(row_count, false)
+    // auto arr_coefs = array<Float>::empty(model_count * );
+
+    auto data_biases = arr_biases.get_mutable_data();
+    auto data_label_indexes = arr_label_indexes.get_mutable_data();
+    // auto data_is_sv = arr_is_sv.get_mutable_data();
+    // auto data_label_indexes = arr_biases.get_mutable_data();
+    // auto arr_coeffs = array<Float>::empty(class_count - 1, );
+
     printf("model_count: %lu \n", model_count);
-    for (std::int64_t i = 0; i < model_count; ++i) {
-        auto svm_model = daal::services::staticPointerCast<daal_svm::Model>(
-            daal_model.getTwoClassClassifierModel(i));
+    std::int64_t i_model = 0;
+    std::int64_t n_cv_count = 0;
+    for (std::int64_t first_class = 0; first_class < class_count; ++first_class) {
+        for (std::int64_t two_class = 0; two_class < first_class; ++two_class) {
+            printf("%lu %lu\n", first_class, two_class);
+
+            auto svm_model = daal::services::staticPointerCast<daal_svm::Model>(
+                daal_model->getTwoClassClassifierModel(i_model));
+            auto two_class_sv_ind = svm_model->getSupportIndices();
+            auto arr_two_class_sv_ind = convert_from_daal_table_to_array<int>(two_class_sv_ind);
+
+            const std::int64_t count_sv_ind = two_class_sv_ind->getNumberOfRows();
+            for (std::int64_t i = 0; i < row_count; ++i) {
+                if (std::int64_t(arr_label[i]) == first_class ||
+                    std::int64_t(arr_label[i]) == two_class) {
+                    for (std::int64_t j = 0; j < count_sv_ind; ++j) {
+                        if (arr_two_class_sv_ind[j] == i) {
+                            data_label_indexes[n_cv_count] = i;
+                            ++n_cv_count;
+                        }
+                    }
+                }
+            }
+
+            // for (std::int64_t j = 0; j < count_sv_ind; ++j) {
+            //     data_is_sv[]
+            // }
+
+            data_biases[i_model] = -svm_model->getBias();
+
+            auto coefs = svm_model->getClassificationCoefficients();
+            printf("n_coeffs: %lu; two_class_sv_ind: %lu\n",
+                   coefs->getNumberOfRows(),
+                   two_class_sv_ind->getNumberOfRows());
+            ++i_model;
+        }
     }
 
-    return dal::svm::model<Task>();
+    auto arr_group_indices_by_class = array<std::int64_t>::full(n_cv_count, std::int64_t(0));
+    auto arr_sv_ind_counters = array<std::int64_t>::full(class_count, std::int64_t(0));
+    auto arr_sv_ind_counters_2 = array<std::int64_t>::full(class_count, std::int64_t(0));
+    auto data_group_indices_by_class = arr_group_indices_by_class.get_mutable_data();
+    auto data_sv_ind_counters = arr_sv_ind_counters.get_mutable_data();
+    auto data_sv_ind_counters_2 = arr_sv_ind_counters.get_mutable_data();
+    for (std::int64_t i = 0; i < n_cv_count; ++i) {
+        ++data_sv_ind_counters[std::int64_t(arr_label[data_label_indexes[i]])];
+    }
+    for (std::int64_t i = 0; i < class_count; ++i) {
+        printf("%lu ", data_sv_ind_counters[i]);
+    }
+    printf("\n");
+    std::int64_t idx = 0;
+    for (std::int64_t i = 0; i < class_count; ++i) {
+        for (std::int64_t j = 0; j < n_cv_count; ++j) {
+            if (std::int64_t(arr_label[data_label_indexes[j]]) == i) {
+                data_group_indices_by_class[idx] = data_label_indexes[j];
+                printf("%lu ", data_group_indices_by_class[idx]);
+                idx++;
+            }
+        }
+    }
+    printf("\n");
+    for (std::int64_t i = 0; i < n_cv_count; ++i) {
+        std::int64_t sv_label = std::int64_t(arr_label[data_label_indexes[i]]);
+
+        data_sv_ind_counters_2[sv_label]++;
+    }
+
+    auto arr_dual_coef = array<Float>::empty((class_count - 1) * n_cv_count);
+    auto data_dual_coef = arr_dual_coef.get_mutable_data();
+    i_model = 0;
+    for (std::int64_t first_class = 0; first_class < class_count; ++first_class) {
+        for (std::int64_t two_class = first_class + 1; two_class < first_class; ++two_class) {
+            auto svm_model = daal::services::staticPointerCast<daal_svm::Model>(
+                daal_model->getTwoClassClassifierModel(i_model));
+            auto two_class_sv_ind = svm_model->getSupportIndices();
+            auto coefs = svm_model->getClassificationCoefficients();
+
+            auto arr_coefs = convert_from_daal_table_to_array<Float>(coefs);
+
+            for (std::int64_t k = first_class + 1; k < first_class; ++k) {
+                // data_label_indexes
+                const std::int64_t row_index = two_class;
+                data_dual_coef[row_index * n_cv_count + col_index] = arr_coefs[k];
+            }
+        }
+    }
+
+    printf("\n");
+    printf("n_cv_count %lu\n", n_cv_count);
+    // Extract coefficients
+    // for (std::int64_t i = 0; i < n_cv_count; ++i) {
+    //     printf("%.0lf ", arr_label[i]);
+    // }
+    // printf("\n");
+
+    return dal::svm::model<Task>()
+        .set_biases(dal::detail::homogen_table_builder{}.reset(arr_biases, model_count, 1).build())
+        .set_coeffs(dal::detail::homogen_table_builder{}
+                        .reset(arr_dual_coef, (class_count - 1), n_cv_count)
+                        .build());
 
     //     auto table_support_vectors =
     //         interop::convert_from_daal_homogen_table<Float>(model.getSupportVectors());
@@ -110,6 +236,6 @@ inline auto convert_from_daal_multiclass_model(daal_multiclass::Model& daal_mode
     //     .set_support_vectors(table_support_vectors)
     //     .set_coeffs(table_classification_coeffs)
     //     .set_bias(bias);
-}
+} // namespace oneapi::dal::svm::backend
 
 } // namespace oneapi::dal::svm::backend

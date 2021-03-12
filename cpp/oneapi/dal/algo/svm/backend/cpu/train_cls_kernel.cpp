@@ -115,6 +115,14 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         const auto trained_model =
             std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
         trained_model->class_count = class_count;
+
+        const auto trained_model_2 =
+            convert_from_daal_multiclass_model<task::classification, Float>(daal_model,
+                                                                            labels,
+                                                                            class_count);
+        trained_model->support_vectors = trained_model_2.get_support_vectors();
+        trained_model->biases = trained_model_2.get_biases();
+        trained_model->coeffs = trained_model_2.get_coeffs();
         return result_t().set_model(dal::detail::make_private<model_t>(trained_model));
     }
     else {
