@@ -59,10 +59,6 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto arr_result =
         array<Float>::empty(queue, row_count * component_count, sycl::usm::alloc::device);
 
-    // TODO: read-only access performed with deep copy of data since daal numeric tables are mutable.
-    // Need to create special immutable homogen table on daal interop side
-
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
     const auto daal_data = interop::convert_to_daal_table(queue, arr_data, row_count, column_count);
     const auto daal_eigenvectors =
         interop::convert_to_daal_table(queue, arr_eigvec, component_count, column_count);
