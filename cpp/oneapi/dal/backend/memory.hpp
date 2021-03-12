@@ -22,7 +22,7 @@ namespace oneapi::dal::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-inline bool is_device_accessible_usm_pointer(const sycl::queue& queue, const void* pointer) {
+inline bool is_device_friendly_usm_pointer(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return (pointer_type == sycl::usm::alloc::device) || //
            (pointer_type == sycl::usm::alloc::shared);
@@ -146,7 +146,7 @@ inline sycl::event gather_device2host(sycl::queue& q,
     ONEDAL_ASSERT(src_stride_in_bytes > 0);
     ONEDAL_ASSERT(block_size_in_bytes > 0);
     ONEDAL_ASSERT(src_stride_in_bytes >= block_size_in_bytes);
-    ONEDAL_ASSERT(is_device_accessible_usm_pointer(q, src_device));
+    ONEDAL_ASSERT(is_known_usm_pointer_type(q, src_device));
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, block_count, block_size_in_bytes);
 
     const auto gathered_device_unique =
@@ -198,7 +198,7 @@ inline sycl::event scatter_host2device(sycl::queue& q,
     ONEDAL_ASSERT(dst_stride_in_bytes > 0);
     ONEDAL_ASSERT(block_size_in_bytes > 0);
     ONEDAL_ASSERT(dst_stride_in_bytes >= block_size_in_bytes);
-    ONEDAL_ASSERT(is_device_accessible_usm_pointer(q, dst_device));
+    ONEDAL_ASSERT(is_known_usm_pointer_type(q, dst_device));
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, block_count, block_size_in_bytes);
 
     const auto gathered_device_unique =

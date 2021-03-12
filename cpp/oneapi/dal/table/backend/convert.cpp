@@ -164,7 +164,7 @@ sycl::event convert_vector_device2host(sycl::queue& q,
     ONEDAL_ASSERT(src_stride > 0);
     ONEDAL_ASSERT(dst_stride > 0);
     ONEDAL_ASSERT(element_count >= 0);
-    ONEDAL_ASSERT(is_device_accessible_usm_pointer(q, src_device));
+    ONEDAL_ASSERT(is_known_usm_pointer_type(q, src_device));
 
     // To perform conversion, we gather data from device to host in temporary
     // contigious array and then run host conversion function
@@ -212,7 +212,7 @@ sycl::event convert_vector_host2device(sycl::queue& q,
     ONEDAL_ASSERT(src_stride > 0);
     ONEDAL_ASSERT(dst_stride > 0);
     ONEDAL_ASSERT(element_count >= 0);
-    ONEDAL_ASSERT(is_device_accessible_usm_pointer(q, dst_device));
+    ONEDAL_ASSERT(is_known_usm_pointer_type(q, dst_device));
 
     // To perform conversion, we perform conversion on the host and gather data
     // in temporary contigious array and then scatter it from host to device
@@ -264,10 +264,10 @@ void convert_vector(const detail::data_parallel_policy& policy,
     // We treat shared memory as device assuming actual copy of shared memory
     // tend to reside on device
     sycl::queue& q = policy.get_queue();
-    const bool src_device_accessible = is_device_accessible_usm_pointer(q, src);
-    const bool dst_device_accessible = is_device_accessible_usm_pointer(q, dst);
+    const bool src_device_friendly = is_device_friendly_usm_pointer(q, src);
+    const bool dst_device_friendly = is_device_friendly_usm_pointer(q, dst);
 
-    if (src_device_accessible && dst_device_accessible) {
+    if (src_device_friendly && dst_device_friendly) {
         // Device -> Device
         convert_vector_device2device(q,
                                      src,
@@ -279,7 +279,7 @@ void convert_vector(const detail::data_parallel_policy& policy,
                                      element_count)
             .wait_and_throw();
     }
-    else if (src_device_accessible) {
+    else if (src_device_friendly) {
         // Device -> Host
         convert_vector_device2host(q,
                                    src,
@@ -291,7 +291,7 @@ void convert_vector(const detail::data_parallel_policy& policy,
                                    element_count)
             .wait_and_throw();
     }
-    else if (dst_device_accessible) {
+    else if (dst_device_friendly) {
         // Host -> Device
         convert_vector_host2device(q,
                                    src,
