@@ -35,18 +35,30 @@ inline bool is_known_usm_pointer_type(const sycl::queue& queue, const void* poin
 
 inline void* malloc(const sycl::queue& queue, std::size_t size, const sycl::usm::alloc& alloc) {
     auto ptr = sycl::malloc(size, queue, alloc);
-    if (ptr == nullptr) {
+    if (!ptr) {
         if (alloc == sycl::usm::alloc::shared || alloc == sycl::usm::alloc::host) {
-            throw dal::host_bad_alloc();
+            throw dal::host_bad_alloc{};
         }
         else if (alloc == sycl::usm::alloc::device) {
-            throw dal::device_bad_alloc();
+            throw dal::device_bad_alloc{};
         }
         else {
-            throw dal::invalid_argument(detail::error_messages::unknown_usm_pointer_type());
+            throw dal::invalid_argument{ detail::error_messages::unknown_usm_pointer_type() };
         }
     }
     return ptr;
+}
+
+inline void* malloc_device(const sycl::queue& queue, std::size_t size) {
+    return malloc(queue, size, sycl::usm::alloc::device);
+}
+
+inline void* malloc_shared(const sycl::queue& queue, std::size_t size) {
+    return malloc(queue, size, sycl::usm::alloc::shared);
+}
+
+inline void* malloc_host(const sycl::queue& queue, std::size_t size) {
+    return malloc(queue, size, sycl::usm::alloc::host);
 }
 
 inline void free(const sycl::queue& queue, void* pointer) {
@@ -59,6 +71,21 @@ inline T* malloc(const sycl::queue& queue, std::int64_t count, const sycl::usm::
     ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
     const std::size_t bytes_count = sizeof(T) * count;
     return static_cast<T*>(malloc(queue, bytes_count, alloc));
+}
+
+template <typename T>
+inline T* malloc_device(const sycl::queue& queue, std::int64_t count) {
+    return malloc<T>(queue, count, sycl::usm::alloc::device);
+}
+
+template <typename T>
+inline T* malloc_shared(const sycl::queue& queue, std::int64_t count) {
+    return malloc<T>(queue, count, sycl::usm::alloc::shared);
+}
+
+template <typename T>
+inline T* malloc_host(const sycl::queue& queue, std::int64_t count) {
+    return malloc<T>(queue, count, sycl::usm::alloc::host);
 }
 
 template <typename T>
@@ -85,52 +112,44 @@ private:
 template <typename T>
 using unique_usm_ptr = std::unique_ptr<T, usm_deleter<T>>;
 
-inline unique_usm_ptr<void> make_unique_usm(sycl::queue& q,
-                                            std::int64_t size,
-                                            sycl::usm::alloc alloc = sycl::usm::alloc::device) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(size);
-    return unique_usm_ptr<void>{ sycl::malloc(n, q, alloc), usm_deleter<void>{ q } };
+inline unique_usm_ptr<void> make_unique_usm(const sycl::queue& q,
+                                            std::size_t size,
+                                            sycl::usm::alloc alloc) {
+    return unique_usm_ptr<void>{ malloc(q, size, alloc), usm_deleter<void>{ q } };
 }
 
-inline unique_usm_ptr<void> make_unique_usm_device(sycl::queue& q, std::int64_t size) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(size);
-    return unique_usm_ptr<void>{ sycl::malloc_device(n, q), usm_deleter<void>{ q } };
+inline unique_usm_ptr<void> make_unique_usm_device(const sycl::queue& q, std::size_t size) {
+    return unique_usm_ptr<void>{ malloc_device(q, size), usm_deleter<void>{ q } };
 }
 
-inline unique_usm_ptr<void> make_unique_usm_shared(sycl::queue& q, std::int64_t size) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(size);
-    return unique_usm_ptr<void>{ sycl::malloc_shared(n, q), usm_deleter<void>{ q } };
+inline unique_usm_ptr<void> make_unique_usm_shared(const sycl::queue& q, std::size_t size) {
+    return unique_usm_ptr<void>{ malloc_shared(q, size), usm_deleter<void>{ q } };
 }
 
-inline unique_usm_ptr<void> make_unique_usm_host(sycl::queue& q, std::int64_t size) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(size);
-    return unique_usm_ptr<void>{ sycl::malloc_host(n, q), usm_deleter<void>{ q } };
+inline unique_usm_ptr<void> make_unique_usm_host(const sycl::queue& q, std::size_t size) {
+    return unique_usm_ptr<void>{ malloc_host(q, size), usm_deleter<void>{ q } };
 }
 
 template <typename T>
-inline unique_usm_ptr<T> make_unique_usm(sycl::queue& q,
+inline unique_usm_ptr<T> make_unique_usm(const sycl::queue& q,
                                          std::int64_t count,
-                                         sycl::usm::alloc alloc = sycl::usm::alloc::device) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(count);
-    return unique_usm_ptr<T>{ sycl::malloc<T>(n, q, alloc), usm_deleter<T>{ q } };
+                                         sycl::usm::alloc alloc) {
+    return unique_usm_ptr<T>{ malloc<T>(q, count, alloc), usm_deleter<T>{ q } };
 }
 
 template <typename T>
-inline unique_usm_ptr<T> make_unique_usm_device(sycl::queue& q, std::int64_t count) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(count);
-    return unique_usm_ptr<T>{ sycl::malloc_device<T>(n, q), usm_deleter<T>{ q } };
+inline unique_usm_ptr<T> make_unique_usm_device(const sycl::queue& q, std::int64_t count) {
+    return unique_usm_ptr<T>{ malloc_device<T>(q, count), usm_deleter<T>{ q } };
 }
 
 template <typename T>
-inline unique_usm_ptr<T> make_unique_usm_shared(sycl::queue& q, std::int64_t count) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(count);
-    return unique_usm_ptr<T>{ sycl::malloc_shared<T>(n, q), usm_deleter<T>{ q } };
+inline unique_usm_ptr<T> make_unique_usm_shared(const sycl::queue& q, std::int64_t count) {
+    return unique_usm_ptr<T>{ malloc_shared<T>(q, count), usm_deleter<T>{ q } };
 }
 
 template <typename T>
-inline unique_usm_ptr<T> make_unique_usm_host(sycl::queue& q, std::int64_t count) {
-    const std::size_t n = dal::detail::integral_cast<std::size_t>(count);
-    return unique_usm_ptr<T>{ sycl::malloc_host<T>(n, q), usm_deleter<T>{ q } };
+inline unique_usm_ptr<T> make_unique_usm_host(const sycl::queue& q, std::int64_t count) {
+    return unique_usm_ptr<T>{ malloc_host<T>(q, count), usm_deleter<T>{ q } };
 }
 
 inline sycl::event gather_device2host(sycl::queue& q,
