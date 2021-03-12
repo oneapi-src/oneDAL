@@ -25,8 +25,8 @@ Ensembles
 
 .. rubric:: Examples: Decifion Forest Classification
 
-.. include:: ./includes/df-classification-examples.rst
+.. include:: ../../../includes/ensembles/df-classification-examples.rst
 
 .. rubric:: Examples: Decifion Forest Regression
 
-.. include:: ./includes/df-regression-examples.rst
+.. include:: ../../../includes/ensembles/df-regression-examples.rst

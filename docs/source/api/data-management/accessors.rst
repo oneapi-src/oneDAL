@@ -14,16 +14,19 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. tabs::
+.. highlight:: cpp
+.. default-domain:: cpp
 
-  .. group-tab:: oneAPI DPC++
+.. _api_accessors:
 
-    Batch Processing:
+=========
+Accessors
+=========
 
-    - :ref:`dpc_df_cls_hist_batch.cpp`
+The requirements for accessors and accessor types are defined in
+:ref:`Developer Guide: Accessors <dm_accessors>`.
 
-  .. group-tab:: oneAPI C++
+.. toctree::
 
-    Batch Processing:
-
-    - :ref:`cpp_df_cls_dense_batch.cpp`
+   accessor/column.rst
+   accessor/row.rst
