@@ -241,9 +241,9 @@ public:
 
         check_nans(result);
 
-        SECTION("non-negative objective function value is expected") {
-            REQUIRE(objective_function >= 0.0);
-        }
+        INFO("check if non-negative objective function value is expected")
+        REQUIRE(objective_function >= 0.0);
+
         Float rel_tol = 1.0e-5;
         if (!(ref_objective_function < 0.0)) {
             REQUIRE(check_value_with_ref_tol(objective_function, ref_objective_function, rel_tol));
@@ -271,24 +271,23 @@ public:
     }
 
     void check_centroid_match_with_rel_tol(Float rel_tol, const table& left, const table& right) {
-        SECTION("centroid shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-        }
-        SECTION("centroid match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            const Float alpha = std::numeric_limits<Float>::min();
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (fabs(l - r) < alpha)
-                    continue;
-                const Float denom = fabs(l) + fabs(r) + alpha;
-                if (fabs(l - r) / denom > rel_tol) {
-                    CAPTURE(l, r, l - r, rel_tol, (l - r) / denom / rel_tol);
-                    FAIL("Centroid feature mismatch");
-                }
+        INFO("check if centroid shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+
+        INFO("check if centroid match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        const Float alpha = std::numeric_limits<Float>::min();
+        for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
+            const Float l = left_rows[i];
+            const Float r = right_rows[i];
+            if (fabs(l - r) < alpha)
+                continue;
+            const Float denom = fabs(l) + fabs(r) + alpha;
+            if (fabs(l - r) / denom > rel_tol) {
+                CAPTURE(l, r, l - r, rel_tol, (l - r) / denom / rel_tol);
+                FAIL("Centroid feature mismatch");
             }
         }
     }
@@ -297,27 +296,26 @@ public:
                                            Float rel_tol,
                                            const table& left,
                                            const table& right) {
-        SECTION("centroid shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-        }
-        SECTION("centroid match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            const Float alpha = std::numeric_limits<Float>::min();
-            std::int64_t cluster_count = left.get_row_count();
-            std::int64_t feature_count = left.get_column_count();
-            for (std::int64_t i = 0; i < cluster_count; i++) {
-                for (std::int64_t j = 0; j < feature_count; j++) {
-                    const Float l = left_rows[match_map[i] * feature_count + j];
-                    const Float r = right_rows[i * feature_count + j];
-                    if (fabs(l - r) < alpha)
-                        continue;
-                    const Float denom = fabs(l) + fabs(r) + alpha;
-                    if (fabs(l - r) / denom > rel_tol) {
-                        CAPTURE(l, r);
-                        FAIL("Centroid feature mismatch for mapped centroids");
-                    }
+        INFO("check if centroid shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+
+        INFO("check if centroid match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        const Float alpha = std::numeric_limits<Float>::min();
+        std::int64_t cluster_count = left.get_row_count();
+        std::int64_t feature_count = left.get_column_count();
+        for (std::int64_t i = 0; i < cluster_count; i++) {
+            for (std::int64_t j = 0; j < feature_count; j++) {
+                const Float l = left_rows[match_map[i] * feature_count + j];
+                const Float r = right_rows[i * feature_count + j];
+                if (fabs(l - r) < alpha)
+                    continue;
+                const Float denom = fabs(l) + fabs(r) + alpha;
+                if (fabs(l - r) / denom > rel_tol) {
+                    CAPTURE(l, r);
+                    FAIL("Centroid feature mismatch for mapped centroids");
                 }
             }
         }
@@ -368,41 +366,38 @@ public:
     }
 
     void check_label_match(const table& left, const table& right) {
-        SECTION("label shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-            REQUIRE(left.get_column_count() == 1);
-        }
-        SECTION("label match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (l != r) {
-                    CAPTURE(l, r);
-                    FAIL("Label mismatch");
-                }
+        INFO("check if label shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+        REQUIRE(left.get_column_count() == 1);
+        INFO("check if label match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
+            const Float l = left_rows[i];
+            const Float r = right_rows[i];
+            if (l != r) {
+                CAPTURE(l, r);
+                FAIL("Label mismatch");
             }
         }
     }
 
     void check_label_match(const array<Float>& match_map, const table& left, const table& right) {
-        SECTION("label shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-            REQUIRE(left.get_column_count() == 1);
-        }
-        SECTION("label match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (l != match_map[r]) {
-                    CAPTURE(l, r, match_map[r]);
-                    FAIL("Label mismatch for mapped centroids");
-                }
+        INFO("check if label shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+        REQUIRE(left.get_column_count() == 1);
+
+        INFO("check if label match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
+            const Float l = left_rows[i];
+            const Float r = right_rows[i];
+            if (l != match_map[r]) {
+                CAPTURE(l, r, match_map[r]);
+                FAIL("Label mismatch for mapped centroids");
             }
         }
     }
@@ -410,23 +405,21 @@ public:
     void check_nans(const kmeans::train_result<>& result) {
         const auto [centroids, labels, iteration_count] = unpack_result(result);
 
-        SECTION("there is no NaN in centroids") {
-            REQUIRE(te::has_no_nans(centroids));
-        }
-        SECTION("there is no NaN in labels") {
-            REQUIRE(te::has_no_nans(labels));
-        }
+        INFO("check if there is no NaN in centroids")
+        REQUIRE(te::has_no_nans(centroids));
+
+        INFO("check if there is no NaN in labels")
+        REQUIRE(te::has_no_nans(labels));
     }
 
     void check_nans(const kmeans::infer_result<>& result) {
         const auto [labels, objective_function] = unpack_result(result);
 
-        SECTION("there is no NaN in objective function values") {
-            REQUIRE(!std::isnan(objective_function));
-        }
-        SECTION("there is no NaN in labels") {
-            REQUIRE(te::has_no_nans(labels));
-        }
+        INFO("check if there is no NaN in objective function values")
+        REQUIRE(!std::isnan(objective_function));
+
+        INFO("check if there is no NaN in labels")
+        REQUIRE(te::has_no_nans(labels));
     }
 
 private:
