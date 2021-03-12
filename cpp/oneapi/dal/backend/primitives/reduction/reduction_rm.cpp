@@ -43,25 +43,7 @@ public:
               width{ width_ },
               lstride{ lstride_ } {}
 
-    /*void operator()(sycl::nd_item<1> it) const {
-        using sycl::ONEAPI::reduce;
-        // Common for whole WG
-        const auto row_idx = it.get_global_id(0);
-        const auto loc_idx = it.get_global_id(1);
-        const auto range = it.get_global_range(1);
-        // It should be converted to upper type by default
-        inp_t const inp_row = input + lstride * row_idx;
-        // Exclusive for EU
-        Float acc = binary.init_value;
-        for (std::int32_t i = loc_idx; i < width; i += range) {
-            acc = binary(acc, unary(inp_row[i]));
-        }
-        // WG reduction
-        auto grp = it.get_group();
-        output[row_idx] = reduce(grp, acc, binary);
-    }*/
-
-    void operator()(sycl::nd_item<1> it) const {
+    void operator()(sycl::nd_item<2> it) const {
         using sycl::ONEAPI::reduce;
         // Common for whole WG
         const auto row_idx = it.get_global_id(0);
@@ -155,13 +137,7 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
 
 #define INSTANTIATE_FLOAT(B, U)                   \
     INSTANTIATE(double, B<double>, U<double>);    \
-    INSTANTIATE(float, B<double>, U<double>);     \
-    INSTANTIATE(double, B<float>, U<double>);     \
-    INSTANTIATE(double, B<double>, U<float>);     \
-    INSTANTIATE(float, B<float>, U<float>);       \
-    INSTANTIATE(double, B<float>, U<float>);      \
-    INSTANTIATE(float, B<double>, U<float>);      \
-    INSTANTIATE(float, B<float>, U<double>);      \
+    INSTANTIATE(float, B<float>, U<float>);       
 
 INSTANTIATE_FLOAT(min, identity)
 INSTANTIATE_FLOAT(min, abs)
@@ -294,13 +270,7 @@ reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_kernel(inp_t input,
 
 #define INSTANTIATE_FLOAT(B, U)                   \
     INSTANTIATE(double, B<double>, U<double>);    \
-    INSTANTIATE(float, B<double>, U<double>);     \
-    INSTANTIATE(double, B<float>, U<double>);     \
-    INSTANTIATE(double, B<double>, U<float>);     \
-    INSTANTIATE(float, B<float>, U<float>);       \
-    INSTANTIATE(double, B<float>, U<float>);      \
-    INSTANTIATE(float, B<double>, U<float>);      \
-    INSTANTIATE(float, B<float>, U<double>);      \
+    INSTANTIATE(float, B<float>, U<float>);  
 
 INSTANTIATE_FLOAT(min, identity)
 INSTANTIATE_FLOAT(min, abs)

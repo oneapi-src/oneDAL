@@ -30,18 +30,6 @@ namespace pr = oneapi::dal::backend::primitives;
 
 constexpr auto rm_order = ndorder::c;
 
-using sum = oneapi::dal::backend::primitives::sum<float>;
-using min = oneapi::dal::backend::primitives::min<float>;
-using max = oneapi::dal::backend::primitives::max<float>;
-
-using identity = oneapi::dal::backend::primitives::identity<float>;
-using abs = oneapi::dal::backend::primitives::abs<float>;
-using square = oneapi::dal::backend::primitives::square<float>;
-
-
-template<class Float>
-using l2_norms_rm_rw = reduction_rm_rw_narrow<Float, 
-
 template <typename Param>
 class reduction_rm_rw_test : public te::policy_fixture {
 public:
@@ -79,36 +67,36 @@ public:
     }
 
     float_t val() const {
-        if (std::is_same_v<sum, binary_t>) {
-            if(std::is_same_v<identity, unary_t>) {
+        if (std::is_same_v<sum<float_t>, binary_t>) {
+            if(std::is_same_v<identity<float_t>, unary_t>) {
                 return width * arg;
             }
-            if(std::is_same_v<abs, unary_t>) {
+            if(std::is_same_v<abs<float_t>, unary_t>) {
                 return width * std::abs(arg);
             }
-            if(std::is_same_v<square, unary_t>) {
+            if(std::is_same_v<square<float_t>, unary_t>) {
                 return width * (arg * arg);
             }
         }
-        if (std::is_same_v<min, binary_t>) {
-            if(std::is_same_v<identity, unary_t>) {
+        if (std::is_same_v<min<float_t>, binary_t>) {
+            if(std::is_same_v<identity<float_t>, unary_t>) {
                 return arg;
             }
-            if(std::is_same_v<abs, unary_t>) {
+            if(std::is_same_v<abs<float_t>, unary_t>) {
                 return std::abs(arg);
             }
-            if(std::is_same_v<square, unary_t>) {
+            if(std::is_same_v<square<float_t>, unary_t>) {
                 return (arg * arg);
             }
         }
-        if (std::is_same_v<max, binary_t>) {
-            if(std::is_same_v<identity, unary_t>) {
+        if (std::is_same_v<max<float_t>, binary_t>) {
+            if(std::is_same_v<identity<float_t>, unary_t>) {
                 return arg;
             }
-            if(std::is_same_v<abs, unary_t>) {
+            if(std::is_same_v<abs<float_t>, unary_t>) {
                 return std::abs(arg);
             }
-            if(std::is_same_v<square, unary_t>) {
+            if(std::is_same_v<square<float_t>, unary_t>) {
                 return (arg * arg);
             }
         }
@@ -116,7 +104,8 @@ public:
         return 0;
     } 
 
-    void check_output(auto& outarr, const float_t tol = 1.e-5) {
+    void check_output(ndarray<float_t, 1, rm_order>& outarr, 
+                                const float_t tol = 1.e-5) {
         const auto gtv = val();
         const auto arr = outarr.flatten();
         for(auto i = 0; i < height; ++i) {
@@ -146,7 +135,7 @@ public:
                 unary_t{},
                 {inp_event, out_event}).wait_and_throw();    
 
-        check_output();     
+        check_output(out_array);     
     }
 
     void test_raw_reduce_wide() {
@@ -167,7 +156,7 @@ public:
                 unary_t{},
                 {inp_event, out_event}).wait_and_throw(); 
 
-        check_output();     
+        check_output(out_array);     
     }
 
 
@@ -178,9 +167,12 @@ private:
     std::int64_t height;
 };
 
-using reduction_types = COMBINE_TYPES((float, double),
-                                      (sum, min, max),
-                                      (identity, abs, square));
+using reduction_types = std::tuple< std::tuple<float, sum<float>, square<float>   >,
+                                    std::tuple<float, sum<float>, identity<float> >,
+                                    std::tuple<float, sum<float>, abs<float>      >,
+                                    std::tuple<double, sum<double>, square<double>   >,
+                                    std::tuple<double, sum<double>, identity<double> >,
+                                    std::tuple<double, sum<double>, abs<double>      > >;
 
 TEMPLATE_LIST_TEST_M(reduction_rm_rw_test, "Uniformly filled Row-Major Row-Wise reduction", 
                                                     "[reduction][rm][small]", reduction_types) {
