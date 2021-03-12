@@ -322,6 +322,7 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
         const wide_t kernel{ q };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
+    ONEDAL_ASSERT(false);
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
     });
