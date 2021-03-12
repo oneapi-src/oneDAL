@@ -23,17 +23,6 @@ namespace oneapi::dal::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T>
-inline bool is_device_usm(const array<T>& ary) {
-    if (ary.get_queue().has_value()) {
-        auto q = ary.get_queue().value();
-        return is_device_usm_pointer(q, ary.get_data());
-    }
-    else {
-        return false;
-    }
-}
-
-template <typename T>
 inline std::tuple<array<T>, sycl::event> to_device(sycl::queue& q, const array<T>& ary) {
     if (!ary.get_count()) {
         return { ary, sycl::event{} };

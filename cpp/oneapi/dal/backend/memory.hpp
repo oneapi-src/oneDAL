@@ -16,12 +16,12 @@
 
 #pragma once
 
+#include "oneapi/dal/array.hpp"
 #include "oneapi/dal/backend/common.hpp"
 
 namespace oneapi::dal::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
-
 inline bool is_device_usm_pointer(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return pointer_type == sycl::usm::alloc::device;
@@ -216,6 +216,28 @@ inline unique_usm_ptr<T> make_unique_usm_shared(const sycl::queue& q, std::int64
 template <typename T>
 inline unique_usm_ptr<T> make_unique_usm_host(const sycl::queue& q, std::int64_t count) {
     return unique_usm_ptr<T>{ malloc_host<T>(q, count), usm_deleter<T>{ q } };
+}
+
+template <typename T>
+inline bool is_device_usm(const array<T>& ary) {
+    if (ary.get_queue().has_value()) {
+        auto q = ary.get_queue().value();
+        return is_device_usm_pointer(q, ary.get_data());
+    }
+    else {
+        return false;
+    }
+}
+
+template <typename T>
+inline bool is_same_context(const sycl::queue& q, const array<T>& ary) {
+    if (ary.get_queue().has_value()) {
+        auto ary_q = ary.get_queue().value();
+        return is_same_context(q, ary_q);
+    }
+    else {
+        return false;
+    }
 }
 
 #endif
