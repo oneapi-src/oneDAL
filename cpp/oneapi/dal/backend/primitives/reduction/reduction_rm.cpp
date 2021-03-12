@@ -289,74 +289,103 @@ INSTANTIATE_FLOAT(sum, square)
 template <class Float, class BinaryOp, class UnaryOp>
 reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q_) : q{ q_ } {};
 
-/*
 template <class Float, class BinaryOp, class UnaryOp>
-typename reduction_rm_rw<Float, BinaryOp, UnaryOp> reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_scale(std::int64_t width) const {
-        const auto max_wg_size = max_wg(q);
-        if (width < max_wg_size) {
-            return reduction_scale::narrow;
-        }
-        else {
-            return reduction_scale::wide;
-        }
+typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_scale
+reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_scale(std::int64_t width) const {
+    const auto max_wg_size = static_cast<std::int64_t>(max_wg(q));
+    if (width < max_wg_size) {
+        return reduction_scale::narrow;
+    }
+    else {
         return reduction_scale::wide;
     }
-    sycl::event operator()(const task_scale scale,
-                           inp_t input,
-                           out_t output,
-                           const std::int64_t width,
-                           const std::int64_t height,
-                           const std::int64_t stride,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
-                           const event_vector& deps = {}) const {
-        // TODO: think about `switch` operator
-        if (scale == task_scale::narrow) {
-            const narrow_t kernel{ q };
-            return kernel(input, output, width, height, stride, binary, unary, deps);
-        }
-        if (scale == task_scale::wide) {
-            const wide_t kernel{ q };
-            return kernel(input, output, width, height, stride, binary, unary, deps);
-        }
-        return q.submit([&](sycl::handler& h) {
-            h.depends_on(deps);
-        });
-    }
-    sycl::event operator()(inp_t input,
-                           out_t output,
-                           const std::int64_t width,
-                           const std::int64_t height,
-                           const std::int64_t stride,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
-                           const event_vector& deps = {}) const {
-        const auto scale = propose_scale(width);
-        return this->operator()(scale, input, output, width, height, stride, binary, unary, deps);
-    }
-    sycl::event operator()(const task_scale scale,
-                           inp_t input,
-                           out_t output,
-                           const std::int64_t width,
-                           const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
-                           const event_vector& deps = {}) const {
-        return this->operator()(scale, input, output, width, height, width, binary, unary, deps);
-    }
-    sycl::event operator()(inp_t input,
-                           out_t output,
-                           const std::int64_t width,
-                           const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
-                           const event_vector& deps = {}) const {
-        return this->operator()(input, output, width, height, width, binary, unary, deps);
-    }
+    return reduction_scale::wide;
+}
 
-private:
-    const sycl::queue& q;
-};*/
+template <class Float, class BinaryOp, class UnaryOp>
+sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
+    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_scale scale,
+    const Float* input,
+    Float* output,
+    const std::int64_t width,
+    const std::int64_t height,
+    const std::int64_t stride,
+    const BinaryOp binary,
+    const UnaryOp unary,
+    const event_vector& deps) const {
+    // TODO: think about `switch` operator
+    if (scale == reduction_scale::narrow) {
+        const narrow_t kernel{ q };
+        return kernel(input, output, width, height, stride, binary, unary, deps);
+    }
+    if (scale == reduction_scale::wide) {
+        const wide_t kernel{ q };
+        return kernel(input, output, width, height, stride, binary, unary, deps);
+    }
+    return q.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+    });
+}
+
+template <class Float, class BinaryOp, class UnaryOp>
+sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
+                                                                  Float* output,
+                                                                  const std::int64_t width,
+                                                                  const std::int64_t height,
+                                                                  const std::int64_t stride,
+                                                                  const BinaryOp binary,
+                                                                  const UnaryOp unary,
+                                                                  const event_vector& deps) const {
+    const auto scale = propose_scale(width);
+    return this->operator()(scale, input, output, width, height, stride, binary, unary, deps);
+}
+
+template <class Float, class BinaryOp, class UnaryOp>
+sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
+    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_scale scale,
+    const Float* input,
+    Float* output,
+    const std::int64_t width,
+    const std::int64_t height,
+    const BinaryOp binary,
+    const UnaryOp unary,
+    const event_vector& deps) const {
+    return this->operator()(scale, input, output, width, height, width, binary, unary, deps);
+}
+
+template <class Float, class BinaryOp, class UnaryOp>
+sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
+                                                                  Float* output,
+                                                                  const std::int64_t width,
+                                                                  const std::int64_t height,
+                                                                  const BinaryOp binary,
+                                                                  const UnaryOp unary,
+                                                                  const event_vector& deps) const {
+    const auto scale = propose_scale(width);
+    return this->operator()(scale, input, output, width, height, width, binary, unary, deps);
+}
+
+#define INSTANTIATE(F, B, U) template class reduction_rm_rw<F, B, U>;
+
+#define INSTANTIATE_FLOAT(B, U)                \
+    INSTANTIATE(double, B<double>, U<double>); \
+    INSTANTIATE(float, B<float>, U<float>);
+
+INSTANTIATE_FLOAT(min, identity)
+INSTANTIATE_FLOAT(min, abs)
+INSTANTIATE_FLOAT(min, square)
+
+INSTANTIATE_FLOAT(max, identity)
+INSTANTIATE_FLOAT(max, abs)
+INSTANTIATE_FLOAT(max, square)
+
+INSTANTIATE_FLOAT(sum, identity)
+INSTANTIATE_FLOAT(sum, abs)
+INSTANTIATE_FLOAT(sum, square)
+
+#undef INSTANTIATE_FLOAT
+
+#undef INSTANTIATE
 
 #endif
 
