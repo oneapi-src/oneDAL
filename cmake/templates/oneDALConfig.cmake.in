@@ -182,6 +182,10 @@ endforeach()
 
 list(APPEND oneDAL_IMPORTED_TARGETS ${DAL_LIBRARIES})
 list(REMOVE_DUPLICATES oneDAL_IMPORTED_TARGETS)
+if(UNIX)
+    list(PREPEND oneDAL_IMPORTED_TARGETS -Wl,--start-group)
+    list(APPEND oneDAL_IMPORTED_TARGETS -Wl,--end-group)
+endif()
 
 set(oneDAL_ROOT_DIR "${_dal_root}")
 set(oneDAL_INCLUDE_DIRS "${_dal_root}/@INC_REL_PATH@")
