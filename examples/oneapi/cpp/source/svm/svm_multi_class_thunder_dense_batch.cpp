@@ -35,7 +35,8 @@ int main(int argc, char const *argv[]) {
     const auto result_train = dal::train(svm_desc, x_train, y_train);
 
     std::cout << "Biases:\n" << result_train.get_biases() << std::endl;
-    // std::cout << "Support indices:\n" << result_train.get_support_indices() << std::endl;
+    std::cout << "Support indices:\n" << result_train.get_support_indices() << std::endl;
+    std::cout << "Coeffs indices:\n" << result_train.get_coeffs() << std::endl;
     //
     // const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
     // const auto y_true = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
