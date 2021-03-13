@@ -63,18 +63,15 @@ public:
                               const rbf_kernel::compute_result<>& result) {
         const auto result_values = result.get_values();
 
-        SECTION("result values table shape is expected") {
-            REQUIRE(result_values.get_row_count() == x_data.get_row_count());
-            REQUIRE(result_values.get_column_count() == y_data.get_row_count());
-        }
+        INFO("check if result values table shape is expected")
+        REQUIRE(result_values.get_row_count() == x_data.get_row_count());
+        REQUIRE(result_values.get_column_count() == y_data.get_row_count());
 
-        SECTION("there is no NaN in result values table") {
-            REQUIRE(te::has_no_nans(result_values));
-        }
+        INFO("check if there is no NaN in result values table")
+        REQUIRE(te::has_no_nans(result_values));
 
-        SECTION("result values are expected") {
-            check_result_values(sigma, x_data, y_data, result_values);
-        }
+        INFO("check if result values are expected")
+        check_result_values(sigma, x_data, y_data, result_values);
     }
 
     void check_result_values(double sigma,

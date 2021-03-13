@@ -65,6 +65,18 @@ config_setting(
 )
 
 config_bool_flag(
+    name = "test_nightly",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "test_nightly_enabled",
+    flag_values  = {
+        ":test_nightly": "True",
+    },
+)
+
+config_bool_flag(
     name = "release_dpc",
     build_setting_default = False,
 )
