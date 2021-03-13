@@ -30,8 +30,4 @@ for which the following is true:
 Programming interface
 ---------------------
 
-All types and functions in this section are declared in the
-``oneapi::dal`` namespace and be available via inclusion of the
-``oneapi/dal/table/homogen.hpp`` header file.
-
-.. onedal_class:: oneapi::dal::v1::homogen_table
+Refer to :ref:`API Reference: Homogeneous table <api_homogen_table>`.

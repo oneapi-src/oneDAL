@@ -26,8 +26,8 @@ Kernel Functions
 
 .. rubric:: Examples: Linear Kernel
 
-.. include:: ./includes/linear-kernel-examples.rst
+.. include::  ../../../includes/kernel-functions/linear-kernel-examples.rst
 
 .. rubric:: Examples: RBF Kernel
 
-.. include:: ./includes/rbf-kernel-examples.rst
+.. include:: ../../../includes/kernel-functions/rbf-kernel-examples.rst

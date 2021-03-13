@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. tabs::
 
-  .. group-tab:: oneAPI DPC++
+.. highlight:: cpp
 
-    Batch Processing:
+::
 
-    - :ref:`dpc_df_reg_hist_batch.cpp`
+   using namespace oneapi;
 
-  .. group-tab:: oneAPI C++
+   const auto data_source = dal::csv::data_source("data.csv", ',');
 
-    Batch Processing:
-
-    - :ref:`cpp_df_reg_dense_batch.cpp`
+   const auto table = dal::read<dal::table>(data_source);

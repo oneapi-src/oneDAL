@@ -22,19 +22,7 @@
 Linear kernel
 =============
 
-The linear kernel is the simplest kernel function for pattern analysis.
-
-.. |c_math| replace::   `dense <linear_kernel_c_math_>`_
-.. |c_dense| replace::  `dense <linear_kernel_c_math_dense_>`_
-.. |c_input| replace::  `compute_input <linear_kernel_c_api_input_>`_
-.. |c_result| replace:: `compute_result <linear_kernel_c_api_result_>`_
-.. |c_op| replace::     `compute(...) <linear_kernel_c_api_>`_
-
-=============  ===============  =========  =============  ===========
-**Operation**  **Computational  methods**  **Programming  Interface**
--------------  --------------------------  --------------------------
-|c_math|       |c_dense|        |c_op|     |c_input|      |c_result|
-=============  ===============  =========  =============  ===========
+.. include::  ../../../includes/kernel-functions/linear-kernel-introduction.rst
 
 ------------------------
 Mathematical formulation
@@ -53,50 +41,11 @@ any pair of input vectors: :math:`K(x_i, y_i) = k {X_i}^T y_i + b`.
 
 .. _linear_kernel_c_math_dense:
 
+Computing method: *dense*
+-------------------------
+
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section are declared in the
-``oneapi::dal::linear_kernel`` namespace and are available via inclusion of the
-``oneapi/dal/algo/linear_kernel.hpp`` header file.
-                   
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::linear_kernel::detail::v1::descriptor_base
-.. onedal_class:: oneapi::dal::linear_kernel::v1::descriptor
 
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::linear_kernel::method::v1
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::linear_kernel::task::v1
-
-.. _linear_kernel_c_api:
-
-Training :expr:`compute(...)`
------------------------------
-.. _linear_kernel_c_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::linear_kernel::v1::compute_input
-
-
-.. _linear_kernel_c_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::linear_kernel::v1::compute_result
-
-Operation
-~~~~~~~~~
-.. function:: template <typename Descriptor> \
-              linear_kernel::compute_result compute(const Descriptor& desc, \
-                                      const linear_kernel::compute_input& input)
-
-   :tparam Descriptor: Linear Kernel algorithm descriptor :expr:`linear_kernel::desc`.
-
-   Preconditions
-      | :expr:`input.data.is_empty == false`
+Refer to :ref:`API Reference: Linear kernel <api_linear_kernel>`.

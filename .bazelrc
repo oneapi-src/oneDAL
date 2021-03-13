@@ -7,6 +7,7 @@ build -c opt \
 build --flag_alias=test_link_mode=@config//:test_link_mode
 build --flag_alias=test_thread_mode=@config//:test_thread_mode
 build --flag_alias=test_external_datasets=@config//:test_external_datasets
+build --flag_alias=test_nightly=@config//:test_nightly
 build --flag_alias=release_dpc=@config//:release_dpc
 build --flag_alias=device=@config//:device
 build --flag_alias=cpu=@config//:cpu
@@ -24,6 +25,9 @@ test --test_env=DAAL_DATASETS
 test --test_env=OverrideDefaultFP64Settings \
      --test_env=IGC_ForceDPEmulation \
      --test_env=IGC_EnableDPEmulation
+
+# Flag for setting the test timeout to 15 minutes
+test --test_timeout=900
 
 # Configuration: 'public'
 # Build & run all tests for public interface

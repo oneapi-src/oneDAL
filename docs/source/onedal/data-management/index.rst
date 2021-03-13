@@ -14,8 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _data_management:
-
+.. _dg_data_management:
 
 ===============
 Data Management
@@ -114,7 +113,7 @@ It is used at the data acquisition and data preparation stages to:
   feature>` and :capterm:`continuous <continuous feature>` data values into one
   of the numeric :capterm:`data formats <data format>`.
 
-For details, see :txtref:`data-sources` section.
+For details, see :txtref:`dm_data-sources` section.
 
 .. _table:
 
@@ -165,7 +164,7 @@ the data <data format>`:
   compressed-sparse-row format. The number of bytes needed to store the data
   differs from the number of elements :math:`n \times p` within a table.
 
-For details, see :txtref:`tables` section.
+For details, see :txtref:`dm_tables` section.
 
 .. _table_metadata:
 
@@ -204,7 +203,7 @@ Accessor is a concept that defines a single way to extract the data from a
 
 - Have read-only access to the data.
 
-For details, see :txtref:`accessors` section.
+For details, see :txtref:`dm_accessors` section.
 
 Example of interaction between table and accessor objects
 ---------------------------------------------------------
