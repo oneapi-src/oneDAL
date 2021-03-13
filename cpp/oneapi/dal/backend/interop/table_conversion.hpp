@@ -133,7 +133,7 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const sycl::
 
     ONEDAL_ASSERT(data.get_count() == row_count * column_count);
     ONEDAL_ASSERT(data.has_mutable_data());
-    ONEDAL_ASSERT(is_same_context(q, data));
+    ONEDAL_ASSERT(is_same_context(queue, data));
 
     const SharedPtr<Data> data_shared{ data.get_mutable_data(), daal_object_owner{ data } };
 
