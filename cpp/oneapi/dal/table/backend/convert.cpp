@@ -97,7 +97,8 @@ static sycl::event convert_vector_kernel(sycl::queue& q,
     const int dst_stride_int = dal::detail::integral_cast<int>(dst_stride);
     const int element_count_int = dal::detail::integral_cast<int>(element_count);
 
-    const std::int64_t local_size = std::min(down_pow2(element_count), 256L);
+    const std::int64_t required_local_size = 256;
+    const std::int64_t local_size = std::min(down_pow2(element_count), required_local_size);
     const auto range = make_multiple_nd_range_1d(element_count, local_size);
 
     if (src_stride == 1 && dst_stride == 1) {
