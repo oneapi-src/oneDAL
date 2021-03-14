@@ -27,11 +27,10 @@ namespace oneapi::dal::test::engine {
 
 template <typename Float = double>
 Float davies_bouldin_index(const table& data, const table& centroids, const table& assignments) {
-    SECTION("data shape is expected to be consistent") {
-        REQUIRE(data.get_row_count() == assignments.get_row_count());
-        REQUIRE(data.get_column_count() == centroids.get_column_count());
-        REQUIRE(assignments.get_column_count() == 1);
-    }
+    INFO("check if data shape is expected to be consistent")
+    REQUIRE(data.get_row_count() == assignments.get_row_count());
+    REQUIRE(data.get_column_count() == centroids.get_column_count());
+    REQUIRE(assignments.get_column_count() == 1);
 
     const auto cluster_count = centroids.get_row_count();
     const auto feature_count = centroids.get_column_count();

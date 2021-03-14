@@ -278,6 +278,7 @@ Examples
 
     - :cpp_example:`df_cls_default_dense_batch.cpp <decision_forest/df_cls_default_dense_batch.cpp>`
     - :cpp_example:`df_cls_hist_dense_batch.cpp <decision_forest/df_cls_hist_dense_batch.cpp>`
+    - :cpp_example:`df_cls_traverse_model.cpp <decision_forest/df_cls_traverse_model.cpp>`
 
   .. tab:: Java*
   
@@ -287,6 +288,7 @@ Examples
     
     - :java_example:`DfClsDefaultDenseBatch.java <decision_forest/DfClsDefaultDenseBatch.java>`
     - :java_example:`DfClsHistDenseBatch.java <decision_forest/DfClsHistDenseBatch.java>`
+    - :java_example:`DfClsTraverseModel.java <decision_forest/DfClsTraverseModel.java>`
 
   .. tab:: Python*
 

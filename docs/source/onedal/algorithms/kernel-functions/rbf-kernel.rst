@@ -22,20 +22,7 @@
 Radial Basis Function (RBF) kernel
 ===================================
 
-The Radial Basis Function (RBF) kernel is a popular kernel function
-used in kernelized learning algorithms.
-
-.. |c_math| replace::   `dense <rbf_kernel_c_math_>`_
-.. |c_dense| replace::  `dense <rbf_kernel_c_math_dense_>`_
-.. |c_input| replace::  `compute_input <rbf_kernel_c_api_input_>`_
-.. |c_result| replace:: `compute_result <rbf_kernel_c_api_result_>`_
-.. |c_op| replace::     `compute(...) <rbf_kernel_c_api_>`_
-
-=============  ===============  =========  =============  ===========
-**Operation**  **Computational  methods**  **Programming  Interface**
--------------  --------------------------  --------------------------
-|c_math|       |c_dense|        |c_op|     |c_input|      |c_result|
-=============  ===============  =========  =============  ===========
+.. include::  ../../../includes/kernel-functions/rbf-kernel-introduction.rst
 
 ------------------------
 Mathematical formulation
@@ -54,53 +41,13 @@ the problem is to compute the RBF kernel function :math:`K(x_i,, y_i)` for any p
 .. math::
    K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(\|{x}_{i}-{y}_{j}\|\right)}^{2}}{2{\sigma }^{2}}\right)
 
-
 .. _rbf_kernel_c_math_dense:
+
+Computing method: *dense*
+-------------------------
 
 ---------------------
 Programming Interface
 ---------------------
-All types and functions in this section are declared in the
-``oneapi::dal::rbf_kernel`` namespace and are available via inclusion of the
-``oneapi/dal/algo/rbf_kernel.hpp`` header file.
-                   
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::rbf_kernel::detail::v1::descriptor_base
-.. onedal_class:: oneapi::dal::rbf_kernel::v1::descriptor
 
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::rbf_kernel::method::v1
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::rbf_kernel::task::v1
-
-.. _rbf_kernel_c_api:
-
-Training :expr:`compute(...)`
------------------------------
-.. _rbf_kernel_c_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::rbf_kernel::v1::compute_input
-
-
-.. _rbf_kernel_c_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::rbf_kernel::v1::compute_result
-
-Operation
-~~~~~~~~~
-.. function:: template <typename Descriptor> \
-              rbf_kernel::compute_result compute(const Descriptor& desc, \
-                                      const rbf_kernel::compute_input& input)
-
-   :tparam Descriptor: RBF Kernel algorithm descriptor :expr:`rbf_kernel::desc`.
-
-   Preconditions
-      | :expr:`input.data.is_empty == false`
+Refer to :ref:`API Reference: Radial Basis Function (RBF) kernel <api_rbf_kernel>`.
