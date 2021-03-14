@@ -90,7 +90,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
 
     if (class_count > 2) {
-        // TODO
+        // TODO: Call multiclass algorithm from old kernels: MultiClassClassifierTrainKernel
         return result_t();
     }
     else {

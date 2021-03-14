@@ -553,7 +553,7 @@ inline void SVMTrainTask<algorithmFPType, cpu>::updateFlag(size_t index)
  *
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
- * \param[in] flags              Array of flags that describe the status of feature vectors
+ * \param[in] flags          Array of flags that describe the status of feature vectors
  * \return                   services::Status of the call
  */
 template <typename algorithmFPType, CpuType cpu>
@@ -579,7 +579,7 @@ services::Status SVMCache<boser, noCache, algorithmFPType, cpu>::updateShrinking
  *
  * \param[in] nActiveVectors Number of observations in a training data set that are used
  *                           in sequential minimum optimization at the current iteration
- * \param[in] flags              Array of flags that describe the status of feature vectors
+ * \param[in] flags          Array of flags that describe the status of feature vectors
  * \return                   services::Status of the call
  */
 template <typename algorithmFPType, CpuType cpu>

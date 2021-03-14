@@ -140,7 +140,7 @@ std::int64_t descriptor_base<Task>::get_class_count_impl() const {
 template <typename Task>
 void descriptor_base<Task>::set_epsilon_impl(double value) {
     if (value < 0.0) {
-        throw domain_error(dal::detail::error_messages::epsilon_leq_zero());
+        throw domain_error(dal::detail::error_messages::epsilon_lt_zero());
     }
     impl_->epsilon = value;
 }
