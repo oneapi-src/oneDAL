@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/transfer.hpp"
+#include <algorithm>
 
 namespace oneapi::dal::backend {
 
