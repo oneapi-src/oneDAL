@@ -232,7 +232,7 @@ auto sycl_table_adapter::read_column_values_impl(std::size_t feature_idx,
         return daal::services::ErrorIncorrectIndex;
     }
 
-    const auto [buffer, status] = pull_rows_buffer<BlockData>(info);
+    const auto [buffer, status] = pull_columns_buffer<BlockData>(info);
     if (status.ok()) {
         block.setDetails(feature_idx, vector_idx, rwflag);
         block.setBuffer(buffer, info.row_count, original_table_.get_column_count());
