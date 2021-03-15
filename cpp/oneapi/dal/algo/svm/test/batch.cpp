@@ -308,6 +308,7 @@ private:
 };
 
 using svm_types = COMBINE_TYPES((float, double), (svm::method::thunder, svm::method::smo));
+using svm_nightly_types = COMBINE_TYPES((float, double), (svm::method::thunder));
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm can classify linear separable surface",
@@ -640,6 +641,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear gisette 6k x 5k",
                      "[svm][integration][batch][linear][external-dataset]",
                      svm_types) {
+    SKIP_IF(this->not_available_on_device());
+                    
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
@@ -668,9 +671,43 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
-                     "svm rbf cifar 50k x 3072",
+                     "svm rbf covertype 100k x 54",
                      "[svm][integration][batch][rbf][external-dataset]",
                      svm_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_train_100k.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_test_100k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 1.0e3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.9878;
+
+    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf cifar 50k x 3072",
+                     "[svm][integration][batch][rbf][nightly][external-dataset]",
+                     svm_nightly_types) {
+    SKIP_IF(this->not_available_on_device());
+
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
@@ -702,7 +739,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm rbf epsilon 16k x 2k",
                      "[svm][integration][batch][rbf][nightly][external-dataset]",
-                     svm_types) {
+                     svm_nightly_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
@@ -734,7 +771,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear higgs 100k x 28",
                      "[svm][integration][batch][linear][nightly][external-dataset]",
-                     svm_types) {
+                     svm_nightly_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
@@ -764,8 +801,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear epsilon 80k x 2k",
-                     "[svm][integration][batch][linear][nightly][external-dataset]",
-                     svm_types) {
+                     "[svm][integration][batch][linear][weekly][external-dataset]",
+                     svm_nightly_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
@@ -796,7 +833,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear cifar 50k x 3072",
                      "[svm][integration][batch][linear][nightly][external-dataset]",
-                     svm_types) {
+                     svm_nightly_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
@@ -827,7 +864,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear imdb_drama 121k x 1001",
                      "[svm][integration][batch][linear][nightly][external-dataset]",
-                     svm_types) {
+                     svm_nightly_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = linear::descriptor<float_t, linear::method::dense>;
@@ -857,8 +894,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm rbf epsilon 50k x 2k",
-                     "[svm][integration][batch][rbf][nightly][external-dataset]",
-                     svm_types) {
+                     "[svm][integration][batch][rbf][weekly][external-dataset]",
+                     svm_nightly_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
@@ -888,41 +925,9 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
-                     "svm rbf covertype 100k x 54",
-                     "[svm][integration][batch][rbf][nightly][external-dataset]",
-                     svm_types) {
-    using float_t = std::tuple_element_t<0, TestType>;
-    using method_t = std::tuple_element_t<1, TestType>;
-    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
-
-    const te::dataframe train_data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_train_100k.csv" });
-    const auto feature_count = train_data.get_column_count();
-    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
-    const auto y_train =
-        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-    const te::dataframe test_data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_test_100k.csv" });
-    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
-    const table y_test =
-        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
-
-    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
-
-    const double c = 1.0e3;
-    auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-    const double ref_accuracy = 0.9878;
-
-    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
-}
-
-TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm rbf imdb_drama 121k x 1001",
                      "[svm][integration][batch][rbf][nightly][external-dataset]",
-                     svm_types) {
+                     svm_nightly_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
