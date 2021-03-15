@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <iostream>
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
 #include "oneapi/dal/detail/policy.hpp"
