@@ -246,6 +246,8 @@ TEST("pull does not copy if device usm requested from shared usm table") {
             .pull(q, { 0, 2 }, sycl::usm::alloc::device);
 
     REQUIRE(data_arr_device.get_data() == shared_ary.get_data());
+    REQUIRE(sycl::get_pointer_type(data_arr_device.get_data(), q.get_context()) ==
+            sycl::usm::alloc::shared);
 }
 
 TEST("pull from column-major shared usm homogen table") {
