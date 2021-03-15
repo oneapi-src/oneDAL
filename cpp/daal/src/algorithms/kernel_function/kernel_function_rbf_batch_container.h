@@ -73,6 +73,14 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     daal::services::Environment::env & env = *_env;
     const ParameterBase * par              = static_cast<const ParameterBase *>(_par);
 
+    KernelParameter kernelPar;
+    kernelPar.rowIndexX       = par->rowIndexX;
+    kernelPar.rowIndexY       = par->rowIndexY;
+    kernelPar.rowIndexResult  = par->rowIndexResult;
+    kernelPar.computationMode = par->computationMode;
+    kernelPar.sigma           = static_cast<const Parameter *>(par)->sigma;
+    kernelPar.kernelType      = KernelType::rbf;
+
     if (method == fastCSR)
     {
         if (dynamic_cast<CSRNumericTableIface *>(a[0]) == NULL || dynamic_cast<CSRNumericTableIface *>(a[1]) == NULL)
@@ -88,7 +96,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
+        __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], &kernelPar);
     }
 }
 

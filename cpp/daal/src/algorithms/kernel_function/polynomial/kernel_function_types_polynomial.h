@@ -31,7 +31,7 @@ namespace polynomial
 enum Method
 {
     defaultDense = 0, /*!< Default method for computing polynomial kernel functions */
-    // fastCSR      = 1  /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
+    fastCSR      = 1  /*!< Fast: performance-oriented method. Works with Compressed Sparse Rows (CSR) numeric tables */
 };
 
 struct DAAL_EXPORT Parameter : public ParameterBase

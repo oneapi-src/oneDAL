@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __KERNEL_FUNCTION_DENSE_KERNEL_H__
-#define __KERNEL_FUNCTION_DENSE_KERNEL_H__
+#ifndef __KERNEL_FUNCTION_POLYNOMIAL_DENSE_KERNEL_H__
+#define __KERNEL_FUNCTION_POLYNOMIAL_DENSE_KERNEL_H__
 
 #include "src/algorithms/kernel_function/kernel_function_dense_base.h"
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_base.h"
@@ -36,11 +36,11 @@ struct KernelImplPolynomial<defaultDense, algorithmFPType, cpu>
     : public daal::algorithms::kernel_function::internal::KernelImplBase<algorithmFPType, cpu>
 {
     virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
     virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
 };
 
 } // namespace internal

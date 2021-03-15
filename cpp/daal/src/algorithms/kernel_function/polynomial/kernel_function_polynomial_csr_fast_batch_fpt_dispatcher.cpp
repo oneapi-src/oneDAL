@@ -1,6 +1,6 @@
-/* file: kernel_function_types.cpp */
+/* file: kernel_function_polynomial_csr_fast_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,23 +15,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of kernel function Result.
-//--
-*/
-
-#include "algorithms/kernel_function/kernel_function_linear.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_batch_container.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_batch_container.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_csr_fast_kernel.h"
 
 namespace daal
 {
 namespace algorithms
 {
-namespace kernel_function
-{
-Result::Result() : daal::algorithms::Result(lastResultId + 1) {}
-
-} // namespace kernel_function
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kernel_function::polynomial::BatchContainer, batch, DAAL_FPTYPE, kernel_function::polynomial::fastCSR)
 } // namespace algorithms
 } // namespace daal

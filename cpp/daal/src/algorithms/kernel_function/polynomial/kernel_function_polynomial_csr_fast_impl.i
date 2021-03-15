@@ -1,6 +1,6 @@
-/* file: kernel_function_linear_csr_fast_impl.i */
+/* file: kernel_function_polynomial_csr_fast_impl.i */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,16 +15,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Linear kernel functions implementation
-//--
-*/
+#ifndef __KERNEL_FUNCTION_POLYNOMIAL_CSR_FAST_IMPL_I__
+#define __KERNEL_FUNCTION_POLYNOMIAL_CSR_FAST_IMPL_I__
 
-#ifndef __KERNEL_FUNCTION_LINEAR_CSR_FAST_IMPL_I__
-#define __KERNEL_FUNCTION_LINEAR_CSR_FAST_IMPL_I__
-
-#include "algorithms/kernel_function/kernel_function_types_linear.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_types_polynomial.h"
 #include "src/algorithms/kernel_function/kernel_function_csr_impl.i"
 
 #include "src/threading/threading.h"
@@ -37,14 +31,19 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace linear
+namespace polynomial
 {
 namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                              NumericTable * r, const ParameterBase * par)
+services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                  NumericTable * r, const KernelParameter * par)
 {
+    if (par->kernelType != KernelType::linear)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
+
     //prepareData
     ReadRowsCSR<algorithmFPType, cpu> mtA1(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a1)), par->rowIndexX, 1);
     DAAL_CHECK_BLOCK_STATUS(mtA1);
@@ -58,20 +57,23 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
     DAAL_CHECK_BLOCK_STATUS(mtR);
     algorithmFPType * dataR = mtR.get();
 
-    const Parameter * linPar = static_cast<const Parameter *>(par);
-
     //compute
     dataR[0] = computeDotProduct(rowOffsetsA1[0] - 1, rowOffsetsA1[1] - 1, mtA1.values(), mtA1.cols(), rowOffsetsA2[0] - 1, rowOffsetsA2[1] - 1,
                                  mtA2.values(), mtA2.cols());
-    dataR[0] = dataR[0] * linPar->k + linPar->b;
+    dataR[0] = dataR[0] * par->scale + par->shift;
 
     return services::Status();
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                              NumericTable * r, const ParameterBase * par)
+services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                  NumericTable * r, const KernelParameter * par)
 {
+    if (par->kernelType != KernelType::linear)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
+
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
 
@@ -87,9 +89,8 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
     DAAL_CHECK_BLOCK_STATUS(mtR);
     algorithmFPType * dataR = mtR.get();
 
-    const Parameter * linPar = static_cast<const Parameter *>(par);
-    algorithmFPType b        = (algorithmFPType)(linPar->b);
-    algorithmFPType k        = (algorithmFPType)(linPar->k);
+    algorithmFPType k = (algorithmFPType)(par->scale);
+    algorithmFPType b = (algorithmFPType)(par->shift);
 
     //compute
     for (size_t i = 0; i < nVectors1; i++)
@@ -103,17 +104,21 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
-                                                                                              NumericTable * r, const ParameterBase * par)
+services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
+                                                                                                  NumericTable * r, const KernelParameter * par)
 {
+    if (par->kernelType != KernelType::linear)
+    {
+        return services::ErrorMethodNotImplemented;
+    }
+
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
     const size_t nVectors2 = a2->getNumberOfRows();
     const size_t nFeatures = a1->getNumberOfColumns();
 
-    const Parameter * linPar   = static_cast<const Parameter *>(par);
-    const algorithmFPType b    = (algorithmFPType)(linPar->b);
-    const algorithmFPType k    = (algorithmFPType)(linPar->k);
+    const algorithmFPType k    = (algorithmFPType)(par->scale);
+    const algorithmFPType b    = (algorithmFPType)(par->shift);
     const algorithmFPType zero = algorithmFPType(0.0);
     const algorithmFPType one  = algorithmFPType(1.0);
 
@@ -240,10 +245,10 @@ services::Status KernelImplLinear<fastCSR, algorithmFPType, cpu>::computeInterna
     });
 
     return services::Status();
-} // namespace internal
+}
 
 } // namespace internal
-} // namespace linear
+} // namespace polynomial
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

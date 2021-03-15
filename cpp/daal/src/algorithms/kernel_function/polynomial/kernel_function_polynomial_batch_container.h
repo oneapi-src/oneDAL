@@ -17,7 +17,6 @@
 
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_kernel.h"
-// #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_csr_fast_kernel.h"
 
 namespace daal
 {
@@ -57,7 +56,17 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const ParameterBase * par        = static_cast<const ParameterBase *>(_par);
     services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::KernelImplPolynomial, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
+    KernelParameter kernelPar;
+    kernelPar.rowIndexX       = par->rowIndexX;
+    kernelPar.rowIndexY       = par->rowIndexY;
+    kernelPar.rowIndexResult  = par->rowIndexResult;
+    kernelPar.computationMode = par->computationMode;
+    kernelPar.scale           = static_cast<const Parameter *>(par)->scale;
+    kernelPar.shift           = static_cast<const Parameter *>(par)->shift;
+    kernelPar.degree          = static_cast<const Parameter *>(par)->degree;
+    kernelPar.kernelType      = KernelType::polynomial;
+
+    __DAAL_CALL_KERNEL(env, internal::KernelImplPolynomial, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], &kernelPar);
 }
 
 } // namespace polynomial
