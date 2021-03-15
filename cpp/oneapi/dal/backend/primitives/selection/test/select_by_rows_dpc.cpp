@@ -18,7 +18,7 @@
 #include <tuple>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/selection/block_select.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_by_rows.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
@@ -29,7 +29,7 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 
 template <typename TestType>
-class block_select_test : public te::policy_fixture {
+class selection_by_rows_test : public te::policy_fixture {
 public:
     using Float = TestType;
 
@@ -37,33 +37,36 @@ public:
         return te::table_id::homogen<Float>();
     }
 
-    void test_selection(ndarray<Float, 2>& data, std::int64_t n, std::int64_t m, std::int64_t k) {
+    void test_selection(ndview<Float, 2>& data, std::int64_t n, std::int64_t m, std::int64_t k) {
         INFO("Output of selected values") {
-            auto value_array = ndarray<Float, 2>::empty(get_queue(), { n, k });
+            selection_by_rows<Float> sel(data);
             ndarray<int, 2> dummy_array;
-            block_select<Float>(get_queue(), data, k, value_array).wait_and_throw();
+            auto value_array = ndarray<Float, 2>::empty(get_queue(), { n, k });
+            sel.select(get_queue(), k, value_array).wait_and_throw();
             check_results<true, false>(data, value_array, dummy_array);
         }
 
         INFO("Output of selected indices") {
-            auto index_array = ndarray<int, 2>::empty(get_queue(), { n, k });
+            selection_by_rows<Float> sel(data);
             ndarray<Float, 2> dummy_array;
-            block_select<Float>(get_queue(), data, k, index_array).wait_and_throw();
+            auto index_array = ndarray<int, 2>::empty(get_queue(), { n, k });
+            sel.select(get_queue(), k, index_array).wait_and_throw();
             check_results<false, true>(data, dummy_array, index_array);
         }
 
         INFO("Output of both") {
+            selection_by_rows<Float> sel(data);
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { n, k });
             auto index_array = ndarray<int, 2>::empty(get_queue(), { n, k });
-            block_select<Float>(get_queue(), data, k, value_array, index_array).wait_and_throw();
+            sel.select(get_queue(), k, value_array, index_array).wait_and_throw();
             check_results<true, true>(data, value_array, index_array);
         }
     }
 
     template <bool selection_out, bool indices_out>
-    void check_results(const ndarray<Float, 2>& block,
-                       const ndarray<Float, 2>& selection,
-                       const ndarray<int, 2>& indices) {
+    void check_results(const ndview<Float, 2>& block,
+                       const ndview<Float, 2>& selection,
+                       const ndview<int, 2>& indices) {
         ONEDAL_ASSERT(block.get_dimension(1) == selection.get_dimension(1));
         ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
 
@@ -108,9 +111,9 @@ public:
     }
 
     template <bool selection_out, bool indices_out>
-    Float get_value(const ndarray<Float, 2>& block,
-                    const ndarray<Float, 2>& selection,
-                    const ndarray<int, 2>& indices,
+    Float get_value(const ndview<Float, 2>& block,
+                    const ndview<Float, 2>& selection,
+                    const ndview<int, 2>& indices,
                     std::int64_t k,
                     std::int64_t row_size,
                     std::int64_t row,
@@ -127,9 +130,9 @@ public:
     }
 
     template <bool selection_out, bool indices_out>
-    void check_presence_in_data(const ndarray<Float, 2>& block,
-                                const ndarray<Float, 2>& selection,
-                                const ndarray<int, 2>& indices,
+    void check_presence_in_data(const ndview<Float, 2>& block,
+                                const ndview<Float, 2>& selection,
+                                const ndview<int, 2>& indices,
                                 std::int64_t k,
                                 std::int64_t row_size,
                                 std::int64_t row,
@@ -149,8 +152,8 @@ public:
     }
 
     template <bool selection_out, bool indices_out>
-    void check_presence_in_selection(const ndarray<Float, 2>& selection,
-                                     const ndarray<int, 2>& indices,
+    void check_presence_in_selection(const ndview<Float, 2>& selection,
+                                     const ndview<int, 2>& indices,
                                      std::int64_t k,
                                      std::int64_t row_size,
                                      std::int64_t row,
@@ -173,7 +176,7 @@ public:
 
 using selection_types = std::tuple<float, double>;
 
-TEMPLATE_LIST_TEST_M(block_select_test,
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == 1)",
                      "[block select][small]",
                      selection_types) {
@@ -184,7 +187,7 @@ TEMPLATE_LIST_TEST_M(block_select_test,
     this->test_selection(data_array, 3, 5, 1);
 }
 
-TEMPLATE_LIST_TEST_M(block_select_test,
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection single row test (k == 2)",
                      "[block select][small]",
                      selection_types) {
@@ -195,7 +198,7 @@ TEMPLATE_LIST_TEST_M(block_select_test,
     this->test_selection(data_array, 1, 15, 2);
 }
 
-TEMPLATE_LIST_TEST_M(block_select_test,
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == m)",
                      "[block select][small]",
                      selection_types) {
@@ -206,7 +209,7 @@ TEMPLATE_LIST_TEST_M(block_select_test,
     this->test_selection(data_array, 3, 5, 3);
 }
 
-TEMPLATE_LIST_TEST_M(block_select_test,
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection test",
                      "[block select][small]",
                      selection_types) {
@@ -217,7 +220,7 @@ TEMPLATE_LIST_TEST_M(block_select_test,
     this->test_selection(data_array, 3, 5, 2);
 }
 
-TEMPLATE_LIST_TEST_M(block_select_test,
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection test on random data",
                      "[block select][medium]",
                      selection_types) {

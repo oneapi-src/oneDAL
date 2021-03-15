@@ -17,40 +17,46 @@
 #include <limits>
 
 #include "oneapi/dal/backend/common.hpp"
-#include "oneapi/dal/backend/primitives/selection/block_simd_select.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_by_rows_simd.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 constexpr uint32_t preffered_wg_size = 128;
 
 template <typename Float, uint32_t simd_width, bool selection_out, bool indices_out>
-sycl::event block_simd_select(sycl::queue& queue,
-                              const ndview<Float, 2>& block,
-                              std::int64_t k,
-                              ndview<Float, 2>& selection,
-                              ndview<int, 2>& indices,
-                              const event_vector& deps) {
+sycl::event select_by_rows_simd(sycl::queue& queue,
+                                const ndview<Float, 2>& data,
+                                std::int64_t k,
+                                std::int64_t col_begin,
+                                std::int64_t col_end,
+                                ndview<Float, 2>& selection,
+                                ndview<int, 2>& indices,
+                                const event_vector& deps) {
     if constexpr (selection_out) {
-        ONEDAL_ASSERT(block.get_dimension(1) == selection.get_dimension(1));
+        ONEDAL_ASSERT(data.get_dimension(1) == selection.get_dimension(1));
+        ONEDAL_ASSERT(data.get_dimension(0) >= k);
         ONEDAL_ASSERT(selection.get_dimension(0) == k);
         ONEDAL_ASSERT(selection.has_mutable_data());
     }
     if constexpr (indices_out) {
-        ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
+        ONEDAL_ASSERT(data.get_dimension(1) == indices.get_dimension(1));
         ONEDAL_ASSERT(indices.get_dimension(0) == k);
         ONEDAL_ASSERT(indices.has_mutable_data());
     }
 
     const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
     ONEDAL_ASSERT(!sg_sizes.empty());
+
     auto result = std::max_element(sg_sizes.begin(), sg_sizes.end());
     ONEDAL_ASSERT(result != sg_sizes.end());
-    // TODO: overflow check
+
     const uint32_t sg_max_size = static_cast<int>(*result);
     const uint32_t expected_sg_num = preffered_wg_size / sg_max_size;
+    ONEDAL_ASSERT(expected_sg_num > 0);
 
-    const std::int64_t nx = block.get_dimension(1);
-    const std::int64_t ny = block.get_dimension(0);
+    const std::int64_t nx = data.get_dimension(1);
+    const std::int64_t ny = data.get_dimension(0);
+    // TODO: overflow check
     sycl::range<2> global(
         preffered_wg_size,
         up_multiple(ny, static_cast<std::int64_t>(expected_sg_num)) / expected_sg_num);
@@ -58,7 +64,7 @@ sycl::event block_simd_select(sycl::queue& queue,
 
     sycl::nd_range<2> nd_range2d(global, local);
 
-    const Float* block_ptr = block.get_data();
+    const Float* data_ptr = data.get_data();
     Float* selection_ptr = selection_out ? selection.get_mutable_data() : nullptr;
     int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
 
@@ -88,8 +94,8 @@ sycl::event block_simd_select(sycl::queue& queue,
                 private_indices[i] = -1;
             }
 
-            for (uint32_t i = local_id; i < nx; i += local_range) {
-                Float cur_val = block_ptr[in_offset + i];
+            for (uint32_t i = col_begin + local_id; i < col_end; i += local_range) {
+                Float cur_val = data_ptr[in_offset + i];
                 uint32_t index = i;
                 int pos = -1;
 
@@ -136,14 +142,16 @@ sycl::event block_simd_select(sycl::queue& queue,
     return event;
 }
 
-#define INSTANTIATE(F, simd_width, selection_out, indices_out)                              \
-    template ONEDAL_EXPORT sycl::event                                                      \
-    block_simd_select<F, simd_width, selection_out, indices_out>(sycl::queue & queue,       \
-                                                                 const ndview<F, 2>& block, \
-                                                                 std::int64_t k,            \
-                                                                 ndview<F, 2>& selection,   \
-                                                                 ndview<int, 2>& indices,   \
-                                                                 const event_vector& deps);
+#define INSTANTIATE(F, simd_width, selection_out, indices_out)                               \
+    template ONEDAL_EXPORT sycl::event                                                       \
+    select_by_rows_simd<F, simd_width, selection_out, indices_out>(sycl::queue & queue,      \
+                                                                   const ndview<F, 2>& data, \
+                                                                   std::int64_t k,           \
+                                                                   std::int64_t col_begin,   \
+                                                                   std::int64_t col_end,     \
+                                                                   ndview<F, 2>& selection,  \
+                                                                   ndview<int, 2>& indices,  \
+                                                                   const event_vector& deps);
 
 #define INSTANTIATE_FLOAT(simd_width, selection_out, indices_out) \
     INSTANTIATE(float, simd_width, selection_out, indices_out)    \
