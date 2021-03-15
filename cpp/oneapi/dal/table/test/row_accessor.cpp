@@ -14,12 +14,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/linalg.hpp"
 
 namespace oneapi::dal {
+
+namespace te = dal::test::engine;
+namespace la = te::linalg;
 
 TEST("can read table data via row accessor") {
     using oneapi::dal::detail::empty_delete;
@@ -145,7 +149,7 @@ TEST("push with queue throws exception if invalid range") {
     REQUIRE_THROWS_AS(acc.push(q, rows_data, { 3, 4 }), dal::range_error);
 }
 
-TEST("can pull rows as device usm from host-allocated homogen table", "[device-usm]") {
+TEST("pull as device usm from host-allocated homogen table") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
 
@@ -160,11 +164,9 @@ TEST("can pull rows as device usm from host-allocated homogen table", "[device-u
         row_accessor<const float>{ data } //
             .pull(q, { 1, 3 }, sycl::usm::alloc::device);
 
-    auto data_arr_host = array<float>::empty(data_arr_device.get_count());
-    q.memcpy(data_arr_host.get_mutable_data(),
-             data_arr_device.get_data(),
-             sizeof(float) * data_arr_device.get_count())
-        .wait_and_throw();
+    const auto data_arr_host =
+        la::matrix<float>::wrap(q, data_arr_device.get_data(), { row_count, column_count })
+            .to_host();
     const float* data_arr_host_ptr = data_arr_host.get_data();
 
     REQUIRE(data_arr_host_ptr[0] == 3.0f);
@@ -173,7 +175,80 @@ TEST("can pull rows as device usm from host-allocated homogen table", "[device-u
     REQUIRE(data_arr_host_ptr[3] == -3.0f);
 }
 
-TEST("can pull rows from column-major shared usm homogen table", "[shared-usm]") {
+TEST("pull as host from device-allocated homogen table") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+
+    constexpr std::int64_t row_count = 4;
+    constexpr std::int64_t column_count = 3;
+    const auto ary = la::matrix<float>::full(
+        q,
+        { row_count, column_count },
+        [](std::int64_t i) {
+            return float(i);
+        },
+        sycl::usm::alloc::device);
+    const auto shared_table = homogen_table::wrap(q, ary.get_data(), row_count, column_count);
+
+    const auto data_arr_host = //
+        row_accessor<const float>{ shared_table }.pull({ 1, 3 });
+    const float* data_arr_host_ptr = data_arr_host.get_data();
+
+    REQUIRE(data_arr_host_ptr[0] == 3.0f);
+    REQUIRE(data_arr_host_ptr[1] == 4.0f);
+    REQUIRE(data_arr_host_ptr[2] == 5.0f);
+    REQUIRE(data_arr_host_ptr[3] == 6.0f);
+}
+
+TEST("pull does not copy if alloc kind matches") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+    const auto alloc_kind = GENERATE(sycl::usm::alloc::device, //
+                                     sycl::usm::alloc::host,
+                                     sycl::usm::alloc::shared);
+
+    constexpr std::int64_t row_count = 4;
+    constexpr std::int64_t column_count = 3;
+    const auto ary = la::matrix<float>::full(
+        q,
+        { row_count, column_count },
+        [](std::int64_t i) {
+            return float(i);
+        },
+        alloc_kind);
+    const auto table = homogen_table::wrap(q, ary.get_data(), row_count, column_count);
+
+    const auto data_arr_device = //
+        row_accessor<const float>{ table } //
+            .pull(q, { 0, 2 }, alloc_kind);
+
+    REQUIRE(data_arr_device.get_data() == ary.get_data());
+}
+
+TEST("pull does not copy if device usm requested from shared usm table") {
+    DECLARE_TEST_POLICY(policy);
+    auto& q = policy.get_queue();
+
+    constexpr std::int64_t row_count = 4;
+    constexpr std::int64_t column_count = 3;
+    const auto shared_ary = la::matrix<float>::full(
+        q,
+        { row_count, column_count },
+        [](std::int64_t i) {
+            return float(i);
+        },
+        sycl::usm::alloc::shared);
+    const auto shared_table =
+        homogen_table::wrap(q, shared_ary.get_data(), row_count, column_count);
+
+    const auto data_arr_device = //
+        row_accessor<const float>{ shared_table } //
+            .pull(q, { 0, 2 }, sycl::usm::alloc::device);
+
+    REQUIRE(data_arr_device.get_data() == shared_ary.get_data());
+}
+
+TEST("pull from column-major shared usm homogen table") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
 

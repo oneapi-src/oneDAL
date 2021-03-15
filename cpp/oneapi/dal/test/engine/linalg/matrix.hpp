@@ -171,9 +171,9 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static matrix wrap(const sycl::context& ctx, const Float* data, const shape& s) {
+    static matrix wrap(const sycl::queue& q, const Float* data, const shape& s) {
         auto ary = array<Float>::wrap(data, s.get_count());
-        return matrix{ ctx, std::move(ary), s };
+        return matrix{ q, std::move(ary), s };
     }
 #endif
 
@@ -182,8 +182,8 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static matrix wrap(const sycl::context& ctx, const array<Float>& x) {
-        return matrix{ ctx, x, { 1, x.get_count() } };
+    static matrix wrap(const sycl::queue& q, const array<Float>& x) {
+        return matrix{ q, x, { 1, x.get_count() } };
     }
 #endif
 
@@ -192,8 +192,8 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static matrix wrap(const sycl::context& ctx, const array<Float>& x, const shape& s) {
-        return matrix{ ctx, x, s };
+    static matrix wrap(const sycl::queue& q, const array<Float>& x, const shape& s) {
+        return matrix{ q, x, s };
     }
 #endif
 
@@ -229,7 +229,7 @@ public:
     static matrix empty(sycl::queue& q,
                         const shape& s,
                         sycl::usm::alloc alloc = sycl::usm::alloc::device) {
-        return wrap(q.get_context(), array<Float>::empty(q, s.get_count(), alloc), s);
+        return wrap(q, array<Float>::empty(q, s.get_count(), alloc), s);
     }
 #endif
 
@@ -313,101 +313,97 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    std::optional<sycl::context> get_context() const {
-        return context_;
+    std::optional<sycl::queue> get_queue() const {
+        return queue_;
     }
 
-    sycl::usm::alloc get_alloc() const {
-        if (!context_.has_value()) {
-            return sycl::usm::alloc::host;
+    bool matches_usm_alloc(sycl::usm::alloc alloc) const {
+        if (!queue_.has_value()) {
+            return false;
         }
-        return sycl::get_pointer_type(x_.get_data(), context_.value());
+        const auto pointer_type =
+            sycl::get_pointer_type(x_.get_data(), queue_.value().get_context());
+        return pointer_type == alloc;
     }
 
-    bool is_device_alloc() const {
-        return get_alloc() == sycl::usm::alloc::device;
+    bool is_pure_host_alloc() const {
+        return !queue_.has_value();
     }
 
-    bool is_host_alloc() const {
-        return get_alloc() == sycl::usm::alloc::host;
+    bool is_device_usm_alloc() const {
+        return matches_usm_alloc(sycl::usm::alloc::device);
     }
 
-    bool is_shared_alloc() const {
-        return get_alloc() == sycl::usm::alloc::shared;
+    bool is_host_usm_alloc() const {
+        return matches_usm_alloc(sycl::usm::alloc::host);
     }
 
-    bool is_unknown_alloc() const {
-        return get_alloc() == sycl::usm::alloc::unknown;
+    bool is_shared_usm_alloc() const {
+        return matches_usm_alloc(sycl::usm::alloc::shared);
     }
 
-    bool is_device_accessible() const {
-        return is_device_alloc() || is_shared_alloc();
+    bool is_unknown_usm_alloc() const {
+        return matches_usm_alloc(sycl::usm::alloc::unknown);
+    }
+
+    bool is_device_friendly_usm() const {
+        return is_device_usm_alloc() || is_shared_usm_alloc();
     }
 
     bool is_host_accessible() const {
-        return is_host_alloc() || is_shared_alloc();
-    }
-
-    bool is_accessible_on(const sycl::queue& q) const {
-        if (is_host_alloc()) {
-            return q.is_host() || q.get_device().is_cpu();
-        }
-
-        ONEDAL_ASSERT(context_.has_value());
-        const auto this_data_device = sycl::get_pointer_device(get_data(), context_.value());
-        if (this_data_device == q.get_device()) {
-            return true;
-        }
-
-        if (context_.value() == q.get_context()) {
-            return is_shared_alloc();
-        }
-
-        return false;
+        return is_pure_host_alloc() || is_host_usm_alloc() || is_shared_usm_alloc();
     }
 
     bool is_migratable_to(const sycl::queue& q) const {
-        if (is_host_alloc()) {
+        if (is_pure_host_alloc()) {
             return true;
         }
-        return context_.value() == q.get_context();
+        ONEDAL_ASSERT(queue_.has_value());
+        return queue_.value().get_context() == q.get_context();
     }
 
-    matrix to_host(sycl::queue& q) const {
-        check_if_migratable_to(q);
-        if (is_host_accessible()) {
+    bool is_accessible_on(const sycl::queue& q) const {
+        if (is_pure_host_alloc()) {
+            return false;
+        }
+        ONEDAL_ASSERT(queue_.has_value());
+        return queue_.value().get_context() == q.get_context();
+    }
+
+    matrix to_host() const {
+        if (is_pure_host_alloc()) {
             return *this;
         }
 
+        ONEDAL_ASSERT(queue_.has_value());
+        auto q = queue_.value();
+
         const auto host_copy = matrix<Float>::empty(this->get_shape());
-        q.memcpy(host_copy.get_mutable_data(), x_.get_data(), sizeof(Float) * x_.get_count())
-            .wait_and_throw();
+        q.memcpy(host_copy.get_mutable_data(), x_.get_data(), x_.get_size()).wait_and_throw();
         return host_copy;
     }
 
     matrix to_device(sycl::queue& q) const {
         check_if_migratable_to(q);
-        if (is_device_accessible()) {
+        if (is_device_usm_alloc()) {
             return *this;
         }
 
         const auto device_copy =
             matrix<Float>::empty(q, this->get_shape(), sycl::usm::alloc::device);
-        q.memcpy(device_copy.get_mutable_data(), x_.get_data(), sizeof(Float) * x_.get_count())
-            .wait_and_throw();
+        q.memcpy(device_copy.get_mutable_data(), x_.get_data(), x_.get_size()).wait_and_throw();
         return device_copy;
     }
 
     matrix to_shared(sycl::queue& q) const {
         check_if_migratable_to(q);
-        if (is_shared_alloc()) {
+        if (is_shared_usm_alloc()) {
             return *this;
         }
 
         const auto shared_copy =
             matrix<Float>::empty(q, this->get_shape(), sycl::usm::alloc::shared);
-        q.memcpy(shared_copy.get_mutable_data(), x_.get_data(), sizeof(Float) * x_.get_count())
-            .wait_and_throw();
+        q.memcpy(shared_copy.get_mutable_data(), x_.get_data(), x_.get_size()).wait_and_throw();
         return shared_copy;
     }
 #endif
@@ -433,6 +429,7 @@ public:
     }
 
     auto& fill(Float filler) {
+        check_if_host_accessible();
         Float* ptr = get_mutable_data();
         for (std::int64_t i = 0; i < get_count(); i++) {
             ptr[i] = filler;
@@ -444,6 +441,33 @@ public:
     auto& fill(sycl::queue& q, Float filler) {
         check_if_accessible_on(q);
         q.fill(get_mutable_data(), filler, get_count()).wait_and_throw();
+        return *this;
+    }
+#endif
+
+    template <typename Filler, typename = std::enable_if_t<!std::is_arithmetic_v<Filler>>>
+    auto& fill(Filler&& filler) {
+        Float* ptr = get_mutable_data();
+        for (std::int64_t i = 0; i < get_count(); i++) {
+            ptr[i] = filler(i);
+        }
+        return *this;
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename Filler, typename = std::enable_if_t<!std::is_arithmetic_v<Filler>>>
+    auto& fill(sycl::queue& q, Filler&& filler) {
+        check_if_accessible_on(q);
+
+        Float* data_ptr = get_mutable_data();
+        const auto r = sycl::range<1>{ std::size_t(this->get_count()) };
+
+        auto event = q.parallel_for(r, [=](sycl::nd_item<1> id) {
+            const std::int64_t i = id.get_global_id();
+            data_ptr[i] = filler(i);
+        });
+        event.wait_and_throw();
+
         return *this;
     }
 #endif
@@ -479,20 +503,20 @@ private:
             : matrix(x, s, base::get_default_stride(s)) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
-    explicit matrix(const sycl::context& ctx,
+    explicit matrix(const sycl::queue& q,
                     const array<Float>& x,
                     const shape& s,
                     std::int64_t stride)
             : base(s, stride),
               x_(x),
-              context_(ctx) {
+              queue_(q) {
         ONEDAL_ASSERT(s.get_count() <= x.get_count(),
                       "Element count in matrix does not match "
                       "element count in the provided array");
     }
 
-    explicit matrix(const sycl::context& ctx, const array<Float>& x, const shape& s)
-            : matrix(ctx, x, s, base::get_default_stride(s)) {}
+    explicit matrix(const sycl::queue& q, const array<Float>& x, const shape& s)
+            : matrix(q, x, s, base::get_default_stride(s)) {}
 
 #endif
 
@@ -510,11 +534,19 @@ private:
                                          "represented by the given queue" };
         }
     }
+
+    void check_if_host_accessible() const {
+        if (!is_host_accessible()) {
+            throw std::invalid_argument{ "Cannot access data on the host" };
+        }
+    }
+#else
+    void check_if_host_accessible() const {}
 #endif
 
     array<Float> x_;
 #ifdef ONEDAL_DATA_PARALLEL
-    std::optional<sycl::context> context_;
+    std::optional<sycl::queue> queue_;
 #endif
 };
 

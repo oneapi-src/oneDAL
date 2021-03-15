@@ -83,7 +83,7 @@ public:
                        stride,
                        get_element_count() / stride);
 
-        auto dst_host = dst_device.to_host(q);
+        auto dst_host = dst_device.to_host();
         check_conversion<Src, Dst>(source_data, dst_host.get_data(), stride);
     }
 
@@ -103,7 +103,7 @@ public:
                        stride,
                        get_element_count() / stride);
 
-        auto dst_host = dst_device.to_host(q);
+        auto dst_host = dst_device.to_host();
         check_conversion<Src, Dst>(source_data, dst_host.get_data(), stride);
     }
 
