@@ -26,16 +26,13 @@
 #define __MULTICLASSCLASSIFIER_TRAIN_ONEAGAINSTONE_IMPL_I__
 
 #include "algorithms/multi_class_classifier/multi_class_classifier_model.h"
+#include "algorithms/svm/svm_model.h"
 
 #include "src/threading/threading.h"
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/service_error_handling.h"
 #include "src/externals/service_blas.h"
-
-using namespace daal::internal;
-using namespace daal::services::internal;
-using namespace daal::data_management;
-using namespace daal::services;
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_svm_model.h"
 
 namespace daal
 {
@@ -47,13 +44,30 @@ namespace training
 {
 namespace internal
 {
-template <typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
-services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu>::compute(
-    const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * r,
-    const daal::algorithms::Parameter * par)
+using namespace daal::internal;
+using namespace daal::services::internal;
+using namespace daal::data_management;
+using namespace daal::services;
+using namespace multi_class_classifier::internal;
+
+template <typename algorithmFPType, typename ClsType, CpuType cpu>
+services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, cpu>::compute(
+    const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * r, const KernelParameter & par)
 {
-    Model * model             = static_cast<Model *>(r);
-    const MccParType * mccPar = static_cast<const MccParType *>(par);
+    Status s;
+
+    const bool isOutSvmModel = dynamic_cast<SvmModel *>(r) != nullptr;
+    Model * model            = nullptr;
+    SvmModel * svmModel      = nullptr;
+
+    if (!isOutSvmModel)
+    {
+        model = static_cast<Model *>(r);
+    }
+    else
+    {
+        svmModel = static_cast<SvmModel *>(r);
+    }
 
     const size_t nVectors = xTable->getNumberOfRows();
     ReadColumns<algorithmFPType, cpu> mtY(*const_cast<NumericTable *>(yTable), 0, 0, nVectors);
@@ -65,16 +79,13 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     const algorithmFPType * weights = mtW.get();
 
     const size_t nFeatures = xTable->getNumberOfColumns();
-    model->setNFeatures(nFeatures);
-    services::SharedPtr<ClsType> simpleTrainingInit = mccPar->training->clone();
+    if (!isOutSvmModel) model->setNFeatures(nFeatures);
+    services::SharedPtr<ClsType> simpleTrainingInit = par.training->clone();
 
-    const size_t nClasses = mccPar->nClasses;
+    const size_t nClasses = par.nClasses;
     /* Compute data size needed to store the largest subset of input tables */
     size_t nSubsetVectors, dataSize;
-    {
-        Status s;
-        DAAL_CHECK_STATUS(s, computeDataSize(nVectors, nFeatures, nClasses, xTable, y, nSubsetVectors, dataSize));
-    }
+    DAAL_CHECK_STATUS(s, computeDataSize(nVectors, nFeatures, nClasses, xTable, y, nSubsetVectors, dataSize));
 
     typedef SubTask<algorithmFPType, ClsType, cpu> TSubTask;
     /* Allocate memory for storing subsets of input data */
@@ -87,54 +98,135 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     });
 
     SafeStatus safeStat;
+
+    TArray<bool, cpu> is_sv(nVectors);
+    bool * const data_is_sv = is_sv.get();
+    daal::services::internal::service_memset_seq<bool, cpu>(data_is_sv, false, nVectors);
+
+    DAAL_CHECK_MALLOC(is_sv.get());
+
     const size_t nModels = (nClasses * (nClasses - 1)) >> 1;
-    daal::threader_for(nModels, nModels, [&](size_t imodel) {
-        /* Find indices of positive and negative classes for current model */
-        size_t i    = 1; /* index of the positive class */
-        size_t j    = 0; /* index of the negative class */
-        size_t isum = 0; /* isum = (i*i - i) / 2; */
-        while (i <= j || isum + j != imodel)
+    // daal::threader_for(nModels, nModels, [&](size_t imodel) {
+    size_t imodel = 0;
+    for (size_t i = 0; i < nClasses; i++)
+    {
+        for (size_t j = i + 1; j < nClasses; j++)
         {
-            isum += i;
-            i++;
-            j = imodel - isum;
-        }
+            /* Find indices of positive and negative classes for current model */
+            // size_t i    = 1; /* index of the positive class */
+            // size_t j    = 0; /* index of the negative class */
+            // size_t isum = 0;  isum = (i*i - i) / 2;
+            // while (i <= j || isum + j != imodel)
+            // {
+            //     isum += i;
+            //     i++;
+            //     j = imodel - isum;
+            // }
 
-        TSubTask * local = lsTask.local();
-        if (!local)
-        {
-            safeStat.add(services::ErrorMemoryAllocationFailed);
-            return;
-        }
-        DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
+            TSubTask * local = lsTask.local();
+            // if (!local)
+            // {
+            //     safeStat.add(services::ErrorMemoryAllocationFailed);
+            //     return;
+            // }
+            DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
 
-        size_t nRowsInSubset = 0;
-        Status s             = local->getDataSubset(nFeatures, nVectors, i, j, y, nRowsInSubset);
-        DAAL_CHECK_STATUS_THR(s);
-        classifier::ModelPtr pModel;
-        if (nRowsInSubset)
-        {
-            s = local->trainSimpleClassifier(nRowsInSubset);
-            if (!s)
+            size_t nRowsInSubset = 0;
+            local->getDataSubset(nFeatures, nVectors, i, j, y, nRowsInSubset);
+            // DAAL_CHECK_STATUS_THR(s);
+            classifier::ModelPtr pModel;
+            if (nRowsInSubset)
             {
-                safeStat |= s;
-                safeStat.add(services::ErrorMultiClassFailedToTrainTwoClassClassifier);
-                return;
+                s = local->trainSimpleClassifier(nRowsInSubset);
+                // if (!s)
+                // {
+                //     safeStat |= s;
+                //     safeStat.add(services::ErrorMultiClassFailedToTrainTwoClassClassifier);
+                //     return;
+                // }
+                pModel = local->getModel();
             }
-            pModel = local->getModel();
-        }
-        model->setTwoClassClassifierModel(imodel, pModel);
-    });
+            if (!isOutSvmModel)
+            {
+                model->setTwoClassClassifierModel(imodel, pModel);
+            }
+            else
+            {
+                auto svm_model            = daal::services::staticPointerCast<svm::Model>(pModel);
+                auto two_class_sv_ind     = svm_model->getSupportIndices();
+                const size_t count_sv_ind = two_class_sv_ind->getNumberOfRows();
 
+                ReadColumns<int, cpu> mtSvIndex(two_class_sv_ind.get(), 0, 0, count_sv_ind);
+                DAAL_CHECK_BLOCK_STATUS(mtY);
+                const int * arr_two_class_sv_ind = mtSvIndex.get();
+
+                for (std::int64_t svId = 0; svId < count_sv_ind; ++svId)
+                {
+                    const std::int64_t original_index = arr_two_class_sv_ind[svId];
+                    data_is_sv[original_index]        = true;
+                }
+                auto biasesNT = svmModel->getBiases();
+                WriteOnlyColumns<algorithmFPType, cpu> mtBiases(biasesNT.get(), 0, imodel, 1);
+                *mtBiases.get() = svm_model->getBias();
+            }
+
+            ++imodel;
+        }
+    }
+    // });
+
+    if (isOutSvmModel)
+    {
+        TArray<size_t, cpu> array_sv_counts(nClasses);
+        size_t * const sv_counts = array_sv_counts.get();
+        size_t nSV               = 0;
+
+        for (size_t iClass = 0; iClass < nClasses; ++iClass)
+        {
+            sv_counts[iClass] = 0;
+            for (size_t j = 0; j < nVectors; ++j)
+            {
+                const size_t label = size_t(y[j]);
+                if (data_is_sv[j] && label == iClass)
+                {
+                    ++sv_counts[iClass];
+                }
+            }
+            nSV += sv_counts[iClass];
+            printf("%lu: %lu\n", iClass, sv_counts[iClass]);
+        }
+        printf("sumSV: %lu\n", nSV);
+
+        NumericTablePtr supportIndicesNT = svmModel->getSupportIndices();
+        DAAL_CHECK_STATUS(s, supportIndicesNT->resize(nSV));
+
+        WriteOnlyColumns<int, cpu> mtSupportIndices(supportIndicesNT.get(), 0, 0, nSV);
+        int * supportIndices = mtSupportIndices.get();
+
+        size_t p = 0;
+        for (size_t iClass = 0; iClass < nClasses; ++iClass)
+        {
+            for (size_t j = 0; j < nVectors; ++j)
+            {
+                const size_t label = size_t(y[j]);
+                if (data_is_sv[j] && label == iClass)
+                {
+                    supportIndices[p] = j;
+                    p++;
+                }
+            }
+        }
+    }
     lsTask.reduce([=, &safeStat](TSubTask * local) { delete local; });
 
     return safeStat.detach();
 }
 
-template <typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
-Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu>::computeDataSize(
-    size_t nVectors, size_t nFeatures, size_t nClasses, const NumericTable * xTable, const algorithmFPType * y, size_t & nSubsetVectors,
-    size_t & dataSize)
+template <typename algorithmFPType, typename ClsType, CpuType cpu>
+Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, cpu>::computeDataSize(size_t nVectors, size_t nFeatures,
+                                                                                                      size_t nClasses, const NumericTable * xTable,
+                                                                                                      const algorithmFPType * y,
+                                                                                                      size_t & nSubsetVectors, size_t & dataSize)
 {
     TArray<size_t, cpu> buffer(4 * nClasses);
     DAAL_CHECK_MALLOC(buffer.get());

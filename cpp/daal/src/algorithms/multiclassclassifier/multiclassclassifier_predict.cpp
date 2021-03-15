@@ -87,13 +87,10 @@ services::Status Input::check(const daal::algorithms::Parameter * parameter, int
     services::Status s;
     DAAL_CHECK_STATUS(s, classifier::prediction::Input::check(parameter, method));
     {
-        auto par1 = dynamic_cast<const multi_class_classifier::interface1::Parameter *>(parameter);
-        if (par1) DAAL_CHECK_EX(par1->prediction.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, predictionStr());
-
         auto par2 = dynamic_cast<const multi_class_classifier::Parameter *>(parameter);
         if (par2) DAAL_CHECK_EX(par2->prediction.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, predictionStr());
 
-        if (par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
+        if (par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
     }
 
     multi_class_classifier::ModelPtr m = get(classifier::prediction::model);

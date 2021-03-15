@@ -17,6 +17,7 @@
 #include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
 #include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 #include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>
+#include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_svm_model.h>
 
 #include "algorithms/svm/svm_train.h"
 
@@ -43,6 +44,7 @@ using descriptor_t = detail::descriptor_base<task::classification>;
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_classifier = daal::algorithms::classifier;
 namespace daal_multiclass = daal::algorithms::multi_class_classifier;
+namespace daal_multiclass_internal = daal_multiclass::internal;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
@@ -55,7 +57,6 @@ using daal_multiclass_kernel_t =
         daal_multiclass::training::oneAgainstOne,
         Float,
         daal::algorithms::classifier::training::Batch,
-        daal_multiclass::Parameter,
         Cpu>;
 
 template <typename Float, typename Method>
@@ -95,9 +96,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     if (class_count > 2) {
         const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 
-        daal_multiclass::Parameter daal_multiclass_parameter(class_count);
-        daal_multiclass::ModelPtr daal_model =
-            daal_multiclass::Model::create(column_count, &daal_multiclass_parameter);
+        daal_multiclass::training::internal::KernelParameter daal_multiclass_parameter;
+        daal_multiclass_parameter.nClasses = class_count;
+
+        daal_multiclass_internal::SvmModelPtr daal_model =
+            daal_multiclass_internal::SvmModel::create<Float>(class_count, column_count);
         using svm_batch_t =
             typename daal_svm::training::Batch<Float, to_daal_method<Method>::value>;
         auto svm_batch = daal::services::SharedPtr<svm_batch_t>(new svm_batch_t());
@@ -111,19 +114,25 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                        daal_labels.get(),
                                                                        daal_weights.get(),
                                                                        daal_model.get(),
-                                                                       &daal_multiclass_parameter));
-        const auto trained_model =
-            std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
-        trained_model->class_count = class_count;
+                                                                       daal_multiclass_parameter));
 
-        const auto trained_model_2 =
-            convert_from_daal_multiclass_model<task::classification, Float>(daal_model,
-                                                                            labels,
-                                                                            class_count);
-        trained_model->support_vectors = trained_model_2.get_support_vectors();
-        trained_model->biases = trained_model_2.get_biases();
-        trained_model->coeffs = trained_model_2.get_coeffs();
-        return result_t().set_model(dal::detail::make_private<model_t>(trained_model));
+        auto trained_model =
+            convert_from_daal_multiclass_model<task::classification, Float>(daal_model);
+        auto table_support_indices =
+            interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
+        return result_t().set_model(trained_model).set_support_indices(table_support_indices);
+        // const auto trained_model =
+        //     std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
+        // trained_model->class_count = class_count;
+
+        // const auto trained_model_2 =
+        //     convert_from_daal_multiclass_model<task::classification, Float>(daal_model,
+        //                                                                     labels,
+        //                                                                     class_count);
+        // trained_model->support_vectors = trained_model_2.get_support_vectors();
+        // trained_model->biases = trained_model_2.get_biases();
+        // trained_model->coeffs = trained_model_2.get_coeffs();
+        // return result_t().set_model(dal::detail::make_private<model_t>(trained_model));
     }
     else {
         auto arr_label = row_accessor<const Float>{ labels }.pull();

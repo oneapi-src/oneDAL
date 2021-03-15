@@ -23,7 +23,6 @@
 */
 
 #include "src/algorithms/multiclassclassifier/inner/multiclassclassifier_train_batch_container_v1.h"
-#include "src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h"
 #include "src/algorithms/multiclassclassifier/multiclassclassifier_train_oneagainstone_kernel.h"
 #include "src/algorithms/multiclassclassifier/multiclassclassifier_train_oneagainstone_impl.i"
 
@@ -41,15 +40,10 @@ template class BatchContainer<DAAL_FPTYPE, oneAgainstOne, DAAL_CPU>;
 }
 namespace internal
 {
-template class MultiClassClassifierTrainKernel<oneAgainstOne, DAAL_FPTYPE, classifier::training::interface1::Batch,
-                                               multi_class_classifier::interface1::Parameter, DAAL_CPU>;
+template class MultiClassClassifierTrainKernel<oneAgainstOne, DAAL_FPTYPE, classifier::training::interface1::Batch, DAAL_CPU>;
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace multi_class_classifier
-
 } // namespace algorithms
-
 } // namespace daal

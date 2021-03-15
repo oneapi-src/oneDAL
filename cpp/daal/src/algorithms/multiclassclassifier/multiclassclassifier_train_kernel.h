@@ -42,21 +42,27 @@ namespace training
 {
 namespace internal
 {
-template <Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
+struct KernelParameter
+{
+    size_t nClasses;                                                           /*!< Number of classes */
+    services::SharedPtr<algorithms::classifier::training::Batch> training;     /*!< Two-class classifier training stage */
+    services::SharedPtr<algorithms::classifier::prediction::Batch> prediction; /*!< Two-class classifier prediction stage */
+    size_t maxIterations;                                                      /*!< Maximum number of iterations */
+    double accuracyThreshold;                                                  /*!< Convergence threshold */
+    bool isOutSvmModel = false;
+};
+
+template <Method method, typename AlgorithmFPtype, typename ClsType, CpuType cpu>
 struct MultiClassClassifierTrainKernel : public Kernel
 {
     services::Status compute(const NumericTable * a0, const NumericTable * a1, const NumericTable * a2, daal::algorithms::Model * r,
-                             const daal::algorithms::Parameter * par);
+                             const internal::KernelParameter & par);
 };
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace multi_class_classifier
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

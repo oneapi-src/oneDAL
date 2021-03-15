@@ -31,6 +31,7 @@
 #include "src/algorithms/service_sort.h"
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_numeric_table.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -203,12 +204,12 @@ private:
     ReadRows<algorithmFPType, cpu> _mtX;
 };
 
-template <typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
-class MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu> : public Kernel
+template <typename algorithmFPType, typename ClsType, CpuType cpu>
+class MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, cpu> : public Kernel
 {
 public:
     services::Status compute(const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * r,
-                             const daal::algorithms::Parameter * par);
+                             const KernelParameter & par);
 
 protected:
     services::Status computeDataSize(size_t nVectors, size_t nFeatures, size_t nClasses, const NumericTable * xTable, const algorithmFPType * y,

@@ -42,8 +42,7 @@ namespace interface1
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierTrainKernel, method, algorithmFPType, classifier::training::interface1::Batch,
-                              multi_class_classifier::interface1::Parameter);
+    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierTrainKernel, method, algorithmFPType, classifier::training::interface1::Batch);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -66,19 +65,19 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     multi_class_classifier::Model * r = static_cast<multi_class_classifier::Model *>(result->get(classifier::training::model).get());
 
     const multi_class_classifier::interface1::Parameter * par = static_cast<const multi_class_classifier::interface1::Parameter *>(_par);
-    daal::services::Environment::env & env                    = *_env;
-    __DAAL_CALL_KERNEL(
-        env, internal::MultiClassClassifierTrainKernel,
-        __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, classifier::training::interface1::Batch, multi_class_classifier::interface1::Parameter),
-        compute, a[0], a[1], a[2], r, par);
+    internal::KernelParameter kernelPar;
+    kernelPar.nClasses          = par->nClasses;
+    kernelPar.maxIterations     = par->maxIterations;
+    kernelPar.accuracyThreshold = par->accuracyThreshold;
+
+    daal::services::Environment::env & env = *_env;
+    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierTrainKernel,
+                       __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, classifier::training::interface1::Batch), compute, a[0], a[1], a[2], r,
+                       kernelPar);
 }
 
 } // namespace interface1
-
 } // namespace training
-
 } // namespace multi_class_classifier
-
 } // namespace algorithms
-
 } // namespace daal
