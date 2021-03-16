@@ -202,7 +202,7 @@ auto host_homogen_table_adapter<Data>::deserializeImpl(
 
 template <typename Data>
 void host_homogen_table_adapter<Data>::freeDataMemoryImpl() {
-    base::freeDataMemoryImpl();
+    base->freeDataMemory();
     original_table_ = homogen_table{};
 }
 
@@ -216,52 +216,7 @@ auto host_homogen_table_adapter<Data>::read_rows_impl(std::size_t vector_idx,
         return daal::services::ErrorMethodNotImplemented;
     }
 
-    if (is_rowmajor_) {
-        return base::getBlockOfRows(vector_idx, vector_num, rwflag, block);
-    }
-    else {
-        const std::int64_t column_count = original_table_.get_column_count();
-        const block_info info{ block, vector_idx, vector_num };
-
-        if (!check_row_indexes_in_range(info)) {
-            return daal::services::ErrorIncorrectIndex;
-        }
-
-        block.setDetails(0, vector_idx, rwflag);
-
-        try {
-            array<BlockData> values;
-            auto block_ptr = block.getBlockPtr();
-
-            // multiplication is safe due to checks with 'info' variable
-            const std::int64_t requested_element_count = info.row_count * column_count;
-
-            if (block_ptr != nullptr && info.allocated_element_count >= requested_element_count) {
-                values.reset(block_ptr,
-                             info.allocated_element_count,
-                             detail::empty_delete<BlockData>());
-            }
-
-            const row_accessor<const BlockData> acc{ original_table_ };
-            pull_values(block,
-                        info.row_count,
-                        column_count,
-                        acc,
-                        values,
-                        range{ info.row_begin_index, info.row_end_index });
-        }
-        catch (const bad_alloc&) {
-            return daal::services::ErrorMemoryAllocationFailed;
-        }
-        catch (const out_of_range&) {
-            return daal::services::ErrorIncorrectDataRange;
-        }
-        catch (const std::exception&) {
-            return daal::services::UnknownError;
-        }
-    }
-
-    return status_t();
+    return base->getBlockOfRows(vector_idx, vector_num, rwflag, block);
 }
 
 template <typename Data>
@@ -276,47 +231,7 @@ auto host_homogen_table_adapter<Data>::read_column_values_impl(std::size_t featu
         return daal::services::ErrorMethodNotImplemented;
     }
 
-    if (is_rowmajor_) {
-        return base::getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
-    }
-    else {
-        const block_info info{ block, vector_idx, value_num, feature_idx };
-
-        if (!check_row_indexes_in_range(info) || !check_column_index_in_range(info)) {
-            return daal::services::ErrorIncorrectIndex;
-        }
-
-        block.setDetails(feature_idx, vector_idx, rwflag);
-
-        try {
-            array<BlockData> values;
-            auto block_ptr = block.getBlockPtr();
-            if (block_ptr != nullptr && info.allocated_element_count >= info.row_count) {
-                values.reset(block_ptr,
-                             info.allocated_element_count,
-                             detail::empty_delete<BlockData>());
-            }
-
-            const column_accessor<const BlockData> acc{ original_table_ };
-            pull_values(block,
-                        info.row_count,
-                        1,
-                        acc,
-                        values,
-                        info.column_index,
-                        range{ info.row_begin_index, info.row_end_index });
-        }
-        catch (const bad_alloc&) {
-            return daal::services::ErrorMemoryAllocationFailed;
-        }
-        catch (const out_of_range&) {
-            return daal::services::ErrorIncorrectDataRange;
-        }
-        catch (const std::exception&) {
-            return daal::services::UnknownError;
-        }
-    }
-    return status_t();
+    return base->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
 }
 
 template <typename Data>
@@ -333,21 +248,36 @@ bool host_homogen_table_adapter<Data>::check_column_index_in_range(const block_i
 
 template <typename Data>
 host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table& table,
-                                                             status_t& stat)
+                                                             status_t& stat) : NumericTable(table.get_column_count(), table.get_row_count()) {
         // The following const_cast is safe only when this class is used for read-only
         // operations. Use on write leads to undefined behaviour.
-        : base(daal::data_management::DictionaryIface::equal,
-               ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-               table.get_column_count(),
-               table.get_row_count(),
-               stat),
-          is_rowmajor_(table.get_data_layout() == data_layout::row_major) {
     if (!stat.ok()) {
         return;
     }
     else if (!table.has_data()) {
         stat.add(daal::services::ErrorIncorrectParameter);
         return;
+    }
+
+    size_t nFeatures = table.get_column_count();
+    size_t nRows     = table.get_row_count();
+
+    if (table.get_data_layout() == data_layout::row_major) {
+        base = daal::data_management::HomogenNumericTable<Data>::create(daal::data_management::DictionaryIface::equal,
+               ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
+               nFeatures,
+               nRows,
+               &stat);
+    }
+    if (table.get_data_layout() == data_layout::column_major) {
+        daal::data_management::SOANumericTablePtr baseSOA = daal::data_management::SOANumericTable::create(nFeatures,
+               nRows,
+               daal::data_management::DictionaryIface::equal,
+               &stat);
+        for (size_t i = 0; i < nFeatures; i++) {
+            baseSOA->setArray<Data>(const_cast<Data*>(&(table.get_data<Data>()[i * nRows])), i);
+        }
+        base = baseSOA;
     }
 
     original_table_ = table;
