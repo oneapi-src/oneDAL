@@ -31,12 +31,12 @@ class kernel_reduction_rm_cw_inplace {
 
 public:
     kernel_reduction_rm_cw_inplace(inp_t const input_,
-                                out_t const output_,
-                                const std::int32_t width_,
-                                const std::int64_t height_,
-                                const std::int32_t lstride_,
-                                const BinaryOp binary_,
-                                const UnaryOp unary_)
+                                   out_t const output_,
+                                   const std::int32_t width_,
+                                   const std::int64_t height_,
+                                   const std::int32_t lstride_,
+                                   const BinaryOp binary_,
+                                   const UnaryOp unary_)
             : input{ input_ },
               output{ output_ },
               unary{ unary_ },
@@ -74,7 +74,7 @@ private:
 
 template <class Float, class BinaryOp, class UnaryOp>
 reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace(sycl::queue& q_,
-                                                                     const std::int64_t wg_)
+                                                                           const std::int64_t wg_)
         : q(q_),
           wg(wg_) {
     ONEDAL_ASSERT(wg <= max_wg(q));
@@ -126,12 +126,12 @@ sycl::nd_range<2> reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::get_range(
 template <class Float, class BinaryOp, class UnaryOp>
 typename reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::kernel_t
 reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
-                                                           Float* output,
-                                                           const std::int64_t width,
-                                                           const std::int64_t height,
-                                                           const std::int64_t stride,
-                                                           const BinaryOp binary,
-                                                           const UnaryOp unary) {
+                                                              Float* output,
+                                                              const std::int64_t width,
+                                                              const std::int64_t height,
+                                                              const std::int64_t stride,
+                                                              const BinaryOp binary,
+                                                              const UnaryOp unary) {
     return kernel_t(input, output, width, height, stride, binary, unary);
 }
 
@@ -178,7 +178,7 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp unary,
     const event_vector& deps) const {
     // TODO: think about `switch` operator
-    if (method== reduction_method::inplace) {
+    if (method == reduction_method::inplace) {
         const inplace_t kernel{ q };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }

@@ -81,18 +81,18 @@ sycl::event reduce_cols(sycl::queue& q,
     });
 }
 
-#define INSTANTIATE(F, L, B, U)                                       \
-    template sycl::event reduce_rows<F, L, B, U>(sycl::queue&,        \
-                                                 ndview<F, 2, L>&,    \
-                                                 ndview<F, 1>&,       \
-                                                 const B,             \
-                                                 const U,             \
-                                                 const event_vector&);\
-    template sycl::event reduce_cols<F, L, B, U>(sycl::queue&,        \
-                                                 ndview<F, 2, L>&,    \
-                                                 ndview<F, 1>&,       \
-                                                 const B,             \
-                                                 const U,             \
+#define INSTANTIATE(F, L, B, U)                                        \
+    template sycl::event reduce_rows<F, L, B, U>(sycl::queue&,         \
+                                                 ndview<F, 2, L>&,     \
+                                                 ndview<F, 1>&,        \
+                                                 const B,              \
+                                                 const U,              \
+                                                 const event_vector&); \
+    template sycl::event reduce_cols<F, L, B, U>(sycl::queue&,         \
+                                                 ndview<F, 2, L>&,     \
+                                                 ndview<F, 1>&,        \
+                                                 const B,              \
+                                                 const U,              \
                                                  const event_vector&);
 
 #define INSTANTIATE_LAYOUT(F, B, U)  \
