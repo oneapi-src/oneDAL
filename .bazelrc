@@ -8,6 +8,7 @@ build --flag_alias=test_link_mode=@config//:test_link_mode
 build --flag_alias=test_thread_mode=@config//:test_thread_mode
 build --flag_alias=test_external_datasets=@config//:test_external_datasets
 build --flag_alias=test_nightly=@config//:test_nightly
+build --flag_alias=test_weekly=@config//:test_weekly
 build --flag_alias=release_dpc=@config//:release_dpc
 build --flag_alias=device=@config//:device
 build --flag_alias=cpu=@config//:cpu

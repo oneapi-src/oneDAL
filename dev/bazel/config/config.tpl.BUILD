@@ -77,6 +77,18 @@ config_setting(
 )
 
 config_bool_flag(
+    name = "test_weekly",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "test_weekly_enabled",
+    flag_values  = {
+        ":test_weekly": "True",
+    },
+)
+
+config_bool_flag(
     name = "release_dpc",
     build_setting_default = False,
 )
