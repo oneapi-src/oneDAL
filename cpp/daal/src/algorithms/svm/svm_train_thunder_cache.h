@@ -138,8 +138,8 @@ public:
             {
                 // If index in cache
                 DAAL_ASSERT(cacheIndex < _cacheSize)
-                algorithmFPType * cachei = _cache[cacheIndex];
-                _soaData[i]              = cachei;
+                algorithmFPType * const cachei = _cache[cacheIndex];
+                _soaData[i]                    = cachei;
             }
             else
             {

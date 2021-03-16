@@ -171,7 +171,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
     if (svmType == SvmType::regression)
     {
-        DAAL_ASSERT(alphaTArray.size() == 2 * nVectors);
+        DAAL_CHECK(alphaTArray.size() < 2 * nVectors, services::ErrorMemoryAllocationFailed)
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nVectors; ++i)
@@ -189,9 +189,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit(NumericTable & yTable, const NumericTablePtr & wTable,
-                                                                                 const algorithmFPType C, algorithmFPType * y, algorithmFPType * grad,
-                                                                                 algorithmFPType * alpha, algorithmFPType * cw,
-                                                                                 size_t & nNonZeroWeights)
+                                                                                 const algorithmFPType c, algorithmFPType * const y,
+                                                                                 algorithmFPType * const grad, algorithmFPType * const alpha,
+                                                                                 algorithmFPType * const cw, size_t & nNonZeroWeights)
 {
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
@@ -221,7 +221,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
             y[i + startRow]     = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
             grad[i + startRow]  = -y[i + startRow];
             alpha[i + startRow] = algorithmFPType(0);
-            cw[i + startRow]    = weights ? weights[i] * C : C;
+            cw[i + startRow]    = weights ? weights[i] * c : c;
             if (weights)
             {
                 *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
@@ -238,9 +238,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(NumericTable & yTable, const NumericTablePtr & wTable,
-                                                                             const algorithmFPType C, const algorithmFPType epsilon,
-                                                                             algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha,
-                                                                             algorithmFPType * cw, size_t & nNonZeroWeights)
+                                                                             const algorithmFPType c, const algorithmFPType epsilon,
+                                                                             algorithmFPType * const y, algorithmFPType * const grad,
+                                                                             algorithmFPType * const alpha, algorithmFPType * const cw,
+                                                                             size_t & nNonZeroWeights)
 {
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
@@ -276,8 +277,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
             alpha[i + startRow]            = algorithmFPType(0);
             alpha[i + startRow + nVectors] = algorithmFPType(0);
 
-            cw[i + startRow]            = weights ? weights[i] * C : C;
-            cw[i + startRow + nVectors] = weights ? weights[i] * C : C;
+            cw[i + startRow]            = weights ? weights[i] * c : c;
+            cw[i + startRow + nVectors] = weights ? weights[i] * c : c;
             if (weights)
             {
                 *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
