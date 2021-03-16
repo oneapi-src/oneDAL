@@ -75,7 +75,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
     __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, classifier::training::Batch),
-                       compute, a[0], a[1], a[2], r, kernelPar);
+                       compute, a[0], a[1], a[2], r, nullptr, kernelPar);
 }
 
 } // namespace interface2

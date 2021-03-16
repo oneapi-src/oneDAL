@@ -85,9 +85,9 @@ public:
             if (!df && nRows != _yTable->getNumberOfRows()) _yTable->resize(nRows);
 
             /* TODO: Try threading here */
-            for (size_t iClass = 1, imodel = 0; iClass < _nClasses; ++iClass)
+            for (size_t iClass = 0, imodel = 0; iClass < _nClasses; ++iClass)
             {
-                for (size_t jClass = 0; jClass < iClass; ++jClass, ++imodel)
+                for (size_t jClass = iClass + 1; jClass < _nClasses; ++jClass, ++imodel)
                 {
                     /* Compute two-class predictions for the pair of classes (iClass, jClass)
                        for the block of input observations */
@@ -96,8 +96,8 @@ public:
                     input->set(classifier::prediction::data, xTable);
                     input->set(classifier::prediction::model, model->getTwoClassClassifierModel(imodel));
 
-                    const size_t iClassesForDF = (jClass * (2 * _nClasses - jClass - 1)) / 2 + (iClass - jClass - 1);
-                    WriteOnlyColumns<algorithmFPType, cpu> dfBlock(df, iClassesForDF, startRow, nRows);
+                    // const size_t iClassesForDF = (jClass * (2 * _nClasses - jClass - 1)) / 2 + (iClass - jClass - 1);
+                    WriteOnlyColumns<algorithmFPType, cpu> dfBlock(df, imodel, startRow, nRows);
                     DAAL_CHECK_BLOCK_STATUS(dfBlock);
                     algorithmFPType * dfData = dfBlock.get();
 

@@ -28,6 +28,8 @@
 #include "algorithms/model.h"
 #include "algorithms/algorithm.h"
 #include "algorithms/multi_class_classifier/multi_class_classifier_train_types.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_svm_model.h"
+
 #include "src/services/service_defines.h"
 
 using namespace daal::data_management;
@@ -56,7 +58,7 @@ template <Method method, typename AlgorithmFPtype, typename ClsType, CpuType cpu
 struct MultiClassClassifierTrainKernel : public Kernel
 {
     services::Status compute(const NumericTable * a0, const NumericTable * a1, const NumericTable * a2, daal::algorithms::Model * r,
-                             const internal::KernelParameter & par);
+                             multi_class_classifier::internal::SvmModel * svmModel, const KernelParameter & par);
 };
 
 } // namespace internal

@@ -33,6 +33,7 @@
 #include "src/algorithms/svm/svm_train_common.h"
 
 #include "src/algorithms/svm/svm_train_boser_cache.i"
+#include "src/algorithms/svm/svm_train_cache.h"
 
 namespace daal
 {
@@ -63,7 +64,7 @@ struct SVMTrainTask
     Status compute(const svm::Parameter & svmPar);
 
     /* Write support vectors and classification coefficients into model */
-    Status setResultsToModel(const NumericTable & xTable, Model & model) const;
+    Status setResultsToModel(const NumericTablePtr & xTable, Model & model) const;
 
     ~SVMTrainTask();
 

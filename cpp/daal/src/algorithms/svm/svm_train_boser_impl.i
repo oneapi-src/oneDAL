@@ -71,12 +71,12 @@ services::Status SVMTrainImpl<boser, algorithmFPType, cpu>::compute(const Numeri
     if (!s) return s;
     DAAL_CHECK_STATUS(s, task.init(svmPar->C, wTable, yTable));
     DAAL_CHECK_STATUS(s, task.compute(*svmPar));
-    DAAL_CHECK_STATUS(s, task.setResultsToModel(*xTable, *static_cast<Model *>(r)));
+    DAAL_CHECK_STATUS(s, task.setResultsToModel(xTable, *static_cast<Model *>(r)));
     return s;
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainTask<algorithmFPType, cpu>::setResultsToModel(const NumericTable & xTable, Model & model) const
+services::Status SVMTrainTask<algorithmFPType, cpu>::setResultsToModel(const NumericTablePtr & xTable, Model & model) const
 {
     SaveResultTask<algorithmFPType, cpu> saveResult(_nVectors, _y.get(), _alpha.get(), _grad.get(), _cache);
     return saveResult.compute(xTable, model, _cw.get());

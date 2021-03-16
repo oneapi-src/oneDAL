@@ -288,9 +288,9 @@ services::Status SubTask<algorithmFPType, ClsType, cpu>::predictSimpleClassifier
     DAAL_CHECK_MALLOC(yTable.get() && yRes.get());
     yRes->set(classifier::prediction::prediction, yTable);
     const algorithmFPType one(1.0);
-    for (size_t i = 1; i < nClasses; i++)
+    for (size_t i = 0; i < nClasses; i++)
     {
-        for (size_t j = 0; j < i; j++)
+        for (size_t j = i + 1; j < nClasses; j++)
         {
             /* Compute prediction of the "simple" classifier for pair of labels (i, j) */
 

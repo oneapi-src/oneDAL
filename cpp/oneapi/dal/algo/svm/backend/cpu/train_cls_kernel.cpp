@@ -99,7 +99,11 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_multiclass::training::internal::KernelParameter daal_multiclass_parameter;
         daal_multiclass_parameter.nClasses = class_count;
 
-        daal_multiclass_internal::SvmModelPtr daal_model =
+        daal_multiclass::Parameter daal_multiclass_parameter_public(class_count);
+        auto daal_model =
+            daal_multiclass::Model::create(column_count, &daal_multiclass_parameter_public);
+
+        daal_multiclass_internal::SvmModelPtr daal_svm_model =
             daal_multiclass_internal::SvmModel::create<Float>(class_count, column_count);
         using svm_batch_t =
             typename daal_svm::training::Batch<Float, to_daal_method<Method>::value>;
@@ -114,25 +118,24 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                        daal_labels.get(),
                                                                        daal_weights.get(),
                                                                        daal_model.get(),
+                                                                       daal_svm_model.get(),
                                                                        daal_multiclass_parameter));
 
-        auto trained_model =
-            convert_from_daal_multiclass_model<task::classification, Float>(daal_model);
         auto table_support_indices =
-            interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
-        return result_t().set_model(trained_model).set_support_indices(table_support_indices);
-        // const auto trained_model =
-        //     std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
-        // trained_model->class_count = class_count;
+            interop::convert_from_daal_homogen_table<Float>(daal_svm_model->getSupportIndices());
+        const auto trained_model =
+            std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
+        trained_model->class_count = class_count;
 
-        // const auto trained_model_2 =
-        //     convert_from_daal_multiclass_model<task::classification, Float>(daal_model,
-        //                                                                     labels,
-        //                                                                     class_count);
-        // trained_model->support_vectors = trained_model_2.get_support_vectors();
-        // trained_model->biases = trained_model_2.get_biases();
-        // trained_model->coeffs = trained_model_2.get_coeffs();
-        // return result_t().set_model(dal::detail::make_private<model_t>(trained_model));
+        auto trained_model_svm =
+            convert_from_daal_multiclass_model<task::classification, Float>(daal_svm_model);
+
+        trained_model->support_vectors = trained_model_svm.get_support_vectors();
+        trained_model->biases = trained_model_svm.get_biases();
+        trained_model->coeffs = trained_model_svm.get_coeffs();
+        return result_t()
+            .set_model(dal::detail::make_private<model_t>(trained_model))
+            .set_support_indices(table_support_indices);
     }
     else {
         auto arr_label = row_accessor<const Float>{ labels }.pull();
@@ -179,6 +182,8 @@ struct train_kernel_cpu<Float, Method, task::classification> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
+        printf("train_kernel_cpu ALL \n");
+
         return train<Float, Method>(ctx, desc, input);
     }
 };

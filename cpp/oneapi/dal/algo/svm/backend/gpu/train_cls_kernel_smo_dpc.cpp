@@ -25,6 +25,7 @@ struct train_kernel_gpu<Float, method::smo, task::classification> {
         const dal::backend::context_gpu& ctx,
         const detail::descriptor_base<task::classification>& params,
         const train_input<task::classification>& input) const {
+        printf("train_kernel_gpu SMO\n");
         throw unimplemented(
             dal::detail::error_messages::svm_smo_method_is_not_implemented_for_gpu());
     }

@@ -112,6 +112,7 @@ struct train_kernel_gpu<Float, method::thunder, task::classification> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
+        printf("train_kernel_gpu THUNDER \n");
         return train<Float>(ctx, desc, input);
     }
 };

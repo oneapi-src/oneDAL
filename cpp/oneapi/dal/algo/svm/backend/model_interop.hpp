@@ -109,8 +109,14 @@ template <typename Task, typename Float>
 inline auto convert_from_daal_multiclass_model(
     const daal_multiclass_internal::SvmModelPtr& daal_model) {
     auto table_biases = interop::convert_from_daal_homogen_table<Float>(daal_model->getBiases());
-
-    return dal::svm::model<Task>().set_biases(table_biases);
+    auto table_coeffs =
+        interop::convert_from_daal_homogen_table<Float>(daal_model->getCoefficients());
+    auto table_support_vectors =
+        interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportVectors());
+    return dal::svm::model<Task>()
+        .set_support_vectors(table_support_vectors)
+        .set_coeffs(table_coeffs)
+        .set_biases(table_biases);
 }
 
 template <typename Task, typename Float>

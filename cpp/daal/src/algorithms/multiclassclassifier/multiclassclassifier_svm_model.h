@@ -24,6 +24,8 @@
 #ifndef __MULTICLASSCLASSIFIER_SVM_MODEL_H__
 #define __MULTICLASSCLASSIFIER_SVM_MODEL_H__
 
+#include "src/algorithms/svm/svm_train_result.h"
+
 namespace daal
 {
 namespace algorithms
