@@ -68,8 +68,17 @@ sycl::event select_by_rows_impl(
     ndview<Float, 2>& selection,
     ndview<int, 2>& column_indices,
     const event_vector& deps) {
-    ONEDAL_ASSERT(data.get_dimension(1) == selection.get_dimension(1));
-    ONEDAL_ASSERT(data.get_dimension(1) == column_indices.get_dimension(1));
+    if constexpr (selection_out) {
+        ONEDAL_ASSERT(data.get_dimension(1) == selection.get_dimension(1));
+        ONEDAL_ASSERT(data.get_dimension(0) >= k);
+        ONEDAL_ASSERT(selection.get_dimension(0) == k);
+        ONEDAL_ASSERT(selection.has_mutable_data());
+    }
+    if constexpr (indices_out) {
+        ONEDAL_ASSERT(data.get_dimension(1) == indices.get_dimension(1));
+        ONEDAL_ASSERT(indices.get_dimension(0) == k);
+        ONEDAL_ASSERT(indices.has_mutable_data());
+    }
 
     const uint32_t fp_simd_width =
         queue.get_device().get_info<device_type_info_id<Float>::preferred_vector_width>();

@@ -10,6 +10,9 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
     ],
+    extra_deps = [
+        "@onedal//cpp/daal:sycl",
+    ],
 )
 
 dal_test_suite(

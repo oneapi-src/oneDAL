@@ -16,9 +16,233 @@
 
 #include <limits>
 
+#include <daal/src/externals/service_rng.h>
+#include <daal/include/algorithms/engines/mcg59/mcg59.h>
+#include <daal/src/algorithms/engines/engine_batch_impl.h>
+
 #include "oneapi/dal/backend/primitives/selection/select_by_rows_quick.hpp"
 
 namespace oneapi::dal::backend::primitives {
+
+constexpr uint32_t preffered_sg_size = 16;
+
+template <typename Float, bool selection_out, bool indices_out>
+class quick_selection {
+public:
+    quick_selection() = delete;
+    quick_selection(sycl::queue& queue) {
+        rng_seq_ = ndarray<Float, 1>::empty(queue, max_rng_seq_size_);
+    }
+    void init(sycl::queue& queue, std::int64_t rng_size) {
+        ONEDAL_ASSERT(rng_size > 1);
+        this->rng_seq_size_ = rng_size < quick_selection::max_rng_seq_size_
+                                  ? rng_size
+                                  : quick_selection::max_rng_seq_size_;
+        auto engine = daal::algorithms::engines::mcg59::Batch<>::create();
+        auto engine_impl =
+            dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*engine));
+        ONEDAL_ASSERT(engine_impl != nullptr);
+
+        auto number_array = ndarray<size_t, 1>::empty(queue, this->rng_seq_size_);
+        daal::internal::RNGs<size_t, daal::sse2> rng;
+        auto number_ptr = number_array.get_mutable_data();
+        rng.uniform((size_t)this->rng_seq_size_,
+                    number_ptr,
+                    engine_impl->getState(),
+                    0,
+                    (size_t)(this->rng_seq_size_));
+        auto values = this->rng_seq_.get_mutable_data();
+
+        for (std::int64_t i = 0; i < this->rng_seq_size_; i++) {
+            values[i] = static_cast<float>(number_ptr[i]) / (this->rng_seq_size_ - 1);
+        }
+    }
+    sycl::event select(sycl::queue& queue,
+                       const ndview<Float, 2>& data,
+                       std::int64_t k,
+                       std::int64_t col_begin,
+                       std::int64_t col_end,
+                       ndview<Float, 2>& selection,
+                       ndview<int, 2>& indices,
+                       const event_vector& deps) {
+        const std::int64_t nx = data.get_dimension(1);
+        const std::int64_t ny = data.get_dimension(0);
+        auto indices_tmp = ndarray<int, 2>::empty(queue, { ny, nx });
+        sycl::range<2> global(preffered_sg_size, ny);
+        sycl::range<2> local(preffered_sg_size, 1);
+        sycl::nd_range<2> nd_range2d(global, local);
+
+        Float* data_ptr = const_cast<Float*>(data.get_data());
+        Float* selection_ptr = selection_out ? selection.get_mutable_data() : nullptr;
+        int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
+        int* indices_tmp_ptr = indices_tmp.get_mutable_data();
+        auto rng_seq_ptr = this->rng_seq_.get_data();
+        auto rng_period = this->rng_seq_size_;
+
+        auto event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
+                quick_selection::kernel_select(item,
+                                               ny,
+                                               data_ptr,
+                                               indices_tmp_ptr,
+                                               selection_ptr,
+                                               indices_ptr,
+                                               rng_seq_ptr,
+                                               rng_period,
+                                               nx,
+                                               nx,
+                                               k,
+                                               nx);
+            });
+        });
+        return event;
+    }
+
+private:
+    static Float kernel_get_rnd(const Float* rnd_seq, int rnd_period, int* count) {
+        float ret = rnd_seq[(*count)++];
+        if (*count >= rnd_period)
+            *count = 0;
+        return ret;
+    }
+    static void kernel_partition_by_values(sycl::nd_item<2> item,
+                                           Float* values,
+                                           int* indices,
+                                           int partition_start,
+                                           int partition_end,
+                                           int local_id,
+                                           int local_size,
+                                           Float pivot,
+                                           int* split_index_ptr,
+                                           int* great_total_ptr) {
+        auto sg = item.get_sub_group();
+        int full_size = partition_end - partition_start;
+        int last_group_size = full_size % local_size;
+        int full_group_size = full_size - last_group_size;
+
+        for (int i = partition_start + local_id; i < partition_end; i += local_size) {
+            sg.barrier();
+            Float cur_value = values[i];
+            int cur_index = indices[i];
+            int is_small = cur_value < pivot ? 1 : 0;
+            int num_of_great = reduce(sg, cur_value > pivot ? 1 : 0, sycl::ONEAPI::plus<Float>());
+            int num_of_small = reduce(sg, is_small, sycl::ONEAPI::plus<Float>());
+            int min_ind = reduce(sg, i, sycl::ONEAPI::minimum<Float>());
+            if (num_of_small > 0) {
+                int pos_in_group_small = exclusive_scan(sg, is_small, std::plus<int>());
+                int pos_in_group_great = exclusive_scan(sg, is_small > 0 ? 0 : 1, std::plus<int>());
+                int cur_size = i > full_group_size - 1 ? last_group_size : local_size;
+                if (is_small) {
+                    Float value_to_move =
+                        values[partition_start + *split_index_ptr + pos_in_group_small];
+                    int index_to_move = 0;
+                    if constexpr (indices_out) {
+                        index_to_move =
+                            indices[partition_start + *split_index_ptr + pos_in_group_small];
+                    }
+                    values[partition_start + *split_index_ptr + pos_in_group_small] = cur_value;
+                    if constexpr (indices_out) {
+                        indices[partition_start + *split_index_ptr + pos_in_group_small] =
+                            cur_index;
+                    }
+                    if (partition_start + *split_index_ptr + pos_in_group_small < min_ind) {
+                        values[min_ind + cur_size - 1 - pos_in_group_small] = value_to_move;
+                        if constexpr (indices_out) {
+                            indices[min_ind + cur_size - 1 - pos_in_group_small] = index_to_move;
+                        }
+                    }
+                }
+                else {
+                    values[min_ind + cur_size - 1 - pos_in_group_great] = cur_value;
+                    if constexpr (indices_out) {
+                        indices[min_ind + cur_size - 1 - pos_in_group_great] = cur_index;
+                    }
+                }
+            }
+            sg.barrier();
+            *split_index_ptr += num_of_small;
+            *great_total_ptr += num_of_great;
+        }
+        *split_index_ptr = -reduce(sg, -(*split_index_ptr), sycl::ONEAPI::minimum<Float>());
+        *great_total_ptr = -reduce(sg, -(*great_total_ptr), sycl::ONEAPI::minimum<Float>());
+    }
+
+    static void kernel_select(sycl::nd_item<2> item,
+                              int num_rows,
+                              Float* in_values,
+                              int* in_indices,
+                              Float* out_values,
+                              int* out_indices,
+                              const Float* rnd_seq,
+                              int RndPeriod,
+                              int N,
+                              int NLast,
+                              int K,
+                              int BlockOffset) {
+        auto sg = item.get_sub_group();
+        const int row_id = item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
+        const int local_id = sg.get_local_id()[0];
+        const int local_size = sg.get_local_range()[0];
+        ;
+
+        if (row_id >= num_rows)
+            return;
+
+        N = (row_id == num_rows - 1) ? NLast : N;
+
+        const int offset_in = row_id * BlockOffset;
+        const int offset_out = row_id * K;
+        int partition_start = 0;
+        int partition_end = N;
+        int rnd_count = 0;
+
+        Float* values = &in_values[offset_in];
+        int* indices = &in_indices[offset_in];
+        if constexpr (indices_out) {
+            for (int i = partition_start + local_id; i < partition_end; i += local_size) {
+                indices[i] = i;
+            }
+        }
+        int iteration_count;
+        for (iteration_count = 0; iteration_count < N; iteration_count++) {
+            iteration_count++;
+            int split_index = 0;
+            const Float rnd = quick_selection::kernel_get_rnd(rnd_seq, RndPeriod, &rnd_count);
+            int pos = (int)(rnd * (partition_end - partition_start - 1));
+            pos = pos < 0 ? 0 : pos;
+            const Float pivot = values[partition_start + pos];
+            int num_of_great = 0;
+            quick_selection::kernel_partition_by_values(item,
+                                                        values,
+                                                        indices,
+                                                        partition_start,
+                                                        partition_end,
+                                                        local_id,
+                                                        local_size,
+                                                        pivot,
+                                                        &split_index,
+                                                        &num_of_great);
+
+            if ((partition_start + split_index) == K || (!split_index && !num_of_great))
+                break;
+            if (partition_start + split_index > K)
+                partition_end = partition_start + split_index;
+            if (partition_start + split_index < K)
+                partition_start += split_index;
+        }
+        //assert(iteration_count < N);
+        for (int i = local_id; i < K; i += local_size) {
+            out_values[offset_out + i] = values[i];
+            if constexpr (indices_out) {
+                out_indices[offset_out + i] = indices[i];
+            }
+        }
+    }
+    static constexpr std::int64_t max_rng_seq_size_ = 1024;
+    std::int64_t rng_seq_size_ = max_rng_seq_size_;
+    ndarray<Float, 1> rng_seq_;
+};
 
 template <typename Float, bool selection_out, bool indices_out>
 sycl::event select_by_rows_quick(sycl::queue& queue,
@@ -29,8 +253,22 @@ sycl::event select_by_rows_quick(sycl::queue& queue,
                                  ndview<Float, 2>& selection,
                                  ndview<int, 2>& indices,
                                  const event_vector& deps) {
-    ONEDAL_ASSERT(false);
-    return sycl::event();
+    if constexpr (selection_out) {
+        ONEDAL_ASSERT(data.get_dimension(1) == selection.get_dimension(1));
+        ONEDAL_ASSERT(data.get_dimension(0) >= k);
+        ONEDAL_ASSERT(selection.get_dimension(0) == k);
+        ONEDAL_ASSERT(selection.has_mutable_data());
+    }
+    if constexpr (indices_out) {
+        ONEDAL_ASSERT(data.get_dimension(1) == indices.get_dimension(1));
+        ONEDAL_ASSERT(indices.get_dimension(0) == k);
+        ONEDAL_ASSERT(indices.has_mutable_data());
+    }
+    const std::int64_t nx = data.get_dimension(1);
+
+    quick_selection<Float, selection_out, indices_out> qs(queue);
+    qs.init(queue, nx);
+    return qs.select(queue, data, k, col_begin, col_end, selection, indices, deps);
 }
 
 #define INSTANTIATE(F, selection_out, indices_out)                                          \

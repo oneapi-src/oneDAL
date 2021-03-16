@@ -32,18 +32,6 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
                                 ndview<Float, 2>& selection,
                                 ndview<int, 2>& indices,
                                 const event_vector& deps) {
-    if constexpr (selection_out) {
-        ONEDAL_ASSERT(data.get_dimension(1) == selection.get_dimension(1));
-        ONEDAL_ASSERT(data.get_dimension(0) >= k);
-        ONEDAL_ASSERT(selection.get_dimension(0) == k);
-        ONEDAL_ASSERT(selection.has_mutable_data());
-    }
-    if constexpr (indices_out) {
-        ONEDAL_ASSERT(data.get_dimension(1) == indices.get_dimension(1));
-        ONEDAL_ASSERT(indices.get_dimension(0) == k);
-        ONEDAL_ASSERT(indices.has_mutable_data());
-    }
-
     const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
     ONEDAL_ASSERT(!sg_sizes.empty());
 
@@ -61,7 +49,6 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
         preffered_wg_size,
         up_multiple(ny, static_cast<std::int64_t>(expected_sg_num)) / expected_sg_num);
     sycl::range<2> local(preffered_wg_size, 1);
-
     sycl::nd_range<2> nd_range2d(global, local);
 
     const Float* data_ptr = data.get_data();
