@@ -27,13 +27,9 @@ namespace kernel_function
 {
 namespace polynomial
 {
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-
-}
 namespace internal
 {
+template class BatchContainer<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
 template class KernelImplPolynomial<fastCSR, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal

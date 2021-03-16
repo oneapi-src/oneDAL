@@ -29,14 +29,14 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
-namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial;
+namespace daal_kenrel = daal::algorithms::kernel_function;
+namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial::internal;
 namespace daal_kernel_internal = daal::algorithms::kernel_function::internal;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_polynomial_kernel_t = daal_polynomial_kernel::internal::
-    KernelImplPolynomial<daal_polynomial_kernel::defaultDense, Float, Cpu>;
+using daal_polynomial_kernel_t =
+    daal_polynomial_kernel::KernelImplPolynomial<daal_polynomial_kernel::defaultDense, Float, Cpu>;
 
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -54,13 +54,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_values =
         interop::convert_to_daal_homogen_table(arr_values, row_count_x, row_count_y);
 
-    daal_linear_kernel::Parameter daal_parameter(desc.get_scale(), desc.get_shift());
-
     daal_kernel_internal::KernelParameter kernel_parameter;
-    kernel_parameter.rowIndexX = daal_parameter.rowIndexX;
-    kernel_parameter.rowIndexY = daal_parameter.rowIndexY;
-    kernel_parameter.rowIndexResult = daal_parameter.rowIndexResult;
-    kernel_parameter.computationMode = daal_parameter.computationMode;
+    kernel_parameter.computationMode = daal_kenrel::ComputationMode::matrixMatrix;
     kernel_parameter.scale = desc.get_scale();
     kernel_parameter.shift = desc.get_shift();
     kernel_parameter.degree = 1;

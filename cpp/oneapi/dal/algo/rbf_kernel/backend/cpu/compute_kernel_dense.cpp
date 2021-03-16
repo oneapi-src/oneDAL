@@ -30,6 +30,7 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
+namespace daal_kenrel = daal::algorithms::kernel_function;
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 namespace daal_kernel_internal = daal::algorithms::kernel_function::internal;
 namespace interop = dal::backend::interop;
@@ -54,13 +55,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_values =
         interop::convert_to_daal_homogen_table(arr_values, row_count_x, row_count_y);
 
-    daal_rbf_kernel::Parameter daal_parameter(desc.get_sigma());
-
     daal_kernel_internal::KernelParameter kernel_parameter;
-    kernel_parameter.rowIndexX = daal_parameter.rowIndexX;
-    kernel_parameter.rowIndexY = daal_parameter.rowIndexY;
-    kernel_parameter.rowIndexResult = daal_parameter.rowIndexResult;
-    kernel_parameter.computationMode = daal_parameter.computationMode;
+    kernel_parameter.computationMode = daal_kenrel::ComputationMode::matrixMatrix;
     kernel_parameter.sigma = desc.get_sigma();
     kernel_parameter.kernelType = daal_kernel_internal::KernelType::rbf;
 

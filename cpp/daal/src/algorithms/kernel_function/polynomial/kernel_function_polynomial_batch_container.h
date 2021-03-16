@@ -26,6 +26,8 @@ namespace kernel_function
 {
 namespace polynomial
 {
+namespace internal
+{
 using namespace daal::data_management;
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -69,6 +71,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     __DAAL_CALL_KERNEL(env, internal::KernelImplPolynomial, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], &kernelPar);
 }
 
+} // namespace internal
 } // namespace polynomial
 } // namespace kernel_function
 } // namespace algorithms

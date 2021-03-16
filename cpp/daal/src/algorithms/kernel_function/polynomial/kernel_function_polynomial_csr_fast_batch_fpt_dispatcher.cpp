@@ -23,6 +23,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kernel_function::polynomial::BatchContainer, batch, DAAL_FPTYPE, kernel_function::polynomial::fastCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kernel_function::polynomial::internal::BatchContainer, batch, DAAL_FPTYPE,
+                                      kernel_function::polynomial::internal::fastCSR)
 } // namespace algorithms
 } // namespace daal

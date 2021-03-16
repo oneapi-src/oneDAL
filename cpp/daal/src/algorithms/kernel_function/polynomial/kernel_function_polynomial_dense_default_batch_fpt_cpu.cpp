@@ -27,9 +27,9 @@ namespace kernel_function
 {
 namespace polynomial
 {
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 namespace internal
 {
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 template class DAAL_EXPORT KernelImplPolynomial<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
 } // namespace polynomial

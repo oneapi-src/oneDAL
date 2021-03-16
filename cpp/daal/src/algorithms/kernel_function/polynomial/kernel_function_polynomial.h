@@ -31,6 +31,8 @@ namespace kernel_function
 {
 namespace polynomial
 {
+namespace internal
+{
 template <typename algorithmFPType, Method method, CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
@@ -48,8 +50,8 @@ class DAAL_EXPORT Batch : public KernelIface
 public:
     typedef KernelIface super;
 
-    typedef algorithms::kernel_function::polynomial::Input InputType;
-    typedef algorithms::kernel_function::polynomial::Parameter ParameterType;
+    typedef algorithms::kernel_function::polynomial::internal::Input InputType;
+    typedef algorithms::kernel_function::polynomial::internal::Parameter ParameterType;
     typedef typename super::ResultType ResultType;
 
     ParameterType parameter; /*!< Parameter of the kernel function*/
@@ -88,6 +90,7 @@ private:
     Batch & operator=(const Batch &);
 };
 
+} // namespace internal
 } // namespace polynomial
 } // namespace kernel_function
 } // namespace algorithms

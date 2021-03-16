@@ -22,7 +22,7 @@ namespace v1 {
 
 using daal_kf_t = daal::algorithms::kernel_function::KernelIfacePtr;
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
-namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial;
+namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial::internal;
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 
 template <typename F, typename M>

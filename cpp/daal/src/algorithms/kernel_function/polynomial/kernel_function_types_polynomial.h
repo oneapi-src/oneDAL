@@ -28,6 +28,8 @@ namespace kernel_function
 {
 namespace polynomial
 {
+namespace internal
+{
 enum Method
 {
     defaultDense = 0, /*!< Default method for computing polynomial kernel functions */
@@ -62,6 +64,7 @@ public:
     }
 };
 
+} // namespace internal
 } // namespace polynomial
 } // namespace kernel_function
 } // namespace algorithms

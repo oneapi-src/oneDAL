@@ -137,7 +137,6 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     algorithmFPType beta   = 0.0;
     algorithmFPType shift  = (algorithmFPType)(par->shift);
     algorithmFPType degree = (algorithmFPType)(par->degree);
-    const size_t d         = par->degree;
 
     const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
 
@@ -187,11 +186,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                     {
                         dataR[i * nVectors2 + j] += shift;
                     }
-                }
-
-                if (d != 1)
-                {
-                    for (size_t i = 0; i < nRowsInBlock1; ++i)
+                    if (par->degree != 1)
                     {
                         Math<algorithmFPType, cpu>::vPowx(nRowsInBlock2, dataR + i * nVectors2, degree, dataR + i * nVectors2);
                     }
@@ -213,7 +208,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                     mklBuff[i] += shift;
                 }
 
-                if (d != 1)
+                if (par->degree != 1)
                 {
                     for (size_t i = 0; i < nRowsInBlock1; ++i)
                     {

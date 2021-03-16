@@ -36,7 +36,7 @@ namespace kernel_function
 namespace linear
 {
 using namespace daal::data_management;
-namespace poly = daal::algorithms::kernel_function::polynomial;
+namespace poly = daal::algorithms::kernel_function::polynomial::internal;
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(services::Environment::env * daalEnv)
@@ -49,8 +49,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(services::Environme
     }
     else
     {
-        __DAAL_INITIALIZE_KERNELS(poly::internal::KernelImplPolynomial, (method == defaultDense) ? poly::defaultDense : poly::fastCSR,
-                                  algorithmFPType);
+        __DAAL_INITIALIZE_KERNELS(poly::KernelImplPolynomial, (method == defaultDense) ? poly::defaultDense : poly::fastCSR, algorithmFPType);
     }
 }
 
@@ -96,7 +95,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, poly::internal::KernelImplPolynomial,
+        __DAAL_CALL_KERNEL(env, poly::KernelImplPolynomial,
                            __DAAL_KERNEL_ARGUMENTS((method == defaultDense) ? poly::defaultDense : poly::fastCSR, algorithmFPType), compute, a[0],
                            a[1], r[0], &kernelPar);
     }
