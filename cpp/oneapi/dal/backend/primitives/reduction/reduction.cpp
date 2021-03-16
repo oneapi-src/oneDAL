@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -41,6 +42,23 @@ sycl::event reduce_rm_rw(sycl::queue& q,
 }
 
 template <class Float, ndorder Layout, class BinaryOp, class UnaryOp>
+sycl::event reduce_rm_cw(sycl::queue& q,
+                         ndview<Float, 2, Layout>& input,
+                         ndview<Float, 1>& output,
+                         const BinaryOp binary,
+                         const UnaryOp unary,
+                         const event_vector& deps) {
+    using kernel_t = reduction_rm_cw<Float, BinaryOp, UnaryOp>;
+    const auto width = input.get_dimension(0);
+    const auto height = input.get_dimension(1);
+    const auto stride = input.get_leading_stride();
+    const auto* inp_ptr = input.get_data();
+    auto* out_ptr = output.get_mutable_data();
+    const kernel_t kernel(q);
+    return kernel(inp_ptr, out_ptr, width, height, stride, binary, unary, deps);
+}
+
+template <class Float, ndorder Layout, class BinaryOp, class UnaryOp>
 sycl::event reduce_rows(sycl::queue& q,
                         ndview<Float, 2, Layout>& input,
                         ndview<Float, 1>& output,
@@ -52,7 +70,8 @@ sycl::event reduce_rows(sycl::queue& q,
         return reduce_rm_rw(q, input, output, binary, unary, deps);
     }
     else {
-        throw std::runtime_error{ "Not implemented yet" };
+        auto input_tr = input.t();
+        return reduce_rm_cw(q, input_tr, output, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);
     return q.submit([&](sycl::handler& h) {
@@ -69,7 +88,7 @@ sycl::event reduce_cols(sycl::queue& q,
                         const event_vector& deps) {
     ONEDAL_ASSERT(input.get_dimension(1) <= output.get_dimension(0));
     if constexpr (Layout == ndorder::c) {
-        throw std::runtime_error{ "Not implemented yet" };
+        return reduce_rm_cw(q, input, output, binary, unary, deps);
     }
     else {
         auto input_tr = input.t();
