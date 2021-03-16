@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,23 +14,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/svm/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm::backend {
 
-template <typename Float>
-struct train_kernel_gpu<Float, method::smo, task::classification> {
-    train_result<task::classification> operator()(
-        const dal::backend::context_gpu& ctx,
-        const detail::descriptor_base<task::classification>& params,
-        const train_input<task::classification>& input) const {
+template <typename Float, typename Method>
+struct infer_kernel_gpu<Float, Method, task::regression> {
+    infer_result<task::regression> operator()(const dal::backend::context_gpu& ctx,
+                                              const detail::descriptor_base<task::regression>& desc,
+                                              const infer_input<task::regression>& input) const {
         throw unimplemented(
-            dal::detail::error_messages::svm_smo_method_is_not_implemented_for_gpu());
+            dal::detail::error_messages::svm_regression_task_is_not_implemented_for_gpu());
     }
 };
 
-template struct train_kernel_gpu<float, method::smo, task::classification>;
-template struct train_kernel_gpu<double, method::smo, task::classification>;
+template struct infer_kernel_gpu<float, method::by_default, task::regression>;
+template struct infer_kernel_gpu<double, method::by_default, task::regression>;
 
 } // namespace oneapi::dal::svm::backend

@@ -1,5 +1,9 @@
 /*******************************************************************************
+<<<<<<< HEAD
 * Copyright 2020-2021 Intel Corporation
+=======
+* Copyright 2021 Intel Corporation
+>>>>>>> ea8603a00ba2d00d50ef8b445f015e08a8c55a2e
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -45,6 +49,7 @@ namespace daal_svm = daal::algorithms::svm;
 namespace daal_classifier = daal::algorithms::classifier;
 namespace daal_multiclass = daal::algorithms::multi_class_classifier;
 namespace daal_multiclass_internal = daal_multiclass::internal;
+
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
@@ -65,13 +70,17 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data,
                                  const table& labels,
                                  const table& weights) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
-
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
     const std::uint64_t class_count = desc.get_class_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
+
+    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
+    constexpr std::uint64_t megabyte = 1024 * 1024;
+    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
+    const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
@@ -79,21 +88,16 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
-    constexpr std::uint64_t megabyte = 1024 * 1024;
-    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
-    const std::uint64_t cache_byte = cache_megabyte * megabyte;
-
-    daal_svm::Parameter daal_svm_parameter(
-        daal_kernel,
-        desc.get_c(),
-        desc.get_accuracy_threshold(),
-        desc.get_tau(),
-        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
-        cache_byte,
-        desc.get_shrinking());
-
     if (class_count > 2) {
+        daal_svm::Parameter daal_svm_parameter(
+            daal_kernel,
+            desc.get_c(),
+            desc.get_accuracy_threshold(),
+            desc.get_tau(),
+            dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
+            cache_byte,
+            desc.get_shrinking());
+
         const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 
         daal_multiclass::training::internal::KernelParameter daal_multiclass_parameter;
@@ -138,6 +142,17 @@ static result_t call_daal_kernel(const context_cpu& ctx,
             .set_support_indices(table_support_indices);
     }
     else {
+        daal_svm::training::internal::KernelParameter daal_svm_parameter;
+        daal_svm_parameter.kernel = daal_kernel;
+        daal_svm_parameter.C = desc.get_c();
+        daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
+        daal_svm_parameter.tau = desc.get_tau();
+        daal_svm_parameter.maxIterations =
+            dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
+        daal_svm_parameter.doShrinking = desc.get_shrinking();
+        daal_svm_parameter.cacheSize = cache_byte;
+        daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
+
         auto arr_label = row_accessor<const Float>{ labels }.pull();
         binary_label_t<Float> unique_label;
         auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
@@ -154,7 +169,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                          daal_weights,
                          *daal_labels,
                          daal_model.get(),
-                         &daal_svm_parameter);
+                         daal_svm_parameter);
         }));
 
         auto table_support_indices =
@@ -183,7 +198,6 @@ struct train_kernel_cpu<Float, Method, task::classification> {
                         const descriptor_t& desc,
                         const input_t& input) const {
         printf("train_kernel_cpu ALL \n");
-
         return train<Float, Method>(ctx, desc, input);
     }
 };

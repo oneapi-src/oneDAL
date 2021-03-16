@@ -31,7 +31,7 @@ ONEDAL = column_accessor_homogen             \
          svm_two_class_thunder_dense_batch   \
          svm_two_class_smo_dense_batch       \
          svm_multi_class_thunder_dense_batch \
+         svm_reg_thunder_dense_batch         \
          jaccard_batch                       \
          load_graph                          \
          graph_service_functions             \
-         triangle_counting_batch

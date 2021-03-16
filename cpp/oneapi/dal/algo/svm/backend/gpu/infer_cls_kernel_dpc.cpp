@@ -17,7 +17,6 @@
 #include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/model_interop.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
-#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -49,75 +48,61 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                  const table& data) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
-    // const std::int64_t class_count = 2;
-    const std::int64_t class_count = dal::detail::get_impl(trained_model).class_count;
-    if (class_count > 2) {
-        throw unimplemented(
-            dal::detail::error_messages::svm_smo_method_is_not_implemented_for_gpu());
+
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t support_vector_count = trained_model.get_support_vector_count();
+
+    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
+    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
+    auto arr_support_vectors =
+        row_accessor<const Float>{ trained_model.get_support_vectors() }.pull(queue);
+    auto arr_coeffs = row_accessor<const Float>{ trained_model.get_coeffs() }.pull(queue);
+
+    const auto daal_data =
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
+    const auto daal_support_vectors =
+        interop::convert_to_daal_sycl_homogen_table(queue,
+                                                    arr_support_vectors,
+                                                    support_vector_count,
+                                                    column_count);
+    const auto daal_coeffs =
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_coeffs, support_vector_count, 1);
+
+    auto daal_model = daal_model_builder{}
+                          .set_support_vectors(daal_support_vectors)
+                          .set_coeffs(daal_coeffs)
+                          .set_bias(trained_model.get_bias());
+
+    auto kernel_impl = detail::get_kernel_function_impl(desc);
+    if (!kernel_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    else {
-        const std::int64_t row_count = data.get_row_count();
-        const std::int64_t column_count = data.get_column_count();
-        const std::int64_t support_vector_count = trained_model.get_support_vector_count();
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-        // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
-        auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-        auto arr_support_vectors =
-            row_accessor<const Float>{ trained_model.get_support_vectors() }.pull(queue);
-        auto arr_coeffs = row_accessor<const Float>{ trained_model.get_coeffs() }.pull(queue);
+    daal_svm::Parameter daal_parameter(daal_kernel);
 
-        const auto daal_data =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-        const auto daal_support_vectors =
-            interop::convert_to_daal_sycl_homogen_table(queue,
-                                                        arr_support_vectors,
-                                                        support_vector_count,
-                                                        column_count);
-        const auto daal_coeffs =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_coeffs, support_vector_count, 1);
+    auto arr_decision_function = array<Float>::empty(queue, row_count * 1);
+    const auto daal_decision_function =
+        interop::convert_to_daal_sycl_homogen_table(queue, arr_decision_function, row_count, 1);
 
-        const auto biases = trained_model.get_biases();
-        const auto biases_acc = row_accessor<const Float>{ biases }.pull();
-        const double bias = biases_acc[0];
+    interop::status_to_exception(daal_svm_predict_kernel_t<Float>().compute(daal_data,
+                                                                            &daal_model,
+                                                                            *daal_decision_function,
+                                                                            &daal_parameter));
 
-        auto daal_model = daal_model_builder{}
-                              .set_support_vectors(daal_support_vectors)
-                              .set_coeffs(daal_coeffs)
-                              .set_bias(bias);
-
-        auto kernel_impl = detail::get_kernel_function_impl(desc);
-        if (!kernel_impl) {
-            throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
-        }
-        const auto daal_kernel = kernel_impl->get_daal_kernel_function();
-
-        daal_svm::Parameter daal_parameter(daal_kernel);
-
-        auto arr_decision_function = array<Float>::empty(queue, row_count * 1);
-        const auto daal_decision_function =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_decision_function, row_count, 1);
-
-        interop::status_to_exception(
-            daal_svm_predict_kernel_t<Float>().compute(daal_data,
-                                                       &daal_model,
-                                                       *daal_decision_function,
-                                                       &daal_parameter));
-
-        // TODO: rework with help dpcpp code
-        auto arr_label = array<Float>::empty(row_count * 1);
-        auto label_data = arr_label.get_mutable_data();
-        for (std::int64_t i = 0; i < row_count; ++i) {
-            label_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
-                                                          : trained_model.get_first_class_label();
-        }
-
-        return result_t()
-            .set_decision_function(dal::detail::homogen_table_builder{}
-                                       .reset(arr_decision_function, row_count, 1)
-                                       .build())
-            .set_labels(
-                dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+    // TODO: rework with help dpcpp code
+    auto arr_label = array<Float>::empty(row_count * 1);
+    auto label_data = arr_label.get_mutable_data();
+    for (std::int64_t i = 0; i < row_count; ++i) {
+        label_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
+                                                      : trained_model.get_first_class_label();
     }
+
+    return result_t()
+        .set_decision_function(
+            dal::detail::homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build())
+        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
 }
 
 template <typename Float>

@@ -49,7 +49,7 @@ namespace internal
 using namespace daal::internal;
 
 /**
-* \brief Write support vectors and classification coefficients into output model
+* \brief Write support vectors and coefficients into output model
 */
 template <typename algorithmFPType, CpuType cpu>
 class SaveResultTask
@@ -70,7 +70,12 @@ public:
         size_t nSV = 0;
         for (size_t i = 0; i < _nVectors; ++i)
         {
-            if (_alpha[i] > zero) nSV++;
+            // Here and below, a bitwise comparison is necessary. For small c, any deviation from 0 means that
+            // indices where coefficients not equal 0 will be support vectors.
+            if (_alpha[i] != zero)
+            {
+                nSV++;
+            }
         }
 
         model.setNFeatures(xTable->getNumberOfColumns());

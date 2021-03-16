@@ -20,6 +20,7 @@
 #include "example_util/utils.hpp"
 
 namespace dal = oneapi::dal;
+namespace svm = dal::svm;
 
 int main(int argc, char const *argv[]) {
     const auto train_data_file_name = get_data_path("svm_two_class_train_dense_data.csv");
@@ -33,9 +34,7 @@ int main(int argc, char const *argv[]) {
     const auto kernel_desc = dal::linear_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
     const auto svm_desc =
-        dal::svm::descriptor<float, dal::svm::method::smo, dal::svm::task::classification>{
-            kernel_desc
-        }
+        svm::descriptor<float, svm::method::smo, svm::task::classification>{ kernel_desc }
             .set_c(1.0)
             .set_accuracy_threshold(0.001)
             .set_max_iteration_count(1000)
@@ -51,10 +50,10 @@ int main(int argc, char const *argv[]) {
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
     const auto y_true = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
 
-    const auto result_test = dal::infer(svm_desc, result_train.get_model(), x_test);
+    const auto result_infer = dal::infer(svm_desc, result_train.get_model(), x_test);
 
-    std::cout << "Decision function result:\n" << result_test.get_decision_function() << std::endl;
-    std::cout << "Labels result:\n" << result_test.get_labels() << std::endl;
+    std::cout << "Decision function result:\n" << result_infer.get_decision_function() << std::endl;
+    std::cout << "Labels result:\n" << result_infer.get_labels() << std::endl;
     std::cout << "Labels true:\n" << y_true << std::endl;
 
     return 0;

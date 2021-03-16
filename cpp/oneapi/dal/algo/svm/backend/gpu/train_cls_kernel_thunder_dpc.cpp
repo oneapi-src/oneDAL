@@ -78,20 +78,21 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     dal::detail::check_mul_overflow(cache_megabyte, megabyte);
     const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
-    daal_svm::Parameter daal_parameter(
-        daal_kernel,
-        desc.get_c(),
-        desc.get_accuracy_threshold(),
-        desc.get_tau(),
-        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
-        cache_byte,
-        desc.get_shrinking());
+    daal_svm::training::internal::KernelParameter daal_svm_parameter;
+    daal_svm_parameter.kernel = daal_kernel;
+    daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
+    daal_svm_parameter.tau = desc.get_tau();
+    daal_svm_parameter.maxIterations =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
+    daal_svm_parameter.doShrinking = desc.get_shrinking();
+    daal_svm_parameter.cacheSize = cache_byte;
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,
                                                                             *daal_labels,
                                                                             daal_model.get(),
-                                                                            &daal_parameter));
+                                                                            daal_svm_parameter));
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
@@ -112,7 +113,6 @@ struct train_kernel_gpu<Float, method::thunder, task::classification> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        printf("train_kernel_gpu THUNDER \n");
         return train<Float>(ctx, desc, input);
     }
 };

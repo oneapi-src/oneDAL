@@ -127,7 +127,7 @@ void descriptor_base<Task>::set_kernel_impl(const detail::kernel_function_ptr& k
 template <typename Task>
 void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
     if (value <= 1) {
-        throw domain_error(dal::detail::error_messages::tau_leq_zero());
+        throw domain_error(dal::detail::error_messages::class_count_leq_one());
     }
     impl_->class_count = value;
 }
@@ -139,8 +139,8 @@ std::int64_t descriptor_base<Task>::get_class_count_impl() const {
 
 template <typename Task>
 void descriptor_base<Task>::set_epsilon_impl(double value) {
-    if (value <= 0.0) {
-        throw domain_error(dal::detail::error_messages::tau_leq_zero());
+    if (value < 0.0) {
+        throw domain_error(dal::detail::error_messages::epsilon_lt_zero());
     }
     impl_->epsilon = value;
 }

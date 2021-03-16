@@ -93,7 +93,7 @@ constexpr bool is_valid_task_v =
     dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
 template <typename Method, typename Task>
-constexpr bool is_no_valid_method_task_v = dal::detail::is_one_of_v<Method, method::smo>&&
+constexpr bool is_valid_method_task_combination = dal::detail::is_one_of_v<Method, method::smo>&&
     dal::detail::is_one_of_v<Task, task::regression>;
 
 template <typename Kernel>
@@ -139,12 +139,13 @@ public:
     /// @remark default = 1e-6
     double get_tau() const;
 
-    /// A flag that enables the use of a shrinking optimization technique. Used with :expr:`oneapi::dal::svm::method::v1::thunder` split-finding method only.
+    /// A flag that enables the use of a shrinking optimization technique.
+    /// Used with :expr:`oneapi::dal::svm::method::v1::smo` split-finding method only.
     /// @remark default = true
     bool get_shrinking() const;
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`task::classification` only.
+    /// The class count. Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     /// @invariant :expr:`class_count >= 2`
     /// @remark default = 2
     std::int64_t get_class_count() const {
@@ -152,8 +153,8 @@ public:
     }
 
     template <typename T = Task, typename = enable_if_regression_t<T>>
-    /// The epsilon. Used with :expr:`task::regression` only.
-    /// @invariant :expr:`epsilon > 0`
+    /// The epsilon. Used with :expr:`oneapi::dal::svm::task::v1::regression` only.
+    /// @invariant :expr:`epsilon >= 0`
     /// @remark default = 0.1
     double get_epsilon() const {
         return get_epsilon_impl();
@@ -192,7 +193,7 @@ using v1::enable_if_regression_t;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
-using v1::is_no_valid_method_task_v;
+using v1::is_valid_method_task_combination;
 using v1::is_valid_kernel_v;
 
 } // namespace detail
@@ -205,7 +206,8 @@ namespace v1 {
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
 ///                be :expr:`method::v1::thunder` or :expr:`method::v1::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`oneapi::dal::svm::task::v1::classification` or
+///                :expr:`oneapi::dal::svm::task::v1::regression`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t,
@@ -214,7 +216,8 @@ class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
-    static_assert(!detail::is_no_valid_method_task_v<Method, Task>);
+    static_assert(!detail::is_valid_method_task_combination<Method, Task>,
+                  "Regression SVM not supported with SMO method");
     static_assert(detail::is_valid_kernel_v<Kernel>,
                   "Custom kernel for SVM is not supported. "
                   "Use one of the predefined kernels.");
@@ -290,7 +293,8 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::v1::classification`.
+///              be :expr:`oneapi::dal::svm::task::v1::classification` or
+///              :expr:`oneapi::dal::svm::task::v1::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -341,6 +345,8 @@ public:
         return *this;
     }
 
+    /// The first unique value in class labels.
+    /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     std::int64_t get_first_class_label() const;
 
     auto& set_first_class_label(std::int64_t value) {
@@ -348,6 +354,8 @@ public:
         return *this;
     }
 
+    /// The second unique value in class labels.
+    /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     std::int64_t get_second_class_label() const;
 
     auto& set_second_class_label(std::int64_t value) {

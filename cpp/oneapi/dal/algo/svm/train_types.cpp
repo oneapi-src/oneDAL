@@ -147,6 +147,8 @@ void train_result<Task>::set_biases_impl(const table& value) {
 
 template class ONEDAL_EXPORT train_input<task::classification>;
 template class ONEDAL_EXPORT train_result<task::classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
+template class ONEDAL_EXPORT train_result<task::regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::svm
