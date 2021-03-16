@@ -53,7 +53,7 @@ public:
                            const event_vector& deps = {}) const;
 
 private:
-    sycl::nd_range<2> get_range(const std::size_t height) const;
+    sycl::nd_range<2> get_range(const std::int64_t height) const;
     static kernel_t get_kernel(inp_t input,
                                out_t output,
                                const std::int64_t width,
@@ -98,7 +98,7 @@ public:
                            const event_vector& deps = {}) const;
 
 private:
-    sycl::nd_range<1> get_range(const std::size_t height) const;
+    sycl::nd_range<1> get_range(const std::int64_t height) const;
     static kernel_t get_kernel(inp_t input,
                                out_t output,
                                const std::int64_t width,
@@ -124,9 +124,9 @@ public:
 
 public:
     reduction_rm_rw(sycl::queue& q_);
-    enum reduction_scale { wide, narrow };
-    reduction_scale propose_scale(std::int64_t width) const;
-    sycl::event operator()(const reduction_scale scale,
+    enum reduction_method { wide, narrow };
+    reduction_method propose_method(std::int64_t width) const;
+    sycl::event operator()(const reduction_method method,
                            inp_t input,
                            out_t output,
                            const std::int64_t width,
@@ -143,7 +143,7 @@ public:
                            const BinaryOp binary = BinaryOp{},
                            const UnaryOp unary = UnaryOp{},
                            const event_vector& deps = {}) const;
-    sycl::event operator()(const reduction_scale scale,
+    sycl::event operator()(const reduction_method method,
                            inp_t input,
                            out_t output,
                            const std::int64_t width,

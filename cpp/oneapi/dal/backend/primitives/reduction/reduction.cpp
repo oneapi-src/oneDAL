@@ -17,7 +17,7 @@
 #include <type_traits>
 
 #include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw.hpp"
 
 namespace oneapi::dal::backend::primitives {
 

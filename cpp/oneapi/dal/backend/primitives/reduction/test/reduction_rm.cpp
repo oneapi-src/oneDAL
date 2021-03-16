@@ -21,7 +21,8 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 
 #include "oneapi/dal/backend/primitives/reduction/functors.hpp"
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -31,7 +32,7 @@ namespace pr = oneapi::dal::backend::primitives;
 constexpr auto rm_order = ndorder::c;
 
 template <typename Param>
-class reduction_rm_rw_test : public te::policy_fixture {
+class reduction_rm_test : public te::policy_fixture {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
@@ -66,7 +67,7 @@ public:
         return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height });
     }
 
-    float_t val() const {
+    float_t val_rw() const {
         if (std::is_same_v<sum<float_t>, binary_t>) {
             if (std::is_same_v<identity<float_t>, unary_t>) {
                 return width * arg;
@@ -104,8 +105,47 @@ public:
         return 0;
     }
 
-    void check_output(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-5) {
-        const auto gtv = val();
+    float_t val_cw() const {
+        if (std::is_same_v<sum<float_t>, binary_t>) {
+            if (std::is_same_v<identity<float_t>, unary_t>) {
+                return height * arg;
+            }
+            if (std::is_same_v<abs<float_t>, unary_t>) {
+                return height * std::abs(arg);
+            }
+            if (std::is_same_v<square<float_t>, unary_t>) {
+                return height * (arg * arg);
+            }
+        }
+        if (std::is_same_v<min<float_t>, binary_t>) {
+            if (std::is_same_v<identity<float_t>, unary_t>) {
+                return arg;
+            }
+            if (std::is_same_v<abs<float_t>, unary_t>) {
+                return std::abs(arg);
+            }
+            if (std::is_same_v<square<float_t>, unary_t>) {
+                return (arg * arg);
+            }
+        }
+        if (std::is_same_v<max<float_t>, binary_t>) {
+            if (std::is_same_v<identity<float_t>, unary_t>) {
+                return arg;
+            }
+            if (std::is_same_v<abs<float_t>, unary_t>) {
+                return std::abs(arg);
+            }
+            if (std::is_same_v<square<float_t>, unary_t>) {
+                return (arg * arg);
+            }
+        }
+        REQUIRE(false);
+        return 0;
+    }
+
+    void check_output_rw(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-5) {
+        CAPTURE(__func__, arg, width, height, stride);
+        const auto gtv = val_rw();
         const auto arr = outarr.flatten();
         for (auto i = 0; i < height; ++i) {
             const auto diff = arr[i] - gtv;
@@ -116,7 +156,20 @@ public:
         }
     }
 
-    void test_raw_reduce_narrow() {
+    void check_output_cw(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-5) {
+        CAPTURE(__func__, arg, width, height, stride);
+        const auto gtv = val_cw();
+        const auto arr = outarr.flatten();
+        for (auto i = 0; i < width; ++i) {
+            const auto diff = arr[i] - gtv;
+            if (diff < -tol || tol < diff) {
+                CAPTURE(gtv, arr[i], diff, tol);
+                FAIL();
+            }
+        }
+    }
+
+    void test_raw_rw_reduce_narrow() {
         using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
@@ -129,10 +182,10 @@ public:
         reducer(inp_ptr, out_ptr, width, height, binary_t{}, unary_t{}, { inp_event, out_event })
             .wait_and_throw();
 
-        check_output(out_array);
+        check_output_rw(out_array);
     }
 
-    void test_raw_reduce_wide() {
+    void test_raw_rw_reduce_wide() {
         using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
@@ -145,7 +198,23 @@ public:
         reducer(inp_ptr, out_ptr, width, height, binary_t{}, unary_t{}, { inp_event, out_event })
             .wait_and_throw();
 
-        check_output(out_array);
+        check_output_rw(out_array);
+    }
+
+    void test_raw_cw_reduce_inplace() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(get_queue());
+        reducer(inp_ptr, out_ptr, width, height, binary_t{}, unary_t{}, { inp_event, out_event })
+            .wait_and_throw();
+
+        check_output_cw(out_array);
     }
 
 private:
@@ -162,13 +231,21 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
                                    std::tuple<double, sum<double>, identity<double>>,
                                    std::tuple<double, sum<double>, abs<double>>>;
 
-TEMPLATE_LIST_TEST_M(reduction_rm_rw_test,
+TEMPLATE_LIST_TEST_M(reduction_rm_test,
                      "Uniformly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    this->test_raw_reduce_wide();
-    this->test_raw_reduce_narrow();
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
+}
+
+TEMPLATE_LIST_TEST_M(reduction_rm_test,
+                     "Uniformly filled Row-Major Col-Wise reduction",
+                     "[reduction][rm][small]",
+                     reduction_types) {
+    this->generate();
+    this->test_raw_cw_reduce_inplace();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

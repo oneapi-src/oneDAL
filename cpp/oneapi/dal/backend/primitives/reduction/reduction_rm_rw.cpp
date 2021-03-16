@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -115,7 +115,7 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
 
 template <class Float, class BinaryOp, class UnaryOp>
 sycl::nd_range<2> reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_range(
-    const std::size_t height) const {
+    const std::int64_t height) const {
     const sycl::range<2> local(1, wg);
     const sycl::range<2> global(height, wg);
     return sycl::nd_range<2>(global, local);
@@ -244,7 +244,7 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
 
 template <class Float, class BinaryOp, class UnaryOp>
 sycl::nd_range<1> reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_range(
-    const std::size_t height) const {
+    const std::int64_t height) const {
     const sycl::range<1> local(wg);
     const auto nblocks = (height / wg) + bool(height % wg);
     const auto eheight = wg * nblocks;
@@ -290,21 +290,21 @@ template <class Float, class BinaryOp, class UnaryOp>
 reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q_) : q{ q_ } {};
 
 template <class Float, class BinaryOp, class UnaryOp>
-typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_scale
-reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_scale(std::int64_t width) const {
+typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method
+reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width) const {
     const auto max_wg_size = static_cast<std::int64_t>(max_wg(q));
     if (width < max_wg_size) {
-        return reduction_scale::narrow;
+        return reduction_method::narrow;
     }
     else {
-        return reduction_scale::wide;
+        return reduction_method::wide;
     }
-    return reduction_scale::wide;
+    return reduction_method::wide;
 }
 
 template <class Float, class BinaryOp, class UnaryOp>
 sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
-    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_scale scale,
+    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method method,
     const Float* input,
     Float* output,
     const std::int64_t width,
@@ -314,11 +314,11 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp unary,
     const event_vector& deps) const {
     // TODO: think about `switch` operator
-    if (scale == reduction_scale::narrow) {
+    if (method == reduction_method::narrow) {
         const narrow_t kernel{ q };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
-    if (scale == reduction_scale::wide) {
+    if (method == reduction_method::wide) {
         const wide_t kernel{ q };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
@@ -337,13 +337,13 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   const BinaryOp binary,
                                                                   const UnaryOp unary,
                                                                   const event_vector& deps) const {
-    const auto scale = propose_scale(width);
-    return this->operator()(scale, input, output, width, height, stride, binary, unary, deps);
+    const auto method = propose_method(width);
+    return this->operator()(method, input, output, width, height, stride, binary, unary, deps);
 }
 
 template <class Float, class BinaryOp, class UnaryOp>
 sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
-    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_scale scale,
+    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method method,
     const Float* input,
     Float* output,
     const std::int64_t width,
@@ -351,7 +351,7 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp binary,
     const UnaryOp unary,
     const event_vector& deps) const {
-    return this->operator()(scale, input, output, width, height, width, binary, unary, deps);
+    return this->operator()(method, input, output, width, height, width, binary, unary, deps);
 }
 
 template <class Float, class BinaryOp, class UnaryOp>
@@ -362,8 +362,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   const BinaryOp binary,
                                                                   const UnaryOp unary,
                                                                   const event_vector& deps) const {
-    const auto scale = propose_scale(width);
-    return this->operator()(scale, input, output, width, height, width, binary, unary, deps);
+    const auto method = propose_method(width);
+    return this->operator()(method, input, output, width, height, width, binary, unary, deps);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_rw<F, B, U>;

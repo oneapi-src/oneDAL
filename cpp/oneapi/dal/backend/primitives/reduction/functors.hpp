@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <type_traits>
-
 namespace oneapi::dal::backend::primitives {
 
 enum class unary_operation : int { identity = 0, square = 1, abs = 2 };
@@ -68,7 +66,9 @@ struct binary_functor {
 template <typename T>
 struct binary_functor<T, binary_operation::sum> {
     constexpr static inline T init_value = 0;
+#ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::plus<T> native{};
+#endif
     inline T operator()(T a, T b) const {
         return (a + b);
     }
@@ -80,7 +80,9 @@ using sum = binary_functor<T, binary_operation::sum>;
 template <typename T>
 struct binary_functor<T, binary_operation::mul> {
     constexpr static inline T init_value = 1;
+#ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::multiplies<T> native{};
+#endif
     inline T operator()(T a, T b) const {
         return (a * b);
     }
@@ -92,7 +94,9 @@ using mul = binary_functor<T, binary_operation::mul>;
 template <typename T>
 struct binary_functor<T, binary_operation::max> {
     constexpr static inline T init_value = std::numeric_limits<T>::min();
+#ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::maximum<T> native{};
+#endif
     inline T operator()(T a, T b) const {
         return (a < b) ? b : a;
     }
@@ -104,7 +108,9 @@ using max = binary_functor<T, binary_operation::max>;
 template <typename T>
 struct binary_functor<T, binary_operation::min> {
     constexpr static inline T init_value = std::numeric_limits<T>::max();
+#ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::minimum<T> native{};
+#endif
     inline T operator()(T a, T b) const {
         return (a < b) ? a : b;
     }
