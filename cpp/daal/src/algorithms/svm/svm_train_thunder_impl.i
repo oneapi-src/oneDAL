@@ -171,7 +171,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
     if (svmType == SvmType::regression)
     {
-        DAAL_CHECK(alphaTArray.size() < 2 * nVectors, services::ErrorMemoryAllocationFailed)
+        DAAL_CHECK(alphaTArray.size() >= 2 * nVectors, services::ErrorMemoryAllocationFailed)
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nVectors; ++i)
