@@ -28,6 +28,7 @@
 #include "src/algorithms/kernel.h"
 #include "src/algorithms/svm/oneapi/svm_helper_oneapi.h"
 #include "src/services/service_data_utils.h"
+#include "src/algorithms/svm/svm_train_kernel.h"
 
 namespace daal
 {
@@ -46,7 +47,7 @@ template <typename algorithmFPType, Method method>
 class SVMTrainOneAPI : public Kernel
 {
 public:
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * par)
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const KernelParameter & par)
     {
         return services::ErrorMethodNotImplemented;
     }
@@ -58,7 +59,7 @@ class SVMTrainOneAPI<algorithmFPType, thunder> : public Kernel
     using Helper = utils::internal::HelperSVM<algorithmFPType>;
 
 public:
-    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const svm::Parameter * par);
+    services::Status compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r, const KernelParameter & par);
 
 protected:
     services::Status updateGrad(const services::internal::Buffer<algorithmFPType> & kernelWS,

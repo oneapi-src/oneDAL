@@ -153,7 +153,9 @@ MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count,
     "Support vectors row count is not equal to support vector count in input model")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
+MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
+MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")
 
 /* Kernel Functions */

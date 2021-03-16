@@ -176,7 +176,9 @@ public:
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
+    MSG(svm_regression_task_is_not_implemented_for_gpu);
     MSG(tau_leq_zero);
+    MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
 };
 

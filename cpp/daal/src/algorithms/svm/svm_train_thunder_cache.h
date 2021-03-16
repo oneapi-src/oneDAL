@@ -120,6 +120,8 @@ public:
     services::Status getRowsBlock(const uint32_t * const indices, const size_t n, algorithmFPType **& soablock) override
     {
         services::Status status;
+
+        const size_t nVectors = _xTable->getNumberOfRows();
         if (_soaData.size() < n)
         {
             _soaData.reset(n);
@@ -127,28 +129,28 @@ public:
         }
 
         size_t nIndicesForKernel = 0;
+
+        for (int i = 0; i < n; ++i)
         {
-            for (int i = 0; i < n; ++i)
+            const uint32_t dataIndex = indices[i] % nVectors;
+            int64_t cacheIndex       = _lruCache.get(dataIndex);
+            if (cacheIndex != -1)
             {
-                int64_t cacheIndex = _lruCache.get(indices[i]);
-                if (cacheIndex != -1)
-                {
-                    // If index in cache
-                    DAAL_ASSERT(cacheIndex < _cacheSize)
-                    algorithmFPType * cachei = _cache[cacheIndex];
-                    _soaData[i]              = cachei;
-                }
-                else
-                {
-                    _lruCache.put(indices[i]);
-                    cacheIndex = _lruCache.getFreeIndex();
-                    DAAL_ASSERT(cacheIndex < _cacheSize)
-                    algorithmFPType * cachei                = _cache[cacheIndex];
-                    _soaData[i]                             = cachei;
-                    _kernelIndex[nIndicesForKernel]         = cacheIndex;
-                    _kernelOriginalIndex[nIndicesForKernel] = indices[i];
-                    ++nIndicesForKernel;
-                }
+                // If index in cache
+                DAAL_ASSERT(cacheIndex < _cacheSize)
+                algorithmFPType * const cachei = _cache[cacheIndex];
+                _soaData[i]                    = cachei;
+            }
+            else
+            {
+                _lruCache.put(dataIndex);
+                cacheIndex = _lruCache.getFreeIndex();
+                DAAL_ASSERT(cacheIndex < _cacheSize)
+                algorithmFPType * const cachei          = _cache[cacheIndex];
+                _soaData[i]                             = cachei;
+                _kernelIndex[nIndicesForKernel]         = cacheIndex;
+                _kernelOriginalIndex[nIndicesForKernel] = dataIndex;
+                ++nIndicesForKernel;
             }
         }
         if (nIndicesForKernel != 0)
