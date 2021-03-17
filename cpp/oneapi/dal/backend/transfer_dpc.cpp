@@ -102,7 +102,8 @@ sycl::event scatter_host2device(sycl::queue& q,
         byte_t* gathered_byte = reinterpret_cast<byte_t*>(gathered_device_unique.get());
         byte_t* dst_byte = reinterpret_cast<byte_t*>(dst_device);
 
-        const std::int64_t local_size = std::min(down_pow2(block_count), 256L);
+        const std::int64_t required_local_size = 256;
+        const std::int64_t local_size = std::min(down_pow2(block_count), required_local_size);
         const auto range = make_multiple_nd_range_1d(block_count, local_size);
 
         cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
