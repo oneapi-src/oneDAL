@@ -167,7 +167,7 @@ public:
 
     /* SVM */
     MSG(c_leq_zero);
-    MSG(cache_size_leq_zero);
+    MSG(cache_size_lt_zero);
     MSG(input_model_coeffs_are_empty);
     MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
     MSG(input_model_does_not_match_kernel_function);
@@ -176,7 +176,9 @@ public:
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
+    MSG(svm_regression_task_is_not_implemented_for_gpu);
     MSG(tau_leq_zero);
+    MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
 };
 

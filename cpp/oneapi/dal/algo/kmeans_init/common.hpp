@@ -37,7 +37,7 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes `dense <kmeans_init_c_math_dense_>`_
+/// Tag-type that denotes :ref:`dense <kmeans_init_c_math_dense>`
 /// computational method.
 struct dense {};
 struct random_dense {};

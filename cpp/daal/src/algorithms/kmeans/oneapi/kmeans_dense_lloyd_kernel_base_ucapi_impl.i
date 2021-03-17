@@ -435,7 +435,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction
     args.set(1, _mindistances, AccessModeIds::read);
     args.set(2, blockSize);
     args.set(3, nClusters);
-    args.set(4, objFunction, AccessModeIds::write);
+    args.set(4, objFunction, AccessModeIds::readwrite);
 
     KernelRange local_range(_maxWorkItemsPerGroup);
     KernelRange global_range(_maxWorkItemsPerGroup);

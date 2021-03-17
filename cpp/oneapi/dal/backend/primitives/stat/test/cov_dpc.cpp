@@ -115,28 +115,25 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
         .wait_and_throw();
 
-    SECTION("correlation matrix is ones") {
-        this->check_correlation_for_uncorrelated_data(corr);
-    }
+    INFO("check if correlation matrix is ones")
+    this->check_correlation_for_uncorrelated_data(corr);
 
     // The upper part of data matrix is diagonal. In diagonal matrix each column
     // contains only one non-zero element (`diag_element`), so mean and
     // variances for each feature can be computed trivially using `diag_element`
     // value.
 
-    SECTION("mean is expected") {
-        const double n = df.get_row_count();
-        const double expected_mean = double(diag_element) / n;
-        this->check_constant_mean(means, n, expected_mean);
-    }
+    INFO("check if mean is expected")
+    double n = df.get_row_count();
+    const double expected_mean = double(diag_element) / n;
+    this->check_constant_mean(means, n, expected_mean);
 
-    SECTION("variance is expected") {
-        const double n = df.get_row_count();
-        const double d = double(diag_element) * double(diag_element);
-        ONEDAL_ASSERT(n > 1);
-        const double expected_var = (d - d / n) / (n - 1.0);
-        this->check_constant_variance(vars, n, expected_var);
-    }
+    INFO("check if variance is expected")
+    n = df.get_row_count();
+    const double d = double(diag_element) * double(diag_element);
+    ONEDAL_ASSERT(n > 1);
+    const double expected_var = (d - d / n) / (n - 1.0);
+    this->check_constant_variance(vars, n, expected_var);
 }
 
 TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
@@ -154,9 +151,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
         .wait_and_throw();
 
-    SECTION("correlation matrix is ones") {
-        this->check_correlation_for_uncorrelated_data(corr);
-    }
+    INFO("check if correlation matrix is ones")
+    this->check_correlation_for_uncorrelated_data(corr);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

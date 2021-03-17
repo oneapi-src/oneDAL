@@ -58,12 +58,18 @@ oneAPI vs. DAAL Interfaces
 
 .. toctree::
    :maxdepth: 3
-   :caption: Developer Guide and Reference
+   :caption: Developer Guide
 
    data-analytics-pipeline.rst
    oneapi-interfaces.rst
    daal-interfaces.rst
    bibliography.rst
+
+.. toctree::
+   :maxdepth: 3
+   :caption: API Reference
+
+   api/index.rst
 
 .. toctree::
    :maxdepth: 1

@@ -328,7 +328,7 @@ DECLARE_SOURCE(
 
         if (local_id == 0)
         {
-            objFunction[0] = local_sum[0];
+            objFunction[0] += local_sum[0];
         }
     }
 
