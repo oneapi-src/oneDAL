@@ -16,87 +16,35 @@
 
 #pragma once
 
-#include "oneapi/dal/array.hpp"
 #include "oneapi/dal/backend/common.hpp"
 
 namespace oneapi::dal::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
-inline bool is_device_usm_pointer(const sycl::queue& queue, const void* pointer) {
+inline bool is_device_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return pointer_type == sycl::usm::alloc::device;
 }
 
-inline bool is_shared_usm_pointer(const sycl::queue& queue, const void* pointer) {
+inline bool is_shared(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return pointer_type == sycl::usm::alloc::shared;
 }
 
-inline bool is_host_usm_pointer(const sycl::queue& queue, const void* pointer) {
+inline bool is_host_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return pointer_type == sycl::usm::alloc::host;
 }
 
-inline bool is_device_friendly_usm_pointer(const sycl::queue& queue, const void* pointer) {
+inline bool is_device_friendly_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return (pointer_type == sycl::usm::alloc::device) || //
            (pointer_type == sycl::usm::alloc::shared);
 }
 
-inline bool is_known_usm_pointer_type(const sycl::queue& queue, const void* pointer) {
-    auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
+inline bool is_known_usm(const sycl::queue& queue, const void* pointer) {
+    const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return pointer_type != sycl::usm::alloc::unknown;
-}
-
-inline bool is_same_context(const sycl::queue& q1, const sycl::queue& q2) {
-    return q1.get_context() == q2.get_context();
-}
-
-inline bool is_same_context(const sycl::queue& q1, const sycl::queue& q2, const sycl::queue& q3) {
-    return is_same_context(q1, q2) && is_same_context(q1, q3);
-}
-
-inline bool is_same_context(const sycl::queue& q1,
-                            const sycl::queue& q2,
-                            const sycl::queue& q3,
-                            const sycl::queue& q4) {
-    return is_same_context(q1, q2, q3) && is_same_context(q1, q4);
-}
-
-inline bool is_same_device(const sycl::queue& q1, const sycl::queue& q2) {
-    return q1.get_device() == q2.get_device();
-}
-
-inline bool is_same_device(const sycl::queue& q1, const sycl::queue& q2, const sycl::queue& q3) {
-    return is_same_device(q1, q2) && is_same_device(q1, q3);
-}
-
-inline bool is_same_device(const sycl::queue& q1,
-                           const sycl::queue& q2,
-                           const sycl::queue& q3,
-                           const sycl::queue& q4) {
-    return is_same_device(q1, q2, q3) && is_same_device(q1, q4);
-}
-
-inline void check_if_same_context(const sycl::queue& q1, const sycl::queue& q2) {
-    if (!is_same_context(q1, q2)) {
-        throw invalid_argument{ dal::detail::error_messages::queues_in_different_contexts() };
-    }
-}
-
-inline void check_if_same_context(const sycl::queue& q1,
-                                  const sycl::queue& q2,
-                                  const sycl::queue& q3) {
-    check_if_same_context(q1, q2);
-    check_if_same_context(q1, q3);
-}
-
-inline void check_if_same_context(const sycl::queue& q1,
-                                  const sycl::queue& q2,
-                                  const sycl::queue& q3,
-                                  const sycl::queue& q4) {
-    check_if_same_context(q1, q2, q3);
-    check_if_same_context(q1, q4);
 }
 
 inline void* malloc(const sycl::queue& queue, std::size_t size, const sycl::usm::alloc& alloc) {
@@ -128,7 +76,7 @@ inline void* malloc_host(const sycl::queue& queue, std::size_t size) {
 }
 
 inline void free(const sycl::queue& queue, void* pointer) {
-    ONEDAL_ASSERT(pointer == nullptr || is_known_usm_pointer_type(queue, pointer));
+    ONEDAL_ASSERT(pointer == nullptr || is_known_usm(queue, pointer));
     sycl::free(pointer, queue);
 }
 
@@ -219,25 +167,41 @@ inline unique_usm_ptr<T> make_unique_usm_host(const sycl::queue& q, std::int64_t
 }
 
 template <typename T>
-inline bool is_device_usm(const array<T>& ary) {
+inline sycl::usm::alloc get_usm_type(const array<T>& ary) {
     if (ary.get_queue().has_value()) {
         auto q = ary.get_queue().value();
-        return is_device_usm_pointer(q, ary.get_data());
+        return sycl::get_pointer_type(ary.get_data(), q.get_context());
     }
     else {
-        return false;
+        return sycl::usm::alloc::unknown;
     }
 }
 
 template <typename T>
-inline bool is_same_context(const sycl::queue& q, const array<T>& ary) {
-    if (ary.get_queue().has_value()) {
-        auto ary_q = ary.get_queue().value();
-        return is_same_context(q, ary_q);
-    }
-    else {
-        return false;
-    }
+inline bool is_device_usm(const array<T>& ary) {
+    return get_usm_type(ary) == sycl::usm::alloc::device;
+}
+
+template <typename T>
+inline bool is_shared_usm(const array<T>& ary) {
+    return get_usm_type(ary) == sycl::usm::alloc::shared;
+}
+
+template <typename T>
+inline bool is_host_usm(const array<T>& ary) {
+    return get_usm_type(ary) == sycl::usm::alloc::host;
+}
+
+template <typename T>
+inline bool is_device_friendly_usm(const array<T>& ary) {
+    const auto pointer_type = get_usm_type(ary);
+    return (pointer_type == sycl::usm::alloc::device) || //
+           (pointer_type == sycl::usm::alloc::shared);
+}
+
+template <typename T>
+inline bool is_known_usm(const array<T>& ary) {
+    return get_usm_type(ary) != sycl::usm::alloc::unknown;
 }
 
 #endif

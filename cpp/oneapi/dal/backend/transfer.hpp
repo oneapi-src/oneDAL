@@ -24,9 +24,7 @@ namespace oneapi::dal::backend {
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename T>
 inline std::tuple<array<T>, sycl::event> to_device(sycl::queue& q, const array<T>& ary) {
-    if (!ary.get_count()) {
-        return { ary, sycl::event{} };
-    }
+    ONEDAL_ASSERT(ary.get_count() > 0);
 
     if (ary.get_queue().has_value()) {
         auto ary_q = ary.get_queue().value();
@@ -43,9 +41,7 @@ inline std::tuple<array<T>, sycl::event> to_device(sycl::queue& q, const array<T
 
 template <typename T>
 inline std::tuple<array<T>, sycl::event> to_host(const array<T>& ary) {
-    if (!ary.get_count()) {
-        return { ary, sycl::event{} };
-    }
+    ONEDAL_ASSERT(ary.get_count() > 0);
 
     if (!ary.get_queue().has_value()) {
         return { ary, sycl::event{} };

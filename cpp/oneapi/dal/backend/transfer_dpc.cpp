@@ -32,7 +32,7 @@ sycl::event gather_device2host(sycl::queue& q,
     ONEDAL_ASSERT(src_stride_in_bytes > 0);
     ONEDAL_ASSERT(block_size_in_bytes > 0);
     ONEDAL_ASSERT(src_stride_in_bytes >= block_size_in_bytes);
-    ONEDAL_ASSERT(is_known_usm_pointer_type(q, src_device));
+    ONEDAL_ASSERT(is_known_usm(q, src_device));
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, block_count, block_size_in_bytes);
 
     const auto gathered_device_unique =
@@ -85,7 +85,7 @@ sycl::event scatter_host2device(sycl::queue& q,
     ONEDAL_ASSERT(dst_stride_in_bytes > 0);
     ONEDAL_ASSERT(block_size_in_bytes > 0);
     ONEDAL_ASSERT(dst_stride_in_bytes >= block_size_in_bytes);
-    ONEDAL_ASSERT(is_known_usm_pointer_type(q, dst_device));
+    ONEDAL_ASSERT(is_known_usm(q, dst_device));
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, block_count, block_size_in_bytes);
 
     const auto gathered_device_unique =

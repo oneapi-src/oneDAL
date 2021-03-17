@@ -40,7 +40,7 @@ void memcpy(const data_parallel_policy& policy, void* dest, const void* src, std
 }
 
 bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* pointer) {
-    return backend::is_known_usm_pointer_type(policy.get_queue(), pointer);
+    return backend::is_known_usm(policy.get_queue(), pointer);
 }
 
 } // namespace oneapi::dal::detail::v1
