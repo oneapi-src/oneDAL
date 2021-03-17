@@ -41,13 +41,12 @@ inline alloc_kind alloc_kind_from_sycl(sycl::usm::alloc alloc) {
 
 #ifdef ONEDAL_DATA_PARALLEL
 inline sycl::usm::alloc alloc_kind_to_sycl(alloc_kind kind) {
+    using error_msg = dal::detail::error_messages;
     switch (kind) {
         case alloc_kind::usm_host: return sycl::usm::alloc::host;
         case alloc_kind::usm_device: return sycl::usm::alloc::device;
         case alloc_kind::usm_shared: return sycl::usm::alloc::shared;
-        case alloc_kind::host: return sycl::usm::alloc::unknown;
-        default: //
-            ONEDAL_ASSERT("Unsupported alloc_kind");
+        default: throw invalid_argument{ error_msg::unsupported_usm_alloc() };
     }
 }
 #endif

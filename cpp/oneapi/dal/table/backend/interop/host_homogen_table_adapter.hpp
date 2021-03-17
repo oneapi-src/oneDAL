@@ -113,31 +113,8 @@ private:
                                      rw_mode_t rwflag,
                                      block_desc_t<BlockData>& block);
 
-    bool check_row_indexes_in_range(const block_info& info) const {
-        const std::int64_t row_count = original_table_.get_row_count();
-        return info.row_begin_index < row_count && info.row_end_index <= row_count;
-    }
-
-    bool check_column_index_in_range(const block_info& info) const {
-        const std::int64_t column_count = original_table_.get_column_count();
-        return info.single_column_requested && info.column_index < column_count;
-    }
-
-    template <typename Body>
-    daal::services::Status convert_exception_to_status(Body&& body) {
-        try {
-            return body();
-        }
-        catch (const bad_alloc&) {
-            return daal::services::ErrorMemoryAllocationFailed;
-        }
-        catch (const out_of_range&) {
-            return daal::services::ErrorIncorrectDataRange;
-        }
-        catch (...) {
-            return daal::services::UnknownError;
-        }
-    }
+    bool check_row_indexes_in_range(const block_info& info) const;
+    bool check_column_index_in_range(const block_info& info) const;
 
     const bool is_rowmajor_;
     homogen_table original_table_;

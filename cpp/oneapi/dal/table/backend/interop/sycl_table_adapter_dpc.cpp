@@ -20,6 +20,22 @@ namespace oneapi::dal::backend::interop {
 
 namespace daal_dm = daal::data_management;
 
+template <typename Body>
+static daal::services::Status convert_exception_to_status(Body&& body) {
+    try {
+        return body();
+    }
+    catch (const bad_alloc&) {
+        return daal::services::ErrorMemoryAllocationFailed;
+    }
+    catch (const out_of_range&) {
+        return daal::services::ErrorIncorrectDataRange;
+    }
+    catch (...) {
+        return daal::services::UnknownError;
+    }
+}
+
 static daal_dm::features::FeatureType get_daal_feature_type(feature_type t) {
     switch (t) {
         case feature_type::nominal: return daal_dm::features::DAAL_CATEGORICAL;
@@ -260,6 +276,16 @@ auto sycl_table_adapter::convert_to_daal_buffer(const array<BlockData>& ary) con
                                   queue_,
                                   status };
     return { buffer, status };
+}
+
+bool sycl_table_adapter::check_row_indexes_in_range(const block_info& info) const {
+    const std::int64_t row_count = original_table_.get_row_count();
+    return info.row_begin_index < row_count && info.row_end_index <= row_count;
+}
+
+bool sycl_table_adapter::check_column_index_in_range(const block_info& info) const {
+    const std::int64_t column_count = original_table_.get_column_count();
+    return info.single_column_requested && info.column_index < column_count;
 }
 
 constexpr inline sycl::usm::alloc get_accessor_alloc_kind() {
