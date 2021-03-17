@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/svm/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/model_interop.hpp"
+#include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
 

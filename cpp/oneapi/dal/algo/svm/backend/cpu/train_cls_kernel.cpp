@@ -1,9 +1,5 @@
 /*******************************************************************************
-<<<<<<< HEAD
 * Copyright 2020-2021 Intel Corporation
-=======
-* Copyright 2021 Intel Corporation
->>>>>>> ea8603a00ba2d00d50ef8b445f015e08a8c55a2e
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,15 +21,14 @@
 
 #include "algorithms/svm/svm_train.h"
 
-#include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/model_interop.hpp"
-#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
-#include "oneapi/dal/algo/svm/backend/utils.hpp"
-#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
-
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+
+#include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
+#include "oneapi/dal/algo/svm/backend/utils.hpp"
+#include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 

@@ -14,25 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-#include "oneapi/dal/algo/svm/backend/model_interop.hpp"
+#include "oneapi/dal/algo/svm/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
+#include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
+
+#include "oneapi/dal/table/row_accessor.hpp"
 
 #include <daal/src/algorithms/svm/svm_predict_kernel.h>
 #include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>
 #include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_predict_kernel.h>
 
 #include "algorithms/svm/svm_predict.h"
-
-#include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
-#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
-
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-
-#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::svm::backend {
 

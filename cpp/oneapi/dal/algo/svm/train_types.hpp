@@ -142,7 +142,7 @@ public:
 
     /// The bias
     /// @remark default = 0.0
-    [[deprecated("Use get_bias() instead.")]] double get_bias() const;
+    [[deprecated("Use get_biases() instead.")]] double get_bias() const;
 
     [[deprecated("Use set_biases() instead.")]] auto& set_bias(double value) {
         set_bias_impl(value);

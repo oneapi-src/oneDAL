@@ -24,6 +24,7 @@
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
 #include "oneapi/dal/algo/svm/backend/model_impl.hpp"
+#include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"

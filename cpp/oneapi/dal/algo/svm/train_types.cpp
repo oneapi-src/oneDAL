@@ -102,7 +102,8 @@ const table& train_result<Task>::get_coeffs() const {
 
 template <typename Task>
 double train_result<Task>::get_bias() const {
-    return impl_->trained_model.get_bias();
+    // return dal::detail::get_impl(impl_->trained_model).bias;
+    return 0.0;
 }
 
 template <typename Task>
@@ -137,7 +138,8 @@ void train_result<Task>::set_coeffs_impl(const table& value) {
 
 template <typename Task>
 void train_result<Task>::set_bias_impl(double value) {
-    impl_->trained_model.set_bias(value);
+    // dal::detail::get_impl(impl_->trained_model).bias = value;
+    // impl_->trained_model.set_bias(value);
 }
 
 template <typename Task>

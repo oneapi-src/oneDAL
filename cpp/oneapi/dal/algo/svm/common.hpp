@@ -330,9 +330,9 @@ public:
         return *this;
     }
 
-    double get_bias() const;
+    [[deprecated("Use get_biases() instead.")]] double get_bias() const;
 
-    auto& set_bias(double value) {
+    [[deprecated("Use set_biases() instead.")]] auto& set_bias(double value) {
         set_bias_impl(value);
         return *this;
     }
@@ -349,6 +349,7 @@ public:
     /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     std::int64_t get_first_class_label() const;
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_first_class_label(std::int64_t value) {
         set_first_class_label_impl(value);
         return *this;
@@ -358,6 +359,7 @@ public:
     /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     std::int64_t get_second_class_label() const;
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_second_class_label(std::int64_t value) {
         set_second_class_label_impl(value);
         return *this;

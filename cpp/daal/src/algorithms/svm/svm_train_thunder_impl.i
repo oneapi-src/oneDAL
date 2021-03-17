@@ -168,6 +168,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         if (checkStopCondition(diff, diffPrev, accuracyThreshold, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
+    printf("iter %lu\n", iter);
 
     if (svmType == SvmType::regression)
     {

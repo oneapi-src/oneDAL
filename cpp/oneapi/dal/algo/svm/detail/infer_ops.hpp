@@ -39,31 +39,31 @@ struct infer_ops {
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {
-        // using msg = dal::detail::error_messages;
+        using msg = dal::detail::error_messages;
 
-        // if (!input.get_data().has_data()) {
-        //     throw domain_error(msg::input_data_is_empty());
-        // }
-        // if (!input.get_model().get_support_vectors().has_data()) {
-        //     throw domain_error(msg::input_model_support_vectors_are_empty());
-        // }
-        // if (!input.get_model().get_coeffs().has_data()) {
-        //     throw domain_error(msg::input_model_coeffs_are_empty());
-        // }
-        // if (input.get_model().get_support_vectors().get_column_count() !=
-        //     input.get_data().get_column_count()) {
-        //     throw invalid_argument(msg::input_model_support_vectors_cc_neq_input_data_cc());
-        // }
-        // if (input.get_model().get_support_vectors().get_row_count() !=
-        //     input.get_model().get_support_vector_count()) {
-        //     throw invalid_argument(
-        //         msg::input_model_support_vectors_rc_neq_input_model_support_vector_count());
-        // }
-        // if (input.get_model().get_coeffs().get_row_count() !=
-        //     input.get_model().get_support_vector_count()) {
-        //     throw invalid_argument(
-        //         msg::input_model_coeffs_rc_neq_input_model_support_vector_count());
-        // }
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
+        }
+        if (!input.get_model().get_support_vectors().has_data()) {
+            throw domain_error(msg::input_model_support_vectors_are_empty());
+        }
+        if (!input.get_model().get_coeffs().has_data()) {
+            throw domain_error(msg::input_model_coeffs_are_empty());
+        }
+        if (input.get_model().get_support_vectors().get_column_count() !=
+            input.get_data().get_column_count()) {
+            throw invalid_argument(msg::input_model_support_vectors_cc_neq_input_data_cc());
+        }
+        if (input.get_model().get_support_vectors().get_row_count() !=
+            input.get_model().get_support_vector_count()) {
+            throw invalid_argument(
+                msg::input_model_support_vectors_rc_neq_input_model_support_vector_count());
+        }
+        if (input.get_model().get_coeffs().get_row_count() !=
+            input.get_model().get_support_vector_count()) {
+            throw invalid_argument(
+                msg::input_model_coeffs_rc_neq_input_model_support_vector_count());
+        }
     }
 
     void check_postconditions(const Descriptor& params,
