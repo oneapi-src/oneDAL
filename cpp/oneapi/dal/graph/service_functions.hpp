@@ -49,7 +49,7 @@ constexpr auto get_edge_count(const Graph &graph) noexcept -> edge_size_type<Gra
 /// @param [in]   graph  Input graph object
 /// @param [in]   vertex Identifier of the vertex
 ///
-/// @return The in degree of the vertex
+/// @return The degree of the vertex
 template <typename Graph>
 constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
     -> vertex_edge_size_type<Graph>;
@@ -60,7 +60,7 @@ constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
 /// @param [in]   graph  Input graph object
 /// @param [in]   vertex Identifier of the vertex
 ///
-/// @return The degree of the vertex
+/// @return The in degree of the vertex
 template <typename Graph>
 constexpr auto get_vertex_in_degree(const Graph &graph, vertex_type<Graph> vertex)
     -> vertex_edge_size_type<Graph>;
