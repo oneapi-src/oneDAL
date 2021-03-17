@@ -9,7 +9,7 @@
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* WITHOUT WARRANTIES OR CONDITIONS OF Arow_count KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
@@ -39,22 +39,24 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
     ONEDAL_ASSERT(result != sg_sizes.end());
 
     const uint32_t sg_max_size = static_cast<int>(*result);
-    const uint32_t expected_sg_num = preffered_wg_size / sg_max_size;
+
+    const std::int64_t col_count = data.get_dimension(1);
+    const std::int64_t row_count = data.get_dimension(0);
+
+    const uint32_t row_adjusted_sg_num =
+        col_count / sg_max_size + (uint32_t)((bool)(col_count % sg_max_size));
+    const uint32_t expected_sg_num = std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
     ONEDAL_ASSERT(expected_sg_num > 0);
 
-    const std::int64_t nx = data.get_dimension(1);
-    const std::int64_t ny = data.get_dimension(0);
     // TODO: overflow check
-    sycl::range<2> global(
-        preffered_wg_size,
-        up_multiple(ny, static_cast<std::int64_t>(expected_sg_num)) / expected_sg_num);
-    sycl::range<2> local(preffered_wg_size, 1);
+    const uint32_t wg_size = expected_sg_num * sg_max_size;
+    sycl::range<2> global(wg_size, row_count);
+    sycl::range<2> local(wg_size, 1);
     sycl::nd_range<2> nd_range2d(global, local);
 
     const Float* data_ptr = data.get_data();
     Float* selection_ptr = selection_out ? selection.get_mutable_data() : nullptr;
     int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
-
     auto fp_max = detail::limits<Float>::max();
 
     auto event = queue.submit([&](sycl::handler& cgh) {
@@ -65,29 +67,28 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
             const uint32_t wg_id = item.get_global_id(1);
             const uint32_t sg_num = sg.get_group_range()[0];
             const uint32_t sg_global_id = wg_id * sg_num + sg_id;
-            if (sg_global_id >= ny)
+            if (sg_global_id >= row_count)
                 return;
-            const uint32_t in_offset = sg_global_id * nx;
+            const uint32_t in_offset = sg_global_id * col_count;
             const uint32_t out_offset = sg_global_id * k;
 
             const uint32_t local_id = sg.get_local_id()[0];
             const uint32_t local_range = sg.get_local_range()[0];
 
             Float values[simd_width];
-            uint32_t private_indices[simd_width];
+            int private_indices[simd_width];
 
             for (uint32_t i = 0; i < simd_width; i++) {
                 values[i] = fp_max;
                 private_indices[i] = -1;
             }
-
             for (uint32_t i = col_begin + local_id; i < col_end; i += local_range) {
                 Float cur_val = data_ptr[in_offset + i];
-                uint32_t index = i;
+                int index = i;
                 int pos = -1;
 
                 pos = values[k - 1] > cur_val ? k - 1 : pos;
-                for (uint32_t j = k - 2; j >= 0; j--) {
+                for (int j = k - 2; j >= 0; j--) {
                     bool do_shift = values[j] > cur_val;
                     pos = do_shift ? j : pos;
                     values[j + 1] = do_shift ? values[j] : values[j + 1];
@@ -114,13 +115,13 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
                 final_values[i] = min_val;
                 bias += owner ? 1 : 0;
             }
-            if constexpr (selection_out) {
-                for (uint32_t i = local_id; i < nx; i += local_range) {
+            if constexpr (indices_out) {
+                for (uint32_t i = local_id; i < k; i += local_range) {
                     indices_ptr[out_offset + i] = final_indices[i];
                 }
             }
-            if constexpr (indices_out) {
-                for (uint32_t i = local_id; i < nx; i += local_range) {
+            if constexpr (selection_out) {
+                for (uint32_t i = local_id; i < k; i += local_range) {
                     selection_ptr[out_offset + i] = final_values[i];
                 }
             }

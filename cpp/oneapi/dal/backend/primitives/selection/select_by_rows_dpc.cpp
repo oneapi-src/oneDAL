@@ -20,36 +20,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename type>
-struct device_type_info_id {
-    static constexpr sycl::info::device preferred_vector_width =
-        sycl::info::device::native_vector_width_char;
-};
-
-template <>
-struct device_type_info_id<float> {
-    static constexpr sycl::info::device preferred_vector_width =
-        sycl::info::device::native_vector_width_float;
-};
-
-template <>
-struct device_type_info_id<long> {
-    static constexpr sycl::info::device preferred_vector_width =
-        sycl::info::device::native_vector_width_double;
-};
-
-template <>
-struct device_type_info_id<short> {
-    static constexpr sycl::info::device preferred_vector_width =
-        sycl::info::device::native_vector_width_short;
-};
-
-template <>
-struct device_type_info_id<int> {
-    static constexpr sycl::info::device preferred_vector_width =
-        sycl::info::device::native_vector_width_int;
-};
-
 constexpr uint32_t simd16 = 16;
 constexpr uint32_t simd32 = 32;
 constexpr uint32_t simd64 = 64;
@@ -58,16 +28,15 @@ constexpr uint32_t simd128 = 128;
 /* Commented params are for kNN perfomance improvement (optimized usage of GEMM) */
 
 template <typename Float, bool selection_out, bool indices_out>
-sycl::event select_by_rows_impl(
-    sycl::queue& queue,
-    const ndview<Float, 2>& data,
-    /*                              const ndview<Float, 1>& add_by_col,*/
-    std::int64_t k,
-    std::int64_t col_begin,
-    std::int64_t col_end,
-    ndview<Float, 2>& selection,
-    ndview<int, 2>& column_indices,
-    const event_vector& deps) {
+sycl::event select_by_rows_impl(sycl::queue& queue,
+                                const ndview<Float, 2>& data,
+                                /*const ndview<Float, 1>& add_by_col,*/
+                                std::int64_t k,
+                                std::int64_t col_begin,
+                                std::int64_t col_end,
+                                ndview<Float, 2>& selection,
+                                ndview<int, 2>& column_indices,
+                                const event_vector& deps) {
     if constexpr (selection_out) {
         ONEDAL_ASSERT(data.get_dimension(1) == selection.get_dimension(1));
         ONEDAL_ASSERT(data.get_dimension(0) >= k);
@@ -80,12 +49,11 @@ sycl::event select_by_rows_impl(
         ONEDAL_ASSERT(indices.has_mutable_data());
     }
 
-    const uint32_t fp_simd_width =
-        queue.get_device().get_info<device_type_info_id<Float>::preferred_vector_width>();
-    const uint32_t int_simd_width =
-        queue.get_device().get_info<device_type_info_id<int>::preferred_vector_width>();
-
-    const uint32_t simd_width = std::min(fp_simd_width, int_simd_width);
+    const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
+    ONEDAL_ASSERT(!sg_sizes.empty());
+    auto result = std::max_element(sg_sizes.begin(), sg_sizes.end());
+    ONEDAL_ASSERT(result != sg_sizes.end());
+    const uint32_t simd_width = static_cast<int>(*result);
 
     if (k <= simd_width) {
         if (simd_width == simd16) {
@@ -175,14 +143,14 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
                                              ndview<Float, 2>& selection,
                                              const event_vector& deps) {
     ndarray<int, 2> dummy_array;
-    return select_by_rows_impl<Float, true, true>(queue,
-                                                  this->data_,
-                                                  /*this->add_by_col_,*/ k,
-                                                  this->col_begin_,
-                                                  this->col_end_,
-                                                  selection,
-                                                  dummy_array,
-                                                  deps);
+    return select_by_rows_impl<Float, true, false>(queue,
+                                                   this->data_,
+                                                   /*this->add_by_col_,*/ k,
+                                                   this->col_begin_,
+                                                   this->col_end_,
+                                                   selection,
+                                                   dummy_array,
+                                                   deps);
 }
 
 template <typename Float>
@@ -191,14 +159,14 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
                                              ndview<int, 2>& column_indices,
                                              const event_vector& deps) {
     ndarray<Float, 2> dummy_array;
-    return select_by_rows_impl<Float, true, true>(queue,
-                                                  this->data_,
-                                                  /*this->add_by_col_,*/ k,
-                                                  this->col_begin_,
-                                                  this->col_end_,
-                                                  dummy_array,
-                                                  column_indices,
-                                                  deps);
+    return select_by_rows_impl<Float, false, true>(queue,
+                                                   this->data_,
+                                                   /*this->add_by_col_,*/ k,
+                                                   this->col_begin_,
+                                                   this->col_end_,
+                                                   dummy_array,
+                                                   column_indices,
+                                                   deps);
 }
 
 #define INSTANTIATE_IMPL(F, selection_out, indices_out)                                    \

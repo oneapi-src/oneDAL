@@ -37,54 +37,56 @@ public:
         return te::table_id::homogen<Float>();
     }
 
-    void test_selection(ndview<Float, 2>& data, std::int64_t n, std::int64_t m, std::int64_t k) {
+    void test_selection(ndview<Float, 2>& data,
+                        std::int64_t row_count,
+                        std::int64_t col_count,
+                        std::int64_t k) {
         INFO("Output of selected values") {
             selection_by_rows<Float> sel(data);
             ndarray<int, 2> dummy_array;
-            auto value_array = ndarray<Float, 2>::empty(get_queue(), { n, k });
+            auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
             sel.select(get_queue(), k, value_array).wait_and_throw();
             check_results<true, false>(data, value_array, dummy_array);
         }
-
         INFO("Output of selected indices") {
             selection_by_rows<Float> sel(data);
             ndarray<Float, 2> dummy_array;
-            auto index_array = ndarray<int, 2>::empty(get_queue(), { n, k });
+            auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
             sel.select(get_queue(), k, index_array).wait_and_throw();
             check_results<false, true>(data, dummy_array, index_array);
         }
 
         INFO("Output of both") {
             selection_by_rows<Float> sel(data);
-            auto value_array = ndarray<Float, 2>::empty(get_queue(), { n, k });
-            auto index_array = ndarray<int, 2>::empty(get_queue(), { n, k });
+            auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
+            auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
             sel.select(get_queue(), k, value_array, index_array).wait_and_throw();
             check_results<true, true>(data, value_array, index_array);
         }
     }
 
     template <bool selection_out, bool indices_out>
-    void check_results(const ndview<Float, 2>& block,
+    void check_results(const ndview<Float, 2>& data,
                        const ndview<Float, 2>& selection,
                        const ndview<int, 2>& indices) {
-        ONEDAL_ASSERT(block.get_dimension(1) == selection.get_dimension(1));
-        ONEDAL_ASSERT(block.get_dimension(1) == indices.get_dimension(1));
+        ONEDAL_ASSERT(data.get_dimension(0) == selection.get_dimension(0));
+        ONEDAL_ASSERT(data.get_dimension(0) == indices.get_dimension(0));
 
-        auto k = selection.get_dimension(0);
-        auto row_size = block.get_dimension(0);
-        auto row_count = block.get_dimension(1);
+        auto k = selection.get_dimension(1);
+        auto row_size = data.get_dimension(1);
+        auto row_count = data.get_dimension(0);
 
         for (std::int64_t i = 0; i < row_count; i++) {
-            auto max_val = std::numeric_limits<Float>::min();
+            auto max_val = std::numeric_limits<Float>::lowest();
             for (std::int64_t j = 0; j < k; j++) {
-                Float cur_val = get_value<selection_out, indices_out>(block,
+                Float cur_val = get_value<selection_out, indices_out>(data,
                                                                       selection,
                                                                       indices,
                                                                       k,
                                                                       row_size,
                                                                       i,
                                                                       j);
-                check_presence_in_data<selection_out, indices_out>(block,
+                check_presence_in_data<selection_out, indices_out>(data,
                                                                    selection,
                                                                    indices,
                                                                    k,
@@ -96,7 +98,7 @@ public:
                     max_val = cur_val;
             }
             for (std::int64_t j = 0; j < row_size; j++) {
-                Float cur_val = block.get_data()[i * row_size + j];
+                Float cur_val = data.get_data()[i * row_size + j];
                 if (cur_val < max_val) {
                     check_presence_in_selection<selection_out, indices_out>(selection,
                                                                             indices,
@@ -111,7 +113,7 @@ public:
     }
 
     template <bool selection_out, bool indices_out>
-    Float get_value(const ndview<Float, 2>& block,
+    Float get_value(const ndview<Float, 2>& data,
                     const ndview<Float, 2>& selection,
                     const ndview<int, 2>& indices,
                     std::int64_t k,
@@ -125,12 +127,12 @@ public:
             auto cur_index = indices.get_data()[row * k + pos];
             REQUIRE(cur_index > -1);
             REQUIRE(cur_index < row_size);
-            return block.get_data()[row * row_size + cur_index];
+            return data.get_data()[row * row_size + cur_index];
         }
     }
 
     template <bool selection_out, bool indices_out>
-    void check_presence_in_data(const ndview<Float, 2>& block,
+    void check_presence_in_data(const ndview<Float, 2>& data,
                                 const ndview<Float, 2>& selection,
                                 const ndview<int, 2>& indices,
                                 std::int64_t k,
@@ -140,15 +142,14 @@ public:
                                 Float cur_val) {
         if constexpr (indices_out && selection_out) {
             REQUIRE(selection.get_data()[row * k + pos] ==
-                    block.get_data()[row * row_size + indices.get_data()[row * k + pos]]);
+                    data.get_data()[row * row_size + indices.get_data()[row * k + pos]]);
         }
-        if constexpr (!indices_out) {
-            std::int64_t count = 0;
-            for (std::int64_t l = 0; l < row_size; l++) {
-                count += (std::int64_t)(block.get_data()[row * row_size + l] == cur_val);
-            }
-            REQUIRE(count > 0);
+        std::int64_t count = 0;
+        for (std::int64_t i = 0; i < row_size; i++) {
+            Float probe = data.get_data()[row * row_size + i];
+            count += (std::int64_t)(probe == cur_val);
         }
+        REQUIRE(count > 0);
     }
 
     template <bool selection_out, bool indices_out>
@@ -162,12 +163,12 @@ public:
         std::int64_t count = 0;
         if constexpr (!indices_out) {
             for (std::int64_t l = 0; l < k; l++) {
-                count += (std::int64_t)(selection.get_data()[row * row_size + l] == cur_val);
+                count += (std::int64_t)(selection.get_data()[row * k + l] == cur_val);
             }
         }
         else {
             for (std::int64_t l = 0; l < k; l++) {
-                count += (std::int64_t)(indices.get_data()[row * row_size + l] == pos);
+                count += (std::int64_t)(indices.get_data()[row * k + l] == pos);
             }
         }
         REQUIRE(count > 0);
@@ -181,9 +182,13 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "[block select][small]",
                      selection_types) {
     using Float = TestType;
-    Float data[] = { 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 4.0f,
-                     0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 5.0f, 1.0f };
-    auto data_array = ndarray<Float, 2>::wrap(data, { 3, 5 });
+    Float data[] = { -2.0f, 5.0f, -3.0f, 3.0f, 4.0f, 1.0f, 1.0f, 4.0f,
+                     4.0f,  1.0f, 1.0f,  0.0f, 0.0f, 5.0f, 1.0f };
+    auto data_array = ndarray<Float, 2>::empty(this->get_queue(), { 3, 5 });
+    auto event = this->get_queue().submit([&](sycl::handler& cgh) {
+        cgh.memcpy(data_array.get_mutable_data(), data, sizeof(Float) * 15);
+    });
+    event.wait();
     this->test_selection(data_array, 3, 5, 1);
 }
 
@@ -194,7 +199,11 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
     using Float = TestType;
     Float data[] = { 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 4.0f,
                      0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 5.0f, 1.0f };
-    auto data_array = ndarray<Float, 2>::wrap(data, { 1, 15 });
+    auto data_array = ndarray<Float, 2>::empty(this->get_queue(), { 1, 15 });
+    auto event = this->get_queue().submit([&](sycl::handler& cgh) {
+        cgh.memcpy(data_array.get_mutable_data(), data, sizeof(Float) * 15);
+    });
+    event.wait();
     this->test_selection(data_array, 1, 15, 2);
 }
 
@@ -203,20 +212,24 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "[block select][small]",
                      selection_types) {
     using Float = TestType;
-    Float data[] = { 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 4.0f,
-                     0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 5.0f, 1.0f };
-    auto data_array = ndarray<Float, 2>::wrap(data, { 3, 5 });
-    this->test_selection(data_array, 3, 5, 3);
+    Float data[] = { 7.0f, 5.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 4.0f,
+                     0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 5.0f, 1.0f };
+    auto data_array = ndarray<Float, 2>::empty(this->get_queue(), { 3, 5 });
+    auto event = this->get_queue().submit([&](sycl::handler& cgh) {
+        cgh.memcpy(data_array.get_mutable_data(), data, sizeof(Float) * 15);
+    });
+    event.wait();
+
+    this->test_selection(data_array, 3, 5, 5);
 }
 
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
-                     "selection test",
+                     "selection test (all zeroes)",
                      "[block select][small]",
                      selection_types) {
     using Float = TestType;
-    Float data[] = { 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 4.0f,
-                     0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 5.0f, 1.0f };
-    auto data_array = ndarray<Float, 2>::wrap(data, { 3, 5 });
+    auto [data_array, event] = ndarray<Float, 2>::zeros(this->get_queue(), { 3, 5 });
+    event.wait();
     this->test_selection(data_array, 3, 5, 2);
 }
 
@@ -225,11 +238,12 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "[block select][medium]",
                      selection_types) {
     using Float = TestType;
-    const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ 17, 33 }.fill_uniform(-0.2, 0.5));
+    std::int64_t rows = 17;
+    std::int64_t cols = 33;
+    const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
-    const auto df_rows = row_accessor<const Float>(df_table).pull({ 0, -1 });
-    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { 3, 5 });
-    this->test_selection(data_array, 3, 5, 2);
+    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    this->test_selection(data_array, rows, cols, 31);
 }
-
 } // namespace oneapi::dal::backend::primitives::test
