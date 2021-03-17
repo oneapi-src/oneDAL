@@ -24,6 +24,10 @@ inline auto max_wg(const sycl::queue& q) {
     return q.get_device().template get_info<sycl::info::device::max_work_group_size>();
 }
 
+inline std::int64_t local_mem_size(const sycl::queue& q) {
+    return q.get_device().template get_info<sycl::info::device::local_mem_size>();
+}
+
 template <class Float, class BinaryOp, class UnaryOp>
 class kernel_reduction_rm_rw_wide {
     typedef const Float* inp_t;

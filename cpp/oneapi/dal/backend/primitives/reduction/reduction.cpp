@@ -32,8 +32,8 @@ sycl::event reduce_rm_rw(sycl::queue& q,
                          const UnaryOp unary,
                          const event_vector& deps) {
     using kernel_t = reduction_rm_rw<Float, BinaryOp, UnaryOp>;
-    const auto width = input.get_dimension(0);
-    const auto height = input.get_dimension(1);
+    const auto width = input.get_dimension(1);
+    const auto height = input.get_dimension(0);
     const auto stride = input.get_leading_stride();
     const auto* inp_ptr = input.get_data();
     auto* out_ptr = output.get_mutable_data();
@@ -49,8 +49,8 @@ sycl::event reduce_rm_cw(sycl::queue& q,
                          const UnaryOp unary,
                          const event_vector& deps) {
     using kernel_t = reduction_rm_cw<Float, BinaryOp, UnaryOp>;
-    const auto width = input.get_dimension(0);
-    const auto height = input.get_dimension(1);
+    const auto width = input.get_dimension(1);
+    const auto height = input.get_dimension(0);
     const auto stride = input.get_leading_stride();
     const auto* inp_ptr = input.get_data();
     auto* out_ptr = output.get_mutable_data();
