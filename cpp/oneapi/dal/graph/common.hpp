@@ -131,4 +131,22 @@ using const_vertex_edge_range_type = typename graph_traits<Graph>::const_vertex_
 template <typename Graph>
 using graph_allocator = typename graph_traits<Graph>::allocator_type;
 
+template <typename Graph>
+constexpr bool is_undirected =
+    dal::detail::is_one_of_v<Graph,
+                             undirected_adjacency_vector_graph<vertex_user_value_type<Graph>,
+                                                               edge_user_value_type<Graph>,
+                                                               graph_user_value_type<Graph>,
+                                                               vertex_type<Graph>,
+                                                               graph_allocator<Graph>>>;
+
+template <typename Graph>
+constexpr bool is_directed =
+    dal::detail::is_one_of_v<Graph,
+                             directed_adjacency_vector_graph<vertex_user_value_type<Graph>,
+                                                             edge_user_value_type<Graph>,
+                                                             graph_user_value_type<Graph>,
+                                                             vertex_type<Graph>,
+                                                             graph_allocator<Graph>>>;
+
 } // namespace oneapi::dal::preview
