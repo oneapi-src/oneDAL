@@ -19,6 +19,11 @@
 
 namespace oneapi::dal::polynomial_kernel::backend {
 
+using dal::backend::context_gpu;
+using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
+using descriptor_t = detail::descriptor_base<task::compute>;
+
 template <typename Float>
 struct compute_kernel_gpu<Float, method::dense, task::compute> {
     result_t operator()(const context_gpu& ctx,
