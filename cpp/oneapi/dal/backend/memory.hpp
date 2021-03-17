@@ -48,6 +48,7 @@ inline bool is_known_usm(const sycl::queue& queue, const void* pointer) {
 }
 
 inline void* malloc(const sycl::queue& queue, std::size_t size, const sycl::usm::alloc& alloc) {
+    ONEDAL_ASSERT(size > 0);
     auto ptr = sycl::malloc(size, queue, alloc);
     if (!ptr) {
         if (alloc == sycl::usm::alloc::shared || alloc == sycl::usm::alloc::host) {
@@ -82,6 +83,7 @@ inline void free(const sycl::queue& queue, void* pointer) {
 
 template <typename T>
 inline T* malloc(const sycl::queue& queue, std::int64_t count, const sycl::usm::alloc& alloc) {
+    ONEDAL_ASSERT(count > 0);
     ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), count);
     const std::size_t bytes_count = sizeof(T) * count;
     return static_cast<T*>(malloc(queue, bytes_count, alloc));
@@ -100,6 +102,43 @@ inline T* malloc_shared(const sycl::queue& queue, std::int64_t count) {
 template <typename T>
 inline T* malloc_host(const sycl::queue& queue, std::int64_t count) {
     return malloc<T>(queue, count, sycl::usm::alloc::host);
+}
+
+inline sycl::event memcpy(sycl::queue& queue, void* dest, const void* src, std::size_t size) {
+    ONEDAL_ASSERT(size > 0);
+    return queue.memcpy(dest, src, size);
+}
+
+inline sycl::event memcpy(sycl::queue& queue,
+                          void* dest,
+                          const void* src,
+                          std::size_t size,
+                          const event_vector& deps) {
+    ONEDAL_ASSERT(size > 0);
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.memcpy(dest, src, size);
+    });
+}
+
+template <typename T>
+inline sycl::event copy(sycl::queue& queue, T* dest, const T* src, std::int64_t count) {
+    ONEDAL_ASSERT(count > 0);
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    return memcpy(queue, dest, src, sizeof(T) * n);
+}
+
+template <typename T>
+inline sycl::event copy(sycl::queue& queue,
+                        T* dest,
+                        const T* src,
+                        std::int64_t count,
+                        const event_vector& deps) {
+    ONEDAL_ASSERT(count > 0);
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    return memcpy(queue, dest, src, sizeof(T) * n, deps);
 }
 
 template <typename T>
