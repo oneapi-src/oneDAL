@@ -51,8 +51,6 @@ static void convert_feature_information_to_daal(const table_metadata& src,
     ONEDAL_ASSERT(std::size_t(src.get_feature_count()) == dst.getNumberOfFeatures());
     for (std::int64_t i = 0; i < src.get_feature_count(); i++) {
         auto& daal_feature = dst[i];
-        // TODO: Determine indexType
-        // daal_feature.indexType = daal_dm::features::
         daal_feature.featureType = get_daal_feature_type(src.get_feature_type(i));
     }
 }

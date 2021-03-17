@@ -27,6 +27,8 @@
 // To make USM work, we disable signal handling in Catch2.
 #define CATCH_CONFIG_NO_POSIX_SIGNALS
 
+// Disables unexpected exceptions handing in Catch2.
+// It is easier to debug exception via GDB if there is handler.
 #define CATCH_CONFIG_DISABLE_EXCEPTIONS
 
 #include <catch2/catch.hpp>
