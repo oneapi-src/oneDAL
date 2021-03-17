@@ -23,19 +23,6 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-#define _P(...)              \
-    do {                     \
-        printf(__VA_ARGS__); \
-        printf("\n");        \
-        fflush(0);           \
-    } while (0)
-
-#define _PL(...)             \
-    do {                     \
-        printf(__VA_ARGS__); \
-        fflush(0);           \
-    } while (0)
-
 /// Performs inplace radix sort of input vector and corresponding indices
 ///
 /// @tparam Float Floating-point type used for storing input values
