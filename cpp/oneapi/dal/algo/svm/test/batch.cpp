@@ -17,8 +17,11 @@
 #include "oneapi/dal/algo/svm/infer.hpp"
 #include "oneapi/dal/algo/svm/train.hpp"
 
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
+#include "oneapi/dal/test/engine/metrics/classification.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
 
@@ -43,6 +46,10 @@ public:
 
     bool weights_not_available_on_device() {
         return this->get_policy().is_gpu();
+    }
+
+    te::table_id get_homogen_table_id() const {
+        return te::table_id::homogen<Float>();
     }
 
     void check_linear_kernel(
@@ -146,9 +153,10 @@ public:
         check_shapes(infer_data, result);
         check_nans(result);
 
-        INFO("check if decision_function values is expected")
-        if (decision_function.has_data())
+        if (decision_function.has_data()) {
+            INFO("check if decision_function values is expected")
             check_table_match(decision_function, result.get_decision_function());
+        }
 
         INFO("check if labels values is expected")
         check_table_match(labels, result.get_labels());
@@ -216,6 +224,74 @@ public:
         REQUIRE(te::has_no_nans(decision_function));
     }
 
+    void check_linear_kernel_accuracy(
+        const table& train_data,
+        const table& train_labels,
+        const table& test_data,
+        const table& test_labels,
+        svm::descriptor<Float, Method, svm::task::classification, KernelTypeLinear>& desc,
+        const Float ref_accuracy) {
+        INFO("set desctiptor parameters");
+        desc.set_accuracy_threshold(0.001);
+        desc.set_max_iteration_count(10 * train_data.get_row_count());
+        desc.set_cache_size(2048.0);
+        desc.set_tau(1.0e-6);
+
+        INFO("run training");
+        auto train_result = this->train(desc, train_data, train_labels);
+        const auto model = train_result.get_model();
+        check_shapes(train_data, train_result, model.get_support_vector_count());
+        check_nans(train_result);
+
+        INFO("run inference");
+        const auto infer_result = infer(desc, model, test_data);
+        check_shapes(test_data, infer_result);
+        check_nans(infer_result);
+
+        const Float tolerance = 1e-5;
+
+        const auto score_table =
+            te::accuracy_score<Float>(infer_result.get_labels(), test_labels, tolerance);
+        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
+
+        CAPTURE(score);
+        REQUIRE(score >= ref_accuracy);
+    }
+
+    void check_rbf_kernel_accuracy(
+        const table& train_data,
+        const table& train_labels,
+        const table& test_data,
+        const table& test_labels,
+        svm::descriptor<Float, Method, svm::task::classification, KernelTypeRBF>& desc,
+        const Float ref_accuracy) {
+        INFO("set desctiptor parameters");
+        desc.set_accuracy_threshold(0.001);
+        desc.set_max_iteration_count(10 * train_data.get_row_count());
+        desc.set_cache_size(2048.0);
+        desc.set_tau(1.0e-6);
+
+        INFO("run training");
+        auto train_result = this->train(desc, train_data, train_labels);
+        const auto model = train_result.get_model();
+        check_shapes(train_data, train_result, model.get_support_vector_count());
+        check_nans(train_result);
+
+        INFO("run inference");
+        const auto infer_result = infer(desc, model, test_data);
+        check_shapes(test_data, infer_result);
+        check_nans(infer_result);
+
+        const Float tolerance = 1e-5;
+
+        const auto score_table =
+            te::accuracy_score<Float>(infer_result.get_labels(), test_labels, tolerance);
+        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
+
+        CAPTURE(score);
+        REQUIRE(score >= ref_accuracy);
+    }
+
 private:
     static auto unpack_result(const svm::train_result<>& result) {
         const auto support_vectors = result.get_support_vectors();
@@ -232,6 +308,7 @@ private:
 };
 
 using svm_types = COMBINE_TYPES((float, double), (svm::method::thunder, svm::method::smo));
+using svm_nightly_types = COMBINE_TYPES((float, double), (svm::method::thunder));
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm can classify linear separable surface",
@@ -564,6 +641,325 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                         support_indices,
                         x_test,
                         decision_function);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear gisette 6k x 5k",
+                     "[svm][integration][batch][linear][external-dataset]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/gisette/dataset/gisette_train_6k.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/gisette/dataset/gisette_test_1k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.5e-3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.975;
+
+    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf covertype 100k x 54",
+                     "[svm][integration][batch][rbf][external-dataset]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_train_100k.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/covertype/dataset/covertype_binary_test_100k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 1.0e3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.9878;
+
+    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf epsilon 16k x 2k",
+                     "[svm][integration][batch][rbf][nightly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_16k_train.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_16k_test.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 9.0e2;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.8538;
+
+    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear higgs 100k x 28",
+                     "[svm][integration][batch][linear][nightly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_100t_train.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_50t_test.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.6395;
+
+    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear cifar 50k x 3072",
+                     "[svm][integration][batch][linear][weekly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_50k_train_binary.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_10k_test_binary.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0e-7;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.9;
+
+    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf imdb_drama 121k x 1001",
+                     "[svm][integration][batch][rbf][weekly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 50;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.6379;
+
+    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf epsilon 50k x 2k",
+                     "[svm][integration][batch][rbf][weekly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_50k_train.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_50k_train.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 1.0e3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.8842;
+
+    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear epsilon 80k x 2k",
+                     "[svm][integration][batch][linear][weekly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.9025;
+
+    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm rbf cifar 50k x 3072",
+                     "[svm][integration][batch][rbf][weekly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = rbf::descriptor<float_t, rbf::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_50k_train_binary.csv" });
+    const auto feature_count = train_data.get_column_count();
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train =
+        train_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/cifar/dataset/cifar_10k_test_binary.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test =
+        test_data.get_table(this->get_homogen_table_id(), range(feature_count - 1, feature_count));
+
+    const auto kernel_desc = kernel_t{}.set_sigma(std::sqrt(feature_count) * 2.0);
+
+    const double c = 1.0e-5;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.8999;
+
+    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm linear imdb_drama 121k x 1001",
+                     "[svm][integration][batch][linear][weekly][external-dataset]",
+                     svm_nightly_types) {
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/imdb_drama/dataset/imdb_drama_120k.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const double c = 1.0e-3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
+
+    const double ref_accuracy = 0.6379;
+
+    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 } // namespace oneapi::dal::svm::test
