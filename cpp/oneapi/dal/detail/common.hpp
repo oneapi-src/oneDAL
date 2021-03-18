@@ -135,23 +135,35 @@ inline Object make_private(Args&&... args) {
 }
 
 inline constexpr std::int64_t get_data_type_size(data_type t) {
-    if (t == data_type::float32) {
+    if (t == data_type::int8) {
+        return sizeof(std::int8_t);
+    }
+    else if (t == data_type::int16) {
+        return sizeof(std::int16_t);
+    }
+    else if (t == data_type::int32) {
+        return sizeof(std::int32_t);
+    }
+    else if (t == data_type::int64) {
+        return sizeof(std::int64_t);
+    }
+    else if (t == data_type::uint8) {
+        return sizeof(std::uint8_t);
+    }
+    else if (t == data_type::uint16) {
+        return sizeof(std::uint16_t);
+    }
+    else if (t == data_type::uint32) {
+        return sizeof(std::uint32_t);
+    }
+    else if (t == data_type::uint64) {
+        return sizeof(std::uint64_t);
+    }
+    else if (t == data_type::float32) {
         return sizeof(float);
     }
     else if (t == data_type::float64) {
         return sizeof(double);
-    }
-    else if (t == data_type::int32) {
-        return sizeof(int32_t);
-    }
-    else if (t == data_type::int64) {
-        return sizeof(int64_t);
-    }
-    else if (t == data_type::uint32) {
-        return sizeof(uint32_t);
-    }
-    else if (t == data_type::uint64) {
-        return sizeof(uint64_t);
     }
     else {
         throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
@@ -160,11 +172,36 @@ inline constexpr std::int64_t get_data_type_size(data_type t) {
 
 template <typename T>
 inline constexpr data_type make_data_type_impl() {
-    if constexpr (std::is_same_v<std::int32_t, T>) {
+    static_assert(is_one_of_v<T,
+                              std::int8_t,
+                              std::int16_t,
+                              std::int32_t,
+                              std::int64_t,
+                              std::uint8_t,
+                              std::uint16_t,
+                              std::uint32_t,
+                              std::uint64_t,
+                              float,
+                              double>,
+                  "unsupported data type");
+
+    if constexpr (std::is_same_v<std::int8_t, T>) {
+        return data_type::int8;
+    }
+    else if constexpr (std::is_same_v<std::int16_t, T>) {
+        return data_type::int16;
+    }
+    else if constexpr (std::is_same_v<std::int32_t, T>) {
         return data_type::int32;
     }
     else if constexpr (std::is_same_v<std::int64_t, T>) {
         return data_type::int64;
+    }
+    else if constexpr (std::is_same_v<std::uint8_t, T>) {
+        return data_type::uint8;
+    }
+    else if constexpr (std::is_same_v<std::uint16_t, T>) {
+        return data_type::uint16;
     }
     else if constexpr (std::is_same_v<std::uint32_t, T>) {
         return data_type::uint32;
@@ -178,10 +215,6 @@ inline constexpr data_type make_data_type_impl() {
     else if constexpr (std::is_same_v<double, T>) {
         return data_type::float64;
     }
-
-    static_assert(
-        is_one_of_v<T, std::int32_t, std::int64_t, std::uint32_t, std::uint64_t, float, double>,
-        "unsupported data type");
     return data_type::float32; // shall never come here
 }
 
