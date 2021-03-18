@@ -93,7 +93,7 @@ public:
                              const table& y_data,
                              const table& result_values) {
         const auto reference = compute_reference(scale, shift, degree, x_data, y_data);
-        const double tol = te::get_tolerance<Float>(8e-3, 1e-9);
+        const double tol = te::get_tolerance<Float>(9e-3, 1e-9);
         const double diff = te::abs_error(reference, result_values);
         CHECK(diff < tol);
     }
