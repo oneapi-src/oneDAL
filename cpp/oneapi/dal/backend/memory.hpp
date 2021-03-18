@@ -26,7 +26,7 @@ inline bool is_device_usm(const sycl::queue& queue, const void* pointer) {
     return pointer_type == sycl::usm::alloc::device;
 }
 
-inline bool is_shared(const sycl::queue& queue, const void* pointer) {
+inline bool is_shared_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
     return pointer_type == sycl::usm::alloc::shared;
 }

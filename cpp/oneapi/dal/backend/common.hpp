@@ -85,6 +85,7 @@ inline constexpr Integer up_pow2(Integer x) {
     ONEDAL_ASSERT(x > 0);
     Integer power = 1;
     while (power < x) {
+        ONEDAL_ASSERT_MUL_OVERFLOW(Integer, power, 2);
         power *= 2;
     }
     return power;
@@ -107,6 +108,17 @@ inline bool is_same_context(const sycl::queue& q1,
                             const sycl::queue& q3,
                             const sycl::queue& q4) {
     return is_same_context(q1, q2, q3) && is_same_context(q1, q4);
+}
+
+template <typename T>
+inline bool is_same_context(const sycl::queue& q, const array<T>& ary) {
+    if (ary.get_queue().has_value()) {
+        auto ary_q = ary.get_queue().value();
+        return is_same_context(q, ary_q);
+    }
+    else {
+        return false;
+    }
 }
 
 inline bool is_same_device(const sycl::queue& q1, const sycl::queue& q2) {
@@ -143,17 +155,6 @@ inline void check_if_same_context(const sycl::queue& q1,
                                   const sycl::queue& q4) {
     check_if_same_context(q1, q2, q3);
     check_if_same_context(q1, q4);
-}
-
-template <typename T>
-inline bool is_same_context(const sycl::queue& q, const array<T>& ary) {
-    if (ary.get_queue().has_value()) {
-        auto ary_q = ary.get_queue().value();
-        return is_same_context(q, ary_q);
-    }
-    else {
-        return false;
-    }
 }
 
 /// Creates `nd_range`, where global size is multiple of local size
