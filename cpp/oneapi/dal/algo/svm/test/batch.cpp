@@ -817,7 +817,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm rbf imdb_drama 121k x 1001",
                      "[svm][integration][batch][rbf][weekly][external-dataset]",
                      svm_nightly_types) {
-SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -851,7 +851,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm rbf epsilon 50k x 2k",
                      "[svm][integration][batch][rbf][weekly][external-dataset]",
                      svm_nightly_types) {
-SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -885,7 +885,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear epsilon 80k x 2k",
                      "[svm][integration][batch][linear][weekly][external-dataset]",
                      svm_nightly_types) {
-SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -918,7 +918,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm rbf cifar 50k x 3072",
                      "[svm][integration][batch][rbf][weekly][external-dataset]",
                      svm_nightly_types) {
-SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -952,7 +952,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm linear imdb_drama 121k x 1001",
                      "[svm][integration][batch][linear][weekly][external-dataset]",
                      svm_nightly_types) {
-SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_float64_friendly());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
