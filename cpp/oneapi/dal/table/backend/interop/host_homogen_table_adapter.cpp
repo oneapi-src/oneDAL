@@ -248,9 +248,10 @@ bool host_homogen_table_adapter<Data>::check_column_index_in_range(const block_i
 
 template <typename Data>
 host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table& table,
-                                                             status_t& stat) : NumericTable(table.get_column_count(), table.get_row_count()) {
-        // The following const_cast is safe only when this class is used for read-only
-        // operations. Use on write leads to undefined behaviour.
+                                                             status_t& stat)
+        : NumericTable(table.get_column_count(), table.get_row_count()) {
+    // The following const_cast is safe only when this class is used for read-only
+    // operations. Use on write leads to undefined behaviour.
     if (!stat.ok()) {
         return;
     }
@@ -260,21 +261,24 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
     }
 
     size_t nFeatures = table.get_column_count();
-    size_t nRows     = table.get_row_count();
+    size_t nRows = table.get_row_count();
 
     if (table.get_data_layout() == data_layout::row_major) {
-        base = daal::data_management::HomogenNumericTable<Data>::create(daal::data_management::DictionaryIface::equal,
-               ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-               nFeatures,
-               nRows,
-               &stat);
+        base = daal::data_management::HomogenNumericTable<Data>::create(
+            daal::data_management::DictionaryIface::equal,
+            ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
+            nFeatures,
+            nRows,
+            &stat);
         this->_layout = daal::data_management::NumericTableIface::aos;
     }
     if (table.get_data_layout() == data_layout::column_major) {
-        daal::data_management::SOANumericTablePtr baseSOA = daal::data_management::SOANumericTable::create(nFeatures,
-               nRows,
-               daal::data_management::DictionaryIface::equal,
-               &stat);
+        daal::data_management::SOANumericTablePtr baseSOA =
+            daal::data_management::SOANumericTable::create(
+                nFeatures,
+                nRows,
+                daal::data_management::DictionaryIface::equal,
+                &stat);
         for (size_t i = 0; i < nFeatures; i++) {
             baseSOA->setArray<Data>(const_cast<Data*>(&(table.get_data<Data>()[i * nRows])), i);
         }
