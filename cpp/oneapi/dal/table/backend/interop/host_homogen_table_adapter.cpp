@@ -268,6 +268,7 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
                nFeatures,
                nRows,
                &stat);
+        this->_layout = daal::data_management::NumericTableIface::aos;
     }
     if (table.get_data_layout() == data_layout::column_major) {
         daal::data_management::SOANumericTablePtr baseSOA = daal::data_management::SOANumericTable::create(nFeatures,
@@ -278,12 +279,12 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
             baseSOA->setArray<Data>(const_cast<Data*>(&(table.get_data<Data>()[i * nRows])), i);
         }
         base = baseSOA;
+        this->_layout = daal::data_management::NumericTableIface::soa;
     }
 
     original_table_ = table;
 
     this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
-    this->_layout = daal::data_management::NumericTableIface::aos;
 
     auto& daal_dictionary = *this->getDictionarySharedPtr();
     convert_feature_information_to_daal(original_table_.get_metadata(), daal_dictionary);
