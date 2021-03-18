@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::backend {

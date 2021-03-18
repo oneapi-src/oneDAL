@@ -41,6 +41,8 @@ MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")
 MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
+MSG(queues_in_different_contexts, "Provided queues are in different contexts")
+MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,

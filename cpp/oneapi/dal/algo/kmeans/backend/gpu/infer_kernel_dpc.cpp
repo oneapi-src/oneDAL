@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -58,32 +59,30 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
 
         auto arr_data = row_accessor<const Float>{ data }.pull(queue);
         const auto daal_data =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
+            interop::convert_to_daal_table(queue, arr_data, row_count, column_count);
 
         auto arr_initial_centroids =
             row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
-        array<int> arr_centroids = array<int>::empty(queue, cluster_count * column_count);
-        array<int> arr_labels = array<int>::empty(queue, row_count);
-        array<Float> arr_objective_function_value = array<Float>::empty(queue, 1);
-        array<int> arr_iteration_count = array<int>::empty(queue, 1);
+        array<Float> arr_centroids =
+            array<Float>::empty(queue, cluster_count * column_count, sycl::usm::alloc::device);
+        array<Float> arr_objective_function_value =
+            array<Float>::empty(queue, 1, sycl::usm::alloc::device);
+        array<int> arr_labels = array<int>::empty(queue, row_count, sycl::usm::alloc::device);
+        array<int> arr_iteration_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
 
-        const auto daal_initial_centroids =
-            interop::convert_to_daal_sycl_homogen_table(queue,
-                                                        arr_initial_centroids,
-                                                        cluster_count,
-                                                        column_count);
-        const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                                arr_centroids,
-                                                                                cluster_count,
-                                                                                column_count);
-        const auto daal_labels =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_labels, row_count, 1);
+        const auto daal_initial_centroids = interop::convert_to_daal_table(queue,
+                                                                           arr_initial_centroids,
+                                                                           cluster_count,
+                                                                           column_count);
+        const auto daal_centroids =
+            interop::convert_to_daal_table(queue, arr_centroids, cluster_count, column_count);
+        const auto daal_labels = interop::convert_to_daal_table(queue, arr_labels, row_count, 1);
         const auto daal_objective_function_value =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_objective_function_value, 1, 1);
+            interop::convert_to_daal_table(queue, arr_objective_function_value, 1, 1);
         const auto daal_iteration_count =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_iteration_count, 1, 1);
+            interop::convert_to_daal_table(queue, arr_iteration_count, 1, 1);
 
         daal::data_management::NumericTable* daal_input[2] = { daal_data.get(),
                                                                daal_initial_centroids.get() };
@@ -96,10 +95,14 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         interop::status_to_exception(
             daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
 
+        const auto arr_objective_function_value_host =
+            dal::backend::to_host_sync(arr_objective_function_value);
+
         return infer_result<task::clustering>()
             .set_labels(
                 dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
-            .set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
+            .set_objective_function_value(
+                static_cast<double>(arr_objective_function_value_host[0]));
     }
 };
 

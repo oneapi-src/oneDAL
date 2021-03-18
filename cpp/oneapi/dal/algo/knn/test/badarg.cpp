@@ -46,7 +46,8 @@ public:
     static constexpr bool is_brute_force = std::is_same_v<Method, knn::method::brute_force>;
 
     bool not_available_on_device() {
-        return (get_policy().is_gpu() && is_kd_tree) || (get_policy().is_cpu() && is_brute_force);
+        return (get_policy().is_gpu() && is_kd_tree) || //
+               (get_policy().is_cpu() && is_brute_force);
     }
 
     auto get_descriptor(std::int64_t override_class_count = class_count,
@@ -86,7 +87,7 @@ private:
                                                                             -2.0, -1.0 };
 };
 
-using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn::method::kd_tree));
+using knn_types = COMBINE_TYPES((float), (knn::method::brute_force, knn::method::kd_tree));
 
 #define KNN_BADARG_TEST(name) \
     TEMPLATE_LIST_TEST_M(knn_badarg_test, name, "[knn][badarg]", knn_types)
@@ -152,7 +153,6 @@ KNN_BADARG_TEST("throws if both class_count and neighbor_count are negative in c
 }
 
 KNN_BADARG_TEST("accepts train data and labels") {
-    CAPTURE(this->not_available_on_device());
     SKIP_IF(this->not_available_on_device());
     const auto knn_desc = this->get_descriptor();
     REQUIRE_NOTHROW(this->train(knn_desc, this->get_train_data(), this->get_train_labels()));

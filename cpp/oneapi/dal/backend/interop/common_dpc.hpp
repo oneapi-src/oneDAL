@@ -20,9 +20,6 @@
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-#include <daal/include/services/env_detect.h>
-#include <daal/src/services/service_defines.h>
-
 namespace oneapi::dal::backend::interop {
 
 struct execution_context_guard {
@@ -32,10 +29,6 @@ struct execution_context_guard {
 
     execution_context_guard(const execution_context_guard &) = delete;
 };
-
-void enable_daal_sycl_execution_context_cache();
-
-void cleanup_daal_sycl_execution_context_cache();
 
 } // namespace oneapi::dal::backend::interop
 

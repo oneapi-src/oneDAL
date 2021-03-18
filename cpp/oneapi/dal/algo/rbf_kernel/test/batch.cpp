@@ -16,9 +16,7 @@
 
 #include "oneapi/dal/algo/rbf_kernel/compute.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::rbf_kernel::test {
@@ -27,17 +25,13 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class rbf_kernel_batch_test : public te::algo_fixture {
+class rbf_kernel_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor(double sigma) const {
         return rbf_kernel::descriptor<Float, Method>{}.set_sigma(sigma);
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     void general_checks(const te::dataframe& x_data,
@@ -111,6 +105,8 @@ TEMPLATE_LIST_TEST_M(rbf_kernel_batch_test,
                      "rbf_kernel common flow",
                      "[rbf_kernel][integration][batch]",
                      rbf_kernel_types) {
+    SKIP_IF(this->not_float64_friendly());
+
     const te::dataframe x_data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 100, 50 }.fill_normal(0, 1, 7777),
@@ -138,6 +134,8 @@ TEMPLATE_LIST_TEST_M(rbf_kernel_batch_test,
                      "rbf_kernel compute one element matrix",
                      "[rbf_kernel][integration][batch]",
                      rbf_kernel_types) {
+    SKIP_IF(this->not_float64_friendly());
+
     const te::dataframe x_data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
 

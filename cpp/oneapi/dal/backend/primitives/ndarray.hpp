@@ -445,10 +445,7 @@ public:
         ONEDAL_ASSERT(source_ptr != nullptr);
         ONEDAL_ASSERT(source_count > 0);
         ONEDAL_ASSERT(source_count <= this->get_count());
-        return q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.memcpy(this->get_mutable_data(), source_ptr, sizeof(T) * source_count);
-        });
+        return copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
 #endif
 
