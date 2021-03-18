@@ -188,11 +188,14 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                         if (par->degree != 0)
                         {
                             dataR[i * nVectors2 + j] += shift;
-                            for (size_t k = 0; k < par->degree - 1; ++k) dataR[i * nVectors2 + j] *= dataR[i * nVectors2 + j];
+                            for (size_t k = 0; k < par->degree - 1; ++k)
+                            {
+                                dataR[i * nVectors2 + j] *= dataR[i * nVectors2 + j];
+                            }
                         }
                         else
                         {
-                            for (size_t k = 0; k < par->degree - 1; ++k) dataR[i * nVectors2 + j] = one;
+                            dataR[i * nVectors2 + j] = one;
                         }
                     }
                 }
@@ -213,11 +216,14 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                     if (par->degree != 0)
                     {
                         mklBuff[i] += shift;
-                        for (size_t k = 0; k < par->degree - 1; ++k) mklBuff[i] *= mklBuff[i];
+                        for (size_t k = 0; k < par->degree - 1; ++k)
+                        {
+                            mklBuff[i] *= mklBuff[i];
+                        }
                     }
                     else
                     {
-                        for (size_t k = 0; k < par->degree - 1; ++k) mklBuff[i] = one;
+                        mklBuff[i] = one;
                     }
                 }
 
