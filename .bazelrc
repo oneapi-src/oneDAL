@@ -16,13 +16,16 @@ build --flag_alias=cpu=@config//:cpu
 # Always pass this env variable to test rules, because SYCL
 # OpenCL backend uses it to determine available devices
 test --test_env=OCL_ICD_FILENAMES \
-     --test_env=DAAL_DATASETS
+     --test_env=SYCL_DEVICE_FILTER
 
-# These variables enable double emulation on platforms
+# This variable is used to determine location of datasets for testing
+test --test_env=DAAL_DATASETS
+
+# These variables enable float64 emulation on platforms
 # that do not support it on hardware level
-test --test_env=OverrideDefaultFP64Settings
-test --test_env=IGC_ForceDPEmulation
-test --test_env=IGC_EnableDPEmulation
+test --test_env=OverrideDefaultFP64Settings \
+     --test_env=IGC_ForceDPEmulation \
+     --test_env=IGC_EnableDPEmulation
 
 # Flag for setting the test timeout to 15 minutes
 test --test_timeout=900

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@
 #include <daal/src/algorithms/svm/svm_train_boser_kernel.h>
 #include <daal/src/algorithms/svm/svm_train_thunder_kernel.h>
 
+#include "algorithms/svm/svm_train.h"
+
 #include "oneapi/dal/algo/svm/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/svm/backend/model_interop.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
+#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -37,7 +40,7 @@ using result_t = train_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
-namespace daal_kernel_function = daal::algorithms::kernel_function;
+namespace daal_classifier = daal::algorithms::classifier;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu, typename Method>
@@ -50,16 +53,19 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                  const table& data,
                                  const table& labels,
                                  const table& weights) {
-    const int64_t row_count = data.get_row_count();
-    const int64_t column_count = data.get_column_count();
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::uint64_t class_count = desc.get_class_count();
 
     auto arr_label = row_accessor<const Float>{ labels }.pull();
 
     binary_label_t<Float> unique_label;
-    auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
+    auto arr_new_label = class_count == 2
+                             ? convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label)
+                             : arr_label;
+    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
@@ -73,33 +79,43 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     dal::detail::check_mul_overflow(cache_megabyte, megabyte);
     const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
-    daal_svm::Parameter daal_parameter(
-        daal_kernel,
-        desc.get_c(),
-        desc.get_accuracy_threshold(),
-        desc.get_tau(),
-        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
-        cache_byte,
-        desc.get_shrinking());
+    daal_svm::training::internal::KernelParameter daal_svm_parameter;
+    daal_svm_parameter.kernel = daal_kernel, daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
+    daal_svm_parameter.tau = desc.get_tau();
+    daal_svm_parameter.maxIterations =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
+    daal_svm_parameter.doShrinking = desc.get_shrinking();
+    daal_svm_parameter.cacheSize = cache_byte;
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
 
-    auto daal_model = daal_svm::Model::create<Float>(column_count);
+    if (class_count > 2) {
+        // TODO: Call multiclass algorithm from old kernels: MultiClassClassifierTrainKernel
+        return result_t();
+    }
+    else {
+        auto daal_model = daal_svm::Model::create<Float>(column_count);
+        interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            return daal_svm_kernel_t<
+                       Float,
+                       oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
+                       Method>()
+                .compute(daal_data,
+                         daal_weights,
+                         *daal_labels,
+                         daal_model.get(),
+                         daal_svm_parameter);
+        }));
 
-    interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-        return daal_svm_kernel_t<
-                   Float,
-                   oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
-                   Method>()
-            .compute(daal_data, daal_weights, *daal_labels, daal_model.get(), &daal_parameter);
-    }));
+        auto table_support_indices =
+            interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
-    auto table_support_indices =
-        interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
+        auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
+                                 .set_first_class_label(unique_label.first)
+                                 .set_second_class_label(unique_label.second);
 
-    auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
-                             .set_first_class_label(unique_label.first)
-                             .set_second_class_label(unique_label.second);
-
-    return result_t().set_model(trained_model).set_support_indices(table_support_indices);
+        return result_t().set_model(trained_model).set_support_indices(table_support_indices);
+    }
 }
 
 template <typename Float, typename Method>

@@ -27,7 +27,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename Float>
-class cov_test : public te::policy_fixture {
+class cov_test : public te::float_algo_fixture<Float> {
 public:
     auto allocate_arrays(std::int64_t column_count) {
         auto& q = this->get_queue();
@@ -37,10 +37,6 @@ public:
         auto vars = ndarray<Float, 1>::empty(q, { column_count });
         auto tmp = ndarray<Float, 1>::empty(q, { column_count });
         return std::make_tuple(sums, corr, means, vars, tmp);
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) const {
@@ -95,6 +91,9 @@ public:
 TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, double) {
     // DPC++ GEMM used underneath correlation is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
+
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
 
     const float_t diag_element = 10.5;
 

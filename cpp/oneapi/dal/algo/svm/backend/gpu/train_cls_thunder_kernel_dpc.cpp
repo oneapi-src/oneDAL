@@ -54,18 +54,14 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    // TODO: data is table, not a homogen_table. Think better about accessor - is it enough to have just a row_accessor?
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
 
     binary_label_t<Float> unique_label;
     auto arr_new_label =
         convert_labels(queue, arr_label, { Float(-1.0), Float(1.0) }, unique_label);
 
-    const auto daal_data =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_labels =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_new_label, row_count, 1);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    const auto daal_labels = interop::convert_to_daal_table(queue, arr_new_label, row_count, 1);
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
@@ -78,20 +74,21 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     dal::detail::check_mul_overflow(cache_megabyte, megabyte);
     const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
-    daal_svm::Parameter daal_parameter(
-        daal_kernel,
-        desc.get_c(),
-        desc.get_accuracy_threshold(),
-        desc.get_tau(),
-        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
-        cache_byte,
-        desc.get_shrinking());
+    daal_svm::training::internal::KernelParameter daal_svm_parameter;
+    daal_svm_parameter.kernel = daal_kernel;
+    daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
+    daal_svm_parameter.tau = desc.get_tau();
+    daal_svm_parameter.maxIterations =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
+    daal_svm_parameter.doShrinking = desc.get_shrinking();
+    daal_svm_parameter.cacheSize = cache_byte;
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,
                                                                             *daal_labels,
                                                                             daal_model.get(),
-                                                                            &daal_parameter));
+                                                                            daal_svm_parameter));
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
