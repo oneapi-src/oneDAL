@@ -135,6 +135,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
 
     algorithmFPType alpha  = (algorithmFPType)(par->scale);
     algorithmFPType beta   = 0.0;
+    algorithmFPType one    = 1.0;
     algorithmFPType shift  = (algorithmFPType)(par->shift);
     algorithmFPType degree = (algorithmFPType)(par->degree);
 
@@ -184,11 +185,15 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                 {
                     for (size_t j = 0; j < nRowsInBlock2; ++j)
                     {
-                        dataR[i * nVectors2 + j] += shift;
-                    }
-                    if (par->degree != 1)
-                    {
-                        Math<algorithmFPType, cpu>::vPowx(nRowsInBlock2, dataR + i * nVectors2, degree, dataR + i * nVectors2);
+                        if (par->degree != 0)
+                        {
+                            dataR[i * nVectors2 + j] += shift;
+                            for (size_t k = 0; k < par->degree - 1; ++k) dataR[i * nVectors2 + j] *= dataR[i * nVectors2 + j];
+                        }
+                        else
+                        {
+                            for (size_t k = 0; k < par->degree - 1; ++k) dataR[i * nVectors2 + j] = one;
+                        }
                     }
                 }
             }
@@ -205,14 +210,14 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < blockSize * blockSize; ++i)
                 {
-                    mklBuff[i] += shift;
-                }
-
-                if (par->degree != 1)
-                {
-                    for (size_t i = 0; i < nRowsInBlock1; ++i)
+                    if (par->degree != 0)
                     {
-                        Math<algorithmFPType, cpu>::vPowx(nRowsInBlock2, mklBuff + i * blockSize, degree, mklBuff + i * blockSize);
+                        mklBuff[i] += shift;
+                        for (size_t k = 0; k < par->degree - 1; ++k) mklBuff[i] *= mklBuff[i];
+                    }
+                    else
+                    {
+                        for (size_t k = 0; k < par->degree - 1; ++k) mklBuff[i] = one;
                     }
                 }
 
