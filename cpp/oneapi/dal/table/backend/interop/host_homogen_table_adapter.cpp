@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/include/data_management/data/soa_numeric_table.h>
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
 
 namespace oneapi::dal::backend::interop {
@@ -81,26 +82,61 @@ auto host_homogen_table_adapter<Data>::create(const homogen_table& table) -> ptr
 
 template <typename Data>
 host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table& table,
-                                                             status_t& status)
-        // The following const_cast is safe only when this class is used for read-only
-        // operations. Use on write leads to undefined behaviour.
-        : base(daal_dm::DictionaryIface::equal,
-               ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-               table.get_column_count(),
-               table.get_row_count(),
-               status),
-          is_rowmajor_(table.get_data_layout() == data_layout::row_major),
+                                                             status_t& stat)
+        : NumericTable(dal::detail::integral_cast<std::size_t>(table.get_column_count()),
+                       dal::detail::integral_cast<std::size_t>(table.get_row_count())),
           original_table_(table) {
-    if (!status.ok()) {
+    // The following const_casts are safe only when this class is used for read-only
+    // operations. Use on write leads to undefined behaviour.
+    if (!stat.ok()) {
         return;
     }
     else if (!table.has_data()) {
-        status.add(daal::services::ErrorIncorrectParameter);
+        stat.add(daal::services::ErrorIncorrectParameter);
         return;
     }
 
+    const size_t nFeatures = dal::detail::integral_cast<std::size_t>(table.get_column_count());
+    const size_t nRows = dal::detail::integral_cast<std::size_t>(table.get_row_count());
+
+    if (table.get_data_layout() == data_layout::row_major) {
+        const auto original_data = const_cast<Data*>(table.get_data<Data>());
+        base_ = daal_dm::HomogenNumericTable<Data>::create(
+            daal_dm::DictionaryIface::equal,
+            ptr_data_t{ original_data, daal_object_owner(table) },
+            nFeatures,
+            nRows,
+            &stat);
+
+        if (!stat.ok()) {
+            return;
+        }
+        this->_layout = daal_dm::NumericTableIface::aos;
+    }
+    if (table.get_data_layout() == data_layout::column_major) {
+        daal_dm::SOANumericTablePtr base_soa =
+            daal_dm::SOANumericTable::create(nFeatures,
+                                             nRows,
+                                             daal_dm::DictionaryIface::equal,
+                                             &stat);
+        if (!stat.ok()) {
+            return;
+        }
+
+        for (size_t i = 0; i < nFeatures; i++) {
+            const auto original_data = const_cast<Data*>(&(table.get_data<Data>()[i * nRows]));
+            status_t internal_stat =
+                base_soa->setArray<Data>(ptr_data_t{ original_data, daal_object_owner(table) }, i);
+
+            if (!stat.ok()) {
+                return;
+            }
+        }
+        base_ = base_soa;
+        this->_layout = daal_dm::NumericTableIface::soa;
+    }
+
     this->_memStatus = daal_dm::NumericTableIface::userAllocated;
-    this->_layout = daal_dm::NumericTableIface::aos;
 
     convert_feature_information_to_daal(original_table_.get_metadata(),
                                         *this->getDictionarySharedPtr());
@@ -255,7 +291,7 @@ auto host_homogen_table_adapter<Data>::deserializeImpl(const daal_dm::OutputData
 
 template <typename Data>
 void host_homogen_table_adapter<Data>::freeDataMemoryImpl() {
-    base->freeDataMemory();
+    base_->freeDataMemory();
     original_table_ = homogen_table{};
 }
 
@@ -270,7 +306,7 @@ auto host_homogen_table_adapter<Data>::read_rows_impl(std::size_t vector_idx,
         return daal::services::ErrorMethodNotImplemented;
     }
 
-    return base->getBlockOfRows(vector_idx, vector_num, rwflag, block);
+    return base_->getBlockOfRows(vector_idx, vector_num, rwflag, block);
 }
 
 template <typename Data>
@@ -286,7 +322,7 @@ auto host_homogen_table_adapter<Data>::read_column_values_impl(std::size_t featu
         return daal::services::ErrorMethodNotImplemented;
     }
 
-    return base->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
+    return base_->getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
 }
 
 template <typename Data>
@@ -299,54 +335,6 @@ template <typename Data>
 bool host_homogen_table_adapter<Data>::check_column_index_in_range(const block_info& info) const {
     const std::int64_t column_count = original_table_.get_column_count();
     return info.single_column_requested && info.column_index < column_count;
-}
-
-template <typename Data>
-host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table& table,
-                                                             status_t& stat)
-        : NumericTable(table.get_column_count(), table.get_row_count()) {
-    // The following const_cast is safe only when this class is used for read-only
-    // operations. Use on write leads to undefined behaviour.
-    if (!stat.ok()) {
-        return;
-    }
-    else if (!table.has_data()) {
-        stat.add(daal::services::ErrorIncorrectParameter);
-        return;
-    }
-
-    size_t nFeatures = table.get_column_count();
-    size_t nRows = table.get_row_count();
-
-    if (table.get_data_layout() == data_layout::row_major) {
-        base = daal::data_management::HomogenNumericTable<Data>::create(
-            daal::data_management::DictionaryIface::equal,
-            ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-            nFeatures,
-            nRows,
-            &stat);
-        this->_layout = daal::data_management::NumericTableIface::aos;
-    }
-    if (table.get_data_layout() == data_layout::column_major) {
-        daal::data_management::SOANumericTablePtr baseSOA =
-            daal::data_management::SOANumericTable::create(
-                nFeatures,
-                nRows,
-                daal::data_management::DictionaryIface::equal,
-                &stat);
-        for (size_t i = 0; i < nFeatures; i++) {
-            baseSOA->setArray<Data>(const_cast<Data*>(&(table.get_data<Data>()[i * nRows])), i);
-        }
-        base = baseSOA;
-        this->_layout = daal::data_management::NumericTableIface::soa;
-    }
-
-    original_table_ = table;
-
-    this->_memStatus = daal::data_management::NumericTableIface::userAllocated;
-
-    auto& daal_dictionary = *this->getDictionarySharedPtr();
-    convert_feature_information_to_daal(original_table_.get_metadata(), daal_dictionary);
 }
 
 template class host_homogen_table_adapter<std::int32_t>;

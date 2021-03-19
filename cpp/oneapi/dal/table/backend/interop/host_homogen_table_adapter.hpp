@@ -17,7 +17,6 @@
 #pragma once
 
 #include <daal/include/data_management/data/homogen_numeric_table.h>
-#include <daal/include/data_management/data/soa_numeric_table.h>
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -116,11 +115,8 @@ private:
     bool check_row_indexes_in_range(const block_info& info) const;
     bool check_column_index_in_range(const block_info& info) const;
 
-    host_homogen_table_adapter(const homogen_table& table, status_t& stat);
-
-private:
     homogen_table original_table_;
-    daal::data_management::NumericTablePtr base;
+    daal::data_management::NumericTablePtr base_;
 };
 
 } // namespace oneapi::dal::backend::interop
