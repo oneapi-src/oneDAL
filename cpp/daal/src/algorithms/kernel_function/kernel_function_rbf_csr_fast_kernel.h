@@ -43,11 +43,11 @@ struct KernelImplRBF<fastCSR, algorithmFPType, cpu> : public daal::algorithms::k
     using daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct;
 
     virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
     virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
 };
 
 } // namespace internal

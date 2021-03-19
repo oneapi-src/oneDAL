@@ -144,7 +144,7 @@ dylib dylibintel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm table jaccard graph triangle_counting)
+vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca polynomial_kernel rbf_kernel svm table jaccard graph triangle_counting)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.

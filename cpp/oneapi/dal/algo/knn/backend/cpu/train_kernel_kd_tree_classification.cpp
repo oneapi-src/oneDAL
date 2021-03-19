@@ -44,16 +44,10 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
                                                            const table& data,
                                                            const table& labels) {
     using daal_model_interop_t = model_interop;
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull();
-    auto arr_labels = row_accessor<const Float>{ labels }.pull();
-
-    // TODO: change the copy logic to preserve table type and metadata
-    const auto daal_data =
-        interop::convert_to_daal_homogen_table(arr_data, row_count, column_count);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
+    const auto daal_labels = interop::copy_to_daal_homogen_table<Float>(labels);
 
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doUse;
@@ -69,6 +63,8 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
+    // Data or labels should not be copied, copy is already happened when
+    // the tables are converted to NumericTables
     const bool copy_data_labels = data_use_in_model == daal_knn::doNotUse;
     knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
     knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);

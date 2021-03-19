@@ -1,6 +1,6 @@
-/* file: kernel_function_linear_dense_default_kernel.h */
+/* file: kernel_function_polynomial_csr_fast_kernel.h */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,17 +15,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Declaration of template structs that calculate SVM Linear Kernel functions.
-//--
-*/
+#ifndef __KERNEL_FUNCTION_POLYNOMIAL_CSR_KERNEL_H__
+#define __KERNEL_FUNCTION_POLYNOMIAL_CSR_KERNEL_H__
 
-#ifndef __KERNEL_FUNCTION_DENSE_KERNEL_H__
-#define __KERNEL_FUNCTION_DENSE_KERNEL_H__
-
-#include "src/algorithms/kernel_function/kernel_function_dense_base.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_base.h"
+#include "src/algorithms/kernel_function/kernel_function_csr_base.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_base.h"
 
 namespace daal
 {
@@ -33,23 +27,28 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace linear
+namespace polynomial
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <typename algorithmFPType, CpuType cpu>
-struct KernelImplLinear<defaultDense, algorithmFPType, cpu> : public daal::algorithms::kernel_function::internal::KernelImplBase<algorithmFPType, cpu>
+struct KernelImplPolynomial<fastCSR, algorithmFPType, cpu>
+    : public daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>
 {
+    using daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct;
+
     virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
     virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par);
+                                                         const KernelParameter * par);
 };
 
 } // namespace internal
-} // namespace linear
+} // namespace polynomial
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

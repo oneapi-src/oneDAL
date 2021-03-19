@@ -14,8 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "gtest/gtest.h"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 using namespace oneapi::dal;
@@ -51,23 +51,22 @@ using namespace oneapi::dal;
 //     }
 // }
 
-TEST(homogen_table_builder_test, can_construct_table) {
+TEST("can construct table") {
     float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f };
 
     array<float> arr{ data, 3 * 2, [](auto) {} };
     homogen_table t = detail::homogen_table_builder{}.reset(arr, 3, 2).build();
 
-    ASSERT_TRUE(t.has_data());
-    ASSERT_EQ(3, t.get_row_count());
-    ASSERT_EQ(2, t.get_column_count());
-
-    ASSERT_EQ(data_layout::row_major, t.get_data_layout());
+    REQUIRE(t.has_data());
+    REQUIRE(t.get_row_count() == 3);
+    REQUIRE(t.get_column_count() == 2);
+    REQUIRE(t.get_data_layout() == data_layout::row_major);
 
     auto meta = t.get_metadata();
     for (std::int64_t i = 0; i < t.get_column_count(); i++) {
-        ASSERT_EQ(data_type::float32, meta.get_data_type(i));
-        ASSERT_EQ(feature_type::ratio, meta.get_feature_type(i));
+        REQUIRE(meta.get_data_type(i) == data_type::float32);
+        REQUIRE(meta.get_feature_type(i) == feature_type::ratio);
     }
 
-    ASSERT_EQ(data, t.get_data<float>());
+    REQUIRE(t.get_data<float>() == data);
 }
