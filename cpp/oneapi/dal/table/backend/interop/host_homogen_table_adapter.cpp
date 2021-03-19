@@ -96,16 +96,16 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         return;
     }
 
-    const size_t nFeatures = dal::detail::integral_cast<std::size_t>(table.get_column_count());
-    const size_t nRows = dal::detail::integral_cast<std::size_t>(table.get_row_count());
+    const std::size_t column_count = dal::detail::integral_cast<std::size_t>(table.get_column_count());
+    const std::size_t row_count     = dal::detail::integral_cast<std::size_t>(table.get_row_count());
 
     if (table.get_data_layout() == data_layout::row_major) {
         const auto original_data = const_cast<Data*>(table.get_data<Data>());
         base_ = daal_dm::HomogenNumericTable<Data>::create(
             daal_dm::DictionaryIface::equal,
             ptr_data_t{ original_data, daal_object_owner(table) },
-            nFeatures,
-            nRows,
+            column_count,
+            row_count,
             &stat);
 
         if (!stat.ok()) {
@@ -115,20 +115,20 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
     }
     if (table.get_data_layout() == data_layout::column_major) {
         daal_dm::SOANumericTablePtr base_soa =
-            daal_dm::SOANumericTable::create(nFeatures,
-                                             nRows,
+            daal_dm::SOANumericTable::create(column_count,
+                                             row_count,
                                              daal_dm::DictionaryIface::equal,
                                              &stat);
         if (!stat.ok()) {
             return;
         }
 
-        for (size_t i = 0; i < nFeatures; i++) {
-            const auto original_data = const_cast<Data*>(&(table.get_data<Data>()[i * nRows]));
+        for (std::size_t i = 0; i < column_count; i++) {
+            const auto original_data = const_cast<Data*>(&(table.get_data<Data>()[i * row_count]));
             status_t internal_stat =
                 base_soa->setArray<Data>(ptr_data_t{ original_data, daal_object_owner(table) }, i);
 
-            if (!stat.ok()) {
+            if (!internal_stat.ok()) {
                 return;
             }
         }
