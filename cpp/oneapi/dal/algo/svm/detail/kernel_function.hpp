@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/linear_kernel.hpp"
+#include "oneapi/dal/algo/polynomial_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
 
 namespace oneapi::dal::svm::detail {
@@ -55,6 +56,19 @@ class kernel_function<linear_kernel::descriptor<Float, Method>> : public base,
                                                                   public kernel_function_iface {
 public:
     using kernel_t = linear_kernel::descriptor<Float, Method>;
+    explicit kernel_function(const kernel_t& kernel);
+    kernel_function_impl* get_impl() const override;
+
+private:
+    kernel_t kernel_;
+    dal::detail::pimpl<kernel_function_impl> impl_;
+};
+
+template <typename Float, typename Method>
+class kernel_function<polynomial_kernel::descriptor<Float, Method>> : public base,
+                                                                      public kernel_function_iface {
+public:
+    using kernel_t = polynomial_kernel::descriptor<Float, Method>;
     explicit kernel_function(const kernel_t& kernel);
     kernel_function_impl* get_impl() const override;
 

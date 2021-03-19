@@ -1,6 +1,6 @@
-/* file: kernel_function_linear_base.h */
+/* file: kernel_function_polynomial_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,17 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Declaration of template structs that calculate SVM Linear Kernel functions.
-//--
-*/
-
-#ifndef __KERNEL_FUNCTION_LINEAR_BASE_H__
-#define __KERNEL_FUNCTION_LINEAR_BASE_H__
-
-#include "algorithms/kernel_function/kernel_function_types_linear.h"
-#include "src/algorithms/kernel.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_batch_container.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_kernel.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_impl.i"
 
 namespace daal
 {
@@ -33,20 +25,14 @@ namespace algorithms
 {
 namespace kernel_function
 {
-namespace linear
+namespace polynomial
 {
 namespace internal
 {
-using namespace daal::internal;
-
-template <Method method, typename algorithmFPType, CpuType cpu>
-struct KernelImplLinear
-{};
-
+template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class DAAL_EXPORT KernelImplPolynomial<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
-} // namespace linear
+} // namespace polynomial
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal
-
-#endif
