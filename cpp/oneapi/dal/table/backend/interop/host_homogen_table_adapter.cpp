@@ -96,8 +96,9 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         return;
     }
 
-    const std::size_t column_count = dal::detail::integral_cast<std::size_t>(table.get_column_count());
-    const std::size_t row_count     = dal::detail::integral_cast<std::size_t>(table.get_row_count());
+    const std::size_t column_count =
+        dal::detail::integral_cast<std::size_t>(table.get_column_count());
+    const std::size_t row_count = dal::detail::integral_cast<std::size_t>(table.get_row_count());
 
     if (table.get_data_layout() == data_layout::row_major) {
         const auto original_data = const_cast<Data*>(table.get_data<Data>());
