@@ -47,16 +47,17 @@ using v1::read_args_graph_impl;
 
 namespace v1 {
 
-template <typename Graph = table, typename Allocator = std::allocator<char>>
+template <typename Object = table, typename Allocator = std::allocator<char>>
 class ONEDAL_EXPORT read_args : public base {
 public:
+    using allocator_t = Allocator;
     read_args() : impl_(new detail::read_args_graph_impl<Allocator>()) {}
+    read_args(const read_args& args) = default;
     read_args(preview::read_mode mode) : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {}
-
-    auto& set_allocator(Allocator allocator) {
+    read_args(Allocator& allocator) : impl_(new detail::read_args_graph_impl<Allocator>()) {
         set_allocator_impl(allocator);
-        return *this;
     }
+
     Allocator get_allocator() const;
 
     auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
@@ -91,25 +92,25 @@ private:
     dal::detail::pimpl<detail::read_args_impl<table>> impl_;
 };
 
-template <typename Graph, typename Allocator>
-preview::read_mode read_args<Graph, Allocator>::get_read_mode() const {
+template <typename Object, typename Allocator>
+preview::read_mode read_args<Object, Allocator>::get_read_mode() const {
     return impl_->mode;
 }
 
-template <typename Graph, typename Allocator>
-void read_args<Graph, Allocator>::set_read_mode_impl(preview::read_mode mode) {
+template <typename Object, typename Allocator>
+void read_args<Object, Allocator>::set_read_mode_impl(preview::read_mode mode) {
     if (mode != preview::read_mode::edge_list)
         throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     impl_->mode = mode;
 }
 
-template <typename Graph, typename Allocator>
-Allocator read_args<Graph, Allocator>::get_allocator() const {
+template <typename Object, typename Allocator>
+Allocator read_args<Object, Allocator>::get_allocator() const {
     return impl_->allocator;
 }
 
-template <typename Graph, typename Allocator>
-void read_args<Graph, Allocator>::set_allocator_impl(Allocator allocator) {
+template <typename Object, typename Allocator>
+void read_args<Object, Allocator>::set_allocator_impl(Allocator allocator) {
     impl_->allocator = allocator;
 }
 
