@@ -27,7 +27,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename Float>
-class cov_test : public te::policy_fixture {
+class cov_test : public te::float_algo_fixture<Float> {
 public:
     auto allocate_arrays(std::int64_t column_count) {
         auto& q = this->get_queue();
@@ -37,10 +37,6 @@ public:
         auto vars = ndarray<Float, 1>::empty(q, { column_count });
         auto tmp = ndarray<Float, 1>::empty(q, { column_count });
         return std::make_tuple(sums, corr, means, vars, tmp);
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) const {
@@ -96,6 +92,9 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     // DPC++ GEMM used underneath correlation is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
 
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
+
     const float_t diag_element = 10.5;
 
     // Generate dataset, where the upper square part of the matrix is diagonal
@@ -115,28 +114,25 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
         .wait_and_throw();
 
-    SECTION("correlation matrix is ones") {
-        this->check_correlation_for_uncorrelated_data(corr);
-    }
+    INFO("check if correlation matrix is ones")
+    this->check_correlation_for_uncorrelated_data(corr);
 
     // The upper part of data matrix is diagonal. In diagonal matrix each column
     // contains only one non-zero element (`diag_element`), so mean and
     // variances for each feature can be computed trivially using `diag_element`
     // value.
 
-    SECTION("mean is expected") {
-        const double n = df.get_row_count();
-        const double expected_mean = double(diag_element) / n;
-        this->check_constant_mean(means, n, expected_mean);
-    }
+    INFO("check if mean is expected")
+    double n = df.get_row_count();
+    const double expected_mean = double(diag_element) / n;
+    this->check_constant_mean(means, n, expected_mean);
 
-    SECTION("variance is expected") {
-        const double n = df.get_row_count();
-        const double d = double(diag_element) * double(diag_element);
-        ONEDAL_ASSERT(n > 1);
-        const double expected_var = (d - d / n) / (n - 1.0);
-        this->check_constant_variance(vars, n, expected_var);
-    }
+    INFO("check if variance is expected")
+    n = df.get_row_count();
+    const double d = double(diag_element) * double(diag_element);
+    ONEDAL_ASSERT(n > 1);
+    const double expected_var = (d - d / n) / (n - 1.0);
+    this->check_constant_variance(vars, n, expected_var);
 }
 
 TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
@@ -154,9 +150,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
         .wait_and_throw();
 
-    SECTION("correlation matrix is ones") {
-        this->check_correlation_for_uncorrelated_data(corr);
-    }
+    INFO("check if correlation matrix is ones")
+    this->check_correlation_for_uncorrelated_data(corr);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

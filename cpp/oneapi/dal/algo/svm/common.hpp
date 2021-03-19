@@ -29,11 +29,16 @@ namespace v1 {
 /// :capterm:`classification problem <classification>`.
 struct classification {};
 
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`regression problem <regression>`.
+struct regression {};
+
 /// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
 using v1::classification;
+using v1::regression;
 using v1::by_default;
 
 } // namespace task
@@ -41,15 +46,15 @@ using v1::by_default;
 namespace method {
 namespace v1 {
 
-/// Tag-type that denotes `Thunder <svm_t_math_thunder_>`_ computational
+/// Tag-type that denotes :ref:`Thunder <svm_t_math_thunder>` computational
 /// method.
 struct thunder {};
 
-/// Tag-type that denotes `SMO <svm_t_math_smo_>`_ computational
+/// Tag-type that denotes :ref:`SMO <svm_t_math_smo>` computational
 /// method.
 struct smo {};
 
-/// Alias tag-type for `Thunder <svm_t_math_thunder_>`_ computational
+/// Alias tag-type for :ref:`Thunder <svm_t_math_thunder>` computational
 /// method.
 using by_default = thunder;
 } // namespace v1
@@ -70,6 +75,13 @@ class descriptor_impl;
 template <typename Task>
 class model_impl;
 
+template <typename T>
+using enable_if_classification_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
+
+template <typename T>
+using enable_if_regression_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
+
 template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
@@ -77,7 +89,12 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::smo, method::thunder>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+constexpr bool is_valid_task_v =
+    dal::detail::is_one_of_v<Task, task::classification, task::regression>;
+
+template <typename Method, typename Task>
+constexpr bool is_valid_method_task_combination = dal::detail::is_one_of_v<Method, method::smo>&&
+    dal::detail::is_one_of_v<Task, task::regression>;
 
 template <typename Kernel>
 constexpr bool is_valid_kernel_v =
@@ -122,9 +139,26 @@ public:
     /// @remark default = 1e-6
     double get_tau() const;
 
-    /// A flag that enables the use of a shrinking optimization technique. Used with :expr:`oneapi::dal::svm::method::v1::thunder` split-finding method only.
+    /// A flag that enables the use of a shrinking optimization technique.
+    /// Used with :expr:`oneapi::dal::svm::method::v1::smo` split-finding method only.
     /// @remark default = true
     bool get_shrinking() const;
+
+    template <typename T = Task, typename = enable_if_classification_t<T>>
+    /// The class count. Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
+    /// @invariant :expr:`class_count >= 2`
+    /// @remark default = 2
+    std::int64_t get_class_count() const {
+        return get_class_count_impl();
+    }
+
+    template <typename T = Task, typename = enable_if_regression_t<T>>
+    /// The epsilon. Used with :expr:`oneapi::dal::svm::task::v1::regression` only.
+    /// @invariant :expr:`epsilon >= 0`
+    /// @remark default = 0.1
+    double get_epsilon() const {
+        return get_epsilon_impl();
+    }
 
 protected:
     explicit descriptor_base(const detail::kernel_function_ptr& kernel);
@@ -135,8 +169,12 @@ protected:
     void set_cache_size_impl(double);
     void set_tau_impl(double);
     void set_shrinking_impl(bool);
-
     void set_kernel_impl(const detail::kernel_function_ptr&);
+    void set_class_count_impl(std::int64_t);
+    void set_epsilon_impl(double);
+
+    std::int64_t get_class_count_impl() const;
+    double get_epsilon_impl() const;
     const detail::kernel_function_ptr& get_kernel_impl() const;
 
 private:
@@ -150,9 +188,12 @@ using v1::descriptor_impl;
 using v1::model_impl;
 using v1::descriptor_base;
 
+using v1::enable_if_classification_t;
+using v1::enable_if_regression_t;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+using v1::is_valid_method_task_combination;
 using v1::is_valid_kernel_v;
 
 } // namespace detail
@@ -165,7 +206,8 @@ namespace v1 {
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
 ///                be :expr:`method::v1::thunder` or :expr:`method::v1::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+///                be :expr:`oneapi::dal::svm::task::v1::classification` or
+///                :expr:`oneapi::dal::svm::task::v1::regression`.
 template <typename Float = detail::descriptor_base<>::float_t,
           typename Method = detail::descriptor_base<>::method_t,
           typename Task = detail::descriptor_base<>::task_t,
@@ -174,6 +216,8 @@ class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
+    static_assert(!detail::is_valid_method_task_combination<Method, Task>,
+                  "Regression SVM not supported with SMO method");
     static_assert(detail::is_valid_kernel_v<Kernel>,
                   "Custom kernel for SVM is not supported. "
                   "Use one of the predefined kernels.");
@@ -234,10 +278,23 @@ public:
         base_t::set_shrinking_impl(value);
         return *this;
     }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto& set_class_count(std::int64_t value) {
+        base_t::set_class_count_impl(value);
+        return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
+    auto& set_epsilon(double value) {
+        base_t::set_epsilon_impl(value);
+        return *this;
+    }
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::v1::classification`.
+///              be :expr:`oneapi::dal::svm::task::v1::classification` or
+///              :expr:`oneapi::dal::svm::task::v1::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -282,19 +339,21 @@ public:
         return *this;
     }
 
-    /// The first unique value in class labels
-    /// @remark default = 0
+    /// The first unique value in class labels.
+    /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     std::int64_t get_first_class_label() const;
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_first_class_label(std::int64_t value) {
         set_first_class_label_impl(value);
         return *this;
     }
 
-    /// The second unique value in class labels
-    /// @remark default = 0
+    /// The second unique value in class labels.
+    /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     std::int64_t get_second_class_label() const;
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_second_class_label(std::int64_t value) {
         set_second_class_label_impl(value);
         return *this;
@@ -308,6 +367,7 @@ protected:
     void set_second_class_label_impl(std::int64_t);
 
 private:
+    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 

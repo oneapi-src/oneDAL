@@ -76,7 +76,7 @@ private:
     };
 };
 
-using svm_types = COMBINE_TYPES((float, double), (svm::method::thunder, svm::method::smo));
+using svm_types = COMBINE_TYPES((float), (svm::method::thunder, svm::method::smo));
 
 #define SVM_BADARG_TEST(name) \
     TEMPLATE_LIST_TEST_M(svm_badarg_test, name, "[svm][badarg]", svm_types)

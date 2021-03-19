@@ -28,14 +28,15 @@
 
 namespace oneapi::dal::backend::interop {
 
-// This class shall be used only to represent immutable data on DAAL side.
-// Any attempts to change the data inside objects of that class lead to undefined behavior.
+// This class shall be used only to represent immutable data on DAAL side. Any
+// attempts to change the data inside objects of that class lead to undefined
+// behavior.
 template <typename Data>
 class host_homogen_table_adapter : public daal::data_management::NumericTable {
-    using ptr_t = daal::services::SharedPtr<host_homogen_table_adapter>;
-    using ptr_data_t = daal::services::SharedPtr<Data>;
     using status_t = daal::services::Status;
     using rw_mode_t = daal::data_management::ReadWriteMode;
+    using ptr_t = daal::services::SharedPtr<host_homogen_table_adapter>;
+    using ptr_data_t = daal::services::SharedPtr<Data>;
 
     template <typename T>
     using block_desc_t = daal::data_management::BlockDescriptor<T>;
@@ -44,14 +45,18 @@ public:
     static ptr_t create(const homogen_table& table);
 
 private:
+    explicit host_homogen_table_adapter(const homogen_table& table, status_t& stat);
+
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
                             block_desc_t<double>& block) override;
+
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
                             block_desc_t<float>& block) override;
+
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,
                             rw_mode_t rwflag,
@@ -62,11 +67,13 @@ private:
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
                                     block_desc_t<double>& block) override;
+
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
                                     rw_mode_t rwflag,
                                     block_desc_t<float>& block) override;
+
     status_t getBlockOfColumnValues(std::size_t feature_idx,
                                     std::size_t vector_idx,
                                     std::size_t value_num,
@@ -85,14 +92,12 @@ private:
     status_t assign(double value) override;
     status_t assign(int value) override;
 
-    status_t allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) override;
-
-    status_t setNumberOfColumnsImpl(std::size_t ncol) override;
-
     int getSerializationTag() const override;
     status_t serializeImpl(daal::data_management::InputDataArchive* arch) override;
     status_t deserializeImpl(const daal::data_management::OutputDataArchive* arch) override;
 
+    status_t allocateDataMemoryImpl(daal::MemType) override;
+    status_t setNumberOfColumnsImpl(std::size_t) override;
     void freeDataMemoryImpl() override;
 
     template <typename BlockData>

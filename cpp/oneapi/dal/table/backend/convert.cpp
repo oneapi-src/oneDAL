@@ -15,17 +15,46 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/backend/convert.hpp"
+
+#include <algorithm>
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
 #include "oneapi/dal/backend/interop/data_conversion.hpp"
 
 namespace oneapi::dal::backend {
 
+static void convert_vector(const void* src,
+                           void* dst,
+                           data_type src_type,
+                           data_type dst_type,
+                           std::int64_t src_stride,
+                           std::int64_t dst_stride,
+                           std::int64_t element_count) {
+    if (src_stride == 1 && dst_stride == 1) {
+        interop::daal_convert(src, dst, src_type, dst_type, element_count);
+    }
+    else {
+        const std::int64_t src_element_size = dal::detail::get_data_type_size(src_type);
+        const std::int64_t dst_element_size = dal::detail::get_data_type_size(dst_type);
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, src_stride, src_element_size);
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, dst_stride, dst_element_size);
+        interop::daal_convert(src,
+                              dst,
+                              src_type,
+                              dst_type,
+                              src_stride * src_element_size,
+                              dst_stride * dst_element_size,
+                              element_count);
+    }
+}
+
 void convert_vector(const detail::default_host_policy& policy,
                     const void* src,
                     void* dst,
                     data_type src_type,
                     data_type dst_type,
                     std::int64_t element_count) {
-    interop::daal_convert(src, dst, src_type, dst_type, element_count);
+    convert_vector(src, dst, src_type, dst_type, 1, 1, element_count);
 }
 
 void convert_vector(const detail::default_host_policy& policy,
@@ -36,18 +65,194 @@ void convert_vector(const detail::default_host_policy& policy,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
                     std::int64_t element_count) {
-    interop::daal_convert(src, dst, src_type, dst_type, src_stride, dst_stride, element_count);
+    if (src_stride == 1 && dst_stride == 1) {
+        interop::daal_convert(src, dst, src_type, dst_type, element_count);
+    }
+    else {
+        const std::int64_t src_element_size = dal::detail::get_data_type_size(src_type);
+        const std::int64_t dst_element_size = dal::detail::get_data_type_size(dst_type);
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, src_stride, src_element_size);
+        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, dst_stride, dst_element_size);
+        interop::daal_convert(src,
+                              dst,
+                              src_type,
+                              dst_type,
+                              src_stride * src_element_size,
+                              dst_stride * dst_element_size,
+                              element_count);
+    }
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+template <typename Src, typename Dst>
+static sycl::event convert_vector_kernel(sycl::queue& q,
+                                         const Src* src,
+                                         Dst* dst,
+                                         std::int64_t src_stride,
+                                         std::int64_t dst_stride,
+                                         std::int64_t element_count,
+                                         const event_vector& deps = {}) {
+    const int src_stride_int = dal::detail::integral_cast<int>(src_stride);
+    const int dst_stride_int = dal::detail::integral_cast<int>(dst_stride);
+    const int element_count_int = dal::detail::integral_cast<int>(element_count);
+
+    const std::int64_t required_local_size = 256;
+    const std::int64_t local_size = std::min(down_pow2(element_count), required_local_size);
+    const auto range = make_multiple_nd_range_1d(element_count, local_size);
+
+    if (src_stride == 1 && dst_stride == 1) {
+        return q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+                const int i = id.get_global_id();
+                if (i < element_count_int) {
+                    dst[i] = src[i];
+                }
+            });
+        });
+    }
+
+    else {
+        return q.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+            cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
+                const int i = id.get_global_id();
+                if (i < element_count_int) {
+                    const int src_i = i * src_stride_int;
+                    const int dst_i = i * dst_stride_int;
+                    dst[dst_i] = src[src_i];
+                }
+            });
+        });
+    }
+}
+
+sycl::event convert_vector_device2device(sycl::queue& q,
+                                         const void* src,
+                                         void* dst,
+                                         data_type src_type,
+                                         data_type dst_type,
+                                         std::int64_t src_stride,
+                                         std::int64_t dst_stride,
+                                         std::int64_t element_count,
+                                         const event_vector& deps) {
+    return dispatch_by_data_type(src_type, [&](auto src_type_id) {
+        return dispatch_by_data_type(dst_type, [&](auto dst_type_id) {
+            using src_t = decltype(src_type_id);
+            using dst_t = decltype(dst_type_id);
+            return convert_vector_kernel<src_t, dst_t>(q,
+                                                       static_cast<const src_t*>(src),
+                                                       static_cast<dst_t*>(dst),
+                                                       src_stride,
+                                                       dst_stride,
+                                                       element_count,
+                                                       deps);
+        });
+    });
+}
+
+sycl::event convert_vector_device2host(sycl::queue& q,
+                                       const void* src_device,
+                                       void* dst_host,
+                                       data_type src_type,
+                                       data_type dst_type,
+                                       std::int64_t src_stride,
+                                       std::int64_t dst_stride,
+                                       std::int64_t element_count,
+                                       const event_vector& deps) {
+    ONEDAL_ASSERT(src_device);
+    ONEDAL_ASSERT(dst_host);
+    ONEDAL_ASSERT(src_stride > 0);
+    ONEDAL_ASSERT(dst_stride > 0);
+    ONEDAL_ASSERT(element_count >= 0);
+    ONEDAL_ASSERT(is_known_usm(q, src_device));
+
+    // To perform conversion, we gather data from device to host in temporary
+    // contigious array and then run host conversion function
+
+    const std::int64_t element_size_in_bytes = dal::detail::get_data_type_size(src_type);
+    const std::int64_t src_size_in_bytes =
+        dal::detail::check_mul_overflow(element_size_in_bytes, element_count);
+    const std::int64_t src_stride_in_bytes =
+        dal::detail::check_mul_overflow(element_size_in_bytes, src_stride);
+
+    const auto tmp_host_unique = make_unique_usm_host(q, src_size_in_bytes);
+
+    auto gather_event = gather_device2host(q,
+                                           tmp_host_unique.get(),
+                                           src_device,
+                                           element_count,
+                                           src_stride_in_bytes,
+                                           element_size_in_bytes,
+                                           deps);
+    gather_event.wait_and_throw();
+
+    convert_vector(dal::detail::default_host_policy{},
+                   tmp_host_unique.get(),
+                   dst_host,
+                   src_type,
+                   dst_type,
+                   1L,
+                   dst_stride,
+                   element_count);
+
+    return sycl::event{};
+}
+
+sycl::event convert_vector_host2device(sycl::queue& q,
+                                       const void* src_host,
+                                       void* dst_device,
+                                       data_type src_type,
+                                       data_type dst_type,
+                                       std::int64_t src_stride,
+                                       std::int64_t dst_stride,
+                                       std::int64_t element_count,
+                                       const std::vector<sycl::event>& deps) {
+    ONEDAL_ASSERT(src_host);
+    ONEDAL_ASSERT(dst_device);
+    ONEDAL_ASSERT(src_stride > 0);
+    ONEDAL_ASSERT(dst_stride > 0);
+    ONEDAL_ASSERT(element_count >= 0);
+    ONEDAL_ASSERT(is_known_usm(q, dst_device));
+
+    // To perform conversion, we perform conversion on the host and gather data
+    // in temporary contigious array and then scatter it from host to device
+
+    const std::int64_t element_size_in_bytes = dal::detail::get_data_type_size(dst_type);
+    const std::int64_t dst_size_in_bytes =
+        dal::detail::check_mul_overflow(element_size_in_bytes, element_count);
+    const std::int64_t dst_stride_in_bytes =
+        dal::detail::check_mul_overflow(element_size_in_bytes, dst_stride);
+
+    const auto tmp_host_unique = make_unique_usm_host(q, dst_size_in_bytes);
+
+    convert_vector(dal::detail::default_host_policy{},
+                   src_host,
+                   tmp_host_unique.get(),
+                   src_type,
+                   dst_type,
+                   src_stride,
+                   1L,
+                   element_count);
+
+    auto scatter_event = scatter_host2device(q,
+                                             dst_device,
+                                             tmp_host_unique.get(),
+                                             element_count,
+                                             dst_stride_in_bytes,
+                                             element_size_in_bytes,
+                                             deps);
+    return scatter_event;
+}
+
 void convert_vector(const detail::data_parallel_policy& policy,
                     const void* src,
                     void* dst,
                     data_type src_type,
                     data_type dst_type,
                     std::int64_t element_count) {
-    convert_vector(detail::default_host_policy{}, src, dst, src_type, dst_type, element_count);
+    convert_vector(policy, src, dst, src_type, dst_type, 1, 1, element_count);
 }
 
 void convert_vector(const detail::data_parallel_policy& policy,
@@ -58,14 +263,59 @@ void convert_vector(const detail::data_parallel_policy& policy,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
                     std::int64_t element_count) {
-    convert_vector(detail::default_host_policy{},
-                   src,
-                   dst,
-                   src_type,
-                   dst_type,
-                   src_stride,
-                   dst_stride,
-                   element_count);
+    // We treat shared memory as device assuming actual copy of shared memory
+    // tend to reside on device
+    sycl::queue& q = policy.get_queue();
+    const bool src_device_friendly = is_device_friendly_usm(q, src);
+    const bool dst_device_friendly = is_device_friendly_usm(q, dst);
+
+    if (src_device_friendly && dst_device_friendly) {
+        // Device -> Device
+        convert_vector_device2device(q,
+                                     src,
+                                     dst,
+                                     src_type,
+                                     dst_type,
+                                     src_stride,
+                                     dst_stride,
+                                     element_count)
+            .wait_and_throw();
+    }
+    else if (src_device_friendly) {
+        // Device -> Host
+        convert_vector_device2host(q,
+                                   src,
+                                   dst,
+                                   src_type,
+                                   dst_type,
+                                   src_stride,
+                                   dst_stride,
+                                   element_count)
+            .wait_and_throw();
+    }
+    else if (dst_device_friendly) {
+        // Host -> Device
+        convert_vector_host2device(q,
+                                   src,
+                                   dst,
+                                   src_type,
+                                   dst_type,
+                                   src_stride,
+                                   dst_stride,
+                                   element_count)
+            .wait_and_throw();
+    }
+    else {
+        // Host -> Host
+        convert_vector(detail::default_host_policy{},
+                       src,
+                       dst,
+                       src_type,
+                       dst_type,
+                       src_stride,
+                       dst_stride,
+                       element_count);
+    }
 }
 #endif
 

@@ -38,11 +38,11 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes `Lloyd's <kmeans_t_math_lloyd_>`_ computational
+/// Tag-type that denotes :ref:`Lloyd's <kmeans_t_math_lloyd>` computational
 /// method.
 struct lloyd_dense {};
 
-/// Alias tag-type for `Lloyd's <kmeans_t_math_lloyd_>`_ computational
+/// Alias tag-type for :ref:`Lloyd's <kmeans_t_math_lloyd>` computational
 /// method.
 using by_default = lloyd_dense;
 } // namespace v1
