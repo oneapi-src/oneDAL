@@ -16,55 +16,70 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace oneapi::dal::backend::primitives {
 
-enum class unary_operation : int { identity = 0, square = 1, abs = 2 };
-
-template <typename T, unary_operation Op>
+template <typename T>
 struct unary_functor {
     inline T operator()(T arg);
 };
 
 template <typename T>
-struct unary_functor<T, unary_operation::identity> {
+struct identity : public unary_functor<T> {
     inline T operator()(T arg) const {
         return arg;
     }
 };
 
 template <typename T>
-using identity = unary_functor<T, unary_operation::identity>;
-
-template <typename T>
-struct unary_functor<T, unary_operation::abs> {
+struct abs : public unary_functor<T> {
     inline T operator()(T arg) const {
         return ((arg < 0) ? -arg : arg);
     }
 };
 
-template <typename T>
-using abs = unary_functor<T, unary_operation::abs>;
+template <>
+struct abs<float> : public unary_functor<float> {
+    constexpr static inline std::uint32_t sign_mask = 0x7FFFFFFF;
+    inline float operator()(float arg) const {
+        union {
+            float f;
+            std::uint32_t u;
+        } uarg = { arg };
+        uarg.u &= sign_mask;
+        return uarg.f;
+    }
+};
+
+template <>
+struct abs<double> : public unary_functor<double> {
+    constexpr static inline std::uint64_t sign_mask = 0x7FFFFFFFFFFFFFFF;
+    inline double operator()(double arg) const {
+        union {
+            double f;
+            std::uint64_t u;
+        } uarg = { arg };
+        uarg.u &= sign_mask;
+        return uarg.f;
+    }
+};
 
 template <typename T>
-struct unary_functor<T, unary_operation::square> {
+struct square : public unary_functor<T> {
     inline T operator()(T arg) const {
         return (arg * arg);
     }
 };
 
 template <typename T>
-using square = unary_functor<T, unary_operation::square>;
-
-enum class binary_operation : int { min = 0, max = 1, sum = 2, mul = 3 };
-
-template <typename T, binary_operation Op>
 struct binary_functor {
     constexpr static inline T init_value = 0;
     inline T operator()(T a, T b) const;
 };
 
 template <typename T>
-struct binary_functor<T, binary_operation::sum> {
+struct sum : public binary_functor<T> {
     constexpr static inline T init_value = 0;
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::plus<T> native{};
@@ -75,10 +90,7 @@ struct binary_functor<T, binary_operation::sum> {
 };
 
 template <typename T>
-using sum = binary_functor<T, binary_operation::sum>;
-
-template <typename T>
-struct binary_functor<T, binary_operation::mul> {
+struct mul : public binary_functor<T> {
     constexpr static inline T init_value = 1;
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::multiplies<T> native{};
@@ -89,10 +101,7 @@ struct binary_functor<T, binary_operation::mul> {
 };
 
 template <typename T>
-using mul = binary_functor<T, binary_operation::mul>;
-
-template <typename T>
-struct binary_functor<T, binary_operation::max> {
+struct max : public binary_functor<T> {
     constexpr static inline T init_value = std::numeric_limits<T>::min();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::maximum<T> native{};
@@ -103,10 +112,7 @@ struct binary_functor<T, binary_operation::max> {
 };
 
 template <typename T>
-using max = binary_functor<T, binary_operation::max>;
-
-template <typename T>
-struct binary_functor<T, binary_operation::min> {
+struct min : public binary_functor<T> {
     constexpr static inline T init_value = std::numeric_limits<T>::max();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::minimum<T> native{};
@@ -116,13 +122,9 @@ struct binary_functor<T, binary_operation::min> {
     }
 };
 
-template <typename T>
-using min = binary_functor<T, binary_operation::min>;
-
-template <typename T, binary_operation BinOp>
-struct initialized_binary_functor : public binary_functor<T, BinOp> {
-    initialized_binary_functor(T init_value_ = binary_functor<T, BinOp>::init_value)
-            : init_value(init_value_) {}
+template <typename T, typename BinOp>
+struct initialized_binary_functor : public binary_functor<T> {
+    initialized_binary_functor(T init_value_ = BinOp::init_value) : init_value(init_value_) {}
     const T init_value;
 };
 
