@@ -87,7 +87,7 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         : NumericTable(dal::detail::integral_cast<std::size_t>(table.get_column_count()),
                        dal::detail::integral_cast<std::size_t>(table.get_row_count())),
           original_table_(table) {
-    // The following const_casts are safe only when this class is used for read-only
+    // The following const_cast is safe only when this class is used for read-only
     // operations. Use on write leads to undefined behaviour.
     const auto original_data = const_cast<Data*>(table.get_data<Data>());
 
@@ -127,7 +127,9 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         }
 
         for (std::size_t i = 0; i < column_count; i++) {
-            stat |= base_soa->setArray<Data>(ptr_data_t{ &original_data[i * row_count], daal_object_owner(table) }, i);
+            stat |= base_soa->setArray<Data>(
+                ptr_data_t{ &original_data[i * row_count], daal_object_owner(table) },
+                i);
 
             if (!stat.ok()) {
                 return;
