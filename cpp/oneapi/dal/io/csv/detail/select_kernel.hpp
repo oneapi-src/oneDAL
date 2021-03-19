@@ -21,33 +21,33 @@
 
 namespace oneapi::dal::csv::detail {
 
-template <typename Policy, typename Descriptor, typename Graph>
+template <typename Policy, typename Descriptor, typename Graph, typename Allocator>
 struct backend_base {
     virtual void operator()(const Policy &ctx,
                             const Descriptor &descriptor,
                             Graph &g,
-                            const read_args<Graph> &args) = 0;
+                            const read_args<Graph, Allocator> &args) = 0;
     virtual ~backend_base() = default;
 };
 
-template <typename Policy, typename Descriptor, typename Graph>
-struct backend_default : public backend_base<Policy, Descriptor, Graph> {
+template <typename Policy, typename Descriptor, typename Graph, typename Allocator>
+struct backend_default : public backend_base<Policy, Descriptor, Graph, Allocator> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
     virtual void operator()(const Policy &ctx,
                             const Descriptor &descriptor,
                             Graph &g,
-                            const read_args<Graph> &args) {
+                            const read_args<Graph, Allocator> &args) {
         auto allocator = args.get_allocator();
         return read_graph_default_kernel(ctx, descriptor, allocator, g);
     }
 };
 
-template <typename Policy, typename Descriptor, typename Graph>
-dal::detail::shared<backend_base<Policy, Descriptor, Graph>>
-get_backend(const Descriptor &desc, Graph &data, const read_args<Graph> &args) {
-    return std::make_shared<backend_default<Policy, Descriptor, Graph>>();
+template <typename Policy, typename Descriptor, typename Graph, typename Allocator>
+dal::detail::shared<backend_base<Policy, Descriptor, Graph, Allocator>>
+get_backend(const Descriptor &desc, Graph &data, const read_args<Graph, Allocator> &args) {
+    return std::make_shared<backend_default<Policy, Descriptor, Graph, Allocator>>();
 }
 
 } // namespace oneapi::dal::csv::detail

@@ -47,10 +47,13 @@ using v1::read_args_graph_impl;
 
 namespace v1 {
 
+struct read_args_tag {};
+
 template <typename Object = table, typename Allocator = std::allocator<char>>
 class ONEDAL_EXPORT read_args : public base {
 public:
     using allocator_t = Allocator;
+    using tag_t = read_args_tag;
     read_args() : impl_(new detail::read_args_graph_impl<Allocator>()) {}
     read_args(const read_args& args) = default;
     read_args(preview::read_mode mode) : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {}
@@ -117,5 +120,6 @@ void read_args<Object, Allocator>::set_allocator_impl(Allocator allocator) {
 } // namespace v1
 
 using v1::read_args;
+using v1::read_args_tag;
 
 } // namespace oneapi::dal::csv
