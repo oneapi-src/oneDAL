@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <daal/include/data_management/data/homogen_numeric_table.h>
+#include <daal/include/data_management/data/numeric_table.h>
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"

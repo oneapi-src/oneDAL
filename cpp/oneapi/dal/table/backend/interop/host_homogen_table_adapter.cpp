@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <daal/include/data_management/data/homogen_numeric_table.h>
 #include <daal/include/data_management/data/soa_numeric_table.h>
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
 
@@ -88,6 +89,8 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
           original_table_(table) {
     // The following const_casts are safe only when this class is used for read-only
     // operations. Use on write leads to undefined behaviour.
+    const auto original_data = const_cast<Data*>(table.get_data<Data>());
+
     if (!stat.ok()) {
         return;
     }
@@ -101,7 +104,6 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
     const std::size_t row_count = dal::detail::integral_cast<std::size_t>(table.get_row_count());
 
     if (table.get_data_layout() == data_layout::row_major) {
-        const auto original_data = const_cast<Data*>(table.get_data<Data>());
         base_ = daal_dm::HomogenNumericTable<Data>::create(
             daal_dm::DictionaryIface::equal,
             ptr_data_t{ original_data, daal_object_owner(table) },
@@ -125,9 +127,8 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         }
 
         for (std::size_t i = 0; i < column_count; i++) {
-            const auto original_data = const_cast<Data*>(&(table.get_data<Data>()[i * row_count]));
             status_t internal_stat =
-                base_soa->setArray<Data>(ptr_data_t{ original_data, daal_object_owner(table) }, i);
+                base_soa->setArray<Data>(ptr_data_t{ &original_data[i * row_count], daal_object_owner(table) }, i);
 
             if (!internal_stat.ok()) {
                 return;
