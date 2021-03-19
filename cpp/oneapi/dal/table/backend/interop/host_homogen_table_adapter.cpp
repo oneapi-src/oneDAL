@@ -127,8 +127,7 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         }
 
         for (std::size_t i = 0; i < column_count; i++) {
-            status_t internal_stat =
-                base_soa->setArray<Data>(ptr_data_t{ &original_data[i * row_count], daal_object_owner(table) }, i);
+            stat |= base_soa->setArray<Data>(ptr_data_t{ &original_data[i * row_count], daal_object_owner(table) }, i);
 
             if (!internal_stat.ok()) {
                 return;
