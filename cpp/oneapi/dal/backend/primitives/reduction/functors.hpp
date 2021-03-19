@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 
 namespace oneapi::dal::backend::primitives {
@@ -35,33 +36,7 @@ struct identity : public unary_functor<T> {
 template <typename T>
 struct abs : public unary_functor<T> {
     inline T operator()(T arg) const {
-        return ((arg < 0) ? -arg : arg);
-    }
-};
-
-template <>
-struct abs<float> : public unary_functor<float> {
-    constexpr static inline std::uint32_t sign_mask = 0x7FFFFFFF;
-    inline float operator()(float arg) const {
-        union {
-            float f;
-            std::uint32_t u;
-        } uarg = { arg };
-        uarg.u &= sign_mask;
-        return uarg.f;
-    }
-};
-
-template <>
-struct abs<double> : public unary_functor<double> {
-    constexpr static inline std::uint64_t sign_mask = 0x7FFFFFFFFFFFFFFF;
-    inline double operator()(double arg) const {
-        union {
-            double f;
-            std::uint64_t u;
-        } uarg = { arg };
-        uarg.u &= sign_mask;
-        return uarg.f;
+        return std::abs(arg);
     }
 };
 
