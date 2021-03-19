@@ -65,7 +65,7 @@ sycl::event reduce_rows(sycl::queue& q,
                         const BinaryOp binary,
                         const UnaryOp unary,
                         const event_vector& deps) {
-    ONEDAL_ASSERT(input.get_dimension(1) <= output.get_dimension(0));
+    ONEDAL_ASSERT(input.get_dimension(0) <= output.get_dimension(0));
     if constexpr (Layout == ndorder::c) {
         return reduce_rm_rw(q, input, output, binary, unary, deps);
     }

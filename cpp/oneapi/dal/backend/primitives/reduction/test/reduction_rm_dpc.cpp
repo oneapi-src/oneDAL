@@ -54,6 +54,7 @@ public:
         width = GENERATE(7, 707, 1, 251, 5);
         stride = GENERATE(707, 812, 999, 1001, 1024);
         height = GENERATE(17, 999, 1, 5, 1001);
+        SKIP_IF(width > stride);
         REQUIRE(width <= stride);
         CAPTURE(arg, width, stride, height);
     }
@@ -249,6 +250,18 @@ public:
         check_output_cw(out_array);
     }
 
+    auto get_width() const {
+        return width;
+    }
+
+    auto get_stride() const {
+        return stride;
+    }
+
+    auto get_height() const {
+        return height;
+    }
+
 private:
     float_t arg;
     std::int64_t width;
@@ -261,6 +274,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
 }
@@ -270,6 +284,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_cw_reduce_inplace();
 }
 
@@ -284,6 +299,7 @@ public:
         width = GENERATE(7, 707, 1, 251, 5);
         stride = GENERATE(707, 812, 999, 1001, 1024);
         height = GENERATE(17, 999, 1, 5, 1001);
+        SKIP_IF(width > stride);
         REQUIRE(width <= stride);
         CAPTURE(width, stride, height);
         generate_input();
@@ -414,6 +430,18 @@ public:
         check_output_cw(out_array);
     }
 
+    auto get_width() const {
+        return width;
+    }
+
+    auto get_stride() const {
+        return stride;
+    }
+
+    auto get_height() const {
+        return height;
+    }
+
 private:
     const binary_t binary{};
     const unary_t unary{};
@@ -430,6 +458,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
 }
@@ -439,6 +468,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_cw_reduce_inplace();
 }
 
