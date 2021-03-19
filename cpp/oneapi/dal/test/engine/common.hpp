@@ -121,6 +121,10 @@ public:
     bool is_gpu() const {
         return false;
     }
+
+    bool has_native_float64() const {
+        return true;
+    }
 };
 
 template <typename... Args>
@@ -185,6 +189,8 @@ public:
     bool is_gpu() const {
         return queue_.get_device().is_gpu();
     }
+
+    bool has_native_float64() const;
 
 private:
     sycl::queue queue_;

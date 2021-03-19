@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/dataframe.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -51,6 +52,21 @@ public:
     template <typename... Args>
     auto compute(Args&&... args) {
         return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
+    }
+};
+
+template <typename Float>
+class float_algo_fixture : public algo_fixture {
+public:
+    using float_t = Float;
+
+    bool not_float64_friendly() {
+        constexpr bool is_double = std::is_same_v<Float, double>;
+        return is_double && !this->get_policy().has_native_float64();
+    }
+
+    table_id get_homogen_table_id() const {
+        return table_id::homogen<Float>();
     }
 };
 

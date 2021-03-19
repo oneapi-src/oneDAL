@@ -22,30 +22,7 @@
 Support Vector Machine Classifier (SVM)
 =======================================
 
-Support Vector Machine (SVM) :capterm:`classification` is among popular classification
-algorithms. It belongs to a family of generalized linear classification problems.
-
-
-.. |t_math| replace::    `Training <svm_t_math_>`_
-.. |t_thunder| replace:: `Thunder <svm_t_math_thunder_>`_
-.. |t_smo| replace::     `SMO <svm_t_math_smo_>`_
-.. |t_input| replace::   `train_input <svm_t_api_input_>`_
-.. |t_result| replace::  `train_result <svm_t_api_result_>`_
-.. |t_op| replace::      `train(...) <svm_t_api_>`_
-
-.. |i_math| replace::    `Inference <svm_i_math_>`_
-.. |i_smo| replace::     `SMO <svm_i_math_smo_>`_
-.. |i_thunder| replace:: `Thunder <svm_i_math_thunder_>`_
-.. |i_input| replace::   `infer_input <svm_i_api_input_>`_
-.. |i_result| replace::  `infer_result <svm_i_api_result_>`_
-.. |i_op| replace::      `infer(...) <svm_i_api_>`_
-
-=============== ============= ============= ======== =========== ============
- **Operation**  **Computational methods**     **Programming Interface**
---------------- --------------------------- ---------------------------------
-   |t_math|        |t_smo|     |t_thunder|    |t_op|   |t_input|   |t_result|
-   |i_math|        |i_smo|     |i_thunder|    |i_op|   |i_input|   |i_result|
-=============== ============= ============= ======== =========== ============
+.. include:: ../../../includes/svm/svm-introduction.rst
 
 ------------------------
 Mathematical formulation
@@ -121,91 +98,14 @@ value defines the class of the feature vector, and the absolute
 value of the function is a multiple of the distance between the
 feature vector and the separating hyperplane.
 
+---------------------
+Programming Interface
+---------------------
+
+Refer to :ref:`API Reference: Support Vector Machine Classifier <api_svm>`.
+
 --------
 Examples
 --------
 
-.. include:: ./includes/svm-examples.rst
-
----------------------
-Programming Interface
----------------------
-All types and functions in this section are declared in the
-``oneapi::dal::svm`` namespace and are available via inclusion of the
-``oneapi/dal/algo/svm.hpp`` header file.
-                   
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::svm::detail::v1::descriptor_base
-.. onedal_class:: oneapi::dal::svm::v1::descriptor
-
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::svm::method::v1
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::svm::task::v1
-
-Model
------
-.. onedal_class:: oneapi::dal::svm::v1::model
-
-.. _svm_t_api:
-
-Training :expr:`train(...)`
---------------------------------
-.. _svm_t_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::train_input
-
-
-.. _svm_t_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::train_result
-
-Operation
-~~~~~~~~~
-.. function:: template <typename Descriptor> \
-              svm::train_result train(const Descriptor& desc, \
-                                      const svm::train_input& input)
-
-   :tparam Descriptor: SVM algorithm descriptor :expr:`svm::desc`.
-
-   Preconditions
-      | :expr:`input.data.is_empty == false`
-      | :expr:`input.labels.is_empty == false`
-      | :expr:`input.labels.column_count == 1`
-      | :expr:`input.data.row_count == input.labels.row_count`
-
-.. _svm_i_api:
-
-Inference :expr:`infer(...)`
-----------------------------
-.. _svm_i_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::infer_input
-
-
-.. _svm_i_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::infer_result
-
-Operation
-~~~~~~~~~
-.. function:: template <typename Descriptor> \
-              svm::infer_result infer(const Descriptor& desc, \
-                                      const svm::infer_input& input)
-
-   :tparam Descriptor: SVM algorithm descriptor :expr:`svm::desc`.
-
-   Preconditions
-      | :expr:`input.data.is_empty == false`
+.. include:: ../../../includes/svm/svm-examples.rst

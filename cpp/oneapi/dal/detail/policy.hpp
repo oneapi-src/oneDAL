@@ -97,6 +97,17 @@ struct is_execution_policy<data_parallel_policy> : std::bool_constant<true> {};
 template <typename T>
 constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
 
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename T>
+struct is_data_parallel_policy : std::bool_constant<false> {};
+
+template <>
+struct is_data_parallel_policy<data_parallel_policy> : std::bool_constant<true> {};
+
+template <typename T>
+constexpr bool is_data_parallel_policy_v = is_data_parallel_policy<T>::value;
+#endif
+
 } // namespace v1
 
 using v1::cpu_extension;
@@ -107,6 +118,7 @@ using v1::is_execution_policy_v;
 
 #ifdef ONEDAL_DATA_PARALLEL
 using v1::data_parallel_policy;
+using v1::is_data_parallel_policy_v;
 #endif
 
 } // namespace oneapi::dal::detail

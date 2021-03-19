@@ -25,4 +25,4 @@ Decomposition
 
 .. rubric:: Examples: PCA
 
-.. include:: ./includes/pca-examples.rst
+.. include:: ../../../includes/decomposition/pca-examples.rst

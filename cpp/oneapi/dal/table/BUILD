@@ -1,8 +1,10 @@
-package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl",
+load(
+    "@onedal//dev/bazel:dal.bzl",
     "dal_module",
     "dal_test_suite",
 )
+
+package(default_visibility = ["//visibility:public"])
 
 dal_module(
     name = "table",
@@ -10,40 +12,45 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:common",
         "@onedal//cpp/oneapi/dal/util",
-    ]
+    ],
 )
 
 dal_test_suite(
-    name = "table_tests",
+    name = "private_tests",
     srcs = [
-        "common_test.cpp",
-        "homogen_test.cpp",
+        # TODO: Move conversion tests to backend folder
+        "test/convert.cpp",
+        "test/table_builder.cpp",
     ],
-    dal_deps = [ ":table" ],
+    dal_deps = [":table"],
+    framework = "catch2",
+    private = True,
 )
 
 dal_test_suite(
-    name = "accessor_tests",
+    name = "row_accessor_tests",
     srcs = [
-        "row_accessor_test.cpp",
-        "column_accessor_test.cpp",
+        "test/row_accessor.cpp",
     ],
-    dal_deps = [ ":table" ],
+    dal_deps = [":table"],
+    framework = "catch2",
 )
 
 dal_test_suite(
-    name = "builder_tests",
+    name = "interface_tests",
     srcs = [
-        "detail/table_builder_test.cpp",
+        "test/column_accessor.cpp",
+        "test/common.cpp",
+        "test/homogen.cpp",
     ],
-    dal_deps = [ ":table" ],
+    dal_deps = [":table"],
 )
 
 dal_test_suite(
     name = "tests",
     tests = [
-        ":table_tests",
-        ":accessor_tests",
-        ":builder_tests",
-    ]
+        ":interface_tests",
+        ":private_tests",
+        ":row_accessor_tests",
+    ],
 )

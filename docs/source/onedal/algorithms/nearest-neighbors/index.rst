@@ -25,4 +25,4 @@ Nearest Neighbors (kNN)
 
 .. rubric:: Examples: k-Nearest Neighbors Classification
 
-.. include:: ./includes/knn-examples.rst
+.. include:: ../../../includes/nearest-neighbors/knn-examples.rst

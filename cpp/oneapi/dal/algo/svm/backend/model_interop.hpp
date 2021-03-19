@@ -46,6 +46,12 @@ struct daal_model_builder : public daal::algorithms::svm::Model {
     }
 };
 
+class model_interop : public base {
+public:
+    virtual ~model_interop() = default;
+    virtual void clear() {}
+};
+
 template <typename Task, typename Float>
 inline auto convert_from_daal_model(daal_svm::Model& model) {
     auto table_support_vectors =
