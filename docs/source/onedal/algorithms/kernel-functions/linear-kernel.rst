@@ -45,7 +45,7 @@ any pair of input vectors:
 .. _linear_kernel_c_math_dense:
 
 Computation method: *dense*
--------------------------
+---------------------------
 The method compute the linear kernel function :math:`K(X, Y)` for
 :math:`X` and :math:`Y` matrices.
 
