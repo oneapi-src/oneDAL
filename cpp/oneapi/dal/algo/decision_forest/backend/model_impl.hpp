@@ -17,79 +17,35 @@
 #pragma once
 
 #include "oneapi/dal/algo/decision_forest/common.hpp"
+#include "oneapi/dal/algo/decision_tree/detail/node_info_impl.hpp"
+#include "oneapi/dal/algo/decision_tree/backend/node_visitor_interop.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/model_interop.hpp"
 
 namespace oneapi::dal::decision_forest {
+
+namespace dt = oneapi::dal::decision_tree;
 
 template <typename Task>
 struct daal_model_map;
 
 template <>
 struct daal_model_map<task::classification> {
-    using daal_visitor_t = daal::algorithms::tree_utils::classification::TreeNodeVisitor;
-    using daal_leaf_desc_t = daal::algorithms::tree_utils::classification::LeafNodeDescriptor;
-    using daal_split_desc_t = daal::algorithms::tree_utils::classification::SplitNodeDescriptor;
-    using daal_model_t = backend::model_interop_cls;
+    using daal_model_interop_t = backend::model_interop_cls;
 };
 
 template <>
 struct daal_model_map<task::regression> {
-    using daal_visitor_t = daal::algorithms::tree_utils::regression::TreeNodeVisitor;
-    using daal_leaf_desc_t = daal::algorithms::tree_utils::regression::LeafNodeDescriptor;
-    using daal_split_desc_t = daal::algorithms::tree_utils::regression::SplitNodeDescriptor;
-    using daal_model_t = backend::model_interop_reg;
-};
-
-template <typename Task>
-class interop_visitor : public daal_model_map<Task>::daal_visitor_t {
-public:
-    using task_t = Task;
-    using visitor_t = std::shared_ptr<detail::tree_node_visitor_iface<task_t>>;
-
-    interop_visitor() = default;
-    interop_visitor(const interop_visitor&) = delete;
-    interop_visitor& operator=(const interop_visitor&) = delete;
-
-    explicit interop_visitor(visitor_t&& vis) : _visitor(std::forward<visitor_t>(vis)) {}
-    bool onLeafNode(const typename daal_model_map<Task>::daal_leaf_desc_t& desc) override {
-        leaf_node_descriptor<Task> leaf_desc;
-        leaf_desc.level = desc.level;
-        leaf_desc.impurity = desc.impurity;
-        leaf_desc.node_sample_count = desc.nNodeSampleCount;
-        if constexpr (std::is_same_v<Task, task::classification>) {
-            leaf_desc.label = desc.label;
-            leaf_desc.prob = desc.prob;
-        }
-        else if constexpr (std::is_same_v<Task, task::regression>) {
-            leaf_desc.label = desc.response;
-        }
-        else {
-            static_assert("Unknown task");
-        }
-
-        return _visitor->on_leaf_node(leaf_desc);
-    }
-
-    bool onSplitNode(const typename daal_model_map<Task>::daal_split_desc_t& desc) override {
-        split_node_descriptor split_desc;
-        split_desc.level = desc.level;
-        split_desc.impurity = desc.impurity;
-        split_desc.node_sample_count = desc.nNodeSampleCount;
-        split_desc.feature_index = desc.featureIndex;
-        split_desc.feature_value = desc.featureValue;
-
-        return _visitor->on_split_node(split_desc);
-    }
-
-private:
-    visitor_t _visitor;
+    using daal_model_interop_t = backend::model_interop_reg;
 };
 
 template <typename Task>
 class detail::v1::model_impl : public base {
+    static_assert(is_valid_task_v<Task>);
+
 public:
     using task_t = Task;
-    using visitor_t = std::shared_ptr<detail::tree_node_visitor_iface<task_t>>;
+    using dtree_task_t = typename model<Task>::dtree_task_t;
+    using visitor_t = typename model<Task>::visitor_t;
 
     model_impl() = default;
     model_impl(const model_impl&) = delete;
@@ -113,16 +69,36 @@ public:
 
     void traverse_dfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
         auto daal_model =
-            static_cast<const typename daal_model_map<Task>::daal_model_t*>(interop_)->get_model();
-        interop_visitor<task_t> vis(std::forward<visitor_t>(visitor));
-        daal_model->traverseDFS(static_cast<size_t>(tree_idx), vis);
+            static_cast<const typename daal_model_map<Task>::daal_model_interop_t*>(interop_)
+                ->get_model();
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            dt::visitor_interop<dtree_task_t> vis(std::move(visitor), class_count);
+            daal_model->traverseDFS(dal::detail::integral_cast<std::size_t>(tree_idx), vis);
+        }
+        else if constexpr (std::is_same_v<Task, task::regression>) {
+            dt::visitor_interop<dtree_task_t> vis(std::move(visitor));
+            daal_model->traverseDFS(dal::detail::integral_cast<std::size_t>(tree_idx), vis);
+        }
+        else {
+            static_assert(is_valid_task_v<Task>);
+        }
     }
 
     void traverse_bfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
         auto daal_model =
-            static_cast<const typename daal_model_map<Task>::daal_model_t*>(interop_)->get_model();
-        interop_visitor<task_t> vis(std::forward<visitor_t>(visitor));
-        daal_model->traverseBFS(static_cast<size_t>(tree_idx), vis);
+            static_cast<const typename daal_model_map<Task>::daal_model_interop_t*>(interop_)
+                ->get_model();
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            dt::visitor_interop<dtree_task_t> vis(std::move(visitor), class_count);
+            daal_model->traverseBFS(dal::detail::integral_cast<std::size_t>(tree_idx), vis);
+        }
+        else if constexpr (std::is_same_v<Task, task::regression>) {
+            dt::visitor_interop<dtree_task_t> vis(std::move<visitor_t>(visitor));
+            daal_model->traverseBFS(dal::detail::integral_cast<std::size_t>(tree_idx), vis);
+        }
+        else {
+            static_assert(is_valid_task_v<Task>);
+        }
     }
 
     std::int64_t tree_count = 0;

@@ -6,6 +6,7 @@ load("@onedal//dev/bazel:dal.bzl",
 
 ALGOS = [
     "decision_forest",
+    "decision_tree",
     "jaccard",
     "kmeans",
     "kmeans_init",

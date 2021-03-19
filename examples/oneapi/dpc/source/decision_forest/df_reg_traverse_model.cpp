@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,25 +25,26 @@ namespace dal = oneapi::dal;
 namespace df = dal::decision_forest;
 
 /** Visitor class, prints out tree nodes of the model when it is called back by model traversal method */
+template <typename Task>
 struct print_node_visitor {
-    template <typename NodeDesc>
-    bool operator()(const NodeDesc &desc) {
-        if constexpr (df::is_leaf_node_descriptor_v<NodeDesc>) {
-            for (std::int64_t i = 0; i < desc.level; ++i)
-                std::cout << "  ";
-            std::cout << "Level " << desc.level << ", leaf node. Response value = " << desc.label
-                      << ", Impurity = " << desc.impurity
-                      << ", Number of samples = " << desc.node_sample_count << std::endl;
-        }
-        else if constexpr (df::is_split_node_descriptor_v<NodeDesc>) {
-            for (std::int64_t i = 0; i < desc.level; ++i)
-                std::cout << "  ";
-            std::cout << "Level " << desc.level
-                      << ", split node. Feature index = " << desc.feature_index
-                      << ", feature value = " << desc.feature_value
-                      << ", Impurity = " << desc.impurity
-                      << ", Number of samples = " << desc.node_sample_count << std::endl;
-        }
+    bool operator()(const df::leaf_node_info<Task> &info) {
+        for (std::int64_t i = 0; i < info.get_level(); ++i)
+            std::cout << "  ";
+        std::cout << "Level " << info.get_level()
+                  << ", leaf node. Response value = " << info.get_label()
+                  << ", Impurity = " << info.get_impurity()
+                  << ", Number of samples = " << info.get_sample_count() << std::endl;
+        return true;
+    }
+
+    bool operator()(const df::split_node_info<Task> &info) {
+        for (std::int64_t i = 0; i < info.get_level(); ++i)
+            std::cout << "  ";
+        std::cout << "Level " << info.get_level()
+                  << ", split node. Feature index = " << info.get_feature_index()
+                  << ", feature value = " << info.get_feature_value()
+                  << ", Impurity = " << info.get_impurity()
+                  << ", Number of samples = " << info.get_sample_count() << std::endl;
         return true;
     }
 };
@@ -53,7 +54,7 @@ void print_model(const df::model<Task> &m) {
     std::cout << "Number of trees: " << m.get_tree_count() << std::endl;
     for (std::int64_t i = 0, n = m.get_tree_count(); i < n; ++i) {
         std::cout << "Tree #" << i << std::endl;
-        m.traverse_dfs(i, print_node_visitor{});
+        m.traverse_dfs(i, print_node_visitor<df::task::regression>{});
     }
 }
 
