@@ -178,6 +178,7 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
     "Decision forest train dense method is not implemented for GPU")
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
+MSG(input_model_is_not_initialized, "Input model is not initialized")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

@@ -54,7 +54,7 @@ public:
     model_impl(backend::model_interop* interop) : interop_(interop) {
         if (!interop_) {
             throw dal::internal_error(
-                dal::detail::error_messages::input_model_does_not_match_kernel_function());
+                dal::detail::error_messages::input_model_is_not_initialized());
         }
     }
 
@@ -80,7 +80,7 @@ public:
             daal_model->traverseDFS(dal::detail::integral_cast<std::size_t>(tree_idx), vis);
         }
         else {
-            static_assert(is_valid_task_v<Task>);
+            static_assert(is_valid_task_v<Task>, "Unknown task");
         }
     }
 
@@ -97,7 +97,7 @@ public:
             daal_model->traverseBFS(dal::detail::integral_cast<std::size_t>(tree_idx), vis);
         }
         else {
-            static_assert(is_valid_task_v<Task>);
+            static_assert(is_valid_task_v<Task>, "Unknown task");
         }
     }
 

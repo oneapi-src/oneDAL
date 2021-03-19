@@ -60,8 +60,7 @@ private:
 
 template <typename Task, typename Visitor>
 std::shared_ptr<node_visitor_iface<Task>> make_node_visitor(Visitor&& visitor) {
-    return std::shared_ptr<node_visitor_iface<Task>>(
-        new node_visitor_impl<Task, Visitor>(std::move(visitor)));
+    return std::make_shared<node_visitor_impl<Task, Visitor>>(std::move(visitor));
 }
 
 } // namespace v1
