@@ -79,8 +79,8 @@ for reduced to the solution of the quadratic optimization problem
 
     .. math::
       \begin{cases}
-         z_i = +1, s_i = \epsilon - y_i, if i \leq n \\
-         z_i = -1, s_i = \epsilon + y_i, if n \less i \leq 2n
+         z_i = +1, s_i = \epsilon - y_i, i \leq n \\
+         z_i = -1, s_i = \epsilon + y_i, n < i \leq 2n
       \end{cases}
 
     Where :math:`\epsilon` is the error tolerance parameter.
