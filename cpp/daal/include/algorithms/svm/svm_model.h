@@ -48,52 +48,6 @@ namespace algorithms
 namespace svm
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * @ingroup svm
- * @{
- */
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__SVM__PARAMETER"></a>
- * \brief Optional parameters
- *
- * \snippet svm/svm_model.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
-{
-    Parameter(const services::SharedPtr<kernel_function::KernelIface> & kernelForParameter =
-                  services::SharedPtr<kernel_function::KernelIface>(new kernel_function::linear::Batch<>()),
-              double C = 1.0, double accuracyThreshold = 0.001, double tau = 1.0e-6, size_t maxIterations = 1000000, size_t cacheSize = 8000000,
-              bool doShrinking = true, size_t shrinkingStep = 1000)
-        : C(C),
-          accuracyThreshold(accuracyThreshold),
-          tau(tau),
-          maxIterations(maxIterations),
-          cacheSize(cacheSize),
-          doShrinking(doShrinking),
-          shrinkingStep(shrinkingStep),
-          kernel(kernelForParameter) {};
-
-    double C;                                           /*!< Upper bound in constraints of the quadratic optimization problem */
-    double accuracyThreshold;                           /*!< Training accuracy */
-    double tau;                                         /*!< Tau parameter of the working set selection scheme */
-    size_t maxIterations;                               /*!< Maximal number of iterations for the algorithm */
-    size_t cacheSize;                                   /*!< Size of cache in bytes to store values of the kernel matrix.
-                                     A non-zero value enables use of a cache optimization technique */
-    bool doShrinking;                                   /*!< Flag that enables use of the shrinking optimization technique */
-    size_t shrinkingStep;                               /*!< Number of iterations between the steps of shrinking optimization technique */
-    algorithms::kernel_function::KernelIfacePtr kernel; /*!< Kernel function */
-
-    services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
-
-/**
  * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2
