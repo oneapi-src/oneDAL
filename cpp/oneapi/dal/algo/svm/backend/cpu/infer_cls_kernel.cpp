@@ -54,8 +54,6 @@ using daal_multiclass_kernel_t =
         daal_multiclass::prediction::voteBased,
         daal_multiclass::training::oneAgainstOne,
         Float,
-        daal::algorithms::classifier::prediction::Batch,
-        daal_multiclass::Parameter,
         Cpu>;
 
 template <typename Float>

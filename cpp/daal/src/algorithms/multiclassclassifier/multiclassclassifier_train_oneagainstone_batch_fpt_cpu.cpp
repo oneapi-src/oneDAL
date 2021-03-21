@@ -40,7 +40,7 @@ template class BatchContainer<DAAL_FPTYPE, oneAgainstOne, DAAL_CPU>;
 }
 namespace internal
 {
-template class DAAL_EXPORT MultiClassClassifierTrainKernel<oneAgainstOne, DAAL_FPTYPE, classifier::training::Batch, DAAL_CPU>;
+template class DAAL_EXPORT MultiClassClassifierTrainKernel<oneAgainstOne, DAAL_FPTYPE, DAAL_CPU>;
 
 } // namespace internal
 } // namespace training

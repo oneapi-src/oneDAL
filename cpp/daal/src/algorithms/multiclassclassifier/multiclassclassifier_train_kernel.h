@@ -51,10 +51,9 @@ struct KernelParameter
     services::SharedPtr<algorithms::classifier::prediction::Batch> prediction; /*!< Two-class classifier prediction stage */
     size_t maxIterations;                                                      /*!< Maximum number of iterations */
     double accuracyThreshold;                                                  /*!< Convergence threshold */
-    bool isOutSvmModel = false;
 };
 
-template <Method method, typename AlgorithmFPtype, typename ClsType, CpuType cpu>
+template <Method method, typename AlgorithmFPtype, CpuType cpu>
 struct MultiClassClassifierTrainKernel : public Kernel
 {
     services::Status compute(const NumericTable * a0, const NumericTable * a1, const NumericTable * a2, daal::algorithms::Model * r,

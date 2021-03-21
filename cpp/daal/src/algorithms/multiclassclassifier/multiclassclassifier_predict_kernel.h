@@ -45,7 +45,7 @@ namespace prediction
 {
 namespace internal
 {
-template <prediction::Method pmethod, training::Method tmethod, typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
+template <prediction::Method pmethod, training::Method tmethod, typename algorithmFPType, CpuType cpu>
 struct MultiClassClassifierPredictKernel : public Kernel
 {
     services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df,
@@ -66,9 +66,9 @@ services::Status getNonEmptyClassMap(size_t & nClasses, const Model * model, siz
     bool * nonEmptyClass = (bool *)nonEmptyClassBuffer.get();
     for (size_t i = 0; i < nClasses; i++) nonEmptyClass[i] = false;
 
-    for (size_t i = 1, imodel = 0; i < nClasses; i++)
+    for (size_t i = 0, imodel = 0; i < nClasses; i++)
     {
-        for (size_t j = 0; j < i; j++, imodel++)
+        for (size_t j = i + 1; j < nClasses; j++, imodel++)
         {
             const bool ijModelNotEmpty(model->getTwoClassClassifierModel(imodel));
             nonEmptyClass[i] |= ijModelNotEmpty;

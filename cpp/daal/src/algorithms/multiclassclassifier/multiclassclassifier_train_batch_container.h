@@ -42,7 +42,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierTrainKernel, method, algorithmFPType, classifier::training::Batch);
+    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierTrainKernel, method, algorithmFPType);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -74,8 +74,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     kernelPar.accuracyThreshold = par->accuracyThreshold;
 
     daal::services::Environment::env & env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType, classifier::training::Batch),
-                       compute, a[0], a[1], a[2], r, nullptr, kernelPar);
+    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierTrainKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], a[2], r,
+                       nullptr, kernelPar);
 }
 
 } // namespace interface2

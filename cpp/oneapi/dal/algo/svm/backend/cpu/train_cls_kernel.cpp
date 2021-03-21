@@ -52,12 +52,8 @@ using daal_svm_kernel_t =
     daal_svm::training::internal::SVMTrainImpl<to_daal_method<Method>::value, Float, Cpu>;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_multiclass_kernel_t =
-    daal_multiclass::training::internal::MultiClassClassifierTrainKernel<
-        daal_multiclass::training::oneAgainstOne,
-        Float,
-        daal::algorithms::classifier::training::Batch,
-        Cpu>;
+using daal_multiclass_kernel_t = daal_multiclass::training::internal::
+    MultiClassClassifierTrainKernel<daal_multiclass::training::oneAgainstOne, Float, Cpu>;
 
 template <typename Float, typename Method>
 static result_t call_daal_kernel(const context_cpu& ctx,
