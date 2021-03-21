@@ -36,15 +36,17 @@ Computing
 Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`
 of dimension :math:`p` and a set :math:`Y` of :math:`m`
 feature vectors :math:`y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \ldots, x_{mp})`,
-the problem is to compute the RBF kernel function :math:`K(x_i,, y_i)` for any pair of input vectors:
+the problem is to compute the RBF kernel function :math:`K(x_i, y_i)` for any pair of input vectors:
 
 .. math::
    K\left({x}_{i},{y}_{j}\right)=exp\left(-\frac{{\left(\|{x}_{i}-{y}_{j}\|\right)}^{2}}{2{\sigma }^{2}}\right)
 
 .. _rbf_kernel_c_math_dense:
 
-Computing method: *dense*
--------------------------
+Computation method: *dense*
+---------------------------
+The method computes the rbf kernel function :math:`K(X, Y)` for
+:math:`X` and :math:`Y` matrices.
 
 ---------------------
 Programming Interface

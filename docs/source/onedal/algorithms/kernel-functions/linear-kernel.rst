@@ -33,16 +33,21 @@ Mathematical formulation
 Computing
 ---------
 
-Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), 
+Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}),
 \ldots, x_n = (x_{n1}, \ldots, x_{np})` of dimension :math:`p` and a set :math:`Y` of :math:`m`
-feature vectors :math:`y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \ldots, x_{mp})`, 
-the problem is to compute the linear kernel function :math:`K(x_i,, y_i)` for
-any pair of input vectors: :math:`K(x_i, y_i) = k {X_i}^T y_i + b`.
+feature vectors :math:`y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \ldots, x_{mp})`,
+the problem is to compute the linear kernel function :math:`K(x_i, y_i)` for
+any pair of input vectors:
+
+.. math::
+    K(x_i, y_i) = k {X_i}^T y_i + b
 
 .. _linear_kernel_c_math_dense:
 
-Computing method: *dense*
--------------------------
+Computation method: *dense*
+---------------------------
+The method computes the linear kernel function :math:`K(X, Y)` for
+:math:`X` and :math:`Y` matrices.
 
 ---------------------
 Programming Interface
