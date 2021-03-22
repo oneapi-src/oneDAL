@@ -16,6 +16,6 @@
 #===============================================================================
 
 from .index import Index, index, to_dict, to_json, to_yaml
-from .loader import TransformerPass
+from .loader import TransformerPass, NameTransformer
 from .listing import ListingReader
 from . import model
