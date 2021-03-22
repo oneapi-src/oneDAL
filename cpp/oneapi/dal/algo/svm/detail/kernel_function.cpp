@@ -22,10 +22,14 @@ namespace v1 {
 
 using daal_kf_t = daal::algorithms::kernel_function::KernelIfacePtr;
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
+namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial::internal;
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 
 template <typename F, typename M>
 using linear_kernel_t = linear_kernel::descriptor<F, M>;
+
+template <typename F, typename M>
+using polynomial_kernel_t = polynomial_kernel::descriptor<F, M>;
 
 template <typename F, typename M>
 using rbf_kernel_t = rbf_kernel::descriptor<F, M>;
@@ -59,6 +63,42 @@ private:
 
     double scale_;
     double shift_;
+};
+
+template <typename Float, typename Method>
+class daal_interop_polynomial_kernel_impl : public kernel_function_impl {
+public:
+    daal_interop_polynomial_kernel_impl(double scale, double shift, std::int64_t degree)
+            : scale_(scale),
+              shift_(shift),
+              degree_(degree) {}
+
+    daal_kf_t get_daal_kernel_function() override {
+        constexpr daal_polynomial_kernel::Method daal_method = get_daal_method();
+        auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
+        alg->parameter.scale = scale_;
+        alg->parameter.shift = shift_;
+        alg->parameter.degree = degree_;
+        return daal_kf_t(alg);
+    }
+
+private:
+    static constexpr daal_polynomial_kernel::Method get_daal_method() {
+        static_assert(dal::detail::is_one_of_v<Method, polynomial_kernel::method::dense>);
+
+        if constexpr (std::is_same_v<Method, polynomial_kernel::method::dense>) {
+            return daal_polynomial_kernel::Method::defaultDense;
+        }
+        // TODO: Comment out once CSR method is supported
+        // else if constexpr (std::is_same_v<Method, polynomial_kernel::method::csr>) {
+        //     return daal_polynomial_kernel::Method::fastCSR;
+        // }
+        return daal_polynomial_kernel::Method::defaultDense;
+    }
+
+    double scale_;
+    double shift_;
+    std::int64_t degree_;
 };
 
 template <typename Float, typename Method>
@@ -102,6 +142,18 @@ kernel_function_impl *kernel_function<linear_kernel_t<F, M>>::get_impl() const {
 }
 
 template <typename F, typename M>
+kernel_function<polynomial_kernel_t<F, M>>::kernel_function(const polynomial_kernel_t<F, M> &kernel)
+        : kernel_(kernel),
+          impl_(new daal_interop_polynomial_kernel_impl<F, M>{ kernel.get_scale(),
+                                                               kernel.get_shift(),
+                                                               kernel.get_degree() }) {}
+
+template <typename F, typename M>
+kernel_function_impl *kernel_function<polynomial_kernel_t<F, M>>::get_impl() const {
+    return impl_.get();
+}
+
+template <typename F, typename M>
 kernel_function<rbf_kernel_t<F, M>>::kernel_function(const rbf_kernel_t<F, M> &kernel)
         : kernel_(kernel),
           impl_(new daal_interop_rbf_kernel_impl<F, M>{ kernel.get_sigma() }) {}
@@ -114,10 +166,16 @@ kernel_function_impl *kernel_function<rbf_kernel_t<F, M>>::get_impl() const {
 #define INSTANTIATE_LINEAR(F, M) \
     template class ONEDAL_EXPORT kernel_function<linear_kernel_t<F, M>>;
 
+#define INSTANTIATE_POLYNOMIAL(F, M) \
+    template class ONEDAL_EXPORT kernel_function<polynomial_kernel_t<F, M>>;
+
 #define INSTANTIATE_RBF(F, M) template class ONEDAL_EXPORT kernel_function<rbf_kernel_t<F, M>>;
 
 INSTANTIATE_LINEAR(float, linear_kernel::method::dense)
 INSTANTIATE_LINEAR(double, linear_kernel::method::dense)
+
+INSTANTIATE_POLYNOMIAL(float, polynomial_kernel::method::dense)
+INSTANTIATE_POLYNOMIAL(double, polynomial_kernel::method::dense)
 
 INSTANTIATE_RBF(float, rbf_kernel::method::dense)
 INSTANTIATE_RBF(double, rbf_kernel::method::dense)

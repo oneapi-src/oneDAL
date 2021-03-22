@@ -170,12 +170,14 @@ public:
     /* SVM */
     MSG(c_leq_zero);
     MSG(cache_size_lt_zero);
+    MSG(degree_lt_zero);
     MSG(input_model_coeffs_are_empty);
     MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
     MSG(input_model_does_not_match_kernel_function);
     MSG(input_model_support_vectors_are_empty);
     MSG(input_model_support_vectors_cc_neq_input_data_cc);
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
+    MSG(polynomial_kenrel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
     MSG(svm_regression_task_is_not_implemented_for_gpu);

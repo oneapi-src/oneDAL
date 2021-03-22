@@ -22,8 +22,6 @@
 */
 
 #include "src/algorithms/kernel_function/kernel_function_linear_batch_container.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_dense_default_kernel.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_dense_default_impl.i"
 
 namespace daal
 {
@@ -38,10 +36,6 @@ namespace interface1
 template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 
 }
-namespace internal
-{
-template class DAAL_EXPORT KernelImplLinear<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace internal
 } // namespace linear
 } // namespace kernel_function
 } // namespace algorithms
