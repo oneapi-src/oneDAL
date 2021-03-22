@@ -126,10 +126,10 @@ MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
 MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
 
-/* SUbgraph Isomorphism */
-MSG(unsupported_kind, "Unsupported kind of subgraph");
-MSG(max_match_count_lt_zero, "Maximum number of match count less that zero");
-MSG(unsupported_semantic_match, "Unsupported semantic match mode");
+/* Subgraph Isomorphism */
+MSG(unsupported_kind, "Unsupported kind of subgraph")
+MSG(max_match_count_lt_zero, "Maximum number of match count less that zero")
+MSG(unsupported_semantic_match, "Unsupported semantic match mode")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")

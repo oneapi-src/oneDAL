@@ -17,12 +17,14 @@
 #pragma once
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_matching_default_kernel.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::preview {
 namespace subgraph_isomorphism {
@@ -33,9 +35,17 @@ graph_matching_result call_subgraph_isomorphism_default_kernel_scalar(
     const descriptor_base &desc,
     const dal::preview::detail::topology<std::int32_t> &t_data,
     const dal::preview::detail::topology<std::int32_t> &p_data) {
-    std::cout << "KERNEL scalar" << std::endl;
-    graph_matching_result res;
-    return res;
+    std::cout << "KERNEL scalar " << std::endl;
+
+    graph_loader pattern_loader(p_data, graph_storage_scheme::bit);
+    graph pattern(pattern_loader.get_graph_data());
+
+    graph_loader target_loader(t_data, graph_storage_scheme::auto_detect);
+    graph target(target_loader.get_graph_data());
+
+    solution results = subgraph_isomorphism(pattern, target, control_flags);
+
+    return graph_matching_result(results.export_as_table(), results.get_solution_count());
 }
 } // namespace detail
 } // namespace subgraph_isomorphism
