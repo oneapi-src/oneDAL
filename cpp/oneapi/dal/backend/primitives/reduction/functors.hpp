@@ -36,7 +36,11 @@ struct identity : public unary_functor<T> {
 template <typename T>
 struct abs : public unary_functor<T> {
     inline T operator()(T arg) const {
+#ifdef __SYCL_DEVICE_ONLY__
+        return sycl::fabs(arg);
+#else
         return std::abs(arg);
+#endif
     }
 };
 
