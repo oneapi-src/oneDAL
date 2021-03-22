@@ -41,19 +41,19 @@ All types and functions in this section are declared in the
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::kmeans::v1::descriptor
+.. onedal_class:: oneapi::dal::kmeans::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans::method::v1
+.. onedal_tags_namespace:: oneapi::dal::kmeans::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans::task::v1
+.. onedal_tags_namespace:: oneapi::dal::kmeans::task
 
 Model
 -----
-.. onedal_class:: oneapi::dal::kmeans::v1::model
+.. onedal_class:: oneapi::dal::kmeans::model
 
 
 .. _kmeans_t_api:
@@ -65,13 +65,13 @@ Training :cpp:expr:`train(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::train_input
+.. onedal_class:: oneapi::dal::kmeans::train_input
 
 .. _kmeans_t_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::train_result
+.. onedal_class:: oneapi::dal::kmeans::train_result
 
 Operation
 ~~~~~~~~~
@@ -105,13 +105,13 @@ Inference :cpp:expr:`infer(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::infer_input
+.. onedal_class:: oneapi::dal::kmeans::infer_input
 
 .. _kmeans_i_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::infer_result
+.. onedal_class:: oneapi::dal::kmeans::infer_result
 
 Operation
 ~~~~~~~~~

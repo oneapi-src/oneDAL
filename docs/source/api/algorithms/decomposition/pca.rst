@@ -40,19 +40,19 @@ All types and functions in this section are declared in the
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::pca::v1::descriptor
+.. onedal_class:: oneapi::dal::pca::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::pca::method::v1
+.. onedal_tags_namespace:: oneapi::dal::pca::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::pca::task::v1
+.. onedal_tags_namespace:: oneapi::dal::pca::task
 
 Model
 -----
-.. onedal_class:: oneapi::dal::pca::v1::model
+.. onedal_class:: oneapi::dal::pca::model
 
 
 .. _pca_t_api:
@@ -63,14 +63,14 @@ Training :cpp:expr:`train(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::train_input
+.. onedal_class:: oneapi::dal::pca::train_input
 
 
 .. _pca_t_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::train_result
+.. onedal_class:: oneapi::dal::pca::train_result
 
 Operation
 ~~~~~~~~~
@@ -104,14 +104,14 @@ Inference :cpp:expr:`infer(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::infer_input
+.. onedal_class:: oneapi::dal::pca::infer_input
 
 
 .. _pca_i_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::infer_result
+.. onedal_class:: oneapi::dal::pca::infer_result
 
 Operation
 ~~~~~~~~~

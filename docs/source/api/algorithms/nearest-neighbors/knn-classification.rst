@@ -40,19 +40,19 @@ All types and functions in this section are declared in the
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::knn::v1::descriptor
+.. onedal_class:: oneapi::dal::knn::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::knn::method::v1
+.. onedal_tags_namespace:: oneapi::dal::knn::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::knn::task::v1
+.. onedal_tags_namespace:: oneapi::dal::knn::task
 
 Model
 -----
-.. onedal_class:: oneapi::dal::knn::v1::model
+.. onedal_class:: oneapi::dal::knn::model
 
 
 .. _knn_t_api:
@@ -63,14 +63,14 @@ Training :cpp:expr:`train(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::train_input
+.. onedal_class:: oneapi::dal::knn::train_input
 
 
 .. _knn_t_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::train_result
+.. onedal_class:: oneapi::dal::knn::train_result
 
 Operation
 ~~~~~~~~~
@@ -98,14 +98,14 @@ Inference :cpp:expr:`infer(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::infer_input
+.. onedal_class:: oneapi::dal::knn::infer_input
 
 
 .. _knn_i_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::infer_result
+.. onedal_class:: oneapi::dal::knn::infer_result
 
 Operation
 ~~~~~~~~~

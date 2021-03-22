@@ -39,15 +39,15 @@ All types and functions in this section are declared in the
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::rbf_kernel::v1::descriptor
+.. onedal_class:: oneapi::dal::rbf_kernel::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::rbf_kernel::method::v1
+.. onedal_tags_namespace:: oneapi::dal::rbf_kernel::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::rbf_kernel::task::v1
+.. onedal_tags_namespace:: oneapi::dal::rbf_kernel::task
 
 .. _rbf_kernel_c_api:
 
@@ -57,14 +57,14 @@ Training :expr:`compute(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::rbf_kernel::v1::compute_input
+.. onedal_class:: oneapi::dal::rbf_kernel::compute_input
 
 
 .. _rbf_kernel_c_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::rbf_kernel::v1::compute_result
+.. onedal_class:: oneapi::dal::rbf_kernel::compute_result
 
 Operation
 ~~~~~~~~~

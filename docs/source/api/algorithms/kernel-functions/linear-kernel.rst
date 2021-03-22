@@ -39,15 +39,15 @@ All types and functions in this section are declared in the
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::linear_kernel::v1::descriptor
+.. onedal_class:: oneapi::dal::linear_kernel::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::linear_kernel::method::v1
+.. onedal_tags_namespace:: oneapi::dal::linear_kernel::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::linear_kernel::task::v1
+.. onedal_tags_namespace:: oneapi::dal::linear_kernel::task
 
 .. _linear_kernel_c_api:
 
@@ -57,14 +57,14 @@ Training :expr:`compute(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::linear_kernel::v1::compute_input
+.. onedal_class:: oneapi::dal::linear_kernel::compute_input
 
 
 .. _linear_kernel_c_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::linear_kernel::v1::compute_result
+.. onedal_class:: oneapi::dal::linear_kernel::compute_result
 
 Operation
 ~~~~~~~~~
