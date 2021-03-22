@@ -23,11 +23,7 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 kernel_function sorting normalization optimization_solver objective_function decision_tree             \
                 dtrees/gbt dtrees/forest linear_regression ridge_regression naivebayes stump adaboost brownboost       \
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
-<<<<<<< HEAD
-                coordinate_descent jaccard subgraph_isomorphism
-=======
-                coordinate_descent jaccard triangle_counting
->>>>>>> origin/master
+                coordinate_descent jaccard triangle_counting subgraph_isomorphism
 
 low_order_moments +=
 quantiles +=
