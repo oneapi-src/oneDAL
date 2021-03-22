@@ -44,9 +44,11 @@ inline std::uint64_t inv_bits(std::uint64_t x) {
     return x ^ (-(x >> 63) | 0x8000000000000000ul);
 }
 
-const std::uint32_t radix_bits = 4;
+constexpr std::uint32_t radix_bits = 4;
+constexpr std::uint32_t radix_range = (std::uint32_t)1 << radix_bits;
+constexpr std::uint32_t radix_range_1 = radix_range - 1;
 
-template <typename Float, typename RadixIntType, typename IndexType>
+template <typename Float, typename RadixInteger, typename IndexType>
 static sycl::event radix_scan(sycl::queue& queue,
                               const ndview<Float, 1>& val,
                               ndarray<IndexType, 1>& part_hist,
@@ -60,8 +62,8 @@ static sycl::event radix_scan(sycl::queue& queue,
     sycl::range<1> local(local_size);
     sycl::nd_range<1> nd_range(global, local);
 
-    const RadixIntType* val_ptr =
-        static_cast<const RadixIntType*>(static_cast<const void*>(val.get_data()));
+    const RadixInteger* val_ptr =
+        static_cast<const RadixInteger*>(static_cast<const void*>(val.get_data()));
     IndexType* part_hist_ptr = part_hist.get_mutable_data();
 
     auto event = queue.submit([&](cl::sycl::handler& cgh) {
@@ -88,15 +90,13 @@ static sycl::event radix_scan(sycl::queue& queue,
                 ind_end = elem_count;
             }
 
-            IndexType offset[(std::uint32_t)1 << radix_bits];
-            const std::uint32_t radix_range = (std::uint32_t)1 << radix_bits;
-            const std::uint32_t radix_range_1 = radix_range - 1;
+            IndexType offset[radix_range];
             for (std::uint32_t i = 0; i < radix_range; i++) {
                 offset[i] = 0;
             }
 
             for (IndexType i = ind_start + local_id; i < ind_end; i += local_size) {
-                RadixIntType data_bits = ((inv_bits(val_ptr[i]) >> bit_offset) & radix_range_1);
+                RadixInteger data_bits = ((inv_bits(val_ptr[i]) >> bit_offset) & radix_range_1);
                 for (std::uint32_t j = 0; j < radix_range; j++) {
                     IndexType value = static_cast<IndexType>(data_bits == j);
                     IndexType partial_offset =
@@ -116,7 +116,7 @@ static sycl::event radix_scan(sycl::queue& queue,
     return event;
 }
 
-template <typename RadixIntType, typename IndexType>
+template <typename RadixInteger, typename IndexType>
 static sycl::event radix_hist_scan(sycl::queue& queue,
                                    const ndarray<IndexType, 1>& part_hist,
                                    ndarray<IndexType, 1>& part_prefix_hist,
@@ -142,8 +142,7 @@ static sycl::event radix_hist_scan(sycl::queue& queue,
             const std::uint32_t local_size = sbg.get_local_range()[0];
             const std::uint32_t local_id = sbg.get_local_id()[0];
 
-            IndexType offset[(std::uint32_t)1 << radix_bits];
-            const std::uint32_t radix_range = (std::uint32_t)1 << radix_bits;
+            IndexType offset[radix_range];
             for (std::uint32_t i = 0; i < radix_range; i++) {
                 offset[i] = 0;
             }
@@ -175,7 +174,7 @@ static sycl::event radix_hist_scan(sycl::queue& queue,
     return event;
 }
 
-template <typename Float, typename RadixIntType, typename IndexType>
+template <typename Float, typename RadixInteger, typename IndexType>
 static sycl::event radix_reorder(sycl::queue& queue,
                                  const ndview<Float, 1>& val_in,
                                  const ndview<IndexType, 1>& ind_in,
@@ -190,12 +189,12 @@ static sycl::event radix_reorder(sycl::queue& queue,
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count() == val_out.get_count() ==
                   ind_out.get_count());
 
-    const RadixIntType* val_in_ptr =
-        static_cast<const RadixIntType*>(static_cast<const void*>(val_in.get_data()));
+    const RadixInteger* val_in_ptr =
+        static_cast<const RadixInteger*>(static_cast<const void*>(val_in.get_data()));
     const IndexType* ind_in_ptr = ind_in.get_data();
     const IndexType* part_prefix_hist_ptr = part_prefix_hist.get_data();
-    RadixIntType* val_out_ptr =
-        static_cast<RadixIntType*>(static_cast<void*>(val_out.get_mutable_data()));
+    RadixInteger* val_out_ptr =
+        static_cast<RadixInteger*>(static_cast<void*>(val_out.get_mutable_data()));
     IndexType* ind_out_ptr = ind_out.get_mutable_data();
 
     sycl::range<1> global(local_size * local_hist_count);
@@ -227,10 +226,7 @@ static sycl::event radix_reorder(sycl::queue& queue,
                 ind_end = elem_count;
             }
 
-            IndexType offset[(std::uint32_t)1 << radix_bits];
-
-            const std::uint32_t radix_range = (std::uint32_t)1 << radix_bits;
-            const std::uint32_t radix_range_1 = radix_range - 1;
+            IndexType offset[radix_range];
 
             for (std::uint32_t i = 0; i < radix_range; i++) {
                 offset[i] = part_prefix_hist_ptr[group_id * radix_range + i] +
@@ -238,8 +234,8 @@ static sycl::event radix_reorder(sycl::queue& queue,
             }
 
             for (IndexType i = ind_start + local_id; i < ind_end; i += local_size) {
-                RadixIntType data_value = val_in_ptr[i];
-                RadixIntType data_bits = ((inv_bits(data_value) >> bit_offset) & radix_range_1);
+                RadixInteger data_value = val_in_ptr[i];
+                RadixInteger data_bits = ((inv_bits(data_value) >> bit_offset) & radix_range_1);
                 IndexType pos_new = 0;
                 for (std::uint32_t j = 0; j < radix_range; j++) {
                     IndexType value = static_cast<IndexType>(data_bits == j);
@@ -363,24 +359,28 @@ sycl::event radix_sort_indices_inplace(sycl::queue& queue,
     return sycl::event();
 }
 
-template <typename IntType>
+template <typename Integer>
 sycl::event radix_sort(sycl::queue& queue,
-                       ndview<IntType, 2>& val_in,
-                       ndview<IntType, 2>& val_out,
-                       ndview<IntType, 2>& buffer,
+                       ndview<Integer, 2>& val_in,
+                       ndview<Integer, 2>& val_out,
+                       ndview<Integer, 2>& buffer,
                        std::uint32_t sorted_elem_count,
                        const event_vector& deps) {
-    const std::uint32_t preferable_wg_size = 32;
-    const std::uint32_t expected_buffer_size_for_one_vector = 256;
+    constexpr std::uint32_t preferable_wg_size = 32;
+    constexpr std::uint32_t expected_buffer_size_for_one_vector = 256;
+    // radixBuf should be big enough to accumulate radix_range elements
+    constexpr std::uint32_t radix_range = expected_buffer_size_for_one_vector;
+    constexpr std::uint32_t radix_count = sizeof(Integer);
 
-    ONEDAL_ASSERT(val_in.get_dimension(0) == val_out.get_dimension(0) == buffer.get_dimension(0));
+    ONEDAL_ASSERT(val_in.get_dimension(0) == val_out.get_dimension(0));
+    ONEDAL_ASSERT(val_out.get_dimension(0) == buffer.get_dimension(0));
     ONEDAL_ASSERT(val_in.get_dimension(1) == val_out.get_dimension(1));
     ONEDAL_ASSERT(buffer.get_dimension(1) == expected_buffer_size_for_one_vector);
     ONEDAL_ASSERT(sorted_elem_count > 0);
 
-    IntType* labels = val_in.get_mutable_data();
-    IntType* sorted = val_out.get_mutable_data();
-    IntType* radixbuf = buffer.get_mutable_data();
+    Integer* labels = val_in.get_mutable_data();
+    Integer* sorted = val_out.get_mutable_data();
+    Integer* radixbuf = buffer.get_mutable_data();
 
     const std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val_in.get_dimension(0));
     const std::uint32_t vector_offset = de::integral_cast<std::uint32_t>(val_in.get_dimension(1));
@@ -406,13 +406,10 @@ sycl::event radix_sort(sycl::queue& queue,
             const std::uint32_t group_aligned_size =
                 sorted_elem_count - sorted_elem_count % local_size;
             const std::uint32_t rem = sorted_elem_count - group_aligned_size;
-            // radixBuf should be big enough to accumulate radix_range elements
-            const std::uint32_t radix_range = expected_buffer_size_for_one_vector;
 
-            const std::uint32_t radix_count = sizeof(IntType);
-            IntType* input = &labels[global_id * vector_offset];
-            IntType* output = &sorted[global_id * vector_offset];
-            IntType* counters = &radixbuf[global_id * radix_range];
+            Integer* input = &labels[global_id * vector_offset];
+            Integer* output = &sorted[global_id * vector_offset];
+            Integer* counters = &radixbuf[global_id * radix_range];
             //  Radix sort
             for (std::uint32_t i = 0; i < radix_count; i++) {
                 std::uint8_t* cinput = static_cast<std::uint8_t*>(static_cast<void*>(input));
@@ -435,10 +432,10 @@ sycl::event radix_sort(sycl::queue& queue,
                             entry = k;
                             entry_found = true;
                         }
-                        IntType count =
+                        Integer count =
                             sycl::ONEAPI::reduce(sbg,
-                                                 static_cast<IntType>(exists && value == c ? 1 : 0),
-                                                 cl::sycl::ONEAPI::plus<IntType>());
+                                                 static_cast<Integer>(exists && value == c ? 1 : 0),
+                                                 cl::sycl::ONEAPI::plus<Integer>());
                         if (entry_found && entry == local_id && entry == k) {
                             counters[value] += count;
                         }
@@ -446,14 +443,14 @@ sycl::event radix_sort(sycl::queue& queue,
                     sbg.barrier();
                 }
                 //  Parallel scan on counters to generate offsets in place
-                IntType offset = 0;
+                Integer offset = 0;
                 for (std::uint32_t j = local_id; j < radix_range; j += local_size) {
-                    IntType value = counters[j];
-                    IntType boundary =
-                        sycl::ONEAPI::exclusive_scan(sbg, value, cl::sycl::ONEAPI::plus<IntType>());
+                    Integer value = counters[j];
+                    Integer boundary =
+                        sycl::ONEAPI::exclusive_scan(sbg, value, cl::sycl::ONEAPI::plus<Integer>());
                     counters[j] = offset + boundary;
-                    IntType partial_offset =
-                        sycl::ONEAPI::reduce(sbg, value, cl::sycl::ONEAPI::plus<IntType>());
+                    Integer partial_offset =
+                        sycl::ONEAPI::reduce(sbg, value, cl::sycl::ONEAPI::plus<Integer>());
                     offset += partial_offset;
                 }
 
@@ -462,7 +459,7 @@ sycl::event radix_sort(sycl::queue& queue,
                      j += local_size) {
                     bool exists = j < group_aligned_size || local_id < rem;
                     std::uint8_t c = exists ? cinput[j * radix_count + i] : 0;
-                    IntType local_offset = 0;
+                    Integer local_offset = 0;
                     std::uint32_t entry = 0;
                     bool entry_found = false;
 
@@ -479,17 +476,17 @@ sycl::event radix_sort(sycl::queue& queue,
                             entry = k;
                             entry_found = true;
                         }
-                        IntType offset = sycl::ONEAPI::exclusive_scan(
+                        Integer offset = sycl::ONEAPI::exclusive_scan(
                             sbg,
-                            static_cast<IntType>(exists && value == c ? 1 : 0),
-                            cl::sycl::ONEAPI::plus<IntType>());
+                            static_cast<Integer>(exists && value == c ? 1 : 0),
+                            cl::sycl::ONEAPI::plus<Integer>());
                         if (value == c) {
                             local_offset = offset + counters[value];
                         }
-                        IntType count =
+                        Integer count =
                             sycl::ONEAPI::reduce(sbg,
-                                                 static_cast<IntType>(exists && value == c ? 1 : 0),
-                                                 cl::sycl::ONEAPI::plus<IntType>());
+                                                 static_cast<Integer>(exists && value == c ? 1 : 0),
+                                                 cl::sycl::ONEAPI::plus<Integer>());
                         if (entry_found && entry == local_id && entry == k) {
                             counters[value] += count;
                         }
