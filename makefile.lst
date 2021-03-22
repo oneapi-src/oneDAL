@@ -41,7 +41,7 @@ em += covariance engines distributions
 outlierdetection_bacon +=
 outlierdetection_multivariate +=
 outlierdetection_univariate +=
-kernel_function +=
+kernel_function += kernel_function/polynomial
 sorting +=
 normalization += normalization/minmax normalization/zscore normalization/zscore/inner low_order_moments
 optimization_solver += optimization_solver/adagrad optimization_solver/adagrad/inner optimization_solver/lbfgs optimization_solver/lbfgs/inner optimization_solver/sgd optimization_solver/sgd/inner optimization_solver/saga optimization_solver/saga/inner optimization_solver/inner optimization_solver/coordinate_descent objective_function engines distributions
@@ -104,6 +104,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     em                                                                        \
     implicit_als                                                              \
     kernel_function                                                           \
+    kernel_function/polynomial                                                \
     kmeans/inner                                                              \
     kmeans                                                                    \
     k_nearest_neighbors                                                       \
@@ -230,20 +231,22 @@ ONEAPI.ALGOS.kmeans_init := CORE.kmeans
 ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
 ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
 ONEAPI.ALGOS.pca           := CORE.pca
+ONEAPI.ALGOS.polynomial_kernel := CORE.kernel_function
 ONEAPI.ALGOS.rbf_kernel    := CORE.kernel_function
 ONEAPI.ALGOS.svm           := CORE.svm
 
 # List of algorithms in oneAPI part
-ONEAPI.ALGOS :=     \
-    decision_forest \
-    kmeans          \
-    kmeans_init     \
-    knn             \
-    linear_kernel   \
-    pca             \
-    rbf_kernel      \
-    svm             \
-    jaccard         \
+ONEAPI.ALGOS :=       \
+    decision_forest   \
+    kmeans            \
+    kmeans_init       \
+    knn               \
+    linear_kernel     \
+    pca               \
+    polynomial_kernel \
+    rbf_kernel        \
+    svm               \
+    jaccard           \
     triangle_counting
 
 ONEAPI.IO :=     \

@@ -30,7 +30,9 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
+namespace daal_kenrel = daal::algorithms::kernel_function;
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
+namespace daal_kernel_internal = daal::algorithms::kernel_function::internal;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
@@ -53,14 +55,17 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const auto daal_values =
         interop::convert_to_daal_homogen_table(arr_values, row_count_x, row_count_y);
 
-    daal_rbf_kernel::Parameter daal_parameter(desc.get_sigma());
+    daal_kernel_internal::KernelParameter kernel_parameter;
+    kernel_parameter.computationMode = daal_kenrel::ComputationMode::matrixMatrix;
+    kernel_parameter.sigma = desc.get_sigma();
+    kernel_parameter.kernelType = daal_kernel_internal::KernelType::rbf;
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_rbf_kernel_t>(ctx,
                                                             daal_x.get(),
                                                             daal_y.get(),
                                                             daal_values.get(),
-                                                            &daal_parameter));
+                                                            &kernel_parameter));
 
     return result_t().set_values(
         dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());

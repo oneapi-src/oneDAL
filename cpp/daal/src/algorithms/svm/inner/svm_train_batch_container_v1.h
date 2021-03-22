@@ -68,21 +68,20 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    const svm::interface1::Parameter * const par1 = static_cast<svm::interface1::Parameter *>(_par);
-    svm::interface2::Parameter par2;
+    const svm::interface1::Parameter * const par = static_cast<svm::interface1::Parameter *>(_par);
 
-    par2.nClasses          = par1->nClasses;
-    par2.C                 = par1->C;
-    par2.accuracyThreshold = par1->accuracyThreshold;
-    par2.tau               = par1->tau;
-    par2.maxIterations     = par1->maxIterations;
-    par2.kernel            = par1->kernel;
-    par2.shrinkingStep     = par1->shrinkingStep;
-    par2.doShrinking       = par1->doShrinking;
-    par2.cacheSize         = par1->cacheSize;
+    internal::KernelParameter kernelPar;
+    kernelPar.C                 = par->C;
+    kernelPar.accuracyThreshold = par->accuracyThreshold;
+    kernelPar.tau               = par->tau;
+    kernelPar.maxIterations     = par->maxIterations;
+    kernelPar.kernel            = par->kernel;
+    kernelPar.shrinkingStep     = par->shrinkingStep;
+    kernelPar.doShrinking       = par->doShrinking;
+    kernelPar.cacheSize         = par->cacheSize;
 
     services::Environment::env & env = *_env;
-    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, &par2);
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
 }
 } // namespace interface1
 } // namespace training

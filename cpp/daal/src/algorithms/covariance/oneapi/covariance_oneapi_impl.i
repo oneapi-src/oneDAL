@@ -381,7 +381,7 @@ services::Status calculateCrossProductAndSums(NumericTable * dataTable, const se
     const bool isNormalized = dataTable->isNormalized(NumericTableIface::standardScoreNormalized);
 
     BlockDescriptor<algorithmFPType> dataBlock;
-    status |= dataTable->getBlockOfRows(0, nVectors, readWrite, dataBlock);
+    status |= dataTable->getBlockOfRows(0, nVectors, readOnly, dataBlock);
     DAAL_CHECK_STATUS_VAR(status);
 
     status |= prepareSums<algorithmFPType, method>(dataTable, sums);
