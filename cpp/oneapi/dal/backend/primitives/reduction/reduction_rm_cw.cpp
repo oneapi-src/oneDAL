@@ -36,7 +36,6 @@ class kernel_reduction_rm_cw_inplace {
 public:
     kernel_reduction_rm_cw_inplace(inp_t const input_,
                                    out_t const output_,
-                                   const std::int32_t width_,
                                    const std::int64_t height_,
                                    const std::int32_t lstride_,
                                    const BinaryOp binary_,
@@ -45,7 +44,6 @@ public:
               output{ output_ },
               unary{ unary_ },
               binary{ binary_ },
-              width{ width_ },
               height{ height_ },
               lstride{ lstride_ } {}
 
@@ -71,7 +69,6 @@ private:
     out_t const output;
     const UnaryOp unary;
     const BinaryOp binary;
-    const std::int32_t width;
     const std::int64_t height;
     const std::int32_t lstride;
 };
@@ -101,7 +98,7 @@ sycl::event reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::operator()(
     auto event = q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(width);
-        const auto kernel = get_kernel(input, output, width, height, stride, binary, unary);
+        const auto kernel = get_kernel(input, output, height, stride, binary, unary);
         h.parallel_for<kernel_t>(range, kernel);
     });
     return event;
@@ -131,12 +128,11 @@ template <class Float, class BinaryOp, class UnaryOp>
 typename reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::kernel_t
 reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
                                                               Float* output,
-                                                              const std::int64_t width,
                                                               const std::int64_t height,
                                                               const std::int64_t stride,
                                                               const BinaryOp binary,
                                                               const UnaryOp unary) {
-    return kernel_t(input, output, width, height, stride, binary, unary);
+    return kernel_t(input, output, height, stride, binary, unary);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_cw_inplace<F, B, U>;
@@ -160,6 +156,53 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE_FLOAT
 
 #undef INSTANTIATE
+
+template <class Float, class BinaryOp, class UnaryOp>
+class kernel_reduction_rm_cw_inplace_local {
+    typedef const Float* inp_t;
+    typedef Float* out_t;
+
+public:
+    kernel_reduction_rm_cw_inplace_local(inp_t const input_,
+                                         out_t const output_,
+                                         const std::int64_t height_,
+                                         const std::int32_t lstride_,
+                                         const BinaryOp binary_,
+                                         const UnaryOp unary_)
+            : input{ input_ },
+              output{ output_ },
+              unary{ unary_ },
+              binary{ binary_ },
+              height{ height_ },
+              lstride{ lstride_ },
+              cache{sycl::range } {}
+
+    void operator()(sycl::nd_item<2> it) const {
+        using sycl::ONEAPI::reduce;
+        // Common for whole WG
+        const auto col_idx = it.get_global_id(0);
+        const auto loc_idx = it.get_global_id(1);
+        const auto range = it.get_global_range(1);
+        // Exclusive for EU
+        Float acc = binary.init_value;
+        for (std::int64_t i = loc_idx; i < height; i += range) {
+            inp_t const inp_row = input + lstride * i;
+            acc = binary.native(acc, unary(inp_row[col_idx]));
+        }
+        // WG reduction
+        auto grp = it.get_group();
+        output[col_idx] = reduce(grp, acc, binary.native);
+    }
+
+private:
+    inp_t const input;
+    out_t const output;
+    const UnaryOp unary;
+    const BinaryOp binary;
+    const std::int64_t height;
+    const std::int32_t lstride;
+    sycl::local_accessor<Float> cache;
+};
 
 template <class Float, class BinaryOp, class UnaryOp>
 reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_rm_cw(sycl::queue& q_) : q{ q_ } {};
