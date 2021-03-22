@@ -44,9 +44,9 @@ inline std::uint64_t inv_bits(std::uint64_t x) {
     return x ^ (-(x >> 63) | 0x8000000000000000ul);
 }
 
-constexpr std::uint32_t radix_bits = 4;
-constexpr std::uint32_t radix_range = (std::uint32_t)1 << radix_bits;
-constexpr std::uint32_t radix_range_1 = radix_range - 1;
+constexpr inline std::uint32_t radix_bits = 4;
+constexpr inline std::uint32_t radix_range = (std::uint32_t)1 << radix_bits;
+constexpr inline std::uint32_t radix_range_1 = radix_range - 1;
 
 template <typename Float, typename RadixInteger, typename IndexType>
 static sycl::event radix_scan(sycl::queue& queue,
