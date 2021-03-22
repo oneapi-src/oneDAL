@@ -35,7 +35,7 @@ Training
 
 Given :math:`n` feature vectors :math:`X=\{x_1=(x_{11},\ldots,x_{1p}),\ldots,
 x_n=(x_{n1},\ldots,x_{np})\}` of size :math:`p`,
-their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}`
+their non-negative observation weights :math:`W=\{w_1,\ldots,w_n\}`,
 and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`,
 
 .. tabs::
