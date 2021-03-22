@@ -68,49 +68,34 @@ int main(int argc, char **argv) {
     auto read_args = csv::read_args<graph_t, Mallocator<char>>{ mallocator }.set_read_mode(
         preview::read_mode::edge_list);
 
-    auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
-        csv::data_source{ filename },
-        std::move(read_args));
-
-    auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
-        csv::data_source{ filename },
-        mallocator,
-        read_mode::edge_list);
-
-    // read(ds, my_input);
-    // read(ds, dataset, my_input_param_value)->read(ds, input{ dataset, my_input_param_value });
-
-    // input == read_args;
-
-    // auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
-
-    // auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
-    //     csv::data_source{ filename },
-    //     mallocator);
-
-    // auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
-    //     csv::data_source{ filename },
-    //     mallocator,
-    //     read_mode::edge_list);
-
-    // auto graph = read<graph_t>(csv::data_source{ filename }, read_mode::edge_list);
-
-    auto graph = read<graph_t>(csv::data_source{ filename });
-
-    std::cout << "Number of vertices: " << preview::get_vertex_count(graph) << std::endl;
-    std::cout << "Number of edges: " << preview::get_edge_count(graph) << std::endl;
-
-    preview::vertex_type<graph_t> vertex_id = 0;
-    std::cout << "Degree of " << vertex_id << ": " << preview::get_vertex_degree(graph, vertex_id)
-              << std::endl;
-
-    for (preview::vertex_size_type<graph_t> i = 0; i < preview::get_vertex_count(graph); ++i) {
-        std::cout << "Neighbors of " << i << ": ";
-        const auto neigh = preview::get_vertex_neighbors(graph, i);
-        for (auto u = neigh.first; u != neigh.second; ++u) {
-            std::cout << *u << " ";
-        }
-        std::cout << std::endl;
+    {
+        auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
+            csv::data_source{ filename },
+            std::move(read_args));
     }
+    // {
+    //     auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
+    //         csv::data_source{ filename },
+    //         mallocator,
+    //         read_mode::edge_list);
+    // }
+
+    // auto graph = read<graph_t>(csv::data_source{ filename });
+
+    // std::cout << "Number of vertices: " << preview::get_vertex_count(graph) << std::endl;
+    // std::cout << "Number of edges: " << preview::get_edge_count(graph) << std::endl;
+
+    // preview::vertex_type<graph_t> vertex_id = 0;
+    // std::cout << "Degree of " << vertex_id << ": " << preview::get_vertex_degree(graph, vertex_id)
+    //           << std::endl;
+
+    // for (preview::vertex_size_type<graph_t> i = 0; i < preview::get_vertex_count(graph); ++i) {
+    //     std::cout << "Neighbors of " << i << ": ";
+    //     const auto neigh = preview::get_vertex_neighbors(graph, i);
+    //     for (auto u = neigh.first; u != neigh.second; ++u) {
+    //         std::cout << *u << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
     return 0;
 }
