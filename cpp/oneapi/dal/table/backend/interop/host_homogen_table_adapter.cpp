@@ -57,22 +57,6 @@ static void convert_feature_information_to_daal(const table_metadata& src,
     }
 }
 
-template <typename Accessor, typename BlockData, typename... Args>
-static void pull_values(daal_dm::BlockDescriptor<BlockData>& block,
-                        std::int64_t row_count,
-                        std::int64_t column_count,
-                        const Accessor& acc,
-                        array<BlockData>& values,
-                        Args&&... args) {
-    // The following const_cast operation is safe only when this class is used
-    // for read-only operations. Use on write leads to undefined behaviour.
-    if (block.getBlockPtr() != acc.pull(values, std::forward<Args>(args)...)) {
-        auto raw_ptr = const_cast<BlockData*>(values.get_data());
-        auto data_shared = daal::services::SharedPtr<BlockData>(raw_ptr, daal_object_owner(values));
-        block.setSharedPtr(data_shared, column_count, row_count);
-    }
-}
-
 template <typename Data>
 auto host_homogen_table_adapter<Data>::create(const homogen_table& table) -> ptr_t {
     status_t internal_stat;
@@ -81,11 +65,15 @@ auto host_homogen_table_adapter<Data>::create(const homogen_table& table) -> ptr
     return result;
 }
 
+// TODO: change 'equal' flags across this constructor after implemeting the method
+// of features equality defining for table_metadata class.
 template <typename Data>
 host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table& table,
                                                              status_t& stat)
         : NumericTable(dal::detail::integral_cast<std::size_t>(table.get_column_count()),
-                       dal::detail::integral_cast<std::size_t>(table.get_row_count())),
+                       dal::detail::integral_cast<std::size_t>(table.get_row_count()),
+                       daal_dm::DictionaryIface::equal,
+                       stat),
           original_table_(table) {
     // The following const_cast is safe only when this class is used for read-only
     // operations. Use on write leads to undefined behaviour.
@@ -104,12 +92,11 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
     const std::size_t row_count = dal::detail::integral_cast<std::size_t>(table.get_row_count());
 
     if (table.get_data_layout() == data_layout::row_major) {
-        base_ = daal_dm::HomogenNumericTable<Data>::create(
-            daal_dm::DictionaryIface::equal,
-            ptr_data_t{ original_data, daal_object_owner(table) },
-            column_count,
-            row_count,
-            &stat);
+        base_ = daal_dm::HomogenNumericTable<Data>::create(daal_dm::DictionaryIface::equal,
+                                                           original_data,
+                                                           column_count,
+                                                           row_count,
+                                                           &stat);
 
         if (!stat.ok()) {
             return;
@@ -127,9 +114,7 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         }
 
         for (std::size_t i = 0; i < column_count; i++) {
-            stat |= base_soa->setArray<Data>(
-                ptr_data_t{ &original_data[i * row_count], daal_object_owner(table) },
-                i);
+            stat |= base_soa->setArray<Data>(&original_data[i * row_count], i);
 
             if (!stat.ok()) {
                 return;
