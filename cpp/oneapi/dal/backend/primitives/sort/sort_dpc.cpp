@@ -391,11 +391,11 @@ sycl::event radix_sort(sycl::queue& queue,
     const sycl::range<2> global(vector_count, preferable_wg_size);
     const sycl::range<2> local(1, preferable_wg_size);
 
-    const sycl::nd_range<2> nd_range2d(global, local);
+    const sycl::nd_range<2> nd_range(global, local);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             // Code is written for a single subgroup. It's necessary to adjust the local range if idle subgoups are presented
             if (sbg.get_group_id()[0] > 0) {
