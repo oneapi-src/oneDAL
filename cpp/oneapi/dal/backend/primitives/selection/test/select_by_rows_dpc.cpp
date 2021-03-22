@@ -80,11 +80,11 @@ public:
         auto k = selection.get_dimension(1);
         auto row_size = data.get_dimension(1);
         auto row_count = data.get_dimension(0);
-        auto data_ptr = data.get_data();
-//        auto selection_ptr = selection.get_data();
-//        auto indices_ptr = indices.get_data();
+//        auto data_ptr = data.get_data();
+        auto selection_ptr = selection.get_data();
+        auto indices_ptr = indices.get_data();
         for(int i = 0; i < row_size; i++)
-            std::cout << "res: " << i << " " <<  data_ptr[i] << std::endl;
+            std::cout << "res: " << i << " " <<  selection_ptr[i] << " " << indices_ptr[i] << std::endl;
 
         for (std::int64_t i = 0; i < row_count; i++) {
             auto max_val = std::numeric_limits<Float>::lowest();
@@ -150,6 +150,7 @@ public:
                                 std::int64_t row,
                                 std::int64_t pos,
                                 Float cur_val) {
+        CAPTURE(row, k, pos);
         if constexpr (indices_out && selection_out) {
             REQUIRE(selection.get_data()[row * k + pos] ==
                     data.get_data()[row * row_size + indices.get_data()[row * k + pos]]);
@@ -272,4 +273,18 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
     this->test_selection(data_array, rows, cols, k);
 }
 
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
+                     "selection test on random block (k > 32)",
+                     "[block select][small]",
+                     selection_types) {
+    using Float = TestType;
+    std::int64_t rows = 17;
+    std::int64_t cols = 35;
+    std::int64_t k = 33;
+    const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
+    const table df_table = df.get_table(this->get_homogen_table_id());
+    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    this->test_selection(data_array, rows, cols, k);
+}
 } // namespace oneapi::dal::backend::primitives::test

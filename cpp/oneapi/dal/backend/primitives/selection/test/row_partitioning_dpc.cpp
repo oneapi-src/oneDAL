@@ -63,11 +63,12 @@ public:
         auto nd_range2d = get_row_partitioning_range(row_count, col_count);
 
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
+            sycl::stream out(1024 * 8, 1024 * 8, cgh);
             cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
                 const int cur_row = item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
                 if(cur_row > row_count) return;
-                int cur_index = kernel_row_partitioning<Float>(item,
+                int cur_index = kernel_row_partitioning<Float>(out, item,
                                         data_tmp_ptr + col_count * cur_row,
                                         index_array_ptr + col_count * cur_row,
                                         start,
@@ -189,6 +190,23 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
     const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
     auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, start, end, pivot_index);
+}
+
+TEMPLATE_LIST_TEST_M(row_partitioning_test,
+                     "row partitioning test (end of single row)",
+                     "[row_partitioning][small]",
+                     partitioning_types) {
+    using Float = TestType;
+    std::int64_t rows = 1;
+    std::int64_t cols = 35;
+    std::int64_t start = 26;
+    std::int64_t pivot_index = start;
+
+    const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
+    const table df_table = df.get_table(this->get_homogen_table_id());
+    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    this->test_partitioning(data_array, start, cols, pivot_index);
 }
 
 
