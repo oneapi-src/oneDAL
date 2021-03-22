@@ -51,10 +51,6 @@ public:
             cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * col_count);
         });
         cpy_event.wait();
-//        for(int i = 0; i < col_count; i++)
-//            std::cout << "Org: " << data_ptr[i] << std::endl;
-//        for(int i = 0; i < row_count; i++)
-//            std::cout << i << " pivot: " << data_tmp_ptr[i * col_count + pivot_index] << std::endl;
 
         auto split_array = ndarray<int, 2>::empty(this->get_queue(), { row_count, 1 });
         auto index_array = ndarray<int, 2>::empty(this->get_queue(), { row_count, col_count });
@@ -67,15 +63,11 @@ public:
         auto nd_range2d = get_row_partitioning_range(row_count, col_count);
 
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
-//            sycl::stream out(1024 * 32, 1024 * 32, cgh);
             cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
                 const int cur_row = item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
                 if(cur_row > row_count) return;
-//                out << "cur_row: " << cur_row << sycl::endl;
-
-                int cur_index = kernel_row_partitioning<Float>(/*out, */
-                                                item,
+                int cur_index = kernel_row_partitioning<Float>(item,
                                         data_tmp_ptr + col_count * cur_row,
                                         index_array_ptr + col_count * cur_row,
                                         start,
@@ -85,18 +77,7 @@ public:
                     split_array_ptr[cur_row] = cur_index;
             });
         });
-//        std::cout << "Submission done" << std::endl;
         event.wait();
-/*        for(int i = 0; i < col_count; i++)
-            std::cout << "Org2: " << data_ptr[i] << std::endl;
-        for(int j = 0; j < row_count; j++) {
-            std::cout << "Split: " << split_array_ptr[j] << std::endl;
-            std::cout << "Data: ";
-            for(int i = 0; i < col_count; i++)
-                std::cout << "data: " << i << " " << data_ptr[j * col_count + i] << " " << data_tmp.get_data()[j * col_count + i] 
-                        << " " << index_array_ptr[j * col_count + i] << std::endl;;
-            std::cout << std::endl;
-        }*/
         check_results(data_tmp, data, index_array, split_array, start, end, pivot_index);
     }
 

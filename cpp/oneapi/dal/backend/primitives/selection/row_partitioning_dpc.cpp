@@ -32,7 +32,7 @@ sycl::nd_range<2> get_row_partitioning_range(std::int64_t row_count, std::int64_
 }
 
 template<typename Float>
-int kernel_row_partitioning(/*const sycl::stream& out,*/ sycl::nd_item<2> item,
+int kernel_row_partitioning(sycl::nd_item<2> item,
                                            Float* values,
                                            int* indices,
                                            int partition_start,
@@ -110,7 +110,6 @@ int kernel_row_partitioning(/*const sycl::stream& out,*/ sycl::nd_item<2> item,
 
 #define INSTANTIATE(F)                                          \
     template int kernel_row_partitioning<F>( \
-                            /*const sycl::stream& out,*/ \
                             sycl::nd_item<2> item, \
                             F* values, \
                             int* indices, \
