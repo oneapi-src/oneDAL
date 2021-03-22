@@ -58,9 +58,9 @@ static sycl::event radix_scan(sycl::queue& queue,
                               std::int64_t local_hist_count) {
     ONEDAL_ASSERT(part_hist.get_count() == ((local_hist_count + 1) << radix_bits));
 
-    sycl::range<1> global(local_size * local_hist_count);
-    sycl::range<1> local(local_size);
-    sycl::nd_range<1> nd_range(global, local);
+    const sycl::range<1> global(local_size * local_hist_count);
+    const sycl::range<1> local(local_size);
+    const sycl::nd_range<1> nd_range(global, local);
 
     const RadixInteger* val_ptr =
         static_cast<const RadixInteger*>(static_cast<const void*>(val.get_data()));
@@ -128,9 +128,9 @@ static sycl::event radix_hist_scan(sycl::queue& queue,
     const IndexType* part_hist_ptr = part_hist.get_data();
     IndexType* part_prefix_hist_ptr = part_prefix_hist.get_mutable_data();
 
-    sycl::range<1> global(local_size);
-    sycl::range<1> local(local_size);
-    sycl::nd_range<1> nd_range(global, local);
+    const sycl::range<1> global(local_size);
+    const sycl::range<1> local(local_size);
+    const sycl::nd_range<1> nd_range(global, local);
 
     auto event = queue.submit([&](cl::sycl::handler& cgh) {
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -186,8 +186,9 @@ static sycl::event radix_reorder(sycl::queue& queue,
                                  std::int64_t local_size,
                                  std::int64_t local_hist_count) {
     ONEDAL_ASSERT(part_hist.get_count() == ((local_hist_count + 1) << radix_bits));
-    ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count() == val_out.get_count() ==
-                  ind_out.get_count());
+    ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
+    ONEDAL_ASSERT(val_in.get_count() == val_out.get_count());
+    ONEDAL_ASSERT(val_in.get_count() == ind_out.get_count());
 
     const RadixInteger* val_in_ptr =
         static_cast<const RadixInteger*>(static_cast<const void*>(val_in.get_data()));
@@ -197,9 +198,9 @@ static sycl::event radix_reorder(sycl::queue& queue,
         static_cast<RadixInteger*>(static_cast<void*>(val_out.get_mutable_data()));
     IndexType* ind_out_ptr = ind_out.get_mutable_data();
 
-    sycl::range<1> global(local_size * local_hist_count);
-    sycl::range<1> local(local_size);
-    sycl::nd_range<1> nd_range(global, local);
+    const sycl::range<1> global(local_size * local_hist_count);
+    const sycl::range<1> local(local_size);
+    const sycl::nd_range<1> nd_range(global, local);
 
     auto event = queue.submit([&](cl::sycl::handler& cgh) {
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -387,10 +388,10 @@ sycl::event radix_sort(sycl::queue& queue,
     const std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val_in.get_dimension(0));
     const std::uint32_t vector_offset = de::integral_cast<std::uint32_t>(val_in.get_dimension(1));
 
-    sycl::range<2> global(vector_count, preferable_wg_size);
-    sycl::range<2> local(1, preferable_wg_size);
+    const sycl::range<2> global(vector_count, preferable_wg_size);
+    const sycl::range<2> local(1, preferable_wg_size);
 
-    sycl::nd_range<2> nd_range2d(global, local);
+    const sycl::nd_range<2> nd_range2d(global, local);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);

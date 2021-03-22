@@ -44,19 +44,19 @@ sycl::event radix_sort_indices_inplace(sycl::queue& queue,
 /// Performs radix sort of batch of integer input vectors
 /// NOTE: only positive values are supported for now
 ///
-/// @tparam IntType Integer type used for storing input values
+/// @tparam Integer Integer type used for storing input values
 ///
 /// @param[in]  queue The queue
 /// @param[in]  val_in The [n x p] input array of vectors (row major format) to sort out
 /// @param[out] val_out The [n x p] output array of sorted vectors
 /// @param[in]  buffer The [n x 256] array of auxiliary buffer
 /// @param[in]  sorted_elem_count The number of elements to sort in each vector
-template <typename IntType>
+template <typename Integer>
 sycl::event radix_sort(sycl::queue& queue,
-                       ndview<IntType, 2>& val_in,
-                       ndview<IntType, 2>& val_out,
-                       ndview<IntType, 2>& buffer,
-                       std::uint32_t sorted_elem_count,
+                       ndview<Integer, 2>& val_in,
+                       ndview<Integer, 2>& val_out,
+                       ndview<Integer, 2>& buffer,
+                       std::int64_t sorted_elem_count,
                        const event_vector& deps = {});
 
 #endif

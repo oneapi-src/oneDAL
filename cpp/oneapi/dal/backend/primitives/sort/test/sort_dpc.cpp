@@ -25,7 +25,7 @@ namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 namespace la = te::linalg;
-namespace dd = dal::detail;
+namespace de = dal::detail;
 
 template <typename TestType>
 class sort_with_indices_test : public te::policy_fixture {
@@ -50,7 +50,7 @@ public:
     }
 
     void fill_uniform(ndarray<Float, 1>& val, Float a, Float b, std::int64_t seed = 777) {
-        IndexType elem_count = dd::integral_cast<IndexType>(val.get_count());
+        IndexType elem_count = de::integral_cast<IndexType>(val.get_count());
         std::mt19937 rng(seed);
         std::uniform_real_distribution<Float> distr(a, b);
 
@@ -76,7 +76,7 @@ public:
 
     void check_sort(ndarray<Float, 1>& val, ndarray<IndexType, 1>& ind) {
         auto& q = this->get_queue();
-        IndexType elem_count = dd::integral_cast<IndexType>(val.get_count());
+        IndexType elem_count = de::integral_cast<IndexType>(val.get_count());
 
         auto val_buff = ndarray<Float, 1>::empty(q, { elem_count });
         auto ind_buff = ndarray<IndexType, 1>::empty(q, { elem_count });
@@ -116,27 +116,27 @@ public:
     }
 };
 
-template <typename IntType>
+template <typename Integer>
 class sort_test : public te::policy_fixture {
 public:
     auto allocate_arrays(std::int64_t vector_count, std::int64_t elem_count) {
         auto& q = this->get_queue();
-        auto val = ndarray<IntType, 2>::empty(q, { vector_count, elem_count });
+        auto val = ndarray<Integer, 2>::empty(q, { vector_count, elem_count });
 
         return val;
     }
 
-    void fill_uniform(ndarray<IntType, 2>& val,
+    void fill_uniform(ndarray<Integer, 2>& val,
                       std::int64_t a,
                       std::int64_t b,
                       std::int64_t seed = 777) {
-        std::uint32_t vector_count = dd::integral_cast<std::uint32_t>(val.get_dimension(0));
-        std::uint32_t elem_count = dd::integral_cast<std::uint32_t>(val.get_dimension(1));
+        std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val.get_dimension(0));
+        std::uint32_t elem_count = de::integral_cast<std::uint32_t>(val.get_dimension(1));
 
         std::mt19937 rng(seed);
-        std::uniform_int_distribution<IntType> distr(a, b);
+        std::uniform_int_distribution<Integer> distr(a, b);
 
-        IntType* val_ptr = val.get_mutable_data();
+        Integer* val_ptr = val.get_mutable_data();
         for (std::uint32_t vec = 0; vec < vector_count; vec++) {
             for (std::uint32_t el = 0; el < elem_count; el++) {
                 val_ptr[vec * elem_count + el] = distr(rng);
@@ -144,32 +144,32 @@ public:
         }
     }
 
-    void check_sort(ndarray<IntType, 2>& val, std::uint32_t sorted_elem_count) {
+    void check_sort(ndarray<Integer, 2>& val, std::int64_t sorted_elem_count) {
         auto& q = this->get_queue();
-        std::uint32_t vector_count = dd::integral_cast<std::uint32_t>(val.get_dimension(0));
-        std::uint32_t elem_count = dd::integral_cast<std::uint32_t>(val.get_dimension(1));
+        std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val.get_dimension(0));
+        std::uint32_t elem_count = de::integral_cast<std::uint32_t>(val.get_dimension(1));
 
         INFO("create reference");
         auto ref = create_reference(val, sorted_elem_count);
 
         INFO("allocate auxiliary buffers");
-        auto val_out = ndarray<IntType, 2>::empty(q, { vector_count, elem_count });
-        auto buffer = ndarray<IntType, 2>::empty(q, { vector_count, 256 });
+        auto val_out = ndarray<Integer, 2>::empty(q, { vector_count, elem_count });
+        auto buffer = ndarray<Integer, 2>::empty(q, { vector_count, 256 });
 
         INFO("run sort");
-        radix_sort<IntType>(this->get_queue(), val, val_out, buffer, sorted_elem_count)
+        radix_sort<Integer>(this->get_queue(), val, val_out, buffer, sorted_elem_count)
             .wait_and_throw();
 
         check_results(val_out, ref, sorted_elem_count);
     }
 
-    void check_results(const ndarray<IntType, 2>& val,
-                       const ndarray<IntType, 2>& ref,
+    void check_results(const ndarray<Integer, 2>& val,
+                       const ndarray<Integer, 2>& ref,
                        std::int64_t sorted_elem_count) {
-        std::uint32_t vector_count = dd::integral_cast<std::uint32_t>(val.get_dimension(0));
-        std::uint32_t elem_count = dd::integral_cast<std::uint32_t>(val.get_dimension(1));
-        const IntType* val_ptr = val.get_data();
-        const IntType* ref_ptr = ref.get_data();
+        std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val.get_dimension(0));
+        std::uint32_t elem_count = de::integral_cast<std::uint32_t>(val.get_dimension(1));
+        const Integer* val_ptr = val.get_data();
+        const Integer* ref_ptr = ref.get_data();
 
         for (std::uint32_t vec = 0; vec < vector_count; vec++) {
             for (std::uint32_t el = 0; el < sorted_elem_count; el++) {
@@ -186,24 +186,24 @@ public:
         }
     }
 
-    auto create_reference(const ndarray<IntType, 2>& in, std::uint32_t sorted_elem_count) {
-        const IntType* p_in = in.get_data();
-        IntType* p_ref =
-            detail::host_allocator<IntType>().allocate(in.get_dimension(0) * in.get_dimension(1));
+    auto create_reference(const ndarray<Integer, 2>& in, std::int64_t sorted_elem_count) {
+        const Integer* p_in = in.get_data();
+        Integer* p_ref =
+            detail::host_allocator<Integer>().allocate(in.get_dimension(0) * in.get_dimension(1));
         memcpy(detail::default_host_policy{},
                p_ref,
                p_in,
-               in.get_dimension(0) * in.get_dimension(1) * sizeof(IntType));
+               in.get_dimension(0) * in.get_dimension(1) * sizeof(Integer));
 
         for (std::int64_t vec = 0; vec < in.get_dimension(0); vec++) {
             std::sort(p_ref + vec * in.get_dimension(1),
                       p_ref + vec * in.get_dimension(1) + sorted_elem_count);
         }
 
-        return ndarray<IntType, 2>::wrap(
+        return ndarray<Integer, 2>::wrap(
             p_ref,
             in.get_shape(),
-            detail::make_default_delete<IntType>(detail::default_host_policy{}));
+            detail::make_default_delete<Integer>(detail::default_host_policy{}));
     }
 };
 
