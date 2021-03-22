@@ -21,7 +21,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-namespace dd = dal::detail;
+namespace de = dal::detail;
 
 template <typename Float>
 struct float2uint_map;
@@ -74,7 +74,7 @@ static sycl::event radix_scan(sycl::queue& queue,
             const std::uint32_t n_sub_groups = sbg.get_group_range()[0];
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
             const IndexType elems_for_sbg =
-                elem_count / n_total_sub_groups + !!(elem_count % n_total_sub_groups);
+                elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
             const std::uint32_t local_size = item.get_sub_group().get_local_range()[0];
 
             const std::uint32_t local_id = item.get_sub_group().get_local_id()[0];
@@ -213,7 +213,7 @@ static sycl::event radix_reorder(sycl::queue& queue,
             const std::uint32_t n_sub_groups = sbg.get_group_range()[0];
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
             const IndexType elems_for_sbg =
-                elem_count / n_total_sub_groups + !!(elem_count % n_total_sub_groups);
+                elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
             const std::uint32_t local_size = item.get_sub_group().get_local_range()[0];
 
             const std::uint32_t local_id = item.get_sub_group().get_local_id()[0];
@@ -279,7 +279,7 @@ sycl::event radix_sort_indices_inplace(sycl::queue& queue,
 
     sycl::event::wait_and_throw(deps);
 
-    const std::uint32_t elem_count = dd::integral_cast<std::uint32_t>(val_in.get_count());
+    const std::uint32_t elem_count = de::integral_cast<std::uint32_t>(val_in.get_count());
 
     const std::uint32_t byte_range = 8;
     const std::uint32_t max_local_hist_count = 1024;
@@ -289,7 +289,7 @@ sycl::event radix_sort_indices_inplace(sycl::queue& queue,
     const std::uint32_t local_hist_count =
         max_local_hist_count * local_size < elem_count
             ? max_local_hist_count
-            : (elem_count / local_size) + !!(elem_count % local_size);
+            : (elem_count / local_size) + bool(elem_count % local_size);
 
     auto part_hist = ndarray<IndexType, 1>::empty(queue,
                                                   { (local_hist_count + 1) << radix_bits },
@@ -364,13 +364,6 @@ sycl::event radix_sort_indices_inplace(sycl::queue& queue,
 }
 
 template <typename IntType>
-inline void swap(IntType** input, IntType** output) {
-    IntType* tmp = *input;
-    *input = *output;
-    *output = tmp;
-}
-
-template <typename IntType>
 sycl::event radix_sort(sycl::queue& queue,
                        ndview<IntType, 2>& val_in,
                        ndview<IntType, 2>& val_out,
@@ -389,8 +382,8 @@ sycl::event radix_sort(sycl::queue& queue,
     IntType* sorted = val_out.get_mutable_data();
     IntType* radixbuf = buffer.get_mutable_data();
 
-    const std::uint32_t vector_count = dd::integral_cast<std::uint32_t>(val_in.get_dimension(0));
-    const std::uint32_t vector_offset = dd::integral_cast<std::uint32_t>(val_in.get_dimension(1));
+    const std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val_in.get_dimension(0));
+    const std::uint32_t vector_offset = de::integral_cast<std::uint32_t>(val_in.get_dimension(1));
 
     sycl::range<2> global(vector_count, preferable_wg_size);
     sycl::range<2> local(1, preferable_wg_size);
@@ -505,7 +498,7 @@ sycl::event radix_sort(sycl::queue& queue,
                     if (exists)
                         output[local_offset] = input[j];
                 }
-                swap(&input, &output);
+                std::swap(input, output);
             }
             for (std::uint32_t i = local_id; i < sorted_elem_count; i += local_size)
                 output[i] = input[i];
