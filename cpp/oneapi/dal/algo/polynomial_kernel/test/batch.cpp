@@ -25,7 +25,8 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class polynomial_kernel_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+class polynomial_kernel_batch_test
+        : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -35,6 +36,10 @@ public:
             .set_scale(scale)
             .set_shift(shift)
             .set_degree(degree);
+    }
+
+    bool not_available_on_device() {
+        return this->get_policy().is_gpu();
     }
 
     void general_checks(const te::dataframe& x_data,
@@ -84,7 +89,7 @@ public:
                              const table& y_data,
                              const table& result_values) {
         const auto reference = compute_reference(scale, shift, degree, x_data, y_data);
-        const double tol = te::get_tolerance<Float>(9e-3, 1e-9);
+        const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference, result_values);
         CHECK(diff < tol);
     }
@@ -114,6 +119,7 @@ TEMPLATE_LIST_TEST_M(polynomial_kernel_batch_test,
                      "polynomial_kernel common flow",
                      "[polynomial_kernel][integration][batch]",
                      polynomial_kernel_types) {
+    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe x_data =
@@ -145,6 +151,7 @@ TEMPLATE_LIST_TEST_M(polynomial_kernel_batch_test,
                      "polynomial_kernel compute one element matrix",
                      "[polynomial_kernel][integration][batch]",
                      polynomial_kernel_types) {
+    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe x_data =

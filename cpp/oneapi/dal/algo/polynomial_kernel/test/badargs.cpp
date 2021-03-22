@@ -39,6 +39,10 @@ public:
         return polynomial_kernel::descriptor<float, Method, polynomial_kernel::task::compute>{};
     }
 
+    bool not_available_on_device() {
+        return this->get_policy().is_gpu();
+    }
+
     table get_x_data(std::int64_t override_row_count = row_count_x,
                      std::int64_t override_column_count = column_count) const {
         ONEDAL_ASSERT(override_row_count * override_column_count <= element_count_x);
@@ -63,6 +67,7 @@ private:
 };
 
 #define POLYNOMIAL_KERNEL_BADARG_TEST(name)        \
+    SKIP_IF(this->not_available_on_device());      \
     TEMPLATE_TEST_M(polynomial_kernel_badarg_test, \
                     name,                          \
                     "[polynomial_kernel][badarg]", \
