@@ -417,7 +417,6 @@ TEST("can cast ndarray to ndview", "[ndarray]") {
 }
 
 TEST_M(ndarray_test, "can be flattened host", "[ndarray]") {
-
     const std::int64_t m = 9;
     const std::int64_t n = 5;
 
@@ -429,7 +428,7 @@ TEST_M(ndarray_test, "can be flattened host", "[ndarray]") {
 
     REQUIRE(raw_arr.get_count() == (m * n));
 
-    for(std::int64_t i = 0; i < (m * n); ++i) {
+    for (std::int64_t i = 0; i < (m * n); ++i) {
         REQUIRE(raw_arr[i] == 1.0f);
     }
 }
@@ -511,16 +510,15 @@ TEST_M(ndarray_test, "can be flattened with host usm", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 
-    auto [x, event]= ndarray<float, 2>::ones(queue, { 7, 5 });
+    auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 });
 
     event.wait_and_throw();
 
     auto raw_arr = x.flatten();
 
-    for(std::int64_t i = 0; i < x.get_count(); ++i) {
+    for (std::int64_t i = 0; i < x.get_count(); ++i) {
         REQUIRE(raw_arr[i] == 1);
     }
-    
 }
 
 TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
@@ -530,7 +528,7 @@ TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
     const std::int64_t m = 7;
     const std::int64_t n = 5;
 
-    auto [x, event]= ndarray<float, 2>::ones(queue, { 7, 5 });
+    auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 });
 
     event.wait_and_throw();
 
@@ -540,15 +538,13 @@ TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
 
     float* res_ptr = sycl::malloc_shared<float>(n * m, queue);
 
-    queue.submit(
-        [&](sycl::handler& h) {
+    queue
+        .submit([&](sycl::handler& h) {
             h.memcpy(res_ptr, raw_ptr, (n * m));
-        }
-    ).wait_and_throw();
-
+        })
+        .wait_and_throw();
 
     sycl::free(res_ptr, queue);
-    
 }
 
 #endif

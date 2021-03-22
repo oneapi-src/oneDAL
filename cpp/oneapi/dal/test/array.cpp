@@ -335,20 +335,19 @@ TEST("can be created from shared_ptr") {
 
     auto* data = sycl::malloc_shared<float>(count, q);
 
-    for(std::int64_t i = 0; i < count; ++i) {
+    for (std::int64_t i = 0; i < count; ++i) {
         data[i] = float(i);
     }
-    
+
     std::shared_ptr<float> sdata(data, [&q](auto data) {
         sycl::free(data, q);
     });
 
     auto darr = array<float>{ sdata, count };
 
-    for(std::int64_t i = 0; i < count; ++i) {
+    for (std::int64_t i = 0; i < count; ++i) {
         REQUIRE(darr[i] == float(i));
     }
-
 }
 
 TEST("can be created from shared_ptr with const data") {
@@ -358,22 +357,21 @@ TEST("can be created from shared_ptr with const data") {
 
     auto* data = sycl::malloc_shared<float>(count, q);
 
-    for(std::int64_t i = 0; i < count; ++i) {
+    for (std::int64_t i = 0; i < count; ++i) {
         data[i] = float(i);
     }
 
     const auto* cdata = data;
-    
+
     std::shared_ptr<const float> sdata(cdata, [](auto data) {});
 
     auto darr = array<float>{ sdata, count };
 
-    for(std::int64_t i = 0; i < count; ++i) {
+    for (std::int64_t i = 0; i < count; ++i) {
         REQUIRE(darr[i] == float(i));
     }
 
     sycl::free(data, q);
-
 }
 
 #endif
