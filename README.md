@@ -269,4 +269,4 @@ information.
 
 [oneMKL FPK microlibs](https://github.com/oneapi-src/oneDAL/releases/tag/Dependencies)
 are distributed under Intel Simplified Software License.
-Refer to [third-party-programs-mkl.txt][third-party-programs-mkl.txt] for details.
+Refer to [third-party-programs-mkl.txt](third-party-programs-mkl.txt) for details.
