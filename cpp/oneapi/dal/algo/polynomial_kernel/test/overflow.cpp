@@ -36,6 +36,10 @@ public:
         return polynomial_kernel::descriptor<float, Method, polynomial_kernel::task::compute>{};
     }
 
+    bool not_available_on_device() {
+        return this->get_policy().is_gpu();
+    }
+
     table get_x_data() const {
         return homogen_table{ te::dummy_homogen_table_impl{ row_count_x, column_count } };
     }
@@ -52,6 +56,7 @@ public:
                     polynomial_kernel::method::dense)
 
 POLYNOMIAL_KERNEL_OVERFLOW_TEST("compute throws if result values table leads to overflow") {
+    SKIP_IF(this->not_available_on_device());
     const auto polynomial_kernel_desc = this->get_descriptor();
 
     REQUIRE_THROWS_AS(this->compute(polynomial_kernel_desc, this->get_x_data(), this->get_y_data()),
