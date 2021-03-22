@@ -135,7 +135,7 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`cluster_count`
     explicit descriptor(std::int64_t cluster_count = 2) {
-        base_t::set_cluster_count(cluster_count);
+        set_cluster_count(cluster_count);
     }
 
     /// The number of clusters k

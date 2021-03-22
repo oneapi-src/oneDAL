@@ -493,7 +493,7 @@ public:
         return *this;
     }
 
-    template <typename T = Task, typename = enable_if_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     /// The class count. Used with :expr:`task::classification` only.
     /// @remark default = 2
     std::int64_t get_class_count() const {
@@ -506,7 +506,7 @@ public:
         return *this;
     }
 
-    template <typename T = Task, typename = enable_if_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     /// The infer mode. Used with :expr:`task::classification` only.
     infer_mode get_infer_mode() const {
         return base_t::get_infer_mode_impl();
@@ -518,7 +518,7 @@ public:
         return *this;
     }
 
-    template <typename T = Task, typename = enable_if_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     /// The voting mode. Used with :expr:`task::classification` only.
     voting_mode get_voting_mode() const {
         return base_t::get_voting_mode_impl();

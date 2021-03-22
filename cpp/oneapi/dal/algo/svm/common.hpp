@@ -291,7 +291,7 @@ public:
         return *this;
     }
 
-    template <typename T = Task, typename = enable_if_classification_t<T>>
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     /// The class count. Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
     /// @invariant :expr:`class_count >= 2`
     /// @remark default = 2
@@ -305,7 +305,7 @@ public:
         return *this;
     }
 
-    template <typename T = Task, typename = enable_if_regression_t<T>>
+    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
     /// The epsilon. Used with :expr:`oneapi::dal::svm::task::v1::regression` only.
     /// @invariant :expr:`epsilon >= 0`
     /// @remark default = 0.1

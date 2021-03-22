@@ -138,8 +138,8 @@ public:
     /// Creates a new instance of the class with the given :literal:`class_count`
     /// and :literal:`neighbor_count` property values
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
-        base_t::set_class_count(class_count);
-        base_t::set_neighbor_count(neighbor_count);
+        set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
     }
 
     /// The number of classes c
