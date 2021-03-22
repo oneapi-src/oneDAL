@@ -62,8 +62,7 @@ static sycl::event radix_scan(sycl::queue& queue,
     const sycl::range<1> local(local_size);
     const sycl::nd_range<1> nd_range(global, local);
 
-    const RadixInteger* val_ptr =
-        static_cast<const RadixInteger*>(static_cast<const void*>(val.get_data()));
+    const RadixInteger* val_ptr = reinterpret_cast<const RadixInteger*>(val.get_data());
     IndexType* part_hist_ptr = part_hist.get_mutable_data();
 
     auto event = queue.submit([&](cl::sycl::handler& cgh) {
@@ -190,12 +189,10 @@ static sycl::event radix_reorder(sycl::queue& queue,
     ONEDAL_ASSERT(val_in.get_count() == val_out.get_count());
     ONEDAL_ASSERT(val_in.get_count() == ind_out.get_count());
 
-    const RadixInteger* val_in_ptr =
-        static_cast<const RadixInteger*>(static_cast<const void*>(val_in.get_data()));
+    const RadixInteger* val_in_ptr = reinterpret_cast<const RadixInteger*>(val_in.get_data());
     const IndexType* ind_in_ptr = ind_in.get_data();
     const IndexType* part_prefix_hist_ptr = part_prefix_hist.get_data();
-    RadixInteger* val_out_ptr =
-        static_cast<RadixInteger*>(static_cast<void*>(val_out.get_mutable_data()));
+    RadixInteger* val_out_ptr = reinterpret_cast<RadixInteger*>(val_out.get_mutable_data());
     IndexType* ind_out_ptr = ind_out.get_mutable_data();
 
     const sycl::range<1> global(local_size * local_hist_count);
@@ -415,7 +412,7 @@ sycl::event radix_sort(sycl::queue& queue,
             Integer* counters = &radixbuf[global_id * radix_range];
             //  Radix sort
             for (std::uint32_t i = 0; i < radix_count; i++) {
-                std::uint8_t* cinput = static_cast<std::uint8_t*>(static_cast<void*>(input));
+                std::uint8_t* cinput = reinterpret_cast<std::uint8_t*>(input);
                 for (std::uint32_t j = local_id; j < radix_range; j += local_size)
                     counters[j] = 0;
                 //  Count elements in sub group to write once per value
