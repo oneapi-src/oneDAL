@@ -180,7 +180,7 @@ constexpr bool is_valid_task_v =
     dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -274,9 +274,9 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::dense` or :expr:`method::v1::hist`.
+///                be :expr:`method::dense` or :expr:`method::hist`.
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>
@@ -387,7 +387,7 @@ public:
 
     /// The minimal number of observations in a leaf node.
     /// @invariant :expr:`min_observations_in_leaf_node > 0`
-    /// @remark default = task::classification ? 1 : 5
+    /// @remark default = 1 for classification, 5 for regression
     std::int64_t get_min_observations_in_leaf_node() const {
         return base_t::get_min_observations_in_leaf_node();
     }
@@ -448,7 +448,7 @@ public:
     }
 
     /// The memory saving mode.
-    /// @remark default = False
+    /// @remark default = false
     bool get_memory_saving_mode() const {
         return base_t::get_memory_saving_mode();
     }
@@ -532,7 +532,7 @@ public:
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -550,7 +550,7 @@ public:
     std::int64_t get_tree_count() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`oneapi::dal::decision_forest::task::v1::classification` only.
+    /// The class count. Used with :expr:`oneapi::dal::decision_forest::task::classification` only.
     /// @remark default = 2
     std::int64_t get_class_count() const {
         return get_class_count_impl();

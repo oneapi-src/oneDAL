@@ -174,14 +174,13 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::thunder` or :expr:`method::v1::smo`.
+///                be :expr:`method::thunder` or :expr:`method::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`oneapi::dal::svm::task::v1::classification` or
-///                :expr:`oneapi::dal::svm::task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
-          typename Kernel = detail::descriptor_base<>::kernel_t>
+          typename Kernel = linear_kernel::descriptor<Float>>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -280,7 +279,7 @@ public:
     }
 
     /// A flag that enables the use of a shrinking optimization technique.
-    /// Used with :expr:`oneapi::dal::svm::method::v1::smo` split-finding method only.
+    /// Used with :expr:`method::smo` split-finding method only.
     /// @remark default = true
     bool get_shrinking() const {
         return base_t::get_shrinking();
@@ -292,7 +291,7 @@ public:
     }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
+    /// The class count. Used with :expr:`task::classification` only.
     /// @invariant :expr:`class_count >= 2`
     /// @remark default = 2
     std::int64_t get_class_count() const {
@@ -306,7 +305,7 @@ public:
     }
 
     template <typename T = Task, typename = detail::enable_if_regression_t<T>>
-    /// The epsilon. Used with :expr:`oneapi::dal::svm::task::v1::regression` only.
+    /// The epsilon. Used with :expr:`task::regression` only.
     /// @invariant :expr:`epsilon >= 0`
     /// @remark default = 0.1
     double get_epsilon() const {
@@ -321,8 +320,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`oneapi::dal::svm::task::v1::classification` or
-///              :expr:`oneapi::dal::svm::task::v1::regression`.
+///              be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -368,7 +366,7 @@ public:
     }
 
     /// The first unique value in class labels.
-    /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
+    /// Used with :expr:`task::classification` only.
     std::int64_t get_first_class_label() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
@@ -378,7 +376,7 @@ public:
     }
 
     /// The second unique value in class labels.
-    /// Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
+    /// Used with :expr:`task::classification` only.
     std::int64_t get_second_class_label() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>

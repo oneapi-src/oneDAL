@@ -115,7 +115,7 @@ namespace v1 {
 /// @tparam Method Tag-type that specifies an implementation
 ///                of K-Means Initialization algorithm.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::init`.
+///                be :expr:`task::init`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>

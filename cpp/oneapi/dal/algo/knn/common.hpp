@@ -117,9 +117,9 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::brute_force` or :expr:`method::v1::kd_tree`.
+///                be :expr:`method::brute_force` or :expr:`method::kd_tree`.
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+///                be :expr:`task::classification`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>
@@ -166,7 +166,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::classification`.
+///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);

@@ -115,9 +115,9 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::dense`.
+///                be :expr:`method::dense`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::compute`.
+///                be :expr:`task::compute`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>
