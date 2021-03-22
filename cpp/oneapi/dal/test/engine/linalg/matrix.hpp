@@ -172,7 +172,7 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     static matrix wrap(const sycl::queue& q, const Float* data, const shape& s) {
-        auto ary = array<Float>::wrap(data, s.get_count());
+        auto ary = array<Float>::wrap(q, data, s.get_count());
         return matrix{ q, std::move(ary), s };
     }
 #endif
@@ -181,21 +181,9 @@ public:
         return matrix{ x, { 1, x.get_count() } };
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
-    static matrix wrap(const sycl::queue& q, const array<Float>& x) {
-        return matrix{ q, x, { 1, x.get_count() } };
-    }
-#endif
-
     static matrix wrap(const array<Float>& x, const shape& s) {
         return matrix{ x, s };
     }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    static matrix wrap(const sycl::queue& q, const array<Float>& x, const shape& s) {
-        return matrix{ q, x, s };
-    }
-#endif
 
     static matrix wrap(const table& t) {
         if constexpr (lyt != layout::row_major) {
@@ -229,7 +217,7 @@ public:
     static matrix empty(sycl::queue& q,
                         const shape& s,
                         sycl::usm::alloc alloc = sycl::usm::alloc::device) {
-        return wrap(q, array<Float>::empty(q, s.get_count(), alloc), s);
+        return wrap(array<Float>::empty(q, s.get_count(), alloc), s);
     }
 #endif
 
@@ -314,20 +302,20 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     std::optional<sycl::queue> get_queue() const {
-        return queue_;
+        return x_.get_queue();
     }
 
     bool matches_usm_alloc(sycl::usm::alloc alloc) const {
-        if (!queue_.has_value()) {
+        if (!get_queue().has_value()) {
             return false;
         }
         const auto pointer_type =
-            sycl::get_pointer_type(x_.get_data(), queue_.value().get_context());
+            sycl::get_pointer_type(x_.get_data(), get_queue().value().get_context());
         return pointer_type == alloc;
     }
 
     bool is_pure_host_alloc() const {
-        return !queue_.has_value();
+        return !get_queue().has_value();
     }
 
     bool is_device_usm_alloc() const {
@@ -358,16 +346,16 @@ public:
         if (is_pure_host_alloc()) {
             return true;
         }
-        ONEDAL_ASSERT(queue_.has_value());
-        return queue_.value().get_context() == q.get_context();
+        ONEDAL_ASSERT(get_queue().has_value());
+        return get_queue().value().get_context() == q.get_context();
     }
 
     bool is_accessible_on(const sycl::queue& q) const {
         if (is_pure_host_alloc()) {
             return false;
         }
-        ONEDAL_ASSERT(queue_.has_value());
-        return queue_.value().get_context() == q.get_context();
+        ONEDAL_ASSERT(get_queue().has_value());
+        return get_queue().value().get_context() == q.get_context();
     }
 
     matrix to_host() const {
@@ -375,8 +363,8 @@ public:
             return *this;
         }
 
-        ONEDAL_ASSERT(queue_.has_value());
-        auto q = queue_.value();
+        ONEDAL_ASSERT(get_queue().has_value());
+        auto q = get_queue().value();
 
         const auto host_copy = matrix<Float>::empty(this->get_shape());
         q.memcpy(host_copy.get_mutable_data(), x_.get_data(), x_.get_size()).wait_and_throw();
@@ -503,24 +491,6 @@ private:
             : matrix(x, s, base::get_default_stride(s)) {}
 
 #ifdef ONEDAL_DATA_PARALLEL
-    explicit matrix(const sycl::queue& q,
-                    const array<Float>& x,
-                    const shape& s,
-                    std::int64_t stride)
-            : base(s, stride),
-              x_(x),
-              queue_(q) {
-        ONEDAL_ASSERT(s.get_count() <= x.get_count(),
-                      "Element count in matrix does not match "
-                      "element count in the provided array");
-    }
-
-    explicit matrix(const sycl::queue& q, const array<Float>& x, const shape& s)
-            : matrix(q, x, s, base::get_default_stride(s)) {}
-
-#endif
-
-#ifdef ONEDAL_DATA_PARALLEL
     void check_if_migratable_to(const sycl::queue& q) const {
         if (!is_migratable_to(q)) {
             throw std::invalid_argument{ "Cannot migrate data to the device "
@@ -545,9 +515,6 @@ private:
 #endif
 
     array<Float> x_;
-#ifdef ONEDAL_DATA_PARALLEL
-    std::optional<sycl::queue> queue_;
-#endif
 };
 
 } // namespace oneapi::dal::test::engine::linalg
