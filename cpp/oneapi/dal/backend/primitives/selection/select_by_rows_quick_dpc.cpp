@@ -65,10 +65,10 @@ public:
                        ndview<Float, 2>& selection,
                        ndview<int, 2>& indices,
                        const event_vector& deps) {
-        const std::int64_t nx = data.get_dimension(1);
-        const std::int64_t ny = data.get_dimension(0);
-        auto indices_tmp = ndarray<int, 2>::empty(queue, { ny, nx });
-        sycl::range<2> global(preffered_sg_size, ny);
+        const std::int64_t col_count = data.get_dimension(1);
+        const std::int64_t row_count = data.get_dimension(0);
+        auto indices_tmp = ndarray<int, 2>::empty(queue, { row_count, col_count });
+        sycl::range<2> global(preffered_sg_size, row_count);
         sycl::range<2> local(preffered_sg_size, 1);
         sycl::nd_range<2> nd_range2d(global, local);
 
@@ -81,19 +81,20 @@ public:
 
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
+            sycl::stream out(1024 * 8, 1024 * 8, cgh);
             cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
-                quick_selection::kernel_select(item,
-                                               ny,
+                quick_selection::kernel_select(out, item,
+                                               row_count,
                                                data_ptr,
                                                indices_tmp_ptr,
                                                selection_ptr,
                                                indices_ptr,
                                                rng_seq_ptr,
                                                rng_period,
-                                               nx,
-                                               nx,
+                                               col_count,
+                                               col_count,
                                                k,
-                                               nx);
+                                               col_count);
             });
         });
         return event;
@@ -106,7 +107,7 @@ private:
             *count = 0;
         return ret;
     }
-    static void kernel_partition_by_values(sycl::nd_item<2> item,
+    static void kernel_partition_by_values(const sycl::stream& out, sycl::nd_item<2> item,
                                            Float* values,
                                            int* indices,
                                            int partition_start,
@@ -117,47 +118,58 @@ private:
                                            int* split_index_ptr,
                                            int* great_total_ptr) {
         auto sg = item.get_sub_group();
-        int full_size = partition_end - partition_start;
-        int last_group_size = full_size % local_size;
-        int full_group_size = full_size - last_group_size;
+        int seq_size = partition_end - partition_start;
+        int last_group_size = seq_size % local_size;
+        int full_group_size = (seq_size / local_size) * local_size;
+        full_group_size += last_group_size > 0 ? local_size : 0; 
+        if(local_id == 0) {
+            out << "Group: " << local_size << " " 
+                << last_group_size << " " << full_group_size << sycl::endl;
+        }
 
-        for (int i = partition_start + local_id; i < partition_end; i += local_size) {
-            sg.barrier();
-            Float cur_value = values[i];
-            int cur_index = indices[i];
+        if(sg.get_local_id()[0] == 0) 
+            out << "Partition inside: " << partition_start << " " << partition_end << " " << local_size << sycl::endl;
+
+        for (int i = partition_start + local_id; i < full_group_size; i += local_size) {
+            bool inside = i < partition_end;
+            Float cur_value = inside ? values[i] : 0.0;
+            int cur_index = i < partition_end ? indices[i] : -1;
             int is_small = cur_value < pivot ? 1 : 0;
-            int num_of_great = reduce(sg, cur_value > pivot ? 1 : 0, sycl::ONEAPI::plus<Float>());
-            int num_of_small = reduce(sg, is_small, sycl::ONEAPI::plus<Float>());
+            sg.barrier();
+            const int size = reduce(sg, inside ? 1 : 0, sycl::ONEAPI::plus<Float>());
+            const int num_of_great = reduce(sg, cur_value >= pivot && inside ? 1 : 0, sycl::ONEAPI::plus<Float>());
+            const int num_of_small = reduce(sg, is_small && inside ? 1 : 0, sycl::ONEAPI::plus<Float>());
             int min_ind = reduce(sg, i, sycl::ONEAPI::minimum<Float>());
+            if(local_id == 0) {
+                out << "nums: " << num_of_great << " " << num_of_small 
+                    << " is_small: " << is_small << " offset: " << (min_ind + num_of_small) << " size: " << size << sycl::endl;
+            }
             if (num_of_small > 0) {
-                int pos_in_group_small = exclusive_scan(sg, is_small, std::plus<int>());
-                int pos_in_group_great = exclusive_scan(sg, is_small > 0 ? 0 : 1, std::plus<int>());
-                int cur_size = i > full_group_size - 1 ? last_group_size : local_size;
-                if (is_small) {
-                    Float value_to_move =
-                        values[partition_start + *split_index_ptr + pos_in_group_small];
-                    int index_to_move = 0;
-                    if constexpr (indices_out) {
-                        index_to_move =
-                            indices[partition_start + *split_index_ptr + pos_in_group_small];
-                    }
-                    values[partition_start + *split_index_ptr + pos_in_group_small] = cur_value;
-                    if constexpr (indices_out) {
-                        indices[partition_start + *split_index_ptr + pos_in_group_small] =
-                            cur_index;
-                    }
-                    if (partition_start + *split_index_ptr + pos_in_group_small < min_ind) {
-                        values[min_ind + cur_size - 1 - pos_in_group_small] = value_to_move;
-                        if constexpr (indices_out) {
-                            indices[min_ind + cur_size - 1 - pos_in_group_small] = index_to_move;
+                const int pos_in_group_small = exclusive_scan(sg, is_small && inside ? 1 : 0, std::plus<int>());
+                const int pos_in_group_great = num_of_small + exclusive_scan(sg, is_small == 0 || inside ? 0 : 1, std::plus<int>());
+                const int pos_small = partition_start + *split_index_ptr + pos_in_group_small;
+                const int pos_great = min_ind + pos_in_group_great;
+                const int pos = is_small ? pos_small : pos_great;  
+                const int pos_to_move = pos < min_ind ? min_ind + num_of_small - 1 - pos_in_group_small : -1;
+                out << i << " " <<" size: " << size << " min_ind: " << min_ind << " local_Id: " << local_id << " " << cur_value << " "  
+                    << is_small << " pos: " 
+                    << pos << " pos_to_move: " << pos_to_move << sycl::endl;
+                if(inside) {
+                    if (is_small) {
+                        Float value_to_move = values[pos];
+                        int index_to_move = indices[pos];
+                        if (pos_to_move > -1) {
+                            out << " pos_to_move: " << pos_to_move << "value_to_move" << value_to_move << sycl::endl;
+                            values[pos_to_move] = value_to_move;
+                            indices[pos_to_move] = index_to_move;
                         }
                     }
+                    values[pos] = cur_value;
+                    indices[pos] = cur_index;
                 }
-                else {
-                    values[min_ind + cur_size - 1 - pos_in_group_great] = cur_value;
-                    if constexpr (indices_out) {
-                        indices[min_ind + cur_size - 1 - pos_in_group_great] = cur_index;
-                    }
+                if(local_id == 0) {
+                    for(int i = partition_start; i < partition_end; i++)
+                        out << "C: " << i << " " << values[i] << sycl::endl;
                 }
             }
             sg.barrier();
@@ -168,7 +180,7 @@ private:
         *great_total_ptr = -reduce(sg, -(*great_total_ptr), sycl::ONEAPI::minimum<Float>());
     }
 
-    static void kernel_select(sycl::nd_item<2> item,
+    static void kernel_select(const sycl::stream& out, sycl::nd_item<2> item,
                               int num_rows,
                               Float* in_values,
                               int* in_indices,
@@ -180,16 +192,17 @@ private:
                               int NLast,
                               int K,
                               int BlockOffset) {
+        
         auto sg = item.get_sub_group();
         const int row_id = item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
         const int local_id = sg.get_local_id()[0];
         const int local_size = sg.get_local_range()[0];
-        ;
-
         if (row_id >= num_rows)
             return;
 
         N = (row_id == num_rows - 1) ? NLast : N;
+        if(local_id == 0)
+            out << "N: " << N << " NLast: " << NLast << sycl::endl;
 
         const int offset_in = row_id * BlockOffset;
         const int offset_out = row_id * K;
@@ -205,15 +218,18 @@ private:
             }
         }
         int iteration_count;
-        for (iteration_count = 0; iteration_count < N; iteration_count++) {
-            iteration_count++;
+        for (iteration_count = 0; iteration_count < 1; iteration_count++) {
             int split_index = 0;
             const Float rnd = quick_selection::kernel_get_rnd(rnd_seq, RndPeriod, &rnd_count);
             int pos = (int)(rnd * (partition_end - partition_start - 1));
             pos = pos < 0 ? 0 : pos;
             const Float pivot = values[partition_start + pos];
+            if(local_id == 0)
+                out << "Pivot: " << pos << " " <<pivot << sycl::endl;
             int num_of_great = 0;
-            quick_selection::kernel_partition_by_values(item,
+            if(local_id == 0)
+                out << "Partition: " << partition_start << " " << partition_end << sycl::endl;
+            quick_selection::kernel_partition_by_values(out, item,
                                                         values,
                                                         indices,
                                                         partition_start,
@@ -265,10 +281,13 @@ sycl::event select_by_rows_quick(sycl::queue& queue,
         ONEDAL_ASSERT(indices.has_mutable_data());
     }
     const std::int64_t nx = data.get_dimension(1);
-
+    std::cout << "Quick selection begin" << std::endl;
     quick_selection<Float, selection_out, indices_out> qs(queue);
+    std::cout << "Quick selection init" << std::endl;
     qs.init(queue, nx);
+    std::cout << "Quick selection run" << std::endl;
     return qs.select(queue, data, k, col_begin, col_end, selection, indices, deps);
+    std::cout << "Quick selection done" << std::endl;
 }
 
 #define INSTANTIATE(F, selection_out, indices_out)                                          \
