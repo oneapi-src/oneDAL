@@ -162,10 +162,10 @@ static sycl::event radix_hist_scan(sycl::queue& queue,
             }
 
             if (local_id == 0) {
-                IndexType totalSum = 0;
+                IndexType total_sum = 0;
                 for (std::uint32_t j = 0; j < radix_range; j++) {
-                    part_prefix_hist_ptr[local_hist_count * radix_range + j] = totalSum;
-                    totalSum += offset[j];
+                    part_prefix_hist_ptr[local_hist_count * radix_range + j] = total_sum;
+                    total_sum += offset[j];
                 }
             }
         });
@@ -364,7 +364,7 @@ sycl::event radix_sort(sycl::queue& queue,
                        ndview<Integer, 2>& val_in,
                        ndview<Integer, 2>& val_out,
                        ndview<Integer, 2>& buffer,
-                       std::uint32_t sorted_elem_count,
+                       std::int64_t sorted_elem_count,
                        const event_vector& deps) {
     constexpr std::uint32_t preferable_wg_size = 32;
     constexpr std::uint32_t expected_buffer_size_for_one_vector = 256;
@@ -377,6 +377,8 @@ sycl::event radix_sort(sycl::queue& queue,
     ONEDAL_ASSERT(val_in.get_dimension(1) == val_out.get_dimension(1));
     ONEDAL_ASSERT(buffer.get_dimension(1) == expected_buffer_size_for_one_vector);
     ONEDAL_ASSERT(sorted_elem_count > 0);
+
+    const std::uint32_t _sorted_elem_count = de::integral_cast<std::uint32_t>(sorted_elem_count);
 
     Integer* labels = val_in.get_mutable_data();
     Integer* sorted = val_out.get_mutable_data();
@@ -404,8 +406,8 @@ sycl::event radix_sort(sycl::queue& queue,
 
             const std::uint32_t local_size = sbg.get_local_range()[0];
             const std::uint32_t group_aligned_size =
-                sorted_elem_count - sorted_elem_count % local_size;
-            const std::uint32_t rem = sorted_elem_count - group_aligned_size;
+                _sorted_elem_count - _sorted_elem_count % local_size;
+            const std::uint32_t rem = _sorted_elem_count - group_aligned_size;
 
             Integer* input = &labels[global_id * vector_offset];
             Integer* output = &sorted[global_id * vector_offset];
@@ -497,7 +499,7 @@ sycl::event radix_sort(sycl::queue& queue,
                 }
                 std::swap(input, output);
             }
-            for (std::uint32_t i = local_id; i < sorted_elem_count; i += local_size)
+            for (std::uint32_t i = local_id; i < _sorted_elem_count; i += local_size)
                 output[i] = input[i];
         });
     });
@@ -517,7 +519,7 @@ sycl::event radix_sort(sycl::queue& queue,
                                                      ndview<I, 2>&,       \
                                                      ndview<I, 2>&,       \
                                                      ndview<I, 2>&,       \
-                                                     std::uint32_t,       \
+                                                     std::int64_t,        \
                                                      const event_vector&);
 
 INSTANTIATE_SORT_INDICES(float, std::uint32_t)
