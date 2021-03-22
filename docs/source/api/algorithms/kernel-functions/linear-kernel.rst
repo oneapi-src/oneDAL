@@ -36,10 +36,9 @@ Programming Interface
 All types and functions in this section are declared in the
 ``oneapi::dal::linear_kernel`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/linear_kernel.hpp`` header file.
-                   
+
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::linear_kernel::detail::v1::descriptor_base
 .. onedal_class:: oneapi::dal::linear_kernel::v1::descriptor
 
 Method tags

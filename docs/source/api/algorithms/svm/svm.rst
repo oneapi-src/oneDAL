@@ -36,10 +36,9 @@ Programming Interface
 All types and functions in this section are declared in the
 ``oneapi::dal::svm`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/svm.hpp`` header file.
-                   
+
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::svm::detail::v1::descriptor_base
 .. onedal_class:: oneapi::dal::svm::v1::descriptor
 
 Method tags

@@ -36,10 +36,9 @@ Programming Interface
 All types and functions in this section are declared in the
 ``oneapi::dal::rbf_kernel`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/rbf_kernel.hpp`` header file.
-                   
+
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::rbf_kernel::detail::v1::descriptor_base
 .. onedal_class:: oneapi::dal::rbf_kernel::v1::descriptor
 
 Method tags
