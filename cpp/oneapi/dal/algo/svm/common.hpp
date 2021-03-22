@@ -115,48 +115,17 @@ public:
     using task_t = Task;
     using kernel_t = linear_kernel::descriptor<float_t>;
 
-    /// The upper bound in constraints of the quadratic optimization problem. $C$
-    /// @invariant :expr:`c > 0`
-    /// @remark default = 1.0
     double get_c() const;
-
-    /// The maximum number of iterations $T$
-    /// @invariant :expr:`max_iteration_count >= 0`
-    /// @remark default = 100000
     std::int64_t get_max_iteration_count() const;
-
-    /// The threshold $\\varepsilon$ for the stop condition
-    /// @invariant :expr:`accuracy_threshold >= 0.0`
-    /// @remark default = 0.0
     double get_accuracy_threshold() const;
-
-    /// The size of cache in megabytes for storing values of the kernel matrix.
-    /// @invariant :expr:`cache_size >= 0.0`
-    /// @remark default = 200.0
     double get_cache_size() const;
-
-    /// The parameter of the WSS scheme $\\tau$.
-    /// @invariant :expr:`tau > 0.0`
-    /// @remark default = 1e-6
     double get_tau() const;
-
-    /// A flag that enables the use of a shrinking optimization technique.
-    /// Used with :expr:`oneapi::dal::svm::method::v1::smo` split-finding method only.
-    /// @remark default = true
     bool get_shrinking() const;
 
-    template <typename T = Task, typename = enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
-    /// @invariant :expr:`class_count >= 2`
-    /// @remark default = 2
     std::int64_t get_class_count() const {
         return get_class_count_impl();
     }
 
-    template <typename T = Task, typename = enable_if_regression_t<T>>
-    /// The epsilon. Used with :expr:`oneapi::dal::svm::task::v1::regression` only.
-    /// @invariant :expr:`epsilon >= 0`
-    /// @remark default = 0.1
     double get_epsilon() const {
         return get_epsilon_impl();
     }
@@ -209,9 +178,9 @@ namespace v1 {
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`oneapi::dal::svm::task::v1::classification` or
 ///                :expr:`oneapi::dal::svm::task::v1::regression`.
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t,
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default,
           typename Kernel = detail::descriptor_base<>::kernel_t>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
@@ -236,7 +205,7 @@ public:
     explicit descriptor(const Kernel& kernel = kernel_t{})
             : base_t(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
-    /// The descriptor of kernel function `K(x,y)`. Can be :expr:`linear_kernel::desc` or
+    /// The descriptor of kernel function $K(x, y)$. Can be :expr:`linear_kernel::desc` or
     /// :expr:`polynomial_kernel::desc` or :expr:`rbf_kernel::desc`.
     /// @remark default = :literal:`kernel`
     const Kernel& get_kernel() const {
@@ -250,14 +219,23 @@ public:
         return *this;
     }
 
+    /// The upper bound $C$ in constraints of the quadratic optimization problem.
+    /// @invariant :expr:`c > 0`
+    /// @remark default = 1.0
+    double get_c() const {
+        return base_t::get_c();
+    }
+
     auto& set_c(double value) {
         base_t::set_c_impl(value);
         return *this;
     }
 
-    auto& set_accuracy_threshold(double value) {
-        base_t::set_accuracy_threshold_impl(value);
-        return *this;
+    /// The maximum number of iterations $T$
+    /// @invariant :expr:`max_iteration_count >= 0`
+    /// @remark default = 100000
+    std::int64_t get_max_iteration_count() const {
+        return base_t::get_max_iteration_count();
     }
 
     auto& set_max_iteration_count(std::int64_t value) {
@@ -265,9 +243,35 @@ public:
         return *this;
     }
 
+    /// The threshold $\\varepsilon$ for the stop condition
+    /// @invariant :expr:`accuracy_threshold >= 0.0`
+    /// @remark default = 0.0
+    double get_accuracy_threshold() const {
+        return base_t::get_accuracy_threshold();
+    }
+
+    auto& set_accuracy_threshold(double value) {
+        base_t::set_accuracy_threshold_impl(value);
+        return *this;
+    }
+
+    /// The size of cache in megabytes for storing values of the kernel matrix.
+    /// @invariant :expr:`cache_size >= 0.0`
+    /// @remark default = 200.0
+    double get_cache_size() const {
+        return base_t::get_cache_size();
+    }
+
     auto& set_cache_size(double value) {
         base_t::set_cache_size_impl(value);
         return *this;
+    }
+
+    /// The parameter of the WSS scheme $\\tau$.
+    /// @invariant :expr:`tau > 0.0`
+    /// @remark default = 1e-6
+    double get_tau() const {
+        return base_t::get_tau();
     }
 
     auto& set_tau(double value) {
@@ -275,15 +279,38 @@ public:
         return *this;
     }
 
+    /// A flag that enables the use of a shrinking optimization technique.
+    /// Used with :expr:`oneapi::dal::svm::method::v1::smo` split-finding method only.
+    /// @remark default = true
+    bool get_shrinking() const {
+        return base_t::get_shrinking();
+    }
+
     auto& set_shrinking(bool value) {
         base_t::set_shrinking_impl(value);
         return *this;
+    }
+
+    template <typename T = Task, typename = enable_if_classification_t<T>>
+    /// The class count. Used with :expr:`oneapi::dal::svm::task::v1::classification` only.
+    /// @invariant :expr:`class_count >= 2`
+    /// @remark default = 2
+    std::int64_t get_class_count() const {
+        return base_t::get_class_count_impl();
     }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_class_count(std::int64_t value) {
         base_t::set_class_count_impl(value);
         return *this;
+    }
+
+    template <typename T = Task, typename = enable_if_regression_t<T>>
+    /// The epsilon. Used with :expr:`oneapi::dal::svm::task::v1::regression` only.
+    /// @invariant :expr:`epsilon >= 0`
+    /// @remark default = 0.1
+    double get_epsilon() const {
+        return base_t::get_epsilon_impl();
     }
 
     template <typename T = Task, typename = detail::enable_if_regression_t<T>>
