@@ -15,6 +15,7 @@ ALGOS = [
     "pca",
     "rbf_kernel",
     "svm",
+    "triangle_counting",
 ]
 
 dal_collect_modules(

@@ -32,4 +32,5 @@ ONEDAL = column_accessor_homogen           \
          jaccard_batch                     \
          subgraph_isomorphism_batch        \
          load_graph                        \
-         graph_service_functions
+         graph_service_functions           \
+         triangle_counting_batch

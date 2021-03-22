@@ -158,7 +158,7 @@ so sointel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm table jaccard subgraph_isomorphism graph)
+vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca rbf_kernel svm table jaccard subgraph_isomorphism triangle_counting graph)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
