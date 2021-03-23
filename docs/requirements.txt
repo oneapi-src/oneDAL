@@ -18,7 +18,7 @@ requests==2.25.1
 six==1.15.0
 snowballstemmer==2.1.0
 Sphinx==3.5.3
-sphinx-prompt==1.3.0
+sphinx-prompt==1.4.0
 sphinx-rtd-theme==0.5.1
 Sphinx-Substitution-Extensions==2020.9.30.0
 sphinx-tabs==2.1.0
