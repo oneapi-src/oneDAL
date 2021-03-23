@@ -164,7 +164,7 @@ private:
             if(local_id == 0)
                 out << "Partition: " << partition_start << " " << partition_end << sycl::endl;
 */
-            int split_index = kernel_row_partitioning(out, item,
+            int split_index = kernel_row_partitioning(item,
                                                         values,
                                                         indices,
                                                         partition_start,

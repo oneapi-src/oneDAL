@@ -25,7 +25,7 @@ namespace oneapi::dal::backend::primitives {
 sycl::nd_range<2> get_row_partitioning_range(std::int64_t row_count, std::int64_t col_count);
 
 template<typename Float>
-int SYCL_EXTERNAL kernel_row_partitioning(const sycl::stream& out, sycl::nd_item<2> item,
+int SYCL_EXTERNAL kernel_row_partitioning(sycl::nd_item<2> item,
                                            Float* values,
                                            int* indices,
                                            int partition_start,

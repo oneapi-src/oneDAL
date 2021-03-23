@@ -32,7 +32,7 @@ sycl::nd_range<2> get_row_partitioning_range(std::int64_t row_count, std::int64_
 }
 
 template<typename Float>
-int kernel_row_partitioning(const sycl::stream& out, sycl::nd_item<2> item,
+int kernel_row_partitioning(sycl::nd_item<2> item,
                                            Float* values,
                                            int* indices,
                                            int partition_start,
@@ -41,22 +41,13 @@ int kernel_row_partitioning(const sycl::stream& out, sycl::nd_item<2> item,
     auto sg = item.get_sub_group();
     const int local_id = sg.get_local_id()[0];
     const int local_size = sg.get_local_range()[0];
-//    out << "Here" << sycl::endl;
-//    const int cur_row = item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
-//    int print_index = 1;
 
     const int seq_size = partition_end - partition_start;
     const int last_group_size = seq_size % local_size;
     int full_group_size = (seq_size / local_size) * local_size;
     full_group_size += last_group_size > 0 ? local_size : 0; 
-/*        if(local_id == 0 && cur_row > 0) {
-        out << "Group: " << local_size << " " 
-            << last_group_size << " " << full_group_size << sycl::endl;
-    }*/
     int split_index = 0;
 
-//    if(sg.get_local_id()[0] == 0 && cur_row == 0) 
-//        out << "Partition inside: " << partition_start << " " << partition_end << " " << local_size << sycl::endl;
 
     for (int i = partition_start + local_id; i < partition_start + full_group_size; i += local_size) {
         sg.barrier();
@@ -64,14 +55,8 @@ int kernel_row_partitioning(const sycl::stream& out, sycl::nd_item<2> item,
         Float cur_value = inside ? values[i] : 0.0;
         int cur_index = i < partition_end ? indices[i] : -1;
         int is_small = cur_value < pivot ? 1 : 0;
-//        int size = reduce(sg, 1, sycl::ONEAPI::plus<int>());
-//        out << "cur row: " << cur_row << " i: " << i << " small_term: " << (is_small && inside ? 1 : 0) << std::enld;
         const int num_of_small = reduce(sg, is_small && inside ? 1 : 0, sycl::ONEAPI::plus<int>());
         int min_ind = reduce(sg, i, sycl::ONEAPI::minimum<int>());
-/*        if(local_id == 0) {
-            out << " nums: " << num_of_small 
-                << " is_small: " << is_small << " offset: " << (min_ind + num_of_small) << " pivot: " << pivot << sycl::endl;
-        }*/
         if (num_of_small > 0) {
             const int pos_in_group_small = exclusive_scan(sg, is_small && inside ? 1 : 0, std::plus<int>());
             const int pos_in_group_great = num_of_small + exclusive_scan(sg, is_small || !inside ? 0 : 1, std::plus<int>());
@@ -79,15 +64,11 @@ int kernel_row_partitioning(const sycl::stream& out, sycl::nd_item<2> item,
             const int pos_great = min_ind + pos_in_group_great;
             const int pos = is_small ? pos_small : pos_great;  
             const int pos_to_move = pos < min_ind ? min_ind + num_of_small - 1 - pos_in_group_small : -1;
-/*                out << "cur row: " << cur_row << " i: " << i << " " << local_id << " inside: " << inside << " size: " << size << " min_ind: " << min_ind << " local_Id: " << local_id << " " << cur_value << " "  
-                    << is_small << " pos: " 
-                    << pos << " pos_to_move: " << pos_to_move << sycl::endl;*/
             if(inside) {
                 if (is_small) {
                     Float value_to_move = values[pos];
                     int index_to_move = indices[pos];
                     if (pos_to_move > -1) {
-//                            out << "cur row: " << cur_row << " local_id: " << local_id << " pos_to_move: " << pos_to_move << "value_to_move: " << value_to_move << sycl::endl;
                         values[pos_to_move] = value_to_move;
                         indices[pos_to_move] = index_to_move;
                     }
@@ -95,14 +76,8 @@ int kernel_row_partitioning(const sycl::stream& out, sycl::nd_item<2> item,
                 values[pos] = cur_value;
                 indices[pos] = cur_index;
             }
-/*            if(local_id == 0) {
-                    for(int i = partition_start; i < partition_end; i++)
-                        out << "C: " << "cur row: " << cur_row << " i: " << i << " " << values[i] << sycl::endl;
-            }*/
         }
         split_index += num_of_small;
-//        if(local_id == 0)
-//            out << "cur row: " << cur_row << " split_index: " << split_index << sycl::endl;
     }
     split_index = -reduce(sg, -split_index, sycl::ONEAPI::minimum<Float>());
     return split_index + partition_start;
@@ -110,7 +85,6 @@ int kernel_row_partitioning(const sycl::stream& out, sycl::nd_item<2> item,
 
 #define INSTANTIATE(F)                                          \
     template int kernel_row_partitioning<F>( \
-                            const sycl::stream& out, \
                             sycl::nd_item<2> item, \
                             F* values, \
                             int* indices, \

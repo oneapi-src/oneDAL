@@ -63,12 +63,11 @@ public:
         auto nd_range2d = get_row_partitioning_range(row_count, col_count);
 
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
-            sycl::stream out(1024 * 8, 1024 * 8, cgh);
             cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
                 const int cur_row = item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
                 if(cur_row > row_count) return;
-                int cur_index = kernel_row_partitioning<Float>(out, item,
+                int cur_index = kernel_row_partitioning<Float>(item,
                                         data_tmp_ptr + col_count * cur_row,
                                         index_array_ptr + col_count * cur_row,
                                         start,
