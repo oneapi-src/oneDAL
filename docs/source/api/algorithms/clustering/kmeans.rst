@@ -80,7 +80,7 @@ Operation
               kmeans::train_result train(const Descriptor& desc, \
                                          const kmeans::train_input& input)
 
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
+   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::descriptor`
    :tparam input: Input data for the training operation
 
    Preconditions
@@ -120,7 +120,7 @@ Operation
               kmeans::infer_result infer(const Descriptor& desc, \
                                          const kmeans::infer_input& input)
 
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
+   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::descriptor`
    :tparam input: Input data for the inference operation
 
    Preconditions

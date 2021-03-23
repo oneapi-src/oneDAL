@@ -75,7 +75,7 @@ Operation
               kmeans_init::compute_result compute(const Descriptor& desc, \
                                          const kmeans_init::compute_input& input)
 
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans_init::desc`
+   :tparam desc: K-Means algorithm descriptor :expr:`kmeans_init::descriptor`
    :tparam input: Input data for the computing operation
 
    Preconditions

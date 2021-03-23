@@ -79,7 +79,7 @@ Operation
               knn::train_result train(const Descriptor& desc, \
                                          const knn::train_input& input)
 
-   :tparam desc: k-NN algorithm descriptor :expr:`knn::desc`
+   :tparam desc: k-NN algorithm descriptor :expr:`knn::descriptor`
    :tparam input: Input data for the training operation
 
    Preconditions
@@ -114,7 +114,7 @@ Operation
               knn::infer_result infer(const Descriptor& desc, \
                                          const knn::infer_input& input)
 
-   :tparam desc: k-NN algorithm descriptor :expr:`knn::desc`
+   :tparam desc: k-NN algorithm descriptor :expr:`knn::descriptor`
    :tparam input: Input data for the inference operation
 
    Preconditions
