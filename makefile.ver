@@ -22,7 +22,7 @@ STATUS  =       P
 BUILDREV ?=     work
 
 MAJORBINARY = 1
-MINORBINARY = 2
+MINORBINARY = 1
 
 #-------------------------------------------------------------------------------
 # Declarations
