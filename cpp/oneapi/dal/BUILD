@@ -101,9 +101,10 @@ filegroup(
 
 dal_test_suite(
     name = "common_tests",
-    srcs = [
-        "array_test.cpp",
-    ],
+    framework = "catch2",
+    srcs = glob([
+        "test/*.cpp",
+    ]),
     dal_deps = [ ":common" ],
 )
 
