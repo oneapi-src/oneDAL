@@ -15,13 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include "oneapi/dal/backend/primitives/blas/gemm.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-
-#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_kernel_oneapi.h>
 
 namespace oneapi::dal::linear_kernel::backend {
 
@@ -30,46 +25,44 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
-namespace interop = dal::backend::interop;
-
-template <typename Float>
-using daal_linear_kernel_t =
-    daal_linear_kernel::internal::KernelImplLinearOneAPI<daal_linear_kernel::defaultDense, Float>;
-
-template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& x,
-                                 const table& y) {
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
-
-    const int64_t row_count_x = x.get_row_count();
-    const int64_t row_count_y = y.get_row_count();
-
-    dal::detail::check_mul_overflow(row_count_x, row_count_y);
-    auto arr_values =
-        array<Float>::empty(queue, row_count_x * row_count_y, sycl::usm::alloc::device);
-
-    const auto daal_x = interop::convert_to_daal_table(queue, x);
-    const auto daal_y = interop::convert_to_daal_table(queue, y);
-    const auto daal_values =
-        interop::convert_to_daal_table(queue, arr_values, row_count_x, row_count_y);
-
-    daal_linear_kernel::Parameter daal_parameter(desc.get_scale(), desc.get_shift());
-    daal_linear_kernel_t<Float>().compute(daal_x.get(),
-                                          daal_y.get(),
-                                          daal_values.get(),
-                                          &daal_parameter);
-
-    return result_t{}.set_values(
-        dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
-}
+namespace primitives = dal::backend::primitives;
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_x(), input.get_y());
+    const auto x = input.get_x();
+    const auto y = input.get_y();
+
+    auto& queue = ctx.get_queue();
+
+    const int64_t row_count_x = x.get_row_count();
+    const int64_t col_count_x = x.get_column_count();
+    const int64_t row_count_y = y.get_row_count();
+    const int64_t col_count_y = y.get_column_count();
+
+    ONEDAL_ASSERT(col_count_x == col_count_y);
+    dal::detail::check_mul_overflow(row_count_x, row_count_y);
+
+    const Float alpha = desc.get_scale();
+    const Float beta = desc.get_shift();
+
+    auto rows_block_x = row_accessor<const Float>(x).pull(queue, { 0, -1 });
+    const auto ndarray_x =
+        primitives::ndarray<Float, 2>::wrap(rows_block_x.get_data(), { row_count_x, col_count_x });
+
+    auto rows_block_y = row_accessor<const Float>(y).pull(queue, { 0, -1 });
+    const auto ndarray_y =
+        primitives::ndarray<Float, 2>::wrap(rows_block_y.get_data(), { row_count_y, col_count_y });
+
+    auto ndarray_res = primitives::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y });
+    sycl::event event_res;
+    if (beta != 0.0)
+        event_res = ndarray_res.fill(queue, Float(1));
+
+    gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta, { event_res }).wait_and_throw();
+
+    return result_t{}.set_values(dal::detail::homogen_table_builder{}
+                                     .reset(ndarray_res.flatten(queue), row_count_x, row_count_y)
+                                     .build());
 }
 
 template <typename Float>
