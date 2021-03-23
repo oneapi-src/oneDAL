@@ -208,6 +208,15 @@ public:
         return kind();
     }
 
+protected:
+    template <typename Impl,
+              typename ImplType = std::decay_t<Impl>,
+              typename = std::enable_if_t<detail::is_homogen_table_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table, ImplType>>>
+    explicit homogen_table(Impl&& impl) {
+        init_impl(std::forward<Impl>(impl));
+    }
+
 private:
     template <typename Impl>
     void init_impl(Impl&& impl) {
@@ -262,15 +271,6 @@ private:
                    const array<byte_t>& data,
                    const data_type& dtype,
                    data_layout layout);
-
-private:
-    template <typename Impl,
-              typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<detail::is_homogen_table_impl_v<ImplType> &&
-                                          !std::is_base_of_v<table, ImplType>>>
-    explicit homogen_table(Impl&& impl) {
-        init_impl(std::forward<Impl>(impl));
-    }
 
     homogen_table(const pimpl& impl) : table(impl) {}
 };
