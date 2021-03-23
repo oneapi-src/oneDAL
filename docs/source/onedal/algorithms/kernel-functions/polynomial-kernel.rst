@@ -36,10 +36,12 @@ Computing
 Given a set :math:`X` of :math:`n` feature vectors :math:`x_1 = (x_{11}, \ldots, x_{1p}), \ldots, x_n = (x_{n1}, \ldots, x_{np})`
 of dimension :math:`p` and a set :math:`Y` of :math:`m`
 feature vectors :math:`y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \ldots, x_{mp})`,
-the problem is to compute the polynomial kernel function :math:`K(x_i, y_i)` for any pair of input vectors:
+the problem is to compute the polynomial kernel function :math:`K(x_i, y_j)` for any pair of input vectors:
 
 .. math::
-   K(x_i, y_i) = (k {X_i}^T y_i + b)^d
+   K(x_i, y_j) = (k {x_i}^T y_j + b)^d,
+
+where :math:`k\in\mathbb{R},\ b\in\mathbb{R},\ d\in{\{0,\ 1,\ 2,\ ...\}}, \quad 1 \leq i \leq n, \quad 1 \leq j \leq m`.
 
 .. _polynomial_kernel_c_math_dense:
 

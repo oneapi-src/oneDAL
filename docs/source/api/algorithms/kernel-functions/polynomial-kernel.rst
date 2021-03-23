@@ -39,7 +39,6 @@ All types and functions in this section are declared in the
                    
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::polynomial_kernel::detail::v1::descriptor_base
 .. onedal_class:: oneapi::dal::polynomial_kernel::v1::descriptor
 
 Method tags
@@ -76,4 +75,6 @@ Operation
    :tparam Descriptor: Polynomial Kernel algorithm descriptor :expr:`polynomial_kernel::desc`.
 
    Preconditions
-      | :expr:`input.data.is_empty == false`
+      | :expr:`input.x.is_empty == false`
+      | :expr:`input.y.is_empty == false`
+      | :expr:`input.x.column_count == input.y.column_count`
