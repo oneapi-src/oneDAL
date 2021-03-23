@@ -236,8 +236,8 @@ public:
     explicit descriptor(const Kernel& kernel = kernel_t{})
             : base_t(std::make_shared<detail::kernel_function<Kernel>>(kernel)) {}
 
-    /// The descriptor of kernel function `K(x,y)`. Can be :expr:`linear_kernel::desc` or
-    /// :expr:`polynomial_kernel::desc` or :expr:`rbf_kernel::desc`.
+    /// The descriptor of kernel function `K(x,y)`. Can be :expr:`linear_kernel::descriptor` or
+    /// :expr:`polynomial_kernel::descriptor` or :expr:`rbf_kernel::descriptor`.
     /// @remark default = :literal:`kernel`
     const Kernel& get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;
