@@ -39,6 +39,10 @@ public:
         return polynomial_kernel::descriptor<float, Method, polynomial_kernel::task::compute>{};
     }
 
+    bool not_available_on_device() {
+        return this->get_policy().is_gpu();
+    }
+
     table get_x_data(std::int64_t override_row_count = row_count_x,
                      std::int64_t override_column_count = column_count) const {
         ONEDAL_ASSERT(override_row_count * override_column_count <= element_count_x);
@@ -69,18 +73,22 @@ private:
                     polynomial_kernel::method::dense)
 
 POLYNOMIAL_KERNEL_BADARG_TEST("accepts positive degree") {
+    SKIP_IF(this->not_available_on_device());
     REQUIRE_NOTHROW(this->get_descriptor().set_degree(3));
 }
 
 POLYNOMIAL_KERNEL_BADARG_TEST("accepts zero degree") {
+    SKIP_IF(this->not_available_on_device());
     REQUIRE_NOTHROW(this->get_descriptor().set_degree(0));
 }
 
 POLYNOMIAL_KERNEL_BADARG_TEST("throws if degree is negative") {
+    SKIP_IF(this->not_available_on_device());
     REQUIRE_THROWS_AS(this->get_descriptor().set_degree(-3), domain_error);
 }
 
 POLYNOMIAL_KERNEL_BADARG_TEST("throws if x data is empty") {
+    SKIP_IF(this->not_available_on_device());
     const auto polynomial_kernel_desc = this->get_descriptor();
 
     REQUIRE_THROWS_AS(this->compute(polynomial_kernel_desc, homogen_table{}, this->get_y_data()),
@@ -88,6 +96,7 @@ POLYNOMIAL_KERNEL_BADARG_TEST("throws if x data is empty") {
 }
 
 POLYNOMIAL_KERNEL_BADARG_TEST("throws if y data is empty") {
+    SKIP_IF(this->not_available_on_device());
     const auto polynomial_kernel_desc = this->get_descriptor();
 
     REQUIRE_THROWS_AS(this->compute(polynomial_kernel_desc, this->get_x_data(), homogen_table{}),
@@ -95,6 +104,7 @@ POLYNOMIAL_KERNEL_BADARG_TEST("throws if y data is empty") {
 }
 
 POLYNOMIAL_KERNEL_BADARG_TEST("throws if x columns count neq y columns count") {
+    SKIP_IF(this->not_available_on_device());
     const auto polynomial_kernel_desc = this->get_descriptor();
 
     REQUIRE_THROWS_AS(this->compute(polynomial_kernel_desc,

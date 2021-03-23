@@ -16,9 +16,7 @@
 
 #include "oneapi/dal/algo/polynomial_kernel/compute.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::polynomial_kernel::test {
@@ -27,7 +25,8 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class polynomial_kernel_batch_test : public te::algo_fixture {
+class polynomial_kernel_batch_test
+        : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -39,8 +38,8 @@ public:
             .set_degree(degree);
     }
 
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
+    bool not_available_on_device() {
+        return this->get_policy().is_gpu();
     }
 
     void general_checks(const te::dataframe& x_data,
@@ -72,18 +71,15 @@ public:
                               const polynomial_kernel::compute_result<>& result) {
         const auto result_values = result.get_values();
 
-        SECTION("result values table shape is expected") {
-            REQUIRE(result_values.get_row_count() == x_data.get_row_count());
-            REQUIRE(result_values.get_column_count() == y_data.get_row_count());
-        }
+        INFO("check if result values table shape is expected")
+        REQUIRE(result_values.get_row_count() == x_data.get_row_count());
+        REQUIRE(result_values.get_column_count() == y_data.get_row_count());
 
-        SECTION("there is no NaN in result values table") {
-            REQUIRE(te::has_no_nans(result_values));
-        }
+        INFO("check if there is no NaN in result values table")
+        REQUIRE(te::has_no_nans(result_values));
 
-        SECTION("result values are expected") {
-            check_result_values(scale, shift, degree, x_data, y_data, result_values);
-        }
+        INFO("check if result values are expected")
+        check_result_values(scale, shift, degree, x_data, y_data, result_values);
     }
 
     void check_result_values(double scale,
@@ -93,7 +89,7 @@ public:
                              const table& y_data,
                              const table& result_values) {
         const auto reference = compute_reference(scale, shift, degree, x_data, y_data);
-        const double tol = te::get_tolerance<Float>(9e-3, 1e-9);
+        const double tol = te::get_tolerance<Float>(1e-2, 1e-9);
         const double diff = te::abs_error(reference, result_values);
         CHECK(diff < tol);
     }
@@ -123,6 +119,9 @@ TEMPLATE_LIST_TEST_M(polynomial_kernel_batch_test,
                      "polynomial_kernel common flow",
                      "[polynomial_kernel][integration][batch]",
                      polynomial_kernel_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const te::dataframe x_data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 100, 50 }.fill_normal(0, 1, 7777),
@@ -152,6 +151,9 @@ TEMPLATE_LIST_TEST_M(polynomial_kernel_batch_test,
                      "polynomial_kernel compute one element matrix",
                      "[polynomial_kernel][integration][batch]",
                      polynomial_kernel_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const te::dataframe x_data =
         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
 
