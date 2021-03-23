@@ -154,7 +154,7 @@ public:
         return *this;
     }
 
-    /// Specifies whether the algorithm applies the `Sign-flip technique`_.
+    /// Specifies whether the algorithm applies the sign-flip technique.
     /// If it is `true`, the directions of the eigenvectors must be deterministic.
     /// @remark default = true
     bool get_deterministic() const {

@@ -143,10 +143,8 @@ onedal_relative_sources_dir = '../../cpp/oneapi/dal'
 nitpick_ignore = [
     # method
     ('cpp:identifier', 'method'),
-    ('cpp:identifier', 'method::v1'),
     # task
     ('cpp:identifier', 'task'),
-    ('cpp:identifier', 'task::v1'),
     ('cpp:identifier', 'task::by_default'),
     ('cpp:identifier', 'Task'),
     # detail
@@ -180,9 +178,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'kmeans::infer_result'),
     ('cpp:identifier', 'kmeans::infer_input'),
     ('cpp:identifier', 'i'),
-    ('cpp:identifier', 'kmeans::v1'),
-    ('cpp:identifier', 'kmeans::v1::model'),
-    ('cpp:identifier', 'kmeans::v1::model::centroids'),
+    ('cpp:identifier', 'kmeans::model'),
     ('cpp:identifier', 'infer_input'),
     ('cpp:identifier', 'infer_input::model'),
     ('cpp:identifier', 'infer_input::model::centroids'),
@@ -272,17 +268,12 @@ nitpick_ignore = [
     # oneapi
     ('cpp:identifier', 'oneapi'),
     ('cpp:identifier', 'oneapi::dal'),
-    ('cpp:identifier', 'oneapi::dal::v1'),
     # oneapi - kmeans
     ('cpp:identifier', 'oneapi::dal::kmeans'),
     ('cpp:identifier', 'oneapi::dal::kmeans::task'),
-    ('cpp:identifier', 'oneapi::dal::kmeans::task::v1'),
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
-    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
-    ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
-    ('cpp:identifier', 'oneapi::dal::svm::task::v1'),
-    ]
+]
