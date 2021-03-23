@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+
+namespace dal = oneapi::dal;
 
 #include <fstream>
 
@@ -13,6 +16,8 @@ enum graph_file_type { grf, gfd, mtx };
 class graph_loader {
 public:
     graph_loader();
+    graph_loader(const dal::preview::detail::topology<std::int32_t>& t,
+                 graph_storage_scheme storage_scheme);
     graph_loader(const char* graph_file_name,
                  graph_file_type file_format = grf,
                  graph_storage_scheme storage_scheme = auto_detect);

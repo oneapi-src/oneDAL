@@ -187,9 +187,9 @@ private:
     bool init_level(const std::uint64_t level);
     void delete_data();
 
-    std::uint64_t get_parent_vertex_id_by_level(const std::uint64_t child_level,
-                                                const std::uint64_t child_stack_index,
-                                                const std::uint64_t parent_level) const;
+    std::int64_t get_parent_vertex_id_by_level(const std::uint64_t child_level,
+                                               const std::uint64_t child_stack_index,
+                                               const std::uint64_t parent_level) const;
     std::uint64_t get_stack_index_by_vertex_index(const std::uint64_t level,
                                                   const std::uint64_t vertex_index) const;
     std::uint64_t stack_offset(const std::uint64_t level, const std::uint64_t stack_index) const;

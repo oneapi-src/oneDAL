@@ -14,6 +14,12 @@
 
 namespace dal_experimental {
 
+enum flow_switch_ids {
+    default_single_thread_mode = 0x0,
+    multi_thread_mode = 0x1,
+    use_hybrid_search = 0x2 /* dfs search - default value */
+};
+
 #ifdef DEBUG_MODE
 struct statistics {
     std::int64_t state_handling;

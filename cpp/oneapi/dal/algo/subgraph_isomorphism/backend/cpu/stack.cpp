@@ -692,9 +692,9 @@ void bfs_stack::push(const std::uint64_t level,
     }
 }
 
-std::uint64_t bfs_stack::get_parent_vertex_id_by_level(const std::uint64_t child_level,
-                                                       const std::uint64_t child_stack_index,
-                                                       const std::uint64_t parent_level) const {
+std::int64_t bfs_stack::get_parent_vertex_id_by_level(const std::uint64_t child_level,
+                                                      const std::uint64_t child_stack_index,
+                                                      const std::uint64_t parent_level) const {
     // performance critical method, disable check correctness
     if (child_level < max_level_size && parent_level < child_level &&
         child_stack_index < level_stacks_count[child_level]) {

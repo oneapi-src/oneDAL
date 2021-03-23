@@ -14,6 +14,8 @@ typedef std::chrono::duration<float> fsec;
 
 using namespace dal_experimental;
 
+namespace dal = oneapi::dal;
+
 matching_engine::~matching_engine() {
     pattern = nullptr;
     target = nullptr;
@@ -550,25 +552,25 @@ solution engine_bundle::run_hybrid() {
 #endif // DEBUG_MODE
 
         // treading code
-        oneapi::dal::preview::threader_for(
-            exploration_stack.size(),
-            exploration_stack.size(),
-            [=](const int i) {
-                bundle::reference local_engine = matching_bundle.local();
-                local_engine.state_exploration_bit(exploration_stack[i], false);
-                exploration_stack.clear_state(i);
-            });
+        dal::detail::threader_for(exploration_stack.size(),
+                                  exploration_stack.size(),
+                                  [=](const int i) {
+                                      bundle::reference local_engine = matching_bundle.local();
+                                      local_engine.state_exploration_bit(exploration_stack[i],
+                                                                         false);
+                                      exploration_stack.clear_state(i);
+                                  });
         exploration_stack.clear(false);
     }
 
     if (steps != pattern->n) {
-        task_group tg;
+        // task_group tg; TBB
         for (bundle::iterator i = matching_bundle.begin(); i != matching_bundle.end(); ++i) {
-            tg.run([=] {
-                bundle_solutions.add(i->run(false));
-            });
+            // tg.run([=] {
+            bundle_solutions.add(i->run(false));
+            // });
         }
-        tg.wait();
+        // tg.wait();
     }
     else {
         for (bundle::iterator i = matching_bundle.begin(); i != matching_bundle.end(); ++i) {
@@ -587,7 +589,7 @@ solution engine_bundle::run_dfs() {
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
     std::uint64_t first_states_count = pattern_vertex_probability[0] * target->get_vertex_count();
-    std::uint64_t max_threads_count = oneapi::dal::preview::threader_get_max_threads();
+    int max_threads_count = dal::detail::threader_get_max_threads();
     std::uint64_t possible_first_states_count_per_thread = first_states_count / max_threads_count;
     if (possible_first_states_count_per_thread < 1) {
         max_threads_count = first_states_count;
@@ -600,7 +602,7 @@ solution engine_bundle::run_dfs() {
 
 #ifdef DEBUG_MODE
     std::cout << "final threads count: " << max_threads_count << " of "
-              << oneapi::dal::preview::threader_get_max_threads()
+              << dal::detail::threader_get_max_threads()
               << " States per thread: " << possible_first_states_count_per_thread << std::endl;
 #endif // DEBUG_MODE
 
@@ -617,7 +619,7 @@ solution engine_bundle::run_dfs() {
     }
 
     state null_state;
-    task_group tg;
+    // task_group tg;
     std::uint64_t task_counter = 0;
     for (std::int64_t i = 0; i < target->n; ++i) {
         if (degree <= target->get_vertex_degree(i) &&
@@ -629,9 +631,9 @@ solution engine_bundle::run_dfs() {
             if ((engine_array[task_counter].hlocal_stack.states_in_stack() /
                  possible_first_states_count_per_thread) > 0 ||
                 i == target->n - 1) {
-                tg.run([=] {
-                    engine_array[task_counter].run_and_wait(false);
-                });
+                // tg.run([=] {
+                engine_array[task_counter].run_and_wait(false);
+                // });
                 task_counter++;
             }
 #else
@@ -642,16 +644,16 @@ solution engine_bundle::run_dfs() {
             if ((engine_array[task_counter].local_stack.size() /
                  possible_first_states_count_per_thread) > 0 ||
                 i == target->n - 1) {
-                tg.run([=] {
-                    engine_array[task_counter].run_and_wait(false);
-                });
+                // tg.run([=] {
+                engine_array[task_counter].run_and_wait(false);
+                // });
                 task_counter++;
             }
 #endif // EXPERIMENTAL
         }
     }
 
-    tg.wait();
+    // tg.wait();
 
     for (int i = 0; i < max_threads_count; i++) {
         bundle_solutions.add(engine_array[i].get_solution());
@@ -678,18 +680,18 @@ void engine_bundle::first_states_generator(bool use_exploration_stack) {
     }
     else {
         std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
-        oneapi::dal::preview::threader_for(target->get_vertex_count(),
-                                           target->get_vertex_count(),
-                                           [=](const int i) {
-            bundle::reference local_engine = matching_bundle.local();
-            state null_state;
-            if (degree <= target->get_vertex_degree(i) &&
-                pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
-                    target->get_vertex_attribute(i)) {
-                void* place = _mm_malloc(sizeof(state), 64);
-                state* new_state = new (place) state(&null_state, i);
-                local_engine.local_stack.push(new_state);
-            });
-                                           }
+        dal::detail::threader_for(target->get_vertex_count(),
+                                  target->get_vertex_count(),
+                                  [=](const int i) {
+                                      bundle::reference local_engine = matching_bundle.local();
+                                      state null_state;
+                                      if (degree <= target->get_vertex_degree(i) &&
+                                          pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
+                                              target->get_vertex_attribute(i)) {
+                                          void* place = _mm_malloc(sizeof(state), 64);
+                                          state* new_state = new (place) state(&null_state, i);
+                                          local_engine.local_stack.push(new_state);
+                                      }
+                                  });
     }
 }

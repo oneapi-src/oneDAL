@@ -14,3 +14,5 @@ dal_experimental::solution subgraph_isomorphism(const dal_experimental::graph& p
                                                 const std::uint64_t control_flags = 0);
 
 }
+} // namespace subgraph_isomorphism
+} // namespace oneapi::dal::preview

@@ -6,9 +6,11 @@ namespace oneapi::dal::preview {
 namespace subgraph_isomorphism {
 namespace detail {
 
-solution dal_experimental::subgraph_isomorphism(const dal_experimental::graph& pattern,
-                                                const dal_experimental::graph& target,
-                                                const std::uint64_t control_flags) {
+using namespace dal_experimental;
+
+solution subgraph_isomorphism(const dal_experimental::graph& pattern,
+                              const dal_experimental::graph& target,
+                              const std::uint64_t control_flags) {
     solution sol;
     sorter sorter_graph(&target);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
@@ -117,5 +119,4 @@ solution dal_experimental::subgraph_isomorphism(const dal_experimental::graph& p
 
 } // namespace detail
 } // namespace subgraph_isomorphism
-} // namespace oneapi::dal::preview
 } // namespace oneapi::dal::preview

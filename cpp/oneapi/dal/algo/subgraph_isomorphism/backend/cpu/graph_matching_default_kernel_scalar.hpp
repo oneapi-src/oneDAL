@@ -25,6 +25,10 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_loader.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/matching.hpp"
+
+using namespace dal_experimental;
 
 namespace oneapi::dal::preview {
 namespace subgraph_isomorphism {
@@ -43,6 +47,9 @@ graph_matching_result call_subgraph_isomorphism_default_kernel_scalar(
     graph_loader target_loader(t_data, graph_storage_scheme::auto_detect);
     graph target(target_loader.get_graph_data());
 
+    std::uint64_t control_flags = flow_switch_ids::default_single_thread_mode;
+    //control_flags |= flow_switch_ids::multi_thread_mode;
+    ////control_flags |= flow_switch_ids::use_hybrid_search;
     solution results = subgraph_isomorphism(pattern, target, control_flags);
 
     return graph_matching_result(results.export_as_table(), results.get_solution_count());
