@@ -137,8 +137,8 @@ private:
             return;
 
         N = (row_id == num_rows - 1) ? NLast : N;
-        if(local_id == 0)
-            out << "N: " << N << " NLast: " << NLast << sycl::endl;
+//        if(local_id == 0)
+//            out << "N: " << N << " NLast: " << NLast << sycl::endl;
 
         const int offset_in = row_id * BlockOffset;
         const int offset_out = row_id * K;
@@ -159,10 +159,11 @@ private:
             int pos = (int)(rnd * (partition_end - partition_start - 1));
             pos = pos < 0 ? 0 : pos;
             const Float pivot = values[partition_start + pos];
-            if(local_id == 0)
+/*            if(local_id == 0)
                 out << "Pivot: " << (partition_start + pos) << " " <<pivot << sycl::endl;
             if(local_id == 0)
                 out << "Partition: " << partition_start << " " << partition_end << sycl::endl;
+*/
             int split_index = kernel_row_partitioning(out, item,
                                                         values,
                                                         indices,
@@ -185,7 +186,9 @@ private:
         }
         //assert(iteration_count < N);
         for (int i = local_id; i < K; i += local_size) {
-            out_values[offset_out + i] = values[i];
+            if constexpr (selection_out) {
+                out_values[offset_out + i] = values[i];
+            }
             if constexpr (indices_out) {
                 out_indices[offset_out + i] = indices[i];
             }

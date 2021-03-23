@@ -41,11 +41,13 @@ public:
                         std::int64_t row_count,
                         std::int64_t col_count,
                         std::int64_t k) {
-/*        INFO("Output of selected values") {
+        INFO("Output of selected values") {
+            std::cout << "#1" << std::endl;
             selection_by_rows<Float> sel(data);
             ndarray<int, 2> dummy_array;
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
             sel.select(get_queue(), k, value_array).wait_and_throw();
+            std::cout << "Done" << std::endl;
             check_results<true, false>(data, value_array, dummy_array);
         }
         INFO("Output of selected indices") {
@@ -55,13 +57,13 @@ public:
             sel.select(get_queue(), k, index_array).wait_and_throw();
             check_results<false, true>(data, dummy_array, index_array);
         }
-*/
+
         INFO("Output of both") {
-            auto data_ptr = data.get_data();
+/*            auto data_ptr = data.get_data();
             std::cout << "Data: ";
             for(int i = 0; i < col_count; i++)
                 std::cout << "data: " << i << " " << data_ptr[i] << std::endl;;
-            std::cout << std::endl;
+            std::cout << std::endl;*/
             selection_by_rows<Float> sel(data);
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
             auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
@@ -81,10 +83,10 @@ public:
         auto row_size = data.get_dimension(1);
         auto row_count = data.get_dimension(0);
 //        auto data_ptr = data.get_data();
-        auto selection_ptr = selection.get_data();
-        auto indices_ptr = indices.get_data();
-        for(int i = 0; i < row_size; i++)
-            std::cout << "res: " << i << " " <<  selection_ptr[i] << " " << indices_ptr[i] << std::endl;
+//        auto selection_ptr = selection.get_data();
+//        auto indices_ptr = indices.get_data();
+//        for(int i = 0; i < row_size; i++)
+//            std::cout << "res: " << i << " " <<  selection_ptr[i] << " " << indices_ptr[i] << std::endl;
 
         for (std::int64_t i = 0; i < row_count; i++) {
             auto max_val = std::numeric_limits<Float>::lowest();
@@ -186,9 +188,8 @@ public:
     }
 };
 
-//using selection_types = std::tuple<float, double>;
-using selection_types = std::tuple<float>;
-/* TEMPLATE_LIST_TEST_M(selection_by_rows_test,
+using selection_types = std::tuple<float, double>;
+TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == 1)",
                      "[block select][small]",
                      selection_types) {
@@ -257,7 +258,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
     auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_selection(data_array, rows, cols, 31);
 }
-*/
+
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection test on single random row (k > 32)",
                      "[block select][small]",
