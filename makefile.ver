@@ -16,13 +16,13 @@
 
 MAJOR   =       2021
 MINOR   =       2
-UPDATE  =       0
+UPDATE  =       1 
 BUILD   =       $(shell date +'%Y%m%d')
 STATUS  =       P
 BUILDREV ?=     work
 
 MAJORBINARY = 1
-MINORBINARY = 1
+MINORBINARY = 2
 
 #-------------------------------------------------------------------------------
 # Declarations
