@@ -78,6 +78,7 @@ Operation
                                       const svm::train_input& input)
 
    :param desc: SVM algorithm descriptor :expr:`svm::descriptor`.
+   :param input: Input data for the training operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`
@@ -109,6 +110,7 @@ Operation
                                       const svm::infer_input& input)
 
    :param desc: SVM algorithm descriptor :expr:`svm::descriptor`.
+   :param input: Input data for the inference operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`

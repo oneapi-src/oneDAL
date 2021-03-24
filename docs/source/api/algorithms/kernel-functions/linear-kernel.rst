@@ -74,6 +74,7 @@ Operation
                                       const linear_kernel::compute_input& input)
 
    :param desc: Linear Kernel algorithm descriptor :expr:`linear_kernel::descriptor`.
+   :param input: Input data for the computing operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`

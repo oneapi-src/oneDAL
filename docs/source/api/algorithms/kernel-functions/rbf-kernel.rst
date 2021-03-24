@@ -74,6 +74,7 @@ Operation
                                       const rbf_kernel::compute_input& input)
 
    :param desc: RBF Kernel algorithm descriptor :expr:`rbf_kernel::descriptor`.
+   :param input: Input data for the computing operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`
