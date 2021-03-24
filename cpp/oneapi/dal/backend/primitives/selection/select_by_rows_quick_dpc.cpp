@@ -31,8 +31,13 @@ template <typename Float, bool selection_out, bool indices_out>
 class quick_selection {
 public:
     quick_selection() = delete;
-    quick_selection(sycl::queue& queue) {
+    quick_selection(sycl::queue& queue, const ndshape<2>& shape) {
         rng_seq_ = array<Float>::empty(queue, max_rng_seq_size_);
+        data_ = ndarray<Float, 2>::empty(queue, shape, sycl::usm::alloc::device);
+        indices_ = ndarray<int, 2>::empty(queue, shape, sycl::usm::alloc::device);
+    }
+    ~quick_selection() {
+        last_call_.wait_and_throw();
     }
     void init(sycl::queue& queue, std::int64_t rng_size) {
         ONEDAL_ASSERT(rng_size > 1);
@@ -66,20 +71,22 @@ public:
                        ndview<Float, 2>& selection,
                        ndview<int, 2>& indices,
                        const event_vector& deps) {
+        last_call_.wait_and_throw();
+        ONEDAL_ASSERT(data.get_shape() == data_.get_shape());
         const std::int64_t col_count = data.get_dimension(1);
+        const std::int64_t stride = data.get_dimension(1);
         const std::int64_t row_count = data.get_dimension(0);
 
         auto data_ptr = data.get_data();
-        auto data_tmp = array<Float>::empty(queue, row_count * col_count, sycl::usm::alloc::device);
-        {
-            auto data_tmp_ptr = data_tmp.get_mutable_data();
-            auto cpy_event = queue.submit([&](sycl::handler& cgh) {
-                cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * col_count);
-            });
-            cpy_event.wait();
-        }
+        auto data_tmp_ptr = data_.get_mutable_data();
+        auto cpy_event = queue.submit([&](sycl::handler& cgh) {
+            cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * col_count);
+        });
 
-        auto indices_tmp = array<int>::empty(queue, row_count * col_count, sycl::usm::alloc::device);
+        auto indices_tmp_ptr = indices_.get_mutable_data();
+
+        auto rng_period = this->rng_seq_size_;
+        auto rng_seq_ptr = rng_seq_.get_data();
 
         sycl::range<2> global(preffered_sg_size, row_count);
         sycl::range<2> local(preffered_sg_size, 1);
@@ -90,15 +97,7 @@ public:
 
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            array<int> indices_tmp_in_kernel = indices_tmp;
-            auto indices_tmp_ptr = indices_tmp_in_kernel.get_mutable_data();
-            array<Float> data_tmp_in_kernel = data_tmp;
-            auto data_tmp_ptr = data_tmp_in_kernel.get_mutable_data();
-            auto rng_period = this->rng_seq_size_;
-            array<Float> rng_seq_in_kernel = this->rng_seq_;
-            auto rng_seq_ptr = rng_seq_in_kernel.get_data();
-
-            sycl::stream out(1024 * 8, 1024 * 8, cgh);
+            cgh.depends_on(cpy_event);
             cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
                 quick_selection::kernel_select(item,
                                                row_count,
@@ -111,9 +110,10 @@ public:
                                                col_count,
                                                col_count,
                                                k,
-                                               col_count);
+                                               stride);
             });
         });
+        last_call_ = event;
         return event;
     }
 
@@ -192,6 +192,9 @@ private:
     static constexpr std::int64_t max_rng_seq_size_ = 1024;
     std::int64_t rng_seq_size_ = max_rng_seq_size_;
     array<Float> rng_seq_;
+    ndarray<Float, 2> data_;
+    ndarray<int, 2> indices_;
+    sycl::event last_call_;
 };
 
 template <typename Float, bool selection_out, bool indices_out>
@@ -216,7 +219,7 @@ sycl::event select_by_rows_quick(sycl::queue& queue,
     }
     const std::int64_t nx = data.get_dimension(1);
     std::cout << "Quick selection begin" << std::endl;
-    quick_selection<Float, selection_out, indices_out> qs(queue);
+    quick_selection<Float, selection_out, indices_out> qs(queue, data.get_shape());
     std::cout << "Quick selection init" << std::endl;
     qs.init(queue, nx);
     std::cout << "Quick selection run" << std::endl;
