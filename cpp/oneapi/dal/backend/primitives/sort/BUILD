@@ -19,11 +19,27 @@ dal_test_suite(
     private = True,
     srcs = glob([
         "test/*_dpc.cpp",
+    ],
+    exclude=[
+        "test/perf_*.cpp",
     ]),
     dal_deps = [
         ":sort",
     ],
     tags = [
         "exclusive",
+    ],
+)
+
+dal_test_suite(
+    name = "perf_tests",
+    framework = "catch2",
+    compile_as = [ "dpc++" ],
+    private = True,
+    srcs = glob([
+        "test/perf_*.cpp",
+    ]),
+    dal_deps = [
+        ":sort",
     ],
 )
