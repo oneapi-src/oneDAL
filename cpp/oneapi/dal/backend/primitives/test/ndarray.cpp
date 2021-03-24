@@ -528,7 +528,7 @@ TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
     const std::int64_t m = 7;
     const std::int64_t n = 5;
 
-    auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 }, sycl::usm::alloc::device);
+    auto [x, event] = ndarray<float, 2>::ones(queue, { m, n }, sycl::usm::alloc::device);
 
     event.wait_and_throw();
 
