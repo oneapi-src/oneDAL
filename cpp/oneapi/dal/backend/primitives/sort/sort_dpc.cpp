@@ -31,6 +31,11 @@ inline std::uint64_t inv_bits(std::uint64_t x) {
     return x ^ (-(x >> 63) | 0x8000000000000000ul);
 }
 
+using sycl::ONEAPI::broadcast;
+using sycl::ONEAPI::reduce;
+using sycl::ONEAPI::plus;
+using sycl::ONEAPI::exclusive_scan;
+
 template <typename Float, typename IndexType>
 sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
     sycl::queue& queue,
@@ -50,7 +55,7 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
     const radix_integer_t* val_ptr = reinterpret_cast<const radix_integer_t*>(val.get_data());
     IndexType* part_hist_ptr = part_hist.get_mutable_data();
 
-    auto event = queue.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
@@ -81,8 +86,7 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
                 radix_integer_t data_bits = ((inv_bits(val_ptr[i]) >> bit_offset) & radix_range_1_);
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
                     IndexType value = static_cast<IndexType>(data_bits == j);
-                    IndexType partial_offset =
-                        sycl::ONEAPI::reduce(sbg, value, cl::sycl::ONEAPI::plus<IndexType>());
+                    IndexType partial_offset = reduce(sbg, value, plus<IndexType>());
                     offset[j] += partial_offset;
                 }
             }
@@ -116,7 +120,7 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_hist_scan(
     const sycl::range<1> local(local_size);
     const sycl::nd_range<1> nd_range(global, local);
 
-    auto event = queue.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
@@ -135,13 +139,9 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_hist_scan(
             for (std::uint32_t i = local_id; i < local_hist_count; i += local_size) {
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
                     IndexType value = part_hist_ptr[i * radix_range_ + j];
-                    IndexType boundary =
-                        sycl::ONEAPI::exclusive_scan(sbg,
-                                                     value,
-                                                     cl::sycl::ONEAPI::plus<IndexType>());
+                    IndexType boundary = exclusive_scan(sbg, value, plus<IndexType>());
                     part_prefix_hist_ptr[i * radix_range_ + j] = offset[j] + boundary;
-                    IndexType partial_offset =
-                        sycl::ONEAPI::reduce(sbg, value, cl::sycl::ONEAPI::plus<IndexType>());
+                    IndexType partial_offset = reduce(sbg, value, plus<IndexType>());
                     offset[j] += partial_offset;
                 }
             }
@@ -187,7 +187,7 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
     const sycl::range<1> local(local_size);
     const sycl::nd_range<1> nd_range(global, local);
 
-    auto event = queue.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
@@ -223,13 +223,9 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
                 IndexType pos_new = 0;
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
                     IndexType value = static_cast<IndexType>(data_bits == j);
-                    IndexType boundary =
-                        sycl::ONEAPI::exclusive_scan(sbg,
-                                                     value,
-                                                     cl::sycl::ONEAPI::plus<IndexType>());
+                    IndexType boundary = exclusive_scan(sbg, value, plus<IndexType>());
                     pos_new |= value * (offset[j] + boundary);
-                    IndexType partial_offset =
-                        sycl::ONEAPI::reduce(sbg, value, cl::sycl::ONEAPI::plus<IndexType>());
+                    IndexType partial_offset = reduce(sbg, value, plus<IndexType>());
                     offset[j] = offset[j] + partial_offset;
                 }
                 val_out_ptr[pos_new] = data_value;
@@ -443,18 +439,17 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                     bool entry_found = false;
                     for (std::uint32_t k = 0; k < local_size; k++) {
                         bool correct = j < group_aligned_size || k < rem;
-                        std::uint32_t done = sycl::ONEAPI::broadcast(sbg, correct ? 0 : 1, k);
+                        std::uint32_t done = broadcast(sbg, correct ? 0 : 1, k);
                         if (done)
                             break;
-                        std::uint8_t value = sycl::ONEAPI::broadcast(sbg, c, k);
+                        std::uint8_t value = broadcast(sbg, c, k);
                         if (!entry_found && value == c) {
                             entry = k;
                             entry_found = true;
                         }
-                        Integer count =
-                            sycl::ONEAPI::reduce(sbg,
-                                                 static_cast<Integer>(exists && value == c ? 1 : 0),
-                                                 cl::sycl::ONEAPI::plus<Integer>());
+                        Integer count = reduce(sbg,
+                                               static_cast<Integer>(exists && value == c ? 1 : 0),
+                                               plus<Integer>());
                         if (entry_found && entry == local_id && entry == k) {
                             counters[value] += count;
                         }
@@ -465,11 +460,9 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                 Integer offset = 0;
                 for (std::uint32_t j = local_id; j < radix_range; j += local_size) {
                     Integer value = counters[j];
-                    Integer boundary =
-                        sycl::ONEAPI::exclusive_scan(sbg, value, cl::sycl::ONEAPI::plus<Integer>());
+                    Integer boundary = exclusive_scan(sbg, value, plus<Integer>());
                     counters[j] = offset + boundary;
-                    Integer partial_offset =
-                        sycl::ONEAPI::reduce(sbg, value, cl::sycl::ONEAPI::plus<Integer>());
+                    Integer partial_offset = reduce(sbg, value, plus<Integer>());
                     offset += partial_offset;
                 }
 
@@ -484,28 +477,27 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
 
                     for (std::uint32_t k = 0; k < local_size; k++) {
                         bool correct = j < group_aligned_size || k < rem;
-                        std::uint32_t done = sycl::ONEAPI::broadcast(sbg, correct ? 0 : 1, k);
+                        std::uint32_t done = broadcast(sbg, correct ? 0 : 1, k);
                         if (done)
                             break;
-                        std::uint32_t skip = sycl::ONEAPI::broadcast(sbg, entry_found ? 1 : 0, k);
+                        std::uint32_t skip = broadcast(sbg, entry_found ? 1 : 0, k);
                         if (skip)
                             continue;
-                        std::uint8_t value = sycl::ONEAPI::broadcast(sbg, c, k);
+                        std::uint8_t value = broadcast(sbg, c, k);
                         if (!entry_found && value == c) {
                             entry = k;
                             entry_found = true;
                         }
-                        Integer offset = sycl::ONEAPI::exclusive_scan(
-                            sbg,
-                            static_cast<Integer>(exists && value == c ? 1 : 0),
-                            cl::sycl::ONEAPI::plus<Integer>());
+                        Integer offset =
+                            exclusive_scan(sbg,
+                                           static_cast<Integer>(exists && value == c ? 1 : 0),
+                                           plus<Integer>());
                         if (value == c) {
                             local_offset = offset + counters[value];
                         }
-                        Integer count =
-                            sycl::ONEAPI::reduce(sbg,
-                                                 static_cast<Integer>(exists && value == c ? 1 : 0),
-                                                 cl::sycl::ONEAPI::plus<Integer>());
+                        Integer count = reduce(sbg,
+                                               static_cast<Integer>(exists && value == c ? 1 : 0),
+                                               plus<Integer>());
                         if (entry_found && entry == local_id && entry == k) {
                             counters[value] += count;
                         }
