@@ -38,9 +38,9 @@ public:
     }
 
     void test_partitioning(ndview<Float, 2>& data,
-                    std::int64_t start,
-                    std::int64_t end,
-                    std::int64_t pivot_index) {
+                           std::int64_t start,
+                           std::int64_t end,
+                           std::int64_t pivot_index) {
         auto row_count = data.get_dimension(0);
         auto col_count = data.get_dimension(1);
         auto data_ptr = data.get_data();
@@ -56,8 +56,8 @@ public:
         auto index_array = ndarray<int, 2>::empty(this->get_queue(), { row_count, col_count });
         auto split_array_ptr = split_array.get_mutable_data();
         auto index_array_ptr = index_array.get_mutable_data();
-        for(int i = 0; i < row_count; i++)
-            for(int j = 0; j < col_count; j++)
+        for (int i = 0; i < row_count; i++)
+            for (int j = 0; j < col_count; j++)
                 index_array_ptr[i * col_count + j] = j;
 
         auto nd_range2d = get_row_partitioning_range(row_count, col_count);
@@ -65,15 +65,18 @@ public:
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
             cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
-                const int cur_row = item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
-                if(cur_row > row_count) return;
-                int cur_index = kernel_row_partitioning<Float>(item,
-                                        data_tmp_ptr + col_count * cur_row,
-                                        index_array_ptr + col_count * cur_row,
-                                        start,
-                                        end,
-                                        data_ptr[pivot_index + cur_row * col_count]);
-                if(sg.get_local_id()[0] == 0)
+                const int cur_row =
+                    item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
+                if (cur_row > row_count)
+                    return;
+                int cur_index =
+                    kernel_row_partitioning<Float>(item,
+                                                   data_tmp_ptr + col_count * cur_row,
+                                                   index_array_ptr + col_count * cur_row,
+                                                   start,
+                                                   end,
+                                                   data_ptr[pivot_index + cur_row * col_count]);
+                if (sg.get_local_id()[0] == 0)
                     split_array_ptr[cur_row] = cur_index;
             });
         });
@@ -83,7 +86,7 @@ public:
 
     void check_results(const ndview<Float, 2>& data,
                        const ndview<Float, 2>& data_org,
-                       const ndview<int, 2>& indices, 
+                       const ndview<int, 2>& indices,
                        const ndview<int, 2>& splits,
                        std::int64_t start,
                        std::int64_t end,
@@ -95,12 +98,12 @@ public:
             std::vector<int> row_indices;
             auto pivot = data_org.get_data()[i * col_count + pivot_index];
             CAPTURE(pivot);
-            for(std::int64_t j = 0; j < col_count; j++) {
+            for (std::int64_t j = 0; j < col_count; j++) {
                 auto value = data.get_data()[i * col_count + j];
                 auto index = indices.get_data()[i * col_count + j];
                 row_indices.push_back(index);
                 CAPTURE(i, j);
-                if(j < start || j >= end) {
+                if (j < start || j >= end) {
                     CAPTURE(start, end);
                     auto org_value = data_org.get_data()[i * col_count + j];
                     REQUIRE(value == org_value);
@@ -109,9 +112,10 @@ public:
                 }
                 auto split = splits.get_data()[i];
                 CAPTURE(split);
-                if(j < split) {
+                if (j < split) {
                     REQUIRE(value < pivot);
-                } else {
+                }
+                else {
                     REQUIRE(value >= pivot);
                 }
                 auto index_value = data_org.get_data()[i * col_count + index];
@@ -207,7 +211,6 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
     auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, start, cols, pivot_index);
 }
-
 
 TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (partial unaligned block)",
