@@ -23,10 +23,10 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_wide;
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw_wide {
 public:
     typedef const Float* inp_t;
@@ -68,10 +68,10 @@ public:
     const std::int64_t wg;
 };
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_narrow;
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw_narrow {
 public:
     typedef const Float* inp_t;
@@ -114,7 +114,7 @@ public:
     const std::int64_t wg;
 };
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw {
 public:
     typedef const Float* inp_t;
