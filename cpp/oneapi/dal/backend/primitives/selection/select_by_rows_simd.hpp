@@ -25,6 +25,7 @@ namespace oneapi::dal::backend::primitives {
 
 constexpr std::uint32_t preffered_wg_size = 128;
 
+// Performs k-selection for small value of k that fits in Global Registry File width
 template <typename Float, uint32_t simd_width, bool selection_out, bool indices_out>
 sycl::event select_by_rows_simd(sycl::queue& queue,
                                 const ndview<Float, 2>& data,
@@ -110,7 +111,8 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
             for (std::uint32_t i = 0; i < k; i++) {
                 Float min_val = reduce(sg, values[bias], sycl::ONEAPI::minimum());
                 bool present = (min_val == values[bias]);
-                std::int32_t pos = exclusive_scan(sg, present ? 1 : 0, std::plus<std::int32_t>());
+                std::int32_t pos =
+                    exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
                 bool owner = present && pos == 0;
                 final_indices[i] =
                     -reduce(sg, owner ? -private_indices[bias] : 1, sycl::ONEAPI::minimum());

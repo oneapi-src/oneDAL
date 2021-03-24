@@ -61,9 +61,10 @@ std::int32_t kernel_row_partitioning(sycl::nd_item<2> item,
         std::int32_t min_ind = reduce(sg, i, sycl::ONEAPI::minimum<int>());
         if (num_of_small > 0) {
             const std::int32_t pos_in_group_small =
-                exclusive_scan(sg, is_small && inside ? 1 : 0, std::plus<int>());
+                exclusive_scan(sg, is_small && inside ? 1 : 0, sycl::ONEAPI::plus<int>());
             const std::int32_t pos_in_group_great =
-                num_of_small + exclusive_scan(sg, is_small || !inside ? 0 : 1, std::plus<int>());
+                num_of_small +
+                exclusive_scan(sg, is_small || !inside ? 0 : 1, sycl::ONEAPI::plus<int>());
             const std::int32_t pos_small = partition_start + split_index + pos_in_group_small;
             const std::int32_t pos_great = min_ind + pos_in_group_great;
             const std::int32_t pos = is_small ? pos_small : pos_great;

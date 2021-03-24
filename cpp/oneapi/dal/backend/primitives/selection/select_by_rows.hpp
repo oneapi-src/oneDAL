@@ -24,12 +24,13 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/// Performs K-selection on each row in matrix
+/// Performs K-selection on each row of a matrix
 ///
 /// @param[in]  queue The queue
+/// @param[in]  data      The [nxm] matrix to be processed
 /// @param[in]  k      The number of minimal values to be selected in each row
 /// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
-/// @param[out] indices  The [n x k] matrix of indices of selected values (if indices_out == true)
+/// @param[out] column_indices  The [n x k] matrix of indices of selected values (if indices_out == true)
 template <typename Float>
 sycl::event select(sycl::queue& queue,
                    const ndview<Float, 2>& data,
@@ -38,9 +39,10 @@ sycl::event select(sycl::queue& queue,
                    ndview<std::int32_t, 2>& column_indices,
                    const event_vector& deps = {});
 
-/// Performs K-selection on each row in matrix
+/// Performs K-selection on each row of a matrix
 ///
 /// @param[in]  queue The queue
+/// @param[in]  data      The [nxm] matrix to be processed
 /// @param[in]  k      The number of minimal values to be selected in each row
 /// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
 template <typename Float>
@@ -50,9 +52,10 @@ sycl::event select(sycl::queue& queue,
                    ndview<Float, 2>& selection,
                    const event_vector& deps = {});
 
-/// Performs K-selection on each row in matrix
+/// Performs K-selection on each row of a matrix
 ///
 /// @param[in]  queue The queue
+/// @param[in]  data      The [nxm] matrix to be processed
 /// @param[in]  k      The number of minimal values to be selected in each row
 /// @param[out] column_indices  The [n x k] matrix of indices of selected values (if indices_out == true)
 template <typename Float>

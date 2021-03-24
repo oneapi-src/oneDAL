@@ -32,6 +32,7 @@ namespace oneapi::dal::backend::primitives {
 
 constexpr std::uint32_t preffered_sg_size = 16;
 
+// Performs k-selection using Quick Select algorithm which is based on row partitioning
 template <typename Float, bool selection_out, bool indices_out>
 class quick_selection {
 public:
