@@ -149,9 +149,8 @@ private:
     std::uint32_t vector_count_;
 
     static constexpr inline std::uint32_t preferable_wg_size_ = 32;
-    static constexpr inline std::uint32_t expected_buffer_size_for_one_vector_ = 256;
-    static constexpr inline std::uint32_t radix_range = expected_buffer_size_for_one_vector_;
-    static constexpr inline std::uint32_t radix_count = sizeof(Integer);
+    static constexpr inline std::uint32_t radix_range_ = 256;
+    static constexpr inline std::uint32_t radix_count_ = sizeof(Integer);
 };
 
 #endif

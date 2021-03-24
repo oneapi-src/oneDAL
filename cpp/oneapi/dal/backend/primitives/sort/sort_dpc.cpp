@@ -369,10 +369,9 @@ void radix_sort<Integer>::init(sycl::queue& queue, std::int64_t vector_count) {
     if (uint_vector_count && vector_count_ != uint_vector_count) {
         vector_count_ = uint_vector_count;
 
-        buffer_ =
-            ndarray<Integer, 2>::empty(queue_,
-                                       { vector_count_, expected_buffer_size_for_one_vector_ },
-                                       sycl::usm::alloc::device);
+        buffer_ = ndarray<Integer, 2>::empty(queue_,
+                                             { vector_count_, radix_range_ },
+                                             sycl::usm::alloc::device);
     }
 }
 
@@ -424,17 +423,17 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
 
             Integer* input = &labels[global_id * vector_offset];
             Integer* output = &sorted[global_id * vector_offset];
-            Integer* counters = &radixbuf[global_id * radix_range];
+            Integer* counters = &radixbuf[global_id * radix_range_];
             //  Radix sort
-            for (std::uint32_t i = 0; i < radix_count; i++) {
+            for (std::uint32_t i = 0; i < radix_count_; i++) {
                 std::uint8_t* cinput = reinterpret_cast<std::uint8_t*>(input);
-                for (std::uint32_t j = local_id; j < radix_range; j += local_size)
+                for (std::uint32_t j = local_id; j < radix_range_; j += local_size)
                     counters[j] = 0;
                 //  Count elements in sub group to write once per value
                 for (std::uint32_t j = local_id; j < group_aligned_size + local_size;
                      j += local_size) {
                     bool exists = j < group_aligned_size || local_id < rem;
-                    std::uint8_t c = exists ? cinput[j * radix_count + i] : 0;
+                    std::uint8_t c = exists ? cinput[j * radix_count_ + i] : 0;
                     std::uint32_t entry = 0;
                     bool entry_found = false;
                     for (std::uint32_t k = 0; k < local_size; k++) {
@@ -458,7 +457,7 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                 }
                 //  Parallel scan on counters to generate offsets in place
                 Integer offset = 0;
-                for (std::uint32_t j = local_id; j < radix_range; j += local_size) {
+                for (std::uint32_t j = local_id; j < radix_range_; j += local_size) {
                     Integer value = counters[j];
                     Integer boundary = exclusive_scan(sbg, value, plus<Integer>());
                     counters[j] = offset + boundary;
@@ -470,7 +469,7 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                 for (std::uint32_t j = local_id; j < group_aligned_size + local_size;
                      j += local_size) {
                     bool exists = j < group_aligned_size || local_id < rem;
-                    std::uint8_t c = exists ? cinput[j * radix_count + i] : 0;
+                    std::uint8_t c = exists ? cinput[j * radix_count_ + i] : 0;
                     Integer local_offset = 0;
                     std::uint32_t entry = 0;
                     bool entry_found = false;
