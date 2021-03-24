@@ -1,4 +1,5 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_loader.hpp"
+#include "debug.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -46,7 +47,7 @@ graph_loader::graph_loader(const dal::preview::detail::topology<std::int32_t> &t
             graph_data_storage.pbit_data->degree[i] = degree;
         }
         else {
-            graph_data_storage.pbit_data->degree[i] = degree;
+            graph_data_storage.plist_data->degree[i] = degree;
             if (degree > 0) {
                 graph_data_storage.plist_data->data[i] =
                     static_cast<std::int64_t *>(_mm_malloc(sizeof(std::int64_t) * degree, 64));
@@ -57,13 +58,21 @@ graph_loader::graph_loader(const dal::preview::detail::topology<std::int32_t> &t
         }
     }
 
+    PA(graph_data_storage.pbit_data->degree, vertex_count)
+    // PA(graph_data_storage.plist_data->degree, vertex_count)
+    pa("t._cols", t._cols.get_data(), (2 * t._edge_count));
+    pa("t._rows", t._rows.get_data(), (vertex_count + 1));
+    pa("t._degrees", t._degrees.get_data(), (vertex_count + 1));
+
     for (std::int64_t i = 0; i < vertex_count; i++) {
         auto degree = t._degrees[i];
 
         for (std::int64_t j = 0; j < degree; j++) {
             std::int64_t edge_attr = 0;
             std::int64_t vertex_1 = i;
-            std::int64_t vertex_2 = t._cols[t._rows[i + 1]] + j;
+            std::int64_t vertex_2 = t._cols[t._rows[i] + j];
+
+            std::cout << "[" << vertex_1 << " " << vertex_2 << "]" << std::endl;
 
             if (use_bit_representation) {
                 bit_vector::set_bit(graph_data_storage.pbit_data->data[vertex_1], vertex_2);
@@ -92,6 +101,8 @@ graph_loader::graph_loader(const dal::preview::detail::topology<std::int32_t> &t
             }
         }
     }
+    pa_bit("graph_data_storage.pbit_data->data", graph_data_storage.pbit_data->data, vertex_count);
+    pa_bit8("graph_data_storage.pbit_data->data", graph_data_storage.pbit_data->data, vertex_count);
 
     return;
 }
