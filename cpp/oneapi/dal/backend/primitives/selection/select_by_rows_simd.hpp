@@ -26,8 +26,6 @@ template <typename Float, uint32_t simd_width, bool selection_out, bool indices_
 sycl::event select_by_rows_simd(sycl::queue& queue,
                                 const ndview<Float, 2>& data,
                                 std::int64_t k,
-                                std::int64_t col_begin,
-                                std::int64_t col_end,
                                 ndview<Float, 2>& selection,
                                 ndview<int, 2>& indices,
                                 const event_vector& deps = {});

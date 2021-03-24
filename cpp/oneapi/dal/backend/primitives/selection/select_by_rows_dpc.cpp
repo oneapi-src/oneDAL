@@ -29,8 +29,6 @@ template <typename Float, bool selection_out, bool indices_out>
 sycl::event select_by_rows_impl(sycl::queue& queue,
                                 const ndview<Float, 2>& data,
                                 std::int64_t k,
-                                std::int64_t col_begin,
-                                std::int64_t col_end,
                                 ndview<Float, 2>& selection,
                                 ndview<int, 2>& column_indices,
                                 const event_vector& deps) {
@@ -58,8 +56,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
                 queue,
                 data,
                 k,
-                col_begin,
-                col_end,
                 selection,
                 column_indices,
                 deps);
@@ -69,8 +65,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
                 queue,
                 data,
                 k,
-                col_begin,
-                col_end,
                 selection,
                 column_indices,
                 deps);
@@ -80,8 +74,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
                 queue,
                 data,
                 k,
-                col_begin,
-                col_end,
                 selection,
                 column_indices,
                 deps);
@@ -91,8 +83,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
                 queue,
                 data,
                 k,
-                col_begin,
-                col_end,
                 selection,
                 column_indices,
                 deps);
@@ -120,8 +110,6 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
     return select_by_rows_impl<Float, true, true>(queue,
                                                   this->data_,
                                                   k,
-                                                  this->col_begin_,
-                                                  this->col_end_,
                                                   selection,
                                                   column_indices,
                                                   deps);
@@ -136,8 +124,6 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
     return select_by_rows_impl<Float, true, false>(queue,
                                                    this->data_,
                                                    k,
-                                                   this->col_begin_,
-                                                   this->col_end_,
                                                    selection,
                                                    dummy_array,
                                                    deps);
@@ -152,8 +138,6 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
     return select_by_rows_impl<Float, false, true>(queue,
                                                    this->data_,
                                                    k,
-                                                   this->col_begin_,
-                                                   this->col_end_,
                                                    dummy_array,
                                                    column_indices,
                                                    deps);
@@ -164,8 +148,6 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
         sycl::queue & queue,                                                               \
         const ndview<F, 2>& data,                       \
         std::int64_t k,                                                                    \
-        std::int64_t col_begin,                                                            \
-        std::int64_t col_end,                                                              \
         ndview<F, 2>& selection,                                                           \
         ndview<int, 2>& column_indices,                                                    \
         const event_vector& deps);

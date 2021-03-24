@@ -27,8 +27,6 @@ template <typename Float, uint32_t simd_width, bool selection_out, bool indices_
 sycl::event select_by_rows_simd(sycl::queue& queue,
                                 const ndview<Float, 2>& data,
                                 std::int64_t k,
-                                std::int64_t col_begin,
-                                std::int64_t col_end,
                                 ndview<Float, 2>& selection,
                                 ndview<int, 2>& indices,
                                 const event_vector& deps) {
@@ -42,6 +40,7 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
 
     const std::int64_t col_count = data.get_dimension(1);
     const std::int64_t row_count = data.get_dimension(0);
+    const std::int64_t stride = data.get_shape()[1];
 
     const uint32_t row_adjusted_sg_num =
         col_count / sg_max_size + (uint32_t)((bool)(col_count % sg_max_size));
@@ -69,7 +68,7 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
             const uint32_t sg_global_id = wg_id * sg_num + sg_id;
             if (sg_global_id >= row_count)
                 return;
-            const uint32_t in_offset = sg_global_id * col_count;
+            const uint32_t in_offset = sg_global_id * stride;
             const uint32_t out_offset = sg_global_id * k;
 
             const uint32_t local_id = sg.get_local_id()[0];
@@ -82,7 +81,7 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
                 values[i] = fp_max;
                 private_indices[i] = -1;
             }
-            for (uint32_t i = col_begin + local_id; i < col_end; i += local_range) {
+            for (uint32_t i = local_id; i < col_count; i += local_range) {
                 Float cur_val = data_ptr[in_offset + i];
                 int index = i;
                 int pos = -1;
@@ -135,8 +134,6 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
     select_by_rows_simd<F, simd_width, selection_out, indices_out>(sycl::queue & queue,      \
                                                                    const ndview<F, 2>& data, \
                                                                    std::int64_t k,           \
-                                                                   std::int64_t col_begin,   \
-                                                                   std::int64_t col_end,     \
                                                                    ndview<F, 2>& selection,  \
                                                                    ndview<int, 2>& indices,  \
                                                                    const event_vector& deps);
