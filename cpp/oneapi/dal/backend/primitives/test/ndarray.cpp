@@ -416,7 +416,7 @@ TEST("can cast ndarray to ndview", "[ndarray]") {
     REQUIRE(x_view.get_strides() == x.get_strides());
 }
 
-TEST_M(ndarray_test, "can be flattened host", "[ndarray]") {
+TEST_M(ndarray_test, "can be flattened on host", "[ndarray]") {
     const std::int64_t m = 9;
     const std::int64_t n = 5;
 
