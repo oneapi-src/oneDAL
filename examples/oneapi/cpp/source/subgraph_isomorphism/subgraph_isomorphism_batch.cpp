@@ -27,8 +27,15 @@
 namespace dal = oneapi::dal;
 
 int main(int argc, char** argv) {
-    const auto target_filename = get_data_path("si_target_graph.csv");
-    const auto pattern_filename = get_data_path("si_pattern_graph.csv");
+    auto target_filename = get_data_path("si_target_graph.csv");
+    auto pattern_filename = get_data_path("si_pattern_graph.csv");
+
+    if (argc == 3) {
+        target_filename = get_data_path(argv[1]);
+        pattern_filename = get_data_path(argv[2]);
+    }
+
+    std::cout << "Search " << pattern_filename << " in " << target_filename << std::endl;
 
     // read the graph
     const dal::preview::graph_csv_data_source ds_target(target_filename); // n vertices
@@ -53,5 +60,7 @@ int main(int argc, char** argv) {
     // extract the result
     const auto match_count = result.get_match_count();
 
-    std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
+    // print_table_int(result.get_vertex_match());
+    print_table_int_sorted(result.get_vertex_match());
+    // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
 }

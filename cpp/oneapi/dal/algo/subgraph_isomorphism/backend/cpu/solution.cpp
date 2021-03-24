@@ -251,6 +251,9 @@ void solution::print_solutions_csv() const {
 #endif // DEBUG_MODE
 
 oneapi::dal::homogen_table solution::export_as_table() {
+    if (solution_count == 0)
+        return dal::homogen_table();
+
     auto begin = sorted_pattern_vertices;
     auto end = &sorted_pattern_vertices[solution_core_length];
 
