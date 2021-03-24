@@ -42,31 +42,22 @@ public:
                         std::int64_t col_count,
                         std::int64_t k) {
         INFO("Output of selected values") {
-            std::cout << "#1" << std::endl;
-            selection_by_rows<Float> sel(data);
             ndarray<int, 2> dummy_array;
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
-            sel.select(get_queue(), k, value_array).wait_and_throw();
-            std::cout << "Done" << std::endl;
+            select<Float>(get_queue(), data, k, value_array).wait_and_throw();
             check_results<true, false>(data, value_array, dummy_array);
         }
         INFO("Output of selected indices") {
-            std::cout << "#2" << std::endl;
-            selection_by_rows<Float> sel(data);
             ndarray<Float, 2> dummy_array;
             auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
-            sel.select(get_queue(), k, index_array).wait_and_throw();
-            std::cout << "Done" << std::endl;
+            select<Float>(get_queue(), data, k, index_array).wait_and_throw();
             check_results<false, true>(data, dummy_array, index_array);
         }
 
         INFO("Output of both") {
-            std::cout << "#3" << std::endl;
-            selection_by_rows<Float> sel(data);
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
             auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
-            sel.select(get_queue(), k, value_array, index_array).wait_and_throw();
-            std::cout << "Done" << std::endl;
+            select<Float>(get_queue(), data, k, value_array, index_array).wait_and_throw();
             check_results<true, true>(data, value_array, index_array);
         }
     }

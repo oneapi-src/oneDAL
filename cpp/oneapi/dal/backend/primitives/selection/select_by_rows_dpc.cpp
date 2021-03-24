@@ -102,13 +102,14 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
 }
 
 template <typename Float>
-sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
+sycl::event select(sycl::queue& queue,
+                                            const ndview<Float, 2>& data,
                                              std::int64_t k,
                                              ndview<Float, 2>& selection,
                                              ndview<int, 2>& column_indices,
                                              const event_vector& deps) {
     return select_by_rows_impl<Float, true, true>(queue,
-                                                  this->data_,
+                                                  data,
                                                   k,
                                                   selection,
                                                   column_indices,
@@ -116,13 +117,14 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
 }
 
 template <typename Float>
-sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
+sycl::event select(sycl::queue& queue,
+                                            const ndview<Float, 2>& data,
                                              std::int64_t k,
                                              ndview<Float, 2>& selection,
                                              const event_vector& deps) {
     ndarray<int, 2> dummy_array;
     return select_by_rows_impl<Float, true, false>(queue,
-                                                   this->data_,
+                                                  data,
                                                    k,
                                                    selection,
                                                    dummy_array,
@@ -130,13 +132,14 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
 }
 
 template <typename Float>
-sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
+sycl::event select(sycl::queue& queue,
+                                            const ndview<Float, 2>& data,
                                              std::int64_t k,
                                              ndview<int, 2>& column_indices,
                                              const event_vector& deps) {
     ndarray<Float, 2> dummy_array;
     return select_by_rows_impl<Float, false, true>(queue,
-                                                   this->data_,
+                                                  data,
                                                    k,
                                                    dummy_array,
                                                    column_indices,
@@ -160,7 +163,25 @@ INSTANTIATE_IMPL_FLOAT(true, false)
 INSTANTIATE_IMPL_FLOAT(false, true)
 INSTANTIATE_IMPL_FLOAT(true, true)
 
-#define INSTANTIATE(F) template ONEDAL_EXPORT class selection_by_rows<F>;
+#define INSTANTIATE(F)                                      \
+    template sycl::event select<F>(sycl::queue& queue, \
+                                            const ndview<F, 2>& data,   \
+                                             std::int64_t k,    \
+                                             ndview<F, 2>& selection, \
+                                             ndview<int, 2>& column_indices, \
+                                             const event_vector& deps); \
+    template sycl::event select<F>(sycl::queue& queue, \
+                                            const ndview<F, 2>& data, \
+                                             std::int64_t k, \
+                                             ndview<F, 2>& selection, \
+                                             const event_vector& deps); \
+    template sycl::event select<F>(sycl::queue& queue, \
+                                            const ndview<F, 2>& data, \
+                                             std::int64_t k, \
+                                             ndview<int, 2>& column_indices, \
+                                             const event_vector& deps);
+
+
 
 INSTANTIATE(float)
 INSTANTIATE(double)
