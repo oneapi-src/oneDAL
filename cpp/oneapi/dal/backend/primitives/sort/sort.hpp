@@ -23,41 +23,136 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/// Performs inplace radix sort of input vector and corresponding indices
-///
+template <typename Float>
+struct float2uint_map;
+
+template <>
+struct float2uint_map<float> {
+    using type_t = std::uint32_t;
+};
+
+template <>
+struct float2uint_map<double> {
+    using type_t = std::uint64_t;
+};
+
 /// @tparam Float Floating-point type used for storing input values
 /// @tparam IndexType Integer type used for storing input indices
 ///
-/// @param[in]  queue The queue
-/// @param[in|out]  val  The [n] input/output vector of values to sort out
-/// @param[in|out]  ind  The [n] input/output vector of corresponding indices
-/// @param[in]  val_buff The [n] auxiliary buff for storing values
-/// @param[in]  ind_buff The [n] auxiliary buff for storing indices
 template <typename Float, typename IndexType = std::uint32_t>
-sycl::event radix_sort_indices_inplace(sycl::queue& queue,
-                                       ndview<Float, 1>& val,
-                                       ndview<IndexType, 1>& ind,
-                                       ndview<Float, 1>& val_buff,
-                                       ndview<IndexType, 1>& ind_buff,
-                                       const event_vector& deps = {});
+class radix_sort_indices_inplace {
+    using radix_integer_t = typename float2uint_map<Float>::type_t;
 
-/// Performs radix sort of batch of integer input vectors
-/// NOTE: only positive values are supported for now
-///
+public:
+    /// Performs initialization of auxiliary variables and required auxiliary buffers
+    ///
+    /// @param[in]  queue The queue
+    /// @param[in]  elem_count  The number of elements in input vector
+    radix_sort_indices_inplace(sycl::queue& queue, std::int64_t elem_count = 0);
+    radix_sort_indices_inplace(const radix_sort_indices_inplace&) = delete;
+    ~radix_sort_indices_inplace();
+
+    /// Performs inplace radix sort of input vector and corresponding indices
+    /// NOTE: auxiliary buffers and variables are reset in case if number of elements in val
+    ///       differs from the number of elements provided in constructor
+    ///
+    /// @param[in|out]  val  The [n] input/output vector of values to sort out
+    /// @param[in|out]  ind  The [n] input/output vector of corresponding indices
+    sycl::event operator()(ndview<Float, 1>& val,
+                           ndview<IndexType, 1>& ind,
+                           const event_vector& deps = {});
+
+private:
+    void init(sycl::queue& queue, std::int64_t elem_count);
+    sycl::event radix_scan(sycl::queue& queue,
+                           const ndview<Float, 1>& val,
+                           ndarray<IndexType, 1>& part_hist,
+                           IndexType elem_count,
+                           std::uint32_t bit_offset,
+                           std::int64_t local_size,
+                           std::int64_t local_hist_count,
+                           sycl::event& deps);
+    sycl::event radix_hist_scan(sycl::queue& queue,
+                                const ndarray<IndexType, 1>& part_hist,
+                                ndarray<IndexType, 1>& part_prefix_hist,
+                                std::int64_t local_size,
+                                std::int64_t local_hist_count,
+                                sycl::event& deps);
+    sycl::event radix_reorder(sycl::queue& queue,
+                              const ndview<Float, 1>& val_in,
+                              const ndview<IndexType, 1>& ind_in,
+                              const ndview<IndexType, 1>& part_prefix_hist,
+                              ndview<Float, 1>& val_out,
+                              ndview<IndexType, 1>& ind_out,
+                              IndexType elem_count,
+                              std::uint32_t bit_offset,
+                              std::int64_t local_size,
+                              std::int64_t local_hist_count,
+                              sycl::event& deps);
+
+    sycl::queue queue_;
+    sycl::event sort_event_;
+
+    ndarray<Float, 1> val_buff_;
+    ndarray<IndexType, 1> ind_buff_;
+
+    ndarray<IndexType, 1> part_hist_;
+    ndarray<IndexType, 1> part_prefix_hist_;
+
+    std::uint32_t elem_count_;
+    std::uint32_t local_size_;
+    std::uint32_t local_hist_count_;
+    std::uint32_t hist_buff_size_;
+
+    static constexpr inline std::uint32_t radix_bits_ = 4;
+    static constexpr inline std::uint32_t radix_range_ = (std::uint32_t)1 << radix_bits_;
+    static constexpr inline std::uint32_t radix_range_1_ = radix_range_ - 1;
+
+    static constexpr inline std::uint32_t byte_range_ = 8;
+    static constexpr inline std::uint32_t max_local_hist_count_ = 1024;
+    static constexpr inline std::uint32_t preferable_sbg_size_ = 16;
+};
+
 /// @tparam Integer Integer type used for storing input values
-///
-/// @param[in]  queue The queue
-/// @param[in]  val_in The [n x p] input array of vectors (row major format) to sort out
-/// @param[out] val_out The [n x p] output array of sorted vectors
-/// @param[in]  buffer The [n x 256] array of auxiliary buffer
-/// @param[in]  sorted_elem_count The number of elements to sort in each vector
 template <typename Integer>
-sycl::event radix_sort(sycl::queue& queue,
-                       ndview<Integer, 2>& val_in,
-                       ndview<Integer, 2>& val_out,
-                       ndview<Integer, 2>& buffer,
-                       std::int64_t sorted_elem_count,
-                       const event_vector& deps = {});
+class radix_sort {
+public:
+    /// Performs initialization of auxiliary variables and required auxiliary buffers
+    ///
+    /// @param[in]  queue The queue
+    /// @param[in]  vector_count  The number of vectors (rows) in input array
+    radix_sort(sycl::queue& queue, std::int64_t vector_count = 0);
+    radix_sort(const radix_sort&) = delete;
+    ~radix_sort();
+
+    /// Performs radix sort of batch of integer input vectors
+    /// NOTE: only positive values are supported for now.
+    ///       Auxiliary buffers and variables are reset in case if number of elements in val
+    ///       differs from the number of elements provided in constructor
+    ///
+    /// @param[in]  val_in The [n x p] input array of vectors (row major format) to sort out
+    /// @param[out] val_out The [n x p] output array of sorted vectors
+    /// @param[in]  sorted_elem_count The number of elements to sort in each vector
+    sycl::event operator()(ndview<Integer, 2>& val_in,
+                           ndview<Integer, 2>& val_out,
+                           std::int64_t sorted_elem_count,
+                           const event_vector& deps = {});
+
+private:
+    void init(sycl::queue& queue, std::int64_t vector_count);
+
+    sycl::queue queue_;
+    sycl::event sort_event_;
+
+    ndarray<Integer, 2> buffer_;
+
+    std::uint32_t vector_count_;
+
+    static constexpr inline std::uint32_t preferable_wg_size_ = 32;
+    static constexpr inline std::uint32_t expected_buffer_size_for_one_vector_ = 256;
+    static constexpr inline std::uint32_t radix_range = expected_buffer_size_for_one_vector_;
+    static constexpr inline std::uint32_t radix_count = sizeof(Integer);
+};
 
 #endif
 

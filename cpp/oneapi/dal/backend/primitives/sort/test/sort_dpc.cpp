@@ -75,22 +75,12 @@ public:
     }
 
     void check_sort(ndarray<Float, 1>& val, ndarray<IndexType, 1>& ind) {
-        auto& q = this->get_queue();
-        IndexType elem_count = de::integral_cast<IndexType>(val.get_count());
-
-        auto val_buff = ndarray<Float, 1>::empty(q, { elem_count });
-        auto ind_buff = ndarray<IndexType, 1>::empty(q, { elem_count });
-
         INFO("create reference");
         auto ref = create_reference(val);
 
-        INFO("run sort with indices");
-        radix_sort_indices_inplace<Float, IndexType>(this->get_queue(),
-                                                     val,
-                                                     ind,
-                                                     val_buff,
-                                                     ind_buff)
-            .wait_and_throw();
+        INFO("run sort with indices__");
+        auto event = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() }(val, ind);
+        event.wait_and_throw();
 
         check_results(val, ind, ref);
     }
@@ -154,11 +144,9 @@ public:
 
         INFO("allocate auxiliary buffers");
         auto val_out = ndarray<Integer, 2>::empty(q, { vector_count, elem_count });
-        auto buffer = ndarray<Integer, 2>::empty(q, { vector_count, 256 });
 
         INFO("run sort");
-        radix_sort<Integer>(this->get_queue(), val, val_out, buffer, sorted_elem_count)
-            .wait_and_throw();
+        radix_sort<Integer>{ this->get_queue() }(val, val_out, sorted_elem_count).wait_and_throw();
 
         check_results(val_out, ref, sorted_elem_count);
     }
@@ -215,7 +203,7 @@ TEMPLATE_LIST_TEST_M(sort_with_indices_test,
                      sort_indices_types) {
     SKIP_IF(this->get_policy().is_cpu());
 
-    std::uint32_t elem_count = GENERATE_COPY(2, 10000);
+    std::int64_t elem_count = GENERATE_COPY(2, 10000);
 
     auto [val, ind] = this->allocate_arrays(elem_count);
     this->fill_uniform(val, -25., 25.);
@@ -226,9 +214,9 @@ TEMPLATE_LIST_TEST_M(sort_with_indices_test,
 TEMPLATE_TEST_M(sort_test, "basic sort", "[sort]", std::int32_t, std::uint32_t) {
     SKIP_IF(this->get_policy().is_cpu());
 
-    std::uint32_t vector_count = GENERATE_COPY(1, 128);
-    std::uint32_t elem_count = GENERATE_COPY(2, 55, 1024);
-    std::uint32_t sorted_elem_count = elem_count - (elem_count > 2 ? GENERATE_COPY(0, 12) : 0);
+    std::int64_t vector_count = GENERATE_COPY(1, 128);
+    std::int64_t elem_count = GENERATE_COPY(2, 55, 1024);
+    std::int64_t sorted_elem_count = elem_count - (elem_count > 2 ? GENERATE_COPY(0, 12) : 0);
 
     auto val = this->allocate_arrays(vector_count, elem_count);
     this->fill_uniform(val, 0, 50);
