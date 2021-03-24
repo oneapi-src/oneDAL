@@ -69,7 +69,7 @@ public:
     /// Creates a new instance of the class with the default property values.
     descriptor() = default;
 
-    /// Returns the begin of the row of the graph block
+    /// Returns the beginning of the row of the graph block
     std::int64_t get_row_range_begin() const {
         return base_t::get_row_range_begin();
     }
@@ -79,7 +79,7 @@ public:
         return base_t::get_row_range_end();
     }
 
-    /// Returns the begin of the column of the graph block
+    /// Returns the beginning of the column of the graph block
     std::int64_t get_column_range_begin() const {
         return base_t::get_column_range_begin();
     }

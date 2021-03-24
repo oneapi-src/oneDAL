@@ -254,7 +254,7 @@ public:
         return *this;
     }
 
-    /// The size of cache in megabytes for storing values of the kernel matrix.
+    /// The size of cache (in megabytes) for storing the values of the kernel matrix.
     /// @invariant :expr:`cache_size >= 0.0`
     /// @remark default = 200.0
     double get_cache_size() const {
@@ -291,7 +291,7 @@ public:
     }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`task::classification` only.
+    /// The number of classes. Used with :expr:`task::classification` only.
     /// @invariant :expr:`class_count >= 2`
     /// @remark default = 2
     std::int64_t get_class_count() const {
