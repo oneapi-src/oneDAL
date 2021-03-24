@@ -32,7 +32,7 @@ class quick_selection {
 public:
     quick_selection() = delete;
     quick_selection(sycl::queue& queue) {
-        rng_seq_ = ndarray<Float, 1>::empty(queue, max_rng_seq_size_);
+        rng_seq_ = array<Float>::empty(queue, max_rng_seq_size_);
     }
     void init(sycl::queue& queue, std::int64_t rng_size) {
         ONEDAL_ASSERT(rng_size > 1);
@@ -68,15 +68,18 @@ public:
                        const event_vector& deps) {
         const std::int64_t col_count = data.get_dimension(1);
         const std::int64_t row_count = data.get_dimension(0);
-        auto indices_tmp = ndarray<int, 2>::empty(queue, { row_count, col_count });
-        auto data_ptr = data.get_data();
 
-        auto data_tmp = ndarray<Float, 2>::empty(queue, { row_count, col_count });
-        auto data_tmp_ptr = data_tmp.get_mutable_data();
-        auto cpy_event = queue.submit([&](sycl::handler& cgh) {
-            cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * col_count);
-        });
-        cpy_event.wait();
+        auto data_ptr = data.get_data();
+        auto data_tmp = array<Float>::empty(queue, row_count * col_count, sycl::usm::alloc::device);
+        {
+            auto data_tmp_ptr = data_tmp.get_mutable_data();
+            auto cpy_event = queue.submit([&](sycl::handler& cgh) {
+                cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * col_count);
+            });
+            cpy_event.wait();
+        }
+
+        auto indices_tmp = array<int>::empty(queue, row_count * col_count, sycl::usm::alloc::device);
 
         sycl::range<2> global(preffered_sg_size, row_count);
         sycl::range<2> local(preffered_sg_size, 1);
@@ -84,15 +87,20 @@ public:
 
         Float* selection_ptr = selection_out ? selection.get_mutable_data() : nullptr;
         int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
-        int* indices_tmp_ptr = indices_tmp.get_mutable_data();
-        auto rng_seq_ptr = this->rng_seq_.get_data();
-        auto rng_period = this->rng_seq_size_;
 
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
+            array<int> indices_tmp_in_kernel = indices_tmp;
+            auto indices_tmp_ptr = indices_tmp_in_kernel.get_mutable_data();
+            array<Float> data_tmp_in_kernel = data_tmp;
+            auto data_tmp_ptr = data_tmp_in_kernel.get_mutable_data();
+            auto rng_period = this->rng_seq_size_;
+            array<Float> rng_seq_in_kernel = this->rng_seq_;
+            auto rng_seq_ptr = rng_seq_in_kernel.get_data();
+
             sycl::stream out(1024 * 8, 1024 * 8, cgh);
             cgh.parallel_for(nd_range2d, [=](sycl::nd_item<2> item) {
-                quick_selection::kernel_select(out, item,
+                quick_selection::kernel_select(item,
                                                row_count,
                                                data_tmp_ptr,
                                                indices_tmp_ptr,
@@ -116,7 +124,7 @@ private:
             *count = 0;
         return ret;
     }
-    static void kernel_select(const sycl::stream& out, sycl::nd_item<2> item,
+    static void kernel_select(sycl::nd_item<2> item,
                               int num_rows,
                               Float* in_values,
                               int* in_indices,
@@ -137,8 +145,6 @@ private:
             return;
 
         N = (row_id == num_rows - 1) ? NLast : N;
-//        if(local_id == 0)
-//            out << "N: " << N << " NLast: " << NLast << sycl::endl;
 
         const int offset_in = row_id * BlockOffset;
         const int offset_out = row_id * K;
@@ -159,11 +165,6 @@ private:
             int pos = (int)(rnd * (partition_end - partition_start - 1));
             pos = pos < 0 ? 0 : pos;
             const Float pivot = values[partition_start + pos];
-/*            if(local_id == 0)
-                out << "Pivot: " << (partition_start + pos) << " " <<pivot << sycl::endl;
-            if(local_id == 0)
-                out << "Partition: " << partition_start << " " << partition_end << sycl::endl;
-*/
             int split_index = kernel_row_partitioning(item,
                                                         values,
                                                         indices,
@@ -171,18 +172,12 @@ private:
                                                         partition_end,
                                                         pivot);
 
-            if ((split_index) == K /*|| (!split_index && !num_of_great)*/)
+            if ((split_index) == K)
                 break;
             if (split_index > K)
                 partition_end = split_index;
             if (split_index < K)
                 partition_start = split_index;
-/*            if(local_id == 0) {
-                out << "Iteration: " << iteration_count << " split index: " << split_index 
-                    << " partition_start: " << partition_start << " partition_end: " << partition_end << sycl::endl;
-                for (int i = 0; i < N; i++)        
-                    out << "C: " << i << values[i] << sycl::endl;
-            }*/
         }
         //assert(iteration_count < N);
         for (int i = local_id; i < K; i += local_size) {
@@ -196,7 +191,7 @@ private:
     }
     static constexpr std::int64_t max_rng_seq_size_ = 1024;
     std::int64_t rng_seq_size_ = max_rng_seq_size_;
-    ndarray<Float, 1> rng_seq_;
+    array<Float> rng_seq_;
 };
 
 template <typename Float, bool selection_out, bool indices_out>

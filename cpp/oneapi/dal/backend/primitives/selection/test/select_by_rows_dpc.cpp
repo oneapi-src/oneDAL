@@ -51,23 +51,22 @@ public:
             check_results<true, false>(data, value_array, dummy_array);
         }
         INFO("Output of selected indices") {
+            std::cout << "#2" << std::endl;
             selection_by_rows<Float> sel(data);
             ndarray<Float, 2> dummy_array;
             auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
             sel.select(get_queue(), k, index_array).wait_and_throw();
+            std::cout << "Done" << std::endl;
             check_results<false, true>(data, dummy_array, index_array);
         }
 
         INFO("Output of both") {
-/*            auto data_ptr = data.get_data();
-            std::cout << "Data: ";
-            for(int i = 0; i < col_count; i++)
-                std::cout << "data: " << i << " " << data_ptr[i] << std::endl;;
-            std::cout << std::endl;*/
+            std::cout << "#3" << std::endl;
             selection_by_rows<Float> sel(data);
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
             auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
             sel.select(get_queue(), k, value_array, index_array).wait_and_throw();
+            std::cout << "Done" << std::endl;
             check_results<true, true>(data, value_array, index_array);
         }
     }
@@ -82,12 +81,6 @@ public:
         auto k = selection.get_dimension(1);
         auto row_size = data.get_dimension(1);
         auto row_count = data.get_dimension(0);
-//        auto data_ptr = data.get_data();
-//        auto selection_ptr = selection.get_data();
-//        auto indices_ptr = indices.get_data();
-//        for(int i = 0; i < row_size; i++)
-//            std::cout << "res: " << i << " " <<  selection_ptr[i] << " " << indices_ptr[i] << std::endl;
-
         for (std::int64_t i = 0; i < row_count; i++) {
             auto max_val = std::numeric_limits<Float>::lowest();
             for (std::int64_t j = 0; j < k; j++) {
