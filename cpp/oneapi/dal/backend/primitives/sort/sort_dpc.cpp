@@ -244,7 +244,8 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
 template <typename Float, typename IndexType>
 radix_sort_indices_inplace<Float, IndexType>::radix_sort_indices_inplace(sycl::queue& queue,
                                                                          std::int64_t elem_count)
-        : queue_(queue) {
+        : queue_(queue),
+          elem_count_(0) {
     init(queue, elem_count);
 }
 
@@ -355,7 +356,9 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::operator()(ndview<Floa
 }
 
 template <typename Integer>
-radix_sort<Integer>::radix_sort(sycl::queue& queue, std::int64_t vector_count) : queue_(queue) {
+radix_sort<Integer>::radix_sort(sycl::queue& queue, std::int64_t vector_count)
+        : queue_(queue),
+          vector_count_(0) {
     init(queue, vector_count);
 }
 
