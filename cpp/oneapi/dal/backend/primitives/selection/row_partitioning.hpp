@@ -16,21 +16,77 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/selection/row_partitioning.hpp"
+#include "oneapi/dal/backend/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-sycl::nd_range<2> get_row_partitioning_range(std::int64_t row_count, std::int64_t col_count);
+constexpr std::uint32_t partitioning_preffered_sg_size = 16;
 
-template<typename Float>
-int SYCL_EXTERNAL kernel_row_partitioning(sycl::nd_item<2> item,
-                                           Float* values,
-                                           int* indices,
-                                           int partition_start,
-                                           int partition_end,
-                                           Float pivot);
+inline sycl::nd_range<2> get_row_partitioning_range(std::int64_t row_count,
+                                                    std::int64_t col_count) {
+    sycl::range<2> global(partitioning_preffered_sg_size, row_count);
+    sycl::range<2> local(partitioning_preffered_sg_size, 1);
+    sycl::nd_range<2> nd_range2d(global, local);
+    return nd_range2d;
+}
+
+template <typename Float>
+std::int32_t kernel_row_partitioning(sycl::nd_item<2> item,
+                                     Float* values,
+                                     std::int32_t* indices,
+                                     std::int32_t partition_start,
+                                     std::int32_t partition_end,
+                                     Float pivot) {
+    auto sg = item.get_sub_group();
+    const std::int32_t local_id = sg.get_local_id()[0];
+    const std::int32_t local_size = sg.get_local_range()[0];
+
+    const std::int32_t seq_size = partition_end - partition_start;
+    const std::int32_t last_group_size = seq_size % local_size;
+    std::int32_t full_group_size = (seq_size / local_size) * local_size;
+    full_group_size += last_group_size > 0 ? local_size : 0;
+    std::int32_t split_index = 0;
+
+    for (std::int32_t i = partition_start + local_id; i < partition_start + full_group_size;
+         i += local_size) {
+        sg.barrier();
+        bool inside = i < partition_end;
+        Float cur_value = inside ? values[i] : 0.0;
+        std::int32_t cur_index = i < partition_end ? indices[i] : -1;
+        std::int32_t is_small = cur_value < pivot ? 1 : 0;
+        const std::int32_t num_of_small =
+            reduce(sg, is_small && inside ? 1 : 0, sycl::ONEAPI::plus<int>());
+        std::int32_t min_ind = reduce(sg, i, sycl::ONEAPI::minimum<int>());
+        if (num_of_small > 0) {
+            const std::int32_t pos_in_group_small =
+                exclusive_scan(sg, is_small && inside ? 1 : 0, std::plus<int>());
+            const std::int32_t pos_in_group_great =
+                num_of_small + exclusive_scan(sg, is_small || !inside ? 0 : 1, std::plus<int>());
+            const std::int32_t pos_small = partition_start + split_index + pos_in_group_small;
+            const std::int32_t pos_great = min_ind + pos_in_group_great;
+            const std::int32_t pos = is_small ? pos_small : pos_great;
+            const std::int32_t pos_to_move =
+                pos < min_ind ? min_ind + num_of_small - 1 - pos_in_group_small : -1;
+            if (inside) {
+                if (is_small) {
+                    Float value_to_move = values[pos];
+                    std::int32_t index_to_move = indices[pos];
+                    if (pos_to_move > -1) {
+                        values[pos_to_move] = value_to_move;
+                        indices[pos_to_move] = index_to_move;
+                    }
+                }
+                values[pos] = cur_value;
+                indices[pos] = cur_index;
+            }
+        }
+        split_index += num_of_small;
+    }
+    split_index = -reduce(sg, -split_index, sycl::ONEAPI::minimum<Float>());
+    return split_index + partition_start;
+}
 
 #endif // ONEDAL_DATA_PARALLEL
 
