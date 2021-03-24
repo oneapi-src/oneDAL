@@ -79,7 +79,7 @@ Operation
               pca::train_result train(const Descriptor& desc, \
                                          const pca::train_input& input)
 
-   :param descriptor: PCA algorithm descriptor :expr:`pca::descriptor`
+   :param desc: PCA algorithm descriptor :expr:`pca::descriptor`
    :param input: Input data for the training operation
 
    Preconditions
@@ -120,7 +120,7 @@ Operation
               pca::infer_result infer(const Descriptor& desc, \
                                          const pca::infer_input& input)
 
-   :param descriptor: PCA algorithm descriptor :expr:`pca::descriptor`
+   :param desc: PCA algorithm descriptor :expr:`pca::descriptor`
    :param input: Input data for the inference operation
 
    Preconditions
