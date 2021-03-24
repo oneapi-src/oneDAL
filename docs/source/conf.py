@@ -212,6 +212,7 @@ nitpick_ignore = [
     # polynomial kernel
     ('cpp:identifier', 'polynomial_kernel'),
     ('cpp:identifier', 'polynomial_kernel::desc'),
+    ('cpp:identifier', 'polynomial_kernel::descriptor'),
     ('cpp:identifier', 'polynomial_kernel::compute_result'),
     ('cpp:identifier', 'polynomial_kernel::compute_input'),
     # rbf kernel
