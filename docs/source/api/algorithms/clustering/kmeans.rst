@@ -23,7 +23,7 @@
 K-Means
 =======
 
-.. include:: ../../../includes/clustering/kmeans-init-introduction.rst
+.. include:: ../../../includes/clustering/kmeans-introduction.rst
 
 ------------------------
 Mathematical formulation
