@@ -23,10 +23,10 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_inplace;
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw_inplace {
 public:
     typedef const Float* inp_t;
@@ -68,10 +68,10 @@ public:
     const std::int64_t wg;
 };
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_inplace_local;
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw_inplace_local {
 public:
     typedef const Float* inp_t;
@@ -79,7 +79,7 @@ public:
     typedef kernel_reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp> kernel_t;
 
 public:
-    reduction_rm_cw_inplace_local(sycl::queue& q_, const std::int64_t wg_);
+    reduction_rm_cw_inplace_local(sycl::queue& q_, const std::int64_t wg_, const std::int64_t lm_);
     reduction_rm_cw_inplace_local(sycl::queue& q_);
     sycl::event operator()(inp_t input,
                            out_t output,
@@ -99,9 +99,10 @@ public:
 
 private:
     sycl::nd_range<2> get_range(const std::int64_t width) const;
-    static kernel_t get_kernel(inp_t input,
+    static kernel_t get_kernel(sycl::handler& h,
+                               inp_t input,
                                out_t output,
-                               const std::int64_t width,
+                               const std::int64_t,
                                const std::int64_t height,
                                const std::int64_t stride,
                                const BinaryOp binary,
@@ -112,19 +113,21 @@ private:
 
 public:
     const std::int64_t wg;
+    const std::int64_t lm;
 };
 
-template <class Float, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw {
 public:
     typedef const Float* inp_t;
     typedef Float* out_t;
     typedef reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp> inplace_t;
+    typedef reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp> inplace_local_t;
 
 public:
     reduction_rm_cw(sycl::queue& q_);
     enum reduction_method { inplace, inplace_local };
-    reduction_method propose_method(std::int64_t width) const;
+    reduction_method propose_method(std::int64_t width, std::int64_t height) const;
     sycl::event operator()(const reduction_method method,
                            inp_t input,
                            out_t output,

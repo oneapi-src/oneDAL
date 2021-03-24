@@ -34,7 +34,8 @@ int main(int argc, char** argv) {
         session.cli() | Opt(config.device_selector, "device")["--device"]("DPC++ device selector");
 
     session.cli(cli);
-
+    session.configData().benchmarkSamples = 5;
+    
     const int parse_status = session.applyCommandLine(argc, argv);
     if (parse_status != 0) {
         std::cerr << "Command line arguments parsing error" << std::endl;

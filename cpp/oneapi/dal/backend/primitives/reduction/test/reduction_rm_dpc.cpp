@@ -35,11 +35,11 @@ namespace pr = oneapi::dal::backend::primitives;
 
 constexpr auto rm_order = ndorder::c;
 
-using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<float, sum<float>, identity<float>>,
+using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
+                                   std::tuple<float, sum<float>, square<float>>,
                                    std::tuple<float, sum<float>, abs<float>>,
-                                   std::tuple<double, sum<double>, square<double>>,
                                    std::tuple<double, sum<double>, identity<double>>,
+                                   std::tuple<double, sum<double>, square<double>>,
                                    std::tuple<double, sum<double>, abs<double>>>;
 
 template <typename Param>
@@ -227,9 +227,78 @@ public:
         check_output_rw(out_array);
     }
 
+    void test_raw_rw_reduce_wrapper() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(get_queue());
+        reducer(inp_ptr,
+                out_ptr,
+                width,
+                height,
+                stride,
+                binary_t{},
+                unary_t{},
+                { inp_event, out_event })
+            .wait_and_throw();
+
+        check_output_rw(out_array);
+    }
+
     void test_raw_cw_reduce_inplace() {
         using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(get_queue());
+        reducer(inp_ptr,
+                out_ptr,
+                width,
+                height,
+                stride,
+                binary_t{},
+                unary_t{},
+                { inp_event, out_event })
+            .wait_and_throw();
+
+        check_output_cw(out_array);
+    }
+
+    void test_raw_cw_reduce_inplace_local() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(get_queue());
+        reducer(inp_ptr,
+                out_ptr,
+                width,
+                height,
+                stride,
+                binary_t{},
+                unary_t{},
+                { inp_event, out_event })
+            .wait_and_throw();
+
+        check_output_cw(out_array);
+    }
+
+    void test_raw_cw_reduce_wrapper() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output();
 
@@ -277,6 +346,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
+    this->test_raw_rw_reduce_wrapper();
 }
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
@@ -286,6 +356,8 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
     this->generate();
     SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_cw_reduce_inplace();
+    this->test_raw_cw_reduce_inplace_local();
+    this->test_raw_cw_reduce_wrapper();
 }
 
 template <typename Param>
@@ -414,9 +486,58 @@ public:
         check_output_rw(out_array);
     }
 
+    void test_raw_rw_reduce_wrapper() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = input_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(get_queue());
+        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+            .wait_and_throw();
+
+        check_output_rw(out_array);
+    }
+
     void test_raw_cw_reduce_inplace() {
         using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = input_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(get_queue());
+        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+            .wait_and_throw();
+
+        check_output_cw(out_array);
+    }
+
+    
+    void test_raw_cw_reduce_inplace_local() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = input_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        reduction_t reducer(get_queue());
+        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+            .wait_and_throw();
+
+        check_output_cw(out_array);
+    }
+
+    void test_raw_cw_reduce_wrapper() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [out_array, out_event] = output();
 
@@ -461,6 +582,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
     SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
+    this->test_raw_rw_reduce_wrapper();
 }
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
@@ -470,6 +592,8 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
     this->generate();
     SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_cw_reduce_inplace();
+    this->test_raw_cw_reduce_inplace_local();
+    this->test_raw_cw_reduce_wrapper();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

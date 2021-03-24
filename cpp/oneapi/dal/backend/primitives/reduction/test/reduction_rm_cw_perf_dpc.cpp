@@ -49,7 +49,7 @@ public:
     void generate() {
         width = GENERATE(16, 128, 1024);
         stride = GENERATE(16, 128, 1024);
-        height = GENERATE(16, 128, 1024);
+        height = GENERATE(16, 128, 1024, 16384, 32768);
         SKIP_IF(width > stride);
         REQUIRE(width <= stride);
         CAPTURE(width, stride, height);
@@ -135,46 +135,6 @@ public:
                            binary_desc());
     }
 
-    void test_raw_rw_reduce_narrow() {
-        using namespace oneapi::dal::backend::primitives;
-        using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
-        auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
-
-        const float_t* inp_ptr = inp_array.get_data();
-        float_t* out_ptr = out_array.get_mutable_data();
-
-        const auto name = fmt::format("Narrow RW Reduction: {}", desc());
-
-        get_queue().wait_and_throw();
-
-        BENCHMARK(name.c_str()) {
-            reduction_t reducer(get_queue());
-            reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
-                .wait_and_throw();
-        };
-    }
-
-    void test_raw_rw_reduce_wide() {
-        using namespace oneapi::dal::backend::primitives;
-        using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
-        auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
-
-        const float_t* inp_ptr = inp_array.get_data();
-        float_t* out_ptr = out_array.get_mutable_data();
-
-        const auto name = fmt::format("Wide RW Reduction: {}", desc());
-
-        get_queue().wait_and_throw();
-
-        BENCHMARK(name.c_str()) {
-            reduction_t reducer(get_queue());
-            reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
-                .wait_and_throw();
-        };
-    }
-
     void test_raw_cw_reduce_inplace() {
         using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
@@ -185,6 +145,46 @@ public:
         float_t* out_ptr = out_array.get_mutable_data();
 
         const auto name = fmt::format("Inplace CW Reduction: {}", desc());
+
+        get_queue().wait_and_throw();
+
+        BENCHMARK(name.c_str()) {
+            reduction_t reducer(get_queue());
+            reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
+                .wait_and_throw();
+        };
+    }
+
+    void test_raw_cw_reduce_inplace_local() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        const auto name = fmt::format("Inplace Local CW Reduction: {}", desc());
+
+        get_queue().wait_and_throw();
+
+        BENCHMARK(name.c_str()) {
+            reduction_t reducer(get_queue());
+            reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
+                .wait_and_throw();
+        };
+    }
+
+    void test_raw_cw_reduce_wrapper() {
+        using namespace oneapi::dal::backend::primitives;
+        using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
+        auto [inp_array, inp_event] = input();
+        auto [out_array, out_event] = output();
+
+        const float_t* inp_ptr = inp_array.get_data();
+        float_t* out_ptr = out_array.get_mutable_data();
+
+        const auto name = fmt::format("Inplace CW Reduction Wrapper: {}", desc());
 
         get_queue().wait_and_throw();
 
@@ -214,22 +214,14 @@ private:
 };
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
-                     "Uniformly filled Row-Major Row-Wise reduction",
-                     "[reduction][rm][small]",
-                     reduction_types) {
-    this->generate();
-    SKIP_IF(this->get_width() > this->get_stride());
-    this->test_raw_rw_reduce_wide();
-    this->test_raw_rw_reduce_narrow();
-}
-
-TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "Uniformly filled Row-Major Col-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
     SKIP_IF(this->get_width() > this->get_stride());
     this->test_raw_cw_reduce_inplace();
+    this->test_raw_cw_reduce_inplace_local();
+    this->test_raw_cw_reduce_wrapper();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
