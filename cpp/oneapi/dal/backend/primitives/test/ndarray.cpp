@@ -15,9 +15,13 @@
 *******************************************************************************/
 
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/linalg/matrix.hpp"
+
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
+
+namespace te = dal::test::engine;
 
 #define ENUMERATE_AXIS_COUNT_123 ((std::int64_t axis_count), axis_count), 1, 2, 3
 
@@ -526,17 +530,12 @@ TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
 
     const auto raw_arr = x.flatten();
 
-    const float* raw_ptr = raw_arr.get_data();
-    float* res_ptr = sycl::malloc_shared<float>(n * m, queue);
-    queue
-        .submit([&](sycl::handler& h) {
-            h.memcpy(res_ptr, raw_ptr, (n * m));
-        })
-        .wait_and_throw();
+    REQUIRE(raw_arr.get_count() == x.get_count());
+    const auto raw_arr_host = te::matrix<float>::wrap(queue, raw_arr).to_host();
+    const float* raw_arr_host_ptr = raw_arr_host.get_data();
     for (std::int64_t i = 0; i < x.get_count(); ++i) {
-        REQUIRE(res_ptr[i] == 1.0f);
+        REQUIRE(raw_arr_host_ptr[i] == 1.0f);
     }
-    sycl::free(res_ptr, queue);
 }
 
 #endif
