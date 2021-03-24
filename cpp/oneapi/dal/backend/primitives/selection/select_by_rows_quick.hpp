@@ -26,8 +26,6 @@ template <typename Float, bool selection_out, bool indices_out>
 sycl::event select_by_rows_quick(sycl::queue& queue,
                                  const ndview<Float, 2>& data,
                                  std::int64_t k,
-                                 std::int64_t col_begin,
-                                 std::int64_t col_end,
                                  ndview<Float, 2>& selection,
                                  ndview<int, 2>& indices,
                                  const event_vector& deps = {});

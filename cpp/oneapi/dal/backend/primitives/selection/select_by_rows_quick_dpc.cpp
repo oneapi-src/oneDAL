@@ -66,15 +66,13 @@ public:
     sycl::event select(sycl::queue& queue,
                        const ndview<Float, 2>& data,
                        std::int64_t k,
-                       std::int64_t col_begin,
-                       std::int64_t col_end,
                        ndview<Float, 2>& selection,
                        ndview<int, 2>& indices,
                        const event_vector& deps) {
         last_call_.wait_and_throw();
         ONEDAL_ASSERT(data.get_shape() == data_.get_shape());
         const std::int64_t col_count = data.get_dimension(1);
-        const std::int64_t stride = data.get_dimension(1);
+        const std::int64_t stride = data.get_shape()[1];
         const std::int64_t row_count = data.get_dimension(0);
 
         auto data_ptr = data.get_data();
@@ -108,7 +106,6 @@ public:
                                                rng_seq_ptr,
                                                rng_period,
                                                col_count,
-                                               col_count,
                                                k,
                                                stride);
             });
@@ -133,7 +130,6 @@ private:
                               const Float* rnd_seq,
                               int RndPeriod,
                               int N,
-                              int NLast,
                               int K,
                               int BlockOffset) {
         
@@ -143,8 +139,6 @@ private:
         const int local_size = sg.get_local_range()[0];
         if (row_id >= num_rows)
             return;
-
-        N = (row_id == num_rows - 1) ? NLast : N;
 
         const int offset_in = row_id * BlockOffset;
         const int offset_out = row_id * K;
@@ -201,8 +195,6 @@ template <typename Float, bool selection_out, bool indices_out>
 sycl::event select_by_rows_quick(sycl::queue& queue,
                                  const ndview<Float, 2>& data,
                                  std::int64_t k,
-                                 std::int64_t col_begin,
-                                 std::int64_t col_end,
                                  ndview<Float, 2>& selection,
                                  ndview<int, 2>& indices,
                                  const event_vector& deps) {
@@ -218,13 +210,9 @@ sycl::event select_by_rows_quick(sycl::queue& queue,
         ONEDAL_ASSERT(indices.has_mutable_data());
     }
     const std::int64_t nx = data.get_dimension(1);
-    std::cout << "Quick selection begin" << std::endl;
     quick_selection<Float, selection_out, indices_out> qs(queue, data.get_shape());
-    std::cout << "Quick selection init" << std::endl;
     qs.init(queue, nx);
-    std::cout << "Quick selection run" << std::endl;
-    return qs.select(queue, data, k, col_begin, col_end, selection, indices, deps);
-    std::cout << "Quick selection done" << std::endl;
+    return qs.select(queue, data, k, selection, indices, deps);
 }
 
 #define INSTANTIATE(F, selection_out, indices_out)                                          \
@@ -232,8 +220,6 @@ sycl::event select_by_rows_quick(sycl::queue& queue,
         sycl::queue & queue,                                                                \
         const ndview<F, 2>& block,                                                          \
         std::int64_t k,                                                                     \
-        std::int64_t col_begin,                                                             \
-        std::int64_t col_end,                                                               \
         ndview<F, 2>& selection,                                                            \
         ndview<int, 2>& indices,                                                            \
         const event_vector& deps);

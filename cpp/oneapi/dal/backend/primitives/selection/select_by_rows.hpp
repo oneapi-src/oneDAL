@@ -55,39 +55,7 @@ public:
         ONEDAL_ASSERT(col_end > 0);
         ONEDAL_ASSERT(col_end <= data.get_column_count());
     }
-    /*
-New functionality for kNN performance improvement (optimized usage of GEMM)
 
-/// Constructor for selection in range [col_begin, col_end) with additional array added to sum with the range in every row
-///
-/// @param[in]  data The [n x m] input matrix
-/// @param[in]  add_by_col The [1, (col_end - col_begin)] input array
-/// @param[in]  col_begin_ The start col for selection over row (0 <= col_begin < data.get_column_count())
-/// @param[in]  col_end The start col for selection over row (col_begin < col_end <= data.get_column_count())
-    explicit selection_by_rows(const ndview<Float, 2>& data, const ndview<Float, 1>& add_by_col, std::int64_t col_begin, std::int64_t last_col)
-            : data_(data), add_by_col_(add_by_col), col_begin_(col_begin), col_end_(col_end) {
-        ONEDAL_ASSERT(data_.get_count() > 0);
-        ONEDAL_ASSERT(col_begin >= 0);
-        ONEDAL_ASSERT(col_begin < data.get_column_count());
-        ONEDAL_ASSERT(col_end > 0);
-        ONEDAL_ASSERT(col_end < data.get_column_count());
-        ONEDAL_ASSERT(add_by_col_.get_column_count() == col_end_ - col_begin_);
-    }
-
-/// Constructor for selection  with additional array added to sum with every row
-///
-/// @param[in]  data The [n x m] input matrix
-/// @param[in]  add_by_col The [1, m] input array
-    explicit selection_by_rows(const ndview<Float, 2>& data, const ndview<Float, 1>& add_by_col)
-            : data_(data), add_by_col_(add_by_col), col_begin_(col_begin), col_end_(col_end) {
-        ONEDAL_ASSERT(data_.get_count() > 0);
-        ONEDAL_ASSERT(col_begin >= 0);
-        ONEDAL_ASSERT(col_begin < data.get_column_count());
-        ONEDAL_ASSERT(col_end > 0);
-        ONEDAL_ASSERT(col_end < data.get_column_count());
-        ONEDAL_ASSERT(add_by_col_.get_column_count() == col_end_ - col_begin_);
-    }
-*/
     /// Performs K-selection on each row in matrix
     ///
     /// @param[in]  queue The queue

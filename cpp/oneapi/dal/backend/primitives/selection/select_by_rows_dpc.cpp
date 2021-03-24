@@ -25,12 +25,9 @@ constexpr uint32_t simd32 = 32;
 constexpr uint32_t simd64 = 64;
 constexpr uint32_t simd128 = 128;
 
-/* Commented params are for kNN perfomance improvement (optimized usage of GEMM) */
-
 template <typename Float, bool selection_out, bool indices_out>
 sycl::event select_by_rows_impl(sycl::queue& queue,
                                 const ndview<Float, 2>& data,
-                                /*const ndview<Float, 1>& add_by_col,*/
                                 std::int64_t k,
                                 std::int64_t col_begin,
                                 std::int64_t col_end,
@@ -60,7 +57,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
             return select_by_rows_simd<Float, simd16, selection_out, indices_out>(
                 queue,
                 data,
-                /*                                                                                add_by_col,*/
                 k,
                 col_begin,
                 col_end,
@@ -72,7 +68,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
             return select_by_rows_simd<Float, simd32, selection_out, indices_out>(
                 queue,
                 data,
-                /*                                                                                add_by_col,*/
                 k,
                 col_begin,
                 col_end,
@@ -84,7 +79,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
             return select_by_rows_simd<Float, simd64, selection_out, indices_out>(
                 queue,
                 data,
-                /*                                                                                add_by_col,*/
                 k,
                 col_begin,
                 col_end,
@@ -96,7 +90,6 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
             return select_by_rows_simd<Float, simd128, selection_out, indices_out>(
                 queue,
                 data,
-                /*                                                                                add_by_col,*/
                 k,
                 col_begin,
                 col_end,
@@ -111,10 +104,7 @@ sycl::event select_by_rows_impl(sycl::queue& queue,
         return select_by_rows_quick<Float, selection_out, indices_out>(
             queue,
             data,
-            /*                                                                                add_by_col,*/
             k,
-            col_begin,
-            col_end,
             selection,
             column_indices,
             deps);
@@ -129,7 +119,7 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
                                              const event_vector& deps) {
     return select_by_rows_impl<Float, true, true>(queue,
                                                   this->data_,
-                                                  /*this->add_by_col_,*/ k,
+                                                  k,
                                                   this->col_begin_,
                                                   this->col_end_,
                                                   selection,
@@ -145,7 +135,7 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
     ndarray<int, 2> dummy_array;
     return select_by_rows_impl<Float, true, false>(queue,
                                                    this->data_,
-                                                   /*this->add_by_col_,*/ k,
+                                                   k,
                                                    this->col_begin_,
                                                    this->col_end_,
                                                    selection,
@@ -161,7 +151,7 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
     ndarray<Float, 2> dummy_array;
     return select_by_rows_impl<Float, false, true>(queue,
                                                    this->data_,
-                                                   /*this->add_by_col_,*/ k,
+                                                   k,
                                                    this->col_begin_,
                                                    this->col_end_,
                                                    dummy_array,
@@ -172,7 +162,7 @@ sycl::event selection_by_rows<Float>::select(sycl::queue& queue,
 #define INSTANTIATE_IMPL(F, selection_out, indices_out)                                    \
     template ONEDAL_EXPORT sycl::event select_by_rows_impl<F, selection_out, indices_out>( \
         sycl::queue & queue,                                                               \
-        const ndview<F, 2>& data, /*const ndview<F, 1>& add_by_col,*/                      \
+        const ndview<F, 2>& data,                       \
         std::int64_t k,                                                                    \
         std::int64_t col_begin,                                                            \
         std::int64_t col_end,                                                              \
