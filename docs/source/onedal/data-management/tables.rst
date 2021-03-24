@@ -16,7 +16,7 @@
 
 .. highlight:: cpp
 
-.. _tables:
+.. _dm_tables:
 
 ======
 Tables
@@ -38,11 +38,11 @@ This section describes the types related to the :txtref:`table` concept.
    * - :txtref:`table_metadata <metadata_programming_interface>`
      - An implementation of :txtref:`table_metadata` concept.
 
-   * - data_layout_
+   * - :ref:`api_tables_data_layout`
      - An enumeration of :capterm:`data layouts<data layout>` used to store
        contiguous data blocks inside the table.
 
-   * - feature_type_
+   * - :ref:`api_tables_feature_type`
      - An enumeration of :capterm:`feature` types used in |short_name| to
        define set of available operations onto the data.
 
@@ -105,98 +105,13 @@ Table types
      - A dense table that contains :term:`contiguous <Contiguous data>`
        :term:`homogeneous <Homogeneous data>` data.
 
-.. _table_programming_interface:
-
 ---------------------
 Programming interface
 ---------------------
 
-All types and functions in this section are declared in the
-``oneapi::dal`` namespace and be available via inclusion of the
-``oneapi/dal/table/common.hpp`` header file.
-
-Table
------
-
-A base implementation of the :txtref:`table` concept.
-The ``table`` type and all of its subtypes are :term:`reference-counted <Reference-counted object>`:
-
-1. The instance stores a pointer to table implementation that holds all
-   property values and data
-
-2. The reference count indicating how many table objects refer to the same implementation.
-
-3. The table increments the reference count
-   for it to be equal to the number of table objects sharing the same implementation.
-
-4. The table decrements the reference count when the
-   table goes out of the scope. If the reference count is zero, the table
-   frees its implementation.
-
-
-.. onedal_class:: oneapi::dal::v1::table
-
-.. _metadata_programming_interface:
-
-Table metadata
---------------
-
-An implementation of the :txtref:`table_metadata` concept. Holds additional
-information about data within the table. The objects of ``table_metadata``
-are :term:`reference-counted <Reference-counted object>`.
-
-.. onedal_class:: oneapi::dal::v1::table_metadata
-
-.. _data_layout:
-
-Data layout
------------
-
-An implementation of the :capterm:`data layout` concept.
-
-::
-
-   enum class data_layout { unknown, row_major, column_major };
-
-.. .. namespace:: oneapi::dal
-.. .. enum-class:: data_layout
-
-data_layout::unknown
-   Represents the :capterm:`data layout` that is undefined or unknown at this moment.
-
-data_layout::row_major
-   The data block elements are stored in raw-major layout.
-
-data_layout::column_major
-   The data block elements are stored in column_major layout.
-
-.. _feature_type:
-
-Feature type
-------------
-
-An implementation of the logical data types.
-
-::
-
-   enum class feature_type { nominal, ordinal, interval, ratio };
-
-.. .. namespace:: oneapi::dal
-.. .. enum-class:: feature_type
-
-feature_type::nominal
-   Represents the type of :capterm:`Nominal feature`.
-
-feature_type::ordinal
-   Represents the type of :capterm:`Ordinal feature`.
-
-feature_type::interval
-   Represents the type of :capterm:`Interval feature`.
-
-feature_type::ratio
-   Represents the type of :capterm:`Ratio feature`.
-
+Refer to :ref:`API: Tables <table_programming_interface>`.
 
 .. toctree::
+   :hidden:
 
    table/homogen.rst

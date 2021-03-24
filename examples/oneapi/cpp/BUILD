@@ -72,6 +72,7 @@ dal_algo_example_suite(
         "knn",
         "linear_kernel",
         "pca",
+        "polynomial_kernel",
         "rbf_kernel",
         "svm",
         "triangle_counting",

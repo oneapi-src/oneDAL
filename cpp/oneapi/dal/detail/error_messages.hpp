@@ -64,19 +64,21 @@ public:
     /* Common */
     MSG(array_does_not_contain_mutable_data);
     MSG(feature_index_is_out_of_range);
+    MSG(invalid_data_block_size);
+    MSG(method_not_implemented);
     MSG(only_homogen_table_is_supported);
     MSG(overflow_found_in_multiplication_of_two_values);
     MSG(overflow_found_in_sum_of_two_values);
+    MSG(queues_in_different_contexts);
+    MSG(small_data_block);
+    MSG(unknown_memcpy_error);
     MSG(unknown_status_code);
+    MSG(unknown_usm_pointer_type);
     MSG(unsupported_data_layout);
     MSG(unsupported_data_type);
     MSG(unsupported_device_type);
-    MSG(small_data_block);
-    MSG(invalid_data_block_size);
-    MSG(method_not_implemented);
     MSG(unsupported_feature_type);
-    MSG(unknown_memcpy_error);
-    MSG(unknown_usm_pointer_type);
+    MSG(unsupported_usm_alloc);
 
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
@@ -168,15 +170,19 @@ public:
     /* SVM */
     MSG(c_leq_zero);
     MSG(cache_size_lt_zero);
+    MSG(degree_lt_zero);
     MSG(input_model_coeffs_are_empty);
     MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
     MSG(input_model_does_not_match_kernel_function);
     MSG(input_model_support_vectors_are_empty);
     MSG(input_model_support_vectors_cc_neq_input_data_cc);
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
+    MSG(polynomial_kenrel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
+    MSG(svm_regression_task_is_not_implemented_for_gpu);
     MSG(tau_leq_zero);
+    MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
 };
 

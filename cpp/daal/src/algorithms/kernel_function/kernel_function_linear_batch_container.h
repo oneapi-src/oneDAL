@@ -22,8 +22,9 @@
 */
 
 #include "algorithms/kernel_function/kernel_function_linear.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_dense_default_kernel.h"
-#include "src/algorithms/kernel_function/kernel_function_linear_csr_fast_kernel.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_kernel.h"
+#include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_csr_fast_kernel.h"
 #include "src/algorithms/kernel_function/oneapi/kernel_function_linear_kernel_oneapi.h"
 
 namespace daal
@@ -35,6 +36,7 @@ namespace kernel_function
 namespace linear
 {
 using namespace daal::data_management;
+namespace poly = daal::algorithms::kernel_function::polynomial::internal;
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(services::Environment::env * daalEnv)
@@ -47,7 +49,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(services::Environme
     }
     else
     {
-        __DAAL_INITIALIZE_KERNELS(internal::KernelImplLinear, method, algorithmFPType);
+        __DAAL_INITIALIZE_KERNELS(poly::KernelImplPolynomial, (method == defaultDense) ? poly::defaultDense : poly::fastCSR, algorithmFPType);
     }
 }
 
@@ -73,6 +75,16 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const ParameterBase * par        = static_cast<const ParameterBase *>(_par);
     services::Environment::env & env = *_env;
 
+    KernelParameter kernelPar;
+    kernelPar.rowIndexX       = par->rowIndexX;
+    kernelPar.rowIndexY       = par->rowIndexY;
+    kernelPar.rowIndexResult  = par->rowIndexResult;
+    kernelPar.computationMode = par->computationMode;
+    kernelPar.scale           = static_cast<const Parameter *>(par)->k;
+    kernelPar.shift           = static_cast<const Parameter *>(par)->b;
+    kernelPar.degree          = 1;
+    kernelPar.kernelType      = KernelType::linear;
+
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
@@ -83,7 +95,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
     else
     {
-        __DAAL_CALL_KERNEL(env, internal::KernelImplLinear, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], par);
+        __DAAL_CALL_KERNEL(env, poly::KernelImplPolynomial,
+                           __DAAL_KERNEL_ARGUMENTS((method == defaultDense) ? poly::defaultDense : poly::fastCSR, algorithmFPType), compute, a[0],
+                           a[1], r[0], &kernelPar);
     }
 }
 
