@@ -32,11 +32,11 @@ namespace oneapi::dal::backend::primitives {
 /// @param[out] indices  The [n x k] matrix of indices of selected values (if indices_out == true)
 template <typename Float>
 sycl::event select(sycl::queue& queue,
-                    const ndview<Float, 2>& data,
-                    std::int64_t k,
-                    ndview<Float, 2>& selection,
-                    ndview<int, 2>& column_indices,
-                    const event_vector& deps = {});
+                   const ndview<Float, 2>& data,
+                   std::int64_t k,
+                   ndview<Float, 2>& selection,
+                   ndview<std::int32_t, 2>& column_indices,
+                   const event_vector& deps = {});
 
 /// Performs K-selection on each row in matrix
 ///
@@ -45,10 +45,10 @@ sycl::event select(sycl::queue& queue,
 /// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
 template <typename Float>
 sycl::event select(sycl::queue& queue,
-                    const ndview<Float, 2>& data,
-                    std::int64_t k,
-                    ndview<Float, 2>& selection,
-                    const event_vector& deps = {});
+                   const ndview<Float, 2>& data,
+                   std::int64_t k,
+                   ndview<Float, 2>& selection,
+                   const event_vector& deps = {});
 
 /// Performs K-selection on each row in matrix
 ///
@@ -57,10 +57,10 @@ sycl::event select(sycl::queue& queue,
 /// @param[out] column_indices  The [n x k] matrix of indices of selected values (if indices_out == true)
 template <typename Float>
 sycl::event select(sycl::queue& queue,
-                    const ndview<Float, 2>& data,
-                    std::int64_t k,
-                    ndview<int, 2>& column_indices,
-                    const event_vector& deps = {});
+                   const ndview<Float, 2>& data,
+                   std::int64_t k,
+                   ndview<std::int32_t, 2>& column_indices,
+                   const event_vector& deps = {});
 
 #endif
 

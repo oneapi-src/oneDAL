@@ -23,14 +23,14 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-constexpr uint32_t preffered_wg_size = 128;
+constexpr std::uint32_t preffered_wg_size = 128;
 
 template <typename Float, uint32_t simd_width, bool selection_out, bool indices_out>
 sycl::event select_by_rows_simd(sycl::queue& queue,
                                 const ndview<Float, 2>& data,
                                 std::int64_t k,
                                 ndview<Float, 2>& selection,
-                                ndview<int, 2>& indices,
+                                ndview<std::int32_t, 2>& indices,
                                 const event_vector& deps = {}) {
     const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
     ONEDAL_ASSERT(!sg_sizes.empty());
@@ -38,15 +38,16 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
     auto result = std::max_element(sg_sizes.begin(), sg_sizes.end());
     ONEDAL_ASSERT(result != sg_sizes.end());
 
-    const uint32_t sg_max_size = static_cast<int>(*result);
+    const std::uint32_t sg_max_size = static_cast<std::uint32_t>(*result);
 
     const std::int64_t col_count = data.get_dimension(1);
     const std::int64_t row_count = data.get_dimension(0);
     const std::int64_t stride = data.get_shape()[1];
 
-    const uint32_t row_adjusted_sg_num =
-        col_count / sg_max_size + (uint32_t)((bool)(col_count % sg_max_size));
-    const uint32_t expected_sg_num = std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
+    const std::uint32_t row_adjusted_sg_num =
+        col_count / sg_max_size + (std::uint32_t)((bool)(col_count % sg_max_size));
+    const std::uint32_t expected_sg_num =
+        std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
     ONEDAL_ASSERT(expected_sg_num > 0);
 
     // TODO: overflow check
@@ -57,7 +58,7 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
 
     const Float* data_ptr = data.get_data();
     Float* selection_ptr = selection_out ? selection.get_mutable_data() : nullptr;
-    int* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
+    std::int32_t* indices_ptr = indices_out ? indices.get_mutable_data() : nullptr;
     auto fp_max = detail::limits<Float>::max();
 
     auto event = queue.submit([&](sycl::handler& cgh) {
@@ -77,19 +78,19 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
             const uint32_t local_range = sg.get_local_range()[0];
 
             Float values[simd_width];
-            int private_indices[simd_width];
+            std::int32_t private_indices[simd_width];
 
-            for (uint32_t i = 0; i < simd_width; i++) {
+            for (std::uint32_t i = 0; i < simd_width; i++) {
                 values[i] = fp_max;
                 private_indices[i] = -1;
             }
-            for (uint32_t i = local_id; i < col_count; i += local_range) {
+            for (std::uint32_t i = local_id; i < col_count; i += local_range) {
                 Float cur_val = data_ptr[in_offset + i];
-                int index = i;
-                int pos = -1;
+                std::int32_t index = i;
+                std::int32_t pos = -1;
 
                 pos = values[k - 1] > cur_val ? k - 1 : pos;
-                for (int j = k - 2; j >= 0; j--) {
+                for (std::int32_t j = k - 2; j >= 0; j--) {
                     bool do_shift = values[j] > cur_val;
                     pos = do_shift ? j : pos;
                     values[j + 1] = do_shift ? values[j] : values[j + 1];
@@ -103,13 +104,13 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
             }
             sg.barrier();
 
-            int bias = 0;
+            std::int32_t bias = 0;
             Float final_values[simd_width];
-            int final_indices[simd_width];
-            for (uint32_t i = 0; i < k; i++) {
+            std::int32_t final_indices[simd_width];
+            for (std::uint32_t i = 0; i < k; i++) {
                 Float min_val = reduce(sg, values[bias], sycl::ONEAPI::minimum());
                 bool present = (min_val == values[bias]);
-                int pos = exclusive_scan(sg, present ? 1 : 0, std::plus<int>());
+                std::int32_t pos = exclusive_scan(sg, present ? 1 : 0, std::plus<std::int32_t>());
                 bool owner = present && pos == 0;
                 final_indices[i] =
                     -reduce(sg, owner ? -private_indices[bias] : 1, sycl::ONEAPI::minimum());
@@ -117,12 +118,12 @@ sycl::event select_by_rows_simd(sycl::queue& queue,
                 bias += owner ? 1 : 0;
             }
             if constexpr (indices_out) {
-                for (uint32_t i = local_id; i < k; i += local_range) {
+                for (std::uint32_t i = local_id; i < k; i += local_range) {
                     indices_ptr[out_offset + i] = final_indices[i];
                 }
             }
             if constexpr (selection_out) {
-                for (uint32_t i = local_id; i < k; i += local_range) {
+                for (std::uint32_t i = local_id; i < k; i += local_range) {
                     selection_ptr[out_offset + i] = final_values[i];
                 }
             }
