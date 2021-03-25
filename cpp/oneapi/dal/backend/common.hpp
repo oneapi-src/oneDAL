@@ -160,9 +160,35 @@ inline void check_if_same_context(const sycl::queue& q1,
 /// Creates `nd_range`, where global size is multiple of local size
 inline sycl::nd_range<1> make_multiple_nd_range_1d(std::int64_t global_size,
                                                    std::int64_t local_size) {
-    const std::int64_t g = dal::detail::integral_cast<std::size_t>(global_size);
-    const std::int64_t l = dal::detail::integral_cast<std::size_t>(local_size);
+    const std::size_t g = dal::detail::integral_cast<std::size_t>(global_size);
+    const std::size_t l = dal::detail::integral_cast<std::size_t>(local_size);
     return { up_multiple(g, l), l };
+}
+
+template <std::int64_t axis_count>
+using ndindex = std::array<std::int64_t, axis_count>;
+
+/// Creates `nd_range`, where global sizes is multiple of local size
+inline sycl::nd_range<2> make_multiple_nd_range_2d(const ndindex<2>& global_size,
+                                                   const ndindex<2>& local_size) {
+    const std::size_t g_0 = dal::detail::integral_cast<std::size_t>(global_size[0]);
+    const std::size_t g_1 = dal::detail::integral_cast<std::size_t>(global_size[1]);
+    const std::size_t l_0 = dal::detail::integral_cast<std::size_t>(local_size[0]);
+    const std::size_t l_1 = dal::detail::integral_cast<std::size_t>(local_size[1]);
+    return { { up_multiple(g_0, l_0), up_multiple(g_1, l_1) }, { l_0, l_1 } };
+}
+
+/// Creates `nd_range`, where global sizes is multiple of local size
+inline sycl::nd_range<3> make_multiple_nd_range_3d(const ndindex<3>& global_size,
+                                                   const ndindex<3>& local_size) {
+    const std::size_t g_0 = dal::detail::integral_cast<std::size_t>(global_size[0]);
+    const std::size_t g_1 = dal::detail::integral_cast<std::size_t>(global_size[1]);
+    const std::size_t g_2 = dal::detail::integral_cast<std::size_t>(global_size[2]);
+    const std::size_t l_0 = dal::detail::integral_cast<std::size_t>(local_size[0]);
+    const std::size_t l_1 = dal::detail::integral_cast<std::size_t>(local_size[1]);
+    const std::size_t l_2 = dal::detail::integral_cast<std::size_t>(local_size[2]);
+    return { { up_multiple(g_0, l_0), up_multiple(g_1, l_1), up_multiple(g_2, l_2) },
+             { l_0, l_1, l_2 } };
 }
 
 #endif

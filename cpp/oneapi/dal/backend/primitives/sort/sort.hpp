@@ -38,7 +38,6 @@ struct float2uint_map<double> {
 
 /// @tparam Float Floating-point type used for storing input values
 /// @tparam IndexType Integer type used for storing input indices
-///
 template <typename Float, typename IndexType = std::uint32_t>
 class radix_sort_indices_inplace {
     using radix_integer_t = typename float2uint_map<Float>::type_t;
@@ -56,8 +55,8 @@ public:
     /// NOTE: auxiliary buffers and variables are reset in case if number of elements in val
     ///       differs from the number of elements provided in constructor
     ///
-    /// @param[in|out]  val  The [n] input/output vector of values to sort out
-    /// @param[in|out]  ind  The [n] input/output vector of corresponding indices
+    /// @param[in, out]  val  The [n] input/output vector of values to sort out
+    /// @param[in, out]  ind  The [n] input/output vector of corresponding indices
     sycl::event operator()(ndview<Float, 1>& val,
                            ndview<IndexType, 1>& ind,
                            const event_vector& deps = {});

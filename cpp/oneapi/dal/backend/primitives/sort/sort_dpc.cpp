@@ -48,9 +48,8 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
     sycl::event& deps) {
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
 
-    const sycl::range<1> global(local_size * local_hist_count);
-    const sycl::range<1> local(local_size);
-    const sycl::nd_range<1> nd_range(global, local);
+    const sycl::nd_range<1> nd_range =
+        make_multiple_nd_range_1d(local_size * local_hist_count, local_size);
 
     const radix_integer_t* val_ptr = reinterpret_cast<const radix_integer_t*>(val.get_data());
     IndexType* part_hist_ptr = part_hist.get_mutable_data();
@@ -116,9 +115,7 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_hist_scan(
     const IndexType* part_hist_ptr = part_hist.get_data();
     IndexType* part_prefix_hist_ptr = part_prefix_hist.get_mutable_data();
 
-    const sycl::range<1> global(local_size);
-    const sycl::range<1> local(local_size);
-    const sycl::nd_range<1> nd_range(global, local);
+    const sycl::nd_range<1> nd_range = make_multiple_nd_range_1d(local_size, local_size);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -183,9 +180,8 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
     radix_integer_t* val_out_ptr = reinterpret_cast<radix_integer_t*>(val_out.get_mutable_data());
     IndexType* ind_out_ptr = ind_out.get_mutable_data();
 
-    const sycl::range<1> global(local_size * local_hist_count);
-    const sycl::range<1> local(local_size);
-    const sycl::nd_range<1> nd_range(global, local);
+    const sycl::nd_range<1> nd_range =
+        make_multiple_nd_range_1d(local_size * local_hist_count, local_size);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -399,10 +395,9 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
     Integer* sorted = val_out.get_mutable_data();
     Integer* radixbuf = buffer_.get_mutable_data();
 
-    const sycl::range<2> global(vector_count, preferable_wg_size_);
-    const sycl::range<2> local(1, preferable_wg_size_);
-
-    const sycl::nd_range<2> nd_range(global, local);
+    const sycl::nd_range<2> nd_range =
+        make_multiple_nd_range_2d({ vector_count, preferable_wg_size_ },
+                                  { 1, preferable_wg_size_ });
 
     sort_event_ = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
