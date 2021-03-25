@@ -168,7 +168,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
     std::int64_t local_size,
     std::int64_t local_hist_count,
     sycl::event& deps) {
-    ONEDAL_ASSERT(part_prefix_hist.get_count() == ((local_hist_count + 1) << radix_bits));
+    ONEDAL_ASSERT(part_prefix_hist.get_count() == ((local_hist_count + 1) << radix_bits_));
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
     ONEDAL_ASSERT(val_in.get_count() == val_out.get_count());
     ONEDAL_ASSERT(val_in.get_count() == ind_out.get_count());
@@ -233,11 +233,11 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
 }
 
 template <typename Float, typename Index>
-radix_sort_indices_inplace<Float, Index>::radix_sort_indices_inplace(sycl::queue& queue,
+radix_sort_indices_inplace<Float, Index>::radix_sort_indices_inplace(const sycl::queue& queue,
                                                                      std::int64_t elem_count)
         : queue_(queue),
           elem_count_(0) {
-    init(queue, elem_count);
+    init(queue_, elem_count);
 }
 
 template <typename Float, typename Index>
@@ -272,6 +272,8 @@ sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1
                                                                  const event_vector& deps) {
     ONEDAL_ASSERT(val_in.has_mutable_data());
     ONEDAL_ASSERT(ind_in.has_mutable_data());
+    ONEDAL_ASSERT(val_in.get_count() > 0);
+    ONEDAL_ASSERT(val_in.get_count() < de::limits<std::uint32_t>::max());
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
 
     sycl::event::wait_and_throw(deps);
@@ -345,10 +347,10 @@ sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1
 }
 
 template <typename Integer>
-radix_sort<Integer>::radix_sort(sycl::queue& queue, std::int64_t vector_count)
+radix_sort<Integer>::radix_sort(const sycl::queue& queue, std::int64_t vector_count)
         : queue_(queue),
           vector_count_(0) {
-    init(queue, vector_count);
+    init(queue_, vector_count);
 }
 
 template <typename Integer>
@@ -374,10 +376,15 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             std::int64_t sorted_elem_count,
                                             const event_vector& deps) {
     // radixBuf should be big enough to accumulate radix_range elements
+    ONEDAL_ASSERT(val_in.get_dimension(0) > 0);
+    ONEDAL_ASSERT(val_in.get_dimension(0) < de::limits<std::uint32_t>::max());
+    ONEDAL_ASSERT(val_in.get_dimension(1) > 0);
+    ONEDAL_ASSERT(val_in.get_dimension(1) < de::limits<std::uint32_t>::max());
     ONEDAL_ASSERT(val_in.get_dimension(0) == val_out.get_dimension(0));
     ONEDAL_ASSERT(val_in.get_dimension(1) == val_out.get_dimension(1));
     ONEDAL_ASSERT(val_out.has_mutable_data());
     ONEDAL_ASSERT(sorted_elem_count > 0);
+    ONEDAL_ASSERT(sorted_elem_count <= val_in.get_dimension(1));
 
     sort_event_.wait_and_throw();
 

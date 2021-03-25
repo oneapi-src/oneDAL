@@ -33,6 +33,9 @@
 
 namespace oneapi::dal::backend {
 
+template <std::int64_t axis_count>
+using ndindex = std::array<std::int64_t, axis_count>;
+
 /// Finds the largest multiple of `multiple` not larger than `x`
 /// Return `x`, if `x` is already multiple of `multiple`
 /// Example: down_multiple(10, 4) == 8
@@ -164,9 +167,6 @@ inline sycl::nd_range<1> make_multiple_nd_range_1d(std::int64_t global_size,
     const auto l = dal::detail::integral_cast<std::size_t>(local_size);
     return { up_multiple(g, l), l };
 }
-
-template <std::int64_t axis_count>
-using ndindex = std::array<std::int64_t, axis_count>;
 
 /// Creates `nd_range`, where global sizes is multiple of local size
 inline sycl::nd_range<2> make_multiple_nd_range_2d(const ndindex<2>& global_size,

@@ -40,6 +40,7 @@ struct float2uint_map<double> {
 /// @tparam Index Integer type used for storing input indices
 template <typename Float, typename Index = std::uint32_t>
 class radix_sort_indices_inplace {
+    static_assert(std::is_same_v<float, Float> || std::is_same_v<double, Float>);
     using radix_integer_t = typename float2uint_map<Float>::integer_t;
 
 public:
@@ -47,7 +48,7 @@ public:
     ///
     /// @param[in]  queue The queue
     /// @param[in]  elem_count  The number of elements in input vector
-    radix_sort_indices_inplace(sycl::queue& queue, std::int64_t elem_count = 0);
+    radix_sort_indices_inplace(const sycl::queue& queue, std::int64_t elem_count = 0);
     radix_sort_indices_inplace(const radix_sort_indices_inplace&) = delete;
     ~radix_sort_indices_inplace();
     radix_sort_indices_inplace& operator=(const radix_sort_indices_inplace&) = delete;
@@ -121,7 +122,7 @@ public:
     ///
     /// @param[in]  queue The queue
     /// @param[in]  vector_count  The number of vectors (rows) in input array
-    radix_sort(sycl::queue& queue, std::int64_t vector_count = 0);
+    radix_sort(const sycl::queue& queue, std::int64_t vector_count = 0);
     radix_sort(const radix_sort&) = delete;
     ~radix_sort();
     radix_sort& operator=(const radix_sort&) = delete;

@@ -458,6 +458,7 @@ public:
                     detail::make_default_delete<T>(detail::default_host_policy{}));
     }
 #endif
+
 private:
     explicit ndarray(const shared_t& data, const shape_t& shape, const shape_t& strides)
             : base(data.get(), shape, strides),

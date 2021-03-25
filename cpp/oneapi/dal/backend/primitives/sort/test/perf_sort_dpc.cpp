@@ -56,9 +56,8 @@ public:
 
     auto allocate_arrays(IndexType elem_count) {
         auto& q = this->get_queue();
-
-        auto val = ndarray<Float, 1>::empty(q, { elem_count });
-        auto ind = ndarray<IndexType, 1>::empty(q, { elem_count });
+        auto val = ndarray<Float, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
+        auto ind = ndarray<IndexType, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
 
         IndexType* ind_ptr = ind.get_mutable_data();
         q.submit([&](sycl::handler& cgh) {
@@ -76,8 +75,8 @@ public:
         std::vector<ndarray<Float, 1>> val_vec(vector_count);
         std::vector<ndarray<IndexType, 1>> ind_vec(vector_count);
         for (std::int64_t i = 0; i < vector_count; i++) {
-            val_vec[i] = ndarray<Float, 1>::empty(q, { elem_count });
-            ind_vec[i] = ndarray<IndexType, 1>::empty(q, { elem_count });
+            val_vec[i] = ndarray<Float, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
+            ind_vec[i] = ndarray<IndexType, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
         }
 
         return std::make_tuple(val_vec, ind_vec);
@@ -112,11 +111,13 @@ public:
         std::mt19937 rng(seed);
         std::uniform_real_distribution<Float> distr(a, b);
 
-        Float* val_ptr = val.get_mutable_data();
-
+        // move generation to device when rng is available there
+        Float* val_ptr = detail::host_allocator<Float>().allocate(val.get_count());
         for (IndexType el = 0; el < elem_count; el++) {
             val_ptr[el] = distr(rng);
         }
+        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
+        detail::host_allocator<Float>().deallocate(val_ptr, val.get_count());
     }
 
     void run(ndarray<Float, 1>& val, ndarray<IndexType, 1>& ind) {
@@ -161,7 +162,8 @@ class sort_test : public te::policy_fixture {
 public:
     auto allocate_arrays(std::int64_t vector_count, std::int64_t elem_count) {
         auto& q = this->get_queue();
-        auto val = ndarray<Integer, 2>::empty(q, { vector_count, elem_count });
+        auto val =
+            ndarray<Integer, 2>::empty(q, { vector_count, elem_count }, sycl::usm::alloc::device);
 
         return val;
     }
@@ -176,12 +178,16 @@ public:
         std::mt19937 rng(seed);
         std::uniform_int_distribution<Integer> distr(a, b);
 
-        Integer* val_ptr = val.get_mutable_data();
+        // move generation to device when rng is available there
+        Integer* val_ptr = detail::host_allocator<Integer>().allocate(val.get_count());
         for (std::uint32_t vec = 0; vec < vector_count; vec++) {
             for (std::uint32_t el = 0; el < elem_count; el++) {
                 val_ptr[vec * elem_count + el] = distr(rng);
             }
         }
+
+        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
+        detail::host_allocator<Integer>().deallocate(val_ptr, val.get_count());
     }
 
     void run(ndarray<Integer, 2>& val, std::int64_t sorted_elem_count) {
@@ -198,7 +204,8 @@ public:
         q.wait_and_throw();
 
         INFO("allocate output buffer");
-        auto val_out = ndarray<Integer, 2>::empty(q, { vector_count, elem_count });
+        auto val_out =
+            ndarray<Integer, 2>::empty(q, { vector_count, elem_count }, sycl::usm::alloc::device);
 
         INFO("benchmark sort");
         BENCHMARK(name.c_str()) {
@@ -229,10 +236,9 @@ TEMPLATE_LIST_TEST_M(sort_with_indices_test,
 TEMPLATE_TEST_M(sort_test, "benchmark for basic sort", "[sort][perf]", std::uint32_t) {
     SKIP_IF(this->get_policy().is_cpu());
 
-    //std::int64_t vector_count = GENERATE_COPY(128, 16384);
-    //std::int64_t elem_count = GENERATE_COPY(1024, 8192);
-    std::int64_t vector_count = GENERATE_COPY(128);
-    std::int64_t elem_count = GENERATE_COPY(1024);
+    std::int64_t vector_count = GENERATE_COPY(128, 16384);
+    std::int64_t elem_count = GENERATE_COPY(1024, 8192);
+
     std::int64_t sorted_elem_count = elem_count - (elem_count > 2 ? GENERATE_COPY(0, 12) : 0);
 
     auto val = this->allocate_arrays(vector_count, elem_count);
