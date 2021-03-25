@@ -18,7 +18,6 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include <iostream>
 
 namespace oneapi::dal::preview {
 namespace subgraph_isomorphism {

@@ -1,12 +1,5 @@
 #pragma once
-#include <cstdint>
 #include "tbb/enumerable_thread_specific.h"
-
-#ifdef DEBUG_MODE
-#ifdef DUMP
-#include <fstream>
-#endif // DUMP
-#endif // DEBUG_MODE
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"

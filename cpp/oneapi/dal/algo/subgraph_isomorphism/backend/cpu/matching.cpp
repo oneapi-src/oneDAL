@@ -2,8 +2,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
-#include <utility>
-
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 namespace dal = oneapi::dal;

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <immintrin.h>
+#include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 

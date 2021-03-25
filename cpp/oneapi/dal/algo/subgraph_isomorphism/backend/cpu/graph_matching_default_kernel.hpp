@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"

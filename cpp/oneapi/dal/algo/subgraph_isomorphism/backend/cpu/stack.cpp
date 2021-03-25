@@ -1,9 +1,5 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
 
-#ifdef DEBUG_MODE
-#include <iostream>
-#endif //DEBUG_MODE
-
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 stack::stack() {
