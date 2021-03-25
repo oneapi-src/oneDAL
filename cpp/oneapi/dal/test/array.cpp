@@ -360,7 +360,6 @@ TEST("can wrap const data with queue, offset and deleter") {
     REQUIRE(arr.get_data() == cdata);
     REQUIRE(!arr.has_mutable_data());
 }
-
 #endif
 
 } // namespace oneapi::dal::test
