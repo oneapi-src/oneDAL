@@ -2,25 +2,8 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
-#include <cstdint>
-#include <new>
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
-#ifdef DUMP
-/* Class for dumping search tree into graphviz (dot *.gv) format */
-class tree_search_dumper {
-public:
-    tree_search_dumper(){};
-    tree_search_dumper(const char* _graph_file_name);
-    virtual ~tree_search_dumper();
-    //void add_root(std::int64_t node_id) { root_id = node_id; };
-    void add_pair(std::int64_t node_id_prev, std::int64_t node_id_next);
-    void add_pair(std::int64_t level, std::int64_t node_id_prev, std::int64_t node_id_next);
-
-private:
-    std::ofstream graph_out_stream;
-};
-#endif // DUMP
 
 class stack {
 public:
@@ -37,18 +20,6 @@ public:
     void clear(bool direct = true);
     void clear_state(std::int64_t index);
     void add(stack& _stack);
-
-#ifdef DEBUG_MODE
-    void print_stack() const;
-#endif //DEBUG_MODE
-
-#ifdef DUMP
-    tree_search_dumper** tree_search_dumper_array = nullptr;
-    std::int64_t dumper_lenght = 0;
-    void create_tree_search_dumper(std::int64_t vertex_count);
-    void add_graph(std::int64_t root_id);
-    void delete_tree_search_dumper();
-#endif //DUMP
 
 private:
     std::int64_t max_stack_size;

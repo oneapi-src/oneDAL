@@ -1,8 +1,6 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
 
-#include <xmmintrin.h>
-
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 sorter::sorter() {

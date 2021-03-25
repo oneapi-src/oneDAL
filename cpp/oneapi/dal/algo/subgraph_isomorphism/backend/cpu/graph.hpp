@@ -81,6 +81,9 @@ void set(std::uint8_t* /*restrict*/ vec, std::int64_t size, const std::uint8_t b
 
 class bit_vector {
 public:
+    // precomputed count of ones in a number from 0 to 255
+    // e.g. bit_set_table[2] = 1, because of 2 is 0x00000010
+    // e.g. bit_set_table[7] = 7, because of 7 is 0x00000111
     static constexpr std::uint8_t bit_set_table[256] = {
         0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3,
         4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4,
@@ -132,7 +135,6 @@ public:
     bit_vector& operator=(bit_vector& a);
     bit_vector& operator~();
     bit_vector& operator&=(const std::uint8_t* pa);
-    ////bit_vector& andeq(const std::uint8_t* pa, std::int64_t *registers, const register_size max_size);
     bit_vector& operator|=(const std::uint8_t* pa);
     bit_vector& operator^=(const std::uint8_t* pa);
     bit_vector& operator=(const std::uint8_t* pa);
@@ -191,7 +193,7 @@ public:
 
     graph_status load_edge_lists(const std::int64_t vertex_count,
                                  std::int64_t const* const* p_edges_list,
-                                 const std::int64_t* poutput_degree);
+                                 const std::int64_t* p_degree);
     graph_status load_vertex_attribute(const std::int64_t vertex_count,
                                        const std::int64_t* pvertices_attribute);
     graph_status load_edge_attribute_lists(const std::int64_t vertex_count,
@@ -227,12 +229,12 @@ private:
     std::int64_t n; /* number of graph vertices */
     const std::int64_t* p_degree; /* vertex data dergee arrays */
 
-    std::uint8_t** p_edges_bit; /* bit vectors of output edges */
+    std::uint8_t** p_edges_bit; /* bit vectors of edges */
 
-    std::int64_t** p_edges_list; /* adj list of output edges */
+    std::int64_t** p_edges_list; /* adj list of edges */
 
     const std::int64_t* p_vertex_attribute; /* vertices attribute array */
-    std::int64_t const* const* p_edges_attribute; /* output edges attribute list */
+    std::int64_t const* const* p_edges_attribute; /* edges attribute list */
 
     graph_status create_bit_arrays(std::int64_t n);
     void delete_bit_arrays();

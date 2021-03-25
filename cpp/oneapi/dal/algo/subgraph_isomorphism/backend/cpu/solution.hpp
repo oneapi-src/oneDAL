@@ -7,15 +7,6 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
-#ifdef DEBUG_MODE
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <cassert>
-#endif // DEBUG_MODE
-
-#include <xmmintrin.h>
-
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 struct state {
@@ -45,11 +36,6 @@ public:
     graph_status add(solution& _solution);
     graph_status add(solution&& _solution);
     oneapi::dal::homogen_table export_as_table();
-
-#ifdef DEBUG_MODE
-    void print_solutions(bool in_sorted_view = true) const;
-    void print_solutions_csv() const;
-#endif // DEBUG_MODE
 
 private:
     std::int64_t** data;

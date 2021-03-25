@@ -1,9 +1,6 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 
-//#include <string.h>
-#include <xmmintrin.h>
-
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 void or_equal(std::uint8_t* /*restrict*/ vec,

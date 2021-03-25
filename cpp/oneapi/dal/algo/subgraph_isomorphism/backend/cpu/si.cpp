@@ -1,8 +1,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
 #include "debug.hpp"
 
-#include <xmmintrin.h>
-
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 solution subgraph_isomorphism(const graph& pattern,

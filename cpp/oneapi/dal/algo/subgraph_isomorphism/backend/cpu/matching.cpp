@@ -2,14 +2,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
-#ifdef DEBUG_MODE
-#include <iostream>
-#include <chrono>
-typedef std::chrono::high_resolution_clock Time;
-typedef std::chrono::duration<float> fsec;
-#endif //DEBUG_MODE
-
-#include <xmmintrin.h>
 #include <utility>
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
@@ -54,9 +46,9 @@ matching_engine::matching_engine(const graph* ppattern,
     candidate = 0;
 
     std::int64_t max_neighbours_size = target->get_max_degree();
-    std::int64_t max_output = target->get_max_degree();
-    if (max_neighbours_size < max_output) {
-        max_neighbours_size = max_output;
+    std::int64_t max_degree = target->get_max_degree();
+    if (max_neighbours_size < max_degree) {
+        max_neighbours_size = max_degree;
     }
 
 #ifdef EXPERIMENTAL
