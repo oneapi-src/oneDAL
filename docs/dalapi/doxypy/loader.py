@@ -24,18 +24,49 @@ class TransformerPass(object):
     def enter(self, node): ...
     def transform(self, node): ...
 
+class NameTransformer(object):
+    def transform(self, fully_qualified_name): ...
+
+class _NameTransformerPass(TransformerPass):
+    def __init__(self, name_transformer: NameTransformer):
+        assert name_transformer is not None
+        self._name_transformer = name_transformer
+
+    def enter(self, node):
+        return True
+
+    def transform(self, node):
+        self._transform_name(node, 'fully_qualified_name')
+        self._transform_name(node, 'parent_fully_qualified_name')
+
+    def _transform_name(self, node, attribute):
+        attr_value = getattr(node, attribute, None)
+        if attr_value:
+            transformed = self._name_transformer.transform(attr_value)
+            setattr(node, attribute, transformed)
+
 class Transformer(model.Visitor):
     default_passes = []
 
-    def __init__(self, passes: List[TransformerPass] = []):
+    def __init__(self, name_transformer: NameTransformer = None,
+                       passes: List[TransformerPass] = []):
         assert passes is not None
-        self._passes = Transformer.default_passes + passes
+        default_passes = Transformer.default_passes.copy()
+        if name_transformer is not None:
+            default_passes.append(_NameTransformerPass(name_transformer))
+        self._passes = default_passes + passes
+        self._name_transformer = name_transformer
         self._current_pass = None
 
     def transform(self, node):
         for transformer_pass in self._passes:
             self._current_pass = transformer_pass
             model.visit(node, self)
+
+    def transform_name(self, fully_qualified_name):
+        if self._name_transformer:
+            return self._name_transformer.transform(fully_qualified_name)
+        return fully_qualified_name
 
     def enter(self, node):
         return self._current_pass.enter(node)

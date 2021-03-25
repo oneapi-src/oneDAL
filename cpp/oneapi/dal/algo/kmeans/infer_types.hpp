@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::clustering`.
+///              be :expr:`task::clustering`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -77,7 +77,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::clustering`.
+///              be :expr:`task::clustering`.
 template <typename Task = task::by_default>
 class infer_result {
     static_assert(detail::is_valid_task_v<Task>);

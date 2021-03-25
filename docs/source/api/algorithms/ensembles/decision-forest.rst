@@ -36,29 +36,29 @@ Programming Interface
 All types and functions in this section are declared in the
 ``oneapi::dal::decision_forest`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/decision_forest.hpp`` header file.
-                   
+
 Enum classes
 ------------
-.. onedal_enumclass:: oneapi::dal::decision_forest::v1::error_metric_mode 
-.. onedal_enumclass:: oneapi::dal::decision_forest::v1::variable_importance_mode 
-.. onedal_enumclass:: oneapi::dal::decision_forest::v1::infer_mode
-.. onedal_enumclass:: oneapi::dal::decision_forest::v1::voting_mode
-                   
+.. onedal_enumclass:: oneapi::dal::decision_forest::error_metric_mode
+.. onedal_enumclass:: oneapi::dal::decision_forest::variable_importance_mode
+.. onedal_enumclass:: oneapi::dal::decision_forest::infer_mode
+.. onedal_enumclass:: oneapi::dal::decision_forest::voting_mode
+
 Descriptor
 ++++++++++
-.. onedal_class:: oneapi::dal::decision_forest::v1::descriptor
+.. onedal_class:: oneapi::dal::decision_forest::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::decision_forest::method::v1
+.. onedal_tags_namespace:: oneapi::dal::decision_forest::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::decision_forest::task::v1
+.. onedal_tags_namespace:: oneapi::dal::decision_forest::task
 
 Model
 -----
-.. onedal_class:: oneapi::dal::decision_forest::v1::model
+.. onedal_class:: oneapi::dal::decision_forest::model
 
 .. _df_t_api:
 
@@ -68,14 +68,14 @@ Training :expr:`train(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::decision_forest::v1::train_input
+.. onedal_class:: oneapi::dal::decision_forest::train_input
 
 
 .. _df_t_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::decision_forest::v1::train_result
+.. onedal_class:: oneapi::dal::decision_forest::train_result
 
 Operation
 ~~~~~~~~~
@@ -91,11 +91,11 @@ Operation
       | :expr:`input.labels.is_empty == false`
       | :expr:`input.labels.column_count == 1`
       | :expr:`input.data.row_count == input.labels.row_count`
-      | :expr:`desc.get_bootstrap() == true || 
+      | :expr:`desc.get_bootstrap() == true ||
                (desc.get_bootstrap() == false &&
                 desc.get_variable_importance_mode() != variable_importance_mode::mda_raw &&
                 desc.get_variable_importance_mode() != variable_importance_mode::mda_scaled)`
-      | :expr:`desc.get_bootstrap() == true || 
+      | :expr:`desc.get_bootstrap() == true ||
                (desc.get_bootstrap() == false && desc.get_error_metric_mode() == error_metric_mode::none)`
 
 .. _df_i_api:
@@ -106,14 +106,14 @@ Inference :expr:`infer(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::decision_forest::v1::infer_input
+.. onedal_class:: oneapi::dal::decision_forest::infer_input
 
 
 .. _df_i_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::decision_forest::v1::infer_result
+.. onedal_class:: oneapi::dal::decision_forest::infer_result
 
 Operation
 ~~~~~~~~~

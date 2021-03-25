@@ -86,9 +86,6 @@ public:
 
     descriptor_base();
 
-    /// The number of clusters k
-    /// @invariant :expr:`cluster_count > 0`
-    /// @remark default = 2
     std::int64_t get_cluster_count() const;
 
 protected:
@@ -118,10 +115,10 @@ namespace v1 {
 /// @tparam Method Tag-type that specifies an implementation
 ///                of K-Means Initialization algorithm.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::init`.
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t>
+///                be :expr:`task::init`.
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -137,6 +134,13 @@ public:
     /// Creates a new instance of the class with the given :literal:`cluster_count`
     explicit descriptor(std::int64_t cluster_count = 2) {
         set_cluster_count(cluster_count);
+    }
+
+    /// The number of clusters k
+    /// @invariant :expr:`cluster_count > 0`
+    /// @remark default = 2
+    std::int64_t get_cluster_count() const {
+        return base_t::get_cluster_count();
     }
 
     auto& set_cluster_count(int64_t value) {

@@ -83,19 +83,8 @@ public:
 
     descriptor_base();
 
-    /// The number of clusters k
-    /// @invariant :expr:`cluster_count > 0`
-    /// @remark default = 2
     std::int64_t get_cluster_count() const;
-
-    /// The maximum number of iterations :literal:`T`
-    /// @invariant :expr:`max_iteration_count >= 0`
-    /// @remark default = 100
     std::int64_t get_max_iteration_count() const;
-
-    /// The threshold $\\varepsilon$ for the stop condition
-    /// @invariant :expr:`accuracy_threshold >= 0.0`
-    /// @remark default = 0.0
     double get_accuracy_threshold() const;
 
 protected:
@@ -126,12 +115,12 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::lloyd_dense`.
+///                be :expr:`method::lloyd_dense`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::clustering`.
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t>
+///                be :expr:`task::clustering`.
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -149,14 +138,35 @@ public:
         set_cluster_count(cluster_count);
     }
 
+    /// The number of clusters k
+    /// @invariant :expr:`cluster_count > 0`
+    /// @remark default = 2
+    std::int64_t get_cluster_count() const {
+        return base_t::get_cluster_count();
+    }
+
     auto& set_cluster_count(int64_t value) {
         base_t::set_cluster_count_impl(value);
         return *this;
     }
 
+    /// The maximum number of iterations :literal:`T`
+    /// @invariant :expr:`max_iteration_count >= 0`
+    /// @remark default = 100
+    std::int64_t get_max_iteration_count() const {
+        return base_t::get_max_iteration_count();
+    }
+
     auto& set_max_iteration_count(int64_t value) {
         base_t::set_max_iteration_count_impl(value);
         return *this;
+    }
+
+    /// The threshold $\\varepsilon$ for the stop condition
+    /// @invariant :expr:`accuracy_threshold >= 0.0`
+    /// @remark default = 0.0
+    double get_accuracy_threshold() const {
+        return base_t::get_accuracy_threshold();
     }
 
     auto& set_accuracy_threshold(double value) {
@@ -166,7 +176,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::clustering`.
+///              be :expr:`task::clustering`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);

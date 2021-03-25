@@ -36,23 +36,22 @@ Programming Interface
 All types and functions in this section are declared in the
 ``oneapi::dal::svm`` namespace and are available via inclusion of the
 ``oneapi/dal/algo/svm.hpp`` header file.
-                   
+
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::svm::detail::v1::descriptor_base
-.. onedal_class:: oneapi::dal::svm::v1::descriptor
+.. onedal_class:: oneapi::dal::svm::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::svm::method::v1
+.. onedal_tags_namespace:: oneapi::dal::svm::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::svm::task::v1
+.. onedal_tags_namespace:: oneapi::dal::svm::task
 
 Model
 -----
-.. onedal_class:: oneapi::dal::svm::v1::model
+.. onedal_class:: oneapi::dal::svm::model
 
 .. _svm_t_api:
 
@@ -62,14 +61,14 @@ Training :expr:`train(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::train_input
+.. onedal_class:: oneapi::dal::svm::train_input
 
 
 .. _svm_t_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::train_result
+.. onedal_class:: oneapi::dal::svm::train_result
 
 Operation
 ~~~~~~~~~
@@ -94,14 +93,14 @@ Inference :expr:`infer(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::infer_input
+.. onedal_class:: oneapi::dal::svm::infer_input
 
 
 .. _svm_i_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::svm::v1::infer_result
+.. onedal_class:: oneapi::dal::svm::infer_result
 
 Operation
 ~~~~~~~~~

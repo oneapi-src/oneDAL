@@ -41,15 +41,15 @@ All types and functions in this section are declared in the
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::kmeans_init::v1::descriptor
+.. onedal_class:: oneapi::dal::kmeans_init::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans_init::method::v1
+.. onedal_tags_namespace:: oneapi::dal::kmeans_init::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans_init::task::v1
+.. onedal_tags_namespace:: oneapi::dal::kmeans_init::task
 
 Computing :cpp:expr:`compute(...)`
 --------------------------------------
@@ -58,13 +58,13 @@ Computing :cpp:expr:`compute(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::kmeans_init::v1::compute_input
+.. onedal_class:: oneapi::dal::kmeans_init::compute_input
 
 .. _kmeans_init_c_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::kmeans_init::v1::compute_result
+.. onedal_class:: oneapi::dal::kmeans_init::compute_result
 
 .. _kmeans_init_c_api:
 

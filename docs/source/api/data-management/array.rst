@@ -52,7 +52,7 @@ All the ``array`` class methods can be divided into several groups:
 6. Static methods that provide simplified ways to create an array either from external
    memory or by allocating it within a new object.
 
-.. onedal_class:: oneapi::dal::v1::array
+.. onedal_class:: oneapi::dal::array
 
 -------------
 Usage example
