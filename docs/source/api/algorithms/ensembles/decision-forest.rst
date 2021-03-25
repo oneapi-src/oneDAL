@@ -83,7 +83,8 @@ Operation
               decision_forest::train_result train(const Descriptor& desc, \
                                          const decision_forest::train_input& input)
 
-   :tparam Descriptor: Decision Forest algorithm descriptor :expr:`decision_forest::desc`.
+   :param desc: Decision Forest algorithm descriptor :expr:`decision_forest::descriptor`.
+   :param input: Input data for the training operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`
@@ -120,7 +121,8 @@ Operation
               decision_forest::infer_result infer(const Descriptor& desc, \
                                          const decision_forest::infer_input& input)
 
-   :tparam Descriptor: Decision Forest algorithm descriptor :expr:`decision_forest::desc`.
+   :param desc: Decision Forest algorithm descriptor :expr:`decision_forest::descriptor`.
+   :param input: Input data for the inference operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`
