@@ -49,7 +49,7 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
 
     const sycl::nd_range<1> nd_range =
-        make_multiple_nd_range_1d(local_size * local_hist_count, local_size);
+        make_multiple_nd_range_1d(de::check_mul_overflow(local_size, local_hist_count), local_size);
 
     const radix_integer_t* val_ptr = reinterpret_cast<const radix_integer_t*>(val.get_data());
     IndexType* part_hist_ptr = part_hist.get_mutable_data();
@@ -181,7 +181,7 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
     IndexType* ind_out_ptr = ind_out.get_mutable_data();
 
     const sycl::nd_range<1> nd_range =
-        make_multiple_nd_range_1d(local_size * local_hist_count, local_size);
+        make_multiple_nd_range_1d(de::check_mul_overflow(local_size, local_hist_count), local_size);
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
