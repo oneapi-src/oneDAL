@@ -25,7 +25,7 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace primitives = dal::backend::primitives;
+namespace pr = dal::backend::primitives;
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
@@ -45,18 +45,19 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     const Float alpha = desc.get_scale();
     const Float beta = desc.get_shift();
 
-    auto rows_block_x = row_accessor<const Float>(x).pull(queue, { 0, -1 });
-    const auto ndarray_x =
-        primitives::ndarray<Float, 2>::wrap(rows_block_x.get_data(), { row_count_x, col_count_x });
+    auto arr_x = row_accessor<const Float>(x).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    const auto ndarray_x = pr::ndarray<Float, 2>::wrap(arr_x, { row_count_x, col_count_x });
 
-    auto rows_block_y = row_accessor<const Float>(y).pull(queue, { 0, -1 });
-    const auto ndarray_y =
-        primitives::ndarray<Float, 2>::wrap(rows_block_y.get_data(), { row_count_y, col_count_y });
+    auto arr_y = row_accessor<const Float>(y).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    const auto ndarray_y = pr::ndarray<Float, 2>::wrap(arr_y, { row_count_y, col_count_y });
 
-    auto ndarray_res = primitives::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y });
+    auto ndarray_res =
+        pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
+
     sycl::event event_res;
-    if (beta != 0.0)
+    if (beta != 0.0) {
         event_res = ndarray_res.fill(queue, Float(1));
+    }
 
     gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta, { event_res }).wait_and_throw();
 
