@@ -73,7 +73,8 @@ Operation
               linear_kernel::compute_result compute(const Descriptor& desc, \
                                       const linear_kernel::compute_input& input)
 
-   :tparam Descriptor: Linear Kernel algorithm descriptor :expr:`linear_kernel::desc`.
+   :param desc: Linear Kernel algorithm descriptor :expr:`linear_kernel::descriptor`.
+   :param input: Input data for the computing operation
 
    Preconditions
       | :expr:`input.data.is_empty == false`
