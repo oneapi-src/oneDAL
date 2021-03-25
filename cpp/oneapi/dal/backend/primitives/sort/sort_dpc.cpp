@@ -36,35 +36,34 @@ using sycl::ONEAPI::reduce;
 using sycl::ONEAPI::plus;
 using sycl::ONEAPI::exclusive_scan;
 
-template <typename Float, typename IndexType>
-sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
-    sycl::queue& queue,
-    const ndview<Float, 1>& val,
-    ndarray<IndexType, 1>& part_hist,
-    IndexType elem_count,
-    std::uint32_t bit_offset,
-    std::int64_t local_size,
-    std::int64_t local_hist_count,
-    sycl::event& deps) {
+template <typename Float, typename Index>
+sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& queue,
+                                                                 const ndview<Float, 1>& val,
+                                                                 ndarray<Index, 1>& part_hist,
+                                                                 Index elem_count,
+                                                                 std::uint32_t bit_offset,
+                                                                 std::int64_t local_size,
+                                                                 std::int64_t local_hist_count,
+                                                                 sycl::event& deps) {
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
 
     const sycl::nd_range<1> nd_range =
         make_multiple_nd_range_1d(de::check_mul_overflow(local_size, local_hist_count), local_size);
 
     const radix_integer_t* val_ptr = reinterpret_cast<const radix_integer_t*>(val.get_data());
-    IndexType* part_hist_ptr = part_hist.get_mutable_data();
+    Index* part_hist_ptr = part_hist.get_mutable_data();
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
-            if (sbg.get_group_id()[0] > 0) {
+            if (sbg.get_group_id() > 0) {
                 return;
             }
             const std::uint32_t n_groups = item.get_group_range(0);
             const std::uint32_t n_sub_groups = sbg.get_group_range()[0];
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
-            const IndexType elems_for_sbg =
+            const Index elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
             const std::uint32_t local_size = item.get_sub_group().get_local_range()[0];
 
@@ -72,20 +71,20 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
             const std::uint32_t sub_group_id = sbg.get_group_id();
             const std::uint32_t group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
-            IndexType ind_start = group_id * elems_for_sbg;
-            IndexType ind_end =
-                sycl::min(static_cast<IndexType>((group_id + 1) * elems_for_sbg), elem_count);
+            Index ind_start = group_id * elems_for_sbg;
+            Index ind_end =
+                sycl::min(static_cast<Index>((group_id + 1) * elems_for_sbg), elem_count);
 
-            IndexType offset[radix_range_];
+            Index offset[radix_range_];
             for (std::uint32_t i = 0; i < radix_range_; i++) {
                 offset[i] = 0;
             }
 
-            for (IndexType i = ind_start + local_id; i < ind_end; i += local_size) {
+            for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 radix_integer_t data_bits = ((inv_bits(val_ptr[i]) >> bit_offset) & radix_range_1_);
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
-                    IndexType value = static_cast<IndexType>(data_bits == j);
-                    IndexType partial_offset = reduce(sbg, value, plus<IndexType>());
+                    Index value = static_cast<Index>(data_bits == j);
+                    Index partial_offset = reduce(sbg, value, plus<Index>());
                     offset[j] += partial_offset;
                 }
             }
@@ -101,19 +100,19 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_scan(
     return event;
 }
 
-template <typename Float, typename IndexType>
-sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_hist_scan(
+template <typename Float, typename Index>
+sycl::event radix_sort_indices_inplace<Float, Index>::radix_hist_scan(
     sycl::queue& queue,
-    const ndarray<IndexType, 1>& part_hist,
-    ndarray<IndexType, 1>& part_prefix_hist,
+    const ndarray<Index, 1>& part_hist,
+    ndarray<Index, 1>& part_prefix_hist,
     std::int64_t local_size,
     std::int64_t local_hist_count,
     sycl::event& deps) {
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
     ONEDAL_ASSERT(part_prefix_hist.get_count() == hist_buff_size_);
 
-    const IndexType* part_hist_ptr = part_hist.get_data();
-    IndexType* part_prefix_hist_ptr = part_prefix_hist.get_mutable_data();
+    const Index* part_hist_ptr = part_hist.get_data();
+    Index* part_prefix_hist_ptr = part_prefix_hist.get_mutable_data();
 
     const sycl::nd_range<1> nd_range = make_multiple_nd_range_1d(local_size, local_size);
 
@@ -121,30 +120,30 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_hist_scan(
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
-            if (sbg.get_group_id()[0] > 0) {
+            if (sbg.get_group_id() > 0) {
                 return;
             }
 
             const std::uint32_t local_size = sbg.get_local_range()[0];
             const std::uint32_t local_id = sbg.get_local_id()[0];
 
-            IndexType offset[radix_range_];
+            Index offset[radix_range_];
             for (std::uint32_t i = 0; i < radix_range_; i++) {
                 offset[i] = 0;
             }
 
             for (std::uint32_t i = local_id; i < local_hist_count; i += local_size) {
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
-                    IndexType value = part_hist_ptr[i * radix_range_ + j];
-                    IndexType boundary = exclusive_scan(sbg, value, plus<IndexType>());
+                    Index value = part_hist_ptr[i * radix_range_ + j];
+                    Index boundary = exclusive_scan(sbg, value, plus<Index>());
                     part_prefix_hist_ptr[i * radix_range_ + j] = offset[j] + boundary;
-                    IndexType partial_offset = reduce(sbg, value, plus<IndexType>());
+                    Index partial_offset = reduce(sbg, value, plus<Index>());
                     offset[j] += partial_offset;
                 }
             }
 
             if (local_id == 0) {
-                IndexType total_sum = 0;
+                Index total_sum = 0;
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
                     part_prefix_hist_ptr[local_hist_count * radix_range_ + j] = total_sum;
                     total_sum += offset[j];
@@ -156,15 +155,15 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_hist_scan(
     return event;
 }
 
-template <typename Float, typename IndexType>
-sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
+template <typename Float, typename Index>
+sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
     sycl::queue& queue,
     const ndview<Float, 1>& val_in,
-    const ndview<IndexType, 1>& ind_in,
-    const ndview<IndexType, 1>& part_prefix_hist,
+    const ndview<Index, 1>& ind_in,
+    const ndview<Index, 1>& part_prefix_hist,
     ndview<Float, 1>& val_out,
-    ndview<IndexType, 1>& ind_out,
-    IndexType elem_count,
+    ndview<Index, 1>& ind_out,
+    Index elem_count,
     std::uint32_t bit_offset,
     std::int64_t local_size,
     std::int64_t local_hist_count,
@@ -175,10 +174,10 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
     ONEDAL_ASSERT(val_in.get_count() == ind_out.get_count());
 
     const radix_integer_t* val_in_ptr = reinterpret_cast<const radix_integer_t*>(val_in.get_data());
-    const IndexType* ind_in_ptr = ind_in.get_data();
-    const IndexType* part_prefix_hist_ptr = part_prefix_hist.get_data();
+    const Index* ind_in_ptr = ind_in.get_data();
+    const Index* part_prefix_hist_ptr = part_prefix_hist.get_data();
     radix_integer_t* val_out_ptr = reinterpret_cast<radix_integer_t*>(val_out.get_mutable_data());
-    IndexType* ind_out_ptr = ind_out.get_mutable_data();
+    Index* ind_out_ptr = ind_out.get_mutable_data();
 
     const sycl::nd_range<1> nd_range =
         make_multiple_nd_range_1d(de::check_mul_overflow(local_size, local_hist_count), local_size);
@@ -187,14 +186,14 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
-            if (sbg.get_group_id()[0] > 0) {
+            if (sbg.get_group_id() > 0) {
                 return;
             }
 
             const std::uint32_t n_groups = item.get_group_range(0);
             const std::uint32_t n_sub_groups = sbg.get_group_range()[0];
             const std::uint32_t n_total_sub_groups = n_sub_groups * n_groups;
-            const IndexType elems_for_sbg =
+            const Index elems_for_sbg =
                 elem_count / n_total_sub_groups + bool(elem_count % n_total_sub_groups);
             const std::uint32_t local_size = item.get_sub_group().get_local_range()[0];
 
@@ -202,26 +201,26 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
             const std::uint32_t sub_group_id = sbg.get_group_id();
             const std::uint32_t group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
-            IndexType ind_start = group_id * elems_for_sbg;
-            IndexType ind_end =
-                sycl::min(static_cast<IndexType>((group_id + 1) * elems_for_sbg), elem_count);
+            Index ind_start = group_id * elems_for_sbg;
+            Index ind_end =
+                sycl::min(static_cast<Index>((group_id + 1) * elems_for_sbg), elem_count);
 
-            IndexType offset[radix_range_];
+            Index offset[radix_range_];
 
             for (std::uint32_t i = 0; i < radix_range_; i++) {
                 offset[i] = part_prefix_hist_ptr[group_id * radix_range_ + i] +
                             part_prefix_hist_ptr[n_total_sub_groups * radix_range_ + i];
             }
 
-            for (IndexType i = ind_start + local_id; i < ind_end; i += local_size) {
+            for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 radix_integer_t data_value = val_in_ptr[i];
                 radix_integer_t data_bits = ((inv_bits(data_value) >> bit_offset) & radix_range_1_);
-                IndexType pos_new = 0;
+                Index pos_new = 0;
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
-                    IndexType value = static_cast<IndexType>(data_bits == j);
-                    IndexType boundary = exclusive_scan(sbg, value, plus<IndexType>());
+                    Index value = static_cast<Index>(data_bits == j);
+                    Index boundary = exclusive_scan(sbg, value, plus<Index>());
                     pos_new |= value * (offset[j] + boundary);
-                    IndexType partial_offset = reduce(sbg, value, plus<IndexType>());
+                    Index partial_offset = reduce(sbg, value, plus<Index>());
                     offset[j] = offset[j] + partial_offset;
                 }
                 val_out_ptr[pos_new] = data_value;
@@ -233,22 +232,21 @@ sycl::event radix_sort_indices_inplace<Float, IndexType>::radix_reorder(
     return event;
 }
 
-template <typename Float, typename IndexType>
-radix_sort_indices_inplace<Float, IndexType>::radix_sort_indices_inplace(sycl::queue& queue,
-                                                                         std::int64_t elem_count)
+template <typename Float, typename Index>
+radix_sort_indices_inplace<Float, Index>::radix_sort_indices_inplace(sycl::queue& queue,
+                                                                     std::int64_t elem_count)
         : queue_(queue),
           elem_count_(0) {
     init(queue, elem_count);
 }
 
-template <typename Float, typename IndexType>
-radix_sort_indices_inplace<Float, IndexType>::~radix_sort_indices_inplace() {
+template <typename Float, typename Index>
+radix_sort_indices_inplace<Float, Index>::~radix_sort_indices_inplace() {
     sort_event_.wait_and_throw();
 }
 
-template <typename Float, typename IndexType>
-void radix_sort_indices_inplace<Float, IndexType>::init(sycl::queue& queue,
-                                                        std::int64_t elem_count) {
+template <typename Float, typename Index>
+void radix_sort_indices_inplace<Float, Index>::init(sycl::queue& queue, std::int64_t elem_count) {
     std::uint32_t uint_elem_count = de::integral_cast<std::uint32_t>(elem_count);
     if (uint_elem_count && elem_count_ != uint_elem_count) {
         elem_count_ = uint_elem_count;
@@ -259,20 +257,19 @@ void radix_sort_indices_inplace<Float, IndexType>::init(sycl::queue& queue,
 
         hist_buff_size_ = (local_hist_count_ + 1) << radix_bits_;
 
-        part_hist_ =
-            ndarray<IndexType, 1>::empty(queue, { hist_buff_size_ }, sycl::usm::alloc::device);
+        part_hist_ = ndarray<Index, 1>::empty(queue, { hist_buff_size_ }, sycl::usm::alloc::device);
         part_prefix_hist_ =
-            ndarray<IndexType, 1>::empty(queue, { hist_buff_size_ }, sycl::usm::alloc::device);
+            ndarray<Index, 1>::empty(queue, { hist_buff_size_ }, sycl::usm::alloc::device);
         val_buff_ = ndarray<Float, 1>::empty(queue_, { elem_count_ }, sycl::usm::alloc::device);
 
-        ind_buff_ = ndarray<IndexType, 1>::empty(queue_, { elem_count_ }, sycl::usm::alloc::device);
+        ind_buff_ = ndarray<Index, 1>::empty(queue_, { elem_count_ }, sycl::usm::alloc::device);
     }
 }
 
-template <typename Float, typename IndexType>
-sycl::event radix_sort_indices_inplace<Float, IndexType>::operator()(ndview<Float, 1>& val_in,
-                                                                     ndview<IndexType, 1>& ind_in,
-                                                                     const event_vector& deps) {
+template <typename Float, typename Index>
+sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1>& val_in,
+                                                                 ndview<Index, 1>& ind_in,
+                                                                 const event_vector& deps) {
     ONEDAL_ASSERT(val_in.has_mutable_data());
     ONEDAL_ASSERT(ind_in.has_mutable_data());
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());

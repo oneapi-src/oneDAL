@@ -28,19 +28,19 @@ struct float2uint_map;
 
 template <>
 struct float2uint_map<float> {
-    using type_t = std::uint32_t;
+    using integer_t = std::uint32_t;
 };
 
 template <>
 struct float2uint_map<double> {
-    using type_t = std::uint64_t;
+    using integer_t = std::uint64_t;
 };
 
 /// @tparam Float Floating-point type used for storing input values
-/// @tparam IndexType Integer type used for storing input indices
-template <typename Float, typename IndexType = std::uint32_t>
+/// @tparam Index Integer type used for storing input indices
+template <typename Float, typename Index = std::uint32_t>
 class radix_sort_indices_inplace {
-    using radix_integer_t = typename float2uint_map<Float>::type_t;
+    using radix_integer_t = typename float2uint_map<Float>::integer_t;
 
 public:
     /// Performs initialization of auxiliary variables and required auxiliary buffers
@@ -58,32 +58,32 @@ public:
     /// @param[in, out]  val  The [n] input/output vector of values to sort out
     /// @param[in, out]  ind  The [n] input/output vector of corresponding indices
     sycl::event operator()(ndview<Float, 1>& val,
-                           ndview<IndexType, 1>& ind,
+                           ndview<Index, 1>& ind,
                            const event_vector& deps = {});
 
 private:
     void init(sycl::queue& queue, std::int64_t elem_count);
     sycl::event radix_scan(sycl::queue& queue,
                            const ndview<Float, 1>& val,
-                           ndarray<IndexType, 1>& part_hist,
-                           IndexType elem_count,
+                           ndarray<Index, 1>& part_hist,
+                           Index elem_count,
                            std::uint32_t bit_offset,
                            std::int64_t local_size,
                            std::int64_t local_hist_count,
                            sycl::event& deps);
     sycl::event radix_hist_scan(sycl::queue& queue,
-                                const ndarray<IndexType, 1>& part_hist,
-                                ndarray<IndexType, 1>& part_prefix_hist,
+                                const ndarray<Index, 1>& part_hist,
+                                ndarray<Index, 1>& part_prefix_hist,
                                 std::int64_t local_size,
                                 std::int64_t local_hist_count,
                                 sycl::event& deps);
     sycl::event radix_reorder(sycl::queue& queue,
                               const ndview<Float, 1>& val_in,
-                              const ndview<IndexType, 1>& ind_in,
-                              const ndview<IndexType, 1>& part_prefix_hist,
+                              const ndview<Index, 1>& ind_in,
+                              const ndview<Index, 1>& part_prefix_hist,
                               ndview<Float, 1>& val_out,
-                              ndview<IndexType, 1>& ind_out,
-                              IndexType elem_count,
+                              ndview<Index, 1>& ind_out,
+                              Index elem_count,
                               std::uint32_t bit_offset,
                               std::int64_t local_size,
                               std::int64_t local_hist_count,
@@ -93,10 +93,10 @@ private:
     sycl::event sort_event_;
 
     ndarray<Float, 1> val_buff_;
-    ndarray<IndexType, 1> ind_buff_;
+    ndarray<Index, 1> ind_buff_;
 
-    ndarray<IndexType, 1> part_hist_;
-    ndarray<IndexType, 1> part_prefix_hist_;
+    ndarray<Index, 1> part_hist_;
+    ndarray<Index, 1> part_prefix_hist_;
 
     std::uint32_t elem_count_;
     std::uint32_t local_size_;
