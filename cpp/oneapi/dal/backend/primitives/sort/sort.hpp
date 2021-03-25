@@ -50,6 +50,7 @@ public:
     radix_sort_indices_inplace(sycl::queue& queue, std::int64_t elem_count = 0);
     radix_sort_indices_inplace(const radix_sort_indices_inplace&) = delete;
     ~radix_sort_indices_inplace();
+    radix_sort_indices_inplace& operator=(const radix_sort_indices_inplace&) = delete;
 
     /// Performs inplace radix sort of input vector and corresponding indices
     /// NOTE: auxiliary buffers and variables are reset in case if number of elements in val
@@ -123,6 +124,7 @@ public:
     radix_sort(sycl::queue& queue, std::int64_t vector_count = 0);
     radix_sort(const radix_sort&) = delete;
     ~radix_sort();
+    radix_sort& operator=(const radix_sort&) = delete;
 
     /// Performs radix sort of batch of integer input vectors
     /// NOTE: only positive values are supported for now.

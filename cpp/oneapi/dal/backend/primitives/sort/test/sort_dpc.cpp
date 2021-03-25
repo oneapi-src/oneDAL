@@ -35,8 +35,8 @@ public:
 
     auto allocate_arrays(IndexType elem_count) {
         auto& q = this->get_queue();
-        auto val = ndarray<Float, 1>::empty(q, { elem_count });
-        auto ind = ndarray<IndexType, 1>::empty(q, { elem_count });
+        auto val = ndarray<Float, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
+        auto ind = ndarray<IndexType, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
 
         IndexType* ind_ptr = ind.get_mutable_data();
         q.submit([&](sycl::handler& cgh) {
@@ -54,31 +54,24 @@ public:
         std::mt19937 rng(seed);
         std::uniform_real_distribution<Float> distr(a, b);
 
-        Float* val_ptr = val.get_mutable_data();
-
+        // move generation to device when rng is available there
+        Float* val_ptr = detail::host_allocator<Float>().allocate(val.get_count());
         for (IndexType el = 0; el < elem_count; el++) {
             val_ptr[el] = distr(rng);
         }
+        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
+        detail::host_allocator<Float>().deallocate(val_ptr, val.get_count());
     }
 
-    auto create_reference(const ndarray<Float, 1>& val) {
-        const Float* val_ptr = val.get_data();
-        Float* p_ref = detail::host_allocator<Float>().allocate(val.get_count());
-        memcpy(detail::default_host_policy{}, p_ref, val_ptr, val.get_count() * sizeof(Float));
-
-        auto ref = ndarray<Float, 1>::wrap(
-            p_ref,
-            val.get_shape(),
-            detail::make_default_delete<Float>(detail::default_host_policy{}));
-
-        return ref;
+    auto create_reference_on_host(const ndarray<Float, 1>& val) {
+        return val.to_host(this->get_queue());
     }
 
     void check_sort(ndarray<Float, 1>& val, ndarray<IndexType, 1>& ind) {
         INFO("create reference");
-        auto ref = create_reference(val);
+        auto ref = create_reference_on_host(val);
 
-        INFO("run sort with indices__");
+        INFO("run sort with indices");
         auto event = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() }(val, ind);
         event.wait_and_throw();
 
@@ -89,8 +82,12 @@ public:
                        const ndarray<IndexType, 1> ind,
                        const ndarray<Float, 1>& ref) {
         const Float* ref_ptr = ref.get_data();
-        const Float* val_ptr = val.get_data();
-        const IndexType* ind_ptr = ind.get_data();
+
+        const auto val_host = val.to_host(this->get_queue());
+        const Float* val_ptr = val_host.get_data();
+
+        const auto ind_host = ind.to_host(this->get_queue());
+        const IndexType* ind_ptr = ind_host.get_data();
 
         for (IndexType el = 0; el < val.get_count(); el++) {
             if (el < val.get_count() - 1 && val_ptr[el] > val_ptr[el + 1]) {
@@ -111,7 +108,8 @@ class sort_test : public te::policy_fixture {
 public:
     auto allocate_arrays(std::int64_t vector_count, std::int64_t elem_count) {
         auto& q = this->get_queue();
-        auto val = ndarray<Integer, 2>::empty(q, { vector_count, elem_count });
+        auto val =
+            ndarray<Integer, 2>::empty(q, { vector_count, elem_count }, sycl::usm::alloc::device);
 
         return val;
     }
@@ -126,12 +124,16 @@ public:
         std::mt19937 rng(seed);
         std::uniform_int_distribution<Integer> distr(a, b);
 
-        Integer* val_ptr = val.get_mutable_data();
+        // move generation to device when rng is available there
+        Integer* val_ptr = detail::host_allocator<Integer>().allocate(val.get_count());
         for (std::uint32_t vec = 0; vec < vector_count; vec++) {
             for (std::uint32_t el = 0; el < elem_count; el++) {
                 val_ptr[vec * elem_count + el] = distr(rng);
             }
         }
+
+        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
+        detail::host_allocator<Integer>().deallocate(val_ptr, val.get_count());
     }
 
     void check_sort(ndarray<Integer, 2>& val, std::int64_t sorted_elem_count) {
@@ -140,7 +142,7 @@ public:
         std::uint32_t elem_count = de::integral_cast<std::uint32_t>(val.get_dimension(1));
 
         INFO("create reference");
-        auto ref = create_reference(val, sorted_elem_count);
+        auto ref = create_reference_on_host(val, sorted_elem_count);
 
         INFO("allocate auxiliary buffers");
         auto val_out = ndarray<Integer, 2>::empty(q, { vector_count, elem_count });
@@ -156,7 +158,8 @@ public:
                        std::int64_t sorted_elem_count) {
         std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val.get_dimension(0));
         std::uint32_t elem_count = de::integral_cast<std::uint32_t>(val.get_dimension(1));
-        const Integer* val_ptr = val.get_data();
+        auto val_host = val.to_host(this->get_queue());
+        const Integer* val_ptr = val_host.get_data();
         const Integer* ref_ptr = ref.get_data();
 
         for (std::uint32_t vec = 0; vec < vector_count; vec++) {
@@ -174,24 +177,16 @@ public:
         }
     }
 
-    auto create_reference(const ndarray<Integer, 2>& in, std::int64_t sorted_elem_count) {
-        const Integer* p_in = in.get_data();
-        Integer* p_ref =
-            detail::host_allocator<Integer>().allocate(in.get_dimension(0) * in.get_dimension(1));
-        memcpy(detail::default_host_policy{},
-               p_ref,
-               p_in,
-               in.get_dimension(0) * in.get_dimension(1) * sizeof(Integer));
+    auto create_reference_on_host(const ndarray<Integer, 2>& in, std::int64_t sorted_elem_count) {
+        auto ref = in.to_host(this->get_queue());
+        auto ref_ptr = ref.get_mutable_data();
 
         for (std::int64_t vec = 0; vec < in.get_dimension(0); vec++) {
-            std::sort(p_ref + vec * in.get_dimension(1),
-                      p_ref + vec * in.get_dimension(1) + sorted_elem_count);
+            std::sort(ref_ptr + vec * in.get_dimension(1),
+                      ref_ptr + vec * in.get_dimension(1) + sorted_elem_count);
         }
 
-        return ndarray<Integer, 2>::wrap(
-            p_ref,
-            in.get_shape(),
-            detail::make_default_delete<Integer>(detail::default_host_policy{}));
+        return ref;
     }
 };
 
