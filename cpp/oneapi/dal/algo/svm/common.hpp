@@ -266,7 +266,7 @@ public:
         return *this;
     }
 
-    /// The parameter of the WSS scheme $\\tau$.
+    /// The threshhold parameter $\\tau$ when compute of quadratic coefficient.
     /// @invariant :expr:`tau > 0.0`
     /// @remark default = 1e-6
     double get_tau() const {
