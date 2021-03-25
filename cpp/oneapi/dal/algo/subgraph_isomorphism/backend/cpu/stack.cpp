@@ -4,7 +4,7 @@
 #include <iostream>
 #endif //DEBUG_MODE
 
-using namespace dal_experimental;
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 stack::stack() {
     max_stack_size = 100;
@@ -755,3 +755,4 @@ void bfs_stack::extract_state(const std::uint64_t level,
         pstate[i] = data_by_levels[i][current_stack_index].stack_data + vertex_index;
     }
 }
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

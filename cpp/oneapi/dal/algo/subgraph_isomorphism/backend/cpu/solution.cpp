@@ -2,7 +2,7 @@
 #include <cassert>
 
 namespace dal = oneapi::dal;
-using namespace dal_experimental;
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 state::state() {
     core = nullptr;
@@ -271,3 +271,4 @@ oneapi::dal::homogen_table solution::export_as_table() {
         .reset(arr_solution, solution_count, solution_core_length)
         .build();
 }
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

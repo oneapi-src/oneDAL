@@ -16,7 +16,7 @@
 
 #include <xmmintrin.h>
 
-namespace dal_experimental {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 struct state {
     std::int64_t* core;
@@ -62,4 +62,4 @@ private:
     graph_status increase_solutions_size();
     void delete_data();
 };
-} // namespace dal_experimental
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

@@ -7,7 +7,7 @@ namespace dal = oneapi::dal;
 
 #include <fstream>
 
-namespace dal_experimental {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 enum graph_storage_scheme { auto_detect, bit, list };
 
@@ -31,4 +31,4 @@ private:
     bool use_bit_representation;
 };
 
-} // namespace dal_experimental
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

@@ -12,7 +12,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
 
-namespace dal_experimental {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 enum flow_switch_ids {
     default_single_thread_mode = 0x0,
@@ -138,4 +138,4 @@ private:
     solution run_dfs();
     solution run_hybrid();
 };
-} // namespace dal_experimental
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

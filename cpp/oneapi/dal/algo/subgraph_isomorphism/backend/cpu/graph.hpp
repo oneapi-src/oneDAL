@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <immintrin.h>
 
-namespace dal_experimental {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 enum graph_status {
     ok = 0, /*!< No error found*/
@@ -249,4 +249,4 @@ private:
     friend class matching_engine;
     friend class engine_bundle;
 };
-} // namespace dal_experimental
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

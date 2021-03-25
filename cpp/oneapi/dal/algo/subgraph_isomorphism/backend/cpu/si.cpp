@@ -1,15 +1,12 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
+#include "debug.hpp"
 
 #include <xmmintrin.h>
 
-namespace oneapi::dal::preview {
-namespace subgraph_isomorphism {
-namespace detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-using namespace dal_experimental;
-
-solution subgraph_isomorphism(const dal_experimental::graph& pattern,
-                              const dal_experimental::graph& target,
+solution subgraph_isomorphism(const graph& pattern,
+                              const graph& target,
                               const std::uint64_t control_flags) {
     solution sol;
     sorter sorter_graph(&target);
@@ -23,7 +20,6 @@ solution subgraph_isomorphism(const dal_experimental::graph& pattern,
     sorter_graph.sorting_pattern_vertices(pattern,
                                           pattern_vertex_probability,
                                           sorted_pattern_vertex);
-
     std::int64_t* predecessor =
         static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * pattern_vetrex_count, 64));
     edge_direction* direction =
@@ -117,6 +113,4 @@ solution subgraph_isomorphism(const dal_experimental::graph& pattern,
     return sol;
 }
 
-} // namespace detail
-} // namespace subgraph_isomorphism
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

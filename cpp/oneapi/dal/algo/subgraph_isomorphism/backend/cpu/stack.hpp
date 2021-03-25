@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <new>
 
-namespace dal_experimental {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 #ifdef DUMP
 /* Class for dumping search tree into graphviz (dot *.gv) format */
 class tree_search_dumper {
@@ -195,4 +195,4 @@ private:
     std::uint64_t stack_offset(const std::uint64_t level, const std::uint64_t stack_index) const;
 };
 
-} // namespace dal_experimental
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

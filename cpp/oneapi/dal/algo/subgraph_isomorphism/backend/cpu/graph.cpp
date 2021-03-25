@@ -4,56 +4,54 @@
 //#include <string.h>
 #include <xmmintrin.h>
 
-using namespace dal_experimental;
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-void dal_experimental::or_equal(std::uint8_t* /*restrict*/ vec,
-                                const std::uint8_t* /*restrict*/ pa,
-                                std::int64_t size) {
+void or_equal(std::uint8_t* /*restrict*/ vec,
+              const std::uint8_t* /*restrict*/ pa,
+              std::int64_t size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] |= pa[i];
     }
 }
-void dal_experimental::and_equal(std::uint8_t* /*restrict*/ vec,
-                                 const std::uint8_t* /*restrict*/ pa,
-                                 std::int64_t size) {
+void and_equal(std::uint8_t* /*restrict*/ vec,
+               const std::uint8_t* /*restrict*/ pa,
+               std::int64_t size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] &= pa[i];
     }
 }
 
-void dal_experimental::inversion(std::uint8_t* /*restrict*/ vec, std::int64_t size) {
+void inversion(std::uint8_t* /*restrict*/ vec, std::int64_t size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = ~vec[i];
     }
 }
 
-void dal_experimental::or_equal(std::uint8_t* /*restrict*/ vec,
-                                const std::int64_t* /*restrict*/ bit_index,
-                                const std::int64_t list_size) {
+void or_equal(std::uint8_t* /*restrict*/ vec,
+              const std::int64_t* /*restrict*/ bit_index,
+              const std::int64_t list_size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < list_size; i++) {
         vec[bit_vector::byte(bit_index[i])] |= bit_vector::bit(bit_index[i]);
     }
 }
 
-void dal_experimental::set(std::uint8_t* /*restrict*/ vec,
-                           std::int64_t size,
-                           const std::uint8_t byte_val) {
+void set(std::uint8_t* /*restrict*/ vec, std::int64_t size, const std::uint8_t byte_val) {
 #pragma vector always
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = byte_val;
     }
 }
 
-void dal_experimental::and_equal(std::uint8_t* /*restrict*/ vec,
-                                 const std::int64_t* /*restrict*/ bit_index,
-                                 const std::int64_t bit_size,
-                                 const std::int64_t list_size,
-                                 std::int64_t* /*restrict*/ tmp_array,
-                                 const std::int64_t tmp_size) {
+void and_equal(std::uint8_t* /*restrict*/ vec,
+               const std::int64_t* /*restrict*/ bit_index,
+               const std::int64_t bit_size,
+               const std::int64_t list_size,
+               std::int64_t* /*restrict*/ tmp_array,
+               const std::int64_t tmp_size) {
     std::int64_t counter = 0;
 #pragma ivdep
     for (std::int64_t i = 0; i < list_size; i++) {
@@ -62,7 +60,7 @@ void dal_experimental::and_equal(std::uint8_t* /*restrict*/ vec,
                                              bit_vector::bit(bit_index[i])];
     }
 
-    dal_experimental::set(vec, bit_size, 0x0);
+    set(vec, bit_size, 0x0);
 
 #pragma ivdep
     for (std::int64_t i = 0; i < counter; i++) {
@@ -868,3 +866,4 @@ graph_input_bit_data::~graph_input_bit_data() {
     }
     _mm_free(data);
 }
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

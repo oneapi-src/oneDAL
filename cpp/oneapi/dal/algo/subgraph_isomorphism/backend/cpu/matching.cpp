@@ -12,7 +12,7 @@ typedef std::chrono::duration<float> fsec;
 #include <xmmintrin.h>
 #include <utility>
 
-using namespace dal_experimental;
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 namespace dal = oneapi::dal;
 
@@ -695,3 +695,4 @@ void engine_bundle::first_states_generator(bool use_exploration_stack) {
                                   });
     }
 }
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

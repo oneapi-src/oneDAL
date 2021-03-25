@@ -3,7 +3,7 @@
 
 namespace dal = oneapi::dal;
 
-using namespace dal_experimental;
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 graph_loader::graph_loader() {
     graph_data_storage.pbit_data = nullptr;
@@ -113,3 +113,4 @@ const graph_input_bit_data *graph_loader::get_bit_data() const {
 const graph_input_list_data *graph_loader::get_list_data() const {
     return graph_data_storage.plist_data;
 }
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

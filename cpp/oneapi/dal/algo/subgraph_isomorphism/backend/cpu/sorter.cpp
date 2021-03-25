@@ -3,7 +3,7 @@
 
 #include <xmmintrin.h>
 
-using namespace dal_experimental;
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 sorter::sorter() {
     p_degree_probability = nullptr;
@@ -325,3 +325,4 @@ graph_status sorter::dfs_tree_search_width_evaluation(const graph& pattern,
 
     return ok;
 }
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
