@@ -79,8 +79,8 @@ Operation
               pca::train_result train(const Descriptor& desc, \
                                          const pca::train_input& input)
 
-   :tparam desc: PCA algorithm descriptor :expr:`pca::desc`
-   :tparam input: Input data for the training operation
+   :param desc: PCA algorithm descriptor :expr:`pca::descriptor`
+   :param input: Input data for the training operation
 
    Preconditions
       | :expr:`input.data.has_data == true`
@@ -120,8 +120,8 @@ Operation
               pca::infer_result infer(const Descriptor& desc, \
                                          const pca::infer_input& input)
 
-   :tparam desc: PCA algorithm descriptor :expr:`pca::desc`
-   :tparam input: Input data for the inference operation
+   :param desc: PCA algorithm descriptor :expr:`pca::descriptor`
+   :param input: Input data for the inference operation
 
    Preconditions
       | :expr:`input.data.has_data == true`
