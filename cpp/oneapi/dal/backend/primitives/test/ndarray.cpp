@@ -525,20 +525,17 @@ TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
     auto& queue = policy.get_queue();
     constexpr std::int64_t m = 7;
     constexpr std::int64_t n = 5;
-    INFO("CHECK");
     auto [x, event] = ndarray<float, 2>::ones(queue, { m, n }, sycl::usm::alloc::device);
     event.wait_and_throw();
 
     const auto raw_arr = x.flatten(queue);
 
     REQUIRE(raw_arr.get_count() == x.get_count());
-    INFO("CHECK");
     const auto raw_mat_host = la::matrix<float>::wrap(raw_arr).to_host();
     const auto raw_arr_host = raw_mat_host.get_array();
     REQUIRE(raw_arr_host.get_count() == x.get_count());
     for (std::int64_t i = 0; i < x.get_count(); ++i) {
-        const auto val = raw_arr_host[i];
-        REQUIRE(val == 1.0f);
+        REQUIRE(raw_arr_host[i] == 1.0f);
     }
 }
 
