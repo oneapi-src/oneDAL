@@ -3,16 +3,16 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-void or_equal(std::uint8_t* /*restrict*/ vec,
-              const std::uint8_t* /*restrict*/ pa,
+void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+              const std::uint8_t* ONEAPI_RESTRICT pa,
               std::int64_t size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] |= pa[i];
     }
 }
-void and_equal(std::uint8_t* /*restrict*/ vec,
-               const std::uint8_t* /*restrict*/ pa,
+void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+               const std::uint8_t* ONEAPI_RESTRICT pa,
                std::int64_t size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < size; i++) {
@@ -20,15 +20,15 @@ void and_equal(std::uint8_t* /*restrict*/ vec,
     }
 }
 
-void inversion(std::uint8_t* /*restrict*/ vec, std::int64_t size) {
+void inversion(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = ~vec[i];
     }
 }
 
-void or_equal(std::uint8_t* /*restrict*/ vec,
-              const std::int64_t* /*restrict*/ bit_index,
+void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+              const std::int64_t* ONEAPI_RESTRICT bit_index,
               const std::int64_t list_size) {
 #pragma ivdep
     for (std::int64_t i = 0; i < list_size; i++) {
@@ -36,18 +36,18 @@ void or_equal(std::uint8_t* /*restrict*/ vec,
     }
 }
 
-void set(std::uint8_t* /*restrict*/ vec, std::int64_t size, const std::uint8_t byte_val) {
+void set(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size, const std::uint8_t byte_val) {
 #pragma vector always
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = byte_val;
     }
 }
 
-void and_equal(std::uint8_t* /*restrict*/ vec,
-               const std::int64_t* /*restrict*/ bit_index,
+void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+               const std::int64_t* ONEAPI_RESTRICT bit_index,
                const std::int64_t bit_size,
                const std::int64_t list_size,
-               std::int64_t* /*restrict*/ tmp_array,
+               std::int64_t* ONEAPI_RESTRICT tmp_array,
                const std::int64_t tmp_size) {
     std::int64_t counter = 0;
 #pragma ivdep
@@ -89,6 +89,97 @@ graph::graph(const graph_data* pgraph_data) {
     else if (pgraph_data->plist_data != nullptr) {
         init_from_list(pgraph_data->plist_data);
     }
+}
+
+graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
+             graph_storage_scheme storage_scheme) {
+    bool has_edges_attribute = false;
+    bool use_bit_representation = false;
+    graph_data graph_data_storage;
+    std::int64_t vertex_count = t._vertex_count;
+    if (vertex_count <= 0) {
+        vertex_count = 0;
+        return;
+    }
+
+    switch (storage_scheme) {
+        case list: {
+            use_bit_representation = false;
+            break;
+        }
+        default: {
+            use_bit_representation = true;
+            break;
+        }
+    }
+
+    if (use_bit_representation) { // use bit vector
+        graph_data_storage.pbit_data = new graph_input_bit_data(vertex_count);
+    }
+    else { // use adj list
+        graph_data_storage.plist_data = new graph_input_list_data(vertex_count);
+    }
+
+    std::int64_t vertex_id, vertex_attribute;
+    for (std::int64_t i = 0; i < vertex_count; i++) {
+        auto degree = t._degrees[i];
+        if (use_bit_representation) {
+            graph_data_storage.pbit_data->degree[i] = degree;
+        }
+        else {
+            graph_data_storage.plist_data->degree[i] = degree;
+            if (degree > 0) {
+                graph_data_storage.plist_data->data[i] =
+                    static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * degree, 64));
+            }
+            else {
+                graph_data_storage.plist_data->data[i] = nullptr;
+            }
+        }
+    }
+
+    for (std::int64_t i = 0; i < vertex_count; i++) {
+        auto degree = t._degrees[i];
+
+        for (std::int64_t j = 0; j < degree; j++) {
+            std::int64_t edge_attr = 0;
+            std::int64_t vertex_1 = i;
+            std::int64_t vertex_2 = t._cols[t._rows[i] + j];
+
+            if (use_bit_representation) {
+                bit_vector::set_bit(graph_data_storage.pbit_data->data[vertex_1], vertex_2);
+                bit_vector::set_bit(graph_data_storage.pbit_data->data[vertex_2], vertex_1);
+                if (edge_attr >= 0 || has_edges_attribute) {
+                    if (graph_data_storage.pbit_data->edges_attribute[i] == nullptr) {
+                        graph_data_storage.pbit_data->edges_attribute[i] =
+                            static_cast<std::int64_t*>(
+                                _mm_malloc(sizeof(std::int64_t) * degree, 64));
+                        has_edges_attribute = true;
+                    }
+                    graph_data_storage.pbit_data->edges_attribute[i][j] = edge_attr;
+                }
+            }
+            else {
+                graph_data_storage.plist_data->data[i][j] = vertex_2;
+                if (edge_attr >= 0 || has_edges_attribute) {
+                    if (graph_data_storage.plist_data->edges_attribute[i] == nullptr) {
+                        graph_data_storage.plist_data->edges_attribute[i] =
+                            static_cast<std::int64_t*>(
+                                _mm_malloc(sizeof(std::int64_t) * degree, 64));
+                        has_edges_attribute = true;
+                    }
+                    graph_data_storage.plist_data->edges_attribute[i][j] = edge_attr;
+                }
+            }
+        }
+    }
+    if (graph_data_storage.pbit_data != nullptr) {
+        init_from_bit(graph_data_storage.pbit_data);
+    }
+    else if (graph_data_storage.plist_data != nullptr) {
+        init_from_list(graph_data_storage.plist_data);
+    }
+    return;
 }
 
 graph::graph(const graph_input_list_data* input_list_data) {
@@ -550,14 +641,14 @@ bit_vector& bit_vector::operator~() {
     return *this;
 }
 
-bit_vector& bit_vector::operator&=(const std::uint8_t* /*restrict*/ pa) {
+bit_vector& bit_vector::operator&=(const std::uint8_t* ONEAPI_RESTRICT pa) {
     for (std::int64_t i = 0; i < n; i++) {
         vector[i] &= pa[i];
     }
     return *this;
 }
 
-bit_vector& bit_vector::operator|=(const std::uint8_t* /*restrict*/ pa) {
+bit_vector& bit_vector::operator|=(const std::uint8_t* ONEAPI_RESTRICT pa) {
     for (std::int64_t i = 0; i < n; i++) {
         vector[i] |= pa[i];
     }

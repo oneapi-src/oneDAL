@@ -51,8 +51,6 @@ private:
     bool use_external_memory;
 
     friend class dfs_stack;
-    friend class bfs_stack;
-    friend class virtual_dfs_stack;
 };
 
 class dfs_stack {
@@ -95,75 +93,6 @@ protected:
 
 private:
     void delete_data();
-};
-
-class virtual_dfs_stack : public dfs_stack {
-public:
-    virtual_dfs_stack();
-    virtual_dfs_stack(const std::uint64_t levels,
-                      const std::uint64_t _virtual_level_terminator,
-                      std::uint64_t** pstate,
-                      std::uint64_t last_vlevel_size,
-                      const std::uint64_t* max_states_size_per_level);
-    ~virtual_dfs_stack();
-
-private:
-    std::uint64_t virtual_level_terminator;
-    void init(const std::uint64_t levels,
-              const std::uint64_t _virtual_level_terminator,
-              std::uint64_t** pstate,
-              std::uint64_t last_vlevel_size,
-              const std::uint64_t* max_states_size_per_level);
-
-    void delete_data();
-
-    friend class bfs_stack;
-};
-
-class bfs_stack {
-public:
-    bfs_stack();
-    bfs_stack(const std::uint64_t levels, const std::uint64_t* _level_max_stack_size);
-    ~bfs_stack();
-
-    bool create_next_level();
-    std::uint64_t get_level_width(const std::uint64_t level) const;
-
-    void extract_state(const std::uint64_t level,
-                       const std::uint64_t stack_index,
-                       std::uint64_t** pstate);
-    bool extract_virtual_dbs_stack(virtual_dfs_stack& pvdfs_stack,
-                                   const std::uint64_t stack_index,
-                                   std::uint64_t** _pstate);
-
-#ifdef DEBUG_MODE
-    float get_filling_level(const std::uint64_t level) const;
-    float get_filling() const;
-    std::uint64_t states_in_stack() const;
-#endif // DEBUG_MODE
-
-    void push(const std::uint64_t level,
-              const std::uint64_t stack_index,
-              const std::uint64_t vertex_id);
-
-private:
-    std::uint64_t max_level_size;
-    const std::uint64_t* level_max_stack_size;
-    std::uint64_t* level_stacks_count;
-    vertex_stack** data_by_levels;
-
-    std::uint64_t current_level;
-
-    void init(const std::uint64_t levels, const std::uint64_t* _level_max_stack_size);
-    bool init_level(const std::uint64_t level);
-    void delete_data();
-
-    std::int64_t get_parent_vertex_id_by_level(const std::uint64_t child_level,
-                                               const std::uint64_t child_stack_index,
-                                               const std::uint64_t parent_level) const;
-    std::uint64_t get_stack_index_by_vertex_index(const std::uint64_t level,
-                                                  const std::uint64_t vertex_index) const;
-    std::uint64_t stack_offset(const std::uint64_t level, const std::uint64_t stack_index) const;
 };
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

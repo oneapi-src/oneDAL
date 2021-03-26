@@ -1,8 +1,17 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
+#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+
+#if defined(__INTEL_COMPILER)
+#define ONEAPI_RESTRICT restrict
+#else
+#define ONEAPI_RESTRICT
+#endif
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+
+enum graph_storage_scheme { auto_detect, bit, list };
 
 enum graph_status {
     ok = 0, /*!< No error found*/
@@ -59,24 +68,24 @@ const std::int64_t null_node = 0xffffffffffffffff; /*!< Null node value*/
 const double graph_storage_divider_by_density =
     0.015625; // 1/64 for memory capacity and ~0.005 for cpu.
 
-void inversion(std::uint8_t* /*restrict*/ vec, const std::int64_t size);
-void or_equal(std::uint8_t* /*restrict*/ vec,
-              const std::uint8_t* /*restrict*/ pa,
+void inversion(std::uint8_t* ONEAPI_RESTRICT vec, const std::int64_t size);
+void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+              const std::uint8_t* ONEAPI_RESTRICT pa,
               const std::int64_t size);
-void and_equal(std::uint8_t* /*restrict*/ vec,
-               const std::uint8_t* /*restrict*/ pa,
+void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+               const std::uint8_t* ONEAPI_RESTRICT pa,
                const std::int64_t size);
 
-void or_equal(std::uint8_t* /*restrict*/ vec,
-              const std::int64_t* /*restrict*/ bit_index,
+void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+              const std::int64_t* ONEAPI_RESTRICT bit_index,
               const std::int64_t list_size);
-void and_equal(std::uint8_t* /*restrict*/ vec,
-               const std::int64_t* /*restrict*/ bit_index,
+void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
+               const std::int64_t* ONEAPI_RESTRICT bit_index,
                const std::int64_t bit_size,
                const std::int64_t list_size,
-               std::int64_t* /*restrict*/ tmp_array = nullptr,
+               std::int64_t* ONEAPI_RESTRICT tmp_array = nullptr,
                const std::int64_t tmp_size = 0);
-void set(std::uint8_t* /*restrict*/ vec, std::int64_t size, const std::uint8_t byte_val = 0x0);
+void set(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size, const std::uint8_t byte_val = 0x0);
 
 class bit_vector {
 public:
@@ -186,6 +195,8 @@ public:
     graph(const graph_input_list_data* input_list_data);
     graph(const graph_input_bit_data* input_bit_data);
     graph(std::int64_t vertex_count);
+    graph(const dal::preview::detail::topology<std::int32_t>& t,
+          graph_storage_scheme storage_scheme);
     virtual ~graph();
 
     static double graph_density(const std::int64_t vertex_count, const std::int64_t edge_count);

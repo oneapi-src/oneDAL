@@ -50,10 +50,6 @@ solution subgraph_isomorphism(const graph& pattern,
     bool use_treading = control_flags & 0x1;
 
     if (use_treading) {
-#ifdef DEBUG_MODE
-        auto t0 = Time::now();
-#endif // DEBUG_MODE
-
         engine_bundle harness(&pattern,
                               &target,
                               sorted_pattern_vertex,
@@ -63,18 +59,8 @@ solution subgraph_isomorphism(const graph& pattern,
                               pattern_vertex_probability,
                               control_flags);
         sol = harness.run();
-
-#ifdef DEBUG_MODE
-        auto t1 = Time::now();
-        fsec fs = t1 - t0;
-        std::cout << "multi thread Matching time:" << fs.count() << "s\n";
-#endif // DEBUG_MODE
     }
     else {
-#ifdef DEBUG_MODE
-        auto t0 = Time::now();
-#endif // DEBUG_MODE
-
         matching_engine main_engine(&pattern,
                                     &target,
                                     sorted_pattern_vertex,
@@ -82,19 +68,7 @@ solution subgraph_isomorphism(const graph& pattern,
                                     direction,
                                     cconditions);
         sol = main_engine.run(true);
-
-#ifdef DEBUG_MODE
-        auto t1 = Time::now();
-        fsec fs = t1 - t0;
-        // std::cout << "single thread Matching time:" << fs.count() << "s\n";
-        //std::cout << "Total states handled: " << main_engine.engine_statistic.state_handling << std::endl;
-#endif // DEBUG_MODE
     }
-
-#ifdef DEBUG_MODE
-    // std::cout << "Solutions: " << sol.get_solution_count() << std::endl;
-#endif // DEBUG_MODE
-    //-------------------------------------
 
     _mm_free(pattern_vertex_probability);
     _mm_free(sorted_pattern_vertex);

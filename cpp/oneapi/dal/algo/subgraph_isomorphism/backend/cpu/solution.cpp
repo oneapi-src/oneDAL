@@ -196,59 +196,6 @@ graph_status solution::increase_solutions_size() {
     return ok;
 }
 
-#ifdef DEBUG_MODE
-void solution::print_solutions(bool in_sorted_view) const {
-    std::cout << "--- Subgraph Isomorphism Solutions ---" << std::endl;
-    std::cout << "    Solution count: " << solution_count << std::endl;
-    std::cout << "    pattern size: " << solution_core_length << std::endl;
-    std::cout << "--------------------------------------" << std::endl;
-    std::cout << "    Bijection results: Patter vertex -> Target vertex" << std::endl;
-
-    std::int64_t sorted_index;
-    for (std::int64_t i = 0; i < solution_core_length; i++) {
-        if (in_sorted_view) {
-            std::cout << "[" << std::setw(3) << i << "]      " << std::setw(7)
-                      << sorted_pattern_vertices[i] << " | -> | ";
-        }
-        else {
-            std::cout << "[" << std::setw(3) << i << "]      " << std::setw(7) << i << " | -> | ";
-        }
-
-        sorted_index = i;
-        if (!in_sorted_view) {
-            for (std::int64_t k = 0; k < solution_core_length; k++) {
-                if (sorted_pattern_vertices[k] == i) {
-                    sorted_index = k;
-                    break;
-                }
-            }
-        }
-
-        for (std::int64_t j = 0; j < solution_count; j++) {
-            std::cout << std::setw(3) << data[j][sorted_index] << " | ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "--------------------------------------" << std::endl;
-}
-
-void solution::print_solutions_csv() const {
-    auto begin = sorted_pattern_vertices;
-    auto end = &sorted_pattern_vertices[solution_core_length];
-    for (std::int64_t i = 0; i < solution_count; i++) {
-        for (std::int64_t j = 0; j < solution_core_length; j++) {
-            auto p_j1 = std::find(begin, end, j);
-            assert(p_j1 != end && "Index not found");
-            std::cout << data[i][p_j1 - sorted_pattern_vertices];
-            if (solution_core_length > 0 && j != (solution_core_length - 1)) {
-                std::cout << ",";
-            }
-        }
-        std::cout << std::endl;
-    }
-}
-#endif // DEBUG_MODE
-
 oneapi::dal::homogen_table solution::export_as_table() {
     if (solution_count == 0)
         return dal::homogen_table();

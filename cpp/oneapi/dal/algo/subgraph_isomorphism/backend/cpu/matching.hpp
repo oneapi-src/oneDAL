@@ -13,26 +13,6 @@ enum flow_switch_ids {
     use_hybrid_search = 0x2 /* dfs search - default value */
 };
 
-#ifdef DEBUG_MODE
-struct statistics {
-    std::int64_t state_handling;
-    std::int64_t states_interrupt;
-    std::int64_t call_by_thread;
-    std::int64_t iteration_by_thread;
-
-    statistics() {
-        clear();
-    };
-    void clear() {
-        state_handling = 0;
-        states_interrupt = 0;
-        call_by_thread = 0;
-        iteration_by_thread = 0;
-    };
-    ~statistics(){};
-};
-#endif //DEBUG_MODE
-
 class matching_engine {
 public:
     matching_engine(){};
@@ -63,10 +43,6 @@ public:
     bool match_vertex(const std::int64_t pattern_vertex, const std::int64_t target_vertex) const;
     bool check_vertex_candidate(const std::int64_t pattern_vertex,
                                 const std::int64_t target_vertex);
-
-#ifdef DEBUG_MODE
-    statistics engine_statistic;
-#endif // DEBUG_MODE
 
 private:
     const graph* pattern;

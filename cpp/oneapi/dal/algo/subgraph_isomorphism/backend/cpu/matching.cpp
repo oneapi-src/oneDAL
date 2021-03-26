@@ -156,10 +156,6 @@ std::int64_t matching_engine::extract_candidates(bool check_solution) {
         }
     }
 
-#ifdef DEBUG_MODE
-    engine_statistic.state_handling += feasible_result_count;
-//    std::cout << hlocal_stack.get_current_level() << "," << feasible_result_count << "\n";
-#endif // DEBUG_MODE
     hlocal_stack.update();
 
     return feasible_result_count;
@@ -168,14 +164,6 @@ std::int64_t matching_engine::extract_candidates(bool check_solution) {
 bool matching_engine::check_vertex_candidate(bool check_solution) {
     if (match_vertex(sorted_pattern_vertex[hlocal_stack.get_current_level()], candidate)) {
         if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length) {
-            //#ifdef DEBUG_MODE
-            //#ifdef DUMP
-            //            local_stack.tree_search_dumper_array[new_state->core[0]]->add_pair
-            //                            (new_state->core_length, new_state->core[new_state->core_length - 2],
-            //                             new_state->core[new_state->core_length - 1]);
-            //#endif //DUMP
-            //#endif // DEBUG_MODE
-
             std::int64_t* solution_core =
                 static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * solution_length, 64));
             if (solution_core != nullptr) {
@@ -205,20 +193,7 @@ std::int64_t matching_engine::state_exploration_list(state* current_state, bool 
                           ->core[pconsistent_conditions[current_state->core_length - 1].array[j]]]);
     }
 
-    // #pragma ivdep
-    //     for (std::int64_t j = 0; j < out_divider; j++) {
-    //         or_equal(
-    //             vertex_candidates.get_vector_pointer(),
-    //             target->p_edges_list
-    //                 [current_state
-    //                      ->core[pconsistent_conditions[current_state->core_length - 1].out_array[j]]],
-    //             target->p_degree
-    //                 [current_state
-    //                      ->core[pconsistent_conditions[current_state->core_length - 1].out_array[j]]]);
-    //     }
-
     ~vertex_candidates;
-    //inversion(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
 
 #pragma ivdep
     for (std::int64_t j = current_state->core_length - 1; j >= divider; j--) { // j> divider - 1
@@ -232,21 +207,6 @@ std::int64_t matching_engine::state_exploration_list(state* current_state, bool 
                                  [pconsistent_conditions[current_state->core_length - 1].array[j]]],
             temporary_list);
     }
-
-    // #pragma ivdep
-    //     for (std::int64_t j = current_state->core_length - 1; j >= out_divider;
-    //          j--) { //j > out_divider - 1
-    //         and_equal(
-    //             vertex_candidates.get_vector_pointer(),
-    //             target->p_edges_list
-    //                 [current_state
-    //                      ->core[pconsistent_conditions[current_state->core_length - 1].out_array[j]]],
-    //             vertex_candidates.size(),
-    //             target->p_degree
-    //                 [current_state
-    //                      ->core[pconsistent_conditions[current_state->core_length - 1].out_array[j]]],
-    //             temporary_list);
-    //     }
 
     for (std::int64_t i = 0; i < current_state->core_length; i++) {
         vertex_candidates.get_vector_pointer()[bit_vector::byte(current_state->core[i])] &=
@@ -269,17 +229,7 @@ std::int64_t matching_engine::state_exploration_list(bool check_solution) {
                 ->p_degree[hlocal_stack.top(pconsistent_conditions[current_level_index].array[j])]);
     }
 
-    // #pragma ivdep
-    //     for (std::int64_t j = 0; j < out_divider; j++) {
-    //         or_equal(vertex_candidates.get_vector_pointer(),
-    //                  target->p_edges_list[hlocal_stack.top(
-    //                      pconsistent_conditions[current_level_index].out_array[j])],
-    //                  target->p_degree[hlocal_stack.top(
-    //                      pconsistent_conditions[current_level_index].out_array[j])]);
-    //     }
-
     ~vertex_candidates;
-    //inversion(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
 
 #pragma ivdep
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
@@ -292,17 +242,6 @@ std::int64_t matching_engine::state_exploration_list(bool check_solution) {
                 ->p_degree[hlocal_stack.top(pconsistent_conditions[current_level_index].array[j])],
             temporary_list);
     }
-
-    // #pragma ivdep
-    //     for (std::int64_t j = current_level_index; j >= out_divider; j--) { //j > out_divider - 1
-    //         and_equal(vertex_candidates.get_vector_pointer(),
-    //                   target->p_edges_list[hlocal_stack.top(
-    //                       pconsistent_conditions[current_level_index].out_array[j])],
-    //                   vertex_candidates.size(),
-    //                   target->p_degree[hlocal_stack.top(
-    //                       pconsistent_conditions[current_level_index].out_array[j])],
-    //                   temporary_list);
-    //     }
 
     for (std::int64_t i = 0; i <= current_level_index; i++) {
         vertex_candidates.get_vector_pointer()[bit_vector::byte(hlocal_stack.top(i))] &=
@@ -333,10 +272,6 @@ std::int64_t matching_engine::first_states_generator(stack& stack) {
             candidates_count++;
         }
     }
-#ifdef DEBUG_MODE
-    engine_statistic.state_handling += candidates_count;
-    //std::cout << "First state count: " << candidates_count << std::endl;
-#endif // DEBUG_MODE
 
     return candidates_count;
 }
@@ -350,10 +285,6 @@ std::int64_t matching_engine::first_states_generator(dfs_stack& stack) {
             stack.push_into_current_level(i);
         }
     }
-#ifdef DEBUG_MODE
-    engine_statistic.state_handling += stack.get_current_level_fill_size();
-    //std::cout << "First state count: " << engine_statistic.state_handling << std::endl;
-#endif // DEBUG_MODE
 
     return stack.get_current_level_fill_size();
 }
@@ -382,11 +313,6 @@ std::int64_t matching_engine::extract_candidates(state* current_state, bool chec
             feasible_result_count += check_vertex_candidate(current_state, check_solution);
         }
     }
-
-#ifdef DEBUG_MODE
-    engine_statistic.state_handling += feasible_result_count;
-#endif // DEBUG_MODE
-
     return feasible_result_count;
 }
 
@@ -408,14 +334,6 @@ bool matching_engine::check_vertex_candidate(state* current_state, bool check_so
         state* new_state = new (place) state(current_state, candidate);
 
         if (check_solution && new_state->core_length == solution_length) {
-#ifdef DEBUG_MODE
-#ifdef DUMP
-            local_stack.tree_search_dumper_array[new_state->core[0]]->add_pair(
-                new_state->core_length,
-                new_state->core[new_state->core_length - 2],
-                new_state->core[new_state->core_length - 1]);
-#endif //DUMP
-#endif // DEBUG_MODE
             engine_solutions.add(new_state); /* add new state into solution */
         }
         else {
@@ -438,12 +356,6 @@ solution matching_engine::get_solution() {
 }
 
 void matching_engine::run_and_wait(bool main_engine) {
-    //#ifdef DEBUG_MODE
-    //#ifdef DUMP
-    //    local_stack.create_tree_search_dumper(target->n);
-    //#endif // DUMP
-    //#endif // DEBUG_MODE
-
 #ifdef EXPERIMENTAL
     if (main_engine) {
         first_states_generator(hlocal_stack);
@@ -536,11 +448,6 @@ solution engine_bundle::run_hybrid() {
             exploration_stack.add(i->local_stack);
         }
 
-#ifdef DEBUG_MODE
-        std::cout << "paraller_for level: " << level << " States: " << exploration_stack.size()
-                  << std::endl;
-#endif // DEBUG_MODE
-
         // treading code
         dal::detail::threader_for(exploration_stack.size(),
                                   exploration_stack.size(),
@@ -589,12 +496,6 @@ solution engine_bundle::run_dfs() {
         possible_first_states_count_per_thread +=
             static_cast<bool>(first_states_count % max_threads_count);
     }
-
-#ifdef DEBUG_MODE
-    std::cout << "final threads count: " << max_threads_count << " of "
-              << dal::detail::threader_get_max_threads()
-              << " States per thread: " << possible_first_states_count_per_thread << std::endl;
-#endif // DEBUG_MODE
 
     matching_engine* engine_array =
         static_cast<matching_engine*>(operator new[](sizeof(matching_engine) * max_threads_count));
