@@ -233,12 +233,9 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
 }
 
 template <typename Float, typename Index>
-radix_sort_indices_inplace<Float, Index>::radix_sort_indices_inplace(const sycl::queue& queue,
-                                                                     std::int64_t elem_count)
+radix_sort_indices_inplace<Float, Index>::radix_sort_indices_inplace(const sycl::queue& queue)
         : queue_(queue),
-          elem_count_(0) {
-    init(queue_, elem_count);
-}
+          elem_count_(0) {}
 
 template <typename Float, typename Index>
 radix_sort_indices_inplace<Float, Index>::~radix_sort_indices_inplace() {
@@ -247,6 +244,11 @@ radix_sort_indices_inplace<Float, Index>::~radix_sort_indices_inplace() {
 
 template <typename Float, typename Index>
 void radix_sort_indices_inplace<Float, Index>::init(sycl::queue& queue, std::int64_t elem_count) {
+    ONEDAL_ASSERT(elem_count > 0);
+    if (elem_count > de::limits<std::uint32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_data_block_size());
+    }
+
     std::uint32_t uint_elem_count = de::integral_cast<std::uint32_t>(elem_count);
     if (uint_elem_count && elem_count_ != uint_elem_count) {
         elem_count_ = uint_elem_count;
@@ -272,8 +274,6 @@ sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1
                                                                  const event_vector& deps) {
     ONEDAL_ASSERT(val_in.has_mutable_data());
     ONEDAL_ASSERT(ind_in.has_mutable_data());
-    ONEDAL_ASSERT(val_in.get_count() > 0);
-    ONEDAL_ASSERT(val_in.get_count() < de::limits<std::uint32_t>::max());
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
 
     sycl::event::wait_and_throw(deps);
@@ -347,11 +347,8 @@ sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1
 }
 
 template <typename Integer>
-radix_sort<Integer>::radix_sort(const sycl::queue& queue, std::int64_t vector_count)
-        : queue_(queue),
-          vector_count_(0) {
-    init(queue_, vector_count);
-}
+radix_sort<Integer>::radix_sort(const sycl::queue& queue) : queue_(queue),
+                                                            vector_count_(0) {}
 
 template <typename Integer>
 radix_sort<Integer>::~radix_sort() {
@@ -360,6 +357,10 @@ radix_sort<Integer>::~radix_sort() {
 
 template <typename Integer>
 void radix_sort<Integer>::init(sycl::queue& queue, std::int64_t vector_count) {
+    ONEDAL_ASSERT(vector_count > 0);
+    if (vector_count > de::limits<std::uint32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
+    }
     std::uint32_t uint_vector_count = de::integral_cast<std::uint32_t>(vector_count);
     if (uint_vector_count && vector_count_ != uint_vector_count) {
         vector_count_ = uint_vector_count;
@@ -376,24 +377,28 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             std::int64_t sorted_elem_count,
                                             const event_vector& deps) {
     // radixBuf should be big enough to accumulate radix_range elements
-    ONEDAL_ASSERT(val_in.get_dimension(0) > 0);
-    ONEDAL_ASSERT(val_in.get_dimension(0) < de::limits<std::uint32_t>::max());
+    // ONEDAL_ASSERT(vector_count > 0); added into init
     ONEDAL_ASSERT(val_in.get_dimension(1) > 0);
-    ONEDAL_ASSERT(val_in.get_dimension(1) < de::limits<std::uint32_t>::max());
+    ONEDAL_ASSERT(sorted_elem_count > 0);
     ONEDAL_ASSERT(val_in.get_dimension(0) == val_out.get_dimension(0));
     ONEDAL_ASSERT(val_in.get_dimension(1) == val_out.get_dimension(1));
     ONEDAL_ASSERT(val_out.has_mutable_data());
-    ONEDAL_ASSERT(sorted_elem_count > 0);
-    ONEDAL_ASSERT(sorted_elem_count <= val_in.get_dimension(1));
 
     sort_event_.wait_and_throw();
+
+    init(queue_, val_in.get_dimension(0));
+
+    if (val_in.get_dimension(1) > de::limits<std::uint32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
+    }
+    if (sorted_elem_count > de::limits<std::uint32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_number_of_elements_to_sort());
+    }
 
     const std::uint32_t vector_count = de::integral_cast<std::uint32_t>(val_in.get_dimension(0));
     const std::uint32_t vector_offset = de::integral_cast<std::uint32_t>(val_in.get_dimension(1));
 
     const std::uint32_t _sorted_elem_count = de::integral_cast<std::uint32_t>(sorted_elem_count);
-
-    init(queue_, val_in.get_dimension(0));
 
     Integer* labels = val_in.get_mutable_data();
     Integer* sorted = val_out.get_mutable_data();

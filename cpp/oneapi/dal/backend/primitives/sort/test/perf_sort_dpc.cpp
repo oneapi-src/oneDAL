@@ -129,9 +129,9 @@ public:
                         val.get_count());
 
         this->get_queue().wait_and_throw();
+        auto sorter = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
-            radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() }(val, ind)
-                .wait_and_throw();
+            sorter(val, ind).wait_and_throw();
         };
     }
 
@@ -147,10 +147,9 @@ public:
             val_vec[0].get_count());
 
         this->get_queue().wait_and_throw();
+        auto sorter = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
-            auto sorter = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() };
             for (std::int64_t i = 0; i < vector_count; i++) {
-                //radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() }(val_vec[i], ind_vec[i]).wait_and_throw();
                 sorter(val_vec[i], ind_vec[i]).wait_and_throw();
             }
         };
@@ -208,26 +207,73 @@ public:
             ndarray<Integer, 2>::empty(q, { vector_count, elem_count }, sycl::usm::alloc::device);
 
         INFO("benchmark sort");
+        auto sorter = radix_sort<Integer>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
-            radix_sort<Integer>{ this->get_queue() }(val, val_out, sorted_elem_count)
-                .wait_and_throw();
+            sorter(val, val_out, sorted_elem_count).wait_and_throw();
         };
     }
 };
 
 using sort_indices_types = COMBINE_TYPES((float, double), (std::uint32_t));
 
-TEMPLATE_LIST_TEST_M(sort_with_indices_test,
-                     "benchmark for array of vectors with indices",
-                     "[sort][perf]",
-                     sort_indices_types) {
+#define SORT_WITH_INDICES_BENCH(name) \
+    TEMPLATE_LIST_TEST_M(sort_with_indices_test, name, "[sort][perf]", sort_indices_types)
+
+SORT_WITH_INDICES_BENCH("bench for sort with indices MNIST 784 x 60000") {
     SKIP_IF(this->get_policy().is_cpu());
 
     // sizes used MNIST ds
-    std::int64_t vector_count = GENERATE_COPY(784);
-    std::int64_t elem_count = GENERATE_COPY(16384, 60000);
+    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(784, 60000);
+    auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
-    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(vector_count, elem_count);
+    this->run(val_vec, ind_vec);
+}
+
+SORT_WITH_INDICES_BENCH("bench for sort with indices SUSY 18 x 4.5M") {
+    SKIP_IF(this->get_policy().is_cpu());
+
+    // sizes used MNIST ds
+    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(18, 4500000);
+    auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
+
+    this->run(val_vec, ind_vec);
+}
+
+SORT_WITH_INDICES_BENCH("bench for sort with indices HIGGS 28 x 1M") {
+    SKIP_IF(this->get_policy().is_cpu());
+
+    // sizes used MNIST ds
+    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(28, 1000000);
+    auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
+
+    this->run(val_vec, ind_vec);
+}
+
+SORT_WITH_INDICES_BENCH("bench for sort with indices HIGGS 28 x 10.5M") {
+    SKIP_IF(this->get_policy().is_cpu());
+
+    // sizes used MNIST ds
+    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(28, 10500000);
+    auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
+
+    this->run(val_vec, ind_vec);
+}
+
+SORT_WITH_INDICES_BENCH("bench for sort with indices YEAR 90 x 463715") {
+    SKIP_IF(this->get_policy().is_cpu());
+
+    // sizes used MNIST ds
+    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(90, 463715);
+    auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
+
+    this->run(val_vec, ind_vec);
+}
+
+SORT_WITH_INDICES_BENCH("bench for sort with indices HEPMASS 28 x 100K") {
+    SKIP_IF(this->get_policy().is_cpu());
+
+    // sizes used MNIST ds
+    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(28, 100000);
     auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
     this->run(val_vec, ind_vec);
