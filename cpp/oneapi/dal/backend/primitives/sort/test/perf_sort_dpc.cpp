@@ -70,7 +70,7 @@ public:
         return std::make_tuple(val, ind);
     }
 
-    auto allocate_vector_arrays(std::int64_t vector_count, Index elem_count) {
+    auto allocate_vector_of_arrays(std::int64_t vector_count, Index elem_count) {
         auto& q = this->get_queue();
         std::vector<ndarray<Float, 1>> val_vec(vector_count);
         std::vector<ndarray<Index, 1>> ind_vec(vector_count);
@@ -222,8 +222,7 @@ using sort_indices_types = COMBINE_TYPES((float, double), (std::uint32_t));
 SORT_WITH_INDICES_BENCH("bench for sort with indices MNIST 784 x 60000") {
     SKIP_IF(this->get_policy().is_cpu());
 
-    // sizes used MNIST ds
-    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(784, 60000);
+    auto [val_vec_, ind_vec_] = this->allocate_vector_of_arrays(784, 60000);
     auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
     this->run(val_vec, ind_vec);
@@ -232,8 +231,7 @@ SORT_WITH_INDICES_BENCH("bench for sort with indices MNIST 784 x 60000") {
 SORT_WITH_INDICES_BENCH("bench for sort with indices SUSY 18 x 4.5M") {
     SKIP_IF(this->get_policy().is_cpu());
 
-    // sizes used MNIST ds
-    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(18, 4500000);
+    auto [val_vec_, ind_vec_] = this->allocate_vector_of_arrays(18, 4500000);
     auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
     this->run(val_vec, ind_vec);
@@ -242,8 +240,7 @@ SORT_WITH_INDICES_BENCH("bench for sort with indices SUSY 18 x 4.5M") {
 SORT_WITH_INDICES_BENCH("bench for sort with indices HIGGS 28 x 1M") {
     SKIP_IF(this->get_policy().is_cpu());
 
-    // sizes used MNIST ds
-    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(28, 1000000);
+    auto [val_vec_, ind_vec_] = this->allocate_vector_of_arrays(28, 1000000);
     auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
     this->run(val_vec, ind_vec);
@@ -252,8 +249,7 @@ SORT_WITH_INDICES_BENCH("bench for sort with indices HIGGS 28 x 1M") {
 SORT_WITH_INDICES_BENCH("bench for sort with indices HIGGS 28 x 10.5M") {
     SKIP_IF(this->get_policy().is_cpu());
 
-    // sizes used MNIST ds
-    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(28, 10500000);
+    auto [val_vec_, ind_vec_] = this->allocate_vector_of_arrays(28, 10500000);
     auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
     this->run(val_vec, ind_vec);
@@ -262,8 +258,7 @@ SORT_WITH_INDICES_BENCH("bench for sort with indices HIGGS 28 x 10.5M") {
 SORT_WITH_INDICES_BENCH("bench for sort with indices YEAR 90 x 463715") {
     SKIP_IF(this->get_policy().is_cpu());
 
-    // sizes used MNIST ds
-    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(90, 463715);
+    auto [val_vec_, ind_vec_] = this->allocate_vector_of_arrays(90, 463715);
     auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
     this->run(val_vec, ind_vec);
@@ -272,8 +267,7 @@ SORT_WITH_INDICES_BENCH("bench for sort with indices YEAR 90 x 463715") {
 SORT_WITH_INDICES_BENCH("bench for sort with indices HEPMASS 28 x 100K") {
     SKIP_IF(this->get_policy().is_cpu());
 
-    // sizes used MNIST ds
-    auto [val_vec_, ind_vec_] = this->allocate_vector_arrays(28, 100000);
+    auto [val_vec_, ind_vec_] = this->allocate_vector_of_arrays(28, 100000);
     auto [val_vec, ind_vec] = this->init_vector_arrays(val_vec_, ind_vec_, -25., 25.);
 
     this->run(val_vec, ind_vec);
