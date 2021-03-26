@@ -112,16 +112,16 @@ def make_summory(counter, device):
     reportText += "Number of daal4py fail calls: %d <br>" % counter.dalFailCalls
     reportText += "Percent of using daal4py: %d %% <br>" % int(percentDalCalls)
     if device is not None:
-        reportText += "Percent of offload daal4py to %s: %.2f %% <br>" % (device, int(daal4pyOffloadPersent))
-        reportText += "Total percent of offload to %s: %.2f %% <br>" % (device, int(totalOffloatPersent))
+        reportText += "Percent of daal4py calls offloaded to %s: %d %% <br>" % (device, int(daal4pyOffloadPersent))
+        reportText += "Percent of using daal4py on %s: %d %% <br>" % (device, int(totalOffloatPersent))
 
     print('Number of Scikit-learn calls: %d' % counter.sklearnCalls)
     print('Number of daal4py calls: %d' % counter.dalCalls)
     print('Number of daal4py fail calls: %d' % counter.dalFailCalls)
     print('Percent of using daal4py: %d %%' % int(percentDalCalls))
     if device is not None:
-        print("Percent of offload daal4py to %s: %d %%" % (device, int(daal4pyOffloadPersent)))
-        print("Total percent of offload to %s: %d %%" % (device, int(totalOffloatPersent)))
+        print("Percent of daal4py calls offloaded to %s: %d %%" % (device, int(daal4pyOffloadPersent)))
+        print("Percent of using daal4py on %s: %d %%" % (device, int(totalOffloatPersent)))
 
     return reportText
 
