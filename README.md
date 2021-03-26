@@ -264,5 +264,9 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 ## License <!-- omit in toc -->
 
-Distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
+oneDAL is distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
 information.
+
+[oneMKL FPK microlibs](https://github.com/oneapi-src/oneDAL/releases/tag/Dependencies)
+are distributed under Intel Simplified Software License.
+Refer to [third-party-programs-mkl.txt](third-party-programs-mkl.txt) for details.

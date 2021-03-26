@@ -125,14 +125,6 @@ public:
     /// All the properties should be set to default values (see the Properties section).
     homogen_table();
 
-    template <typename Impl,
-              typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<detail::is_homogen_table_impl_v<ImplType> &&
-                                          !std::is_base_of_v<table, ImplType>>>
-    homogen_table(Impl&& impl) {
-        init_impl(std::forward<Impl>(impl));
-    }
-
     /// Creates a new ``homogen_table`` instance from externally-defined data block.
     /// Table object owns the data pointer.
     /// The :literal:`data` should point to the ``data_pointer`` memory block.
@@ -216,6 +208,15 @@ public:
         return kind();
     }
 
+protected:
+    template <typename Impl,
+              typename ImplType = std::decay_t<Impl>,
+              typename = std::enable_if_t<detail::is_homogen_table_impl_v<ImplType> &&
+                                          !std::is_base_of_v<table, ImplType>>>
+    explicit homogen_table(Impl&& impl) {
+        init_impl(std::forward<Impl>(impl));
+    }
+
 private:
     template <typename Impl>
     void init_impl(Impl&& impl) {
@@ -271,7 +272,6 @@ private:
                    const data_type& dtype,
                    data_layout layout);
 
-private:
     homogen_table(const pimpl& impl) : table(impl) {}
 };
 

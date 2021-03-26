@@ -15,9 +15,13 @@
 *******************************************************************************/
 
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/linalg/matrix.hpp"
+
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
+
+namespace la = dal::test::engine::linalg;
 
 #define ENUMERATE_AXIS_COUNT_123 ((std::int64_t axis_count), axis_count), 1, 2, 3
 
@@ -416,18 +420,15 @@ TEST("can cast ndarray to ndview", "[ndarray]") {
     REQUIRE(x_view.get_strides() == x.get_strides());
 }
 
-TEST_M(ndarray_test, "can be flattened host", "[ndarray]") {
-    const std::int64_t m = 9;
-    const std::int64_t n = 5;
-
+TEST_M(ndarray_test, "can be flattened on host", "[ndarray]") {
+    constexpr std::int64_t m = 9;
+    constexpr std::int64_t n = 5;
     std::vector<float> data_vector(m * n, 1.0f);
-
     auto x = ndarray<float, 2>::wrap(data_vector.data(), { m, n });
 
     auto raw_arr = x.flatten();
 
     REQUIRE(raw_arr.get_count() == (m * n));
-
     for (std::int64_t i = 0; i < (m * n); ++i) {
         REQUIRE(raw_arr[i] == 1.0f);
     }
@@ -509,42 +510,33 @@ TEST_M(ndarray_test, "can assign ndarray", "[ndarray]") {
 TEST_M(ndarray_test, "can be flattened with host usm", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
-
-    auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 });
-
+    auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 }, sycl::usm::alloc::host);
     event.wait_and_throw();
 
     auto raw_arr = x.flatten();
 
     for (std::int64_t i = 0; i < x.get_count(); ++i) {
-        REQUIRE(raw_arr[i] == 1);
+        REQUIRE(raw_arr[i] == 1.0f);
     }
 }
 
 TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
-
-    const std::int64_t m = 7;
-    const std::int64_t n = 5;
-
-    auto [x, event] = ndarray<float, 2>::ones(queue, { 7, 5 });
-
+    constexpr std::int64_t m = 7;
+    constexpr std::int64_t n = 5;
+    auto [x, event] = ndarray<float, 2>::ones(queue, { m, n }, sycl::usm::alloc::device);
     event.wait_and_throw();
 
-    const auto raw_arr = x.flatten();
+    const auto raw_arr = x.flatten(queue);
 
-    const float* raw_ptr = raw_arr.get_data();
-
-    float* res_ptr = sycl::malloc_shared<float>(n * m, queue);
-
-    queue
-        .submit([&](sycl::handler& h) {
-            h.memcpy(res_ptr, raw_ptr, (n * m));
-        })
-        .wait_and_throw();
-
-    sycl::free(res_ptr, queue);
+    REQUIRE(raw_arr.get_count() == x.get_count());
+    const auto raw_mat_host = la::matrix<float>::wrap(raw_arr).to_host();
+    const auto raw_arr_host = raw_mat_host.get_array();
+    REQUIRE(raw_arr_host.get_count() == x.get_count());
+    for (std::int64_t i = 0; i < x.get_count(); ++i) {
+        REQUIRE(raw_arr_host[i] == 1.0f);
+    }
 }
 
 #endif
