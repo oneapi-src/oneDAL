@@ -12,4 +12,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with get_context(args.device):
-        pytest.main(["-s", "--disable-warnings", "-v", "--log-file=log.txt", "test_%s.py" % (args.algorithm)])
+        pytest.main(["-s", "--disable-warnings", "-v", "test_%s.py" % (args.algorithm)])
