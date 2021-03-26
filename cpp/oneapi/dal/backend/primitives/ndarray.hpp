@@ -413,6 +413,13 @@ public:
         return array_t{ data_, this->get_count() };
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    array_t flatten(sycl::queue& q) const {
+        ONEDAL_ASSERT(is_known_usm(q, data_.get()));
+        return array_t{ q, data_, this->get_count() };
+    }
+#endif
+
     auto t() const {
         using tranposed_ndarray_t = ndarray<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();

@@ -201,6 +201,39 @@ TEST("can wrap const data with offset and deleter") {
     REQUIRE(!arr.has_mutable_data());
 }
 
+TEST("can be created from shared_ptr with shared USM data") {
+    constexpr std::int64_t count = 3;
+    auto* data = new float[count];
+    for (std::int64_t i = 0; i < count; ++i) {
+        data[i] = float(i);
+    }
+    std::shared_ptr<float> sdata(data, [](auto data) {});
+
+    auto darr = array<float>{ sdata, count };
+
+    for (std::int64_t i = 0; i < count; ++i) {
+        REQUIRE(darr[i] == float(i));
+    }
+    delete[] data;
+}
+
+TEST("can be created from shared_ptr with const data") {
+    constexpr std::int64_t count = 3;
+    auto* data = new float[count];
+    for (std::int64_t i = 0; i < count; ++i) {
+        data[i] = float(i);
+    }
+    const auto* cdata = data;
+    std::shared_ptr<const float> sdata(cdata, [](auto data) {});
+
+    auto darr = array<float>{ sdata, count };
+
+    for (std::int64_t i = 0; i < count; ++i) {
+        REQUIRE(darr[i] == float(i));
+    }
+    delete[] data;
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 TEST("can construct array of zeros with queue") {
     DECLARE_TEST_POLICY(policy);

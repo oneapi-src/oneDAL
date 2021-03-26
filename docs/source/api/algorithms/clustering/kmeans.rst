@@ -41,19 +41,19 @@ All types and functions in this section are declared in the
 
 Descriptor
 ----------
-.. onedal_class:: oneapi::dal::kmeans::v1::descriptor
+.. onedal_class:: oneapi::dal::kmeans::descriptor
 
 Method tags
 ~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans::method::v1
+.. onedal_tags_namespace:: oneapi::dal::kmeans::method
 
 Task tags
 ~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans::task::v1
+.. onedal_tags_namespace:: oneapi::dal::kmeans::task
 
 Model
 -----
-.. onedal_class:: oneapi::dal::kmeans::v1::model
+.. onedal_class:: oneapi::dal::kmeans::model
 
 
 .. _kmeans_t_api:
@@ -65,13 +65,13 @@ Training :cpp:expr:`train(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::train_input
+.. onedal_class:: oneapi::dal::kmeans::train_input
 
 .. _kmeans_t_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::train_result
+.. onedal_class:: oneapi::dal::kmeans::train_result
 
 Operation
 ~~~~~~~~~
@@ -80,8 +80,8 @@ Operation
               kmeans::train_result train(const Descriptor& desc, \
                                          const kmeans::train_input& input)
 
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
-   :tparam input: Input data for the training operation
+   :param desc: K-Means algorithm descriptor :expr:`kmeans::descriptor`
+   :param input: Input data for the training operation
 
    Preconditions
       | :expr:`input.data.has_data == true`
@@ -105,13 +105,13 @@ Inference :cpp:expr:`infer(...)`
 
 Input
 ~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::infer_input
+.. onedal_class:: oneapi::dal::kmeans::infer_input
 
 .. _kmeans_i_api_result:
 
 Result
 ~~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::infer_result
+.. onedal_class:: oneapi::dal::kmeans::infer_result
 
 Operation
 ~~~~~~~~~
@@ -120,8 +120,8 @@ Operation
               kmeans::infer_result infer(const Descriptor& desc, \
                                          const kmeans::infer_input& input)
 
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
-   :tparam input: Input data for the inference operation
+   :param desc: K-Means algorithm descriptor :expr:`kmeans::descriptor`
+   :param input: Input data for the inference operation
 
    Preconditions
       | :expr:`input.data.has_data == true`

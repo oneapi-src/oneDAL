@@ -143,10 +143,8 @@ onedal_relative_sources_dir = '../../cpp/oneapi/dal'
 nitpick_ignore = [
     # method
     ('cpp:identifier', 'method'),
-    ('cpp:identifier', 'method::v1'),
     # task
     ('cpp:identifier', 'task'),
-    ('cpp:identifier', 'task::v1'),
     ('cpp:identifier', 'task::by_default'),
     ('cpp:identifier', 'Task'),
     # detail
@@ -167,42 +165,40 @@ nitpick_ignore = [
     ('cpp:identifier', 'kernel_t'),
     # knn
     ('cpp:identifier', 'knn'),
-    ('cpp:identifier', 'knn::desc'),
+    ('cpp:identifier', 'knn::descriptor'),
     ('cpp:identifier', 'knn::train_result'),
     ('cpp:identifier', 'knn::train_input'),
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
     # kmeans
     ('cpp:identifier', 'kmeans'),
-    ('cpp:identifier', 'kmeans::desc'),
+    ('cpp:identifier', 'kmeans::descriptor'),
     ('cpp:identifier', 'kmeans::train_result'),
     ('cpp:identifier', 'kmeans::train_input'),
     ('cpp:identifier', 'kmeans::infer_result'),
     ('cpp:identifier', 'kmeans::infer_input'),
     ('cpp:identifier', 'i'),
-    ('cpp:identifier', 'kmeans::v1'),
-    ('cpp:identifier', 'kmeans::v1::model'),
-    ('cpp:identifier', 'kmeans::v1::model::centroids'),
+    ('cpp:identifier', 'kmeans::model'),
     ('cpp:identifier', 'infer_input'),
     ('cpp:identifier', 'infer_input::model'),
     ('cpp:identifier', 'infer_input::model::centroids'),
     ('cpp:identifier', ),
     # kmeans_init
     ('cpp:identifier', 'kmeans_init'),
-    ('cpp:identifier', 'kmeans_init::desc'),
+    ('cpp:identifier', 'kmeans_init::descriptor'),
     ('cpp:identifier', 'kmeans_init::compute_input'),
     ('cpp:identifier', 'kmeans_init::compute_result'),
     ('cpp:identifier', 'compute'),
     # pca
     ('cpp:identifier', 'pca'),
-    ('cpp:identifier', 'pca::desc'),
+    ('cpp:identifier', 'pca::descriptor'),
     ('cpp:identifier', 'pca::train_result'),
     ('cpp:identifier', 'pca::train_input'),
     ('cpp:identifier', 'pca::infer_result'),
     ('cpp:identifier', 'pca::infer_input'),
     # svm
     ('cpp:identifier', 'svm'),
-    ('cpp:identifier', 'svm::desc'),
+    ('cpp:identifier', 'svm::descriptor'),
     ('cpp:identifier', 'svm::train_result'),
     ('cpp:identifier', 'svm::train_input'),
     ('cpp:identifier', 'svm::infer_result'),
@@ -210,17 +206,17 @@ nitpick_ignore = [
     ('cpp:identifier', 'Kernel'),
     # linear kernel
     ('cpp:identifier', 'linear_kernel'),
-    ('cpp:identifier', 'linear_kernel::desc'),
+    ('cpp:identifier', 'linear_kernel::descriptor'),
     ('cpp:identifier', 'linear_kernel::compute_result'),
     ('cpp:identifier', 'linear_kernel::compute_input'),
     # polynomial kernel
     ('cpp:identifier', 'polynomial_kernel'),
-    ('cpp:identifier', 'polynomial_kernel::desc'),
+    ('cpp:identifier', 'polynomial_kernel::descriptor'),
     ('cpp:identifier', 'polynomial_kernel::compute_result'),
     ('cpp:identifier', 'polynomial_kernel::compute_input'),
     # rbf kernel
     ('cpp:identifier', 'rbf_kernel'),
-    ('cpp:identifier', 'rbf_kernel::desc'),
+    ('cpp:identifier', 'rbf_kernel::descriptor'),
     ('cpp:identifier', 'rbf_kernel::compute_result'),
     ('cpp:identifier', 'rbf_kernel::compute_input'),
     # decision forest
@@ -229,7 +225,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'decision_forest::infer_input'),
     ('cpp:identifier', 'decision_forest::train_result'),
     ('cpp:identifier', 'decision_forest::train_input'),
-    ('cpp:identifier', 'decision_forest::desc'),
+    ('cpp:identifier', 'decision_forest::descriptor'),
     ('cpp:identifier', 'variable_importance_mode'),
     ('cpp:identifier', 'variable_importance_mode::none'),
     ('cpp:identifier', 'variable_importance_mode::mda_raw'),
@@ -272,17 +268,12 @@ nitpick_ignore = [
     # oneapi
     ('cpp:identifier', 'oneapi'),
     ('cpp:identifier', 'oneapi::dal'),
-    ('cpp:identifier', 'oneapi::dal::v1'),
     # oneapi - kmeans
     ('cpp:identifier', 'oneapi::dal::kmeans'),
     ('cpp:identifier', 'oneapi::dal::kmeans::task'),
-    ('cpp:identifier', 'oneapi::dal::kmeans::task::v1'),
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
-    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
-    ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
-    ('cpp:identifier', 'oneapi::dal::svm::task::v1'),
-    ]
+]
