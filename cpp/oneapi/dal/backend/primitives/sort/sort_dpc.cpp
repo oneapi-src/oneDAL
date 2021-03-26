@@ -245,7 +245,7 @@ radix_sort_indices_inplace<Float, Index>::~radix_sort_indices_inplace() {
 template <typename Float, typename Index>
 void radix_sort_indices_inplace<Float, Index>::init(sycl::queue& queue, std::int64_t elem_count) {
     ONEDAL_ASSERT(elem_count > 0);
-    ONEDAL_ASSERT(elem_count <= de::limits<Index>::max());
+    ONEDAL_ASSERT(elem_count <= de::limits<std::uint32_t>::max());
 
     const std::uint32_t uint_elem_count = de::integral_cast<std::uint32_t>(elem_count);
     if (elem_count_ != uint_elem_count) {
@@ -274,7 +274,7 @@ sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1
     ONEDAL_ASSERT(ind_in.has_mutable_data());
     ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
 
-    if (val_in.get_count() > de::limits<Index>::max()) {
+    if (val_in.get_count() > de::limits<std::uint32_t>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_number_of_elements_to_sort());
     }
 
