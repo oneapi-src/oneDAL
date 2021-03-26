@@ -37,7 +37,8 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+///                be :expr:`oneapi::dal::svm::task::classification` or
+///                :expr:`oneapi::dal::svm::task::regression`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -76,7 +77,8 @@ private:
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+///                be :expr:`oneapi::dal::svm::task::classification` or
+///                :expr:`oneapi::dal::svm::task::regression`.
 template <typename Task = task::by_default>
 class infer_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -96,11 +98,13 @@ public:
         return *this;
     }
 
-    /// The $n \\times 1$ table with the predicted class
+    /// The $n \\times 1$ table with the predicted class.
+    /// Used with :expr:`oneapi::dal::svm::task::classification` only.
     /// decision function for each observation
     /// @remark default = table{}
     const table& get_decision_function() const;
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_decision_function(const table& value) {
         set_decision_function_impl(value);
         return *this;

@@ -146,7 +146,8 @@ Status PartialResult::check(const daal::algorithms::Input * input, const daal::a
 
     const DistributedInput<step1Local> * algInput = static_cast<const DistributedInput<step1Local> *>(input);
     size_t nRows                                  = algInput->get(data)->getNumberOfRows();
-    DAAL_CHECK_EX(algParameter->fullNUsers >= nRows, ErrorIncorrectParameter, ParameterName, fullNUsersStr());
+    size_t nCols                                  = algInput->get(data)->getNumberOfColumns();
+    DAAL_CHECK_EX(algParameter->fullNUsers >= nCols, ErrorIncorrectParameter, ParameterName, fullNUsersStr());
 
     PartialModelPtr model = get(partialModel);
     DAAL_CHECK(model, ErrorNullPartialModel);

@@ -169,19 +169,19 @@ bool SVMTrainOneAPI<algorithmFPType, thunder>::checkStopCondition(const algorith
 
 template <typename algorithmFPType>
 services::Status SVMTrainOneAPI<algorithmFPType, thunder>::compute(const NumericTablePtr & xTable, NumericTable & yTable, daal::algorithms::Model * r,
-                                                                   const svm::Parameter * svmPar)
+                                                                   const KernelParameter & svmPar)
 {
     services::Status status;
 
     auto & context    = services::internal::getDefaultContext();
     const auto idType = TypeIds::id<algorithmFPType>();
 
-    const algorithmFPType C(svmPar->C);
-    const algorithmFPType eps(svmPar->accuracyThreshold);
-    const algorithmFPType tau(svmPar->tau);
-    const size_t maxIterations(svmPar->maxIterations);
-    const size_t cacheSize(svmPar->cacheSize);
-    kernel_function::KernelIfacePtr kernel = svmPar->kernel->clone();
+    const algorithmFPType C(svmPar.C);
+    const algorithmFPType eps(svmPar.accuracyThreshold);
+    const algorithmFPType tau(svmPar.tau);
+    const size_t maxIterations(svmPar.maxIterations);
+    const size_t cacheSize(svmPar.cacheSize);
+    kernel_function::KernelIfacePtr kernel = svmPar.kernel->clone();
 
     const size_t nVectors  = xTable->getNumberOfRows();
     const size_t nFeatures = xTable->getNumberOfColumns();

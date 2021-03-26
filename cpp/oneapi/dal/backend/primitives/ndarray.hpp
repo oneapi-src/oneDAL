@@ -413,6 +413,13 @@ public:
         return array_t{ data_, this->get_count() };
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    array_t flatten(sycl::queue& q) const {
+        ONEDAL_ASSERT(is_known_usm(q, data_.get()));
+        return array_t{ q, data_, this->get_count() };
+    }
+#endif
+
     auto t() const {
         using tranposed_ndarray_t = ndarray<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
@@ -445,10 +452,7 @@ public:
         ONEDAL_ASSERT(source_ptr != nullptr);
         ONEDAL_ASSERT(source_count > 0);
         ONEDAL_ASSERT(source_count <= this->get_count());
-        return q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.memcpy(this->get_mutable_data(), source_ptr, sizeof(T) * source_count);
-        });
+        return copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
 #endif
 

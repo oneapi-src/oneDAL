@@ -14,8 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <unordered_map>
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
+
+#include <unordered_map>
+#include <daal/include/services/env_detect.h>
+#include <daal/src/services/service_defines.h>
+#include <daal/include/services/internal/execution_context.h>
+#include <daal/include/services/internal/utilities.h>
 
 namespace oneapi::dal::backend::interop {
 
@@ -28,37 +33,32 @@ public:
         return cache;
     }
 
-    daal_sycl_ex_ctx_t lookup(const sycl::queue& queue) {
-        if (!is_enabled()) {
-            return daal_sycl_ex_ctx_t{ queue };
-        }
+    ~execution_context_cache() {
+        // We do not delete map entries intentionally as deallocation order of global object is not
+        // defined. The desctructors of objects stored by DAAL `SyclExecutionContext` likely require
+        // access to dynamic libraries, which may be unloaded before the call to this desctructor.
+        // The workaround leads to memory leak, however does not affect user application as always
+        // happens at the end. This will be no longer required once kernels are migrated to DPC++.
+    }
 
-        const auto it = map_.find(queue);
+    daal_sycl_ex_ctx_t lookup(const sycl::queue& queue) {
+        const std::size_t hash = std::hash<sycl::queue>{}(queue);
+        const auto it = map_.find(hash);
         if (it == map_.end()) {
-            const auto ctx = daal_sycl_ex_ctx_t{ queue };
-            map_.emplace(queue, ctx);
-            return ctx;
+            const auto ctx = new daal_sycl_ex_ctx_t{ queue };
+            map_.emplace(hash, ctx);
+            return *ctx;
         }
-        return it->second;
+        return *it->second;
     }
 
     void cleanup() {
         map_.clear();
     }
 
-    void enable() {
-        is_enabled_ = true;
-    }
-
-    bool is_enabled() const {
-        return is_enabled_;
-    }
-
 private:
     execution_context_cache() = default;
-
-    bool is_enabled_ = false;
-    std::unordered_map<sycl::queue, daal_sycl_ex_ctx_t> map_;
+    std::unordered_map<std::size_t, daal_sycl_ex_ctx_t*> map_;
 };
 
 execution_context_guard::execution_context_guard(const sycl::queue& queue) {
@@ -69,14 +69,6 @@ execution_context_guard::execution_context_guard(const sycl::queue& queue) {
 execution_context_guard::~execution_context_guard() {
     daal::services::Environment::getInstance()->setDefaultExecutionContext(
         daal::services::internal::CpuExecutionContext());
-}
-
-void enable_daal_sycl_execution_context_cache() {
-    execution_context_cache::get_instance().enable();
-}
-
-void cleanup_daal_sycl_execution_context_cache() {
-    execution_context_cache::get_instance().cleanup();
 }
 
 } // namespace oneapi::dal::backend::interop
