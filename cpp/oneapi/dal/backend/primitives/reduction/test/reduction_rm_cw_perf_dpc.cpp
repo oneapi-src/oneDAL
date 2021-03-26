@@ -36,8 +36,7 @@ namespace pr = oneapi::dal::backend::primitives;
 constexpr auto rm_order = ndorder::c;
 
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<float, sum<float>, identity<float>>,
-                                   std::tuple<float, sum<float>, abs<float>>>;
+                                   std::tuple<double>, sum<double>, square<double>>>;
 
 template <typename Param>
 class reduction_rm_test_uniform : public te::policy_fixture {
