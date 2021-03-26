@@ -52,17 +52,17 @@ template <typename TestType>
 class sort_with_indices_test : public te::policy_fixture {
 public:
     using Float = std::tuple_element_t<0, TestType>;
-    using IndexType = std::tuple_element_t<1, TestType>;
+    using Index = std::tuple_element_t<1, TestType>;
 
-    auto allocate_arrays(IndexType elem_count) {
+    auto allocate_arrays(Index elem_count) {
         auto& q = this->get_queue();
         auto val = ndarray<Float, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
-        auto ind = ndarray<IndexType, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
+        auto ind = ndarray<Index, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
 
-        IndexType* ind_ptr = ind.get_mutable_data();
+        Index* ind_ptr = ind.get_mutable_data();
         q.submit([&](sycl::handler& cgh) {
              cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
-                 IndexType ind = item.get_id()[0];
+                 Index ind = item.get_id()[0];
                  ind_ptr[ind] = ind;
              });
          }).wait_and_throw();
@@ -70,30 +70,30 @@ public:
         return std::make_tuple(val, ind);
     }
 
-    auto allocate_vector_arrays(std::int64_t vector_count, IndexType elem_count) {
+    auto allocate_vector_arrays(std::int64_t vector_count, Index elem_count) {
         auto& q = this->get_queue();
         std::vector<ndarray<Float, 1>> val_vec(vector_count);
-        std::vector<ndarray<IndexType, 1>> ind_vec(vector_count);
+        std::vector<ndarray<Index, 1>> ind_vec(vector_count);
         for (std::int64_t i = 0; i < vector_count; i++) {
             val_vec[i] = ndarray<Float, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
-            ind_vec[i] = ndarray<IndexType, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
+            ind_vec[i] = ndarray<Index, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
         }
 
         return std::make_tuple(val_vec, ind_vec);
     }
 
     auto init_vector_arrays(std::vector<ndarray<Float, 1>>& val_vec,
-                            std::vector<ndarray<IndexType, 1>>& ind_vec,
+                            std::vector<ndarray<Index, 1>>& ind_vec,
                             Float a,
                             Float b,
                             std::int64_t seed = 777) {
         auto& q = this->get_queue();
         const std::int64_t vector_count = val_vec.size();
         for (std::int64_t i = 0; i < vector_count; i++) {
-            IndexType* ind_ptr = ind_vec[i].get_mutable_data();
+            Index* ind_ptr = ind_vec[i].get_mutable_data();
             auto event = q.submit([&](sycl::handler& cgh) {
                 cgh.parallel_for(sycl::range<1>(ind_vec[i].get_count()), [=](sycl::item<1> item) {
-                    IndexType ind = item.get_id()[0];
+                    Index ind = item.get_id()[0];
                     ind_ptr[ind] = ind;
                 });
             });
@@ -107,47 +107,47 @@ public:
     }
 
     void fill_uniform(ndarray<Float, 1>& val, Float a, Float b, std::int64_t seed = 777) {
-        IndexType elem_count = de::integral_cast<IndexType>(val.get_count());
+        Index elem_count = de::integral_cast<Index>(val.get_count());
         std::mt19937 rng(seed);
         std::uniform_real_distribution<Float> distr(a, b);
 
         // move generation to device when rng is available there
         Float* val_ptr = detail::host_allocator<Float>().allocate(val.get_count());
-        for (IndexType el = 0; el < elem_count; el++) {
+        for (Index el = 0; el < elem_count; el++) {
             val_ptr[el] = distr(rng);
         }
         val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
         detail::host_allocator<Float>().deallocate(val_ptr, val.get_count());
     }
 
-    void run(ndarray<Float, 1>& val, ndarray<IndexType, 1>& ind) {
+    void run(ndarray<Float, 1>& val, ndarray<Index, 1>& ind) {
         INFO("benchmark sort with indices");
         const auto name =
             fmt::format("Basic sort with indices: val_type {}, indices_type {}, elem_count {}",
                         type2str<Float>::name,
-                        type2str<IndexType>::name,
+                        type2str<Index>::name,
                         val.get_count());
 
         this->get_queue().wait_and_throw();
-        auto sorter = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() };
+        auto sorter = radix_sort_indices_inplace<Float, Index>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
             sorter(val, ind).wait_and_throw();
         };
     }
 
-    void run(std::vector<ndarray<Float, 1>>& val_vec, std::vector<ndarray<IndexType, 1>>& ind_vec) {
+    void run(std::vector<ndarray<Float, 1>>& val_vec, std::vector<ndarray<Index, 1>>& ind_vec) {
         INFO("benchmark sort with indices");
         const std::int64_t vector_count = val_vec.size();
         ONEDAL_ASSERT(vector_count > 0);
         const auto name = fmt::format(
             "Basic sort with indices: val_type {}, indices_type {}, vector_count {}, elem_count {}",
             type2str<Float>::name,
-            type2str<IndexType>::name,
+            type2str<Index>::name,
             vector_count,
             val_vec[0].get_count());
 
         this->get_queue().wait_and_throw();
-        auto sorter = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() };
+        auto sorter = radix_sort_indices_inplace<Float, Index>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
             for (std::int64_t i = 0; i < vector_count; i++) {
                 sorter(val_vec[i], ind_vec[i]).wait_and_throw();

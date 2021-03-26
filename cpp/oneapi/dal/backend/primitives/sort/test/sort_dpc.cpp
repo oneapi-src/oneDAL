@@ -31,17 +31,17 @@ template <typename TestType>
 class sort_with_indices_test : public te::policy_fixture {
 public:
     using Float = std::tuple_element_t<0, TestType>;
-    using IndexType = std::tuple_element_t<1, TestType>;
+    using Index = std::tuple_element_t<1, TestType>;
 
-    auto allocate_arrays(IndexType elem_count) {
+    auto allocate_arrays(Index elem_count) {
         auto& q = this->get_queue();
         auto val = ndarray<Float, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
-        auto ind = ndarray<IndexType, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
+        auto ind = ndarray<Index, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
 
-        IndexType* ind_ptr = ind.get_mutable_data();
+        Index* ind_ptr = ind.get_mutable_data();
         q.submit([&](sycl::handler& cgh) {
              cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
-                 IndexType ind = item.get_id()[0];
+                 Index ind = item.get_id()[0];
                  ind_ptr[ind] = ind;
              });
          }).wait_and_throw();
@@ -50,13 +50,13 @@ public:
     }
 
     void fill_uniform(ndarray<Float, 1>& val, Float a, Float b, std::int64_t seed = 777) {
-        IndexType elem_count = de::integral_cast<IndexType>(val.get_count());
+        Index elem_count = de::integral_cast<Index>(val.get_count());
         std::mt19937 rng(seed);
         std::uniform_real_distribution<Float> distr(a, b);
 
         // move generation to device when rng is available there
         Float* val_ptr = detail::host_allocator<Float>().allocate(val.get_count());
-        for (IndexType el = 0; el < elem_count; el++) {
+        for (Index el = 0; el < elem_count; el++) {
             val_ptr[el] = distr(rng);
         }
         val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
@@ -67,19 +67,19 @@ public:
         return val.to_host(this->get_queue());
     }
 
-    void check_sort(ndarray<Float, 1>& val, ndarray<IndexType, 1>& ind) {
+    void check_sort(ndarray<Float, 1>& val, ndarray<Index, 1>& ind) {
         INFO("create reference");
         auto ref = create_reference_on_host(val);
 
         INFO("run sort with indices");
-        auto event = radix_sort_indices_inplace<Float, IndexType>{ this->get_queue() }(val, ind);
+        auto event = radix_sort_indices_inplace<Float, Index>{ this->get_queue() }(val, ind);
         event.wait_and_throw();
 
         check_results(val, ind, ref);
     }
 
     void check_results(const ndarray<Float, 1>& val,
-                       const ndarray<IndexType, 1> ind,
+                       const ndarray<Index, 1> ind,
                        const ndarray<Float, 1>& ref) {
         const Float* ref_ptr = ref.get_data();
 
@@ -87,9 +87,9 @@ public:
         const Float* val_ptr = val_host.get_data();
 
         const auto ind_host = ind.to_host(this->get_queue());
-        const IndexType* ind_ptr = ind_host.get_data();
+        const Index* ind_ptr = ind_host.get_data();
 
-        for (IndexType el = 0; el < val.get_count(); el++) {
+        for (Index el = 0; el < val.get_count(); el++) {
             if (el < val.get_count() - 1 && val_ptr[el] > val_ptr[el + 1]) {
                 CAPTURE(el, val_ptr[el], el + 1, val_ptr[el + 1]);
                 FAIL("elements are placed in inapropriate order");
