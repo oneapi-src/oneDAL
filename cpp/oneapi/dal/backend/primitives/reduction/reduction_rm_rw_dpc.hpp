@@ -117,10 +117,10 @@ public:
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw {
 public:
-    typedef const Float* inp_t;
-    typedef Float* out_t;
-    typedef reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp> narrow_t;
-    typedef reduction_rm_rw_wide<Float, BinaryOp, UnaryOp> wide_t;
+    using inp_t = const Float*;
+    using out_t = Float*;
+    using narrow_t = reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>;
+    using wide_t = reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
 
 public:
     reduction_rm_rw(sycl::queue& q_);

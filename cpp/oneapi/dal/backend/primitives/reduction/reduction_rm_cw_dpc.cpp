@@ -16,8 +16,6 @@
 
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw_dpc.hpp"
 
-#include <iostream>
-
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
