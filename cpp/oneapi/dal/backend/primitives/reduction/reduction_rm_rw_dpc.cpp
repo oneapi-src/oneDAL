@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw_dpc.hpp"
 
 namespace oneapi::dal::backend::primitives {
 

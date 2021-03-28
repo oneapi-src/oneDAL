@@ -16,21 +16,21 @@
 
 #include <type_traits>
 
-#include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw.hpp"
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_dpc.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw_dpc.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw_dpc.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_rm_rw(sycl::queue& q,
-                         const ndview<Float, 2, ndorder::c>& input,
-                         ndview<Float, 1>& output,
-                         const BinaryOp& binary,
-                         const UnaryOp& unary,
-                         const event_vector& deps) {
+inline sycl::event reduce_rm_rw(sycl::queue& q,
+                                const ndview<Float, 2, ndorder::c>& input,
+                                ndview<Float, 1>& output,
+                                const BinaryOp& binary,
+                                const UnaryOp& unary,
+                                const event_vector& deps) {
     using kernel_t = reduction_rm_rw<Float, BinaryOp, UnaryOp>;
     const auto width = input.get_dimension(1);
     const auto height = input.get_dimension(0);
@@ -42,12 +42,12 @@ sycl::event reduce_rm_rw(sycl::queue& q,
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_rm_cw(sycl::queue& q,
-                         const ndview<Float, 2, ndorder::c>& input,
-                         ndview<Float, 1>& output,
-                         const BinaryOp& binary,
-                         const UnaryOp& unary,
-                         const event_vector& deps) {
+inline sycl::event reduce_rm_cw(sycl::queue& q,
+                                const ndview<Float, 2, ndorder::c>& input,
+                                ndview<Float, 1>& output,
+                                const BinaryOp& binary,
+                                const UnaryOp& unary,
+                                const event_vector& deps) {
     using kernel_t = reduction_rm_cw<Float, BinaryOp, UnaryOp>;
     const auto width = input.get_dimension(1);
     const auto height = input.get_dimension(0);
