@@ -161,9 +161,8 @@ INSTANTIATE_FLOAT(sum, square)
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_inplace_local {
-    typedef sycl::
-        accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>
-            acc_t;
+    typedef sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>
+        acc_t;
     typedef const Float* inp_t;
     typedef Float* out_t;
 
@@ -181,7 +180,7 @@ public:
               unary{ unary_ },
               binary{ binary_ },
               height{ height_ },
-              lstride{ lstride_ } {} 
+              lstride{ lstride_ } {}
 
     void operator()(sycl::nd_item<2> it) const {
         using sycl::ONEAPI::reduce;
@@ -191,17 +190,15 @@ public:
         const auto range = it.get_local_range(1);
         const auto lm = cache.get_count();
 
-        sycl::local_ptr<const Float> local(
-            (const Float*) cache.get_pointer().get());
-        
+        sycl::local_ptr<const Float> local((const Float*)cache.get_pointer().get());
+
         Float acc = binary.init_value;
         // Loop fot the whole WG
-        for(std::int64_t j = 0; j < height; j += lm) {
+        for (std::int64_t j = 0; j < height; j += lm) {
             inp_t from = input + col_idx + lstride * j;
-            sycl::global_ptr<const Float> global(from); 
+            sycl::global_ptr<const Float> global(from);
             const auto count = std::min<std::int32_t>(lm, height - j);
-            it.async_work_group_copy<const Float>(local, 
-                                         global, count, lstride).wait();
+            it.async_work_group_copy<const Float>(local, global, count, lstride).wait();
             // Exclusive for EU
             for (std::int32_t i = loc_idx; i < count; i += range) {
                 acc = binary.native(acc, unary(cache[i]));
@@ -288,9 +285,8 @@ reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handle
                                                                     const std::int64_t stride,
                                                                     const BinaryOp binary,
                                                                     const UnaryOp unary) {
-    typedef sycl::
-        accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>
-            acc_t;
+    typedef sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>
+        acc_t;
     acc_t local_acc{ sycl::range<1>(lm), h };
     return kernel_t(local_acc, input, output, height, stride, binary, unary);
 }
@@ -322,8 +318,9 @@ reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_rm_cw(sycl::queue& q_) : q{
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method
-reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width, std::int64_t height) const {
-    if(height >= max_wg(q) && height > width) {
+reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
+                                                          std::int64_t height) const {
+    if (height >= max_wg(q) && height > width) {
         return reduction_method::inplace_local;
     }
     return reduction_method::inplace;
@@ -350,9 +347,7 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);
-    return q.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-    });
+    return sycl::event{};
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
