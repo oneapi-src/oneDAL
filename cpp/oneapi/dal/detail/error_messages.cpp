@@ -44,6 +44,9 @@ MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current contex
 MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 
+/* Primitives */
+MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
+
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
@@ -65,6 +68,7 @@ MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
+MSG(invalid_range_of_columns, "Invalid range of columns")
 MSG(column_index_out_of_range, "Column index out of range")
 
 /* Graphs */

@@ -80,6 +80,9 @@ public:
     MSG(unsupported_feature_type);
     MSG(unsupported_usm_alloc);
 
+    /* Primitives */
+    MSG(invalid_number_of_elements_to_sort);
+
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
     MSG(cannot_get_data_type_from_empty_metadata);
@@ -99,6 +102,7 @@ public:
 
     /* Ranges */
     MSG(invalid_range_of_rows);
+    MSG(invalid_range_of_columns);
     MSG(column_index_out_of_range);
 
     /* Graphs */

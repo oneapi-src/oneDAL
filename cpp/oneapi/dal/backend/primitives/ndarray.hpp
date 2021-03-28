@@ -456,6 +456,16 @@ public:
     }
 #endif
 
+#ifdef ONEDAL_DATA_PARALLEL
+    ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
+        T* host_ptr = detail::host_allocator<T>().allocate(this->get_count());
+        copy(q, host_ptr, this->get_data(), this->get_count(), deps).wait_and_throw();
+        return wrap(host_ptr,
+                    this->get_shape(),
+                    detail::make_default_delete<T>(detail::default_host_policy{}));
+    }
+#endif
+
 private:
     explicit ndarray(const shared_t& data, const shape_t& shape, const shape_t& strides)
             : base(data.get(), shape, strides),
