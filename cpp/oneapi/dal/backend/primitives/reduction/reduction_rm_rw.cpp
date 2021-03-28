@@ -38,8 +38,8 @@ public:
                                 out_t const output_,
                                 const std::int32_t width_,
                                 const std::int32_t lstride_,
-                                const BinaryOp binary_,
-                                const UnaryOp unary_)
+                                const BinaryOp& binary_,
+                                const UnaryOp& unary_)
             : input{ input_ },
               output{ output_ },
               unary{ unary_ },
@@ -93,8 +93,8 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
     const std::int64_t width,
     const std::int64_t height,
     const std::int64_t stride,
-    const BinaryOp binary,
-    const UnaryOp unary,
+    const BinaryOp& binary,
+    const UnaryOp& unary,
     const event_vector& deps) const {
     auto event = q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -111,8 +111,8 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
     Float* output,
     const std::int64_t width,
     const std::int64_t height,
-    const BinaryOp binary,
-    const UnaryOp unary,
+    const BinaryOp& binary,
+    const UnaryOp& unary,
     const event_vector& deps) const {
     return this->operator()(input, output, width, height, width, binary, unary, deps);
 }
@@ -131,8 +131,8 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
                                                            Float* output,
                                                            const std::int64_t width,
                                                            const std::int64_t stride,
-                                                           const BinaryOp binary,
-                                                           const UnaryOp unary) {
+                                                           const BinaryOp& binary,
+                                                           const UnaryOp& unary) {
     return kernel_t(input, output, width, stride, binary, unary);
 }
 
@@ -169,8 +169,8 @@ public:
                                   const std::int32_t width_,
                                   const std::uint64_t height_,
                                   const std::int32_t lstride_,
-                                  const BinaryOp binary_,
-                                  const UnaryOp unary_)
+                                  const BinaryOp& binary_,
+                                  const UnaryOp& unary_)
             : input{ input_ },
               output{ output_ },
               unary{ unary_ },
@@ -222,8 +222,8 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
     const std::int64_t width,
     const std::int64_t height,
     const std::int64_t stride,
-    const BinaryOp binary,
-    const UnaryOp unary,
+    const BinaryOp& binary,
+    const UnaryOp& unary,
     const event_vector& deps) const {
     auto event = q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -240,8 +240,8 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
     Float* output,
     const std::int64_t width,
     const std::int64_t height,
-    const BinaryOp binary,
-    const UnaryOp unary,
+    const BinaryOp& binary,
+    const UnaryOp& unary,
     const event_vector& deps) const {
     return this->operator()(input, output, width, height, width, binary, unary, deps);
 }
@@ -263,8 +263,8 @@ reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_kernel(inp_t input,
                                                              const std::int64_t width,
                                                              const std::int64_t height,
                                                              const std::int64_t stride,
-                                                             const BinaryOp binary,
-                                                             const UnaryOp unary) {
+                                                             const BinaryOp& binary,
+                                                             const UnaryOp& unary) {
     return kernel_t(input, output, width, height, stride, binary, unary);
 }
 
@@ -314,8 +314,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
     const std::int64_t width,
     const std::int64_t height,
     const std::int64_t stride,
-    const BinaryOp binary,
-    const UnaryOp unary,
+    const BinaryOp& binary,
+    const UnaryOp& unary,
     const event_vector& deps) const {
     // TODO: think about `switch` operator
     if (method == reduction_method::narrow) {
@@ -336,8 +336,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   const std::int64_t width,
                                                                   const std::int64_t height,
                                                                   const std::int64_t stride,
-                                                                  const BinaryOp binary,
-                                                                  const UnaryOp unary,
+                                                                  const BinaryOp& binary,
+                                                                  const UnaryOp& unary,
                                                                   const event_vector& deps) const {
     const auto method = propose_method(width);
     return this->operator()(method, input, output, width, height, stride, binary, unary, deps);
@@ -350,8 +350,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
     Float* output,
     const std::int64_t width,
     const std::int64_t height,
-    const BinaryOp binary,
-    const UnaryOp unary,
+    const BinaryOp& binary,
+    const UnaryOp& unary,
     const event_vector& deps) const {
     return this->operator()(method, input, output, width, height, width, binary, unary, deps);
 }
@@ -361,8 +361,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
                                                                   Float* output,
                                                                   const std::int64_t width,
                                                                   const std::int64_t height,
-                                                                  const BinaryOp binary,
-                                                                  const UnaryOp unary,
+                                                                  const BinaryOp& binary,
+                                                                  const UnaryOp& unary,
                                                                   const event_vector& deps) const {
     const auto method = propose_method(width);
     return this->operator()(method, input, output, width, height, width, binary, unary, deps);

@@ -41,15 +41,15 @@ public:
                            const std::int64_t width,
                            const std::int64_t stride,
                            const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
                            const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
 
 private:
@@ -58,8 +58,8 @@ private:
                                out_t output,
                                const std::int64_t width,
                                const std::int64_t stride,
-                               const BinaryOp binary,
-                               const UnaryOp unary);
+                               const BinaryOp& binary,
+                               const UnaryOp& unary);
 
 private:
     sycl::queue& q;
@@ -86,15 +86,15 @@ public:
                            const std::int64_t width,
                            const std::int64_t stride,
                            const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
                            const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
 
 private:
@@ -104,8 +104,8 @@ private:
                                const std::int64_t width,
                                const std::int64_t height,
                                const std::int64_t stride,
-                               const BinaryOp binary,
-                               const UnaryOp unary);
+                               const BinaryOp& binary,
+                               const UnaryOp& unary);
 
 private:
     sycl::queue& q;
@@ -132,31 +132,31 @@ public:
                            const std::int64_t width,
                            const std::int64_t height,
                            const std::int64_t stride,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
                            const std::int64_t height,
                            const std::int64_t stride,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
     sycl::event operator()(const reduction_method method,
                            inp_t input,
                            out_t output,
                            const std::int64_t width,
                            const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
                            const std::int64_t height,
-                           const BinaryOp binary = BinaryOp{},
-                           const UnaryOp unary = UnaryOp{},
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
 
 private:

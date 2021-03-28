@@ -27,16 +27,16 @@ template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_rows(sycl::queue& q,
                         const ndview<Float, 2, order>& input,
                         ndview<Float, 1>& output,
-                        const BinaryOp binary = BinaryOp{},
-                        const UnaryOp unary = UnaryOp{},
+                        const BinaryOp& binary = BinaryOp{},
+                        const UnaryOp& unary = UnaryOp{},
                         const event_vector& deps = {});
 
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_cols(sycl::queue& q,
                         const ndview<Float, 2, order>& input,
                         ndview<Float, 1>& output,
-                        const BinaryOp binary = BinaryOp{},
-                        const UnaryOp unary = UnaryOp{},
+                        const BinaryOp& binary = BinaryOp{},
+                        const UnaryOp& unary = UnaryOp{},
                         const event_vector& deps = {});
 
 #endif
