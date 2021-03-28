@@ -142,7 +142,6 @@ public:
     }
 
     void test_raw_rw_reduce_narrow() {
-        using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output();
@@ -162,7 +161,6 @@ public:
     }
 
     void test_raw_rw_reduce_wide() {
-        using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output();
@@ -182,7 +180,6 @@ public:
     }
 
     void test_raw_rw_reduce_wrapper() {
-        using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output();

@@ -143,7 +143,6 @@ public:
     }
 
     void test_rm_rw_reduce() {
-        using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(height);
         auto input =
@@ -159,7 +158,6 @@ public:
     }
 
     void test_rm_cw_reduce() {
-        using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(width);
         auto input =
@@ -175,7 +173,6 @@ public:
     }
 
     void test_cm_cw_reduce() {
-        using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(height);
         auto input_tr =
@@ -192,7 +189,6 @@ public:
     }
 
     void test_cm_rw_reduce() {
-        using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(width);
         auto input_tr =
