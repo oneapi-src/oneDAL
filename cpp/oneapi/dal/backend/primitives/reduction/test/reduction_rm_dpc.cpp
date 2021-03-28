@@ -518,7 +518,6 @@ public:
         check_output_cw(out_array);
     }
 
-    
     void test_raw_cw_reduce_inplace_local() {
         using namespace oneapi::dal::backend::primitives;
         using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;

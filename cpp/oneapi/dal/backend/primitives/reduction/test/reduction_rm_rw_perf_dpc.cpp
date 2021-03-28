@@ -69,14 +69,16 @@ public:
 
     auto input() {
         check_if_initialized();
-        return ndarray<float_t, 2, rm_order>::zeros(get_queue(), { stride, height }, 
-                                                            sycl::usm::alloc::device);
+        return ndarray<float_t, 2, rm_order>::zeros(get_queue(),
+                                                    { stride, height },
+                                                    sycl::usm::alloc::device);
     }
 
     auto output() {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height }, 
-                                                            sycl::usm::alloc::device);
+        return ndarray<float_t, 1, rm_order>::zeros(get_queue(),
+                                                    { height },
+                                                    sycl::usm::alloc::device);
     }
 
     auto fpt_desc() {
@@ -212,7 +214,7 @@ public:
     }
 
 private:
-    array<float_t> input_data; 
+    array<float_t> input_data;
     std::int64_t width;
     std::int64_t stride;
     std::int64_t height;

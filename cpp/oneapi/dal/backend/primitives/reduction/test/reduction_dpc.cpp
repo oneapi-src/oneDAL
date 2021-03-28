@@ -100,7 +100,9 @@ public:
         return res;
     }
 
-    void check_array(const array<float_t>& gtv, const array<float_t>& arr, const float_t tol = 1.e-3) {
+    void check_array(const array<float_t>& gtv,
+                     const array<float_t>& arr,
+                     const float_t tol = 1.e-3) {
         CAPTURE(__func__, gtv.get_count(), arr.get_count(), width, height);
         REQUIRE(gtv.get_count() == arr.get_count());
         for (auto i = 0; i < arr.get_count(); ++i) {
@@ -110,7 +112,6 @@ public:
                 FAIL();
             }
         }
-
     }
 
     void check_output_rm_rw(ndarray<float_t, 1, ndorder::c>& outarr, const float_t tol = 1.e-3) {
@@ -145,10 +146,13 @@ public:
         using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(height);
-        auto input = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
-        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {height});
+        auto input =
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
+        auto output =
+            ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
 
-        auto reduce_event = reduce_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        auto reduce_event =
+            reduce_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_rw(output_array);
@@ -158,10 +162,13 @@ public:
         using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(width);
-        auto input = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
-        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {width});
+        auto input =
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
+        auto output =
+            ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
 
-        auto reduce_event = reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        auto reduce_event =
+            reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_cw(output_array);
@@ -171,11 +178,14 @@ public:
         using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(height);
-        auto input_tr = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
+        auto input_tr =
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
         auto input = input_tr.t();
-        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {height});
+        auto output =
+            ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
 
-        auto reduce_event = reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        auto reduce_event =
+            reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_rw(output_array);
@@ -185,11 +195,14 @@ public:
         using namespace oneapi::dal::backend::primitives;
         auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
         auto [output_array, out_event] = output(width);
-        auto input_tr = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
+        auto input_tr =
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
         auto input = input_tr.t();
-        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {width});
+        auto output =
+            ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
 
-        auto reduce_event = reduce_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        auto reduce_event =
+            reduce_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_cm_rw(output_array);
