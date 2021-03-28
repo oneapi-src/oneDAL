@@ -30,8 +30,8 @@ inline std::int64_t local_mem_size(const sycl::queue& q) {
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_inplace {
-    typedef const Float* inp_t;
-    typedef Float* out_t;
+    using inp_t = const Float*;
+    using out_t = Float*;
 
 public:
     kernel_reduction_rm_cw_inplace(inp_t const input_,
@@ -159,10 +159,10 @@ INSTANTIATE_FLOAT(sum, square)
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_inplace_local {
-    typedef sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>
-        acc_t;
-    typedef const Float* inp_t;
-    typedef Float* out_t;
+    using acc_t =
+        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>;
+    using inp_t = const Float*;
+    using out_t = Float*;
 
 public:
     kernel_reduction_rm_cw_inplace_local(acc_t cache_,

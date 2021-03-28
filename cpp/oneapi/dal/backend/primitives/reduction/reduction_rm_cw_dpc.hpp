@@ -29,9 +29,9 @@ class kernel_reduction_rm_cw_inplace;
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw_inplace {
 public:
-    typedef const Float* inp_t;
-    typedef Float* out_t;
-    typedef kernel_reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp> kernel_t;
+    using inp_t = const Float*;
+    using out_t = Float*;
+    using kernel_t = kernel_reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>;
 
 public:
     reduction_rm_cw_inplace(sycl::queue& q_, const std::int64_t wg_);
@@ -74,9 +74,9 @@ class kernel_reduction_rm_cw_inplace_local;
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw_inplace_local {
 public:
-    typedef const Float* inp_t;
-    typedef Float* out_t;
-    typedef kernel_reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp> kernel_t;
+    using inp_t = const Float*;
+    using out_t = Float*;
+    using kernel_t = kernel_reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>;
 
 public:
     reduction_rm_cw_inplace_local(sycl::queue& q_, const std::int64_t wg_, const std::int64_t lm_);
@@ -119,10 +119,10 @@ public:
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw {
 public:
-    typedef const Float* inp_t;
-    typedef Float* out_t;
-    typedef reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp> inplace_t;
-    typedef reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp> inplace_local_t;
+    using inp_t = const Float*;
+    using out_t = Float*;
+    using inplace_t = reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>;
+    using inplace_local_t = reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>;
 
 public:
     reduction_rm_cw(sycl::queue& q_);

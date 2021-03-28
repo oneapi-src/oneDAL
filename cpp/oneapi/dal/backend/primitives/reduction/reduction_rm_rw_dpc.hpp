@@ -29,9 +29,9 @@ class kernel_reduction_rm_rw_wide;
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw_wide {
 public:
-    typedef const Float* inp_t;
-    typedef Float* out_t;
-    typedef kernel_reduction_rm_rw_wide<Float, BinaryOp, UnaryOp> kernel_t;
+    using inp_t = const Float*;
+    using out_t = Float*;
+    using kernel_t = kernel_reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
 
 public:
     reduction_rm_rw_wide(sycl::queue& q_, const std::int64_t wg_);
@@ -74,9 +74,9 @@ class kernel_reduction_rm_rw_narrow;
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw_narrow {
 public:
-    typedef const Float* inp_t;
-    typedef Float* out_t;
-    typedef kernel_reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp> kernel_t;
+    using inp_t = const Float*;
+    using out_t = Float*;
+    using kernel_t = kernel_reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>;
 
 public:
     reduction_rm_rw_narrow(sycl::queue& q_, const std::int64_t wg_);
