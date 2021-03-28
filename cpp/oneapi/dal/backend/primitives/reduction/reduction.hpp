@@ -23,17 +23,17 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float, ndorder Layout, class BinaryOp, class UnaryOp>
+template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_rows(sycl::queue& q,
-                        ndview<Float, 2, Layout>& input,
+                        ndview<Float, 2, order>& input,
                         ndview<Float, 1>& output,
                         const BinaryOp binary = BinaryOp{},
                         const UnaryOp unary = UnaryOp{},
                         const event_vector& deps = {});
 
-template <typename Float, ndorder Layout, class BinaryOp, class UnaryOp>
+template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_cols(sycl::queue& q,
-                        ndview<Float, 2, Layout>& input,
+                        ndview<Float, 2, order>& input,
                         ndview<Float, 1>& output,
                         const BinaryOp binary = BinaryOp{},
                         const UnaryOp unary = UnaryOp{},

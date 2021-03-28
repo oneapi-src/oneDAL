@@ -35,9 +35,7 @@ namespace pr = oneapi::dal::backend::primitives;
 
 constexpr auto rm_order = ndorder::c;
 
-using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<float, sum<float>, identity<float>>,
-                                   std::tuple<float, sum<float>, abs<float>>>;
+using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>>;
 
 template <typename Param>
 class reduction_rm_test_uniform : public te::policy_fixture {
@@ -45,6 +43,10 @@ public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
     using unary_t = std::tuple_element_t<2, Param>;
+
+    constexpr static std::int64_t max_width = 1024;
+    constexpr static std::int64_t max_stride = 1024;
+    constexpr static std::int64_t max_height = 16384;
 
     void generate() {
         width = GENERATE(16, 128, 1024);
@@ -67,12 +69,14 @@ public:
 
     auto input() {
         check_if_initialized();
-        return ndarray<float_t, 2, rm_order>::zeros(get_queue(), { stride, height });
+        return ndarray<float_t, 2, rm_order>::zeros(get_queue(), { stride, height }, 
+                                                            sycl::usm::alloc::device);
     }
 
     auto output() {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height });
+        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height }, 
+                                                            sycl::usm::alloc::device);
     }
 
     auto fpt_desc() {
@@ -208,6 +212,7 @@ public:
     }
 
 private:
+    array<float_t> input_data; 
     std::int64_t width;
     std::int64_t stride;
     std::int64_t height;

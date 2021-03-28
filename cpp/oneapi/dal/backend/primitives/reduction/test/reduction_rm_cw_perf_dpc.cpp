@@ -35,8 +35,7 @@ namespace pr = oneapi::dal::backend::primitives;
 
 constexpr auto rm_order = ndorder::c;
 
-using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<double>, sum<double>, square<double>>>;
+using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>>;
 
 template <typename Param>
 class reduction_rm_test_uniform : public te::policy_fixture {
@@ -66,12 +65,14 @@ public:
 
     auto input() {
         check_if_initialized();
-        return ndarray<float_t, 2, rm_order>::zeros(get_queue(), { stride, height });
+        return ndarray<float_t, 2, rm_order>::zeros(get_queue(), { stride, height },
+                                                            sycl::usm::alloc::device);
     }
 
     auto output() {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height });
+        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height },
+                                                            sycl::usm::alloc::device);
     }
 
     auto fpt_desc() {

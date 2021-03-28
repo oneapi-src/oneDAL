@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-/*
+
 #include <array>
 #include <cmath>
 #include <type_traits>
@@ -25,25 +25,18 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/backend/primitives/reduction/functors.hpp"
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw.hpp"
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 namespace pr = oneapi::dal::backend::primitives;
 
-constexpr auto rm_order = ndorder::c;
-
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
-                                   std::tuple<float, sum<float>, identity<float>>,
-                                   std::tuple<float, sum<float>, abs<float>>,
-                                   std::tuple<double, sum<double>, square<double>>,
-                                   std::tuple<double, sum<double>, identity<double>>,
-                                   std::tuple<double, sum<double>, abs<double>>>;
+                                   std::tuple<double, sum<double>, square<double>>>;
 
 template <typename Param>
-class reduction_rm_test_random : public te::policy_fixture {
+class reduction_test_random : public te::policy_fixture {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
@@ -51,10 +44,8 @@ public:
 
     void generate() {
         width = GENERATE(7, 707, 1, 251, 5);
-        stride = GENERATE(707, 812, 999, 1001, 1024);
         height = GENERATE(17, 999, 1, 5, 1001);
-        REQUIRE(width <= stride);
-        CAPTURE(width, stride, height);
+        CAPTURE(width, height);
         generate_input();
     }
 
@@ -62,19 +53,19 @@ public:
         return te::table_id::homogen<float_t>();
     }
 
-    auto output() {
+    auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height });
+        return ndarray<float_t, 1, ndorder::c>::zeros(get_queue(), { size });
     }
 
     void generate_input() {
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ height, stride }.fill_uniform(-0.2, 0.5));
+            GENERATE_DATAFRAME(te::dataframe_builder{ height, width }.fill_uniform(-0.2, 0.5));
         this->input_table = train_dataframe.get_table(this->get_homogen_table_id());
     }
 
     bool is_initialized() const {
-        return width > 0 && stride > 0 && height > 0;
+        return width > 0 && height > 0;
     }
 
     void check_if_initialized() {
@@ -83,7 +74,7 @@ public:
         }
     }
 
-    array<float_t> groundtruth_cw() const {
+    array<float_t> groundtruth_rm_cw() const {
         auto res = array<float_t>::full(width, binary.init_value);
         auto* res_ptr = res.get_mutable_data();
         for (std::int64_t j = 0; j < height; ++j) {
@@ -96,7 +87,7 @@ public:
         return res;
     }
 
-    array<float_t> groundtruth_rw() const {
+    array<float_t> groundtruth_rm_rw() const {
         auto res = array<float_t>::full(height, binary.init_value);
         auto* res_ptr = res.get_mutable_data();
         for (std::int64_t j = 0; j < height; ++j) {
@@ -109,78 +100,107 @@ public:
         return res;
     }
 
-    void check_output_rw(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-3) {
-        CAPTURE(__func__, width, height, stride);
-        const auto gtv = groundtruth_rw();
-        const auto arr = outarr.flatten();
-        for (auto i = 0; i < height; ++i) {
+    void check_array(const array<float_t>& gtv, const array<float_t>& arr, const float_t tol = 1.e-3) {
+        CAPTURE(__func__, gtv.get_count(), arr.get_count(), width, height);
+        REQUIRE(gtv.get_count() == arr.get_count());
+        for (auto i = 0; i < arr.get_count(); ++i) {
             const auto diff = arr[i] - gtv[i];
             if (diff < -tol || tol < diff) {
                 CAPTURE(gtv[i], arr[i], diff, tol);
                 FAIL();
             }
         }
+
     }
 
-    void check_output_cw(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-3) {
-        CAPTURE(__func__, width, height, stride);
-        const auto gtv = groundtruth_cw();
+    void check_output_rm_rw(ndarray<float_t, 1, ndorder::c>& outarr, const float_t tol = 1.e-3) {
+        CAPTURE(__func__, width, height, outarr.get_count());
+        const auto gtv = groundtruth_rm_rw();
         const auto arr = outarr.flatten();
-        for (auto i = 0; i < width; ++i) {
-            const auto diff = arr[i] - gtv[i];
-            if (diff < -tol || tol < diff) {
-                CAPTURE(gtv[i], arr[i], diff, tol);
-                FAIL();
-            }
-        }
+        check_array(gtv, arr, tol);
     }
 
-    void test_raw_rw_reduce_narrow() {
-        using namespace oneapi::dal::backend::primitives;
-        using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
-
-        const float_t* inp_ptr = input_array.get_data();
-        float_t* out_ptr = out_array.get_mutable_data();
-
-        reduction_t reducer(get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
-            .wait_and_throw();
-
-        check_output_rw(out_array);
+    void check_output_cm_rw(ndarray<float_t, 1, ndorder::c>& outarr, const float_t tol = 1.e-3) {
+        CAPTURE(__func__, width, height, outarr.get_count());
+        const auto gtv = groundtruth_rm_cw();
+        const auto arr = outarr.flatten();
+        check_array(gtv, arr, tol);
     }
 
-    void test_raw_rw_reduce_wide() {
-        using namespace oneapi::dal::backend::primitives;
-        using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
-
-        const float_t* inp_ptr = input_array.get_data();
-        float_t* out_ptr = out_array.get_mutable_data();
-
-        reduction_t reducer(get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
-            .wait_and_throw();
-
-        check_output_rw(out_array);
+    void check_output_rm_cw(ndarray<float_t, 1, ndorder::c>& outarr, const float_t tol = 1.e-3) {
+        CAPTURE(__func__, width, height, outarr.get_count());
+        const auto gtv = groundtruth_rm_cw();
+        const auto arr = outarr.flatten();
+        check_array(gtv, arr, tol);
     }
 
-    void test_raw_cw_reduce_inplace() {
+    void check_output_cm_cw(ndarray<float_t, 1, ndorder::c>& outarr, const float_t tol = 1.e-3) {
+        CAPTURE(__func__, width, height);
+        const auto gtv = groundtruth_rm_rw();
+        const auto arr = outarr.flatten();
+        check_array(gtv, arr, tol);
+    }
+
+    void test_rm_rw_reduce() {
         using namespace oneapi::dal::backend::primitives;
-        using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto [output_array, out_event] = output(height);
+        auto input = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
+        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {height});
 
-        const float_t* inp_ptr = input_array.get_data();
-        float_t* out_ptr = out_array.get_mutable_data();
+        auto reduce_event = reduce_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        reduce_event.wait_and_throw();
 
-        reduction_t reducer(get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
-            .wait_and_throw();
+        check_output_rm_rw(output_array);
+    }
 
-        check_output_cw(out_array);
+    void test_rm_cw_reduce() {
+        using namespace oneapi::dal::backend::primitives;
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto [output_array, out_event] = output(width);
+        auto input = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
+        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {width});
+
+        auto reduce_event = reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        reduce_event.wait_and_throw();
+
+        check_output_rm_cw(output_array);
+    }
+
+    void test_cm_cw_reduce() {
+        using namespace oneapi::dal::backend::primitives;
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto [output_array, out_event] = output(height);
+        auto input_tr = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
+        auto input = input_tr.t();
+        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {height});
+
+        auto reduce_event = reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        reduce_event.wait_and_throw();
+
+        check_output_rm_rw(output_array);
+    }
+
+    void test_cm_rw_reduce() {
+        using namespace oneapi::dal::backend::primitives;
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto [output_array, out_event] = output(width);
+        auto input_tr = ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), {height, width});
+        auto input = input_tr.t();
+        auto output = ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), {width});
+
+        auto reduce_event = reduce_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        reduce_event.wait_and_throw();
+
+        check_output_cm_rw(output_array);
+    }
+
+    auto get_width() const {
+        return width;
+    }
+
+    auto get_height() const {
+        return height;
     }
 
 private:
@@ -189,27 +209,40 @@ private:
 
 private:
     std::int64_t width;
-    std::int64_t stride;
     std::int64_t height;
     table input_table;
 };
 
-TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
+TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "Randomly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    this->test_raw_rw_reduce_wide();
-    this->test_raw_rw_reduce_narrow();
+    this->test_rm_rw_reduce();
 }
 
-TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
+TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "Randomly filled Row-Major Col-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    this->test_raw_cw_reduce_inplace();
+    this->test_rm_cw_reduce();
+}
+
+TEMPLATE_LIST_TEST_M(reduction_test_random,
+                     "Randomly filled Col-Major Col-Wise reduction",
+                     "[reduction][rm][small]",
+                     reduction_types) {
+    this->generate();
+    this->test_cm_cw_reduce();
+}
+
+TEMPLATE_LIST_TEST_M(reduction_test_random,
+                     "Randomly filled Col-Major Row-Wise reduction",
+                     "[reduction][rm][small]",
+                     reduction_types) {
+    this->generate();
+    this->test_cm_rw_reduce();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
-*/

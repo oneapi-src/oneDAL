@@ -24,9 +24,9 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <class Float, ndorder Layout, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_rm_rw(sycl::queue& q,
-                         ndview<Float, 2, Layout>& input,
+                         ndview<Float, 2, ndorder::c>& input,
                          ndview<Float, 1>& output,
                          const BinaryOp binary,
                          const UnaryOp unary,
@@ -41,9 +41,9 @@ sycl::event reduce_rm_rw(sycl::queue& q,
     return kernel(inp_ptr, out_ptr, width, height, stride, binary, unary, deps);
 }
 
-template <class Float, ndorder Layout, class BinaryOp, class UnaryOp>
+template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_rm_cw(sycl::queue& q,
-                         ndview<Float, 2, Layout>& input,
+                         ndview<Float, 2, ndorder::c>& input,
                          ndview<Float, 1>& output,
                          const BinaryOp binary,
                          const UnaryOp unary,
@@ -58,15 +58,15 @@ sycl::event reduce_rm_cw(sycl::queue& q,
     return kernel(inp_ptr, out_ptr, width, height, stride, binary, unary, deps);
 }
 
-template <class Float, ndorder Layout, class BinaryOp, class UnaryOp>
+template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_rows(sycl::queue& q,
-                        ndview<Float, 2, Layout>& input,
+                        ndview<Float, 2, order>& input,
                         ndview<Float, 1>& output,
                         const BinaryOp binary,
                         const UnaryOp unary,
                         const event_vector& deps) {
     ONEDAL_ASSERT(input.get_dimension(0) <= output.get_dimension(0));
-    if constexpr (Layout == ndorder::c) {
+    if constexpr (order == ndorder::c) {
         return reduce_rm_rw(q, input, output, binary, unary, deps);
     }
     else {
@@ -74,20 +74,18 @@ sycl::event reduce_rows(sycl::queue& q,
         return reduce_rm_cw(q, input_tr, output, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);
-    return q.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-    });
+    return sycl::event{};
 }
 
-template <class Float, ndorder Layout, class BinaryOp, class UnaryOp>
+template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_cols(sycl::queue& q,
-                        ndview<Float, 2, Layout>& input,
+                        ndview<Float, 2, order>& input,
                         ndview<Float, 1>& output,
                         const BinaryOp binary,
                         const UnaryOp unary,
                         const event_vector& deps) {
     ONEDAL_ASSERT(input.get_dimension(1) <= output.get_dimension(0));
-    if constexpr (Layout == ndorder::c) {
+    if constexpr (order == ndorder::c) {
         return reduce_rm_cw(q, input, output, binary, unary, deps);
     }
     else {
@@ -95,9 +93,7 @@ sycl::event reduce_cols(sycl::queue& q,
         return reduce_rm_rw(q, input_tr, output, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);
-    return q.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-    });
+    return sycl::event{};
 }
 
 #define INSTANTIATE(F, L, B, U)                                        \
