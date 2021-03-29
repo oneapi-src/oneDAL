@@ -16,4 +16,4 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction_dpc.hpp"
