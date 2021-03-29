@@ -22,8 +22,9 @@ dal_test_suite(
     compile_as = [ "dpc++" ],
     srcs = glob([
         "test/*_dpc.cpp",
-    ]), exclude=[
+    ], exclude=[
         "test/*perf*.cpp",
+    ]),
     dal_deps = [
         ":selection",
     ],
