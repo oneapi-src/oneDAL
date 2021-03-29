@@ -70,10 +70,10 @@ public:
                                                     sycl::usm::alloc::device);
     }
 
-    auto output() {
+    auto output(std::int64_t size) {
         check_if_initialized();
         return ndarray<float_t, 1, rm_order>::zeros(get_queue(),
-                                                    { height },
+                                                    { size },
                                                     sycl::usm::alloc::device);
     }
 
@@ -140,7 +140,7 @@ public:
     void test_raw_rw_reduce_narrow() {
         using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -159,7 +159,7 @@ public:
     void test_raw_rw_reduce_wide() {
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -178,7 +178,7 @@ public:
     void test_raw_rw_reduce_wrapper() {
         using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();

@@ -166,7 +166,7 @@ public:
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
 
         auto reduce_event =
-            reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+            reduce_columns(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_cw(output_array);
@@ -182,7 +182,7 @@ public:
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
 
         auto reduce_event =
-            reduce_cols(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+            reduce_columns(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_rw(output_array);
