@@ -263,7 +263,7 @@ protected:
 };
 
 template <typename FPType, CpuType cpu>
-bool solveEquationSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
     /* POTRF and POTRS parameters */
     char uplo     = 'U';
@@ -293,7 +293,7 @@ bool solveEquationSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t nX
 }
 
 template <typename FPType, CpuType cpu>
-bool solveEquationSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
     /* GETRF and GETRS parameters */
     char trans    = 'N';
@@ -325,7 +325,7 @@ bool solveEquationSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, boo
 }
 
 template <typename FPType, CpuType cpu>
-bool solveEquationSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
     TArray<FPType, cpu> aCopy(n * n);
     TArray<FPType, cpu> bCopy(n);
@@ -338,9 +338,9 @@ bool solveEquationSystem(FPType * a, FPType * b, size_t n, size_t nX, bool seque
         return false;
     }
 
-    if (!solveEquationSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
+    if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
     {
-        // bool status = solveEquationSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
+        // bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
         // if (status)
         // {
         //     status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType));
