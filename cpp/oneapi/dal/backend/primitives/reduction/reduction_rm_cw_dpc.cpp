@@ -83,11 +83,11 @@ reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace(sycl:
         : q_(q),
           wg_(wg) {
     ONEDAL_ASSERT(wg_ <= max_wg(q_));
-};
+}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace(sycl::queue& q)
-        : reduction_rm_cw_inplace(q, max_wg(q)){};
+        : reduction_rm_cw_inplace(q, max_wg(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::operator()(
@@ -237,12 +237,12 @@ reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace
     ONEDAL_ASSERT(wg_ <= max_wg(q_));
     ONEDAL_ASSERT(dal::detail::integral_cast<std::int64_t>(2 * lm_ * sizeof(Float)) <=
                   local_mem_size(q_));
-};
+}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace_local(
     sycl::queue& q)
-        : reduction_rm_cw_inplace_local(q, max_wg(q), local_mem_size(q) / sizeof(Float) / 2){};
+        : reduction_rm_cw_inplace_local(q, max_wg(q), local_mem_size(q) / sizeof(Float) / 2) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::operator()(
@@ -330,7 +330,7 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_rm_cw(sycl::queue& q) : q_{ q } {};
+reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_rm_cw(sycl::queue& q) : q_{ q } {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method

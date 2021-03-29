@@ -97,11 +97,11 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue
         : q_(q),
           wg_(wg) {
     ONEDAL_ASSERT(wg_ <= max_wg(q_));
-};
+}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue& q)
-        : reduction_rm_rw_wide(q, max_wg(q)){};
+        : reduction_rm_rw_wide(q, max_wg(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
@@ -232,11 +232,11 @@ reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::q
         : q_(q),
           wg_(wg) {
     ONEDAL_ASSERT(wg_ <= max_wg(q_));
-};
+}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::queue& q)
-        : reduction_rm_rw_narrow(q, max_wg(q)){};
+        : reduction_rm_rw_narrow(q, max_wg(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
@@ -321,7 +321,7 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q) : q_{ q } {};
+reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q) : q_{ q } {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method
