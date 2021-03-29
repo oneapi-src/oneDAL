@@ -49,8 +49,8 @@ public:
     constexpr static std::int64_t max_height = 32768;
 
     void generate() {
-        width = GENERATE(16, 128, 1024, 16384);
-        stride = GENERATE(16, 128, 1024, 16384);
+        width = GENERATE(16, 128, 1024);
+        stride = GENERATE(16, 128, 1024);
         height = GENERATE(16, 128, 1024, 16384, 32768);
         SKIP_IF(width > stride);
         REQUIRE(width <= stride);
