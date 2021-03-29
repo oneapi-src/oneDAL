@@ -44,10 +44,6 @@ public:
     using binary_t = std::tuple_element_t<1, Param>;
     using unary_t = std::tuple_element_t<2, Param>;
 
-    constexpr static std::int64_t max_width = 16384;
-    constexpr static std::int64_t max_stride = 16384;
-    constexpr static std::int64_t max_height = 32768;
-
     void generate() {
         width = GENERATE(16, 128, 1024);
         stride = GENERATE(16, 128, 1024);
