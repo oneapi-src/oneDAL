@@ -22,7 +22,7 @@ dal_collect_modules(
         "blas",
         "reduction",
         "sort",
-        "select",
+        "selection",
     ],
     dal_deps = [
         ":common",
