@@ -245,10 +245,6 @@ dfs_stack::dfs_stack(const std::uint64_t levels, const std::uint64_t* max_states
 }
 
 void dfs_stack::init(const std::uint64_t levels) {
-    //if (data_by_levels != nullptr) {
-    //    delete_data();
-    //}
-
     max_level_size = levels;
     current_level = 0;
 

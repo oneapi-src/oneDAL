@@ -9,41 +9,36 @@ solution subgraph_isomorphism(const graph& pattern,
     solution sol;
     sorter sorter_graph(&target);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
-    float* pattern_vertex_probability =
-        static_cast<float*>(_mm_malloc(sizeof(float) * pattern_vetrex_count, 64));
+    auto pattern_vertex_probability = make_shared_malloc<float>(pattern_vetrex_count);
 
-    sorter_graph.get_pattern_vertex_probability(pattern, pattern_vertex_probability);
-    std::int64_t* sorted_pattern_vertex =
-        static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * pattern_vetrex_count, 64));
+    sorter_graph.get_pattern_vertex_probability(pattern, pattern_vertex_probability.get());
+    auto sorted_pattern_vertex = make_shared_malloc<std::int64_t>(pattern_vetrex_count);
     sorter_graph.sorting_pattern_vertices(pattern,
-                                          pattern_vertex_probability,
-                                          sorted_pattern_vertex);
-    std::int64_t* predecessor =
-        static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * pattern_vetrex_count, 64));
-    edge_direction* direction =
-        static_cast<edge_direction*>(_mm_malloc(sizeof(edge_direction) * pattern_vetrex_count, 64));
+                                          pattern_vertex_probability.get(),
+                                          sorted_pattern_vertex.get());
 
-    sconsistent_conditions* cconditions = static_cast<sconsistent_conditions*>(
-        _mm_malloc(sizeof(sconsistent_conditions) * (pattern_vetrex_count - 1), 64));
+    auto predecessor = make_shared_malloc<std::int64_t>(pattern_vetrex_count);
+    auto direction = make_shared_malloc<edge_direction>(pattern_vetrex_count);
+    auto cconditions = make_shared_malloc<sconsistent_conditions>(pattern_vetrex_count - 1);
+    auto cconditions_array = cconditions.get();
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
-        cconditions[i].init(i + 1);
+        cconditions_array[i].init(i + 1); // should be placement new
     }
 
     sorter_graph.create_sorted_pattern_tree(pattern,
-                                            sorted_pattern_vertex,
-                                            predecessor,
-                                            direction,
-                                            cconditions,
+                                            sorted_pattern_vertex.get(),
+                                            predecessor.get(),
+                                            direction.get(),
+                                            cconditions.get(),
                                             true);
 
-    std::int64_t* dfs_tree_search_width =
-        static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * pattern_vetrex_count, 64));
+    auto dfs_tree_search_width = make_shared_malloc<std::int64_t>(pattern_vetrex_count);
     sorter_graph.dfs_tree_search_width_evaluation(pattern,
-                                                  sorted_pattern_vertex,
-                                                  pattern_vertex_probability,
-                                                  direction,
-                                                  cconditions,
-                                                  dfs_tree_search_width);
+                                                  sorted_pattern_vertex.get(),
+                                                  pattern_vertex_probability.get(),
+                                                  direction.get(),
+                                                  cconditions.get(),
+                                                  dfs_tree_search_width.get());
 
     sorter_graph.~sorter();
 
@@ -52,34 +47,27 @@ solution subgraph_isomorphism(const graph& pattern,
     if (use_treading) {
         engine_bundle harness(&pattern,
                               &target,
-                              sorted_pattern_vertex,
-                              predecessor,
-                              direction,
-                              cconditions,
-                              pattern_vertex_probability,
+                              sorted_pattern_vertex.get(),
+                              predecessor.get(),
+                              direction.get(),
+                              cconditions.get(),
+                              pattern_vertex_probability.get(),
                               control_flags);
         sol = harness.run();
     }
     else {
         matching_engine main_engine(&pattern,
                                     &target,
-                                    sorted_pattern_vertex,
-                                    predecessor,
-                                    direction,
-                                    cconditions);
+                                    sorted_pattern_vertex.get(),
+                                    predecessor.get(),
+                                    direction.get(),
+                                    cconditions.get());
         sol = main_engine.run(true);
     }
 
-    _mm_free(pattern_vertex_probability);
-    _mm_free(sorted_pattern_vertex);
-    _mm_free(predecessor);
-    _mm_free(direction);
-    _mm_free(dfs_tree_search_width);
-
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
-        cconditions[i].~sconsistent_conditions();
+        cconditions_array[i].~sconsistent_conditions();
     }
-    _mm_free(cconditions);
     cconditions = nullptr;
 
     return sol;

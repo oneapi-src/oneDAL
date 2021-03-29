@@ -50,9 +50,7 @@ matching_engine::matching_engine(const graph* ppattern,
     }
 
 #ifdef EXPERIMENTAL
-    //hlocal_stack.init(solution_length - 1, max_neighbours_size);
     hlocal_stack.init(solution_length - 1, target_vertex_count);
-    //std::cout << "DSF Stack initialization" << std::endl;
 #endif // EXPERIMENTAL
 
     if (target->bit_representation) {
