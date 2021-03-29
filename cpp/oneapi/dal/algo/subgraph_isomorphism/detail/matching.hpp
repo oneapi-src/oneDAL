@@ -1,11 +1,11 @@
 #pragma once
 #include "tbb/enumerable_thread_specific.h"
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/sorter.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/stack.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 enum flow_switch_ids {
     default_single_thread_mode = 0x0,
@@ -107,4 +107,4 @@ private:
     solution run_dfs();
     solution run_hybrid();
 };
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

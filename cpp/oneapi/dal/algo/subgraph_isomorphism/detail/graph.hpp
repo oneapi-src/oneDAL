@@ -4,12 +4,13 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
 #if defined(__INTEL_COMPILER)
-#define ONEAPI_RESTRICT restrict
+#define ONEAPI_RESTRICT
+//restrict
 #else
 #define ONEAPI_RESTRICT
 #endif
 
-namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 enum graph_storage_scheme { auto_detect, bit, list };
 
@@ -252,4 +253,4 @@ private:
     friend class matching_engine;
     friend class engine_bundle;
 };
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

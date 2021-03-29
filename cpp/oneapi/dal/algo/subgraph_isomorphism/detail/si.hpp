@@ -1,11 +1,21 @@
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
-#include "debug.hpp"
+#pragma once
 
-namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/sorter.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/matching.hpp"
+
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+
+template <typename T>
+std::shared_ptr<T> make_shared_malloc(std::uint64_t elements_count) {
+    T* ptr = static_cast<T*>(_mm_malloc(sizeof(T) * elements_count, 64));
+    return std::shared_ptr<T>(ptr, _mm_free);
+}
 
 solution subgraph_isomorphism(const graph& pattern,
                               const graph& target,
-                              const std::uint64_t control_flags) {
+                              const std::uint64_t control_flags = 0) {
     solution sol;
     sorter sorter_graph(&target);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
@@ -73,4 +83,4 @@ solution subgraph_isomorphism(const graph& pattern,
     return sol;
 }
 
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

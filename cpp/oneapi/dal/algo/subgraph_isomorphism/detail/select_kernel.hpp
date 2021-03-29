@@ -54,7 +54,11 @@ struct backend_default<dal::detail::host_policy,
         const dal::detail::host_policy &ctx,
         const descriptor_base &descriptor,
         const dal::preview::detail::topology<std::int32_t> &target_data,
-        const dal::preview::detail::topology<std::int32_t> &pattern_data);
+        const dal::preview::detail::topology<std::int32_t> &pattern_data) {
+        return call_subgraph_isomorphism_default_kernel_scalar(descriptor,
+                                                               target_data,
+                                                               pattern_data);
+    }
     virtual ~backend_default() {}
 };
 

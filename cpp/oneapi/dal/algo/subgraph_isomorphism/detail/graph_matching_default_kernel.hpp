@@ -21,6 +21,17 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
+// #include "oneapi/dal/algo/subgraph_isomorphism/detail/graph_matching_default_kernel.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/si.hpp"
+// #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
+// #include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
+// #include "oneapi/dal/detail/policy.hpp"
+// #include "oneapi/dal/graph/detail/service_functions_impl.hpp"
+// #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+// #include "oneapi/dal/table/detail/table_builder.hpp"
+// #include "oneapi/dal/table/homogen.hpp"
+// #include "oneapi/dal/algo/subgraph_isomorphism/detail/matching.hpp"
+
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 template <typename Index>
@@ -28,9 +39,27 @@ graph_matching_result call_subgraph_isomorphism_default_kernel_general(
     const descriptor_base &desc,
     const dal::preview::detail::topology<std::int32_t> &t_data,
     const dal::preview::detail::topology<std::int32_t> &p_data) {
-    std::cout << "KERNEL avx512" << std::endl;
+    std::cout << "GENERAL KERNEL avx512" << std::endl;
     graph_matching_result res;
     return res;
+}
+
+graph_matching_result call_subgraph_isomorphism_default_kernel_scalar(
+    const descriptor_base &desc,
+    const dal::preview::detail::topology<std::int32_t> &t_data,
+    const dal::preview::detail::topology<std::int32_t> &p_data) {
+    // graph_loader pattern_loader(p_data, graph_storage_scheme::bit);
+    detail::graph pattern(p_data, detail::graph_storage_scheme::bit);
+
+    // graph_loader target_loader(t_data, graph_storage_scheme::auto_detect);
+    detail::graph target(t_data, detail::graph_storage_scheme::auto_detect);
+
+    std::uint64_t control_flags =
+        detail::flow_switch_ids::multi_thread_mode; // flow_switch_ids::default_single_thread_mode
+    solution results =
+        subgraph_isomorphism::detail::subgraph_isomorphism(pattern, target, control_flags);
+
+    return graph_matching_result(results.export_as_table(), results.get_solution_count());
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

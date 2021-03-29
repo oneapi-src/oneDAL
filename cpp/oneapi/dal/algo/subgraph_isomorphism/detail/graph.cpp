@@ -1,7 +1,7 @@
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/graph.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
               const std::uint8_t* ONEAPI_RESTRICT pa,
@@ -863,4 +863,4 @@ graph_input_bit_data::~graph_input_bit_data() {
     }
     _mm_free(data);
 }
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

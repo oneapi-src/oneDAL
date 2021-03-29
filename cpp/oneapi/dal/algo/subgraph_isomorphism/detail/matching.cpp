@@ -1,8 +1,7 @@
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/matching.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/matching.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 namespace dal = oneapi::dal;
 
@@ -584,4 +583,4 @@ void engine_bundle::first_states_generator(bool use_exploration_stack) {
                                   });
     }
 }
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/graph.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 struct sconsistent_conditions {
     std::int64_t* array;
@@ -66,4 +66,4 @@ private:
                                         const std::int64_t vertex,
                                         const std::uint8_t* pbit_mask) const;
 };
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
