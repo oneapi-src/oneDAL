@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/common.hpp"
+#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::backend {
@@ -55,6 +55,43 @@ void convert_vector(const detail::data_parallel_policy& policy,
                     std::int64_t dst_stride,
                     std::int64_t element_count);
 
+/// Converts array of `src_type` to array of `dst_type` on device represented by
+/// `q` assuming `src` and `dst` are accesible on the device.
+sycl::event convert_vector_device2device(sycl::queue& q,
+                                         const void* src,
+                                         void* dst,
+                                         data_type src_type,
+                                         data_type dst_type,
+                                         std::int64_t src_stride,
+                                         std::int64_t dst_stride,
+                                         std::int64_t element_count,
+                                         const event_vector& deps = {});
+
+/// Converts array of `src_type` to array of `dst_type` on device represented by
+/// `q` assuming `src_device` is accesible on the device and `dst_host` is
+/// accessible only on host.
+sycl::event convert_vector_device2host(sycl::queue& q,
+                                       const void* src_device,
+                                       void* dst_host,
+                                       data_type src_type,
+                                       data_type dst_type,
+                                       std::int64_t src_stride,
+                                       std::int64_t dst_stride,
+                                       std::int64_t element_count,
+                                       const event_vector& deps = {});
+
+/// Converts array of `src_type` to array of `dst_type` on device represented by
+/// `q` assuming `src_host` is accesible only on host and `dst_device` is
+/// accessible on the device.
+sycl::event convert_vector_host2device(sycl::queue& q,
+                                       const void* src_host,
+                                       void* dst_device,
+                                       data_type src_type,
+                                       data_type dst_type,
+                                       std::int64_t src_stride,
+                                       std::int64_t dst_stride,
+                                       std::int64_t element_count,
+                                       const std::vector<sycl::event>& deps = {});
 #endif
 
 } // namespace oneapi::dal::backend

@@ -112,7 +112,7 @@ def dal_public_includes(name, dal_deps=[], **kwargs):
 
 def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
                    dpc_deps=[], extra_deps=[], lib_tags=["dal"],
-                   **kwargs):
+                   features=[], **kwargs):
     cc_static_lib(
         name = name,
         lib_name = lib_name,
@@ -122,6 +122,7 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
     )
     cc_static_lib(
         name = name + "_dpc",
+        features = features + [ "dpc++" ],
         lib_name = lib_name + "_dpc",
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
@@ -130,7 +131,7 @@ def dal_static_lib(name, lib_name, dal_deps=[], host_deps=[],
 
 def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
                     dpc_deps=[], extra_deps=[], lib_tags=["dal"],
-                    **kwargs):
+                    features=[], **kwargs):
     cc_dynamic_lib(
         name = name,
         lib_name = lib_name,
@@ -140,6 +141,7 @@ def dal_dynamic_lib(name, lib_name, dal_deps=[], host_deps=[],
     )
     cc_dynamic_lib(
         name = name + "_dpc",
+        features = features + [ "dpc++" ],
         lib_name = lib_name + "_dpc",
         lib_tags = lib_tags,
         deps = _get_dpc_deps(dal_deps) + extra_deps + dpc_deps,
@@ -184,6 +186,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
     iface_access_tag = "private" if private else "public"
     test_args = _expand_select(
         _test_eternal_datasets_args(framework) +
+        _test_filter_args(framework) +
         _test_device_args() +
         args
     )
@@ -336,6 +339,17 @@ def _test_eternal_datasets_args(framework):
             "@config//:test_external_datasets_enabled": [],
             "//conditions:default": [
                 "~[external-dataset]",
+            ],
+        })
+    return []
+
+def _test_filter_args(framework):
+    if framework == "catch2":
+        return _select({
+            "@config//:test_nightly_enabled": ["~[weekly]"],
+            "@config//:test_weekly_enabled": [],
+            "//conditions:default": [
+                "~[nightly]", "~[weekly]",
             ],
         })
     return []

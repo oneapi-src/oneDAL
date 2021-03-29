@@ -10,6 +10,7 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/algo:linear_kernel",
+        "@onedal//cpp/oneapi/dal/algo:polynomial_kernel",
         "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
     ],
     extra_deps = [
@@ -18,36 +19,19 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "cpu_tests",
-    compile_as = [ "c++" ],
+    name = "interface_tests",
+    framework = "catch2",
     srcs = glob([
-        "backend/cpu/*_test.cpp",
-        "*_host_test.cpp",
+        "test/*.cpp",
     ]),
     dal_deps = [
         ":svm",
     ],
-)
-
-dal_test_suite(
-    name = "gpu_tests",
-    compile_as = [ "dpc++" ],
-    srcs = glob([
-        "backend/gpu/*_test.cpp",
-        "*_dpc_test.cpp",
-    ]),
-    dal_deps = [
-        ":svm",
-    ],
-    tags = ["gpu", "exclusive"],
 )
 
 dal_test_suite(
     name = "tests",
-    host_tests = [
-        ":cpu_tests",
-    ],
-    dpc_tests = [
-        ":gpu_tests",
+    tests = [
+        ":interface_tests",
     ],
 )

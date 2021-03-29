@@ -15,10 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/common.hpp"
+#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm {
+
 namespace detail {
 namespace v1 {
 
@@ -34,16 +36,8 @@ public:
     double cache_size = 200.0;
     double tau = 1e-6;
     bool shrinking = true;
-};
-
-template <typename Task>
-class model_impl : public base {
-public:
-    table support_vectors;
-    table coeffs;
-    double bias;
-    double first_class_label;
-    double second_class_label;
+    std::int64_t class_count = 2;
+    double epsilon = 0.1;
 };
 
 template <typename Task>
@@ -106,8 +100,8 @@ void descriptor_base<Task>::set_max_iteration_count_impl(std::int64_t value) {
 
 template <typename Task>
 void descriptor_base<Task>::set_cache_size_impl(double value) {
-    if (value <= 0.0) {
-        throw domain_error(dal::detail::error_messages::cache_size_leq_zero());
+    if (value < 0.0) {
+        throw domain_error(dal::detail::error_messages::cache_size_lt_zero());
     }
     impl_->cache_size = value;
 }
@@ -131,11 +125,38 @@ void descriptor_base<Task>::set_kernel_impl(const detail::kernel_function_ptr& k
 }
 
 template <typename Task>
+void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
+    if (value <= 1) {
+        throw domain_error(dal::detail::error_messages::class_count_leq_one());
+    }
+    impl_->class_count = value;
+}
+
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_class_count_impl() const {
+    return impl_->class_count;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_epsilon_impl(double value) {
+    if (value < 0.0) {
+        throw domain_error(dal::detail::error_messages::epsilon_lt_zero());
+    }
+    impl_->epsilon = value;
+}
+
+template <typename Task>
+double descriptor_base<Task>::get_epsilon_impl() const {
+    return impl_->epsilon;
+}
+
+template <typename Task>
 const detail::kernel_function_ptr& descriptor_base<Task>::get_kernel_impl() const {
     return impl_->kernel;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
 
 } // namespace v1
 } // namespace detail
@@ -146,6 +167,9 @@ using detail::v1::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
+
+template <typename Task>
+model<Task>::model(const std::shared_ptr<model_impl<Task>>& impl) : impl_(impl) {}
 
 template <typename Task>
 const table& model<Task>::get_support_vectors() const {
@@ -203,6 +227,7 @@ void model<Task>::set_second_class_label_impl(std::int64_t value) {
 }
 
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::svm

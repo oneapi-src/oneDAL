@@ -17,8 +17,6 @@
 #include "oneapi/dal/algo/decision_forest/train.hpp"
 #include "oneapi/dal/algo/decision_forest/infer.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -42,27 +40,23 @@ struct checker_info {
 };
 
 template <typename TestType>
-class df_batch_test : public te::algo_fixture {
+class df_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
     using Task = std::tuple_element_t<2, TestType>;
 
     bool is_gpu() {
-        return get_policy().is_gpu();
+        return this->get_policy().is_gpu();
     }
 
     bool not_available_on_device() {
         constexpr bool is_dense = std::is_same_v<Method, decision_forest::method::dense>;
-        return get_policy().is_gpu() && is_dense;
+        return this->get_policy().is_gpu() && is_dense;
     }
 
     auto get_default_descriptor() {
         return df::descriptor<Float, Method, Task>{};
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     auto get_cls_dataframe_base() {
@@ -170,12 +164,12 @@ public:
         const auto infer_result = this->infer(desc, model, x_test);
         check_infer_shapes(desc, data, infer_result);
 
-        SECTION("infer accuracy is expected") {
-            for (auto ch : checker_list) {
-                CAPTURE(ch.name);
-                REQUIRE(ch.check(infer_result.get_labels(), y_test) < ch.required_accuracy + eps);
-            }
+        INFO("check if infer accuracy is expected")
+        for (auto ch : checker_list) {
+            CAPTURE(ch.name);
+            REQUIRE(ch.check(infer_result.get_labels(), y_test) < ch.required_accuracy + eps);
         }
+
         return infer_result;
     }
 
@@ -184,38 +178,32 @@ public:
                             const df::train_result<Task>& result) {
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
 
-        SECTION("model shape is expected") {
-            REQUIRE(result.get_model().get_tree_count() == desc.get_tree_count());
-            if constexpr (is_cls) {
-                REQUIRE(result.get_model().get_class_count() == desc.get_class_count());
-            }
+        INFO("check if model shape is expected")
+        REQUIRE(result.get_model().get_tree_count() == desc.get_tree_count());
+        if constexpr (is_cls) {
+            REQUIRE(result.get_model().get_class_count() == desc.get_class_count());
         }
 
         if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-            SECTION("oob error shape is expected") {
-                REQUIRE(result.get_oob_err().has_data());
-                REQUIRE(result.get_oob_err().get_row_count() == 1);
-                REQUIRE(result.get_oob_err().get_column_count() == 1);
-            }
+            INFO("check if oob error shape is expected")
+            REQUIRE(result.get_oob_err().has_data());
+            REQUIRE(result.get_oob_err().get_row_count() == 1);
+            REQUIRE(result.get_oob_err().get_column_count() == 1);
         }
 
         if (check_mask_flag(desc.get_error_metric_mode(),
                             error_metric_mode::out_of_bag_error_per_observation)) {
-            SECTION("oob error per observation shape is expected") {
-                REQUIRE(result.get_oob_err_per_observation().has_data());
-                REQUIRE(result.get_oob_err_per_observation().get_row_count() ==
-                        data.get_row_count());
-                REQUIRE(result.get_oob_err_per_observation().get_column_count() == 1);
-            }
+            INFO("check if oob error per observation shape is expected")
+            REQUIRE(result.get_oob_err_per_observation().has_data());
+            REQUIRE(result.get_oob_err_per_observation().get_row_count() == data.get_row_count());
+            REQUIRE(result.get_oob_err_per_observation().get_column_count() == 1);
         }
 
         if (variable_importance_mode::none != desc.get_variable_importance_mode()) {
-            SECTION("variable improtance shape is expected") {
-                REQUIRE(result.get_var_importance().has_data());
-                REQUIRE(result.get_var_importance().get_row_count() == 1);
-                REQUIRE(result.get_var_importance().get_column_count() ==
-                        data.get_column_count() - 1);
-            }
+            INFO("check if variable improtance shape is expected")
+            REQUIRE(result.get_var_importance().has_data());
+            REQUIRE(result.get_var_importance().get_row_count() == 1);
+            REQUIRE(result.get_var_importance().get_column_count() == data.get_column_count() - 1);
         }
     }
 
@@ -225,28 +213,24 @@ public:
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
         if constexpr (is_cls) {
             if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
-                SECTION("infer labels shape is expected") {
-                    REQUIRE(result.get_labels().has_data());
-                    REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
-                    REQUIRE(result.get_labels().get_column_count() == 1);
-                }
-            }
-
-            if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
-                SECTION("infer probabilities shape is expected") {
-                    REQUIRE(result.get_probabilities().has_data());
-                    REQUIRE(result.get_probabilities().get_row_count() == data.get_row_count());
-                    REQUIRE(result.get_probabilities().get_column_count() ==
-                            desc.get_class_count());
-                }
-            }
-        }
-        else {
-            SECTION("infer labels shape is expected") {
+                INFO("check if infer labels shape is expected")
                 REQUIRE(result.get_labels().has_data());
                 REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
                 REQUIRE(result.get_labels().get_column_count() == 1);
             }
+
+            if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
+                INFO("check if infer probabilities shape is expected")
+                REQUIRE(result.get_probabilities().has_data());
+                REQUIRE(result.get_probabilities().get_row_count() == data.get_row_count());
+                REQUIRE(result.get_probabilities().get_column_count() == desc.get_class_count());
+            }
+        }
+        else {
+            INFO("check if infer labels shape is expected")
+            REQUIRE(result.get_labels().has_data());
+            REQUIRE(result.get_labels().get_row_count() == data.get_row_count());
+            REQUIRE(result.get_labels().get_column_count() == 1);
         }
     }
 
@@ -256,25 +240,24 @@ public:
                                                const te::table_id& data_table_id,
                                                double accuracy_threshold) {
         if (variable_importance_mode::none != desc.get_variable_importance_mode()) {
-            SECTION("match of variable importance vs required one is expected") {
-                const auto required_var_imp = var_imp_data.get_table(data_table_id);
-                std::int64_t row_ind = 0;
-                switch (desc.get_variable_importance_mode()) {
-                    case variable_importance_mode::mda_raw: row_ind = 1; break;
-                    case variable_importance_mode::mda_scaled: row_ind = 2; break;
-                    default: row_ind = 0; break;
-                };
+            INFO("check if match of variable importance vs required one is expected")
+            const auto required_var_imp = var_imp_data.get_table(data_table_id);
+            std::int64_t row_ind = 0;
+            switch (desc.get_variable_importance_mode()) {
+                case variable_importance_mode::mda_raw: row_ind = 1; break;
+                case variable_importance_mode::mda_scaled: row_ind = 2; break;
+                default: row_ind = 0; break;
+            };
 
-                const auto var_imp_val =
-                    dal::row_accessor<const Float>(train_result.get_var_importance()).pull();
-                const auto required_var_imp_val =
-                    dal::row_accessor<const float>(required_var_imp).pull({ row_ind, row_ind + 1 });
+            const auto var_imp_val =
+                dal::row_accessor<const Float>(train_result.get_var_importance()).pull();
+            const auto required_var_imp_val =
+                dal::row_accessor<const float>(required_var_imp).pull({ row_ind, row_ind + 1 });
 
-                for (std::int32_t i = 0; i < var_imp_val.get_count(); i++) {
-                    if (required_var_imp_val[i] > 0.0) {
-                        REQUIRE(((required_var_imp_val[i] - var_imp_val[i]) /
-                                 required_var_imp_val[i]) < accuracy_threshold + eps);
-                    }
+            for (std::int32_t i = 0; i < var_imp_val.get_count(); i++) {
+                if (required_var_imp_val[i] > 0.0) {
+                    REQUIRE(((required_var_imp_val[i] - var_imp_val[i]) / required_var_imp_val[i]) <
+                            accuracy_threshold + eps);
                 }
             }
         }
@@ -285,13 +268,12 @@ public:
                                         double required_oob_error,
                                         double accuracy_threshold) {
         if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-            SECTION("match of oob error vs required one is expected") {
-                const auto oob_err_val =
-                    dal::row_accessor<const double>(train_result.get_oob_err()).pull();
-                if (required_oob_error > 0.0) {
-                    REQUIRE(std::abs((required_oob_error - oob_err_val[0]) / required_oob_error) <
-                            accuracy_threshold + eps);
-                }
+            INFO("check if match of oob error vs required one is expected")
+            const auto oob_err_val =
+                dal::row_accessor<const double>(train_result.get_oob_err()).pull();
+            if (required_oob_error > 0.0) {
+                REQUIRE(std::abs((required_oob_error - oob_err_val[0]) / required_oob_error) <
+                        accuracy_threshold + eps);
             }
         }
     }
@@ -302,29 +284,27 @@ public:
         double accuracy_threshold) {
         if (check_mask_flag(desc.get_error_metric_mode(),
                             error_metric_mode::out_of_bag_error_per_observation)) {
-            SECTION("match of oob error vs cumulative oob error per observation is expected") {
-                const auto oob_err_val =
-                    dal::row_accessor<const double>(train_result.get_oob_err()).pull();
-                const auto oob_err_per_obs_arr =
-                    dal::row_accessor<const double>(train_result.get_oob_err_per_observation())
-                        .pull();
+            INFO("check if match of oob error vs cumulative oob error per observation is expected")
+            const auto oob_err_val =
+                dal::row_accessor<const double>(train_result.get_oob_err()).pull();
+            const auto oob_err_per_obs_arr =
+                dal::row_accessor<const double>(train_result.get_oob_err_per_observation()).pull();
 
-                std::int64_t oob_err_obs_count = 0;
-                double ref_oob_err = 0.0;
-                for (std::int64_t i = 0; i < oob_err_per_obs_arr.get_count(); i++) {
-                    if (oob_err_per_obs_arr[i] >= 0.0) {
-                        oob_err_obs_count++;
-                        ref_oob_err += oob_err_per_obs_arr[i];
-                    }
-                    else {
-                        REQUIRE(oob_err_per_obs_arr[i] >= -1.0);
-                    }
+            std::int64_t oob_err_obs_count = 0;
+            double ref_oob_err = 0.0;
+            for (std::int64_t i = 0; i < oob_err_per_obs_arr.get_count(); i++) {
+                if (oob_err_per_obs_arr[i] >= 0.0) {
+                    oob_err_obs_count++;
+                    ref_oob_err += oob_err_per_obs_arr[i];
                 }
+                else {
+                    REQUIRE(oob_err_per_obs_arr[i] >= -1.0);
+                }
+            }
 
-                if (oob_err_val[0] > 0.0) {
-                    REQUIRE(((oob_err_val[0] - ref_oob_err) / oob_err_val[0]) <
-                            accuracy_threshold + eps);
-                }
+            if (oob_err_val[0] > 0.0) {
+                REQUIRE(((oob_err_val[0] - ref_oob_err) / oob_err_val[0]) <
+                        accuracy_threshold + eps);
             }
         }
     }
@@ -452,6 +432,7 @@ using df_reg_types = _TE_COMBINE_TYPES_3((float, double),
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_cls wl =
         GENERATE_COPY(workload_cls{ df_ds_ion, 0.95 }, workload_cls{ df_ds_segment, 0.938 });
@@ -482,6 +463,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
 
 DF_BATCH_CLS_TEST_EXT("df cls corner flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_classification, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -500,8 +483,10 @@ DF_BATCH_CLS_TEST_EXT("df cls corner flow") {
 }
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df var importance flow") {
-    SKIP_IF(this->is_gpu()); // var importance differes on GPU due to difference in built model
+    SKIP_IF(this->is_gpu()); // var importance differs on GPU due to difference in built model
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_pendigits };
     const double oob_required_accuracy = 0.65;
     const double oob_required_error = 0.00867361;
@@ -543,6 +528,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df var importance flow") {
 
 DF_BATCH_CLS_TEST_EXT("df cls small flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -562,6 +549,8 @@ DF_BATCH_CLS_TEST_EXT("df cls small flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -587,6 +576,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -610,6 +601,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_ion, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -630,6 +623,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_ion, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -656,8 +651,9 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
                                                         1 - wl.required_accuracy);
 }
 
-DF_BATCH_CLS_TEST("df cls base check with default paarams") {
+DF_BATCH_CLS_TEST("df cls base check with default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
@@ -670,8 +666,9 @@ DF_BATCH_CLS_TEST("df cls base check with default paarams") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST("df cls base check with non default paarams") {
+DF_BATCH_CLS_TEST("df cls base check with non default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
@@ -702,8 +699,9 @@ DF_BATCH_CLS_TEST("df cls base check with non default paarams") {
 
 // regression tests
 
-DF_BATCH_REG_TEST("df reg base check with default paarams") {
+DF_BATCH_REG_TEST("df reg base check with default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, checker_list] = this->get_reg_dataframe_base();
 
@@ -714,8 +712,9 @@ DF_BATCH_REG_TEST("df reg base check with default paarams") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_REG_TEST("df reg base check with non default paarams") {
+DF_BATCH_REG_TEST("df reg base check with non default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, checker_list] = this->get_reg_dataframe_base();
 
@@ -739,6 +738,7 @@ DF_BATCH_REG_TEST("df reg base check with non default paarams") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.45, 0.5 };
 
@@ -754,6 +754,7 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
 
 DF_BATCH_REG_TEST_EXT("df reg small flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
@@ -773,6 +774,7 @@ DF_BATCH_REG_TEST_EXT("df reg small flow") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
@@ -793,6 +795,8 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg bootstrap flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
     const auto [data, data_test, checker_list] =

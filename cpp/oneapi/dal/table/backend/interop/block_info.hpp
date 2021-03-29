@@ -59,6 +59,10 @@ public:
         single_column_requested = false;
     }
 
+    range get_row_range() const {
+        return { row_begin_index, row_end_index };
+    }
+
     std::int64_t allocated_element_count;
     std::int64_t column_index;
     std::int64_t row_begin_index;
