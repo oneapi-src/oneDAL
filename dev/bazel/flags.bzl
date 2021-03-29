@@ -23,7 +23,6 @@ lnx_cc_common_flags = [
     "-Wformat",
     "-Wformat-security",
     "-Wreturn-type",
-    "-Wno-unused-variables",
 ]
 
 lnx_cc_pedantic_flags = [

@@ -71,6 +71,20 @@ inline sycl::nd_range<1> make_multiple_nd_range_1d(std::int64_t global_size,
     return { up_multiple(g, l), l };
 }
 
+/// Creates `nd_range`, where global size is multiple of local size
+inline sycl::nd_range<2> make_multiple_nd_range_2d(std::int64_t global_size_0,
+                                                   std::int64_t global_size_1,
+                                                   std::int64_t local_size_0,
+                                                   std::int64_t local_size_1) {
+    const std::int64_t g0 = dal::detail::integral_cast<std::size_t>(global_size_0);
+    const std::int64_t l0 = dal::detail::integral_cast<std::size_t>(local_size_0);
+    const std::int64_t g1 = dal::detail::integral_cast<std::size_t>(global_size_1);
+    const std::int64_t l1 = dal::detail::integral_cast<std::size_t>(local_size_1);
+    sycl::range<2> global(up_multiple(g0, l0), up_multiple(g1, l1));
+    sycl::range<2> local(l0, l1);
+    return { global, local };
+}
+
 #endif
 
 } // namespace oneapi::dal::backend

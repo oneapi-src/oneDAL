@@ -25,146 +25,36 @@ constexpr std::uint32_t simd32 = 32;
 constexpr std::uint32_t simd64 = 64;
 constexpr std::uint32_t simd128 = 128;
 
-template <typename Float, bool selection_out, bool indices_out>
-sycl::event select_by_rows_impl(sycl::queue& queue,
-                                const ndview<Float, 2>& data,
-                                std::int64_t k,
-                                ndview<Float, 2>& selection,
-                                ndview<std::int32_t, 2>& column_indices,
-                                const event_vector& deps) {
-    if constexpr (selection_out) {
-        ONEDAL_ASSERT(data.get_dimension(1) == selection.get_dimension(1));
-        ONEDAL_ASSERT(data.get_dimension(0) >= k);
-        ONEDAL_ASSERT(selection.get_dimension(0) == k);
-        ONEDAL_ASSERT(selection.has_mutable_data());
-    }
-    if constexpr (indices_out) {
-        ONEDAL_ASSERT(data.get_dimension(1) == indices.get_dimension(1));
-        ONEDAL_ASSERT(indices.get_dimension(0) == k);
-        ONEDAL_ASSERT(indices.has_mutable_data());
-    }
-
+template <typename Float>
+select_by_rows<Float>::select_by_rows(sycl::queue& queue, const ndshape<2>& shape, std::int64_t k) {
     const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
     ONEDAL_ASSERT(!sg_sizes.empty());
     auto result = std::max_element(sg_sizes.begin(), sg_sizes.end());
     ONEDAL_ASSERT(result != sg_sizes.end());
     const std::uint32_t simd_width = static_cast<std::uint32_t>(*result);
 
+    using base_ptr = detail::unique<select_by_rows_base<Float>>;
+
     if (k <= simd_width) {
         if (simd_width == simd16) {
-            return select_by_rows_simd<Float, simd16, selection_out, indices_out>(queue,
-                                                                                  data,
-                                                                                  k,
-                                                                                  selection,
-                                                                                  column_indices,
-                                                                                  deps);
+            base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd16>()));
         }
-        if (simd_width == simd32) {
-            return select_by_rows_simd<Float, simd32, selection_out, indices_out>(queue,
-                                                                                  data,
-                                                                                  k,
-                                                                                  selection,
-                                                                                  column_indices,
-                                                                                  deps);
+        else if (simd_width == simd32) {
+            base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd32>()));
         }
-        if (simd_width == simd64) {
-            return select_by_rows_simd<Float, simd64, selection_out, indices_out>(queue,
-                                                                                  data,
-                                                                                  k,
-                                                                                  selection,
-                                                                                  column_indices,
-                                                                                  deps);
+        else if (simd_width == simd64) {
+            base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd64>()));
         }
-        if (simd_width == simd128) {
-            return select_by_rows_simd<Float, simd128, selection_out, indices_out>(queue,
-                                                                                   data,
-                                                                                   k,
-                                                                                   selection,
-                                                                                   column_indices,
-                                                                                   deps);
+        else if (simd_width == simd128) {
+            base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd128>()));
         }
-        ONEDAL_ASSERT(false);
-        return sycl::event();
     }
     else {
-        return select_by_rows_quick<Float, selection_out, indices_out>(queue,
-                                                                       data,
-                                                                       k,
-                                                                       selection,
-                                                                       column_indices,
-                                                                       deps);
+        base_ = std::move(base_ptr(new select_by_rows_quick<Float>(queue, shape)));
     }
 }
 
-template <typename Float>
-sycl::event select(sycl::queue& queue,
-                   const ndview<Float, 2>& data,
-                   std::int64_t k,
-                   ndview<Float, 2>& selection,
-                   ndview<std::int32_t, 2>& column_indices,
-                   const event_vector& deps) {
-    return select_by_rows_impl<Float, true, true>(queue, data, k, selection, column_indices, deps);
-}
-
-template <typename Float>
-sycl::event select(sycl::queue& queue,
-                   const ndview<Float, 2>& data,
-                   std::int64_t k,
-                   ndview<Float, 2>& selection,
-                   const event_vector& deps) {
-    ndarray<std::int32_t, 2> dummy_array;
-    return select_by_rows_impl<Float, true, false>(queue, data, k, selection, dummy_array, deps);
-}
-
-template <typename Float>
-sycl::event select(sycl::queue& queue,
-                   const ndview<Float, 2>& data,
-                   std::int64_t k,
-                   ndview<std::int32_t, 2>& column_indices,
-                   const event_vector& deps) {
-    ndarray<Float, 2> dummy_array;
-    return select_by_rows_impl<Float, false, true>(queue,
-                                                   data,
-                                                   k,
-                                                   dummy_array,
-                                                   column_indices,
-                                                   deps);
-}
-
-#define INSTANTIATE_IMPL(F, selection_out, indices_out)                                    \
-    template ONEDAL_EXPORT sycl::event select_by_rows_impl<F, selection_out, indices_out>( \
-        sycl::queue & queue,                                                               \
-        const ndview<F, 2>& data,                                                          \
-        std::int64_t k,                                                                    \
-        ndview<F, 2>& selection,                                                           \
-        ndview<std::int32_t, 2>& column_indices,                                           \
-        const event_vector& deps);
-
-#define INSTANTIATE_IMPL_FLOAT(selection_out, indices_out) \
-    INSTANTIATE_IMPL(float, selection_out, indices_out)    \
-    INSTANTIATE_IMPL(double, selection_out, indices_out)
-
-INSTANTIATE_IMPL_FLOAT(true, false)
-INSTANTIATE_IMPL_FLOAT(false, true)
-INSTANTIATE_IMPL_FLOAT(true, true)
-
-#define INSTANTIATE(F)                                                      \
-    template sycl::event select<F>(sycl::queue & queue,                     \
-                                   const ndview<F, 2>& data,                \
-                                   std::int64_t k,                          \
-                                   ndview<F, 2>& selection,                 \
-                                   ndview<std::int32_t, 2>& column_indices, \
-                                   const event_vector& deps);               \
-    template sycl::event select<F>(sycl::queue & queue,                     \
-                                   const ndview<F, 2>& data,                \
-                                   std::int64_t k,                          \
-                                   ndview<F, 2>& selection,                 \
-                                   const event_vector& deps);               \
-    template sycl::event select<F>(sycl::queue & queue,                     \
-                                   const ndview<F, 2>& data,                \
-                                   std::int64_t k,                          \
-                                   ndview<std::int32_t, 2>& column_indices, \
-                                   const event_vector& deps);
+#define INSTANTIATE(F) template class select_by_rows<F>;
 
 INSTANTIATE(float)
 INSTANTIATE(double)

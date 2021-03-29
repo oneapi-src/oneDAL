@@ -44,20 +44,23 @@ public:
         INFO("Output of selected values") {
             ndarray<int, 2> dummy_array;
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
-            select<Float>(get_queue(), data, k, value_array).wait_and_throw();
+            select_by_rows<Float> sel(get_queue(), data.get_shape(), k);
+            sel(get_queue(), data, k, value_array).wait_and_throw();
             check_results<true, false>(data, value_array, dummy_array);
         }
         INFO("Output of selected indices") {
             ndarray<Float, 2> dummy_array;
             auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
-            select<Float>(get_queue(), data, k, index_array).wait_and_throw();
+            select_by_rows<Float> sel(get_queue(), data.get_shape(), k);
+            sel(get_queue(), data, k, index_array).wait_and_throw();
             check_results<false, true>(data, dummy_array, index_array);
         }
 
         INFO("Output of both") {
             auto value_array = ndarray<Float, 2>::empty(get_queue(), { row_count, k });
             auto index_array = ndarray<int, 2>::empty(get_queue(), { row_count, k });
-            select<Float>(get_queue(), data, k, value_array, index_array).wait_and_throw();
+            select_by_rows<Float> sel(get_queue(), data.get_shape(), k);
+            sel(get_queue(), data, k, value_array, index_array).wait_and_throw();
             check_results<true, true>(data, value_array, index_array);
         }
     }
@@ -173,6 +176,7 @@ public:
 };
 
 using selection_types = std::tuple<float, double>;
+
 TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == 1)",
                      "[block select][small]",
@@ -272,4 +276,5 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
     auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_selection(data_array, rows, cols, k);
 }
+
 } // namespace oneapi::dal::backend::primitives::test

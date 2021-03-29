@@ -18,52 +18,63 @@
 
 #include <type_traits>
 
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_by_rows_base.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/// Performs K-selection on each row of a matrix
-///
-/// @param[in]  queue The queue
-/// @param[in]  data      The [nxm] matrix to be processed
-/// @param[in]  k      The number of minimal values to be selected in each row
-/// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
-/// @param[out] column_indices  The [n x k] matrix of indices of selected values (if indices_out == true)
 template <typename Float>
-sycl::event select(sycl::queue& queue,
-                   const ndview<Float, 2>& data,
-                   std::int64_t k,
-                   ndview<Float, 2>& selection,
-                   ndview<std::int32_t, 2>& column_indices,
-                   const event_vector& deps = {});
+class select_by_rows : public select_by_rows_base<Float> {
+public:
+    select_by_rows(sycl::queue& queue, const ndshape<2>& shape, std::int64_t k);
+    /// Performs K-selection on each row of a matrix
+    ///
+    /// @param[in]  queue The queue
+    /// @param[in]  data      The [nxm] matrix to be processed
+    /// @param[in]  k      The number of minimal values to be selected in each row
+    /// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
+    /// @param[out] column_indices  The [n x k] matrix of indices of selected values (if indices_out == true)
+    virtual sycl::event operator()(sycl::queue& queue,
+                                   const ndview<Float, 2>& data,
+                                   std::int64_t k,
+                                   ndview<Float, 2>& selection,
+                                   ndview<std::int32_t, 2>& column_indices,
+                                   const event_vector& deps = {}) override {
+        return base_->operator()(queue, data, k, selection, column_indices, deps);
+    }
 
-/// Performs K-selection on each row of a matrix
-///
-/// @param[in]  queue The queue
-/// @param[in]  data      The [nxm] matrix to be processed
-/// @param[in]  k      The number of minimal values to be selected in each row
-/// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
-template <typename Float>
-sycl::event select(sycl::queue& queue,
-                   const ndview<Float, 2>& data,
-                   std::int64_t k,
-                   ndview<Float, 2>& selection,
-                   const event_vector& deps = {});
+    /// Performs K-selection on each row of a matrix
+    ///
+    /// @param[in]  queue The queue
+    /// @param[in]  data      The [nxm] matrix to be processed
+    /// @param[in]  k      The number of minimal values to be selected in each row
+    /// @param[out] selection The [n x k] matrix of selected values (if selected_out == true)
+    virtual sycl::event operator()(sycl::queue& queue,
+                                   const ndview<Float, 2>& data,
+                                   std::int64_t k,
+                                   ndview<Float, 2>& selection,
+                                   const event_vector& deps = {}) override {
+        return base_->operator()(queue, data, k, selection, deps);
+    }
 
-/// Performs K-selection on each row of a matrix
-///
-/// @param[in]  queue The queue
-/// @param[in]  data      The [nxm] matrix to be processed
-/// @param[in]  k      The number of minimal values to be selected in each row
-/// @param[out] column_indices  The [n x k] matrix of indices of selected values (if indices_out == true)
-template <typename Float>
-sycl::event select(sycl::queue& queue,
-                   const ndview<Float, 2>& data,
-                   std::int64_t k,
-                   ndview<std::int32_t, 2>& column_indices,
-                   const event_vector& deps = {});
+    /// Performs K-selection on each row of a matrix
+    ///
+    /// @param[in]  queue The queue
+    /// @param[in]  data      The [nxm] matrix to be processed
+    /// @param[in]  k      The number of minimal values to be selected in each row
+    /// @param[out] column_indices  The [n x k] matrix of indices of selected values (if indices_out == true)
+    virtual sycl::event operator()(sycl::queue& queue,
+                                   const ndview<Float, 2>& data,
+                                   std::int64_t k,
+                                   ndview<std::int32_t, 2>& column_indices,
+                                   const event_vector& deps = {}) override {
+        return base_->operator()(queue, data, k, column_indices, deps);
+    }
+
+private:
+    detail::unique<select_by_rows_base<Float>> base_;
+};
 
 #endif
 
