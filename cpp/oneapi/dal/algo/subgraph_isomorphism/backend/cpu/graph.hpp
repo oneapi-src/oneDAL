@@ -190,20 +190,12 @@ private:
 
 class graph {
 public:
-    graph();
-    graph(const graph_data* pgraph_data);
-    graph(const graph_input_list_data* input_list_data);
-    graph(const graph_input_bit_data* input_bit_data);
-    graph(std::int64_t vertex_count);
     graph(const dal::preview::detail::topology<std::int32_t>& t,
           graph_storage_scheme storage_scheme);
     virtual ~graph();
 
     static double graph_density(const std::int64_t vertex_count, const std::int64_t edge_count);
 
-    graph_status load_edge_lists(const std::int64_t vertex_count,
-                                 std::int64_t const* const* p_edges_list,
-                                 const std::int64_t* p_degree);
     graph_status load_vertex_attribute(const std::int64_t vertex_count,
                                        const std::int64_t* pvertices_attribute);
     graph_status load_edge_attribute_lists(const std::int64_t vertex_count,
@@ -246,7 +238,6 @@ private:
     const std::int64_t* p_vertex_attribute; /* vertices attribute array */
     std::int64_t const* const* p_edges_attribute; /* edges attribute list */
 
-    graph_status create_bit_arrays(std::int64_t n);
     void delete_bit_arrays();
 
     std::int64_t max_element(const std::int64_t* parray) const;

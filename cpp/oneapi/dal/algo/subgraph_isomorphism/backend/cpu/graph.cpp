@@ -65,32 +65,6 @@ void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
     }
 }
 
-graph::graph() {
-    n = 0;
-    p_degree = nullptr;
-    p_edges_bit = nullptr;
-    p_vertex_attribute = nullptr;
-    p_edges_attribute = nullptr;
-    external_data = false;
-    bit_representation = true;
-
-    p_edges_list = nullptr;
-}
-
-graph::graph(std::int64_t vertex_count) : graph() {
-    n = vertex_count;
-    create_bit_arrays(n);
-}
-
-graph::graph(const graph_data* pgraph_data) {
-    if (pgraph_data->pbit_data != nullptr) {
-        init_from_bit(pgraph_data->pbit_data);
-    }
-    else if (pgraph_data->plist_data != nullptr) {
-        init_from_list(pgraph_data->plist_data);
-    }
-}
-
 graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
              graph_storage_scheme storage_scheme) {
     bool has_edges_attribute = false;
@@ -182,14 +156,6 @@ graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
     return;
 }
 
-graph::graph(const graph_input_list_data* input_list_data) {
-    init_from_list(input_list_data);
-}
-
-graph::graph(const graph_input_bit_data* input_bit_data) {
-    init_from_bit(input_bit_data);
-}
-
 void graph::init_from_list(const graph_input_list_data* input_list_data) {
     if (input_list_data != nullptr) {
         external_data = true;
@@ -244,25 +210,6 @@ double graph::graph_density(const std::int64_t vertex_count, const std::int64_t 
     return (double)(edge_count) / (double)(vertex_count * (vertex_count - 1));
 }
 
-graph_status graph::load_edge_lists(const std::int64_t vertex_count,
-                                    std::int64_t const* const* ptr_edges_list,
-                                    const std::int64_t* ptr_degree) {
-    if (n != 0) {
-        delete_bit_arrays();
-    }
-
-    n = vertex_count;
-    create_bit_arrays(n);
-    p_degree = ptr_degree;
-
-    for (std::int64_t i = 0; i < n; i++) {
-        for (std::int64_t j = 0; j < p_degree[i]; j++) {
-            set_edge(i, ptr_edges_list[i][j]);
-        }
-    }
-    return ok;
-}
-
 graph_status graph::load_vertex_attribute(const std::int64_t vertex_count,
                                           const std::int64_t* pvertices_attribute) {
     if (n != vertex_count || pvertices_attribute == nullptr) {
@@ -279,44 +226,6 @@ graph_status graph::load_edge_attribute_lists(const std::int64_t vertex_count,
     }
 
     p_edges_attribute = p_edges_attribute_list;
-    return ok;
-}
-
-graph_status graph::create_bit_arrays(std::int64_t n) {
-    std::int64_t bit_array_size = bit_vector::bit_vector_size(n);
-
-    if (p_edges_bit != nullptr) {
-        delete_bit_arrays();
-    }
-
-    bool allocation_error_flag = false;
-
-    p_edges_bit = static_cast<std::uint8_t**>(_mm_malloc(sizeof(std::uint8_t*) * n, 64));
-    if (p_edges_bit == nullptr) {
-        allocation_error_flag = true;
-    }
-
-    if (!allocation_error_flag) {
-        for (std::int64_t i = 0; i < n; i++) {
-            p_edges_bit[i] =
-                static_cast<std::uint8_t*>(_mm_malloc(sizeof(std::uint8_t) * bit_array_size, 64));
-            if (p_edges_bit[i] == nullptr) {
-                allocation_error_flag = true;
-            }
-        }
-    }
-
-    if (allocation_error_flag) {
-        delete_bit_arrays();
-        return bad_allocation;
-    }
-
-    for (std::int64_t i = 0; i < n; i++) {
-        for (std::int64_t j = 0; j < bit_array_size; j++) {
-            p_edges_bit[i][j] = 0;
-        }
-    }
-
     return ok;
 }
 
