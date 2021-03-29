@@ -25,6 +25,8 @@ constexpr std::uint32_t simd32 = 32;
 constexpr std::uint32_t simd64 = 64;
 constexpr std::uint32_t simd128 = 128;
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 template <typename Float>
 select_by_rows<Float>::select_by_rows(sycl::queue& queue, const ndshape<2>& shape, std::int64_t k) {
     const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
@@ -38,16 +40,21 @@ select_by_rows<Float>::select_by_rows(sycl::queue& queue, const ndshape<2>& shap
     if (k <= simd_width) {
         if (simd_width == simd16) {
             base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd16>()));
+            return;
         }
         else if (simd_width == simd32) {
             base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd32>()));
+            return;
         }
         else if (simd_width == simd64) {
             base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd64>()));
+            return;
         }
         else if (simd_width == simd128) {
             base_ = std::move(base_ptr(new select_by_rows_simd<Float, simd128>()));
+            return;
         }
+        ONEDAL_ASSERT(false);
     }
     else {
         base_ = std::move(base_ptr(new select_by_rows_quick<Float>(queue, shape)));
@@ -58,5 +65,7 @@ select_by_rows<Float>::select_by_rows(sycl::queue& queue, const ndshape<2>& shap
 
 INSTANTIATE(float)
 INSTANTIATE(double)
+
+#endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::backend::primitives
