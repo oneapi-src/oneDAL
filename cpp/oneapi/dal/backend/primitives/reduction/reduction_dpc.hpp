@@ -31,13 +31,24 @@ sycl::event reduce_rows(sycl::queue& q,
                         const UnaryOp& unary = UnaryOp{},
                         const event_vector& deps = {});
 
+/// Computes correlation matrix and variances
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The queue
+/// @param[in]  data  The [n x p] input dataset
+/// @param[in]  sums  The [p] sums computed along each column of the data
+/// @param[out] corr  The [p x p] correlation matrix
+/// @param[out] means The [p] means for each feature
+/// @param[out] vars  The [p] variances for each feature
+/// @param[out] tmp   The [p] temporary buffer
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_cols(sycl::queue& q,
-                        const ndview<Float, 2, order>& input,
-                        ndview<Float, 1>& output,
-                        const BinaryOp& binary = BinaryOp{},
-                        const UnaryOp& unary = UnaryOp{},
-                        const event_vector& deps = {});
+sycl::event reduce_columns(sycl::queue& q,
+                           const ndview<Float, 2, order>& input,
+                           ndview<Float, 1>& output,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {});
 
 #endif
 
