@@ -27,6 +27,9 @@ namespace v1 {
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
+MSG(incompatible_array_reinterpret_cast_types,
+    "Cannot reinterpret array to provided type, "
+    "because resulting array size would not match source array size")
 MSG(only_homogen_table_is_supported, "Only homogen table is supported")
 MSG(overflow_found_in_multiplication_of_two_values,
     "Overflow found in multiplication of two values")
@@ -52,6 +55,7 @@ MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
+MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
     "Element count in data type and feature type array does not match")
 MSG(pulling_column_is_not_supported_for_dpc, "Pulling column is not supported for DPC++")
@@ -62,9 +66,10 @@ MSG(pushing_column_is_not_supported_for_dpc, "Pushing column is not supported fo
 MSG(pushing_column_is_not_supported, "Pushing column is not supported")
 MSG(pushing_rows_is_not_supported_for_dpc, "Pushing rows is not supported for DPC++")
 MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
-MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(rc_and_cc_do_not_match_element_count_in_array,
+    "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
-MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(unsupported_conversion_types, "Unsupported conversion types")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

@@ -106,6 +106,26 @@ TEST("can read rows from column major table with conversion") {
     REQUIRE(rows_data[1] == -2);
 }
 
+TEST("pull returns immutable data from homogen table") {
+    constexpr std::int64_t row_count = 3;
+    constexpr std::int64_t column_count = 2;
+    float data[row_count * column_count] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+    table t;
+
+    SECTION("create table from raw pointer") {
+        t = homogen_table::wrap(data, row_count, column_count);
+    }
+
+    SECTION("create table from array") {
+        const auto ary = array<float>::wrap(data, row_count * column_count);
+        REQUIRE(ary.has_mutable_data() == true);
+        t = homogen_table::wrap(ary, row_count, column_count);
+    }
+
+    const auto block = row_accessor<const float>{ t }.pull();
+    REQUIRE(block.has_mutable_data() == false);
+}
+
 TEST("pull throws exception if invalid range") {
     detail::homogen_table_builder b;
     b.reset(array<float>::zeros(3 * 2), 3, 2);

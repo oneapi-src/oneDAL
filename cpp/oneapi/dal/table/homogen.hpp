@@ -62,11 +62,12 @@ public:
     /// free the data remains on the user side.
     /// The :literal:`data` should point to the ``data_pointer`` memory block.
     ///
-    /// @tparam Data        The type of elements in the data block that will be stored into the table.
-    ///                     The table initializes data types of metadata with this data type.
-    ///                     The feature types should be set to default values for :literal:`Data` type: contiguous for floating-point,
-    ///                     ordinal for integer types.
-    ///                     The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    /// @tparam Data        The type of elements in the data block that will be stored into the
+    ///                     table. The table initializes data types of metadata with this data type.
+    ///                     The feature types should be set to default values for :literal:`Data` type:
+    ///                     contiguous for floating-point, ordinal for integer types. The :literal:`Data`
+    ///                     type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///
     /// @param data_pointer The pointer to a homogeneous data block.
     /// @param row_count    The number of rows in the table.
     /// @param column_count The number of columns in the table.
@@ -90,11 +91,12 @@ public:
     /// free the data remains on the user side.
     /// The :literal:`data` should point to the ``data_pointer`` memory block.
     ///
-    /// @tparam Data        The type of elements in the data block that will be stored into the table.
-    ///                     The table initializes data types of metadata with this data type.
-    ///                     The feature types should be set to default values for :literal:`Data` type: contiguous for floating-point,
-    ///                     ordinal for integer types.
-    ///                     The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    /// @tparam Data        The type of elements in the data block that will be stored into the
+    ///                     table. The table initializes data types of metadata with this data type.
+    ///                     The feature types should be set to default values for :literal:`Data` type:
+    ///                     contiguous for floating-point, ordinal for integer types. The :literal:`Data`
+    ///                     type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///
     /// @param queue        The SYCL* queue object
     /// @param data_pointer The pointer to a homogeneous data block.
     /// @param row_count    The number of rows in the table.
@@ -119,10 +121,30 @@ public:
     }
 #endif
 
-public:
+    /// Creates a new ``homogen_table`` instance from externally-defined data block.
+    /// The created table stores the provided array object.
+    ///
+    /// @tparam Data        The type of elements in the data block that will be stored into the
+    ///                     table. The table initializes data types of metadata with this data type.
+    ///                     The feature types should be set to default values for :literal:`Data` type:
+    ///                     contiguous for floating-point, ordinal for integer types. The :literal:`Data`
+    ///                     type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///
+    /// @param data         The array that stores a homogeneous data block.
+    /// @param row_count    The number of rows in the table.
+    /// @param column_count The number of columns in the table.
+    /// @param layout       The layout of the data. Should be :literal:`data_layout::row_major` or
+    ///                     :literal:`data_layout::column_major`.
+    template <typename Data>
+    static homogen_table wrap(const array<Data>& data,
+                              std::int64_t row_count,
+                              std::int64_t column_count,
+                              data_layout layout = data_layout::row_major) {
+        return homogen_table{ data, row_count, column_count, layout };
+    }
+
     /// Creates a new ``homogen_table`` instance with zero number of rows and columns.
     /// The :expr:`kind` is set to``homogen_table::kind()``.
-    /// All the properties should be set to default values (see the Properties section).
     homogen_table();
 
     /// Creates a new ``homogen_table`` instance from externally-defined data block.
@@ -130,7 +152,8 @@ public:
     /// The :literal:`data` should point to the ``data_pointer`` memory block.
     ///
     /// @tparam Data         The type of elements in the data block that will be stored into the table.
-    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double`
+    ///                      or :expr:`std::int32_t`.
     /// @tparam ConstDeleter The type of a deleter called on ``data_pointer`` when
     ///                      the last table that refers it is out of the scope.
     ///
@@ -161,7 +184,8 @@ public:
     /// The :literal:`data` should point to the ``data_pointer`` memory block.
     ///
     /// @tparam Data         The type of elements in the data block that will be stored into the table.
-    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double`
+    ///                      or :expr:`std::int32_t`.
     /// @tparam ConstDeleter The type of a deleter called on ``data_pointer`` when
     ///                      the last table that refers it is out of the scope.
     ///
@@ -217,6 +241,26 @@ protected:
         init_impl(std::forward<Impl>(impl));
     }
 
+    /// Creates a new ``homogen_table`` instance from externally-defined data block.
+    /// The created table stores the provided array object.
+    ///
+    /// @tparam Data         The type of elements in the data block that will be stored into the table.
+    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double`
+    ///                      or :expr:`std::int32_t`.
+    ///
+    /// @param data          The array that stores a homogeneous data block.
+    /// @param row_count     The number of rows in the table.
+    /// @param column_count  The number of columns in the table.
+    /// @param layout        The layout of the data. Should be :literal:`data_layout::row_major` or
+    ///                      :literal:`data_layout::column_major`.
+    template <typename Data>
+    homogen_table(const array<Data> data,
+                  std::int64_t row_count,
+                  std::int64_t column_count,
+                  data_layout layout = data_layout::row_major) {
+        init_impl(data, row_count, column_count, layout);
+    }
+
 private:
     template <typename Impl>
     void init_impl(Impl&& impl) {
@@ -226,6 +270,8 @@ private:
         table::init_impl(wrapper);
     }
 
+    homogen_table(const pimpl& impl) : table(impl) {}
+
     template <typename Policy, typename Data, typename ConstDeleter>
     void init_impl(const Policy& policy,
                    std::int64_t row_count,
@@ -233,35 +279,48 @@ private:
                    const Data* data_pointer,
                    ConstDeleter&& data_deleter,
                    data_layout layout) {
-        using error_msg = dal::detail::error_messages;
+        validate_input_dimensions(row_count, column_count);
 
-        if (row_count <= 0) {
-            throw dal::domain_error(error_msg::rc_leq_zero());
-        }
-
-        if (column_count <= 0) {
-            throw dal::domain_error(error_msg::cc_leq_zero());
-        }
-
-        auto data_array = detail::array_via_policy<Data>::wrap(
+        const auto data = detail::array_via_policy<Data>::wrap(
             policy,
             data_pointer,
             detail::check_mul_overflow(row_count, column_count),
             std::forward<ConstDeleter>(data_deleter));
 
-        auto byte_data = reinterpret_cast<const byte_t*>(data_pointer);
-        const std::int64_t byte_count =
-            detail::check_mul_overflow(data_array.get_count(),
-                                       static_cast<std::int64_t>(sizeof(Data)));
-
-        auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
-
         init_impl(policy,
                   row_count,
                   column_count,
-                  byte_array,
+                  detail::reinterpret_array_cast<byte_t>(data),
                   detail::make_data_type<Data>(),
                   layout);
+    }
+
+    template <typename Data>
+    void init_impl(const array<Data>& data,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
+                   data_layout layout) {
+        validate_input_dimensions(row_count, column_count);
+
+        if (data.get_count() < detail::check_mul_overflow(row_count, column_count)) {
+            throw invalid_argument{
+                detail::error_messages::rc_and_cc_do_not_match_element_count_in_array()
+            };
+        }
+
+        // The `data` array may contain mutable data, however tables are considered
+        // immutable. We "forget" about mutable counterpart of array and make table
+        // think like it is created from immutable data.
+        const auto immutable_data = detail::discard_mutable_data(data);
+
+        detail::dispath_by_policy(data, [&](auto policy) {
+            init_impl(policy,
+                      row_count,
+                      column_count,
+                      detail::reinterpret_array_cast<byte_t>(immutable_data),
+                      detail::make_data_type<Data>(),
+                      layout);
+        });
     }
 
     template <typename Policy>
@@ -272,7 +331,15 @@ private:
                    const data_type& dtype,
                    data_layout layout);
 
-    homogen_table(const pimpl& impl) : table(impl) {}
+    static void validate_input_dimensions(std::int64_t row_count, std::int64_t column_count) {
+        if (row_count <= 0) {
+            throw domain_error(detail::error_messages::rc_leq_zero());
+        }
+
+        if (column_count <= 0) {
+            throw domain_error(detail::error_messages::cc_leq_zero());
+        }
+    }
 };
 
 } // namespace v1
