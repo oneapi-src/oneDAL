@@ -64,7 +64,7 @@ private:
 private:
     sycl::queue& q_;
 
-public:
+private:
     const std::int64_t wg_;
 };
 
@@ -111,7 +111,7 @@ private:
 private:
     sycl::queue& q_;
 
-public:
+private:
     const std::int64_t wg_;
     const std::int64_t lm_;
 };
@@ -125,7 +125,7 @@ public:
     using inplace_local_t = reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>;
 
 public:
-    reduction_rm_cw(sycl::queue& q_);
+    reduction_rm_cw(sycl::queue& q);
     enum reduction_method { inplace, inplace_local };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
     sycl::event operator()(const reduction_method method,
@@ -162,7 +162,7 @@ public:
                            const event_vector& deps = {}) const;
 
 private:
-    sycl::queue& q;
+    sycl::queue& q_;
 };
 
 #endif

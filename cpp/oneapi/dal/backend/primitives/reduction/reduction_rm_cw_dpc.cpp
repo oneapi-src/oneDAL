@@ -136,7 +136,12 @@ reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input
                                                               const std::int64_t stride,
                                                               const BinaryOp& binary,
                                                               const UnaryOp& unary) {
-    return kernel_t(input, output, height, stride, binary, unary);
+    return kernel_t(input,
+                    output,
+                    dal::detail::integral_cast<std::int64_t>(height),
+                    dal::detail::integral_cast<std::int32_t>(stride),
+                    binary,
+                    unary);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_cw_inplace<F, B, U>;
@@ -293,7 +298,13 @@ reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handle
         sycl::range<1>(lm),
         h
     };
-    return kernel_t(local_acc, input, output, height, stride, binary, unary);
+    return kernel_t(local_acc,
+                    input,
+                    output,
+                    dal::detail::integral_cast<std::int64_t>(height),
+                    dal::detail::integral_cast<std::int32_t>(stride),
+                    binary,
+                    unary);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_cw_inplace_local<F, B, U>;
@@ -319,13 +330,13 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_rm_cw(sycl::queue& q_) : q{ q_ } {};
+reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_rm_cw(sycl::queue& q) : q_{ q } {};
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method
 reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                           std::int64_t height) const {
-    if (height >= max_wg(q) && height > width) {
+    if (height >= max_wg(q_) && height > width) {
         return reduction_method::inplace_local;
     }
     return reduction_method::inplace;
@@ -344,11 +355,11 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(
     const event_vector& deps) const {
     // TODO: think about `switch` operator
     if (method == reduction_method::inplace) {
-        const inplace_t kernel{ q };
+        const inplace_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     if (method == reduction_method::inplace_local) {
-        const inplace_local_t kernel{ q };
+        const inplace_local_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);

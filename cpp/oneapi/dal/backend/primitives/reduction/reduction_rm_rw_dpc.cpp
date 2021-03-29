@@ -20,12 +20,29 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-inline std::int64_t max_wg(const sycl::queue& q) {
-    return q.get_device().template get_info<sycl::info::device::max_work_group_size>();
+inline auto max_wg(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::max_work_group_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
 }
 
-inline std::int64_t local_mem_size(const sycl::queue& q) {
-    return q.get_device().template get_info<sycl::info::device::local_mem_size>();
+template <typename T>
+inline std::int64_t native_vector_size(const sycl::queue& q) {
+    ONEDAL_ASSERT(false);
+    return 0;
+}
+
+template <>
+inline std::int64_t native_vector_size<float>(const sycl::queue& q) {
+    const auto res =
+        q.get_device().template get_info<sycl::info::device::native_vector_width_float>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+template <>
+inline std::int64_t native_vector_size<double>(const sycl::queue& q) {
+    const auto res =
+        q.get_device().template get_info<sycl::info::device::native_vector_width_double>();
+    return dal::detail::integral_cast<std::int64_t>(res);
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -34,57 +51,57 @@ class kernel_reduction_rm_rw_wide {
     using out_t = Float*;
 
 public:
-    kernel_reduction_rm_rw_wide(inp_t const input_,
-                                out_t const output_,
-                                const std::int32_t width_,
-                                const std::int32_t lstride_,
-                                const BinaryOp& binary_,
-                                const UnaryOp& unary_)
-            : input{ input_ },
-              output{ output_ },
-              unary{ unary_ },
-              binary{ binary_ },
-              width{ width_ },
-              lstride{ lstride_ } {}
+    kernel_reduction_rm_rw_wide(inp_t const input,
+                                out_t const output,
+                                const std::int32_t width,
+                                const std::int32_t lstride,
+                                const BinaryOp& binary,
+                                const UnaryOp& unary)
+            : input_{ input },
+              output_{ output },
+              unary_{ unary },
+              binary_{ binary },
+              width_{ width },
+              lstride_{ lstride } {}
 
     void operator()(sycl::nd_item<2> it) const {
         using sycl::ONEAPI::reduce;
         // Common for whole WG
         const auto row_idx = it.get_global_id(0);
-        const auto loc_idx = it.get_global_id(1);
+        const auto loc_idx = it.get_local_id(1);
         const auto range = it.get_global_range(1);
         // It should be converted to upper type by default
-        inp_t const inp_row = input + lstride * row_idx;
+        inp_t const inp_row = input_ + lstride_ * row_idx;
         // Exclusive for EU
-        Float acc = binary.init_value;
-        for (std::int32_t i = loc_idx; i < width; i += range) {
-            acc = binary.native(acc, unary(inp_row[i]));
+        Float acc = binary_.init_value;
+        for (std::int32_t i = loc_idx; i < width_; i += range) {
+            acc = binary_.native(acc, unary_(inp_row[i]));
         }
         // WG reduction
         auto grp = it.get_group();
-        output[row_idx] = reduce(grp, acc, binary.native);
+        output_[row_idx] = reduce(grp, acc, binary_.native);
     }
 
 private:
-    inp_t const input;
-    out_t const output;
-    const UnaryOp unary;
-    const BinaryOp binary;
-    const std::int32_t width;
-    const std::int32_t lstride;
+    inp_t const input_;
+    out_t const output_;
+    const UnaryOp unary_;
+    const BinaryOp binary_;
+    const std::int32_t width_;
+    const std::int32_t lstride_;
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue& q_,
-                                                                     const std::int64_t wg_)
-        : q(q_),
-          wg(wg_) {
-    ONEDAL_ASSERT(wg <= max_wg(q));
+reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue& q,
+                                                                     const std::int64_t wg)
+        : q_(q),
+          wg_(wg) {
+    ONEDAL_ASSERT(wg_ <= max_wg(q_));
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue& q_)
-        : reduction_rm_rw_wide(q_, max_wg(q_)){};
+reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue& q)
+        : reduction_rm_rw_wide(q, max_wg(q)){};
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
@@ -96,7 +113,7 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
-    auto event = q.submit([&](sycl::handler& h) {
+    auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(height);
         const auto kernel = get_kernel(input, output, width, stride, binary, unary);
@@ -120,8 +137,9 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::nd_range<2> reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_range(
     const std::int64_t height) const {
-    const sycl::range<2> local(1, wg);
-    const sycl::range<2> global(height, wg);
+    const sycl::range<2> local(size_t(1), dal::detail::integral_cast<std::size_t>(wg_));
+    const sycl::range<2> global(dal::detail::integral_cast<std::size_t>(height),
+                                dal::detail::integral_cast<std::size_t>(wg_));
     return sycl::nd_range<2>(global, local);
 }
 
@@ -133,7 +151,12 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
                                                            const std::int64_t stride,
                                                            const BinaryOp& binary,
                                                            const UnaryOp& unary) {
-    return kernel_t(input, output, width, stride, binary, unary);
+    return kernel_t(input,
+                    output,
+                    dal::detail::integral_cast<std::int32_t>(width),
+                    dal::detail::integral_cast<std::int32_t>(stride),
+                    binary,
+                    unary);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_rw_wide<F, B, U>;
@@ -164,56 +187,56 @@ class kernel_reduction_rm_rw_narrow {
     using out_t = Float*;
 
 public:
-    kernel_reduction_rm_rw_narrow(inp_t const input_,
-                                  out_t const output_,
-                                  const std::int32_t width_,
-                                  const std::uint64_t height_,
-                                  const std::int32_t lstride_,
-                                  const BinaryOp& binary_,
-                                  const UnaryOp& unary_)
-            : input{ input_ },
-              output{ output_ },
-              unary{ unary_ },
-              binary{ binary_ },
-              width{ width_ },
-              height{ height_ },
-              lstride{ lstride_ } {}
+    kernel_reduction_rm_rw_narrow(inp_t const input,
+                                  out_t const output,
+                                  const std::int32_t width,
+                                  const std::uint64_t height,
+                                  const std::int32_t lstride,
+                                  const BinaryOp& binary,
+                                  const UnaryOp& unary)
+            : input_{ input },
+              output_{ output },
+              unary_{ unary },
+              binary_{ binary },
+              width_{ width },
+              height_{ height },
+              lstride_{ lstride } {}
     void operator()(sycl::nd_item<1> it) const {
         // Common for whole WG
         const auto row_idx = it.get_global_id(0);
-        if (row_idx < height) {
+        if (row_idx < height_) {
             // It should be conmverted to upper type by default
-            inp_t const inp_row = input + lstride * row_idx;
+            inp_t const inp_row = input_ + lstride_ * row_idx;
             // Exclusive for EU
-            Float acc = binary.init_value;
-            for (std::int32_t i = 0; i < width; ++i) {
-                acc = binary(acc, unary(inp_row[i]));
+            Float acc = binary_.init_value;
+            for (std::int32_t i = 0; i < width_; ++i) {
+                acc = binary_.native(acc, unary_(inp_row[i]));
             }
-            output[row_idx] = acc;
+            output_[row_idx] = acc;
         }
     }
 
 private:
-    inp_t const input;
-    out_t const output;
-    const UnaryOp unary;
-    const BinaryOp binary;
-    const std::int32_t width;
-    const std::uint64_t height;
-    const std::int32_t lstride;
+    inp_t const input_;
+    out_t const output_;
+    const UnaryOp unary_;
+    const BinaryOp binary_;
+    const std::int32_t width_;
+    const std::uint64_t height_;
+    const std::int32_t lstride_;
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::queue& q_,
-                                                                         const std::int64_t wg_)
-        : q(q_),
-          wg(wg_) {
-    ONEDAL_ASSERT(wg <= max_wg(q));
+reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::queue& q,
+                                                                         const std::int64_t wg)
+        : q_(q),
+          wg_(wg) {
+    ONEDAL_ASSERT(wg_ <= max_wg(q_));
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::queue& q_)
-        : reduction_rm_rw_narrow(q_, max_wg(q_)){};
+reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::queue& q)
+        : reduction_rm_rw_narrow(q, max_wg(q)){};
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
@@ -225,7 +248,7 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
-    auto event = q.submit([&](sycl::handler& h) {
+    auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(height);
         const auto kernel = get_kernel(input, output, width, height, stride, binary, unary);
@@ -249,10 +272,11 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::nd_range<1> reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_range(
     const std::int64_t height) const {
-    const sycl::range<1> local(wg);
-    const auto nblocks = (height / wg) + bool(height % wg);
-    const auto eheight = wg * nblocks;
-    const sycl::range<1> global(eheight);
+    const sycl::range<1> local(dal::detail::integral_cast<std::size_t>(wg_));
+    const auto nblocks = (height / wg_) + bool(height % wg_);
+    const auto eheight = wg_ * nblocks;
+    ONEDAL_ASSERT(eheight >= height);
+    const sycl::range<1> global(dal::detail::integral_cast<std::size_t>(eheight));
     return sycl::nd_range<1>(global, local);
 }
 
@@ -265,7 +289,13 @@ reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_kernel(inp_t input,
                                                              const std::int64_t stride,
                                                              const BinaryOp& binary,
                                                              const UnaryOp& unary) {
-    return kernel_t(input, output, width, height, stride, binary, unary);
+    return kernel_t(input,
+                    output,
+                    dal::detail::integral_cast<std::int32_t>(width),
+                    dal::detail::integral_cast<std::int64_t>(height),
+                    dal::detail::integral_cast<std::int32_t>(stride),
+                    binary,
+                    unary);
 }
 
 #define INSTANTIATE(F, B, U) template class reduction_rm_rw_narrow<F, B, U>;
@@ -291,12 +321,12 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q_) : q{ q_ } {};
+reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q) : q_{ q } {};
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method
 reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width) const {
-    const auto max_wg_size = static_cast<std::int64_t>(max_wg(q));
+    const auto max_wg_size = max_wg(q_);
     if (width < max_wg_size) {
         return reduction_method::narrow;
     }
@@ -319,11 +349,12 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
     const event_vector& deps) const {
     // TODO: think about `switch` operator
     if (method == reduction_method::narrow) {
-        const narrow_t kernel{ q };
+        const narrow_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     if (method == reduction_method::wide) {
-        const wide_t kernel{ q };
+        const auto max_wg_size = max_wg(q_);
+        const wide_t kernel{ q_, std::min(width, max_wg_size) };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);
