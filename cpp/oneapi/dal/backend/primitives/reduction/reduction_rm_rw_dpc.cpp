@@ -20,7 +20,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-inline auto max_wg(const sycl::queue& q) {
+inline std::int64_t max_wg(const sycl::queue& q) {
     return q.get_device().template get_info<sycl::info::device::max_work_group_size>();
 }
 

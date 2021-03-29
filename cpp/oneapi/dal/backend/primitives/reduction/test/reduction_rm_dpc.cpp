@@ -74,9 +74,9 @@ public:
         return ndarray<float_t, 2, rm_order>::full(get_queue(), { stride, height }, arg);
     }
 
-    auto output() {
+    auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height });
+        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { size });
     }
 
     float_t val_rw() const {
@@ -151,7 +151,7 @@ public:
                 return (arg * arg);
             }
         }
-        REQUIRE(false);
+        ONEDAL_ASSERT(false);
         return 0;
     }
 
@@ -184,7 +184,7 @@ public:
     void test_raw_rw_reduce_narrow() {
         using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -206,7 +206,7 @@ public:
     void test_raw_rw_reduce_wide() {
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -228,7 +228,7 @@ public:
     void test_raw_rw_reduce_wrapper() {
         using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -250,7 +250,7 @@ public:
     void test_raw_cw_reduce_inplace() {
         using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -272,7 +272,7 @@ public:
     void test_raw_cw_reduce_inplace_local() {
         using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -294,7 +294,7 @@ public:
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -375,9 +375,9 @@ public:
         return te::table_id::homogen<float_t>();
     }
 
-    auto output() {
+    auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { height });
+        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { size });
     }
 
     void generate_input() {
@@ -451,7 +451,7 @@ public:
     void test_raw_rw_reduce_narrow() {
         using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -466,7 +466,7 @@ public:
     void test_raw_rw_reduce_wide() {
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -481,7 +481,7 @@ public:
     void test_raw_rw_reduce_wrapper() {
         using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -496,7 +496,7 @@ public:
     void test_raw_cw_reduce_inplace() {
         using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -511,7 +511,7 @@ public:
     void test_raw_cw_reduce_inplace_local() {
         using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -526,7 +526,7 @@ public:
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
-        auto [out_array, out_event] = output();
+        auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
