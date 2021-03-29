@@ -74,18 +74,6 @@ template <typename algorithmFPType, CpuType cpu>
 bool ImplicitALSTrainKernelBase<algorithmFPType, cpu>::solve(size_t nCols, algorithmFPType * a, algorithmFPType * b)
 {
     return daal::algorithms::internal::solveEquationSystem<algorithmFPType, cpu>(a, b, nCols, 1, false);
-    // /* POTRF parameters */
-    // char uplo     = 'U';
-    // DAAL_INT iOne = 1;
-    // DAAL_INT info = 0;
-
-    // /* Perform L*L' decomposition of A */
-    // Lapack<algorithmFPType, cpu>::xxpotrf(&uplo, (DAAL_INT *)&nCols, a, (DAAL_INT *)&nCols, &info);
-    // if (info != 0) return false;
-
-    // /* Solve L*L' * x = b */
-    // Lapack<algorithmFPType, cpu>::xxpotrs(&uplo, (DAAL_INT *)&nCols, &iOne, a, (DAAL_INT *)&nCols, b, (DAAL_INT *)&nCols, &info);
-    // return (info == 0);
 }
 
 static inline void getSizes(size_t nRows, size_t nCols, size_t & nBlocks, size_t & blockSize, size_t & tailSize)
