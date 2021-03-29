@@ -24,28 +24,28 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Float>
+template <typename Float>
 class select_by_rows_base {
 public:
     virtual ~select_by_rows_base() {}
     virtual sycl::event operator()(sycl::queue& queue,
-                    const ndview<Float, 2>& data,
-                    std::int64_t k,
-                    ndview<Float, 2>& selection,
-                    ndview<std::int32_t, 2>& column_indices,
-                    const event_vector& deps = {}) = 0;
+                                   const ndview<Float, 2>& data,
+                                   std::int64_t k,
+                                   ndview<Float, 2>& selection,
+                                   ndview<std::int32_t, 2>& column_indices,
+                                   const event_vector& deps = {}) = 0;
 
     virtual sycl::event operator()(sycl::queue& queue,
-                    const ndview<Float, 2>& data,
-                    std::int64_t k,
-                    ndview<Float, 2>& selection,
-                    const event_vector& deps = {}) = 0;
+                                   const ndview<Float, 2>& data,
+                                   std::int64_t k,
+                                   ndview<Float, 2>& selection,
+                                   const event_vector& deps = {}) = 0;
 
     virtual sycl::event operator()(sycl::queue& queue,
-                    const ndview<Float, 2>& data,
-                    std::int64_t k,
-                    ndview<std::int32_t, 2>& column_indices,
-                    const event_vector& deps = {}) = 0;
+                                   const ndview<Float, 2>& data,
+                                   std::int64_t k,
+                                   ndview<std::int32_t, 2>& column_indices,
+                                   const event_vector& deps = {}) = 0;
 };
 #endif
 

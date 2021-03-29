@@ -181,7 +181,7 @@ inline sycl::nd_range<2> make_multiple_nd_range_2d(std::int64_t global_size_0,
     sycl::range<2> local(l0, l1);
     return { global, local };
 }
-  
+
 /// Creates `nd_range`, where global sizes is multiple of local size
 inline sycl::nd_range<2> make_multiple_nd_range_2d(const ndindex<2>& global_size,
                                                    const ndindex<2>& local_size) {
