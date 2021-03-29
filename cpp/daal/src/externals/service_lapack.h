@@ -45,6 +45,27 @@ struct Lapack
 {
     typedef typename _impl<fpType, cpu>::SizeType SizeType;
 
+    static void xgetrf(SizeType * m, SizeType * n, fpType * a, SizeType * lda, SizeType * ipiv, SizeType * info)
+    {
+        _impl<fpType, cpu>::xgetrf(m, n, a, lda, ipiv, info);
+    }
+
+    static void xxgetrf(SizeType * m, SizeType * n, fpType * a, SizeType * lda, SizeType * ipiv, SizeType * info)
+    {
+        _impl<fpType, cpu>::xxgetrf(m, n, a, lda, ipiv, info);
+    }
+
+    static void xgetrs(char * trans, SizeType * n, SizeType * nrhs, fpType * a, SizeType * lda, SizeType * ipiv, fpType * b, SizeType * ldb,
+                       SizeType * info)
+    {
+        _impl<fpType, cpu>::xgetrs(trans, n, nrhs, a, lda, ipiv, b, ldb, info);
+    }
+
+    static void xxgetrs(char * uplo, SizeType * p, SizeType * ny, fpType * ata, SizeType * ldata, fpType * beta, SizeType * ldaty, SizeType * info)
+    {
+        _impl<fpType, cpu>::xxgetrs(trans, n, nrhs, a, lda, ipiv, b, ldb, info);
+    }
+
     static void xpotrf(char * uplo, SizeType * p, fpType * ata, SizeType * ldata, SizeType * info)
     {
         _impl<fpType, cpu>::xpotrf(uplo, p, ata, ldata, info);

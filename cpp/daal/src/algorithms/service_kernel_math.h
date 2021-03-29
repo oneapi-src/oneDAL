@@ -30,6 +30,7 @@
 #include "src/services/service_data_utils.h"
 #include "src/services/service_arrays.h"
 #include "src/externals/service_blas.h"
+#include "src/externals/service_lapack.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
 
@@ -260,6 +261,95 @@ protected:
     TArray<FPType, cpu> normBufferA;
     TArray<FPType, cpu> normBufferB;
 };
+
+template <typename FPType, CpuType cpu>
+bool solveEquationSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+{
+    /* POTRF and POTRS parameters */
+    char uplo     = 'U';
+    DAAL_INT info = 0;
+
+    /* Perform L*L' decomposition of A */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
+    }
+    if (info != 0) return false;
+
+    /* Solve L*L' * x = b */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
+    }
+    return (info == 0);
+}
+
+template <typename FPType, CpuType cpu>
+bool solveEquationSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+{
+    /* GETRF and GETRS parameters */
+    char trans    = 'N';
+    DAAL_INT info = 0;
+
+    TArray<DAAL_INT> ipiv(n);
+
+    /* Perform P*L*U decomposition of A */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv, &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv, &info);
+    }
+    if (info != 0) return false;
+
+    /* Solve P*L*U * x = b */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv, b, (DAAL_INT *)&n, &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv, b, (DAAL_INT *)&n, &info);
+    }
+    return (info == 0);
+}
+
+template <typename FPType, CpuType cpu>
+bool solveEquationSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+{
+    TArray<FPType, cpu> aCopy(n * n);
+    TArray<FPType, cpu> bCopy(n);
+
+    int copy_status = services::internal::daal_memcpy_s(aCopy.get(), n * n * sizeof(FPType), a, n * n * sizeof(FPType));
+    copy_status |= services::internal::daal_memcpy_s(bCopy.get(), n * sizeof(FPType), b, n * sizeof(FPType));
+
+    if (copy_status != 0)
+    {
+        return false;
+    }
+
+    if (!solveEquationSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
+    {
+        // bool status = solveEquationSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
+        // if (status)
+        // {
+        //     status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType));
+        // }
+        // return status;
+        return false;
+    }
+    return true;
+}
 
 } // namespace internal
 } // namespace algorithms

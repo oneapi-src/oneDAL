@@ -22,6 +22,7 @@
 */
 
 #include "src/algorithms/linear_model/linear_model_train_normeq_kernel.h"
+#include "src/algorithms/service_kernel_math.h"
 #include "src/externals/service_lapack.h"
 #include "src/externals/service_ittnotify.h"
 
@@ -152,30 +153,7 @@ template <typename algorithmFPType, CpuType cpu>
 Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFPType * a, DAAL_INT ny, algorithmFPType * b,
                                                          const ErrorID & internalError)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem);
-    char up = 'U';
-    DAAL_INT info;
-
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrf);
-        /* Perform L*L' decomposition of X'*X */
-        Lapack<algorithmFPType, cpu>::xpotrf(&up, &p, a, &p, &info);
-    }
-    if (info < 0)
-    {
-        return Status(internalError);
-    }
-    if (info > 0)
-    {
-        return Status(ErrorNormEqSystemSolutionFailed);
-    }
-
-    {
-        DAAL_ITTNOTIFY_SCOPED_TASK(solveSystem.xpotrs);
-        /* Solve L*L'*b=Y */
-        Lapack<algorithmFPType, cpu>::xpotrs(&up, &p, &ny, a, &p, b, &p, &info);
-    }
-    DAAL_CHECK(info == 0, internalError);
+    daal::algorithms::internal::solveEquationSystem<algorithmFPType, cpu>(a, b, p, ny, true);
     return Status();
 }
 
