@@ -23,7 +23,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-/// Reduces `input` rows inplace and stores results into `output`
+/// Reduces `input` rows and stores results into `output`
 ///
 /// @tparam Float    Floating-point type used to perform computations
 /// @tparam order    Input matrix data layout
@@ -44,7 +44,7 @@ sycl::event reduce_by_rows(sycl::queue& q,
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {});
 
-/// Reduces `input` columns inplace and stores results into `output`
+/// Reduces `input` columns and stores results into `output`
 ///
 /// @tparam Float    Floating-point type used to perform computations
 /// @tparam order    Input matrix data layout
