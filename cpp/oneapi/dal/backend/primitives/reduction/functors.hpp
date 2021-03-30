@@ -22,19 +22,14 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename T>
-struct unary_functor {
-    inline T operator()(T arg);
-};
-
-template <typename T>
-struct identity : public unary_functor<T> {
+struct identity {
     inline T operator()(T arg) const {
         return arg;
     }
 };
 
 template <typename T>
-struct abs : public unary_functor<T> {
+struct abs {
     inline T operator()(T arg) const {
 #ifdef __SYCL_DEVICE_ONLY__
         return sycl::fabs(arg);
@@ -45,20 +40,14 @@ struct abs : public unary_functor<T> {
 };
 
 template <typename T>
-struct square : public unary_functor<T> {
+struct square {
     inline T operator()(T arg) const {
         return (arg * arg);
     }
 };
 
 template <typename T>
-struct binary_functor {
-    constexpr static inline T init_value = 0;
-    inline T operator()(T a, T b) const;
-};
-
-template <typename T>
-struct sum : public binary_functor<T> {
+struct sum {
     constexpr static inline T init_value = 0;
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::plus<T> native{};
@@ -69,7 +58,7 @@ struct sum : public binary_functor<T> {
 };
 
 template <typename T>
-struct mul : public binary_functor<T> {
+struct mul {
     constexpr static inline T init_value = 1;
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::multiplies<T> native{};
@@ -80,7 +69,7 @@ struct mul : public binary_functor<T> {
 };
 
 template <typename T>
-struct max : public binary_functor<T> {
+struct max {
     constexpr static inline T init_value = std::numeric_limits<T>::min();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::maximum<T> native{};
@@ -91,7 +80,7 @@ struct max : public binary_functor<T> {
 };
 
 template <typename T>
-struct min : public binary_functor<T> {
+struct min {
     constexpr static inline T init_value = std::numeric_limits<T>::max();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::minimum<T> native{};
@@ -99,12 +88,6 @@ struct min : public binary_functor<T> {
     inline T operator()(T a, T b) const {
         return (a < b) ? a : b;
     }
-};
-
-template <typename T, typename BinOp>
-struct initialized_binary_functor : public binary_functor<T> {
-    initialized_binary_functor(T init_value_ = BinOp::init_value) : init_value(init_value_) {}
-    const T init_value;
 };
 
 } // namespace oneapi::dal::backend::primitives
