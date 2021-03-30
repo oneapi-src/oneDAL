@@ -24,7 +24,7 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/intersection_tc.hpp"
-#include "oneapi/dal/backend/primitives/intersection.hpp"
+#include "oneapi/dal/backend/primitives/intersection/intersection.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::backend {
 

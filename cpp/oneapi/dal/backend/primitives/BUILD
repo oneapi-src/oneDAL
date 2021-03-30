@@ -22,6 +22,7 @@ dal_collect_modules(
         "blas",
         "reduction",
         "sort",
+        "intersection",
     ],
     dal_deps = [
         ":common",
