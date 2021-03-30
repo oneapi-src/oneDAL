@@ -204,18 +204,6 @@ public:
         };
     }
 
-    auto get_width() const {
-        return width;
-    }
-
-    auto get_stride() const {
-        return stride;
-    }
-
-    auto get_height() const {
-        return height;
-    }
-
 private:
     std::int64_t width;
     std::int64_t stride;

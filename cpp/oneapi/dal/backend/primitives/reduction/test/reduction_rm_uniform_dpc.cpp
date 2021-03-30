@@ -323,18 +323,6 @@ public:
         check_output_cw(out_array);
     }
 
-    auto get_width() const {
-        return width;
-    }
-
-    auto get_stride() const {
-        return stride;
-    }
-
-    auto get_height() const {
-        return height;
-    }
-
 private:
     float_t arg;
     std::int64_t width;

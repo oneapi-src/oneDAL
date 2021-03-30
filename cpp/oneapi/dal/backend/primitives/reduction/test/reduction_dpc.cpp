@@ -219,14 +219,6 @@ public:
         check_output_cm_rw(output_array);
     }
 
-    auto get_width() const {
-        return width;
-    }
-
-    auto get_height() const {
-        return height;
-    }
-
 private:
     const binary_t binary{};
     const unary_t unary{};

@@ -204,18 +204,6 @@ public:
         };
     }
 
-    auto get_width() const {
-        return width;
-    }
-
-    auto get_stride() const {
-        return stride;
-    }
-
-    auto get_height() const {
-        return height;
-    }
-
 private:
     array<float_t> input_data;
     std::int64_t width;
