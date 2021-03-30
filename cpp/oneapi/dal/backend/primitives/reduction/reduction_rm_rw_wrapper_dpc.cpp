@@ -28,8 +28,8 @@ reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q) : q_{
 template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method
 reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width) const {
-    const auto device_max_wg_size = device_max_wg_size(q_);
-    if (width < device_max_wg_size) {
+    const auto device_max_wg = device_max_wg_size(q_);
+    if (width < device_max_wg) {
         return reduction_method::narrow;
     }
     else {
@@ -55,8 +55,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     if (method == reduction_method::wide) {
-        const auto device_max_wg_size = device_max_wg_size(q_);
-        const wide_t kernel{ q_, std::min(width, device_max_wg_size) };
+        const auto device_max_wg = device_max_wg_size(q_);
+        const wide_t kernel{ q_, std::min(width, device_max_wg) };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);
