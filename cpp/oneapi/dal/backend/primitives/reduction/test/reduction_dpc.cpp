@@ -75,7 +75,7 @@ public:
     }
 
     bool should_be_skipped() {
-        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+        if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
             return true;
         }
         return false;
@@ -172,8 +172,12 @@ public:
         auto output =
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
 
-        auto reduce_event =
-            reduce_by_columns(this->get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        auto reduce_event = reduce_by_columns(this->get_queue(),
+                                              input,
+                                              output,
+                                              binary_t{},
+                                              unary_t{},
+                                              { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_cw(output_array);
@@ -188,8 +192,12 @@ public:
         auto output =
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
 
-        auto reduce_event =
-            reduce_by_columns(this->get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+        auto reduce_event = reduce_by_columns(this->get_queue(),
+                                              input,
+                                              output,
+                                              binary_t{},
+                                              unary_t{},
+                                              { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_rw(output_array);

@@ -58,10 +58,10 @@ public:
     }
 
     bool should_be_skipped() {
-        if(width > stride) {
+        if (width > stride) {
             return true;
         }
-        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+        if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
             return true;
         }
         return false;

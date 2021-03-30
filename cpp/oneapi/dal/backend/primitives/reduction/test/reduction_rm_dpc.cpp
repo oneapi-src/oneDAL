@@ -53,7 +53,7 @@ public:
         arg = GENERATE(-7., 0, 3.);
         width = GENERATE(7, 707, 5);
         stride = GENERATE(707, 812, 1024);
-        height = GENERATE(17, 999, 1, 1001);
+        height = GENERATE(171, 999, 1001);
         SKIP_IF(width > stride);
         REQUIRE(width <= stride);
         CAPTURE(arg, width, stride, height);
@@ -70,10 +70,10 @@ public:
     }
 
     bool should_be_skipped() {
-        if(width > stride) {
+        if (width > stride) {
             return true;
         }
-        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+        if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
             return true;
         }
         return false;
@@ -407,10 +407,10 @@ public:
     }
 
     bool should_be_skipped() {
-        if(width > stride) {
+        if (width > stride) {
             return true;
         }
-        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+        if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
             return true;
         }
         return false;
