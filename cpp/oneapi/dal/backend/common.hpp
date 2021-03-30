@@ -215,7 +215,7 @@ inline std::int64_t device_native_vector_size<float>(const sycl::queue& q) {
 }
 
 template <>
-inline std::int64_t native_vector_size<double>(const sycl::queue& q) {
+inline std::int64_t device_native_vector_size<double>(const sycl::queue& q) {
     const auto res =
         q.get_device().template get_info<sycl::info::device::native_vector_width_double>();
     return dal::detail::integral_cast<std::int64_t>(res);
