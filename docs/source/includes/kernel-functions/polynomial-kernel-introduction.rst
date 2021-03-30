@@ -19,7 +19,7 @@ The Polynomial kernel is a popular kernel function
 used in kernelized learning algorithms. It represents
 the similarity of training samples
 in a feature space of polynomials of the original data
-and allows to get non-linear models.
+and allows to fit non-linear models.
 
 .. |c_math| replace::   :ref:`dense <polynomial_kernel_c_math>`
 .. |c_dense| replace::  :ref:`dense <polynomial_kernel_c_math_dense>`
