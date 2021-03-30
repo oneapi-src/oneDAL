@@ -153,7 +153,7 @@ public:
         auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(height);
         auto input =
-            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_data(), { height, width });
         auto output =
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
 
@@ -168,7 +168,7 @@ public:
         auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(width);
         auto input =
-            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_data(), { height, width });
         auto output =
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
 
@@ -187,7 +187,7 @@ public:
         auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(height);
         auto input_tr =
-            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_data(), { height, width });
         auto input = input_tr.t();
         auto output =
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
@@ -207,7 +207,7 @@ public:
         auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(width);
         auto input_tr =
-            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
+            ndview<float_t, 2, ndorder::c>::wrap(input_array.get_data(), { height, width });
         auto input = input_tr.t();
         auto output =
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
