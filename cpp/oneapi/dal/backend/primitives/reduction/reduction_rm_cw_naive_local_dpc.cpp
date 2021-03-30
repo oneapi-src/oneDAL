@@ -90,14 +90,16 @@ reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_loc
         : q_(q),
           wg_(wg),
           lm_(lm) {
-    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
     ONEDAL_ASSERT(dal::detail::integral_cast<std::int64_t>(2 * lm_ * sizeof(Float)) <=
-                  local_mem_size(q_));
+                  device_local_mem_size(q_));
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_local(sycl::queue& q)
-        : reduction_rm_cw_naive_local(q, max_wg_size(q), local_mem_size(q) / sizeof(Float) / 2) {}
+        : reduction_rm_cw_naive_local(q,
+                                      device_max_wg_size(q),
+                                      device_local_mem_size(q) / sizeof(Float) / 2) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
@@ -110,8 +112,8 @@ sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp& unary,
     const event_vector& deps) const {
     ONEDAL_ASSERT(0 <= width && width <= stride);
-    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
-    ONEDAL_ASSERT(0 < lm_ && lm_ <= local_mem_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
+    ONEDAL_ASSERT(0 < lm_ && lm_ <= device_local_mem_size(q_));
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(width);

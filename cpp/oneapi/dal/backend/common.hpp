@@ -191,24 +191,24 @@ inline sycl::nd_range<3> make_multiple_nd_range_3d(const ndindex<3>& global_size
              { l_0, l_1, l_2 } };
 }
 
-inline auto max_wg_size(const sycl::queue& q) {
+inline auto device_max_wg_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::max_work_group_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 
-inline auto local_mem_size(const sycl::queue& q) {
+inline auto device_local_mem_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::local_mem_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 
 template <typename T>
-inline std::int64_t native_vector_size(const sycl::queue& q) {
-    ONEDAL_ASSERT(false);
+inline std::int64_t device_native_vector_size(const sycl::queue& q) {
+    static_assert(std::is_same_v<T, float> || std::is_same_v<T, double>);
     return 0;
 }
 
 template <>
-inline std::int64_t native_vector_size<float>(const sycl::queue& q) {
+inline std::int64_t device_native_vector_size<float>(const sycl::queue& q) {
     const auto res =
         q.get_device().template get_info<sycl::info::device::native_vector_width_float>();
     return dal::detail::integral_cast<std::int64_t>(res);

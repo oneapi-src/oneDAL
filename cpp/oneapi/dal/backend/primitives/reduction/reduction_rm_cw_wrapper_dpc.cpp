@@ -29,7 +29,7 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method
 reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                           std::int64_t height) const {
-    if (height >= max_wg_size(q_) && height > width) {
+    if (height >= device_max_wg_size(q_) && height > width) {
         return reduction_method::naive_local;
     }
     return reduction_method::naive;

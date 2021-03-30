@@ -72,12 +72,12 @@ reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive(sycl::que
                                                                        const std::int64_t wg)
         : q_(q),
           wg_(wg) {
-    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive(sycl::queue& q)
-        : reduction_rm_cw_naive(q, max_wg_size(q)) {}
+        : reduction_rm_cw_naive(q, device_max_wg_size(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
@@ -89,7 +89,7 @@ sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
-    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
     ONEDAL_ASSERT(0 <= width && width <= stride);
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
