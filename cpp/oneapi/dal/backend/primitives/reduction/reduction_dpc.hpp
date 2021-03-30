@@ -34,7 +34,7 @@ namespace oneapi::dal::backend::primitives {
 /// @param[in]  input   The [n x p] input dataset
 /// @param[out] output  The [n] results of reduction
 /// @param[in]  binary  The binary functor that reduces two values into one
-/// @param[in]  unary   The unary functor that will be performed element-wise before reduction
+/// @param[in]  unary   The unary functor that performs element-wise operation before reduction
 /// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_by_rows(sycl::queue& q,
@@ -55,7 +55,7 @@ sycl::event reduce_by_rows(sycl::queue& q,
 /// @param[in]  input   The [n x p] input dataset
 /// @param[out] output  The [p] results of reduction
 /// @param[in]  binary  The binary functor that reduces two values into one
-/// @param[in]  unary   The unary functor that will be performed element-wise before reduction
+/// @param[in]  unary   The unary functor that performs element-wise operation before reduction
 /// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
 sycl::event reduce_by_columns(sycl::queue& q,
