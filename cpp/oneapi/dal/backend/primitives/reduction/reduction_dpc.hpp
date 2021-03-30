@@ -23,32 +23,47 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_rows(sycl::queue& q,
-                        const ndview<Float, 2, order>& input,
-                        ndview<Float, 1>& output,
-                        const BinaryOp& binary = BinaryOp{},
-                        const UnaryOp& unary = UnaryOp{},
-                        const event_vector& deps = {});
-
-/// Computes correlation matrix and variances
+/// Reduces `input` rows inplace and stores results into `output`
 ///
-/// @tparam Float Floating-point type used to perform computations
+/// @tparam Float    Floating-point type used to perform computations
+/// @tparam order    Input matrix data layout
+/// @tparam BinaryOp Type of binary operator functor
+/// @tparam UnaryOp  Type of unary operator functor
 ///
-/// @param[in]  queue The queue
-/// @param[in]  data  The [n x p] input dataset
-/// @param[in]  sums  The [p] sums computed along each column of the data
-/// @param[out] corr  The [p x p] correlation matrix
-/// @param[out] means The [p] means for each feature
-/// @param[out] vars  The [p] variances for each feature
-/// @param[out] tmp   The [p] temporary buffer
+/// @param[in]  queue   The SYCL queue
+/// @param[in]  input   The [n x p] input dataset
+/// @param[out] output  The [n] results of reduction
+/// @param[in]  binary  The binary functor that reduces two values into one
+/// @param[in]  unary   The unary functor that will be performed element-wise before reduction
+/// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_columns(sycl::queue& q,
+sycl::event reduce_by_rows(sycl::queue& q,
                            const ndview<Float, 2, order>& input,
                            ndview<Float, 1>& output,
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {});
+
+/// Reduces `input` columns inplace and stores results into `output`
+///
+/// @tparam Float    Floating-point type used to perform computations
+/// @tparam order    Input matrix data layout
+/// @tparam BinaryOp Type of binary operator functor
+/// @tparam UnaryOp  Type of unary operator functor
+///
+/// @param[in]  queue   The SYCL queue
+/// @param[in]  input   The [n x p] input dataset
+/// @param[out] output  The [p] results of reduction
+/// @param[in]  binary  The binary functor that reduces two values into one
+/// @param[in]  unary   The unary functor that will be performed element-wise before reduction
+/// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
+template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
+sycl::event reduce_by_columns(sycl::queue& q,
+                              const ndview<Float, 2, order>& input,
+                              ndview<Float, 1>& output,
+                              const BinaryOp& binary = BinaryOp{},
+                              const UnaryOp& unary = UnaryOp{},
+                              const event_vector& deps = {});
 
 #endif
 
