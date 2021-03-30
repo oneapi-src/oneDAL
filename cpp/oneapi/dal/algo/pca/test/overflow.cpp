@@ -43,19 +43,18 @@ public:
     }
 
     table get_train_data_with_invalid_column_count() const {
-        return homogen_table{ te::dummy_homogen_table_impl{ row_count, invalid_component_count } };
+        return te::dummy_homogen_table{ row_count, invalid_component_count };
     }
 
     table get_infer_data() const {
-        return homogen_table{ te::dummy_homogen_table_impl{ row_count, column_count } };
+        return te::dummy_homogen_table{ row_count, column_count };
     }
 
     pca::model<> get_model_with_invalid_component_count() const {
-        const auto eigenvectors =
-            homogen_table{ te::dummy_homogen_table_impl{ invalid_component_count, column_count } };
+        const auto eigenvectors = te::dummy_homogen_table{ invalid_component_count, column_count };
         return pca::model{}.set_eigenvectors(eigenvectors);
     }
-};
+}; // namespace oneapi::dal::pca::test
 
 #define PCA_OVERFLOW_TEST(name) \
     TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::cov, pca::method::svd)

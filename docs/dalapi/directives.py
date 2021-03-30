@@ -75,14 +75,13 @@ class DoxyDirective(MacroDirective):
             x.add_doc(desc_str, level=level)
 
     def add_function_base(self, func, x: RstBuilder, is_free=True, level=0):
-        namespace = func.parent_fully_qualified_name if is_free else None
-        x.add_function(func.declaration, namespace, level=level)
         if func.doc and func.doc.description:
+            namespace = func.parent_fully_qualified_name if is_free else None
+            x.add_function(func.declaration, namespace, level=level)
             self.add_description(func.doc.description, x, level=level + 1)
-        self.add_params('tparam', func.template_parameters, x, level=level + 1)
-        self.add_params('param', func.parameters, x, level=level + 1)
-        x.add_blank_line()
-        if func.doc:
+            self.add_params('tparam', func.template_parameters, x, level=level + 1)
+            self.add_params('param', func.parameters, x, level=level + 1)
+            x.add_blank_line()
             self.add_preconditions(func.doc.preconditions, x, level=level + 1)
             self.add_postconditions(func.doc.postconditions, x, level=level + 1)
 
@@ -179,6 +178,10 @@ class ClassDirective(DoxyDirective):
                               level=1)
         if property_def.doc and property_def.doc.description:
             desc = self.format_description(property_def.doc.description)
+            if property_def.default:
+                if not desc.endswith('.'):
+                    desc += '.'
+                desc += f' **Default value**: {property_def.default}'
             if desc:
                 x.add_doc(desc, level=2)
             else:

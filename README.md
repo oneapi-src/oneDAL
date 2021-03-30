@@ -258,11 +258,15 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 |Product|Latest release|Branch|
 |-------|--------------|------|
-|oneDAL       |2021.1|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021-gold-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/2021-gold-mnt)|
+|oneDAL       |2021.2|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.2-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.2-rls)|
 |Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|
 
 
 ## License <!-- omit in toc -->
 
-Distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
+oneDAL is distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
 information.
+
+[oneMKL FPK microlibs](https://github.com/oneapi-src/oneDAL/releases/tag/Dependencies)
+are distributed under Intel Simplified Software License.
+Refer to [third-party-programs-mkl.txt](third-party-programs-mkl.txt) for details.

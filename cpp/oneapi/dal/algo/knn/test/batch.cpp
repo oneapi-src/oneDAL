@@ -23,23 +23,21 @@
 #include "oneapi/dal/algo/knn/train.hpp"
 #include "oneapi/dal/algo/knn/infer.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/metrics/classification.hpp"
 
 namespace oneapi::dal::knn::test {
 
 namespace te = dal::test::engine;
-namespace de = oneapi::dal::detail;
+namespace de = dal::detail;
 namespace la = te::linalg;
 
 template <typename TestType>
-class knn_batch_test : public te::algo_fixture {
+class knn_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -54,11 +52,8 @@ public:
     static constexpr bool is_brute_force = std::is_same_v<Method, knn::method::brute_force>;
 
     bool not_available_on_device() {
-        return (get_policy().is_gpu() && is_kd_tree) || (get_policy().is_cpu() && is_brute_force);
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
+        return (this->get_policy().is_gpu() && is_kd_tree) || //
+               (this->get_policy().is_cpu() && is_brute_force);
     }
 
     Float classification(const table& train_data,
@@ -211,6 +206,7 @@ using knn_types = COMBINE_TYPES((float, double), (knn::method::brute_force, knn:
 
 KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     constexpr std::int64_t train_row_count = 7;
     constexpr std::int64_t infer_row_count = 5;
@@ -242,7 +238,7 @@ KNN_SMALL_TEST("knn nearest points test predefined 7x5x2") {
 
 KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
     SKIP_IF(this->not_available_on_device());
-
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
 
     constexpr std::int64_t train_row_count = 513;
@@ -270,7 +266,7 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 513x301x17") {
 
 KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
     SKIP_IF(this->not_available_on_device());
-
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->is_kd_tree);
 
     constexpr std::int64_t train_row_count = 16390;
@@ -298,10 +294,9 @@ KNN_SYNTHETIC_TEST("knn nearest points test random uniform 16390x20x5") {
 
 KNN_EXTERNAL_TEST("knn classification hepmass 50kx10k") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
-    using Float = double;
-
-    constexpr Float target_score = 0.8;
+    constexpr double target_score = 0.8;
 
     constexpr std::int64_t feature_count = 28;
     constexpr std::int64_t n_classes = 2;

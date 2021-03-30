@@ -19,7 +19,12 @@ from typing import List, Text
 from . import utils
 from . import model
 from .parser import Parser
-from .loader import ModelLoader, Transformer, TransformerPass
+from .loader import (
+    ModelLoader,
+    Transformer,
+    NameTransformer,
+    TransformerPass,
+)
 
 class _IndexEntry(object):
     def __init__(self, loader: ModelLoader, refid: Text):
@@ -39,11 +44,13 @@ class _IndexEntry(object):
 
 
 class Index(object):
-    def __init__(self, parser: Parser, loader: ModelLoader):
+    def __init__(self, parser: Parser, loader: ModelLoader,
+                       name_transformer: NameTransformer = None):
         assert parser
         assert loader
         self._parser = parser
         self._loader = loader
+        self._name_transformer = name_transformer
         self._index = self._initialize()
 
     def find(self, query: str):
@@ -63,7 +70,10 @@ class Index(object):
         for entry in index.compound:
             if entry.kind in allowed_kinds:
                 model_object = _IndexEntry(self._loader, entry.refid)
-                yield entry.name, model_object
+                name = entry.name
+                if self._name_transformer:
+                    name = self._name_transformer.transform(entry.name)
+                yield name, model_object
 
     def _find_inner(self, query):
         parent_name, name = utils.split_compound_name(query)
@@ -80,11 +90,12 @@ class Index(object):
 
 
 def index(doxygen_xml_dir: Text,
+          name_transformer: NameTransformer = None,
           transformer_passes: List[TransformerPass] = []) -> Index:
     parser = Parser(doxygen_xml_dir)
-    transformer = Transformer(transformer_passes)
+    transformer = Transformer(name_transformer, transformer_passes)
     loader = ModelLoader(parser, transformer)
-    return Index(parser, loader)
+    return Index(parser, loader, name_transformer)
 
 def to_dict(index: Index, discard_empty=False):
     index_dict = _to_dict(index)

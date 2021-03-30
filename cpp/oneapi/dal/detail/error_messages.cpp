@@ -41,6 +41,11 @@ MSG(method_not_implemented, "Method is not implemented")
 MSG(unsupported_feature_type, "Feature type is not supported")
 MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
+MSG(queues_in_different_contexts, "Provided queues are in different contexts")
+MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
+
+/* Primitives */
+MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
 
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
@@ -63,6 +68,7 @@ MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
+MSG(invalid_range_of_columns, "Invalid range of columns")
 MSG(column_index_out_of_range, "Column index out of range")
 
 /* Graphs */
@@ -142,6 +148,7 @@ MSG(pca_svd_based_method_is_not_implemented_for_gpu,
 /* SVM */
 MSG(c_leq_zero, "C is lower than or equal to zero")
 MSG(cache_size_lt_zero, "Cache size is lower than zero")
+MSG(degree_lt_zero, "Degree lower than zero")
 MSG(input_model_coeffs_are_empty, "Input model coeffs are empty")
 MSG(input_model_coeffs_rc_neq_input_model_support_vector_count,
     "Input model coeffs row count is not equal to support vector count provided in input model")
@@ -151,6 +158,7 @@ MSG(input_model_support_vectors_cc_neq_input_data_cc,
     "Input model support vectors column count is not equal to input data column count")
 MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count,
     "Support vectors row count is not equal to support vector count in input model")
+MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")

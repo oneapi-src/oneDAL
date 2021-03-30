@@ -41,18 +41,36 @@ namespace kernel_function
 namespace internal
 {
 using namespace daal::internal;
+enum class KernelType
+{
+    linear,
+    rbf,
+    polynomial
+};
+struct KernelParameter
+{
+    size_t rowIndexX;
+    size_t rowIndexY;
+    size_t rowIndexResult;
+    ComputationMode computationMode;
+    double scale;
+    double shift;
+    size_t degree;
+    double sigma;
+    KernelType kernelType;
+};
 
 template <typename algorithmFPType, CpuType cpu>
 struct KernelImplBase : public Kernel
 {
     virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par) = 0;
+                                                         const KernelParameter * par) = 0;
     virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par) = 0;
+                                                         const KernelParameter * par) = 0;
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par) = 0;
+                                                         const KernelParameter * par) = 0;
 
-    services::Status compute(const NumericTable * a1, const NumericTable * a2, NumericTable * r, const ParameterBase * par)
+    services::Status compute(const NumericTable * a1, const NumericTable * a2, NumericTable * r, const KernelParameter * par)
     {
         ComputationMode computationMode = par->computationMode;
 
@@ -68,6 +86,8 @@ struct KernelImplBase : public Kernel
 };
 
 } // namespace internal
+using internal::KernelType;
+using internal::KernelParameter;
 } // namespace kernel_function
 } // namespace algorithms
 } // namespace daal
