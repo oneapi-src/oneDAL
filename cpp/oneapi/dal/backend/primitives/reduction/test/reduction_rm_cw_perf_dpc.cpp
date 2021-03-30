@@ -38,7 +38,7 @@ constexpr auto rm_order = ndorder::c;
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>>;
 
 template <typename Param>
-class reduction_rm_test_uniform : public te::policy_fixture {
+class reduction_rm_test_uniform : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
@@ -57,6 +57,16 @@ public:
         return width > 0 && stride > 0 && height > 0;
     }
 
+    bool should_be_skipped() {
+        if(width > stride) {
+            return true;
+        }
+        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+            return true;
+        }
+        return false;
+    }
+
     void check_if_initialized() {
         if (!is_initialized()) {
             throw std::runtime_error{ "reduce test is not initialized" };
@@ -65,14 +75,14 @@ public:
 
     auto input() {
         check_if_initialized();
-        return ndarray<float_t, 2, rm_order>::zeros(get_queue(),
+        return ndarray<float_t, 2, rm_order>::zeros(this->get_queue(),
                                                     { stride, height },
                                                     sycl::usm::alloc::device);
     }
 
     auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(),
+        return ndarray<float_t, 1, rm_order>::zeros(this->get_queue(),
                                                     { size },
                                                     sycl::usm::alloc::device);
     }
@@ -147,10 +157,10 @@ public:
 
         const auto name = fmt::format("Inplace CW Reduction: {}", desc());
 
-        get_queue().wait_and_throw();
+        this->get_queue().wait_and_throw();
 
         BENCHMARK(name.c_str()) {
-            reduction_t reducer(get_queue());
+            reduction_t reducer(this->get_queue());
             reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
                 .wait_and_throw();
         };
@@ -166,10 +176,10 @@ public:
 
         const auto name = fmt::format("Inplace Local CW Reduction: {}", desc());
 
-        get_queue().wait_and_throw();
+        this->get_queue().wait_and_throw();
 
         BENCHMARK(name.c_str()) {
-            reduction_t reducer(get_queue());
+            reduction_t reducer(this->get_queue());
             reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
                 .wait_and_throw();
         };
@@ -185,10 +195,10 @@ public:
 
         const auto name = fmt::format("Inplace CW Reduction Wrapper: {}", desc());
 
-        get_queue().wait_and_throw();
+        this->get_queue().wait_and_throw();
 
         BENCHMARK(name.c_str()) {
-            reduction_t reducer(get_queue());
+            reduction_t reducer(this->get_queue());
             reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
                 .wait_and_throw();
         };
@@ -217,7 +227,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    SKIP_IF(this->get_width() > this->get_stride());
+    SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_inplace();
     this->test_raw_cw_reduce_inplace_local();
     this->test_raw_cw_reduce_wrapper();

@@ -36,7 +36,7 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
                                    std::tuple<double, sum<double>, square<double>>>;
 
 template <typename Param>
-class reduction_test_random : public te::policy_fixture {
+class reduction_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
@@ -55,7 +55,7 @@ public:
 
     auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, ndorder::c>::zeros(get_queue(), { size });
+        return ndarray<float_t, 1, ndorder::c>::zeros(this->get_queue(), { size });
     }
 
     void generate_input() {
@@ -72,6 +72,13 @@ public:
         if (!is_initialized()) {
             throw std::runtime_error{ "reduce test is not initialized" };
         }
+    }
+
+    bool should_be_skipped() {
+        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+            return true;
+        }
+        return false;
     }
 
     array<float_t> groundtruth_rm_cw() const {
@@ -143,7 +150,7 @@ public:
     }
 
     void test_rm_rw_reduce() {
-        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(height);
         auto input =
             ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
@@ -151,14 +158,14 @@ public:
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
 
         auto reduce_event =
-            reduce_by_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+            reduce_by_rows(this->get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_rw(output_array);
     }
 
     void test_rm_cw_reduce() {
-        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(width);
         auto input =
             ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
@@ -166,14 +173,14 @@ public:
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
 
         auto reduce_event =
-            reduce_by_columns(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+            reduce_by_columns(this->get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_cw(output_array);
     }
 
     void test_cm_cw_reduce() {
-        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(height);
         auto input_tr =
             ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
@@ -182,14 +189,14 @@ public:
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { height });
 
         auto reduce_event =
-            reduce_by_columns(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+            reduce_by_columns(this->get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_rm_rw(output_array);
     }
 
     void test_cm_rw_reduce() {
-        auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [output_array, out_event] = output(width);
         auto input_tr =
             ndview<float_t, 2, ndorder::c>::wrap(input_array.get_mutable_data(), { height, width });
@@ -198,7 +205,7 @@ public:
             ndview<float_t, 1, ndorder::c>::wrap(output_array.get_mutable_data(), { width });
 
         auto reduce_event =
-            reduce_by_rows(get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
+            reduce_by_rows(this->get_queue(), input, output, binary_t{}, unary_t{}, { out_event });
         reduce_event.wait_and_throw();
 
         check_output_cm_rw(output_array);
@@ -227,6 +234,7 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->should_be_skipped());
     this->test_rm_rw_reduce();
 }
 
@@ -235,6 +243,7 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->should_be_skipped());
     this->test_rm_cw_reduce();
 }
 
@@ -243,6 +252,7 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->should_be_skipped());
     this->test_cm_cw_reduce();
 }
 
@@ -251,6 +261,7 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
+    SKIP_IF(this->should_be_skipped());
     this->test_cm_rw_reduce();
 }
 

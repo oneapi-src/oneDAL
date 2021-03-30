@@ -43,17 +43,17 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>
                                    std::tuple<double, sum<double>, abs<double>>>;
 
 template <typename Param>
-class reduction_rm_test_uniform : public te::policy_fixture {
+class reduction_rm_test_uniform : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate() {
-        arg = GENERATE(-3., -1.e-3, 0, 1.e-3, 3.);
-        width = GENERATE(7, 707, 1, 251, 5);
-        stride = GENERATE(707, 812, 999, 1001, 1024);
-        height = GENERATE(17, 999, 1, 5, 1001);
+        arg = GENERATE(-7., 0, 3.);
+        width = GENERATE(7, 707, 5);
+        stride = GENERATE(707, 812, 1024);
+        height = GENERATE(17, 999, 1, 1001);
         SKIP_IF(width > stride);
         REQUIRE(width <= stride);
         CAPTURE(arg, width, stride, height);
@@ -69,14 +69,24 @@ public:
         }
     }
 
+    bool should_be_skipped() {
+        if(width > stride) {
+            return true;
+        }
+        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+            return true;
+        }
+        return false;
+    }
+
     auto input() {
         check_if_initialized();
-        return ndarray<float_t, 2, rm_order>::full(get_queue(), { stride, height }, arg);
+        return ndarray<float_t, 2, rm_order>::full(this->get_queue(), { stride, height }, arg);
     }
 
     auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { size });
+        return ndarray<float_t, 1, rm_order>::zeros(this->get_queue(), { size });
     }
 
     float_t val_rw() const {
@@ -189,7 +199,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr,
                 out_ptr,
                 width,
@@ -211,7 +221,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr,
                 out_ptr,
                 width,
@@ -233,7 +243,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr,
                 out_ptr,
                 width,
@@ -255,7 +265,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr,
                 out_ptr,
                 width,
@@ -277,7 +287,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr,
                 out_ptr,
                 width,
@@ -299,7 +309,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr,
                 out_ptr,
                 width,
@@ -337,7 +347,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    SKIP_IF(this->get_width() > this->get_stride());
+    SKIP_IF(this->should_be_skipped());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
@@ -348,23 +358,23 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    SKIP_IF(this->get_width() > this->get_stride());
+    SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_inplace();
     this->test_raw_cw_reduce_inplace_local();
     this->test_raw_cw_reduce_wrapper();
 }
 
 template <typename Param>
-class reduction_rm_test_random : public te::policy_fixture {
+class reduction_rm_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     using binary_t = std::tuple_element_t<1, Param>;
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate() {
-        width = GENERATE(7, 707, 1, 251, 5);
-        stride = GENERATE(707, 812, 999, 1001, 1024);
-        height = GENERATE(17, 999, 1, 5, 1001);
+        width = GENERATE(7, 707, 5);
+        stride = GENERATE(707, 812, 1024);
+        height = GENERATE(17, 999, 1, 1001);
         SKIP_IF(width > stride);
         REQUIRE(width <= stride);
         CAPTURE(width, stride, height);
@@ -377,7 +387,7 @@ public:
 
     auto output(std::int64_t size) {
         check_if_initialized();
-        return ndarray<float_t, 1, rm_order>::zeros(get_queue(), { size });
+        return ndarray<float_t, 1, rm_order>::zeros(this->get_queue(), { size });
     }
 
     void generate_input() {
@@ -394,6 +404,16 @@ public:
         if (!is_initialized()) {
             throw std::runtime_error{ "reduce test is not initialized" };
         }
+    }
+
+    bool should_be_skipped() {
+        if(width > stride) {
+            return true;
+        }
+        if(std::is_same_v<float_t, double> && this->not_float64_friendly()) {
+            return true;
+        }
+        return false;
     }
 
     array<float_t> groundtruth_cw() const {
@@ -450,13 +470,13 @@ public:
 
     void test_raw_rw_reduce_narrow() {
         using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
             .wait_and_throw();
 
@@ -465,13 +485,13 @@ public:
 
     void test_raw_rw_reduce_wide() {
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
             .wait_and_throw();
 
@@ -480,13 +500,13 @@ public:
 
     void test_raw_rw_reduce_wrapper() {
         using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(height);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
             .wait_and_throw();
 
@@ -495,13 +515,13 @@ public:
 
     void test_raw_cw_reduce_inplace() {
         using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
             .wait_and_throw();
 
@@ -510,13 +530,13 @@ public:
 
     void test_raw_cw_reduce_inplace_local() {
         using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
             .wait_and_throw();
 
@@ -525,13 +545,13 @@ public:
 
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(get_queue());
+        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        reduction_t reducer(get_queue());
+        reduction_t reducer(this->get_queue());
         reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
             .wait_and_throw();
 
@@ -566,7 +586,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    SKIP_IF(this->get_width() > this->get_stride());
+    SKIP_IF(this->should_be_skipped());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
     this->test_raw_rw_reduce_wrapper();
@@ -577,7 +597,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      "[reduction][rm][small]",
                      reduction_types) {
     this->generate();
-    SKIP_IF(this->get_width() > this->get_stride());
+    SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_inplace();
     this->test_raw_cw_reduce_inplace_local();
     this->test_raw_cw_reduce_wrapper();
