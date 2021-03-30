@@ -50,12 +50,12 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate() {
-        width = GENERATE(7, 707, 5);
-        stride = GENERATE(707, 812, 1024);
-        height = GENERATE(17, 999, 1, 1001);
-        SKIP_IF(width > stride);
-        REQUIRE(width <= stride);
-        CAPTURE(width, stride, height);
+        width_ = GENERATE(7, 707, 5);
+        stride_ = GENERATE(707, 812, 1024);
+        height_ = GENERATE(17, 999, 1, 1001);
+        SKIP_IF(width_ > stride_);
+        REQUIRE(width_ <= stride_);
+        CAPTURE(width_, stride_, height_);
         generate_input();
     }
 
@@ -70,12 +70,12 @@ public:
 
     void generate_input() {
         const auto train_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ height, stride }.fill_uniform(-0.2, 0.5));
-        this->input_table = train_dataframe.get_table(this->get_homogen_table_id());
+            GENERATE_DATAFRAME(te::dataframe_builder{ height_, stride_ }.fill_uniform(-0.2, 0.5));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
     }
 
     bool is_initialized() const {
-        return width > 0 && stride > 0 && height > 0;
+        return width_ > 0 && stride_ > 0 && height_ > 0;
     }
 
     void check_if_initialized() {
@@ -85,7 +85,7 @@ public:
     }
 
     bool should_be_skipped() {
-        if (width > stride) {
+        if (width_ > stride_) {
             return true;
         }
         if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
@@ -95,36 +95,36 @@ public:
     }
 
     array<float_t> groundtruth_cw() const {
-        auto res = array<float_t>::full(width, binary.init_value);
+        auto res = array<float_t>::full(width_, binary_.init_value);
         auto* res_ptr = res.get_mutable_data();
-        for (std::int64_t j = 0; j < height; ++j) {
-            const auto row_acc = row_accessor<const float_t>{ input_table }.pull({ j, j + 1 });
-            for (std::int64_t i = 0; i < width; ++i) {
+        for (std::int64_t j = 0; j < height_; ++j) {
+            const auto row_acc = row_accessor<const float_t>{ input_table_ }.pull({ j, j + 1 });
+            for (std::int64_t i = 0; i < width_; ++i) {
                 const auto val = row_acc[i];
-                res_ptr[i] = binary(res_ptr[i], unary(val));
+                res_ptr[i] = binary_(res_ptr[i], unary_(val));
             }
         }
         return res;
     }
 
     array<float_t> groundtruth_rw() const {
-        auto res = array<float_t>::full(height, binary.init_value);
+        auto res = array<float_t>::full(height_, binary_.init_value);
         auto* res_ptr = res.get_mutable_data();
-        for (std::int64_t j = 0; j < height; ++j) {
-            const auto row_acc = row_accessor<const float_t>{ input_table }.pull({ j, j + 1 });
-            for (std::int64_t i = 0; i < width; ++i) {
+        for (std::int64_t j = 0; j < height_; ++j) {
+            const auto row_acc = row_accessor<const float_t>{ input_table_ }.pull({ j, j + 1 });
+            for (std::int64_t i = 0; i < width_; ++i) {
                 const auto val = row_acc[i];
-                res_ptr[j] = binary(res_ptr[j], unary(val));
+                res_ptr[j] = binary_(res_ptr[j], unary_(val));
             }
         }
         return res;
     }
 
     void check_output_rw(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-3) {
-        CAPTURE(__func__, width, height, stride);
+        CAPTURE(__func__, width_, height_, stride_);
         const auto gtv = groundtruth_rw();
         const auto arr = outarr.flatten();
-        for (auto i = 0; i < height; ++i) {
+        for (auto i = 0; i < height_; ++i) {
             const auto diff = arr[i] - gtv[i];
             if (diff < -tol || tol < diff) {
                 CAPTURE(gtv[i], arr[i], diff, tol);
@@ -134,10 +134,10 @@ public:
     }
 
     void check_output_cw(ndarray<float_t, 1, rm_order>& outarr, const float_t tol = 1.e-3) {
-        CAPTURE(__func__, width, height, stride);
+        CAPTURE(__func__, width_, height_, stride_);
         const auto gtv = groundtruth_cw();
         const auto arr = outarr.flatten();
-        for (auto i = 0; i < width; ++i) {
+        for (auto i = 0; i < width_; ++i) {
             const auto diff = arr[i] - gtv[i];
             if (diff < -tol || tol < diff) {
                 CAPTURE(gtv[i], arr[i], diff, tol);
@@ -148,14 +148,15 @@ public:
 
     void test_raw_rw_reduce_narrow() {
         using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
-        auto [out_array, out_event] = output(height);
+        const auto input_array =
+            row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto [out_array, out_event] = output(height_);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(this->get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+        reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_, unary_, { out_event })
             .wait_and_throw();
 
         check_output_rw(out_array);
@@ -163,14 +164,15 @@ public:
 
     void test_raw_rw_reduce_wide() {
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
-        auto [out_array, out_event] = output(height);
+        const auto input_array =
+            row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto [out_array, out_event] = output(height_);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(this->get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+        reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_, unary_, { out_event })
             .wait_and_throw();
 
         check_output_rw(out_array);
@@ -178,14 +180,15 @@ public:
 
     void test_raw_rw_reduce_wrapper() {
         using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
-        auto [out_array, out_event] = output(height);
+        const auto input_array =
+            row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto [out_array, out_event] = output(height_);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(this->get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+        reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_, unary_, { out_event })
             .wait_and_throw();
 
         check_output_rw(out_array);
@@ -193,14 +196,15 @@ public:
 
     void test_raw_cw_reduce_naive() {
         using reduction_t = reduction_rm_cw_naive<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
-        auto [out_array, out_event] = output(width);
+        const auto input_array =
+            row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto [out_array, out_event] = output(width_);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(this->get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+        reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_, unary_, { out_event })
             .wait_and_throw();
 
         check_output_cw(out_array);
@@ -208,14 +212,15 @@ public:
 
     void test_raw_cw_reduce_naive_local() {
         using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
-        auto [out_array, out_event] = output(width);
+        const auto input_array =
+            row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto [out_array, out_event] = output(width_);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(this->get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+        reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_, unary_, { out_event })
             .wait_and_throw();
 
         check_output_cw(out_array);
@@ -223,28 +228,27 @@ public:
 
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
-        const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
-        auto [out_array, out_event] = output(width);
+        const auto input_array =
+            row_accessor<const float_t>{ input_table_ }.pull(this->get_queue());
+        auto [out_array, out_event] = output(width_);
 
         const float_t* inp_ptr = input_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
         reduction_t reducer(this->get_queue());
-        reducer(inp_ptr, out_ptr, width, height, stride, binary, unary, { out_event })
+        reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_, unary_, { out_event })
             .wait_and_throw();
 
         check_output_cw(out_array);
     }
 
 private:
-    const binary_t binary{};
-    const unary_t unary{};
-
-private:
-    std::int64_t width;
-    std::int64_t stride;
-    std::int64_t height;
-    table input_table;
+    const binary_t binary_{};
+    const unary_t unary_{};
+    std::int64_t width_;
+    std::int64_t stride_;
+    std::int64_t height_;
+    table input_table_;
 };
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_random,

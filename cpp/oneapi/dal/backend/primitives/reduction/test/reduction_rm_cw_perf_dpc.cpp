@@ -45,20 +45,20 @@ public:
     using unary_t = std::tuple_element_t<2, Param>;
 
     void generate() {
-        width = GENERATE(16, 128, 1024);
-        stride = GENERATE(16, 128, 1024);
-        height = GENERATE(16, 128, 1024, 16384, 32768);
-        SKIP_IF(width > stride);
-        REQUIRE(width <= stride);
-        CAPTURE(width, stride, height);
+        width_ = GENERATE(16, 128, 1024);
+        stride_ = GENERATE(16, 128, 1024);
+        height_ = GENERATE(16, 128, 1024, 16384, 32768);
+        SKIP_IF(width_ > stride_);
+        REQUIRE(width_ <= stride_);
+        CAPTURE(width_, stride_, height_);
     }
 
     bool is_initialized() const {
-        return width > 0 && stride > 0 && height > 0;
+        return width_ > 0 && stride_ > 0 && height_ > 0;
     }
 
     bool should_be_skipped() {
-        if (width > stride) {
+        if (width_ > stride_) {
             return true;
         }
         if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
@@ -76,7 +76,7 @@ public:
     auto input() {
         check_if_initialized();
         return ndarray<float_t, 2, rm_order>::zeros(this->get_queue(),
-                                                    { stride, height },
+                                                    { stride_, height_ },
                                                     sycl::usm::alloc::device);
     }
 
@@ -105,10 +105,10 @@ public:
     auto matrix_desc() {
         check_if_initialized();
         return fmt::format("Row-Major Matrix with parameters: "
-                           "width = {}, stride = {}, height = {}",
-                           width,
-                           stride,
-                           height);
+                           "width_ = {}, stride_ = {}, height_ = {}",
+                           width_,
+                           stride_,
+                           height_);
     }
 
     auto unary_desc() {
@@ -150,7 +150,7 @@ public:
     void test_raw_cw_reduce_naive() {
         using reduction_t = reduction_rm_cw_naive<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output(width);
+        auto [out_array, out_event] = output(width_);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -161,7 +161,7 @@ public:
 
         BENCHMARK(name.c_str()) {
             reduction_t reducer(this->get_queue());
-            reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
+            reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_t{}, unary_t{})
                 .wait_and_throw();
         };
     }
@@ -169,7 +169,7 @@ public:
     void test_raw_cw_reduce_naive_local() {
         using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output(width);
+        auto [out_array, out_event] = output(width_);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -180,7 +180,7 @@ public:
 
         BENCHMARK(name.c_str()) {
             reduction_t reducer(this->get_queue());
-            reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
+            reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_t{}, unary_t{})
                 .wait_and_throw();
         };
     }
@@ -188,7 +188,7 @@ public:
     void test_raw_cw_reduce_wrapper() {
         using reduction_t = reduction_rm_cw<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output(width);
+        auto [out_array, out_event] = output(width_);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
@@ -199,15 +199,15 @@ public:
 
         BENCHMARK(name.c_str()) {
             reduction_t reducer(this->get_queue());
-            reducer(inp_ptr, out_ptr, width, height, stride, binary_t{}, unary_t{})
+            reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_t{}, unary_t{})
                 .wait_and_throw();
         };
     }
 
 private:
-    std::int64_t width;
-    std::int64_t stride;
-    std::int64_t height;
+    std::int64_t width_;
+    std::int64_t stride_;
+    std::int64_t height_;
 };
 
 TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
