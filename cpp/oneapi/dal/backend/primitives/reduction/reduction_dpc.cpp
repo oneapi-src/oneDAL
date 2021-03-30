@@ -16,13 +16,11 @@
 
 #include <type_traits>
 
-#include "oneapi/dal/backend/primitives/reduction/reduction_dpc.hpp"
+#include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw_dpc.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw_dpc.hpp"
 
 namespace oneapi::dal::backend::primitives {
-
-#ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 inline sycl::event reduce_rm_rw(sycl::queue& q,
@@ -145,7 +143,5 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE_LAYOUT
 
 #undef INSTANTIATE
-
-#endif
 
 } // namespace oneapi::dal::backend::primitives

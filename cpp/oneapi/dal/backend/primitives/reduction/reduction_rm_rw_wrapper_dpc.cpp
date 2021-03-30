@@ -20,8 +20,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
-
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_rm_rw(sycl::queue& q) : q_{ q } {}
 
@@ -122,7 +120,5 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE_FLOAT
 
 #undef INSTANTIATE
-
-#endif
 
 } // namespace oneapi::dal::backend::primitives

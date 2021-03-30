@@ -20,8 +20,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
-
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_wide {
     using inp_t = const Float*;
@@ -154,7 +152,5 @@ INSTANTIATE_FLOAT(sum, abs)
 INSTANTIATE_FLOAT(sum, square)
 
 #undef INSTANTIATE_FLOAT
-
-#endif
 
 } // namespace oneapi::dal::backend::primitives

@@ -21,8 +21,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
-
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_wide;
 
@@ -148,7 +146,5 @@ public:
 private:
     sycl::queue& q_;
 };
-
-#endif
 
 } // namespace oneapi::dal::backend::primitives
