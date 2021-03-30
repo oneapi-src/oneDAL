@@ -14,56 +14,36 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel_scalar.hpp"
+#include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::backend {
 
-template <>
+template 
 array<std::int64_t> triangle_counting_local<__CPU_TAG__>(
     const dal::preview::detail::topology<std::int32_t>& data,
-    int64_t* triangles_local) {
-    return triangle_counting_local_<__CPU_TAG__>(data, triangles_local);
-}
+    int64_t* triangles_local);
 
-template <>
+template 
 std::int64_t triangle_counting_global_scalar<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
                                                           const std::int64_t* edge_offsets,
                                                           const std::int32_t* degrees,
                                                           std::int64_t vertex_count,
-                                                          std::int64_t edge_count) {
-    return triangle_counting_global_scalar_<__CPU_TAG__>(vertex_neighbors,
-                                                         edge_offsets,
-                                                         degrees,
-                                                         vertex_count,
-                                                         edge_count);
-}
+                                                          std::int64_t edge_count);
 
-template <>
+template 
 std::int64_t triangle_counting_global_vector<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
                                                           const std::int64_t* edge_offsets,
                                                           const std::int32_t* degrees,
                                                           std::int64_t vertex_count,
-                                                          std::int64_t edge_count) {
-    return triangle_counting_global_vector_<__CPU_TAG__>(vertex_neighbors,
-                                                         edge_offsets,
-                                                         degrees,
-                                                         vertex_count,
-                                                         edge_count);
-}
+                                                          std::int64_t edge_count);
 
-template <>
+template 
 std::int64_t triangle_counting_global_vector_relabel<__CPU_TAG__>(
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
     const std::int32_t* degrees,
     std::int64_t vertex_count,
-    std::int64_t edge_count) {
-    return triangle_counting_global_vector_relabel_<__CPU_TAG__>(vertex_neighbors,
-                                                                 edge_offsets,
-                                                                 degrees,
-                                                                 vertex_count,
-                                                                 edge_count);
-}
+    std::int64_t edge_count);
 
 template std::int64_t compute_global_triangles<__CPU_TAG__>(
     const array<std::int64_t>& local_triangles,
