@@ -123,7 +123,7 @@ public:
                 return (arg * arg);
             }
         }
-        REQUIRE(false);
+        ONEDAL_ASSERT(false);
         return 0;
     }
 
