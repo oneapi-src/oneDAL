@@ -155,7 +155,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        const auto name = fmt::format("naive CW Reduction: {}", desc());
+        const auto name = fmt::format("Naive CW Reduction: {}", desc());
 
         this->get_queue().wait_and_throw();
 
@@ -174,7 +174,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        const auto name = fmt::format("naive Local CW Reduction: {}", desc());
+        const auto name = fmt::format("Naive Local CW Reduction: {}", desc());
 
         this->get_queue().wait_and_throw();
 
@@ -193,7 +193,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        const auto name = fmt::format("naive CW Reduction Wrapper: {}", desc());
+        const auto name = fmt::format("Naive CW Reduction Wrapper: {}", desc());
 
         this->get_queue().wait_and_throw();
 
