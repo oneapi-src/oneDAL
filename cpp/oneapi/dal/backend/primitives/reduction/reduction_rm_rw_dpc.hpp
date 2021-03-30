@@ -32,8 +32,6 @@ public:
     using inp_t = const Float*;
     using out_t = Float*;
     using kernel_t = kernel_reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
-
-public:
     reduction_rm_rw_wide(sycl::queue& q, const std::int64_t wg);
     reduction_rm_rw_wide(sycl::queue& q);
     sycl::event operator()(inp_t input,
@@ -60,11 +58,7 @@ private:
                                const std::int64_t stride,
                                const BinaryOp& binary,
                                const UnaryOp& unary);
-
-private:
     sycl::queue& q_;
-
-public:
     const std::int64_t wg_;
 };
 
@@ -77,8 +71,6 @@ public:
     using inp_t = const Float*;
     using out_t = Float*;
     using kernel_t = kernel_reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>;
-
-public:
     reduction_rm_rw_narrow(sycl::queue& q, const std::int64_t wg);
     reduction_rm_rw_narrow(sycl::queue& q);
     sycl::event operator()(inp_t input,
@@ -106,11 +98,7 @@ private:
                                const std::int64_t stride,
                                const BinaryOp& binary,
                                const UnaryOp& unary);
-
-private:
     sycl::queue& q_;
-
-private:
     const std::int64_t wg_;
 };
 
@@ -121,8 +109,6 @@ public:
     using out_t = Float*;
     using narrow_t = reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>;
     using wide_t = reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
-
-public:
     reduction_rm_rw(sycl::queue& q);
     enum reduction_method { wide, narrow };
     reduction_method propose_method(std::int64_t width) const;

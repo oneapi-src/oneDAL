@@ -32,8 +32,6 @@ public:
     using inp_t = const Float*;
     using out_t = Float*;
     using kernel_t = kernel_reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;
-
-public:
     reduction_rm_cw_naive(sycl::queue& q, const std::int64_t wg);
     reduction_rm_cw_naive(sycl::queue& q);
     sycl::event operator()(inp_t input,
@@ -60,11 +58,7 @@ private:
                                const std::int64_t stride,
                                const BinaryOp& binary,
                                const UnaryOp& unary);
-
-private:
     sycl::queue& q_;
-
-private:
     const std::int64_t wg_;
 };
 
@@ -77,8 +71,6 @@ public:
     using inp_t = const Float*;
     using out_t = Float*;
     using kernel_t = kernel_reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>;
-
-public:
     reduction_rm_cw_naive_local(sycl::queue& q, const std::int64_t wg, const std::int64_t lm);
     reduction_rm_cw_naive_local(sycl::queue& q);
     sycl::event operator()(inp_t input,
@@ -107,11 +99,7 @@ private:
                                const std::int64_t stride,
                                const BinaryOp& binary,
                                const UnaryOp& unary);
-
-private:
     sycl::queue& q_;
-
-private:
     const std::int64_t wg_;
     const std::int64_t lm_;
 };
@@ -124,7 +112,6 @@ public:
     using naive_t = reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;
     using naive_local_t = reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>;
 
-public:
     reduction_rm_cw(sycl::queue& q);
     enum reduction_method { naive, naive_local };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
