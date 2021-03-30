@@ -73,7 +73,7 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue
                                                                      const std::int64_t wg)
         : q_(q),
           wg_(wg) {
-    ONEDAL_ASSERT(wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -114,7 +114,7 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::nd_range<2> reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_range(
     const std::int64_t height) const {
-    ONEDAL_ASSERT(0 <= wg_ && wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
     return make_multiple_nd_range_2d({ height, wg_ }, { 1, wg_ });
 }
 
@@ -207,7 +207,7 @@ reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::q
                                                                          const std::int64_t wg)
         : q_(q),
           wg_(wg) {
-    ONEDAL_ASSERT(wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -251,7 +251,7 @@ sycl::nd_range<1> reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_range(
     const auto nblocks = (height / wg_) + bool(height % wg_);
     const auto eheight = wg_ * nblocks;
     ONEDAL_ASSERT(height <= eheight);
-    ONEDAL_ASSERT(0 <= wg_ && wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
     return make_multiple_nd_range_1d(eheight, wg_);
 }
 

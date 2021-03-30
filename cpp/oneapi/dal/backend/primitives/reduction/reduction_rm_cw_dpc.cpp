@@ -72,7 +72,7 @@ reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace(sycl:
                                                                            const std::int64_t wg)
         : q_(q),
           wg_(wg) {
-    ONEDAL_ASSERT(wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -89,7 +89,7 @@ sycl::event reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
-    ONEDAL_ASSERT(wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
     ONEDAL_ASSERT(0 <= width && width <= stride);
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -224,7 +224,7 @@ reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace
         : q_(q),
           wg_(wg),
           lm_(lm) {
-    ONEDAL_ASSERT(wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
     ONEDAL_ASSERT(dal::detail::integral_cast<std::int64_t>(2 * lm_ * sizeof(Float)) <=
                   local_mem_size(q_));
 }
@@ -244,9 +244,9 @@ sycl::event reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::operator()(
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
-    ONEDAL_ASSERT(wg_ <= max_wg_size(q_));
-    ONEDAL_ASSERT(lm_ <= local_mem_size(q_));
     ONEDAL_ASSERT(0 <= width && width <= stride);
+    ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
+    ONEDAL_ASSERT(0 < lm_ && lm_ <= local_mem_size(q_));
     auto event = q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         const auto range = get_range(width);
@@ -284,7 +284,6 @@ reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handle
                                                                     const std::int64_t stride,
                                                                     const BinaryOp& binary,
                                                                     const UnaryOp& unary) {
-    ;
     sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> local_acc{
         sycl::range<1>(lm),
         h
