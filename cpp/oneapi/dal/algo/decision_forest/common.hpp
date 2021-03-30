@@ -180,7 +180,7 @@ constexpr bool is_valid_task_v =
     dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -192,100 +192,36 @@ public:
     using method_t = method::by_default;
     using task_t = Task;
 
-    /// Creates a new instance of the class with the default property values.
     descriptor_base();
 
-    /// The fraction of observations per tree
-    /// @invariant :expr:`observations_per_tree_fraction > 0.0`
-    /// @invariant :expr:`observations_per_tree_fraction <= 1.0`
-    /// @remark default = 1.0
     double get_observations_per_tree_fraction() const;
-
-    /// The impurity threshold, a node will be split if this split induces a decrease of the impurity greater than or equal to the input value
-    /// @invariant :expr:`impurity_threshold >= 0.0`
-    /// @remark default = 0.0
     double get_impurity_threshold() const;
-
-    /// The min weight fraction in a leaf node. The minimum weighted fraction of the total sum of weights (of all input observations)
-    /// required to be at a leaf node
-    /// @invariant :expr:`min_weight_fraction_in_leaf_node >= 0.0`
-    /// @invariant :expr:`min_weight_fraction_in_leaf_node <= 0.5`
-    /// @remark default = 0.0
     double get_min_weight_fraction_in_leaf_node() const;
-
-    /// The min impurity decrease in a split node is a threshold for stopping the tree growth early. A node will be split if its impurity is above the threshold, otherwise it is a leaf.
-    /// @invariant :expr:`min_impurity_decrease_in_split_node >= 0.0`
-    /// @remark default = 0.0
     double get_min_impurity_decrease_in_split_node() const;
-
-    /// The number of trees in the forest.
-    /// @invariant :expr:`tree_count > 0`
-    /// @remark default = 100
     std::int64_t get_tree_count() const;
-
-    /// The number of features to consider when looking for the best split for a node.
-    /// @remark default = task::classification ? sqrt(p) : p/3, where p is the total number of features
     std::int64_t get_features_per_node() const;
-
-    /// The maximal depth of the tree. If 0, then nodes are expanded until all leaves are pure or until all leaves contain less or equal to min observations in leaf node samples.
-    /// @remark default = 0
     std::int64_t get_max_tree_depth() const;
-
-    /// The minimal number of observations in a leaf node.
-    /// @invariant :expr:`min_observations_in_leaf_node > 0`
-    /// @remark default = task::classification ? 1 : 5
     std::int64_t get_min_observations_in_leaf_node() const;
-
-    /// The minimal number of observations in a split node.
-    /// @invariant :expr:`min_observations_in_split_node > 1`
-    /// @remark default = 2
     std::int64_t get_min_observations_in_split_node() const;
-
-    /// The maximal number of the leaf nodes. If 0, the number of leaf nodes is not limited.
-    /// @remark default = 0
     std::int64_t get_max_leaf_nodes() const;
-
-    /// The maximal number of discrete bins to bucket continuous features. Used with :expr:`method::hist` split-finding method only. Increasing the number results in higher computation costs.
-    /// @invariant :expr:`max_bins > 1`
-    /// @remark default = 256
     std::int64_t get_max_bins() const;
-
-    /// The minimal number of observations in a bin. Used with :expr:`method::hist` split-finding method only.
-    /// @invariant :expr:`min_bin_size > 0`
-    /// @remark default = 5
     std::int64_t get_min_bin_size() const;
-
-    /// The memory saving mode.
-    /// @remark default = False
     bool get_memory_saving_mode() const;
-
-    /// The bootstrap mode, if true, the training set for a tree is a bootstrap of the whole training set, if False, the whole dataset is used to build each tree.
-    /// @remark default = true
     bool get_bootstrap() const;
-
-    /// The error metric mode
-    /// @remark default = error_metric_mode::none
     error_metric_mode get_error_metric_mode() const;
-
-    /// The variable importance mode
-    /// @remark default = variable_importance_mode::none
     variable_importance_mode get_variable_importance_mode() const;
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`task::classification` only.
-    /// @remark default = 2
     std::int64_t get_class_count() const {
         return get_class_count_impl();
     }
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
-    /// The infer mode. Used with :expr:`task::classification` only.
     infer_mode get_infer_mode() const {
         return get_infer_mode_impl();
     }
 
     template <typename T = Task, typename = enable_if_classification_t<T>>
-    /// The voting mode. Used with :expr:`task::classification` only.
     voting_mode get_voting_mode() const {
         return get_voting_mode_impl();
     }
@@ -295,7 +231,6 @@ protected:
     void set_impurity_threshold_impl(double value);
     void set_min_weight_fraction_in_leaf_node_impl(double value);
     void set_min_impurity_decrease_in_split_node_impl(double value);
-
     void set_tree_count_impl(std::int64_t value);
     void set_features_per_node_impl(std::int64_t value);
     void set_max_tree_depth_impl(std::int64_t value);
@@ -304,13 +239,10 @@ protected:
     void set_max_leaf_nodes_impl(std::int64_t value);
     void set_max_bins_impl(std::int64_t value);
     void set_min_bin_size_impl(std::int64_t value);
-
     void set_memory_saving_mode_impl(bool value);
     void set_bootstrap_impl(bool value);
-
     void set_error_metric_mode_impl(error_metric_mode value);
     void set_variable_importance_mode_impl(variable_importance_mode value);
-
     void set_class_count_impl(std::int64_t value);
     void set_infer_mode_impl(infer_mode value);
     void set_voting_mode_impl(voting_mode value);
@@ -342,12 +274,12 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::dense` or :expr:`method::v1::hist`.
+///                be :expr:`method::dense` or :expr:`method::hist`.
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t>
+///                be :expr:`task::classification` or :expr:`task::regression`.
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -360,9 +292,28 @@ public:
     using method_t = Method;
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
+    descriptor() = default;
+
+    /// The fraction of observations per tree
+    /// @invariant :expr:`observations_per_tree_fraction > 0.0`
+    /// @invariant :expr:`observations_per_tree_fraction <= 1.0`
+    /// @remark default = 1.0
+    double get_observations_per_tree_fraction() const {
+        return base_t::get_observations_per_tree_fraction();
+    }
+
     auto& set_observations_per_tree_fraction(double value) {
         base_t::set_observations_per_tree_fraction_impl(value);
         return *this;
+    }
+
+    /// The impurity threshold, a node will be split if this split
+    /// induces a decrease of the impurity greater than or equal to the input value
+    /// @invariant :expr:`impurity_threshold >= 0.0`
+    /// @remark default = 0.0
+    double get_impurity_threshold() const {
+        return base_t::get_impurity_threshold();
     }
 
     auto& set_impurity_threshold(double value) {
@@ -370,9 +321,27 @@ public:
         return *this;
     }
 
+    /// The min weight fraction in a leaf node. The minimum weighted fraction of the
+    /// total sum of weights (of all input observations) required to be at a leaf node
+    /// @invariant :expr:`min_weight_fraction_in_leaf_node >= 0.0`
+    /// @invariant :expr:`min_weight_fraction_in_leaf_node <= 0.5`
+    /// @remark default = 0.0
+    double get_min_weight_fraction_in_leaf_node() const {
+        return base_t::get_min_weight_fraction_in_leaf_node();
+    }
+
     auto& set_min_weight_fraction_in_leaf_node(double value) {
         base_t::set_min_weight_fraction_in_leaf_node_impl(value);
         return *this;
+    }
+
+    /// The min impurity decrease in a split node is a threshold for stopping the tree
+    /// growth early. A node will be split if its impurity is above the threshold, otherwise
+    /// it is a leaf.
+    /// @invariant :expr:`min_impurity_decrease_in_split_node >= 0.0`
+    /// @remark default = 0.0
+    double get_min_impurity_decrease_in_split_node() const {
+        return base_t::get_min_impurity_decrease_in_split_node();
     }
 
     auto& set_min_impurity_decrease_in_split_node(double value) {
@@ -380,9 +349,22 @@ public:
         return *this;
     }
 
+    /// The number of trees in the forest.
+    /// @invariant :expr:`tree_count > 0`
+    /// @remark default = 100
+    std::int64_t get_tree_count() const {
+        return base_t::get_tree_count();
+    }
+
     auto& set_tree_count(std::int64_t value) {
         base_t::set_tree_count_impl(value);
         return *this;
+    }
+
+    /// The number of features to consider when looking for the best split for a node.
+    /// @remark default = task::classification ? sqrt(p) : p/3, where p is the total number of features
+    std::int64_t get_features_per_node() const {
+        return base_t::get_features_per_node();
     }
 
     auto& set_features_per_node(std::int64_t value) {
@@ -390,9 +372,24 @@ public:
         return *this;
     }
 
+    /// The maximal depth of the tree. If 0, then nodes are expanded
+    /// until all leaves are pure or until all leaves contain less or
+    /// equal to min observations in leaf node samples.
+    /// @remark default = 0
+    std::int64_t get_max_tree_depth() const {
+        return base_t::get_max_tree_depth();
+    }
+
     auto& set_max_tree_depth(std::int64_t value) {
         base_t::set_max_tree_depth_impl(value);
         return *this;
+    }
+
+    /// The minimal number of observations in a leaf node.
+    /// @invariant :expr:`min_observations_in_leaf_node > 0`
+    /// @remark default = 1 for classification, 5 for regression
+    std::int64_t get_min_observations_in_leaf_node() const {
+        return base_t::get_min_observations_in_leaf_node();
     }
 
     auto& set_min_observations_in_leaf_node(std::int64_t value) {
@@ -400,9 +397,22 @@ public:
         return *this;
     }
 
+    /// The minimal number of observations in a split node.
+    /// @invariant :expr:`min_observations_in_split_node > 1`
+    /// @remark default = 2
+    std::int64_t get_min_observations_in_split_node() const {
+        return base_t::get_min_observations_in_split_node();
+    }
+
     auto& set_min_observations_in_split_node(std::int64_t value) {
         base_t::set_min_observations_in_split_node_impl(value);
         return *this;
+    }
+
+    /// The maximal number of the leaf nodes. If 0, the number of leaf nodes is not limited.
+    /// @remark default = 0
+    std::int64_t get_max_leaf_nodes() const {
+        return base_t::get_max_leaf_nodes();
     }
 
     auto& set_max_leaf_nodes(std::int64_t value) {
@@ -410,9 +420,26 @@ public:
         return *this;
     }
 
+    /// The maximal number of discrete bins to bucket continuous features.
+    /// Used with :expr:`method::hist` split-finding method only. Increasing
+    /// the number results in higher computation costs.
+    /// @invariant :expr:`max_bins > 1`
+    /// @remark default = 256
+    std::int64_t get_max_bins() const {
+        return base_t::get_max_bins();
+    }
+
     auto& set_max_bins(std::int64_t value) {
         base_t::set_max_bins_impl(value);
         return *this;
+    }
+
+    /// The minimal number of observations in a bin. Used with
+    /// :expr:`method::hist` split-finding method only.
+    /// @invariant :expr:`min_bin_size > 0`
+    /// @remark default = 5
+    std::int64_t get_min_bin_size() const {
+        return base_t::get_min_bin_size();
     }
 
     auto& set_min_bin_size(std::int64_t value) {
@@ -420,9 +447,10 @@ public:
         return *this;
     }
 
-    auto& set_error_metric_mode(error_metric_mode value) {
-        base_t::set_error_metric_mode_impl(value);
-        return *this;
+    /// The memory saving mode.
+    /// @remark default = false
+    bool get_memory_saving_mode() const {
+        return base_t::get_memory_saving_mode();
     }
 
     auto& set_memory_saving_mode(bool value) {
@@ -430,14 +458,46 @@ public:
         return *this;
     }
 
+    /// The bootstrap mode, if true, the training set for a tree
+    /// is a bootstrap of the whole training set, if False, the whole
+    /// dataset is used to build each tree.
+    /// @remark default = true
+    bool get_bootstrap() const {
+        return base_t::get_bootstrap();
+    }
+
     auto& set_bootstrap(bool value) {
         base_t::set_bootstrap_impl(value);
         return *this;
     }
 
+    /// The error metric mode
+    /// @remark default = error_metric_mode::none
+    error_metric_mode get_error_metric_mode() const {
+        return base_t::get_error_metric_mode();
+    }
+
+    auto& set_error_metric_mode(error_metric_mode value) {
+        base_t::set_error_metric_mode_impl(value);
+        return *this;
+    }
+
+    /// The variable importance mode
+    /// @remark default = variable_importance_mode::none
+    variable_importance_mode get_variable_importance_mode() const {
+        return base_t::get_variable_importance_mode();
+    }
+
     auto& set_variable_importance_mode(variable_importance_mode value) {
         base_t::set_variable_importance_mode_impl(value);
         return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    /// The class count. Used with :expr:`task::classification` only.
+    /// @remark default = 2
+    std::int64_t get_class_count() const {
+        return base_t::get_class_count_impl();
     }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
@@ -447,9 +507,21 @@ public:
     }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    /// The infer mode. Used with :expr:`task::classification` only.
+    infer_mode get_infer_mode() const {
+        return base_t::get_infer_mode_impl();
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_infer_mode(infer_mode value) {
         base_t::set_infer_mode_impl(value);
         return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    /// The voting mode. Used with :expr:`task::classification` only.
+    voting_mode get_voting_mode() const {
+        return base_t::get_voting_mode_impl();
     }
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
@@ -460,7 +532,7 @@ public:
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -478,7 +550,7 @@ public:
     std::int64_t get_tree_count() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    /// The class count. Used with :expr:`oneapi::dal::decision_forest::task::v1::classification` only.
+    /// The class count. Used with :expr:`oneapi::dal::decision_forest::task::classification` only.
     /// @remark default = 2
     std::int64_t get_class_count() const {
         return get_class_count_impl();

@@ -72,7 +72,6 @@ public:
     using method_t = method::by_default;
     using task_t = Task;
 
-    /// Constructs the empty descriptor
     descriptor_base();
 
     kind get_kind() const;
@@ -93,14 +92,15 @@ protected:
 /// @tparam Method The algorithm method
 /// @tparam Task   The task to solve by the algorithm
 /// @tparam Allocator   Custom allocator for all memory management inside the algorithm
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t,
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default,
           typename Allocator = std::allocator<char>>
 class descriptor : public detail::descriptor_base<Task> {
-    using base_t = detail::descriptor_base<Task>;
     static_assert(detail::is_valid_method<Method>);
     static_assert(detail::is_valid_task<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
 
 public:
     using float_t = Float;
@@ -112,10 +112,19 @@ public:
         _alloc = allocator;
     }
 
+    kind get_kind() const {
+        return base_t::get_kind();
+    }
+
     auto& set_kind(kind value) {
         base_t::set_kind(value);
         return *this;
     }
+
+    relabel get_relabel() const {
+        return base_t::get_relabel();
+    }
+
     auto& set_relabel(relabel value) {
         base_t::set_relabel(value);
         return *this;

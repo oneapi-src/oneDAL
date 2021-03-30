@@ -164,9 +164,7 @@ TEST("pull as device usm from host-allocated homogen table") {
         row_accessor<const float>{ data } //
             .pull(q, { 1, 3 }, sycl::usm::alloc::device);
 
-    const auto data_arr_host =
-        la::matrix<float>::wrap(q, data_arr_device.get_data(), { row_count, column_count })
-            .to_host();
+    const auto data_arr_host = la::matrix<float>::wrap(data_arr_device).to_host();
     const float* data_arr_host_ptr = data_arr_host.get_data();
 
     REQUIRE(data_arr_host_ptr[0] == 3.0f);

@@ -91,7 +91,7 @@ public:
             // indices where coefficients not equal 0 will be support vectors.
             if (_alpha[i] != zero)
             {
-                nSV++;
+                ++nSV;
             }
         }
 
@@ -307,7 +307,7 @@ protected:
             const algorithmFPType ai    = _alpha[i];
 
             /* free SV: (0 < alpha < C)*/
-            if (0 < ai && ai < cw[i])
+            if (0 < ai && ai < cwi)
             {
                 sumGrad += gradi;
                 ++nGrad;

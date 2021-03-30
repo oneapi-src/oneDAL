@@ -132,16 +132,6 @@ public:
 
         for (int i = 0; i < n; ++i)
         {
-            bool unique = true;
-            for (int j = i - 1; j >= 0; --j)
-            {
-                if (indices[i] == indices[j])
-                {
-                    _soaData[i] = _soaData[j];
-                    unique      = false;
-                }
-            }
-            if (!unique) continue;
             const uint32_t dataIndex = indices[i] % nVectors;
             int64_t cacheIndex       = _lruCache.get(dataIndex);
             if (cacheIndex != -1)
@@ -209,7 +199,6 @@ protected:
     services::Status init(const size_t nSize)
     {
         DAAL_ITTNOTIFY_SCOPED_TASK(cache.init);
-        printf("nSize: %lu _cacheSize %lu\n", nSize, _cacheSize);
         services::Status status;
         _kernelIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelIndex.get());

@@ -603,7 +603,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 */
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, clusters=10, iters=3",
-                     "[kmeans][nightly][batch][external-dataset]",
+                     "[kmeans][batch][external-dataset]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
