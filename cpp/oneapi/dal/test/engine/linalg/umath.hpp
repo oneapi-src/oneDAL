@@ -39,7 +39,7 @@ template <typename T, layout lyt, typename Op>
 using binary_op_result_t = typename binary_op_result<T, lyt, Op>::type;
 
 template <typename T, layout lyt, typename Op>
-unary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& m, Op&& op) {
+inline unary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& m, Op&& op) {
     using result_matrix_t = unary_op_result_t<T, lyt, Op>;
     auto res = result_matrix_t::empty(m.get_shape());
 
@@ -54,9 +54,9 @@ unary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& m, Op&& op) {
 }
 
 template <typename T, layout lyt, typename Op>
-binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
-                                           const matrix<T, lyt>& rhs,
-                                           Op&& op) {
+inline binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
+                                                  const matrix<T, lyt>& rhs,
+                                                  Op&& op) {
     ONEDAL_ASSERT(lhs.get_shape() == rhs.get_shape(), "Matrices must have the same shape");
 
     using result_matrix_t = binary_op_result_t<T, lyt, Op>;
@@ -74,7 +74,7 @@ binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
 }
 
 template <typename T, layout lyt, typename Op, typename U = T>
-U reduce(const matrix<T, lyt>& m, const U& init, Op&& op) {
+inline U reduce(const matrix<T, lyt>& m, const U& init, Op&& op) {
     if (!m.has_data()) {
         return U(0);
     }
@@ -92,77 +92,84 @@ U reduce(const matrix<T, lyt>& m, const U& init, Op&& op) {
 }
 
 template <typename T, layout lyt>
-matrix<T, lyt> add(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline matrix<T, lyt> add(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return elementwise(lhs, rhs, std::plus<T>{});
 }
 
 template <typename T, layout lyt>
-matrix<T, lyt> subtract(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline matrix<T, lyt> subtract(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return elementwise(lhs, rhs, std::minus<T>{});
 }
 
 template <typename T, layout lyt>
-matrix<T, lyt> multiply(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline matrix<T, lyt> multiply(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return elementwise(lhs, rhs, std::multiplies<T>{});
 }
 
 template <typename T, layout lyt>
-matrix<T, lyt> divide(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline matrix<T, lyt> multiply(T scalar, const matrix<T, lyt>& m) {
+    return elementwise(m, [&](T x) {
+        return scalar * x;
+    });
+}
+
+template <typename T, layout lyt>
+inline matrix<T, lyt> divide(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return elementwise(lhs, rhs, std::divides<T>{});
 }
 
 template <typename T, layout lyt>
-matrix<bool, lyt> equal(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline matrix<bool, lyt> equal(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return elementwise(lhs, rhs, std::equal_to<T>{});
 }
 
 template <typename T, layout lyt>
-matrix<bool, lyt> not_equal(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline matrix<bool, lyt> not_equal(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return elementwise(lhs, rhs, std::not_equal_to<T>{});
 }
 
 template <typename T, layout lyt>
-matrix<bool, lyt> equal_approx(const matrix<T, lyt>& lhs,
-                               const matrix<T, lyt>& rhs,
-                               double epsilon) {
+inline matrix<bool, lyt> equal_approx(const matrix<T, lyt>& lhs,
+                                      const matrix<T, lyt>& rhs,
+                                      double epsilon) {
     return elementwise(lhs, rhs, [&](T x, T y) {
         return std::abs(double(x) - double(y)) < epsilon;
     });
 }
 
 template <typename T, layout lyt>
-matrix<T, lyt> abs(const matrix<T, lyt>& m) {
+inline matrix<T, lyt> abs(const matrix<T, lyt>& m) {
     return elementwise(m, [](T x) {
         return std::abs(x);
     });
 }
 
 template <typename T, layout lyt>
-T max(const matrix<T, lyt>& m) {
+inline T max(const matrix<T, lyt>& m) {
     return reduce(m, std::numeric_limits<T>::min(), [](T x, T y) {
         return std::max(x, y);
     });
 }
 
 template <typename T, layout lyt>
-matrix<T, lyt> max(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline matrix<T, lyt> max(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return elementwise(lhs, rhs, [&](T x, T y) {
         return std::max(x, y);
     });
 }
 
 template <typename T, layout lyt>
-T l_inf_norm(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline T l_inf_norm(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return max(abs(subtract(lhs, rhs)));
 }
 
 template <typename T, layout lyt>
-T abs_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
+inline T abs_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs) {
     return l_inf_norm(lhs, rhs);
 }
 
 template <typename T, layout lyt>
-T rel_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs, T tol) {
+inline T rel_error(const matrix<T, lyt>& lhs, const matrix<T, lyt>& rhs, T tol) {
     return max(elementwise(lhs, rhs, [&](T x, T y) {
         const auto div = std::max(std::abs(x), std::abs(y));
         return (div > tol) ? (std::abs(x - y) / div) : T(0);

@@ -16,8 +16,22 @@
 
 #pragma once
 
-#include "oneapi/dal/test/engine/linalg/matrix.hpp"
+#include <random>
 #include "oneapi/dal/test/engine/linalg/loops.hpp"
-#include "oneapi/dal/test/engine/linalg/umath.hpp"
-#include "oneapi/dal/test/engine/linalg/dot.hpp"
-#include "oneapi/dal/test/engine/linalg/random.hpp"
+
+namespace oneapi::dal::test::engine::linalg {
+
+template <typename Float>
+matrix<Float> generate_uniform(const shape& s, Float a, Float b, int seed) {
+    std::mt19937 rng(seed);
+    std::uniform_real_distribution<Float> uniform(a, b);
+
+    auto m = matrix<Float>::empty(s);
+    enumerate_linear_mutable(m, [&](std::int64_t i, Float& x) {
+        x = uniform(rng);
+    });
+
+    return m;
+}
+
+} // namespace oneapi::dal::test::engine::linalg

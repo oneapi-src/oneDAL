@@ -47,6 +47,15 @@ inline void enumerate_linear(const matrix<T, lyt>& m, Op&& op) {
 }
 
 template <typename T, layout lyt, typename Op>
+inline void enumerate_linear_mutable(matrix<T, lyt>& m, Op&& op) {
+    ONEDAL_ASSERT(m.has_mutable_data());
+    T* m_ptr = m.get_mutable_data();
+    for (std::int64_t i = 0; i < m.get_count(); i++) {
+        op(i, m_ptr[i]);
+    }
+}
+
+template <typename T, layout lyt, typename Op>
 inline void enumerate(const matrix<T, lyt>& m, Op&& op) {
     static_assert(lyt == layout::row_major || lyt == layout::column_major,
                   "Only row-major or column-major layouts are supported");

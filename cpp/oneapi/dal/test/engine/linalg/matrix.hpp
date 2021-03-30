@@ -203,10 +203,10 @@ public:
         static_assert(NdArrayLike::axis_count_v == 1 || NdArrayLike::axis_count_v == 2);
 
         if constexpr (NdArrayLike::axis_count_v == 1) {
-            return wrap(x.get_data(), { 1, x.get_dimension(0) });
+            return wrap(x.flatten(), { 1, x.get_dimension(0) });
         }
 
-        return wrap(x.get_data(), { x.get_dimension(0), x.get_dimension(1) });
+        return wrap(x.flatten(), { x.get_dimension(0), x.get_dimension(1) });
     }
 
     static matrix empty(const shape& s) {
@@ -260,13 +260,17 @@ public:
     }
 #endif
 
-    static matrix eye(std::int64_t dim) {
+    static matrix diag(std::int64_t dim, Float value) {
         auto m = zeros({ dim, dim });
         Float* data = m.get_mutable_data();
         for (std::int64_t i = 0; i < dim; i++) {
-            data[i * dim + i] = Float(1);
+            data[i * dim + i] = value;
         }
         return m;
+    }
+
+    static matrix eye(std::int64_t dim) {
+        return diag(dim, Float(1));
     }
 
     matrix() : base({ 0, 0 }, 0) {}
@@ -394,6 +398,14 @@ public:
         q.memcpy(shared_copy.get_mutable_data(), x_.get_data(), x_.get_size()).wait_and_throw();
         return shared_copy;
     }
+#else
+    bool is_pure_host_alloc() const {
+        return true;
+    }
+
+    bool is_host_accessible() const {
+        return true;
+    }
 #endif
 
     auto t() const {
@@ -423,6 +435,32 @@ public:
             ptr[i] = filler;
         }
         return *this;
+    }
+
+    matrix get_row(std::int64_t row_index) const {
+        if constexpr (lyt == layout::row_major) {
+            const Float* ptr = get_data() + get_stride() * row_index;
+            const auto x_with_offset = array<Float>{ x_, ptr, get_column_count() };
+            return wrap(x_with_offset, { 1, get_column_count() });
+        }
+        else {
+            return full({ 1, get_column_count() }, [&](std::int64_t i) {
+                return get(row_index, i);
+            });
+        }
+    }
+
+    matrix get_column(std::int64_t column_index) const {
+        if constexpr (lyt == layout::column_major) {
+            const Float* ptr = get_data() + get_stride() * column_index;
+            const auto x_with_offset = array<Float>{ x_, ptr, get_row_count() };
+            return wrap(x_with_offset, { get_row_count(), 1 });
+        }
+        else {
+            return full({ get_row_count(), 1 }, [&](std::int64_t i) {
+                return get(i, column_index);
+            });
+        }
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -478,6 +516,25 @@ public:
         return result;
     }
 
+    matrix copy() const {
+        const Float* data_ptr = this->get_data();
+        return full(this->get_shape(), [&](std::int64_t i) {
+            return data_ptr[i];
+        });
+    }
+
+    template <typename T>
+    matrix<T, lyt> astype() const {
+        if constexpr (std::is_same_v<Float, T>) {
+            return *this;
+        }
+
+        const Float* data_ptr = this->get_data();
+        return matrix<T, lyt>::full(this->get_shape(), [&](std::int64_t i) {
+            return T(data_ptr[i]);
+        });
+    }
+
 private:
     explicit matrix(const array<Float>& x, const shape& s, std::int64_t stride)
             : base(s, stride),
@@ -516,5 +573,25 @@ private:
 
     array<Float> x_;
 };
+
+template <typename T, typename Float, layout lyt>
+inline matrix<T, lyt> astype(const matrix<Float, lyt>& m) {
+    return m.template astype<T>();
+}
+
+template <typename Float, layout lyt>
+inline matrix<Float, lyt> transpose(const matrix<Float, lyt>& m) {
+    ONEDAL_ASSERT(m.is_host_accessible(), "Transpose is implemented only for host-accessible data");
+
+    auto m_trans = matrix<Float, lyt>::empty(m.get_shape().t());
+
+    for (std::int64_t i = 0; i < m.get_row_count(); i++) {
+        for (std::int64_t j = 0; j < m.get_column_count(); j++) {
+            m_trans.set(j, i) = m.get(i, j);
+        }
+    }
+
+    return m_trans;
+}
 
 } // namespace oneapi::dal::test::engine::linalg
