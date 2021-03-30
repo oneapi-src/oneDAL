@@ -69,13 +69,14 @@ ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     {}
 #endif
 
-template<>
-ONEDAL_FORCEINLINE std::int64_t intersection_local_tc<dal::backend::cpu_dispatch_avx512>(const std::int32_t* neigh_u,
-                                                      const std::int32_t* neigh_v,
-                                                      std::int32_t n_u,
-                                                      std::int32_t n_v,
-                                                      std::int64_t* tc,
-                                                      std::int64_t tc_size) {
+template <>
+ONEDAL_FORCEINLINE std::int64_t intersection_local_tc<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* neigh_u,
+    const std::int32_t* neigh_v,
+    std::int32_t n_u,
+    std::int32_t n_v,
+    std::int64_t* tc,
+    std::int64_t tc_size) {
     std::cout << "avx512\n";
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;

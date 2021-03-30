@@ -65,11 +65,12 @@ ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     {}
 #endif
 
-template<>
-ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(const std::int32_t* neigh_u,
-                                             const std::int32_t* neigh_v,
-                                             std::int32_t n_u,
-                                             std::int32_t n_v) {
+template <>
+ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
+    const std::int32_t* neigh_u,
+    const std::int32_t* neigh_v,
+    std::int32_t n_u,
+    std::int32_t n_v) {
     std::cout << "avx512\n";
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
@@ -357,4 +358,4 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
     return total;
 }
 
-} // namespace oneapi::dal::preview::triangle_counting::backend
+} // namespace oneapi::dal::preview::backend

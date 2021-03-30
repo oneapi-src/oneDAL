@@ -106,11 +106,11 @@ array<std::int64_t> triangle_counting_local(
                             int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
 
                             auto tc = intersection_local_tc<Cpu>(neigh_u,
-                                                            neigh_v,
-                                                            size_neigh_u,
-                                                            size_neigh_v,
-                                                            triangles_local + indx,
-                                                            g_vertex_count);
+                                                                 neigh_v,
+                                                                 size_neigh_u,
+                                                                 size_neigh_v,
+                                                                 triangles_local + indx,
+                                                                 g_vertex_count);
 
                             triangles_local[indx + u] += tc;
                             triangles_local[indx + v] += tc;
@@ -137,12 +137,11 @@ array<std::int64_t> triangle_counting_local(
 }
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_scalar(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+std::int64_t triangle_counting_global_scalar(const std::int32_t* vertex_neighbors,
+                                             const std::int64_t* edge_offsets,
+                                             const std::int32_t* degrees,
+                                             std::int64_t vertex_count,
+                                             std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
@@ -181,12 +180,11 @@ std::int64_t triangle_counting_global_scalar(
 }
 
 template <typename Cpu>
-std::int64_t triangle_counting_global_vector(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+std::int64_t triangle_counting_global_vector(const std::int32_t* vertex_neighbors,
+                                             const std::int64_t* edge_offsets,
+                                             const std::int32_t* degrees,
+                                             std::int64_t vertex_count,
+                                             std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
@@ -222,7 +220,10 @@ std::int64_t triangle_counting_global_vector(
                                  new_size_neigh_v++)
                                 ;
 
-                            total += preview::backend::intersection<Cpu>(neigh_u, neigh_v, size_neigh_u, new_size_neigh_v);
+                            total += preview::backend::intersection<Cpu>(neigh_u,
+                                                                         neigh_v,
+                                                                         size_neigh_u,
+                                                                         new_size_neigh_v);
                         }
                         return total;
                     },
@@ -239,12 +240,11 @@ std::int64_t triangle_counting_global_vector(
 }
 
 template <typename Cpu>
- std::int64_t triangle_counting_global_vector_relabel(
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+std::int64_t triangle_counting_global_vector_relabel(const std::int32_t* vertex_neighbors,
+                                                     const std::int64_t* edge_offsets,
+                                                     const std::int32_t* degrees,
+                                                     std::int64_t vertex_count,
+                                                     std::int64_t edge_count) {
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
@@ -274,7 +274,10 @@ template <typename Cpu>
                          new_size_neigh_v++)
                         ;
 
-                    tc_u += preview::backend::intersection<Cpu>(neigh_u, neigh_v, size_neigh_u, new_size_neigh_v);
+                    tc_u += preview::backend::intersection<Cpu>(neigh_u,
+                                                                neigh_v,
+                                                                size_neigh_u,
+                                                                new_size_neigh_v);
                 }
             }
             return tc_u;
