@@ -147,15 +147,15 @@ public:
                            binary_desc());
     }
 
-    void test_raw_cw_reduce_inplace() {
-        using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
+    void test_raw_cw_reduce_naive() {
+        using reduction_t = reduction_rm_cw_naive<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        const auto name = fmt::format("Inplace CW Reduction: {}", desc());
+        const auto name = fmt::format("naive CW Reduction: {}", desc());
 
         this->get_queue().wait_and_throw();
 
@@ -166,15 +166,15 @@ public:
         };
     }
 
-    void test_raw_cw_reduce_inplace_local() {
-        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
+    void test_raw_cw_reduce_naive_local() {
+        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output(width);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        const auto name = fmt::format("Inplace Local CW Reduction: {}", desc());
+        const auto name = fmt::format("naive Local CW Reduction: {}", desc());
 
         this->get_queue().wait_and_throw();
 
@@ -193,7 +193,7 @@ public:
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
 
-        const auto name = fmt::format("Inplace CW Reduction Wrapper: {}", desc());
+        const auto name = fmt::format("naive CW Reduction Wrapper: {}", desc());
 
         this->get_queue().wait_and_throw();
 
@@ -228,8 +228,8 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      reduction_types) {
     this->generate();
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_cw_reduce_inplace();
-    this->test_raw_cw_reduce_inplace_local();
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_naive_local();
     this->test_raw_cw_reduce_wrapper();
 }
 

@@ -23,17 +23,17 @@ namespace oneapi::dal::backend::primitives {
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-class kernel_reduction_rm_cw_inplace {
+class kernel_reduction_rm_cw_naive {
     using inp_t = const Float*;
     using out_t = Float*;
 
 public:
-    kernel_reduction_rm_cw_inplace(inp_t const input,
-                                   out_t const output,
-                                   const std::int64_t height,
-                                   const std::int32_t lstride,
-                                   const BinaryOp& binary,
-                                   const UnaryOp& unary)
+    kernel_reduction_rm_cw_naive(inp_t const input,
+                                 out_t const output,
+                                 const std::int64_t height,
+                                 const std::int32_t lstride,
+                                 const BinaryOp& binary,
+                                 const UnaryOp& unary)
             : input_{ input },
               output_{ output },
               unary_{ unary },
@@ -68,19 +68,19 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace(sycl::queue& q,
-                                                                           const std::int64_t wg)
+reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive(sycl::queue& q,
+                                                                       const std::int64_t wg)
         : q_(q),
           wg_(wg) {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= max_wg_size(q_));
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace(sycl::queue& q)
-        : reduction_rm_cw_inplace(q, max_wg_size(q)) {}
+reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive(sycl::queue& q)
+        : reduction_rm_cw_naive(q, max_wg_size(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::operator()(
+sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     const std::int64_t width,
@@ -101,7 +101,7 @@ sycl::event reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::operator()(
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::operator()(
+sycl::event reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     const std::int64_t width,
@@ -113,19 +113,19 @@ sycl::event reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::operator()(
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::nd_range<2> reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::get_range(
+sycl::nd_range<2> reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::get_range(
     const std::int64_t width) const {
     return make_multiple_nd_range_2d({ width, wg_ }, { 1, wg_ });
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-typename reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::kernel_t
-reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
-                                                              Float* output,
-                                                              const std::int64_t height,
-                                                              const std::int64_t stride,
-                                                              const BinaryOp& binary,
-                                                              const UnaryOp& unary) {
+typename reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::kernel_t
+reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
+                                                            Float* output,
+                                                            const std::int64_t height,
+                                                            const std::int64_t stride,
+                                                            const BinaryOp& binary,
+                                                            const UnaryOp& unary) {
     return kernel_t{ input,
                      output,
                      dal::detail::integral_cast<std::int64_t>(height),
@@ -134,7 +134,7 @@ reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input
                      unary };
 }
 
-#define INSTANTIATE(F, B, U) template class reduction_rm_cw_inplace<F, B, U>;
+#define INSTANTIATE(F, B, U) template class reduction_rm_cw_naive<F, B, U>;
 
 #define INSTANTIATE_FLOAT(B, U)                \
     INSTANTIATE(double, B<double>, U<double>); \
@@ -157,20 +157,20 @@ INSTANTIATE_FLOAT(sum, square)
 #undef INSTANTIATE
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-class kernel_reduction_rm_cw_inplace_local {
+class kernel_reduction_rm_cw_naive_local {
     using acc_t =
         sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>;
     using inp_t = const Float*;
     using out_t = Float*;
 
 public:
-    kernel_reduction_rm_cw_inplace_local(acc_t cache,
-                                         inp_t const input,
-                                         out_t const output,
-                                         const std::int64_t height,
-                                         const std::int32_t lstride,
-                                         const BinaryOp& binary,
-                                         const UnaryOp& unary)
+    kernel_reduction_rm_cw_naive_local(acc_t cache,
+                                       inp_t const input,
+                                       out_t const output,
+                                       const std::int64_t height,
+                                       const std::int32_t lstride,
+                                       const BinaryOp& binary,
+                                       const UnaryOp& unary)
             : cache_{ cache },
               input_{ input },
               output_{ output },
@@ -217,7 +217,7 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace_local(
+reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_local(
     sycl::queue& q,
     const std::int64_t wg,
     const std::int64_t lm)
@@ -230,12 +230,11 @@ reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_inplace_local(
-    sycl::queue& q)
-        : reduction_rm_cw_inplace_local(q, max_wg_size(q), local_mem_size(q) / sizeof(Float) / 2) {}
+reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_local(sycl::queue& q)
+        : reduction_rm_cw_naive_local(q, max_wg_size(q), local_mem_size(q) / sizeof(Float) / 2) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::operator()(
+sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     const std::int64_t width,
@@ -257,7 +256,7 @@ sycl::event reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::operator()(
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::operator()(
+sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     const std::int64_t width,
@@ -269,21 +268,21 @@ sycl::event reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::operator()(
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::nd_range<2> reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::get_range(
+sycl::nd_range<2> reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_range(
     const std::int64_t width) const {
     return make_multiple_nd_range_2d({ width, wg_ }, { 1, wg_ });
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-typename reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::kernel_t
-reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handler& h,
-                                                                    const Float* input,
-                                                                    Float* output,
-                                                                    const std::int64_t lm,
-                                                                    const std::int64_t height,
-                                                                    const std::int64_t stride,
-                                                                    const BinaryOp& binary,
-                                                                    const UnaryOp& unary) {
+typename reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::kernel_t
+reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handler& h,
+                                                                  const Float* input,
+                                                                  Float* output,
+                                                                  const std::int64_t lm,
+                                                                  const std::int64_t height,
+                                                                  const std::int64_t stride,
+                                                                  const BinaryOp& binary,
+                                                                  const UnaryOp& unary) {
     sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> local_acc{
         sycl::range<1>(lm),
         h
@@ -297,7 +296,7 @@ reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handle
                      unary };
 }
 
-#define INSTANTIATE(F, B, U) template class reduction_rm_cw_inplace_local<F, B, U>;
+#define INSTANTIATE(F, B, U) template class reduction_rm_cw_naive_local<F, B, U>;
 
 #define INSTANTIATE_FLOAT(B, U)                \
     INSTANTIATE(double, B<double>, U<double>); \
@@ -327,9 +326,9 @@ typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method
 reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
                                                           std::int64_t height) const {
     if (height >= max_wg_size(q_) && height > width) {
-        return reduction_method::inplace_local;
+        return reduction_method::naive_local;
     }
-    return reduction_method::inplace;
+    return reduction_method::naive;
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
@@ -344,12 +343,12 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp& unary,
     const event_vector& deps) const {
     // TODO: think about `switch` operator
-    if (method == reduction_method::inplace) {
-        const inplace_t kernel{ q_ };
+    if (method == reduction_method::naive) {
+        const naive_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
-    if (method == reduction_method::inplace_local) {
-        const inplace_local_t kernel{ q_ };
+    if (method == reduction_method::naive_local) {
+        const naive_local_t kernel{ q_ };
         return kernel(input, output, width, height, stride, binary, unary, deps);
     }
     ONEDAL_ASSERT(false);

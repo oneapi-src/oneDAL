@@ -24,18 +24,18 @@ namespace oneapi::dal::backend::primitives {
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-class kernel_reduction_rm_cw_inplace;
+class kernel_reduction_rm_cw_naive;
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-class reduction_rm_cw_inplace {
+class reduction_rm_cw_naive {
 public:
     using inp_t = const Float*;
     using out_t = Float*;
-    using kernel_t = kernel_reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>;
+    using kernel_t = kernel_reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;
 
 public:
-    reduction_rm_cw_inplace(sycl::queue& q, const std::int64_t wg);
-    reduction_rm_cw_inplace(sycl::queue& q);
+    reduction_rm_cw_naive(sycl::queue& q, const std::int64_t wg);
+    reduction_rm_cw_naive(sycl::queue& q);
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
@@ -69,18 +69,18 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-class kernel_reduction_rm_cw_inplace_local;
+class kernel_reduction_rm_cw_naive_local;
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-class reduction_rm_cw_inplace_local {
+class reduction_rm_cw_naive_local {
 public:
     using inp_t = const Float*;
     using out_t = Float*;
-    using kernel_t = kernel_reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>;
+    using kernel_t = kernel_reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>;
 
 public:
-    reduction_rm_cw_inplace_local(sycl::queue& q, const std::int64_t wg, const std::int64_t lm);
-    reduction_rm_cw_inplace_local(sycl::queue& q);
+    reduction_rm_cw_naive_local(sycl::queue& q, const std::int64_t wg, const std::int64_t lm);
+    reduction_rm_cw_naive_local(sycl::queue& q);
     sycl::event operator()(inp_t input,
                            out_t output,
                            const std::int64_t width,
@@ -121,12 +121,12 @@ class reduction_rm_cw {
 public:
     using inp_t = const Float*;
     using out_t = Float*;
-    using inplace_t = reduction_rm_cw_inplace<Float, BinaryOp, UnaryOp>;
-    using inplace_local_t = reduction_rm_cw_inplace_local<Float, BinaryOp, UnaryOp>;
+    using naive_t = reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;
+    using naive_local_t = reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>;
 
 public:
     reduction_rm_cw(sycl::queue& q);
-    enum reduction_method { inplace, inplace_local };
+    enum reduction_method { naive, naive_local };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
     sycl::event operator()(const reduction_method method,
                            inp_t input,

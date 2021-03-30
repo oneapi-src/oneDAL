@@ -257,8 +257,8 @@ public:
         check_output_rw(out_array);
     }
 
-    void test_raw_cw_reduce_inplace() {
-        using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
+    void test_raw_cw_reduce_naive() {
+        using reduction_t = reduction_rm_cw_naive<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output(width);
 
@@ -279,8 +279,8 @@ public:
         check_output_cw(out_array);
     }
 
-    void test_raw_cw_reduce_inplace_local() {
-        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
+    void test_raw_cw_reduce_naive_local() {
+        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output(width);
 
@@ -359,8 +359,8 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      reduction_types) {
     this->generate();
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_cw_reduce_inplace();
-    this->test_raw_cw_reduce_inplace_local();
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_naive_local();
     this->test_raw_cw_reduce_wrapper();
 }
 
@@ -513,8 +513,8 @@ public:
         check_output_rw(out_array);
     }
 
-    void test_raw_cw_reduce_inplace() {
-        using reduction_t = reduction_rm_cw_inplace<float_t, binary_t, unary_t>;
+    void test_raw_cw_reduce_naive() {
+        using reduction_t = reduction_rm_cw_naive<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(width);
 
@@ -528,8 +528,8 @@ public:
         check_output_cw(out_array);
     }
 
-    void test_raw_cw_reduce_inplace_local() {
-        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
+    void test_raw_cw_reduce_naive_local() {
+        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(width);
 
@@ -544,7 +544,7 @@ public:
     }
 
     void test_raw_cw_reduce_wrapper() {
-        using reduction_t = reduction_rm_cw_inplace_local<float_t, binary_t, unary_t>;
+        using reduction_t = reduction_rm_cw_naive_local<float_t, binary_t, unary_t>;
         const auto input_array = row_accessor<const float_t>{ input_table }.pull(this->get_queue());
         auto [out_array, out_event] = output(width);
 
@@ -598,8 +598,8 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_random,
                      reduction_types) {
     this->generate();
     SKIP_IF(this->should_be_skipped());
-    this->test_raw_cw_reduce_inplace();
-    this->test_raw_cw_reduce_inplace_local();
+    this->test_raw_cw_reduce_naive();
+    this->test_raw_cw_reduce_naive_local();
     this->test_raw_cw_reduce_wrapper();
 }
 
