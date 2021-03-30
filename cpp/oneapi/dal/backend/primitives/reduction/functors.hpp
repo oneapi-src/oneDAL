@@ -23,14 +23,14 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename T>
 struct identity {
-    inline T operator()(T arg) const {
+    T operator()(T arg) const {
         return arg;
     }
 };
 
 template <typename T>
 struct abs {
-    inline T operator()(T arg) const {
+    T operator()(T arg) const {
 #ifdef __SYCL_DEVICE_ONLY__
         return sycl::fabs(arg);
 #else
@@ -41,7 +41,7 @@ struct abs {
 
 template <typename T>
 struct square {
-    inline T operator()(T arg) const {
+    T operator()(T arg) const {
         return (arg * arg);
     }
 };
@@ -52,7 +52,7 @@ struct sum {
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::plus<T> native{};
 #endif
-    inline T operator()(T a, T b) const {
+    T operator()(T a, T b) const {
         return (a + b);
     }
 };
@@ -63,7 +63,7 @@ struct mul {
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::multiplies<T> native{};
 #endif
-    inline T operator()(T a, T b) const {
+    T operator()(T a, T b) const {
         return (a * b);
     }
 };
@@ -74,7 +74,7 @@ struct max {
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::maximum<T> native{};
 #endif
-    inline T operator()(T a, T b) const {
+    T operator()(T a, T b) const {
         return (a < b) ? b : a;
     }
 };
@@ -85,7 +85,7 @@ struct min {
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::minimum<T> native{};
 #endif
-    inline T operator()(T a, T b) const {
+    T operator()(T a, T b) const {
         return (a < b) ? a : b;
     }
 };
