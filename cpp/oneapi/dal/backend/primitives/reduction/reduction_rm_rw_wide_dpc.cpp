@@ -28,8 +28,8 @@ class kernel_reduction_rm_rw_wide {
 public:
     kernel_reduction_rm_rw_wide(inp_t const input,
                                 out_t const output,
-                                const std::int32_t width,
-                                const std::int32_t lstride,
+                                std::int32_t width,
+                                std::int32_t lstride,
                                 const BinaryOp& binary,
                                 const UnaryOp& unary)
             : input_{ input },
@@ -68,7 +68,7 @@ private:
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue& q,
-                                                                     const std::int64_t wg)
+                                                                     std::int64_t wg)
         : q_(q),
           wg_(wg) {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
@@ -82,9 +82,9 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
-    const std::int64_t stride,
+    std::int64_t width,
+    std::int64_t height,
+    std::int64_t stride,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -101,8 +101,8 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
+    std::int64_t width,
+    std::int64_t height,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -111,7 +111,7 @@ sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::nd_range<2> reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_range(
-    const std::int64_t height) const {
+    std::int64_t height) const {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
     return make_multiple_nd_range_2d({ height, wg_ }, { 1, wg_ });
 }
@@ -120,8 +120,8 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::kernel_t
 reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
                                                            Float* output,
-                                                           const std::int64_t width,
-                                                           const std::int64_t stride,
+                                                           std::int64_t width,
+                                                           std::int64_t stride,
                                                            const BinaryOp& binary,
                                                            const UnaryOp& unary) {
     ONEDAL_ASSERT(0 <= width && width <= stride);

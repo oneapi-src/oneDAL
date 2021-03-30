@@ -31,8 +31,8 @@ public:
     kernel_reduction_rm_cw_naive_local(acc_t cache,
                                        inp_t const input,
                                        out_t const output,
-                                       const std::int64_t height,
-                                       const std::int32_t lstride,
+                                       std::int64_t height,
+                                       std::int32_t lstride,
                                        const BinaryOp& binary,
                                        const UnaryOp& unary)
             : cache_{ cache },
@@ -81,10 +81,9 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_local(
-    sycl::queue& q,
-    const std::int64_t wg,
-    const std::int64_t lm)
+reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::reduction_rm_cw_naive_local(sycl::queue& q,
+                                                                                   std::int64_t wg,
+                                                                                   std::int64_t lm)
         : q_(q),
           wg_(wg),
           lm_(lm) {
@@ -103,9 +102,9 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
-    const std::int64_t stride,
+    std::int64_t width,
+    std::int64_t height,
+    std::int64_t stride,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -125,8 +124,8 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
+    std::int64_t width,
+    std::int64_t height,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -135,7 +134,7 @@ sycl::event reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::operator()(
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::nd_range<2> reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_range(
-    const std::int64_t width) const {
+    std::int64_t width) const {
     return make_multiple_nd_range_2d({ width, wg_ }, { 1, wg_ });
 }
 
@@ -144,9 +143,9 @@ typename reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::kernel_t
 reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>::get_kernel(sycl::handler& h,
                                                                   const Float* input,
                                                                   Float* output,
-                                                                  const std::int64_t lm,
-                                                                  const std::int64_t height,
-                                                                  const std::int64_t stride,
+                                                                  std::int64_t lm,
+                                                                  std::int64_t height,
+                                                                  std::int64_t stride,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary) {
     sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> local_acc{

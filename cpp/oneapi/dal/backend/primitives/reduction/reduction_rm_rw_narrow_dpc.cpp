@@ -28,9 +28,9 @@ class kernel_reduction_rm_rw_narrow {
 public:
     kernel_reduction_rm_rw_narrow(inp_t const input,
                                   out_t const output,
-                                  const std::int32_t width,
-                                  const std::int64_t height,
-                                  const std::int32_t lstride,
+                                  std::int32_t width,
+                                  std::int64_t height,
+                                  std::int32_t lstride,
                                   const BinaryOp& binary,
                                   const UnaryOp& unary)
             : input_{ input },
@@ -67,7 +67,7 @@ private:
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::reduction_rm_rw_narrow(sycl::queue& q,
-                                                                         const std::int64_t wg)
+                                                                         std::int64_t wg)
         : q_(q),
           wg_(wg) {
     ONEDAL_ASSERT(0 < wg_ && wg_ <= device_max_wg_size(q_));
@@ -81,9 +81,9 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
-    const std::int64_t stride,
+    std::int64_t width,
+    std::int64_t height,
+    std::int64_t stride,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -100,8 +100,8 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
+    std::int64_t width,
+    std::int64_t height,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -110,7 +110,7 @@ sycl::event reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::operator()(
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::nd_range<1> reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_range(
-    const std::int64_t height) const {
+    std::int64_t height) const {
     const auto nblocks = (height / wg_) + bool(height % wg_);
     const auto eheight = wg_ * nblocks;
     ONEDAL_ASSERT(height <= eheight);
@@ -122,9 +122,9 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::kernel_t
 reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_kernel(inp_t input,
                                                              out_t output,
-                                                             const std::int64_t width,
-                                                             const std::int64_t height,
-                                                             const std::int64_t stride,
+                                                             std::int64_t width,
+                                                             std::int64_t height,
+                                                             std::int64_t stride,
                                                              const BinaryOp& binary,
                                                              const UnaryOp& unary) {
     ONEDAL_ASSERT(0 <= width && width <= stride);

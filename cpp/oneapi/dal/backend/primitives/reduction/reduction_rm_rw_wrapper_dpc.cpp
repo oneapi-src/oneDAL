@@ -38,12 +38,12 @@ reduction_rm_rw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width) co
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
-    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method method,
+    typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method method,
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
-    const std::int64_t stride,
+    std::int64_t width,
+    std::int64_t height,
+    std::int64_t stride,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -64,9 +64,9 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
                                                                   Float* output,
-                                                                  const std::int64_t width,
-                                                                  const std::int64_t height,
-                                                                  const std::int64_t stride,
+                                                                  std::int64_t width,
+                                                                  std::int64_t height,
+                                                                  std::int64_t stride,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary,
                                                                   const event_vector& deps) const {
@@ -76,11 +76,11 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
-    const typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method method,
+    typename reduction_rm_rw<Float, BinaryOp, UnaryOp>::reduction_method method,
     const Float* input,
     Float* output,
-    const std::int64_t width,
-    const std::int64_t height,
+    std::int64_t width,
+    std::int64_t height,
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
@@ -90,8 +90,8 @@ sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw<Float, BinaryOp, UnaryOp>::operator()(const Float* input,
                                                                   Float* output,
-                                                                  const std::int64_t width,
-                                                                  const std::int64_t height,
+                                                                  std::int64_t width,
+                                                                  std::int64_t height,
                                                                   const BinaryOp& binary,
                                                                   const UnaryOp& unary,
                                                                   const event_vector& deps) const {
