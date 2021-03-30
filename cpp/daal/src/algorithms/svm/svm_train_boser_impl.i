@@ -79,7 +79,8 @@ services::Status SVMTrainImpl<boser, algorithmFPType, cpu>::compute(const Numeri
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainTask<algorithmFPType, cpu>::setResultsToModel(const NumericTablePtr & xTable, Model & model) const
 {
-    SaveResultTask<algorithmFPType, cpu> saveResult(_nVectors, _y.get(), _alpha.get(), _grad.get(), _cache);
+    SaveResultTask<algorithmFPType, cpu> saveResult(_nVectors, _y.get(), const_cast<algorithmFPType *>(_alpha.get()), _grad.get(),
+                                                    SvmType::classification, _cache);
     return saveResult.compute(xTable, model, _cw.get());
 }
 

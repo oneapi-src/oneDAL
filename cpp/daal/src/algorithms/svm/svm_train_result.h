@@ -35,6 +35,7 @@
 #include "src/algorithms/svm/svm_train_common.h"
 #include "src/externals/service_ittnotify.h"
 #include "src/externals/service_math.h"
+#include "src/algorithms/svm/svm_train_kernel.h"
 
 namespace daal
 {
@@ -55,9 +56,9 @@ template <typename algorithmFPType, CpuType cpu>
 class SaveResultTask
 {
 public:
-    SaveResultTask(const size_t nVectors, const algorithmFPType * y, const algorithmFPType * alpha, const algorithmFPType * grad,
+    SaveResultTask(const size_t nVectors, const algorithmFPType * y, algorithmFPType * alpha, const algorithmFPType * grad, const SvmType task,
                    SVMCacheCommonIface<algorithmFPType, cpu> * cache)
-        : _nVectors(nVectors), _y(y), _alpha(alpha), _grad(grad), _cache(cache)
+        : _nVectors(nVectors), _y(y), _alpha(alpha), _grad(grad), _task(task), _cache(cache)
     {}
 
     services::Status compute(const NumericTablePtr & xTable, Model & model, const algorithmFPType * cw) const
@@ -65,6 +66,22 @@ public:
         DAAL_ITTNOTIFY_SCOPED_TASK(saveResult);
 
         services::Status s;
+        model.setBias(double(calculateBias(cw)));
+
+        if (_task == SvmType::regression)
+        {
+            for (size_t i = 0; i < _nVectors; ++i)
+            {
+                _alpha[i] = _alpha[i] - _alpha[i + _nVectors];
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < _nVectors; ++i)
+            {
+                _alpha[i] = _alpha[i] * _y[i];
+            }
+        }
 
         const algorithmFPType zero(0.0);
         size_t nSV = 0;
@@ -84,7 +101,7 @@ public:
         DAAL_CHECK_STATUS(s, setSVByIndices(xTable, model.getSupportIndices(), model.getSupportVectors()));
 
         /* Calculate bias and write it into model */
-        model.setBias(double(calculateBias(cw)));
+
         return s;
     }
 
@@ -124,7 +141,7 @@ protected:
         {
             if (_alpha[i] != zero)
             {
-                svCoeff[iSV] = _y[i] * _alpha[i];
+                svCoeff[iSV] = _alpha[i];
                 ++iSV;
             }
         }
@@ -273,8 +290,6 @@ protected:
      */
     algorithmFPType calculateBias(const algorithmFPType * cw) const
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(saveResult.calculateBias);
-
         algorithmFPType bias    = algorithmFPType(0.0);
         size_t nGrad            = 0;
         algorithmFPType sumGrad = algorithmFPType(0.0);
@@ -283,7 +298,8 @@ protected:
         algorithmFPType ub          = fpMax;
         algorithmFPType lb          = -fpMax;
 
-        for (size_t i = 0; i < _nVectors; ++i)
+        const size_t nTrainVectors = _task == SvmType::regression ? _nVectors * 2 : _nVectors;
+        for (size_t i = 0; i < nTrainVectors; ++i)
         {
             const algorithmFPType gradi = _grad[i];
             const algorithmFPType yi    = _y[i];
@@ -319,10 +335,11 @@ protected:
 
 private:
     const size_t _nVectors;                             //Number of observations in the input data set
-    const algorithmFPType * _y;                         //Array of class labels
-    const algorithmFPType * _alpha;                     //Array of classification coefficients
-    const algorithmFPType * _grad;                      //Array of classification coefficients
-    SVMCacheCommonIface<algorithmFPType, cpu> * _cache; //caches matrix Q (kernel(x[i], x[j])) values
+    const algorithmFPType * _y;                         //Array of labels
+    algorithmFPType * _alpha;                           //Array of coefficients
+    const algorithmFPType * _grad;                      //Array of coefficients
+    const SvmType _task;                                //Classification or regression task
+    SVMCacheCommonIface<algorithmFPType, cpu> * _cache; //Caches matrix Q (kernel(x[i], x[j])) values
 };
 
 } // namespace internal
