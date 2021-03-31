@@ -22,11 +22,16 @@ Kernel Functions
    :titlesonly:
 
    linear-kernel.rst
+   polynomial-kernel.rst
    rbf-kernel.rst
 
 .. rubric:: Examples: Linear Kernel
 
 .. include::  ../../../includes/kernel-functions/linear-kernel-examples.rst
+
+.. rubric:: Examples: Polynomial Kernel
+
+.. include::  ../../../includes/kernel-functions/polynomial-kernel-examples.rst
 
 .. rubric:: Examples: RBF Kernel
 

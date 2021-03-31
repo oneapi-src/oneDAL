@@ -14,15 +14,10 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-================
-Kernel Functions
-================
+.. tabs::
 
-This chapter describes programming interfaces of the kernel functions implemented in |short_name|:
+  .. group-tab:: oneAPI C++
 
-.. toctree::
-   :titlesonly:
+    Batch Processing:
 
-   linear-kernel.rst
-   polynomial-kernel.rst
-   rbf-kernel.rst
+    - :ref:`cpp_polynomial_kernel_dense_batch.cpp`
