@@ -17,7 +17,6 @@
 #pragma once
 
 #include <cmath>
-#include <cstdint>
 
 namespace oneapi::dal::backend::primitives {
 
