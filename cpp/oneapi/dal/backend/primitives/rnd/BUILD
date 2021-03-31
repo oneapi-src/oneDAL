@@ -26,7 +26,7 @@ dal_test_suite(
         "test/*perf*.cpp",
     ]),
     dal_deps = [
-        ":rng",
+        ":rnd",
     ],
     tags = [
         "exclusive",
