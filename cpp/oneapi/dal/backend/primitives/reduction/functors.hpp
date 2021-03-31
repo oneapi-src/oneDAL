@@ -21,8 +21,11 @@
 
 namespace oneapi::dal::backend::primitives {
 
+struct reduce_unary_op_tag;
+
 template <typename T>
 struct identity {
+    using tag_t = reduce_unary_op_tag;
     T operator()(const T& arg) const {
         return arg;
     }
@@ -30,6 +33,7 @@ struct identity {
 
 template <typename T>
 struct abs {
+    using tag_t = reduce_unary_op_tag;
     T operator()(const T& arg) const {
 #ifdef __SYCL_DEVICE_ONLY__
         return sycl::fabs(arg);
@@ -41,13 +45,17 @@ struct abs {
 
 template <typename T>
 struct square {
+    using tag_t = reduce_unary_op_tag;
     T operator()(const T& arg) const {
         return (arg * arg);
     }
 };
 
+struct reduce_binary_op_tag;
+
 template <typename T>
 struct sum {
+    using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = 0;
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::plus<T> native{};
@@ -61,6 +69,7 @@ struct sum {
 
 template <typename T>
 struct max {
+    using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = std::numeric_limits<T>::min();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::maximum<T> native{};
@@ -76,6 +85,7 @@ struct max {
 
 template <typename T>
 struct min {
+    using tag_t = reduce_binary_op_tag;
     constexpr static inline T init_value = std::numeric_limits<T>::max();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::minimum<T> native{};

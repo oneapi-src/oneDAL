@@ -16,12 +16,21 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/reduction/functors.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
+
+template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
+sycl::event reduce_by_rows_impl(sycl::queue& q,
+                                const ndview<Float, 2, order>& input,
+                                ndview<Float, 1>& output,
+                                const BinaryOp& binary,
+                                const UnaryOp& unary,
+                                const event_vector& deps);
 
 /// Reduces `input` rows and stores results into `output`
 ///
@@ -37,12 +46,28 @@ namespace oneapi::dal::backend::primitives {
 /// @param[in]  unary   The unary functor that performs element-wise operation before reduction
 /// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_by_rows(sycl::queue& q,
-                           const ndview<Float, 2, order>& input,
-                           ndview<Float, 1>& output,
-                           const BinaryOp& binary = BinaryOp{},
-                           const UnaryOp& unary = UnaryOp{},
-                           const event_vector& deps = {});
+inline sycl::event reduce_by_rows(sycl::queue& q,
+                                  const ndview<Float, 2, order>& input,
+                                  ndview<Float, 1>& output,
+                                  const BinaryOp& binary = BinaryOp{},
+                                  const UnaryOp& unary = UnaryOp{},
+                                  const event_vector& deps = {}) {
+    static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
+                  "BinaryOp must be a special binary operation defined "
+                  "at the primitives level");
+    static_assert(dal::detail::is_tag_one_of_v<UnaryOp, reduce_unary_op_tag>,
+                  "UnaryOp must be a special unary operation defined "
+                  "at the primitives level");
+    return reduce_by_rows_impl(q, input, output, binary, unary, deps);
+}
+
+template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
+sycl::event reduce_by_columns_impl(sycl::queue& q,
+                                   const ndview<Float, 2, order>& input,
+                                   ndview<Float, 1>& output,
+                                   const BinaryOp& binary,
+                                   const UnaryOp& unary,
+                                   const event_vector& deps);
 
 /// Reduces `input` columns and stores results into `output`
 ///
@@ -58,12 +83,20 @@ sycl::event reduce_by_rows(sycl::queue& q,
 /// @param[in]  unary   The unary functor that performs element-wise operation before reduction
 /// @param[in]  deps    The vector of `sycl::event`s that represents list of dependencies
 template <typename Float, ndorder order, typename BinaryOp, typename UnaryOp>
-sycl::event reduce_by_columns(sycl::queue& q,
-                              const ndview<Float, 2, order>& input,
-                              ndview<Float, 1>& output,
-                              const BinaryOp& binary = BinaryOp{},
-                              const UnaryOp& unary = UnaryOp{},
-                              const event_vector& deps = {});
+inline sycl::event reduce_by_columns(sycl::queue& q,
+                                     const ndview<Float, 2, order>& input,
+                                     ndview<Float, 1>& output,
+                                     const BinaryOp& binary = BinaryOp{},
+                                     const UnaryOp& unary = UnaryOp{},
+                                     const event_vector& deps = {}) {
+    static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
+                  "BinaryOp must be a special binary operation defined "
+                  "at the primitives level");
+    static_assert(dal::detail::is_tag_one_of_v<UnaryOp, reduce_unary_op_tag>,
+                  "UnaryOp must be a special unary operation defined "
+                  "at the primitives level");
+    return reduce_by_columns_impl(q, input, output, binary, unary, deps);
+}
 
 #endif
 
