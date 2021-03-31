@@ -27,8 +27,8 @@ class kernel_reduction_rm_cw_naive_local {
 
 public:
     kernel_reduction_rm_cw_naive_local(acc_t cache,
-                                       const Float* const input,
-                                       Float* const output,
+                                       const Float* input,
+                                       Float* output,
                                        std::int64_t height,
                                        std::int32_t lstride,
                                        const BinaryOp& binary,

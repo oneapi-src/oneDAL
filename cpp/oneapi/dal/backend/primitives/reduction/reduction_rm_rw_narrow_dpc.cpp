@@ -23,8 +23,8 @@ namespace oneapi::dal::backend::primitives {
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_narrow {
 public:
-    kernel_reduction_rm_rw_narrow(const Float* const input,
-                                  Float* const output,
+    kernel_reduction_rm_rw_narrow(const Float* input,
+                                  Float* output,
                                   std::int32_t width,
                                   std::int64_t height,
                                   std::int32_t lstride,
