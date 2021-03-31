@@ -24,9 +24,7 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
-#include "oneapi/dal/backend/primitives/reduction/functors.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw_dpc.hpp"
-#include "oneapi/dal/backend/primitives/reduction/reduction_rm_cw_dpc.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 

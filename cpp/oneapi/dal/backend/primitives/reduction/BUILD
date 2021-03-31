@@ -29,6 +29,7 @@ dal_test_suite(
     name = "tests",
     framework = "catch2",
     compile_as = [ "dpc++" ],
+    private = True,
     srcs = glob([
         "test/*_dpc.cpp",
     ], exclude=[
