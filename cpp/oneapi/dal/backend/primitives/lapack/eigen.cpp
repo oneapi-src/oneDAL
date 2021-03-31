@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/externals/service_lapack.h"
+#include <src/externals/service_lapack.h>
 
 #include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -90,8 +90,7 @@ void sym_eigval_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     }
 }
 
-#define INSTANTIATE(F) \
-    template void sym_eigval_impl<F>(F * a, std::int64_t n, std::int64_t lda, F * w);
+#define INSTANTIATE(F) template void sym_eigval_impl(F* a, std::int64_t n, std::int64_t lda, F* w);
 
 INSTANTIATE(float)
 INSTANTIATE(double)
