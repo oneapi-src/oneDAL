@@ -26,7 +26,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename Float>
-class sym_eigval_test {
+class sym_eigvals_test {
 public:
     std::int64_t generate_dim() const {
         return GENERATE(3, 28, 125, 256);
@@ -36,10 +36,7 @@ public:
     /// $\frac{1}{2}(A + A^T) + nE$, where $A$ is uniformly distributed matrix, $dim(A) = n$.
     la::matrix<Float> generate_symmetric_positive() {
         const std::int64_t dim = this->generate_dim();
-        const auto a = la::generate_uniform<Float>({ dim, dim }, -1.0, 1.0, seed_);
-        const auto at = la::transpose(a);
-        const auto c = la::multiply(Float(0.5), la::add(a, at));
-        return la::add(c, la::matrix<Float>::diag(dim, dim));
+        return la::generate_symmetric_positive_matrix<Float>(dim, -1, 1, seed_);
     }
 
     auto call_sym_eigvals(const la::matrix<Float>& symmetric_matrix) {
@@ -119,9 +116,10 @@ private:
     static constexpr int seed_ = 7777;
 };
 
-#define SYM_EIGVAL_TEST(name) TEMPLATE_TEST_M(sym_eigval_test, name, "[sym_eigval]", float, double)
+#define SYM_EIGVALS_TEST(name) \
+    TEMPLATE_TEST_M(sym_eigvals_test, name, "[sym_eigvals]", float, double)
 
-SYM_EIGVAL_TEST("check sym_eigval on symmetric positive-definite matrix") {
+SYM_EIGVALS_TEST("check sym_eigvals on symmetric positive-definite matrix") {
     const auto s = this->generate_symmetric_positive();
 
     const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals(s);
@@ -130,7 +128,7 @@ SYM_EIGVAL_TEST("check sym_eigval on symmetric positive-definite matrix") {
     this->check_eigvals_are_ascending(eigenvalues);
 }
 
-SYM_EIGVAL_TEST("check sym_eigval_descending on symmetric positive-definite matrix") {
+SYM_EIGVALS_TEST("check sym_eigvals_descending on symmetric positive-definite matrix") {
     const auto s = this->generate_symmetric_positive();
 
     const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_descending(s);

@@ -22,7 +22,7 @@
 namespace oneapi::dal::test::engine::linalg {
 
 template <typename Float>
-matrix<Float> generate_uniform(const shape& s, Float a, Float b, int seed) {
+inline matrix<Float> generate_uniform_matrix(const shape& s, Float a, Float b, int seed) {
     std::mt19937 rng(seed);
     std::uniform_real_distribution<Float> uniform(a, b);
 
@@ -32,6 +32,19 @@ matrix<Float> generate_uniform(const shape& s, Float a, Float b, int seed) {
     });
 
     return m;
+}
+
+/// Generates symmetric positive-definite matrix with diagonal dominance.
+/// $\frac{1}{2}(A + A^T) + nE$, where $A$ is uniformly distributed matrix, $dim(A) = n$.
+template <typename Float>
+inline matrix<Float> generate_symmetric_positive_matrix(std::int64_t dim,
+                                                        Float a,
+                                                        Float b,
+                                                        int seed) {
+    const auto u = generate_uniform_matrix<Float>({ dim, dim }, a, b, seed);
+    const auto ut = transpose(u);
+    const auto c = multiply(Float(0.5), add(u, ut));
+    return add(c, matrix<Float>::diag(dim, dim));
 }
 
 } // namespace oneapi::dal::test::engine::linalg
