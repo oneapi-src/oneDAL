@@ -1,9 +1,11 @@
 #pragma once
-#include "tbb/enumerable_thread_specific.h"
+
+#include <memory>
 
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/sorter.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/stack.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -100,11 +102,8 @@ private:
 
     solution bundle_solutions;
 
-    typedef tbb::enumerable_thread_specific<matching_engine> bundle;
+    typedef oneapi::dal::detail::tls_mem<matching_engine, std::allocator<double>> bundle;
     bundle matching_bundle;
     void first_states_generator(bool use_exploration_stack = true);
-
-    solution run_dfs();
-    solution run_hybrid();
 };
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

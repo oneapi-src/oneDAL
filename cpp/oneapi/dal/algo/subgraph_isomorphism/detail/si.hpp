@@ -52,28 +52,15 @@ solution subgraph_isomorphism(const graph& pattern,
 
     sorter_graph.~sorter();
 
-    bool use_treading = control_flags & 0x1;
-
-    if (use_treading) {
-        engine_bundle harness(&pattern,
-                              &target,
-                              sorted_pattern_vertex.get(),
-                              predecessor.get(),
-                              direction.get(),
-                              cconditions.get(),
-                              pattern_vertex_probability.get(),
-                              control_flags);
-        sol = harness.run();
-    }
-    else {
-        matching_engine main_engine(&pattern,
-                                    &target,
-                                    sorted_pattern_vertex.get(),
-                                    predecessor.get(),
-                                    direction.get(),
-                                    cconditions.get());
-        sol = main_engine.run(true);
-    }
+    engine_bundle harness(&pattern,
+                          &target,
+                          sorted_pattern_vertex.get(),
+                          predecessor.get(),
+                          direction.get(),
+                          cconditions.get(),
+                          pattern_vertex_probability.get(),
+                          control_flags);
+    sol = harness.run();
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
         cconditions_array[i].~sconsistent_conditions();

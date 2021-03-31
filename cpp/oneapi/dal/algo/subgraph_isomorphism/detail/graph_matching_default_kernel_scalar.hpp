@@ -38,10 +38,7 @@ graph_matching_result call_subgraph_isomorphism_default_kernel_scalar(
     const descriptor_base &desc,
     const dal::preview::detail::topology<std::int32_t> &t_data,
     const dal::preview::detail::topology<std::int32_t> &p_data) {
-    // graph_loader pattern_loader(p_data, graph_storage_scheme::bit);
     graph pattern(p_data, graph_storage_scheme::bit);
-
-    // graph_loader target_loader(t_data, graph_storage_scheme::auto_detect);
     graph target(t_data, graph_storage_scheme::auto_detect);
 
     std::uint64_t control_flags =
