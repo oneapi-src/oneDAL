@@ -46,11 +46,10 @@ pedantic.opts.lnx.icx = -pedantic \
 daaldep.lnx32e.rt.icx = -static-intel
 daaldep.lnx32.rt.icx  = -static-intel
 
-p4_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE2)
-# mc_OPT.icc   = $(-Q)xSSSE3
-mc_OPT.icc   = $(-Q)$(if $(OS_is_mac),xSSE4.2,xSSE3)
-mc3_OPT.icc  = $(-Q)xSSE4.2
-avx_OPT.icc  = $(-Q)xAVX
-avx2_OPT.icc = $(-Q)xCORE-AVX2
-knl_OPT.icc  = $(if $(OS_is_mac),$(-Q)xCORE-AVX2,$(-Q)xMIC-AVX512)
-skx_OPT.icc  = $(-Q)xCORE-AVX512 $(-Qopt)zmm-usage=high
+p4_OPT.dpcpp   = -march=nocona
+mc_OPT.dpcpp   = -march=core2
+mc3_OPT.dpcpp  = -march=nehalem
+avx_OPT.dpcpp  = -march=sandybridge
+avx2_OPT.dpcpp = -march=haswell
+knl_OPT.dpcpp  = -march=knl
+skx_OPT.dpcpp  = -march=skx
