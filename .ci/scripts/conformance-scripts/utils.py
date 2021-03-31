@@ -50,16 +50,17 @@ class CallCounter:
 class LineParser:
 
     def __init__(self, device=None, consider_fails=False):
-        self.dalLine = "uses Intel(R) oneAPI Data Analytics Library solver"
-        self.sklearnLine = "uses original Scikit-learn solver"
-        self.dalFailLine = "uses original Scikit-learn solver, because the task was not solved with Intel(R) oneAPI Data Analytics Library"
+        self.dalLine = "running accelerated version"
+        self.sklearnLine = "fallback to original Scikit-learn"
+        self.dalFailLine = "failed to run accelerated version, fallback to original Scikit-learn"
 
-        if device is not None:
-            self.dalDeviceOffloadSuccessLine = f"successfully run on {device}"
-            self.dalDeviceOffloadFailLine = f"failed to run on {device}. Fallback to host"
-            self.dalDeviceLine = f"{self.dalLine} on {device}"
-
+        if device != 'CPU':
+            self.dalDeviceOffloadSuccessLine = f"successfully run on {device.lower()}"
+            self.dalDeviceOffloadFailLine = f"failed to run on {device.lower()}. Fallback to host"
         self.device = device
+
+        self.dalDeviceLine = f"{self.dalLine} on {self.device}"
+
         self.consider_fails = consider_fails
 
         self.algoCalls = CallCounter()
@@ -79,10 +80,10 @@ class LineParser:
             self._localTestCalls.sklearnCalls += 1
         if self.dalFailLine in line:
             self._localTestCalls.dalFailCalls += 1
-        if self.device is not None:
-            if self.dalDeviceLine in line:
-                self._localTestCalls.dalDevicePatchedCalls += 1
+        if self.dalDeviceLine in line:
+            self._localTestCalls.dalDevicePatchedCalls += 1
 
+        if self.device != 'CPU':
             if self.dalDeviceOffloadSuccessLine in line:
                 self._localTestCalls.dalDeviceOffloadSuccess += 1
             elif self.dalDeviceOffloadFailLine in line:
@@ -111,7 +112,7 @@ def make_summory(counter, device):
     reportText += "Number of daal4py calls: %d <br>" % counter.dalCalls
     reportText += "Number of daal4py fail calls: %d <br>" % counter.dalFailCalls
     reportText += "Percent of using daal4py: %d %% <br>" % int(percentDalCalls)
-    if device is not None:
+    if device != 'CPU':
         reportText += "Percent of daal4py calls offloaded to %s: %d %% <br>" % (device, int(daal4pyOffloadPersent))
         reportText += "Percent of using daal4py on %s: %d %% <br>" % (device, int(totalOffloatPersent))
 
@@ -119,13 +120,22 @@ def make_summory(counter, device):
     print('Number of daal4py calls: %d' % counter.dalCalls)
     print('Number of daal4py fail calls: %d' % counter.dalFailCalls)
     print('Percent of using daal4py: %d %%' % int(percentDalCalls))
-    if device is not None:
+    if device != 'CPU':
         print("Percent of daal4py calls offloaded to %s: %d %%" % (device, int(daal4pyOffloadPersent)))
         print("Percent of using daal4py on %s: %d %%" % (device, int(totalOffloatPersent)))
 
     return reportText
 
 def make_report(algs_filename, report_filename, device=None, consider_fails=False):
+    if device == 'cpu' or device == 'host' or device is None:
+        device = 'CPU'
+    elif device == 'gpu':
+        device = 'GPU'
+    else:
+        raise ValueError(f"Unexpected device name {device}."
+                         " Supported types are host, cpu and gpu")
+
+
     with open(algs_filename, "r") as file_algs:
         algs = file_algs.read().split("\n")
     algs.remove("")
