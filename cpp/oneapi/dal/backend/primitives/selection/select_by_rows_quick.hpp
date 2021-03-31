@@ -24,6 +24,7 @@
 
 #include "oneapi/dal/backend/primitives/selection/row_partitioning.hpp"
 #include "oneapi/dal/backend/primitives/selection/select_by_rows_base.hpp"
+#include "oneapi/dal/backend/primitives/rnd/rnd_seq.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 namespace oneapi::dal::backend::primitives {
@@ -37,65 +38,40 @@ template <typename Float>
 class select_by_rows_quick : public select_by_rows_base<Float> {
 public:
     select_by_rows_quick() = delete;
-    select_by_rows_quick(sycl::queue& queue, const ndshape<2>& shape) {
-        rnd_seq_ = array<Float>::empty(queue, max_rnd_seq_size_);
+    select_by_rows_quick(sycl::queue& queue, const ndshape<2>& shape)
+            : rnd_seq_(queue, std::min(shape[1], max_rnd_seq_size_)) {
         data_ = ndarray<Float, 2>::empty(queue, shape, sycl::usm::alloc::device);
         indices_ = ndarray<std::int32_t, 2>::empty(queue, shape, sycl::usm::alloc::device);
-        init(queue, shape[1]);
     }
     ~select_by_rows_quick() {
         last_call_.wait_and_throw();
     }
-    virtual sycl::event operator()(sycl::queue& queue,
-                                   const ndview<Float, 2>& data,
-                                   std::int64_t k,
-                                   ndview<Float, 2>& selection,
-                                   ndview<std::int32_t, 2>& indices,
-                                   const event_vector& deps) override {
+    sycl::event operator()(sycl::queue& queue,
+                           const ndview<Float, 2>& data,
+                           std::int64_t k,
+                           ndview<Float, 2>& selection,
+                           ndview<std::int32_t, 2>& indices,
+                           const event_vector& deps) override {
         return select<true, true>(queue, data, k, selection, indices, deps);
     }
-    virtual sycl::event operator()(sycl::queue& queue,
-                                   const ndview<Float, 2>& data,
-                                   std::int64_t k,
-                                   ndview<Float, 2>& selection,
-                                   const event_vector& deps) override {
+    sycl::event operator()(sycl::queue& queue,
+                           const ndview<Float, 2>& data,
+                           std::int64_t k,
+                           ndview<Float, 2>& selection,
+                           const event_vector& deps) override {
         ndarray<std::int32_t, 2> dummy;
         return select<true, false>(queue, data, k, selection, dummy, deps);
     }
-    virtual sycl::event operator()(sycl::queue& queue,
-                                   const ndview<Float, 2>& data,
-                                   std::int64_t k,
-                                   ndview<std::int32_t, 2>& indices,
-                                   const event_vector& deps) override {
+    sycl::event operator()(sycl::queue& queue,
+                           const ndview<Float, 2>& data,
+                           std::int64_t k,
+                           ndview<std::int32_t, 2>& indices,
+                           const event_vector& deps) override {
         ndarray<Float, 2> dummy;
         return select<false, true>(queue, data, k, dummy, indices, deps);
     }
 
 private:
-    void init(sycl::queue& queue, std::int64_t rnd_size) {
-        ONEDAL_ASSERT(rnd_size > 1);
-        this->rnd_seq_size_ = rnd_size < select_by_rows_quick::max_rnd_seq_size_
-                                  ? rnd_size
-                                  : select_by_rows_quick::max_rnd_seq_size_;
-        auto engine = daal::algorithms::engines::mcg59::Batch<>::create();
-        auto engine_impl =
-            dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*engine));
-        ONEDAL_ASSERT(engine_impl != nullptr);
-
-        auto number_array = ndarray<size_t, 1>::empty(queue, this->rnd_seq_size_);
-        daal::internal::RNGs<size_t, daal::sse2> rng;
-        auto number_ptr = number_array.get_mutable_data();
-        rng.uniform((size_t)this->rnd_seq_size_,
-                    number_ptr,
-                    engine_impl->getState(),
-                    0,
-                    (size_t)(this->rnd_seq_size_));
-        auto values = this->rnd_seq_.get_mutable_data();
-
-        for (std::int64_t i = 0; i < this->rnd_seq_size_; i++) {
-            values[i] = static_cast<float>(number_ptr[i]) / (this->rnd_seq_size_ - 1);
-        }
-    }
     template <bool selection_out, bool indices_out>
     sycl::event select(sycl::queue& queue,
                        const ndview<Float, 2>& data,
@@ -125,8 +101,8 @@ private:
 
         auto indices_tmp_ptr = indices_.get_mutable_data();
 
-        auto rnd_period = this->rnd_seq_size_;
-        auto rnd_seq_ptr = rnd_seq_.get_data();
+        auto rnd_period = this->rnd_seq_.get_count();
+        auto rnd_seq_ptr = this->rnd_seq_.get_data();
 
         [[maybe_unused]] Float* selection_ptr =
             selection_out ? selection.get_mutable_data() : nullptr;
@@ -136,21 +112,22 @@ private:
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.depends_on(cpy_event);
-            cgh.parallel_for(
-                make_multiple_nd_range_2d(preffered_sg_size, row_count, preffered_sg_size, 1),
-                [=](sycl::nd_item<2> item) {
-                    select_by_rows_quick::kernel_select<selection_out, indices_out>(item,
-                                                                                    row_count,
-                                                                                    data_tmp_ptr,
-                                                                                    indices_tmp_ptr,
-                                                                                    selection_ptr,
-                                                                                    indices_ptr,
-                                                                                    rnd_seq_ptr,
-                                                                                    rnd_period,
-                                                                                    col_count,
-                                                                                    k,
-                                                                                    stride);
-                });
+            cgh.parallel_for(make_multiple_nd_range_2d({ preffered_sg_size, row_count },
+                                                       { preffered_sg_size, 1 }),
+                             [=](sycl::nd_item<2> item) {
+                                 select_by_rows_quick::kernel_select<selection_out, indices_out>(
+                                     item,
+                                     row_count,
+                                     data_tmp_ptr,
+                                     indices_tmp_ptr,
+                                     selection_ptr,
+                                     indices_ptr,
+                                     rnd_seq_ptr,
+                                     rnd_period,
+                                     col_count,
+                                     k,
+                                     stride);
+                             });
         });
         last_call_ = event;
         return event;
@@ -229,7 +206,7 @@ private:
     }
     static constexpr std::int64_t max_rnd_seq_size_ = 1024;
     std::int64_t rnd_seq_size_ = max_rnd_seq_size_;
-    array<Float> rnd_seq_;
+    rnd_seq<Float> rnd_seq_;
     ndarray<Float, 2> data_;
     ndarray<std::int32_t, 2> indices_;
     sycl::event last_call_;

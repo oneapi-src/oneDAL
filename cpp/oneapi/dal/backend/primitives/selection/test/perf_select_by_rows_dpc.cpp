@@ -28,18 +28,6 @@ namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 
-template <typename T>
-struct type2str {
-    static const char* name;
-};
-
-#define INSTANTIATE_TYPE_MAP(T) \
-    template <>                 \
-    const char* type2str<T>::name = #T;
-
-INSTANTIATE_TYPE_MAP(float);
-INSTANTIATE_TYPE_MAP(double)
-
 template <typename TestType>
 class selection_test : public te::policy_fixture {
 public:

@@ -31,27 +31,27 @@ template <typename Float, uint32_t simd_width>
 class select_by_rows_simd : public select_by_rows_base<Float> {
 public:
     select_by_rows_simd() {}
-    virtual sycl::event operator()(sycl::queue& queue,
-                                   const ndview<Float, 2>& data,
-                                   std::int64_t k,
-                                   ndview<Float, 2>& selection,
-                                   ndview<std::int32_t, 2>& indices,
-                                   const event_vector& deps) override {
+    sycl::event operator()(sycl::queue& queue,
+                           const ndview<Float, 2>& data,
+                           std::int64_t k,
+                           ndview<Float, 2>& selection,
+                           ndview<std::int32_t, 2>& indices,
+                           const event_vector& deps) override {
         return select<true, true>(queue, data, k, selection, indices, deps);
     }
-    virtual sycl::event operator()(sycl::queue& queue,
-                                   const ndview<Float, 2>& data,
-                                   std::int64_t k,
-                                   ndview<Float, 2>& selection,
-                                   const event_vector& deps) override {
+    sycl::event operator()(sycl::queue& queue,
+                           const ndview<Float, 2>& data,
+                           std::int64_t k,
+                           ndview<Float, 2>& selection,
+                           const event_vector& deps) override {
         ndarray<std::int32_t, 2> dummy;
         return select<true, false>(queue, data, k, selection, dummy, deps);
     }
-    virtual sycl::event operator()(sycl::queue& queue,
-                                   const ndview<Float, 2>& data,
-                                   std::int64_t k,
-                                   ndview<std::int32_t, 2>& indices,
-                                   const event_vector& deps) override {
+    sycl::event operator()(sycl::queue& queue,
+                           const ndview<Float, 2>& data,
+                           std::int64_t k,
+                           ndview<std::int32_t, 2>& indices,
+                           const event_vector& deps) override {
         ndarray<Float, 2> dummy;
         return select<false, true>(queue, data, k, dummy, indices, deps);
     }
@@ -105,7 +105,7 @@ private:
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(
-                make_multiple_nd_range_2d(wg_size, row_count, wg_size, 1),
+                make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
                     auto sg = item.get_sub_group();
                     const uint32_t sg_id = sg.get_group_id()[0];

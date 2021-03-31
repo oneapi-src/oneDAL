@@ -26,19 +26,17 @@ constexpr std::uint32_t partitioning_preffered_sg_size = 16;
 
 inline sycl::nd_range<2> get_row_partitioning_range(std::int64_t row_count,
                                                     std::int64_t col_count) {
-    sycl::range<2> global(partitioning_preffered_sg_size, row_count);
-    sycl::range<2> local(partitioning_preffered_sg_size, 1);
-    sycl::nd_range<2> nd_range2d(global, local);
-    return nd_range2d;
+    return make_multiple_nd_range_2d({ partitioning_preffered_sg_size, row_count },
+                                     { partitioning_preffered_sg_size, 1 });
 }
 
 template <typename Float>
 inline std::int32_t kernel_row_partitioning(sycl::nd_item<2> item,
-                                     Float* values,
-                                     std::int32_t* indices,
-                                     std::int32_t partition_start,
-                                     std::int32_t partition_end,
-                                     Float pivot) {
+                                            Float* values,
+                                            std::int32_t* indices,
+                                            std::int32_t partition_start,
+                                            std::int32_t partition_end,
+                                            Float pivot) {
     auto sg = item.get_sub_group();
     const std::int32_t local_id = sg.get_local_id()[0];
     const std::int32_t local_size = sg.get_local_range()[0];
