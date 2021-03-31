@@ -23,14 +23,14 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename T>
 struct identity {
-    T operator()(T arg) const {
+    T operator()(const T& arg) const {
         return arg;
     }
 };
 
 template <typename T>
 struct abs {
-    T operator()(T arg) const {
+    T operator()(const T& arg) const {
 #ifdef __SYCL_DEVICE_ONLY__
         return sycl::fabs(arg);
 #else
@@ -41,7 +41,7 @@ struct abs {
 
 template <typename T>
 struct square {
-    T operator()(T arg) const {
+    T operator()(const T& arg) const {
         return (arg * arg);
     }
 };
@@ -49,22 +49,13 @@ struct square {
 template <typename T>
 struct sum {
     constexpr static inline T init_value = 0;
-#ifdef ONEDAL_DATA_PARALLEL
+#ifdef __SYCL_DEVICE_ONLY__
     constexpr static inline sycl::ONEAPI::plus<T> native{};
+#else
+    constexpr static inline std::plus<T> native{};
 #endif
-    T operator()(T a, T b) const {
-        return (a + b);
-    }
-};
-
-template <typename T>
-struct mul {
-    constexpr static inline T init_value = 1;
-#ifdef ONEDAL_DATA_PARALLEL
-    constexpr static inline sycl::ONEAPI::multiplies<T> native{};
-#endif
-    T operator()(T a, T b) const {
-        return (a * b);
+    T operator()(const T& a, const T& b) const {
+        return native(a, b);
     }
 };
 
@@ -73,9 +64,13 @@ struct max {
     constexpr static inline T init_value = std::numeric_limits<T>::min();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::maximum<T> native{};
+#else
+    constexpr static inline auto native = [](const T& a, const T& b) {
+        return std::max(a, b);
+    };
 #endif
-    T operator()(T a, T b) const {
-        return (a < b) ? b : a;
+    T operator()(const T& a, const T& b) const {
+        return native(a, b);
     }
 };
 
@@ -84,9 +79,13 @@ struct min {
     constexpr static inline T init_value = std::numeric_limits<T>::max();
 #ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::minimum<T> native{};
+#else
+    constexpr static inline auto native = [](const T& a, const T& b) {
+        return std::min(a, b);
+    };
 #endif
-    T operator()(T a, T b) const {
-        return (a < b) ? a : b;
+    T operator()(const T& a, const T& b) const {
+        return native(a, b);
     }
 };
 

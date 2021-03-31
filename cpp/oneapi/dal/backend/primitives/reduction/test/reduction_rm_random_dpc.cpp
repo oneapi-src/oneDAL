@@ -38,9 +38,13 @@ constexpr auto rm_order = ndorder::c;
 using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
                                    std::tuple<float, sum<float>, square<float>>,
                                    std::tuple<float, sum<float>, abs<float>>,
+                                   std::tuple<float, max<float>, identity<float>>,
+                                   std::tuple<float, min<float>, identity<float>>,
                                    std::tuple<double, sum<double>, identity<double>>,
                                    std::tuple<double, sum<double>, square<double>>,
-                                   std::tuple<double, sum<double>, abs<double>>>;
+                                   std::tuple<double, sum<double>, abs<double>>,
+                                   std::tuple<double, max<double>, identity<double>>,
+                                   std::tuple<double, min<double>, identity<double>>>;
 
 template <typename Param>
 class reduction_rm_test_random : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
