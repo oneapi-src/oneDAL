@@ -17,15 +17,3 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/common.hpp"
-
-namespace oneapi::dal::backend::primitives {
-
-#ifdef ONEDAL_DATA_PARALLEL
-
-inline std::int64_t propose_wg_size(const sycl::queue& q) {
-    return std::min<std::int64_t>(512, device_max_wg_size(q));
-}
-
-#endif
-
-} // namespace oneapi::dal::backend::primitives

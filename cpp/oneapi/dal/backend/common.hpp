@@ -196,6 +196,10 @@ inline std::int64_t device_max_wg_size(const sycl::queue& q) {
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 
+inline std::int64_t propose_wg_size(const sycl::queue& q) {
+    return std::min<std::int64_t>(512, device_max_wg_size(q));
+}
+
 inline std::int64_t device_local_mem_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::local_mem_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
