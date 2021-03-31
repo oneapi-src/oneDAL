@@ -64,7 +64,7 @@ static void syevd(char jobz,
 }
 
 template <typename Float>
-void sym_eigval_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
+void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     ONEDAL_ASSERT(a);
     ONEDAL_ASSERT(w);
     ONEDAL_ASSERT(n > 0);
@@ -90,7 +90,26 @@ void sym_eigval_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     }
 }
 
-#define INSTANTIATE(F) template void sym_eigval_impl(F* a, std::int64_t n, std::int64_t lda, F* w);
+template <typename Float>
+void flip_eigvals_impl(Float* a, Float* w, std::int64_t n, std::int64_t lda) {
+    ONEDAL_ASSERT(a);
+    ONEDAL_ASSERT(w);
+    ONEDAL_ASSERT(n > 0);
+    ONEDAL_ASSERT(lda >= n);
+
+    for (std::int64_t i = 0; i < n / 2; i++) {
+        const std::int64_t src_i = i;
+        const std::int64_t dst_i = n - i - 1;
+        std::swap(w[src_i], w[dst_i]);
+        for (std::int64_t j = 0; j < n; j++) {
+            std::swap(a[src_i * lda + j], a[dst_i * lda + j]);
+        }
+    }
+}
+
+#define INSTANTIATE(F)                                                            \
+    template void sym_eigvals_impl(F* a, std::int64_t n, std::int64_t lda, F* w); \
+    template void flip_eigvals_impl(F* a, F* w, std::int64_t n, std::int64_t lda);
 
 INSTANTIATE(float)
 INSTANTIATE(double)

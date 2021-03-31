@@ -26,47 +26,68 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename Float>
-static la::matrix<Float> generate_symmetric_positive(std::int64_t dim, int seed) {
-    const auto a = la::generate_uniform<Float>({ dim, dim }, -1.0, 1.0, seed);
-    const auto at = la::transpose(a);
-    const auto c = la::multiply(Float(0.5), la::add(a, at));
-    return la::add(c, la::matrix<Float>::diag(dim, dim));
-}
+class sym_eigval_test {
+public:
+    std::int64_t generate_dim() const {
+        return GENERATE(3, 28, 125, 256);
+    }
 
-template <typename Float>
-static auto eigval(const la::matrix<Float>& symmetric_matrix) {
-    ONEDAL_ASSERT(symmetric_matrix.get_row_count() == symmetric_matrix.get_column_count());
+    /// Generates symmetric positive-definite matrix with diagonal dominance.
+    /// $\frac{1}{2}(A + A^T) + nE$, where $A$ is uniformly distributed matrix, $dim(A) = n$.
+    la::matrix<Float> generate_symmetric_positive() {
+        const std::int64_t dim = this->generate_dim();
+        const auto a = la::generate_uniform<Float>({ dim, dim }, -1.0, 1.0, seed_);
+        const auto at = la::transpose(a);
+        const auto c = la::multiply(Float(0.5), la::add(a, at));
+        return la::add(c, la::matrix<Float>::diag(dim, dim));
+    }
 
-    const std::int64_t dim = symmetric_matrix.get_row_count();
-    const auto s_copy_flat = symmetric_matrix.copy().get_array();
+    auto call_sym_eigvals(const la::matrix<Float>& symmetric_matrix) {
+        constexpr bool is_ascending = true;
+        return call_sym_eigvals_generic(symmetric_matrix, is_ascending);
+    }
 
-    auto data_or_eigenvectors_nd = ndarray<Float, 2>::wrap_mutable(s_copy_flat, { dim, dim });
-    auto eigenvalues_nd = ndarray<Float, 1>::empty(dim);
-    sym_eigval(data_or_eigenvectors_nd, eigenvalues_nd);
+    auto call_sym_eigvals_descending(const la::matrix<Float>& symmetric_matrix) {
+        constexpr bool is_ascending = false;
+        return call_sym_eigvals_generic(symmetric_matrix, is_ascending);
+    }
 
-    const auto eigenvectors = la::matrix<Float>::wrap_nd(data_or_eigenvectors_nd);
-    const auto eigenvalues = la::matrix<Float>::wrap_nd(eigenvalues_nd);
-    return std::make_tuple(eigenvectors, eigenvalues);
-}
+    auto call_sym_eigvals_generic(const la::matrix<Float>& symmetric_matrix, bool is_ascending) {
+        ONEDAL_ASSERT(symmetric_matrix.get_row_count() == symmetric_matrix.get_column_count());
 
-#define SYM_EIGVAL_TEST(name) TEMPLATE_TEST(name, "[sym_eigval]", float, double)
+        const std::int64_t dim = symmetric_matrix.get_row_count();
+        const auto s_copy_flat = symmetric_matrix.copy().get_array();
 
-SYM_EIGVAL_TEST("check eigenvectors on symmetric positive-definite matrix") {
-    using float_t = TestType;
-    const std::int64_t dim = GENERATE(3, 28, 125, 256);
-    const auto s = generate_symmetric_positive<float_t>(dim, 7777);
+        auto data_or_eigenvectors_nd = ndarray<Float, 2>::wrap_mutable(s_copy_flat, { dim, dim });
+        auto eigenvalues_nd = ndarray<Float, 1>::empty(dim);
+        if (is_ascending) {
+            sym_eigvals(data_or_eigenvectors_nd, eigenvalues_nd);
+        }
+        else {
+            sym_eigvals_descending(data_or_eigenvectors_nd, eigenvalues_nd);
+        }
 
-    const auto [eigenvectors, eigenvalues] = eigval(s);
+        const auto eigenvectors = la::matrix<Float>::wrap_nd(data_or_eigenvectors_nd);
+        const auto eigenvalues = la::matrix<Float>::wrap_nd(eigenvalues_nd);
+        return std::make_tuple(eigenvectors, eigenvalues);
+    }
 
-    INFO("check eigenvectors") {
+    void check_eigvals_definition(const la::matrix<Float>& s,
+                                  const la::matrix<Float>& eigvecs,
+                                  const la::matrix<Float>& eigvals) const {
+        INFO("convert results to float64");
         const auto s_f64 = la::astype<double>(s);
-        const auto eigenvalues_f64 = la::astype<double>(eigenvalues);
-        const auto eigenvectors_f64 = la::astype<double>(eigenvectors);
+        const auto eigvals_f64 = la::astype<double>(eigvals);
+        const auto eigvecs_f64 = la::astype<double>(eigvecs);
 
-        for (std::int64_t i = 0; i < dim; i++) {
-            const auto v = la::transpose(eigenvectors_f64.get_row(i));
-            const double w = eigenvalues_f64.get(i);
+        INFO("check eigenvectors and eigenvalues definition");
+        for (std::int64_t i = 0; i < eigvecs.get_row_count(); i++) {
+            const auto v = la::transpose(eigvecs_f64.get_row(i));
+            const double w = eigvals_f64.get(i);
             CAPTURE(i, w);
+
+            // Input matrix is positive-definite, so all eigenvalues must be positive
+            REQUIRE(w > 0);
 
             const double tol = te::get_tolerance<float>(1e-4, 1e-10) * w;
 
@@ -75,6 +96,47 @@ SYM_EIGVAL_TEST("check eigenvectors on symmetric positive-definite matrix") {
             REQUIRE(err < tol);
         }
     }
+
+    void check_eigvals_are_ascending(const la::matrix<Float>& eigvals) const {
+        INFO("check eigenvalues order is ascending");
+        la::enumerate_linear(eigvals, [&](std::int64_t i, Float x) {
+            if (i > 0) {
+                REQUIRE(eigvals.get(i - 1) <= x);
+            }
+        });
+    }
+
+    void check_eigvals_are_descending(const la::matrix<Float>& eigvals) const {
+        INFO("check eigenvalues order is descending");
+        la::enumerate_linear(eigvals, [&](std::int64_t i, Float x) {
+            if (i > 0) {
+                REQUIRE(eigvals.get(i - 1) >= x);
+            }
+        });
+    }
+
+private:
+    static constexpr int seed_ = 7777;
+};
+
+#define SYM_EIGVAL_TEST(name) TEMPLATE_TEST_M(sym_eigval_test, name, "[sym_eigval]", float, double)
+
+SYM_EIGVAL_TEST("check sym_eigval on symmetric positive-definite matrix") {
+    const auto s = this->generate_symmetric_positive();
+
+    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals(s);
+
+    this->check_eigvals_definition(s, eigenvectors, eigenvalues);
+    this->check_eigvals_are_ascending(eigenvalues);
+}
+
+SYM_EIGVAL_TEST("check sym_eigval_descending on symmetric positive-definite matrix") {
+    const auto s = this->generate_symmetric_positive();
+
+    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_descending(s);
+
+    this->check_eigvals_definition(s, eigenvectors, eigenvalues);
+    this->check_eigvals_are_descending(eigenvalues);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

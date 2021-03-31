@@ -22,30 +22,46 @@ namespace oneapi::dal::backend::primitives {
 
 /// Do not use this.
 template <typename Float>
-void sym_eigval_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w);
+void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w);
 
-/// Computes eigenvectors and eigenvalues inplace.
+/// Do not use this.
+template <typename Float>
+void flip_eigvals_impl(Float* a, Float* w, std::int64_t n, std::int64_t lda);
+
+/// Computes eigenvectors and eigenvalues in-place.
 ///
-/// @param[in, out] data_or_eigenvectors The input parameter is interpreted as symmetric matrix of
-///                                      size [n x n]. The computed eigenvectors is written to that
-///                                      matrix. If `order == ndorder::c`, $i$-th row of the matrix
-///                                      contains $i$-th eigenvector. If `order == ndorder::f`, $i$-th
-///                                      column of the matrix contains $i$-th eigenvector.
-/// @param[out] eigenvalues              The output array of size [n] that stores computed eigenvalues.
-///                                      The eigenvalues are written in ascending order. $i$-th eigenvalue
-///                                      corrensponds to $i$-th eigenvector.
+/// @param[in, out] data_or_eigvecs The input parameter is interpreted as symmetric matrix of
+///                                 size [n x n]. The computed eigenvectors is written to that
+///                                 matrix. If `order == ndorder::c`, $i$-th row of the matrix
+///                                 contains $i$-th eigenvector. If `order == ndorder::f`, $i$-th
+///                                 column of the matrix contains $i$-th eigenvector.
+/// @param[out] eigvals             The output array of size [n] that stores computed eigenvalues.
+///                                 The eigenvalues are written in ascending order. $i$-th eigenvalue
+///                                 corrensponds to $i$-th eigenvector.
 template <typename Float, ndorder order>
-void sym_eigval(ndview<Float, 2, order>& data_or_eigenvectors, ndview<Float, 1>& eigenvalues) {
-    ONEDAL_ASSERT(data_or_eigenvectors.get_dimension(0) == data_or_eigenvectors.get_dimension(1),
+inline void sym_eigvals(ndview<Float, 2, order>& data_or_eigvecs, ndview<Float, 1>& eigvals) {
+    ONEDAL_ASSERT(data_or_eigvecs.get_dimension(0) == data_or_eigvecs.get_dimension(1),
                   "Input matrix must be square");
-    ONEDAL_ASSERT(eigenvalues.get_dimension(0) >= data_or_eigenvectors.get_dimension(0));
-    ONEDAL_ASSERT(data_or_eigenvectors.has_mutable_data());
-    ONEDAL_ASSERT(eigenvalues.has_mutable_data());
+    ONEDAL_ASSERT(eigvals.get_dimension(0) >= data_or_eigvecs.get_dimension(0));
+    ONEDAL_ASSERT(data_or_eigvecs.has_mutable_data());
+    ONEDAL_ASSERT(eigvals.has_mutable_data());
 
-    sym_eigval_impl(data_or_eigenvectors.get_mutable_data(),
-                    data_or_eigenvectors.get_dimension(0),
-                    data_or_eigenvectors.get_leading_stride(),
-                    eigenvalues.get_mutable_data());
+    sym_eigvals_impl(data_or_eigvecs.get_mutable_data(),
+                     data_or_eigvecs.get_dimension(0),
+                     data_or_eigvecs.get_leading_stride(),
+                     eigvals.get_mutable_data());
+}
+
+/// Computes eigenvectors and eigenvalues in-place. Eigenvectors and eigenvalues are written in
+/// descending order determined by eigenvalues. For more details, see `sym_eigvals`.
+template <typename Float, ndorder order>
+inline void sym_eigvals_descending(ndview<Float, 2, order>& data_or_eigvecs,
+                                   ndview<Float, 1>& eigvals) {
+    sym_eigvals(data_or_eigvecs, eigvals);
+    flip_eigvals_impl(data_or_eigvecs.get_mutable_data(),
+                      eigvals.get_mutable_data(),
+                      data_or_eigvecs.get_dimension(0),
+                      data_or_eigvecs.get_leading_stride());
 }
 
 } // namespace oneapi::dal::backend::primitives
