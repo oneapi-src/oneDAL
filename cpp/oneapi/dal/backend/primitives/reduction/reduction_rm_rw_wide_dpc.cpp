@@ -14,9 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/backend/primitives/reduction/common.hpp"
 #include "oneapi/dal/backend/primitives/reduction/reduction_rm_rw_dpc.hpp"
-
-#include "oneapi/dal/backend/primitives/common.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -73,7 +72,7 @@ reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::reduction_rm_rw_wide(sycl::queue& q)
-        : reduction_rm_rw_wide(q, device_max_wg_size(q)) {}
+        : reduction_rm_rw_wide(q, propose_wg_size(q)) {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 sycl::event reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>::operator()(
