@@ -40,6 +40,8 @@ using binary_op_result_t = typename binary_op_result<T, lyt, Op>::type;
 
 template <typename T, layout lyt, typename Op>
 inline unary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& m, Op&& op) {
+    m.check_if_host_accessible();
+
     using result_matrix_t = unary_op_result_t<T, lyt, Op>;
     auto res = result_matrix_t::empty(m.get_shape());
 
@@ -57,6 +59,8 @@ template <typename T, layout lyt, typename Op>
 inline binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
                                                   const matrix<T, lyt>& rhs,
                                                   Op&& op) {
+    lhs.check_if_host_accessible();
+    rhs.check_if_host_accessible();
     ONEDAL_ASSERT(lhs.get_shape() == rhs.get_shape(), "Matrices must have the same shape");
 
     using result_matrix_t = binary_op_result_t<T, lyt, Op>;
@@ -75,6 +79,8 @@ inline binary_op_result_t<T, lyt, Op> elementwise(const matrix<T, lyt>& lhs,
 
 template <typename T, layout lyt, typename Op, typename U = T>
 inline U reduce(const matrix<T, lyt>& m, const U& init, Op&& op) {
+    m.check_if_host_accessible();
+
     if (!m.has_data()) {
         return U(0);
     }

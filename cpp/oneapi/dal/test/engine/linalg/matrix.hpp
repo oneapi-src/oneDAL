@@ -214,7 +214,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static matrix empty(sycl::queue& q,
+    static matrix empty(const sycl::queue& q,
                         const shape& s,
                         sycl::usm::alloc alloc = sycl::usm::alloc::device) {
         return wrap(array<Float>::empty(q, s.get_count(), alloc), s);
@@ -232,7 +232,7 @@ public:
                        const shape& s,
                        Filler&& filler,
                        sycl::usm::alloc alloc = sycl::usm::alloc::device) {
-        return empty(q, s, alloc).fill(q, std::forward<Filler>(filler));
+        return empty(q, s, alloc).fill(std::forward<Filler>(filler));
     }
 #endif
 
@@ -406,6 +406,10 @@ public:
     bool is_host_accessible() const {
         return true;
     }
+
+    matrix to_host() const {
+        return *this;
+    }
 #endif
 
     auto t() const {
@@ -428,15 +432,6 @@ public:
         return get_mutable_data()[get_linear_index(i, j)];
     }
 
-    auto& fill(Float filler) {
-        check_if_host_accessible();
-        Float* ptr = get_mutable_data();
-        for (std::int64_t i = 0; i < get_count(); i++) {
-            ptr[i] = filler;
-        }
-        return *this;
-    }
-
     matrix get_row(std::int64_t row_index) const {
         if constexpr (lyt == layout::row_major) {
             const Float* ptr = get_data() + get_stride() * row_index;
@@ -444,6 +439,7 @@ public:
             return wrap(x_with_offset, { 1, get_column_count() });
         }
         else {
+            check_if_host_accessible();
             return full({ 1, get_column_count() }, [&](std::int64_t i) {
                 return get(row_index, i);
             });
@@ -457,70 +453,97 @@ public:
             return wrap(x_with_offset, { get_row_count(), 1 });
         }
         else {
+            check_if_host_accessible();
             return full({ get_row_count(), 1 }, [&](std::int64_t i) {
                 return get(i, column_index);
             });
         }
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
-    auto& fill(sycl::queue& q, Float filler) {
-        check_if_accessible_on(q);
-        q.fill(get_mutable_data(), filler, get_count()).wait_and_throw();
+    auto& fill(Float filler) {
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), {
+            Float* data_ptr = get_mutable_data();
+            for (std::int64_t i = 0; i < get_count(); i++) {
+                data_ptr[i] = filler;
+            }
+        });
+
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            auto q = get_queue().value();
+            q.fill(get_mutable_data(), filler, get_count()) //
+                .wait_and_throw();
+        });
+
         return *this;
     }
-#endif
 
     template <typename Filler, typename = std::enable_if_t<!std::is_arithmetic_v<Filler>>>
     auto& fill(Filler&& filler) {
-        Float* ptr = get_mutable_data();
-        for (std::int64_t i = 0; i < get_count(); i++) {
-            ptr[i] = filler(i);
-        }
-        return *this;
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    template <typename Filler, typename = std::enable_if_t<!std::is_arithmetic_v<Filler>>>
-    auto& fill(sycl::queue& q, Filler&& filler) {
-        check_if_accessible_on(q);
-
         Float* data_ptr = get_mutable_data();
-        const auto r = sycl::range<1>{ std::size_t(this->get_count()) };
 
-        auto event = q.parallel_for(r, [=](sycl::nd_item<1> id) {
-            const std::int64_t i = id.get_global_id();
-            data_ptr[i] = filler(i);
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), {
+            for (std::int64_t i = 0; i < get_count(); i++) {
+                data_ptr[i] = filler(i);
+            }
         });
-        event.wait_and_throw();
+
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            auto q = get_queue().value();
+            const auto r = sycl::range<1>{ std::size_t(this->get_count()) };
+            auto event = q.parallel_for(r, [=](sycl::id<1> id) {
+                data_ptr[id] = filler(id);
+            });
+            event.wait_and_throw();
+        });
 
         return *this;
     }
-#endif
 
     template <typename T = Float, typename = std::enable_if_t<std::is_same_v<T, bool>>>
     bool all() const {
+        const auto this_host = to_host();
+
         bool result = true;
         for (std::int64_t i = 0; i < get_count(); i++) {
-            result = result && get(i);
+            result = result && this_host.get(i);
         }
         return result;
     }
 
     template <typename T = Float, typename = std::enable_if_t<std::is_same_v<T, bool>>>
     bool any() const {
+        const auto this_host = to_host();
+
         bool result = false;
         for (std::int64_t i = 0; i < get_count(); i++) {
-            result = result || get(i);
+            result = result || this_host.get(i);
         }
         return result;
     }
 
     matrix copy() const {
-        const Float* data_ptr = this->get_data();
-        return full(this->get_shape(), [&](std::int64_t i) {
-            return data_ptr[i];
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), {
+            const auto m = empty(get_shape());
+            detail::memcpy(detail::default_host_policy{},
+                           m.get_mutable_data(),
+                           get_data(),
+                           x_.get_size());
+            return m;
         });
+
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            const auto q = get_queue().value();
+            const auto alloc = sycl::get_pointer_type(get_data(), q.get_context());
+            const auto m = empty(q, get_shape(), alloc);
+            detail::memcpy(detail::data_parallel_policy{ q },
+                           m.get_mutable_data(),
+                           get_data(),
+                           x_.get_size());
+            return m;
+        });
+
+        ONEDAL_ASSERT(!"Never happen");
+        return matrix{};
     }
 
     template <typename T>
@@ -530,22 +553,22 @@ public:
         }
 
         const Float* data_ptr = this->get_data();
-        return matrix<T, lyt>::full(this->get_shape(), [&](std::int64_t i) {
+        const auto filler = [=](std::int64_t i) {
             return T(data_ptr[i]);
+        };
+
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), { //
+            return matrix<T, lyt>::full(get_shape(), filler);
         });
-    }
 
-private:
-    explicit matrix(const array<Float>& x, const shape& s, std::int64_t stride)
-            : base(s, stride),
-              x_(x) {
-        ONEDAL_ASSERT(s.get_count() <= x.get_count(),
-                      "Element count in matrix does not match "
-                      "element count in the provided array");
-    }
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            auto q = get_queue().value();
+            return matrix<T, lyt>::full(q, get_shape(), filler);
+        });
 
-    explicit matrix(const array<Float>& x, const shape& s)
-            : matrix(x, s, base::get_default_stride(s)) {}
+        ONEDAL_ASSERT(!"Never happen");
+        return matrix<T, lyt>{};
+    }
 
 #ifdef ONEDAL_DATA_PARALLEL
     void check_if_migratable_to(const sycl::queue& q) const {
@@ -571,6 +594,18 @@ private:
     void check_if_host_accessible() const {}
 #endif
 
+private:
+    explicit matrix(const array<Float>& x, const shape& s, std::int64_t stride)
+            : base(s, stride),
+              x_(x) {
+        ONEDAL_ASSERT(s.get_count() <= x.get_count(),
+                      "Element count in matrix does not match "
+                      "element count in the provided array");
+    }
+
+    explicit matrix(const array<Float>& x, const shape& s)
+            : matrix(x, s, base::get_default_stride(s)) {}
+
     array<Float> x_;
 };
 
@@ -581,10 +616,10 @@ inline matrix<T, lyt> astype(const matrix<Float, lyt>& m) {
 
 template <typename Float, layout lyt>
 inline matrix<Float, lyt> transpose(const matrix<Float, lyt>& m) {
-    ONEDAL_ASSERT(m.is_host_accessible(), "Transpose is implemented only for host-accessible data");
+    // TODO: Implement device version
+    m.check_if_host_accessible();
 
     auto m_trans = matrix<Float, lyt>::empty(m.get_shape().t());
-
     for (std::int64_t i = 0; i < m.get_row_count(); i++) {
         for (std::int64_t j = 0; j < m.get_column_count(); j++) {
             m_trans.set(j, i) = m.get(i, j);
