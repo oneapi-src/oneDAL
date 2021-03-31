@@ -98,14 +98,14 @@ public:
         model.setNFeatures(xTable->getNumberOfColumns());
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
-        DAAL_CHECK_STATUS(s, setSVByIndices(xTable, model.getSupportIndices(), model.getSupportVectors()));
+        DAAL_CHECK_STATUS(s, setSVByIndices(xTable.get(), model.getSupportIndices(), model.getSupportVectors()));
 
         /* Calculate bias and write it into model */
 
         return s;
     }
 
-    static services::Status setSVByIndices(const NumericTablePtr & xTable, const NumericTablePtr & svIndicesTable, NumericTablePtr svTable)
+    static services::Status setSVByIndices(const NumericTable * xTable, const NumericTablePtr & svIndicesTable, NumericTablePtr svTable)
     {
         services::Status s;
         if (xTable->getDataLayout() == NumericTableIface::csrArray)
@@ -178,7 +178,7 @@ protected:
         return s;
     }
 
-    static services::Status setSVDenseByIndices(const NumericTablePtr & xTable, const NumericTablePtr & svIndicesTable, NumericTablePtr svTable)
+    static services::Status setSVDenseByIndices(const NumericTable * xTable, const NumericTablePtr & svIndicesTable, NumericTablePtr svTable)
     {
         services::Status s;
         const size_t nSV = svIndicesTable->getNumberOfRows();
@@ -201,7 +201,7 @@ protected:
         SafeStatus safeStat;
         daal::threader_for(nSV, nSV, [&](const size_t iBlock) {
             const size_t iRows = svIndices[iBlock];
-            ReadRows<algorithmFPType, cpu> mtX(xTable.get(), iRows, 1);
+            ReadRows<algorithmFPType, cpu> mtX(const_cast<NumericTable *>(xTable), iRows, 1);
             DAAL_CHECK_BLOCK_STATUS_THR(mtX);
             const algorithmFPType * const dataIn = mtX.get();
             algorithmFPType * dataOut            = sv + iBlock * p;
@@ -211,7 +211,7 @@ protected:
         return safeStat.detach();
     }
 
-    static services::Status setSVCSRByIndices(const NumericTablePtr & xTable, const NumericTablePtr & svIndicesTable, NumericTablePtr svTable)
+    static services::Status setSVCSRByIndices(const NumericTable * xTable, const NumericTablePtr & svIndicesTable, NumericTablePtr svTable)
     {
         services::Status s;
         const size_t nSV = svIndicesTable->getNumberOfRows();
@@ -220,7 +220,7 @@ protected:
         DAAL_CHECK_MALLOC(aSvRowOffsets.get());
         size_t * const svRowOffsetsBuffer = aSvRowOffsets.get();
 
-        CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(xTable.get());
+        CSRNumericTableIface * const csrIface = dynamic_cast<CSRNumericTableIface * const>(const_cast<NumericTable *>(xTable));
         DAAL_CHECK(csrIface, services::ErrorEmptyCSRNumericTable);
 
         ReadRowsCSR<algorithmFPType, cpu> mtX;

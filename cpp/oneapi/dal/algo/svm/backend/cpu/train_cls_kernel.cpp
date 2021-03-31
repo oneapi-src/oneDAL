@@ -128,6 +128,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         trained_model->support_vectors = trained_model_svm.get_support_vectors();
         trained_model->biases = trained_model_svm.get_biases();
         trained_model->coeffs = trained_model_svm.get_coeffs();
+
         return result_t()
             .set_model(dal::detail::make_private<model_t>(trained_model))
             .set_support_indices(table_support_indices);
@@ -188,7 +189,6 @@ struct train_kernel_cpu<Float, Method, task::classification> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        printf("train_kernel_cpu ALL \n");
         return train<Float, Method>(ctx, desc, input);
     }
 };

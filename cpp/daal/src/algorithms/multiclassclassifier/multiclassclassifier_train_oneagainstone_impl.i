@@ -182,7 +182,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
                 }
             }
             nSV += sv_counts[iClass];
-            printf("%lu: %lu\n", iClass, sv_counts[iClass]);
+            // printf("%lu: %lu\n", iClass, sv_counts[iClass]);
         }
         printf("sumSV: %lu\n", nSV);
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
@@ -217,8 +217,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         DAAL_CHECK_STATUS(s, coeffOutTable->resize(nSV));
 
         using SvmResultTask = SaveResultTask<algorithmFPType, cpu>;
-        DAAL_CHECK_STATUS(s, SvmResultTask::setSVByIndices(NumericTablePtr(const_cast<NumericTable *>(xTable)), supportIndicesTable,
-                                                           svmModel->getSupportVectors()));
+        DAAL_CHECK_STATUS(s, SvmResultTask::setSVByIndices(xTable, supportIndicesTable, svmModel->getSupportVectors()));
         WriteOnlyRows<algorithmFPType, cpu> mtCoefficientsOut(coeffOutTable.get(), 0, coeffOutTable->getNumberOfRows());
         DAAL_CHECK_BLOCK_STATUS(mtCoefficientsOut);
         algorithmFPType * const coefficientsOut = mtCoefficientsOut.get();
