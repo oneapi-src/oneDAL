@@ -18,15 +18,15 @@
 
 namespace oneapi::dal::backend {
 
-INSTANTIATE_TYPE_MAP(float);
-INSTANTIATE_TYPE_MAP(double);
-INSTANTIATE_TYPE_MAP(std::uint8_t);
-INSTANTIATE_TYPE_MAP(std::uint16_t);
-INSTANTIATE_TYPE_MAP(std::uint32_t);
-INSTANTIATE_TYPE_MAP(std::uint64_t);
-INSTANTIATE_TYPE_MAP(std::int8_t);
-INSTANTIATE_TYPE_MAP(std::int16_t);
-INSTANTIATE_TYPE_MAP(std::int32_t);
-INSTANTIATE_TYPE_MAP(std::int64_t);
+INSTANTIATE_TYPE_MAP(float)
+INSTANTIATE_TYPE_MAP(double)
+INSTANTIATE_TYPE_MAP(std::uint8_t)
+INSTANTIATE_TYPE_MAP(std::uint16_t)
+INSTANTIATE_TYPE_MAP(std::uint32_t)
+INSTANTIATE_TYPE_MAP(std::uint64_t)
+INSTANTIATE_TYPE_MAP(std::int8_t)
+INSTANTIATE_TYPE_MAP(std::int16_t)
+INSTANTIATE_TYPE_MAP(std::int32_t)
+INSTANTIATE_TYPE_MAP(std::int64_t)
 
 } // namespace oneapi::dal::backend
