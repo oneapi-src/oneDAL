@@ -130,7 +130,7 @@ def make_summory(counter, device):
 def device_from_sycl_terminology(device):
     if device == 'cpu' or device == 'host' or device is None:
         return 'CPU'
-    elif device == 'gpu':
+    if device == 'gpu':
         return 'GPU'
     else:
         raise ValueError(f"Unexpected device name {device}."
