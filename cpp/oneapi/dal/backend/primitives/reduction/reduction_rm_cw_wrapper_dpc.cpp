@@ -24,9 +24,9 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_rm_cw(sycl::queue& q) : q_{ q } {}
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method
-reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
-                                                          std::int64_t height) const {
+auto reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
+                                                               std::int64_t height) const
+    -> reduction_method {
     if (height >= device_max_wg_size(q_) && height > width) {
         return reduction_method::naive_local;
     }
@@ -34,16 +34,15 @@ reduction_rm_cw<Float, BinaryOp, UnaryOp>::propose_method(std::int64_t width,
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(
-    const typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method method,
-    const Float* input,
-    Float* output,
-    std::int64_t width,
-    std::int64_t height,
-    std::int64_t stride,
-    const BinaryOp& binary,
-    const UnaryOp& unary,
-    const event_vector& deps) const {
+sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_method method,
+                                                                  const Float* input,
+                                                                  Float* output,
+                                                                  std::int64_t width,
+                                                                  std::int64_t height,
+                                                                  std::int64_t stride,
+                                                                  const BinaryOp& binary,
+                                                                  const UnaryOp& unary,
+                                                                  const event_vector& deps) const {
     // TODO: think about `switch` operator
     if (method == reduction_method::naive) {
         const naive_t kernel{ q_ };
@@ -71,15 +70,14 @@ sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(const Float* i
 }
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(
-    const typename reduction_rm_cw<Float, BinaryOp, UnaryOp>::reduction_method method,
-    const Float* input,
-    Float* output,
-    std::int64_t width,
-    std::int64_t height,
-    const BinaryOp& binary,
-    const UnaryOp& unary,
-    const event_vector& deps) const {
+sycl::event reduction_rm_cw<Float, BinaryOp, UnaryOp>::operator()(reduction_method method,
+                                                                  const Float* input,
+                                                                  Float* output,
+                                                                  std::int64_t width,
+                                                                  std::int64_t height,
+                                                                  const BinaryOp& binary,
+                                                                  const UnaryOp& unary,
+                                                                  const event_vector& deps) const {
     return this->operator()(method, input, output, width, height, width, binary, unary, deps);
 }
 

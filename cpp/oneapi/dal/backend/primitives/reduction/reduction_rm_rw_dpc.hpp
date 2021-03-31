@@ -121,7 +121,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
-    sycl::event operator()(const reduction_method method,
+    sycl::event operator()(reduction_method method,
                            const Float* input,
                            Float* output,
                            std::int64_t width,

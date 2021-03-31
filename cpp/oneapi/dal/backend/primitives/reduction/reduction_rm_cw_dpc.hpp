@@ -107,7 +107,7 @@ public:
     reduction_rm_cw(sycl::queue& q);
     enum reduction_method { naive, naive_local };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
-    sycl::event operator()(const reduction_method method,
+    sycl::event operator()(reduction_method method,
                            const Float* input,
                            Float* output,
                            std::int64_t width,
@@ -124,7 +124,7 @@ public:
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
-    sycl::event operator()(const reduction_method method,
+    sycl::event operator()(reduction_method method,
                            const Float* input,
                            Float* output,
                            std::int64_t width,
