@@ -126,15 +126,19 @@ def make_summory(counter, device):
 
     return reportText
 
-def make_report(algs_filename, report_filename, device=None, consider_fails=False):
+
+def device_from_sycl_terminology(device):
     if device == 'cpu' or device == 'host' or device is None:
-        device = 'CPU'
+        return 'CPU'
     elif device == 'gpu':
-        device = 'GPU'
+        return 'GPU'
     else:
         raise ValueError(f"Unexpected device name {device}."
                          " Supported types are host, cpu and gpu")
 
+
+def make_report(algs_filename, report_filename, device=None, consider_fails=False):
+    device = device_from_sycl_terminology(device)
 
     with open(algs_filename, "r") as file_algs:
         algs = file_algs.read().split("\n")

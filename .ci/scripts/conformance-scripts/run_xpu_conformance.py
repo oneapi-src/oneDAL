@@ -49,7 +49,8 @@ if __name__ == "__main__":
     print("Confromance testing start")
     for alg_name in algs:
         code = subprocess.call(["./download_tests.sh", "--alg-name", "%s" % (alg_name) ])
-        if code: raise Exception('Error while copying test files')
+        if code:
+            raise Exception('Error while copying test files')
         print(alg_name)
 
         alg_log = open("_log_%s.txt" % (alg_name), "w")
