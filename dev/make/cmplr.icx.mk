@@ -46,10 +46,10 @@ pedantic.opts.lnx.icx = -pedantic \
 daaldep.lnx32e.rt.icx = -static-intel
 daaldep.lnx32.rt.icx  = -static-intel
 
-p4_OPT.dpcpp   = -march=nocona
-mc_OPT.dpcpp   = -march=core2
-mc3_OPT.dpcpp  = -march=nehalem
-avx_OPT.dpcpp  = -march=sandybridge
-avx2_OPT.dpcpp = -march=haswell
-knl_OPT.dpcpp  = -march=knl
-skx_OPT.dpcpp  = -march=skx
+p4_OPT.icx   = -march=nocona
+mc_OPT.icx   = -march=core2
+mc3_OPT.icx  = -march=nehalem
+avx_OPT.icx  = -march=sandybridge
+avx2_OPT.icx = -march=haswell
+knl_OPT.icx  = -march=knl
+skx_OPT.icx  = -march=skx
