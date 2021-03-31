@@ -55,20 +55,17 @@ public:
         return width_ > 0 && stride_ > 0 && height_ > 0;
     }
 
-    bool should_be_skipped() {
-        if (width_ > stride_) {
-            return true;
-        }
-        if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
-            return true;
-        }
-        return false;
-    }
-
     void check_if_initialized() {
         if (!is_initialized()) {
             throw std::runtime_error{ "reduce test is not initialized" };
         }
+    }
+
+    bool should_be_skipped() {
+        if (width_ > stride_) {
+            return true;
+        }
+        return false;
     }
 
     auto input() {
@@ -212,6 +209,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "Uniformly filled Row-Major Col-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate();
     SKIP_IF(this->should_be_skipped());
     this->test_raw_cw_reduce_naive();

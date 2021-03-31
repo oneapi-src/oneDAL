@@ -73,13 +73,6 @@ public:
         }
     }
 
-    bool should_be_skipped() {
-        if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
-            return true;
-        }
-        return false;
-    }
-
     array<float_t> groundtruth_rm_cw() const {
         auto res = array<float_t>::full(width_, binary_.init_value);
         auto* res_ptr = res.get_mutable_data();
@@ -230,8 +223,8 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "Randomly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate();
-    SKIP_IF(this->should_be_skipped());
     this->test_rm_rw_reduce();
 }
 
@@ -239,8 +232,8 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "Randomly filled Row-Major Col-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate();
-    SKIP_IF(this->should_be_skipped());
     this->test_rm_cw_reduce();
 }
 
@@ -248,8 +241,8 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "Randomly filled Col-Major Col-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate();
-    SKIP_IF(this->should_be_skipped());
     this->test_cm_cw_reduce();
 }
 
@@ -257,8 +250,8 @@ TEMPLATE_LIST_TEST_M(reduction_test_random,
                      "Randomly filled Col-Major Row-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate();
-    SKIP_IF(this->should_be_skipped());
     this->test_cm_rw_reduce();
 }
 

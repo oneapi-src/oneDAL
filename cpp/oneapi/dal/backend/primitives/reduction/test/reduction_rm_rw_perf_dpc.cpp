@@ -65,9 +65,6 @@ public:
         if (width_ > stride_) {
             return true;
         }
-        if (std::is_same_v<float_t, double> && this->not_float64_friendly()) {
-            return true;
-        }
         return false;
     }
 
@@ -212,6 +209,7 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      "Uniformly filled Row-Major Row-Wise reduction",
                      "[reduction][rm][small]",
                      reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
     this->generate();
     SKIP_IF(this->should_be_skipped());
     this->test_raw_rw_reduce_wide();
