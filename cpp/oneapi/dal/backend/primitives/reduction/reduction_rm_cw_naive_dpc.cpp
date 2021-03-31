@@ -22,12 +22,9 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_naive {
-    using inp_t = const Float*;
-    using out_t = Float*;
-
 public:
-    kernel_reduction_rm_cw_naive(inp_t const input,
-                                 out_t const output,
+    kernel_reduction_rm_cw_naive(const Float* const input,
+                                 Float* const output,
                                  std::int64_t height,
                                  std::int32_t lstride,
                                  const BinaryOp& binary,
@@ -48,7 +45,7 @@ public:
         // Exclusive for EU
         Float acc = binary_.init_value;
         for (std::int64_t i = loc_idx; i < height_; i += range) {
-            inp_t const inp_row = input_ + lstride_ * i;
+            const Float* const inp_row = input_ + lstride_ * i;
             acc = binary_.native(acc, unary_(inp_row[col_idx]));
         }
         // WG reduction
@@ -57,8 +54,8 @@ public:
     }
 
 private:
-    inp_t const input_;
-    out_t const output_;
+    const Float* const input_;
+    Float* const output_;
     const UnaryOp unary_;
     const BinaryOp binary_;
     const std::int64_t height_;

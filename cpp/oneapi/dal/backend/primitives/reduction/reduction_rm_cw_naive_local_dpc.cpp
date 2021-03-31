@@ -24,13 +24,11 @@ template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_cw_naive_local {
     using acc_t =
         sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local>;
-    using inp_t = const Float*;
-    using out_t = Float*;
 
 public:
     kernel_reduction_rm_cw_naive_local(acc_t cache,
-                                       inp_t const input,
-                                       out_t const output,
+                                       const Float* const input,
+                                       Float* const output,
                                        std::int64_t height,
                                        std::int32_t lstride,
                                        const BinaryOp& binary,
@@ -56,7 +54,7 @@ public:
         Float acc = binary_.init_value;
         // Loop fot the whole WG
         for (std::int64_t j = 0; j < height_; j += lm) {
-            inp_t from = input_ + col_idx + lstride_ * j;
+            const Float* from = input_ + col_idx + lstride_ * j;
             sycl::global_ptr<const Float> global(from);
             const auto count = std::min<std::int32_t>(lm, height_ - j);
             it.async_work_group_copy<const Float>(local, global, count, lstride_).wait();
@@ -72,8 +70,8 @@ public:
 
 private:
     acc_t cache_;
-    inp_t const input_;
-    out_t const output_;
+    const Float* const input_;
+    Float* const output_;
     const UnaryOp unary_;
     const BinaryOp binary_;
     const std::int64_t height_;

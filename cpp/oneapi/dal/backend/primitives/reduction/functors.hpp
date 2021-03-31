@@ -49,7 +49,7 @@ struct square {
 template <typename T>
 struct sum {
     constexpr static inline T init_value = 0;
-#ifdef __SYCL_DEVICE_ONLY__
+#ifdef ONEDAL_DATA_PARALLEL
     constexpr static inline sycl::ONEAPI::plus<T> native{};
 #else
     constexpr static inline std::plus<T> native{};

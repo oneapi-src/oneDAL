@@ -27,21 +27,19 @@ class kernel_reduction_rm_rw_wide;
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw_wide {
 public:
-    using inp_t = const Float*;
-    using out_t = Float*;
     using kernel_t = kernel_reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
     reduction_rm_rw_wide(sycl::queue& q, std::int64_t wg);
     reduction_rm_rw_wide(sycl::queue& q);
-    sycl::event operator()(inp_t input,
-                           out_t output,
+    sycl::event operator()(const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t stride,
                            std::int64_t height,
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
-    sycl::event operator()(inp_t input,
-                           out_t output,
+    sycl::event operator()(const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t height,
                            const BinaryOp& binary = BinaryOp{},
@@ -50,8 +48,8 @@ public:
 
 private:
     sycl::nd_range<2> get_range(std::int64_t height) const;
-    static kernel_t get_kernel(inp_t input,
-                               out_t output,
+    static kernel_t get_kernel(const Float* input,
+                               Float* output,
                                std::int64_t width,
                                std::int64_t stride,
                                const BinaryOp& binary,
@@ -66,21 +64,19 @@ class kernel_reduction_rm_rw_narrow;
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw_narrow {
 public:
-    using inp_t = const Float*;
-    using out_t = Float*;
     using kernel_t = kernel_reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>;
     reduction_rm_rw_narrow(sycl::queue& q, std::int64_t wg);
     reduction_rm_rw_narrow(sycl::queue& q);
-    sycl::event operator()(inp_t input,
-                           out_t output,
+    sycl::event operator()(const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t stride,
                            std::int64_t height,
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
-    sycl::event operator()(inp_t input,
-                           out_t output,
+    sycl::event operator()(const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t height,
                            const BinaryOp& binary = BinaryOp{},
@@ -89,8 +85,8 @@ public:
 
 private:
     sycl::nd_range<1> get_range(std::int64_t height) const;
-    static kernel_t get_kernel(inp_t input,
-                               out_t output,
+    static kernel_t get_kernel(const Float* input,
+                               Float* output,
                                std::int64_t width,
                                std::int64_t height,
                                std::int64_t stride,
@@ -103,24 +99,22 @@ private:
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_rw {
 public:
-    using inp_t = const Float*;
-    using out_t = Float*;
     using narrow_t = reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>;
     using wide_t = reduction_rm_rw_wide<Float, BinaryOp, UnaryOp>;
     reduction_rm_rw(sycl::queue& q);
     enum reduction_method { wide, narrow };
     reduction_method propose_method(std::int64_t width) const;
     sycl::event operator()(reduction_method method,
-                           inp_t input,
-                           out_t output,
+                           const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t height,
                            std::int64_t stride,
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
-    sycl::event operator()(inp_t input,
-                           out_t output,
+    sycl::event operator()(const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t height,
                            std::int64_t stride,
@@ -128,15 +122,15 @@ public:
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
     sycl::event operator()(const reduction_method method,
-                           inp_t input,
-                           out_t output,
+                           const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t height,
                            const BinaryOp& binary = BinaryOp{},
                            const UnaryOp& unary = UnaryOp{},
                            const event_vector& deps = {}) const;
-    sycl::event operator()(inp_t input,
-                           out_t output,
+    sycl::event operator()(const Float* input,
+                           Float* output,
                            std::int64_t width,
                            std::int64_t height,
                            const BinaryOp& binary = BinaryOp{},

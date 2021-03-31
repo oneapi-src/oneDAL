@@ -22,12 +22,9 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_wide {
-    using inp_t = const Float*;
-    using out_t = Float*;
-
 public:
-    kernel_reduction_rm_rw_wide(inp_t const input,
-                                out_t const output,
+    kernel_reduction_rm_rw_wide(const Float* const input,
+                                Float* const output,
                                 std::int32_t width,
                                 std::int32_t lstride,
                                 const BinaryOp& binary,
@@ -46,7 +43,7 @@ public:
         const auto loc_idx = it.get_local_id(1);
         const auto range = it.get_global_range(1);
         // It should be converted to upper type by default
-        inp_t const inp_row = input_ + lstride_ * row_idx;
+        const Float* const inp_row = input_ + lstride_ * row_idx;
         // Exclusive for EU
         Float acc = binary_.init_value;
         for (std::int32_t i = loc_idx; i < width_; i += range) {
@@ -58,8 +55,8 @@ public:
     }
 
 private:
-    inp_t const input_;
-    out_t const output_;
+    const Float* const input_;
+    Float* const output_;
     const UnaryOp unary_;
     const BinaryOp binary_;
     const std::int32_t width_;

@@ -22,12 +22,9 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 class kernel_reduction_rm_rw_narrow {
-    using inp_t = const Float*;
-    using out_t = Float*;
-
 public:
-    kernel_reduction_rm_rw_narrow(inp_t const input,
-                                  out_t const output,
+    kernel_reduction_rm_rw_narrow(const Float* const input,
+                                  Float* const output,
                                   std::int32_t width,
                                   std::int64_t height,
                                   std::int32_t lstride,
@@ -45,7 +42,7 @@ public:
         const std::int64_t row_idx = it.get_global_id(0);
         if (row_idx < height_) {
             // It should be conmverted to upper type by default
-            inp_t const inp_row = input_ + lstride_ * row_idx;
+            const Float* const inp_row = input_ + lstride_ * row_idx;
             // Exclusive for EU
             Float acc = binary_.init_value;
             for (std::int32_t i = 0; i < width_; ++i) {
@@ -56,8 +53,8 @@ public:
     }
 
 private:
-    inp_t const input_;
-    out_t const output_;
+    const Float* const input_;
+    Float* const output_;
     const UnaryOp unary_;
     const BinaryOp binary_;
     const std::int32_t width_;
@@ -120,8 +117,8 @@ sycl::nd_range<1> reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_range(
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
 typename reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::kernel_t
-reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_kernel(inp_t input,
-                                                             out_t output,
+reduction_rm_rw_narrow<Float, BinaryOp, UnaryOp>::get_kernel(const Float* input,
+                                                             Float* output,
                                                              std::int64_t width,
                                                              std::int64_t height,
                                                              std::int64_t stride,
