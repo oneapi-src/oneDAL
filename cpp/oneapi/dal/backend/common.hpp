@@ -94,6 +94,11 @@ inline constexpr Integer up_pow2(Integer x) {
     return power;
 }
 
+template <typename float_t>
+inline constexpr float_t exp_treshold() {
+    return std::is_same_v<float_t, double> ? -650.0 : -75.0f;
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 using event_vector = std::vector<sycl::event>;

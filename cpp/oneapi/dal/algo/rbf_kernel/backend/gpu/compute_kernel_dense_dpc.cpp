@@ -15,12 +15,9 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/rbf_kernel/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-
-#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_rbf_kernel_oneapi.h>
 
 namespace oneapi::dal::rbf_kernel::backend {
 
@@ -29,46 +26,103 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
-namespace interop = dal::backend::interop;
+namespace pr = dal::backend::primitives;
 
 template <typename Float>
-using daal_rbf_kernel_t =
-    daal_rbf_kernel::internal::KernelImplRBFOneAPI<daal_rbf_kernel::defaultDense, Float>;
+sycl::event compute_RBF(sycl::queue& queue,
+                        const pr::ndview<Float, 1>& sqr_x,
+                        const pr::ndview<Float, 1>& sqr_y,
+                        pr::ndview<Float, 2> res_rbf,
+                        const Float coeff,
+                        const std::int64_t ld,
+                        const dal::backend::event_vector& deps) {
+    sycl::event::wait_and_throw(deps);
+    const Float* sqr_x_ptr = sqr_x.get_data();
+    const Float* sqr_y_ptr = sqr_y.get_data();
+    Float* res_rbf_ptr = res_rbf.get_mutable_data();
 
-template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& x,
-                                 const table& y) {
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
+    const Float threshold = dal::backend::exp_treshold<Float>();
 
-    const int64_t row_count_x = x.get_row_count();
-    const int64_t row_count_y = y.get_row_count();
+    auto compute_rbf_event = queue.submit([&](sycl::handler& chg) {
+        const auto range = sycl::range<2>(sqr_x.get_dimension(0), sqr_y.get_dimension(0));
 
-    dal::detail::check_mul_overflow(row_count_x, row_count_y);
-    auto arr_values =
-        array<Float>::empty(queue, row_count_x * row_count_y, sycl::usm::alloc::device);
+        chg.parallel_for(range, [=](cl::sycl::id<2> id) {
+            const int i = id[0];
+            const int j = id[1];
+            const Float sqr_x_i = sqr_x_ptr[i];
+            const Float sqr_y_j = sqr_y_ptr[j];
+            const Float res_rbf_ij = res_rbf_ptr[i * ld + j];
+            const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
 
-    const auto daal_x = interop::convert_to_daal_table(queue, x);
-    const auto daal_y = interop::convert_to_daal_table(queue, y);
-    const auto daal_values =
-        interop::convert_to_daal_table(queue, arr_values, row_count_x, row_count_y);
+            res_rbf_ptr[i * ld + j] = sycl::exp(arg);
+        });
+    });
 
-    daal_rbf_kernel::Parameter daal_parameter(desc.get_sigma());
-    daal_rbf_kernel_t<Float>().compute(daal_x.get(),
-                                       daal_y.get(),
-                                       daal_values.get(),
-                                       &daal_parameter);
-
-    return result_t().set_values(
-        dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
+    return compute_rbf_event;
 }
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_x(), input.get_y());
+    const auto x = input.get_x();
+    const auto y = input.get_y();
+
+    auto& queue = ctx.get_queue();
+
+    const int64_t row_count_x = x.get_row_count();
+    const int64_t col_count_x = x.get_column_count();
+    const int64_t row_count_y = y.get_row_count();
+    const int64_t col_count_y = y.get_column_count();
+
+    ONEDAL_ASSERT(col_count_x == col_count_y);
+    dal::detail::check_mul_overflow(row_count_x, row_count_y);
+
+    const Float sigma = desc.get_sigma();
+    const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
+
+    auto arr_x = row_accessor<const Float>(x).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    const auto ndarray_x = pr::ndarray<Float, 2>::wrap(arr_x, { row_count_x, col_count_x });
+
+    auto arr_y = row_accessor<const Float>(y).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    const auto ndarray_y = pr::ndarray<Float, 2>::wrap(arr_y, { row_count_y, col_count_y });
+
+    auto ndarray_res =
+        pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
+
+    auto [ndarray_sqr_x, sqr_x_zeros_event] =
+        pr::ndarray<Float, 1>::zeros(queue, { row_count_x }, sycl::usm::alloc::device);
+    auto [ndarray_sqr_y, sqr_y_zeros_event] =
+        pr::ndarray<Float, 1>::zeros(queue, { row_count_y }, sycl::usm::alloc::device);
+
+    auto reduce_x_event = reduce_by_rows(queue,
+                                         ndarray_x,
+                                         ndarray_sqr_x,
+                                         pr::sum<Float>{},
+                                         pr::square<Float>{},
+                                         { sqr_x_zeros_event });
+    auto reduce_y_event = reduce_by_rows(queue,
+                                         ndarray_y,
+                                         ndarray_sqr_y,
+                                         pr::sum<Float>{},
+                                         pr::square<Float>{},
+                                         { sqr_y_zeros_event });
+
+    Float alpha = -2.0;
+    Float beta = 0.0;
+
+    auto gemm_event = gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta);
+
+    compute_RBF(queue,
+                ndarray_sqr_x,
+                ndarray_sqr_y,
+                ndarray_res,
+                coeff,
+                row_count_y,
+                { reduce_x_event, reduce_y_event, gemm_event })
+        .wait_and_throw();
+
+    return result_t{}.set_values(dal::detail::homogen_table_builder{}
+                                     .reset(ndarray_res.flatten(queue), row_count_x, row_count_y)
+                                     .build());
 }
 
 template <typename Float>
