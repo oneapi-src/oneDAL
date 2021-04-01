@@ -62,8 +62,8 @@ constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
 ///
 /// @return The in degree of the vertex
 template <typename Graph>
-constexpr auto get_vertex_in_degree(const Graph &graph, vertex_type<Graph> vertex)
-    -> vertex_edge_size_type<Graph>;
+constexpr auto get_vertex_inward_degree(const Graph &graph, vertex_type<Graph> vertex)
+    -> vertex_inward_edge_size_type<Graph>;
 
 /// Returns the out degree for the specified vertex
 ///
@@ -73,8 +73,8 @@ constexpr auto get_vertex_in_degree(const Graph &graph, vertex_type<Graph> verte
 ///
 /// @return The out degree of the vertex
 template <typename Graph>
-constexpr auto get_vertex_out_degree(const Graph &graph, vertex_type<Graph> vertex)
-    -> vertex_edge_size_type<Graph>;
+constexpr auto get_vertex_outward_degree(const Graph &graph, vertex_type<Graph> vertex)
+    -> vertex_outward_edge_size_type<Graph>;
 
 /// Returns the range of the vertex neighbors for the specified vertex
 ///
@@ -95,8 +95,8 @@ constexpr auto get_vertex_neighbors(const Graph &graph, vertex_type<Graph> verte
 ///
 /// @return The range of the vertex in neighbors
 template <typename Graph>
-constexpr auto get_vertex_in_neighbors(const Graph &graph, vertex_type<Graph> vertex)
-    -> const_vertex_edge_range_type<Graph>;
+constexpr auto get_vertex_inward_neighbors(const Graph &graph, vertex_type<Graph> vertex)
+    -> const_vertex_inward_edge_range_type<Graph>;
 
 /// Returns the range of the vertex out neighbors for the specified vertex
 ///
@@ -106,8 +106,8 @@ constexpr auto get_vertex_in_neighbors(const Graph &graph, vertex_type<Graph> ve
 ///
 /// @return The range of the vertex out neighbors
 template <typename Graph>
-constexpr auto get_vertex_out_neighbors(const Graph &graph, vertex_type<Graph> vertex)
-    -> const_vertex_edge_range_type<Graph>;
+constexpr auto get_vertex_outward_neighbors(const Graph &graph, vertex_type<Graph> vertex)
+    -> const_vertex_outward_edge_range_type<Graph>;
 
 //Functions implementation
 template <typename Graph>
@@ -132,25 +132,25 @@ constexpr auto get_vertex_degree(const Graph &graph, vertex_type<Graph> vertex)
 }
 
 template <typename Graph>
-constexpr auto get_vertex_in_degree(const Graph &graph, vertex_type<Graph> vertex)
-    -> vertex_edge_size_type<Graph> {
+constexpr auto get_vertex_inward_degree(const Graph &graph, vertex_type<Graph> vertex)
+    -> vertex_inward_edge_size_type<Graph> {
     static_assert(is_directed<Graph>, "get_vertex_in_degree requires graph directness");
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
-    return detail::get_vertex_in_degree_impl(graph, vertex);
+    return detail::get_vertex_inward_degree_impl(graph, vertex);
 }
 
 template <typename Graph>
-constexpr auto get_vertex_out_degree(const Graph &graph, vertex_type<Graph> vertex)
-    -> vertex_edge_size_type<Graph> {
+constexpr auto get_vertex_outward_degree(const Graph &graph, vertex_type<Graph> vertex)
+    -> vertex_outward_edge_size_type<Graph> {
     static_assert(is_directed<Graph>, "get_vertex_out_degree requires graph directness");
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
-    return detail::get_vertex_out_degree_impl(graph, vertex);
+    return detail::get_vertex_outward_degree_impl(graph, vertex);
 }
 
 template <typename Graph>
@@ -165,25 +165,25 @@ constexpr auto get_vertex_neighbors(const Graph &graph, vertex_type<Graph> verte
 }
 
 template <typename Graph>
-constexpr auto get_vertex_in_neighbors(const Graph &graph, vertex_type<Graph> vertex)
-    -> const_vertex_edge_range_type<Graph> {
+constexpr auto get_vertex_inward_neighbors(const Graph &graph, vertex_type<Graph> vertex)
+    -> const_vertex_inward_edge_range_type<Graph> {
     static_assert(is_directed<Graph>, "get_vertex_in_neighbors requires graph directness");
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
-    return detail::get_vertex_in_neighbors_impl(graph, vertex);
+    return detail::get_vertex_inward_neighbors_impl(graph, vertex);
 }
 
 template <typename Graph>
-constexpr auto get_vertex_out_neighbors(const Graph &graph, vertex_type<Graph> vertex)
-    -> const_vertex_edge_range_type<Graph> {
+constexpr auto get_vertex_outward_neighbors(const Graph &graph, vertex_type<Graph> vertex)
+    -> const_vertex_outward_edge_range_type<Graph> {
     static_assert(is_directed<Graph>, "get_vertex_out_neighbors requires graph directness");
     if (vertex < 0 || (vertex_size_type<Graph>)vertex >= detail::get_vertex_count_impl(graph)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
-    return detail::get_vertex_out_neighbors_impl(graph, vertex);
+    return detail::get_vertex_outward_neighbors_impl(graph, vertex);
 }
 
 } // namespace oneapi::dal::preview

@@ -66,6 +66,14 @@ public:
     /// allocator
     directed_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
 
+    /// Construct a graph from edges & their values
+    directed_adjacency_vector(const initializer_list<tuple<IndexType, IndexType, EdgeValue>> &ilist,
+                              Allocator allocator = Allocator());
+
+    /// Construct a graph from edges
+    directed_adjacency_vector(const initializer_list<tuple<IndexType, IndexType>> &ilist,
+                              Allocator allocator = Allocator());
+
     /// Move operator for directed_adjacency_vector_graph
     directed_adjacency_vector_graph &operator=(directed_adjacency_vector_graph &&other);
 
@@ -109,12 +117,14 @@ struct graph_traits<
     using const_vertex_key_type = const vertex_key_type;
 
     // vertex edge types
-    using vertex_edge_type = typename impl_type::vertex_edge_type;
-    using vertex_edge_size_type = typename impl_type::vertex_edge_size_type;
-    using vertex_edge_set = typename impl_type::vertex_edge_set;
-    using vertex_edge_allocator_type = typename impl_type::vertex_edge_allocator_type;
-    using vertex_edge_iterator = typename impl_type::vertex_edge_iterator;
-    using const_vertex_edge_iterator = typename impl_type::const_vertex_edge_iterator;
+    using vertex_outward_edge_type = typename impl_type::vertex_outward_edge_type;
+    using vertex_outward_edge_size_type = typename impl_type::vertex_outward_edge_size_type;
+    using vertex_outward_edge_set = typename impl_type::vertex_outward_edge_set;
+    using vertex_outward_edge_allocator_type =
+        typename impl_type::vertex_outward_edge_allocator_type;
+    using vertex_outward_edge_iterator = typename impl_type::vertex_outward_edge_iterator;
+    using const_vertex_outward_edge_iterator =
+        typename impl_type::const_vertex_outward_edge_iterator;
 
     // vertex weight types
     using vertex_user_value_type = typename impl_type::vertex_user_value_type;
@@ -138,6 +148,8 @@ struct graph_traits<
     using edge_index = IndexType;
 
     // ranges
+    using vertex_outward_edge_range = typename impl_type::vertex_outward_edge_range;
+    using const_vertex_outward_edge_range = typename impl_type::const_vertex_outward_edge_range;
     using vertex_edge_range = typename impl_type::vertex_edge_range;
     using const_vertex_edge_range = typename impl_type::const_vertex_edge_range;
 };
