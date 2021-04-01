@@ -777,6 +777,7 @@ $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
     $(ONEAPI.objs_y) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y): \
     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+	$(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
@@ -790,6 +791,7 @@ $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt): \
     $(ONEAPI.objs_y.dpc) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(oneapi_y.dpc): \
     $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+	$(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
     $(ONEAPI.tmpdir_y.dpc)/$(oneapi_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
