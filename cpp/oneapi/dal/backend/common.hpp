@@ -193,13 +193,4 @@ inline sycl::nd_range<3> make_multiple_nd_range_3d(const ndindex<3>& global_size
 
 #endif // ONEDAL_DATA_PARALLEL
 
-template <typename T>
-struct type2str {
-    static const char* name;
-};
-
-#define INSTANTIATE_TYPE_MAP(T) \
-    template <>                 \
-    const char* type2str<T>::name = #T;
-
 } // namespace oneapi::dal::backend

@@ -67,7 +67,7 @@ public:
                 auto sg = item.get_sub_group();
                 const int cur_row =
                     item.get_global_id(1) * sg.get_group_range()[0] + sg.get_group_id()[0];
-                if (cur_row > row_count)
+                if (cur_row >= row_count)
                     return;
                 int cur_index =
                     kernel_row_partitioning<Float>(item,

@@ -104,8 +104,8 @@ public:
         INFO("benchmark sort with indices");
         const auto name =
             fmt::format("Basic sort with indices: val_type {}, indices_type {}, elem_count {}",
-                        type2str<Float>::name,
-                        type2str<Index>::name,
+                        type2str<Float>::name(),
+                        type2str<Index>::name(),
                         val.get_count());
 
         this->get_queue().wait_and_throw();
