@@ -54,13 +54,13 @@ inline auto dispath_by_policy(const array<T>& data, Body&& body) {
 #endif
 }
 
-template <typename T, typename Y>
-struct array_reinterpret_cast_op {
-    const T* operator()(const Y* ptr) const {
+template <typename T, typename U>
+struct reinterpret_array_cast_op {
+    const T* operator()(const U* ptr) const {
         return reinterpret_cast<const T*>(ptr);
     }
 
-    T* operator()(Y* ptr) const {
+    T* operator()(U* ptr) const {
         return reinterpret_cast<T*>(ptr);
     }
 };
@@ -84,7 +84,7 @@ inline array<T> array_cast_generic(const array<U>& ary, const CastOp& cast_op) {
 
 template <typename T, typename U>
 inline array<T> reinterpret_array_cast(const array<U>& ary) {
-    return array_cast_generic<T>(ary, array_reinterpret_cast_op<T, U>{});
+    return array_cast_generic<T>(ary, reinterpret_array_cast_op<T, U>{});
 }
 
 template <typename T>
