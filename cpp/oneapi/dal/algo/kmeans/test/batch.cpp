@@ -20,12 +20,11 @@
 #include "oneapi/dal/algo/kmeans/train.hpp"
 #include "oneapi/dal/algo/kmeans/infer.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/test/engine/metrics/clustering.hpp"
 
 namespace oneapi::dal::kmeans::test {
 
@@ -33,7 +32,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class kmeans_batch_test : public te::algo_fixture {
+class kmeans_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
@@ -49,10 +48,6 @@ public:
 
     auto get_descriptor(std::int64_t cluster_count) const {
         return kmeans::descriptor<Float, Method>{ cluster_count };
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     void exact_checks(const table& data,
@@ -119,6 +114,42 @@ public:
                            ref_objective_function);
     }
 
+    void dbi_determenistic_checks(const table& data,
+                                  std::int64_t cluster_count,
+                                  std::int64_t max_iteration_count,
+                                  Float accuracy_threshold,
+                                  Float ref_dbi,
+                                  Float ref_obj_func) {
+        CAPTURE(cluster_count);
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        const auto data_rows = row_accessor<const Float>(data).pull({ 0, cluster_count });
+        const auto initial_centroids =
+            homogen_table::wrap(data_rows.get_data(), cluster_count, data.get_column_count());
+
+        INFO("run training");
+        const auto train_result = train(kmeans_desc, data, initial_centroids);
+        const auto model = train_result.get_model();
+        REQUIRE(te::has_no_nans(model.get_centroids()));
+
+        INFO("run inference");
+        const auto infer_result = infer(kmeans_desc, model, data);
+        REQUIRE(te::has_no_nans(infer_result.get_labels()));
+
+        Float obj_ref_tol = 1.0e-4;
+        Float dbi_ref_tol = 1.0e-4;
+        auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        CAPTURE(dbi, ref_dbi);
+        CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
+        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
+        REQUIRE(check_value_with_ref_tol(infer_result.get_objective_function_value(),
+                                         ref_obj_func,
+                                         obj_ref_tol));
+    }
+
     void train_with_initialization_checks(const table& data,
                                           const table& ref_centroids,
                                           const table& ref_labels,
@@ -160,7 +191,8 @@ public:
         const auto [centroids, labels, iteration_count] = unpack_result(result);
 
         check_nans(result);
-        const Float strict_rel_tol = std::numeric_limits<Float>::epsilon() * iteration_count * 10;
+        const Float strict_rel_tol =
+            5.f * std::numeric_limits<Float>::epsilon() * iteration_count * 100;
         check_centroid_match_with_rel_tol(strict_rel_tol, ref_centroids, centroids);
         check_label_match(ref_labels, labels);
         if (test_convergence) {
@@ -188,6 +220,13 @@ public:
         }
     }
 
+    bool check_value_with_ref_tol(Float val, Float ref_val, Float ref_tol) {
+        Float max_abs = std::max(fabs(val), fabs(ref_val));
+        if (max_abs == 0.0)
+            return true;
+        return fabs(val - ref_val) / max_abs < ref_tol;
+    }
+
     void check_base_infer_result(const kmeans::descriptor<Float, Method>& desc,
                                  const kmeans::infer_result<>& result,
                                  Float ref_objective_function) {
@@ -195,16 +234,13 @@ public:
 
         check_nans(result);
 
-        SECTION("non-negative objective function value is expected") {
-            REQUIRE(objective_function >= 0.0);
-        }
+        INFO("check if non-negative objective function value is expected")
+        REQUIRE(objective_function >= 0.0);
 
         Float rel_tol = 1.0e-5;
-        Float alpha = std::numeric_limits<Float>::min();
         if (!(ref_objective_function < 0.0)) {
-            REQUIRE(fabs(objective_function - ref_objective_function) /
-                        (fabs(objective_function) + (ref_objective_function) + alpha) <
-                    rel_tol);
+            CAPTURE(objective_function, ref_objective_function, rel_tol);
+            REQUIRE(check_value_with_ref_tol(objective_function, ref_objective_function, rel_tol));
         }
     }
 
@@ -229,24 +265,23 @@ public:
     }
 
     void check_centroid_match_with_rel_tol(Float rel_tol, const table& left, const table& right) {
-        SECTION("centroid shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-        }
-        SECTION("centroid match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            const Float alpha = std::numeric_limits<Float>::min();
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (fabs(l - r) < alpha)
-                    continue;
-                const Float denom = fabs(l) + fabs(r) + alpha;
-                if (fabs(l - r) / denom > rel_tol) {
-                    CAPTURE(l, r);
-                    FAIL("Centroid feature mismatch");
-                }
+        INFO("check if centroid shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+
+        INFO("check if centroid match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        const Float alpha = std::numeric_limits<Float>::min();
+        for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
+            const Float l = left_rows[i];
+            const Float r = right_rows[i];
+            if (fabs(l - r) < alpha)
+                continue;
+            const Float denom = fabs(l) + fabs(r) + alpha;
+            if (fabs(l - r) / denom > rel_tol) {
+                CAPTURE(l, r, l - r, rel_tol, (l - r) / denom / rel_tol);
+                FAIL("Centroid feature mismatch");
             }
         }
     }
@@ -255,27 +290,26 @@ public:
                                            Float rel_tol,
                                            const table& left,
                                            const table& right) {
-        SECTION("centroid shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-        }
-        SECTION("centroid match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            const Float alpha = std::numeric_limits<Float>::min();
-            std::int64_t cluster_count = left.get_row_count();
-            std::int64_t feature_count = left.get_column_count();
-            for (std::int64_t i = 0; i < cluster_count; i++) {
-                for (std::int64_t j = 0; j < feature_count; j++) {
-                    const Float l = left_rows[match_map[i] * feature_count + j];
-                    const Float r = right_rows[i * feature_count + j];
-                    if (fabs(l - r) < alpha)
-                        continue;
-                    const Float denom = fabs(l) + fabs(r) + alpha;
-                    if (fabs(l - r) / denom > rel_tol) {
-                        CAPTURE(l, r);
-                        FAIL("Centroid feature mismatch for mapped centroids");
-                    }
+        INFO("check if centroid shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+
+        INFO("check if centroid match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        const Float alpha = std::numeric_limits<Float>::min();
+        std::int64_t cluster_count = left.get_row_count();
+        std::int64_t feature_count = left.get_column_count();
+        for (std::int64_t i = 0; i < cluster_count; i++) {
+            for (std::int64_t j = 0; j < feature_count; j++) {
+                const Float l = left_rows[match_map[i] * feature_count + j];
+                const Float r = right_rows[i * feature_count + j];
+                if (fabs(l - r) < alpha)
+                    continue;
+                const Float denom = fabs(l) + fabs(r) + alpha;
+                if (fabs(l - r) / denom > rel_tol) {
+                    CAPTURE(l, r);
+                    FAIL("Centroid feature mismatch for mapped centroids");
                 }
             }
         }
@@ -326,41 +360,38 @@ public:
     }
 
     void check_label_match(const table& left, const table& right) {
-        SECTION("label shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-            REQUIRE(left.get_column_count() == 1);
-        }
-        SECTION("label match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (l != r) {
-                    CAPTURE(l, r);
-                    FAIL("Label mismatch");
-                }
+        INFO("check if label shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+        REQUIRE(left.get_column_count() == 1);
+        INFO("check if label match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
+            const Float l = left_rows[i];
+            const Float r = right_rows[i];
+            if (l != r) {
+                CAPTURE(l, r);
+                FAIL("Label mismatch");
             }
         }
     }
 
     void check_label_match(const array<Float>& match_map, const table& left, const table& right) {
-        SECTION("label shape is expected") {
-            REQUIRE(left.get_row_count() == right.get_row_count());
-            REQUIRE(left.get_column_count() == right.get_column_count());
-            REQUIRE(left.get_column_count() == 1);
-        }
-        SECTION("label match is expected") {
-            const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
-            const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
-            for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
-                const Float l = left_rows[i];
-                const Float r = right_rows[i];
-                if (l != match_map[r]) {
-                    CAPTURE(l, r, match_map[r]);
-                    FAIL("Label mismatch for mapped centroids");
-                }
+        INFO("check if label shape is expected")
+        REQUIRE(left.get_row_count() == right.get_row_count());
+        REQUIRE(left.get_column_count() == right.get_column_count());
+        REQUIRE(left.get_column_count() == 1);
+
+        INFO("check if label match is expected")
+        const auto left_rows = row_accessor<const Float>(left).pull({ 0, -1 });
+        const auto right_rows = row_accessor<const Float>(right).pull({ 0, -1 });
+        for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
+            const Float l = left_rows[i];
+            const Float r = right_rows[i];
+            if (l != match_map[r]) {
+                CAPTURE(l, r, match_map[r]);
+                FAIL("Label mismatch for mapped centroids");
             }
         }
     }
@@ -368,23 +399,21 @@ public:
     void check_nans(const kmeans::train_result<>& result) {
         const auto [centroids, labels, iteration_count] = unpack_result(result);
 
-        SECTION("there is no NaN in centroids") {
-            REQUIRE(te::has_no_nans(centroids));
-        }
-        SECTION("there is no NaN in labels") {
-            REQUIRE(te::has_no_nans(labels));
-        }
+        INFO("check if there is no NaN in centroids")
+        REQUIRE(te::has_no_nans(centroids));
+
+        INFO("check if there is no NaN in labels")
+        REQUIRE(te::has_no_nans(labels));
     }
 
     void check_nans(const kmeans::infer_result<>& result) {
         const auto [labels, objective_function] = unpack_result(result);
 
-        SECTION("there is no NaN in objective function values") {
-            REQUIRE(!std::isnan(objective_function));
-        }
-        SECTION("there is no NaN in labels") {
-            REQUIRE(te::has_no_nans(labels));
-        }
+        INFO("check if there is no NaN in objective function values")
+        REQUIRE(!std::isnan(objective_function));
+
+        INFO("check if there is no NaN in labels")
+        REQUIRE(te::has_no_nans(labels));
     }
 
 private:
@@ -408,7 +437,8 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch]",
                      kmeans_types) {
     // number of observations is equal to number of centroids (obvious clustering)
-    using oneapi::dal::detail::empty_delete;
+    SKIP_IF(this->not_float64_friendly());
+
     using Float = std::tuple_element_t<0, TestType>;
     Float data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
     const auto x = homogen_table::wrap(data, 3, 5);
@@ -420,9 +450,9 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batch]", kmeans_types) {
     // relocation of empty cluster to the best candidate
-    using oneapi::dal::detail::empty_delete;
-    using Float = std::tuple_element_t<0, TestType>;
+    SKIP_IF(this->not_float64_friendly());
 
+    using Float = std::tuple_element_t<0, TestType>;
     Float data[] = { 0, 0, 0.5, 0, 0.5, 1, 1, 1 };
     const auto x = homogen_table::wrap(data, 4, 2);
 
@@ -453,9 +483,9 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "[kmeans][batch]",
                      kmeans_types) {
     // proper relocation order for multiple empty clusters
-    using oneapi::dal::detail::empty_delete;
-    using Float = std::tuple_element_t<0, TestType>;
+    SKIP_IF(this->not_float64_friendly());
 
+    using Float = std::tuple_element_t<0, TestType>;
     Float data[] = { -10, -9.5, -9, -8.5, -8, -1, 1, 9, 9.5, 10 };
     const auto x = homogen_table::wrap(data, 10, 1);
 
@@ -475,9 +505,9 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans train/infer test",
                      "[kmeans][batch]",
                      kmeans_types) {
-    using oneapi::dal::detail::empty_delete;
-    using Float = std::tuple_element_t<0, TestType>;
+    SKIP_IF(this->not_float64_friendly());
 
+    using Float = std::tuple_element_t<0, TestType>;
     const Float data[] = { 1.0,  1.0,  2.0,  2.0,  1.0,  2.0,  2.0,  1.0,
                            -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0 };
     const auto x = homogen_table::wrap(data, 8, 2);
@@ -497,6 +527,294 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     const auto x2 = homogen_table::wrap(data_infer, 9, 2);
     Float expected_obj_function = 4;
     this->infer_checks(x, model, y, expected_obj_function);
+}
+/*
+// This stress test is commented due to CPU K-Means crash.
+// Will be added when the issue is resolved.
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "kmeans block test",
+                     "[kmeans][batch][nightly]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    constexpr std::int64_t row_count = 1024 * 1024;
+    constexpr std::int64_t column_count = 1024 * 2 / sizeof(Float);
+    constexpr std::int64_t cluster_count = 1;
+    constexpr std::int64_t max_iteration_count = 1;
+
+    const auto x_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
+    const table x_table = x_dataframe.get_table(this->get_homogen_table_id());
+
+    const auto first_row = row_accessor<const Float>(x_table).pull({ 0, 1 });
+    const auto c_init = homogen_table::wrap(first_row.get_data(), 1, column_count);
+
+    auto labels = array<float>::zeros(row_count);
+    const auto y = homogen_table::wrap(labels.get_data(), row_count, 1);
+
+    auto stat = te::compute_basic_statistics<Float>(x_dataframe);
+    const auto c_final = homogen_table::wrap(stat.get_means().get_data(), 1, column_count);
+    auto variance = stat.get_variances().get_data();
+    double obj_function = 0.0;
+    for (std::int64_t i = 0; i < column_count; ++i) {
+        obj_function += variance[i];
+    }
+    obj_function *= column_count - 1;
+
+    this->exact_checks(x_table,
+                       c_init,
+                       c_final,
+                       y,
+                       cluster_count,
+                       max_iteration_count,
+                       obj_function);
+}
+*/
+/*
+// This stress test is commented due to GPU K-Means crash.
+// Will be added when the issue is resolved.
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "kmeans partial centroid adjustment test",
+                     "[kmeans][batch][nightly]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    constexpr std::int64_t row_count = 8 * 1024;
+    constexpr std::int64_t column_count = 2 * 1024;
+    constexpr std::int64_t cluster_count = 8 * 1024;
+
+    const auto x_dataframe = GENERATE_DATAFRAME(
+        te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
+    const table x = x_dataframe.get_table(this->get_homogen_table_id());
+
+    const auto first_row = row_accessor<const Float>(x).pull({ 0, 1 });
+    const auto c_init = homogen_table::wrap(first_row.get_data(), 1, column_count);
+
+    auto labels = array<std::int32_t>::zeros(1 * cluster_count);
+    auto label_ptr = labels.get_mutable_data();
+    auto first_label = &label_ptr[0];
+    std::iota(first_label, first_label + row_count, std::int32_t(0));
+    const auto y = homogen_table::wrap(labels.get_data(), row_count, 1);
+
+    this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
+}
+*/
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "higgs: samples=1M, clusters=10, iters=3",
+                     "[kmeans][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_1m_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 10;
+    constexpr std::int64_t max_iteration_count = 3;
+    constexpr Float ref_dbi = 3.1997724684;
+    constexpr Float ref_obj_func = 14717484.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "higgs: samples=1M, clusters=100, iters=3",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_1m_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 100;
+    constexpr std::int64_t max_iteration_count = 3;
+    constexpr Float ref_dbi = 2.7450205195;
+    constexpr Float ref_obj_func = 10704352.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "higgs: samples=1M, clusters=250, iters=3",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/higgs/dataset/higgs_1m_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 250;
+    constexpr std::int64_t max_iteration_count = 3;
+    constexpr Float ref_dbi = 2.5923397174;
+    constexpr Float ref_obj_func = 9335216.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "susy: samples=0.5M, clusters=10, iters=10",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 10;
+    constexpr std::int64_t max_iteration_count = 10;
+    constexpr Float ref_dbi = 1.7730860782;
+    constexpr Float ref_obj_func = 3183696.0;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "susy: samples=0.5M, clusters=100, iters=10",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 100;
+    constexpr std::int64_t max_iteration_count = 10;
+    constexpr Float ref_dbi = 1.9384844916;
+    constexpr Float ref_obj_func = 1757022.625;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "susy: samples=0.5M, clusters=250, iters=10",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "workloads/susy/dataset/susy_test.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 250;
+    constexpr std::int64_t max_iteration_count = 10;
+    constexpr Float ref_dbi = 1.8950113604;
+    constexpr Float ref_obj_func = 1400958.5;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "epsilon: samples=80K, clusters=512, iters=2",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 512;
+    constexpr std::int64_t max_iteration_count = 2;
+    constexpr Float ref_dbi = 6.9367580565;
+    constexpr Float ref_obj_func = 50128.640625;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "epsilon: samples=80K, clusters=1024, iters=2",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 1024;
+    constexpr std::int64_t max_iteration_count = 2;
+    constexpr Float ref_dbi = 5.59003873;
+    constexpr Float ref_obj_func = 49518.75;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "epsilon: samples=80K, clusters=2048, iters=2",
+                     "[kmeans][nightly][batch][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "workloads/epsilon/dataset/epsilon_80k_train.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 2048;
+    constexpr std::int64_t max_iteration_count = 2;
+    constexpr Float ref_dbi = 4.3202752143;
+    constexpr Float ref_obj_func = 48437.6015625;
+
+    this->dbi_determenistic_checks(x,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   0.0,
+                                   ref_dbi,
+                                   ref_obj_func);
 }
 
 } // namespace oneapi::dal::kmeans::test

@@ -46,7 +46,7 @@ namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                                NumericTable * r, const ParameterBase * par)
+                                                                                                NumericTable * r, const KernelParameter * par)
 {
     //prepareData
     const size_t nFeatures = a1->getNumberOfColumns();
@@ -63,8 +63,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     DAAL_CHECK_BLOCK_STATUS(mtR);
 
     //compute
-    const Parameter * rbfPar          = static_cast<const Parameter *>(par);
-    const algorithmFPType invSqrSigma = (algorithmFPType)(1.0 / (rbfPar->sigma * rbfPar->sigma));
+    const algorithmFPType invSqrSigma = (algorithmFPType)(1.0 / (par->sigma * par->sigma));
     algorithmFPType factor            = 0.0;
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
@@ -80,7 +79,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                                NumericTable * r, const ParameterBase * par)
+                                                                                                NumericTable * r, const KernelParameter * par)
 {
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
@@ -99,8 +98,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     algorithmFPType * dataR = mtR.get();
 
     //compute
-    const Parameter * rbfPar          = static_cast<const Parameter *>(par);
-    const algorithmFPType invSqrSigma = (algorithmFPType)(1.0 / (rbfPar->sigma * rbfPar->sigma));
+    const algorithmFPType invSqrSigma = (algorithmFPType)(1.0 / (par->sigma * par->sigma));
     for (size_t i = 0; i < nVectors1; i++)
     {
         algorithmFPType factor = 0.0;
@@ -124,7 +122,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
-                                                                                                NumericTable * r, const ParameterBase * par)
+                                                                                                NumericTable * r, const KernelParameter * par)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(KernelRBF.MatrixMatrix);
 
@@ -135,8 +133,7 @@ services::Status KernelImplRBF<defaultDense, algorithmFPType, cpu>::computeInter
     const size_t nFeatures   = a1->getNumberOfColumns();
     const bool isEqualMatrix = a1 == a2;
 
-    const Parameter * rbfPar    = static_cast<const Parameter *>(par);
-    const algorithmFPType coeff = static_cast<algorithmFPType>(-0.5 / (rbfPar->sigma * rbfPar->sigma));
+    const algorithmFPType coeff = static_cast<algorithmFPType>(-0.5 / (par->sigma * par->sigma));
 
     char trans = 'T', notrans = 'N';
     DAAL_INT one         = 1;

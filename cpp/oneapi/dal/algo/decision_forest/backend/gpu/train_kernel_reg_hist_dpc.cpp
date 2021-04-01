@@ -55,13 +55,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
-
-    const auto daal_data =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_labels =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_label, row_count, 1);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    const auto daal_labels = interop::convert_to_daal_table(queue, labels);
 
     /* init param for daal kernel */
     auto daal_input = daal_df_reg_train::Input();
@@ -104,29 +99,28 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     /* init daal result's objects */
     array<Float> arr_oob_err;
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-        arr_oob_err = array<Float>::empty(queue, 1 * 1);
+        arr_oob_err = array<Float>::empty(queue, 1 * 1, sycl::usm::alloc::device);
 
-        const auto res_oob_err =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_err, 1, 1);
+        const auto res_oob_err = interop::convert_to_daal_table(queue, arr_oob_err, 1, 1);
         daal_result.set(daal_df_reg_train::outOfBagError, res_oob_err);
     }
 
     array<Float> arr_oob_per_obs_err;
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_per_observation)) {
-        arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1);
+        arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1, sycl::usm::alloc::device);
 
         const auto res_oob_per_obs_err =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_per_obs_err, row_count, 1);
+            interop::convert_to_daal_table(queue, arr_oob_per_obs_err, row_count, 1);
         daal_result.set(daal_df_reg_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
 
     array<Float> arr_var_imp;
     if (variable_importance_mode::none != vimp) {
-        arr_var_imp = array<Float>::empty(queue, 1 * column_count);
+        arr_var_imp = array<Float>::empty(queue, 1 * column_count, sycl::usm::alloc::device);
 
         const auto res_var_imp =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_var_imp, 1, column_count);
+            interop::convert_to_daal_table(queue, arr_var_imp, 1, column_count);
         daal_result.set(daal_df_reg_train::variableImportance, res_var_imp);
     }
 
@@ -168,7 +162,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 }
 
 template <typename Float, typename Task>
-struct train_kernel_gpu<Float, Task, method::hist> {
+struct train_kernel_gpu<Float, method::hist, Task> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
@@ -176,7 +170,7 @@ struct train_kernel_gpu<Float, Task, method::hist> {
     }
 };
 
-template struct train_kernel_gpu<float, task::regression, method::hist>;
-template struct train_kernel_gpu<double, task::regression, method::hist>;
+template struct train_kernel_gpu<float, method::hist, task::regression>;
+template struct train_kernel_gpu<double, method::hist, task::regression>;
 
 } // namespace oneapi::dal::decision_forest::backend

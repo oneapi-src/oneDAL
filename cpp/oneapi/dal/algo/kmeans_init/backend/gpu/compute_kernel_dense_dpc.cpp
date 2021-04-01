@@ -50,18 +50,13 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
 
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-    const auto daal_data = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                       arr_data,
-                                                                       data.get_row_count(),
-                                                                       data.get_column_count());
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
-    array<Float> arr_centroids = array<Float>::empty(queue, cluster_count * column_count);
-    const auto daal_centroids = interop::convert_to_daal_sycl_homogen_table(queue,
-                                                                            arr_centroids,
-                                                                            cluster_count,
-                                                                            column_count);
+    array<Float> arr_centroids =
+        array<Float>::empty(queue, cluster_count * column_count, sycl::usm::alloc::device);
+    const auto daal_centroids =
+        interop::convert_to_daal_table(queue, arr_centroids, cluster_count, column_count);
 
     const size_t len_daal_input = 1;
     daal::data_management::NumericTable* daal_input[len_daal_input] = { daal_data.get() };

@@ -107,9 +107,8 @@ public:
     }
 
     homogen_table build() {
-        homogen_table new_table{
-            homogen_table_impl{ row_count_, column_count_, data_, dtype_, layout_ }
-        };
+        const auto new_table = detail::make_private<homogen_table>(
+            homogen_table_impl{ row_count_, column_count_, data_, dtype_, layout_ });
 
         reset();
         return new_table;

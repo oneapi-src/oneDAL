@@ -40,7 +40,6 @@ class array {
 public:
     using data_t = T;
 
-public:
     /// Allocates a new memory block for mutable data, does not initialize it,
     /// creates a new array instance by passing a pointer to the memory block.
     /// The array owns the memory block (for details, see :txtref:`data_ownership_requirements`).
@@ -54,7 +53,6 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-
     /// Allocates a new memory block for mutable data, does not initialize it,
     /// creates a new array instance by passing a pointer to the memory block.
     /// The array owns the memory block (for details, see :txtref:`data_ownership_requirements`).
@@ -129,7 +127,6 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-
     /// Allocates a new memory block on mutable data, fills it with zeros,
     /// creates a new array instance by passing a pointer to the memory block.
     /// The array owns the memory block (for details, see :txtref:`data_ownership_requirements`).
@@ -163,25 +160,48 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-
     /// Creates a new array instance by passing the pointer to externally-allocated memory block
     /// for mutable data. It is the responsibility of the calling application to free the memory block
     /// as the array does not free it when the reference count is zero.
     ///
+    /// @param data         The pointer to externally-allocated memory block.
+    /// @param count        The number of elements of type :literal:`Data` in the memory block.
+    /// @param dependencies Events indicating availability of the :literal:`Data` for reading or writing.
+    /// @pre :expr:`data != nullptr`
+    /// @pre :expr:`count > 0`
+    template <typename Y>
+    [[deprecated]] static array<T> wrap(Y* data,
+                                        std::int64_t count,
+                                        const sycl::vector_class<sycl::event>& dependencies) {
+        sycl::event::wait_and_throw(dependencies);
+        return array<T>{ data, count, dal::detail::empty_delete<const T>{} };
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new array instance by passing the pointer to externally-allocated memory block
+    /// for mutable data. It is the responsibility of the calling application to free the memory block
+    /// as the array does not free it when the reference count is zero.
+    ///
+    /// @param queue        The SYCL* queue object.
     /// @param data         The pointer to externally-allocated memory block.
     /// @param count        The number of elements of type :literal:`T` in the memory block.
     /// @param dependencies Events indicating availability of the :literal:`Data` for reading or writing.
     /// @pre :expr:`data != nullptr`
     /// @pre :expr:`count > 0`
     template <typename Y>
-    static array<T> wrap(Y* data,
+    static array<T> wrap(const sycl::queue& queue,
+                         Y* data,
                          std::int64_t count,
-                         const sycl::vector_class<sycl::event>& dependencies) {
-        return array<T>{ data, count, dal::detail::empty_delete<const T>{}, dependencies };
+                         const sycl::vector_class<sycl::event>& dependencies = {}) {
+        return array<T>{ detail::data_parallel_policy{ queue },
+                         data,
+                         count,
+                         dal::detail::empty_delete<const T>{},
+                         dependencies };
     }
 #endif
 
-public:
     /// Creates a new instance of the class without memory allocation:
     /// :literal:`mutable_data` and :literal:`data` pointers should be set to ``nullptr``,
     /// :literal:`count` should be zero; the pointer to the ownership structure should be set to ``nullptr``.
@@ -213,9 +233,41 @@ public:
     /// @param deleter      The object used to free :literal:`Data`.
     template <typename Deleter>
     explicit array(T* data, std::int64_t count, Deleter&& deleter)
-            : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
+            : impl_(new impl_t(detail::default_host_policy{},
+                               data,
+                               count,
+                               std::forward<Deleter>(deleter))) {
         update_data(data, count);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new array instance which owns a memory block of externally-allocated mutable data.
+    /// The ownership structure is created for a block, the input :literal:`deleter`
+    /// is assigned to it.
+    ///
+    /// @tparam Deleter     The type of a deleter used to free the :literal:`Data`.
+    ///                     The deleter provides ``void operator()(Data*)`` member function.
+    ///
+    /// @param queue        The SYCL* queue object.
+    /// @param data         The pointer to externally-allocated memory block.
+    /// @param count        The number of elements of type :literal:`Data` in the memory block.
+    /// @param deleter      The object used to free :literal:`Data`.
+    template <typename Deleter>
+    explicit array(const sycl::queue& queue,
+                   T* data,
+                   std::int64_t count,
+                   Deleter&& deleter,
+                   const sycl::vector_class<sycl::event>& dependencies = {})
+            : impl_(new impl_t(detail::data_parallel_policy{ queue },
+                               data,
+                               count,
+                               std::forward<Deleter>(deleter))) {
+        ONEDAL_ASSERT(sycl::get_pointer_type(data, queue.get_context()) !=
+                      sycl::usm::alloc::unknown);
+        update_data(data, count);
+        sycl::event::wait_and_throw(dependencies);
+    }
+#endif
 
     /// Creates a new array instance which owns a memory block of externally-allocated immutable data.
     /// The ownership structure is created for a block, the input :literal:`deleter`
@@ -229,89 +281,111 @@ public:
     /// @param deleter       The object used to free :literal:`Data`.
     template <typename ConstDeleter>
     explicit array(const T* data, std::int64_t count, ConstDeleter&& deleter)
-            : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
+            : impl_(new impl_t(detail::default_host_policy{},
+                               data,
+                               count,
+                               std::forward<ConstDeleter>(deleter))) {
         update_data(data, count);
     }
 
-    /// Creates a new array instance that shares ownership with the user-provided shared pointer.
-    ///
-    /// @param data         The shared pointer to externally-allocated memory block.
-    /// @param count        The number of elements of type :literal:`Data` in the memory block.
-    explicit array(const std::shared_ptr<T>& data, std::int64_t count)
-            : impl_(new impl_t(data, count)) {
-        update_data(data.get(), count);
-    }
-
-    /// Creates a new array instance that shares ownership with the user-provided shared pointer.
-    ///
-    /// @param data         The shared pointer to externally-allocated memory block.
-    /// @param count        The number of elements of type :literal:`Data` in the memory block.
-    explicit array(const std::shared_ptr<const T>& data, std::int64_t count)
-            : impl_(new impl_t(data, count)) {
-        update_data(data.get(), count);
-    }
-
 #ifdef ONEDAL_DATA_PARALLEL
-    /// Creates a new array instance which owns a memory block of externally-allocated mutable data.
+    /// Creates a new array instance which owns a memory block of externally-allocated immutable data.
     /// The ownership structure is created for a block, the input :literal:`deleter`
     /// is assigned to it.
     ///
-    /// @tparam Deleter     The type of a deleter used to free the :literal:`Data`.
-    ///                     The deleter provides ``void operator()(T*)`` member function.
+    /// @tparam ConstDeleter The type of a deleter used to free the :literal:`Data`.
+    ///                      The deleter implements ``void operator()(const Data*)`` member function.
     ///
-    /// @param queue        The SYCL* queue object.
-    /// @param data         The pointer to externally-allocated memory block.
-    /// @param count        The number of elements of type :literal:`T` in the memory block.
-    /// @param deleter      The object used to free :literal:`Data`.
-    /// @param dependencies Events that indicate when :literal:`Data` becomes ready to be read or written
-    template <typename Deleter>
-    explicit array(const sycl::queue& queue,
-                   T* data,
-                   std::int64_t count,
-                   Deleter&& deleter,
-                   const sycl::vector_class<sycl::event>& dependencies = {})
-            : impl_(new impl_t(data, count, std::forward<Deleter>(deleter))) {
-        update_data(impl_.get());
-        sycl::event::wait_and_throw(dependencies);
-    }
-
-    /// Creates the ownership structure for memory block of externally-allocated immutable data,
-    /// assigns input :literal:`deleter` object to it,
-    /// sets :literal:`data` pointer to this block.
-    ///
-    /// @tparam ConstDeleter The type of a deleter used to free.
-    ///                      The deleter implements `void operator()(const T*)`` member function.
-    ///
-    /// @param data          The immutable memory block pointer to be assigned inside the array
-    /// @param count         The number of elements of type :literal:`T` into the block
+    /// @param queue         The SYCL* queue object.
+    /// @param data          The pointer to externally-allocated memory block.
+    /// @param count         The number of elements of type :literal:`Data` in the :literal:`Data`.
     /// @param deleter       The object used to free :literal:`Data`.
-    /// @param dependencies  Events indicating availability of the :literal:`Data` for reading or writing.
+    /// @param dependencies  Events that indicate when :literal:`Data` becomes ready to be read or written
     template <typename ConstDeleter>
     explicit array(const sycl::queue& queue,
                    const T* data,
                    std::int64_t count,
                    ConstDeleter&& deleter,
                    const sycl::vector_class<sycl::event>& dependencies = {})
-            : impl_(new impl_t(data, count, std::forward<ConstDeleter>(deleter))) {
-        update_data(impl_.get());
+            : impl_(new impl_t(detail::data_parallel_policy{ queue },
+                               data,
+                               count,
+                               std::forward<ConstDeleter>(deleter))) {
+        ONEDAL_ASSERT(sycl::get_pointer_type(data, queue.get_context()) !=
+                      sycl::usm::alloc::unknown);
+        update_data(data, count);
+        sycl::event::wait_and_throw(dependencies);
+    }
+#endif
+
+    /// Creates a new array instance that shares ownership with the user-provided shared pointer.
+    ///
+    /// @param data         The shared pointer to externally-allocated memory block.
+    /// @param count        The number of elements of type :literal:`Data` in the memory block.
+    explicit array(const std::shared_ptr<T>& data, std::int64_t count)
+            : impl_(new impl_t(detail::default_host_policy{}, data, count)) {
+        update_data(data.get(), count);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new array instance that shares ownership with the user-provided shared pointer.
+    ///
+    /// @param queue        The SYCL* queue object.
+    /// @param data         The shared pointer to externally-allocated memory block.
+    /// @param count        The number of elements of type :literal:`Data` in the memory block.
+    /// @param dependencies Events that indicate when :literal:`Data` becomes ready to be read or written
+    explicit array(const sycl::queue& queue,
+                   const std::shared_ptr<T>& data,
+                   std::int64_t count,
+                   const sycl::vector_class<sycl::event>& dependencies = {})
+            : impl_(new impl_t(detail::data_parallel_policy{ queue }, data, count)) {
+        ONEDAL_ASSERT(sycl::get_pointer_type(data.get(), queue.get_context()) !=
+                      sycl::usm::alloc::unknown);
+        update_data(data.get(), count);
+        sycl::event::wait_and_throw(dependencies);
+    }
+#endif
+
+    /// Creates a new array instance that shares ownership with the user-provided shared pointer.
+    ///
+    /// @param data         The shared pointer to externally-allocated memory block.
+    /// @param count        The number of elements of type :literal:`Data` in the memory block.
+    explicit array(const std::shared_ptr<const T>& data, std::int64_t count)
+            : impl_(new impl_t(detail::default_host_policy{}, data, count)) {
+        update_data(data.get(), count);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new array instance that shares ownership with the user-provided shared pointer.
+    ///
+    /// @param queue        The SYCL* queue object.
+    /// @param data         The shared pointer to externally-allocated memory block.
+    /// @param count        The number of elements of type :literal:`Data` in the memory block.
+    /// @param dependencies Events that indicate when :literal:`Data` becomes ready to be read or
+    ///                     written
+    explicit array(const sycl::queue& queue,
+                   const std::shared_ptr<const T>& data,
+                   std::int64_t count,
+                   const sycl::vector_class<sycl::event>& dependencies = {})
+            : impl_(new impl_t(detail::data_parallel_policy{ queue }, data, count)) {
+        ONEDAL_ASSERT(sycl::get_pointer_type(data.get(), queue.get_context()) !=
+                      sycl::usm::alloc::unknown);
+        update_data(data.get(), count);
         sycl::event::wait_and_throw(dependencies);
     }
 #endif
 
     /// An aliasing constructor: creates a new array instance that stores :literal:`Data` pointer,
-    /// assigns the pointer to the ownership structure of :literal:`ref` to the new instance.
-    /// Array returns :literal:`Data` pointer as its mutable or immutable block depending
-    /// on the :literal:`Data` type.
+    /// assigns the pointer to the ownership structure of :literal:`ref` to the new instance. Array
+    /// returns :literal:`Data` pointer as its mutable or immutable block depending on the
+    /// :literal:`Data` type.
     ///
-    /// @tparam ref    The type of elements in the referenced array.
-    /// @tparam data    Either :literal:`T` or $const T$ type.
+    /// @tparam Y    The type of elements in the referenced array.
+    /// @tparam K    Either :literal:`T` or $const T$ type.
     ///
-    /// @param ref   The array which shares ownership structure with created
-    ///              one.
-    /// @param data  Mutable or immutable unmanaged pointer hold by
-    ///              created array.
+    /// @param ref   The array which shares ownership structure with created one.
+    /// @param data  Mutable or immutable unmanaged pointer hold by created array.
     /// @param count The number of elements of type :literal:`T` in the :literal:`Data`.
-    ///
     /// @pre  :expr:`std::is_same_v<data, const T> || std::is_same_v<data, T>`
     template <typename Y, typename K>
     explicit array(const array<Y>& ref, K* data, std::int64_t count)
@@ -319,8 +393,8 @@ public:
         update_data(impl_.get());
     }
 
-    /// Replaces the :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer
-    /// to the ownership structure in the array instance by the values in :literal:`other`.
+    /// Replaces the :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and
+    /// pointer to the ownership structure in the array instance by the values in :literal:`other`.
     ///
     /// @post :expr:`data == other.data`
     /// @post :expr:`mutable_data == other.mutable_data`
@@ -331,8 +405,8 @@ public:
         return *this;
     }
 
-    /// Swaps the values of :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and pointer
-    /// to the ownership structure in the array instance and :literal:`other`.
+    /// Swaps the values of :literal:`data`, :literal:`mutable_data` pointers, :literal:`count`, and
+    /// pointer to the ownership structure in the array instance and :literal:`other`.
     array<T> operator=(array<T>&& other) {
         swap(*this, other);
         return *this;
@@ -369,7 +443,7 @@ public:
     ///
     /// @post :expr:`has_mutable_data() == true`
     array& need_mutable_data() {
-        impl_->need_mutable_data(detail::default_host_policy{}, detail::host_allocator<data_t>{});
+        impl_->need_mutable_data();
         update_data(impl_->get_mutable_data(), impl_->get_count());
         return *this;
     }
@@ -384,8 +458,9 @@ public:
     /// @param alloc The kind of USM to be allocated
     ///
     /// @post :expr:`has_mutable_data() == true`
-    array& need_mutable_data(sycl::queue& queue,
-                             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
+    [[deprecated]] array& need_mutable_data(
+        sycl::queue& queue,
+        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
         impl_->need_mutable_data(detail::data_parallel_policy{ queue },
                                  detail::data_parallel_allocator<T>(queue, alloc));
         update_data(impl_->get_mutable_data(), impl_->get_count());
@@ -440,8 +515,8 @@ public:
 #endif
 
     /// Creates the ownership structure for memory block of externally-allocated mutable data,
-    /// assigns input :literal:`deleter` object to it,
-    /// sets :literal:`data` and :literal:`mutable_data` pointers to this block.
+    /// assigns input :literal:`deleter` object to it, sets :literal:`data` and
+    /// :literal:`mutable_data` pointers to this block.
     ///
     /// @tparam Deleter     The type of a deleter used to free the :literal:`Data`.
     ///                     The deleter implements ``void operator()(Data*)`` member function.
@@ -451,10 +526,40 @@ public:
     /// @param deleter      The object used to free :literal:`Data`.
     template <typename Deleter>
     void reset(T* data, std::int64_t count, Deleter&& deleter) {
-        // TODO: check input parameters
-        impl_->reset(data, count, std::forward<Deleter>(deleter));
+        impl_->reset(detail::default_host_policy{}, data, count, std::forward<Deleter>(deleter));
         update_data(data, count);
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates the ownership structure for memory block of externally-allocated mutable data,
+    /// assigns input :literal:`deleter` object to it, sets :literal:`data` and
+    /// :literal:`mutable_data` pointers to this block.
+    ///
+    /// @tparam Deleter     The type of a deleter used to free the :literal:`Data`.
+    ///                     The deleter implements ``void operator()(Data*)`` member function.
+    ///
+    /// @param queue        The SYCL* queue object.
+    /// @param data         The mutable memory block pointer to be assigned inside the array
+    /// @param count        The number of elements of type :literal:`Data` into the block
+    /// @param deleter      The object used to free :literal:`Data`.
+    /// @param dependencies Events that indicate when :literal:`Data` becomes ready to be read or
+    ///                     written
+    template <typename Deleter>
+    void reset(const sycl::queue& queue,
+               T* data,
+               std::int64_t count,
+               Deleter&& deleter,
+               const sycl::vector_class<sycl::event>& dependencies = {}) {
+        ONEDAL_ASSERT(sycl::get_pointer_type(data, queue.get_context()) !=
+                      sycl::usm::alloc::unknown);
+        impl_->reset(detail::data_parallel_policy{ queue },
+                     data,
+                     count,
+                     std::forward<Deleter>(deleter));
+        update_data(data, count);
+        sycl::event::wait_and_throw(dependencies);
+    }
+#endif
 
     /// Creates the ownership structure for memory block of externally-allocated immutable data,
     /// assigns input :literal:`deleter` object to it,
@@ -468,19 +573,40 @@ public:
     /// @param deleter       The object used to free :literal:`Data`.
     template <typename ConstDeleter>
     void reset(const T* data, std::int64_t count, ConstDeleter&& deleter) {
-        // TODO: check input parameters
-        impl_->reset(data, count, std::forward<ConstDeleter>(deleter));
+        impl_->reset(detail::default_host_policy{},
+                     data,
+                     count,
+                     std::forward<ConstDeleter>(deleter));
         update_data(data, count);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename Y, typename YDeleter>
-    void reset(Y* data,
+    /// Creates the ownership structure for memory block of externally-allocated immutable data,
+    /// assigns input :literal:`deleter` object to it,
+    /// sets :literal:`data` pointer to this block.
+    ///
+    /// @tparam ConstDeleter The type of a deleter used to free.
+    ///                      The deleter implements `void operator()(const Data*)`` member function.
+    ///
+    /// @param data          The immutable memory block pointer to be assigned inside the array
+    /// @param count         The number of elements of type :literal:`Data` into the block
+    /// @param deleter       The object used to free :literal:`Data`.
+    /// @param dependencies  Events that indicate when :literal:`Data` becomes ready to be read or
+    ///                      written
+    template <typename ConstDeleter>
+    void reset(const sycl::queue& queue,
+               const T* data,
                std::int64_t count,
-               YDeleter&& deleter,
-               const sycl::vector_class<sycl::event>& dependencies) {
+               ConstDeleter&& deleter,
+               const sycl::vector_class<sycl::event>& dependencies = {}) {
+        ONEDAL_ASSERT(sycl::get_pointer_type(data, queue.get_context()) !=
+                      sycl::usm::alloc::unknown);
+        impl_->reset(detail::data_parallel_policy{ queue },
+                     data,
+                     count,
+                     std::forward<ConstDeleter>(deleter));
+        update_data(data, count);
         sycl::event::wait_and_throw(dependencies);
-        reset(data, count, std::forward<YDeleter>(deleter));
     }
 #endif
 
@@ -488,8 +614,8 @@ public:
     /// :literal:`count` with input :literal:`count` value, initializes
     /// the pointer to ownership structure with the one from ref. Array
     /// returns :literal:`Data` pointer as its mutable block.
-
-    /// @tparam ref    The type of elements in the referenced array.
+    ///
+    /// @tparam Y    The type of elements in the referenced array.
     ///
     /// @param ref   The array which is used to share ownership structure with current one.
     /// @param data  Mutable unmanaged pointer to be assigned to the array.
@@ -505,7 +631,7 @@ public:
     /// the pointer to ownership structure with the one from ref. Array
     /// returns :literal:`Data` pointer as its immutable block.
     ///
-    /// @tparam ref    The type of elements in the referenced array.
+    /// @tparam Y    The type of elements in the referenced array.
     ///
     /// @param ref   The array which is used to share ownership structure with current one.
     /// @param data  Immutable unmanaged pointer to be assigned to the array.
@@ -519,9 +645,22 @@ public:
     /// Provides a read-only access to the elements of array.
     /// Does not perform boundary checks.
     const T& operator[](std::int64_t index) const noexcept {
-        // TODO: add asserts on data_ptr_
+        ONEDAL_ASSERT(index < count_);
         return data_ptr_[index];
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Returns a queue that was used to create array object.
+    /// If no queue was provided at the array construction phase,
+    /// returns empty :literal:`std::optional` object.
+    std::optional<sycl::queue> get_queue() const {
+        const auto policy_opt = impl_->get_policy();
+        if (policy_opt.has_value()) {
+            return policy_opt->get_queue();
+        }
+        return std::nullopt;
+    }
+#endif
 
 private:
     static void swap(array<T>& a, array<T>& b) {

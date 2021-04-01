@@ -17,7 +17,7 @@
 .. highlight:: cpp
 .. default-domain:: cpp
 
-.. _accessors:
+.. _dm_accessors:
 
 =========
 Accessors

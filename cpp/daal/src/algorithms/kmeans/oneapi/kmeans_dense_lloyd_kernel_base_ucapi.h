@@ -29,6 +29,7 @@
 #include "algorithms/kmeans/kmeans_types.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
+#include "src/sycl/reducer.h"
 
 using namespace daal::data_management;
 
@@ -62,8 +63,9 @@ template <typename algorithmFPType>
 class KMeansDenseLloydKernelBaseUCAPI : public Kernel
 {
 protected:
-    services::Status computeSquares(const services::internal::Buffer<algorithmFPType> & data, services::internal::sycl::UniversalBuffer & dataSq,
-                                    uint32_t nRows, uint32_t nFeatures);
+    services::Status computeSquares(const services::internal::Buffer<algorithmFPType> & data,
+                                    daal::services::internal::sycl::math::SumReducer::Result & result,
+                                    services::internal::sycl::UniversalBuffer & dataSq, uint32_t nRows, uint32_t nFeatures);
 
     services::Status computeDistances(const services::internal::Buffer<algorithmFPType> & data,
                                       const services::internal::Buffer<algorithmFPType> & centroids, uint32_t blockSize, uint32_t nClusters,

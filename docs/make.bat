@@ -33,6 +33,7 @@ goto :eof
 
 :parse-doxygen
 if not exist build mkdir build
+python -m dalapi.doxypy.cli doxygen/oneapi/doxygen/xml --compact > build/tree.yaml
 goto :eof
 
 :clean
