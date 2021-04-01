@@ -14,13 +14,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/micomkl/micromkl.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include <daal/include/services/daal_defines.h>
-
 #if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
 #define OS_WIN
 #endif
+
+#ifdef OS_WIN
+#include <windows.h>
+#endif
+
+#include <daal/include/services/daal_defines.h>
+#include "oneapi/dal/backend/micomkl/micromkl.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 #define FUNC_NAME(prefix, name)          prefix##_##name
 #define FUNC_NAME_CPU(cpu, prefix, name) prefix##_##cpu##_##name
