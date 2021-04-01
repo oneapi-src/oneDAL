@@ -221,6 +221,7 @@ jobs:
       export NO_DIST=1
       cd daal4py
       ./conda-recipe/run_test.sh
+    timeoutInMinutes: 15
     displayName: daal4py test
   - script: |
       source venv/bin/activate
