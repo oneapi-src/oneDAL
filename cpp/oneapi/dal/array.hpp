@@ -323,7 +323,7 @@ public:
     /// @param data         The shared pointer to externally-allocated memory block.
     /// @param count        The number of elements of type :literal:`Data` in the memory block.
     explicit array(const std::shared_ptr<T>& data, std::int64_t count)
-            : impl_(new impl_t(data, count)) {
+            : impl_(new impl_t(detail::default_host_policy{}, data, count)) {
         update_data(data.get(), count);
     }
 

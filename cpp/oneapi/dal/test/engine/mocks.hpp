@@ -78,4 +78,10 @@ private:
     std::int64_t column_count_;
 };
 
+class dummy_homogen_table : public homogen_table {
+public:
+    dummy_homogen_table(std::int64_t row_count, std::int64_t column_count)
+            : homogen_table(dummy_homogen_table_impl{ row_count, column_count }) {}
+};
+
 } // namespace oneapi::dal::test::engine

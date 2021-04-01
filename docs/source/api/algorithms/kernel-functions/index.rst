@@ -24,4 +24,5 @@ This chapter describes programming interfaces of the kernel functions implemente
    :titlesonly:
 
    linear-kernel.rst
+   polynomial-kernel.rst
    rbf-kernel.rst

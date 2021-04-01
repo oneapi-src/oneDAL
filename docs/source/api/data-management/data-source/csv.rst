@@ -119,7 +119,7 @@ Args
 Operation
 ~~~~~~~~~
 
-:cpp:expr:`oneapi::dal::v1::table` is the only supported value of the :code:`Object`
+:cpp:expr:`oneapi::dal::table` is the only supported value of the :code:`Object`
 template parameter for :cpp:expr:`read` operation with CSV data source.
 
 .. namespace:: oneapi::dal

@@ -35,17 +35,17 @@ Transformation
 **************
 
 .. math::
-	T({\theta }_{t-1},g({\theta }_{t-1}),{S}_{t-1}) 
+	T(\theta_{t-1},g(\theta_{t-1}), S_{t-1}) 
 
 .. math::
-	{\theta }_{t} = \{ \begin{array}{c}
-	{\theta }_{t-1}-{\alpha }^{t}g(\theta_{t-1}), & \mbox{if t \le 2})\\
-	{\theta }_{t-1}-{\alpha }^{t}Hg(\theta_{t-1}), & \mbox{otherwise} \end{array}
+	\theta_{t} = \begin{cases}
+	\theta_{t-1}-\alpha^{t}g(\theta_{t-1}), & t \leq 2 \\
+	\theta_{t-1}-\alpha^{t}Hg(\theta_{t-1}), & \mathrm{otherwise} \end{cases}
 
 where :math:`H` is an approximation of the inverse Hessian matrix computed
 from m correction pairs by the Hessian Update Algorithm.
 
-Convergence check: :math:`U=g\left({\theta }_{t-1}\right), d=2`
+Convergence check: :math:`U=g\left(\theta_{t-1}\right), d=2`
 
 Intrinsic Parameters
 ********************
@@ -55,8 +55,8 @@ For the LBFGS algorithm, the set of intrinsic parameters :math:`S_t` includes th
 -  Correction pairs :math:`(s_j , y_j)`
 -  Correction index k in the buffer that stores correction pairs
 -  Index of last iteration t of the main loop from the previous run
--  Average value of arguments for the previous L iterations :math:`\overline{{\theta }_{k-1}}`
--  Average value of arguments for the last L iterations :math:`\overline{{\theta }_{k}}`
+-  Average value of arguments for the previous L iterations :math:`\overline{\theta_{k-1}}`
+-  Average value of arguments for the last L iterations :math:`\overline{\theta_k}`
 
 Below is the definition and update flow of the intrinsic
 parameters :math:`(s_j , y_j)`. The index is set and
@@ -71,7 +71,7 @@ steps for each of L iterations of the main loop:
 #.
 
  Choose a set of indices without replacement: :math:`I_H = \{i_1, i_2, \ldots, i_{b_H}\}`, :math:`1 \leq i_l < n`, :math:`l \in \{1, \ldots, b_H\}`,
- :math:`|I_H| = b_H = correctionPairBatchSize`.
+ :math:`|I_H| = b_H = \mathrm{correctionPairBatchSize}`.
 
 #.
 
@@ -287,23 +287,23 @@ Examples
 
   .. tab:: C++ (CPU)
 
-    Batch Processing:
+     Batch Processing:
 
-    - :cpp_example:`lbfgs_dense_batch.cpp <optimization_solvers/lbfgs_dense_batch.cpp>`
-    - :cpp_example:`lbfgs_opt_res_dense_batch.cpp <optimization_solvers/lbfgs_opt_res_dense_batch.cpp>`
+     - :cpp_example:`lbfgs_dense_batch.cpp <optimization_solvers/lbfgs_dense_batch.cpp>`
+     - :cpp_example:`lbfgs_opt_res_dense_batch.cpp <optimization_solvers/lbfgs_opt_res_dense_batch.cpp>`
 
   .. tab:: Java*
   
-    .. note:: There is no support for Java on GPU.
+     .. note:: There is no support for Java on GPU.
 
-    Batch Processing:
+     Batch Processing:
 
-  - :java_example:`LBFGSDenseBatch.java <optimization_solvers/LBFGSDenseBatch.java>`
-  - :java_example:`LBFGSOptResDenseBatch.java <optimization_solvers/LBFGSOptResDenseBatch.java>`
+     - :java_example:`LBFGSDenseBatch.java <optimization_solvers/LBFGSDenseBatch.java>`
+     - :java_example:`LBFGSOptResDenseBatch.java <optimization_solvers/LBFGSOptResDenseBatch.java>`
 
   .. tab:: Python*
 
-    Batch Processing:
+     Batch Processing:
 
-    - :daal4py_example:`lbfgs_cr_entr_loss_batch.py`
-    - :daal4py_example:`lbfgs_mse_batch.py`
+     - :daal4py_example:`lbfgs_cr_entr_loss_batch.py`
+     - :daal4py_example:`lbfgs_mse_batch.py`

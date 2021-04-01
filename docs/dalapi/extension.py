@@ -127,10 +127,13 @@ class Context(object):
     @property
     def index(self) -> doxypy.Index:
         if self._index is None:
-            self._index = doxypy.index(self.path_resolver.doxygen_xml, [
-                transformers.PropertyTransformer(),
-                transformers.RstDescriptionTransformer(),
-            ])
+            self._index = doxypy.index(self.path_resolver.doxygen_xml,
+                name_transformer=transformers.NameTransformer(),
+                transformer_passes= [
+                    transformers.PropertyTransformer(),
+                    transformers.RstDescriptionTransformer(),
+                ]
+            )
         return self._index
 
     @property

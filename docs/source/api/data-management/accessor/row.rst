@@ -41,4 +41,4 @@ All types and functions in this section are declared in the
 ``oneapi::dal`` namespace and be available via inclusion of the
 ``oneapi/dal/table/row_accessor.hpp`` header file.
 
-.. onedal_class:: oneapi::dal::v1::row_accessor
+.. onedal_class:: oneapi::dal::row_accessor

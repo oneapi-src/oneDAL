@@ -23,6 +23,8 @@
 #include "oneapi/dal/test/engine/catch.hpp"
 #include "oneapi/dal/test/engine/config.hpp"
 
+inline constexpr int default_benchmark_run_count = 5;
+
 int main(int argc, char** argv) {
     using namespace Catch::clara;
     using oneapi::dal::test::engine::global_config;
@@ -34,6 +36,7 @@ int main(int argc, char** argv) {
         session.cli() | Opt(config.device_selector, "device")["--device"]("DPC++ device selector");
 
     session.cli(cli);
+    session.configData().benchmarkSamples = default_benchmark_run_count;
 
     const int parse_status = session.applyCommandLine(argc, argv);
     if (parse_status != 0) {

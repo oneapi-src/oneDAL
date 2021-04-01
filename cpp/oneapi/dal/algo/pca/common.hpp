@@ -87,20 +87,12 @@ public:
 
     descriptor_base();
 
-    /// The number of principal components :literal:`r`. If it is zero, the algorithm
-    /// computes the eigenvectors for all features, $r = p$.
-    /// @remark default = 0
-    /// @invariant :expr:`component_count >= 0`
+    bool get_deterministic() const;
     std::int64_t get_component_count() const;
 
-    /// Specifies whether the algorithm applies the `Sign-flip technique`_.
-    /// If it is `true`, the directions of the eigenvectors must be deterministic.
-    /// @remark default = true
-    bool get_deterministic() const;
-
 protected:
-    void set_component_count_impl(std::int64_t value);
     void set_deterministic_impl(bool value);
+    void set_component_count_impl(std::int64_t value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -125,12 +117,12 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::cov` or :expr:`method::v1::svd`.
+///                be :expr:`method::cov` or :expr:`method::svd`.
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::v1::dim_reduction`.
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t>
+///                be :expr:`task::dim_reduction`.
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -149,9 +141,24 @@ public:
         set_component_count(component_count);
     }
 
+    /// The number of principal components $r$. If it is zero, the algorithm
+    /// computes the eigenvectors for all features, $r = p$.
+    /// @remark default = 0
+    /// @invariant :expr:`component_count >= 0`
+    std::int64_t get_component_count() const {
+        return base_t::get_component_count();
+    }
+
     auto& set_component_count(int64_t value) {
         base_t::set_component_count_impl(value);
         return *this;
+    }
+
+    /// Specifies whether the algorithm applies the sign-flip technique.
+    /// If it is `true`, the directions of the eigenvectors must be deterministic.
+    /// @remark default = true
+    bool get_deterministic() const {
+        return base_t::get_deterministic();
     }
 
     auto& set_deterministic(bool value) {
@@ -161,7 +168,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::dim_reduction`.
+///              be :expr:`task::dim_reduction`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
