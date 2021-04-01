@@ -49,9 +49,14 @@ public:
     }
 
     auto allocate_matrices(std::int64_t k, std::int64_t row_count, std::int64_t col_count) {
-        auto data = ndarray<Float, 2>::empty(this->get_queue(), { row_count, col_count }, sycl::usm::alloc::device);
-        auto selection = ndarray<Float, 2>::empty(this->get_queue(), { row_count, k }, sycl::usm::alloc::device);
-        auto indices = ndarray<std::int32_t, 2>::empty(this->get_queue(), { row_count, k }, sycl::usm::alloc::device);
+        auto data = ndarray<Float, 2>::empty(this->get_queue(),
+                                             { row_count, col_count },
+                                             sycl::usm::alloc::device);
+        auto selection =
+            ndarray<Float, 2>::empty(this->get_queue(), { row_count, k }, sycl::usm::alloc::device);
+        auto indices = ndarray<std::int32_t, 2>::empty(this->get_queue(),
+                                                       { row_count, k },
+                                                       sycl::usm::alloc::device);
         return std::make_tuple(data, selection, indices);
     }
 
@@ -59,7 +64,7 @@ public:
         auto count = data.get_count();
         Float* data_ptr = data.get_mutable_data();
 
-         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
+        auto event = this->get_queue().submit([&](sycl::handler& cgh) {
             cgh.parallel_for(sycl::range<1>(count), [=](sycl::item<1> item) {
                 std::int32_t ind = item.get_id()[0];
                 data_ptr[ind] = ind;
@@ -69,13 +74,15 @@ public:
     }
     void run_simple_rw_reduction(std::int64_t row_count, std::int64_t col_count) {
         INFO("benchmark rw_reduction pattern");
-        const auto name =
-            fmt::format("Reduction: val_type {}, elem_count {}",
-                        type2str<Float>::name,
-                        row_count * col_count);
+        const auto name = fmt::format("Reduction: val_type {}, elem_count {}",
+                                      type2str<Float>::name,
+                                      row_count * col_count);
 
-        auto data = ndarray<Float, 2>::empty(this->get_queue(), { row_count, col_count }, sycl::usm::alloc::device);
-        auto res = ndarray<Float, 1>::empty(this->get_queue(), { row_count }, sycl::usm::alloc::device);
+        auto data = ndarray<Float, 2>::empty(this->get_queue(),
+                                             { row_count, col_count },
+                                             sycl::usm::alloc::device);
+        auto res =
+            ndarray<Float, 1>::empty(this->get_queue(), { row_count }, sycl::usm::alloc::device);
         auto data_ptr = data.get_mutable_data();
         auto res_ptr = res.get_mutable_data();
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
@@ -107,7 +114,7 @@ public:
                         sum += val;
                     }
                     sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                    if(local_id == 0)
+                    if (local_id == 0)
                         res_ptr[row_id] = sum;
                 });
             });
@@ -117,13 +124,15 @@ public:
 
     void run_reduction_fused_with_private_simple(std::int64_t row_count, std::int64_t col_count) {
         INFO("benchmark read");
-        const auto name =
-            fmt::format("Selection (small k): val_type {}, elem_count {}",
-                        type2str<Float>::name,
-                        row_count * col_count);
+        const auto name = fmt::format("Selection (small k): val_type {}, elem_count {}",
+                                      type2str<Float>::name,
+                                      row_count * col_count);
 
-        auto data = ndarray<Float, 2>::empty(this->get_queue(), { row_count, col_count }, sycl::usm::alloc::device);
-        auto res = ndarray<Float, 1>::empty(this->get_queue(), { row_count }, sycl::usm::alloc::device);
+        auto data = ndarray<Float, 2>::empty(this->get_queue(),
+                                             { row_count, col_count },
+                                             sycl::usm::alloc::device);
+        auto res =
+            ndarray<Float, 1>::empty(this->get_queue(), { row_count }, sycl::usm::alloc::device);
         auto data_ptr = data.get_mutable_data();
         auto res_ptr = res.get_mutable_data();
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
@@ -149,21 +158,21 @@ public:
                         return;
                     Float buf[32];
                     int count[32];
-                    for(int j = 0; j < 32; j++)
+                    for (int j = 0; j < 32; j++)
                         buf[j] = 0;
                     const uint32_t local_id = sg.get_local_id()[0];
                     const uint32_t local_range = sg.get_local_range()[0];
                     Float sum = 0.0;
                     for (std::uint32_t i = local_id; i < col_count; i += local_range) {
                         auto val = data_ptr[i + row_id * col_count];
-                        for(int j = 1; j < 32; j++) {
-                                buf[j] += val;
-                                count[j] += val > 1.5 ? 0 : 1;
+                        for (int j = 1; j < 32; j++) {
+                            buf[j] += val;
+                            count[j] += val > 1.5 ? 0 : 1;
                         }
                         sum += val;
                     }
                     sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                    if(local_id == 0)
+                    if (local_id == 0)
                         res_ptr[row_id] = sum + buf[count[row_id % 32] % 32];
                 });
             });
@@ -172,13 +181,15 @@ public:
     }
     void run_reduction_fused_with_private_complex(std::int64_t row_count, std::int64_t col_count) {
         INFO("benchmark read");
-        const auto name =
-            fmt::format("Selection (small k): val_type {}, elem_count {}",
-                        type2str<Float>::name,
-                        row_count * col_count);
+        const auto name = fmt::format("Selection (small k): val_type {}, elem_count {}",
+                                      type2str<Float>::name,
+                                      row_count * col_count);
 
-        auto data = ndarray<Float, 2>::empty(this->get_queue(), { row_count, col_count }, sycl::usm::alloc::device);
-        auto res = ndarray<Float, 1>::empty(this->get_queue(), { row_count }, sycl::usm::alloc::device);
+        auto data = ndarray<Float, 2>::empty(this->get_queue(),
+                                             { row_count, col_count },
+                                             sycl::usm::alloc::device);
+        auto res =
+            ndarray<Float, 1>::empty(this->get_queue(), { row_count }, sycl::usm::alloc::device);
         auto data_ptr = data.get_mutable_data();
         auto res_ptr = res.get_mutable_data();
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
@@ -204,21 +215,21 @@ public:
                         return;
                     Float buf[32];
                     int count[32];
-                    for(int j = 0; j < 32; j++)
+                    for (int j = 0; j < 32; j++)
                         buf[j] = 0;
                     const uint32_t local_id = sg.get_local_id()[0];
                     const uint32_t local_range = sg.get_local_range()[0];
                     Float sum = 0.0;
                     for (std::uint32_t i = local_id; i < col_count; i += local_range) {
                         auto val = data_ptr[i + row_id * col_count];
-                        for(int j = 1; j < 32; j++) {
+                        for (int j = 1; j < 32; j++) {
                             buf[j] += val > 0 ? buf[j - 1] : buf[j];
                             count[j] += val > 1.5 ? count[j - 1] : count[j];
                         }
                         sum += val;
                     }
                     sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                    if(local_id == 0)
+                    if (local_id == 0)
                         res_ptr[row_id] = sum + buf[count[row_id % 32] % 32];
                 });
             });
@@ -228,7 +239,10 @@ public:
 };
 
 using pattern_types = std::tuple<float, double>;
-TEMPLATE_LIST_TEST_M(pattern_test, "benchmark for simple rw reducton", "[patterns][perf]", pattern_types) {
+TEMPLATE_LIST_TEST_M(pattern_test,
+                     "benchmark for simple rw reducton",
+                     "[patterns][perf]",
+                     pattern_types) {
     SKIP_IF(this->get_policy().is_cpu());
 
     std::int64_t row_count = GENERATE_COPY(1024);
@@ -237,7 +251,10 @@ TEMPLATE_LIST_TEST_M(pattern_test, "benchmark for simple rw reducton", "[pattern
 }
 
 using selection_types = std::tuple<float, double>;
-TEMPLATE_LIST_TEST_M(pattern_test, "benchmark for rw reduction fused with simple private memory manipulations", "[patterns][perf]", pattern_types) {
+TEMPLATE_LIST_TEST_M(pattern_test,
+                     "benchmark for rw reduction fused with simple private memory manipulations",
+                     "[patterns][perf]",
+                     pattern_types) {
     SKIP_IF(this->get_policy().is_cpu());
     std::int64_t row_count = GENERATE_COPY(1024);
     std::int64_t col_count = GENERATE_COPY(16 * 1024);
@@ -245,12 +262,14 @@ TEMPLATE_LIST_TEST_M(pattern_test, "benchmark for rw reduction fused with simple
 }
 
 using selection_types = std::tuple<float, double>;
-TEMPLATE_LIST_TEST_M(pattern_test, "benchmark for raw selection", "[patterns][perf]", pattern_types) {
+TEMPLATE_LIST_TEST_M(pattern_test,
+                     "benchmark for raw selection",
+                     "[patterns][perf]",
+                     pattern_types) {
     SKIP_IF(this->get_policy().is_cpu());
     std::int64_t row_count = GENERATE_COPY(1024);
     std::int64_t col_count = GENERATE_COPY(16 * 1024);
     this->run_reduction_fused_with_private_complex(row_count, col_count);
 }
-
 
 } // namespace oneapi::dal::backend::primitives::test

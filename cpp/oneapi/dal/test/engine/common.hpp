@@ -213,12 +213,16 @@ inline auto compute(device_test_policy& policy, Args&&... args) {
 
 template <typename T>
 struct type2str {
-    static const char* name() { return "Unknown"; }
+    static const char* name() {
+        return "Unknown";
+    }
 };
 
-#define INSTANTIATE_TYPE_MAP(T) \
-    template <>                 \
-    const char* type2str<T>::name() { return #T; }
+#define INSTANTIATE_TYPE_MAP(T)       \
+    template <>                       \
+    const char* type2str<T>::name() { \
+        return #T;                    \
+    }
 
 #endif
 

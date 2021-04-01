@@ -39,10 +39,11 @@ public:
 
     auto allocate_matrices(std::int64_t k, std::int64_t row_count, std::int64_t col_count) {
         auto data = ndarray<float_t, 2>::empty(this->get_queue(),
-                                             { row_count, col_count },
-                                             sycl::usm::alloc::device);
-        auto selection =
-            ndarray<float_t, 2>::empty(this->get_queue(), { row_count, k }, sycl::usm::alloc::device);
+                                               { row_count, col_count },
+                                               sycl::usm::alloc::device);
+        auto selection = ndarray<float_t, 2>::empty(this->get_queue(),
+                                                    { row_count, k },
+                                                    sycl::usm::alloc::device);
         auto indices = ndarray<std::int32_t, 2>::empty(this->get_queue(),
                                                        { row_count, k },
                                                        sycl::usm::alloc::device);

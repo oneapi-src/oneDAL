@@ -79,12 +79,12 @@ public:
             auto max_val = std::numeric_limits<float_t>::lowest();
             for (std::int64_t j = 0; j < k; j++) {
                 float_t cur_val = get_value<selection_out, indices_out>(data,
-                                                                      selection,
-                                                                      indices,
-                                                                      k,
-                                                                      row_size,
-                                                                      i,
-                                                                      j);
+                                                                        selection,
+                                                                        indices,
+                                                                        k,
+                                                                        row_size,
+                                                                        i,
+                                                                        j);
                 check_presence_in_data<selection_out, indices_out>(data,
                                                                    selection,
                                                                    indices,
@@ -113,12 +113,12 @@ public:
 
     template <bool selection_out, bool indices_out>
     float_t get_value(const ndview<float_t, 2>& data,
-                    const ndview<float_t, 2>& selection,
-                    const ndview<int, 2>& indices,
-                    std::int64_t k,
-                    std::int64_t row_size,
-                    std::int64_t row,
-                    std::int64_t pos) {
+                      const ndview<float_t, 2>& selection,
+                      const ndview<int, 2>& indices,
+                      std::int64_t k,
+                      std::int64_t row_size,
+                      std::int64_t row,
+                      std::int64_t pos) {
         if constexpr (selection_out) {
             return selection.get_data()[row * k + pos];
         }
@@ -183,7 +183,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      selection_types) {
     using float_t = TestType;
     float_t data[] = { -2.0f, 5.0f, -3.0f, 3.0f, 4.0f, 1.0f, 1.0f, 4.0f,
-                     4.0f,  1.0f, 1.0f,  0.0f, 0.0f, 5.0f, 1.0f };
+                       4.0f,  1.0f, 1.0f,  0.0f, 0.0f, 5.0f, 1.0f };
     auto data_array = ndarray<float_t, 2>::empty(this->get_queue(), { 3, 5 });
     auto event = this->get_queue().submit([&](sycl::handler& cgh) {
         cgh.memcpy(data_array.get_mutable_data(), data, sizeof(float_t) * 15);
@@ -198,7 +198,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      selection_types) {
     using float_t = TestType;
     float_t data[] = { 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 4.0f,
-                     0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 5.0f, 1.0f };
+                       0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 5.0f, 1.0f };
     auto data_array = ndarray<float_t, 2>::empty(this->get_queue(), { 1, 15 });
     auto event = this->get_queue().submit([&](sycl::handler& cgh) {
         cgh.memcpy(data_array.get_mutable_data(), data, sizeof(float_t) * 15);
@@ -213,7 +213,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      selection_types) {
     using float_t = TestType;
     float_t data[] = { 7.0f, 5.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 4.0f,
-                     0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 5.0f, 1.0f };
+                       0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 5.0f, 1.0f };
     auto data_array = ndarray<float_t, 2>::empty(this->get_queue(), { 3, 5 });
     auto event = this->get_queue().submit([&](sycl::handler& cgh) {
         cgh.memcpy(data_array.get_mutable_data(), data, sizeof(float_t) * 15);

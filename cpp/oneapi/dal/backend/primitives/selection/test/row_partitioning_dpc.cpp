@@ -71,11 +71,11 @@ public:
                     return;
                 int cur_index =
                     kernel_row_partitioning<float_t>(item,
-                                                   data_tmp_ptr + col_count * cur_row,
-                                                   index_array_ptr + col_count * cur_row,
-                                                   start,
-                                                   end,
-                                                   data_ptr[pivot_index + cur_row * col_count]);
+                                                     data_tmp_ptr + col_count * cur_row,
+                                                     index_array_ptr + col_count * cur_row,
+                                                     start,
+                                                     end,
+                                                     data_ptr[pivot_index + cur_row * col_count]);
                 if (sg.get_local_id()[0] == 0)
                     split_array_ptr[cur_row] = cur_index;
             });

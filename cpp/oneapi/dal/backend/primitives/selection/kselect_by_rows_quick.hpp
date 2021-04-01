@@ -174,7 +174,8 @@ private:
         }
         std::int32_t iteration_count;
         for (iteration_count = 0; iteration_count < row_count; iteration_count++) {
-            const Float rnd = kselect_by_rows_quick::kernel_get_rnd(rnd_seq, rnd_period, &rnd_count);
+            const Float rnd =
+                kselect_by_rows_quick::kernel_get_rnd(rnd_seq, rnd_period, &rnd_count);
             std::int32_t pos = (std::int32_t)(rnd * (partition_end - partition_start - 1));
             pos = pos < 0 ? 0 : pos;
             const Float pivot = values[partition_start + pos];
