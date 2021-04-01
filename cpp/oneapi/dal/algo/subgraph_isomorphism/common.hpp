@@ -65,10 +65,18 @@ protected:
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
-template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
+template <typename Float = descriptor_base::float_t,
+          typename Method = descriptor_base::method_t,
+          typename Allocator = std::allocator<char>>
 class descriptor : public descriptor_base {
 public:
+    using float_t = Float;
     using method_t = Method;
+    using allocator_t = Allocator;
+
+    explicit descriptor(Allocator allocator) {
+        _alloc = allocator;
+    }
 
     /// Sets the type of searched subgraph in Subgraph Isomorphism computation
     ///
@@ -93,6 +101,12 @@ public:
         this->set_max_match_count_impl(max_match_count);
         return *this;
     }
+    Allocator get_allocator() const {
+        return _alloc;
+    }
+
+private:
+    Allocator _alloc;
 };
 
 namespace detail {

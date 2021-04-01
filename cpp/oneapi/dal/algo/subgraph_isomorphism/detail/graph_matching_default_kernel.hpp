@@ -34,20 +34,13 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-template <typename Index>
-graph_matching_result call_subgraph_isomorphism_default_kernel_general(
-    const descriptor_base &desc,
-    const dal::preview::detail::topology<std::int32_t> &t_data,
-    const dal::preview::detail::topology<std::int32_t> &p_data) {
-    std::cout << "GENERAL KERNEL avx512" << std::endl;
-    graph_matching_result res;
-    return res;
-}
-
-graph_matching_result call_subgraph_isomorphism_default_kernel_scalar(
-    const descriptor_base &desc,
-    const dal::preview::detail::topology<std::int32_t> &t_data,
-    const dal::preview::detail::topology<std::int32_t> &p_data) {
+template <typename Allocator>
+graph_matching_result call_subgraph_isomorphism_default_kernel(
+    const dal::detail::host_policy& ctx,
+    const descriptor_base& desc,
+    const Allocator& alloc,
+    const dal::preview::detail::topology<std::int32_t>& t_data,
+    const dal::preview::detail::topology<std::int32_t>& p_data) {
     // graph_loader pattern_loader(p_data, graph_storage_scheme::bit);
     detail::graph pattern(p_data, detail::graph_storage_scheme::bit);
 

@@ -26,18 +26,28 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-template <typename Policy, typename Float, class Method, typename Graph>
-struct ONEDAL_EXPORT graph_matching_ops_dispatcher {
+template <typename Policy, typename Descriptor, typename Graph>
+struct graph_matching_ops_dispatcher {
     graph_matching_result operator()(const Policy &policy,
-                                     const descriptor_base &descriptor,
-                                     graph_matching_input<Graph> &input) const;
+                                     const Descriptor &descriptor,
+                                     graph_matching_input<Graph> &input) const {
+        const auto &csr_target_topology =
+            dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
+        const auto &csr_pattern_topology =
+            dal::preview::detail::csr_topology_builder<Graph>()(input.get_pattern_graph());
+        static auto impl =
+            get_backend<Policy, Descriptor>(descriptor, csr_target_topology, csr_pattern_topology);
+        return (*impl)(policy, descriptor, csr_target_topology, csr_pattern_topology);
+    }
 };
 
 template <typename Descriptor, typename Graph>
 struct graph_matching_ops {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
-    using input_t = graph_matching_input<Graph>;
+    using allocator_t = typename Descriptor::allocator_t;
+    using graph_t = Graph;
+    using input_t = graph_matching_input<graph_t>;
     using result_t = graph_matching_result;
     using descriptor_base_t = descriptor_base;
 
@@ -56,28 +66,10 @@ struct graph_matching_ops {
     }
 
     template <typename Policy>
-    auto operator()(const Policy &policy,
-                    const Descriptor &desc,
-                    graph_matching_input<Graph> &input) const {
+    auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
         check_preconditions(desc, input);
-        return graph_matching_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
-                                                                                 desc,
-                                                                                 input);
+        return graph_matching_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
 };
-
-template <typename Policy, typename Float, class Method, typename Graph>
-graph_matching_result graph_matching_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
-    const Policy &policy,
-    const descriptor_base &desc,
-    graph_matching_input<Graph> &input) const {
-    const auto &csr_target_topology =
-        dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
-    const auto &csr_pattern_topology =
-        dal::preview::detail::csr_topology_builder<Graph>()(input.get_pattern_graph());
-    static auto impl =
-        get_backend<Policy, Float, Method>(desc, csr_target_topology, csr_pattern_topology);
-    return (*impl)(policy, desc, csr_target_topology, csr_pattern_topology);
-}
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

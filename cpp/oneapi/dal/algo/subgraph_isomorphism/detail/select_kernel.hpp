@@ -23,51 +23,43 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-template <typename Policy, typename Topology>
-struct ONEDAL_EXPORT backend_base {
+template <typename Policy, typename Descriptor, typename Topology>
+struct backend_base {
+    using float_t = typename Descriptor::float_t;
+    using method_t = typename Descriptor::method_t;
+    using allocator_t = typename Descriptor::allocator_t;
+
     virtual graph_matching_result operator()(const Policy &ctx,
-                                             const descriptor_base &descriptor,
+                                             const Descriptor &descriptor,
                                              const Topology &t_data,
                                              const Topology &p_data) = 0;
-    virtual ~backend_base() {}
+    virtual ~backend_base() = default;
 };
 
-template <typename Policy, typename Float, typename Method, typename Topology>
-struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Topology> {
+template <typename Policy, typename Descriptor, typename Topology>
+struct backend_default : public backend_base<Policy, Descriptor, Topology> {
+    static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
+                  "Host policy only is supported.");
+
+    using allocator_t = typename Descriptor::allocator_t;
+
     virtual graph_matching_result operator()(const Policy &ctx,
-                                             const descriptor_base &descriptor,
+                                             const Descriptor &descriptor,
                                              const Topology &t_data,
                                              const Topology &p_data) {
-        return call_subgraph_isomorphism_default_kernel_general(descriptor, t_data, p_data);
+        return call_subgraph_isomorphism_default_kernel(ctx,
+                                                        descriptor,
+                                                        descriptor.get_allocator(),
+                                                        t_data,
+                                                        p_data);
     }
     virtual ~backend_default() {}
 };
 
-template <typename Float, typename Method>
-struct backend_default<dal::detail::host_policy,
-                       Float,
-                       Method,
-                       dal::preview::detail::topology<std::int32_t>>
-        : public backend_base<dal::detail::host_policy,
-                              dal::preview::detail::topology<std::int32_t>> {
-    virtual graph_matching_result operator()(
-        const dal::detail::host_policy &ctx,
-        const descriptor_base &descriptor,
-        const dal::preview::detail::topology<std::int32_t> &target_data,
-        const dal::preview::detail::topology<std::int32_t> &pattern_data) {
-        return call_subgraph_isomorphism_default_kernel_scalar(descriptor,
-                                                               target_data,
-                                                               pattern_data);
-    }
-    virtual ~backend_default() {}
-};
-
-template <typename Policy, typename Float, class Method, typename Topology>
-dal::detail::pimpl<backend_base<Policy, Topology>> get_backend(const descriptor_base &desc,
-                                                               const Topology &target_data,
-                                                               const Topology &pattern_data) {
-    return dal::detail::pimpl<backend_base<Policy, Topology>>(
-        new backend_default<Policy, float, method::by_default, Topology>);
+template <typename Policy, typename Descriptor, typename Topology>
+dal::detail::shared<backend_base<Policy, Descriptor, Topology>>
+get_backend(const Descriptor &desc, const Topology &target_data, const Topology &pattern_data) {
+    return std::make_shared<backend_default<Policy, Descriptor, Topology>>();
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail
