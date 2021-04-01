@@ -31,13 +31,13 @@ namespace te = dal::test::engine;
 template <typename TestType>
 class row_partitioning_test : public te::policy_fixture {
 public:
-    using Float = TestType;
+    using float_t = TestType;
 
     te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
+        return te::table_id::homogen<float_t>();
     }
 
-    void test_partitioning(ndview<Float, 2>& data,
+    void test_partitioning(ndview<float_t, 2>& data,
                            std::int64_t start,
                            std::int64_t end,
                            std::int64_t pivot_index) {
@@ -45,10 +45,10 @@ public:
         auto col_count = data.get_dimension(1);
         auto data_ptr = data.get_data();
 
-        auto data_tmp = ndarray<Float, 2>::empty(this->get_queue(), { row_count, col_count });
+        auto data_tmp = ndarray<float_t, 2>::empty(this->get_queue(), { row_count, col_count });
         auto data_tmp_ptr = data_tmp.get_mutable_data();
         auto cpy_event = this->get_queue().submit([&](sycl::handler& cgh) {
-            cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(Float) * row_count * col_count);
+            cgh.memcpy(data_tmp_ptr, data_ptr, sizeof(float_t) * row_count * col_count);
         });
         cpy_event.wait();
 
@@ -70,7 +70,7 @@ public:
                 if (cur_row >= row_count)
                     return;
                 int cur_index =
-                    kernel_row_partitioning<Float>(item,
+                    kernel_row_partitioning<float_t>(item,
                                                    data_tmp_ptr + col_count * cur_row,
                                                    index_array_ptr + col_count * cur_row,
                                                    start,
@@ -84,8 +84,8 @@ public:
         check_results(data_tmp, data, index_array, split_array, start, end, pivot_index);
     }
 
-    void check_results(const ndview<Float, 2>& data,
-                       const ndview<Float, 2>& data_org,
+    void check_results(const ndview<float_t, 2>& data,
+                       const ndview<float_t, 2>& data_org,
                        const ndview<int, 2>& indices,
                        const ndview<int, 2>& splits,
                        std::int64_t start,
@@ -133,15 +133,15 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test on single random row",
                      "[row_partitioning][small]",
                      partitioning_types) {
-    using Float = TestType;
+    using float_t = TestType;
     std::int64_t rows = 1;
     std::int64_t cols = 17;
     std::int64_t pivot_index = 0;
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
-    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<float_t, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, 0, cols, pivot_index);
 }
 
@@ -149,15 +149,15 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (two rows)",
                      "[row_partitioning][small]",
                      partitioning_types) {
-    using Float = TestType;
+    using float_t = TestType;
     std::int64_t rows = 2;
     std::int64_t cols = 17;
     std::int64_t pivot_index = 0;
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
-    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<float_t, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, 0, cols, pivot_index);
 }
 
@@ -165,15 +165,15 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (unaligned block)",
                      "[row_partitioning][small]",
                      partitioning_types) {
-    using Float = TestType;
+    using float_t = TestType;
     std::int64_t rows = 17;
     std::int64_t cols = 37;
     std::int64_t pivot_index = 0;
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
-    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<float_t, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, 0, cols, pivot_index);
 }
 
@@ -181,7 +181,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (partial single row)",
                      "[row_partitioning][small]",
                      partitioning_types) {
-    using Float = TestType;
+    using float_t = TestType;
     std::int64_t rows = 1;
     std::int64_t cols = 37;
     std::int64_t start = 1;
@@ -190,8 +190,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
-    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<float_t, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, start, end, pivot_index);
 }
 
@@ -199,7 +199,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (end of single row)",
                      "[row_partitioning][small]",
                      partitioning_types) {
-    using Float = TestType;
+    using float_t = TestType;
     std::int64_t rows = 1;
     std::int64_t cols = 35;
     std::int64_t start = 26;
@@ -207,8 +207,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
-    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<float_t, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, start, cols, pivot_index);
 }
 
@@ -216,7 +216,7 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
                      "row partitioning test (partial unaligned block)",
                      "[row_partitioning][small]",
                      partitioning_types) {
-    using Float = TestType;
+    using float_t = TestType;
     std::int64_t rows = 17;
     std::int64_t cols = 37;
     std::int64_t start = 1;
@@ -225,8 +225,8 @@ TEMPLATE_LIST_TEST_M(row_partitioning_test,
 
     const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ rows, cols }.fill_uniform(-0.2, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
-    const auto df_rows = row_accessor<const Float>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = ndarray<Float, 2>::wrap(df_rows.get_data(), { rows, cols });
+    const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
+    auto data_array = ndarray<float_t, 2>::wrap(df_rows.get_data(), { rows, cols });
     this->test_partitioning(data_array, start, end, pivot_index);
 }
 

@@ -31,8 +31,6 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-constexpr std::uint32_t preffered_sg_size = 16;
-
 // Performs k-selection using Quick Select algorithm which is based on row partitioning
 template <typename Float>
 class kselect_by_rows_quick : public kselect_by_rows_base<Float> {
@@ -204,6 +202,7 @@ private:
             }
         }
     }
+    static constexpr std::uint32_t preffered_sg_size = 16;
     static constexpr std::int64_t max_rnd_seq_size_ = 1024;
     std::int64_t rnd_seq_size_ = max_rnd_seq_size_;
     rnd_seq<Float> rnd_seq_;

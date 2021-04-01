@@ -31,27 +31,27 @@ namespace te = dal::test::engine;
 template <typename TestType>
 class selection_test : public te::policy_fixture {
 public:
-    using Float = TestType;
+    using float_t = TestType;
 
     te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
+        return te::table_id::homogen<float_t>();
     }
 
     auto allocate_matrices(std::int64_t k, std::int64_t row_count, std::int64_t col_count) {
-        auto data = ndarray<Float, 2>::empty(this->get_queue(),
+        auto data = ndarray<float_t, 2>::empty(this->get_queue(),
                                              { row_count, col_count },
                                              sycl::usm::alloc::device);
         auto selection =
-            ndarray<Float, 2>::empty(this->get_queue(), { row_count, k }, sycl::usm::alloc::device);
+            ndarray<float_t, 2>::empty(this->get_queue(), { row_count, k }, sycl::usm::alloc::device);
         auto indices = ndarray<std::int32_t, 2>::empty(this->get_queue(),
                                                        { row_count, k },
                                                        sycl::usm::alloc::device);
         return std::make_tuple(data, selection, indices);
     }
 
-    void fill_constant(ndarray<Float, 2>& data, Float a) {
+    void fill_constant(ndarray<float_t, 2>& data, float_t a) {
         auto count = data.get_count();
-        Float* data_ptr = data.get_mutable_data();
+        float_t* data_ptr = data.get_mutable_data();
 
         auto event = this->get_queue().submit([&](sycl::handler& cgh) {
             cgh.parallel_for(sycl::range<1>(count), [=](sycl::item<1> item) {
@@ -62,18 +62,18 @@ public:
         event.wait_and_throw();
     }
 
-    void run(ndarray<Float, 2>& data,
+    void run(ndarray<float_t, 2>& data,
              std::int64_t k,
-             ndarray<Float, 2>& selection,
+             ndarray<float_t, 2>& selection,
              ndarray<std::int32_t, 2>& indices) {
         INFO("benchmark sort with indices");
         const auto name = fmt::format("Selection (small k): val_type {}, k {}, elem_count {}",
-                                      type2str<Float>::name(),
+                                      type2str<float_t>::name(),
                                       k,
                                       data.get_count());
 
         this->get_queue().wait_and_throw();
-        select_by_rows<Float> sel(get_queue(), data.get_shape(), k);
+        select_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
         BENCHMARK(name.c_str()) {
             sel(this->get_queue(), data, k, selection, indices).wait_and_throw();
         };
