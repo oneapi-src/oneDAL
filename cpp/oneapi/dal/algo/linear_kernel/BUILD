@@ -9,7 +9,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/backend/primitives",
+        "@onedal//cpp/oneapi/dal/backend/primitives:blas",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/kernel_function:kernel",
