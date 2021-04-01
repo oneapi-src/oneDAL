@@ -23,6 +23,7 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_topology_builder.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -35,9 +36,22 @@ struct graph_matching_ops_dispatcher {
             dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
         const auto &csr_pattern_topology =
             dal::preview::detail::csr_topology_builder<Graph>()(input.get_pattern_graph());
+        const auto &vv_t = dal::detail::get_impl(input.get_target_graph()).get_vertex_values();
+        const auto &ev_t = dal::detail::get_impl(input.get_target_graph()).get_edge_values();
+
+        const auto &vv_p = dal::detail::get_impl(input.get_pattern_graph()).get_vertex_values();
+        const auto &ev_p = dal::detail::get_impl(input.get_pattern_graph()).get_edge_values();
         static auto impl =
-            get_backend<Policy, Descriptor>(descriptor, csr_target_topology, csr_pattern_topology);
-        return (*impl)(policy, descriptor, csr_target_topology, csr_pattern_topology);
+            get_backend<Policy>(descriptor, csr_target_topology, csr_pattern_topology, vv_t, ev_t);
+
+        return (*impl)(policy,
+                       descriptor,
+                       csr_target_topology,
+                       csr_pattern_topology,
+                       vv_t,
+                       ev_t,
+                       vv_p,
+                       ev_p);
     }
 };
 

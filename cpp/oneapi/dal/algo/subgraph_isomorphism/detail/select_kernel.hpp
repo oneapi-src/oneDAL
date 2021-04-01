@@ -23,43 +23,74 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-template <typename Policy, typename Descriptor, typename Topology>
+template <typename Policy,
+          typename Descriptor,
+          typename Topology,
+          typename VertexValue,
+          typename EdgeValue>
 struct backend_base {
     using float_t = typename Descriptor::float_t;
     using method_t = typename Descriptor::method_t;
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual graph_matching_result operator()(const Policy &ctx,
-                                             const Descriptor &descriptor,
-                                             const Topology &t_data,
-                                             const Topology &p_data) = 0;
+    virtual graph_matching_result operator()(
+        const Policy &ctx,
+        const Descriptor &descriptor,
+        const Topology &t_data,
+        const Topology &p_data,
+        const oneapi::dal::preview::detail::vertex_values<VertexValue> &vv_t,
+        const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_t,
+        const oneapi::dal::preview::detail::vertex_values<VertexValue> &vv_p,
+        const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_p) = 0;
     virtual ~backend_base() = default;
 };
 
-template <typename Policy, typename Descriptor, typename Topology>
-struct backend_default : public backend_base<Policy, Descriptor, Topology> {
+template <typename Policy,
+          typename Descriptor,
+          typename Topology,
+          typename VertexValue,
+          typename EdgeValue>
+struct backend_default : public backend_base<Policy, Descriptor, Topology, VertexValue, EdgeValue> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual graph_matching_result operator()(const Policy &ctx,
-                                             const Descriptor &descriptor,
-                                             const Topology &t_data,
-                                             const Topology &p_data) {
+    virtual graph_matching_result operator()(
+        const Policy &ctx,
+        const Descriptor &descriptor,
+        const Topology &t_data,
+        const Topology &p_data,
+        const oneapi::dal::preview::detail::vertex_values<VertexValue> &vv_t,
+        const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_t,
+        const oneapi::dal::preview::detail::vertex_values<VertexValue> &vv_p,
+        const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_p) {
         return call_subgraph_isomorphism_default_kernel(ctx,
                                                         descriptor,
                                                         descriptor.get_allocator(),
                                                         t_data,
-                                                        p_data);
+                                                        p_data,
+                                                        vv_t,
+                                                        ev_t,
+                                                        vv_p,
+                                                        ev_p);
     }
     virtual ~backend_default() {}
 };
 
-template <typename Policy, typename Descriptor, typename Topology>
-dal::detail::shared<backend_base<Policy, Descriptor, Topology>>
-get_backend(const Descriptor &desc, const Topology &target_data, const Topology &pattern_data) {
-    return std::make_shared<backend_default<Policy, Descriptor, Topology>>();
+template <typename Policy,
+          typename Descriptor,
+          typename Topology,
+          typename VertexValue,
+          typename EdgeValue>
+dal::detail::shared<backend_base<Policy, Descriptor, Topology, VertexValue, EdgeValue>> get_backend(
+    const Descriptor &desc,
+    const Topology &target_data,
+    const Topology &pattern_data,
+    const oneapi::dal::preview::detail::vertex_values<VertexValue> &vv_t,
+    const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_t) {
+    return std::make_shared<
+        backend_default<Policy, Descriptor, Topology, VertexValue, EdgeValue>>();
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

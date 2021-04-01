@@ -13,9 +13,7 @@ std::shared_ptr<T> make_shared_malloc(std::uint64_t elements_count) {
     return std::shared_ptr<T>(ptr, _mm_free);
 }
 
-solution subgraph_isomorphism(const graph& pattern,
-                              const graph& target,
-                              const std::uint64_t control_flags = 0) {
+solution si(const graph& pattern, const graph& target, const std::uint64_t control_flags = 0) {
     solution sol;
     sorter sorter_graph(&target);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();

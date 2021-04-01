@@ -357,7 +357,7 @@ void matching_engine::run_and_wait(bool main_engine) {
     if (main_engine) {
         first_states_generator(hlocal_stack);
     }
-    Lo if (target->bit_representation) { /* dense graph case */
+    if (target->bit_representation) { /* dense graph case */
         while (hlocal_stack.states_in_stack() > 0) {
             state_exploration_bit();
         }
