@@ -70,71 +70,27 @@ struct data2mask_map<Flag, double, Integer> {
 /// @tparam Data type used for storing input data values
 /// @tparam Flag type used for storing input mask values
 template <typename Data, typename Flag>
-class selector {
+class select_flagged_base {
+protected:
     using integer_t = std::uint32_t;
     using mask_t = typename data2mask_map<Flag, Data, integer_t>::mask_t;
 
-public:
     /// Performs initialization of auxiliary variables and required auxiliary buffers
     /// @param[in]  queue The queue
-    selector(const sycl::queue& queue);
-    selector(const selector&) = delete;
-    ~selector();
-    selector& operator=(const selector&) = delete;
+    select_flagged_base(const sycl::queue& queue);
+    select_flagged_base(const select_flagged_base&) = delete;
+    virtual ~select_flagged_base();
+    select_flagged_base& operator=(const select_flagged_base&) = delete;
 
-    /// Performs flagged copy of values from input vector into output one base on input mask values
-    /// Copies of the selected values are compacted into output in their original relative ordering.
-    /// Value i is being copied out if bool(mask[i]) eq true.
-    /// NOTE: auxiliary buffers and variables are reset in case if number of elements in input
-    ///       differs from the number of input elements processed on previous call
-    ///
-    /// @param[in]  mask The [n] input vector of flaggs used for selecting values
-    /// @param[in]  in   The [n] input vector of values
-    /// @param[out] out  The [n] output vector of selected values
-    /// @param[out] selected_elem_count  The number of selected values
-    template <typename T = Data, typename = std::enable_if_t<std::is_floating_point<T>::value>>
-    sycl::event select_flagged(const ndview<Flag, 1>& mask,
-                               const ndview<Data, 1>& in,
-                               ndview<Data, 1>& out,
-                               std::int64_t& selected_elem_count,
-                               const event_vector& deps = {}) {
-        ONEDAL_ASSERT(in.get_count() == mask.get_count());
-
-        mask_t mask_accessor{ mask.get_data() };
-        return select_flagged_impl(mask_accessor, in, out, selected_elem_count, deps);
-    }
-
-    /// Performs flagged copy of indices from input vector into output one base on input mask values
-    /// Copies of the selected indices are compacted into output in their original relative ordering.
-    /// Index i is being copied out if bool(mask[in[i]]) eq true.
-    /// NOTE: auxiliary buffers and variables are reset in case if number of elements in input
-    ///       differs from the number of input elements processed on previous call
-    ///
-    /// @param[in]  mask The [n] input vector of flaggs used for selecting indices
-    /// @param[in]  in   The [n] input vector of indices
-    /// @param[out] out  The [n] output vector of selected indices
-    /// @param[out] selected_elem_count  The number of selected indices
-    template <typename T = Data, typename = std::enable_if_t<std::numeric_limits<T>::is_integer>>
-    sycl::event select_flagged_index(const ndview<Flag, 1>& mask,
-                                     const ndview<Data, 1>& in,
-                                     ndview<Data, 1>& out,
-                                     std::int64_t& selected_elem_count,
-                                     const event_vector& deps = {}) {
-        ONEDAL_ASSERT(in.get_count() == mask.get_count());
-
-        mask_t mask_accessor{ mask.get_data(), in.get_data() };
-        return select_flagged_impl(mask_accessor, in, out, selected_elem_count, deps);
-    }
-
-private:
     void init(sycl::queue& queue, std::int64_t elem_count);
 
-    sycl::event select_flagged_impl(const mask_t& mask_accessor,
-                                    const ndview<Data, 1>& in,
-                                    ndview<Data, 1>& out,
-                                    std::int64_t& selected_elem_count,
-                                    const event_vector& deps);
+    sycl::event select_flagged_base_impl(const mask_t& mask_accessor,
+                                         const ndview<Data, 1>& in,
+                                         ndview<Data, 1>& out,
+                                         std::int64_t& selected_elem_count,
+                                         const event_vector& deps);
 
+private:
     sycl::event scan(sycl::queue& queue,
                      const mask_t& mask_accessor,
                      ndarray<integer_t, 1>& part_sum,
@@ -162,7 +118,7 @@ private:
                         sycl::event& deps);
 
     sycl::queue queue_;
-    sycl::event selector_event_;
+    sycl::event select_flagged_base_event_;
 
     ndarray<integer_t, 1> part_sum_;
     ndarray<integer_t, 1> part_prefix_sum_;
@@ -175,6 +131,83 @@ private:
 
     static constexpr inline integer_t max_local_sum_count_ = 256;
     static constexpr inline integer_t preferable_sbg_size_ = 16;
+};
+
+template <typename Data, typename Flag>
+class select_flagged : public select_flagged_base<Data, Flag> {
+    static_assert(std::is_floating_point<Data>::value);
+
+    using base_t = select_flagged_base<Data, Flag>;
+
+public:
+    using mask_t = typename base_t::mask_t;
+
+    /// Performs initialization of auxiliary variables and required auxiliary buffers
+    /// @param[in]  queue The queue
+    select_flagged(const sycl::queue& queue) : select_flagged_base<Data, Flag>(queue){};
+    select_flagged(const select_flagged&) = delete;
+    ~select_flagged(){};
+    select_flagged& operator=(const select_flagged&) = delete;
+
+    /// Performs flagged copy of values from input vector into output one base on input mask values
+    /// Copies of the selected values are compacted into output in their original relative ordering.
+    /// Value i is being copied out if bool(mask[i]) eq true.
+    /// NOTE: auxiliary buffers and variables are reset in case if number of elements in input
+    ///       differs from the number of input elements processed on previous call
+    ///
+    /// @param[in]  mask The [n] input vector of flaggs used for selecting values
+    /// @param[in]  in   The [n] input vector of values
+    /// @param[out] out  The [n] output vector of selected values
+    /// @param[out] selected_elem_count  The number of selected values
+    sycl::event operator()(const ndview<Flag, 1>& mask,
+                           const ndview<Data, 1>& in,
+                           ndview<Data, 1>& out,
+                           std::int64_t& selected_elem_count,
+                           const event_vector& deps = {}) {
+        ONEDAL_ASSERT(in.get_count() == mask.get_count());
+
+        mask_t mask_accessor{ mask.get_data() };
+        return base_t::select_flagged_base_impl(mask_accessor, in, out, selected_elem_count, deps);
+    }
+};
+
+template <typename Data, typename Flag>
+class select_flagged_index : public select_flagged_base<Data, Flag> {
+    static_assert(std::numeric_limits<Data>::is_integer);
+
+    using base_t = select_flagged_base<Data, Flag>;
+
+public:
+    using mask_t = typename base_t::mask_t;
+
+    /// Performs initialization of auxiliary variables and required auxiliary buffers
+    /// @param[in]  queue The queue
+    select_flagged_index(const sycl::queue& queue) : select_flagged_base<Data, Flag>(queue){};
+    select_flagged_index(const select_flagged_index&) = delete;
+    ~select_flagged_index(){};
+    select_flagged_index& operator=(const select_flagged_index&) = delete;
+
+    /// Performs flagged copy of indices from input vector into output one base on input mask values
+    /// Copies of the selected indices are compacted into output in their original relative ordering.
+    /// Index i is being copied out if bool(mask[in[i]]) eq true.
+    /// NOTE: auxiliary buffers and variables are reset in case if number of elements in input
+    ///       differs from the number of input elements processed on previous call
+    ///
+    /// @param[in]  mask The [n] input vector of flaggs used for selecting indices
+    /// @param[in]  in   The [n] input vector of indices
+    /// @param[out] out  The [n] output vector of selected indices
+    /// @param[out] selected_elem_count  The number of selected indices
+    template <typename T = Data, typename = std::enable_if_t<std::numeric_limits<T>::is_integer>>
+    sycl::event operator()(const ndview<Flag, 1>& mask,
+                           const ndview<Data, 1>& in,
+                           ndview<Data, 1>& out,
+                           std::int64_t& selected_elem_count,
+                           const event_vector& deps = {}) {
+        ONEDAL_ASSERT(in.get_count() == mask.get_count());
+
+        mask_t mask_accessor{ mask.get_data(), in.get_data() };
+        return base_t::select_flagged_base_impl(mask_accessor, in, out, selected_elem_count, deps);
+    }
 };
 
 #endif

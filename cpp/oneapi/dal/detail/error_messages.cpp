@@ -45,6 +45,7 @@ MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 
 /* Primitives */
+MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
 MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
 
 /* Tables */

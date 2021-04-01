@@ -126,9 +126,9 @@ public:
         std::int64_t total_sum_res;
 
         this->get_queue().wait_and_throw();
-        auto m_selector = selector<Float, Flag>{ this->get_queue() };
+        auto selector = select_flagged<Float, Flag>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
-            m_selector.select_flagged(mask, in, out, total_sum_res).wait_and_throw();
+            selector(mask, in, out, total_sum_res).wait_and_throw();
         };
     }
 
@@ -150,11 +150,10 @@ public:
         std::int64_t total_sum_res;
 
         this->get_queue().wait_and_throw();
-        auto m_selector = selector<Float, Flag>{ this->get_queue() };
+        auto selector = select_flagged<Float, Flag>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
             for (std::int64_t i = 0; i < vector_count; i++) {
-                m_selector.select_flagged(mask_vec[i], in_vec[i], out, total_sum_res)
-                    .wait_and_throw();
+                selector(mask_vec[i], in_vec[i], out, total_sum_res).wait_and_throw();
             }
         };
     }
@@ -239,9 +238,9 @@ public:
         std::int64_t total_sum_res;
 
         this->get_queue().wait_and_throw();
-        auto m_selector = selector<Data, Flag>{ this->get_queue() };
+        auto selector = select_flagged_index<Data, Flag>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
-            m_selector.select_flagged_index(mask, in, out, total_sum_res).wait_and_throw();
+            selector(mask, in, out, total_sum_res).wait_and_throw();
         };
     }
 
@@ -263,11 +262,10 @@ public:
         std::int64_t total_sum_res;
 
         this->get_queue().wait_and_throw();
-        auto m_selector = selector<Data, Flag>{ this->get_queue() };
+        auto selector = select_flagged_index<Data, Flag>{ this->get_queue() };
         BENCHMARK(name.c_str()) {
             for (std::int64_t i = 0; i < vector_count; i++) {
-                m_selector.select_flagged_index(mask_vec[i], in_vec[i], out, total_sum_res)
-                    .wait_and_throw();
+                selector(mask_vec[i], in_vec[i], out, total_sum_res).wait_and_throw();
             }
         };
     }

@@ -96,8 +96,7 @@ public:
         auto out = ndarray<Float, 1>::empty(q, { in.get_count() }, sycl::usm::alloc::device);
         std::int64_t total_sum_res;
 
-        auto event =
-            selector<Float, Flag>{ this->get_queue() }.select_flagged(mask, in, out, total_sum_res);
+        auto event = select_flagged<Float, Flag>{ this->get_queue() }(mask, in, out, total_sum_res);
         event.wait_and_throw();
 
         REQUIRE(total_sum_res == total_sum_ref);
@@ -191,10 +190,8 @@ public:
         auto out = ndarray<Data, 1>::empty(q, { in.get_count() }, sycl::usm::alloc::device);
         std::int64_t total_sum_res;
 
-        auto event = selector<Data, Flag>{ this->get_queue() }.select_flagged_index(mask,
-                                                                                    in,
-                                                                                    out,
-                                                                                    total_sum_res);
+        auto event =
+            select_flagged_index<Data, Flag>{ this->get_queue() }(mask, in, out, total_sum_res);
         event.wait_and_throw();
 
         REQUIRE(total_sum_res == total_sum_ref);

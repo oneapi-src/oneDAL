@@ -27,13 +27,13 @@ using sycl::ONEAPI::plus;
 using sycl::ONEAPI::exclusive_scan;
 
 template <typename Data, typename Flag>
-sycl::event selector<Data, Flag>::scan(sycl::queue& queue,
-                                       const mask_t& mask_accessor,
-                                       ndarray<integer_t, 1>& part_sum,
-                                       integer_t elem_count,
-                                       integer_t local_size,
-                                       integer_t local_sum_count,
-                                       sycl::event& deps) {
+sycl::event select_flagged_base<Data, Flag>::scan(sycl::queue& queue,
+                                                  const mask_t& mask_accessor,
+                                                  ndarray<integer_t, 1>& part_sum,
+                                                  integer_t elem_count,
+                                                  integer_t local_size,
+                                                  integer_t local_sum_count,
+                                                  sycl::event& deps) {
     ONEDAL_ASSERT(part_sum.get_count() == sum_buff_size_);
 
     const sycl::nd_range<1> nd_range =
@@ -64,7 +64,7 @@ sycl::event selector<Data, Flag>::scan(sycl::queue& queue,
             integer_t sum = 0;
 
             for (integer_t i = ind_start + local_id; i < ind_end; i += local_size) {
-                const integer_t value = de::integral_cast<integer_t>(mask_accessor[i]);
+                const integer_t value = static_cast<integer_t>(mask_accessor[i]);
                 sum += reduce(sbg, value, plus<integer_t>());
             }
 
@@ -78,13 +78,13 @@ sycl::event selector<Data, Flag>::scan(sycl::queue& queue,
 }
 
 template <typename Data, typename Flag>
-sycl::event selector<Data, Flag>::sum_scan(sycl::queue& queue,
-                                           const ndarray<integer_t, 1>& part_sum,
-                                           ndarray<integer_t, 1>& part_prefix_sum,
-                                           integer_t local_size,
-                                           integer_t local_sum_count,
-                                           ndarray<integer_t, 1>& total_sum,
-                                           sycl::event& deps) {
+sycl::event select_flagged_base<Data, Flag>::sum_scan(sycl::queue& queue,
+                                                      const ndarray<integer_t, 1>& part_sum,
+                                                      ndarray<integer_t, 1>& part_prefix_sum,
+                                                      integer_t local_size,
+                                                      integer_t local_sum_count,
+                                                      ndarray<integer_t, 1>& total_sum,
+                                                      sycl::event& deps) {
     ONEDAL_ASSERT(part_sum.get_count() == sum_buff_size_);
     ONEDAL_ASSERT(part_prefix_sum.get_count() == sum_buff_size_);
 
@@ -124,15 +124,15 @@ sycl::event selector<Data, Flag>::sum_scan(sycl::queue& queue,
 }
 
 template <typename Data, typename Flag>
-sycl::event selector<Data, Flag>::reorder(sycl::queue& queue,
-                                          const mask_t& mask_accessor,
-                                          const ndview<Data, 1>& in,
-                                          ndview<Data, 1>& out,
-                                          ndarray<integer_t, 1>& part_prefix_sum,
-                                          integer_t elem_count,
-                                          integer_t local_size,
-                                          integer_t local_sum_count,
-                                          sycl::event& deps) {
+sycl::event select_flagged_base<Data, Flag>::reorder(sycl::queue& queue,
+                                                     const mask_t& mask_accessor,
+                                                     const ndview<Data, 1>& in,
+                                                     ndview<Data, 1>& out,
+                                                     ndarray<integer_t, 1>& part_prefix_sum,
+                                                     integer_t elem_count,
+                                                     integer_t local_size,
+                                                     integer_t local_sum_count,
+                                                     sycl::event& deps) {
     ONEDAL_ASSERT(part_prefix_sum.get_count() == sum_buff_size_);
 
     const sycl::nd_range<1> nd_range =
@@ -167,7 +167,7 @@ sycl::event selector<Data, Flag>::reorder(sycl::queue& queue,
             integer_t sum = 0;
 
             for (integer_t i = ind_start + local_id; i < ind_end; i += local_size) {
-                const integer_t part = de::integral_cast<integer_t>(mask_accessor[i]);
+                const integer_t part = static_cast<integer_t>(mask_accessor[i]);
                 const integer_t boundary =
                     group_offset + sum + exclusive_scan(sbg, part, plus<integer_t>());
                 if (part)
@@ -181,16 +181,17 @@ sycl::event selector<Data, Flag>::reorder(sycl::queue& queue,
 }
 
 template <typename Data, typename Flag>
-selector<Data, Flag>::selector(const sycl::queue& queue) : queue_(queue),
-                                                           elem_count_(0) {}
+select_flagged_base<Data, Flag>::select_flagged_base(const sycl::queue& queue)
+        : queue_(queue),
+          elem_count_(0) {}
 
 template <typename Data, typename Flag>
-selector<Data, Flag>::~selector() {
-    selector_event_.wait_and_throw();
+select_flagged_base<Data, Flag>::~select_flagged_base() {
+    select_flagged_base_event_.wait_and_throw();
 }
 
 template <typename Data, typename Flag>
-void selector<Data, Flag>::init(sycl::queue& queue, std::int64_t elem_count) {
+void select_flagged_base<Data, Flag>::init(sycl::queue& queue, std::int64_t elem_count) {
     ONEDAL_ASSERT(elem_count > 0);
     ONEDAL_ASSERT(elem_count <= de::limits<integer_t>::max());
 
@@ -213,17 +214,18 @@ void selector<Data, Flag>::init(sycl::queue& queue, std::int64_t elem_count) {
 }
 
 template <typename Data, typename Flag>
-sycl::event selector<Data, Flag>::select_flagged_impl(const mask_t& mask_accessor,
-                                                      const ndview<Data, 1>& in,
-                                                      ndview<Data, 1>& out,
-                                                      std::int64_t& selected_elem_count,
-                                                      const event_vector& deps) {
+sycl::event select_flagged_base<Data, Flag>::select_flagged_base_impl(
+    const mask_t& mask_accessor,
+    const ndview<Data, 1>& in,
+    ndview<Data, 1>& out,
+    std::int64_t& selected_elem_count,
+    const event_vector& deps) {
     ONEDAL_ASSERT(out.has_mutable_data());
     ONEDAL_ASSERT(in.get_count() == out.get_count());
 
     if (in.get_count() > de::limits<integer_t>::max()) {
         /// CHange exception name
-        throw domain_error(dal::detail::error_messages::invalid_number_of_elements_to_sort());
+        throw domain_error(dal::detail::error_messages::invalid_number_of_elements_to_process());
     }
 
     sycl::event::wait_and_throw(deps);
@@ -236,7 +238,7 @@ sycl::event selector<Data, Flag>::select_flagged_impl(const mask_t& mask_accesso
                           elem_count_,
                           local_size_,
                           local_sum_count_,
-                          selector_event_);
+                          select_flagged_base_event_);
     auto sum_scan_deps = sum_scan(queue_,
                                   part_sum_,
                                   part_prefix_sum_,
@@ -244,29 +246,42 @@ sycl::event selector<Data, Flag>::select_flagged_impl(const mask_t& mask_accesso
                                   local_sum_count_,
                                   total_sum_,
                                   scan_deps);
-    selector_event_ = reorder(queue_,
-                              mask_accessor,
-                              in,
-                              out,
-                              part_prefix_sum_,
-                              elem_count_,
-                              local_size_,
-                              local_sum_count_,
-                              sum_scan_deps);
+    select_flagged_base_event_ = reorder(queue_,
+                                         mask_accessor,
+                                         in,
+                                         out,
+                                         part_prefix_sum_,
+                                         elem_count_,
+                                         local_size_,
+                                         local_sum_count_,
+                                         sum_scan_deps);
 
     auto total_sum_host = total_sum_.to_host(queue_);
     selected_elem_count = static_cast<std::int64_t>(total_sum_host.get_data()[0]);
-    return selector_event_;
+    return select_flagged_base_event_;
 }
 
-#define INSTANTIATE_SELECTOR(D, FLG) template class ONEDAL_EXPORT selector<D, FLG>;
+#define INSTANTIATE_SELECT_FLAGGED_BASE(D, FLG) \
+    template class ONEDAL_EXPORT select_flagged_base<D, FLG>;
+#define INSTANTIATE_SELECT_FLAGGED(D, FLG) template class ONEDAL_EXPORT select_flagged<D, FLG>;
+#define INSTANTIATE_SELECT_FLAGGED_INDEX(D, FLG) \
+    template class ONEDAL_EXPORT select_flagged_index<D, FLG>;
 
-INSTANTIATE_SELECTOR(float, std::uint8_t)
-INSTANTIATE_SELECTOR(double, std::uint8_t)
-INSTANTIATE_SELECTOR(float, std::uint32_t)
-INSTANTIATE_SELECTOR(double, std::uint32_t)
-INSTANTIATE_SELECTOR(std::int32_t, std::uint8_t)
-INSTANTIATE_SELECTOR(std::uint32_t, std::uint8_t)
-INSTANTIATE_SELECTOR(std::int32_t, std::uint32_t)
-INSTANTIATE_SELECTOR(std::uint32_t, std::uint32_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(float, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(double, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(float, std::uint32_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(double, std::uint32_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(std::int32_t, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(std::uint32_t, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(std::int32_t, std::uint32_t)
+INSTANTIATE_SELECT_FLAGGED_BASE(std::uint32_t, std::uint32_t)
+
+INSTANTIATE_SELECT_FLAGGED(float, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED(double, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED(float, std::uint32_t)
+INSTANTIATE_SELECT_FLAGGED(double, std::uint32_t)
+INSTANTIATE_SELECT_FLAGGED_INDEX(std::int32_t, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED_INDEX(std::uint32_t, std::uint8_t)
+INSTANTIATE_SELECT_FLAGGED_INDEX(std::int32_t, std::uint32_t)
+INSTANTIATE_SELECT_FLAGGED_INDEX(std::uint32_t, std::uint32_t)
 } // namespace oneapi::dal::backend::primitives
