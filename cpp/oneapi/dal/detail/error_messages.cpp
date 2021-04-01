@@ -162,6 +162,8 @@ MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not impl
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
+MSG(svm_multiclass_not_implemented_for_gpu,
+    "SVM with multiclass support is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")

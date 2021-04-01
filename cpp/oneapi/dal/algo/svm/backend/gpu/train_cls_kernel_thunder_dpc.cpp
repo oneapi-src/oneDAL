@@ -52,6 +52,11 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
+    const std::uint64_t class_count = desc.get_class_count();
+    if (class_count > 2) {
+        throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
+    }
+
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 

@@ -90,79 +90,92 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
 
     SafeStatus safeStat;
 
-    TArray<bool, cpu> is_sv(nVectors);
-    bool * const data_is_sv = is_sv.get();
-    daal::services::internal::service_memset_seq<bool, cpu>(data_is_sv, false, nVectors);
-
-    DAAL_CHECK_MALLOC(is_sv.get());
+    TArray<bool, cpu> isSV;
+    bool * isSVData = nullptr;
+    if (isOutSvmModel)
+    {
+        isSV.reset(nVectors);
+        DAAL_CHECK_MALLOC(isSV.get());
+        isSVData = isSV.get();
+        daal::services::internal::service_memset<bool, cpu>(isSVData, false, nVectors);
+    }
 
     const size_t nModels = (nClasses * (nClasses - 1)) >> 1;
-    // daal::threader_for(nModels, nModels, [&](size_t imodel) {
-    size_t imodel = 0;
-    for (size_t i = 0; i < nClasses; i++)
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nModels, 2);
+    TArray<size_t, cpu> classIndices(nModels * 2);
+    DAAL_CHECK_MALLOC(classIndices.get());
+    size_t * classIndicesData = classIndices.get();
+    if (isOutSvmModel)
     {
-        for (size_t j = i + 1; j < nClasses; j++)
+        for (size_t iClass = 0, imodel = 0; iClass < nClasses; ++iClass)
         {
-            /* Find indices of positive and negative classes for current model */
-            // size_t i    = 1; /* index of the positive class */
-            // size_t j    = 0; /* index of the negative class */
-            // size_t isum = 0;  isum = (i*i - i) / 2;
-            // while (i <= j || isum + j != imodel)
-            // {
-            //     isum += i;
-            //     i++;
-            //     j = imodel - isum;
-            // }
-
-            TSubTask * local = lsTask.local();
-            // if (!local)
-            // {
-            //     safeStat.add(services::ErrorMemoryAllocationFailed);
-            //     return;
-            // }
-            DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
-
-            size_t nRowsInSubset = 0;
-            local->getDataSubset(nFeatures, nVectors, i, j, y, nRowsInSubset);
-            // DAAL_CHECK_STATUS_THR(s);
-            classifier::ModelPtr pModel;
-            if (nRowsInSubset)
+            for (size_t jClass = iClass + 1; jClass < nClasses; ++jClass, ++imodel)
             {
-                s = local->trainSimpleClassifier(nRowsInSubset);
-                // if (!s)
-                // {
-                //     safeStat |= s;
-                //     safeStat.add(services::ErrorMultiClassFailedToTrainTwoClassClassifier);
-                //     return;
-                // }
-                pModel = local->getModel();
+                classIndicesData[imodel]           = iClass;
+                classIndicesData[imodel + nModels] = jClass;
             }
-            model->setTwoClassClassifierModel(imodel, pModel);
-            if (svmModel)
-
-            {
-                auto svm_model            = daal::services::staticPointerCast<svm::Model>(pModel);
-                auto two_class_sv_ind     = svm_model->getSupportIndices();
-                const size_t count_sv_ind = two_class_sv_ind->getNumberOfRows();
-
-                ReadColumns<int, cpu> mtSvIndex(two_class_sv_ind.get(), 0, 0, count_sv_ind);
-                DAAL_CHECK_BLOCK_STATUS(mtY);
-                const int * arr_two_class_sv_ind = mtSvIndex.get();
-
-                for (std::int64_t svId = 0; svId < count_sv_ind; ++svId)
-                {
-                    const std::int64_t original_index = arr_two_class_sv_ind[svId];
-                    data_is_sv[original_index]        = true;
-                }
-                auto biasesTable = svmModel->getBiases();
-                WriteOnlyColumns<algorithmFPType, cpu> mtBiases(biasesTable.get(), 0, imodel, 1);
-                *mtBiases.get() = svm_model->getBias();
-            }
-
-            ++imodel;
         }
     }
-    // });
+    // else
+    // {
+    //     for (size_t iClass = 1, imodel = 0; iClass < nClasses; ++iClass)
+    //     {
+    //         for (size_t jClass = 0; jClass < iClass; ++jClass, ++imodel)
+    //         {
+    //             classIndicesData[imodel]           = iClass;
+    //             classIndicesData[imodel + nModels] = jClass;
+    //         }
+    //     }
+    // }
+
+    daal::threader_for(nModels, nModels, [&](size_t imodel) {
+        const size_t iClass = classIndicesData[imodel];
+        const size_t jClass = classIndicesData[imodel + nModels];
+
+        TSubTask * local = lsTask.local();
+        if (!local)
+        {
+            safeStat.add(services::ErrorMemoryAllocationFailed);
+            return;
+        }
+        DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
+
+        size_t nRowsInSubset = 0;
+        local->getDataSubset(nFeatures, nVectors, iClass, jClass, y, nRowsInSubset);
+        DAAL_CHECK_STATUS_THR(s);
+        classifier::ModelPtr pModel;
+        if (nRowsInSubset)
+        {
+            s = local->trainSimpleClassifier(nRowsInSubset);
+            if (!s)
+            {
+                safeStat |= s;
+                safeStat.add(services::ErrorMultiClassFailedToTrainTwoClassClassifier);
+                return;
+            }
+            pModel = local->getModel();
+        }
+        model->setTwoClassClassifierModel(imodel, pModel);
+        if (svmModel)
+        {
+            auto svm_model     = daal::services::staticPointerCast<svm::Model>(pModel);
+            auto twoClassSvInd = svm_model->getSupportIndices();
+            const size_t nSV   = twoClassSvInd->getNumberOfRows();
+
+            ReadColumns<int, cpu> mtSvIndex(twoClassSvInd.get(), 0, 0, nSV);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtY);
+            const int * twoClassSvIndData = mtSvIndex.get();
+
+            for (std::int64_t svId = 0; svId < nSV; ++svId)
+            {
+                const std::int64_t original_index = twoClassSvIndData[svId];
+                isSVData[original_index]          = true;
+            }
+            auto biasesTable = svmModel->getBiases();
+            WriteOnlyColumns<algorithmFPType, cpu> mtBiases(biasesTable.get(), 0, imodel, 1);
+            *mtBiases.get() = svm_model->getBias();
+        }
+    });
     lsTask.reduce([=, &safeStat](TSubTask * local) { delete local; });
     if (svmModel)
     {
@@ -176,7 +189,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             for (size_t j = 0; j < nVectors; ++j)
             {
                 const size_t label = size_t(y[j]);
-                if (data_is_sv[j] && label == iClass)
+                if (isSVData[j] && label == iClass)
                 {
                     ++sv_counts[iClass];
                 }
@@ -203,7 +216,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
                 for (size_t j = 0; j < nVectors; ++j)
                 {
                     const size_t label = static_cast<size_t>(y[j]);
-                    if (data_is_sv[j] && label == iClass)
+                    if (isSVData[j] && label == iClass)
                     {
                         supportIndices[inxSV] = j;
                         svIndMapping[j]       = inxSV;
@@ -223,40 +236,37 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         algorithmFPType * const coefficientsOut = mtCoefficientsOut.get();
         daal::services::internal::service_memset<algorithmFPType, cpu>(coefficientsOut, algorithmFPType(0),
                                                                        coeffOutTable->getNumberOfRows() * coeffOutTable->getNumberOfColumns());
-        imodel = 0;
-        for (size_t firstClass = 0; firstClass < nClasses; ++firstClass)
-        {
-            for (size_t twoClass = firstClass + 1; twoClass < nClasses; ++twoClass)
+        daal::threader_for(nModels, nModels, [&](size_t imodel) {
+            const size_t iClass = classIndicesData[imodel];
+            const size_t jClass = classIndicesData[imodel + nModels];
+
+            auto svmModelId   = daal::services::staticPointerCast<svm::Model>(model->getTwoClassClassifierModel(imodel));
+            auto coeffInTable = svmModelId->getClassificationCoefficients();
+            ReadRows<algorithmFPType, cpu> mtCoefficientsIn(coeffInTable.get(), 0, coeffInTable->getNumberOfRows());
+            DAAL_CHECK_BLOCK_STATUS_THR(mtCoefficientsIn);
+            const algorithmFPType * const coeffIn = mtCoefficientsIn.get();
+
+            auto twoClassSvIndTable = svmModelId->getSupportIndices();
+            const size_t svCounts   = twoClassSvIndTable->getNumberOfRows();
+            ReadColumns<int, cpu> mtSvIndex(twoClassSvIndTable.get(), 0, 0, svCounts);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtSvIndex);
+            const int * twoClassSvInd = mtSvIndex.get();
+
+            for (size_t sv = 0; sv < svCounts; ++sv)
             {
-                auto svmModelId   = daal::services::staticPointerCast<svm::Model>(model->getTwoClassClassifierModel(imodel));
-                auto coeffInTable = svmModelId->getClassificationCoefficients();
-                ReadRows<algorithmFPType, cpu> mtCoefficientsIn(coeffInTable.get(), 0, coeffInTable->getNumberOfRows());
-                DAAL_CHECK_BLOCK_STATUS(mtCoefficientsIn);
-                const algorithmFPType * const coeffIn = mtCoefficientsIn.get();
-
-                auto twoClassSvIndTable = svmModelId->getSupportIndices();
-                const size_t svCounts   = twoClassSvIndTable->getNumberOfRows();
-                ReadColumns<int, cpu> mtSvIndex(twoClassSvIndTable.get(), 0, 0, svCounts);
-                DAAL_CHECK_BLOCK_STATUS(mtSvIndex);
-                const int * twoClassSvInd = mtSvIndex.get();
-
-                for (size_t sv = 0; sv < svCounts; ++sv)
+                const size_t originalInd = twoClassSvInd[sv];
+                const size_t label       = static_cast<size_t>(y[originalInd]);
+                const size_t colInd      = svIndMapping[originalInd];
+                if (label == iClass)
                 {
-                    const size_t originalInd = twoClassSvInd[sv];
-                    const size_t label       = static_cast<size_t>(y[originalInd]);
-                    const size_t colInd      = svIndMapping[originalInd];
-                    if (label == firstClass)
-                    {
-                        coefficientsOut[(twoClass - 1) * nSV + colInd] = coeffIn[sv];
-                    }
-                    else if (label == twoClass)
-                    {
-                        coefficientsOut[(firstClass)*nSV + colInd] = coeffIn[sv];
-                    }
+                    coefficientsOut[(jClass - 1) * nSV + colInd] = coeffIn[sv];
+                }
+                else if (label == jClass)
+                {
+                    coefficientsOut[(iClass)*nSV + colInd] = coeffIn[sv];
                 }
             }
-            ++imodel;
-        }
+        });
     }
 
     return safeStat.detach();

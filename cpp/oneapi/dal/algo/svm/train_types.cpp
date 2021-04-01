@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/svm/train_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
 
 namespace oneapi::dal::svm {
 
@@ -102,8 +103,7 @@ const table& train_result<Task>::get_coeffs() const {
 
 template <typename Task>
 double train_result<Task>::get_bias() const {
-    // return dal::detail::get_impl(impl_->trained_model).bias;
-    return 0.0;
+    return dal::detail::get_impl(impl_->trained_model).bias;
 }
 
 template <typename Task>
@@ -138,8 +138,7 @@ void train_result<Task>::set_coeffs_impl(const table& value) {
 
 template <typename Task>
 void train_result<Task>::set_bias_impl(double value) {
-    // dal::detail::get_impl(impl_->trained_model).bias = value;
-    // impl_->trained_model.set_bias(value);
+    dal::detail::get_impl(impl_->trained_model).bias = value;
 }
 
 template <typename Task>
