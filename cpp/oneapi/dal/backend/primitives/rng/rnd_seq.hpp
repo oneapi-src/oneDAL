@@ -55,14 +55,14 @@ private:
             dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*engine));
         ONEDAL_ASSERT(engine_impl != nullptr);
 
-        auto values = this->seq_.get_mutable_data();
+        auto* values = this->seq_.get_mutable_data();
         auto count = this->seq_.get_count();
-        auto count_as_size_t = static_cast<size_t>(count);
+        const auto count_as_size_t = static_cast<size_t>(count);
         ONEDAL_ASSERT(count_as_size_t == count);
 
         auto number_array = array<size_t>::empty(queue, count);
         daal::internal::RNGs<size_t, daal::sse2> rng;
-        auto number_ptr = number_array.get_mutable_data();
+        auto* number_ptr = number_array.get_mutable_data();
 
         rng.uniform(count_as_size_t, number_ptr, engine_impl->getState(), 0, count_as_size_t);
 
