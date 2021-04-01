@@ -205,8 +205,8 @@ jobs:
       source ${DALROOT}/env/vars.sh
       cd daal4py
       export NO_DIST=1
-      export CC=dpcpp
-      export CXX=dpcpp
+      export CC=clang++
+      export CXX=clang++
       export LDFLAGS="-fPIC"
       python setup.py install --single-version-externally-managed --record=record.txt
     displayName: daal4py build
