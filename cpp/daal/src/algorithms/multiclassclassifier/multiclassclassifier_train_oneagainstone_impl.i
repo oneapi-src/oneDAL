@@ -105,7 +105,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     TArray<size_t, cpu> classIndices(nModels * 2);
     DAAL_CHECK_MALLOC(classIndices.get());
     size_t * classIndicesData = classIndices.get();
-    if (isOutSvmModel)
+    // if (isOutSvmModel)
     {
         for (size_t iClass = 0, imodel = 0; iClass < nClasses; ++iClass)
         {

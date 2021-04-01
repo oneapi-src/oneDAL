@@ -287,13 +287,15 @@ services::Status SubTask<algorithmFPType, cpu>::predictSimpleClassifier(size_t n
     DAAL_CHECK_MALLOC(yTable.get() && yRes.get());
     yRes->set(classifier::prediction::prediction, yTable);
     const algorithmFPType one(1.0);
-    for (size_t i = 0; i < nClasses; i++)
+    const size_t nModels = (nClasses * (nClasses - 1)) >> 1;
+
+    for (size_t i = 0, imodel = 0; i < nClasses; i++)
     {
-        for (size_t j = i + 1; j < nClasses; j++)
+        for (size_t j = i + 1; j < nClasses; j++, ++imodel)
         {
             /* Compute prediction of the "simple" classifier for pair of labels (i, j) */
 
-            size_t imodel                         = ((nonEmptyClassMap[i] - 1) * nonEmptyClassMap[i]) / 2 + nonEmptyClassMap[j];
+            // size_t imodel                         = nModels - ((nonEmptyClassMap[j] - 1) * nonEmptyClassMap[j]) / 2 + nonEmptyClassMap[i];
             classifier::prediction::Input * input = _simplePrediction->getInput();
             DAAL_CHECK(input, services::ErrorNullInput);
             input->set(classifier::prediction::data, xTable);
