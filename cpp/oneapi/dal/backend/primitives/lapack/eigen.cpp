@@ -14,53 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <src/externals/service_lapack.h>
-
 #include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/micomkl/micromkl.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float>
-static void syevd(char jobz,
-                  char uplo,
-                  std::int64_t n,
-                  Float* a,
-                  std::int64_t lda,
-                  Float* w,
-                  Float* work,
-                  std::int64_t lwork,
-                  DAAL_INT* iwork,
-                  std::int64_t liwork,
-                  std::int64_t& info) {
-    static_assert(sizeof(std::int64_t) == sizeof(DAAL_INT));
-
-    DAAL_INT daal_n = n;
-    DAAL_INT daal_lda = lda;
-    DAAL_INT daal_lwork = lwork;
-    DAAL_INT daal_liwork = liwork;
-    DAAL_INT daal_info;
-
+template <typename... Args>
+inline void syevd(Args&&... args) {
     dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        using daal::internal::Lapack;
-        using dal::backend::interop::to_daal_cpu_type;
-        using lapack_t = Lapack<Float, to_daal_cpu_type<decltype(cpu)>::value>;
-
-        lapack_t::xsyevd(&jobz,
-                         &uplo,
-                         &daal_n,
-                         a,
-                         &daal_lda,
-                         w,
-                         work,
-                         &daal_lwork,
-                         iwork,
-                         &daal_liwork,
-                         &daal_info);
+        using dal::backend::micromkl::syevd;
+        syevd<decltype(cpu)>(std::forward<Args>(args)...);
     });
-
-    info = daal_info;
 }
 
 template <typename Float>
@@ -77,10 +42,10 @@ void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     ONEDAL_ASSERT(liwork > n);
 
     const auto work = ndarray<Float, 1>::empty(lwork);
-    const auto iwork = ndarray<DAAL_INT, 1>::empty(liwork);
+    const auto iwork = ndarray<std::int64_t, 1>::empty(liwork);
 
     Float* work_ptr = work.get_mutable_data();
-    DAAL_INT* iwork_ptr = iwork.get_mutable_data();
+    std::int64_t* iwork_ptr = iwork.get_mutable_data();
 
     std::int64_t info;
     syevd('V', 'U', n, a, lda, w, work_ptr, lwork, iwork_ptr, liwork, info);
