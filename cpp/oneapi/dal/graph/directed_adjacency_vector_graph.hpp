@@ -48,6 +48,7 @@ public:
         directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
 
     static_assert(detail::is_valid_index_v<IndexType>, "Use int32_t for vertex index type");
+    static_assert(detail::is_valid_edge_value_v<EdgeValue>, "Use double or int32_t for edge value type");
 
     /// Constructs an empty directed_adjacency_vector_graph
     directed_adjacency_vector_graph();
