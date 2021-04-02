@@ -1209,14 +1209,14 @@ CALL_VOID_FUNC_FROM_DLL(fpk_spblas_, mkl_scsrmm, (CSRMM_ARGS(float)),
 CALL_VOID_FUNC_FROM_DLL(fpk_spblas_, mkl_dcsrmm, (CSRMM_ARGS(double)),
                         (transa, m, n, k, alpha, matdescra, val, indx, pntrb, pntre, b, ldb, beta, c, ldc));
 
-typedef int             IppStatus;
-typedef unsigned char   Ipp8u;
-typedef unsigned short  Ipp16u;
-typedef unsigned int    Ipp32u;
-typedef signed short    Ipp16s;
-typedef signed int      Ipp32s;
-typedef float           Ipp32f;
-typedef double          Ipp64f;
+typedef int IppStatus;
+typedef unsigned char Ipp8u;
+typedef unsigned short Ipp16u;
+typedef unsigned int Ipp32u;
+typedef signed short Ipp16s;
+typedef signed int Ipp32s;
+typedef float Ipp32f;
+typedef double Ipp64f;
 
 /* Used in Intel oneDAL via SS */
 CALL_RET_FUNC_FROM_DLL(IppStatus, fpk_dft_, ippsSortRadixAscend_64f_I, (Ipp64f * pSrcDst, Ipp64f * pTmp, Ipp32s len), (pSrcDst, pTmp, len));
@@ -1259,7 +1259,7 @@ CALL_RET_FUNC_FROM_DLL_ALONE(int, fpk_serv_, cpuisknm, (void), ());
 CALL_RET_FUNC_FROM_DLL_ALONE(int, fpk_serv_, enable_instructions, (int nth), (nth));
 CALL_RET_FUNC_FROM_DLL_ALONE(int, fpk_serv_, memmove_s, (void * dest, size_t dmax, const void * src, size_t smax), (dest, dmax, src, smax));
 
-typedef void (*func_type)(DAAL_INT , DAAL_INT , DAAL_INT , void *);
+typedef void (*func_type)(DAAL_INT, DAAL_INT, DAAL_INT, void *);
 
 CALL_VOID_FUNC_FROM_DLL_ALONE(fpk_vsl_serv_, threader_for, (DAAL_INT n, DAAL_INT threads_request, void * a, func_type func),
                               (n, threads_request, a, func));
