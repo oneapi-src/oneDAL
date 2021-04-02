@@ -32,7 +32,7 @@ struct backend_base {
 
     virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
-                                                     const Topology& data) = 0;
+                                                     const Topology& t) = 0;
     virtual ~backend_base() = default;
 };
 
@@ -46,14 +46,14 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
 
     virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
-                                                     const Topology& data) {
-        return triangle_counting_default_kernel(ctx, descriptor, descriptor.get_allocator(), data);
+                                                     const Topology& t) {
+        return triangle_counting_default_kernel(ctx, descriptor, descriptor.get_allocator(), t);
     }
 };
 
 template <typename Policy, typename Descriptor, typename Topology>
 dal::detail::shared<backend_base<Policy, Descriptor, Topology>> get_backend(const Descriptor& desc,
-                                                                            const Topology& data) {
+                                                                            const Topology& t) {
     return std::make_shared<backend_default<Policy, Descriptor, Topology>>();
 }
 

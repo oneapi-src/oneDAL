@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "oneapi/dal/algo/triangle_counting/common.hpp"
+#include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/threading.hpp"
@@ -91,20 +93,19 @@ void parallel_prefix_sum(const std::int32_t* degrees_relabel,
 }
 
 template <typename Cpu>
-void fill_relabeled_topology(const std::int32_t* vertex_neighbors,
-                             const std::int64_t* edge_offsets,
+void fill_relabeled_topology(const dal::preview::detail::topology<std::int32_t>& t,
                              std::int32_t* vertex_neighbors_relabel,
                              std::int64_t* edge_offsets_relabel,
                              std::int64_t* offsets,
-                             const std::int32_t* new_ids,
-                             std::int64_t vertex_count) {
+                             const std::int32_t* new_ids) {
+    const auto vertex_count = t.get_vertex_count();
     dal::detail::threader_for(vertex_count + 1, vertex_count + 1, [&](std::int64_t n) {
         edge_offsets_relabel[n] = offsets[n];
     });
 
     dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
-        for (const std::int32_t* v = vertex_neighbors + edge_offsets[u];
-             v != vertex_neighbors + edge_offsets[u + 1];
+        for (const std::int32_t* v = t.get_vertex_neighbors_begin(u);
+             v != t.get_vertex_neighbors_end(u);
              ++v) {
             vertex_neighbors_relabel[offsets[new_ids[u]]++] = new_ids[*v];
         }

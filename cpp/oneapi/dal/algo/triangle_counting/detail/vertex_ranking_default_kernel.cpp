@@ -24,34 +24,18 @@ namespace oneapi::dal::preview::triangle_counting::detail {
 template <>
 ONEDAL_EXPORT std::int64_t triangle_counting_global_scalar<std::int32_t>(
     const dal::detail::host_policy& policy,
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+    const dal::preview::detail::topology<std::int32_t>& t) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::triangle_counting_global_scalar<decltype(cpu)>(vertex_neighbors,
-                                                                       edge_offsets,
-                                                                       degrees,
-                                                                       vertex_count,
-                                                                       edge_count);
+        return backend::triangle_counting_global_scalar<decltype(cpu)>(t);
     });
 }
 
 template <>
 ONEDAL_EXPORT std::int64_t triangle_counting_global_vector<std::int32_t>(
     const dal::detail::host_policy& policy,
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+    const dal::preview::detail::topology<std::int32_t>& t) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::triangle_counting_global_vector<decltype(cpu)>(vertex_neighbors,
-                                                                       edge_offsets,
-                                                                       degrees,
-                                                                       vertex_count,
-                                                                       edge_count);
+        return backend::triangle_counting_global_vector<decltype(cpu)>(t);
     });
 }
 
@@ -75,10 +59,10 @@ ONEDAL_EXPORT std::int64_t triangle_counting_global_vector_relabel<std::int32_t>
 template <>
 ONEDAL_EXPORT array<std::int64_t> triangle_counting_local<std::int32_t>(
     const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<std::int32_t>& data,
+    const dal::preview::detail::topology<std::int32_t>& t,
     int64_t* triangles_local) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::triangle_counting_local<decltype(cpu)>(data, triangles_local);
+        return backend::triangle_counting_local<decltype(cpu)>(t, triangles_local);
     });
 }
 
@@ -132,21 +116,17 @@ void parallel_prefix_sum(const dal::detail::host_policy& policy,
 }
 
 void fill_relabeled_topology(const dal::detail::host_policy& policy,
-                             const std::int32_t* vertex_neighbors,
-                             const std::int64_t* edge_offsets,
+                             const dal::preview::detail::topology<std::int32_t>& t,
                              std::int32_t* vertex_neighbors_relabel,
                              std::int64_t* edge_offsets_relabel,
                              std::int64_t* offsets,
-                             const std::int32_t* new_ids,
-                             std::int64_t vertex_count) {
+                             const std::int32_t* new_ids) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::fill_relabeled_topology<decltype(cpu)>(vertex_neighbors,
-                                                               edge_offsets,
+        return backend::fill_relabeled_topology<decltype(cpu)>(t,
                                                                vertex_neighbors_relabel,
                                                                edge_offsets_relabel,
                                                                offsets,
-                                                               new_ids,
-                                                               vertex_count);
+                                                               new_ids);
     });
 }
 

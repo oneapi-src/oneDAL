@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <iostream>
-
 #include <immintrin.h>
 
 #include <daal/src/services/service_defines.h>
@@ -31,7 +29,6 @@ ONEDAL_FORCEINLINE std::int64_t intersection_local_tc(const std::int32_t* neigh_
                                                       std::int32_t n_v,
                                                       std::int64_t* tc,
                                                       std::int64_t tc_size) {
-    std::cout << "scalar\n";
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
     while (i_u < n_u && i_v < n_v) {
@@ -77,7 +74,6 @@ ONEDAL_FORCEINLINE std::int64_t intersection_local_tc<dal::backend::cpu_dispatch
     std::int32_t n_v,
     std::int64_t* tc,
     std::int64_t tc_size) {
-    std::cout << "avx512\n";
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
 #if defined(__INTEL_COMPILER)

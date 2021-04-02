@@ -26,20 +26,14 @@
 namespace oneapi::dal::preview::triangle_counting::detail {
 
 template <typename Index>
-ONEDAL_EXPORT std::int64_t triangle_counting_global_scalar(const dal::detail::host_policy& policy,
-                                                           const Index* vertex_neighbors,
-                                                           const std::int64_t* edge_offsets,
-                                                           const Index* degrees,
-                                                           std::int64_t vertex_count,
-                                                           std::int64_t edge_count);
+ONEDAL_EXPORT std::int64_t triangle_counting_global_scalar(
+    const dal::detail::host_policy& policy,
+    const dal::preview::detail::topology<Index>& t);
 
 template <typename Index>
-ONEDAL_EXPORT std::int64_t triangle_counting_global_vector(const dal::detail::host_policy& policy,
-                                                           const Index* vertex_neighbors,
-                                                           const std::int64_t* edge_offsets,
-                                                           const Index* degrees,
-                                                           std::int64_t vertex_count,
-                                                           std::int64_t edge_count);
+ONEDAL_EXPORT std::int64_t triangle_counting_global_vector(
+    const dal::detail::host_policy& policy,
+    const dal::preview::detail::topology<Index>& t);
 
 template <typename Index>
 ONEDAL_EXPORT std::int64_t triangle_counting_global_vector_relabel(
@@ -53,7 +47,7 @@ ONEDAL_EXPORT std::int64_t triangle_counting_global_vector_relabel(
 template <typename Index>
 ONEDAL_EXPORT array<std::int64_t> triangle_counting_local(
     const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<Index>& data,
+    const dal::preview::detail::topology<Index>& t,
     int64_t* triangles_local);
 
 ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
@@ -82,25 +76,20 @@ ONEDAL_EXPORT void parallel_prefix_sum(const dal::detail::host_policy& policy,
                                        std::int64_t vertex_count);
 
 ONEDAL_EXPORT void fill_relabeled_topology(const dal::detail::host_policy& policy,
-                                           const std::int32_t* vertex_neighbors,
-                                           const std::int64_t* edge_offsets,
+                                           const dal::preview::detail::topology<std::int32_t>& t,
                                            std::int32_t* vertex_neighbors_relabel,
                                            std::int64_t* edge_offsets_relabel,
                                            std::int64_t* offsets,
-                                           const std::int32_t* new_ids,
-                                           std::int64_t vertex_count);
+                                           const std::int32_t* new_ids);
 
 template <typename Allocator>
 inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
-                                      const std::int32_t* vertex_neighbors,
-                                      const std::int64_t* edge_offsets,
-                                      const std::int32_t* degrees,
-                                      std::int64_t vertex_count,
-                                      std::int64_t edge_count,
+                                      const dal::preview::detail::topology<std::int32_t>& t,
                                       std::int32_t* vertex_neighbors_relabel,
                                       std::int64_t* edge_offsets_relabel,
                                       std::int32_t* degrees_relabel,
                                       const Allocator& alloc) {
+    const auto vertex_count = t.get_vertex_count();
     using int32_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<std::int32_t>;
 
@@ -118,7 +107,7 @@ inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
 
         oneapi::dal::preview::detail::allocate(pair_allocator, vertex_count);
 
-    sort_ids_by_degree(ctx, degrees, degree_id_pairs, vertex_count);
+    sort_ids_by_degree(ctx, t._degrees.get_data(), degree_id_pairs, vertex_count);
 
     std::int32_t* new_ids = oneapi::dal::preview::detail::allocate(int32_allocator, vertex_count);
 
@@ -148,13 +137,11 @@ inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
     oneapi::dal::preview::detail::deallocate(int64_allocator, part_prefix, num_blocks + 1);
 
     fill_relabeled_topology(ctx,
-                            vertex_neighbors,
-                            edge_offsets,
+                            t,
                             vertex_neighbors_relabel,
                             edge_offsets_relabel,
                             offsets,
-                            new_ids,
-                            vertex_count);
+                            new_ids);
 
     oneapi::dal::preview::detail::deallocate(int64_allocator, offsets, vertex_count + 1);
     oneapi::dal::preview::detail::deallocate(int32_allocator, new_ids, vertex_count);
@@ -165,26 +152,16 @@ inline vertex_ranking_result<task::global> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::global>& desc,
     const Allocator& alloc,
-    const dal::preview::detail::topology<std::int32_t>& data) {
-    const auto g_edge_offsets = data._rows.get_data();
-    const auto g_vertex_neighbors = data._cols.get_data();
-    const auto g_degrees = data._degrees.get_data();
-    const auto g_vertex_count = data._vertex_count;
-    const auto g_edge_count = data._edge_count;
-
+    const dal::preview::detail::topology<std::int32_t>& t) {
+    const auto vertex_count = t.get_vertex_count();
+    const auto edge_count = t.get_edge_count();
     const auto relabel = desc.get_relabel();
     std::int64_t triangles = 0;
-
     if (relabel == relabel::yes) {
-        std::int32_t average_degree = g_edge_count / g_vertex_count;
+        const std::int32_t average_degree = edge_count / vertex_count;
         const std::int32_t average_degree_sparsity_boundary = 4;
         if (average_degree < average_degree_sparsity_boundary) {
-            triangles = triangle_counting_global_scalar(ctx,
-                                                        g_vertex_neighbors,
-                                                        g_edge_offsets,
-                                                        g_degrees,
-                                                        g_vertex_count,
-                                                        g_edge_count);
+            triangles = triangle_counting_global_scalar(ctx, t);
         }
         else {
             std::int32_t* g_vertex_neighbors_relabel = nullptr;
@@ -201,19 +178,14 @@ inline vertex_ranking_result<task::global> triangle_counting_default_kernel(
             int32_allocator_type int32_allocator(alloc);
 
             g_vertex_neighbors_relabel =
-                oneapi::dal::preview::detail::allocate(int32_allocator,
-                                                       g_edge_offsets[g_vertex_count]);
+                oneapi::dal::preview::detail::allocate(int32_allocator, edge_count * 2);
             g_degrees_relabel =
-                oneapi::dal::preview::detail::allocate(int32_allocator, g_vertex_count);
+                oneapi::dal::preview::detail::allocate(int32_allocator, vertex_count);
             g_edge_offsets_relabel =
-                oneapi::dal::preview::detail::allocate(int64_allocator, g_vertex_count + 1);
+                oneapi::dal::preview::detail::allocate(int64_allocator, vertex_count + 1);
 
             relabel_by_greater_degree(ctx,
-                                      g_vertex_neighbors,
-                                      g_edge_offsets,
-                                      g_degrees,
-                                      g_vertex_count,
-                                      g_edge_count,
+                                      t,
                                       g_vertex_neighbors_relabel,
                                       g_edge_offsets_relabel,
                                       g_degrees_relabel,
@@ -223,39 +195,29 @@ inline vertex_ranking_result<task::global> triangle_counting_default_kernel(
                                                                 g_vertex_neighbors_relabel,
                                                                 g_edge_offsets_relabel,
                                                                 g_degrees_relabel,
-                                                                g_vertex_count,
-                                                                g_edge_count);
+                                                                vertex_count,
+                                                                edge_count);
 
             oneapi::dal::preview::detail::deallocate(int32_allocator,
                                                      g_vertex_neighbors_relabel,
-                                                     g_edge_count);
+                                                     edge_count * 2);
             oneapi::dal::preview::detail::deallocate(int32_allocator,
                                                      g_degrees_relabel,
-                                                     g_vertex_count);
+                                                     vertex_count);
 
             oneapi::dal::preview::detail::deallocate(int64_allocator,
                                                      g_edge_offsets_relabel,
-                                                     g_vertex_count + 1);
+                                                     vertex_count + 1);
         }
     }
     else {
-        std::int32_t average_degree = g_edge_count / g_vertex_count;
+        const std::int32_t average_degree = edge_count / vertex_count;
         const std::int32_t average_degree_sparsity_boundary = 4;
         if (average_degree < average_degree_sparsity_boundary) {
-            triangles = triangle_counting_global_scalar(ctx,
-                                                        g_vertex_neighbors,
-                                                        g_edge_offsets,
-                                                        g_degrees,
-                                                        g_vertex_count,
-                                                        g_edge_count);
+            triangles = triangle_counting_global_scalar(ctx, t);
         }
         else {
-            triangles = triangle_counting_global_vector(ctx,
-                                                        g_vertex_neighbors,
-                                                        g_edge_offsets,
-                                                        g_degrees,
-                                                        g_vertex_count,
-                                                        g_edge_count);
+            triangles = triangle_counting_global_vector(ctx, t);
         }
     }
 
@@ -268,8 +230,8 @@ template <typename Allocator>
 inline array<std::int64_t> triangle_counting_local_default_kernel(
     const dal::detail::host_policy& ctx,
     const Allocator& alloc,
-    const dal::preview::detail::topology<std::int32_t>& data) {
-    const auto g_vertex_count = data._vertex_count;
+    const dal::preview::detail::topology<std::int32_t>& t) {
+    const auto vertex_count = t.get_vertex_count();
 
     int thread_cnt = dal::detail::threader_get_max_threads();
 
@@ -280,13 +242,13 @@ inline array<std::int64_t> triangle_counting_local_default_kernel(
 
     int64_t* triangles_local =
         oneapi::dal::preview::detail::allocate(int64_allocator,
-                                               (int64_t)thread_cnt * (int64_t)g_vertex_count);
+                                               (int64_t)thread_cnt * (int64_t)vertex_count);
 
-    auto arr_triangles = triangle_counting_local(ctx, data, triangles_local);
+    auto arr_triangles = triangle_counting_local(ctx, t, triangles_local);
 
     oneapi::dal::preview::detail::deallocate(int64_allocator,
                                              triangles_local,
-                                             (int64_t)thread_cnt * (int64_t)g_vertex_count);
+                                             (int64_t)thread_cnt * (int64_t)vertex_count);
 
     return arr_triangles;
 }
@@ -296,11 +258,13 @@ inline vertex_ranking_result<task::local> triangle_counting_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::local>& desc,
     const Allocator& alloc,
-    const dal::preview::detail::topology<std::int32_t>& data) {
-    auto local_triangles = triangle_counting_local_default_kernel(ctx, alloc, data);
+    const dal::preview::detail::topology<std::int32_t>& t) {
+    auto local_triangles = triangle_counting_local_default_kernel(ctx, alloc, t);
 
     return vertex_ranking_result<task::local>().set_ranks(
-        dal::detail::homogen_table_builder{}.reset(local_triangles, data._vertex_count, 1).build());
+        dal::detail::homogen_table_builder{}
+            .reset(local_triangles, t.get_vertex_count(), 1)
+            .build());
 }
 
 template <typename Allocator>
@@ -308,10 +272,10 @@ inline vertex_ranking_result<task::local_and_global> triangle_counting_default_k
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::local_and_global>& desc,
     const Allocator& alloc,
-    const dal::preview::detail::topology<std::int32_t>& data) {
-    const auto vertex_count = data._vertex_count;
+    const dal::preview::detail::topology<std::int32_t>& t) {
+    const auto vertex_count = t.get_vertex_count();
 
-    auto local_triangles = triangle_counting_local_default_kernel(ctx, alloc, data);
+    auto local_triangles = triangle_counting_local_default_kernel(ctx, alloc, t);
 
     std::int64_t total_s = compute_global_triangles(ctx, local_triangles, vertex_count);
 
