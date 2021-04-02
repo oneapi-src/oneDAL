@@ -122,6 +122,11 @@ TEST("pull returns immutable data from homogen table") {
         t = homogen_table::wrap(ary, row_count, column_count);
     }
 
+    SECTION("create table with builder") {
+        const auto ary = array<float>::wrap(data, row_count * column_count);
+        t = detail::homogen_table_builder{}.reset(ary, row_count, column_count).build();
+    }
+
     const auto block = row_accessor<const float>{ t }.pull();
     REQUIRE(block.has_mutable_data() == false);
 }
