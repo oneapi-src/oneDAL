@@ -25,6 +25,7 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/backend/interop/sycl_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
+#include "oneapi/dal/table/backend/interop/host_soa_table_adapter.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -96,10 +97,28 @@ inline daal::data_management::NumericTablePtr wrap_by_host_homogen_adapter(
     }
 }
 
+inline daal::data_management::NumericTablePtr wrap_by_host_soa_adapter(const homogen_table& table) {
+    const auto& dtype = table.get_metadata().get_data_type(0);
+
+    switch (dtype) {
+        case data_type::float32: return host_soa_table_adapter<float>::create(table);
+        case data_type::float64: return host_soa_table_adapter<double>::create(table);
+        case data_type::int32: return host_soa_table_adapter<std::int32_t>::create(table);
+        default: return daal::data_management::NumericTablePtr();
+    }
+}
+
 template <typename Data>
 inline daal::data_management::NumericTablePtr convert_to_daal_table(const homogen_table& table) {
-    if (auto wrapper = wrap_by_host_homogen_adapter(table)) {
-        return wrapper;
+    if (table.get_data_layout() == data_layout::row_major) {
+        if (auto wrapper = wrap_by_host_homogen_adapter(table)) {
+            return wrapper;
+        }
+    }
+    if (table.get_data_layout() == data_layout::column_major) {
+        if (auto wrapper = wrap_by_host_soa_adapter(table)) {
+            return wrapper;
+        }
     }
     return copy_to_daal_homogen_table<Data>(table);
 }
