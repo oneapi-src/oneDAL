@@ -32,8 +32,6 @@ public:
         return GENERATE(3, 28, 125, 256);
     }
 
-    /// Generates symmetric positive-definite matrix with diagonal dominance.
-    /// $\frac{1}{2}(A + A^T) + nE$, where $A$ is uniformly distributed matrix, $dim(A) = n$.
     la::matrix<Float> generate_symmetric_positive() {
         const std::int64_t dim = this->generate_dim();
         return la::generate_symmetric_positive_matrix<Float>(dim, -1, 1, seed_);
