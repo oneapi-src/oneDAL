@@ -42,7 +42,7 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                               });
 
     const std::int32_t average_degree_sparsity_boundary = 4;
-    if (average_degree < average_degree_sparsity_boundary && false) {
+    if (average_degree < average_degree_sparsity_boundary) {
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
             for (auto v_ = t.get_vertex_neighbors_begin(u); v_ != t.get_vertex_neighbors_end(u);
                  ++v_) {
@@ -112,11 +112,11 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
 
     int64_t* triangles_ptr = arr_triangles.get_mutable_data();
 
-    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
         triangles_ptr[u] = 0;
     });
 
-    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t u) {
         for (int j = 0; j < thread_cnt; j++) {
             int64_t idx_glob = (int64_t)j * (int64_t)vertex_count;
             triangles_ptr[u] += triangles_local[idx_glob + u];
