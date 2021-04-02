@@ -23,6 +23,8 @@ dal_collect_modules(
         "reduction",
         "select",
         "sort",
+        "selection",
+        "rng",
     ],
     dal_deps = [
         ":common",
@@ -64,6 +66,7 @@ dal_collect_test_suites(
         "select",
         "sort",
         "stat",
+        "selection",
     ],
     tests = [
         ":common_tests",
