@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/micomkl/micromkl.hpp"
+#include "oneapi/dal/backend/micromkl/micromkl.hpp"
 
 namespace oneapi::dal::backend::primitives {
 

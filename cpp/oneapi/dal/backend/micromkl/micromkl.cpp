@@ -15,15 +15,18 @@
 *******************************************************************************/
 
 #include <daal/include/services/daal_defines.h>
-#include "oneapi/dal/backend/micomkl/micromkl.hpp"
+#include "oneapi/dal/backend/micromkl/micromkl.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 #define FUNC_NAME(prefix, name)          prefix##_##name
 #define FUNC_NAME_CPU(cpu, prefix, name) prefix##_##cpu##_##name
 #define DISPATCH_ID_NAME(cpu)            oneapi::dal::backend::cpu_dispatch_##cpu
 
-#define DISPATCH_FUNC_DECL(prefix, name, arcdecl, argcall) \
-    template <typename Cpu>                                \
+#define FUNC_CPU_DECL(cpu, prefix, name, argdecl) \
+    extern "C" void FUNC_NAME_CPU(cpu, prefix, name) argdecl;
+
+#define DISPATCH_FUNC_DECL(prefix, name, arcdecl) \
+    template <typename Cpu>                       \
     ONEDAL_FORCEINLINE void FUNC_NAME(prefix, name) arcdecl;
 
 #define DISPATCH_FUNC_CPU(cpu, prefix, name, arcdecl, argcall)                       \
@@ -32,20 +35,17 @@
         FUNC_NAME_CPU(cpu, prefix, name) argcall;                                    \
     }
 
-#define FUNC_CPU_DECL(cpu, prefix, name, argdecl) \
-    extern "C" void FUNC_NAME_CPU(cpu, prefix, name) argdecl;
-
 #define FUNC_CPU(cpu, prefix, name, argdecl, argcall) \
     FUNC_CPU_DECL(cpu, prefix, name, argdecl)         \
     DISPATCH_FUNC_CPU(cpu, prefix, name, argdecl, argcall)
 
-#define FUNC(prefix, name, argdecl, argcall)           \
-    DISPATCH_FUNC_DECL(prefix, name, argdecl, argcall) \
-    FUNC_CPU(sse2, prefix, name, argdecl, argcall)     \
-    FUNC_CPU(ssse3, prefix, name, argdecl, argcall)    \
-    FUNC_CPU(sse42, prefix, name, argdecl, argcall)    \
-    FUNC_CPU(avx, prefix, name, argdecl, argcall)      \
-    FUNC_CPU(avx2, prefix, name, argdecl, argcall)     \
+#define FUNC(prefix, name, argdecl, argcall)        \
+    DISPATCH_FUNC_DECL(prefix, name, argdecl)       \
+    FUNC_CPU(sse2, prefix, name, argdecl, argcall)  \
+    FUNC_CPU(ssse3, prefix, name, argdecl, argcall) \
+    FUNC_CPU(sse42, prefix, name, argdecl, argcall) \
+    FUNC_CPU(avx, prefix, name, argdecl, argcall)   \
+    FUNC_CPU(avx2, prefix, name, argdecl, argcall)  \
     FUNC_CPU(avx512, prefix, name, argdecl, argcall)
 
 #define FUNC_TEMPLATE_INSTANTIATE(name, Float, cpu, argdecl) \

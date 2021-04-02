@@ -5,11 +5,10 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "lapack",
+    name = "micromkl",
     auto = True,
     dal_deps = [
-        "@onedal//cpp/oneapi/dal/backend/micromkl",
-        "@onedal//cpp/oneapi/dal/backend/primitives:common",
+        "@onedal//cpp/oneapi/dal:common",
     ],
 )
 
@@ -17,10 +16,5 @@ dal_test_suite(
     name = "tests",
     framework = "catch2",
     private = True,
-    srcs = glob([
-        "test/*.cpp",
-    ]),
-    dal_deps = [
-        ":lapack",
-    ],
+    dal_deps = [],
 )
