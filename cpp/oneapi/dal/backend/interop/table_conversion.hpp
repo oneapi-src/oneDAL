@@ -20,7 +20,6 @@
 #include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
 #endif
 
-#include <daal/include/data_management/data/homogen_numeric_table.h>
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/backend/interop/sycl_table_adapter.hpp"

@@ -70,12 +70,11 @@ auto host_homogen_table_adapter<Data>::create(const homogen_table& table) -> ptr
 template <typename Data>
 host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table& table,
                                                              status_t& stat)
-        : daal_dm::HomogenNumericTable<Data>(
-              daal_dm::DictionaryIface::equal,
-              ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
-              dal::detail::integral_cast<std::size_t>(table.get_column_count()),
-              dal::detail::integral_cast<std::size_t>(table.get_row_count()),
-              stat),
+        : base(daal_dm::DictionaryIface::equal,
+               ptr_data_t{ const_cast<Data*>(table.get_data<Data>()), daal_object_owner(table) },
+               dal::detail::integral_cast<std::size_t>(table.get_column_count()),
+               dal::detail::integral_cast<std::size_t>(table.get_row_count()),
+               stat),
           original_table_(table) {
     if (!stat.ok()) {
         return;

@@ -67,10 +67,9 @@ auto host_soa_table_adapter<Data>::create(const homogen_table& table) -> ptr_t {
 // of features equality defining for table_metadata class.
 template <typename Data>
 host_soa_table_adapter<Data>::host_soa_table_adapter(const homogen_table& table, status_t& stat)
-        : daal_dm::SOANumericTable(
-              dal::detail::integral_cast<std::size_t>(table.get_column_count()),
-              dal::detail::integral_cast<std::size_t>(table.get_row_count()),
-              daal_dm::DictionaryIface::equal),
+        : base(dal::detail::integral_cast<std::size_t>(table.get_column_count()),
+               dal::detail::integral_cast<std::size_t>(table.get_row_count()),
+               daal_dm::DictionaryIface::equal),
           original_table_(table) {
     if (!stat.ok()) {
         return;
