@@ -65,10 +65,9 @@ private:
         auto* number_ptr = number_array.get_mutable_data();
 
         rng.uniform(count_as_size_t, number_ptr, engine_impl->getState(), 0, count_as_size_t);
-
-        for (std::int64_t i = 0; i < count; i++) {
-            values[i] = a + (b - a) * static_cast<Float>(number_ptr[i]) / static_cast<Float>(count);
-        }
+        std::transform(number_ptr, number_ptr + count, values, [=](size_t number) {
+            return a + (b - a) * static_cast<Float>(number) / static_cast<Float>(count);
+        });
     }
     array<Float> seq_;
 };
