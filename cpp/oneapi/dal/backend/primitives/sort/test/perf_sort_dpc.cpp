@@ -28,26 +28,6 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace de = dal::detail;
 
-template <typename T>
-struct type2str {
-    static const char* name;
-};
-
-#define INSTANTIATE_TYPE_MAP(T) \
-    template <>                 \
-    const char* type2str<T>::name = #T;
-
-INSTANTIATE_TYPE_MAP(float);
-INSTANTIATE_TYPE_MAP(double);
-INSTANTIATE_TYPE_MAP(std::uint8_t);
-INSTANTIATE_TYPE_MAP(std::uint16_t);
-INSTANTIATE_TYPE_MAP(std::uint32_t);
-INSTANTIATE_TYPE_MAP(std::uint64_t);
-INSTANTIATE_TYPE_MAP(std::int8_t);
-INSTANTIATE_TYPE_MAP(std::int16_t);
-INSTANTIATE_TYPE_MAP(std::int32_t);
-INSTANTIATE_TYPE_MAP(std::int64_t);
-
 template <typename TestType>
 class sort_with_indices_test : public te::policy_fixture {
 public:
@@ -124,8 +104,8 @@ public:
         INFO("benchmark sort with indices");
         const auto name =
             fmt::format("Basic sort with indices: val_type {}, indices_type {}, elem_count {}",
-                        type2str<Float>::name,
-                        type2str<Index>::name,
+                        type2str<Float>::name(),
+                        type2str<Index>::name(),
                         val.get_count());
 
         this->get_queue().wait_and_throw();
