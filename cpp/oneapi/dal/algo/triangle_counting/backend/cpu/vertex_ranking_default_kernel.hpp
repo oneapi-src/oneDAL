@@ -75,8 +75,8 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
         dal::detail::threader_for_simple(vertex_count, vertex_count, [&](std::int32_t u) {
             if (t.get_vertex_degree(u) >= 2)
                 dal::detail::threader_for_int32ptr(
-                    t.get_vertex_neighbors_begin(u), //g_vertex_neighbors + g_edge_offsets[u],
-                    t.get_vertex_neighbors_end(u), //g_vertex_neighbors + g_edge_offsets[u + 1],
+                    t.get_vertex_neighbors_begin(u),
+                    t.get_vertex_neighbors_end(u),
                     [&](const std::int32_t* v_) {
                         std::int32_t v = *v_;
                         if (v <= u) {
