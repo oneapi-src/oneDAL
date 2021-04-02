@@ -133,11 +133,11 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     const size_t nVectors1 = a1->getNumberOfRows();
     const size_t nVectors2 = a2->getNumberOfRows();
 
-    algorithmFPType alpha  = (algorithmFPType)(par->scale);
-    algorithmFPType beta   = 0.0;
-    algorithmFPType one    = 1.0;
-    algorithmFPType shift  = (algorithmFPType)(par->shift);
-    algorithmFPType degree = (algorithmFPType)(par->degree);
+    algorithmFPType alpha = (algorithmFPType)(par->scale);
+    algorithmFPType beta  = 0.0;
+    algorithmFPType one   = 1.0;
+    algorithmFPType shift = (algorithmFPType)(par->shift);
+    const size_t degree   = (size_t)(par->degree);
 
     const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
 
@@ -185,12 +185,13 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                 {
                     for (size_t j = 0; j < nRowsInBlock2; ++j)
                     {
-                        if (par->degree != 0)
+                        if (degree != 0)
                         {
                             dataR[i * nVectors2 + j] += shift;
-                            for (size_t k = 0; k < par->degree - 1; ++k)
+                            const algorithmFPType factor = dataR[i * nVectors2 + j];
+                            for (size_t k = 0; k < degree - 1; ++k)
                             {
-                                dataR[i * nVectors2 + j] *= dataR[i * nVectors2 + j];
+                                dataR[i * nVectors2 + j] *= factor;
                             }
                         }
                         else
@@ -213,12 +214,13 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < blockSize * blockSize; ++i)
                 {
-                    if (par->degree != 0)
+                    if (degree != 0)
                     {
                         mklBuff[i] += shift;
-                        for (size_t k = 0; k < par->degree - 1; ++k)
+                        const algorithmFPType factor = mklBuff[i];
+                        for (size_t k = 0; k < degree - 1; ++k)
                         {
-                            mklBuff[i] *= mklBuff[i];
+                            mklBuff[i] *= factor;
                         }
                     }
                     else

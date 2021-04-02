@@ -20,16 +20,28 @@ import subprocess
 from datetime import datetime
 from subprocess import Popen, PIPE
 from utils import make_report
+import argparse
+import os
 
 try:
     import daal4py
 except:
     raise Exception('daal4py is not installed')
 
-algs_filename = "algorithms.txt"
-report_filename = "report.html"
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Script to make scikit-learn conformance report'
+                                     'based on tests for different device types')
+    parser.add_argument('-d', '--device', type=str, help='device name', choices=['host', 'cpu', 'gpu'])
+    parser.add_argument('-f', '--consider_fails',
+                        help='Exclude failed tests from conformance calculation', action="store_true")
+    args = parser.parse_args()
+
+    os.environ['SKLEARNEX_VERBOSE'] = 'INFO'
+
+    algs_filename = "algorithms.txt"
+    report_filename = f"report_{args.device}.html"
+
     with open(algs_filename, "r") as file_algs:
         algs = file_algs.read().split("\n")
     algs.remove("")
@@ -37,13 +49,17 @@ if __name__ == "__main__":
     print("Confromance testing start")
     for alg_name in algs:
         code = subprocess.call(["./download_tests.sh", "--alg-name", "%s" % (alg_name) ])
-        if code: raise Exception('Error while copying test files')
+        if code:
+            raise Exception('Error while copying test files')
         print(alg_name)
 
         alg_log = open("_log_%s.txt" % (alg_name), "w")
-        subprocess.call(["python", "-m", "daal4py", "-m", "pytest", "-s", "--disable-warnings", "-v", "test_%s.py" % (alg_name)],
+        subprocess.call(["python", "-m", "sklearnex", "run_tests_with_context.py", "-a" "%s" % (alg_name),
+                         "-d" "%s" % (args.device)],
                          stdout=alg_log)
         alg_log.close()
 
     make_report(algs_filename=algs_filename,
-                report_filename = report_filename)
+                report_filename = report_filename,
+                device=args.device,
+                consider_fails=args.consider_fails)
