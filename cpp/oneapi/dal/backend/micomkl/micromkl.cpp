@@ -14,14 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#if defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64)
-#define OS_WIN
-#endif
-
-#ifdef OS_WIN
-#include <windows.h>
-#endif
-
 #include <daal/include/services/daal_defines.h>
 #include "oneapi/dal/backend/micomkl/micromkl.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
