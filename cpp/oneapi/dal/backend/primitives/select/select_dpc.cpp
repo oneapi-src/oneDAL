@@ -224,7 +224,6 @@ sycl::event select_flagged_base<Data, Flag>::select_flagged_base_impl(
     ONEDAL_ASSERT(in.get_count() == out.get_count());
 
     if (in.get_count() > de::limits<integer_t>::max()) {
-        /// CHange exception name
         throw domain_error(dal::detail::error_messages::invalid_number_of_elements_to_process());
     }
 

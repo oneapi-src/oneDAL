@@ -144,9 +144,8 @@ public:
 
     /// Performs initialization of auxiliary variables and required auxiliary buffers
     /// @param[in]  queue The queue
-    select_flagged(const sycl::queue& queue) : select_flagged_base<Data, Flag>(queue){};
+    select_flagged(const sycl::queue& queue) : select_flagged_base<Data, Flag>(queue) {}
     select_flagged(const select_flagged&) = delete;
-    ~select_flagged(){};
     select_flagged& operator=(const select_flagged&) = delete;
 
     /// Performs flagged copy of values from input vector into output one base on input mask values
@@ -182,9 +181,8 @@ public:
 
     /// Performs initialization of auxiliary variables and required auxiliary buffers
     /// @param[in]  queue The queue
-    select_flagged_index(const sycl::queue& queue) : select_flagged_base<Data, Flag>(queue){};
+    select_flagged_index(const sycl::queue& queue) : select_flagged_base<Data, Flag>(queue) {}
     select_flagged_index(const select_flagged_index&) = delete;
-    ~select_flagged_index(){};
     select_flagged_index& operator=(const select_flagged_index&) = delete;
 
     /// Performs flagged copy of indices from input vector into output one base on input mask values
@@ -197,7 +195,6 @@ public:
     /// @param[in]  in   The [n] input vector of indices
     /// @param[out] out  The [n] output vector of selected indices
     /// @param[out] selected_elem_count  The number of selected indices
-    template <typename T = Data, typename = std::enable_if_t<std::numeric_limits<T>::is_integer>>
     sycl::event operator()(const ndview<Flag, 1>& mask,
                            const ndview<Data, 1>& in,
                            ndview<Data, 1>& out,
