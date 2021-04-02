@@ -21,23 +21,6 @@
 
 namespace oneapi::dal::preview::detail {
 
-/*
-template <typename Topology>
-constexpr std::int64_t get_topology_vertex_count(const Topology &_topology);
-
-template <typename Topology>
-constexpr std::int64_t get_topology_edge_count(const Topology &_topology);
-
-template <typename Topology>
-constexpr auto get_topology_vertex_degree(const Topology &_topology,
-                                          const typename Topology::vertex_type &vertex) noexcept ->
-    typename Topology::vertex_edge_size_type;
-
-template <typename Topology>
-constexpr auto get_topology_vertex_neighbors(const Topology &_topology,
-                                             const typename Topology::vertex_type &vertex) noexcept
-    -> typename Topology::const_vertex_edge_range;
-*/
 template <typename Graph>
 constexpr auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
     const auto &layout = dal::detail::get_impl(graph).get_topology();

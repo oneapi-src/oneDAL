@@ -270,31 +270,4 @@ private:
     edge_values<EdgeValue> _edge_values;
 };
 
-template <typename IndexType>
-constexpr std::int64_t get_topology_vertex_count(const topology<IndexType>& _topology) {
-    return _topology._vertex_count;
-}
-
-template <typename IndexType>
-constexpr std::int64_t get_topology_edge_count(const topology<IndexType>& _topology) {
-    return _topology._edge_count;
-}
-
-template <typename IndexType>
-constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
-                                          const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::edge_size_type {
-    return _topology._degrees[vertex];
-}
-
-template <typename IndexType>
-constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
-                                             const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::const_vertex_edge_range {
-    const IndexType* vertex_neighbors_begin = _topology._cols.get_data() + _topology._rows[vertex];
-    const IndexType* vertex_neighbors_end =
-        _topology._cols.get_data() + _topology._rows[vertex + 1];
-    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
-}
-
 } // namespace oneapi::dal::preview::detail
