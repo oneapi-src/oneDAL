@@ -31,59 +31,45 @@
     template <typename Cpu>                       \
     ONEDAL_FORCEINLINE void FUNC_NAME(prefix, name) arcdecl;
 
-#define DISPATCH_FUNC_CPU(cpu, prefix, name, arcdecl, argcall)                       \
-    template <>                                                                      \
-    ONEDAL_FORCEINLINE void FUNC_NAME(prefix, name)<DISPATCH_ID_NAME(cpu)> arcdecl { \
-        FUNC_NAME_CPU(cpu, prefix, name) argcall;                                    \
+#define DISPATCH_FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, arcdecl, argcall)           \
+    template <>                                                                              \
+    ONEDAL_FORCEINLINE void FUNC_NAME(prefix, name)<DISPATCH_ID_NAME(nominal_cpu)> arcdecl { \
+        FUNC_NAME_CPU(actual_cpu, prefix, name) argcall;                                     \
     }
 
-#define FUNC_CPU(cpu, prefix, name, argdecl, argcall) \
-    FUNC_CPU_DECL(cpu, prefix, name, argdecl)         \
-    DISPATCH_FUNC_CPU(cpu, prefix, name, argdecl, argcall)
+#define FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, argdecl, argcall) \
+    FUNC_CPU_DECL(nominal_cpu, prefix, name, argdecl)                     \
+    DISPATCH_FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, argdecl, argcall)
+
+#define FUNC_AVX512(...) FUNC_CPU(avx512, avx512, __VA_ARGS__)
+#define FUNC_AVX2(...)   FUNC_CPU(avx2, avx2, __VA_ARGS__)
+#define FUNC_AVX(...)    FUNC_CPU(avx, avx, __VA_ARGS__)
+#define FUNC_SSE42(...)  FUNC_CPU(sse42, sse42, __VA_ARGS__)
 
 #ifdef __APPLE__
-#define FUNC_SSE2(...)  FUNC_CPU(sse42, __VA_ARGS__)
-#define FUNC_SSSE3(...) FUNC_CPU(sse42, __VA_ARGS__)
+#define FUNC_SSSE3(...) FUNC_CPU(ssse3, sse42, __VA_ARGS__)
+#define FUNC_SSE2(...)  FUNC_CPU(sse2, sse42, __VA_ARGS__)
 #else
-#define FUNC_SSE2(...)  FUNC_CPU(sse2, __VA_ARGS__)
-#define FUNC_SSSE3(...) FUNC_CPU(ssse3, __VA_ARGS__)
+#define FUNC_SSSE3(...) FUNC_CPU(ssse3, ssse3, __VA_ARGS__)
+#define FUNC_SSE2(...)  FUNC_CPU(sse2, sse2, __VA_ARGS__)
 #endif
 
-#define FUNC_SSE42(...)  FUNC_CPU(sse42, __VA_ARGS__)
-#define FUNC_AVX(...)    FUNC_CPU(avx, __VA_ARGS__)
-#define FUNC_AVX2(...)   FUNC_CPU(avx2, __VA_ARGS__)
-#define FUNC_AVX512(...) FUNC_CPU(avx512, __VA_ARGS__)
-
-#define FUNC(prefix, name, argdecl, argcall)   \
-    DISPATCH_FUNC_DECL(prefix, name, argdecl)  \
-    FUNC_SSE2(prefix, name, argdecl, argcall)  \
-    FUNC_SSSE3(prefix, name, argdecl, argcall) \
-    FUNC_SSE42(prefix, name, argdecl, argcall) \
-    FUNC_AVX(prefix, name, argdecl, argcall)   \
-    FUNC_AVX2(prefix, name, argdecl, argcall)  \
-    FUNC_AVX512(prefix, name, argdecl, argcall)
+#define FUNC(prefix, name, argdecl, argcall)    \
+    DISPATCH_FUNC_DECL(prefix, name, argdecl)   \
+    FUNC_AVX512(prefix, name, argdecl, argcall) \
+    FUNC_AVX2(prefix, name, argdecl, argcall)   \
+    FUNC_AVX(prefix, name, argdecl, argcall)    \
+    FUNC_SSE42(prefix, name, argdecl, argcall)  \
+    FUNC_SSSE3(prefix, name, argdecl, argcall)  \
+    FUNC_SSE2(prefix, name, argdecl, argcall)
 
 #define INSTANTIATE_CPU(cpu, name, Float, argdecl) \
     template void name<DISPATCH_ID_NAME(cpu), Float> argdecl(Float);
 
-#define INSTANTIATE_SSE2(...) INSTANTIATE_CPU(sse2, __VA_ARGS__)
-
-#ifdef ONEDAL_CPU_DISPATCH_SSSE3
-#define INSTANTIATE_SSSE3(...) INSTANTIATE_CPU(ssse3, __VA_ARGS__)
+#ifdef ONEDAL_CPU_DISPATCH_AVX512
+#define INSTANTIATE_AVX512(...) INSTANTIATE_CPU(avx512, __VA_ARGS__)
 #else
-#define INSTANTIATE_SSSE3(...)
-#endif
-
-#ifdef ONEDAL_CPU_DISPATCH_SSE42
-#define INSTANTIATE_SSE42(...) INSTANTIATE_CPU(sse42, __VA_ARGS__)
-#else
-#define INSTANTIATE_SSE42(...)
-#endif
-
-#ifdef ONEDAL_CPU_DISPATCH_AVX
-#define INSTANTIATE_AVX(...) INSTANTIATE_CPU(avx, __VA_ARGS__)
-#else
-#define INSTANTIATE_AVX(...)
+#define INSTANTIATE_AVX512(...)
 #endif
 
 #ifdef ONEDAL_CPU_DISPATCH_AVX2
@@ -92,19 +78,33 @@
 #define INSTANTIATE_AVX2(...)
 #endif
 
-#ifdef ONEDAL_CPU_DISPATCH_AVX512
-#define INSTANTIATE_AVX512(...) INSTANTIATE_CPU(avx512, __VA_ARGS__)
+#ifdef ONEDAL_CPU_DISPATCH_AVX
+#define INSTANTIATE_AVX(...) INSTANTIATE_CPU(avx, __VA_ARGS__)
 #else
-#define INSTANTIATE_AVX512(...)
+#define INSTANTIATE_AVX(...)
 #endif
 
+#ifdef ONEDAL_CPU_DISPATCH_SSE42
+#define INSTANTIATE_SSE42(...) INSTANTIATE_CPU(sse42, __VA_ARGS__)
+#else
+#define INSTANTIATE_SSE42(...)
+#endif
+
+#ifdef ONEDAL_CPU_DISPATCH_SSSE3
+#define INSTANTIATE_SSSE3(...) INSTANTIATE_CPU(ssse3, __VA_ARGS__)
+#else
+#define INSTANTIATE_SSSE3(...)
+#endif
+
+#define INSTANTIATE_SSE2(...) INSTANTIATE_CPU(sse2, __VA_ARGS__)
+
 #define INSTANTIATE_FLOAT(name, Float, argdecl) \
-    INSTANTIATE_SSE2(name, Float, argdecl)      \
-    INSTANTIATE_SSSE3(name, Float, argdecl)     \
-    INSTANTIATE_SSE42(name, Float, argdecl)     \
-    INSTANTIATE_AVX(name, Float, argdecl)       \
+    INSTANTIATE_AVX512(name, Float, argdecl)    \
     INSTANTIATE_AVX2(name, Float, argdecl)      \
-    INSTANTIATE_AVX512(name, Float, argdecl)
+    INSTANTIATE_AVX(name, Float, argdecl)       \
+    INSTANTIATE_SSE42(name, Float, argdecl)     \
+    INSTANTIATE_SSSE3(name, Float, argdecl)     \
+    INSTANTIATE_SSE2(name, Float, argdecl)
 
 #define FUNC_TEMPLATE(prefix, name, fargdecl, cargdecl, fargcall, cargcall) \
     FUNC(prefix, s##name, fargdecl(float), fargcall)                        \
