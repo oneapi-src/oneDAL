@@ -58,7 +58,7 @@ public:
         return *this;
     }
 
-    /// An $n2 \\times p$ table with the data y, where each row
+    /// An $n1 \\times p$ table with the data x, where each row
     /// stores one feature vector.
     /// @remark default = table{}
     const table& get_y() const;

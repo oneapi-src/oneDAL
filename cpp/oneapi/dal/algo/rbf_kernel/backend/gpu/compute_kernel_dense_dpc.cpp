@@ -17,6 +17,7 @@
 #include "oneapi/dal/algo/rbf_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/math.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::rbf_kernel::backend {
@@ -29,14 +30,13 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-sycl::event compute_RBF(sycl::queue& queue,
+sycl::event compute_rbf(sycl::queue& queue,
                         const pr::ndview<Float, 1>& sqr_x,
                         const pr::ndview<Float, 1>& sqr_y,
                         pr::ndview<Float, 2> res_rbf,
                         const Float coeff,
                         const std::int64_t ld,
                         const dal::backend::event_vector& deps) {
-    sycl::event::wait_and_throw(deps);
     const Float* sqr_x_ptr = sqr_x.get_data();
     const Float* sqr_y_ptr = sqr_y.get_data();
     Float* res_rbf_ptr = res_rbf.get_mutable_data();
@@ -44,6 +44,7 @@ sycl::event compute_RBF(sycl::queue& queue,
     const Float threshold = dal::backend::exp_treshold<Float>();
 
     auto compute_rbf_event = queue.submit([&](sycl::handler& chg) {
+        chg.depends_on(deps);
         const auto range = sycl::range<2>(sqr_x.get_dimension(0), sqr_y.get_dimension(0));
 
         chg.parallel_for(range, [=](cl::sycl::id<2> id) {
@@ -88,30 +89,21 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto ndarray_res =
         pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
 
-    auto [ndarray_sqr_x, sqr_x_zeros_event] =
-        pr::ndarray<Float, 1>::zeros(queue, { row_count_x }, sycl::usm::alloc::device);
-    auto [ndarray_sqr_y, sqr_y_zeros_event] =
-        pr::ndarray<Float, 1>::zeros(queue, { row_count_y }, sycl::usm::alloc::device);
+    auto ndarray_sqr_x =
+        pr::ndarray<Float, 1>::empty(queue, { row_count_x }, sycl::usm::alloc::device);
+    auto ndarray_sqr_y =
+        pr::ndarray<Float, 1>::empty(queue, { row_count_y }, sycl::usm::alloc::device);
 
-    auto reduce_x_event = reduce_by_rows(queue,
-                                         ndarray_x,
-                                         ndarray_sqr_x,
-                                         pr::sum<Float>{},
-                                         pr::square<Float>{},
-                                         { sqr_x_zeros_event });
-    auto reduce_y_event = reduce_by_rows(queue,
-                                         ndarray_y,
-                                         ndarray_sqr_y,
-                                         pr::sum<Float>{},
-                                         pr::square<Float>{},
-                                         { sqr_y_zeros_event });
+    auto reduce_x_event =
+        reduce_by_rows(queue, ndarray_x, ndarray_sqr_x, pr::sum<Float>{}, pr::square<Float>{});
+    auto reduce_y_event =
+        reduce_by_rows(queue, ndarray_y, ndarray_sqr_y, pr::sum<Float>{}, pr::square<Float>{});
 
-    Float alpha = -2.0;
-    Float beta = 0.0;
-
+    constexpr Float alpha = -2.0;
+    constexpr Float beta = 0.0;
     auto gemm_event = gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta);
 
-    compute_RBF(queue,
+    compute_rbf(queue,
                 ndarray_sqr_x,
                 ndarray_sqr_y,
                 ndarray_res,
