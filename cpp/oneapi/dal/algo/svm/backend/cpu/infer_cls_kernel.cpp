@@ -63,6 +63,7 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
                                             const table& data,
                                             const daal_svm::Parameter& daal_parameter,
                                             const std::uint64_t class_count) {
+    const std::int64_t column_count = data.get_column_count();
     const std::int64_t row_count = data.get_row_count();
     auto arr_label = array<Float>::empty(row_count * 1);
 
@@ -88,10 +89,13 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
     const auto daal_decision_function =
         interop::convert_to_daal_homogen_table(arr_decision_function, row_count, model_count);
 
+    auto daal_svm_model =
+        daal_multiclass_internal::SvmModel::create<Float>(class_count, column_count);
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_multiclass_kernel_t>(ctx,
                                                                    daal_data.get(),
                                                                    daal_model.get(),
+                                                                   daal_svm_model.get(),
                                                                    daal_label.get(),
                                                                    daal_decision_function.get(),
                                                                    &daal_multiclass_parameter));

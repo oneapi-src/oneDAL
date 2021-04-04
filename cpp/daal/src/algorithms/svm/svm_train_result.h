@@ -276,7 +276,6 @@ protected:
                 sv[svOffset]           = xi[j];
                 svColIndices[svOffset] = xiColIndices[j];
             }
-            iSV++;
         }
 
         return s;

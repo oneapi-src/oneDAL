@@ -96,7 +96,7 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
     auto daal_model =
         daal_multiclass::Model::create(column_count, &daal_multiclass_parameter_public);
 
-    daal_multiclass_internal::SvmModelPtr daal_svm_model =
+    auto daal_svm_model =
         daal_multiclass_internal::SvmModel::create<Float>(class_count, column_count);
     using svm_batch_t = typename daal_svm::training::Batch<Float, to_daal_method<Method>::value>;
     auto svm_batch = daal::services::SharedPtr<svm_batch_t>(new svm_batch_t());

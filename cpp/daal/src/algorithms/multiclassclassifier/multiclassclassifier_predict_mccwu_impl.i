@@ -55,7 +55,8 @@ namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
 services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, cpu>::compute(
-    const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df, const daal::algorithms::Parameter * par)
+    const NumericTable * a, const daal::algorithms::Model * m, SvmModel * svmModel, NumericTable * pred, NumericTable * df,
+    const daal::algorithms::Parameter * par)
 {
     Model * model                              = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
     multi_class_classifier::Parameter * mccPar = static_cast<multi_class_classifier::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
@@ -66,8 +67,15 @@ services::Status MultiClassClassifierPredictKernel<multiClassClassifierWu, train
     TArray<size_t, cpu> nonEmptyClassMapBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassMapBuffer.get());
 
+    const size_t nModels = (nClasses * (nClasses - 1)) >> 1;
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nModels, 2);
+    TArray<size_t, cpu> classIndices(nModels * 2);
+    DAAL_CHECK_MALLOC(classIndices.get());
+    services::Status s = getClassIndices<algorithmFPType, cpu>(nClasses, svmModel != nullptr, classIndices.get());
+    DAAL_CHECK_STATUS_VAR(s);
+
     size_t * nonEmptyClassMap = (size_t *)nonEmptyClassMapBuffer.get();
-    services::Status s        = getNonEmptyClassMap<algorithmFPType, cpu>(nClasses, model, nonEmptyClassMap);
+    s |= getNonEmptyClassMap<algorithmFPType, cpu>(nClasses, model, classIndices.get(), nonEmptyClassMap);
     DAAL_CHECK_STATUS_VAR(s);
 
     const size_t nIter = mccPar->maxIterations;
@@ -287,15 +295,12 @@ services::Status SubTask<algorithmFPType, cpu>::predictSimpleClassifier(size_t n
     DAAL_CHECK_MALLOC(yTable.get() && yRes.get());
     yRes->set(classifier::prediction::prediction, yTable);
     const algorithmFPType one(1.0);
-    const size_t nModels = (nClasses * (nClasses - 1)) >> 1;
-
-    for (size_t i = 0, imodel = 0; i < nClasses; i++)
+    for (size_t i = 1; i < nClasses; i++)
     {
-        for (size_t j = i + 1; j < nClasses; j++, ++imodel)
+        for (size_t j = 0; j < i; j++)
         {
             /* Compute prediction of the "simple" classifier for pair of labels (i, j) */
-
-            // size_t imodel                         = nModels - ((nonEmptyClassMap[j] - 1) * nonEmptyClassMap[j]) / 2 + nonEmptyClassMap[i];
+            const size_t imodel                   = ((nonEmptyClassMap[i] - 1) * nonEmptyClassMap[i]) / 2 + nonEmptyClassMap[j];
             classifier::prediction::Input * input = _simplePrediction->getInput();
             DAAL_CHECK(input, services::ErrorNullInput);
             input->set(classifier::prediction::data, xTable);
