@@ -60,8 +60,18 @@ services::Status BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::compute
     NumericTable * r[2];
     Result * result = dynamic_cast<Result *>(_res);
 
-    r[0] = static_cast<NumericTable *>(result->get(ResultId::prediction).get());
-    r[1] = static_cast<NumericTable *>(result->get(ResultId::decisionFunction).get());
+    if (result)
+    {
+        r[0] = static_cast<NumericTable *>(result->get(ResultId::prediction).get());
+        r[1] = static_cast<NumericTable *>(result->get(ResultId::decisionFunction).get());
+    }
+    else
+    {
+        // for static BC
+        classifier::prediction::Result * resultCls = static_cast<classifier::prediction::Result *>(_res);
+        r[0]                                       = static_cast<NumericTable *>(resultCls->get(classifier::prediction::ResultId::prediction).get());
+        r[1]                                       = nullptr;
+    }
 
     const NumericTable * a                  = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
     const multi_class_classifier::Model * m = static_cast<const multi_class_classifier::Model *>(input->get(classifier::prediction::model).get());
