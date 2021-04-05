@@ -459,6 +459,13 @@ public:
         ONEDAL_ASSERT(source_count <= this->get_count());
         return copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
+
+    sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
+        ONEDAL_ASSERT(src.get_count() > 0);
+        ONEDAL_ASSERT(src.get_count() <= this->get_count());
+        return this->assign(q, src.get_data(), src.get_count(), deps);
+    }
+
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL

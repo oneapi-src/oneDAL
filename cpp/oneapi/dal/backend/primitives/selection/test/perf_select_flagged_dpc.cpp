@@ -90,8 +90,8 @@ public:
 
         auto& q = this->get_queue();
 
-        val = val_host.to_device(q);
-        mask = mask_host.to_device(q);
+        val.assign(q, val_host).wait_and_throw();
+        mask.assign(q, mask_host).wait_and_throw();
     }
 
     void run(ndarray<Float, 1>& in, ndarray<Flag, 1>& mask) {
@@ -205,8 +205,8 @@ public:
 
         auto& q = this->get_queue();
 
-        val = val_host.to_device(q);
-        mask = mask_host.to_device(q);
+        val.assign(q, val_host).wait_and_throw();
+        mask.assign(q, mask_host).wait_and_throw();
     }
 
     void run(ndarray<Data, 1>& in, ndarray<Flag, 1>& mask) {
