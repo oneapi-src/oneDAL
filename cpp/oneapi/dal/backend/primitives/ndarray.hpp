@@ -367,8 +367,8 @@ public:
     }
 
     static ndarray empty(const shape_t& shape) {
-        T* host_ptr = detail::host_allocator<T>().allocate(shape.get_count());
-        return wrap(host_ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
+        T* ptr = detail::malloc<T>(detail::default_host_policy{}, shape.get_count());
+        return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
