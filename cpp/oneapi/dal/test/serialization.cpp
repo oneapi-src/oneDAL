@@ -23,10 +23,9 @@ namespace oneapi::dal::test {
 
 class mock_archive_entry {
 public:
-    explicit mock_archive_entry(const void* data, data_type dtype) : dtype_(dtype) {
+    explicit mock_archive_entry(const std::uint8_t* data, data_type dtype) : dtype_(dtype) {
         const std::int64_t dtype_size = detail::get_data_type_size(dtype);
-        const std::uint8_t* data_bytes = static_cast<const std::uint8_t*>(data);
-        data_.assign(data_bytes, data_bytes + dtype_size);
+        data_.assign(data, data + dtype_size);
     }
 
     template <typename T>
@@ -38,18 +37,16 @@ public:
         return *data;
     }
 
-    void write_to(void* data, data_type dtype) const {
+    void write_to(std::uint8_t* dst, data_type dtype) const {
         if (dtype != dtype_) {
             throw std::invalid_argument{ "Data types do not match" };
         }
-        std::uint8_t* data_bytes = static_cast<std::uint8_t*>(data);
-        std::copy(data_.begin(), data_.end(), data_bytes);
+        std::copy(data_.begin(), data_.end(), dst);
     }
 
 private:
     std::vector<std::uint8_t> data_;
     data_type dtype_;
-    bool is_vector_;
 };
 
 class mock_archive_state {
@@ -76,67 +73,77 @@ private:
     std::shared_ptr<entries_t> entries_;
 };
 
-class input_mock_archive_impl : public detail::input_archive_iface {
+class mock_input_archive {
 public:
-    explicit input_mock_archive_impl(const mock_archive_state& state) : state_(state) {}
+    std::int64_t prologue_call_count = 0;
+    std::int64_t epilogue_call_count = 0;
 
-    void process_scalar(void* data, data_type dtype) override {
-        check_input_possition();
-        state_.get()[position_++].write_to(data, dtype);
+    explicit mock_input_archive(const mock_archive_state& state) : state_(state) {}
+
+    void operator()(void* data, data_type dtype, std::int64_t count = 1) {
+        check_possition();
+
+        for (std::int64_t i = 0; i < count; i++) {
+            load(i, data, dtype);
+        }
     }
 
-    void process_vector(void* data, std::int64_t count, data_type dtype) override {
-        check_input_possition();
-        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
-        std::uint8_t* data_bytes = static_cast<std::uint8_t*>(data);
-        for (std::int64_t i = 0; i < count; i++) {
-            state_.get()[position_++].write_to(data_bytes + i * dtype_size, dtype);
-        }
+    void prologue() {
+        prologue_call_count++;
+    }
+
+    void epilogue() {
+        epilogue_call_count++;
     }
 
 private:
-    void check_input_possition() const {
+    void check_possition() const {
         if (position_ >= state_.get().size()) {
             throw std::runtime_error{ "We reached the end of input stream" };
         }
+    }
+
+    void load(std::int64_t index, void* data, data_type dtype) {
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
+        std::uint8_t* data_bytes = static_cast<std::uint8_t*>(data);
+        state_.get()[position_++].write_to(data_bytes + index * dtype_size, dtype);
     }
 
     mock_archive_state state_;
     std::size_t position_ = 0;
 };
 
-class input_mock_archive : public detail::input_archive {
+class mock_output_archive {
 public:
-    explicit input_mock_archive(const mock_archive_state& state)
-            : detail::input_archive(new input_mock_archive_impl{ state }) {}
-};
+    std::int64_t prologue_call_count = 0;
+    std::int64_t epilogue_call_count = 0;
 
-class output_mock_archive_impl : public detail::output_archive_iface {
-public:
-    explicit output_mock_archive_impl(const mock_archive_state& state) : state_(state) {}
+    explicit mock_output_archive(const mock_archive_state& state) : state_(state) {}
 
-    void process_scalar(const void* data, data_type dtype) override {
-        state_.get().emplace_back(data, dtype);
-    }
-
-    void process_vector(const void* data, std::int64_t count, data_type dtype) override {
+    void operator()(const void* data, data_type dtype, std::int64_t count = 1) {
         state_.get().reserve(state_.get().size() + count);
 
-        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
-        const std::uint8_t* data_bytes = static_cast<const std::uint8_t*>(data);
         for (std::int64_t i = 0; i < count; i++) {
-            state_.get().emplace_back(data_bytes + i * dtype_size, dtype);
+            save(i, data, dtype);
         }
     }
 
-private:
-    mock_archive_state state_;
-};
+    void prologue() {
+        prologue_call_count++;
+    }
 
-class output_mock_archive : public detail::output_archive {
-public:
-    output_mock_archive(const mock_archive_state& state)
-            : detail::output_archive(new output_mock_archive_impl{ state }) {}
+    void epilogue() {
+        epilogue_call_count++;
+    }
+
+private:
+    void save(std::int64_t index, const void* data, data_type dtype) {
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
+        const std::uint8_t* data_bytes = static_cast<const std::uint8_t*>(data);
+        state_.get().emplace_back(data_bytes + index * dtype_size, dtype);
+    }
+
+    mock_archive_state state_;
 };
 
 struct pod_type {
@@ -190,6 +197,31 @@ struct vector_type {
     }
 };
 
+TEST("mock primitive type") {
+    const float original = 3.14;
+
+    mock_archive_state state;
+
+    INFO("serialize") {
+        mock_output_archive ar(state);
+        detail::serialize(original, ar);
+
+        REQUIRE(ar.prologue_call_count == 1);
+        REQUIRE(ar.epilogue_call_count == 1);
+        REQUIRE(state.get<float>(0) == original);
+    }
+
+    INFO("deserialize") {
+        float deserialized;
+        mock_input_archive ar(state);
+        detail::deserialize(deserialized, ar);
+
+        REQUIRE(ar.prologue_call_count == 1);
+        REQUIRE(ar.epilogue_call_count == 1);
+        REQUIRE(deserialized == original);
+    }
+}
+
 TEST("mock POD type") {
     pod_type original;
     original.x1 = 2;
@@ -202,7 +234,7 @@ TEST("mock POD type") {
     mock_archive_state state;
 
     INFO("serialize") {
-        output_mock_archive ar(state);
+        mock_output_archive ar(state);
         detail::serialize(original, ar);
 
         REQUIRE(state.get<std::int8_t>(0) == original.x1);
@@ -215,7 +247,7 @@ TEST("mock POD type") {
 
     INFO("deserialize") {
         pod_type deserialized;
-        input_mock_archive ar(state);
+        mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(deserialized.x1 == original.x1);
@@ -237,7 +269,7 @@ TEST("mock non-trivially copyable type") {
     mock_archive_state state;
 
     INFO("serialize") {
-        output_mock_archive ar(state);
+        mock_output_archive ar(state);
         detail::serialize(original, ar);
 
         REQUIRE(state.get<std::int64_t>(0) == element_count);
@@ -249,7 +281,7 @@ TEST("mock non-trivially copyable type") {
 
     INFO("deserialize") {
         vector_type deserialized;
-        input_mock_archive ar(state);
+        mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(deserialized.vec.size() == element_count);
