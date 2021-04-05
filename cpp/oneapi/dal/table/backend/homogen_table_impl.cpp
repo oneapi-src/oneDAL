@@ -70,16 +70,8 @@ static void refer_origin_data(const array<DataSrc>& src,
     ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >=
                   dst_count * sizeof(DataDest));
 
-    if (src.has_mutable_data()) {
-        // TODO: in future, when table knows about mutability of its data this branch shall be
-        // available only for builders, not for tables.
-        auto start_pointer = reinterpret_cast<DataDest*>(src.get_mutable_data() + src_start_index);
-        dst.reset(src, start_pointer, dst_count);
-    }
-    else {
-        auto start_pointer = reinterpret_cast<const DataDest*>(src.get_data() + src_start_index);
-        dst.reset(src, start_pointer, dst_count);
-    }
+    auto start_pointer = reinterpret_cast<const DataDest*>(src.get_data() + src_start_index);
+    dst.reset(src, start_pointer, dst_count);
 }
 
 struct block_info {

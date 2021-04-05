@@ -308,16 +308,11 @@ private:
             };
         }
 
-        // The `data` array may contain mutable data, however tables are considered
-        // immutable. We "forget" about mutable counterpart of array and make table
-        // think like it is created from immutable data.
-        const auto immutable_data = detail::discard_mutable_data(data);
-
         detail::dispath_by_policy(data, [&](auto policy) {
             init_impl(policy,
                       row_count,
                       column_count,
-                      detail::reinterpret_array_cast<byte_t>(immutable_data),
+                      detail::reinterpret_array_cast<byte_t>(data),
                       detail::make_data_type<Data>(),
                       layout);
         });
