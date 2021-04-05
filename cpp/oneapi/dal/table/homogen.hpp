@@ -121,8 +121,8 @@ public:
     }
 #endif
 
-    /// Creates a new ``homogen_table`` instance from externally-defined data block.
-    /// The created table stores the provided array object.
+    /// Creates a new ``homogen_table`` instance from an array.
+    /// The created table shares data ownership with the given array.
     ///
     /// @tparam Data        The type of elements in the data block that will be stored into the
     ///                     table. The table initializes data types of metadata with this data type.
