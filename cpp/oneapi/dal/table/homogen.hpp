@@ -254,7 +254,7 @@ protected:
     /// @param layout        The layout of the data. Should be :literal:`data_layout::row_major` or
     ///                      :literal:`data_layout::column_major`.
     template <typename Data>
-    homogen_table(const array<Data> data,
+    homogen_table(const array<Data>& data,
                   std::int64_t row_count,
                   std::int64_t column_count,
                   data_layout layout = data_layout::row_major) {
