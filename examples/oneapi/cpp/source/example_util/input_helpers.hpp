@@ -19,6 +19,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <iostream>
 
 inline bool check_file(const std::string& name) {
     return std::ifstream{ name }.good();
@@ -30,9 +31,11 @@ inline std::string get_data_path(const std::string& name) {
     for (const auto& path : paths) {
         const std::string try_path = path + "/" + name;
         if (check_file(try_path)) {
+            std::cout << "File is found! " << try_path << std::endl;
             return try_path;
         }
     }
+    std::cout << "File " << name << "not found!!!" << std::endl;
 
     return name;
 }
