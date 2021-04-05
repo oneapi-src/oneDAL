@@ -18,7 +18,7 @@
 /*
 !  Content:
 !    C++ sample of computing low order moments in the online distributed
-!    processing mode 
+!    processing mode
 !
 !******************************************************************************/
 

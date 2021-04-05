@@ -17,7 +17,7 @@
 
 /*
 !  Content:
-!    C++ sample of computing low order moments in the distributed processing mode 
+!    C++ sample of computing low order moments in the distributed processing mode
 !
 !******************************************************************************/
 
