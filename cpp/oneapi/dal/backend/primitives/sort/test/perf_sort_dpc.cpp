@@ -104,8 +104,8 @@ public:
         INFO("benchmark sort with indices");
         const auto name =
             fmt::format("Basic sort with indices: val_type {}, indices_type {}, elem_count {}",
-                        type2str<Float>::name(),
-                        type2str<Index>::name(),
+                        te::type2str<Float>::name(),
+                        te::type2str<Index>::name(),
                         val.get_count());
 
         this->get_queue().wait_and_throw();
@@ -121,8 +121,8 @@ public:
         ONEDAL_ASSERT(vector_count > 0);
         const auto name = fmt::format(
             "Basic sort with indices: val_type {}, indices_type {}, vector_count {}, elem_count {}",
-            type2str<Float>::name,
-            type2str<Index>::name,
+            te::type2str<Float>::name,
+            te::type2str<Index>::name,
             vector_count,
             val_vec[0].get_count());
 
