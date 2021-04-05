@@ -24,18 +24,18 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-// Performs k-selection for small value of k that fits in Global Registry File width
-template <typename Float, uint32_t simd_width>
-class kselect_by_rows_simd : public kselect_by_rows_base<Float> {
+// Performs k-selection for k == 1
+template <typename Float>
+class kselect_by_rows_single_col : public kselect_by_rows_base<Float> {
 public:
-    kselect_by_rows_simd() {}
+    kselect_by_rows_single_col() {}
     sycl::event operator()(sycl::queue& queue,
                            const ndview<Float, 2>& data,
                            std::int64_t k,
                            ndview<Float, 2>& selection,
                            ndview<std::int32_t, 2>& indices,
                            const event_vector& deps) override {
-        return select<true, true>(queue, data, k, selection, indices, deps);
+        return select<true, true>(queue, data, selection, indices, deps);
     }
     sycl::event operator()(sycl::queue& queue,
                            const ndview<Float, 2>& data,
@@ -43,7 +43,7 @@ public:
                            ndview<Float, 2>& selection,
                            const event_vector& deps) override {
         ndarray<std::int32_t, 2> dummy;
-        return select<true, false>(queue, data, k, selection, dummy, deps);
+        return select<true, false>(queue, data, selection, dummy, deps);
     }
     sycl::event operator()(sycl::queue& queue,
                            const ndview<Float, 2>& data,
@@ -51,24 +51,23 @@ public:
                            ndview<std::int32_t, 2>& indices,
                            const event_vector& deps) override {
         ndarray<Float, 2> dummy;
-        return select<false, true>(queue, data, k, dummy, indices, deps);
+        return select<false, true>(queue, data, dummy, indices, deps);
     }
 
 private:
     template <bool selection_out, bool indices_out>
     sycl::event select(sycl::queue& queue,
                        const ndview<Float, 2>& data,
-                       std::int64_t k,
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps = {}) {
         if (indices_out) {
             ONEDAL_ASSERT(indices.get_shape()[0] == data.get_shape()[0]);
-            ONEDAL_ASSERT(indices.get_shape()[1] == k);
+            ONEDAL_ASSERT(indices.get_shape()[1] == 1);
         }
         if (selection_out) {
             ONEDAL_ASSERT(selection.get_shape()[0] == data.get_shape()[0]);
-            ONEDAL_ASSERT(selection.get_shape()[1] == k);
+            ONEDAL_ASSERT(selection.get_shape()[1] == 1);
         }
         const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
         ONEDAL_ASSERT(!sg_sizes.empty());
@@ -85,7 +84,8 @@ private:
         const std::int64_t row_adjusted_sg_num =
             col_count / sg_max_size + (std::int64_t)((bool)(col_count % sg_max_size));
         const std::int64_t expected_sg_num =
-            std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
+            std::min(kselect_by_rows_single_col::preffered_wg_size / sg_max_size,
+                     row_adjusted_sg_num);
         ONEDAL_ASSERT(expected_sg_num > 0);
 
         const std::int64_t wg_size = expected_sg_num * sg_max_size;
@@ -113,62 +113,38 @@ private:
                     if (sg_global_id >= row_count)
                         return;
                     const uint32_t in_offset = sg_global_id * stride;
-                    const uint32_t out_offset = sg_global_id * k;
+                    const uint32_t out_offset = sg_global_id;
 
                     const uint32_t local_id = sg.get_local_id()[0];
                     const uint32_t local_range = sg.get_local_range()[0];
 
-                    Float values[simd_width];
-                    std::int32_t private_indices[simd_width];
-
-                    for (std::uint32_t i = 0; i < simd_width; i++) {
-                        values[i] = fp_max;
-                        private_indices[i] = -1;
-                    }
+                    std::int32_t index = -1;
+                    Float value = fp_max;
                     for (std::uint32_t i = local_id; i < col_count; i += local_range) {
                         Float cur_val = data_ptr[in_offset + i];
-                        std::int32_t index = i;
-                        std::int32_t pos = -1;
-
-                        pos = values[k - 1] > cur_val ? k - 1 : pos;
-                        for (std::int32_t j = k - 2; j >= 0; j--) {
-                            bool do_shift = values[j] > cur_val;
-                            pos = do_shift ? j : pos;
-                            values[j + 1] = do_shift ? values[j] : values[j + 1];
-                            private_indices[j + 1] =
-                                do_shift ? private_indices[j] : private_indices[j + 1];
-                        }
-
-                        if (pos != -1) {
-                            values[pos] = cur_val;
-                            private_indices[pos] = index;
+                        if (cur_val < value) {
+                            index = i;
+                            value = cur_val;
                         }
                     }
+
                     sg.barrier();
 
-                    std::int32_t bias = 0;
-                    Float final_values[simd_width];
-                    std::int32_t final_indices[simd_width];
-                    for (std::uint32_t i = 0; i < k; i++) {
-                        Float min_val = reduce(sg, values[bias], sycl::ONEAPI::minimum());
-                        bool present = (min_val == values[bias]);
-                        std::int32_t pos =
-                            exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
-                        bool owner = present && pos == 0;
-                        final_indices[i] = -reduce(sg,
-                                                   owner ? -private_indices[bias] : 1,
-                                                   sycl::ONEAPI::minimum());
-                        final_values[i] = min_val;
-                        bias += owner ? 1 : 0;
-                    }
+                    Float final_value = reduce(sg, value, sycl::ONEAPI::minimum());
+                    bool present = (final_value == value);
+                    std::int32_t pos =
+                        exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
+                    bool owner = present && pos == 0;
+                    std::int32_t final_index =
+                        -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum());
                     if constexpr (indices_out) {
-                        for (std::uint32_t i = local_id; i < k; i += local_range) {
-                            indices_ptr[out_offset + i] = final_indices[i];
+                        if (local_id == 0) {
+                            indices_ptr[out_offset] = final_index;
                         }
                     }
                     if constexpr (selection_out) {
-                        for (std::uint32_t i = local_id; i < k; i += local_range) {
-                            selection_ptr[out_offset + i] = final_values[i];
+                        if (local_id == 0) {
+                            selection_ptr[out_offset] = final_value;
                         }
                     }
                 });
