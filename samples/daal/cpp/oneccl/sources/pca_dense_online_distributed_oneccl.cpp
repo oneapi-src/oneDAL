@@ -18,13 +18,13 @@
 /*
 !  Content:
 !    C++ sample of principal component analysis (PCA) using the correlation
-!    method in the distributed processing mode
+!    method in the online distributed processing mode
 !
 !******************************************************************************/
 
 /**
- * <a name="DAAL-SAMPLE-CPP-PCA_DENSE_DISTRIBUTED"></a>
- * \example pca_dense_distributed_oneccl.cpp
+ * <a name="DAAL-SAMPLE-CPP-PCA_DENSE_ONLINE_DISTRIBUTED"></a>
+ * \example pca_dense_online_distributed_oneccl.cpp
  */
 
 #include "daal_sycl.h"

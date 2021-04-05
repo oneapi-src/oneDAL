@@ -18,6 +18,7 @@
 /*
 !  Content:
 !    C++ sample of K-Means clustering in the distributed processing mode
+!
 !******************************************************************************/
 
 /**

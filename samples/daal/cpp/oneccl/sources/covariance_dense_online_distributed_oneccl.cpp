@@ -18,7 +18,7 @@
 /*
 !  Content:
 !    C++ sample of dense variance-covariance matrix computation in the
-!    distributed processing mode
+!    online distributed processing mode
 !
 !******************************************************************************/
 

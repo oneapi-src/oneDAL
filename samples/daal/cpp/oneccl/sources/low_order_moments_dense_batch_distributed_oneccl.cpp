@@ -17,14 +17,13 @@
 
 /*
 !  Content:
-!    C++ sample of computing low order moments in the distributed processing
-mode !    mode
+!    C++ sample of computing low order moments in the distributed processing mode 
 !
 !******************************************************************************/
 
 /**
  * <a name="DAAL-SAMPLE-CPP-LOW_ORDER_MOMENTS_DENSE_DISTRIBUTED"></a>
- * \example low_order_moments_dense_distributed_oneccl.cpp
+ * \example low_order_moments_dense_batch_distributed_oneccl.cpp
  */
 
 #include "daal_sycl.h"

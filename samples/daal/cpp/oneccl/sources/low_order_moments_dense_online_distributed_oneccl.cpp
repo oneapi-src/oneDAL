@@ -15,9 +15,16 @@
 * limitations under the License.
 *******************************************************************************/
 
+/*
+!  Content:
+!    C++ sample of computing low order moments in the online distributed
+!    processing mode 
+!
+!******************************************************************************/
+
 /**
- * <a name="DAAL-SAMPLE-CPP-LOW_ORDER_MOMENTS_DENSE_DISTRIBUTED"></a>
- * \example low_order_moments_dense_distributed_oneccl.cpp
+ * <a name="DAAL-SAMPLE-CPP-LOW_ORDER_MOMENTS_DENSE_ONLINE_DISTRIBUTED"></a>
+ * \example low_order_moments_dense_online_distributed_oneccl.cpp
  */
 
 #include "daal_sycl.h"

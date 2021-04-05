@@ -24,7 +24,7 @@
 
 /**
  * <a name="DAAL-SAMPLE-CPP-PCA_DENSE_DISTRIBUTED"></a>
- * \example pca_dense_distributed_oneccl.cpp
+ * \example pca_dense_batch_distributed_oneccl.cpp
  */
 
 #include "daal_sycl.h"
