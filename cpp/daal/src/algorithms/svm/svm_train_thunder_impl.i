@@ -162,7 +162,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         if (checkStopCondition(diff, diffPrev, accuracyThreshold, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
-    // printf("[global] iter %lu\n", iter);
 
     cachePtr->clear();
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, svmType, cachePtr.get());
@@ -402,7 +401,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(con
             gradLocal[i] += delta * (KiBi - KiBj);
         }
     }
-    // printf("[LOCAL] iter: %lu localDiff: %.4lf\n", iter, localDiff);
 
     /* Compute diff and scatter to alpha vector */
     PRAGMA_IVDEP
