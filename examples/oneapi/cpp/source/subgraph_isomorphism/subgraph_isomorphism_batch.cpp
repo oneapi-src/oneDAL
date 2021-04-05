@@ -26,9 +26,13 @@
 
 namespace dal = oneapi::dal;
 
-int main(int argc, char** argv) {
-    auto target_filename = get_data_path("si_target_graph.csv");
-    auto pattern_filename = get_data_path("si_pattern_graph.csv");
+int main(int argc, char **argv) {
+    // auto target_filename = get_data_path("si_target_graph.csv");
+    // auto pattern_filename = get_data_path("si_pattern_graph.csv");
+    auto target_filename = get_data_path(
+        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff");
+    auto pattern_filename = get_data_path(
+        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
 
     if (argc == 3) {
         target_filename = get_data_path(argv[1]);
@@ -39,12 +43,21 @@ int main(int argc, char** argv) {
 
     // read the graph
     const dal::preview::graph_csv_data_source ds_target(target_filename); // n vertices
-    const dal::preview::load_graph::descriptor<> d_target;
-    const auto target_graph = dal::preview::load_graph::load(d_target, ds_target);
+    const dal::preview::load_graph::descriptor<
+        dal::preview::edge_list<>,
+        dal::preview::undirected_adjacency_vector_graph<std::int32_t>>
+        d_target;
+    const auto target_graph = dal::preview::load_graph::load_gff(d_target, ds_target);
 
     const dal::preview::graph_csv_data_source ds_pattern(pattern_filename); // m vertices
-    const dal::preview::load_graph::descriptor<> d_pattern;
-    const auto pattern_graph = dal::preview::load_graph::load(d_pattern, ds_pattern);
+    const dal::preview::load_graph::descriptor<
+        dal::preview::edge_list<>,
+        dal::preview::undirected_adjacency_vector_graph<std::int32_t>>
+        d_pattern;
+    const auto pattern_graph = dal::preview::load_graph::load_gff(d_pattern, ds_pattern);
+
+    auto &vv_t = dal::detail::get_impl(target_graph).get_vertex_values();
+    auto &vv_p = dal::detail::get_impl(pattern_graph).get_vertex_values();
 
     std::allocator<char> alloc;
     // set algorithm parameters

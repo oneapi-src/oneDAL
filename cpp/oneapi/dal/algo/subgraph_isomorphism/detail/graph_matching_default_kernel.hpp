@@ -23,6 +23,7 @@
 #include "oneapi/dal/graph/detail/container.hpp"
 
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/si.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/debug.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -39,6 +40,28 @@ graph_matching_result call_subgraph_isomorphism_default_kernel(
     const dal::preview::detail::edge_values<EdgeValue>& ev_p) {
     graph pattern(p_data, graph_storage_scheme::bit);
     graph target(t_data, graph_storage_scheme::auto_detect);
+
+    const auto t_vertex_count = t_data._vertex_count;
+    const auto p_vertex_count = p_data._vertex_count;
+
+    dal::detail::shared<std::int64_t> ptr_vv_t, ptr_vv_p;
+
+    if (ev_t.get_count() != 0) {
+        ptr_vv_t = std::allocate_shared<std::int64_t>(alloc, t_vertex_count);
+        auto t_vertex_attribute = ptr_vv_t.get();
+        for (std::int32_t i = 0; i < t_vertex_count; i++) {
+            t_vertex_attribute[i] = vv_t[i];
+        }
+        target.load_vertex_attribute(t_vertex_count, t_vertex_attribute);
+    }
+    if (ev_p.get_count() != 0) {
+        ptr_vv_p = std::allocate_shared<std::int64_t>(alloc, p_vertex_count);
+        auto p_vertex_attribute = ptr_vv_p.get();
+        for (std::int32_t i = 0; i < p_vertex_count; i++) {
+            p_vertex_attribute[i] = vv_p[i];
+        }
+        pattern.load_vertex_attribute(p_vertex_count, p_vertex_attribute);
+    }
 
     std::uint64_t control_flags = flow_switch_ids::multi_thread_mode;
     solution results = si(pattern, target, control_flags);

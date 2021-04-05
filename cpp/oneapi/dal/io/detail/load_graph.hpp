@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <atomic>
 #include <fstream>
+#include <set>
+#include <vector>
 
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -29,6 +31,7 @@
 #include "oneapi/dal/io/common.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
 
@@ -45,6 +48,48 @@ inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     }
     edge_list<int_t> elist;
     elist.reserve(1024);
+    char source_vertex[32], destination_vertex[32];
+    while (file >> source_vertex >> destination_vertex) {
+        auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
+                                   daal_string_to_int(&destination_vertex[0], 0));
+        elist.push_back(edge);
+    }
+
+    file.close();
+    return elist;
+}
+
+template <typename Vertex>
+inline edge_list<Vertex> load_vertex_labels_and_edge_list(const std::string &name,
+                                                          std::set<std::string> &labels_set,
+                                                          std::vector<std::string> &labels);
+
+template <>
+inline edge_list<std::int32_t> load_vertex_labels_and_edge_list(const std::string &name,
+                                                                std::set<std::string> &labels_set,
+                                                                std::vector<std::string> &labels) {
+    using int_t = std::int32_t;
+
+    std::ifstream file(name);
+    if (!file.is_open()) {
+        throw invalid_argument(dal::detail::error_messages::file_not_found());
+    }
+    std::string tmp;
+    std::int32_t vertices_count, edges_count;
+
+    file >> tmp; // read comment
+    file >> vertices_count; // read number of values
+
+    labels.resize(vertices_count);
+    for (int i = 0; i < vertices_count; i++) {
+        file >> tmp; // read label
+        labels.push_back(tmp);
+        labels_set.insert(tmp);
+    }
+
+    file >> edges_count; // read number of edges
+    edge_list<int_t> elist;
+    elist.reserve(edges_count);
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
         auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
@@ -284,6 +329,37 @@ output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data
     const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
         data_source.get_filename());
     convert_to_csr_impl(el, graph);
+    return graph;
+}
+
+template <typename Descriptor, typename DataSource>
+output_type<Descriptor> load_impl_gff(const Descriptor &desc, const DataSource &data_source) {
+    using graph_type = output_type<Descriptor>;
+    graph_type graph;
+    std::set<std::string> labels_set;
+    std::vector<std::string> labels;
+    const auto el =
+        load_vertex_labels_and_edge_list<typename Descriptor::input_type::data_t::first_type>(
+            data_source.get_filename(),
+            labels_set,
+            labels);
+    convert_to_csr_impl(el, graph);
+
+    auto &graph_impl = oneapi::dal::detail::get_impl(graph);
+    auto &vertex_allocator = graph_impl._vertex_allocator;
+    auto &vv_p = graph_impl.get_vertex_values();
+
+    auto vertex_count = dal::preview::get_vertex_count(graph);
+    std::int32_t *labels_array =
+        oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
+    vv_p = array<std::int32_t>::wrap(labels_array, vertex_count);
+    for (int i = 0; i < vertex_count; i++) {
+        auto it = labels_set.find(labels[i]);
+        labels_array[i] = std::distance(labels_set.begin(), it);
+    }
+
+    // oneapi::dal::preview::detail::deallocate(vertex_allocator, degrees_cv, vertex_count);
+
     return graph;
 }
 } // namespace oneapi::dal::preview::load_graph::detail
