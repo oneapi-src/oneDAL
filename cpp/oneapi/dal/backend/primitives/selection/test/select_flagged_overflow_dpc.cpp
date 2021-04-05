@@ -19,7 +19,7 @@
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/backend/primitives/selection_flagged/select.hpp"
+#include "oneapi/dal/backend/primitives/selection/select_flagged.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
