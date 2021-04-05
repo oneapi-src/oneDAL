@@ -19,7 +19,7 @@
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/backend/primitives/select/select.hpp"
+#include "oneapi/dal/backend/primitives/selection_flagged/select.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -53,18 +53,20 @@ public:
 
         Float pivot = distr(rng);
         // move generation to device when rng is available there
-        Float* val_ptr = detail::host_allocator<Float>().allocate(val.get_count());
-        Flag* mask_ptr = detail::host_allocator<Flag>().allocate(val.get_count());
+        auto val_host = ndarray<Float, 1>::empty({ elem_count });
+        auto mask_host = ndarray<Flag, 1>::empty({ elem_count });
+        Float* val_ptr = val_host.get_mutable_data();
+        Flag* mask_ptr = mask_host.get_mutable_data();
 
         for (Integer el = 0; el < elem_count; el++) {
             val_ptr[el] = distr(rng);
             mask_ptr[el] = val_ptr[el] < pivot ? 1 : 0;
         }
-        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
-        mask.assign(this->get_queue(), mask_ptr, val.get_count()).wait_and_throw();
 
-        detail::host_allocator<Float>().deallocate(val_ptr, val.get_count());
-        detail::host_allocator<Flag>().deallocate(mask_ptr, val.get_count());
+        auto& q = this->get_queue();
+
+        val = val_host.to_device(q);
+        mask = mask_host.to_device(q);
     }
 
     auto create_reference_on_host(const ndarray<Float, 1>& in, const ndarray<Flag, 1>& mask) {
@@ -101,7 +103,6 @@ public:
 
         REQUIRE(total_sum_res == total_sum_ref);
 
-        // implement
         check_results(out, ref, total_sum_ref);
     }
 
@@ -141,8 +142,11 @@ public:
         std::uniform_int_distribution<Data> distr(0, val.get_count() - 1);
 
         // move generation to device when rng is available there
-        Data* val_ptr = detail::host_allocator<Data>().allocate(val.get_count());
-        Flag* mask_ptr = detail::host_allocator<Flag>().allocate(val.get_count());
+        auto val_host = ndarray<Data, 1>::empty({ elem_count });
+        auto mask_host = ndarray<Flag, 1>::empty({ elem_count });
+        Data* val_ptr = val_host.get_mutable_data();
+        Flag* mask_ptr = mask_host.get_mutable_data();
+
         for (Integer el = 0; el < elem_count; el++) {
             val_ptr[el] = el;
             mask_ptr[el] = 0;
@@ -154,11 +158,11 @@ public:
             Integer swap_ind = distr(rng);
             std::swap(val_ptr[el], val_ptr[swap_ind]);
         }
-        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
-        mask.assign(this->get_queue(), mask_ptr, val.get_count()).wait_and_throw();
 
-        detail::host_allocator<Data>().deallocate(val_ptr, val.get_count());
-        detail::host_allocator<Flag>().deallocate(mask_ptr, val.get_count());
+        auto& q = this->get_queue();
+
+        val = val_host.to_device(q);
+        mask = mask_host.to_device(q);
     }
 
     auto create_reference_on_host(const ndarray<Data, 1>& in, const ndarray<Flag, 1>& mask) {
@@ -221,7 +225,7 @@ TEMPLATE_LIST_TEST_M(select_flagged_test,
                      "select flagged",
                      "[select flagged]",
                      select_flagged_types) {
-    SKIP_IF(this->get_policy().is_cpu());
+    //SKIP_IF(this->get_policy().is_cpu());
 
     std::int64_t elem_count = GENERATE_COPY(2, 15, 16000);
 
@@ -235,7 +239,7 @@ TEMPLATE_LIST_TEST_M(select_flagged_index_test,
                      "select flagged index",
                      "[select flagged]",
                      select_flagged_index_types) {
-    SKIP_IF(this->get_policy().is_cpu());
+    //SKIP_IF(this->get_policy().is_cpu());
 
     std::int64_t elem_count = GENERATE_COPY(2, 15, 16000);
 

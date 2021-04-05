@@ -19,33 +19,13 @@
 #include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/backend/primitives/select/select.hpp"
+#include "oneapi/dal/backend/primitives/selection_flagged/select.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 namespace de = dal::detail;
-
-template <typename T>
-struct type2str {
-    static const char* name;
-};
-
-#define INSTANTIATE_TYPE_MAP(T) \
-    template <>                 \
-    const char* type2str<T>::name = #T;
-
-INSTANTIATE_TYPE_MAP(float);
-INSTANTIATE_TYPE_MAP(double);
-INSTANTIATE_TYPE_MAP(std::uint8_t);
-INSTANTIATE_TYPE_MAP(std::uint16_t);
-INSTANTIATE_TYPE_MAP(std::uint32_t);
-INSTANTIATE_TYPE_MAP(std::uint64_t);
-INSTANTIATE_TYPE_MAP(std::int8_t);
-INSTANTIATE_TYPE_MAP(std::int16_t);
-INSTANTIATE_TYPE_MAP(std::int32_t);
-INSTANTIATE_TYPE_MAP(std::int64_t);
 
 template <typename TestType>
 class select_flagged_test : public te::policy_fixture {
@@ -98,17 +78,20 @@ public:
 
         Float pivot = distr(rng);
         // move generation to device when rng is available there
-        Float* val_ptr = detail::host_allocator<Float>().allocate(val.get_count());
-        Flag* mask_ptr = detail::host_allocator<Flag>().allocate(val.get_count());
+        auto val_host = ndarray<Float, 1>::empty({ elem_count });
+        auto mask_host = ndarray<Flag, 1>::empty({ elem_count });
+        Float* val_ptr = val_host.get_mutable_data();
+        Flag* mask_ptr = mask_host.get_mutable_data();
+
         for (Integer el = 0; el < elem_count; el++) {
             val_ptr[el] = distr(rng);
             mask_ptr[el] = val_ptr[el] < pivot ? 1 : 0;
         }
-        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
-        mask.assign(this->get_queue(), mask_ptr, val.get_count()).wait_and_throw();
 
-        detail::host_allocator<Float>().deallocate(val_ptr, val.get_count());
-        detail::host_allocator<Flag>().deallocate(mask_ptr, val.get_count());
+        auto& q = this->get_queue();
+
+        val = val_host.to_device(q);
+        mask = mask_host.to_device(q);
     }
 
     void run(ndarray<Float, 1>& in, ndarray<Flag, 1>& mask) {
@@ -117,9 +100,9 @@ public:
         std::int64_t elem_count = in.get_count();
         const auto name =
             fmt::format("Select flagged: val_type {}, flag_type {}, integer {}, elem_count {}",
-                        type2str<Float>::name,
-                        type2str<Flag>::name,
-                        type2str<Integer>::name,
+                        te::type2str<Float>::name(),
+                        te::type2str<Flag>::name(),
+                        te::type2str<Integer>::name(),
                         elem_count);
 
         auto out = ndarray<Float, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
@@ -140,9 +123,9 @@ public:
         std::int64_t elem_count = in_vec[0].get_count();
         const auto name = fmt::format(
             "Select flagged: val_type {}, flag_type {}, integer {}, vector_count {}, elem_count {}",
-            type2str<Float>::name,
-            type2str<Flag>::name,
-            type2str<Integer>::name,
+            te::type2str<Float>::name(),
+            te::type2str<Flag>::name(),
+            te::type2str<Integer>::name(),
             vector_count,
             elem_count);
 
@@ -203,8 +186,11 @@ public:
         std::uniform_int_distribution<Data> distr(0, val.get_count() - 1);
 
         // move generation to device when rng is available there
-        Data* val_ptr = detail::host_allocator<Data>().allocate(val.get_count());
-        Flag* mask_ptr = detail::host_allocator<Flag>().allocate(val.get_count());
+        auto val_host = ndarray<Data, 1>::empty({ elem_count });
+        auto mask_host = ndarray<Flag, 1>::empty({ elem_count });
+        Data* val_ptr = val_host.get_mutable_data();
+        Flag* mask_ptr = mask_host.get_mutable_data();
+
         for (Integer el = 0; el < elem_count; el++) {
             val_ptr[el] = el;
             mask_ptr[el] = 0;
@@ -216,11 +202,11 @@ public:
             Integer swap_ind = distr(rng);
             std::swap(val_ptr[el], val_ptr[swap_ind]);
         }
-        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
-        mask.assign(this->get_queue(), mask_ptr, val.get_count()).wait_and_throw();
 
-        detail::host_allocator<Data>().deallocate(val_ptr, val.get_count());
-        detail::host_allocator<Flag>().deallocate(mask_ptr, val.get_count());
+        auto& q = this->get_queue();
+
+        val = val_host.to_device(q);
+        mask = mask_host.to_device(q);
     }
 
     void run(ndarray<Data, 1>& in, ndarray<Flag, 1>& mask) {
@@ -229,9 +215,9 @@ public:
         std::int64_t elem_count = in.get_count();
         const auto name = fmt::format(
             "Select flagged index: val_type {}, flag_type {}, integer {}, elem_count {}",
-            type2str<Data>::name,
-            type2str<Flag>::name,
-            type2str<Integer>::name,
+            te::type2str<Data>::name,
+            te::type2str<Flag>::name,
+            te::type2str<Integer>::name,
             elem_count);
 
         auto out = ndarray<Data, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
@@ -252,9 +238,9 @@ public:
         std::int64_t elem_count = in_vec[0].get_count();
         const auto name = fmt::format(
             "Select flagged: val_type {}, flag_type {}, integer {}, vector_count {}, elem_count {}",
-            type2str<Data>::name,
-            type2str<Flag>::name,
-            type2str<Integer>::name,
+            te::type2str<Data>::name,
+            te::type2str<Flag>::name,
+            te::type2str<Integer>::name,
             vector_count,
             elem_count);
 

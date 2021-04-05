@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/select/select.hpp"
+#include "oneapi/dal/backend/primitives/selection_flagged/select.hpp"
 
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 

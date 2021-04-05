@@ -21,9 +21,9 @@ dal_collect_modules(
     modules = [
         "blas",
         "reduction",
-        "select",
-        "sort",
         "selection",
+        "selection_flagged",
+        "sort",
         "rng",
     ],
     dal_deps = [
@@ -63,10 +63,10 @@ dal_collect_test_suites(
     modules = [
         "blas",
         "reduction",
-        "select",
+        "selection_flagged",
+        "selection",
         "sort",
         "stat",
-        "selection",
     ],
     tests = [
         ":common_tests",

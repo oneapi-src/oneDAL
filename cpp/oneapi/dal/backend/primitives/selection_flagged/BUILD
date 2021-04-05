@@ -5,7 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "select",
+    name = "selection_flagged",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
@@ -24,7 +24,7 @@ dal_test_suite(
         "test/perf_*.cpp",
     ]),
     dal_deps = [
-        ":select",
+        ":selection_flagged",
     ],
     tags = [
         "exclusive",
@@ -40,6 +40,6 @@ dal_test_suite(
         "test/perf_*.cpp",
     ]),
     dal_deps = [
-        ":select",
+        ":selection_flagged",
     ],
 )

@@ -366,6 +366,11 @@ public:
         return wrap_mutable(std::move(ary), shape_t{ ary_count });
     }
 
+    static ndarray empty(const shape_t& shape) {
+        T* host_ptr = detail::host_allocator<T>().allocate(shape.get_count());
+        return wrap(host_ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     static ndarray empty(const sycl::queue& q,
                          const shape_t& shape,
@@ -463,6 +468,14 @@ public:
         return wrap(host_ptr,
                     this->get_shape(),
                     detail::make_default_delete<T>(detail::default_host_policy{}));
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
+        ndarray dev = empty(q, this->get_shape());
+        dev.assign(q, this->get_mutable_data(), this->get_count(), deps).wait_and_throw();
+        return dev;
     }
 #endif
 
