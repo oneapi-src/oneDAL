@@ -16,8 +16,21 @@
 
 #pragma once
 
-#include "oneapi/dal/test/engine/linalg/matrix.hpp"
-#include "oneapi/dal/test/engine/linalg/loops.hpp"
-#include "oneapi/dal/test/engine/linalg/umath.hpp"
-#include "oneapi/dal/test/engine/linalg/dot.hpp"
-#include "oneapi/dal/test/engine/linalg/random.hpp"
+#include "oneapi/dal/common.hpp"
+
+namespace oneapi::dal::backend::micromkl {
+
+template <typename Cpu, typename Float>
+void syevd(char jobz,
+           char uplo,
+           std::int64_t n,
+           Float* a,
+           std::int64_t lda,
+           Float* w,
+           Float* work,
+           std::int64_t lwork,
+           std::int64_t* iwork,
+           std::int64_t liwork,
+           std::int64_t& info);
+
+} // namespace oneapi::dal::backend::micromkl

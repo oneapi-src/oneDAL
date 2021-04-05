@@ -366,6 +366,11 @@ public:
         return wrap_mutable(std::move(ary), shape_t{ ary_count });
     }
 
+    static ndarray empty(const shape_t& shape) {
+        T* ptr = detail::malloc<T>(detail::default_host_policy{}, shape.get_count());
+        return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     static ndarray empty(const sycl::queue& q,
                          const shape_t& shape,
