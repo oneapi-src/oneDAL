@@ -46,45 +46,25 @@ inline auto dispath_by_policy(const array<T>& data, Body&& body) {
     if (optional_queue) {
         return body(data_parallel_policy{ optional_queue.value() });
     }
-    else {
-        return body(default_host_policy{});
-    }
-#else
-    return body(default_host_policy{});
 #endif
+    return body(default_host_policy{});
 }
 
 template <typename T, typename U>
-struct reinterpret_array_cast_op {
-    const T* operator()(const U* ptr) const {
-        return reinterpret_cast<const T*>(ptr);
-    }
-
-    T* operator()(U* ptr) const {
-        return reinterpret_cast<T*>(ptr);
-    }
-};
-
-template <typename T, typename U, typename CastOp>
-inline array<T> array_cast_generic(const array<U>& ary, const CastOp& cast_op) {
+inline array<T> reinterpret_array_cast(const array<U>& ary) {
     if (ary.get_size() % sizeof(T) > 0) {
         throw invalid_argument{ error_messages::incompatible_array_reinterpret_cast_types() };
     }
 
     const std::int64_t new_count = ary.get_size() / sizeof(T);
     if (ary.has_mutable_data()) {
-        T* mutable_ptr = cast_op(ary.get_mutable_data());
+        T* mutable_ptr = reinterpret_cast<T*>(ary.get_mutable_data());
         return array<T>{ ary, mutable_ptr, new_count };
     }
     else {
-        const T* immutable_ptr = cast_op(ary.get_data());
+        const T* immutable_ptr = reinterpret_cast<const T*>(ary.get_data());
         return array<T>{ ary, immutable_ptr, new_count };
     }
-}
-
-template <typename T, typename U>
-inline array<T> reinterpret_array_cast(const array<U>& ary) {
-    return array_cast_generic<T>(ary, reinterpret_array_cast_op<T, U>{});
 }
 
 template <typename T>
