@@ -69,9 +69,12 @@ public:
     void check_results(const ndview<float_t, 2>& data,
                        const ndview<float_t, 2>& selection,
                        const ndview<int, 2>& indices) {
-        ONEDAL_ASSERT(data.get_dimension(0) == selection.get_dimension(0));
-        ONEDAL_ASSERT(data.get_dimension(0) == indices.get_dimension(0));
-
+        if (selection_out) {
+            ONEDAL_ASSERT(data.get_dimension(0) == selection.get_dimension(0));
+        }
+        if (indices_out) {
+            ONEDAL_ASSERT(data.get_dimension(0) == indices.get_dimension(0));
+        }
         auto k = selection.get_dimension(1);
         auto row_size = data.get_dimension(1);
         auto row_count = data.get_dimension(0);
