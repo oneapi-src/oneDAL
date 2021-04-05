@@ -47,6 +47,7 @@ MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
 MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
+MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
 
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
