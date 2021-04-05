@@ -273,6 +273,22 @@ TEST_M(jaccard_test, "Isolated vertex") {
         0);
 }
 
+TEST_M(jaccard_test, "Single element sets") {
+    std::array<std::int32_t, 1> neigh_u = { 0 };
+    std::array<std::int32_t, 1> neigh_v = { 10 };
+    REQUIRE(
+        oneapi::dal::preview::jaccard::detail::intersection(neigh_u.data(), neigh_v.data(), 1, 1) ==
+        0);
+}
+
+TEST_M(jaccard_test, "Equal single element sets") {
+    std::array<std::int32_t, 1> neigh_u = { 10 };
+    std::array<std::int32_t, 1> neigh_v = { 10 };
+    REQUIRE(
+        oneapi::dal::preview::jaccard::detail::intersection(neigh_u.data(), neigh_v.data(), 1, 1) ==
+        1);
+}
+
 TEST_M(jaccard_test, "Jaccard kernel") {
     const auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 3 }, { 0, 4 });
     const auto my_graph = this->create_graph();
