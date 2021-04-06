@@ -35,7 +35,7 @@ kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
     const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
     ONEDAL_ASSERT(!sg_sizes.empty());
     auto max_sg_size_iter = std::max_element(sg_sizes.begin(), sg_sizes.end());
-    ONEDAL_ASSERT(max_sg_size != sg_sizes.end());
+    ONEDAL_ASSERT(max_sg_size_iter != sg_sizes.end());
     const std::uint32_t simd_width = static_cast<std::uint32_t>(*max_sg_size_iter);
 
     if (k <= simd_width) {
