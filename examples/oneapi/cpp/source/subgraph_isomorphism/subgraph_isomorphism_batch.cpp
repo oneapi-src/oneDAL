@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <set>
+#include <map>
 
 #include "example_util/output_helpers_graph.hpp"
 #include "example_util/utils.hpp"
@@ -43,7 +44,7 @@ inline dal::preview::edge_list<std::int32_t> load_vertex_labels_and_edge_list(
     file >> tmp; // read comment
     file >> vertices_count; // read number of values
 
-    labels.resize(vertices_count);
+    labels.reserve(vertices_count);
     for (int i = 0; i < vertices_count; i++) {
         file >> tmp; // read label
         labels.push_back(tmp);
@@ -63,7 +64,7 @@ inline dal::preview::edge_list<std::int32_t> load_vertex_labels_and_edge_list(
 }
 template <typename Graph>
 void add_lables(Graph &graph,
-                const std::set<std::string> &labels_set,
+                const std::map<std::string, std::int32_t> &labels_map,
                 const std::vector<std::string> &labels) {
     auto &graph_impl = oneapi::dal::detail::get_impl(graph);
     auto &vertex_allocator = graph_impl._vertex_allocator;
@@ -74,8 +75,7 @@ void add_lables(Graph &graph,
         oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
     vv_p = dal::array<std::int32_t>::wrap(labels_array, vertex_count);
     for (int i = 0; i < vertex_count; i++) {
-        auto it = labels_set.find(labels[i]);
-        labels_array[i] = std::distance(labels_set.begin(), it);
+        labels_array[i] = labels_map.at(labels[i]);
     }
 }
 template <typename Graph>
@@ -100,8 +100,39 @@ void load_graph_gff(const std::string filename_target,
         auto el_t = load_vertex_labels_and_edge_list(filename_target, mapping, labels_t);
         dal::preview::load_graph::detail::convert_to_csr_impl(el_t, target);
     }
-    add_lables(target, mapping, labels_t);
-    add_lables(pattern, mapping, labels_p);
+    {
+        {
+            std::cout << "mapping [" << mapping.size() << "]: ";
+            for (auto label : mapping) {
+                std::cout << label << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        {
+            std::cout << "labels_t [" << labels_t.size() << "]: ";
+            for (auto label : labels_t) {
+                std::cout << label << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        {
+            std::cout << "labels_p [" << labels_p.size() << "]: ";
+            for (auto label : labels_p) {
+                std::cout << label << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+    std::map<std::string, std::int32_t> proper_map;
+    std::int32_t index = 0;
+    for (auto label : mapping) {
+        proper_map.insert(std::make_pair(label, index));
+        index++;
+    }
+    add_lables(target, proper_map, labels_t);
+    add_lables(pattern, proper_map, labels_p);
 }
 
 int main(int argc, char **argv) {

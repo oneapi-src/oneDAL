@@ -39,10 +39,4 @@ ONEDAL_EXPORT output_type<Descriptor> load(const Descriptor &desc, const DataSou
     return detail::load_impl(desc, data_source);
 }
 
-template <typename Descriptor = descriptor<>, typename DataSource = graph_csv_data_source>
-ONEDAL_EXPORT output_type<Descriptor> load_gff(const Descriptor &desc,
-                                               const DataSource &data_source) {
-    return detail::load_impl_gff(desc, data_source);
-}
-
 } // namespace oneapi::dal::preview::load_graph
