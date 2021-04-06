@@ -115,9 +115,9 @@ int main(int argc, char **argv) {
     // auto target_filename = get_data_path("si_target_graph.csv");
     // auto pattern_filename = get_data_path("si_pattern_graph.csv");
     auto target_filename = get_data_path(
-        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff");
     auto pattern_filename = get_data_path(
-        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
 
     if (argc == 3) {
         target_filename = get_data_path(argv[1]);
