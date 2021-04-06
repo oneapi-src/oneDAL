@@ -8,6 +8,9 @@ dal_module(
     name = "example_util",
     hdrs = glob(["source/example_util/*.hpp"]),
     includes = [ "source" ],
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:jaccard",
+    ],
 )
 
 _TEST_DEPS = [
