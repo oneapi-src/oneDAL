@@ -29,8 +29,8 @@ class vertex_similarity_result_impl;
 template <typename Graph, typename Task>
 class vertex_similarity_input_impl : public base {
 public:
-    vertex_similarity_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
-            : graph_data(graph_data_input),
+    vertex_similarity_input_impl(const Graph& g, caching_builder& builder_input)
+            : graph_data(g),
               builder(builder_input) {}
 
     const Graph& graph_data;

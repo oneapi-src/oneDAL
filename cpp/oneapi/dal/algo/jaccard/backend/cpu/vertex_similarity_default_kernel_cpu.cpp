@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_scalar.hpp"
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -28,23 +27,10 @@ namespace oneapi::dal::preview {
 namespace jaccard {
 namespace backend {
 
-template vertex_similarity_result call_jaccard_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
-    const descriptor_base &desc,
-    const dal::preview::detail::topology<std::int32_t> &data,
+template vertex_similarity_result<task::all_vertex_pairs> jaccard<__CPU_TAG__>(
+    const detail::descriptor_base<task::all_vertex_pairs> &desc,
+    const dal::preview::detail::topology<std::int32_t> &t,
     void *result_ptr);
-
-template vertex_similarity_result call_jaccard_default_kernel_scalar<__CPU_TAG__, std::int64_t>(
-    const descriptor_base &desc,
-    const dal::preview::detail::topology<std::int64_t> &data,
-    void *result_ptr);
-
-template <>
-vertex_similarity_result call_jaccard_default_kernel_int32<__CPU_TAG__>(
-    const descriptor_base &desc,
-    const dal::preview::detail::topology<std::int32_t> &data,
-    void *result_ptr) {
-    return call_jaccard_default_kernel_scalar<__CPU_TAG__>(desc, data, result_ptr);
-}
 
 } // namespace backend
 } // namespace jaccard

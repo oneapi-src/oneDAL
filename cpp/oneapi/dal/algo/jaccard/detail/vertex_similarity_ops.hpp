@@ -33,11 +33,10 @@ struct ONEDAL_EXPORT vertex_similarity_ops_dispatcher {
         const Policy &policy,
         const Descriptor &descriptor,
         vertex_similarity_input<Graph, task_t> &input) const {
-        const auto &csr_topology =
-            dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
+        const auto &t = dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
 
-        static auto impl = get_backend<Policy, Descriptor>(descriptor, csr_topology);
-        return (*impl)(policy, descriptor, csr_topology, input.get_caching_builder());
+        static auto impl = get_backend<Policy, Descriptor>(descriptor, t);
+        return (*impl)(policy, descriptor, t, input.get_caching_builder());
     }
 };
 
@@ -47,11 +46,11 @@ struct vertex_similarity_ops {
     using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
     using graph_t = Graph;
-    using input_t = vertex_ranking_input<graph_t, task_t>;
-    using result_t = vertex_ranking_result<task_t>;
+    using input_t = vertex_similarity_input<graph_t, task_t>;
+    using result_t = vertex_similarity_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor &param, vertex_similarity_input<Graph> &input) const {
+    void check_preconditions(const Descriptor &param, input_t &input) const {
         using msg = dal::detail::error_messages;
 
         const std::int64_t row_begin = param.get_row_range_begin();
@@ -80,9 +79,7 @@ struct vertex_similarity_ops {
     }
 
     template <typename Policy>
-    auto operator()(const Policy &policy,
-                    const Descriptor &desc,
-                    vertex_similarity_input<Graph> &input) const {
+    auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
         check_preconditions(desc, input);
         return vertex_similarity_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }

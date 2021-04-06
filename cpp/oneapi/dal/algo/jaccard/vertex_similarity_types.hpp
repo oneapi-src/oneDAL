@@ -36,14 +36,13 @@ class ONEDAL_EXPORT vertex_similarity_input : public base {
 
 public:
     using task_t = Task;
-
     static_assert(detail::is_valid_graph<Graph>,
                   "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the graph and the caching builder.
     ///
     /// @param [in]   graph  The input graph
     /// @param [in/out]  builder  The caching builder
-    vertex_similarity_input(const Graph& graph, caching_builder& builder);
+    vertex_similarity_input(const Graph& g, caching_builder& builder);
 
     /// Returns the constant reference to the input graph
     const Graph& get_graph() const;
@@ -81,11 +80,11 @@ public:
 
     /// Returns the table of size [nonzero_coeff_count x 1] with non-zero Jaccard
     /// similarity coefficients
-    table get_coeffs() const;
+    const table& get_coeffs() const;
 
     /// Returns the table of size [nonzero_coeff_count x 2] with vertex pairs which have
     /// non-zero Jaccard similarity coefficients
-    table get_vertex_pairs() const;
+    const table& get_vertex_pairs() const;
 
     /// The number of non-zero Jaccard similarity coefficients in the block
     std::int64_t get_nonzero_coeff_count() const;

@@ -509,7 +509,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx2>(
         __m128i match = _mm_cmpeq_epi32(v_u, v_v);
         unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
 
-        if (scalar_match != 155) { // shortcut case where all neighbors match
+        if (scalar_match != 15) { // shortcut case where all neighbors match
             __m128i v_v1 = _mm_shuffle_epi32(v_v, _MM_SHUFFLE(0, 3, 2, 1));
             __m128i v_v2 = _mm_shuffle_epi32(v_v, _MM_SHUFFLE(1, 0, 3, 2));
             __m128i v_v3 = _mm_shuffle_epi32(v_v, _MM_SHUFFLE(2, 1, 0, 3));

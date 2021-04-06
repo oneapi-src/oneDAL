@@ -30,15 +30,15 @@ namespace jaccard {
 namespace backend {
 
 template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<
-    dal::backend::cpu_dispatch_avx512>(const descriptor_base &desc,
-                                       const dal::preview::detail::topology<std::int32_t> &t,
-                                       void *result_ptr);
+    dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::all_vertex_pairs>& desc,
+                                       const dal::preview::detail::topology<std::int32_t>& t,
+                                       void* result_ptr);
 
 template <>
 vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
-    const detail::descriptor_base<task::all_vertex_pairs> &desc,
-    const dal::preview::detail::topology<int32_t> &t,
-    void *result_ptr) {
+    const detail::descriptor_base<task::all_vertex_pairs>& desc,
+    const dal::preview::detail::topology<int32_t>& t,
+    void* result_ptr) {
     return jaccard_avx512<dal::backend::cpu_dispatch_avx512>(desc, t, result_ptr);
 }
 } // namespace backend

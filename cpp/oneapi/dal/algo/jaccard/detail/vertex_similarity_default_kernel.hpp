@@ -29,7 +29,7 @@ ONEDAL_EXPORT vertex_similarity_result<task::all_vertex_pairs> jaccard(
     const dal::preview::detail::topology<std::int32_t>& t,
     void* result_ptr);
 
-ONEDAL_EXPORT vertex_similarity_result<task::all_vertex_pairs> jaccard_default_kernel(
+inline vertex_similarity_result<task::all_vertex_pairs> jaccard_default_kernel(
     const dal::detail::host_policy& ctx,
     const detail::descriptor_base<task::all_vertex_pairs>& desc,
     const dal::preview::detail::topology<std::int32_t>& t,
@@ -41,7 +41,8 @@ ONEDAL_EXPORT vertex_similarity_result<task::all_vertex_pairs> jaccard_default_k
     const std::int64_t number_elements_in_block =
         compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
     const std::int64_t max_block_size =
-        compute_max_block_size<Float, vertex_type<Graph>>(number_elements_in_block);
+        compute_max_block_size<typename detail::descriptor_base<task::all_vertex_pairs>::float_t,
+                               std::int32_t>(number_elements_in_block);
     void* result_ptr = result_builder(max_block_size);
     return jaccard(ctx, desc, t, result_ptr);
 }

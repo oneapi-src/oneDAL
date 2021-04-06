@@ -27,15 +27,16 @@ struct all_vertex_pairs {};
 using by_default = all_vertex_pairs;
 } // namespace task
 
-namespace detail {
-struct tag {};
-class descriptor_impl;
-} // namespace detail
-
 namespace method {
 struct fast {};
 using by_default = fast;
 } // namespace method
+
+namespace detail {
+struct descriptor_tag {};
+
+template <typename Task>
+class descriptor_impl;
 
 template <typename Method>
 constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::fast>;
@@ -49,7 +50,7 @@ class descriptor_base : public base {
     static_assert(is_valid_task<Task>);
 
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
@@ -67,8 +68,10 @@ protected:
     void set_block_impl(const std::initializer_list<std::int64_t>& row_range,
                         const std::initializer_list<std::int64_t>& column_range);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
+
+} // namespace detail
 
 /// Class for the Jaccard similarity algorithm descriptor
 ///
@@ -77,10 +80,11 @@ protected:
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default>
-class descriptor : public descriptor_base {
+class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_method<Method>);
     static_assert(detail::is_valid_task<Task>);
-    using base_t = descriptor_base;
+
+    using base_t = detail::descriptor_base<Task>;
 
 public:
     using float_t = Float;

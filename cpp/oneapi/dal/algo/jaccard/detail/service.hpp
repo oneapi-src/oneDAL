@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
-#include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 
 namespace oneapi::dal::preview::jaccard::detail {
 

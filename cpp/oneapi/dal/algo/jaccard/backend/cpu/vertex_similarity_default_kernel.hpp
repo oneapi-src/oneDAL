@@ -26,20 +26,15 @@
 #include "oneapi/dal/backend/primitives/intersection/intersection.hpp"
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/table/homogen.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace backend {
+namespace oneapi::dal::preview::jaccard::backend {
 
 template <typename Cpu>
 vertex_similarity_result<task::all_vertex_pairs> jaccard(
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
     const dal::preview::detail::topology<int32_t> &t,
     void *result_ptr) {
-    const auto g_edge_offsets = data._rows_vertex.get_data();
-    const auto g_vertex_neighbors = data._cols.get_data();
-    const auto g_degrees = data._degrees.get_data();
-
     const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
     const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
     const auto column_begin =
@@ -52,18 +47,19 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard(
     float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
     std::int64_t nnz = 0;
     for (std::int32_t i = row_begin; i < row_end; ++i) {
-        const auto i_neighbor_size = g_degrees[i];
-        const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
-        const auto diagonal = min(i, column_end);
+        const std::int32_t i_neighbor_size = t.get_vertex_degree(i);
+        const auto i_neigbhors = t.get_vertex_neighbors_begin(i);
+        const auto diagonal = detail::min(i, column_end);
         for (std::int32_t j = column_begin; j < diagonal; j++) {
-            const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
+            const std::int32_t j_neighbor_size = t.get_vertex_degree(j);
+            const auto j_neigbhors = t.get_vertex_neighbors_begin(j);
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
                 !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_value = backend::intersection<Cpu>(i_neigbhors,
-                                                                     j_neigbhors,
-                                                                     i_neighbor_size,
-                                                                     j_neighbor_size);
+                auto intersection_value =
+                    preview::backend::intersection<Cpu>(t.get_vertex_neighbors_begin(i),
+                                                        t.get_vertex_neighbors_begin(j),
+                                                        i_neighbor_size,
+                                                        j_neighbor_size);
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
@@ -83,15 +79,16 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard(
             ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
         }
 
-        for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
-            const auto j_neighbor_size = g_degrees[j];
-            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
+        for (std::int32_t j = detail::max(column_begin, diagonal + 1); j < column_end; j++) {
+            const std::int32_t j_neighbor_size = t.get_vertex_degree(j);
+            const auto j_neigbhors = t.get_vertex_neighbors_begin(j);
             if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
                 !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
-                auto intersection_value = backend::intersection<Cpu>(i_neigbhors,
-                                                                     j_neigbhors,
-                                                                     i_neighbor_size,
-                                                                     j_neighbor_size);
+                auto intersection_value =
+                    preview::backend::intersection<Cpu>(t.get_vertex_neighbors_begin(i),
+                                                        t.get_vertex_neighbors_begin(j),
+                                                        i_neighbor_size,
+                                                        j_neighbor_size);
                 if (intersection_value) {
                     jaccard[nnz] = float(intersection_value) /
                                    float(i_neighbor_size + j_neighbor_size - intersection_value);
@@ -116,6 +113,4 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispa
     const dal::preview::detail::topology<int32_t> &t,
     void *result_ptr);
 
-} // namespace backend
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard::backend

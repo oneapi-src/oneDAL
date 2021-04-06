@@ -22,7 +22,7 @@
 namespace oneapi::dal::preview::jaccard::detail {
 
 vertex_similarity_result<task::all_vertex_pairs> jaccard(
-    const dal::detail::host_policy& ctx,
+    const dal::detail::host_policy& policy,
     const detail::descriptor_base<task::all_vertex_pairs>& desc,
     const dal::preview::detail::topology<std::int32_t>& t,
     void* result_ptr) {

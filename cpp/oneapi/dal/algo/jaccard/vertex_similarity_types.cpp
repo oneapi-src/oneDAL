@@ -43,12 +43,12 @@ vertex_similarity_result<Task>::vertex_similarity_result(const table& vertex_pai
 }
 
 template <typename Task>
-table vertex_similarity_result<Task>::get_coeffs() const {
+const table& vertex_similarity_result<Task>::get_coeffs() const {
     return impl_->coeffs;
 }
 
 template <typename Task>
-table vertex_similarity_result<Task>::get_vertex_pairs() const {
+const table& vertex_similarity_result<Task>::get_vertex_pairs() const {
     return impl_->vertex_pairs;
 }
 
