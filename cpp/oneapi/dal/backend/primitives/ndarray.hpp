@@ -459,6 +459,13 @@ public:
         ONEDAL_ASSERT(source_count <= this->get_count());
         return copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
+
+    sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
+        ONEDAL_ASSERT(src.get_count() > 0);
+        ONEDAL_ASSERT(src.get_count() <= this->get_count());
+        return this->assign(q, src.get_data(), src.get_count(), deps);
+    }
+
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -468,6 +475,14 @@ public:
         return wrap(host_ptr,
                     this->get_shape(),
                     detail::make_default_delete<T>(detail::default_host_policy{}));
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
+        ndarray dev = empty(q, this->get_shape());
+        dev.assign(q, this->get_mutable_data(), this->get_count(), deps).wait_and_throw();
+        return dev;
     }
 #endif
 
