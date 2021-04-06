@@ -100,9 +100,9 @@ inline daal::data_management::NumericTablePtr wrap_by_host_soa_adapter(const hom
     const auto& dtype = table.get_metadata().get_data_type(0);
 
     switch (dtype) {
-        case data_type::float32: return host_soa_table_adapter<float>::create(table);
-        case data_type::float64: return host_soa_table_adapter<double>::create(table);
-        case data_type::int32: return host_soa_table_adapter<std::int32_t>::create(table);
+        case data_type::float32: return host_soa_table_adapter::create<float>(table);
+        case data_type::float64: return host_soa_table_adapter::create<double>(table);
+        case data_type::int32: return host_soa_table_adapter::create<std::int32_t>(table);
         default: return daal::data_management::NumericTablePtr();
     }
 }

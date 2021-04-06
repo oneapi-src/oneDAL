@@ -15,50 +15,16 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/backend/interop/host_soa_table_adapter.hpp"
+#include "oneapi/dal/table/backend/interop/common.hpp"
 
 namespace oneapi::dal::backend::interop {
 
 namespace daal_dm = daal::data_management;
 
-template <typename Body>
-static daal::services::Status convert_exception_to_status(Body&& body) {
-    try {
-        return body();
-    }
-    catch (const bad_alloc&) {
-        return daal::services::ErrorMemoryAllocationFailed;
-    }
-    catch (const out_of_range&) {
-        return daal::services::ErrorIncorrectDataRange;
-    }
-    catch (...) {
-        return daal::services::UnknownError;
-    }
-}
-
-static daal_dm::features::FeatureType get_daal_feature_type(feature_type t) {
-    switch (t) {
-        case feature_type::nominal: return daal_dm::features::DAAL_CATEGORICAL;
-        case feature_type::ordinal: return daal_dm::features::DAAL_ORDINAL;
-        case feature_type::interval: return daal_dm::features::DAAL_CONTINUOUS;
-        case feature_type::ratio: return daal_dm::features::DAAL_CONTINUOUS;
-        default: throw dal::internal_error(detail::error_messages::unsupported_feature_type());
-    }
-}
-
-static void convert_feature_information_to_daal(const table_metadata& src,
-                                                daal_dm::NumericTableDictionary& dst) {
-    ONEDAL_ASSERT(std::size_t(src.get_feature_count()) == dst.getNumberOfFeatures());
-    for (std::int64_t i = 0; i < src.get_feature_count(); i++) {
-        auto& daal_feature = dst[i];
-        daal_feature.featureType = get_daal_feature_type(src.get_feature_type(i));
-    }
-}
-
 template <typename Data>
-auto host_soa_table_adapter<Data>::create(const homogen_table& table) -> ptr_t {
+auto host_soa_table_adapter::create(const homogen_table& table) -> ptr_t {
     status_t internal_stat;
-    auto result = ptr_t{ new host_soa_table_adapter(table, internal_stat) };
+    auto result = ptr_t{ new host_soa_table_adapter(table, internal_stat, Data{}) };
     status_to_exception(internal_stat);
     return result;
 }
@@ -66,7 +32,7 @@ auto host_soa_table_adapter<Data>::create(const homogen_table& table) -> ptr_t {
 // TODO: change 'equal' flags across this constructor after implemeting the method
 // of features equality defining for table_metadata class.
 template <typename Data>
-host_soa_table_adapter<Data>::host_soa_table_adapter(const homogen_table& table, status_t& stat)
+host_soa_table_adapter::host_soa_table_adapter(const homogen_table& table, status_t& stat, Data dummy)
         : base(dal::detail::integral_cast<std::size_t>(table.get_column_count()),
                dal::detail::integral_cast<std::size_t>(table.get_row_count()),
                daal_dm::DictionaryIface::equal),
@@ -79,7 +45,7 @@ host_soa_table_adapter<Data>::host_soa_table_adapter(const homogen_table& table,
         return;
     }
 
-    if (table.get_data_layout() == data_layout::row_major) {
+    if (table.get_data_layout() != data_layout::column_major) {
         stat.add(daal::services::ErrorMethodNotImplemented);
         return;
     }
@@ -107,8 +73,7 @@ host_soa_table_adapter<Data>::host_soa_table_adapter(const homogen_table& table,
                                         *this->getDictionarySharedPtr());
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::getBlockOfRows(std::size_t vector_idx,
+auto host_soa_table_adapter::getBlockOfRows(std::size_t vector_idx,
                                                   std::size_t vector_num,
                                                   rw_mode_t rwflag,
                                                   block_desc_t<double>& block) -> status_t {
@@ -117,8 +82,7 @@ auto host_soa_table_adapter<Data>::getBlockOfRows(std::size_t vector_idx,
     });
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::getBlockOfRows(std::size_t vector_idx,
+auto host_soa_table_adapter::getBlockOfRows(std::size_t vector_idx,
                                                   std::size_t vector_num,
                                                   rw_mode_t rwflag,
                                                   block_desc_t<float>& block) -> status_t {
@@ -127,8 +91,7 @@ auto host_soa_table_adapter<Data>::getBlockOfRows(std::size_t vector_idx,
     });
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::getBlockOfRows(std::size_t vector_idx,
+auto host_soa_table_adapter::getBlockOfRows(std::size_t vector_idx,
                                                   std::size_t vector_num,
                                                   rw_mode_t rwflag,
                                                   block_desc_t<int>& block) -> status_t {
@@ -137,8 +100,7 @@ auto host_soa_table_adapter<Data>::getBlockOfRows(std::size_t vector_idx,
     });
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::getBlockOfColumnValues(std::size_t feature_idx,
+auto host_soa_table_adapter::getBlockOfColumnValues(std::size_t feature_idx,
                                                           std::size_t vector_idx,
                                                           std::size_t value_num,
                                                           rw_mode_t rwflag,
@@ -148,8 +110,7 @@ auto host_soa_table_adapter<Data>::getBlockOfColumnValues(std::size_t feature_id
     });
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::getBlockOfColumnValues(std::size_t feature_idx,
+auto host_soa_table_adapter::getBlockOfColumnValues(std::size_t feature_idx,
                                                           std::size_t vector_idx,
                                                           std::size_t value_num,
                                                           rw_mode_t rwflag,
@@ -159,8 +120,7 @@ auto host_soa_table_adapter<Data>::getBlockOfColumnValues(std::size_t feature_id
     });
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::getBlockOfColumnValues(std::size_t feature_idx,
+auto host_soa_table_adapter::getBlockOfColumnValues(std::size_t feature_idx,
                                                           std::size_t vector_idx,
                                                           std::size_t value_num,
                                                           rw_mode_t rwflag,
@@ -170,96 +130,80 @@ auto host_soa_table_adapter<Data>::getBlockOfColumnValues(std::size_t feature_id
     });
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::releaseBlockOfRows(block_desc_t<double>& block) -> status_t {
+auto host_soa_table_adapter::releaseBlockOfRows(block_desc_t<double>& block) -> status_t {
     block.reset();
     return status_t();
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::releaseBlockOfRows(block_desc_t<float>& block) -> status_t {
+auto host_soa_table_adapter::releaseBlockOfRows(block_desc_t<float>& block) -> status_t {
     block.reset();
     return status_t();
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::releaseBlockOfRows(block_desc_t<int>& block) -> status_t {
+auto host_soa_table_adapter::releaseBlockOfRows(block_desc_t<int>& block) -> status_t {
     block.reset();
     return status_t();
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::releaseBlockOfColumnValues(block_desc_t<double>& block)
+auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<double>& block)
     -> status_t {
     block.reset();
     return status_t();
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::releaseBlockOfColumnValues(block_desc_t<float>& block)
+auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<float>& block)
     -> status_t {
     block.reset();
     return status_t();
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::releaseBlockOfColumnValues(block_desc_t<int>& block)
+auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<int>& block)
     -> status_t {
     block.reset();
     return status_t();
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::assign(float) -> status_t {
+auto host_soa_table_adapter::assign(float) -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::assign(double) -> status_t {
+auto host_soa_table_adapter::assign(double) -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::assign(int) -> status_t {
+auto host_soa_table_adapter::assign(int) -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::allocateDataMemoryImpl(daal::MemType) -> status_t {
+auto host_soa_table_adapter::allocateDataMemoryImpl(daal::MemType) -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::setNumberOfColumnsImpl(std::size_t) -> status_t {
+auto host_soa_table_adapter::setNumberOfColumnsImpl(std::size_t) -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
-template <typename Data>
-int host_soa_table_adapter<Data>::getSerializationTag() const {
+int host_soa_table_adapter::getSerializationTag() const {
     ONEDAL_ASSERT(!"host_soa_table_adapter: getSerializationTag() is not implemented");
     return -1;
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::serializeImpl(daal_dm::InputDataArchive* arch) -> status_t {
+auto host_soa_table_adapter::serializeImpl(daal_dm::InputDataArchive* arch) -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
-template <typename Data>
-auto host_soa_table_adapter<Data>::deserializeImpl(const daal_dm::OutputDataArchive* arch)
+auto host_soa_table_adapter::deserializeImpl(const daal_dm::OutputDataArchive* arch)
     -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
-template <typename Data>
-void host_soa_table_adapter<Data>::freeDataMemoryImpl() {
+void host_soa_table_adapter::freeDataMemoryImpl() {
     base::freeDataMemoryImpl();
     original_table_ = homogen_table{};
 }
 
-template <typename Data>
 template <typename BlockData>
-auto host_soa_table_adapter<Data>::read_rows_impl(std::size_t vector_idx,
+auto host_soa_table_adapter::read_rows_impl(std::size_t vector_idx,
                                                   std::size_t vector_num,
                                                   rw_mode_t rwflag,
                                                   block_desc_t<BlockData>& block) -> status_t {
@@ -271,9 +215,8 @@ auto host_soa_table_adapter<Data>::read_rows_impl(std::size_t vector_idx,
     return base::getBlockOfRows(vector_idx, vector_num, rwflag, block);
 }
 
-template <typename Data>
 template <typename BlockData>
-auto host_soa_table_adapter<Data>::read_column_values_impl(std::size_t feature_idx,
+auto host_soa_table_adapter::read_column_values_impl(std::size_t feature_idx,
                                                            std::size_t vector_idx,
                                                            std::size_t value_num,
                                                            rw_mode_t rwflag,
@@ -287,20 +230,22 @@ auto host_soa_table_adapter<Data>::read_column_values_impl(std::size_t feature_i
     return base::getBlockOfColumnValues(feature_idx, vector_idx, value_num, rwflag, block);
 }
 
-template <typename Data>
-bool host_soa_table_adapter<Data>::check_row_indexes_in_range(const block_info& info) const {
+bool host_soa_table_adapter::check_row_indexes_in_range(const block_info& info) const {
     const std::int64_t row_count = original_table_.get_row_count();
     return info.row_begin_index < row_count && info.row_end_index <= row_count;
 }
 
-template <typename Data>
-bool host_soa_table_adapter<Data>::check_column_index_in_range(const block_info& info) const {
+bool host_soa_table_adapter::check_column_index_in_range(const block_info& info) const {
     const std::int64_t column_count = original_table_.get_column_count();
     return info.single_column_requested && info.column_index < column_count;
 }
 
-template class host_soa_table_adapter<std::int32_t>;
-template class host_soa_table_adapter<float>;
-template class host_soa_table_adapter<double>;
+template host_soa_table_adapter::host_soa_table_adapter<std::int32_t>(const homogen_table&, status_t&, std::int32_t);
+template host_soa_table_adapter::host_soa_table_adapter<float>(const homogen_table&, status_t&, float);
+template host_soa_table_adapter::host_soa_table_adapter<double>(const homogen_table&, status_t&, double);
+
+template auto host_soa_table_adapter::create<std::int32_t>(const homogen_table&) -> ptr_t;
+template auto host_soa_table_adapter::create<float>(const homogen_table&) -> ptr_t;
+template auto host_soa_table_adapter::create<double>(const homogen_table&) -> ptr_t;
 
 } // namespace oneapi::dal::backend::interop

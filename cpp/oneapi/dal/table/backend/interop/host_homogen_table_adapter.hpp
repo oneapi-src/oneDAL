@@ -19,8 +19,6 @@
 #include <daal/include/data_management/data/homogen_numeric_table.h>
 
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/daal_object_owner.hpp"
 #include "oneapi/dal/table/backend/interop/block_info.hpp"

@@ -19,8 +19,6 @@
 #include <daal/include/data_management/data/soa_numeric_table.h>
 
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/daal_object_owner.hpp"
 #include "oneapi/dal/table/backend/interop/block_info.hpp"
@@ -30,22 +28,22 @@ namespace oneapi::dal::backend::interop {
 // This class shall be used only to represent immutable data on DAAL side. Any
 // attempts to change the data inside objects of that class lead to undefined
 // behavior.
-template <typename Data>
 class host_soa_table_adapter : public daal::data_management::SOANumericTable {
     using base = daal::data_management::SOANumericTable;
     using status_t = daal::services::Status;
     using rw_mode_t = daal::data_management::ReadWriteMode;
     using ptr_t = daal::services::SharedPtr<host_soa_table_adapter>;
-    using ptr_data_t = daal::services::SharedPtr<Data>;
 
     template <typename T>
     using block_desc_t = daal::data_management::BlockDescriptor<T>;
 
 public:
+    template <typename Data>
     static ptr_t create(const homogen_table& table);
 
 private:
-    explicit host_soa_table_adapter(const homogen_table& table, status_t& stat);
+    template <typename Data>
+    explicit host_soa_table_adapter(const homogen_table& table, status_t& stat, Data dummy);
 
     status_t getBlockOfRows(std::size_t vector_idx,
                             std::size_t vector_num,

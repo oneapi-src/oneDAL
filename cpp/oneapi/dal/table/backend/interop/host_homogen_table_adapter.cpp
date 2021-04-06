@@ -15,45 +15,11 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
+#include "oneapi/dal/table/backend/interop/common.hpp"
 
 namespace oneapi::dal::backend::interop {
 
 namespace daal_dm = daal::data_management;
-
-template <typename Body>
-static daal::services::Status convert_exception_to_status(Body&& body) {
-    try {
-        return body();
-    }
-    catch (const bad_alloc&) {
-        return daal::services::ErrorMemoryAllocationFailed;
-    }
-    catch (const out_of_range&) {
-        return daal::services::ErrorIncorrectDataRange;
-    }
-    catch (...) {
-        return daal::services::UnknownError;
-    }
-}
-
-static daal_dm::features::FeatureType get_daal_feature_type(feature_type t) {
-    switch (t) {
-        case feature_type::nominal: return daal_dm::features::DAAL_CATEGORICAL;
-        case feature_type::ordinal: return daal_dm::features::DAAL_ORDINAL;
-        case feature_type::interval: return daal_dm::features::DAAL_CONTINUOUS;
-        case feature_type::ratio: return daal_dm::features::DAAL_CONTINUOUS;
-        default: throw dal::internal_error(detail::error_messages::unsupported_feature_type());
-    }
-}
-
-static void convert_feature_information_to_daal(const table_metadata& src,
-                                                daal_dm::NumericTableDictionary& dst) {
-    ONEDAL_ASSERT(std::size_t(src.get_feature_count()) == dst.getNumberOfFeatures());
-    for (std::int64_t i = 0; i < src.get_feature_count(); i++) {
-        auto& daal_feature = dst[i];
-        daal_feature.featureType = get_daal_feature_type(src.get_feature_type(i));
-    }
-}
 
 template <typename Data>
 auto host_homogen_table_adapter<Data>::create(const homogen_table& table) -> ptr_t {
@@ -84,7 +50,7 @@ host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table
         return;
     }
 
-    if (table.get_data_layout() == data_layout::column_major) {
+    if (table.get_data_layout() != data_layout::row_major) {
         stat.add(daal::services::ErrorMethodNotImplemented);
         return;
     }
