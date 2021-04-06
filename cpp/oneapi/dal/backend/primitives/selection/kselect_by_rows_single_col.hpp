@@ -121,7 +121,7 @@ private:
                     std::int32_t index = -1;
                     Float value = fp_max;
                     for (std::uint32_t i = local_id; i < col_count; i += local_range) {
-                        Float cur_val = data_ptr[in_offset + i];
+                        const Float cur_val = data_ptr[in_offset + i];
                         if (cur_val < value) {
                             index = i;
                             value = cur_val;
