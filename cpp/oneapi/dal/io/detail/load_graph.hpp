@@ -29,6 +29,7 @@
 #include "oneapi/dal/io/common.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
+#include <iostream>
 
 namespace oneapi::dal::preview::load_graph::detail {
 
@@ -38,20 +39,23 @@ inline edge_list<Vertex> load_edge_list(const std::string &name);
 template <>
 inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;
-
+    std::cout << "1" << std::endl;
     std::ifstream file(name);
+    std::cout << "2" << std::endl;
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
+    std::cout << "3" << std::endl;
     edge_list<int_t> elist;
     elist.reserve(1024);
+    std::cout << "4" << std::endl;
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
         auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
                                    daal_string_to_int(&destination_vertex[0], 0));
         elist.push_back(edge);
     }
-
+    std::cout << "5" << std::endl;
     file.close();
     return elist;
 }
@@ -283,7 +287,9 @@ output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data
     graph_type graph;
     const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
         data_source.get_filename());
+    std::cout << "Load edge list passed" << std::endl;
     convert_to_csr_impl(el, graph);
+    std::cout << "Convert to CSR passed" << std::endl;
     return graph;
 }
 } // namespace oneapi::dal::preview::load_graph::detail

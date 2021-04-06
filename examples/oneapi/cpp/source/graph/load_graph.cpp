@@ -29,7 +29,9 @@ int main(int argc, char **argv) {
     std::cout << filename << std::endl;
 
     const dal::preview::graph_csv_data_source ds(filename);
+    std::cout << "Datasource created" << std::endl;
     const dal::preview::load_graph::descriptor<> d;
+    std::cout << "Descriptor created" << std::endl;
     const auto my_graph = dal::preview::load_graph::load(d, ds);
 
     std::cout << "Graph is read from file: " << filename << std::endl;
