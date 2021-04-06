@@ -66,7 +66,7 @@ graph_matching_result call_subgraph_isomorphism_default_kernel(
     }
 
     std::uint64_t control_flags = flow_switch_ids::multi_thread_mode;
-    solution results = si(pattern, target, control_flags);
+    solution results = si(pattern, target, desc.get_kind(), control_flags);
 
     if (t_vertex_attribute)
         dal::preview::detail::deallocate(int64_allocator, t_vertex_attribute, t_vertex_count);
