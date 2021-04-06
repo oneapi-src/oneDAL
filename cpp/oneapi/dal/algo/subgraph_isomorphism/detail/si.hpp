@@ -61,7 +61,8 @@ solution si(const graph& pattern,
                           direction.get(),
                           cconditions.get(),
                           pattern_vertex_probability.get(),
-                          control_flags);
+                          control_flags,
+                          isomorphism_kind);
     sol = harness.run();
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
