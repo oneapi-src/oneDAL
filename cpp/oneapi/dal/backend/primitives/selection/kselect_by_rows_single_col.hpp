@@ -82,7 +82,7 @@ private:
         const std::int64_t stride = data.get_shape()[1];
 
         const std::int64_t row_adjusted_sg_num =
-            col_count / sg_max_size + (std::int64_t)((bool)(col_count % sg_max_size));
+            col_count / sg_max_size + std::int64_t(col_count % sg_max_size > 0);
         const std::int64_t expected_sg_num =
             std::min(kselect_by_rows_single_col::preffered_wg_size / sg_max_size,
                      row_adjusted_sg_num);
