@@ -100,31 +100,7 @@ void load_graph_gff(const std::string filename_target,
         auto el_t = load_vertex_labels_and_edge_list(filename_target, mapping, labels_t);
         dal::preview::load_graph::detail::convert_to_csr_impl(el_t, target);
     }
-    {
-        {
-            std::cout << "mapping [" << mapping.size() << "]: ";
-            for (auto label : mapping) {
-                std::cout << label << " ";
-            }
-            std::cout << std::endl;
-        }
 
-        {
-            std::cout << "labels_t [" << labels_t.size() << "]: ";
-            for (auto label : labels_t) {
-                std::cout << label << " ";
-            }
-            std::cout << std::endl;
-        }
-
-        {
-            std::cout << "labels_p [" << labels_p.size() << "]: ";
-            for (auto label : labels_p) {
-                std::cout << label << " ";
-            }
-            std::cout << std::endl;
-        }
-    }
     std::map<std::string, std::int32_t> proper_map;
     std::int32_t index = 0;
     for (auto label : mapping) {

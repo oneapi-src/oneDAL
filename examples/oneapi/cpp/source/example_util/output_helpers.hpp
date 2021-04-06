@@ -87,9 +87,10 @@ void print_table_int_sorted(const oneapi::dal::table &table) {
 
     std::sort(v.begin(), v.end());
     for (auto vi : v) {
-        for (auto u : vi) {
-            std::cout << u << ",";
+        for (int j = 0; j < vi.size() - 1; j++) {
+            std::cout << vi[j] << ",";
         }
+        std::cout << vi.back();
         std::cout << std::endl;
     }
 }
