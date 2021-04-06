@@ -70,7 +70,8 @@ matching_engine::matching_engine(const matching_engine& _matching_engine, stack&
                           _matching_engine.sorted_pattern_vertex,
                           _matching_engine.predecessor,
                           _matching_engine.direction,
-                          _matching_engine.pconsistent_conditions) {
+                          _matching_engine.pconsistent_conditions,
+                          _matching_engine.isomorphism_kind_) {
     local_stack = std::move(_local_stack);
 }
 
