@@ -82,7 +82,7 @@ private:
         const std::int64_t stride = data.get_shape()[1];
 
         const std::int64_t row_adjusted_sg_num =
-            col_count / sg_max_size + (std::int64_t)((bool)(col_count % sg_max_size));
+            col_count / sg_max_size + std::int64_t(col_count % sg_max_size > 0);
         const std::int64_t expected_sg_num =
             std::min(kselect_by_rows_single_col::preffered_wg_size / sg_max_size,
                      row_adjusted_sg_num);
@@ -121,7 +121,7 @@ private:
                     std::int32_t index = -1;
                     Float value = fp_max;
                     for (std::uint32_t i = local_id; i < col_count; i += local_range) {
-                        Float cur_val = data_ptr[in_offset + i];
+                        const Float cur_val = data_ptr[in_offset + i];
                         if (cur_val < value) {
                             index = i;
                             value = cur_val;
@@ -130,12 +130,12 @@ private:
 
                     sg.barrier();
 
-                    Float final_value = reduce(sg, value, sycl::ONEAPI::minimum());
-                    bool present = (final_value == value);
-                    std::int32_t pos =
+                    const Float final_value = reduce(sg, value, sycl::ONEAPI::minimum());
+                    const bool present = (final_value == value);
+                    const std::int32_t pos =
                         exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
-                    bool owner = present && pos == 0;
-                    std::int32_t final_index =
+                    const bool owner = present && pos == 0;
+                    const std::int32_t final_index =
                         -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum());
                     if constexpr (indices_out) {
                         if (local_id == 0) {
