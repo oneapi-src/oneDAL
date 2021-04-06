@@ -25,7 +25,7 @@ namespace oneapi::dal::backend::primitives {
 #ifdef ONEDAL_DATA_PARALLEL
 
 // Performs k-selection for small value of k that fits in Global Registry File width
-template <typename Float, uint32_t simd_width>
+template <typename Float, std::uint32_t simd_width>
 class kselect_by_rows_simd : public kselect_by_rows_base<Float> {
 public:
     kselect_by_rows_simd() {}
@@ -83,22 +83,18 @@ private:
         const std::int64_t stride = data.get_shape()[1];
 
         const std::int64_t row_adjusted_sg_num =
-            col_count / sg_max_size + (std::int64_t)((bool)(col_count % sg_max_size));
+            col_count / sg_max_size + std::int64_t(col_count % sg_max_size > 0);
         const std::int64_t expected_sg_num =
             std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
         ONEDAL_ASSERT(expected_sg_num > 0);
-
         const std::int64_t wg_size = expected_sg_num * sg_max_size;
-        sycl::range<2> global(wg_size, row_count);
-        sycl::range<2> local(wg_size, 1);
-        sycl::nd_range<2> nd_range2d(global, local);
 
         const Float* data_ptr = data.get_data();
         [[maybe_unused]] Float* selection_ptr =
             selection_out ? selection.get_mutable_data() : nullptr;
         [[maybe_unused]] std::int32_t* indices_ptr =
             indices_out ? indices.get_mutable_data() : nullptr;
-        auto fp_max = detail::limits<Float>::max();
+        const auto fp_max = detail::limits<Float>::max();
 
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
@@ -106,17 +102,17 @@ private:
                 make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
                     auto sg = item.get_sub_group();
-                    const uint32_t sg_id = sg.get_group_id()[0];
-                    const uint32_t wg_id = item.get_global_id(1);
-                    const uint32_t sg_num = sg.get_group_range()[0];
-                    const uint32_t sg_global_id = wg_id * sg_num + sg_id;
+                    const std::uint32_t sg_id = sg.get_group_id()[0];
+                    const std::uint32_t wg_id = item.get_global_id(1);
+                    const std::uint32_t sg_num = sg.get_group_range()[0];
+                    const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
                     if (sg_global_id >= row_count)
                         return;
-                    const uint32_t in_offset = sg_global_id * stride;
-                    const uint32_t out_offset = sg_global_id * k;
+                    const std::uint32_t in_offset = sg_global_id * stride;
+                    const std::uint32_t out_offset = sg_global_id * k;
 
-                    const uint32_t local_id = sg.get_local_id()[0];
-                    const uint32_t local_range = sg.get_local_range()[0];
+                    const std::uint32_t local_id = sg.get_local_id()[0];
+                    const std::uint32_t local_range = sg.get_local_range()[0];
 
                     Float values[simd_width];
                     std::int32_t private_indices[simd_width];
@@ -126,13 +122,13 @@ private:
                         private_indices[i] = -1;
                     }
                     for (std::uint32_t i = local_id; i < col_count; i += local_range) {
-                        Float cur_val = data_ptr[in_offset + i];
+                        const Float cur_val = data_ptr[in_offset + i];
                         std::int32_t index = i;
                         std::int32_t pos = -1;
 
                         pos = values[k - 1] > cur_val ? k - 1 : pos;
                         for (std::int32_t j = k - 2; j >= 0; j--) {
-                            bool do_shift = values[j] > cur_val;
+                            const bool do_shift = values[j] > cur_val;
                             pos = do_shift ? j : pos;
                             values[j + 1] = do_shift ? values[j] : values[j + 1];
                             private_indices[j + 1] =
@@ -150,14 +146,15 @@ private:
                     Float final_values[simd_width];
                     std::int32_t final_indices[simd_width];
                     for (std::uint32_t i = 0; i < k; i++) {
-                        Float min_val = reduce(sg, values[bias], sycl::ONEAPI::minimum());
-                        bool present = (min_val == values[bias]);
-                        std::int32_t pos =
+                        const Float min_val =
+                            reduce(sg, values[bias], sycl::ONEAPI::minimum<Float>());
+                        const bool present = (min_val == values[bias]);
+                        const std::int32_t pos =
                             exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
-                        bool owner = present && pos == 0;
+                        const bool owner = present && pos == 0;
                         final_indices[i] = -reduce(sg,
                                                    owner ? -private_indices[bias] : 1,
-                                                   sycl::ONEAPI::minimum());
+                                                   sycl::ONEAPI::minimum<std::int32_t>());
                         final_values[i] = min_val;
                         bias += owner ? 1 : 0;
                     }

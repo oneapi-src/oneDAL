@@ -89,16 +89,13 @@ private:
         ONEDAL_ASSERT(expected_sg_num > 0);
 
         const std::int64_t wg_size = expected_sg_num * sg_max_size;
-        sycl::range<2> global(wg_size, row_count);
-        sycl::range<2> local(wg_size, 1);
-        sycl::nd_range<2> nd_range2d(global, local);
 
         const Float* data_ptr = data.get_data();
         [[maybe_unused]] Float* selection_ptr =
             selection_out ? selection.get_mutable_data() : nullptr;
         [[maybe_unused]] std::int32_t* indices_ptr =
             indices_out ? indices.get_mutable_data() : nullptr;
-        auto fp_max = detail::limits<Float>::max();
+        const auto fp_max = detail::limits<Float>::max();
 
         auto event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
@@ -106,17 +103,17 @@ private:
                 make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
                 [=](sycl::nd_item<2> item) {
                     auto sg = item.get_sub_group();
-                    const uint32_t sg_id = sg.get_group_id()[0];
-                    const uint32_t wg_id = item.get_global_id(1);
-                    const uint32_t sg_num = sg.get_group_range()[0];
-                    const uint32_t sg_global_id = wg_id * sg_num + sg_id;
+                    const std::uint32_t sg_id = sg.get_group_id()[0];
+                    const std::uint32_t wg_id = item.get_global_id(1);
+                    const std::uint32_t sg_num = sg.get_group_range()[0];
+                    const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
                     if (sg_global_id >= row_count)
                         return;
-                    const uint32_t in_offset = sg_global_id * stride;
-                    const uint32_t out_offset = sg_global_id;
+                    const std::uint32_t in_offset = sg_global_id * stride;
+                    const std::uint32_t out_offset = sg_global_id;
 
-                    const uint32_t local_id = sg.get_local_id()[0];
-                    const uint32_t local_range = sg.get_local_range()[0];
+                    const std::uint32_t local_id = sg.get_local_id()[0];
+                    const std::uint32_t local_range = sg.get_local_range()[0];
 
                     std::int32_t index = -1;
                     Float value = fp_max;
@@ -130,20 +127,19 @@ private:
 
                     sg.barrier();
 
-                    const Float final_value = reduce(sg, value, sycl::ONEAPI::minimum());
+                    const Float final_value = reduce(sg, value, sycl::ONEAPI::minimum<Float>());
                     const bool present = (final_value == value);
                     const std::int32_t pos =
                         exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
                     const bool owner = present && pos == 0;
                     const std::int32_t final_index =
-                        -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum());
-                    if constexpr (indices_out) {
-                        if (local_id == 0) {
+                        -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum<std::int32_t>());
+
+                    if (local_id == 0) {
+                        if constexpr (indices_out) {
                             indices_ptr[out_offset] = final_index;
                         }
-                    }
-                    if constexpr (selection_out) {
-                        if (local_id == 0) {
+                        if constexpr (selection_out) {
                             selection_ptr[out_offset] = final_value;
                         }
                     }
