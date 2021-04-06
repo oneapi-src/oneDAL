@@ -20,9 +20,10 @@ dal_collect_modules(
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
     modules = [
         "blas",
+        "lapack",
         "reduction",
-        "sort",
         "selection",
+        "sort",
         "rng",
     ],
     dal_deps = [
@@ -61,10 +62,11 @@ dal_collect_test_suites(
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
     modules = [
         "blas",
+        "lapack",
         "reduction",
-        "stat",
-        "sort",
         "selection",
+        "sort",
+        "stat",
     ],
     tests = [
         ":common_tests",

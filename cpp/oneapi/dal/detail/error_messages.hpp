@@ -81,7 +81,9 @@ public:
     MSG(unsupported_usm_alloc);
 
     /* Primitives */
+    MSG(invalid_number_of_elements_to_process);
     MSG(invalid_number_of_elements_to_sort);
+    MSG(failed_to_compute_eigenvectors);
 
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
