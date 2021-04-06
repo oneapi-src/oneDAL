@@ -44,19 +44,21 @@ graph_matching_result call_subgraph_isomorphism_default_kernel(
     const auto t_vertex_count = t_data._vertex_count;
     const auto p_vertex_count = p_data._vertex_count;
 
-    dal::detail::shared<std::int64_t> ptr_vv_t, ptr_vv_p;
+    using int64_allocator_type =
+        typename std::allocator_traits<Allocator>::template rebind_alloc<std::int64_t>;
+    int64_allocator_type int64_allocator(alloc);
 
-    if (ev_t.get_count() != 0) {
-        ptr_vv_t = std::allocate_shared<std::int64_t>(alloc, t_vertex_count);
-        auto t_vertex_attribute = ptr_vv_t.get();
+    int64_t *t_vertex_attribute = nullptr, *p_vertex_attribute = nullptr;
+
+    if (vv_t.get_count() != 0) {
+        t_vertex_attribute = dal::preview::detail::allocate(int64_allocator, t_vertex_count);
         for (std::int32_t i = 0; i < t_vertex_count; i++) {
             t_vertex_attribute[i] = vv_t[i];
         }
         target.load_vertex_attribute(t_vertex_count, t_vertex_attribute);
     }
-    if (ev_p.get_count() != 0) {
-        ptr_vv_p = std::allocate_shared<std::int64_t>(alloc, p_vertex_count);
-        auto p_vertex_attribute = ptr_vv_p.get();
+    if (vv_p.get_count() != 0) {
+        p_vertex_attribute = dal::preview::detail::allocate(int64_allocator, p_vertex_count);
         for (std::int32_t i = 0; i < p_vertex_count; i++) {
             p_vertex_attribute[i] = vv_p[i];
         }
@@ -65,6 +67,11 @@ graph_matching_result call_subgraph_isomorphism_default_kernel(
 
     std::uint64_t control_flags = flow_switch_ids::multi_thread_mode;
     solution results = si(pattern, target, control_flags);
+
+    if (t_vertex_attribute)
+        dal::preview::detail::deallocate(int64_allocator, t_vertex_attribute, t_vertex_count);
+    if (p_vertex_attribute)
+        dal::preview::detail::deallocate(int64_allocator, p_vertex_attribute, p_vertex_count);
 
     return graph_matching_result(results.export_as_table(), results.get_solution_count());
 }

@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <iostream>
+#include <set>
 
 #include "example_util/output_helpers_graph.hpp"
 #include "example_util/utils.hpp"
@@ -23,8 +24,85 @@
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace dal = oneapi::dal;
+inline dal::preview::edge_list<std::int32_t> load_vertex_labels_and_edge_list(
+    const std::string &name,
+    std::set<std::string> &labels_set,
+    std::vector<std::string> &labels) {
+    using int_t = std::int32_t;
+
+    std::ifstream file(name);
+    if (!file.is_open()) {
+        throw dal::invalid_argument(dal::detail::error_messages::file_not_found());
+    }
+    std::string tmp;
+    std::int32_t vertices_count, edges_count;
+
+    file >> tmp; // read comment
+    file >> vertices_count; // read number of values
+
+    labels.resize(vertices_count);
+    for (int i = 0; i < vertices_count; i++) {
+        file >> tmp; // read label
+        labels.push_back(tmp);
+        labels_set.insert(tmp);
+    }
+
+    file >> edges_count; // read number of edges
+    dal::preview::edge_list<int_t> elist;
+    elist.reserve(edges_count);
+    std::int32_t source_vertex, destination_vertex;
+    while (file >> source_vertex >> destination_vertex) {
+        elist.push_back(std::make_pair(source_vertex, destination_vertex));
+    }
+
+    file.close();
+    return elist;
+}
+template <typename Graph>
+void add_lables(Graph &graph,
+                const std::set<std::string> &labels_set,
+                const std::vector<std::string> &labels) {
+    auto &graph_impl = oneapi::dal::detail::get_impl(graph);
+    auto &vertex_allocator = graph_impl._vertex_allocator;
+    auto &vv_p = graph_impl.get_vertex_values();
+
+    auto vertex_count = dal::preview::get_vertex_count(graph);
+    std::int32_t *labels_array =
+        oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
+    vv_p = dal::array<std::int32_t>::wrap(labels_array, vertex_count);
+    for (int i = 0; i < vertex_count; i++) {
+        auto it = labels_set.find(labels[i]);
+        labels_array[i] = std::distance(labels_set.begin(), it);
+    }
+}
+template <typename Graph>
+void load_graph_gff(const std::string filename_target,
+                    const std::string filename_pattern,
+                    Graph &target,
+                    Graph &pattern) {
+    // read the graph
+    std::set<std::string> mapping;
+    std::vector<std::string> labels_p, labels_t;
+    const dal::preview::graph_csv_data_source ds_target(filename_target),
+        ds_pattern(filename_pattern); // n vertices
+    const dal::preview::load_graph::descriptor<
+        dal::preview::edge_list<>,
+        dal::preview::undirected_adjacency_vector_graph<std::int32_t>>
+        d_target, d_pattern;
+
+    {
+        auto el_p = load_vertex_labels_and_edge_list(filename_pattern, mapping, labels_p);
+        dal::preview::load_graph::detail::convert_to_csr_impl(el_p, pattern);
+
+        auto el_t = load_vertex_labels_and_edge_list(filename_target, mapping, labels_t);
+        dal::preview::load_graph::detail::convert_to_csr_impl(el_t, target);
+    }
+    add_lables(target, mapping, labels_t);
+    add_lables(pattern, mapping, labels_p);
+}
 
 int main(int argc, char **argv) {
     // auto target_filename = get_data_path("si_target_graph.csv");
@@ -41,23 +119,9 @@ int main(int argc, char **argv) {
 
     std::cout << "Search " << pattern_filename << " in " << target_filename << std::endl;
 
-    // read the graph
-    const dal::preview::graph_csv_data_source ds_target(target_filename); // n vertices
-    const dal::preview::load_graph::descriptor<
-        dal::preview::edge_list<>,
-        dal::preview::undirected_adjacency_vector_graph<std::int32_t>>
-        d_target;
-    const auto target_graph = dal::preview::load_graph::load_gff(d_target, ds_target);
-
-    const dal::preview::graph_csv_data_source ds_pattern(pattern_filename); // m vertices
-    const dal::preview::load_graph::descriptor<
-        dal::preview::edge_list<>,
-        dal::preview::undirected_adjacency_vector_graph<std::int32_t>>
-        d_pattern;
-    const auto pattern_graph = dal::preview::load_graph::load_gff(d_pattern, ds_pattern);
-
-    auto &vv_t = dal::detail::get_impl(target_graph).get_vertex_values();
-    auto &vv_p = dal::detail::get_impl(pattern_graph).get_vertex_values();
+    typedef dal::preview::undirected_adjacency_vector_graph<std::int32_t> graph_t;
+    graph_t target_graph, pattern_graph;
+    load_graph_gff(target_filename, pattern_filename, target_graph, pattern_graph);
 
     std::allocator<char> alloc;
     // set algorithm parameters
