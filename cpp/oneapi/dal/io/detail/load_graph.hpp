@@ -276,6 +276,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
 
 template <typename Descriptor, typename DataSource>
 output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
+    using graph_type = output_type<Descriptor>;
     graph_type graph;
     edge_list<std::int32_t> elist;
     load_edge_list<typename Descriptor::input_type::data_t::first_type>(data_source.get_filename(),
