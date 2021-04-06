@@ -14,5 +14,11 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
-    tests = [],
+    framework = "catch2",
+    srcs = glob([
+        "test/badargs.cpp",
+    ]),
+    dal_deps = [
+        ":subgraph_isomorphism",
+    ],
 )
