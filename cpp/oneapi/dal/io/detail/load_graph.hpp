@@ -39,23 +39,20 @@ inline edge_list<Vertex> load_edge_list(const std::string &name);
 template <>
 inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     using int_t = std::int32_t;
-    std::cout << "1" << std::endl;
+
     std::ifstream file(name);
-    std::cout << "2" << std::endl;
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
-    std::cout << "3" << std::endl;
     edge_list<int_t> elist;
     elist.reserve(1024);
-    std::cout << "4" << std::endl;
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
         auto edge = std::make_pair(daal_string_to_int(&source_vertex[0], 0),
                                    daal_string_to_int(&destination_vertex[0], 0));
         elist.push_back(edge);
     }
-    std::cout << "5" << std::endl;
+
     file.close();
     return elist;
 }
@@ -164,9 +161,11 @@ void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_type> &edges,
                          Graph &g) {
+    std::cout << "1" << std::endl;
     if (edges.size() == 0) {
         throw invalid_argument(dal::detail::error_messages::empty_edge_list());
     }
+    std::cout << "2" << std::endl;
 
     using vertex_t = typename graph_traits<Graph>::vertex_type;
     using vertex_size_type = typename graph_traits<Graph>::vertex_size_type;
@@ -182,84 +181,87 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
         typename std::allocator_traits<allocator_type>::template rebind_alloc<atomic_edge_t>;
 
     const vertex_size_type vertex_count = get_vertex_count_from_edge_list(edges);
+    std::cout << "3" << std::endl;
     if (vertex_count < 0) {
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
+    std::cout << "4" << std::endl;
 
     auto &graph_impl = oneapi::dal::detail::get_impl(g);
     auto &vertex_allocator = graph_impl._vertex_allocator;
     auto &edge_allocator = graph_impl._edge_allocator;
     atomic_vertex_allocator_type atomic_vertex_allocator(vertex_allocator);
     atomic_edge_allocator_type atomic_edge_allocator(edge_allocator);
-
+    std::cout << "5" << std::endl;
     atomic_vertex_t *degrees_cv =
         oneapi::dal::preview::detail::allocate(atomic_vertex_allocator, vertex_count);
 
     degrees_cv = new (degrees_cv) atomic_vertex_t[vertex_count]();
-
+    std::cout << "6" << std::endl;
     collect_degrees_from_edge_list(edges, degrees_cv);
-
+    std::cout << "7" << std::endl;
     const vertex_size_type rows_vec_count = vertex_count + 1;
     if ((rows_vec_count - vertex_count) != static_cast<vertex_size_type>(1)) {
         throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
     }
-
+    std::cout << "8" << std::endl;
     atomic_edge_t *rows_vec_atomic =
         oneapi::dal::preview::detail::allocate(atomic_edge_allocator, rows_vec_count);
-
+    std::cout << "9" << std::endl;
     rows_vec_atomic = new (rows_vec_atomic) atomic_edge_t[rows_vec_count]();
-
+    std::cout << "10" << std::endl;
     edge_t total_sum_degrees =
         compute_prefix_sum_atomic<edge_t>(degrees_cv, vertex_count, rows_vec_atomic);
-
+    std::cout << "11" << std::endl;
     oneapi::dal::preview::detail::deallocate(atomic_vertex_allocator, degrees_cv, vertex_count);
-
+    std::cout << "12" << std::endl;
     vertex_t *unfiltered_neighs =
         oneapi::dal::preview::detail::allocate(vertex_allocator, total_sum_degrees);
     edge_t *unfiltered_offsets =
         oneapi::dal::preview::detail::allocate(edge_allocator, rows_vec_count);
-
+    std::cout << "13" << std::endl;
     fill_from_atomics(unfiltered_offsets, rows_vec_atomic, rows_vec_count);
-
+    std::cout << "14" << std::endl;
     fill_unfiltered_neighs(edges, rows_vec_atomic, unfiltered_neighs);
-
+    std::cout << "15" << std::endl;
     oneapi::dal::preview::detail::deallocate(atomic_edge_allocator,
                                              rows_vec_atomic,
                                              rows_vec_count);
 
     vertex_t *degrees_data = oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
-
+    std::cout << "16" << std::endl;
     filter_neighbors_and_fill_new_degrees(unfiltered_neighs,
                                           unfiltered_offsets,
                                           degrees_data,
                                           vertex_count);
-
+    std::cout << "17" << std::endl;
     edge_t *edge_offsets_data =
         oneapi::dal::preview::detail::allocate(edge_allocator, (vertex_count + 1));
-
+    std::cout << "18" << std::endl;
     edge_t filtered_total_sum_degrees =
         compute_prefix_sum(degrees_data, vertex_count, edge_offsets_data);
-
+    std::cout << "19" << std::endl;
     vertex_t *vertex_neighbors =
         oneapi::dal::preview::detail::allocate(vertex_allocator, filtered_total_sum_degrees);
-
+    std::cout << "20" << std::endl;
     fill_filtered_neighs(unfiltered_offsets,
                          unfiltered_neighs,
                          degrees_data,
                          edge_offsets_data,
                          vertex_neighbors,
                          vertex_count);
-
+    std::cout << "21" << std::endl;
     oneapi::dal::preview::detail::deallocate(vertex_allocator,
                                              unfiltered_neighs,
                                              total_sum_degrees);
     oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
+    std::cout << "22" << std::endl;
     graph_impl.set_topology(vertex_count,
                             filtered_total_sum_degrees / 2,
                             edge_offsets_data,
                             vertex_neighbors,
                             degrees_data);
-
+    std::cout << "23" << std::endl;
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;
         using vertex_edge_set = typename graph_traits<Graph>::impl_type::vertex_edge_set;
@@ -277,6 +279,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
         graph_impl.get_topology()._rows_vertex =
             vertex_edge_set::wrap(rows_vertex, vertex_count + 1);
     }
+    std::cout << "24" << std::endl;
 
     return;
 }
