@@ -60,7 +60,9 @@ inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
 template <typename Index>
 std::int64_t get_vertex_count_from_edge_list(const edge_list<Index> &edges) {
     Index max_id = edges[0].first;
+    std::cout << "Print edge list" << std::endl;
     for (std::int64_t i = 0; i < edges.size(); i++) {
+        std::cout << edges[i].first << " " << edges[i].second << std::endl;
         Index edge_max = std::max(edges[i].first, edges[i].second);
         max_id = std::max(max_id, edge_max);
     }
