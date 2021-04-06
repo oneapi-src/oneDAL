@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     // set algorithm parameters
     const auto subgraph_isomorphism_desc =
         dal::preview::subgraph_isomorphism::descriptor<>(alloc)
-            .set_kind(dal::preview::subgraph_isomorphism::kind::induced)
+            .set_kind(dal::preview::subgraph_isomorphism::kind::non_induced)
             .set_semantic_match(false)
             .set_max_match_count(100);
 
