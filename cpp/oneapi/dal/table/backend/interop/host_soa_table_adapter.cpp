@@ -32,7 +32,9 @@ auto host_soa_table_adapter::create(const homogen_table& table) -> ptr_t {
 // TODO: change 'equal' flags across this constructor after implemeting the method
 // of features equality defining for table_metadata class.
 template <typename Data>
-host_soa_table_adapter::host_soa_table_adapter(const homogen_table& table, status_t& stat, Data dummy)
+host_soa_table_adapter::host_soa_table_adapter(const homogen_table& table,
+                                               status_t& stat,
+                                               Data dummy)
         : base(dal::detail::integral_cast<std::size_t>(table.get_column_count()),
                dal::detail::integral_cast<std::size_t>(table.get_row_count()),
                daal_dm::DictionaryIface::equal),
@@ -74,57 +76,57 @@ host_soa_table_adapter::host_soa_table_adapter(const homogen_table& table, statu
 }
 
 auto host_soa_table_adapter::getBlockOfRows(std::size_t vector_idx,
-                                                  std::size_t vector_num,
-                                                  rw_mode_t rwflag,
-                                                  block_desc_t<double>& block) -> status_t {
+                                            std::size_t vector_num,
+                                            rw_mode_t rwflag,
+                                            block_desc_t<double>& block) -> status_t {
     return convert_exception_to_status([&]() {
         return read_rows_impl(vector_idx, vector_num, rwflag, block);
     });
 }
 
 auto host_soa_table_adapter::getBlockOfRows(std::size_t vector_idx,
-                                                  std::size_t vector_num,
-                                                  rw_mode_t rwflag,
-                                                  block_desc_t<float>& block) -> status_t {
+                                            std::size_t vector_num,
+                                            rw_mode_t rwflag,
+                                            block_desc_t<float>& block) -> status_t {
     return convert_exception_to_status([&]() {
         return read_rows_impl(vector_idx, vector_num, rwflag, block);
     });
 }
 
 auto host_soa_table_adapter::getBlockOfRows(std::size_t vector_idx,
-                                                  std::size_t vector_num,
-                                                  rw_mode_t rwflag,
-                                                  block_desc_t<int>& block) -> status_t {
+                                            std::size_t vector_num,
+                                            rw_mode_t rwflag,
+                                            block_desc_t<int>& block) -> status_t {
     return convert_exception_to_status([&]() {
         return read_rows_impl(vector_idx, vector_num, rwflag, block);
     });
 }
 
 auto host_soa_table_adapter::getBlockOfColumnValues(std::size_t feature_idx,
-                                                          std::size_t vector_idx,
-                                                          std::size_t value_num,
-                                                          rw_mode_t rwflag,
-                                                          block_desc_t<double>& block) -> status_t {
+                                                    std::size_t vector_idx,
+                                                    std::size_t value_num,
+                                                    rw_mode_t rwflag,
+                                                    block_desc_t<double>& block) -> status_t {
     return convert_exception_to_status([&]() {
         return read_column_values_impl(feature_idx, vector_idx, value_num, rwflag, block);
     });
 }
 
 auto host_soa_table_adapter::getBlockOfColumnValues(std::size_t feature_idx,
-                                                          std::size_t vector_idx,
-                                                          std::size_t value_num,
-                                                          rw_mode_t rwflag,
-                                                          block_desc_t<float>& block) -> status_t {
+                                                    std::size_t vector_idx,
+                                                    std::size_t value_num,
+                                                    rw_mode_t rwflag,
+                                                    block_desc_t<float>& block) -> status_t {
     return convert_exception_to_status([&]() {
         return read_column_values_impl(feature_idx, vector_idx, value_num, rwflag, block);
     });
 }
 
 auto host_soa_table_adapter::getBlockOfColumnValues(std::size_t feature_idx,
-                                                          std::size_t vector_idx,
-                                                          std::size_t value_num,
-                                                          rw_mode_t rwflag,
-                                                          block_desc_t<int>& block) -> status_t {
+                                                    std::size_t vector_idx,
+                                                    std::size_t value_num,
+                                                    rw_mode_t rwflag,
+                                                    block_desc_t<int>& block) -> status_t {
     return convert_exception_to_status([&]() {
         return read_column_values_impl(feature_idx, vector_idx, value_num, rwflag, block);
     });
@@ -145,20 +147,17 @@ auto host_soa_table_adapter::releaseBlockOfRows(block_desc_t<int>& block) -> sta
     return status_t();
 }
 
-auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<double>& block)
-    -> status_t {
+auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<double>& block) -> status_t {
     block.reset();
     return status_t();
 }
 
-auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<float>& block)
-    -> status_t {
+auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<float>& block) -> status_t {
     block.reset();
     return status_t();
 }
 
-auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<int>& block)
-    -> status_t {
+auto host_soa_table_adapter::releaseBlockOfColumnValues(block_desc_t<int>& block) -> status_t {
     block.reset();
     return status_t();
 }
@@ -192,8 +191,7 @@ auto host_soa_table_adapter::serializeImpl(daal_dm::InputDataArchive* arch) -> s
     return daal::services::ErrorMethodNotImplemented;
 }
 
-auto host_soa_table_adapter::deserializeImpl(const daal_dm::OutputDataArchive* arch)
-    -> status_t {
+auto host_soa_table_adapter::deserializeImpl(const daal_dm::OutputDataArchive* arch) -> status_t {
     return daal::services::ErrorMethodNotImplemented;
 }
 
@@ -204,9 +202,9 @@ void host_soa_table_adapter::freeDataMemoryImpl() {
 
 template <typename BlockData>
 auto host_soa_table_adapter::read_rows_impl(std::size_t vector_idx,
-                                                  std::size_t vector_num,
-                                                  rw_mode_t rwflag,
-                                                  block_desc_t<BlockData>& block) -> status_t {
+                                            std::size_t vector_num,
+                                            rw_mode_t rwflag,
+                                            block_desc_t<BlockData>& block) -> status_t {
     if (rwflag != daal_dm::readOnly) {
         ONEDAL_ASSERT(!"Data is accessible in read-only mode by design");
         return daal::services::ErrorMethodNotImplemented;
@@ -217,11 +215,10 @@ auto host_soa_table_adapter::read_rows_impl(std::size_t vector_idx,
 
 template <typename BlockData>
 auto host_soa_table_adapter::read_column_values_impl(std::size_t feature_idx,
-                                                           std::size_t vector_idx,
-                                                           std::size_t value_num,
-                                                           rw_mode_t rwflag,
-                                                           block_desc_t<BlockData>& block)
-    -> status_t {
+                                                     std::size_t vector_idx,
+                                                     std::size_t value_num,
+                                                     rw_mode_t rwflag,
+                                                     block_desc_t<BlockData>& block) -> status_t {
     if (rwflag != daal_dm::readOnly) {
         ONEDAL_ASSERT(!"Data is accessible in read-only mode by design");
         return daal::services::ErrorMethodNotImplemented;
@@ -240,9 +237,15 @@ bool host_soa_table_adapter::check_column_index_in_range(const block_info& info)
     return info.single_column_requested && info.column_index < column_count;
 }
 
-template host_soa_table_adapter::host_soa_table_adapter<std::int32_t>(const homogen_table&, status_t&, std::int32_t);
-template host_soa_table_adapter::host_soa_table_adapter<float>(const homogen_table&, status_t&, float);
-template host_soa_table_adapter::host_soa_table_adapter<double>(const homogen_table&, status_t&, double);
+template host_soa_table_adapter::host_soa_table_adapter<std::int32_t>(const homogen_table&,
+                                                                      status_t&,
+                                                                      std::int32_t);
+template host_soa_table_adapter::host_soa_table_adapter<float>(const homogen_table&,
+                                                               status_t&,
+                                                               float);
+template host_soa_table_adapter::host_soa_table_adapter<double>(const homogen_table&,
+                                                                status_t&,
+                                                                double);
 
 template auto host_soa_table_adapter::create<std::int32_t>(const homogen_table&) -> ptr_t;
 template auto host_soa_table_adapter::create<float>(const homogen_table&) -> ptr_t;

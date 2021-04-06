@@ -17,7 +17,6 @@
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
-
 using namespace oneapi::dal;
 
 TEST("Homogen adapter is used") {
@@ -26,7 +25,8 @@ TEST("Homogen adapter is used") {
     const auto t = homogen_table::wrap(data, 3, 2, data_layout::row_major);
     auto dt = backend::interop::convert_to_daal_table<float>(t);
 
-    REQUIRE(dynamic_cast<backend::interop::host_homogen_table_adapter<float>*>(dt.get()) != nullptr);
+    REQUIRE(dynamic_cast<backend::interop::host_homogen_table_adapter<float>*>(dt.get()) !=
+            nullptr);
 }
 
 TEST("SOA adapter is used") {
