@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #pragma once
-
+#include <iostream>
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::backend {
@@ -86,6 +86,7 @@ ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
 
     const std::int32_t average_degree_sparsity_boundary = 4;
     if (average_degree < average_degree_sparsity_boundary) {
+        std::cout << "1" << std::endl;
         dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
             for (auto v_ = g_vertex_neighbors + g_edge_offsets[u];
                  v_ != g_vertex_neighbors + g_edge_offsets[u + 1];
@@ -105,12 +106,14 @@ ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
                     while (*u_neighbors_ptr < w) {
                         u_neighbors_ptr++;
                     }
+                    std::cout << "2" << std::endl;
                     if (w == *u_neighbors_ptr) {
                         int thread_id = dal::detail::threader_get_current_thread_index();
                         int64_t indx = (int64_t)thread_id * (int64_t)g_vertex_count;
                         triangles_local[indx + u]++;
                         triangles_local[indx + v]++;
                         triangles_local[indx + w]++;
+                        std::cout << "++" << std::endl;
                     }
                 }
             }
@@ -158,19 +161,20 @@ ONEDAL_FORCEINLINE array<std::int64_t> triangle_counting_local_(
     }
 
     auto arr_triangles = array<std::int64_t>::empty(g_vertex_count);
-
+    std::cout << "3" << std::endl;
     int64_t* triangles_ptr = arr_triangles.get_mutable_data();
-
+    std::cout << "4" << std::endl;
     dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
         triangles_ptr[u] = 0;
     });
-
+    std::cout << "5" << std::endl;
     dal::detail::threader_for(g_vertex_count, g_vertex_count, [&](std::int32_t u) {
         for (int j = 0; j < thread_cnt; j++) {
             int64_t idx_glob = (int64_t)j * (int64_t)g_vertex_count;
             triangles_ptr[u] += triangles_local[idx_glob + u];
         }
     });
+    std::cout << "6" << std::endl;
     return arr_triangles;
 }
 
@@ -181,6 +185,7 @@ ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_scalar_(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
+    std::cout << "->triangle_counting_global_scalar_" << std::endl;
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         vertex_count,
         (std::int64_t)0,
@@ -225,6 +230,7 @@ ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
+    std::cout << "->triangle_counting_global_vector_" << std::endl;
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
@@ -273,6 +279,7 @@ ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_(
         [&](std::int64_t x, std::int64_t y) -> std::int64_t {
             return x + y;
         });
+    std::cout << "NNNNNNNNN" << std::endl;
     return total_s;
 }
 
@@ -283,6 +290,7 @@ ONEDAL_FORCEINLINE std::int64_t triangle_counting_global_vector_relabel_(
     const std::int32_t* degrees,
     std::int64_t vertex_count,
     std::int64_t edge_count) {
+    std::cout << "->triangle_counting_global_vector_relabel_" << std::endl;
     std::int64_t total_s = oneapi::dal::detail::parallel_reduce_int32_int64_t_simple(
         vertex_count,
         (std::int64_t)0,
