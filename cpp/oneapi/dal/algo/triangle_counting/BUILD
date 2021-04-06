@@ -14,11 +14,5 @@ dal_module(
 
 dal_test_suite(
     name = "tests",
-    framework = "catch2",
-    srcs = glob([
-        "test/*.cpp",
-    ]),
-    dal_deps = [
-        ":triangle_counting",
-    ],
+    tests = [],
 )
