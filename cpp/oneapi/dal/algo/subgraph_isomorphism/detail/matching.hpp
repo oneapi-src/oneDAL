@@ -6,6 +6,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/stack.hpp"
 #include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -23,7 +24,8 @@ public:
                     const std::int64_t* psorted_pattern_vertex,
                     const std::int64_t* ppredecessor,
                     const edge_direction* pdirection,
-                    sconsistent_conditions const* pcconditions);
+                    sconsistent_conditions const* pcconditions,
+                    kind isomorphism_kind);
     matching_engine(const matching_engine& _matching_engine, stack& _local_stack);
     virtual ~matching_engine();
 
@@ -67,6 +69,8 @@ private:
     dfs_stack hlocal_stack;
     solution engine_solutions;
 
+    kind isomorphism_kind_;
+
     std::int64_t extract_candidates(state* current_state, bool check_solution);
     bool check_vertex_candidate(state* current_state, bool check_solution);
 
@@ -86,7 +90,8 @@ public:
                   const edge_direction* pdirection,
                   sconsistent_conditions const* pcconditions,
                   float* ppattern_vertex_probability,
-                  const std::uint64_t _control_flags);
+                  const std::uint64_t _control_flags,
+                  kind isomorphism_kind);
     virtual ~engine_bundle();
     solution run();
 
@@ -99,6 +104,7 @@ private:
     const sconsistent_conditions* pconsistent_conditions;
     const float* pattern_vertex_probability;
     std::uint64_t control_flags;
+    kind isomorphism_kind_;
 
     solution bundle_solutions;
 
