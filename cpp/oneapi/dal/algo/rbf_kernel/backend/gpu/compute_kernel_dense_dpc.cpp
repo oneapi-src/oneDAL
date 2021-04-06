@@ -45,9 +45,12 @@ sycl::event compute_rbf(sycl::queue& queue,
 
     auto compute_rbf_event = queue.submit([&](sycl::handler& chg) {
         chg.depends_on(deps);
-        const auto range = sycl::range<2>(sqr_x.get_dimension(0), sqr_y.get_dimension(0));
 
-        chg.parallel_for(range, [=](cl::sycl::id<2> id) {
+        const auto g_0 = dal::detail::integral_cast<std::size_t>(sqr_x.get_dimension(0));
+        const auto g_1 = dal::detail::integral_cast<std::size_t>(sqr_y.get_dimension(0));
+        const auto range = sycl::range<2>(g_0, g_1);
+
+        chg.parallel_for(range, [=](sycl::id<2> id) {
             const int i = id[0];
             const int j = id[1];
             const Float sqr_x_i = sqr_x_ptr[i];
@@ -77,7 +80,7 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     ONEDAL_ASSERT(col_count_x == col_count_y);
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
 
-    const Float sigma = desc.get_sigma();
+    const double sigma = desc.get_sigma();
     const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
 
     auto arr_x = row_accessor<const Float>(x).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
