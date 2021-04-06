@@ -21,10 +21,15 @@
 
 namespace oneapi::dal::preview {
 namespace jaccard {
+
+namespace task {
+struct all_vertex_pairs {};
+using by_default = all_vertex_pairs;
+} // namespace task
+
 namespace detail {
 struct tag {};
 class descriptor_impl;
-
 } // namespace detail
 
 namespace method {
@@ -32,12 +37,22 @@ struct fast {};
 using by_default = fast;
 } // namespace method
 
+template <typename Method>
+constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::fast>;
+
+template <typename Task>
+constexpr bool is_valid_task = dal::detail::is_one_of_v<Task, task::all_vertex_pairs>;
+
 /// The base class for the Jaccard similarity algorithm descriptor
-class ONEDAL_EXPORT descriptor_base : public base {
+template <typename Task = task::by_default>
+class descriptor_base : public base {
+    static_assert(is_valid_task<Task>);
+
 public:
     using tag_t = detail::tag;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     descriptor_base();
 
@@ -59,12 +74,18 @@ protected:
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
-template <typename Float = float, typename Method = method::by_default>
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
 class descriptor : public descriptor_base {
+    static_assert(detail::is_valid_method<Method>);
+    static_assert(detail::is_valid_task<Task>);
     using base_t = descriptor_base;
 
 public:
+    using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
 
     /// Creates a new instance of the class with the default property values.
     descriptor() = default;

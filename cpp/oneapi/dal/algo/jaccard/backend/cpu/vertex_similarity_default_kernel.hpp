@@ -20,62 +20,102 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
+#include "oneapi/dal/algo/jaccard/detail/service.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/primitives/intersection/intersection.hpp"
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 
 namespace oneapi::dal::preview {
 namespace jaccard {
-namespace detail {
+namespace backend {
 
 template <typename Cpu>
-vertex_similarity_result call_jaccard_default_kernel_int32(
-    const descriptor_base &desc,
-    const dal::preview::detail::topology<int32_t> &data,
+vertex_similarity_result<task::all_vertex_pairs> jaccard(
+    const detail::descriptor_base<task::all_vertex_pairs> &desc,
+    const dal::preview::detail::topology<int32_t> &t,
+    void *result_ptr) {
+    const auto g_edge_offsets = data._rows_vertex.get_data();
+    const auto g_vertex_neighbors = data._cols.get_data();
+    const auto g_degrees = data._degrees.get_data();
+
+    const auto row_begin = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_begin());
+    const auto row_end = dal::detail::integral_cast<std::int32_t>(desc.get_row_range_end());
+    const auto column_begin =
+        dal::detail::integral_cast<std::int32_t>(desc.get_column_range_begin());
+    const auto column_end = dal::detail::integral_cast<std::int32_t>(desc.get_column_range_end());
+    const auto number_elements_in_block =
+        detail::compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
+    int *first_vertices = reinterpret_cast<int *>(result_ptr);
+    int *second_vertices = first_vertices + number_elements_in_block;
+    float *jaccard = reinterpret_cast<float *>(second_vertices + number_elements_in_block);
+    std::int64_t nnz = 0;
+    for (std::int32_t i = row_begin; i < row_end; ++i) {
+        const auto i_neighbor_size = g_degrees[i];
+        const auto i_neigbhors = g_vertex_neighbors + g_edge_offsets[i];
+        const auto diagonal = min(i, column_end);
+        for (std::int32_t j = column_begin; j < diagonal; j++) {
+            const auto j_neighbor_size = g_degrees[j];
+            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
+            if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
+                !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
+                auto intersection_value = backend::intersection<Cpu>(i_neigbhors,
+                                                                     j_neigbhors,
+                                                                     i_neighbor_size,
+                                                                     j_neighbor_size);
+                if (intersection_value) {
+                    jaccard[nnz] = float(intersection_value) /
+                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
+                    first_vertices[nnz] = i;
+                    second_vertices[nnz] = j;
+                    nnz++;
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
+                }
+            }
+        }
+
+        if (diagonal >= column_begin && diagonal < column_end) {
+            jaccard[nnz] = 1.0;
+            first_vertices[nnz] = i;
+            second_vertices[nnz] = diagonal;
+            nnz++;
+            ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
+        }
+
+        for (std::int32_t j = max(column_begin, diagonal + 1); j < column_end; j++) {
+            const auto j_neighbor_size = g_degrees[j];
+            const auto j_neigbhors = g_vertex_neighbors + g_edge_offsets[j];
+            if (!(i_neigbhors[0] > j_neigbhors[j_neighbor_size - 1]) &&
+                !(j_neigbhors[0] > i_neigbhors[i_neighbor_size - 1])) {
+                auto intersection_value = backend::intersection<Cpu>(i_neigbhors,
+                                                                     j_neigbhors,
+                                                                     i_neighbor_size,
+                                                                     j_neighbor_size);
+                if (intersection_value) {
+                    jaccard[nnz] = float(intersection_value) /
+                                   float(i_neighbor_size + j_neighbor_size - intersection_value);
+                    first_vertices[nnz] = i;
+                    second_vertices[nnz] = j;
+                    nnz++;
+                    ONEDAL_ASSERT(nnz >= 0, "Overflow found in sum of two values");
+                }
+            }
+        }
+    }
+    vertex_similarity_result res(
+        homogen_table::wrap(first_vertices, number_elements_in_block, 2, data_layout::column_major),
+        homogen_table::wrap(jaccard, number_elements_in_block, 1, data_layout::column_major),
+        nnz);
+    return res;
+}
+
+template <>
+vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
+    const detail::descriptor_base<task::all_vertex_pairs> &desc,
+    const dal::preview::detail::topology<int32_t> &t,
     void *result_ptr);
 
-ONEDAL_FORCEINLINE std::int32_t min(const std::int32_t &a, const std::int32_t &b) {
-    return (a >= b) ? b : a;
-}
-
-ONEDAL_FORCEINLINE std::int32_t max(const std::int32_t &a, const std::int32_t &b) {
-    return (a <= b) ? b : a;
-}
-
-ONEDAL_FORCEINLINE std::int64_t compute_number_elements_in_block(
-    const std::int32_t &row_range_begin,
-    const std::int32_t &row_range_end,
-    const std::int32_t &column_range_begin,
-    const std::int32_t &column_range_end) {
-    ONEDAL_ASSERT(row_range_end >= row_range_begin, "Negative interval found");
-    const std::int64_t row_count = row_range_end - row_range_begin;
-    ONEDAL_ASSERT(column_range_end >= column_range_begin, "Negative interval found");
-    const std::int64_t column_count = column_range_end - column_range_begin;
-    // compute the number of the vertex pairs in the block of the graph
-    const std::int64_t vertex_pairs_count = row_count * column_count;
-    ONEDAL_ASSERT(vertex_pairs_count / row_count == column_count,
-                  "Overflow found in multiplication of two values");
-    return vertex_pairs_count;
-}
-
-template <typename Float, typename Index>
-ONEDAL_FORCEINLINE std::int64_t compute_max_block_size(const std::int64_t &vertex_pairs_count) {
-    const std::int64_t vertex_pair_element_count = 2; // 2 elements in the vertex pair
-    const std::int64_t jaccard_coeff_element_count = 1; // 1 Jaccard coeff for the vertex pair
-
-    const std::int64_t vertex_pair_size =
-        vertex_pair_element_count * sizeof(Index); // size in bytes
-    const std::int64_t jaccard_coeff_size =
-        jaccard_coeff_element_count * sizeof(Float); // size in bytes
-    const std::int64_t element_result_size = vertex_pair_size + jaccard_coeff_size;
-
-    const std::int64_t block_result_size = element_result_size * vertex_pairs_count;
-    ONEDAL_ASSERT(block_result_size / vertex_pairs_count == element_result_size,
-                  "Overflow found in multiplication of two values");
-    return block_result_size;
-}
-
-} // namespace detail
+} // namespace backend
 } // namespace jaccard
 } // namespace oneapi::dal::preview

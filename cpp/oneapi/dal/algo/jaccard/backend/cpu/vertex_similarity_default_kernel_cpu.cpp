@@ -26,7 +26,7 @@
 
 namespace oneapi::dal::preview {
 namespace jaccard {
-namespace detail {
+namespace backend {
 
 template vertex_similarity_result call_jaccard_default_kernel_scalar<__CPU_TAG__, std::int32_t>(
     const descriptor_base &desc,
@@ -46,6 +46,6 @@ vertex_similarity_result call_jaccard_default_kernel_int32<__CPU_TAG__>(
     return call_jaccard_default_kernel_scalar<__CPU_TAG__>(desc, data, result_ptr);
 }
 
-} // namespace detail
+} // namespace backend
 } // namespace jaccard
 } // namespace oneapi::dal::preview

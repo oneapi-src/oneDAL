@@ -23,8 +23,8 @@
 namespace oneapi::dal::preview::backend {
 
 template <typename Cpu>
-ONEDAL_FORCEINLINE std::int64_t intersection(const std::int32_t* neigh_u,
-                                             const std::int32_t* neigh_v,
+ONEDAL_FORCEINLINE std::int64_t intersection(const std::int32_t *neigh_u,
+                                             const std::int32_t *neigh_v,
                                              std::int32_t n_u,
                                              std::int32_t n_v) {
     std::int64_t total = 0;
@@ -44,12 +44,12 @@ ONEDAL_FORCEINLINE std::int64_t intersection(const std::int32_t* neigh_u,
 }
 
 #if defined(__INTEL_COMPILER)
-ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
+ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     return _popcnt32(x);
 }
 #define GRAPH_STACK_ALING(x) __declspec(align(x))
 #else
-ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
+ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t &x) {
     std::int32_t count = 0;
     std::int32_t a = x;
     while (a != 0) {
@@ -64,8 +64,8 @@ ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
 
 template <>
 ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
-    const std::int32_t* neigh_u,
-    const std::int32_t* neigh_v,
+    const std::int32_t *neigh_u,
+    const std::int32_t *neigh_v,
     std::int32_t n_u,
     std::int32_t n_v) {
     std::int64_t total = 0;
@@ -93,8 +93,8 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
             i_u += 16;
             continue;
         }
-        __m512i v_u = _mm512_loadu_si512((void*)(neigh_u + i_u)); // load 16 neighbors of u
-        __m512i v_v = _mm512_loadu_si512((void*)(neigh_v + i_v)); // load 16 neighbors of v
+        __m512i v_u = _mm512_loadu_si512((void *)(neigh_u + i_u)); // load 16 neighbors of u
+        __m512i v_v = _mm512_loadu_si512((void *)(neigh_v + i_v)); // load 16 neighbors of v
         if (max_neigh_u >= max_neigh_v)
             i_v += 16;
         if (max_neigh_u <= max_neigh_v)
@@ -162,7 +162,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
     }
 
     while (i_u < (n_u / 16) * 16 && i_v < n_v) {
-        __m512i v_u = _mm512_loadu_si512((void*)(neigh_u + i_u));
+        __m512i v_u = _mm512_loadu_si512((void *)(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 15] && i_v < n_v) {
             __m512i tmp_v_v = _mm512_set1_epi32(neigh_v[i_v]);
             __mmask16 match = _mm512_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -173,7 +173,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
         i_u += 16;
     }
     while (i_v < (n_v / 16) * 16 && i_u < n_u) {
-        __m512i v_v = _mm512_loadu_si512((void*)(neigh_v + i_v));
+        __m512i v_v = _mm512_loadu_si512((void *)(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 15] && i_u < n_u) {
             __m512i tmp_v_u = _mm512_set1_epi32(neigh_u[i_u]);
             __mmask16 match = _mm512_cmpeq_epi32_mask(v_v, tmp_v_u);
@@ -206,9 +206,9 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
             continue;
         }
         __m256i v_u = _mm256_loadu_si256(
-            reinterpret_cast<const __m256i*>(neigh_u + i_u)); // load 8 neighbors of u
+            reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
         __m256i v_v = _mm256_loadu_si256(
-            reinterpret_cast<const __m256i*>(neigh_v + i_v)); // load 8 neighbors of v
+            reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
 
         if (max_neigh_u >= max_neigh_v)
             i_v += 8;
@@ -249,7 +249,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
         total += _popcnt32_redef(_cvtmask8_u32(match)); //count number of matches
     }
     if (i_u <= (n_u - 8) && i_v < n_v) {
-        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(neigh_u + i_u));
+        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 7] && i_v < n_v) {
             __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
             __mmask8 match = _mm256_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -260,7 +260,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
         i_u += 8;
     }
     if (i_v <= (n_v - 8) && i_u < n_u) {
-        __m256i v_v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(neigh_v + i_v));
+        __m256i v_v = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 7] && i_u < n_u) {
             __m256i tmp_v_u = _mm256_set1_epi32(neigh_u[i_u]);
             __mmask8 match = _mm256_cmpeq_epi32_mask(v_v, tmp_v_u);
@@ -293,9 +293,9 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
             continue;
         }
         __m128i v_u = _mm_loadu_si128(
-            reinterpret_cast<const __m128i*>(neigh_u + i_u)); // load 8 neighbors of u
+            reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
         __m128i v_v = _mm_loadu_si128(
-            reinterpret_cast<const __m128i*>(neigh_v + i_v)); // load 8 neighbors of v
+            reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
 
         if (max_neigh_u >= max_neigh_v)
             i_v += 4;
@@ -318,7 +318,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
         total += _popcnt32_redef(_cvtmask8_u32(match)); //count number of matches
     }
     if (i_u <= (n_u - 4) && i_v < n_v) {
-        __m128i v_u = _mm_loadu_si128(reinterpret_cast<const __m128i*>(neigh_u + i_u));
+        __m128i v_u = _mm_loadu_si128(reinterpret_cast<const __m128i *>(neigh_u + i_u));
         while (neigh_v[i_v] <= neigh_u[i_u + 3] && i_v < n_v) {
             __m128i tmp_v_v = _mm_set1_epi32(neigh_v[i_v]);
             __mmask8 match = _mm_cmpeq_epi32_mask(v_u, tmp_v_v);
@@ -329,7 +329,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
         i_u += 4;
     }
     if (i_v <= (n_v - 4) && i_u < n_u) {
-        __m128i v_v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(neigh_v + i_v));
+        __m128i v_v = _mm_loadu_si128(reinterpret_cast<const __m128i *>(neigh_v + i_v));
         while (neigh_u[i_u] <= neigh_v[i_v + 3] && i_u < n_u) {
             __m128i tmp_v_u = _mm_set1_epi32(neigh_u[i_u]);
             __mmask8 match = _mm_cmpeq_epi32_mask(v_v, tmp_v_u);
@@ -340,6 +340,222 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx512>(
         i_v += 4;
     }
 #endif
+    while (i_u < n_u && i_v < n_v) {
+        if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
+            return total;
+        }
+        if (neigh_u[i_u] == neigh_v[i_v])
+            total++, i_u++, i_v++;
+        else if (neigh_u[i_u] < neigh_v[i_v])
+            i_u++;
+        else if (neigh_u[i_u] > neigh_v[i_v])
+            i_v++;
+    }
+    return total;
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx2>(
+    const std::int32_t *neigh_u,
+    const std::int32_t *neigh_v,
+    std::int32_t n_u,
+    std::int32_t n_v) {
+    std::int64_t total = 0;
+    std::int32_t i_u = 0, i_v = 0;
+
+    const std::int32_t n_u_8_end = n_u - 8;
+    const std::int32_t n_v_8_end = n_v - 8;
+    while (i_u <= n_u_8_end && i_v <= n_v_8_end) {
+        const std::int32_t min_neigh_u = neigh_u[i_u];
+        const std::int32_t max_neigh_v = neigh_v[i_v + 7];
+
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
+                return total;
+            }
+            i_v += 8;
+            continue;
+        }
+
+        const std::int32_t max_neigh_u = neigh_u[i_u + 7]; // assumes neighbor list is ordered
+        const std::int32_t min_neigh_v = neigh_v[i_v];
+
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
+                return total;
+            }
+            i_u += 8;
+            continue;
+        }
+
+        __m256i v_u = _mm256_loadu_si256(
+            reinterpret_cast<const __m256i *>(neigh_u + i_u)); // load 8 neighbors of u
+        __m256i v_v = _mm256_loadu_si256(
+            reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
+
+        i_v = (max_neigh_u >= max_neigh_v) ? i_v + 8 : i_v;
+        i_u = (max_neigh_u <= max_neigh_v) ? i_u + 8 : i_u;
+
+        __m256i match = _mm256_cmpeq_epi32(v_u, v_v);
+        unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
+
+        if (scalar_match != 255) { // shortcut case where all neighbors match
+            __m256i circ1 = _mm256_set_epi32(0,
+                                             7,
+                                             6,
+                                             5,
+                                             4,
+                                             3,
+                                             2,
+                                             1); // all possible circular shifts for 16 elements
+            __m256i circ2 = _mm256_set_epi32(1, 0, 7, 6, 5, 4, 3, 2);
+            __m256i circ3 = _mm256_set_epi32(2, 1, 0, 7, 6, 5, 4, 3);
+            __m256i circ4 = _mm256_set_epi32(3, 2, 1, 0, 7, 6, 5, 4);
+            __m256i circ5 = _mm256_set_epi32(4, 3, 2, 1, 0, 7, 6, 5);
+            __m256i circ6 = _mm256_set_epi32(5, 4, 3, 2, 1, 0, 7, 6);
+            __m256i circ7 = _mm256_set_epi32(6, 5, 4, 3, 2, 1, 0, 7);
+
+            __m256i v_v1 = _mm256_permutevar8x32_epi32(v_v, circ1);
+            __m256i v_v2 = _mm256_permutevar8x32_epi32(v_v, circ2);
+            __m256i v_v3 = _mm256_permutevar8x32_epi32(v_v, circ3);
+            __m256i v_v4 = _mm256_permutevar8x32_epi32(v_v, circ4);
+            __m256i v_v5 = _mm256_permutevar8x32_epi32(v_v, circ5);
+            __m256i v_v6 = _mm256_permutevar8x32_epi32(v_v, circ6);
+            __m256i v_v7 = _mm256_permutevar8x32_epi32(v_v, circ7);
+
+            __m256i tmp_match1 = _mm256_cmpeq_epi32(v_u, v_v1); // find matches
+            __m256i tmp_match2 = _mm256_cmpeq_epi32(v_u, v_v2);
+            __m256i tmp_match3 = _mm256_cmpeq_epi32(v_u, v_v3);
+            __m256i tmp_match4 = _mm256_cmpeq_epi32(v_u, v_v4);
+            __m256i tmp_match5 = _mm256_cmpeq_epi32(v_u, v_v5);
+            __m256i tmp_match6 = _mm256_cmpeq_epi32(v_u, v_v6);
+            __m256i tmp_match7 = _mm256_cmpeq_epi32(v_u, v_v7);
+
+            unsigned int scalar_match1 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match1));
+            unsigned int scalar_match2 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match2));
+            unsigned int scalar_match3 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match3));
+            unsigned int scalar_match4 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match4));
+            unsigned int scalar_match5 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match5));
+            unsigned int scalar_match6 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match6));
+            unsigned int scalar_match7 = _mm256_movemask_ps(_mm256_castsi256_ps(tmp_match7));
+            unsigned int final_match = scalar_match | scalar_match1 | scalar_match2 |
+                                       scalar_match3 | scalar_match4 | scalar_match5 |
+                                       scalar_match6 | scalar_match7;
+
+            total += _popcnt32_redef(final_match);
+        }
+        else {
+            total += 8; //count number of matches
+        }
+    }
+
+    for (; i_u <= n_u_8_end && i_v < n_v; i_u += 8) {
+        __m256i v_u = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(neigh_u + i_u));
+
+        const std::int32_t neighu_iu = neigh_u[i_u + 7];
+        for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
+            __m256i tmp_v_v = _mm256_set1_epi32(neigh_v[i_v]);
+
+            __m256i match = _mm256_cmpeq_epi32(v_u, tmp_v_v);
+            unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
+            total = scalar_match != 0 ? total + 1 : total;
+        }
+    }
+    for (; i_v <= n_v_8_end && i_u < n_u; i_v += 8) {
+        __m256i v_v = _mm256_loadu_si256(
+            reinterpret_cast<const __m256i *>(neigh_v + i_v)); // load 8 neighbors of v
+        const std::int32_t neighv_iv = neigh_v[i_v + 7];
+        for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
+            __m256i tmp_v_u = _mm256_set1_epi32(neigh_u[i_u]);
+            __m256i match = _mm256_cmpeq_epi32(v_v, tmp_v_u);
+            unsigned int scalar_match = _mm256_movemask_ps(_mm256_castsi256_ps(match));
+            total = scalar_match != 0 ? total + 1 : total;
+        }
+    }
+
+    const std::int32_t n_u_4_end = n_u - 4;
+    const std::int32_t n_v_4_end = n_v - 4;
+
+    while (i_u <= n_u_4_end && i_v <= n_v_4_end) { // not in last n%8 elements
+        // assumes neighbor list is ordered
+        std::int32_t min_neigh_u = neigh_u[i_u];
+        std::int32_t max_neigh_v = neigh_v[i_v + 3];
+
+        if (min_neigh_u > max_neigh_v) {
+            if (min_neigh_u > neigh_v[n_v - 1]) {
+                return total;
+            }
+            i_v += 4;
+            continue;
+        }
+        std::int32_t min_neigh_v = neigh_v[i_v];
+        std::int32_t max_neigh_u = neigh_u[i_u + 3];
+        if (min_neigh_v > max_neigh_u) {
+            if (min_neigh_v > neigh_u[n_u - 1]) {
+                return total;
+            }
+            i_u += 4;
+            continue;
+        }
+
+        __m128i v_u = _mm_loadu_si128(
+            reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
+        __m128i v_v = _mm_loadu_si128(
+            reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
+
+        i_v = (max_neigh_u >= max_neigh_v) ? i_v + 4 : i_v;
+        i_u = (max_neigh_u <= max_neigh_v) ? i_u + 4 : i_u;
+
+        __m128i match = _mm_cmpeq_epi32(v_u, v_v);
+        unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
+
+        if (scalar_match != 155) { // shortcut case where all neighbors match
+            __m128i v_v1 = _mm_shuffle_epi32(v_v, _MM_SHUFFLE(0, 3, 2, 1));
+            __m128i v_v2 = _mm_shuffle_epi32(v_v, _MM_SHUFFLE(1, 0, 3, 2));
+            __m128i v_v3 = _mm_shuffle_epi32(v_v, _MM_SHUFFLE(2, 1, 0, 3));
+
+            __m128i tmp_match1 = _mm_cmpeq_epi32(v_u, v_v1); // find matches
+            __m128i tmp_match2 = _mm_cmpeq_epi32(v_u, v_v2);
+            __m128i tmp_match3 = _mm_cmpeq_epi32(v_u, v_v3);
+
+            unsigned int scalar_match1 = _mm_movemask_ps(_mm_castsi128_ps(tmp_match1));
+            unsigned int scalar_match2 = _mm_movemask_ps(_mm_castsi128_ps(tmp_match2));
+            unsigned int scalar_match3 = _mm_movemask_ps(_mm_castsi128_ps(tmp_match3));
+
+            unsigned int final_match = scalar_match | scalar_match1 | scalar_match2 | scalar_match3;
+
+            total += _popcnt32_redef(final_match);
+        }
+        else {
+            total += 4; //count number of matches
+        }
+    }
+
+    if (i_u <= n_u_4_end && i_v < n_v) {
+        __m128i v_u = _mm_loadu_si128(
+            reinterpret_cast<const __m128i *>(neigh_u + i_u)); // load 8 neighbors of u
+        const std::int32_t neighu_iu = neigh_u[i_u + 3];
+        for (; neigh_v[i_v] <= neighu_iu && i_v < n_v; i_v++) {
+            __m128i tmp_v_v = _mm_set1_epi32(neigh_v[i_v]);
+            __m128i match = _mm_cmpeq_epi32(v_u, tmp_v_v);
+            unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
+            total = scalar_match != 0 ? total + 1 : total;
+        }
+        i_u += 4;
+    }
+    if (i_v <= n_v_4_end && i_u < n_u) {
+        __m128i v_v = _mm_loadu_si128(
+            reinterpret_cast<const __m128i *>(neigh_v + i_v)); // load 8 neighbors of v
+        const std::int32_t neighv_iv = neigh_v[i_v + 3];
+        for (; neigh_u[i_u] <= neighv_iv && i_u < n_u; i_u++) {
+            __m128i tmp_v_u = _mm_set1_epi32(neigh_u[i_u]);
+            __m128i match = _mm_cmpeq_epi32(v_v, tmp_v_u);
+            unsigned int scalar_match = _mm_movemask_ps(_mm_castsi128_ps(match));
+            total = scalar_match != 0 ? total + 1 : total;
+        }
+        i_v += 4;
+    }
+
     while (i_u < n_u && i_v < n_v) {
         if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
             return total;

@@ -30,9 +30,13 @@ namespace jaccard {
 /// algorithm
 ///
 /// @tparam Graph  Type of the input graph
-template <typename Graph>
-class ONEDAL_EXPORT vertex_similarity_input {
+template <typename Graph, typename Task = task::by_default>
+class ONEDAL_EXPORT vertex_similarity_input : public base {
+    static_assert(detail::is_valid_task<Task>);
+
 public:
+    using task_t = Task;
+
     static_assert(detail::is_valid_graph<Graph>,
                   "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the graph and the caching builder.
@@ -48,12 +52,16 @@ public:
     caching_builder& get_caching_builder();
 
 private:
-    dal::detail::pimpl<detail::vertex_similarity_input_impl<Graph>> impl_;
+    dal::detail::pimpl<detail::vertex_similarity_input_impl<Graph, Task>> impl_;
 };
 
 /// Class for the description of the result of the Jaccard Similarity algorithm
+template <typename Task = task::by_default>
 class ONEDAL_EXPORT vertex_similarity_result {
+    static_assert(detail::is_valid_task<Task>);
+
 public:
+    using task_t = Task;
     /// Constructs the empty result
     vertex_similarity_result();
 
@@ -86,18 +94,18 @@ private:
     dal::detail::pimpl<detail::vertex_similarity_result_impl> impl_;
 };
 
-template <typename Graph>
-vertex_similarity_input<Graph>::vertex_similarity_input(const Graph& data,
-                                                        caching_builder& builder_input)
-        : impl_(new detail::vertex_similarity_input_impl<Graph>(data, builder_input)) {}
+template <typename Graph, typename Task>
+vertex_similarity_input<Graph, Task>::vertex_similarity_input(const Graph& data,
+                                                              caching_builder& builder_input)
+        : impl_(new detail::vertex_similarity_input_impl<Graph, Task>(data, builder_input)) {}
 
-template <typename Graph>
-const Graph& vertex_similarity_input<Graph>::get_graph() const {
+template <typename Graph, typename Task>
+const Graph& vertex_similarity_input<Graph, Task>::get_graph() const {
     return impl_->graph_data;
 }
 
-template <typename Graph>
-caching_builder& vertex_similarity_input<Graph>::get_caching_builder() {
+template <typename Graph, typename Task>
+caching_builder& vertex_similarity_input<Graph, Task>::get_caching_builder() {
     return impl_->builder;
 }
 

@@ -14,27 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-/// @file
-/// Contains the definition of the input and output for Jaccard Similarity
-/// algorithm
-
-#pragma once
-
-#include "oneapi/dal/algo/jaccard/common.hpp"
+#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
+#include "oneapi/dal/algo/jaccard/detail/vertex_similarity_default_kernel.hpp"
+#include "oneapi/dal/detail/policy.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-class vertex_similarity_result_impl;
-
-template <typename Graph, typename Task>
-class vertex_similarity_input_impl : public base {
-public:
-    vertex_similarity_input_impl(const Graph& graph_data_input, caching_builder& builder_input)
-            : graph_data(graph_data_input),
-              builder(builder_input) {}
-
-    const Graph& graph_data;
-    caching_builder& builder;
-};
+vertex_similarity_result<task::all_vertex_pairs> jaccard(
+    const dal::detail::host_policy& ctx,
+    const detail::descriptor_base<task::all_vertex_pairs>& desc,
+    const dal::preview::detail::topology<std::int32_t>& t,
+    void* result_ptr) {
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+        return backend::jaccard<decltype(cpu)>(desc, t, result_ptr);
+    });
+}
 
 } // namespace oneapi::dal::preview::jaccard::detail

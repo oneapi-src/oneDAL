@@ -26,20 +26,30 @@
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-template <typename Policy, typename Float, class Method, typename Graph>
+template <typename Policy, typename Descriptor, typename Graph>
 struct ONEDAL_EXPORT vertex_similarity_ops_dispatcher {
-    vertex_similarity_result operator()(const Policy &policy,
-                                        const descriptor_base &descriptor,
-                                        vertex_similarity_input<Graph> &input) const;
+    using task_t = typename Descriptor::task_t;
+    vertex_similarity_result<task_t> operator()(
+        const Policy &policy,
+        const Descriptor &descriptor,
+        vertex_similarity_input<Graph, task_t> &input) const {
+        const auto &csr_topology =
+            dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
+
+        static auto impl = get_backend<Policy, Descriptor>(descriptor, csr_topology);
+        return (*impl)(policy, descriptor, csr_topology, input.get_caching_builder());
+    }
 };
 
 template <typename Descriptor, typename Graph>
 struct vertex_similarity_ops {
     using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
-    using input_t = vertex_similarity_input<Graph>;
-    using result_t = vertex_similarity_result;
-    using descriptor_base_t = descriptor_base;
+    using graph_t = Graph;
+    using input_t = vertex_ranking_input<graph_t, task_t>;
+    using result_t = vertex_ranking_result<task_t>;
+    using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor &param, vertex_similarity_input<Graph> &input) const {
         using msg = dal::detail::error_messages;
@@ -74,30 +84,8 @@ struct vertex_similarity_ops {
                     const Descriptor &desc,
                     vertex_similarity_input<Graph> &input) const {
         check_preconditions(desc, input);
-        return vertex_similarity_ops_dispatcher<Policy, float_t, method_t, Graph>()(policy,
-                                                                                    desc,
-                                                                                    input);
+        return vertex_similarity_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
 };
-
-template <typename Policy, typename Float, class Method, typename Graph>
-vertex_similarity_result vertex_similarity_ops_dispatcher<Policy, Float, Method, Graph>::operator()(
-    const Policy &policy,
-    const descriptor_base &desc,
-    vertex_similarity_input<Graph> &input) const {
-    const auto &csr_topology =
-        dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-    const std::int64_t row_begin = desc.get_row_range_begin();
-    const std::int64_t row_end = desc.get_row_range_end();
-    const std::int64_t column_begin = desc.get_column_range_begin();
-    const std::int64_t column_end = desc.get_column_range_end();
-    const std::int64_t number_elements_in_block =
-        get_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const std::int64_t max_block_size =
-        get_max_block_size<Float, vertex_type<Graph>>(number_elements_in_block);
-    void *result_ptr = input.get_caching_builder()(max_block_size);
-    static auto impl = get_backend<Policy, Float, Method>(desc, csr_topology);
-    return (*impl)(policy, desc, csr_topology, result_ptr);
-}
 
 } // namespace oneapi::dal::preview::jaccard::detail

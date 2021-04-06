@@ -80,7 +80,6 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                     [&](const std::int32_t* v_) {
                         std::int32_t v = *v_;
                         if (v <= u) {
-                            const std::int32_t* u_neighbors_begin = t.get_vertex_neighbors_begin(u);
                             const std::int32_t u_degree = t.get_vertex_degree(u);
                             const std::int32_t* v_neighbors_begin = t.get_vertex_neighbors_begin(v);
                             const std::int32_t v_degree = t.get_vertex_degree(v);
@@ -94,8 +93,8 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                             int thread_id = dal::detail::threader_get_current_thread_index();
                             int64_t indx = (int64_t)thread_id * (int64_t)vertex_count;
 
-                            auto tc = intersection_local_tc<Cpu>(u_neighbors_begin,
-                                                                 v_neighbors_begin,
+                            auto tc = intersection_local_tc<Cpu>(t.get_vertex_neighbors_begin(u),
+                                                                 t.get_vertex_neighbors_begin(v),
                                                                  u_degree,
                                                                  new_v_degree,
                                                                  triangles_local + indx,
