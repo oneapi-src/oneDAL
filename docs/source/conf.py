@@ -204,6 +204,13 @@ nitpick_ignore = [
     ('cpp:identifier', 'svm::infer_result'),
     ('cpp:identifier', 'svm::infer_input'),
     ('cpp:identifier', 'Kernel'),
+    ('cpp:identifier', 'oneapi::dal::svm'),
+    ('cpp:identifier', 'oneapi::dal::svm::method'),
+    ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
+    ('cpp:identifier', 'Kernel'),
+    ('cpp:identifier', 'task::regression'),
+    ('cpp:identifier', 'task::classification'),
+    ('cpp:identifier', 'detail::enable_if_regression_t<T>'),
     # linear kernel
     ('cpp:identifier', 'linear_kernel'),
     ('cpp:identifier', 'linear_kernel::descriptor'),
@@ -273,6 +280,8 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::kmeans::task'),
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
+
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),
