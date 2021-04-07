@@ -23,8 +23,7 @@ array<byte_t> get_original_data(const homogen_table& t) {
     using impl_t = backend::homogen_table_impl;
     using wrapper_t = homogen_table_impl_wrapper<impl_t>;
 
-    const auto& pimpl = pimpl_accessor{}.get_pimpl(t);
-    auto* impl_raw_ptr = dynamic_cast<wrapper_t*>(pimpl.get());
+    auto* impl_raw_ptr = dynamic_cast<wrapper_t*>(&get_impl(t));
     if (impl_raw_ptr != nullptr) {
         auto& homogen_impl = impl_raw_ptr->get();
         return homogen_impl.get_data_array();
