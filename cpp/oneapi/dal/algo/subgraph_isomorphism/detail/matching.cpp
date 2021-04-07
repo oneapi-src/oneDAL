@@ -404,7 +404,8 @@ engine_bundle::~engine_bundle() {
 solution engine_bundle::run() {
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
-    std::uint64_t first_states_count = pattern_vertex_probability[0] * target->get_vertex_count();
+    std::uint64_t first_states_count =
+        pattern_vertex_probability[0] * target->get_vertex_count() + 1;
     int max_threads_count = dal::detail::threader_get_max_threads();
     std::uint64_t possible_first_states_count_per_thread = first_states_count / max_threads_count;
     if (possible_first_states_count_per_thread < 1) {
