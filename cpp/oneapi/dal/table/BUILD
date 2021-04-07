@@ -21,6 +21,7 @@ dal_test_suite(
         # TODO: Move conversion tests to backend folder
         "test/convert.cpp",
         "test/table_builder.cpp",
+        "test/table_adapter.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",
