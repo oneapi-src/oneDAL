@@ -28,20 +28,20 @@ TEST("can get original data from homogen table constructed from const raw pointe
 
     auto bytes_array = get_original_data(t);
     REQUIRE(bytes_array.get_data() == (byte_t*)data);
-    REQUIRE(bytes_array.get_size() == sizeof(float)*2*3);
+    REQUIRE(bytes_array.get_size() == sizeof(float) * 2 * 3);
     REQUIRE(bytes_array.has_mutable_data() == false);
 }
 
 TEST("can get original data from homogen table constructed from builder") {
     auto t = homogen_table_builder{}
-        .set_data_type(data_type::float32)
-        .set_layout(data_layout::row_major)
-        .allocate(3, 2)
-        .build();
+                 .set_data_type(data_type::float32)
+                 .set_layout(data_layout::row_major)
+                 .allocate(3, 2)
+                 .build();
 
     auto bytes_array = get_original_data(t);
     REQUIRE(bytes_array.get_data() == t.get_data());
-    REQUIRE(bytes_array.get_size() == sizeof(float)*2*3);
+    REQUIRE(bytes_array.get_size() == sizeof(float) * 2 * 3);
     REQUIRE(bytes_array.has_mutable_data() == true);
 }
 
@@ -72,9 +72,9 @@ TEST("can get original data from homogen table constructed from builder with dev
     auto data = array<float>::zeros(q, row_count * col_count, sycl::usm::alloc::device);
 
     auto t = homogen_table_builder{}
-        .set_layout(data_layout::row_major)
-        .reset(data, row_count, col_count)
-        .build();
+                 .set_layout(data_layout::row_major)
+                 .reset(data, row_count, col_count)
+                 .build();
 
     auto bytes_array = get_original_data(t);
     REQUIRE(bytes_array.get_data() == t.get_data());
@@ -86,4 +86,3 @@ TEST("can get original data from homogen table constructed from builder with dev
 #endif
 
 } // namespace oneapi::dal::detail
-
