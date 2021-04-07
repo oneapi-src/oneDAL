@@ -1,6 +1,9 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/stack.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+
+namespace dal = oneapi::dal;
 
 stack::stack() {
     max_stack_size = 100;
@@ -98,7 +101,7 @@ stack::~stack() {
 
 graph_status stack::push(state* new_state) {
     if (new_state != nullptr) {
-        if (stack_size >= max_stack_size) {
+        if (max_stack_size == 0 || stack_size >= max_stack_size) {
             graph_status increase_status = increase_stack_size();
             if (increase_status != ok) {
                 return increase_status;
@@ -129,18 +132,19 @@ std::int64_t stack::size() const {
 }
 
 graph_status stack::increase_stack_size() {
-    state** tmp_data = static_cast<state**>(_mm_malloc(sizeof(state*) * 2 * max_stack_size, 64));
+    const auto new_max_stack_size = (max_stack_size > 0) ? 2 * max_stack_size : 100;
+    state** tmp_data = static_cast<state**>(_mm_malloc(sizeof(state*) * new_max_stack_size, 64));
     if (tmp_data == nullptr) {
-        return bad_allocation;
+        throw oneapi::dal::host_bad_alloc();
     }
     for (std::int64_t i = 0; i < max_stack_size; i++) {
         tmp_data[i] = data[i];
         data[i] = nullptr;
     }
-    for (std::int64_t i = max_stack_size; i < 2 * max_stack_size; i++) {
+    for (std::int64_t i = max_stack_size; i < new_max_stack_size; i++) {
         tmp_data[i] = nullptr;
     }
-    max_stack_size *= 2;
+    max_stack_size = new_max_stack_size;
     _mm_free(data);
     data = tmp_data;
     tmp_data = nullptr;
@@ -176,11 +180,11 @@ vertex_stack::~vertex_stack() {
 }
 
 graph_status vertex_stack::push(const std::uint64_t vertex_id) {
-    //if (size() >= stack_size) {
-    //    if (increase_stack_size() != ok) {
-    //        return bad_allocation;
-    //    }
-    //}
+    if (size() >= stack_size) {
+        if (increase_stack_size() != ok) {
+            throw dal::host_bad_alloc();
+        }
+    }
     *ptop = vertex_id;
     ptop++;
     return ok;

@@ -96,7 +96,6 @@ void load_graph_gff(const std::string filename_target,
     {
         auto el_p = load_vertex_labels_and_edge_list(filename_pattern, mapping, labels_p);
         dal::preview::load_graph::detail::convert_to_csr_impl(el_p, pattern);
-
         auto el_t = load_vertex_labels_and_edge_list(filename_target, mapping, labels_t);
         dal::preview::load_graph::detail::convert_to_csr_impl(el_t, target);
     }
@@ -114,17 +113,27 @@ void load_graph_gff(const std::string filename_target,
 int main(int argc, char **argv) {
     // auto target_filename = get_data_path("si_target_graph.csv");
     // auto pattern_filename = get_data_path("si_pattern_graph.csv");
+    // auto target_filename = get_data_path(
+    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff");
+    // auto pattern_filename = get_data_path(
+    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
+
     auto target_filename = get_data_path(
         "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff");
     auto pattern_filename = get_data_path(
-        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
+        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query4_0.gff");
 
+    //  1240	1237	1241	1242	1243
+    //  1240	1237	1241	1243	1242
+
+    // auto target_filename = get_data_path(
+    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/1blk.pdb.gff");
+    // auto pattern_filename = get_data_path(
+    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/1blk.pdb.gff_queries/query4_0.gff");
     if (argc == 3) {
         target_filename = get_data_path(argv[1]);
         pattern_filename = get_data_path(argv[2]);
     }
-
-    std::cout << "Search " << pattern_filename << " in " << target_filename << std::endl;
 
     typedef dal::preview::undirected_adjacency_vector_graph<std::int32_t> graph_t;
     graph_t target_graph, pattern_graph;
