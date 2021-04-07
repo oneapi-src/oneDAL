@@ -48,7 +48,7 @@ public:
                                    const event_vector& deps = {}) = 0;
 };
 
-inline std::int64_t get_scaled_wg_size_per_row(sycl::queue& queue,
+inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
                                                std::int64_t col_count,
                                                std::int64_t preffered_wg_size) {
     const std::int64_t sg_max_size = device_max_sg_size(queue);
