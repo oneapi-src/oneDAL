@@ -18,6 +18,7 @@
 #include <src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/clustering_by_blocks.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
@@ -93,7 +94,7 @@ static NumericTablePtr get_initial_centroids(const dal::backend::context_gpu& ct
 
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
-    train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
+/*    train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         const auto data = input.get_data();
@@ -155,7 +156,65 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 dal::detail::homogen_table_builder{}
                     .reset(arr_centroids, cluster_count, column_count)
                     .build()));
-    }
+    }*/
+    train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
+                                              const descriptor_t& params,
+                                              const train_input<task::clustering>& input) const {
+        const auto data = input.get_data();
+
+        const int64_t row_count = data.get_row_count();
+        const int64_t column_count = data.get_column_count();
+
+        const int64_t cluster_count = params.get_cluster_count();
+        const int64_t max_iteration_count = params.get_max_iteration_count();
+        const double accuracy_threshold = params.get_accuracy_threshold();
+
+        auto initial_centroids = get_initial_centroids<Float>(ctx, params, input);
+
+        auto& queue = ctx.get_queue();
+        interop::execution_context_guard guard(queue);
+
+        dal::detail::check_mul_overflow(cluster_count, column_count);
+
+        ndarray<Float> arr_centroids =
+            ndarray<Float,2>::empty(queue, {cluster_count, column_count}, sycl::usm::alloc::device);
+        ndarray<std::int32_t> arr_labels = ndarray<std::int32_t, 1>::empty(queue, row_count, sycl::usm::alloc::device);
+        ndarray<Float> arr_distances = ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
+
+
+        kmeans_core<Float> estimator(queue, row_count, column_count, desc);
+        Float prev_objective_function = detail::limits<Float>::max();
+        std::int64_t iter;
+        sycl::event centroids_event;
+        for(iter = 0; iter < max_iter_num; iter++)
+        {
+            auto [assign_event, count_event, objective_function_event] = 
+                estimator.make_clusters(data, iter == 0 ? initial_centroids : arr_centorids, arr_labels, arr_distances, {centroids_event});
+            centroids_event = estimator.reduce_centroids(data, arr_labels, arr_centroids, {assign_event});
+            count_event.wait_and_throw();
+            if(estimator.get_num_empty_clusters() > 0) {
+                centroids_event = estimator.findCandidates(arr_labels, arr_distances, {centroids_event});
+            }
+            objective_function_event.wait_and_throw();
+            if(estimator.get_objective_function() + accuracy_threshold > prev_objective_function) {
+                iter++;
+                break;
+            }
+            prev_objective_function = estimator.get_objective_function();
+        }
+        auto [assign_event, count_event, objective_function_event] = 
+            estimator.make_clusters(data, arr_centorids, arr_labels, arr_distances, {centroids_event});
+        {assign_event, count_event, objective_function_event}.wait_and_throw();
+        return train_result<task::clustering>()
+            .set_labels(
+                dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+            .set_iteration_count(iter)
+            .set_objective_function_value(estimator.get_objective_function())
+            .set_model(model<task::clustering>().set_centroids(
+                dal::detail::homogen_table_builder{}
+                    .reset(arr_centroids, cluster_count, column_count)
+                    .build()));
+    }    
 };
 
 template struct train_kernel_gpu<float, method::lloyd_dense, task::clustering>;
