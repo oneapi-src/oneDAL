@@ -237,16 +237,6 @@ bool host_soa_table_adapter::check_column_index_in_range(const block_info& info)
     return info.single_column_requested && info.column_index < column_count;
 }
 
-template host_soa_table_adapter::host_soa_table_adapter<std::int32_t>(const homogen_table&,
-                                                                      status_t&,
-                                                                      std::int32_t);
-template host_soa_table_adapter::host_soa_table_adapter<float>(const homogen_table&,
-                                                               status_t&,
-                                                               float);
-template host_soa_table_adapter::host_soa_table_adapter<double>(const homogen_table&,
-                                                                status_t&,
-                                                                double);
-
 template auto host_soa_table_adapter::create<std::int32_t>(const homogen_table&) -> ptr_t;
 template auto host_soa_table_adapter::create<float>(const homogen_table&) -> ptr_t;
 template auto host_soa_table_adapter::create<double>(const homogen_table&) -> ptr_t;

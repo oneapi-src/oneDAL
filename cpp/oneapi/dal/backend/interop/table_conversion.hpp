@@ -114,7 +114,7 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const homoge
             return wrapper;
         }
     }
-    if (table.get_data_layout() == data_layout::column_major) {
+    else if (table.get_data_layout() == data_layout::column_major) {
         if (auto wrapper = wrap_by_host_soa_adapter(table)) {
             return wrapper;
         }
