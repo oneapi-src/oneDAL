@@ -111,6 +111,13 @@ public:
     MSG(negative_vertex_id);
     MSG(unimplemented_sorting_procedure);
 
+    /* I/O */
+    MSG(file_not_found);
+
+    /* Serialization */
+    MSG(object_is_not_serializable);
+    MSG(archive_content_does_not_match_type);
+
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
@@ -124,9 +131,6 @@ public:
     MSG(iteration_count_lt_zero);
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
-
-    /* I/O */
-    MSG(file_not_found);
 
     /* Decision Forest */
     MSG(bootstrap_is_incompatible_with_error_metric);

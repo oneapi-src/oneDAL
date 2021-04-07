@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <vector>
+#include <unordered_map>
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
@@ -163,40 +164,6 @@ struct pod_type {
     }
 };
 
-struct vector_type {
-    std::vector<float> vec;
-
-    static vector_type even_odd(std::int64_t count, float even, float odd) {
-        vector_type result;
-        result.vec.clear();
-        result.vec.reserve(count);
-
-        for (std::int64_t i = 0; i < count; i++) {
-            if (i % 2 > 0) {
-                result.vec.push_back(odd);
-            }
-            else {
-                result.vec.push_back(even);
-            }
-        }
-
-        return result;
-    }
-
-    void serialize(detail::output_archive& ar) const {
-        ar(static_cast<std::int64_t>(vec.size()));
-        ar.range(vec.data(), vec.data() + vec.size());
-    }
-
-    void deserialize(detail::input_archive& ar) {
-        const std::int64_t count = ar.pop<std::int64_t>();
-        ONEDAL_ASSERT(count >= 0);
-
-        vec.resize(count);
-        ar.range(vec.data(), vec.data() + vec.size());
-    }
-};
-
 TEST("mock primitive type") {
     const float original = 3.14;
 
@@ -259,6 +226,40 @@ TEST("mock POD type") {
     }
 }
 
+struct vector_type {
+    std::vector<float> vec;
+
+    static vector_type even_odd(std::int64_t count, float even, float odd) {
+        vector_type result;
+        result.vec.clear();
+        result.vec.reserve(count);
+
+        for (std::int64_t i = 0; i < count; i++) {
+            if (i % 2 > 0) {
+                result.vec.push_back(odd);
+            }
+            else {
+                result.vec.push_back(even);
+            }
+        }
+
+        return result;
+    }
+
+    void serialize(detail::output_archive& ar) const {
+        ar(static_cast<std::int64_t>(vec.size()));
+        ar.range(vec.data(), vec.data() + vec.size());
+    }
+
+    void deserialize(detail::input_archive& ar) {
+        const std::int64_t count = ar.pop<std::int64_t>();
+        ONEDAL_ASSERT(count >= 0);
+
+        vec.resize(count);
+        ar.range(vec.data(), vec.data() + vec.size());
+    }
+};
+
 TEST("mock non-trivially copyable type") {
     const std::int64_t element_count = 10;
     const float even_filler = 3.14f;
@@ -289,6 +290,176 @@ TEST("mock non-trivially copyable type") {
             CAPTURE(i);
             REQUIRE(deserialized.vec[i] == original.vec[i]);
         }
+    }
+}
+
+class polymorphic_iface {
+public:
+    virtual ~polymorphic_iface() = default;
+    virtual std::string get_name() = 0;
+};
+
+class polymorphic {
+    friend class detail::serialization_accessor;
+
+public:
+    polymorphic() = default;
+
+    std::string get_name() const {
+        return impl_->get_name();
+    }
+
+protected:
+    explicit polymorphic(polymorphic_iface* impl) : impl_(impl) {}
+
+    template <typename Impl>
+    const Impl& get_impl() const {
+        return static_cast<const Impl&>(*impl_);
+    }
+
+    template <typename Impl>
+    Impl& get_impl() {
+        return static_cast<Impl&>(*impl_);
+    }
+
+private:
+    void serialize(detail::output_archive& ar) const {
+        detail::serialize_polymorphic(impl_, ar);
+    }
+
+    void deserialize(detail::input_archive& ar) {
+        detail::deserialize_polymorphic(impl_, ar);
+    }
+
+    detail::pimpl<polymorphic_iface> impl_;
+};
+
+class polymorphic_impl_a : public polymorphic_iface, public detail::serializable<77777> {
+public:
+    std::string get_name() override {
+        return "A";
+    }
+
+    void serialize(detail::output_archive& ar) const override {
+        ar(x1, x2);
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        ar(x1, x2);
+    }
+
+    float x1 = 0.0f;
+    std::int64_t x2 = 0;
+};
+__ONEDAL_REGISTER_SERIALIZABLE__(polymorphic_impl_a)
+
+class polymorphic_impl_b : public polymorphic_iface, public detail::serializable<88888> {
+public:
+    std::string get_name() override {
+        return "B";
+    }
+
+    void serialize(detail::output_archive& ar) const override {
+        ar(x1, x2);
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        ar(x1, x2);
+    }
+
+    double x1 = 0.0;
+    std::int32_t x2 = 0;
+};
+__ONEDAL_REGISTER_SERIALIZABLE__(polymorphic_impl_b)
+
+class derived_a : public polymorphic {
+public:
+    derived_a() : polymorphic(new polymorphic_impl_a{}) {}
+
+    float get_x1() const {
+        return get_impl<polymorphic_impl_a>().x1;
+    }
+
+    derived_a& set_x1(float value) {
+        get_impl<polymorphic_impl_a>().x1 = value;
+        return *this;
+    }
+
+    std::int64_t get_x2() const {
+        return get_impl<polymorphic_impl_a>().x2;
+    }
+
+    derived_a& set_x2(std::int64_t value) {
+        get_impl<polymorphic_impl_a>().x2 = value;
+        return *this;
+    }
+};
+
+class derived_b : public polymorphic {
+public:
+    derived_b() : polymorphic(new polymorphic_impl_b{}) {}
+
+    double get_x1() const {
+        return get_impl<polymorphic_impl_a>().x1;
+    }
+
+    derived_b& set_x1(double value) {
+        get_impl<polymorphic_impl_b>().x1 = value;
+        return *this;
+    }
+
+    std::int32_t get_x2() const {
+        return get_impl<polymorphic_impl_a>().x2;
+    }
+
+    derived_b& set_x2(std::int32_t value) {
+        get_impl<polymorphic_impl_b>().x2 = value;
+        return *this;
+    }
+};
+
+TEST("mock polymorphic type") {
+    constexpr float a_x1 = 3.14f;
+    constexpr std::int64_t a_x2 = -100;
+    const polymorphic original = derived_a{}.set_x1(a_x1).set_x2(a_x2);
+    ONEDAL_ASSERT(original.get_name() == "A");
+
+    mock_archive_state state;
+
+    INFO("serialize") {
+        mock_output_archive ar(state);
+        detail::serialize(original, ar);
+
+        REQUIRE(state.get<std::uint64_t>(0) == polymorphic_impl_a::serialization_id());
+        REQUIRE(state.get<float>(1) == a_x1);
+        REQUIRE(state.get<std::int64_t>(2) == a_x2);
+    }
+
+    SECTION("deserialize to base type") {
+        polymorphic deserialized;
+        mock_input_archive ar(state);
+        detail::deserialize(deserialized, ar);
+
+        REQUIRE(deserialized.get_name() == "A");
+        REQUIRE(static_cast<derived_a&>(deserialized).get_x1() == a_x1);
+        REQUIRE(static_cast<derived_a&>(deserialized).get_x2() == a_x2);
+    }
+
+    SECTION("deserialize to exact type") {
+        derived_a deserialized;
+        mock_input_archive ar(state);
+        detail::deserialize(deserialized, ar);
+
+        REQUIRE(deserialized.get_name() == "A");
+        REQUIRE(deserialized.get_x1() == a_x1);
+        REQUIRE(deserialized.get_x2() == a_x2);
+    }
+
+    SECTION("deserialize to wrong type") {
+        derived_b deserialized;
+        mock_input_archive ar(state);
+
+        REQUIRE_THROWS_AS(detail::deserialize(deserialized, ar), invalid_argument);
     }
 }
 

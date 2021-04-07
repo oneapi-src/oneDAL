@@ -78,6 +78,13 @@ MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
 MSG(negative_vertex_id, "Negative vertex ID")
 MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
 
+/* IO */
+MSG(file_not_found, "File not found")
+
+/* Serialization */
+MSG(object_is_not_serializable, "Object is not serializable")
+MSG(archive_content_does_not_match_type, "Archive content does not match requested type")
+
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
@@ -96,9 +103,6 @@ MSG(input_labels_table_has_wrong_cc_expect_one,
 MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
-
-/* IO */
-MSG(file_not_found, "File not found")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
