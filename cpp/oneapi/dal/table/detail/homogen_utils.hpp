@@ -29,7 +29,7 @@ namespace v1 {
 /// @return      Original array of bytes held in the table.
 ///              If the table was created from mutable data object,
 ///              this array contains mutable data.
-array<byte_t> get_original_data(const homogen_table& t);
+ONEDAL_EXPORT array<byte_t> get_original_data(const homogen_table& t);
 
 } // namespace v1
 
