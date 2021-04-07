@@ -61,14 +61,11 @@ private:
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps = {}) {
-        if (indices_out) {
-            ONEDAL_ASSERT(indices.get_shape()[0] == data.get_shape()[0]);
-            ONEDAL_ASSERT(indices.get_shape()[1] == 1);
-        }
-        if (selection_out) {
-            ONEDAL_ASSERT(selection.get_shape()[0] == data.get_shape()[0]);
-            ONEDAL_ASSERT(selection.get_shape()[1] == 1);
-        }
+        ONEDAL_ASSERT(!indices_out || indices.get_shape()[0] == data.get_shape()[0]);
+        ONEDAL_ASSERT(!indices_out || indices.get_shape()[1] == 1);
+        ONEDAL_ASSERT(!selection_out || selection.get_shape()[0] == data.get_shape()[0]);
+        ONEDAL_ASSERT(!selection_out || selection.get_shape()[1] == 1);
+
         const std::int64_t col_count = data.get_dimension(1);
         const std::int64_t row_count = data.get_dimension(0);
         const std::int64_t stride = data.get_shape()[1];

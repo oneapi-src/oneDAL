@@ -77,14 +77,11 @@ private:
                        ndview<Float, 2>& selection,
                        ndview<std::int32_t, 2>& indices,
                        const event_vector& deps) {
-        if (indices_out) {
-            ONEDAL_ASSERT(indices.get_shape()[0] == data.get_shape()[0]);
-            ONEDAL_ASSERT(indices.get_shape()[1] == k);
-        }
-        if (selection_out) {
-            ONEDAL_ASSERT(selection.get_shape()[0] == data.get_shape()[0]);
-            ONEDAL_ASSERT(selection.get_shape()[1] == k);
-        }
+        ONEDAL_ASSERT(!indices_out || indices.get_shape()[0] == data.get_shape()[0]);
+        ONEDAL_ASSERT(!indices_out || indices.get_shape()[1] == k);
+        ONEDAL_ASSERT(!selection_out || selection.get_shape()[0] == data.get_shape()[0]);
+        ONEDAL_ASSERT(!selection_out || selection.get_shape()[1] == k);
+
         ONEDAL_ASSERT(data.get_shape() == data_.get_shape());
         last_call_.wait_and_throw();
         const std::int64_t col_count = data.get_dimension(1);
