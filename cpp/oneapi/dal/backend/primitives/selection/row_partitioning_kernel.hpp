@@ -31,7 +31,7 @@ inline sycl::nd_range<2> get_row_partitioning_range(std::int64_t row_count,
 }
 
 template <typename Float>
-inline std::int32_t kernel_row_partitioning(sycl::nd_item<2> item,
+inline std::int32_t row_partitioning_kernel(sycl::nd_item<2> item,
                                             Float* values,
                                             std::int32_t* indices,
                                             std::int32_t partition_start,
