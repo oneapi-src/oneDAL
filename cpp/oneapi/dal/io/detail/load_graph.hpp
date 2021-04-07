@@ -33,17 +33,15 @@
 namespace oneapi::dal::preview::load_graph::detail {
 
 template <typename Vertex>
-inline edge_list<Vertex> load_edge_list(const std::string &name);
+inline void load_edge_list(const std::string &name, edge_list<Vertex> &elist);
 
 template <>
-inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
-    using int_t = std::int32_t;
-
+inline void load_edge_list(const std::string &name, edge_list<std::int32_t> &elist) {
     std::ifstream file(name);
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
-    edge_list<int_t> elist;
+
     elist.reserve(1024);
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
@@ -53,7 +51,6 @@ inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     }
 
     file.close();
-    return elist;
 }
 
 template <typename Index>
@@ -281,9 +278,10 @@ template <typename Descriptor, typename DataSource>
 output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
     using graph_type = output_type<Descriptor>;
     graph_type graph;
-    const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
-        data_source.get_filename());
-    convert_to_csr_impl(el, graph);
+    edge_list<std::int32_t> elist;
+    load_edge_list<typename Descriptor::input_type::data_t::first_type>(data_source.get_filename(),
+                                                                        elist);
+    convert_to_csr_impl(elist, graph);
     return graph;
 }
 } // namespace oneapi::dal::preview::load_graph::detail
