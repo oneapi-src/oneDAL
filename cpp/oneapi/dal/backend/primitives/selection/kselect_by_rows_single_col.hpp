@@ -69,26 +69,12 @@ private:
             ONEDAL_ASSERT(selection.get_shape()[0] == data.get_shape()[0]);
             ONEDAL_ASSERT(selection.get_shape()[1] == 1);
         }
-        const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
-        ONEDAL_ASSERT(!sg_sizes.empty());
-
-        auto result = std::max_element(sg_sizes.begin(), sg_sizes.end());
-        ONEDAL_ASSERT(result != sg_sizes.end());
-
-        const std::int64_t sg_max_size = static_cast<std::int64_t>(*result);
-
         const std::int64_t col_count = data.get_dimension(1);
         const std::int64_t row_count = data.get_dimension(0);
         const std::int64_t stride = data.get_shape()[1];
 
-        const std::int64_t row_adjusted_sg_num =
-            col_count / sg_max_size + std::int64_t(col_count % sg_max_size > 0);
-        const std::int64_t expected_sg_num =
-            std::min(kselect_by_rows_single_col::preffered_wg_size / sg_max_size,
-                     row_adjusted_sg_num);
-        ONEDAL_ASSERT(expected_sg_num > 0);
-
-        const std::int64_t wg_size = expected_sg_num * sg_max_size;
+        const std::int64_t wg_size =
+            get_scaled_wg_size_per_row(queue, col_count, preffered_wg_size);
 
         const Float* data_ptr = data.get_data();
         [[maybe_unused]] Float* selection_ptr =

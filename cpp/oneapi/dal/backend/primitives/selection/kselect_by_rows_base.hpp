@@ -47,6 +47,19 @@ public:
                                    ndview<std::int32_t, 2>& column_indices,
                                    const event_vector& deps = {}) = 0;
 };
+
+inline std::int64_t get_scaled_wg_size_per_row(sycl::queue& queue,
+                                               std::int64_t col_count,
+                                               std::int64_t preffered_wg_size) {
+    const std::int64_t sg_max_size = device_max_sg_size(queue);
+    const std::int64_t row_adjusted_sg_num =
+        col_count / sg_max_size + std::int64_t(col_count % sg_max_size > 0);
+    std::int64_t expected_sg_num = std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
+    if (expected_sg_num < 1)
+        expected_sg_num = 1;
+    return dal::detail::check_mul_overflow(expected_sg_num, sg_max_size);
+}
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives

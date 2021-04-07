@@ -196,6 +196,14 @@ inline std::int64_t device_max_wg_size(const sycl::queue& q) {
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 
+inline std::int64_t device_max_sg_size(const sycl::queue& q) {
+    const std::vector<size_t> sg_sizes =
+        q.get_device().template get_info<sycl::info::device::sub_group_sizes>();
+    auto result_iter = std::max_element(sg_sizes.begin(), sg_sizes.end());
+    ONEDAL_ASSERT(result_iter != sg_sizes.end());
+    return dal::detail::integral_cast<std::int64_t>(*result_iter);
+}
+
 inline std::int64_t propose_wg_size(const sycl::queue& q) {
     // TODO: a temporary solution that limits work item count used on the device.
     // Needs to change to more smart logic in the future.

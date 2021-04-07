@@ -22,7 +22,7 @@
 #include <daal/include/algorithms/engines/mcg59/mcg59.h>
 #include <daal/src/algorithms/engines/engine_batch_impl.h>
 
-#include "oneapi/dal/backend/primitives/selection/row_partitioning.hpp"
+#include "oneapi/dal/backend/primitives/selection/row_partitioning_kernel.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_base.hpp"
 #include "oneapi/dal/backend/primitives/rng/rnd_seq.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -179,7 +179,7 @@ private:
             std::int32_t pos = (std::int32_t)(rnd * (partition_end - partition_start - 1));
             pos = pos < 0 ? 0 : pos;
             const Float pivot = values[partition_start + pos];
-            std::int32_t split_index = kernel_row_partitioning(item,
+            std::int32_t split_index = row_partitioning_kernel(item,
                                                                values,
                                                                indices,
                                                                partition_start,
