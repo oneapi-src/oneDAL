@@ -430,22 +430,24 @@ solution engine_bundle::run() {
 
     state null_state;
     // task_group tg;
-    std::uint64_t task_counter = 0;
+    std::uint64_t task_counter = 0, index = 0;
     for (std::int64_t i = 0; i < target->n; ++i) {
         if (degree <= target->get_vertex_degree(i) &&
             pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                 target->get_vertex_attribute(i)) {
-            auto index = task_counter % max_threads_count;
+            index = task_counter % max_threads_count;
             engine_array[index].push_into_stack(i);
 
             if ((engine_array[index].hlocal_stack.states_in_stack() /
-                 possible_first_states_count_per_thread) > 0 ||
-                i == target->n - 1) {
+                 possible_first_states_count_per_thread) > 0) {
                 // tg.run([=] {
                 engine_array[index].run_and_wait(false);
                 // });
                 task_counter++;
             }
+        }
+        if (i == (target->n) - 1) {
+            engine_array[index].run_and_wait(false);
         }
     }
 
