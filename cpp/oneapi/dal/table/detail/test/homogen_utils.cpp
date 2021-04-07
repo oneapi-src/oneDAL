@@ -57,7 +57,7 @@ TEST("can get original data from homogen table constructed from array with devic
     auto t = homogen_table::wrap(q, data.get_data(), row_count, col_count);
 
     auto bytes_array = get_original_data(t);
-    REQUIRE(bytes_array.get_data() == (byte_t*)data.get_data());
+    REQUIRE(bytes_array.get_data() == (const byte_t*)data.get_data());
     REQUIRE(backend::is_device_usm(q, bytes_array.get_data()) == true);
     REQUIRE(bytes_array.get_size() == sizeof(float) * row_count * col_count);
     REQUIRE(bytes_array.has_mutable_data() == false);
@@ -78,7 +78,7 @@ TEST("can get original data from homogen table constructed from builder with dev
 
     auto bytes_array = get_original_data(t);
     REQUIRE(bytes_array.get_data() == t.get_data());
-    REQUIRE(bytes_array.get_data() == (byte_t*)data.get_data());
+    REQUIRE(bytes_array.get_data() == (const byte_t*)data.get_data());
     REQUIRE(backend::is_device_usm(q, bytes_array.get_data()) == true);
     REQUIRE(bytes_array.get_size() == sizeof(float) * row_count * col_count);
     REQUIRE(bytes_array.has_mutable_data() == true);
