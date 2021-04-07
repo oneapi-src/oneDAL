@@ -50,9 +50,7 @@ matching_engine::matching_engine(const graph* ppattern,
         max_neighbours_size = max_degree;
     }
 
-#ifdef EXPERIMENTAL
     hlocal_stack.init(solution_length - 1, target_vertex_count);
-#endif // EXPERIMENTAL
 
     if (target->bit_representation) {
         temporary_list = nullptr;
@@ -361,7 +359,6 @@ solution matching_engine::get_solution() {
 }
 
 void matching_engine::run_and_wait(bool main_engine) {
-#ifdef EXPERIMENTAL
     if (main_engine) {
         first_states_generator(hlocal_stack);
     }
@@ -375,32 +372,6 @@ void matching_engine::run_and_wait(bool main_engine) {
             state_exploration_list();
         }
     }
-
-#else
-    if (main_engine) {
-        first_states_generator(local_stack);
-    }
-    state* current_state = nullptr;
-
-    if (target->bit_representation) { /* dense graph case */
-        while (local_stack.size() > 0) {
-            current_state = local_stack.pop();
-            state_exploration_bit(current_state);
-            /* for large sparse graph cases and internal threading */
-            current_state->~state();
-            _mm_free(current_state);
-        }
-    }
-    else { /* sparse graph case */
-        while (local_stack.size() > 0) {
-            current_state = local_stack.pop();
-            state_exploration_list(current_state);
-            /* for large sparse graph cases and internal threading */
-            current_state->~state();
-            _mm_free(current_state);
-        }
-    }
-#endif // EXPERIMENTAL
     return;
 }
 
@@ -443,7 +414,8 @@ engine_bundle::~engine_bundle() {
 solution engine_bundle::run() {
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
-    std::uint64_t first_states_count = pattern_vertex_probability[0] * target->get_vertex_count();
+    std::uint64_t first_states_count =
+        pattern_vertex_probability[0] * target->get_vertex_count() + 1;
     int max_threads_count = dal::detail::threader_get_max_threads();
     std::uint64_t possible_first_states_count_per_thread = first_states_count / max_threads_count;
     if (possible_first_states_count_per_thread < 1) {
@@ -470,36 +442,24 @@ solution engine_bundle::run() {
 
     state null_state;
     // task_group tg;
-    std::uint64_t task_counter = 0;
+    std::uint64_t task_counter = 0, index = 0;
     for (std::int64_t i = 0; i < target->n; ++i) {
         if (degree <= target->get_vertex_degree(i) &&
             pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                 target->get_vertex_attribute(i)) {
-#ifdef EXPERIMENTAL
-            engine_array[task_counter].push_into_stack(i);
+            index = task_counter % max_threads_count;
+            engine_array[index].push_into_stack(i);
 
-            if ((engine_array[task_counter].hlocal_stack.states_in_stack() /
-                 possible_first_states_count_per_thread) > 0 ||
-                i == target->n - 1) {
+            if ((engine_array[index].hlocal_stack.states_in_stack() /
+                 possible_first_states_count_per_thread) > 0) {
                 // tg.run([=] {
-                engine_array[task_counter].run_and_wait(false);
+                engine_array[index].run_and_wait(false);
                 // });
                 task_counter++;
             }
-#else
-            void* place = _mm_malloc(sizeof(state), 64);
-            state* new_state = new (place) state(&null_state, i);
-            engine_array[task_counter].push_into_stack(new_state);
-
-            if ((engine_array[task_counter].local_stack.size() /
-                 possible_first_states_count_per_thread) > 0 ||
-                i == target->n - 1) {
-                // tg.run([=] {
-                engine_array[task_counter].run_and_wait(false);
-                // });
-                task_counter++;
-            }
-#endif // EXPERIMENTAL
+        }
+        if (i == (target->n) - 1) {
+            engine_array[index].run_and_wait(false);
         }
     }
 
