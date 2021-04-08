@@ -187,6 +187,7 @@ Beside C++ and Python API, oneDAL also provides APIs for DPC++ and Java:
 - [Get Started Guide](http://oneapi-src.github.io/oneDAL/onedal/get-started.html#onedal-get-started)
 - [Developer Guide and Reference](http://oneapi-src.github.io/oneDAL/)
 - [daal4py documentation](https://intelpython.github.io/daal4py/)
+- [Intel(R) Extension for Scikit-learn* documentation](https://intel.github.io/scikit-learn-intelex/)
 - [Specification](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
 - [Release Notes](https://software.intel.com/content/www/us/en/develop/articles/oneapi-dal-release-notes.html)
 - [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
