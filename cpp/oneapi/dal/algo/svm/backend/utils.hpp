@@ -98,8 +98,7 @@ inline array<Float> convert_labels(sycl::queue& queue,
     using error_msg = dal::detail::error_messages;
     const std::int64_t count = arr_label.get_count();
 
-    // TODO: Replace allocation type once bug with `memcpy` and host memory is fixed
-    auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
+    auto new_label_arr = array<Float>::empty(count);
     auto new_label_data = new_label_arr.get_mutable_data();
 
     const auto arr_label_host = dal::backend::to_host_sync(arr_label);

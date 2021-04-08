@@ -43,16 +43,14 @@ template <typename T>
 inline std::tuple<array<T>, sycl::event> to_host(const array<T>& ary) {
     ONEDAL_ASSERT(ary.get_count() > 0);
 
-    if (!ary.get_queue().has_value()) {
+    if (!ary.get_queue().has_value() || is_host_friendly_usm(ary)) {
         return { ary, sycl::event{} };
     }
 
     ONEDAL_ASSERT(ary.get_queue().has_value());
     auto q = ary.get_queue().value();
 
-    // TODO: Change allocation kind to normal host memory once
-    //       bug in `copy` with the host memory is fixed
-    const auto ary_host = array<T>::empty(q, ary.get_count(), sycl::usm::alloc::host);
+    const auto ary_host = array<T>::empty(ary.get_count());
     const auto event = copy<T>(q, ary_host.get_mutable_data(), ary.get_data(), ary.get_count());
     return { ary_host, event };
 }

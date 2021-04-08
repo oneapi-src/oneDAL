@@ -177,7 +177,7 @@ sycl::event convert_vector_device2host(sycl::queue& q,
     const std::int64_t src_stride_in_bytes =
         dal::detail::check_mul_overflow(element_size_in_bytes, src_stride);
 
-    const auto tmp_host_unique = make_unique_usm_host(q, src_size_in_bytes);
+    const auto tmp_host_unique = make_unique_host(src_size_in_bytes);
 
     auto gather_event = gather_device2host(q,
                                            tmp_host_unique.get(),
@@ -188,7 +188,7 @@ sycl::event convert_vector_device2host(sycl::queue& q,
                                            deps);
     gather_event.wait_and_throw();
 
-    convert_vector(dal::detail::default_host_policy{},
+    convert_vector(detail::default_host_policy{},
                    tmp_host_unique.get(),
                    dst_host,
                    src_type,
@@ -225,9 +225,9 @@ sycl::event convert_vector_host2device(sycl::queue& q,
     const std::int64_t dst_stride_in_bytes =
         dal::detail::check_mul_overflow(element_size_in_bytes, dst_stride);
 
-    const auto tmp_host_unique = make_unique_usm_host(q, dst_size_in_bytes);
+    const auto tmp_host_unique = make_unique_host(dst_size_in_bytes);
 
-    convert_vector(dal::detail::default_host_policy{},
+    convert_vector(detail::default_host_policy{},
                    src_host,
                    tmp_host_unique.get(),
                    src_type,
