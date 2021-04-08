@@ -80,13 +80,41 @@ alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
 result = alg.compute(data, centroids)
 ```
 
-### Scikit-learn patching
+### Distributed multi-node mode
 
-You can speed up Scikit-learn using Intel(R) Extension for Scikit-learn*.
+Data scientists often require different tools for analysis of regular and big data. daal4py offers various processing models, which makes it easy to enable distributed multi-node mode.
 
-Intel(R) Extension for Scikit-learn* speeds up scikit-learn beyond  by providing drop-in patching. Acceleration is achieved through the use of the Intel(R) oneAPI Data Analytics Library ([oneDAL](https://github.com/oneapi-src/oneDAL)) that allows for fast usage of the framework suited for Data Scientists or Machine Learning users.
+```python
+import numpy as np
+import pandas as pd
+import daal4py as d4p
 
-| *Speedup of oneDAL-powered scikit-learn over the original scikit-learn, 28 cores, 1 thread/core* |
+d4p.daalinit() # <-- Initialize SPMD mode
+data = pd.read_csv("local_kmeans_data.csv", dtype = np.float32)
+
+init_alg = d4p.kmeans_init(nClusters = 10,
+                           fptype = "float",
+                           method = "randomDense",
+                           distributed = True) # <-- change model to distributed
+
+centroids = init_alg.compute(data).centroids
+
+alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
+                 accuracyThreshold = 0, assignFlag = False,
+                 distributed = True)  # <-- change model to distributed
+
+result = alg.compute(data, centroids)
+```
+
+For more details browse [daal4py documentation](https://intelpython.github.io/daal4py/).
+
+## Scikit-learn patching
+
+You can speed up Scikit-learn using [Intel(R) Extension for Scikit-learn*](https://intel.github.io/scikit-learn-intelex/).
+
+Intel(R) Extension for Scikit-learn* speeds up scikit-learn beyond  by providing drop-in patching. Acceleration is achieved through the use of the Intel(R) oneAPI Data Analytics Library that allows for fast usage of the framework suited for Data Scientists or Machine Learning users.
+
+| *Speedup of Intel(R) Extension for Scikit-learn\* over the original scikit-learn, 28 cores, 1 thread/core* |
 |:--:|
 | ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
 | *Technical details: FPType: float32; HW: Intel(R) Xeon(R) Platinum 8276L CPU @ 2.20GHz, 2 sockets, 28 cores per socket; SW: scikit-learn 0.22.2, Intel® DAAL (2019.5), Intel® Distribution Of Python (IDP) 3.7.4; Details available in the article https://medium.com/intel-analytics-software/accelerate-your-scikit-learn-applications-a06cacf44912* |
@@ -125,33 +153,7 @@ print(end - start) # output: 0.032536...
 print(svm_sklearnex.score(X, y)) # output: 0.9905397885364496
 ```
 
-### Distributed multi-node mode
-
-Data scientists often require different tools for analysis of regular and big data. daal4py offers various processing models, which makes it easy to enable distributed multi-node mode.
-
-```python
-import numpy as np
-import pandas as pd
-import daal4py as d4p
-
-d4p.daalinit() # <-- Initialize SPMD mode
-data = pd.read_csv("local_kmeans_data.csv", dtype = np.float32)
-
-init_alg = d4p.kmeans_init(nClusters = 10,
-                           fptype = "float",
-                           method = "randomDense",
-                           distributed = True) # <-- change model to distributed
-
-centroids = init_alg.compute(data).centroids
-
-alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
-                 accuracyThreshold = 0, assignFlag = False,
-                 distributed = True)  # <-- change model to distributed
-
-result = alg.compute(data, centroids)
-```
-
-For more details browse [daal4py documentation](https://intelpython.github.io/daal4py/).
+For more details browse [Intel(R) Extension for Scikit-learn* documentation](https://intel.github.io/scikit-learn-intelex/).
 
 ## oneDAL Apache Spark MLlib samples
 
