@@ -8,6 +8,9 @@ dal_module(
     name = "example_util",
     hdrs = glob(["source/example_util/*.hpp"]),
     includes = [ "source" ],
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:jaccard",
+    ],
 )
 
 _TEST_DEPS = [
@@ -58,6 +61,19 @@ dal_example_suite(
     srcs = glob(["source/jaccard/*.cpp"]),
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo:jaccard",
+    ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS + [
+        "@tbb//:tbb",
+    ],
+)
+
+dal_example_suite(
+    name = "subgraph_isomorphism",
+    compile_as = [ "c++" ],
+    srcs = glob(["source/subgraph_isomorphism/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:subgraph_isomorphism",
     ],
     data = _DATA_DEPS,
     extra_deps = _TEST_DEPS + [

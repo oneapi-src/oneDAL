@@ -68,9 +68,6 @@ struct graph_matching_ops {
     void check_preconditions(const Descriptor &param, graph_matching_input<Graph> &input) const {
         using msg = dal::detail::error_messages;
 
-        if (param.get_kind() != kind::induced) {
-            throw invalid_argument(msg::unsupported_kind());
-        }
         if (param.get_max_match_count() < 0) {
             throw invalid_argument(msg::max_match_count_lt_zero());
         }

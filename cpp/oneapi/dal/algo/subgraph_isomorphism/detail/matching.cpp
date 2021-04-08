@@ -23,7 +23,9 @@ matching_engine::matching_engine(const graph* ppattern,
                                  const std::int64_t* psorted_pattern_vertex,
                                  const std::int64_t* ppredecessor,
                                  const edge_direction* pdirection,
-                                 sconsistent_conditions const* pcconditions) {
+                                 sconsistent_conditions const* pcconditions,
+                                 kind isomorphism_kind)
+        : isomorphism_kind_(isomorphism_kind) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
@@ -66,7 +68,8 @@ matching_engine::matching_engine(const matching_engine& _matching_engine, stack&
                           _matching_engine.sorted_pattern_vertex,
                           _matching_engine.predecessor,
                           _matching_engine.direction,
-                          _matching_engine.pconsistent_conditions) {
+                          _matching_engine.pconsistent_conditions,
+                          _matching_engine.isomorphism_kind_) {
     local_stack = std::move(_local_stack);
 }
 
@@ -74,11 +77,14 @@ std::int64_t matching_engine::state_exploration_bit(state* current_state, bool c
     const std::int64_t i_cc = current_state->core_length - 1;
     const std::int64_t divider = pconsistent_conditions[i_cc].divider;
 
+    if (isomorphism_kind_ != kind::non_induced) {
 #pragma ivdep
-    for (std::int64_t j = 0; j < divider; j++) {
-        or_equal(vertex_candidates.get_vector_pointer(),
-                 target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
-                 vertex_candidates.size());
+        for (std::int64_t j = 0; j < divider; j++) {
+            or_equal(
+                vertex_candidates.get_vector_pointer(),
+                target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
+                vertex_candidates.size());
+        }
     }
 
     ~vertex_candidates; // inversion?
@@ -101,12 +107,14 @@ std::int64_t matching_engine::state_exploration_bit(bool check_solution) {
     std::uint64_t current_level_index = hlocal_stack.get_current_level_index();
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
+    if (isomorphism_kind_ != kind::non_induced) {
 #pragma ivdep
-    for (std::int64_t j = 0; j < divider; j++) {
-        or_equal(vertex_candidates.get_vector_pointer(),
-                 target->p_edges_bit[hlocal_stack.top(
-                     pconsistent_conditions[current_level_index].array[j])],
-                 vertex_candidates.size());
+        for (std::int64_t j = 0; j < divider; j++) {
+            or_equal(vertex_candidates.get_vector_pointer(),
+                     target->p_edges_bit[hlocal_stack.top(
+                         pconsistent_conditions[current_level_index].array[j])],
+                     vertex_candidates.size());
+        }
     }
 
     ~vertex_candidates; // inversion ?
@@ -379,7 +387,9 @@ engine_bundle::engine_bundle(const graph* ppattern,
                              const edge_direction* pdirection,
                              sconsistent_conditions const* pcconditions,
                              float* ppattern_vertex_probability,
-                             const std::uint64_t _control_flags) {
+                             const std::uint64_t _control_flags,
+                             kind isomorphism_kind)
+        : isomorphism_kind_(isomorphism_kind) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
@@ -426,7 +436,8 @@ solution engine_bundle::run() {
                                                sorted_pattern_vertex,
                                                predecessor,
                                                direction,
-                                               pconsistent_conditions);
+                                               pconsistent_conditions,
+                                               isomorphism_kind_);
     }
 
     state null_state;

@@ -119,9 +119,9 @@ int main(int argc, char **argv) {
     //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
 
     auto target_filename = get_data_path(
-        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff");
     auto pattern_filename = get_data_path(
-        "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query4_0.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
 
     //  1240	1237	1241	1242	1243
     //  1240	1237	1241	1243	1242
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
     // set algorithm parameters
     const auto subgraph_isomorphism_desc =
         dal::preview::subgraph_isomorphism::descriptor<>(alloc)
-            .set_kind(dal::preview::subgraph_isomorphism::kind::induced)
+            .set_kind(dal::preview::subgraph_isomorphism::kind::non_induced)
             .set_semantic_match(false)
             .set_max_match_count(100);
 

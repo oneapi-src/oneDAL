@@ -4,6 +4,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/sorter.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/matching.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -13,7 +14,10 @@ std::shared_ptr<T> make_shared_malloc(std::uint64_t elements_count) {
     return std::shared_ptr<T>(ptr, _mm_free);
 }
 
-solution si(const graph& pattern, const graph& target, const std::uint64_t control_flags = 0) {
+solution si(const graph& pattern,
+            const graph& target,
+            kind isomorphism_kind,
+            const std::uint64_t control_flags = 0) {
     solution sol;
     sorter sorter_graph(&target);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
@@ -57,7 +61,8 @@ solution si(const graph& pattern, const graph& target, const std::uint64_t contr
                           direction.get(),
                           cconditions.get(),
                           pattern_vertex_probability.get(),
-                          control_flags);
+                          control_flags,
+                          isomorphism_kind);
     sol = harness.run();
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
