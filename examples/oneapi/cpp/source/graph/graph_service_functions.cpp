@@ -35,11 +35,11 @@ int main(int argc, char **argv) {
     std::cout << "Number of vertices: " << dal::preview::get_vertex_count(my_graph) << std::endl;
     std::cout << "Number of edges: " << dal::preview::get_edge_count(my_graph) << std::endl;
 
-    dal::preview::vertex_type<my_graph_type> vertex_id = 0;
+    dal::preview::vertex_edge_size_type<my_graph_type> vertex_id = 0;
     std::cout << "Degree of " << vertex_id << ": "
               << dal::preview::get_vertex_degree(my_graph, vertex_id) << std::endl;
 
-    for (dal::preview::vertex_size_type<my_graph_type> j = 0;
+    for (dal::preview::vertex_edge_size_type<my_graph_type> j = 0;
          j < dal::preview::get_vertex_count(my_graph);
          ++j) {
         std::cout << "Neighbors of " << j << ": ";

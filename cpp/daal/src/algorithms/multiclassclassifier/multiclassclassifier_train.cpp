@@ -61,13 +61,6 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
 
     size_t nClasses;
     {
-        auto par1 = dynamic_cast<const multi_class_classifier::interface1::Parameter *>(parameter);
-        if (par1)
-        {
-            nClasses = par1->nClasses;
-            DAAL_CHECK_EX(par1->training.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, trainingStr());
-        }
-
         auto par2 = dynamic_cast<const multi_class_classifier::Parameter *>(parameter);
         if (par2)
         {
@@ -75,7 +68,7 @@ services::Status Result::check(const daal::algorithms::Input * input, const daal
             DAAL_CHECK_EX(par2->training.get(), services::ErrorNullAuxiliaryAlgorithm, services::ParameterName, trainingStr());
         }
 
-        if (par1 == nullptr && par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
+        if (par2 == nullptr) return services::Status(services::ErrorNullParameterNotSupported);
     }
     daal::algorithms::multi_class_classifier::ModelPtr m = get(classifier::training::model);
     if (m->getNumberOfTwoClassClassifierModels() == 0)

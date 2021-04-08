@@ -28,6 +28,8 @@
 #include "algorithms/model.h"
 #include "algorithms/algorithm.h"
 #include "algorithms/multi_class_classifier/multi_class_classifier_train_types.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_svm_model.h"
+
 #include "src/services/service_defines.h"
 
 using namespace daal::data_management;
@@ -42,21 +44,26 @@ namespace training
 {
 namespace internal
 {
-template <Method method, typename AlgorithmFPtype, typename ClsType, typename MccParType, CpuType cpu>
+struct KernelParameter
+{
+    size_t nClasses;                                                           /*!< Number of classes */
+    services::SharedPtr<algorithms::classifier::training::Batch> training;     /*!< Two-class classifier training stage */
+    services::SharedPtr<algorithms::classifier::prediction::Batch> prediction; /*!< Two-class classifier prediction stage */
+    size_t maxIterations;                                                      /*!< Maximum number of iterations */
+    double accuracyThreshold;                                                  /*!< Convergence threshold */
+};
+
+template <Method method, typename AlgorithmFPtype, CpuType cpu>
 struct MultiClassClassifierTrainKernel : public Kernel
 {
     services::Status compute(const NumericTable * a0, const NumericTable * a1, const NumericTable * a2, daal::algorithms::Model * r,
-                             const daal::algorithms::Parameter * par);
+                             multi_class_classifier::internal::SvmModel * svmModel, const KernelParameter & par);
 };
 
 } // namespace internal
-
 } // namespace training
-
 } // namespace multi_class_classifier
-
 } // namespace algorithms
-
 } // namespace daal
 
 #endif

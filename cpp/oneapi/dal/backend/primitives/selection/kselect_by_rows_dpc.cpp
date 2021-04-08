@@ -17,6 +17,7 @@
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_simd.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_quick.hpp"
+#include "oneapi/dal/backend/primitives/selection/kselect_by_rows_single_col.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -32,10 +33,14 @@ template <typename Float>
 kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
                                         const ndshape<2>& shape,
                                         std::int64_t k) {
+    if (k == 1) {
+        base_.reset(new kselect_by_rows_single_col<Float>{});
+        return;
+    }
     const auto sg_sizes = queue.get_device().get_info<sycl::info::device::sub_group_sizes>();
     ONEDAL_ASSERT(!sg_sizes.empty());
     auto max_sg_size_iter = std::max_element(sg_sizes.begin(), sg_sizes.end());
-    ONEDAL_ASSERT(max_sg_size != sg_sizes.end());
+    ONEDAL_ASSERT(max_sg_size_iter != sg_sizes.end());
     const std::uint32_t simd_width = static_cast<std::uint32_t>(*max_sg_size_iter);
 
     if (k <= simd_width) {

@@ -133,8 +133,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     TArray<char, cpu> I(nWS);
     DAAL_CHECK_MALLOC(I.get());
 
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors * sizeof(algorithmFPType), nVectors);
-
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
     defaultCacheSize        = services::internal::max<cpu, size_t>(nWS, defaultCacheSize);
     auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
@@ -165,20 +163,9 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         diffPrev = diff;
     }
 
-    if (svmType == SvmType::regression)
-    {
-        DAAL_CHECK(alphaTArray.size() >= 2 * nVectors, services::ErrorMemoryAllocationFailed)
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nVectors; ++i)
-        {
-            alpha[i] = alpha[i] - alpha[i + nVectors];
-        }
-    }
-
     cachePtr->clear();
-    SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, cachePtr.get());
-    DAAL_CHECK_STATUS(status, saveResult.compute(*xTable, *static_cast<Model *>(r), cw));
+    SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, svmType, cachePtr.get());
+    DAAL_CHECK_STATUS(status, saveResult.compute(xTable, *static_cast<Model *>(r), cw));
 
     return status;
 }
@@ -246,7 +233,6 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
     const size_t blockSize = 16384;
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
-    DAAL_ITTNOTIFY_SCOPED_TASK(init.set);
     TlsSum<size_t, cpu> weightsCounter(1);
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
@@ -267,8 +253,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
             y[i + startRow]            = algorithmFPType(1.0);
             y[i + startRow + nVectors] = algorithmFPType(-1.0);
 
-            grad[i + startRow]            = epsilon - yIn[i + startRow];
-            grad[i + startRow + nVectors] = -epsilon - yIn[i + startRow];
+            grad[i + startRow]            = epsilon - yIn[i];
+            grad[i + startRow + nVectors] = -epsilon - yIn[i];
 
             alpha[i + startRow]            = algorithmFPType(0);
             alpha[i + startRow + nVectors] = algorithmFPType(0);
@@ -436,7 +422,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorit
 
     SafeStatus safeStat;
     const size_t blockSizeGrad = 128;
-    size_t nBlocksGrad         = (nTrainVectors / blockSizeGrad) + !!(nTrainVectors % blockSizeGrad);
+    const size_t nBlocksGrad   = (nTrainVectors / blockSizeGrad) + !!(nTrainVectors % blockSizeGrad);
 
     DAAL_INT incX(1);
     DAAL_INT incY(1);

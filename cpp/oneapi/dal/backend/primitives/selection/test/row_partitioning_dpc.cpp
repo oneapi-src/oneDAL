@@ -18,7 +18,7 @@
 #include <tuple>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/selection/row_partitioning.hpp"
+#include "oneapi/dal/backend/primitives/selection/row_partitioning_kernel.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
@@ -70,7 +70,7 @@ public:
                 if (cur_row >= row_count)
                     return;
                 int cur_index =
-                    kernel_row_partitioning<float_t>(item,
+                    row_partitioning_kernel<float_t>(item,
                                                      data_tmp_ptr + col_count * cur_row,
                                                      index_array_ptr + col_count * cur_row,
                                                      start,

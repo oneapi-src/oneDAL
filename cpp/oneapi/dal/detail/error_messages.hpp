@@ -81,7 +81,9 @@ public:
     MSG(unsupported_usm_alloc);
 
     /* Primitives */
+    MSG(invalid_number_of_elements_to_process);
     MSG(invalid_number_of_elements_to_sort);
+    MSG(failed_to_compute_eigenvectors);
 
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
@@ -185,6 +187,7 @@ public:
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
     MSG(svm_regression_task_is_not_implemented_for_gpu);
+    MSG(svm_multiclass_not_implemented_for_gpu);
     MSG(tau_leq_zero);
     MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);

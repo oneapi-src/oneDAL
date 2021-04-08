@@ -43,8 +43,7 @@ namespace interface2
 template <typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
 BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierPredictKernel, pmethod, tmethod, algorithmFPType,
-                              classifier::prediction::interface2::Batch, multi_class_classifier::interface2::Parameter);
+    __DAAL_INITIALIZE_KERNELS(internal::MultiClassClassifierPredictKernel, pmethod, tmethod, algorithmFPType);
 }
 
 template <typename algorithmFPType, prediction::Method pmethod, training::Method tmethod, CpuType cpu>
@@ -60,6 +59,7 @@ services::Status BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::compute
 
     NumericTable * r[2];
     Result * result = dynamic_cast<Result *>(_res);
+
     if (result)
     {
         r[0] = static_cast<NumericTable *>(result->get(ResultId::prediction).get());
@@ -78,18 +78,12 @@ services::Status BatchContainer<algorithmFPType, pmethod, tmethod, cpu>::compute
 
     const daal::algorithms::Parameter * par = _par;
     daal::services::Environment::env & env  = *_env;
-    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierPredictKernel,
-                       __DAAL_KERNEL_ARGUMENTS(pmethod, tmethod, algorithmFPType, classifier::prediction::interface2::Batch,
-                                               multi_class_classifier::interface2::Parameter),
-                       compute, a, m, r[0], r[1], par);
+    __DAAL_CALL_KERNEL(env, internal::MultiClassClassifierPredictKernel, __DAAL_KERNEL_ARGUMENTS(pmethod, tmethod, algorithmFPType), compute, a, m,
+                       nullptr, r[0], r[1], par);
 }
 
 } // namespace interface2
-
 } // namespace prediction
-
 } // namespace multi_class_classifier
-
 } // namespace algorithms
-
 } // namespace daal

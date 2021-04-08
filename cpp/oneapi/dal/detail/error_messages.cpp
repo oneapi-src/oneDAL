@@ -45,7 +45,9 @@ MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 
 /* Primitives */
+MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
 MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
+MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
 
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
@@ -162,6 +164,8 @@ MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not impl
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
+MSG(svm_multiclass_not_implemented_for_gpu,
+    "SVM with multiclass support is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")
