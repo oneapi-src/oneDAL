@@ -263,19 +263,15 @@ using unique_host_ptr = std::unique_ptr<T, detail::default_delete<T, detail::def
 
 inline unique_host_ptr<void> make_unique_host(std::int64_t size) {
     const detail::default_host_policy host_policy;
-    return unique_host_ptr<void>{
-        detail::malloc(host_policy, size),
-        detail::make_default_delete<void>(host_policy)
-    };
+    return unique_host_ptr<void>{ detail::malloc(host_policy, size),
+                                  detail::make_default_delete<void>(host_policy) };
 }
 
 template <typename T>
 inline unique_host_ptr<T> make_unique_host(std::int64_t count) {
     const detail::default_host_policy host_policy;
-    return unique_host_ptr<T>{
-        detail::malloc<T>(host_policy, count),
-        detail::make_default_delete<T>(host_policy)
-    };
+    return unique_host_ptr<T>{ detail::malloc<T>(host_policy, count),
+                               detail::make_default_delete<T>(host_policy) };
 }
 
 } // namespace oneapi::dal::backend

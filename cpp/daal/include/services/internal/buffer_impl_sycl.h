@@ -104,7 +104,7 @@ private:
         }
         else if (_allocType == alloc::device)
         {
-            auto host_ptr = SharedPtr<T>((T*)daal_malloc(_size * sizeof(T)),
+            auto host_ptr = SharedPtr<T>((T *)daal_malloc(_size * sizeof(T)),
                                          [q = this->_queue, data = this->_data, size = this->_size, needSynchronize](const void * hostData) mutable {
                                              if (needSynchronize)
                                              {
