@@ -17,17 +17,22 @@
 #include <initializer_list>
 
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
+#include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 
-typedef dal::preview::subgraph_isomorphism::kind isomorphism_kind;
+// typedef dal::preview::subgraph_isomorphism::kind isomorphism_kind;
+
+#define isomorphism_kind dal::preview::subgraph_isomorphism::kind
 
 namespace oneapi::dal::algo::subgraph_isomorphism::test {
 
 class subgraph_isomorphism_badarg_test {
 public:
     auto create_graph() {
-        oneapi::dal::preview::undirected_adjacency_vector_graph<> my_graph;
+        oneapi::dal::preview::undirected_adjacency_vector_graph<std::int32_t> my_graph;
         auto &graph_impl = oneapi::dal::detail::get_impl(my_graph);
         auto &vertex_allocator = graph_impl._vertex_allocator;
         auto &edge_allocator = graph_impl._edge_allocator;
@@ -68,12 +73,30 @@ public:
         return my_graph;
     }
 
-    void check_subgraph_isomorphism(bool semantic_match;
-                                    std::int64_t max_match_count;
+    void check_subgraph_isomorphism(bool semantic_match,
+                                    std::int64_t max_match_count,
                                     isomorphism_kind kind) {
         const auto target_graph = create_graph();
         const auto pattern_graph = create_graph();
 
+        std::allocator<char> alloc;
+        const auto subgraph_isomorphism_desc =
+        dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+            .set_kind(kind)
+            .set_semantic_match(semantic_match)
+            .set_max_match_count(max_match_count);
+
+        const auto result =
+        dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
+    }
+
+    void check_emptpy_subgraph_isomorphism(bool semantic_match,
+                                    std::int64_t max_match_count,
+                                    isomorphism_kind kind) {
+        const auto target_graph = create_graph();
+        const oneapi::dal::preview::undirected_adjacency_vector_graph<std::int32_t> pattern_graph;
+
+        std::allocator<char> alloc;
         const auto subgraph_isomorphism_desc =
         dal::preview::subgraph_isomorphism::descriptor<>(alloc)
             .set_kind(kind)
@@ -85,23 +108,25 @@ public:
     }
 };
 
-#define SUBGRAPH_ISOMORPHISM_BADARG_TEST(name) TEST_M(subgraph_isomorphism_badarg_test, name, "[subgraph_isomorphism][badarg]")
+#define SUBGRAPH_ISOMORPHISM_BADARG_TEST(name) \
+    TEST_M(subgraph_isomorphism_badarg_test, name, "[subgraph_isomorphism][badarg]")
 
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("positive check") {
-    REQUIRE_THROWS_AS(this->check_vertex_similarity(false, 100, isomorphism_kind::induced));
+    REQUIRE_NOTHROW(this->check_subgraph_isomorphism(false, 100, isomorphism_kind::induced));
+}
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if isomorphism kind is not induced") {
-    REQUIRE_NOTHROW(this->check_vertex_similarity(false, 100, isomorphism_kind::not_induced),
+SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if isomorphism kind is non induced") {
+    REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(false, 100, isomorphism_kind::non_induced),
                     invalid_argument);
 }
 
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if match count is negative") {
-    REQUIRE_NOTHROW(this->check_vertex_similarity(false, -1, isomorphism_kind::induced),
+    REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(false, -1, isomorphism_kind::induced),
                     invalid_argument);
 }
 
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if semantic match is true") {
-    REQUIRE_NOTHROW(this->check_vertex_similarity(true, 100, isomorphism_kind::induced),
+    REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(true, 100, isomorphism_kind::induced),
                     invalid_argument);
 }
 
