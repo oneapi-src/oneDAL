@@ -427,10 +427,11 @@ solution engine_bundle::run() {
             static_cast<bool>(first_states_count % max_threads_count);
     }
 
+    const std::uint64_t array_size = max_threads_count * 2;
     matching_engine* engine_array =
-        static_cast<matching_engine*>(operator new[](sizeof(matching_engine) * max_threads_count));
+        static_cast<matching_engine*>(_mm_malloc(sizeof(matching_engine) * array_size, 64));
 
-    for (int i = 0; i < max_threads_count; ++i) {
+    for (int i = 0; i < array_size; ++i) {
         new (engine_array + i) matching_engine(pattern,
                                                target,
                                                sorted_pattern_vertex,
@@ -441,36 +442,30 @@ solution engine_bundle::run() {
     }
 
     state null_state;
-    // task_group tg;
     std::uint64_t task_counter = 0, index = 0;
     for (std::int64_t i = 0; i < target->n; ++i) {
         if (degree <= target->get_vertex_degree(i) &&
             pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                 target->get_vertex_attribute(i)) {
-            index = task_counter % max_threads_count;
+            index = task_counter % array_size;
             engine_array[index].push_into_stack(i);
 
             if ((engine_array[index].hlocal_stack.states_in_stack() /
                  possible_first_states_count_per_thread) > 0) {
-                // tg.run([=] {
-                engine_array[index].run_and_wait(false);
-                // });
                 task_counter++;
             }
         }
-        if (i == (target->n) - 1) {
-            engine_array[index].run_and_wait(false);
-        }
     }
 
-    // tg.wait();
+    dal::detail::threader_for(array_size, array_size, [&](const int index) {
+        engine_array[index].run_and_wait(false);
+    });
 
-    for (int i = 0; i < max_threads_count; i++) {
+    for (int i = 0; i < array_size; i++) {
         bundle_solutions.add(engine_array[i].get_solution());
         engine_array[i].~matching_engine();
     }
-    operator delete[](engine_array);
-    engine_array = nullptr;
+    _mm_free(engine_array);
 
     return std::move(bundle_solutions);
 }
