@@ -148,6 +148,10 @@ public:
         return data_.get_data();
     }
 
+    array<byte_t> get_data_array() const {
+        return data_;
+    }
+
     data_layout get_data_layout() const {
         return layout_;
     }

@@ -22,6 +22,7 @@ dal_test_suite(
         "test/convert.cpp",
         "test/table_builder.cpp",
         "test/table_adapter.cpp",
+        "detail/test/homogen_utils.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",
