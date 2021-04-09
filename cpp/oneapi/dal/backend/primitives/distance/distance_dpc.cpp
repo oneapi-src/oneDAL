@@ -30,4 +30,13 @@ void check_inputs(const ndview<Float, 2>& inp1,
     ONEDAL_ASSERT(inp1.get_dimension(1) == inp2.get_dimension(1));
 }
 
+#define INSTANTIATE(F)                                \
+    template void check_inputs<F>(const ndview<F, 2>&,\
+                                  const ndview<F, 2>&,\
+                                  const ndview<F, 2>&); 
+INSTANTIATE(float);
+INSTANTIATE(double);
+
+#undef INSTANTIATE    
+
 } // namespace oneapi::dal::backend::primitives

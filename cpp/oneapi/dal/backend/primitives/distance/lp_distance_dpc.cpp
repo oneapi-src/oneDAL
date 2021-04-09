@@ -34,7 +34,7 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
     // Getting raw USM pointers
     const auto* inp1_ptr = inp1.get_data();
     const auto* inp2_ptr = inp2.get_data();
-    auto* out_ptr = inp2.get_mutable_data();
+    auto* out_ptr = out.get_mutable_data();
     // Getting info about dimensions
     const auto n_features = inp1.get_dimension(1);
     const auto n_samples1 = inp1.get_dimension(0);
@@ -47,9 +47,11 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
     sycl::range<2> out_range(n_samples1, n_samples2);
     // Metric instance 
     const auto& metric = this->m_;
-    return q_.submit(
+    auto res_event = q_.submit(
         [&](sycl::handler& h) {
             h.depends_on(deps);
+            //sycl::stream outs(1024, 256, h);
+
             h.parallel_for<class dist_comp>(
                 out_range, 
                 [=](sycl::id<2> idx) {
@@ -58,14 +60,15 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
                     const auto* inp2_first = inp2_ptr + inp_stride2 * idx[1];
                     auto& out_place = *(out_ptr + out_stride * idx[0] + idx[1]); 
                     out_place = metric(inp1_first, inp1_last, inp2_first);
+                    //outs << idx[0] << ' ' << idx[1] << ' ' << out_place << sycl::endl; 
                 }
             );
         }
     );
+    res_event.wait_and_throw();
+    std::cerr << '\t' << *out_ptr << std::endl;
+    return res_event;
 }
-
-
-
 
 #define INSTANTIATE(F) template class distance<F, lp_metric<F>>;
 
