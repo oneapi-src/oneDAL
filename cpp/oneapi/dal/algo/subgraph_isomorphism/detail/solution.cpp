@@ -197,23 +197,40 @@ graph_status solution::increase_solutions_size() {
     return ok;
 }
 
+template <typename T>
+inline T min(const T a, const T b) {
+    return (a >= b) ? b : a;
+}
+
 oneapi::dal::homogen_table solution::export_as_table() {
     if (solution_count == 0)
         return dal::homogen_table();
 
-    auto begin = sorted_pattern_vertices;
-    auto end = &sorted_pattern_vertices[solution_core_length];
+    const auto begin = sorted_pattern_vertices;
+    const auto end = &sorted_pattern_vertices[solution_core_length];
+
+    auto mapping = dal::array<std::int64_t>::empty(solution_core_length);
+    for (std::int64_t j = 0; j < solution_core_length; ++j) {
+        const auto p = std::find(begin, end, j);
+        ONEDAL_ASSERT(p != end, "Index not found");
+        mapping[j] = p - begin;
+    }
 
     auto arr_solution = dal::array<int>::empty(solution_core_length * solution_count);
-    int* arr = arr_solution.get_mutable_data();
+    const auto arr = arr_solution.get_mutable_data();
 
-    for (std::int64_t i = 0; i < solution_count; i++) {
-        for (std::int64_t j = 0; j < solution_core_length; j++) {
-            auto p_j1 = std::find(begin, end, j);
-            assert(p_j1 != end && "Index not found");
-            arr[i * solution_core_length + j] = data[i][p_j1 - begin];
+    constexpr std::int64_t block_size = 64;
+    const std::int64_t block_count = (solution_count - 1 + block_size) % block_size;
+    dal::detail::threader_for(block_count, block_count, [&](int index) {
+        const std::int64_t first = index * block_size;
+        const std::int64_t last = min(first + block_size, solution_count);
+        for (auto i = first; i != last; ++i) {
+            for (std::int64_t j = 0; j < solution_core_length; ++j) {
+                arr[i * solution_core_length + j] = data[i][mapping[j]];
+            }
         }
-    }
+    });
+
     return dal::detail::homogen_table_builder{}
         .reset(arr_solution, solution_count, solution_core_length)
         .build();
