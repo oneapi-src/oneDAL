@@ -25,49 +25,51 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template<typename Float, typename Metric>
+template <typename Float, typename Metric>
 class distance {
 public:
     distance(sycl::queue& q, const Metric& m = Metric{}) : q_{ q }, m_{ m } {
         static_assert(dal::detail::is_tag_one_of_v<Metric, distance_metric_tag>,
                       "Metric must be a special operation defined in metrics header");
     }
-    sycl::event initialize(const ndview<Float, 2>& inp1, 
+    sycl::event initialize(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            const event_vector& deps = {});
-    sycl::event operator()(const ndview<Float, 2>& inp1, 
+    sycl::event operator()(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            ndview<Float, 2>& out,
                            const event_vector& deps = {}) const;
+
 private:
     sycl::queue& q_;
     const Metric m_;
 };
 
-template<typename Float>
+template <typename Float>
 class distance<Float, l2_metric<Float>> {
 public:
     distance(sycl::queue& q) : q_{ q }, m_{} {}
-    sycl::event initialize(const ndview<Float, 2>& inp1, 
+    sycl::event initialize(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            const event_vector& deps = {});
-    sycl::event operator()(const ndview<Float, 2>& inp1, 
+    sycl::event operator()(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            ndview<Float, 2>& out,
                            const event_vector& deps = {}) const;
+
 private:
     sycl::queue& q_;
     const l2_metric<Float> m_;
 };
 
-template<typename Float>
+template <typename Float>
 using lp_distance = distance<Float, lp_metric<Float>>;
 
-template<typename Float>
+template <typename Float>
 using l2_distance = distance<Float, l2_metric<Float>>;
 
-template<typename Float>
-void check_inputs(const ndview<Float, 2>& inp1, 
+template <typename Float>
+void check_inputs(const ndview<Float, 2>& inp1,
                   const ndview<Float, 2>& inp2,
                   const ndview<Float, 2>& out);
 

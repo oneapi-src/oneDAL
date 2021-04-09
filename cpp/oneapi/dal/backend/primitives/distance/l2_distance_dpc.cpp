@@ -19,16 +19,16 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Float>
-sycl::event compute_norms(sycl::queue& q,  
+template <typename Float>
+sycl::event compute_norms(sycl::queue& q,
                           const ndview<Float, 2>& inp,
                           ndview<Float, 1>& out,
                           const event_vector& deps = {}) {
     return reduce_by_rows(q, inp, out, sum<Float>{}, square<Float>{}, deps);
 }
 
-template<typename Float>
-std::tuple<array<Float>, sycl::event> compute_norms(sycl::queue& q,  
+template <typename Float>
+std::tuple<array<Float>, sycl::event> compute_norms(sycl::queue& q,
                                                     const ndview<Float, 2>& inp,
                                                     const event_vector& deps = {}) {
     const auto n_samples = inp.get_dimension(0);
@@ -37,7 +37,7 @@ std::tuple<array<Float>, sycl::event> compute_norms(sycl::queue& q,
     return { res_array, compute_norms(q, inp, res_wrapper, deps) };
 }
 
-template<typename Float, bool full = true>
+template <typename Float, bool full = true>
 sycl::event scatter_norms(sycl::queue& q,
                           ndview<Float, 1>& norms1,
                           ndview<Float, 1>& norms2,
@@ -48,7 +48,7 @@ sycl::event scatter_norms(sycl::queue& q,
     const auto n_samples2 = out.get_dimension(0);
     ONEDAL_ASSERT(n_samples1 <= out.get_dimension(1));
     ONEDAL_ASSERT(n_samples2 <= out.get_dimension(0));
-    //sycl::range<2> 
+    //sycl::range<2>
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         /*h.parallel_for<class scatter_full> {
@@ -71,13 +71,10 @@ sycl::event l2_distance<Float>::operator()(sycl::queue& q,
     return perform_gemm(q, inp1, inp2, out, { scatter_event });
 }*/
 
-
-
-
-#define INSTANTIATE(F)                                                                        \
-    template std::tuple<array<F>, sycl::event> compute_norms<F>(sycl::queue&,                  \
-                                                                const ndview<F, 2>&,           \
-                                                                const event_vector&);     
+#define INSTANTIATE(F)                                                               \
+    template std::tuple<array<F>, sycl::event> compute_norms<F>(sycl::queue&,        \
+                                                                const ndview<F, 2>&, \
+                                                                const event_vector&);
 //  template class l2_distance<F>;
 
 INSTANTIATE(float);

@@ -18,15 +18,17 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template<typename Float, typename Metric>
-sycl::event distance<Float, Metric>::initialize(const ndview<Float, 2>& inp1, 
+template <typename Float, typename Metric>
+sycl::event distance<Float, Metric>::initialize(const ndview<Float, 2>& inp1,
                                                 const ndview<Float, 2>& inp2,
                                                 const event_vector& deps) {
-    return q_.submit([&](sycl::handler& h) { h.depends_on(deps); });
+    return q_.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+    });
 }
 
-template<typename Float, typename Metric>
-sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1, 
+template <typename Float, typename Metric>
+sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
                                                 const ndview<Float, 2>& inp2,
                                                 ndview<Float, 2>& out,
                                                 const event_vector& deps) const {
@@ -40,31 +42,26 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
     const auto n_samples1 = inp1.get_dimension(0);
     const auto n_samples2 = inp2.get_dimension(0);
     // Getting info about strides
-    const auto inp_stride1 = inp1.get_leading_stride(); 
-    const auto inp_stride2 = inp2.get_leading_stride(); 
+    const auto inp_stride1 = inp1.get_leading_stride();
+    const auto inp_stride2 = inp2.get_leading_stride();
     const auto out_stride = out.get_leading_stride();
-    // Constructing colrrect range of size m x n 
+    // Constructing colrrect range of size m x n
     sycl::range<2> out_range(n_samples1, n_samples2);
-    // Metric instance 
+    // Metric instance
     const auto& metric = this->m_;
-    auto res_event = q_.submit(
-        [&](sycl::handler& h) {
-            h.depends_on(deps);
-            //sycl::stream outs(1024, 256, h);
+    auto res_event = q_.submit([&](sycl::handler& h) {
+        h.depends_on(deps);
+        //sycl::stream outs(1024, 256, h);
 
-            h.parallel_for<class dist_comp>(
-                out_range, 
-                [=](sycl::id<2> idx) {
-                    const auto* inp1_first = inp1_ptr + inp_stride1 * idx[0];
-                    const auto* inp1_last = inp1_first + n_features;
-                    const auto* inp2_first = inp2_ptr + inp_stride2 * idx[1];
-                    auto& out_place = *(out_ptr + out_stride * idx[0] + idx[1]); 
-                    out_place = metric(inp1_first, inp1_last, inp2_first);
-                    //outs << idx[0] << ' ' << idx[1] << ' ' << out_place << sycl::endl; 
-                }
-            );
-        }
-    );
+        h.parallel_for<class dist_comp>(out_range, [=](sycl::id<2> idx) {
+            const auto* inp1_first = inp1_ptr + inp_stride1 * idx[0];
+            const auto* inp1_last = inp1_first + n_features;
+            const auto* inp2_first = inp2_ptr + inp_stride2 * idx[1];
+            auto& out_place = *(out_ptr + out_stride * idx[0] + idx[1]);
+            out_place = metric(inp1_first, inp1_last, inp2_first);
+            //outs << idx[0] << ' ' << idx[1] << ' ' << out_place << sycl::endl;
+        });
+    });
     res_event.wait_and_throw();
     std::cerr << '\t' << *out_ptr << std::endl;
     return res_event;

@@ -26,28 +26,24 @@ namespace oneapi::dal::backend::primitives {
 
 struct distance_metric_tag;
 
-template<typename Float>
+template <typename Float>
 struct metric_base {
 public:
     using tag_t = distance_metric_tag;
-    template<typename InputIt1, typename InputIt2>
-    Float operator() (InputIt1 first1,
-                      InputIt1 last1, 
-                      InputIt2 first2) const;
+    template <typename InputIt1, typename InputIt2>
+    Float operator()(InputIt1 first1, InputIt1 last1, InputIt2 first2) const;
 };
 
-template<typename Float>
+template <typename Float>
 struct lp_metric : public metric_base<Float> {
 public:
     lp_metric(Float p = 1.0) : p_{ p } {}
-    template<typename InputIt1, typename InputIt2>
-    Float operator() (InputIt1 first1,
-                      InputIt1 last1, 
-                      InputIt2 first2) const {
+    template <typename InputIt1, typename InputIt2>
+    Float operator()(InputIt1 first1, InputIt1 last1, InputIt2 first2) const {
         Float acc = 0;
         auto it1 = first1;
         auto it2 = first2;
-        for(; it1 != last1; ++it1, ++it2) {
+        for (; it1 != last1; ++it1, ++it2) {
             const Float adiff = std::abs(*it1 - *it2);
             acc += std::pow(adiff, get_p());
         }
@@ -56,17 +52,16 @@ public:
     const Float& get_p() const {
         return p_;
     }
+
 private:
     const Float p_;
 };
 
-template<typename Float>
+template <typename Float>
 struct l2_metric : public lp_metric<Float> {
 public:
     l2_metric() : lp_metric<Float>(2.0) {}
 };
-
-
 
 #endif
 
