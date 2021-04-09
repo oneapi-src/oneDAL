@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
     auto target_filename = get_data_path(
         "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff");
     auto pattern_filename = get_data_path(
-        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff_queries/query64_4.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff_queries/query64_6.gff");
 
     //  1240	1237	1241	1242	1243
     //  1240	1237	1241	1243	1242
