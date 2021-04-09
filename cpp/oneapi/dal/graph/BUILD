@@ -20,6 +20,7 @@ dal_test_suite(
         "test/*.cpp",
     ]),
     dal_deps = [
+        ":graph",
         "@onedal//cpp/oneapi/dal/io",
     ]
 )
