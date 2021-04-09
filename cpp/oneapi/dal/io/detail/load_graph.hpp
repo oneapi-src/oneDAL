@@ -91,7 +91,7 @@ EdgeIndex compute_prefix_sum_atomic(const AtomicVertex *degrees,
 }
 
 template <typename EdgeIndex, typename VertexIndex>
-EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
+ONEDAL_EXPORT EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
                              std::int64_t degrees_count,
                              EdgeIndex *edge_offsets) {
     EdgeIndex total_sum_degrees = 0;
@@ -121,7 +121,7 @@ void fill_unfiltered_neighs(const edge_list<Vertex> &edges,
 }
 
 template <typename VertexIndex, typename EdgeIndex>
-void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
+ONEDAL_EXPORT void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
                           const VertexIndex *unfiltered_neighs,
                           const VertexIndex *filtered_degrees,
                           const EdgeIndex *filtered_offsets,
@@ -137,7 +137,7 @@ void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
 }
 
 template <typename VertexIndex, typename EdgeIndex>
-void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
+ONEDAL_EXPORT void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
                                            EdgeIndex *unfiltered_offsets,
                                            VertexIndex *new_degrees,
                                            std::int64_t vertex_count) {
