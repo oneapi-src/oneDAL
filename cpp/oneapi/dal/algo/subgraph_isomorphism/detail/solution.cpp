@@ -1,5 +1,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
-#include <cassert>
+#include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/common.hpp"
 
 namespace dal = oneapi::dal;
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
@@ -209,7 +210,8 @@ oneapi::dal::homogen_table solution::export_as_table() {
     const auto begin = sorted_pattern_vertices;
     const auto end = &sorted_pattern_vertices[solution_core_length];
 
-    auto mapping = dal::array<std::int64_t>::empty(solution_core_length);
+    auto mapping_array = dal::array<std::int64_t>::empty(solution_core_length);
+    const auto mapping = mapping_array.get_mutable_data();
     for (std::int64_t j = 0; j < solution_core_length; ++j) {
         const auto p = std::find(begin, end, j);
         ONEDAL_ASSERT(p != end, "Index not found");
