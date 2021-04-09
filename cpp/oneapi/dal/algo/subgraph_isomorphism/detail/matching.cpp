@@ -1,5 +1,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/matching.hpp"
 #include "oneapi/dal/detail/threading.hpp"
+#include <iostream> // Temporary
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -428,6 +429,9 @@ solution engine_bundle::run() {
     }
 
     const std::uint64_t array_size = max_threads_count * 2;
+    std::cout << "[engine_bundle::run] array_size = " << array_size << std::endl; // Temporary
+    std::cout << "[engine_bundle::run] max_threads_count = " << max_threads_count
+              << std::endl; // Temporary
     matching_engine* engine_array =
         static_cast<matching_engine*>(_mm_malloc(sizeof(matching_engine) * array_size, 64));
 
