@@ -159,6 +159,6 @@ int main(int argc, char **argv) {
     const auto match_count = result.get_match_count();
 
     // print_table_int(result.get_vertex_match());
-    print_table_int_sorted(result.get_vertex_match());
+    // print_table_int_sorted(result.get_vertex_match()); // Temporary disabled
     // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
 }
