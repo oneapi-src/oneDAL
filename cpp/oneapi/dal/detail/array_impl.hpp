@@ -95,11 +95,10 @@ public:
     }
 
     T* get_mutable_data() const {
-        try {
-            const auto& mut_ptr = std::get<shared>(data_owned_);
-            return mut_ptr.get();
+        if (const auto& mut_ptr = std::get_if<shared>(&data_owned_)) {
+            return mut_ptr->get();
         }
-        catch (std::bad_variant_access&) {
+        else {
             throw internal_error(
                 dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
