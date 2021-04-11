@@ -88,10 +88,10 @@ public:
         if (const auto& mut_ptr = std::get_if<shared>(&data_owned_)) {
             return mut_ptr->get();
         }
-        else {
-            const auto& immut_ptr = std::get<cshared>(data_owned_);
-            return immut_ptr.get();
+        else if (const auto& immut_ptr = std::get_if<cshared>(&data_owned_)) {
+            return immut_ptr->get();
         }
+        return nullptr;
     }
 
     T* get_mutable_data() const {
@@ -162,11 +162,24 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            data_owned_ = shared(std::get<1>(ref.data_owned_), data);
+            if (const auto& ptr = std::get_if<1>(&ref.data_owned_)) {
+                data_owned_ = shared(*ptr, data);
+            }
+            else {
+                throw internal_error(
+                    dal::detail::error_messages::array_does_not_contain_mutable_data());
+            }
         }
         else {
-            data_owned_ = shared(std::get<0>(ref.data_owned_), data);
+            if (const auto& ptr = std::get_if<0>(&ref.data_owned_)) {
+                data_owned_ = shared(*ptr, data);
+            }
+            else {
+                throw internal_error(
+                    dal::detail::error_messages::array_does_not_contain_mutable_data());
+            }
         }
+
         count_ = count;
         reset_policy(ref);
     }
@@ -174,10 +187,22 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            data_owned_ = cshared(std::get<1>(ref.data_owned_), data);
+            if (const auto& ptr = std::get_if<1>(&ref.data_owned_)) {
+                data_owned_ = cshared(*ptr, data);
+            }
+            else {
+                throw internal_error(
+                    dal::detail::error_messages::array_does_not_contain_mutable_data());
+            }
         }
         else {
-            data_owned_ = cshared(std::get<0>(ref.data_owned_), data);
+            if (const auto& ptr = std::get_if<0>(&ref.data_owned_)) {
+                data_owned_ = cshared(*ptr, data);
+            }
+            else {
+                throw internal_error(
+                    dal::detail::error_messages::array_does_not_contain_mutable_data());
+            }
         }
         count_ = count;
         reset_policy(ref);
@@ -244,7 +269,7 @@ private:
 #ifdef ONEDAL_DATA_PARALLEL
     std::optional<data_parallel_policy> dp_policy_;
 #endif
-};
+}; // namespace v1
 
 } // namespace v1
 
