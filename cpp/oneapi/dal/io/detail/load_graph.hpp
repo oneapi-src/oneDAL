@@ -91,7 +91,7 @@ EdgeIndex compute_prefix_sum_atomic(const AtomicVertex *degrees,
 }
 
 template <typename EdgeIndex, typename VertexIndex>
-ONEDAL_EXPORT EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
+EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
                              std::int64_t degrees_count,
                              EdgeIndex *edge_offsets) {
     EdgeIndex total_sum_degrees = 0;
@@ -102,6 +102,11 @@ ONEDAL_EXPORT EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
     }
     return total_sum_degrees;
 }
+
+template <>
+ONEDAL_EXPORT EdgeIndex compute_prefix_sum<std::int64_t, std::int32_t>(const std::int32_t *degrees,
+                                                                       std::int64_t degrees_count,
+                                                                       std::int64_t *edge_offsets);
 
 template <typename Index, typename AtomicIndex>
 void fill_from_atomics(Index *arr, AtomicIndex *atomic_arr, std::int64_t elements_count) {
@@ -121,7 +126,7 @@ void fill_unfiltered_neighs(const edge_list<Vertex> &edges,
 }
 
 template <typename VertexIndex, typename EdgeIndex>
-ONEDAL_EXPORT void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
+void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
                           const VertexIndex *unfiltered_neighs,
                           const VertexIndex *filtered_degrees,
                           const EdgeIndex *filtered_offsets,
@@ -136,8 +141,17 @@ ONEDAL_EXPORT void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
     });
 }
 
+template <>
+ONEDAL_EXPORT void fill_filtered_neighs<std::int32_t, std::int64_t>(
+    const std::int64_t *unfiltered_offsets,
+    const std::int32_t *unfiltered_neighs,
+    const std::int32_t *filtered_degrees,
+    const std::int64_t *filtered_offsets,
+    std::int32_t *filtered_neighs,
+    std::int64_t vertex_count);
+
 template <typename VertexIndex, typename EdgeIndex>
-ONEDAL_EXPORT void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
+void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
                                            EdgeIndex *unfiltered_offsets,
                                            VertexIndex *new_degrees,
                                            std::int64_t vertex_count) {
@@ -153,6 +167,13 @@ ONEDAL_EXPORT void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered
         new_degrees[u] = (VertexIndex)std::distance(start_p, neighs_u_new_end);
     });
 }
+
+template <>
+ONEDAL_EXPORT void filter_neighbors_and_fill_new_degrees<std::int32_t, std::int64_t>(
+    std::int32_t *unfiltered_neighs,
+    std::int64_t *unfiltered_offsets,
+    std::int32_t *new_degrees,
+    std::int64_t vertex_count);
 
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_type> &edges,
