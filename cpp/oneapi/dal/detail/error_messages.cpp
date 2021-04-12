@@ -26,7 +26,8 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
-MSG(array_does_not_contain_ownership_structure, "Array is empty or does not contain ownership structure for the data")
+MSG(array_does_not_contain_ownership_structure,
+    "Array is empty or does not contain ownership structure for the data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
 MSG(only_homogen_table_is_supported, "Only homogen table is supported")
 MSG(overflow_found_in_multiplication_of_two_values,
