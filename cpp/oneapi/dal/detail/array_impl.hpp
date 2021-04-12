@@ -163,15 +163,15 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            using cshared_y = typename array_impl<Y>::cshared;
-            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
                 data_owned_ = shared(*ptr, data);
             }
             ONEDAL_ASSERT(false);
         }
         else {
-            using shared_y = typename array_impl<Y>::shared;
-            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+            using cshared_y = typename array_impl<Y>::cshared;
+            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
                 data_owned_ = shared(*ptr, data);
             }
             else {
@@ -187,15 +187,15 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            using cshared_y = typename array_impl<Y>::cshared;
-            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
                 data_owned_ = cshared(*ptr, data);
             }
             ONEDAL_ASSERT(false);
         }
         else {
-            using shared_y = typename array_impl<Y>::shared;
-            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+            using cshared_y = typename array_impl<Y>::cshared;
+            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
                 data_owned_ = cshared(*ptr, data);
             }
             else {
