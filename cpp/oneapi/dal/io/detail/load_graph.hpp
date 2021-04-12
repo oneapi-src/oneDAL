@@ -104,7 +104,7 @@ EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
 }
 
 template <>
-ONEDAL_EXPORT EdgeIndex compute_prefix_sum<std::int64_t, std::int32_t>(const std::int32_t *degrees,
+ONEDAL_EXPORT std::int64_t compute_prefix_sum<std::int64_t, std::int32_t>(const std::int32_t *degrees,
                                                                        std::int64_t degrees_count,
                                                                        std::int64_t *edge_offsets);
 
