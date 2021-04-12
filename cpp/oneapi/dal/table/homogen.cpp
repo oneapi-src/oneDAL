@@ -17,8 +17,6 @@
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
-using std::int64_t;
-
 namespace oneapi::dal {
 namespace v1 {
 
@@ -30,8 +28,8 @@ homogen_table::homogen_table() : homogen_table(new backend::homogen_table_impl{}
 
 template <typename Policy>
 void homogen_table::init_impl(const Policy& policy,
-                              int64_t row_count,
-                              int64_t column_count,
+                              std::int64_t row_count,
+                              std::int64_t column_count,
                               const array<byte_t>& data,
                               const data_type& dtype,
                               data_layout layout) {
@@ -45,16 +43,16 @@ const void* homogen_table::get_data() const {
 }
 
 template ONEDAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
-                                                     int64_t,
-                                                     int64_t,
+                                                     std::int64_t,
+                                                     std::int64_t,
                                                      const array<byte_t>&,
                                                      const data_type&,
                                                      data_layout);
 
 #ifdef ONEDAL_DATA_PARALLEL
 template ONEDAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
-                                                     int64_t,
-                                                     int64_t,
+                                                     std::int64_t,
+                                                     std::int64_t,
                                                      const array<byte_t>&,
                                                      const data_type&,
                                                      data_layout);

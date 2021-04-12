@@ -95,7 +95,10 @@ private:
     array<feature_type> ftypes_;
 };
 
-class empty_table_impl : public detail::table_iface, public base {
+class empty_table_impl : public base,
+                         public detail::table_iface,
+                         public detail::pull_rows_template<empty_table_impl>,
+                         public detail::pull_column_template<empty_table_impl> {
 public:
     static constexpr std::int64_t pure_empty_table_kind = 0;
 
@@ -121,12 +124,38 @@ public:
     }
 
     detail::pull_rows_iface* get_pull_rows_iface() override {
-        return nullptr;
+        return this;
     }
 
     detail::pull_column_iface* get_pull_column_iface() override {
-        return nullptr;
+        return this;
     }
+
+    template <typename T>
+    void pull_rows(const detail::default_host_policy& policy,
+                   array<T>& block,
+                   const range& rows) const {}
+
+    template <typename T>
+    void pull_column(const detail::default_host_policy& policy,
+                     array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows) const {}
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_rows(const detail::data_parallel_policy& policy,
+                   array<T>& block,
+                   const range& rows,
+                   sycl::usm::alloc alloc) const {}
+
+    template <typename T>
+    void pull_column(const detail::data_parallel_policy& policy,
+                     array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows,
+                     sycl::usm::alloc alloc) const {}
+#endif
 };
 
 table_metadata::table_metadata() : impl_(new empty_metadata_impl()) {}
