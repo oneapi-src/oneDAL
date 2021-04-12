@@ -34,17 +34,29 @@ public:
     /// The check that the accessor supports the table kind of :literal:`obj` is performed.
     /// The reference to the :literal:`obj` table is stored within the accessor to
     /// obtain data from the table.
-    explicit row_accessor(const table& t) : pull_iface_(detail::get_pull_rows_iface(t)) {
-        // TODO: Replace to exception
-        ONEDAL_ASSERT(pull_iface_);
+    explicit row_accessor(const table& table) : pull_iface_(detail::get_pull_rows_iface(table)) {
+        static_assert(is_readonly,
+                      "Tables can be used only for pull operations, "
+                      "use row_accessor<const T> instead");
+
+        if (!pull_iface_) {
+            // TODO: Replace to error_messages
+            throw invalid_argument{ "Given table does not provide read access to rows" };
+        }
     }
 
     explicit row_accessor(const detail::table_builder& builder)
             : pull_iface_(detail::get_pull_rows_iface(builder)),
               push_iface_(detail::get_push_rows_iface(builder)) {
-        // TODO: Replace to exception
-        ONEDAL_ASSERT(pull_iface_);
-        ONEDAL_ASSERT(push_iface_);
+        if (!pull_iface_) {
+            // TODO: Replace to error_messages
+            throw invalid_argument{ "Given table builder does not provide read access to rows" };
+        }
+
+        if (!is_readonly && !push_iface_) {
+            // TODO: Replace to error_messages
+            throw invalid_argument{ "Given table builder does not provide write access to rows" };
+        }
     }
 
     array<data_t> pull(const range& rows = { 0, -1 }) const {

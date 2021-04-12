@@ -109,7 +109,7 @@ TEST("can read rows from column major table with conversion") {
 TEST("pull throws exception if invalid range") {
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
     auto t = homogen_table::wrap(data, 3, 2, data_layout::column_major);
-    row_accessor<float> acc{ t };
+    row_accessor<const float> acc{ t };
 
     REQUIRE_THROWS_AS(acc.pull({ 1, 4 }), dal::range_error);
 }
