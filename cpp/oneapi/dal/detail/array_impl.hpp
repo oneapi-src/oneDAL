@@ -91,6 +91,7 @@ public:
         else if (const auto& immut_ptr = std::get_if<cshared>(&data_owned_)) {
             return immut_ptr->get();
         }
+        ONEDAL_ASSERT(false);
         return nullptr;
     }
 
@@ -162,21 +163,20 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            if (const auto& ptr = std::get_if<1>(&ref.data_owned_)) {
+            using cshared_y = typename array_impl<Y>::cshared;
+            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
                 data_owned_ = shared(*ptr, data);
             }
-            else {
-                throw internal_error(
-                    dal::detail::error_messages::array_does_not_contain_mutable_data());
-            }
+            ONEDAL_ASSERT(false);
         }
         else {
-            if (const auto& ptr = std::get_if<0>(&ref.data_owned_)) {
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
                 data_owned_ = shared(*ptr, data);
             }
             else {
                 throw internal_error(
-                    dal::detail::error_messages::array_does_not_contain_mutable_data());
+                    dal::detail::error_messages::array_does_not_contain_ownership_structure());
             }
         }
 
@@ -187,21 +187,20 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            if (const auto& ptr = std::get_if<1>(&ref.data_owned_)) {
+            using cshared_y = typename array_impl<Y>::cshared;
+            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
                 data_owned_ = cshared(*ptr, data);
             }
-            else {
-                throw internal_error(
-                    dal::detail::error_messages::array_does_not_contain_mutable_data());
-            }
+            ONEDAL_ASSERT(false);
         }
         else {
-            if (const auto& ptr = std::get_if<0>(&ref.data_owned_)) {
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
                 data_owned_ = cshared(*ptr, data);
             }
             else {
                 throw internal_error(
-                    dal::detail::error_messages::array_does_not_contain_mutable_data());
+                    dal::detail::error_messages::array_does_not_contain_ownership_structure());
             }
         }
         count_ = count;
@@ -269,7 +268,7 @@ private:
 #ifdef ONEDAL_DATA_PARALLEL
     std::optional<data_parallel_policy> dp_policy_;
 #endif
-}; // namespace v1
+};
 
 } // namespace v1
 
