@@ -29,52 +29,6 @@ TEST(homogen_table_test, can_construct_empty_table) {
     ASSERT_EQ(t.get_column_count(), 0);
 }
 
-TEST(homogen_table_test, can_set_custom_implementation) {
-    struct homogen_table_impl {
-        std::int64_t get_column_count() const noexcept {
-            return 10;
-        }
-
-        std::int64_t get_row_count() const noexcept {
-            return 1000;
-        }
-
-        void pull_rows(array<float>& a, const range& r) const {}
-        void pull_rows(array<double>& a, const range& r) const {}
-        void pull_rows(array<std::int32_t>& a, const range& r) const {}
-        void push_rows(const array<float>&, const range&) {}
-        void push_rows(const array<double>&, const range&) {}
-        void push_rows(const array<std::int32_t>&, const range&) {}
-
-        void pull_column(array<float>& a, std::int64_t idx, const range& r) const {}
-        void pull_column(array<double>& a, std::int64_t idx, const range& r) const {}
-        void pull_column(array<std::int32_t>& a, std::int64_t idx, const range& r) const {}
-        void push_column(const array<float>&, std::int64_t idx, const range&) {}
-        void push_column(const array<double>&, std::int64_t idx, const range&) {}
-        void push_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
-
-        const void* get_data() const {
-            return nullptr;
-        }
-
-        const table_metadata& get_metadata() const {
-            return m;
-        }
-
-        data_layout get_data_layout() const {
-            return data_layout::column_major;
-        }
-
-        table_metadata m;
-    };
-
-    ASSERT_TRUE(detail::is_homogen_table_impl_v<homogen_table_impl>);
-
-    auto t = detail::make_private<homogen_table>(homogen_table_impl{});
-    ASSERT_TRUE(t.has_data());
-    ASSERT_EQ(data_layout::column_major, t.get_data_layout());
-}
-
 TEST(homogen_table_test, can_construct_rowmajor_table_3x2) {
     using oneapi::dal::detail::empty_delete;
 

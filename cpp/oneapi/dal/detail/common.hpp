@@ -156,6 +156,13 @@ inline Object make_private(Args&&... args) {
     return pimpl_accessor{}.template make<Object>(std::forward<Args>(args)...);
 }
 
+template <typename Iface, typename Object>
+std::shared_ptr<Iface> dynamic_impl_cast(Object&& object) {
+    auto impl_shared_ptr = pimpl_accessor{}.get_pimpl(object);
+    auto iface_ptr = dynamic_cast<Iface*>(impl_shared_ptr.get());
+    return std::shared_ptr<Iface>{ impl_shared_ptr, iface_ptr };
+}
+
 inline constexpr std::int64_t get_data_type_size(data_type t) {
     if (t == data_type::float32) {
         return sizeof(float);
@@ -322,6 +329,7 @@ using v1::limits;
 
 using v1::get_impl;
 using v1::cast_impl;
+using v1::dynamic_impl_cast;
 using v1::make_private;
 using v1::make_data_type;
 using v1::get_data_type_size;

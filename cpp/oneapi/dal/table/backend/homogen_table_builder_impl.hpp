@@ -16,12 +16,17 @@
 
 #pragma once
 
-#include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/backend/homogen_kernels.hpp"
+#include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
 namespace oneapi::dal::backend {
 
-class homogen_table_builder_impl {
+class homogen_table_builder_impl : public detail::homogen_table_builder_iface,
+                                   public detail::pull_rows_template<homogen_table_builder_impl>,
+                                   public detail::push_rows_template<homogen_table_builder_impl>,
+                                   public detail::pull_column_template<homogen_table_builder_impl>,
+                                   public detail::push_column_template<homogen_table_builder_impl> {
 public:
     homogen_table_builder_impl() {
         reset();
@@ -35,8 +40,8 @@ public:
         dtype_ = data_type::float32;
     }
 
-    void reset(homogen_table&& t) {
-        if (t.has_data()) {
+    void reset(detail::homogen_table_iface& t) override {
+        if (t.get_row_count() > 0 || t.get_column_count() > 0) {
             const auto& meta = t.get_metadata();
             const std::int64_t data_size =
                 get_data_size(t.get_row_count(), t.get_column_count(), meta.get_data_type(0));
@@ -58,7 +63,9 @@ public:
         }
     }
 
-    void reset(const array<byte_t>& data, std::int64_t row_count, std::int64_t column_count) {
+    void reset(const array<byte_t>& data,
+               std::int64_t row_count,
+               std::int64_t column_count) override {
         if (get_data_size(row_count, column_count, dtype_) != data.get_count()) {
             throw dal::range_error(dal::detail::error_messages::invalid_data_block_size());
         }
@@ -68,18 +75,18 @@ public:
         column_count_ = column_count;
     }
 
-    void set_data_type(data_type dt) {
+    void set_data_type(data_type dt) override {
         dtype_ = dt;
         data_.reset();
         row_count_ = 0;
         column_count_ = 0;
     }
 
-    void set_feature_type(feature_type ft) {
+    void set_feature_type(feature_type ft) override {
         throw dal::unimplemented(dal::detail::error_messages::method_not_implemented());
     }
 
-    void allocate(std::int64_t row_count, std::int64_t column_count) {
+    void allocate(std::int64_t row_count, std::int64_t column_count) override {
         if (row_count <= 0) {
             throw dal::domain_error(dal::detail::error_messages::rc_leq_zero());
         }
@@ -94,11 +101,11 @@ public:
         column_count_ = column_count;
     }
 
-    void set_layout(data_layout layout) {
+    void set_layout(data_layout layout) override {
         layout_ = layout;
     }
 
-    void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) {
+    void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) override {
         check_copy_data_preconditions(row_count, column_count);
         detail::memcpy(detail::default_host_policy{},
                        data_.get_mutable_data(),
@@ -106,19 +113,22 @@ public:
                        data_.get_size());
     }
 
-    homogen_table build() {
-        const auto new_table = detail::make_private<homogen_table>(
-            homogen_table_impl{ row_count_, column_count_, data_, dtype_, layout_ });
-
+    detail::homogen_table_iface* build_homogen() override {
+        auto new_table =
+            new homogen_table_impl{ row_count_, column_count_, data_, dtype_, layout_ };
         reset();
         return new_table;
+    }
+
+    detail::homogen_table_iface* build() override {
+        return build_homogen();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     void allocate(const sycl::queue& queue,
                   std::int64_t row_count,
                   std::int64_t column_count,
-                  sycl::usm::alloc kind) {
+                  sycl::usm::alloc kind) override {
         if (row_count <= 0) {
             throw dal::domain_error(dal::detail::error_messages::rc_leq_zero());
         }
@@ -136,7 +146,7 @@ public:
     void copy_data(sycl::queue& queue,
                    const void* data,
                    std::int64_t row_count,
-                   std::int64_t column_count) {
+                   std::int64_t column_count) override {
         ONEDAL_ASSERT(sycl::get_pointer_type(data_.get_data(), queue.get_context()) !=
                       sycl::usm::alloc::unknown);
         check_copy_data_preconditions(row_count, column_count);
@@ -144,63 +154,89 @@ public:
     }
 #endif
 
-    // TODO: for better performance, push_*() methods need to be moved
-    // from table implementation to builder.
-    // pull_*() methods can be generalized between table and builder
-    template <typename T>
-    void pull_rows(array<T>& a, const range& r) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_rows(a, r);
+    detail::pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    detail::pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    detail::push_rows_iface* get_push_rows_iface() override {
+        return this;
+    }
+
+    detail::push_column_iface* get_push_column_iface() override {
+        return this;
     }
 
     template <typename T>
-    void push_rows(const array<T>& a, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.push_rows(a, r);
+    void pull_rows(const detail::default_host_policy& policy,
+                   array<T>& block,
+                   const range& rows) const {
+        homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind::host);
     }
 
     template <typename T>
-    void pull_column(array<T>& a, std::int64_t idx, const range& r) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_column(a, idx, r);
+    void pull_column(const detail::default_host_policy& policy,
+                     array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows) const {
+        homogen_pull_column(policy, get_info(), data_, block, column_index, rows, alloc_kind::host);
     }
 
     template <typename T>
-    void push_column(const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.push_column(a, idx, r);
+    void push_rows(const detail::default_host_policy& policy,
+                   const array<T>& block,
+                   const range& rows) {
+        homogen_push_rows(policy, get_info(), data_, block, rows);
+    }
+
+    template <typename T>
+    void push_column(const detail::default_host_policy& policy,
+                     const array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows) {
+        homogen_push_column(policy, get_info(), data_, block, column_index, rows);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void pull_rows(sycl::queue& q,
-                   array<T>& a,
-                   const range& r,
-                   const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_rows(q, a, r, kind);
+    void pull_rows(const detail::data_parallel_policy& policy,
+                   array<T>& block,
+                   const range& rows,
+                   sycl::usm::alloc alloc) const {
+        homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind_from_sycl(alloc));
     }
 
     template <typename T>
-    void push_rows(sycl::queue& q, const array<T>& a, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.push_rows(q, a, r);
+    void pull_column(const detail::data_parallel_policy& policy,
+                     array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows,
+                     sycl::usm::alloc alloc) const {
+        homogen_pull_column(policy,
+                            get_info(),
+                            data_,
+                            block,
+                            column_index,
+                            rows,
+                            alloc_kind_from_sycl(alloc));
     }
 
     template <typename T>
-    void pull_column(sycl::queue& q,
-                     array<T>& a,
-                     std::int64_t idx,
-                     const range& r,
-                     const sycl::usm::alloc& kind) const {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_column(q, a, idx, r, kind);
+    void push_rows(const detail::data_parallel_policy& policy,
+                   const array<T>& block,
+                   const range& rows) {
+        homogen_push_rows(policy, get_info(), data_, block, rows);
     }
 
     template <typename T>
-    void push_column(sycl::queue& q, const array<T>& a, std::int64_t idx, const range& r) {
-        homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.push_column(q, a, idx, r);
+    void push_column(const detail::data_parallel_policy& policy,
+                     const array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows) {
+        homogen_push_column(policy, get_info(), data_, block, column_index, rows);
     }
 #endif
 
@@ -214,6 +250,10 @@ private:
 
         detail::check_mul_overflow(element_count, dtype_size);
         return element_count * dtype_size;
+    }
+
+    homogen_info get_info() const {
+        return { row_count_, column_count_, dtype_, layout_ };
     }
 
     void check_copy_data_preconditions(std::int64_t row_count, std::int64_t column_count) {

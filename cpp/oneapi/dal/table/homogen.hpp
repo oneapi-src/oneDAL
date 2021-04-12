@@ -20,38 +20,10 @@
 #include "oneapi/dal/detail/array_utils.hpp"
 
 namespace oneapi::dal {
-
-namespace detail {
-namespace v1 {
-
-template <typename T>
-struct is_homogen_table_impl {
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(const void*, get_data, () const)
-
-    using base = is_table_impl<T>;
-
-    static constexpr bool value = base::template has_method_get_column_count_v<T> &&
-                                  base::template has_method_get_row_count_v<T> &&
-                                  base::template has_method_get_metadata_v<T> &&
-                                  base::template has_method_get_data_layout_v<T> &&
-                                  has_method_get_data_v<T>;
-};
-
-template <typename T>
-inline constexpr bool is_homogen_table_impl_v = is_homogen_table_impl<T>::value;
-
-} // namespace v1
-
-using v1::is_homogen_table_impl;
-using v1::is_homogen_table_impl_v;
-
-} // namespace detail
-
 namespace v1 {
 
 class ONEDAL_EXPORT homogen_table : public table {
     friend detail::pimpl_accessor;
-    using pimpl = detail::pimpl<detail::homogen_table_impl_iface>;
 
 public:
     /// Returns the unique id of ``homogen_table`` class.
@@ -208,23 +180,8 @@ public:
         return kind();
     }
 
-protected:
-    template <typename Impl,
-              typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<detail::is_homogen_table_impl_v<ImplType> &&
-                                          !std::is_base_of_v<table, ImplType>>>
-    explicit homogen_table(Impl&& impl) {
-        init_impl(std::forward<Impl>(impl));
-    }
-
 private:
-    template <typename Impl>
-    void init_impl(Impl&& impl) {
-        // TODO: usage of protected method of base class: a point to break inheritance?
-        auto* wrapper = new detail::homogen_table_impl_wrapper{ std::forward<Impl>(impl),
-                                                                homogen_table::kind() };
-        table::init_impl(wrapper);
-    }
+    explicit homogen_table(detail::homogen_table_iface* impl) : table(impl) {}
 
     template <typename Policy, typename Data, typename ConstDeleter>
     void init_impl(const Policy& policy,
@@ -271,8 +228,6 @@ private:
                    const array<byte_t>& data,
                    const data_type& dtype,
                    data_layout layout);
-
-    homogen_table(const pimpl& impl) : table(impl) {}
 };
 
 } // namespace v1

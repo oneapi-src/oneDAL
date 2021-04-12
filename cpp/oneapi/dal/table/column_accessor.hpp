@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/table/detail/accessor_base.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
@@ -26,30 +25,43 @@ namespace v1 {
 ///              Should be const-qualified for read-only access.
 ///              An accessor supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
 template <typename T>
-class column_accessor : private detail::accessor_base<T, detail::column_values_block> {
-    using base = detail::accessor_base<T, detail::column_values_block>;
-
+class column_accessor {
 public:
-    using data_t = typename base::data_t;
-    static constexpr bool is_readonly = base::is_readonly;
+    using data_t = std::remove_const_t<T>;
+    static constexpr bool is_readonly = std::is_const_v<T>;
 
 public:
     /// Creates a new read-only accessor object from the table.
     /// The check that the accessor supports the table kind of :literal:`obj` is performed.
     /// The reference to the :literal:`obj` table is stored within the accessor to
     /// obtain data from the table.
-    template <
-        typename K,
-        typename = std::enable_if_t<is_readonly && (std::is_base_of_v<table, K> ||
-                                                    std::is_base_of_v<detail::table_builder, K>)>>
-    column_accessor(const K& obj) : base(obj) {}
+    explicit column_accessor(const table& t) : pull_iface_(detail::get_pull_column_iface(t)) {
+        // TODO: Replace to exception
+        ONEDAL_ASSERT(pull_iface_);
+    }
 
-    column_accessor(const detail::table_builder& b) : base(b) {}
+    explicit column_accessor(const detail::table_builder& builder)
+            : pull_iface_(detail::get_pull_column_iface(builder)),
+              push_iface_(detail::get_push_column_iface(builder)) {
+        // TODO: Replace to exception
+        ONEDAL_ASSERT(pull_iface_);
+        ONEDAL_ASSERT(push_iface_);
+    }
 
     array<data_t> pull(std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::default_host_policy{},
-                          { column_index, rows },
-                          detail::host_allocator<data_t>{});
+        array<data_t> block;
+        pull(block, column_index, rows);
+        return block;
+    }
+
+    T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
+        pull_iface_->pull_column(detail::default_host_policy{}, block, column_index, rows);
+        if constexpr (is_readonly) {
+            return block.get_data();
+        }
+        else {
+            return block.get_mutable_data();
+        }
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -70,18 +82,11 @@ public:
                        std::int64_t column_index,
                        const range& rows = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        return base::pull(detail::data_parallel_policy{ queue },
-                          { column_index, rows },
-                          detail::data_parallel_allocator<data_t>(queue, alloc));
+        array<data_t> block;
+        pull(queue, block, column_index, rows, alloc);
+        return block;
     }
 #endif
-
-    T* pull(array<data_t>& block, std::int64_t column_index, const range& rows = { 0, -1 }) const {
-        return base::pull(detail::default_host_policy{},
-                          block,
-                          { column_index, rows },
-                          detail::host_allocator<data_t>{});
-    }
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// Provides access to the column values of the table.
@@ -105,10 +110,17 @@ public:
             std::int64_t column_index,
             const range& rows = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        return base::pull(detail::data_parallel_policy{ queue },
-                          block,
-                          { column_index, rows },
-                          detail::data_parallel_allocator<data_t>(queue, alloc));
+        pull_iface_->pull_column(detail::data_parallel_policy{ queue },
+                                 block,
+                                 column_index,
+                                 rows,
+                                 alloc);
+        if constexpr (is_readonly) {
+            return block.get_data();
+        }
+        else {
+            return block.get_mutable_data();
+        }
     }
 #endif
 
@@ -116,7 +128,7 @@ public:
     std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::default_host_policy{}, block, { column_index, rows });
+        push_iface_->push_column(detail::default_host_policy{}, block, column_index, rows);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -125,9 +137,13 @@ public:
                                                      const array<data_t>& block,
                                                      std::int64_t column_index,
                                                      const range& rows = { 0, -1 }) {
-        base::push(detail::data_parallel_policy{ queue }, block, { column_index, rows });
+        push_iface_->push_column(detail::data_parallel_policy{ queue }, block, column_index, rows);
     }
 #endif
+
+private:
+    std::shared_ptr<detail::pull_column_iface> pull_iface_;
+    std::shared_ptr<detail::push_column_iface> push_iface_;
 };
 
 } // namespace v1

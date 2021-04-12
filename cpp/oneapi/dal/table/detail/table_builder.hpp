@@ -17,122 +17,44 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/detail/table_builder_impl.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-template <typename T>
-struct is_table_builder_impl {
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(table, build, ())
-
-    static constexpr bool value = has_method_build_v<T>;
-};
-
-template <typename T>
-inline constexpr bool is_table_builder_impl_v = is_table_builder_impl<T>::value;
-
-template <typename T>
-struct is_homogen_table_builder_impl {
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(homogen_table, build, ())
-    ONEDAL_HAS_METHOD_TRAIT(void, reset, (homogen_table && t), reset_from_table)
-    ONEDAL_HAS_METHOD_TRAIT(void,
-                            reset,
-                            (const array<byte_t>& data,
-                             std::int64_t row_count,
-                             std::int64_t column_count),
-                            reset_from_array)
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_data_type, (data_type dt))
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_feature_type, (feature_type ft))
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                   allocate,
-                                   (std::int64_t row_count, std::int64_t column_count))
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void, set_layout, (data_layout layout))
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(void,
-                                   copy_data,
-                                   (const void* data,
-                                    std::int64_t row_count,
-                                    std::int64_t column_count))
-
-    static constexpr bool value_host =
-        has_method_build_v<T> && has_method_reset_from_table_v<T> &&
-        has_method_reset_from_array_v<T> && has_method_set_data_type_v<T> &&
-        has_method_set_feature_type_v<T> && has_method_allocate_v<T> &&
-        has_method_set_layout_v<T> && has_method_copy_data_v<T>;
-
-#ifdef ONEDAL_DATA_PARALLEL
-    ONEDAL_HAS_METHOD_TRAIT(void,
-                            allocate,
-                            (const sycl::queue& queue,
-                             std::int64_t row_count,
-                             std::int64_t column_count,
-                             sycl::usm::alloc kind),
-                            allocate_dpc)
-    ONEDAL_HAS_METHOD_TRAIT(
-        void,
-        copy_data,
-        (sycl::queue & queue, const void* data, std::int64_t row_count, std::int64_t column_count),
-        copy_data_dpc)
-
-    static constexpr bool value_dpc = has_method_allocate_dpc_v<T> && has_method_copy_data_dpc_v<T>;
-    static constexpr bool value = value_host && value_dpc;
-#else
-    static constexpr bool value = value_host;
-#endif
-};
-
-template <typename T>
-inline constexpr bool is_homogen_table_builder_impl_v = is_homogen_table_builder_impl<T>::value;
-
 class ONEDAL_EXPORT table_builder {
-    friend detail::pimpl_accessor;
-    using pimpl_t = detail::pimpl<detail::table_builder_impl_iface>;
+    friend pimpl_accessor;
 
 public:
-    template <typename Impl,
-              typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_table_builder_impl_v<ImplType> &&
-                                          !std::is_base_of_v<table_builder, ImplType>>>
-    table_builder(Impl&& impl)
-            : table_builder(new detail::table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
-
     table build() const {
-        return impl_->build();
+        return detail::make_private<table>(impl_->build());
     }
 
 protected:
-    table_builder(detail::table_builder_impl_iface* obj) : impl_(obj) {}
+    explicit table_builder(table_builder_iface* impl) : impl_(impl) {}
 
 private:
-    pimpl_t impl_;
+    pimpl<table_builder_iface> impl_;
 };
 
 class ONEDAL_EXPORT homogen_table_builder : public table_builder {
 public:
     homogen_table_builder();
 
-    template <typename Impl,
-              typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_homogen_table_builder_impl_v<ImplType> &&
-                                          !std::is_base_of_v<table_builder, ImplType>>>
-    homogen_table_builder(Impl&& impl)
-            : table_builder(
-                  new detail::homogen_table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
-
     homogen_table build() {
-        auto& impl = get_impl();
-        return impl.build_homogen();
+        return detail::make_private<homogen_table>(get_impl().build_homogen());
     }
 
     auto& reset(homogen_table&& t) {
-        auto& impl = get_impl();
-        impl.reset(std::move(t));
+        get_impl().reset(detail::cast_impl<detail::homogen_table_iface>(std::move(t)));
         return *this;
     }
+
     template <typename Data>
     auto& reset(const array<Data>& data, std::int64_t row_count, std::int64_t column_count) {
         array<byte_t> byte_data;
+
+        // TODO: Replace to reinterpret_array_cast
         if (data.has_mutable_data()) {
             byte_data.reset(data,
                             reinterpret_cast<byte_t*>(data.get_mutable_data()),
@@ -144,36 +66,34 @@ public:
                             data.get_size());
         }
 
-        auto& impl = get_impl();
-        impl.set_data_type(detail::make_data_type<Data>());
-        impl.reset(byte_data, row_count, column_count);
+        get_impl().set_data_type(detail::make_data_type<Data>());
+        get_impl().reset(byte_data, row_count, column_count);
         return *this;
     }
+
     auto& set_data_type(data_type dt) {
-        auto& impl = get_impl();
-        impl.set_data_type(dt);
+        get_impl().set_data_type(dt);
         return *this;
     }
+
     auto& set_feature_type(feature_type ft) {
-        auto& impl = get_impl();
-        impl.set_feature_type(ft);
+        get_impl().set_feature_type(ft);
         return *this;
     }
-    auto& allocate(std::int64_t row_count, std::int64_t column_count) {
-        auto& impl = get_impl();
-        impl.allocate(row_count, column_count);
-        return *this;
-    }
+
     auto& set_layout(data_layout layout) {
-        auto& impl = get_impl();
-        impl.set_layout(layout);
+        get_impl().set_layout(layout);
+        return *this;
+    }
+
+    auto& allocate(std::int64_t row_count, std::int64_t column_count) {
+        get_impl().allocate(row_count, column_count);
         return *this;
     }
 
     template <typename Data>
     auto& copy_data(const Data* data, std::int64_t row_count, std::int64_t column_count) {
-        auto& impl = get_impl();
-        impl.copy_data(data, row_count, column_count);
+        get_impl().copy_data(data, row_count, column_count);
         return *this;
     }
 
@@ -182,8 +102,7 @@ public:
                    std::int64_t row_count,
                    std::int64_t column_count,
                    const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        auto& impl = get_impl();
-        impl.allocate(queue, row_count, column_count, alloc);
+        get_impl().allocate(queue, row_count, column_count, alloc);
         return *this;
     }
 
@@ -194,15 +113,14 @@ public:
                     std::int64_t column_count,
                     const sycl::vector_class<sycl::event>& dependencies = {}) {
         sycl::event::wait_and_throw(dependencies);
-        auto& impl = get_impl();
-        impl.copy_data(queue, data, row_count, column_count);
+        get_impl().copy_data(queue, data, row_count, column_count);
         return *this;
     }
 #endif
 
 private:
-    detail::homogen_table_builder_iface& get_impl() {
-        return detail::cast_impl<detail::homogen_table_builder_iface>(*this);
+    homogen_table_builder_iface& get_impl() {
+        return cast_impl<homogen_table_builder_iface>(*this);
     }
 };
 
