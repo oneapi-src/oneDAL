@@ -104,9 +104,10 @@ EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
 }
 
 template <>
-ONEDAL_EXPORT std::int64_t compute_prefix_sum<std::int64_t, std::int32_t>(const std::int32_t *degrees,
-                                                                       std::int64_t degrees_count,
-                                                                       std::int64_t *edge_offsets);
+ONEDAL_EXPORT std::int64_t compute_prefix_sum<std::int64_t, std::int32_t>(
+    const std::int32_t *degrees,
+    std::int64_t degrees_count,
+    std::int64_t *edge_offsets);
 
 template <typename Index, typename AtomicIndex>
 void fill_from_atomics(Index *arr, AtomicIndex *atomic_arr, std::int64_t elements_count) {
