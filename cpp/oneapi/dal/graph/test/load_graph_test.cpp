@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <fstream>
+#include <array>
 
 #include "oneapi/dal/io/load_graph.hpp"
 
@@ -249,7 +250,6 @@ TEST_M(load_graph_test, "throws if input file contains letter") {
 TEST_M(load_graph_test, "throws if input file contains odd number of values") {
     REQUIRE_THROWS(create_graph<odd_number_of_values_data_type>());
 }
-
 
 TEST_M(load_graph_test, "throws if input file contains negative values") {
     REQUIRE_THROWS(create_graph<negative_values_data_type>());

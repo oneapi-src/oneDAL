@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <array>
+
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_avx512.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -267,7 +269,7 @@ TEST("Isolated vertex") {
         0);
 }
 
-TEST("Isolated vertex && n > 16") {
+TEST("Isolated vertex && n = 16") {
     std::array<std::int32_t, 16> neigh_u = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
     std::array<std::int32_t, 8> neigh_v = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
