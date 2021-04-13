@@ -20,10 +20,7 @@
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
-
 #include "oneapi/dal/test/engine/common.hpp"
-
-// typedef dal::preview::subgraph_isomorphism::kind isomorphism_kind;
 
 #define isomorphism_kind dal::preview::subgraph_isomorphism::kind
 
@@ -81,30 +78,30 @@ public:
 
         std::allocator<char> alloc;
         const auto subgraph_isomorphism_desc =
-        dal::preview::subgraph_isomorphism::descriptor<>(alloc)
-            .set_kind(kind)
-            .set_semantic_match(semantic_match)
-            .set_max_match_count(max_match_count);
+            dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+                .set_kind(kind)
+                .set_semantic_match(semantic_match)
+                .set_max_match_count(max_match_count);
 
         const auto result =
-        dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
+            dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
     }
 
     void check_emptpy_subgraph_isomorphism(bool semantic_match,
-                                    std::int64_t max_match_count,
-                                    isomorphism_kind kind) {
+                                           std::int64_t max_match_count,
+                                           isomorphism_kind kind) {
         const auto target_graph = create_graph();
         const oneapi::dal::preview::undirected_adjacency_vector_graph<std::int32_t> pattern_graph;
 
         std::allocator<char> alloc;
         const auto subgraph_isomorphism_desc =
-        dal::preview::subgraph_isomorphism::descriptor<>(alloc)
-            .set_kind(kind)
-            .set_semantic_match(semantic_match)
-            .set_max_match_count(max_match_count);
+            dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+                .set_kind(kind)
+                .set_semantic_match(semantic_match)
+                .set_max_match_count(max_match_count);
 
         const auto result =
-        dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
+            dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
     }
 };
 
@@ -115,19 +112,14 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("positive check") {
     REQUIRE_NOTHROW(this->check_subgraph_isomorphism(false, 100, isomorphism_kind::induced));
 }
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if isomorphism kind is non induced") {
-    REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(false, 100, isomorphism_kind::non_induced),
-                    invalid_argument);
-}
-
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if match count is negative") {
     REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(false, -1, isomorphism_kind::induced),
-                    invalid_argument);
+                      invalid_argument);
 }
 
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if semantic match is true") {
     REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(true, 100, isomorphism_kind::induced),
-                    invalid_argument);
+                      invalid_argument);
 }
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test
