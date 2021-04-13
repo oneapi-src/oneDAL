@@ -37,7 +37,7 @@ public:
         dtype_ = data_type::float32;
     }
 
-    void reset(detail::homogen_table_iface& t) override {
+    void move(detail::homogen_table_iface& t) override {
         if (t.get_row_count() > 0 || t.get_column_count() > 0) {
             const auto& meta = t.get_metadata();
             const std::int64_t data_size =

@@ -46,7 +46,7 @@ public:
     }
 
     auto& reset(homogen_table&& t) {
-        get_impl().reset(detail::cast_impl<detail::homogen_table_iface>(std::move(t)));
+        get_impl().move(detail::cast_impl<detail::homogen_table_iface>(std::move(t)));
         return *this;
     }
 

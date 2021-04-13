@@ -66,7 +66,7 @@ public:
     virtual void set_layout(data_layout layout) = 0;
     virtual void set_feature_type(feature_type ft) = 0;
 
-    virtual void reset(homogen_table_iface& t) = 0;
+    virtual void move(homogen_table_iface& t) = 0;
     virtual void reset(const array<byte_t>& data,
                        std::int64_t row_count,
                        std::int64_t column_count) = 0;
