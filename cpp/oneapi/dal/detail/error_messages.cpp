@@ -67,6 +67,17 @@ MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
 MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(table_does_not_provide_read_access_to_rows, "Given table does not provide read access to rows")
+MSG(table_builder_does_not_provide_read_access_to_rows,
+    "Given table builder does not provide read access to rows")
+MSG(table_builder_does_not_provide_write_access_to_rows,
+    "Given table builder does not provide write access to rows")
+MSG(table_does_not_provide_read_access_to_columns,
+    "Given table does not provide read access to columns")
+MSG(table_builder_does_not_provide_read_access_to_columns,
+    "Given table builder does not provide read access to columns")
+MSG(table_builder_does_not_provide_write_access_to_columns,
+    "Given table builder does not provide write access to columns")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

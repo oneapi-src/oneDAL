@@ -62,6 +62,7 @@ public:
         else {
             return block.get_mutable_data();
         }
+        return nullptr;
     }
 
 #ifdef ONEDAL_DATA_PARALLEL

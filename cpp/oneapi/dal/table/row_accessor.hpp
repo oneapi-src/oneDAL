@@ -21,27 +21,25 @@
 namespace oneapi::dal {
 namespace v1 {
 
+///
+///
 /// @tparam T The type of data values in blocks returned by the accessor.
-///           Should be const-qualified for read-only access.
-///           An accessor supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
+///           Should be const-qualified for read-only access. An accessor
+///           supports at least :literal:`float`, :literal:`double`, and
+///           :literal:`std::int32_t`.
 template <typename T>
 class row_accessor {
 public:
     using data_t = std::remove_const_t<T>;
     static constexpr bool is_readonly = std::is_const_v<T>;
 
-    /// Creates a new read-only accessor object from the table.
-    /// The check that the accessor supports the table kind of :literal:`obj` is performed.
-    /// The reference to the :literal:`obj` table is stored within the accessor to
-    /// obtain data from the table.
+    /// Creates a read-only accessor object from the table. Available only for
+    /// const-qualified :literal:`T`.
+    template <typename U = T, std::enable_if_t<std::is_const_v<U>, int> = 0>
     explicit row_accessor(const table& table) : pull_iface_(detail::get_pull_rows_iface(table)) {
-        static_assert(is_readonly,
-                      "Tables can be used only for pull operations, "
-                      "use row_accessor<const T> instead");
-
         if (!pull_iface_) {
-            // TODO: Replace to error_messages
-            throw invalid_argument{ "Given table does not provide read access to rows" };
+            using msg = detail::error_messages;
+            throw invalid_argument{ msg::table_does_not_provide_read_access_to_rows() };
         }
     }
 
@@ -49,30 +47,20 @@ public:
             : pull_iface_(detail::get_pull_rows_iface(builder)),
               push_iface_(detail::get_push_rows_iface(builder)) {
         if (!pull_iface_) {
-            // TODO: Replace to error_messages
-            throw invalid_argument{ "Given table builder does not provide read access to rows" };
+            using msg = detail::error_messages;
+            throw invalid_argument{ msg::table_builder_does_not_provide_read_access_to_rows() };
         }
 
         if (!is_readonly && !push_iface_) {
-            // TODO: Replace to error_messages
-            throw invalid_argument{ "Given table builder does not provide write access to rows" };
+            using msg = detail::error_messages;
+            throw invalid_argument{ msg::table_builder_does_not_provide_write_access_to_rows() };
         }
     }
 
-    array<data_t> pull(const range& rows = { 0, -1 }) const {
+    array<data_t> pull(const range& row_range = { 0, -1 }) const {
         array<data_t> block;
-        pull(block, rows);
+        pull(block, row_range);
         return block;
-    }
-
-    T* pull(array<data_t>& block, const range& rows = { 0, -1 }) const {
-        pull_iface_->pull_rows(detail::default_host_policy{}, block, rows);
-        if constexpr (is_readonly) {
-            return block.get_data();
-        }
-        else {
-            return block.get_mutable_data();
-        }
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -82,23 +70,32 @@ public:
     /// Otherwise, the new memory block is allocated, the data from the table rows is converted
     /// and copied into this block. The array refers to the block as to mutable data.
     ///
-    /// @param[in] queue The SYCL* queue object.
-    /// @param[in] rows  The range of rows that data is returned from the accessor.
-    /// @param[in] alloc The requested kind of USM in the returned block.
+    /// @param[in] queue     The SYCL* queue object.
+    /// @param[in] row_range The range of rows that data is returned from the accessor.
+    /// @param[in] alloc     The requested kind of USM in the returned block.
     ///
-    /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.
+    /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
     array<data_t> pull(sycl::queue& queue,
-                       const range& rows = { 0, -1 },
+                       const range& row_range = { 0, -1 },
                        const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         array<data_t> block;
-        pull(queue, block, rows, alloc);
+        pull(queue, block, row_range, alloc);
         return block;
     }
 #endif
 
+    T* pull(array<data_t>& block, const range& row_range = { 0, -1 }) const {
+        pull_iface_->pull_rows(detail::default_host_policy{}, block, row_range);
+        return get_block_data(block);
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     /// Provides access to the rows of the table.
-    /// The method returns the :expr:`block.data` pointer.
+    /// The method returns an array that directly points to the memory within the table
+    /// if it is possible. In that case, the array refers to the memory as to immutable data.
+    /// Otherwise, the new memory block is allocated, the data from the table rows is converted
+    /// and copied into this block. The array refers to the block as to mutable data.
+    /// The method updates the :expr:`block` array.
     ///
     /// @param[in] queue     The SYCL* queue object.
     /// @param[in,out] block The block which memory is reused (if it is possible) to obtain the data from the table.
@@ -107,40 +104,39 @@ public:
     ///                      memory from the table can be used.
     ///                      If the block is reset to use a direct memory pointer from the object,
     ///                      it refers to this pointer as to immutable memory block.
-    /// @param[in] rows      The range of rows that data is returned from the accessor.
+    /// @param[in] row_range The range of rows that data is returned from the accessor.
     /// @param[in] alloc     The requested kind of USM in the returned block.
     ///
     /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.
     T* pull(sycl::queue& queue,
             array<data_t>& block,
-            const range& rows = { 0, -1 },
+            const range& row_range = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        pull_iface_->pull_rows(detail::data_parallel_policy{ queue }, block, rows, alloc);
-        if constexpr (is_readonly) {
-            return block.get_data();
-        }
-        else {
-            return block.get_mutable_data();
-        }
+        pull_iface_->pull_rows(detail::data_parallel_policy{ queue }, block, row_range, alloc);
+        return get_block_data(block);
     }
 #endif
 
-    template <typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(const array<data_t>& block,
-                                                     const range& rows = { 0, -1 }) {
-        push_iface_->push_rows(detail::default_host_policy{}, block, rows);
+    template <typename U = T, std::enable_if_t<!std::is_const_v<U>, int> = 0>
+    void push(const array<data_t>& block, const range& row_range = { 0, -1 }) {
+        push_iface_->push_rows(detail::default_host_policy{}, block, row_range);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename Q = T>
-    std::enable_if_t<sizeof(Q) && !is_readonly> push(sycl::queue& queue,
-                                                     const array<data_t>& block,
-                                                     const range& rows = { 0, -1 }) {
-        push_iface_->push_rows(detail::data_parallel_policy{ queue }, block, rows);
+    template <typename U = T, std::enable_if_t<!std::is_const_v<U>, int> = 0>
+    void push(sycl::queue& queue, const array<data_t>& block, const range& row_range = { 0, -1 }) {
+        push_iface_->push_rows(detail::data_parallel_policy{ queue }, block, row_range);
     }
 #endif
 
 private:
+    static T* get_block_data(const array<data_t>& block) {
+        if constexpr (is_readonly) {
+            return block.get_data();
+        }
+        return block.get_mutable_data();
+    }
+
     std::shared_ptr<detail::pull_rows_iface> pull_iface_;
     std::shared_ptr<detail::push_rows_iface> push_iface_;
 };
