@@ -34,6 +34,12 @@ class array_impl : public base {
     template <typename U>
     friend class array_impl;
 
+    template <typename U>
+    using ary_cshared = typename array_impl<U>::cshared;
+
+    template <typename U>
+    using ary_shared = typename array_impl<U>::shared;
+
 public:
     template <typename Policy, typename Allocator>
     static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
@@ -91,8 +97,10 @@ public:
         else if (const auto& immut_ptr = std::get_if<cshared>(&data_owned_)) {
             return immut_ptr->get();
         }
-        ONEDAL_ASSERT(false);
-        return nullptr;
+        else {
+            ONEDAL_ASSERT(false);
+            return nullptr;
+        }
     }
 
     T* get_mutable_data() const {
@@ -163,15 +171,15 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            using shared_y = typename array_impl<Y>::shared;
-            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+            if (const auto& ptr = std::get_if<ary_shared<Y>>(&ref.data_owned_)) {
                 data_owned_ = shared(*ptr, data);
             }
-            ONEDAL_ASSERT(false);
+            else {
+                ONEDAL_ASSERT(false);
+            }
         }
         else {
-            using cshared_y = typename array_impl<Y>::cshared;
-            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
+            if (const auto& ptr = std::get_if<ary_cshared<Y>>(&ref.data_owned_)) {
                 data_owned_ = shared(*ptr, data);
             }
             else {
@@ -187,15 +195,15 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            using shared_y = typename array_impl<Y>::shared;
-            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+            if (const auto& ptr = std::get_if<ary_shared<Y>>(&ref.data_owned_)) {
                 data_owned_ = cshared(*ptr, data);
             }
-            ONEDAL_ASSERT(false);
+            else {
+                ONEDAL_ASSERT(false);
+            }
         }
         else {
-            using cshared_y = typename array_impl<Y>::cshared;
-            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
+            if (const auto& ptr = std::get_if<ary_cshared<Y>>(&ref.data_owned_)) {
                 data_owned_ = cshared(*ptr, data);
             }
             else {
