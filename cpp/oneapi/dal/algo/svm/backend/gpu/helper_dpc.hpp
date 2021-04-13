@@ -26,13 +26,13 @@ namespace pr = dal::backend::primitives;
 inline sycl::event make_range(sycl::queue& queue,
                               pr::ndarray<std::uint32_t, 1>& indices_sort,
                               const std::uint32_t n,
-                              const event_vector& deps = {}) {
+                              const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(indices_sort.get_dimension(0) == n);
     ONEDAL_ASSERT(indices_sort.has_mutable_data());
 
-    Float* indices_sort_ptr = indices_sort.get_mutable_data();
+    std::uint32_t* indices_sort_ptr = indices_sort.get_mutable_data();
 
-    auto make_range_event = queue_.submit([&](sycl::handler& chg) {
+    auto make_range_event = queue.submit([&](sycl::handler& chg) {
         chg.depends_on(deps);
         const auto range_dim = dal::detail::integral_cast<std::size_t>(n);
         const auto range = sycl::range<1>(range_dim);
@@ -52,7 +52,7 @@ inline sycl::event arg_sort(sycl::queue& queue,
                             pr::ndarray<Float, 1>& values,
                             pr::ndarray<std::uint32_t, 1>& indices_sort,
                             const std::uint32_t n,
-                            const event_vector& deps = {}) {
+                            const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(f.get_dimension(0) == n);
     ONEDAL_ASSERT(values.get_dimension(0) == n);
     ONEDAL_ASSERT(values.has_mutable_data());
@@ -77,7 +77,7 @@ inline sycl::event check_upper(sycl::queue& queue,
                                pr::ndarray<std::uint32_t, 1>& indicator,
                                const Float C,
                                const std::uint32_t n,
-                               const event_vector& deps = {}) {
+                               const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(y.get_dimension(0) == n);
     ONEDAL_ASSERT(alpha.get_dimension(0) == n);
     ONEDAL_ASSERT(indicator.get_dimension(0) == n);
@@ -85,16 +85,16 @@ inline sycl::event check_upper(sycl::queue& queue,
 
     Float* y_ptr = y.get_data();
     Float* alpha_ptr = alpha.get_data();
-    Float* incicator_ptr = incicator.get_mutable_data();
+    Float* indicator_ptr = indicator.get_mutable_data();
 
-    auto check_upper_event = queue_.submit([&](sycl::handler& chg) {
+    auto check_upper_event = queue.submit([&](sycl::handler& chg) {
         chg.depends_on(deps);
         const auto range_dim = dal::detail::integral_cast<std::size_t>(n);
         const auto range = sycl::range<1>(range_dim);
 
         chg.parallel_for(range, [=](sycl::id<1> id) {
             const uint i = id[0];
-            incicator_ptr[i] =
+            indicator_ptr[i] =
                 (y_ptr[i] > 0 && alpha_ptr[i] < C) || (y_ptr[i] < 0 && alpha_ptr[i] > 0);
         });
     });
@@ -109,7 +109,7 @@ inline sycl::event check_lower(sycl::queue& queue,
                                pr::ndarray<std::uint32_t, 1>& indicator,
                                const Float C,
                                const std::uint32_t n,
-                               const event_vector& deps = {}) {
+                               const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(y.get_dimension(0) == n);
     ONEDAL_ASSERT(alpha.get_dimension(0) == n);
     ONEDAL_ASSERT(indicator.get_dimension(0) == n);
@@ -117,16 +117,16 @@ inline sycl::event check_lower(sycl::queue& queue,
 
     Float* y_ptr = y.get_data();
     Float* alpha_ptr = alpha.get_data();
-    Float* incicator_ptr = incicator.get_mutable_data();
+    Float* indicator_ptr = indicator.get_mutable_data();
 
-    auto check_upper_event = queue_.submit([&](sycl::handler& chg) {
+    auto check_upper_event = queue.submit([&](sycl::handler& chg) {
         chg.depends_on(deps);
         const auto range_dim = dal::detail::integral_cast<std::size_t>(n);
         const auto range = sycl::range<1>(range_dim);
 
         chg.parallel_for(range, [=](sycl::id<1> id) {
             const uint i = id[0];
-            incicator_ptr[i] =
+            indicator_ptr[i] =
                 (y_ptr[i] > 0 && alpha_ptr[i] > 0) || (y_ptr[i] < 0 && alpha_ptr[i] < C);
         });
     });
