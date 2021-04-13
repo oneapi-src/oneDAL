@@ -49,22 +49,16 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
     sycl::range<2> out_range(n_samples1, n_samples2);
     // Metric instance
     const auto& metric = this->m_;
-    auto res_event = q_.submit([&](sycl::handler& h) {
+    return q_.submit([&](sycl::handler& h) {
         h.depends_on(deps);
-        //sycl::stream outs(1024, 256, h);
-
-        h.parallel_for<class dist_comp>(out_range, [=](sycl::id<2> idx) {
+        h.parallel_for(out_range, [=](sycl::id<2> idx) {
             const auto* inp1_first = inp1_ptr + inp_stride1 * idx[0];
             const auto* inp1_last = inp1_first + n_features;
             const auto* inp2_first = inp2_ptr + inp_stride2 * idx[1];
             auto& out_place = *(out_ptr + out_stride * idx[0] + idx[1]);
             out_place = metric(inp1_first, inp1_last, inp2_first);
-            //outs << idx[0] << ' ' << idx[1] << ' ' << out_place << sycl::endl;
         });
     });
-    res_event.wait_and_throw();
-    std::cerr << '\t' << *out_ptr << std::endl;
-    return res_event;
 }
 
 #define INSTANTIATE(F) template class distance<F, lp_metric<F>>;

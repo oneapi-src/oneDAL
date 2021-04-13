@@ -46,9 +46,12 @@ private:
 };
 
 template <typename Float>
-class distance<Float, l2_metric<Float>> {
+class l2_helper;
+
+template <typename Float>
+class distance<Float, squared_l2_metric<Float>> {
 public:
-    distance(sycl::queue& q) : q_{ q }, m_{} {}
+    distance(sycl::queue& q) : q_{ q } {}
     sycl::event initialize(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            const event_vector& deps = {});
@@ -59,14 +62,15 @@ public:
 
 private:
     sycl::queue& q_;
-    const l2_metric<Float> m_;
+    detail::shared<l2_helper<Float>> helper1;
+    detail::shared<l2_helper<Float>> helper2;
 };
 
 template <typename Float>
 using lp_distance = distance<Float, lp_metric<Float>>;
 
 template <typename Float>
-using l2_distance = distance<Float, l2_metric<Float>>;
+using squared_l2_distance = distance<Float, squared_l2_metric<Float>>;
 
 template <typename Float>
 void check_inputs(const ndview<Float, 2>& inp1,

@@ -58,9 +58,20 @@ private:
 };
 
 template <typename Float>
-struct l2_metric : public lp_metric<Float> {
+struct squared_l2_metric : public metric_base<Float> {
 public:
-    l2_metric() : lp_metric<Float>(2.0) {}
+    squared_l2_metric() {}
+    template <typename InputIt1, typename InputIt2>
+    Float operator()(InputIt1 first1, InputIt1 last1, InputIt2 first2) const {
+        Float acc = 0;
+        auto it1 = first1;
+        auto it2 = first2;
+        for (; it1 != last1; ++it1, ++it2) {
+            const Float diff = *it1 - *it2;
+            acc += diff * diff;
+        }
+        return acc;
+    }
 };
 
 #endif

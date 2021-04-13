@@ -92,8 +92,43 @@ public:
         distance<Float, lp_metric<Float>> l1_distance(this->get_queue(), {1.});
         auto distance_event = l1_distance(input1, input2, output, {output_event});
         distance_event.wait_and_throw();
-        std::cerr << *(output.get_data()) << std::endl;
         l1_groundtruth_check(output);
+    }
+
+    void l2_groundtruth_check(const ndview<Float, 2>& out, const Float atol = 1.e-3) {
+        for(std::int64_t i = 0; i < r_count1_; ++i) {
+            const auto inp_row1 = row_accessor<const Float>{ input_table1_ }
+                                                                .pull(this->get_queue(), {i, i + 1});
+            for(std::int64_t j = 0; j < r_count2_; ++j) {
+                const auto inp_row2 = row_accessor<const Float>{ input_table2_ }
+                                                                .pull(this->get_queue(), {j, j + 1});
+                Float gtv = 0;
+                for(std::int64_t k = 0; k < c_count_; ++k) {
+                    const auto diff = inp_row1[k] - inp_row2[k];
+                    gtv += diff * diff;
+                }
+                const auto val = *(out.get_data() + out.get_leading_stride() * i + j);
+                const auto diff = std::pow(gtv, 0.5) - val;
+                CAPTURE(gtv, val, i, j, r_count1_, r_count2_, c_count_);
+                REQUIRE(-atol <= diff);
+                CAPTURE(gtv, val, i, j, r_count1_, r_count2_, c_count_);
+                REQUIRE(diff <= atol);
+            }
+        }
+    }
+
+    void test_l2_distance(){
+        auto input1_arr = row_accessor<const Float>{ input_table1_ }.pull(this->get_queue());
+        auto input2_arr = row_accessor<const Float>{ input_table2_ }.pull(this->get_queue());
+        auto input1 =
+            ndview<Float, 2>::wrap(input1_arr.get_data(), { r_count1_ , c_count_ });
+        auto input2 =
+            ndview<Float, 2>::wrap(input2_arr.get_data(), { r_count2_ , c_count_ });
+        auto [output, output_event] = this->output();
+        distance<Float, lp_metric<Float>> l2_distance(this->get_queue(), {2.});
+        auto distance_event = l2_distance(input1, input2, output, {output_event});
+        distance_event.wait_and_throw();
+        l2_groundtruth_check(output);
     }
 
 private:
@@ -106,11 +141,20 @@ private:
 
 TEMPLATE_LIST_TEST_M(lp_distance_test_random,
                      "Randomly filled L1-distance computation",
-                     "[distance][small]",
+                     "[l1][distance][small]",
                      distance_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
     this->test_l1_distance();
+}
+
+TEMPLATE_LIST_TEST_M(lp_distance_test_random,
+                     "Randomly filled L2-distance computation",
+                     "[l2][distance][small]",
+                     distance_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate();
+    this->test_l2_distance();
 }
 
 } // namespace oneapi::dal::backend::primitives::test
