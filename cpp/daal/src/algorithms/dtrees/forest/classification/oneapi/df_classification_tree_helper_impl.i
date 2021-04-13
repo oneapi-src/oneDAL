@@ -68,7 +68,7 @@ public:
         return pNode;
     }
 
-    typename NodeType::Split * makeSplit(size_t iFeature, algorithmFPType featureValue, bool bUnordered, algorithmFPType impurity,
+    typename NodeType::Split * makeSplit(size_t n, size_t iFeature, algorithmFPType featureValue, bool bUnordered, algorithmFPType impurity,
                                          typename NodeType::Base * left, typename NodeType::Base * right)
     {
         typename NodeType::Split * pNode = _allocator.allocSplit();
@@ -76,6 +76,7 @@ public:
         pNode->kid[0]   = left;
         pNode->kid[1]   = right;
         pNode->impurity = impurity;
+        pNode->count    = n;
 
         return pNode;
     }
@@ -183,10 +184,10 @@ struct DFTreeConverter
                 {
                     DAAL_ASSERT(dfTreeLevelNodesPrev->get());
                     //split node
-                    dfTreeLevelNodes->get()[nodeIdx] =
-                        treeBuilder.makeSplit(record.getFtrIdx(nodeIdx), binValues[record.getFtrIdx(nodeIdx)][record.getFtrVal(nodeIdx)],
-                                              static_cast<bool>(record.hasUnorderedFtr(nodeIdx)), record.getImpurity(nodeIdx),
-                                              dfTreeLevelNodesPrev->get()[nSplits * 2], dfTreeLevelNodesPrev->get()[nSplits * 2 + 1]);
+                    dfTreeLevelNodes->get()[nodeIdx] = treeBuilder.makeSplit(
+                        record.getRowsNum(nodeIdx), record.getFtrIdx(nodeIdx), binValues[record.getFtrIdx(nodeIdx)][record.getFtrVal(nodeIdx)],
+                        static_cast<bool>(record.hasUnorderedFtr(nodeIdx)), record.getImpurity(nodeIdx), dfTreeLevelNodesPrev->get()[nSplits * 2],
+                        dfTreeLevelNodesPrev->get()[nSplits * 2 + 1]);
                     nSplits++;
                 }
             }
