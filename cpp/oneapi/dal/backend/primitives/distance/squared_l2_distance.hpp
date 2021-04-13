@@ -44,6 +44,13 @@ sycl::event scatter_2d(sycl::queue& q,
                        ndview<Float, 2>& out,
                        const event_vector& deps = {});
 
+template <typename Float>
+sycl::event inner_product(sycl::queue& q,
+                          const ndview<Float, 2>& inp1,
+                          const ndview<Float, 2>& inp2,
+                          ndview<Float, 2>& out,
+                          const event_vector& deps = {});
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives

@@ -17,7 +17,8 @@
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
 #include "oneapi/dal/backend/primitives/distance/squared_l2_distance.hpp"
 
-#include "oneapi/dal/backend/primitives/reduction/reduction.hpp"
+#include "oneapi/dal/backend/primitives/blas.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -64,19 +65,29 @@ sycl::event scatter_2d(sycl::queue& q,
     });
 }
 
-/*template<typename Float>
-sycl::event l2_distance<Float>::operator()(sycl::queue& q, 
-                                           const ndview<Float, 2>& inp1, 
-                                           const ndview<Float, 2>& inp2,
-                                           ndview<Float, 2>& out,
-                                           const event_vector& deps) {
-    this->check_inputs(inp1, inp2, out);
+template <typename Float>
+sycl::event inner_product(sycl::queue& q,
+                          const ndview<Float, 2>& inp1,
+                          const ndview<Float, 2>& inp2,
+                          ndview<Float, 2>& out,
+                          const event_vector& deps) {
+    check_inputs(inp1, inp2, out);
+    return gemm(q, inp1, inp2.t(), out, Float(-2.0), Float(+1.0), deps);
+}
+
+template<typename Float>
+sycl::event compute_squared_l2_distance(sycl::queue& q, 
+                                        const ndview<Float, 2>& inp1, 
+                                        const ndview<Float, 2>& inp2,
+                                        ndview<Float, 2>& out,
+                                        const event_vector& deps) {
+    check_inputs(inp1, inp2, out);
     auto [l2_inp1_arr, l2_inp1_event] = get_norms(q, inp1, deps);
     auto [l2_inp2_arr, l2_inp2_event] = get_norms(q, inp2, deps);
     auto scatter_event = scatter_norms(q, l2_inp1_arr, l2_inp2_arr, out,
                                     { l2_inp1_event, l2_inp2_event });
-    return perform_gemm(q, inp1, inp2, out, { scatter_event });
-}*/
+    return inner_product(q, inp1, inp2, out, { scatter_event });
+}
 
 #define INSTANTIATE(F)                                                                              \
     template std::tuple<array<F>, sycl::event> compute_squared_l2_norms<F>(sycl::queue&,            \
@@ -86,6 +97,11 @@ sycl::event l2_distance<Float>::operator()(sycl::queue& q,
     template sycl::event scatter_2d<F>(sycl::queue& q, \
                                        const ndview<F, 1>&,\
                                        const ndview<F, 1>&,\
+                                       ndview<F, 2>&,\
+                                       const event_vector&);\
+    template sycl::event inner_product<F>(sycl::queue& q, \
+                                       const ndview<F, 2>&,\
+                                       const ndview<F, 2>&,\
                                        ndview<F, 2>&,\
                                        const event_vector&);
 

@@ -8,6 +8,7 @@ dal_module(
     name = "distance",
     auto = True,
     dal_deps = [
+        "@onedal//cpp/oneapi/dal/backend/primitives:blas",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
