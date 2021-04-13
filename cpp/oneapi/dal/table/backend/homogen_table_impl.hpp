@@ -82,6 +82,10 @@ public:
         return 1;
     }
 
+    array<byte_t> get_data_array() const {
+        return data_;
+    }
+
     template <typename T>
     void pull_rows(const detail::default_host_policy& policy,
                    array<T>& block,

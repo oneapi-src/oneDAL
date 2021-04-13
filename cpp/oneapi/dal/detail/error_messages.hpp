@@ -63,6 +63,7 @@ public:
 
     /* Common */
     MSG(array_does_not_contain_mutable_data);
+    MSG(array_does_not_contain_ownership_structure);
     MSG(feature_index_is_out_of_range);
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
