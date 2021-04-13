@@ -95,10 +95,7 @@ private:
     array<feature_type> ftypes_;
 };
 
-class empty_table_impl : public base,
-                         public detail::table_iface,
-                         public detail::pull_rows_template<empty_table_impl>,
-                         public detail::pull_column_template<empty_table_impl> {
+class empty_table_impl : public detail::dense_table_template<empty_table_impl> {
 public:
     static constexpr std::int64_t pure_empty_table_kind = 0;
 
@@ -121,14 +118,6 @@ public:
     const table_metadata& get_metadata() const override {
         static table_metadata metadata;
         return metadata;
-    }
-
-    detail::pull_rows_iface* get_pull_rows_iface() override {
-        return this;
-    }
-
-    detail::pull_column_iface* get_pull_column_iface() override {
-        return this;
     }
 
     template <typename T>

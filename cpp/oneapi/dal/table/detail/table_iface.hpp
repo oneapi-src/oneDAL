@@ -16,143 +16,20 @@
 
 #pragma once
 
-#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/table/detail/access_iface.hpp"
 
-namespace oneapi::dal {
-namespace v1 {
+namespace oneapi::dal::v1 {
 class table_metadata;
 enum class data_layout;
 enum class feature_type;
-} // namespace v1
-
-using v1::table_metadata;
-using v1::data_layout;
-using v1::feature_type;
-
-} // namespace oneapi::dal
+} // namespace oneapi::dal::v1
 
 namespace oneapi::dal::detail {
+namespace v1 {
 
-#define DECLARE_PULL_ROWS_HOST(T) \
-    virtual void pull_rows(const default_host_policy&, array<T>&, const range&) = 0;
-
-#define DECLARE_PULL_ROWS_DPC(T)                        \
-    virtual void pull_rows(const data_parallel_policy&, \
-                           array<T>&,                   \
-                           const range&,                \
-                           sycl::usm::alloc) = 0;
-
-#ifdef ONEDAL_DATA_PARALLEL
-#define DECLARE_PULL_ROWS(T)  \
-    DECLARE_PULL_ROWS_HOST(T) \
-    DECLARE_PULL_ROWS_DPC(T)
-#else
-#define DECLARE_PULL_ROWS(T) DECLARE_PULL_ROWS_HOST(T)
-#endif
-
-class pull_rows_iface {
-public:
-    virtual ~pull_rows_iface() = default;
-
-    DECLARE_PULL_ROWS(float)
-    DECLARE_PULL_ROWS(double)
-    DECLARE_PULL_ROWS(std::int32_t)
-};
-
-#undef DECLARE_PULL_ROWS_HOST
-#undef DECLARE_PULL_ROWS_DPC
-#undef DECLARE_PULL_ROWS
-
-#define DECLARE_PUSH_ROWS_HOST(T) \
-    virtual void push_rows(const default_host_policy&, const array<T>&, const range&) = 0;
-
-#define DECLARE_PUSH_ROWS_DPC(T) \
-    virtual void push_rows(const data_parallel_policy&, const array<T>&, const range&) = 0;
-
-#ifdef ONEDAL_DATA_PARALLEL
-#define DECLARE_PUSH_ROWS(T)  \
-    DECLARE_PUSH_ROWS_HOST(T) \
-    DECLARE_PUSH_ROWS_DPC(T)
-#else
-#define DECLARE_PUSH_ROWS(T) DECLARE_PUSH_ROWS_HOST(T)
-#endif
-
-class push_rows_iface {
-public:
-    virtual ~push_rows_iface() = default;
-
-    DECLARE_PUSH_ROWS(float)
-    DECLARE_PUSH_ROWS(double)
-    DECLARE_PUSH_ROWS(std::int32_t)
-};
-
-#undef DECLARE_PUSH_ROWS_HOST
-#undef DECLARE_PUSH_ROWS_DPC
-#undef DECLARE_PUSH_ROWS
-
-#define DECLARE_PULL_COLUMN_HOST(T) \
-    virtual void pull_column(const default_host_policy&, array<T>&, std::int64_t, const range&) = 0;
-
-#define DECLARE_PULL_COLUMN_DPC(T)                        \
-    virtual void pull_column(const data_parallel_policy&, \
-                             array<T>&,                   \
-                             std::int64_t,                \
-                             const range&,                \
-                             sycl::usm::alloc) = 0;
-
-#ifdef ONEDAL_DATA_PARALLEL
-#define DECLARE_PULL_COLUMN(T)  \
-    DECLARE_PULL_COLUMN_HOST(T) \
-    DECLARE_PULL_COLUMN_DPC(T)
-#else
-#define DECLARE_PULL_COLUMN(T) DECLARE_PULL_COLUMN_HOST(T)
-#endif
-
-class pull_column_iface {
-public:
-    virtual ~pull_column_iface() = default;
-
-    DECLARE_PULL_COLUMN(float)
-    DECLARE_PULL_COLUMN(double)
-    DECLARE_PULL_COLUMN(std::int32_t)
-};
-
-#undef DECLARE_PULL_COLUMN_HOST
-#undef DECLARE_PULL_COLUMN_DPC
-#undef DECLARE_PULL_COLUMN
-
-#define DECLARE_PUSH_COLUMN_HOST(T)                      \
-    virtual void push_column(const default_host_policy&, \
-                             const array<T>&,            \
-                             std::int64_t,               \
-                             const range&) = 0;
-
-#define DECLARE_PUSH_COLUMN_DPC(T)                        \
-    virtual void push_column(const data_parallel_policy&, \
-                             const array<T>&,             \
-                             std::int64_t,                \
-                             const range&) = 0;
-
-#ifdef ONEDAL_DATA_PARALLEL
-#define DECLARE_PUSH_COLUMN(T)  \
-    DECLARE_PUSH_COLUMN_HOST(T) \
-    DECLARE_PUSH_COLUMN_DPC(T)
-#else
-#define DECLARE_PUSH_COLUMN(T) DECLARE_PUSH_COLUMN_HOST(T)
-#endif
-
-class push_column_iface {
-public:
-    virtual ~push_column_iface() = default;
-
-    DECLARE_PUSH_COLUMN(float)
-    DECLARE_PUSH_COLUMN(double)
-    DECLARE_PUSH_COLUMN(std::int32_t)
-};
-
-#undef DECLARE_PUSH_COLUMN_HOST
-#undef DECLARE_PUSH_COLUMN_DPC
-#undef DECLARE_PUSH_COLUMN
+using dal::v1::table_metadata;
+using dal::v1::data_layout;
+using dal::v1::feature_type;
 
 class table_iface {
 public:
@@ -202,226 +79,81 @@ public:
                            std::int64_t column_count) = 0;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    virtual void allocate(const sycl::queue& queue,
+    virtual void allocate(const data_parallel_policy& policy,
                           std::int64_t row_count,
                           std::int64_t column_count,
-                          sycl::usm::alloc kind) = 0;
+                          sycl::usm::alloc alloc) = 0;
 
-    virtual void copy_data(sycl::queue& queue,
+    virtual void copy_data(const data_parallel_policy& policy,
                            const void* data,
                            std::int64_t row_count,
                            std::int64_t column_count) = 0;
 #endif
 };
 
-template <typename Derived>
-class pull_rows_template : public pull_rows_iface {
+template <typename Iface, typename Derived>
+class table_template : public Iface,
+                       public pull_rows_template<Derived>,
+                       public pull_column_template<Derived> {
 public:
-    void pull_rows(const default_host_policy& policy,
-                   array<float>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->pull_rows(policy, block, rows);
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
     }
 
-    void pull_rows(const default_host_policy& policy,
-                   array<double>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->pull_rows(policy, block, rows);
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+};
+
+template <typename Iface, typename Derived>
+class table_builder_template : public Iface,
+                               public pull_rows_template<Derived>,
+                               public pull_column_template<Derived>,
+                               public push_rows_template<Derived>,
+                               public push_column_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
     }
 
-    void pull_rows(const default_host_policy& policy,
-                   array<std::int32_t>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->pull_rows(policy, block, rows);
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
     }
 
-#ifdef ONEDAL_DATA_PARALLEL
-    void pull_rows(const data_parallel_policy& policy,
-                   array<float>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) override {
-        static_cast<Derived*>(this)->pull_rows(policy, block, rows, alloc);
+    push_rows_iface* get_push_rows_iface() override {
+        return this;
     }
 
-    void pull_rows(const data_parallel_policy& policy,
-                   array<double>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) override {
-        static_cast<Derived*>(this)->pull_rows(policy, block, rows, alloc);
+    push_column_iface* get_push_column_iface() override {
+        return this;
     }
-
-    void pull_rows(const data_parallel_policy& policy,
-                   array<std::int32_t>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) override {
-        static_cast<Derived*>(this)->pull_rows(policy, block, rows, alloc);
-    }
-#endif
 };
 
 template <typename Derived>
-class pull_column_template : public pull_column_iface {
-public:
-    void pull_column(const default_host_policy& policy,
-                     array<float>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, rows);
-    }
-
-    void pull_column(const default_host_policy& policy,
-                     array<double>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, rows);
-    }
-
-    void pull_column(const default_host_policy& policy,
-                     array<std::int32_t>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, rows);
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    void pull_column(const data_parallel_policy& policy,
-                     array<float>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) override {
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, rows, alloc);
-    }
-
-    void pull_column(const data_parallel_policy& policy,
-                     array<double>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) override {
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, rows, alloc);
-    }
-
-    void pull_column(const data_parallel_policy& policy,
-                     array<std::int32_t>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) override {
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, rows, alloc);
-    }
-#endif
-};
+using dense_table_template = table_template<table_iface, Derived>;
 
 template <typename Derived>
-class push_rows_template : public push_rows_iface {
-public:
-    void push_rows(const default_host_policy& policy,
-                   const array<float>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->push_rows(policy, block, rows);
-    }
-
-    void push_rows(const default_host_policy& policy,
-                   const array<double>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->push_rows(policy, block, rows);
-    }
-
-    void push_rows(const default_host_policy& policy,
-                   const array<std::int32_t>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->push_rows(policy, block, rows);
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    void push_rows(const data_parallel_policy& policy,
-                   const array<float>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->push_rows(policy, block, rows);
-    }
-
-    void push_rows(const data_parallel_policy& policy,
-                   const array<double>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->push_rows(policy, block, rows);
-    }
-
-    void push_rows(const data_parallel_policy& policy,
-                   const array<std::int32_t>& block,
-                   const range& rows) override {
-        static_cast<Derived*>(this)->push_rows(policy, block, rows);
-    }
-#endif
-};
+using homogen_table_template = table_template<homogen_table_iface, Derived>;
 
 template <typename Derived>
-class push_column_template : public push_column_iface {
-public:
-    void push_column(const default_host_policy& policy,
-                     const array<float>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, rows);
-    }
+using dense_table_builder_template = table_builder_template<table_builder_iface, Derived>;
 
-    void push_column(const default_host_policy& policy,
-                     const array<double>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, rows);
-    }
+template <typename Derived>
+using homogen_table_builder_template = table_builder_template<homogen_table_builder_iface, Derived>;
 
-    void push_column(const default_host_policy& policy,
-                     const array<std::int32_t>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, rows);
-    }
+} // namespace v1
 
-#ifdef ONEDAL_DATA_PARALLEL
-    void push_column(const data_parallel_policy& policy,
-                     const array<float>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, rows);
-    }
-
-    void push_column(const data_parallel_policy& policy,
-                     const array<double>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, rows);
-    }
-
-    void push_column(const data_parallel_policy& policy,
-                     const array<std::int32_t>& block,
-                     std::int64_t column_index,
-                     const range& rows) override {
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, rows);
-    }
-#endif
-};
-
-template <typename Object>
-inline std::shared_ptr<pull_rows_iface> get_pull_rows_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<pull_rows_iface>{ pimpl, pimpl->get_pull_rows_iface() };
-}
-
-template <typename Object>
-inline std::shared_ptr<pull_column_iface> get_pull_column_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<pull_column_iface>{ pimpl, pimpl->get_pull_column_iface() };
-}
-
-template <typename Object>
-inline std::shared_ptr<push_rows_iface> get_push_rows_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<push_rows_iface>{ pimpl, pimpl->get_push_rows_iface() };
-}
-
-template <typename Object>
-inline std::shared_ptr<push_column_iface> get_push_column_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<push_column_iface>{ pimpl, pimpl->get_push_column_iface() };
-}
+using v1::table_iface;
+using v1::homogen_table_iface;
+using v1::table_builder_iface;
+using v1::homogen_table_builder_iface;
+using v1::dense_table_template;
+using v1::homogen_table_template;
+using v1::table_template;
+using v1::table_builder_template;
+using v1::dense_table_template;
+using v1::homogen_table_template;
+using v1::dense_table_builder_template;
+using v1::homogen_table_builder_template;
 
 } // namespace oneapi::dal::detail

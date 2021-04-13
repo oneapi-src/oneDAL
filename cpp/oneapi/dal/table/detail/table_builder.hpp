@@ -102,7 +102,7 @@ public:
                    std::int64_t row_count,
                    std::int64_t column_count,
                    const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) {
-        get_impl().allocate(queue, row_count, column_count, alloc);
+        get_impl().allocate(detail::data_parallel_policy{ queue }, row_count, column_count, alloc);
         return *this;
     }
 
@@ -113,7 +113,7 @@ public:
                     std::int64_t column_count,
                     const sycl::vector_class<sycl::event>& dependencies = {}) {
         sycl::event::wait_and_throw(dependencies);
-        get_impl().copy_data(queue, data, row_count, column_count);
+        get_impl().copy_data(detail::data_parallel_policy{ queue }, data, row_count, column_count);
         return *this;
     }
 #endif

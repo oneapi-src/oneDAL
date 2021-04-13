@@ -22,11 +22,8 @@
 
 namespace oneapi::dal::backend {
 
-class homogen_table_builder_impl : public detail::homogen_table_builder_iface,
-                                   public detail::pull_rows_template<homogen_table_builder_impl>,
-                                   public detail::push_rows_template<homogen_table_builder_impl>,
-                                   public detail::pull_column_template<homogen_table_builder_impl>,
-                                   public detail::push_column_template<homogen_table_builder_impl> {
+class homogen_table_builder_impl
+        : public detail::homogen_table_builder_template<homogen_table_builder_impl> {
 public:
     homogen_table_builder_impl() {
         reset();
@@ -125,7 +122,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void allocate(const sycl::queue& queue,
+    void allocate(const detail::data_parallel_policy& policy,
                   std::int64_t row_count,
                   std::int64_t column_count,
                   sycl::usm::alloc kind) override {
@@ -138,37 +135,22 @@ public:
         }
 
         const std::int64_t data_size = get_data_size(row_count, column_count, dtype_);
-        data_.reset(queue, data_size, kind);
+        data_.reset(policy.get_queue(), data_size, kind);
         row_count_ = row_count;
         column_count_ = column_count;
     }
 
-    void copy_data(sycl::queue& queue,
+    void copy_data(const detail::data_parallel_policy& policy,
                    const void* data,
                    std::int64_t row_count,
                    std::int64_t column_count) override {
+        auto& queue = policy.get_queue();
         ONEDAL_ASSERT(sycl::get_pointer_type(data_.get_data(), queue.get_context()) !=
                       sycl::usm::alloc::unknown);
         check_copy_data_preconditions(row_count, column_count);
         detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
     }
 #endif
-
-    detail::pull_rows_iface* get_pull_rows_iface() override {
-        return this;
-    }
-
-    detail::pull_column_iface* get_pull_column_iface() override {
-        return this;
-    }
-
-    detail::push_rows_iface* get_push_rows_iface() override {
-        return this;
-    }
-
-    detail::push_column_iface* get_push_column_iface() override {
-        return this;
-    }
 
     template <typename T>
     void pull_rows(const detail::default_host_policy& policy,

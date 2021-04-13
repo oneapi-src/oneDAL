@@ -30,9 +30,7 @@ inline table_metadata create_homogen_metadata(std::int64_t feature_count, data_t
     return table_metadata{ dtypes, ftypes };
 }
 
-class homogen_table_impl : public detail::homogen_table_iface,
-                           public detail::pull_rows_template<homogen_table_impl>,
-                           public detail::pull_column_template<homogen_table_impl> {
+class homogen_table_impl : public detail::homogen_table_template<homogen_table_impl> {
 public:
     homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 
@@ -91,14 +89,6 @@ public:
 
     std::int64_t get_kind() const override {
         return 1;
-    }
-
-    detail::pull_rows_iface* get_pull_rows_iface() override {
-        return this;
-    }
-
-    detail::pull_column_iface* get_pull_column_iface() override {
-        return this;
     }
 
     template <typename T>

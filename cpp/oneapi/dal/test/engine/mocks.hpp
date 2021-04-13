@@ -20,9 +20,7 @@
 
 namespace oneapi::dal::test::engine {
 
-class dummy_table_impl : public detail::table_iface,
-                         public detail::pull_rows_template<dummy_table_impl>,
-                         public detail::pull_column_template<dummy_table_impl> {
+class dummy_table_impl : public detail::dense_table_template<dummy_table_impl> {
 public:
     explicit dummy_table_impl(std::int64_t row_count, std::int64_t column_count)
             : row_count_(row_count),
@@ -46,14 +44,6 @@ public:
 
     data_layout get_data_layout() const override {
         return data_layout::column_major;
-    }
-
-    detail::pull_rows_iface* get_pull_rows_iface() override {
-        return this;
-    }
-
-    detail::pull_column_iface* get_pull_column_iface() override {
-        return this;
     }
 
     template <typename Data>
