@@ -169,7 +169,7 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            data_owned_ = shared(std::get<std::get<ary_shared<Y>>(ref.data_owned_), data);
+            data_owned_ = shared(std::get<ary_shared<Y>>(ref.data_owned_), data);
         }
         else {
             data_owned_ = shared(std::get<ary_cshared<Y>>(ref.data_owned_), data);
