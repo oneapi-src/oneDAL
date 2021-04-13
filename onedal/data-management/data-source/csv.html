@@ -96,7 +96,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../oneapi-interfaces.html">oneAPI Interfaces</a><ul class="current">
@@ -162,6 +162,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
 </ul>
 </li>
@@ -170,7 +171,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../algorithms/svm/index.html">Support Vector Machines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../algorithms/svm/svm.html">Support Vector Machine Classifier and Regression (SVM)</a></li>
 </ul>
 </li>
 </ul>
@@ -178,8 +179,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html">oneAPI Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc.html">DPC++</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
@@ -202,14 +203,19 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">polynomial_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_multi_class_thunder_dense_batch.html">svm_multi_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_reg_thunder_dense_batch.html">svm_reg_thunder_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/triangle_counting_batch.html">triangle_counting_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../appendix/kd_tree.html">k-d Tree</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../appendix/kd_tree.html#related-terms">Related terms</a></li>
 </ul>
@@ -279,7 +285,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#initialization">Initialization</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#id4">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#id6">Computation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
 </ul>
@@ -514,6 +520,63 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/array.html">Array</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/array.html#programming-interface">Programming interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/array.html#usage-example">Usage example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/accessors.html">Accessors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/accessor/column.html">Column accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/accessor/row.html">Row accessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/data-sources.html">Data Sources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/data-source/csv.html">CSV data source</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/tables.html">Tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/tables.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/known_issues.html">Known Issues</a><ul>
@@ -725,7 +788,7 @@ process it using provided parameters (such as delimiter and read options),
 transform it into numerical representation, and store it as an in-memory
 <a class="reference internal" href="../index.html#dataset"><span class="std std-ref">dataset</span></a> of a chosen type.</p>
 <p>Supported type of in-memory object for <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">read</span></code> operation with CSV data
-source is <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="../tables.html#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table"><span class="pre">table</span></a></code>.</p>
+source is <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../../../api/data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a></code>.</p>
 <p>CSV data source requires input file name to be set in the constructor, while the
 other parameters of the constructor such as delimiter and read options rely on
 default values.</p>
@@ -741,135 +804,7 @@ default values.</p>
 </div>
 <div class="section" id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
-<p>All types and functions in this section are declared in the
-<code class="docutils literal notranslate"><span class="pre">oneapi::dal::csv</span></code> namespace and be available via inclusion of the
-<code class="docutils literal notranslate"><span class="pre">oneapi/dal/io/csv.hpp</span></code> header file.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="k">class</span> <span class="nc">read_options</span> <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint64_t</span> <span class="p">{</span>
-   <span class="n">none</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-   <span class="n">parse_header</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-<span class="p">};</span>
-
-<span class="k">constexpr</span> <span class="kt">char</span> <span class="n">default_delimiter</span> <span class="o">=</span> <span class="sc">&#39;,&#39;</span><span class="p">;</span>
-<span class="k">constexpr</span> <span class="n">read_options</span> <span class="n">default_read_options</span> <span class="o">=</span> <span class="n">read_options</span><span class="o">::</span><span class="n">none</span><span class="p">;</span>
-
-<span class="k">class</span> <span class="nc">data_source</span> <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-   <span class="n">data_source</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">file_name</span><span class="p">,</span>
-               <span class="kt">char</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="n">default_delimiter</span><span class="p">,</span>
-               <span class="n">read_options</span> <span class="n">opts</span> <span class="o">=</span> <span class="n">default_read_options</span><span class="p">);</span>
-
-   <span class="n">data_source</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&amp;</span><span class="n">file_name</span><span class="p">,</span>
-               <span class="kt">char</span> <span class="n">delimiter</span> <span class="o">=</span> <span class="n">default_delimiter</span><span class="p">,</span>
-               <span class="n">read_options</span> <span class="n">opts</span> <span class="o">=</span> <span class="n">default_read_options</span><span class="p">);</span>
-
-   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">get_file_name</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
-   <span class="kt">char</span> <span class="nf">get_delimiter</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
-   <span class="n">read_options</span> <span class="nf">get_read_options</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
-<span class="p">};</span>
-</pre></div>
-</div>
-<dl class="cpp class">
-<dt id="_CPPv4N6oneapi3dal3csv11data_sourceE">
-<span id="_CPPv3N6oneapi3dal3csv11data_sourceE"></span><span id="_CPPv2N6oneapi3dal3csv11data_sourceE"></span><span id="oneapi::dal::csv::data_source"></span><em class="property">class </em><code class="sig-name descname">data_source</code><a class="headerlink" href="#_CPPv4N6oneapi3dal3csv11data_sourceE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options">
-<span id="_CPPv3N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options"></span><span id="_CPPv2N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options"></span><span id="oneapi::dal::csv::data_source::data_source__cCP.c.read_options"></span><code class="sig-name descname">data_source</code><span class="sig-paren">(</span><em class="property">const</em> char *<em>file_name</em>, char <em>delimiter</em> = default_delimiter, read_options <em>opts</em> = default_read_options<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of a CSV data source with the given
-<code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options" title="oneapi::dal::csv::data_source::data_source::file_name"><span class="pre">file_name</span></a></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options" title="oneapi::dal::csv::data_source::data_source::delimiter"><span class="pre">delimiter</span></a></code> and read options <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options" title="oneapi::dal::csv::data_source::data_source::opts"><span class="pre">opts</span></a></code> flag.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options">
-<span id="_CPPv3N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options"></span><span id="_CPPv2N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options"></span><span id="oneapi::dal::csv::data_source::data_source__ssCR.c.read_options"></span><code class="sig-name descname">data_source</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>file_name</em>, char <em>delimiter</em> = default_delimiter, read_options <em>opts</em> = default_read_options<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of a CSV data source with the given
-<code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options" title="oneapi::dal::csv::data_source::data_source::file_name"><span class="pre">file_name</span></a></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options" title="oneapi::dal::csv::data_source::data_source::delimiter"><span class="pre">delimiter</span></a></code> and read options <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options" title="oneapi::dal::csv::data_source::data_source::opts"><span class="pre">opts</span></a></code> flag.</p>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3csv11data_source9file_nameE">
-<span id="_CPPv3N6oneapi3dal3csv11data_source9file_nameE"></span><span id="_CPPv2N6oneapi3dal3csv11data_source9file_nameE"></span><span id="oneapi::dal::csv::data_source::file_name__ss"></span>std::string <code class="sig-name descname">file_name</code> = &quot;&quot;<a class="headerlink" href="#_CPPv4N6oneapi3dal3csv11data_source9file_nameE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>A string that contains the name of the file with the dataset to read.</p>
-<dl>
-<dt>Getter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::string</span> <span class="pre">get_filename()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3csv11data_source9delimiterE">
-<span id="_CPPv3N6oneapi3dal3csv11data_source9delimiterE"></span><span id="_CPPv2N6oneapi3dal3csv11data_source9delimiterE"></span><span id="oneapi::dal::csv::data_source::delimiter__c"></span>char <code class="sig-name descname">delimiter</code> = default_delimiter<a class="headerlink" href="#_CPPv4N6oneapi3dal3csv11data_source9delimiterE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>A character that represents the delimiter between separate features in the
-input file.</p>
-<dl>
-<dt>Getter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">get_delimter()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3csv11data_source7optionsE">
-<span id="_CPPv3N6oneapi3dal3csv11data_source7optionsE"></span><span id="_CPPv2N6oneapi3dal3csv11data_source7optionsE"></span><span id="oneapi::dal::csv::data_source::options__read_options"></span>read_options <code class="sig-name descname">options</code> = default_read_options<a class="headerlink" href="#_CPPv4N6oneapi3dal3csv11data_source7optionsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Value that stores read options to be applied during reading of the input
-file. Enabled <code class="docutils literal notranslate"><span class="pre">parse_header</span></code> option indicates that the first line in the
-input file is processed as a header record with features names.</p>
-<dl>
-<dt>Getter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">read_options</span> <span class="pre">get_read_options()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="reading-oneapi-dal-read-object">
-<h2>Reading <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource" title="oneapi::dal::read"><span class="pre">read</span></a><span class="pre">&lt;</span><span class="pre">Object</span><span class="pre">&gt;</span><span class="sig-paren">(</span><span class="pre">...</span><span class="sig-paren">)</span></code><a class="headerlink" href="#reading-oneapi-dal-read-object" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="args">
-<h3>Args<a class="headerlink" href="#args" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">Object</span><span class="o">&gt;</span>
-<span class="k">class</span> <span class="nc">read_args</span> <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-   <span class="n">read_args</span><span class="p">();</span>
-<span class="p">};</span>
-</pre></div>
-</div>
-<dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal3csv9read_argsE">
-<span id="_CPPv3I0EN6oneapi3dal3csv9read_argsE"></span><span id="_CPPv2I0EN6oneapi3dal3csv9read_argsE"></span>template&lt;typename <code class="sig-name descname">Object</code>&gt;<br /><em class="property">class </em><code class="sig-name descname">read_args</code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal3csv9read_argsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal3csv9read_args9read_argsEv">
-<span id="_CPPv3N6oneapi3dal3csv9read_args9read_argsEv"></span><span id="_CPPv2N6oneapi3dal3csv9read_args9read_argsEv"></span><span id="oneapi::dal::csv::read_args::read_args"></span><code class="sig-name descname">read_args</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3csv9read_args9read_argsEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates args for the read operation with the default attribute
-values.</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="operation">
-<h3>Operation<a class="headerlink" href="#operation" title="Permalink to this headline">¶</a></h3>
-<p><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="../tables.html#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table"><span class="pre">table</span></a></code> is the only supported value of the <code class="code docutils literal notranslate"><span class="pre">Object</span></code>
-template parameter for <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource" title="oneapi::dal::read"><span class="pre">read</span></a></code> operation with CSV data source.</p>
-<dl class="cpp function">
-<dt id="_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource">
-<span id="_CPPv3I00EN6oneapi3dal4readERK10DataSource"></span><span id="_CPPv2I00EN6oneapi3dal4readERK10DataSource"></span>template&lt;typename <code class="sig-name descname">Object</code>, typename <code class="sig-name descname">DataSource</code>&gt;<br /><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource" title="oneapi::dal::read::Object">Object</a> <code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource" title="oneapi::dal::read::DataSource">DataSource</a> &amp;<em>ds</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource" title="Permalink to this definition">¶</a><br /></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Object</strong> – oneDAL object type that is produced as a result of
-reading from the data source.</p></li>
-<li><p><strong>DataSource</strong> – CSV data source <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">csv</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3csv11data_sourceE" title="oneapi::dal::csv::data_source"><span class="pre">data_source</span></a></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
+<p>Refer to <a class="reference internal" href="../../../api/data-management/data-source/csv.html#api-csv-data-source"><span class="std std-ref">API Reference: CSV data source</span></a>.</p>
 </div>
 </div>
 
@@ -894,7 +829,7 @@ reading from the data source.</p></li>
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2014 - 2020, Intel Corporation
+        &copy; Copyright 2014 - 2021, Intel Corporation
 
     </p>
   </div>

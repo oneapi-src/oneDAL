@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -22,32 +22,8 @@
 ===================================
 Principal Components Analysis (PCA)
 ===================================
-Principal Component Analysis (PCA) is an algorithm for exploratory data analysis
-and :capterm:`dimensionality reduction`. PCA transforms a set of feature vectors
-of possibly correlated features to a new set of uncorrelated features, called
-principal components. Principal components are the directions of the largest
-variance, that is, the directions where the data is mostly spread out.
 
-.. |t_math| replace:: `Training <pca_t_math_>`_
-.. |t_cov| replace:: `Covariance <pca_t_math_cov_>`_
-.. |t_svd| replace:: `SVD <pca_t_math_svd_>`_
-.. |t_input| replace:: `train_input <pca_t_api_input_>`_
-.. |t_result| replace:: `train_result <pca_t_api_result_>`_
-.. |t_op| replace:: `train(...) <pca_t_api_>`_
-
-.. |i_math| replace:: `Inference <pca_i_math_>`_
-.. |i_cov| replace:: `Covariance <pca_i_math_cov_>`_
-.. |i_svd| replace:: `SVD <pca_i_math_svd_>`_
-.. |i_input| replace:: `infer_input <pca_i_api_input_>`_
-.. |i_result| replace:: `infer_result <pca_i_api_result_>`_
-.. |i_op| replace:: `infer(...) <pca_i_api_>`_
-
-=============== ============= ============= ======== =========== ============
- **Operation**  **Computational methods**     **Programming Interface**
---------------- --------------------------- ---------------------------------
-   |t_math|        |t_cov|       |t_svd|     |t_op|   |t_input|   |t_result|
-   |i_math|        |i_cov|       |i_svd|     |i_op|   |i_input|   |i_result|
-=============== ============= ============= ======== =========== ============
+.. include:: ../../../includes/decomposition/pca-introduction.rst
 
 ------------------------
 Mathematical formulation
@@ -163,148 +139,20 @@ Inference methods: *Covariance* and *SVD*
 Covariance and SVD inference methods compute :math:`x_{j}''` according to
 :eq:`x_transform`.
 
+---------------------
+Programming Interface
+---------------------
+
+Refer to :ref:`API Reference: Principal Components Analysis <api_pca>`.
 
 -------------
 Usage example
 -------------
 
-Training
---------
-
-::
-
-   pca::model<> run_training(const table& data) {
-      const auto pca_desc = pca::descriptor<float>{}
-         .set_component_count(5)
-         .set_deterministic(true);
-
-      const auto result = train(pca_desc, data);
-
-      print_table("means", result.get_means());
-      print_table("variances", result.get_variances());
-      print_table("eigenvalues", result.get_eigenvalues());
-      print_table("eigenvectors", result.get_eigenvectors());
-
-      return result.get_model();
-   }
-
-Inference
----------
-
-::
-
-   table run_inference(const pca::model<>& model,
-                     const table& new_data) {
-      const auto pca_desc = pca::descriptor<float>{}
-         .set_component_count(model.get_component_count());
-
-      const auto result = infer(pca_desc, model, new_data);
-
-      print_table("labels", result.get_transformed_data());
-   }
+.. include:: ../../../includes/decomposition/pca-usage-examples.rst
 
 --------
 Examples
 --------
 
-.. include:: ./includes/pca-examples.rst
-
----------------------
-Programming Interface
----------------------
-All types and functions in this section are declared in the
-``oneapi::dal::pca`` namespace and be available via inclusion of the
-``oneapi/dal/algo/pca.hpp`` header file.
-
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::pca::v1::descriptor
-
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::pca::method::v1
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::pca::task::v1
-
-Model
------
-.. onedal_class:: oneapi::dal::pca::v1::model
-
-
-.. _pca_t_api:
-
-Training :cpp:expr:`train(...)`
---------------------------------
-.. _pca_t_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::train_input
-
-
-.. _pca_t_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::train_result
-
-Operation
-~~~~~~~~~
-
-.. function:: template <typename Descriptor> \
-              pca::train_result train(const Descriptor& desc, \
-                                         const pca::train_input& input)
-
-   :tparam desc: PCA algorithm descriptor :expr:`pca::desc`
-   :tparam input: Input data for the training operation
-
-   Preconditions
-      | :expr:`input.data.has_data == true`
-      | :expr:`input.data.column_count >= desc.component_count`
-   Postconditions
-      | :expr:`result.means.row_count == 1`
-      | :expr:`result.means.column_count == desc.component_count`
-      | :expr:`result.variances.row_count == 1`
-      | :expr:`result.variances.column_count == desc.component_count`
-      | :expr:`result.variances[i] >= 0.0`
-      | :expr:`result.eigenvalues.row_count == 1`
-      | :expr:`result.eigenvalues.column_count == desc.component_count`
-      | :expr:`result.model.eigenvectors.row_count == 1`
-      | :expr:`result.model.eigenvectors.column_count == desc.component_count`
-
-.. _pca_i_api:
-
-Inference :cpp:expr:`infer(...)`
----------------------------------
-.. _pca_i_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::infer_input
-
-
-.. _pca_i_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::pca::v1::infer_result
-
-Operation
-~~~~~~~~~
-
-.. function:: template <typename Descriptor> \
-              pca::infer_result infer(const Descriptor& desc, \
-                                         const pca::infer_input& input)
-
-   :tparam desc: PCA algorithm descriptor :expr:`pca::desc`
-   :tparam input: Input data for the inference operation
-
-   Preconditions
-      | :expr:`input.data.has_data == true`
-      | :expr:`input.model.eigenvectors.row_count == desc.component_count`
-      | :expr:`input.model.eigenvectors.column_count == input.data.column_count`
-   Postconditions
-      | :expr:`result.transformed_data.row_count == input.data.row_count`
-      | :expr:`result.transformed_data.column_count == desc.component_count`
+.. include:: ../../../includes/decomposition/pca-examples.rst

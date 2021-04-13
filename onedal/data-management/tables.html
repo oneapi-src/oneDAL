@@ -96,7 +96,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../oneapi-interfaces.html">oneAPI Interfaces</a><ul class="current">
@@ -162,6 +162,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
 </ul>
 </li>
@@ -170,7 +171,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/svm/index.html">Support Vector Machines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/svm.html">Support Vector Machine Classifier and Regression (SVM)</a></li>
 </ul>
 </li>
 </ul>
@@ -178,8 +179,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples.html">oneAPI Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/dpc.html">DPC++</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
@@ -202,14 +203,19 @@
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/polynomial_kernel_dense_batch.html">polynomial_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_multi_class_thunder_dense_batch.html">svm_multi_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_reg_thunder_dense_batch.html">svm_reg_thunder_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/triangle_counting_batch.html">triangle_counting_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../appendix/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../appendix/kd_tree.html">k-d Tree</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../appendix/kd_tree.html#related-terms">Related terms</a></li>
 </ul>
@@ -279,7 +285,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#initialization">Initialization</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#id4">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#id6">Computation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
 </ul>
@@ -514,6 +520,63 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/array.html">Array</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/array.html#programming-interface">Programming interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/array.html#usage-example">Usage example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/accessors.html">Accessors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/accessor/column.html">Column accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/accessor/row.html">Row accessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/data-sources.html">Data Sources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/data-source/csv.html">CSV data source</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/tables.html">Tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/tables.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notes/known_issues.html">Known Issues</a><ul>
@@ -715,7 +778,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="tables">
-<span id="id1"></span><h1>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h1>
+<span id="dm-tables"></span><h1>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h1>
 <p>This section describes the types related to the <a class="reference internal" href="index.html#table"><span class="std std-ref">table</span></a> concept.</p>
 <table class="colwidths-given docutils align-default">
 <colgroup>
@@ -728,18 +791,18 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="#table-programming-interface"><span class="std std-ref">table</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../../api/data-management/tables.html#table-programming-interface"><span class="std std-ref">table</span></a></p></td>
 <td><p>A common implementation of the table concept. Base class for
 other table types.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#metadata-programming-interface"><span class="std std-ref">table_metadata</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../api/data-management/tables.html#metadata-programming-interface"><span class="std std-ref">table_metadata</span></a></p></td>
 <td><p>An implementation of <a class="reference internal" href="index.html#table-metadata"><span class="std std-ref">table metadata</span></a> concept.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#data-layout">data_layout</a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../../api/data-management/tables.html#api-tables-data-layout"><span class="std std-ref">Data layout</span></a></p></td>
 <td><p>An enumeration of <a class="reference internal" href="../glossary.html#term-Data-layout"><span class="xref std std-term">data layouts</span></a> used to store
 contiguous data blocks inside the table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#feature-type">feature_type</a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../api/data-management/tables.html#api-tables-feature-type"><span class="std std-ref">Feature type</span></a></p></td>
 <td><p>An enumeration of <a class="reference internal" href="../glossary.html#term-Feature"><span class="xref std std-term">feature</span></a> types used in oneDAL to
 define set of available operations onto the data.</p></td>
 </tr>
@@ -751,10 +814,10 @@ define set of available operations onto the data.</p></td>
 <ol class="arabic simple">
 <li><p>Follows the definition of the <a class="reference internal" href="index.html#table"><span class="std std-ref">table</span></a> concept and its restrictions
 (e.g., <a class="reference internal" href="../glossary.html#term-Immutability"><span class="xref std std-term">immutability</span></a>).</p></li>
-<li><p>Is derived from the <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table"><span class="pre">table</span></a></code> class. The behavior of this class can be
+<li><p>Is derived from the <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../../api/data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a></code> class. The behavior of this class can be
 extended, but cannot be weaken.</p></li>
 <li><p>Is <a class="reference internal" href="../glossary.html#term-Reference-counted-object"><span class="xref std std-term">reference-counted</span></a>.</p></li>
-<li><p>Every new <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">v1</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table"><span class="pre">table</span></a></code> sub-type defines a unique id number - the “kind”
+<li><p>Every new <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><a class="reference internal" href="../../api/data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a></code> sub-type defines a unique id number - the “kind”
 that represents objects of that type in runtime.</p></li>
 </ol>
 <p>The following listing provides an example of table API to illustrate table kinds
@@ -803,248 +866,9 @@ and copy-assignment operation:</p>
 </table>
 </div>
 <div class="section" id="programming-interface">
-<span id="table-programming-interface"></span><h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
-<p>All types and functions in this section are declared in the
-<code class="docutils literal notranslate"><span class="pre">oneapi::dal</span></code> namespace and be available via inclusion of the
-<code class="docutils literal notranslate"><span class="pre">oneapi/dal/table/common.hpp</span></code> header file.</p>
-<div class="section" id="table">
-<h3>Table<a class="headerlink" href="#table" title="Permalink to this headline">¶</a></h3>
-<p>A base implementation of the <a class="reference internal" href="index.html#table"><span class="std std-ref">table</span></a> concept.
-The <code class="docutils literal notranslate"><span class="pre">table</span></code> type and all of its subtypes are <a class="reference internal" href="../glossary.html#term-Reference-counted-object"><span class="xref std std-term">reference-counted</span></a>:</p>
-<ol class="arabic simple">
-<li><p>The instance stores a pointer to table implementation that holds all
-property values and data</p></li>
-<li><p>The reference count indicating how many table objects refer to the same implementation.</p></li>
-<li><p>The table increments the reference count
-for it to be equal to the number of table objects sharing the same implementation.</p></li>
-<li><p>The table decrements the reference count when the
-table goes out of the scope. If the reference count is zero, the table
-frees its implementation.</p></li>
-</ol>
-<dl class="cpp class">
-<dt id="_CPPv4N6oneapi3dal2v15tableE">
-<span id="_CPPv3N6oneapi3dal2v15tableE"></span><span id="_CPPv2N6oneapi3dal2v15tableE"></span><span id="oneapi::dal::v1::table"></span><em class="property">class </em><code class="sig-name descname">table</code><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15tableE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p><strong>Constructors</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15table5tableEv">
-<span id="_CPPv3N6oneapi3dal2v15table5tableEv"></span><span id="_CPPv2N6oneapi3dal2v15table5tableEv"></span><span id="oneapi::dal::v1::table::table"></span><code class="sig-name descname">table</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15table5tableEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An empty table constructor: creates the table instance with zero number of rows and columns. Implementation is set to the special “empty” object that returns all the property values set to default (see Properties section).</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15table5tableERK5table">
-<span id="_CPPv3N6oneapi3dal2v15table5tableERK5table"></span><span id="_CPPv2N6oneapi3dal2v15table5tableERK5table"></span><span id="oneapi::dal::v1::table::table__tableCR"></span><code class="sig-name descname">table</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v15table5tableERK5table" title="oneapi::dal::v1::table::table">table</a>&amp;<span class="sig-paren">)</span> = default<a class="headerlink" href="#_CPPv4N6oneapi3dal2v15table5tableERK5table" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new table instance that shares the implementation with another one.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15table5tableERR5table">
-<span id="_CPPv3N6oneapi3dal2v15table5tableERR5table"></span><span id="_CPPv2N6oneapi3dal2v15table5tableERR5table"></span><span id="oneapi::dal::v1::table::table__tableRR"></span><code class="sig-name descname">table</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15table5tableERR5table" title="oneapi::dal::v1::table::table">table</a>&amp;&amp;<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15table5tableERR5table" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new table instance and moves implementation from another one into it.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl">
-<span id="_CPPv3I000EN6oneapi3dal2v15table5tableERR4Impl"></span><span id="_CPPv2I000EN6oneapi3dal2v15table5tableERR4Impl"></span>template&lt;typename <code class="sig-name descname">Impl</code>, typename <code class="sig-name descname">ImplType</code> = std::decay_t&lt;<a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl" title="oneapi::dal::v1::table::table::Impl">Impl</a>&gt;, typename <code class="sig-name descname">None</code> = std::enable_if_t&lt;detail::is_table_impl_v&lt;<a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl" title="oneapi::dal::v1::table::table::ImplType">ImplType</a>&gt; &amp;&amp; !std::is_base_of_v&lt;<a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl" title="oneapi::dal::v1::table::table">table</a>, <a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl" title="oneapi::dal::v1::table::table::ImplType">ImplType</a>&gt;&gt;&gt;<br /><code class="sig-name descname">table</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl" title="oneapi::dal::v1::table::table::Impl">Impl</a> &amp;&amp;<em>impl</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<p><strong>Public Methods</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15tableaSERK5table">
-<span id="_CPPv3N6oneapi3dal2v15tableaSERK5table"></span><span id="_CPPv2N6oneapi3dal2v15tableaSERK5table"></span><span id="oneapi::dal::v1::table::assign-operator__tableCR"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table">table</a> &amp;<code class="sig-name descname">operator=</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table">table</a>&amp;<span class="sig-paren">)</span> = default<a class="headerlink" href="#_CPPv4N6oneapi3dal2v15tableaSERK5table" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Replaces the implementation by another one.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15tableaSERR5table">
-<span id="_CPPv3N6oneapi3dal2v15tableaSERR5table"></span><span id="_CPPv2N6oneapi3dal2v15tableaSERR5table"></span><span id="oneapi::dal::v1::table::assign-operator__tableRR"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table">table</a> &amp;<code class="sig-name descname">operator=</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table">table</a>&amp;&amp;<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15tableaSERR5table" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Swaps the implementation of this object and another one.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4NK6oneapi3dal2v15table8has_dataEv">
-<span id="_CPPv3NK6oneapi3dal2v15table8has_dataEv"></span><span id="_CPPv2NK6oneapi3dal2v15table8has_dataEv"></span><span id="oneapi::dal::v1::table::has_dataC"></span>bool <code class="sig-name descname">has_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em> <em class="property">noexcept</em><a class="headerlink" href="#_CPPv4NK6oneapi3dal2v15table8has_dataEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Indicates whether a table contains non-zero number of rows and columns.</p>
-</dd></dl>
-
-<p><strong>Properties</strong></p>
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_table_properties12column_countE">
-<span id="_CPPv3N30oneapi_dal_v1_table_properties12column_countE"></span><span id="_CPPv2N30oneapi_dal_v1_table_properties12column_countE"></span><span id="oneapi_dal_v1_table_properties::column_count__std::int64_t"></span>std::int64_t <code class="sig-name descname">column_count</code> = 0<a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_table_properties12column_countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of columns in the table.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_column_count()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_table_properties9row_countE">
-<span id="_CPPv3N30oneapi_dal_v1_table_properties9row_countE"></span><span id="_CPPv2N30oneapi_dal_v1_table_properties9row_countE"></span><span id="oneapi_dal_v1_table_properties::row_count__std::int64_t"></span>std::int64_t <code class="sig-name descname">row_count</code> = 0<a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_table_properties9row_countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of rows in the table.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_row_count()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_table_properties8metadataE">
-<span id="_CPPv3N30oneapi_dal_v1_table_properties8metadataE"></span><span id="_CPPv2N30oneapi_dal_v1_table_properties8metadataE"></span><span id="oneapi_dal_v1_table_properties::metadata__table_metadataCR"></span><em class="property">const</em> table_metadata &amp;<code class="sig-name descname">metadata</code> = table_metadata()<a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_table_properties8metadataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The metadata object that holds additional information about the data within the table.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table_metadata</span> <span class="pre">&amp;</span> <span class="pre">get_metadata()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_table_properties4kindE">
-<span id="_CPPv3N30oneapi_dal_v1_table_properties4kindE"></span><span id="_CPPv2N30oneapi_dal_v1_table_properties4kindE"></span><span id="oneapi_dal_v1_table_properties::kind__std::int64_t"></span>std::int64_t <code class="sig-name descname">kind</code> = empty_table_kind<a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_table_properties4kindE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The runtime id of the table type. Each table sub-type has its unique <cite>kind</cite>. An empty table (see the default constructor) has a unique <cite>kind</cite> value as well.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_kind()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_table_properties11data_layoutE">
-<span id="_CPPv3N30oneapi_dal_v1_table_properties11data_layoutE"></span><span id="_CPPv2N30oneapi_dal_v1_table_properties11data_layoutE"></span><span id="oneapi_dal_v1_table_properties::data_layout__data_layout"></span><a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_table_properties11data_layoutE" title="oneapi_dal_v1_table_properties::data_layout">data_layout</a> <code class="sig-name descname">data_layout</code> = <a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_table_properties11data_layoutE" title="oneapi_dal_v1_table_properties::data_layout">data_layout</a>::unknown<a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_table_properties11data_layoutE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The layout of the data within the table.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">data_layout</span> <span class="pre">get_data_layout()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="table-metadata">
-<span id="metadata-programming-interface"></span><h3>Table metadata<a class="headerlink" href="#table-metadata" title="Permalink to this headline">¶</a></h3>
-<p>An implementation of the <a class="reference internal" href="index.html#table-metadata"><span class="std std-ref">table metadata</span></a> concept. Holds additional
-information about data within the table. The objects of <code class="docutils literal notranslate"><span class="pre">table_metadata</span></code>
-are <a class="reference internal" href="../glossary.html#term-Reference-counted-object"><span class="xref std std-term">reference-counted</span></a>.</p>
-<dl class="cpp class">
-<dt id="_CPPv4N6oneapi3dal2v114table_metadataE">
-<span id="_CPPv3N6oneapi3dal2v114table_metadataE"></span><span id="_CPPv2N6oneapi3dal2v114table_metadataE"></span><span id="oneapi::dal::v1::table_metadata"></span><em class="property">class </em><code class="sig-name descname">table_metadata</code><a class="headerlink" href="#_CPPv4N6oneapi3dal2v114table_metadataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p><strong>Constructors</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v114table_metadata14table_metadataEv">
-<span id="_CPPv3N6oneapi3dal2v114table_metadata14table_metadataEv"></span><span id="_CPPv2N6oneapi3dal2v114table_metadata14table_metadataEv"></span><span id="oneapi::dal::v1::table_metadata::table_metadata"></span><code class="sig-name descname">table_metadata</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v114table_metadata14table_metadataEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates the metadata instance without information about the features. The <code class="docutils literal notranslate"><span class="pre">feature_count</span></code> should be set to zero. The <code class="docutils literal notranslate"><span class="pre">data_type</span></code> and <code class="docutils literal notranslate"><span class="pre">feature_type</span></code> properties should not be initialized.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v114table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE">
-<span id="_CPPv3N6oneapi3dal2v114table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE"></span><span id="_CPPv2N6oneapi3dal2v114table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE"></span><span id="oneapi::dal::v1::table_metadata::table_metadata__array:data_type:CR.array:feature_type:CR"></span><code class="sig-name descname">table_metadata</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="array.html#_CPPv4I0EN6oneapi3dal2v15arrayE" title="oneapi::dal::v1::array">array</a>&lt;data_type&gt; &amp;<em>dtypes</em>, <em class="property">const</em> <a class="reference internal" href="array.html#_CPPv4I0EN6oneapi3dal2v15arrayE" title="oneapi::dal::v1::array">array</a>&lt;feature_type&gt; &amp;<em>ftypes</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v114table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates the metadata instance from external information about the data types and the feature types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dtypes</strong> – The data types of the features. Assigned into the <code class="docutils literal notranslate"><span class="pre">data_type</span></code> property.</p></li>
-<li><p><strong>ftypes</strong> – The feature types. Assigned into the <code class="docutils literal notranslate"><span class="pre">feature_type</span></code> property.</p></li>
-</ul>
-</dd>
-</dl>
-<dl>
-<dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal2v114table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE" title="oneapi::dal::v1::table_metadata::table_metadata::dtypes"><span class="pre">dtypes</span></a><span class="pre">.</span><span class="pre">get_count</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v114table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE" title="oneapi::dal::v1::table_metadata::table_metadata::ftypes"><span class="pre">ftypes</span></a><span class="pre">.</span><span class="pre">get_count</span><span class="pre">(</span><span class="pre">)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<p><strong>Properties</strong></p>
-<dl class="cpp member">
-<dt id="_CPPv4N39oneapi_dal_v1_table_metadata_properties13feature_countE">
-<span id="_CPPv3N39oneapi_dal_v1_table_metadata_properties13feature_countE"></span><span id="_CPPv2N39oneapi_dal_v1_table_metadata_properties13feature_countE"></span><span id="oneapi_dal_v1_table_metadata_properties::feature_count__std::int64_t"></span>std::int64_t <code class="sig-name descname">feature_count</code><a class="headerlink" href="#_CPPv4N39oneapi_dal_v1_table_metadata_properties13feature_countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of features that metadata contains information about.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_feature_count()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N39oneapi_dal_v1_table_metadata_properties12feature_typeE">
-<span id="_CPPv3N39oneapi_dal_v1_table_metadata_properties12feature_typeE"></span><span id="_CPPv2N39oneapi_dal_v1_table_metadata_properties12feature_typeE"></span><span id="oneapi_dal_v1_table_metadata_properties::feature_type__feature_typeCR"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N39oneapi_dal_v1_table_metadata_properties12feature_typeE" title="oneapi_dal_v1_table_metadata_properties::feature_type">feature_type</a> &amp;<code class="sig-name descname">feature_type</code><a class="headerlink" href="#_CPPv4N39oneapi_dal_v1_table_metadata_properties12feature_typeE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Feature types in the metadata object. Should be within the range <cite>[0, feature_count)</cite>.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">feature_type</span> <span class="pre">&amp;</span> <span class="pre">get_feature_type(std::int64_t</span> <span class="pre">feature_index)</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N39oneapi_dal_v1_table_metadata_properties9data_typeE">
-<span id="_CPPv3N39oneapi_dal_v1_table_metadata_properties9data_typeE"></span><span id="_CPPv2N39oneapi_dal_v1_table_metadata_properties9data_typeE"></span><span id="oneapi_dal_v1_table_metadata_properties::data_type__data_typeCR"></span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N39oneapi_dal_v1_table_metadata_properties9data_typeE" title="oneapi_dal_v1_table_metadata_properties::data_type">data_type</a> &amp;<code class="sig-name descname">data_type</code><a class="headerlink" href="#_CPPv4N39oneapi_dal_v1_table_metadata_properties9data_typeE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Data types of the features in the metadata object. Should be within the range <cite>[0, feature_count)</cite>.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">data_type</span> <span class="pre">&amp;</span> <span class="pre">get_data_type(std::int64_t</span> <span class="pre">feature_index)</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="data-layout">
-<span id="id2"></span><h3>Data layout<a class="headerlink" href="#data-layout" title="Permalink to this headline">¶</a></h3>
-<p>An implementation of the <a class="reference internal" href="../glossary.html#term-Data-layout"><span class="xref std std-term">data layout</span></a> concept.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="k">class</span> <span class="nc">data_layout</span> <span class="p">{</span> <span class="n">unknown</span><span class="p">,</span> <span class="n">row_major</span><span class="p">,</span> <span class="n">column_major</span> <span class="p">};</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>data_layout::unknown</dt><dd><p>Represents the <a class="reference internal" href="../glossary.html#term-Data-layout"><span class="xref std std-term">data layout</span></a> that is undefined or unknown at this moment.</p>
-</dd>
-<dt>data_layout::row_major</dt><dd><p>The data block elements are stored in raw-major layout.</p>
-</dd>
-<dt>data_layout::column_major</dt><dd><p>The data block elements are stored in column_major layout.</p>
-</dd>
-</dl>
-</div>
-<div class="section" id="feature-type">
-<span id="id3"></span><h3>Feature type<a class="headerlink" href="#feature-type" title="Permalink to this headline">¶</a></h3>
-<p>An implementation of the logical data types.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span> <span class="k">class</span> <span class="nc">feature_type</span> <span class="p">{</span> <span class="n">nominal</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">ratio</span> <span class="p">};</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>feature_type::nominal</dt><dd><p>Represents the type of <a class="reference internal" href="../glossary.html#term-Nominal-feature"><span class="xref std std-term">Nominal feature</span></a>.</p>
-</dd>
-<dt>feature_type::ordinal</dt><dd><p>Represents the type of <a class="reference internal" href="../glossary.html#term-Ordinal-feature"><span class="xref std std-term">Ordinal feature</span></a>.</p>
-</dd>
-<dt>feature_type::interval</dt><dd><p>Represents the type of <a class="reference internal" href="../glossary.html#term-Interval-feature"><span class="xref std std-term">Interval feature</span></a>.</p>
-</dd>
-<dt>feature_type::ratio</dt><dd><p>Represents the type of <a class="reference internal" href="../glossary.html#term-Ratio-feature"><span class="xref std std-term">Ratio feature</span></a>.</p>
-</dd>
-</dl>
+<h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
+<p>Refer to <a class="reference internal" href="../../api/data-management/tables.html#table-programming-interface"><span class="std std-ref">API: Tables</span></a>.</p>
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="table/homogen.html">Homogeneous table</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="table/homogen.html#programming-interface">Programming interface</a></li>
-</ul>
-</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
@@ -1070,7 +894,7 @@ are <a class="reference internal" href="../glossary.html#term-Reference-counted-
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2014 - 2020, Intel Corporation
+        &copy; Copyright 2014 - 2021, Intel Corporation
 
     </p>
   </div>

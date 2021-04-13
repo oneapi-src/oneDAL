@@ -96,7 +96,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../oneapi-interfaces.html">oneAPI Interfaces</a><ul class="current">
@@ -162,6 +162,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
 </ul>
 </li>
@@ -170,7 +171,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../algorithms/svm/index.html">Support Vector Machines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../algorithms/svm/svm.html">Support Vector Machine Classifier and Regression (SVM)</a></li>
 </ul>
 </li>
 </ul>
@@ -178,8 +179,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples.html">oneAPI Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/dpc.html">DPC++</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
@@ -202,14 +203,19 @@
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/polynomial_kernel_dense_batch.html">polynomial_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_multi_class_thunder_dense_batch.html">svm_multi_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_reg_thunder_dense_batch.html">svm_reg_thunder_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cpp/triangle_counting_batch.html">triangle_counting_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../appendix/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../appendix/kd_tree.html">k-d Tree</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../appendix/kd_tree.html#related-terms">Related terms</a></li>
 </ul>
@@ -279,7 +285,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#initialization">Initialization</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#id4">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#id6">Computation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../daal/algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
 </ul>
@@ -514,6 +520,63 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/array.html">Array</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/array.html#programming-interface">Programming interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/array.html#usage-example">Usage example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/accessors.html">Accessors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/accessor/column.html">Column accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/accessor/row.html">Row accessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/data-sources.html">Data Sources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/data-source/csv.html">CSV data source</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/data-management/tables.html">Tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/data-management/tables.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../notes/known_issues.html">Known Issues</a><ul>
@@ -715,7 +778,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="array">
-<h1>Array<a class="headerlink" href="#array" title="Permalink to this headline">¶</a></h1>
+<span id="dm-array"></span><h1>Array<a class="headerlink" href="#array" title="Permalink to this headline">¶</a></h1>
 <p>The array is a simple concept over the data in oneDAL. It represents
 a storage that:</p>
 <ol class="arabic simple">
@@ -799,7 +862,7 @@ usage scenario:</p>
 <li><p>An array owns two properties representing raw pointers to the data:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> for a pointer to immutable data block</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> for a pointer to mutable data block (see the <a class="reference internal" href="#programming-interface"><span class="std std-ref">programming interface</span></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> for a pointer to mutable data block (see the <a class="reference internal" href="../../api/data-management/array.html#api-array"><span class="std std-ref">api array</span></a>)</p></li>
 </ul>
 </li>
 <li><p>If an array owns mutable data, both properties point to the same memory
@@ -826,377 +889,8 @@ for it to be equal to the number of array objects sharing the same data.</p></li
 </ol>
 </div>
 <div class="section" id="programming-interface">
-<span id="id2"></span><h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
-<p>All types and functions in this section are declared in the
-<code class="docutils literal notranslate"><span class="pre">oneapi::dal</span></code> namespace and be available via inclusion of the
-<code class="docutils literal notranslate"><span class="pre">oneapi/dal/array.hpp</span></code> header file.</p>
-<p>All the <code class="docutils literal notranslate"><span class="pre">array</span></code> class methods can be divided into several groups:</p>
-<ol class="arabic simple">
-<li><p>Constructors that are used to create an array from external, mutable or
-immutable memory.</p></li>
-<li><p>Constructors and assignment operators that are used to create an array that shares its data
-with another one.</p></li>
-<li><p>The group of <code class="docutils literal notranslate"><span class="pre">reset()</span></code> methods that are used to re-assign an array to another external
-memory block.</p></li>
-<li><p>The group of <code class="docutils literal notranslate"><span class="pre">reset()</span></code> methods that are used to re-assign an array to an internally
-allocated memory block.</p></li>
-<li><p>The methods that are used to access the data.</p></li>
-<li><p>Static methods that provide simplified ways to create an array either from external
-memory or by allocating it within a new object.</p></li>
-</ol>
-<dl class="cpp class">
-<dt id="_CPPv4I0EN6oneapi3dal2v15arrayE">
-<span id="_CPPv3I0EN6oneapi3dal2v15arrayE"></span><span id="_CPPv2I0EN6oneapi3dal2v15arrayE"></span>template&lt;typename <code class="sig-name descname">T</code>&gt;<br /><em class="property">class </em><code class="sig-name descname">array</code><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15arrayE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>T</strong> – The type of the memory block elements within the array. <code class="docutils literal notranslate"><span class="pre">T</span></code> can represent any type.</p>
-</dd>
-</dl>
-<p><strong>Public Static Methods</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array5emptyENSt7int64_tE">
-<span id="_CPPv3N6oneapi3dal2v15array5emptyENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal2v15array5emptyENSt7int64_tE"></span><span id="oneapi::dal::v1::array::empty__std::int64_t"></span><em class="property">static</em> array&lt;T&gt; <code class="sig-name descname">empty</code><span class="sig-paren">(</span>std::int64_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array5emptyENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Allocates a new memory block for mutable data, does not initialize it, creates a new array instance by passing a pointer to the memory block. The array owns the memory block (for details, see <a class="reference internal" href="#data-ownership-requirements"><span class="std std-ref">data ownership requirements</span></a>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> to allocate memory for.</p>
-</dd>
-</dl>
-<dl>
-<dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15array5emptyENSt7int64_tE" title="oneapi::dal::v1::array::empty::count"><span class="pre">count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array4fullE5arrayI1TENSt7int64_tERR1K">
-<span id="_CPPv3I0EN6oneapi3dal2v15array4fullENSt7int64_tERR1K"></span><span id="_CPPv2I0EN6oneapi3dal2v15array4fullENSt7int64_tERR1K"></span>template&lt;typename <code class="sig-name descname">K</code>&gt;<br /><em class="property">static</em> array&lt;T&gt; <code class="sig-name descname">full</code><span class="sig-paren">(</span>std::int64_t <em>count</em>, <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array4fullE5arrayI1TENSt7int64_tERR1K" title="oneapi::dal::v1::array::full::K">K</a> &amp;&amp;<em>element</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array4fullE5arrayI1TENSt7int64_tERR1K" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Allocates a new memory block for mutable data, fills it with a scalar value, creates a new array instance by passing a pointer to the memory block. The array owns the memory block (for details, see <a class="reference internal" href="#data-ownership-requirements"><span class="std std-ref">data ownership requirements</span></a>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">T</span></code> to allocate memory for.</p></li>
-<li><p><strong>element</strong> – The value that is used to fill a memory block.</p></li>
-</ul>
-</dd>
-</dl>
-<dl>
-<dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array4fullE5arrayI1TENSt7int64_tERR1K" title="oneapi::dal::v1::array::full::count"><span class="pre">count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
-<div class="line">Elements of type <cite>T</cite> are constructible from the <cite>Element</cite> type.</div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array5zerosENSt7int64_tE">
-<span id="_CPPv3N6oneapi3dal2v15array5zerosENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal2v15array5zerosENSt7int64_tE"></span><span id="oneapi::dal::v1::array::zeros__std::int64_t"></span><em class="property">static</em> array&lt;T&gt; <code class="sig-name descname">zeros</code><span class="sig-paren">(</span>std::int64_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array5zerosENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Allocates a new memory block on mutable data, fills it with zeros, creates a new array instance by passing a pointer to the memory block. The array owns the memory block (for details, see <a class="reference internal" href="#data-ownership-requirements"><span class="std std-ref">data ownership requirements</span></a>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> to allocate memory for.</p>
-</dd>
-</dl>
-<dl>
-<dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15array5zerosENSt7int64_tE" title="oneapi::dal::v1::array::zeros::count"><span class="pre">count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array4wrapE5arrayI1TEP1YNSt7int64_tE">
-<span id="_CPPv3I0EN6oneapi3dal2v15array4wrapEP1YNSt7int64_tE"></span><span id="_CPPv2I0EN6oneapi3dal2v15array4wrapEP1YNSt7int64_tE"></span>template&lt;typename <code class="sig-name descname">Y</code>&gt;<br /><em class="property">static</em> array&lt;T&gt; <code class="sig-name descname">wrap</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array4wrapE5arrayI1TEP1YNSt7int64_tE" title="oneapi::dal::v1::array::wrap::Y">Y</a> *<em>data</em>, std::int64_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array4wrapE5arrayI1TEP1YNSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new array instance by passing the pointer to externally-allocated memory block for mutable data. It is the responsibility of the calling application to free the memory block as the array does not free it when the reference count is zero.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – The pointer to externally-allocated memory block.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> in the memory block.</p></li>
-</ul>
-</dd>
-</dl>
-<dl>
-<dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array4wrapE5arrayI1TEP1YNSt7int64_tE" title="oneapi::dal::v1::array::wrap::data"><span class="pre">data</span></a> <span class="pre">!=</span> <span class="pre">nullptr</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array4wrapE5arrayI1TEP1YNSt7int64_tE" title="oneapi::dal::v1::array::wrap::count"><span class="pre">count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<p><strong>Constructors</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array5arrayEv">
-<span id="_CPPv3N6oneapi3dal2v15array5arrayEv"></span><span id="_CPPv2N6oneapi3dal2v15array5arrayEv"></span><span id="oneapi::dal::v1::array::array"></span><code class="sig-name descname">array</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array5arrayEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of the class without memory allocation: <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> and <code class="docutils literal notranslate"><span class="pre">data</span></code> pointers should be set to <cite>nullptr</cite>, <code class="docutils literal notranslate"><span class="pre">count</span></code> should be zero; the pointer to the ownership structure should be set to <cite>nullptr</cite>.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array5arrayERK5arrayI1TE">
-<span id="_CPPv3N6oneapi3dal2v15array5arrayERK5arrayI1TE"></span><span id="_CPPv2N6oneapi3dal2v15array5arrayERK5arrayI1TE"></span><span id="oneapi::dal::v1::array::array__array:T:CR"></span><code class="sig-name descname">array</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v15array5arrayERK5arrayI1TE" title="oneapi::dal::v1::array::array">array</a>&lt;T&gt; &amp;<em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array5arrayERK5arrayI1TE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new array instance that shares an ownership with <code class="docutils literal notranslate"><span class="pre">other</span></code> on its memory block.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array5arrayERR5arrayI1TE">
-<span id="_CPPv3N6oneapi3dal2v15array5arrayERR5arrayI1TE"></span><span id="_CPPv2N6oneapi3dal2v15array5arrayERR5arrayI1TE"></span><span id="oneapi::dal::v1::array::array__array:T:RR"></span><code class="sig-name descname">array</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N6oneapi3dal2v15array5arrayERR5arrayI1TE" title="oneapi::dal::v1::array::array">array</a>&lt;T&gt; &amp;&amp;<em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array5arrayERR5arrayI1TE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Moves <code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> pointers, <code class="docutils literal notranslate"><span class="pre">count</span></code>, and pointer to the ownership structure in <code class="docutils literal notranslate"><span class="pre">other</span></code> to the new array instance.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array5arrayEP1TNSt7int64_tERR7Deleter">
-<span id="_CPPv3I0EN6oneapi3dal2v15array5arrayEP1TNSt7int64_tERR7Deleter"></span><span id="_CPPv2I0EN6oneapi3dal2v15array5arrayEP1TNSt7int64_tERR7Deleter"></span>template&lt;typename <code class="sig-name descname">Deleter</code>&gt;<br /><code class="sig-name descname">array</code><span class="sig-paren">(</span>T *<em>data</em>, std::int64_t <em>count</em>, <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array5arrayEP1TNSt7int64_tERR7Deleter" title="oneapi::dal::v1::array::array::Deleter">Deleter</a> &amp;&amp;<em>deleter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array5arrayEP1TNSt7int64_tERR7Deleter" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new array instance which owns a memory block of externally-allocated mutable data. The ownership structure is created for a block, the input <code class="docutils literal notranslate"><span class="pre">deleter</span></code> is assigned to it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Deleter</strong> – The type of a deleter used to free the <code class="docutils literal notranslate"><span class="pre">Data</span></code>. The deleter provides <cite>void operator()(Data*)</cite> member function.</p>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>data</strong> – The pointer to externally-allocated memory block.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> in the memory block.</p></li>
-<li><p><strong>deleter</strong> – The object used to free <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array5arrayEPK1TNSt7int64_tERR12ConstDeleter">
-<span id="_CPPv3I0EN6oneapi3dal2v15array5arrayEPK1TNSt7int64_tERR12ConstDeleter"></span><span id="_CPPv2I0EN6oneapi3dal2v15array5arrayEPK1TNSt7int64_tERR12ConstDeleter"></span>template&lt;typename <code class="sig-name descname">ConstDeleter</code>&gt;<br /><code class="sig-name descname">array</code><span class="sig-paren">(</span><em class="property">const</em> T *<em>data</em>, std::int64_t <em>count</em>, <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array5arrayEPK1TNSt7int64_tERR12ConstDeleter" title="oneapi::dal::v1::array::array::ConstDeleter">ConstDeleter</a> &amp;&amp;<em>deleter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array5arrayEPK1TNSt7int64_tERR12ConstDeleter" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new array instance which owns a memory block of externally-allocated immutable data. The ownership structure is created for a block, the input <code class="docutils literal notranslate"><span class="pre">deleter</span></code> is assigned to it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>ConstDeleter</strong> – The type of a deleter used to free the <code class="docutils literal notranslate"><span class="pre">Data</span></code>. The deleter implements <cite>void operator()(const Data*)</cite> member function.</p>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>data</strong> – The pointer to externally-allocated memory block.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> in the <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-<li><p><strong>deleter</strong> – The object used to free <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE">
-<span id="_CPPv3I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE"></span><span id="_CPPv2I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE"></span>template&lt;typename <code class="sig-name descname">Y</code>, typename <code class="sig-name descname">K</code>&gt;<br /><code class="sig-name descname">array</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE" title="oneapi::dal::v1::array::array">array</a>&lt;<a class="reference internal" href="#_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE" title="oneapi::dal::v1::array::array::Y">Y</a>&gt; &amp;<em>ref</em>, <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE" title="oneapi::dal::v1::array::array::K">K</a> *<em>data</em>, std::int64_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An aliasing constructor: creates a new array instance that stores <code class="docutils literal notranslate"><span class="pre">Data</span></code> pointer, assigns the pointer to the ownership structure of <code class="docutils literal notranslate"><span class="pre">ref</span></code> to the new instance. Array returns <code class="docutils literal notranslate"><span class="pre">Data</span></code> pointer as its mutable or immutable block depending on the <code class="docutils literal notranslate"><span class="pre">Data</span></code> type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ref</strong> – The array which shares ownership structure with created one.</p></li>
-<li><p><strong>data</strong> – Mutable or immutable unmanaged pointer hold by created array.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">T</span></code> in the <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl>
-<dt>Preconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">std</span><span class="pre">::</span><span class="pre">is_same_v</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE" title="oneapi::dal::v1::array::array::data"><span class="pre">data</span></a><span class="pre">,</span> <em class="property"><span class="pre">const</span></em> <span class="pre">T</span><span class="pre">&gt;</span> <span class="pre">||</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">is_same_v</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE" title="oneapi::dal::v1::array::array::data"><span class="pre">data</span></a><span class="pre">,</span> <span class="pre">T</span><span class="pre">&gt;</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<p><strong>Public Methods</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15arrayaSERK5arrayI1TE">
-<span id="_CPPv3N6oneapi3dal2v15arrayaSERK5arrayI1TE"></span><span id="_CPPv2N6oneapi3dal2v15arrayaSERK5arrayI1TE"></span><span id="oneapi::dal::v1::array::assign-operator__array:T:CR"></span>array&lt;T&gt; <code class="sig-name descname">operator=</code><span class="sig-paren">(</span><em class="property">const</em> array&lt;T&gt; &amp;<em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15arrayaSERK5arrayI1TE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Replaces the <code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> pointers, <code class="docutils literal notranslate"><span class="pre">count</span></code>, and pointer to the ownership structure in the array instance by the values in <code class="docutils literal notranslate"><span class="pre">other</span></code>.</p>
-<dl>
-<dt>Postconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">data</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v15arrayaSERK5arrayI1TE" title="oneapi::dal::v1::array::operator=::other"><span class="pre">other</span></a><span class="pre">.</span><span class="pre">data</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">mutable_data</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v15arrayaSERK5arrayI1TE" title="oneapi::dal::v1::array::operator=::other"><span class="pre">other</span></a><span class="pre">.</span><span class="pre">mutable_data</span></code></div>
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">count</span> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v15arrayaSERK5arrayI1TE" title="oneapi::dal::v1::array::operator=::other"><span class="pre">other</span></a><span class="pre">.</span><span class="pre">count</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15arrayaSERR5arrayI1TE">
-<span id="_CPPv3N6oneapi3dal2v15arrayaSERR5arrayI1TE"></span><span id="_CPPv2N6oneapi3dal2v15arrayaSERR5arrayI1TE"></span><span id="oneapi::dal::v1::array::assign-operator__array:T:RR"></span>array&lt;T&gt; <code class="sig-name descname">operator=</code><span class="sig-paren">(</span>array&lt;T&gt; &amp;&amp;<em>other</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15arrayaSERR5arrayI1TE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Swaps the values of <code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> pointers, <code class="docutils literal notranslate"><span class="pre">count</span></code>, and pointer to the ownership structure in the array instance and <code class="docutils literal notranslate"><span class="pre">other</span></code>.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4NK6oneapi3dal2v15array16has_mutable_dataEv">
-<span id="_CPPv3NK6oneapi3dal2v15array16has_mutable_dataEv"></span><span id="_CPPv2NK6oneapi3dal2v15array16has_mutable_dataEv"></span><span id="oneapi::dal::v1::array::has_mutable_dataC"></span>bool <code class="sig-name descname">has_mutable_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em> <em class="property">noexcept</em><a class="headerlink" href="#_CPPv4NK6oneapi3dal2v15array16has_mutable_dataEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Returns whether array contains <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> or not.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array17need_mutable_dataEv">
-<span id="_CPPv3N6oneapi3dal2v15array17need_mutable_dataEv"></span><span id="_CPPv2N6oneapi3dal2v15array17need_mutable_dataEv"></span><span id="oneapi::dal::v1::array::need_mutable_data"></span>array &amp;<code class="sig-name descname">need_mutable_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array17need_mutable_dataEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Returns mutable_data, if array contains it. Otherwise, allocates a memory block for mutable data and fills it with the data stored at <code class="docutils literal notranslate"><span class="pre">data</span></code>. Creates the ownership structure for allocated memory block and stores the pointer.</p>
-<dl>
-<dt>Postconditions</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4NK6oneapi3dal2v15array16has_mutable_dataEv" title="oneapi::dal::v1::array::has_mutable_data"><span class="pre">has_mutable_data</span></a><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <span class="pre">true</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array5resetEv">
-<span id="_CPPv3N6oneapi3dal2v15array5resetEv"></span><span id="_CPPv2N6oneapi3dal2v15array5resetEv"></span><span id="oneapi::dal::v1::array::reset"></span>void <code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array5resetEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Resets ownership structure pointer to <cite>nullptr</cite>, sets <code class="docutils literal notranslate"><span class="pre">count</span></code> to zero, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> to <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">nullptr</span></code>.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v15array5resetENSt7int64_tE">
-<span id="_CPPv3N6oneapi3dal2v15array5resetENSt7int64_tE"></span><span id="_CPPv2N6oneapi3dal2v15array5resetENSt7int64_tE"></span><span id="oneapi::dal::v1::array::reset__std::int64_t"></span>void <code class="sig-name descname">reset</code><span class="sig-paren">(</span>std::int64_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v15array5resetENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Allocates a new memory block for mutable data, does not initialize it, creates ownership structure for this block, assigns the structure inside the array. The array owns allocated memory block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> to allocate memory for.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array5resetEvP1TNSt7int64_tERR7Deleter">
-<span id="_CPPv3I0EN6oneapi3dal2v15array5resetEP1TNSt7int64_tERR7Deleter"></span><span id="_CPPv2I0EN6oneapi3dal2v15array5resetEP1TNSt7int64_tERR7Deleter"></span>template&lt;typename <code class="sig-name descname">Deleter</code>&gt;<br />void <code class="sig-name descname">reset</code><span class="sig-paren">(</span>T *<em>data</em>, std::int64_t <em>count</em>, <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvP1TNSt7int64_tERR7Deleter" title="oneapi::dal::v1::array::reset::Deleter">Deleter</a> &amp;&amp;<em>deleter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvP1TNSt7int64_tERR7Deleter" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates the ownership structure for memory block of externally-allocated mutable data, assigns input <code class="docutils literal notranslate"><span class="pre">deleter</span></code> object to it, sets <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> pointers to this block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Deleter</strong> – The type of a deleter used to free the <code class="docutils literal notranslate"><span class="pre">Data</span></code>. The deleter implements <cite>void operator()(Data*)</cite> member function.</p>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>data</strong> – The mutable memory block pointer to be assigned inside the array.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> into the block.</p></li>
-<li><p><strong>deleter</strong> – The object used to free <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array5resetEvPK1TNSt7int64_tERR12ConstDeleter">
-<span id="_CPPv3I0EN6oneapi3dal2v15array5resetEPK1TNSt7int64_tERR12ConstDeleter"></span><span id="_CPPv2I0EN6oneapi3dal2v15array5resetEPK1TNSt7int64_tERR12ConstDeleter"></span>template&lt;typename <code class="sig-name descname">ConstDeleter</code>&gt;<br />void <code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="property">const</em> T *<em>data</em>, std::int64_t <em>count</em>, <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvPK1TNSt7int64_tERR12ConstDeleter" title="oneapi::dal::v1::array::reset::ConstDeleter">ConstDeleter</a> &amp;&amp;<em>deleter</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvPK1TNSt7int64_tERR12ConstDeleter" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates the ownership structure for memory block of externally-allocated immutable data, assigns input <code class="docutils literal notranslate"><span class="pre">deleter</span></code> object to it, sets <code class="docutils literal notranslate"><span class="pre">data</span></code> pointer to this block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>ConstDeleter</strong> – The type of a deleter used to free. The deleter implements <cite>void operator()(const Data*)`</cite> member function.</p>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>data</strong> – The immutable memory block pointer to be assigned inside the array.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">Data</span></code> into the block.</p></li>
-<li><p><strong>deleter</strong> – The object used to free <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEP1TNSt7int64_tE">
-<span id="_CPPv3I0EN6oneapi3dal2v15array5resetERK5arrayI1YEP1TNSt7int64_tE"></span><span id="_CPPv2I0EN6oneapi3dal2v15array5resetERK5arrayI1YEP1TNSt7int64_tE"></span>template&lt;typename <code class="sig-name descname">Y</code>&gt;<br />void <code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="property">const</em> array&lt;<a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEP1TNSt7int64_tE" title="oneapi::dal::v1::array::reset::Y">Y</a>&gt; &amp;<em>ref</em>, T *<em>data</em>, std::int64_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEP1TNSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Initializes <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">mutable_data</span></code> with data pointer, <code class="docutils literal notranslate"><span class="pre">count</span></code> with input <code class="docutils literal notranslate"><span class="pre">count</span></code> value, initializes the pointer to ownership structure with the one from ref. Array returns <code class="docutils literal notranslate"><span class="pre">Data</span></code> pointer as its mutable block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ref</strong> – The array which is used to share ownership structure with current one.</p></li>
-<li><p><strong>data</strong> – Mutable unmanaged pointer to be assigned to the array.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">T</span></code> in the <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEPK1TNSt7int64_tE">
-<span id="_CPPv3I0EN6oneapi3dal2v15array5resetERK5arrayI1YEPK1TNSt7int64_tE"></span><span id="_CPPv2I0EN6oneapi3dal2v15array5resetERK5arrayI1YEPK1TNSt7int64_tE"></span>template&lt;typename <code class="sig-name descname">Y</code>&gt;<br />void <code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="property">const</em> array&lt;<a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEPK1TNSt7int64_tE" title="oneapi::dal::v1::array::reset::Y">Y</a>&gt; &amp;<em>ref</em>, <em class="property">const</em> T *<em>data</em>, std::int64_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEPK1TNSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Initializes <code class="docutils literal notranslate"><span class="pre">data</span></code> with data pointer, <code class="docutils literal notranslate"><span class="pre">count</span></code> with input <code class="docutils literal notranslate"><span class="pre">count</span></code> value, initializes the pointer to ownership structure with the one from ref. Array returns <code class="docutils literal notranslate"><span class="pre">Data</span></code> pointer as its immutable block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ref</strong> – The array which is used to share ownership structure with current one.</p></li>
-<li><p><strong>data</strong> – Immutable unmanaged pointer to be assigned to the array.</p></li>
-<li><p><strong>count</strong> – The number of elements of type <code class="docutils literal notranslate"><span class="pre">T</span></code> in the <code class="docutils literal notranslate"><span class="pre">Data</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4NK6oneapi3dal2v15arrayixENSt7int64_tE">
-<span id="_CPPv3NK6oneapi3dal2v15arrayixENSt7int64_tE"></span><span id="_CPPv2NK6oneapi3dal2v15arrayixENSt7int64_tE"></span><span id="oneapi::dal::v1::array::subscript-operator__std::int64_tC"></span><em class="property">const</em> T &amp;<code class="sig-name descname">operator[]</code><span class="sig-paren">(</span>std::int64_t <em>index</em><span class="sig-paren">)</span> <em class="property">const</em> <em class="property">noexcept</em><a class="headerlink" href="#_CPPv4NK6oneapi3dal2v15arrayixENSt7int64_tE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Provides a read-only access to the elements of array. Does not perform boundary checks.</p>
-</dd></dl>
-
-<p><strong>Properties</strong></p>
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_array_properties12mutable_dataE">
-<span id="_CPPv3N30oneapi_dal_v1_array_properties12mutable_dataE"></span><span id="_CPPv2N30oneapi_dal_v1_array_properties12mutable_dataE"></span><span id="oneapi_dal_v1_array_properties::mutable_data__TP"></span>T *<code class="sig-name descname">mutable_data</code><a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_array_properties12mutable_dataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The pointer to the memory block holding mutable data.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">*</span> <span class="pre">get_mutable_data()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties12mutable_dataE" title="oneapi_dal_v1_array_properties::mutable_data"><span class="pre">mutable_data</span></a> <span class="pre">!=</span> <span class="pre">nullptr</span></code> if <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">has_mutable_data</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">&amp;&amp;</span> <a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties5countE" title="oneapi_dal_v1_array_properties::count"><span class="pre">count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_array_properties4dataE">
-<span id="_CPPv3N30oneapi_dal_v1_array_properties4dataE"></span><span id="_CPPv2N30oneapi_dal_v1_array_properties4dataE"></span><span id="oneapi_dal_v1_array_properties::data__TCP"></span><em class="property">const</em> T *<code class="sig-name descname">data</code><a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_array_properties4dataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The pointer to the memory block holding immutable data.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">T</span> <span class="pre">*</span> <span class="pre">get_data()</span> <span class="pre">const</span> <span class="pre">noexcept</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties4dataE" title="oneapi_dal_v1_array_properties::data"><span class="pre">data</span></a> <span class="pre">!=</span> <span class="pre">nullptr</span></code> if <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties5countE" title="oneapi_dal_v1_array_properties::count"><span class="pre">count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
-<div class="line">if <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">has_mutable_data</span><span class="pre">(</span><span class="pre">)</span> <span class="pre">==</span> <span class="pre">true</span></code> then <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties4dataE" title="oneapi_dal_v1_array_properties::data"><span class="pre">data</span></a> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties12mutable_dataE" title="oneapi_dal_v1_array_properties::mutable_data"><span class="pre">mutable_data</span></a></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_array_properties5countE">
-<span id="_CPPv3N30oneapi_dal_v1_array_properties5countE"></span><span id="_CPPv2N30oneapi_dal_v1_array_properties5countE"></span><span id="oneapi_dal_v1_array_properties::count__std::int64_t"></span>std::int64_t <code class="sig-name descname">count</code><a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_array_properties5countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of elements of type <code class="docutils literal notranslate"><span class="pre">T</span></code> in a memory block.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_count()</span> <span class="pre">const</span> <span class="pre">noexcept</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N30oneapi_dal_v1_array_properties4sizeE">
-<span id="_CPPv3N30oneapi_dal_v1_array_properties4sizeE"></span><span id="_CPPv2N30oneapi_dal_v1_array_properties4sizeE"></span><span id="oneapi_dal_v1_array_properties::size__std::int64_t"></span>std::int64_t <code class="sig-name descname">size</code><a class="headerlink" href="#_CPPv4N30oneapi_dal_v1_array_properties4sizeE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The size of memory block in bytes.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_size()</span> <span class="pre">const</span> <span class="pre">noexcept</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties4sizeE" title="oneapi_dal_v1_array_properties::size"><span class="pre">size</span></a> <span class="pre">==</span> <a class="reference internal" href="#_CPPv4N30oneapi_dal_v1_array_properties5countE" title="oneapi_dal_v1_array_properties::count"><span class="pre">count</span></a> <span class="pre">*</span> <span class="pre">sizeof(</span><span class="pre">T</span><span class="pre">)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
+<p>Refer to <a class="reference internal" href="../../api/data-management/array.html#api-array"><span class="std std-ref">API Reference: Array</span></a>.</p>
 </div>
 </div>
 
@@ -1221,7 +915,7 @@ memory or by allocating it within a new object.</p></li>
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2014 - 2020, Intel Corporation
+        &copy; Copyright 2014 - 2021, Intel Corporation
 
     </p>
   </div>
