@@ -21,15 +21,6 @@
 
 namespace oneapi::dal::backend {
 
-inline table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype) {
-    auto default_ftype =
-        detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal;
-
-    auto dtypes = array<data_type>::full(feature_count, dtype);
-    auto ftypes = array<feature_type>::full(feature_count, default_ftype);
-    return table_metadata{ dtypes, ftypes };
-}
-
 class homogen_table_impl : public detail::homogen_table_template<homogen_table_impl> {
 public:
     homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
@@ -132,6 +123,15 @@ public:
 #endif
 
 private:
+    static table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype) {
+        auto default_ftype =
+            detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal;
+
+        auto dtypes = array<data_type>::full(feature_count, dtype);
+        auto ftypes = array<feature_type>::full(feature_count, default_ftype);
+        return table_metadata{ dtypes, ftypes };
+    }
+
     homogen_info get_info() const {
         return { row_count_, col_count_, meta_.get_data_type(0), layout_ };
     }
