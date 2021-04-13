@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/detail/array_utils.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -157,6 +158,18 @@ public:
         pull_rows_impl(detail::default_host_policy{}, block, rows, alloc_kind::host);
     }
 
+    // TODO: Remove once table and builder implementations are separated, now
+    //       method is needed only for homogen_table_builder
+    template <typename Data>
+    void pull_rows_mutable(array<Data>& block, const range& rows) const {
+        constexpr bool preserve_mutability = true;
+        pull_rows_impl(detail::default_host_policy{},
+                       block,
+                       rows,
+                       alloc_kind::host,
+                       preserve_mutability);
+    }
+
     template <typename Data>
     void push_rows(const array<Data>& block, const range& rows) {
         push_rows_impl(detail::default_host_policy{}, block, rows);
@@ -169,6 +182,21 @@ public:
                          column_index,
                          rows,
                          alloc_kind::host);
+    }
+
+    // TODO: Remove once table and builder implementations are separated, now
+    //       method is needed only for homogen_table_builder
+    template <typename Data>
+    void pull_column_mutable(array<Data>& block,
+                             std::int64_t column_index,
+                             const range& rows) const {
+        constexpr bool preserve_mutability = true;
+        pull_column_impl(detail::default_host_policy{},
+                         block,
+                         column_index,
+                         rows,
+                         alloc_kind::host,
+                         preserve_mutability);
     }
 
     template <typename Data>
@@ -186,6 +214,21 @@ public:
                        block,
                        rows,
                        alloc_kind_from_sycl(alloc));
+    }
+
+    // TODO: Remove once table and builder implementations are separated, now
+    //       method is needed only for homogen_table_builder
+    template <typename Data>
+    void pull_rows_mutable(sycl::queue& queue,
+                           array<Data>& block,
+                           const range& rows,
+                           const sycl::usm::alloc& alloc) const {
+        constexpr bool preserve_mutability = true;
+        pull_rows_impl(detail::data_parallel_policy{ queue },
+                       block,
+                       rows,
+                       alloc_kind_from_sycl(alloc),
+                       preserve_mutability);
     }
 
     template <typename Data>
@@ -206,6 +249,23 @@ public:
                          alloc_kind_from_sycl(alloc));
     }
 
+    // TODO: Remove once table and builder implementations are separated, now
+    //       method is needed only for homogen_table_builder
+    template <typename Data>
+    void pull_column_mutable(sycl::queue& queue,
+                             array<Data>& block,
+                             std::int64_t column_index,
+                             const range& rows,
+                             const sycl::usm::alloc& alloc) const {
+        constexpr bool preserve_mutability = true;
+        pull_column_impl(detail::data_parallel_policy{ queue },
+                         block,
+                         column_index,
+                         rows,
+                         alloc_kind_from_sycl(alloc),
+                         preserve_mutability);
+    }
+
     template <typename Data>
     void push_column(sycl::queue& queue,
                      const array<Data>& block,
@@ -220,14 +280,16 @@ private:
     void pull_rows_impl(const Policy& policy,
                         array<Data>& block,
                         const range& rows,
-                        const alloc_kind& kind) const;
+                        const alloc_kind& kind,
+                        bool preserve_mutability = false) const;
 
     template <typename Policy, typename Data>
     void pull_column_impl(const Policy& policy,
                           array<Data>& block,
                           std::int64_t column_index,
                           const range& rows,
-                          const alloc_kind& kind) const;
+                          const alloc_kind& kind,
+                          bool preserve_mutability = false) const;
 
     template <typename Policy, typename Data>
     void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
