@@ -23,28 +23,58 @@
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-ONEDAL_EXPORT vertex_similarity_result<task::all_vertex_pairs> jaccard(
-    const dal::detail::host_policy& ctx,
-    const detail::descriptor_base<task::all_vertex_pairs>& desc,
-    const dal::preview::detail::topology<std::int32_t>& t,
-    void* result_ptr);
+template <typename Float, typename Task, typename Topology, typename... Options>
+ONEDAL_EXPORT struct vertex_similarity {
+    vertex_similarity_result<Task> operator()(const dal::detail::host_policy& ctx,
+                                              const detail::descriptor_base<Task>& desc,
+                                              const Topology& t,
+                                              void* result_ptr);
+};
 
-inline vertex_similarity_result<task::all_vertex_pairs> jaccard_default_kernel(
-    const dal::detail::host_policy& ctx,
-    const detail::descriptor_base<task::all_vertex_pairs>& desc,
-    const dal::preview::detail::topology<std::int32_t>& t,
-    caching_builder& result_builder) {
-    const std::int64_t row_begin = desc.get_row_range_begin();
-    const std::int64_t row_end = desc.get_row_range_end();
-    const std::int64_t column_begin = desc.get_column_range_begin();
-    const std::int64_t column_end = desc.get_column_range_end();
-    const std::int64_t number_elements_in_block =
-        compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-    const std::int64_t max_block_size =
-        compute_max_block_size<typename detail::descriptor_base<task::all_vertex_pairs>::float_t,
-                               std::int32_t>(number_elements_in_block);
-    void* result_ptr = result_builder(max_block_size);
-    return jaccard(ctx, desc, t, result_ptr);
-}
+template <>
+ONEDAL_EXPORT struct vertex_similarity<float,
+                                       task::all_vertex_pairs,
+                                       dal::preview::detail::topology<std::int32_t>> {
+    vertex_similarity_result<task::all_vertex_pairs> operator()(
+        const dal::detail::host_policy& ctx,
+        const detail::descriptor_base<task::all_vertex_pairs>& desc,
+        const dal::preview::detail::topology<std::int32_t>& t,
+        void* result_ptr);
+};
+
+template <typename Float, typename Method, typename Task, typename Topology>
+struct vertex_similarity_kernel_cpu {
+    vertex_similarity_result<Task> operator()(const dal::detail::host_policy& ctx,
+                                              const detail::descriptor_base<Task>& desc,
+                                              const Topology& t,
+                                              caching_builder& result_builder) const;
+};
+
+template <>
+struct vertex_similarity_kernel_cpu<float,
+                                    method::fast,
+                                    task::all_vertex_pairs,
+                                    dal::preview::detail::topology<std::int32_t>> {
+    vertex_similarity_result<task::all_vertex_pairs> operator()(
+        const dal::detail::host_policy& ctx,
+        const detail::descriptor_base<task::all_vertex_pairs>& desc,
+        const dal::preview::detail::topology<std::int32_t>& t,
+        caching_builder& result_builder) const {
+        const std::int64_t row_begin = desc.get_row_range_begin();
+        const std::int64_t row_end = desc.get_row_range_end();
+        const std::int64_t column_begin = desc.get_column_range_begin();
+        const std::int64_t column_end = desc.get_column_range_end();
+        const std::int64_t number_elements_in_block =
+            compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
+        const std::int64_t max_block_size = compute_max_block_size<
+            typename detail::descriptor_base<task::all_vertex_pairs>::float_t,
+            std::int32_t>(number_elements_in_block);
+        void* result_ptr = result_builder(max_block_size);
+        using kernel_t = vertex_similarity<float,
+                                           task::all_vertex_pairs,
+                                           dal::preview::detail::topology<std::int32_t>>;
+        return kernel_t()(ctx, desc, t, result_ptr);
+    }
+};
 
 } // namespace oneapi::dal::preview::jaccard::detail

@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernels.hpp"
+#include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernel.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::backend {
 

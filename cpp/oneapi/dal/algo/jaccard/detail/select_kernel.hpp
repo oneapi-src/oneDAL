@@ -41,13 +41,18 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
+    using float_t = typename Descriptor::float_t;
     using task_t = typename Descriptor::task_t;
+    using method_t = typename Descriptor::method_t;
 
     virtual vertex_similarity_result<task_t> operator()(const Policy& ctx,
                                                         const Descriptor& descriptor,
                                                         const Topology& t,
                                                         caching_builder& result_builder) {
-        return jaccard_default_kernel(ctx, descriptor, t, result_builder);
+        return vertex_similarity_kernel_cpu<float_t, method_t, task_t, Topology>()(ctx,
+                                                                                   descriptor,
+                                                                                   t,
+                                                                                   result_builder);
     }
 };
 
