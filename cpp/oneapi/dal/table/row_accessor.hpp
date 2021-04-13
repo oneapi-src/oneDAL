@@ -21,7 +21,7 @@
 namespace oneapi::dal {
 namespace v1 {
 
-///
+/// Provides access to the range of rows as one contiguous homogeneous block of memory.
 ///
 /// @tparam T The type of data values in blocks returned by the accessor.
 ///           Should be const-qualified for read-only access. An accessor
@@ -29,10 +29,10 @@ namespace v1 {
 ///           :literal:`std::int32_t`.
 template <typename T>
 class row_accessor {
-public:
     using data_t = std::remove_const_t<T>;
     static constexpr bool is_readonly = std::is_const_v<T>;
 
+public:
     /// Creates a read-only accessor object from the table. Available only for
     /// const-qualified :literal:`T`.
     template <typename U = T, std::enable_if_t<std::is_const_v<U>, int> = 0>
