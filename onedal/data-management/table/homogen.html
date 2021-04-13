@@ -96,7 +96,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../oneapi-interfaces.html">oneAPI Interfaces</a><ul class="current">
@@ -162,6 +162,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
 </ul>
 </li>
@@ -170,7 +171,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../algorithms/svm/index.html">Support Vector Machines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../algorithms/svm/svm.html">Support Vector Machine Classifier and Regression (SVM)</a></li>
 </ul>
 </li>
 </ul>
@@ -178,8 +179,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html">oneAPI Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc.html">DPC++</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
@@ -202,14 +203,19 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">polynomial_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_multi_class_thunder_dense_batch.html">svm_multi_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_reg_thunder_dense_batch.html">svm_reg_thunder_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/triangle_counting_batch.html">triangle_counting_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../appendix/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../appendix/kd_tree.html">k-d Tree</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../appendix/kd_tree.html#related-terms">Related terms</a></li>
 </ul>
@@ -279,7 +285,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#initialization">Initialization</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#id4">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#id6">Computation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
 </ul>
@@ -514,6 +520,63 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
 </ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/array.html">Array</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/array.html#programming-interface">Programming interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/array.html#usage-example">Usage example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/accessors.html">Accessors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/accessor/column.html">Column accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/accessor/row.html">Row accessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/data-sources.html">Data Sources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/data-source/csv.html">CSV data source</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/tables.html">Tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/tables.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../notes/known_issues.html">Known Issues</a><ul>
@@ -726,107 +789,7 @@ for which the following is true:</p>
 </ul>
 <div class="section" id="programming-interface">
 <h2>Programming interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
-<p>All types and functions in this section are declared in the
-<code class="docutils literal notranslate"><span class="pre">oneapi::dal</span></code> namespace and be available via inclusion of the
-<code class="docutils literal notranslate"><span class="pre">oneapi/dal/table/homogen.hpp</span></code> header file.</p>
-<dl class="cpp class">
-<dt id="_CPPv4N6oneapi3dal2v113homogen_tableE">
-<span id="_CPPv3N6oneapi3dal2v113homogen_tableE"></span><span id="_CPPv2N6oneapi3dal2v113homogen_tableE"></span><span id="oneapi::dal::v1::homogen_table"></span><em class="property">class </em><code class="sig-name descname">homogen_table</code><a class="headerlink" href="#_CPPv4N6oneapi3dal2v113homogen_tableE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p><strong>Public Static Methods</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v113homogen_table4kindEv">
-<span id="_CPPv3N6oneapi3dal2v113homogen_table4kindEv"></span><span id="_CPPv2N6oneapi3dal2v113homogen_table4kindEv"></span><span id="oneapi::dal::v1::homogen_table::kind"></span><em class="property">static</em> std::int64_t <code class="sig-name descname">kind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v113homogen_table4kindEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Returns the unique id of <cite>homogen_table</cite> class.</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I0EN6oneapi3dal2v113homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout">
-<span id="_CPPv3I0EN6oneapi3dal2v113homogen_table4wrapEPK4DataNSt7int64_tENSt7int64_tE11data_layout"></span><span id="_CPPv2I0EN6oneapi3dal2v113homogen_table4wrapEPK4DataNSt7int64_tENSt7int64_tE11data_layout"></span>template&lt;typename <code class="sig-name descname">Data</code>&gt;<br /><em class="property">static</em> <a class="reference internal" href="#_CPPv4N6oneapi3dal2v113homogen_tableE" title="oneapi::dal::v1::homogen_table">homogen_table</a> <code class="sig-name descname">wrap</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4I0EN6oneapi3dal2v113homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout" title="oneapi::dal::v1::homogen_table::wrap::Data">Data</a> *<em>data_pointer</em>, std::int64_t <em>row_count</em>, std::int64_t <em>column_count</em>, data_layout <em>layout</em> = data_layout::row_major<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN6oneapi3dal2v113homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new <cite>homogen_table</cite> instance from externally-defined data block. Table object refers to the data but does not own it. The responsibility to free the data remains on the user side. The <code class="docutils literal notranslate"><span class="pre">data</span></code> should point to the <cite>data_pointer</cite> memory block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The table initializes data types of metadata with this data type. The feature types should be set to default values for <code class="docutils literal notranslate"><span class="pre">Data</span></code> type: contiguous for floating-point, ordinal for integer types. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">std</span><span class="pre">::</span><span class="pre">int32_t</span></code>.</p>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>data_pointer</strong> – The pointer to a homogeneous data block.</p></li>
-<li><p><strong>row_count</strong> – The number of rows in the table.</p></li>
-<li><p><strong>column_count</strong> – The number of columns in the table.</p></li>
-<li><p><strong>layout</strong> – The layout of the data. Should be <code class="docutils literal notranslate"><span class="pre">data_layout::row_major</span></code> or <code class="docutils literal notranslate"><span class="pre">data_layout::column_major</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<p><strong>Constructors</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4N6oneapi3dal2v113homogen_table13homogen_tableEv">
-<span id="_CPPv3N6oneapi3dal2v113homogen_table13homogen_tableEv"></span><span id="_CPPv2N6oneapi3dal2v113homogen_table13homogen_tableEv"></span><span id="oneapi::dal::v1::homogen_table::homogen_table"></span><code class="sig-name descname">homogen_table</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal2v113homogen_table13homogen_tableEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new <cite>homogen_table</cite> instance with zero number of rows and columns. The <code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal2v113homogen_table4kindEv" title="oneapi::dal::v1::homogen_table::kind"><span class="pre">kind</span></a></code> is set to`homogen_table::kind()`. All the properties should be set to default values (see the Properties section).</p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl">
-<span id="_CPPv3I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl"></span><span id="_CPPv2I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl"></span>template&lt;typename <code class="sig-name descname">Impl</code>, typename <code class="sig-name descname">ImplType</code> = std::decay_t&lt;<a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl" title="oneapi::dal::v1::homogen_table::homogen_table::Impl">Impl</a>&gt;, typename <code class="sig-name descname">None</code> = std::enable_if_t&lt;detail::is_homogen_table_impl_v&lt;<a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl" title="oneapi::dal::v1::homogen_table::homogen_table::ImplType">ImplType</a>&gt; &amp;&amp; !std::is_base_of_v&lt;<a class="reference internal" href="../tables.html#_CPPv4N6oneapi3dal2v15tableE" title="oneapi::dal::v1::table">table</a>, <a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl" title="oneapi::dal::v1::homogen_table::homogen_table::ImplType">ImplType</a>&gt;&gt;&gt;<br /><code class="sig-name descname">homogen_table</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl" title="oneapi::dal::v1::homogen_table::homogen_table::Impl">Impl</a> &amp;&amp;<em>impl</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4I00EN6oneapi3dal2v113homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout">
-<span id="_CPPv3I00EN6oneapi3dal2v113homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout"></span><span id="_CPPv2I00EN6oneapi3dal2v113homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout"></span>template&lt;typename <code class="sig-name descname">Data</code>, typename <code class="sig-name descname">ConstDeleter</code>&gt;<br /><code class="sig-name descname">homogen_table</code><span class="sig-paren">(</span><em class="property">const</em> <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal2v113homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="oneapi::dal::v1::homogen_table::homogen_table::Data">Data</a> *<em>data_pointer</em>, std::int64_t <em>row_count</em>, std::int64_t <em>column_count</em>, <a class="reference internal" href="#_CPPv4I00EN6oneapi3dal2v113homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="oneapi::dal::v1::homogen_table::homogen_table::ConstDeleter">ConstDeleter</a> &amp;&amp;<em>data_deleter</em>, data_layout <em>layout</em> = data_layout::row_major<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal2v113homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new <cite>homogen_table</cite> instance from externally-defined data block. Table object owns the data pointer. The <code class="docutils literal notranslate"><span class="pre">data</span></code> should point to the <cite>data_pointer</cite> memory block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Data</strong> – The type of elements in the data block that will be stored into the table. The <code class="docutils literal notranslate"><span class="pre">Data</span></code> type should be at least <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">std</span><span class="pre">::</span><span class="pre">int32_t</span></code>.</p></li>
-<li><p><strong>ConstDeleter</strong> – The type of a deleter called on <cite>data_pointer</cite> when the last table that refers it is out of the scope.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Parameters</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>data_pointer</strong> – The pointer to a homogeneous data block.</p></li>
-<li><p><strong>row_count</strong> – The number of rows in the table.</p></li>
-<li><p><strong>column_count</strong> – The number of columns in the table.</p></li>
-<li><p><strong>data_deleter</strong> – The deleter that is called on the <cite>data_pointer</cite> when the last table that refers it is out of the scope.</p></li>
-<li><p><strong>layout</strong> – The layout of the data. Should be <code class="docutils literal notranslate"><span class="pre">data_layout::row_major</span></code> or <code class="docutils literal notranslate"><span class="pre">data_layout::column_major</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<p><strong>Public Methods</strong></p>
-<dl class="cpp function">
-<dt id="_CPPv4I0ENK6oneapi3dal2v113homogen_table8get_dataEPK4Datav">
-<span id="_CPPv3I0ENK6oneapi3dal2v113homogen_table8get_dataEv"></span><span id="_CPPv2I0ENK6oneapi3dal2v113homogen_table8get_dataEv"></span>template&lt;typename <code class="sig-name descname">Data</code>&gt;<br /><em class="property">const</em> <a class="reference internal" href="#_CPPv4I0ENK6oneapi3dal2v113homogen_table8get_dataEPK4Datav" title="oneapi::dal::v1::homogen_table::get_data::Data">Data</a> *<code class="sig-name descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property">const</em><a class="headerlink" href="#_CPPv4I0ENK6oneapi3dal2v113homogen_table8get_dataEPK4Datav" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">data</span></code> pointer cast to the <code class="docutils literal notranslate"><span class="pre">Data</span></code> type. No checks are performed that this type is the actual type of the data within the table.</p>
-</dd></dl>
-
-<p><strong>Properties</strong></p>
-<dl class="cpp member">
-<dt id="_CPPv4N38oneapi_dal_v1_homogen_table_properties4dataE">
-<span id="_CPPv3N38oneapi_dal_v1_homogen_table_properties4dataE"></span><span id="_CPPv2N38oneapi_dal_v1_homogen_table_properties4dataE"></span><span id="oneapi_dal_v1_homogen_table_properties::data__voidCP"></span><em class="property">const</em> void *<code class="sig-name descname">data</code><a class="headerlink" href="#_CPPv4N38oneapi_dal_v1_homogen_table_properties4dataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The pointer to the data block within the table. Should be equal to <cite>nullptr</cite> when <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">row_count</span> <span class="pre">==</span> <span class="pre">0</span></code> and <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">column_count</span> <span class="pre">==</span> <span class="pre">0</span></code>.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">void</span> <span class="pre">*</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N38oneapi_dal_v1_homogen_table_properties4kindE">
-<span id="_CPPv3N38oneapi_dal_v1_homogen_table_properties4kindE"></span><span id="_CPPv2N38oneapi_dal_v1_homogen_table_properties4kindE"></span><span id="oneapi_dal_v1_homogen_table_properties::kind__std::int64_t"></span>std::int64_t <code class="sig-name descname">kind</code><a class="headerlink" href="#_CPPv4N38oneapi_dal_v1_homogen_table_properties4kindE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The unique id of the homogen table type.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_kind()</span> <span class="pre">const</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<p>Refer to <a class="reference internal" href="../../../api/data-management/table/homogen.html#api-homogen-table"><span class="std std-ref">API Reference: Homogeneous table</span></a>.</p>
 </div>
 </div>
 
@@ -851,7 +814,7 @@ for which the following is true:</p>
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2014 - 2020, Intel Corporation
+        &copy; Copyright 2014 - 2021, Intel Corporation
 
     </p>
   </div>

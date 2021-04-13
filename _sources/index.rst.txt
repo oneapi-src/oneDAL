@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2019-2020 Intel Corporation
+.. * Copyright 2019-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -58,12 +58,18 @@ oneAPI vs. DAAL Interfaces
 
 .. toctree::
    :maxdepth: 3
-   :caption: Developer Guide and Reference
+   :caption: Developer Guide
 
    data-analytics-pipeline.rst
    oneapi-interfaces.rst
    daal-interfaces.rst
    bibliography.rst
+
+.. toctree::
+   :maxdepth: 3
+   :caption: API Reference
+
+   api/index.rst
 
 .. toctree::
    :maxdepth: 1

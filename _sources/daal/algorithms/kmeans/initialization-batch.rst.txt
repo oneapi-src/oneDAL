@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ parameter method.
        * ``randomCSR`` - uses random nClusters points as initial centroids for data in a CSR numeric table
        * ``plusPlusDense`` - uses K-Means++ algorithm [Arthur2007]_
        * ``plusPlusCSR`` - uses K-Means++ algorithm for data in a CSR numeric table
-       * ``parallelPlusDense`` - uses parallel K-Means++ algorithm [Bahmani2012]
+       * ``parallelPlusDense`` - uses parallel K-Means++ algorithm [Bahmani2012]_
        * ``parallelPlusCSR`` - uses parallel K-Means++ algorithm for data in a CSR numeric table
 
        For GPU:

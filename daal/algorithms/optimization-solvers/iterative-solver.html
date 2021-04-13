@@ -96,7 +96,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../oneapi-interfaces.html">oneAPI Interfaces</a><ul>
@@ -162,6 +162,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../onedal/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
 </ul>
 </li>
@@ -170,7 +171,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../onedal/algorithms/svm/index.html">Support Vector Machines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../onedal/algorithms/svm/svm.html">Support Vector Machine Classifier and Regression (SVM)</a></li>
 </ul>
 </li>
 </ul>
@@ -178,8 +179,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples.html">oneAPI Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/dpc.html">DPC++</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
@@ -202,14 +203,19 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/load_graph.html">load_graph.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/polynomial_kernel_dense_batch.html">polynomial_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_multi_class_thunder_dense_batch.html">svm_multi_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_reg_thunder_dense_batch.html">svm_reg_thunder_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../examples/cpp/triangle_counting_batch.html">triangle_counting_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../onedal/appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../onedal/appendix/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../onedal/appendix/kd_tree.html">k-d Tree</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../onedal/appendix/kd_tree.html#related-terms">Related terms</a></li>
 </ul>
@@ -279,7 +285,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#initialization">Initialization</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id4">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#id6">Computation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
 </ul>
@@ -513,6 +519,63 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/array.html">Array</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/array.html#programming-interface">Programming interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/array.html#usage-example">Usage example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/accessors.html">Accessors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/accessor/column.html">Column accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/accessor/row.html">Row accessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/data-sources.html">Data Sources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/data-source/csv.html">CSV data source</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/data-management/tables.html">Tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/data-management/tables.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
@@ -792,7 +855,7 @@ If you need it, set the <code class="docutils literal notranslate"><span class="
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2014 - 2020, Intel Corporation
+        &copy; Copyright 2014 - 2021, Intel Corporation
 
     </p>
   </div>

@@ -96,7 +96,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Developer Guide and Reference</span></p>
+<p class="caption"><span class="caption-text">Developer Guide</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="data-analytics-pipeline.html">Data Analytics Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="oneapi-interfaces.html">oneAPI Interfaces</a><ul>
@@ -162,6 +162,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="onedal/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="onedal/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="onedal/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="onedal/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
 </ul>
 </li>
@@ -170,7 +171,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="onedal/algorithms/svm/index.html">Support Vector Machines</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="onedal/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="onedal/algorithms/svm/svm.html">Support Vector Machine Classifier and Regression (SVM)</a></li>
 </ul>
 </li>
 </ul>
@@ -178,8 +179,8 @@
 <li class="toctree-l2"><a class="reference internal" href="examples.html">oneAPI Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/dpc.html">DPC++</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="examples/dpc/column_accessor_homogen.html">column_accessor_homogen.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="examples/dpc/df_cls_dense_batch.html">df_cls_dense_batch.cpp</a></li>
-<li class="toctree-l4"><a class="reference internal" href="examples/dpc/df_reg_dense_batch.html">df_reg_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/dpc/df_cls_hist_batch.html">df_cls_hist_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/dpc/df_reg_hist_batch.html">df_reg_hist_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/dpc/kmeans_init_dense.html">kmeans_init_dense.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/dpc/kmeans_lloyd_dense_batch.html">kmeans_lloyd_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/dpc/knn_cls_brute_force_dense_batch.html">knn_cls_brute_force_dense_batch.cpp</a></li>
@@ -202,14 +203,19 @@
 <li class="toctree-l4"><a class="reference internal" href="examples/cpp/linear_kernel_dense_batch.html">linear_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/cpp/load_graph.html">load_graph.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/cpp/pca_dense_batch.html">pca_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/cpp/polynomial_kernel_dense_batch.html">polynomial_kernel_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/cpp/rbf_kernel_dense_batch.html">rbf_kernel_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/cpp/svm_multi_class_thunder_dense_batch.html">svm_multi_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/cpp/svm_reg_thunder_dense_batch.html">svm_reg_thunder_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/cpp/svm_two_class_smo_dense_batch.html">svm_two_class_smo_dense_batch.cpp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/cpp/svm_two_class_thunder_dense_batch.html">svm_two_class_thunder_dense_batch.cpp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/cpp/triangle_counting_batch.html">triangle_counting_batch.cpp</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="onedal/appendix/index.html">Appendix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="onedal/appendix/decision-tree.html">Decision Tree</a></li>
 <li class="toctree-l3"><a class="reference internal" href="onedal/appendix/kd_tree.html">k-d Tree</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="onedal/appendix/kd_tree.html#related-terms">Related terms</a></li>
 </ul>
@@ -279,7 +285,7 @@
 <li class="toctree-l3"><a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html">K-Means Clustering</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html#details">Details</a></li>
 <li class="toctree-l4"><a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html#initialization">Initialization</a></li>
-<li class="toctree-l4"><a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html#id4">Computation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html#id6">Computation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html#examples">Examples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="daal/algorithms/kmeans/k-means-clustering.html#performance-considerations">Performance Considerations</a></li>
 </ul>
@@ -513,6 +519,63 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/data-management/index.html">Data Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/data-management/array.html">Array</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/data-management/array.html#programming-interface">Programming interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/data-management/array.html#usage-example">Usage example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/data-management/accessors.html">Accessors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/data-management/accessor/column.html">Column accessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/data-management/accessor/row.html">Row accessor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/data-management/data-sources.html">Data Sources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/data-management/data-source/csv.html">CSV data source</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/data-management/tables.html">Tables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/data-management/tables.html#programming-interface">Programming interface</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/algorithms/index.html">Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/algorithms/clustering/index.html">Clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/clustering/kmeans.html">K-Means</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/clustering/kmeans-init.html">K-Means initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/algorithms/decomposition/index.html">Decomposition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/decomposition/pca.html">Principal Components Analysis (PCA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/algorithms/ensembles/index.html">Ensembles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/ensembles/decision-forest.html">Decision Forest Classification and Regression (DF)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/algorithms/kernel-functions/index.html">Kernel Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/kernel-functions/linear-kernel.html">Linear kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/kernel-functions/polynomial-kernel.html">Polynomial kernel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/kernel-functions/rbf-kernel.html">Radial Basis Function (RBF) kernel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/algorithms/nearest-neighbors/index.html">Nearest Neighbors (kNN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/nearest-neighbors/knn-classification.html">k-Nearest Neighbors Classification (k-NN)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/algorithms/svm/index.html">Support Vector Machines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/algorithms/svm/svm.html">Support Vector Machine Classifier (SVM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Notes</span></p>
 <ul>
@@ -908,611 +971,631 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="onedal/glossary.html#term-Observation"><strong>Observation</strong></a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_sourceE">oneapi::dal::csv::data_source (C++ class)</a>
+      <li><a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5arrayE">oneapi::dal::array (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options">oneapi::dal::csv::data_source::data_source (C++ function)</a>, <a href="onedal/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options">[1]</a>
+      <li><a href="api/data-management/array.html#_CPPv4I00EN6oneapi3dal5array5arrayERK5arrayI1YEP1KNSt7int64_tE">oneapi::dal::array::array (C++ function)</a>, <a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array5arrayEP1TNSt7int64_tERR7Deleter">[1]</a>, <a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array5arrayEPK1TNSt7int64_tERR12ConstDeleter">[2]</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5arrayERK5arrayI1TE">[3]</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5arrayERKNSt10shared_ptrI1TEENSt7int64_tE">[4]</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5arrayERKNSt10shared_ptrIK1TEENSt7int64_tE">[5]</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5arrayERR5arrayI1TE">[6]</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5arrayEv">[7]</a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source9delimiterE">oneapi::dal::csv::data_source::delimiter (C++ member)</a>
+      <li><a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5emptyENSt7int64_tE">oneapi::dal::array::empty (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source9file_nameE">oneapi::dal::csv::data_source::file_name (C++ member)</a>
+      <li><a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array4fullE5arrayI1TENSt7int64_tERR1K">oneapi::dal::array::full (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source7optionsE">oneapi::dal::csv::data_source::options (C++ member)</a>
+      <li><a href="api/data-management/array.html#_CPPv4NK6oneapi3dal5array9get_countEv">oneapi::dal::array::get_count (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4I0EN6oneapi3dal3csv9read_argsE">oneapi::dal::csv::read_args (C++ class)</a>
+      <li><a href="api/data-management/array.html#_CPPv4NK6oneapi3dal5array8get_dataEv">oneapi::dal::array::get_data (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv9read_args9read_argsEv">oneapi::dal::csv::read_args::read_args (C++ function)</a>
+      <li><a href="api/data-management/array.html#_CPPv4NK6oneapi3dal5array16get_mutable_dataEv">oneapi::dal::array::get_mutable_data (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest6method2v110by_defaultE">oneapi::dal::decision_forest::method::v1::by_default (C++ type)</a>
+      <li><a href="api/data-management/array.html#_CPPv4NK6oneapi3dal5array8get_sizeEv">oneapi::dal::array::get_size (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest6method2v15denseE">oneapi::dal::decision_forest::method::v1::dense (C++ struct)</a>
+      <li><a href="api/data-management/array.html#_CPPv4NK6oneapi3dal5array16has_mutable_dataEv">oneapi::dal::array::has_mutable_data (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest6method2v14histE">oneapi::dal::decision_forest::method::v1::hist (C++ struct)</a>
+      <li><a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array17need_mutable_dataEv">oneapi::dal::array::need_mutable_data (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest4task2v110by_defaultE">oneapi::dal::decision_forest::task::v1::by_default (C++ type)</a>
+      <li><a href="api/data-management/array.html#_CPPv4N6oneapi3dal5arrayaSERK5arrayI1TE">oneapi::dal::array::operator= (C++ function)</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5arrayaSERR5arrayI1TE">[1]</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest4task2v114classificationE">oneapi::dal::decision_forest::task::v1::classification (C++ struct)</a>
+      <li><a href="api/data-management/array.html#_CPPv4NK6oneapi3dal5arrayixENSt7int64_tE">oneapi::dal::array::operator[] (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest4task2v110regressionE">oneapi::dal::decision_forest::task::v1::regression (C++ struct)</a>
+      <li><a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array5resetEvP1TNSt7int64_tERR7Deleter">oneapi::dal::array::reset (C++ function)</a>, <a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array5resetEvPK1TNSt7int64_tERR12ConstDeleter">[1]</a>, <a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array5resetEvRK5arrayI1YEP1TNSt7int64_tE">[2]</a>, <a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array5resetEvRK5arrayI1YEPK1TNSt7int64_tE">[3]</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5resetENSt7int64_tE">[4]</a>, <a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5resetEv">[5]</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I000EN6oneapi3dal15decision_forest2v110descriptorE">oneapi::dal::decision_forest::v1::descriptor (C++ class)</a>
+      <li><a href="api/data-management/array.html#_CPPv4I0EN6oneapi3dal5array4wrapE5arrayI1TEP1YNSt7int64_tE">oneapi::dal::array::wrap (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor13set_bootstrapEb">oneapi::dal::decision_forest::v1::descriptor::set_bootstrap (C++ function)</a>
+      <li><a href="api/data-management/array.html#_CPPv4N6oneapi3dal5array5zerosENSt7int64_tE">oneapi::dal::array::zeros (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_class_countERDaNSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_class_count (C++ function)</a>
+      <li><a href="api/data-management/accessor/column.html#_CPPv4I0EN6oneapi3dal15column_accessorE">oneapi::dal::column_accessor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor21set_error_metric_modeE17error_metric_mode">oneapi::dal::decision_forest::v1::descriptor::set_error_metric_mode (C++ function)</a>
+      <li><a href="api/data-management/accessor/column.html#_CPPv4N6oneapi3dal15column_accessor15column_accessorERKN6detail13table_builderE">oneapi::dal::column_accessor::column_accessor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor21set_features_per_nodeENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_features_per_node (C++ function)</a>
+      <li><a href="api/data-management/accessor/column.html#_CPPv4NK6oneapi3dal15column_accessor4pullENSt7int64_tERK5range">oneapi::dal::column_accessor::pull (C++ function)</a>, <a href="api/data-management/accessor/column.html#_CPPv4NK6oneapi3dal15column_accessor4pullER5arrayI6data_tENSt7int64_tERK5range">[1]</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor22set_impurity_thresholdEd">oneapi::dal::decision_forest::v1::descriptor::set_impurity_threshold (C++ function)</a>
+      <li><a href="api/data-management/accessor/column.html#_CPPv4I0EN6oneapi3dal15column_accessor4pushENSt11enable_if_tIXaast1Qnt11is_readonlyEEERK5arrayI6data_tENSt7int64_tERK5range">oneapi::dal::column_accessor::push (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor14set_infer_modeERDa10infer_mode">oneapi::dal::decision_forest::v1::descriptor::set_infer_mode (C++ function)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_sourceE">oneapi::dal::csv::data_source (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor12set_max_binsENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_max_bins (C++ function)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceEPKcc12read_options">oneapi::dal::csv::data_source::data_source (C++ function)</a>, <a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source11data_sourceERKNSt6stringEc12read_options">[1]</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor18set_max_leaf_nodesENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_max_leaf_nodes (C++ function)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source9delimiterE">oneapi::dal::csv::data_source::delimiter (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor18set_max_tree_depthENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_max_tree_depth (C++ function)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source9file_nameE">oneapi::dal::csv::data_source::file_name (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor22set_memory_saving_modeEb">oneapi::dal::decision_forest::v1::descriptor::set_memory_saving_mode (C++ function)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv11data_source7optionsE">oneapi::dal::csv::data_source::options (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor16set_min_bin_sizeENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_min_bin_size (C++ function)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4I0EN6oneapi3dal3csv9read_argsE">oneapi::dal::csv::read_args (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor39set_min_impurity_decrease_in_split_nodeEd">oneapi::dal::decision_forest::v1::descriptor::set_min_impurity_decrease_in_split_node (C++ function)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4N6oneapi3dal3csv9read_args9read_argsEv">oneapi::dal::csv::read_args::read_args (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor33set_min_observations_in_leaf_nodeENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_min_observations_in_leaf_node (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I000EN6oneapi3dal15decision_forest10descriptorE">oneapi::dal::decision_forest::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor34set_min_observations_in_split_nodeENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_min_observations_in_split_node (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor9bootstrapE">oneapi::dal::decision_forest::descriptor::bootstrap (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor36set_min_weight_fraction_in_leaf_nodeEd">oneapi::dal::decision_forest::v1::descriptor::set_min_weight_fraction_in_leaf_node (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor11class_countE">oneapi::dal::decision_forest::descriptor::class_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor34set_observations_per_tree_fractionEd">oneapi::dal::decision_forest::v1::descriptor::set_observations_per_tree_fraction (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor10descriptorEv">oneapi::dal::decision_forest::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor14set_tree_countENSt7int64_tE">oneapi::dal::decision_forest::v1::descriptor::set_tree_count (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor17error_metric_modeE">oneapi::dal::decision_forest::descriptor::error_metric_mode (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110descriptor28set_variable_importance_modeE24variable_importance_mode">oneapi::dal::decision_forest::v1::descriptor::set_variable_importance_mode (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor17features_per_nodeE">oneapi::dal::decision_forest::descriptor::features_per_node (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I00EN6oneapi3dal15decision_forest2v110descriptor15set_voting_modeERDa11voting_mode">oneapi::dal::decision_forest::v1::descriptor::set_voting_mode (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor18impurity_thresholdE">oneapi::dal::decision_forest::descriptor::impurity_threshold (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v117error_metric_modeE">oneapi::dal::decision_forest::v1::error_metric_mode (C++ enum)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor10infer_modeE">oneapi::dal::decision_forest::descriptor::infer_mode (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest2v15inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE">oneapi::dal::decision_forest::v1::infer (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor8max_binsE">oneapi::dal::decision_forest::descriptor::max_bins (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest2v111infer_inputE">oneapi::dal::decision_forest::v1::infer_input (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor14max_leaf_nodesE">oneapi::dal::decision_forest::descriptor::max_leaf_nodes (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v111infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::decision_forest::v1::infer_input::infer_input (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor14max_tree_depthE">oneapi::dal::decision_forest::descriptor::max_tree_depth (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v110infer_modeE">oneapi::dal::decision_forest::v1::infer_mode (C++ enum)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor18memory_saving_modeE">oneapi::dal::decision_forest::descriptor::memory_saving_mode (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest2v112infer_resultE">oneapi::dal::decision_forest::v1::infer_result (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor12min_bin_sizeE">oneapi::dal::decision_forest::descriptor::min_bin_size (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v112infer_result12infer_resultEv">oneapi::dal::decision_forest::v1::infer_result::infer_result (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor35min_impurity_decrease_in_split_nodeE">oneapi::dal::decision_forest::descriptor::min_impurity_decrease_in_split_node (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest2v15modelE">oneapi::dal::decision_forest::v1::model (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor29min_observations_in_leaf_nodeE">oneapi::dal::decision_forest::descriptor::min_observations_in_leaf_node (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v15model5modelEv">oneapi::dal::decision_forest::v1::model::model (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor30min_observations_in_split_nodeE">oneapi::dal::decision_forest::descriptor::min_observations_in_split_node (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest2v15trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE">oneapi::dal::decision_forest::v1::train (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor32min_weight_fraction_in_leaf_nodeE">oneapi::dal::decision_forest::descriptor::min_weight_fraction_in_leaf_node (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest2v111train_inputE">oneapi::dal::decision_forest::v1::train_input (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor30observations_per_tree_fractionE">oneapi::dal::decision_forest::descriptor::observations_per_tree_fraction (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v111train_input11train_inputERK5tableRK5table">oneapi::dal::decision_forest::v1::train_input::train_input (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor10tree_countE">oneapi::dal::decision_forest::descriptor::tree_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest2v112train_resultE">oneapi::dal::decision_forest::v1::train_result (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor24variable_importance_modeE">oneapi::dal::decision_forest::descriptor::variable_importance_mode (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v112train_result12train_resultEv">oneapi::dal::decision_forest::v1::train_result::train_result (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10descriptor11voting_modeE">oneapi::dal::decision_forest::descriptor::voting_mode (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v124variable_importance_modeE">oneapi::dal::decision_forest::v1::variable_importance_mode (C++ enum)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest17error_metric_modeE">oneapi::dal::decision_forest::error_metric_mode (C++ enum)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest2v111voting_modeE">oneapi::dal::decision_forest::v1::voting_mode (C++ enum)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest5inferEN15decision_forest12infer_resultERK10DescriptorRKN15decision_forest11infer_inputE">oneapi::dal::decision_forest::infer (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans6method2v110by_defaultE">oneapi::dal::kmeans::method::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest11infer_inputE">oneapi::dal::decision_forest::infer_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans6method2v111lloyd_denseE">oneapi::dal::kmeans::method::v1::lloyd_dense (C++ struct)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11infer_input4dataE">oneapi::dal::decision_forest::infer_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans4task2v110by_defaultE">oneapi::dal::kmeans::task::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::decision_forest::infer_input::infer_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans4task2v110clusteringE">oneapi::dal::kmeans::task::v1::clustering (C++ struct)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11infer_input5modelE">oneapi::dal::decision_forest::infer_input::model (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I000EN6oneapi3dal6kmeans2v110descriptorE">oneapi::dal::kmeans::v1::descriptor (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest10infer_modeE">oneapi::dal::decision_forest::infer_mode (C++ enum)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v110descriptor10descriptorENSt7int64_tE">oneapi::dal::kmeans::v1::descriptor::descriptor (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest12infer_resultE">oneapi::dal::decision_forest::infer_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v110descriptor22set_accuracy_thresholdEd">oneapi::dal::kmeans::v1::descriptor::set_accuracy_threshold (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12infer_result12infer_resultEv">oneapi::dal::decision_forest::infer_result::infer_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v110descriptor17set_cluster_countE7int64_t">oneapi::dal::kmeans::v1::descriptor::set_cluster_count (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12infer_result6labelsE">oneapi::dal::decision_forest::infer_result::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v110descriptor23set_max_iteration_countE7int64_t">oneapi::dal::kmeans::v1::descriptor::set_max_iteration_count (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12infer_result13probabilitiesE">oneapi::dal::decision_forest::infer_result::probabilities (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans2v15inferEN6kmeans12infer_resultERK10DescriptorRKN6kmeans11infer_inputE">oneapi::dal::kmeans::v1::infer (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest6method10by_defaultE">oneapi::dal::decision_forest::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans2v111infer_inputE">oneapi::dal::kmeans::v1::infer_input (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest6method5denseE">oneapi::dal::decision_forest::method::dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v111infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::kmeans::v1::infer_input::infer_input (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest6method4histE">oneapi::dal::decision_forest::method::hist (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans2v112infer_resultE">oneapi::dal::kmeans::v1::infer_result (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest5modelE">oneapi::dal::decision_forest::model (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v112infer_result12infer_resultEv">oneapi::dal::kmeans::v1::infer_result::infer_result (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I00ENK6oneapi3dal15decision_forest5model15get_class_countENSt7int64_tEv">oneapi::dal::decision_forest::model::get_class_count (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans2v15modelE">oneapi::dal::kmeans::v1::model (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4NK6oneapi3dal15decision_forest5model14get_tree_countEv">oneapi::dal::decision_forest::model::get_tree_count (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v15model5modelEv">oneapi::dal::kmeans::v1::model::model (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest5model5modelEv">oneapi::dal::decision_forest::model::model (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans2v15trainEN6kmeans12train_resultERK10DescriptorRKN6kmeans11train_inputE">oneapi::dal::kmeans::v1::train (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest4task10by_defaultE">oneapi::dal::decision_forest::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans2v111train_inputE">oneapi::dal::kmeans::v1::train_input (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest4task14classificationE">oneapi::dal::decision_forest::task::classification (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v111train_input11train_inputERK5table">oneapi::dal::kmeans::v1::train_input::train_input (C++ function)</a>, <a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v111train_input11train_inputERK5tableRK5table">[1]</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest4task10regressionE">oneapi::dal::decision_forest::task::regression (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans2v112train_resultE">oneapi::dal::kmeans::v1::train_result (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest5trainEN15decision_forest12train_resultERK10DescriptorRKN15decision_forest11train_inputE">oneapi::dal::decision_forest::train (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans2v112train_result12train_resultEv">oneapi::dal::kmeans::v1::train_result::train_result (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest11train_inputE">oneapi::dal::decision_forest::train_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method2v110by_defaultE">oneapi::dal::kmeans_init::method::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11train_input4dataE">oneapi::dal::decision_forest::train_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method2v15denseE">oneapi::dal::kmeans_init::method::v1::dense (C++ struct)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11train_input6labelsE">oneapi::dal::decision_forest::train_input::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method2v119parallel_plus_denseE">oneapi::dal::kmeans_init::method::v1::parallel_plus_dense (C++ struct)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11train_input11train_inputERK5tableRK5table">oneapi::dal::decision_forest::train_input::train_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method2v115plus_plus_denseE">oneapi::dal::kmeans_init::method::v1::plus_plus_dense (C++ struct)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4I0EN6oneapi3dal15decision_forest12train_resultE">oneapi::dal::decision_forest::train_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method2v112random_denseE">oneapi::dal::kmeans_init::method::v1::random_dense (C++ struct)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result5modelE">oneapi::dal::decision_forest::train_result::model (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init4task2v110by_defaultE">oneapi::dal::kmeans_init::task::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result7oob_errE">oneapi::dal::decision_forest::train_result::oob_err (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init4task2v14initE">oneapi::dal::kmeans_init::task::v1::init (C++ struct)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result23oob_err_per_observationE">oneapi::dal::decision_forest::train_result::oob_err_per_observation (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4I0EN6oneapi3dal11kmeans_init2v17computeEN11kmeans_init14compute_resultERK10DescriptorRKN11kmeans_init13compute_inputE">oneapi::dal::kmeans_init::v1::compute (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result12train_resultEv">oneapi::dal::decision_forest::train_result::train_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4I0EN6oneapi3dal11kmeans_init2v113compute_inputE">oneapi::dal::kmeans_init::v1::compute_input (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest12train_result14var_importanceE">oneapi::dal::decision_forest::train_result::var_importance (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init2v113compute_input13compute_inputERK5table">oneapi::dal::kmeans_init::v1::compute_input::compute_input (C++ function)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest24variable_importance_modeE">oneapi::dal::decision_forest::variable_importance_mode (C++ enum)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4I0EN6oneapi3dal11kmeans_init2v114compute_resultE">oneapi::dal::kmeans_init::v1::compute_result (C++ class)</a>
+      <li><a href="api/algorithms/ensembles/decision-forest.html#_CPPv4N6oneapi3dal15decision_forest11voting_modeE">oneapi::dal::decision_forest::voting_mode (C++ enum)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init2v114compute_result14compute_resultEv">oneapi::dal::kmeans_init::v1::compute_result::compute_result (C++ function)</a>
+      <li><a href="api/data-management/table/homogen.html#_CPPv4N6oneapi3dal13homogen_tableE">oneapi::dal::homogen_table (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4I000EN6oneapi3dal11kmeans_init2v110descriptorE">oneapi::dal::kmeans_init::v1::descriptor (C++ class)</a>
+      <li><a href="api/data-management/table/homogen.html#_CPPv4I0ENK6oneapi3dal13homogen_table8get_dataEPK4Datav">oneapi::dal::homogen_table::get_data (C++ function)</a>, <a href="api/data-management/table/homogen.html#_CPPv4NK6oneapi3dal13homogen_table8get_dataEv">[1]</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init2v110descriptor10descriptorENSt7int64_tE">oneapi::dal::kmeans_init::v1::descriptor::descriptor (C++ function)</a>
+      <li><a href="api/data-management/table/homogen.html#_CPPv4NK6oneapi3dal13homogen_table8get_kindEv">oneapi::dal::homogen_table::get_kind (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init2v110descriptor17set_cluster_countE7int64_t">oneapi::dal::kmeans_init::v1::descriptor::set_cluster_count (C++ function)</a>
+      <li><a href="api/data-management/table/homogen.html#_CPPv4I00EN6oneapi3dal13homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout">oneapi::dal::homogen_table::homogen_table (C++ function)</a>, <a href="api/data-management/table/homogen.html#_CPPv4N6oneapi3dal13homogen_table13homogen_tableEv">[1]</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method2v111brute_forceE">oneapi::dal::knn::method::v1::brute_force (C++ struct)</a>
+      <li><a href="api/data-management/table/homogen.html#_CPPv4N6oneapi3dal13homogen_table4kindEv">oneapi::dal::homogen_table::kind (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method2v110by_defaultE">oneapi::dal::knn::method::v1::by_default (C++ type)</a>
+      <li><a href="api/data-management/table/homogen.html#_CPPv4I0EN6oneapi3dal13homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout">oneapi::dal::homogen_table::wrap (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method2v17kd_treeE">oneapi::dal::knn::method::v1::kd_tree (C++ struct)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I000EN6oneapi3dal6kmeans10descriptorE">oneapi::dal::kmeans::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task2v110by_defaultE">oneapi::dal::knn::task::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans10descriptor18accuracy_thresholdE">oneapi::dal::kmeans::descriptor::accuracy_threshold (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task2v114classificationE">oneapi::dal::knn::task::v1::classification (C++ struct)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans10descriptor13cluster_countE">oneapi::dal::kmeans::descriptor::cluster_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I000EN6oneapi3dal3knn2v110descriptorE">oneapi::dal::knn::v1::descriptor (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans10descriptor10descriptorENSt7int64_tE">oneapi::dal::kmeans::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v110descriptor10descriptorENSt7int64_tENSt7int64_tE">oneapi::dal::knn::v1::descriptor::descriptor (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans10descriptor19max_iteration_countE">oneapi::dal::kmeans::descriptor::max_iteration_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v110descriptor15set_class_countENSt7int64_tE">oneapi::dal::knn::v1::descriptor::set_class_count (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans5inferEN6kmeans12infer_resultERK10DescriptorRKN6kmeans11infer_inputE">oneapi::dal::kmeans::infer (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v110descriptor18set_neighbor_countENSt7int64_tE">oneapi::dal::knn::v1::descriptor::set_neighbor_count (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans11infer_inputE">oneapi::dal::kmeans::infer_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn2v15inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE">oneapi::dal::knn::v1::infer (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans11infer_input4dataE">oneapi::dal::kmeans::infer_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn2v111infer_inputE">oneapi::dal::knn::v1::infer_input (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans11infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::kmeans::infer_input::infer_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v111infer_input11infer_inputERK5tableRK5modelI4TaskE">oneapi::dal::knn::v1::infer_input::infer_input (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans11infer_input5modelE">oneapi::dal::kmeans::infer_input::model (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn2v112infer_resultE">oneapi::dal::knn::v1::infer_result (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans12infer_resultE">oneapi::dal::kmeans::infer_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v112infer_result12infer_resultEv">oneapi::dal::knn::v1::infer_result::infer_result (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12infer_result12infer_resultEv">oneapi::dal::kmeans::infer_result::infer_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn2v15modelE">oneapi::dal::knn::v1::model (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12infer_result6labelsE">oneapi::dal::kmeans::infer_result::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v15model5modelEv">oneapi::dal::knn::v1::model::model (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12infer_result24objective_function_valueE">oneapi::dal::kmeans::infer_result::objective_function_value (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn2v15trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE">oneapi::dal::knn::v1::train (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans6method10by_defaultE">oneapi::dal::kmeans::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn2v111train_inputE">oneapi::dal::knn::v1::train_input (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans6method11lloyd_denseE">oneapi::dal::kmeans::method::lloyd_dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v111train_input11train_inputERK5tableRK5table">oneapi::dal::knn::v1::train_input::train_input (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans5modelE">oneapi::dal::kmeans::model (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn2v112train_resultE">oneapi::dal::knn::v1::train_result (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans5model9centroidsE">oneapi::dal::kmeans::model::centroids (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn2v112train_result12train_resultEv">oneapi::dal::knn::v1::train_result::train_result (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4NK6oneapi3dal6kmeans5model17get_cluster_countEv">oneapi::dal::kmeans::model::get_cluster_count (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4I0EN6oneapi3dal13linear_kernel6detail2v115descriptor_baseE">oneapi::dal::linear_kernel::detail::v1::descriptor_base (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans5model5modelEv">oneapi::dal::kmeans::model::model (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel6detail2v115descriptor_base15descriptor_baseEv">oneapi::dal::linear_kernel::detail::v1::descriptor_base::descriptor_base (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans4task10by_defaultE">oneapi::dal::kmeans::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel6method2v110by_defaultE">oneapi::dal::linear_kernel::method::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans4task10clusteringE">oneapi::dal::kmeans::task::clustering (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel6method2v15denseE">oneapi::dal::linear_kernel::method::v1::dense (C++ struct)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans5trainEN6kmeans12train_resultERK10DescriptorRKN6kmeans11train_inputE">oneapi::dal::kmeans::train (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel4task2v110by_defaultE">oneapi::dal::linear_kernel::task::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans11train_inputE">oneapi::dal::kmeans::train_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel4task2v17computeE">oneapi::dal::linear_kernel::task::v1::compute (C++ struct)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans11train_input4dataE">oneapi::dal::kmeans::train_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4I0EN6oneapi3dal13linear_kernel2v17computeEN13linear_kernel14compute_resultERK10DescriptorRKN13linear_kernel13compute_inputE">oneapi::dal::linear_kernel::v1::compute (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans11train_input17initial_centroidsE">oneapi::dal::kmeans::train_input::initial_centroids (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4I0EN6oneapi3dal13linear_kernel2v113compute_inputE">oneapi::dal::linear_kernel::v1::compute_input (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans11train_input11train_inputERK5table">oneapi::dal::kmeans::train_input::train_input (C++ function)</a>, <a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans11train_input11train_inputERK5tableRK5table">[1]</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel2v113compute_input13compute_inputERK5tableRK5table">oneapi::dal::linear_kernel::v1::compute_input::compute_input (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4I0EN6oneapi3dal6kmeans12train_resultE">oneapi::dal::kmeans::train_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4I0EN6oneapi3dal13linear_kernel2v114compute_resultE">oneapi::dal::linear_kernel::v1::compute_result (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12train_result15iteration_countE">oneapi::dal::kmeans::train_result::iteration_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel2v114compute_result14compute_resultEv">oneapi::dal::linear_kernel::v1::compute_result::compute_result (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12train_result6labelsE">oneapi::dal::kmeans::train_result::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4I000EN6oneapi3dal13linear_kernel2v110descriptorE">oneapi::dal::linear_kernel::v1::descriptor (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12train_result5modelE">oneapi::dal::kmeans::train_result::model (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel2v110descriptor9set_scaleEd">oneapi::dal::linear_kernel::v1::descriptor::set_scale (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12train_result24objective_function_valueE">oneapi::dal::kmeans::train_result::objective_function_value (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel2v110descriptor9set_shiftEd">oneapi::dal::linear_kernel::v1::descriptor::set_shift (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans.html#_CPPv4N6oneapi3dal6kmeans12train_result12train_resultEv">oneapi::dal::kmeans::train_result::train_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method2v110by_defaultE">oneapi::dal::pca::method::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4I0EN6oneapi3dal11kmeans_init7computeEN11kmeans_init14compute_resultERK10DescriptorRKN11kmeans_init13compute_inputE">oneapi::dal::kmeans_init::compute (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method2v13covE">oneapi::dal::pca::method::v1::cov (C++ struct)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4I0EN6oneapi3dal11kmeans_init13compute_inputE">oneapi::dal::kmeans_init::compute_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method2v13svdE">oneapi::dal::pca::method::v1::svd (C++ struct)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init13compute_input13compute_inputERK5table">oneapi::dal::kmeans_init::compute_input::compute_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca4task2v110by_defaultE">oneapi::dal::pca::task::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init13compute_input4dataE">oneapi::dal::kmeans_init::compute_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca4task2v113dim_reductionE">oneapi::dal::pca::task::v1::dim_reduction (C++ struct)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4I0EN6oneapi3dal11kmeans_init14compute_resultE">oneapi::dal::kmeans_init::compute_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I000EN6oneapi3dal3pca2v110descriptorE">oneapi::dal::pca::v1::descriptor (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init14compute_result9centroidsE">oneapi::dal::kmeans_init::compute_result::centroids (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v110descriptor10descriptorENSt7int64_tE">oneapi::dal::pca::v1::descriptor::descriptor (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init14compute_result14compute_resultEv">oneapi::dal::kmeans_init::compute_result::compute_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v110descriptor19set_component_countE7int64_t">oneapi::dal::pca::v1::descriptor::set_component_count (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4I000EN6oneapi3dal11kmeans_init10descriptorE">oneapi::dal::kmeans_init::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v110descriptor17set_deterministicEb">oneapi::dal::pca::v1::descriptor::set_deterministic (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init10descriptor13cluster_countE">oneapi::dal::kmeans_init::descriptor::cluster_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca2v15inferEN3pca12infer_resultERK10DescriptorRKN3pca11infer_inputE">oneapi::dal::pca::v1::infer (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init10descriptor10descriptorENSt7int64_tE">oneapi::dal::kmeans_init::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca2v111infer_inputE">oneapi::dal::pca::v1::infer_input (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method10by_defaultE">oneapi::dal::kmeans_init::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v111infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::pca::v1::infer_input::infer_input (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method5denseE">oneapi::dal::kmeans_init::method::dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca2v112infer_resultE">oneapi::dal::pca::v1::infer_result (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method19parallel_plus_denseE">oneapi::dal::kmeans_init::method::parallel_plus_dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v112infer_result12infer_resultEv">oneapi::dal::pca::v1::infer_result::infer_result (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method15plus_plus_denseE">oneapi::dal::kmeans_init::method::plus_plus_dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca2v15modelE">oneapi::dal::pca::v1::model (C++ class)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init6method12random_denseE">oneapi::dal::kmeans_init::method::random_dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v15model5modelEv">oneapi::dal::pca::v1::model::model (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init4task10by_defaultE">oneapi::dal::kmeans_init::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca2v15trainEN3pca12train_resultERK10DescriptorRKN3pca11train_inputE">oneapi::dal::pca::v1::train (C++ function)</a>
+      <li><a href="api/algorithms/clustering/kmeans-init.html#_CPPv4N6oneapi3dal11kmeans_init4task4initE">oneapi::dal::kmeans_init::task::init (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca2v111train_inputE">oneapi::dal::pca::v1::train_input (C++ class)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I000EN6oneapi3dal3knn10descriptorE">oneapi::dal::knn::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v111train_input11train_inputERK5table">oneapi::dal::pca::v1::train_input::train_input (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor11class_countE">oneapi::dal::knn::descriptor::class_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca2v112train_resultE">oneapi::dal::pca::v1::train_result (C++ class)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tE">oneapi::dal::knn::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca2v112train_result12train_resultEv">oneapi::dal::pca::v1::train_result::train_result (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE">oneapi::dal::knn::descriptor::neighbor_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel6detail2v115descriptor_baseE">oneapi::dal::rbf_kernel::detail::v1::descriptor_base (C++ class)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn5inferEN3knn12infer_resultERK10DescriptorRKN3knn11infer_inputE">oneapi::dal::knn::infer (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel6detail2v115descriptor_base15descriptor_baseEv">oneapi::dal::rbf_kernel::detail::v1::descriptor_base::descriptor_base (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn11infer_inputE">oneapi::dal::knn::infer_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel6method2v110by_defaultE">oneapi::dal::rbf_kernel::method::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11infer_input4dataE">oneapi::dal::knn::infer_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel6method2v15denseE">oneapi::dal::rbf_kernel::method::v1::dense (C++ struct)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11infer_input11infer_inputERK5tableRK5modelI4TaskE">oneapi::dal::knn::infer_input::infer_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel4task2v110by_defaultE">oneapi::dal::rbf_kernel::task::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11infer_input5modelE">oneapi::dal::knn::infer_input::model (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel4task2v17computeE">oneapi::dal::rbf_kernel::task::v1::compute (C++ struct)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn12infer_resultE">oneapi::dal::knn::infer_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel2v17computeEN10rbf_kernel14compute_resultERK10DescriptorRKN10rbf_kernel13compute_inputE">oneapi::dal::rbf_kernel::v1::compute (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn12infer_result12infer_resultEv">oneapi::dal::knn::infer_result::infer_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel2v113compute_inputE">oneapi::dal::rbf_kernel::v1::compute_input (C++ class)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn12infer_result6labelsE">oneapi::dal::knn::infer_result::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel2v113compute_input13compute_inputERK5tableRK5table">oneapi::dal::rbf_kernel::v1::compute_input::compute_input (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method11brute_forceE">oneapi::dal::knn::method::brute_force (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel2v114compute_resultE">oneapi::dal::rbf_kernel::v1::compute_result (C++ class)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method10by_defaultE">oneapi::dal::knn::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel2v114compute_result14compute_resultEv">oneapi::dal::rbf_kernel::v1::compute_result::compute_result (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn6method7kd_treeE">oneapi::dal::knn::method::kd_tree (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn5modelE">oneapi::dal::knn::model (C++ class)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn5model5modelEv">oneapi::dal::knn::model::model (C++ function)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task10by_defaultE">oneapi::dal::knn::task::by_default (C++ type)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn4task14classificationE">oneapi::dal::knn::task::classification (C++ struct)</a>
+</li>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn5trainEN3knn12train_resultERK10DescriptorRKN3knn11train_inputE">oneapi::dal::knn::train (C++ function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I000EN6oneapi3dal10rbf_kernel2v110descriptorE">oneapi::dal::rbf_kernel::v1::descriptor (C++ class)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn11train_inputE">oneapi::dal::knn::train_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel2v110descriptor9set_sigmaEd">oneapi::dal::rbf_kernel::v1::descriptor::set_sigma (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input4dataE">oneapi::dal::knn::train_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/data-source/csv.html#_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource">oneapi::dal::read (C++ function)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input6labelsE">oneapi::dal::knn::train_input::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm6detail2v115descriptor_baseE">oneapi::dal::svm::detail::v1::descriptor_base (C++ class)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table">oneapi::dal::knn::train_input::train_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm6method2v110by_defaultE">oneapi::dal::svm::method::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4I0EN6oneapi3dal3knn12train_resultE">oneapi::dal::knn::train_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm6method2v13smoE">oneapi::dal::svm::method::v1::smo (C++ struct)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn12train_result5modelE">oneapi::dal::knn::train_result::model (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm6method2v17thunderE">oneapi::dal::svm::method::v1::thunder (C++ struct)</a>
+      <li><a href="api/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N6oneapi3dal3knn12train_result12train_resultEv">oneapi::dal::knn::train_result::train_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm4task2v110by_defaultE">oneapi::dal::svm::task::v1::by_default (C++ type)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4I0EN6oneapi3dal13linear_kernel7computeEN13linear_kernel14compute_resultERK10DescriptorRKN13linear_kernel13compute_inputE">oneapi::dal::linear_kernel::compute (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm4task2v114classificationE">oneapi::dal::svm::task::v1::classification (C++ struct)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4I0EN6oneapi3dal13linear_kernel13compute_inputE">oneapi::dal::linear_kernel::compute_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0000EN6oneapi3dal3svm2v110descriptorE">oneapi::dal::svm::v1::descriptor (C++ class)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel13compute_input13compute_inputERK5tableRK5table">oneapi::dal::linear_kernel::compute_input::compute_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v110descriptor10descriptorERK6Kernel">oneapi::dal::svm::v1::descriptor::descriptor (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel13compute_input1xE">oneapi::dal::linear_kernel::compute_input::x (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v110descriptor22set_accuracy_thresholdEd">oneapi::dal::svm::v1::descriptor::set_accuracy_threshold (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel13compute_input1yE">oneapi::dal::linear_kernel::compute_input::y (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v110descriptor5set_cEd">oneapi::dal::svm::v1::descriptor::set_c (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4I0EN6oneapi3dal13linear_kernel14compute_resultE">oneapi::dal::linear_kernel::compute_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v110descriptor14set_cache_sizeEd">oneapi::dal::svm::v1::descriptor::set_cache_size (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel14compute_result14compute_resultEv">oneapi::dal::linear_kernel::compute_result::compute_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v110descriptor23set_max_iteration_countENSt7int64_tE">oneapi::dal::svm::v1::descriptor::set_max_iteration_count (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel14compute_result6valuesE">oneapi::dal::linear_kernel::compute_result::values (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v110descriptor13set_shrinkingEb">oneapi::dal::svm::v1::descriptor::set_shrinking (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4I000EN6oneapi3dal13linear_kernel10descriptorE">oneapi::dal::linear_kernel::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v110descriptor7set_tauEd">oneapi::dal::svm::v1::descriptor::set_tau (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel10descriptor10descriptorEv">oneapi::dal::linear_kernel::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm2v15inferEN3svm12infer_resultERK10DescriptorRKN3svm11infer_inputE">oneapi::dal::svm::v1::infer (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel10descriptor5scaleE">oneapi::dal::linear_kernel::descriptor::scale (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm2v111infer_inputE">oneapi::dal::svm::v1::infer_input (C++ class)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel10descriptor5shiftE">oneapi::dal::linear_kernel::descriptor::shift (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v111infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::svm::v1::infer_input::infer_input (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel6method10by_defaultE">oneapi::dal::linear_kernel::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm2v112infer_resultE">oneapi::dal::svm::v1::infer_result (C++ class)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel6method5denseE">oneapi::dal::linear_kernel::method::dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v112infer_result12infer_resultEv">oneapi::dal::svm::v1::infer_result::infer_result (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel4task10by_defaultE">oneapi::dal::linear_kernel::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm2v15modelE">oneapi::dal::svm::v1::model (C++ class)</a>
+      <li><a href="api/algorithms/kernel-functions/linear-kernel.html#_CPPv4N6oneapi3dal13linear_kernel4task7computeE">oneapi::dal::linear_kernel::task::compute (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v15model5modelEv">oneapi::dal::svm::v1::model::model (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I000EN6oneapi3dal3pca10descriptorE">oneapi::dal::pca::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm2v15trainEN3svm12train_resultERK10DescriptorRKN3svm11train_inputE">oneapi::dal::svm::v1::train (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca10descriptor15component_countE">oneapi::dal::pca::descriptor::component_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm2v111train_inputE">oneapi::dal::svm::v1::train_input (C++ class)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca10descriptor10descriptorENSt7int64_tE">oneapi::dal::pca::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v111train_input11train_inputERK5tableRK5tableRK5table">oneapi::dal::svm::v1::train_input::train_input (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca10descriptor13deterministicE">oneapi::dal::pca::descriptor::deterministic (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm2v112train_resultE">oneapi::dal::svm::v1::train_result (C++ class)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca5inferEN3pca12infer_resultERK10DescriptorRKN3pca11infer_inputE">oneapi::dal::pca::infer (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm2v112train_result12train_resultEv">oneapi::dal::svm::v1::train_result::train_result (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca11infer_inputE">oneapi::dal::pca::infer_input (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15arrayE">oneapi::dal::v1::array (C++ class)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca11infer_input4dataE">oneapi::dal::pca::infer_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4I00EN6oneapi3dal2v15array5arrayERK5arrayI1YEP1KNSt7int64_tE">oneapi::dal::v1::array::array (C++ function)</a>, <a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array5arrayEP1TNSt7int64_tERR7Deleter">[1]</a>, <a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array5arrayEPK1TNSt7int64_tERR12ConstDeleter">[2]</a>, <a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array5arrayERK5arrayI1TE">[3]</a>, <a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array5arrayERR5arrayI1TE">[4]</a>, <a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array5arrayEv">[5]</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca11infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::pca::infer_input::infer_input (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array5emptyENSt7int64_tE">oneapi::dal::v1::array::empty (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca11infer_input5modelE">oneapi::dal::pca::infer_input::model (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array4fullE5arrayI1TENSt7int64_tERR1K">oneapi::dal::v1::array::full (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca12infer_resultE">oneapi::dal::pca::infer_result (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4NK6oneapi3dal2v15array16has_mutable_dataEv">oneapi::dal::v1::array::has_mutable_data (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12infer_result12infer_resultEv">oneapi::dal::pca::infer_result::infer_result (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array17need_mutable_dataEv">oneapi::dal::v1::array::need_mutable_data (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12infer_result16transformed_dataE">oneapi::dal::pca::infer_result::transformed_data (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15arrayaSERK5arrayI1TE">oneapi::dal::v1::array::operator= (C++ function)</a>, <a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15arrayaSERR5arrayI1TE">[1]</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method10by_defaultE">oneapi::dal::pca::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4NK6oneapi3dal2v15arrayixENSt7int64_tE">oneapi::dal::v1::array::operator[] (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method3covE">oneapi::dal::pca::method::cov (C++ struct)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array5resetEvP1TNSt7int64_tERR7Deleter">oneapi::dal::v1::array::reset (C++ function)</a>, <a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array5resetEvPK1TNSt7int64_tERR12ConstDeleter">[1]</a>, <a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEP1TNSt7int64_tE">[2]</a>, <a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array5resetEvRK5arrayI1YEPK1TNSt7int64_tE">[3]</a>, <a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array5resetENSt7int64_tE">[4]</a>, <a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array5resetEv">[5]</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca6method3svdE">oneapi::dal::pca::method::svd (C++ struct)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4I0EN6oneapi3dal2v15array4wrapE5arrayI1TEP1YNSt7int64_tE">oneapi::dal::v1::array::wrap (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca5modelE">oneapi::dal::pca::model (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N6oneapi3dal2v15array5zerosENSt7int64_tE">oneapi::dal::v1::array::zeros (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca5model12eigenvectorsE">oneapi::dal::pca::model::eigenvectors (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/column.html#_CPPv4I0EN6oneapi3dal2v115column_accessorE">oneapi::dal::v1::column_accessor (C++ class)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca5model5modelEv">oneapi::dal::pca::model::model (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/column.html#_CPPv4N6oneapi3dal2v115column_accessor15column_accessorERKN6detail13table_builderE">oneapi::dal::v1::column_accessor::column_accessor (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca4task10by_defaultE">oneapi::dal::pca::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/column.html#_CPPv4NK6oneapi3dal2v115column_accessor4pullENSt7int64_tERK5range">oneapi::dal::v1::column_accessor::pull (C++ function)</a>, <a href="onedal/data-management/accessor/column.html#_CPPv4NK6oneapi3dal2v115column_accessor4pullER5arrayI6data_tENSt7int64_tERK5range">[1]</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca4task13dim_reductionE">oneapi::dal::pca::task::dim_reduction (C++ struct)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/column.html#_CPPv4I0EN6oneapi3dal2v115column_accessor4pushENSt11enable_if_tIXaast1Qnt11is_readonlyEEERK5arrayI6data_tENSt7int64_tERK5range">oneapi::dal::v1::column_accessor::push (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca5trainEN3pca12train_resultERK10DescriptorRKN3pca11train_inputE">oneapi::dal::pca::train (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/table/homogen.html#_CPPv4N6oneapi3dal2v113homogen_tableE">oneapi::dal::v1::homogen_table (C++ class)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca11train_inputE">oneapi::dal::pca::train_input (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/table/homogen.html#_CPPv4I0ENK6oneapi3dal2v113homogen_table8get_dataEPK4Datav">oneapi::dal::v1::homogen_table::get_data (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca11train_input4dataE">oneapi::dal::pca::train_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/table/homogen.html#_CPPv4I000EN6oneapi3dal2v113homogen_table13homogen_tableERR4Impl">oneapi::dal::v1::homogen_table::homogen_table (C++ function)</a>, <a href="onedal/data-management/table/homogen.html#_CPPv4I00EN6oneapi3dal2v113homogen_table13homogen_tableEPK4DataNSt7int64_tENSt7int64_tERR12ConstDeleter11data_layout">[1]</a>, <a href="onedal/data-management/table/homogen.html#_CPPv4N6oneapi3dal2v113homogen_table13homogen_tableEv">[2]</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca11train_input11train_inputERK5table">oneapi::dal::pca::train_input::train_input (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/table/homogen.html#_CPPv4N6oneapi3dal2v113homogen_table4kindEv">oneapi::dal::v1::homogen_table::kind (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4I0EN6oneapi3dal3pca12train_resultE">oneapi::dal::pca::train_result (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/table/homogen.html#_CPPv4I0EN6oneapi3dal2v113homogen_table4wrapE13homogen_tablePK4DataNSt7int64_tENSt7int64_tE11data_layout">oneapi::dal::v1::homogen_table::wrap (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result11eigenvaluesE">oneapi::dal::pca::train_result::eigenvalues (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/row.html#_CPPv4I0EN6oneapi3dal2v112row_accessorE">oneapi::dal::v1::row_accessor (C++ class)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4NK6oneapi3dal3pca12train_result16get_eigenvectorsEv">oneapi::dal::pca::train_result::get_eigenvectors (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/row.html#_CPPv4NK6oneapi3dal2v112row_accessor4pullER5arrayI6data_tERK5range">oneapi::dal::v1::row_accessor::pull (C++ function)</a>, <a href="onedal/data-management/accessor/row.html#_CPPv4NK6oneapi3dal2v112row_accessor4pullERK5range">[1]</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result5meansE">oneapi::dal::pca::train_result::means (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/row.html#_CPPv4I0EN6oneapi3dal2v112row_accessor4pushENSt11enable_if_tIXaast1Qnt11is_readonlyEEERK5arrayI6data_tERK5range">oneapi::dal::v1::row_accessor::push (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result5modelE">oneapi::dal::pca::train_result::model (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/accessor/row.html#_CPPv4N6oneapi3dal2v112row_accessor12row_accessorERKN6detail13table_builderE">oneapi::dal::v1::row_accessor::row_accessor (C++ function)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result12train_resultEv">oneapi::dal::pca::train_result::train_result (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v15tableE">oneapi::dal::v1::table (C++ class)</a>
+      <li><a href="api/algorithms/decomposition/pca.html#_CPPv4N6oneapi3dal3pca12train_result9variancesE">oneapi::dal::pca::train_result::variances (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4NK6oneapi3dal2v15table8has_dataEv">oneapi::dal::v1::table::has_data (C++ function)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4I0EN6oneapi3dal17polynomial_kernel7computeEN17polynomial_kernel14compute_resultERK10DescriptorRKN17polynomial_kernel13compute_inputE">oneapi::dal::polynomial_kernel::compute (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v15tableaSERK5table">oneapi::dal::v1::table::operator= (C++ function)</a>, <a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v15tableaSERR5table">[1]</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4I0EN6oneapi3dal17polynomial_kernel13compute_inputE">oneapi::dal::polynomial_kernel::compute_input (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4I000EN6oneapi3dal2v15table5tableERR4Impl">oneapi::dal::v1::table::table (C++ function)</a>, <a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v15table5tableERK5table">[1]</a>, <a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v15table5tableERR5table">[2]</a>, <a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v15table5tableEv">[3]</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel13compute_input13compute_inputERK5tableRK5table">oneapi::dal::polynomial_kernel::compute_input::compute_input (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v114table_metadataE">oneapi::dal::v1::table_metadata (C++ class)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1xE">oneapi::dal::polynomial_kernel::compute_input::x (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v114table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE">oneapi::dal::v1::table_metadata::table_metadata (C++ function)</a>, <a href="onedal/data-management/tables.html#_CPPv4N6oneapi3dal2v114table_metadata14table_metadataEv">[1]</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1yE">oneapi::dal::polynomial_kernel::compute_input::y (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties4dataE">oneapi_dal_decision_forest_v1_infer_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4I0EN6oneapi3dal17polynomial_kernel14compute_resultE">oneapi::dal::polynomial_kernel::compute_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N52oneapi_dal_decision_forest_v1_infer_input_properties5modelE">oneapi_dal_decision_forest_v1_infer_input_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel14compute_result14compute_resultEv">oneapi::dal::polynomial_kernel::compute_result::compute_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N53oneapi_dal_decision_forest_v1_infer_result_properties6labelsE">oneapi_dal_decision_forest_v1_infer_result_properties::labels (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel14compute_result6valuesE">oneapi::dal::polynomial_kernel::compute_result::values (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N53oneapi_dal_decision_forest_v1_infer_result_properties13probabilitiesE">oneapi_dal_decision_forest_v1_infer_result_properties::probabilities (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4I000EN6oneapi3dal17polynomial_kernel10descriptorE">oneapi::dal::polynomial_kernel::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N46oneapi_dal_decision_forest_v1_model_properties11class_countE">oneapi_dal_decision_forest_v1_model_properties::class_count (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel10descriptor6degreeE">oneapi::dal::polynomial_kernel::descriptor::degree (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N46oneapi_dal_decision_forest_v1_model_properties10tree_countE">oneapi_dal_decision_forest_v1_model_properties::tree_count (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel10descriptor10descriptorEv">oneapi::dal::polynomial_kernel::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N52oneapi_dal_decision_forest_v1_train_input_properties4dataE">oneapi_dal_decision_forest_v1_train_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel10descriptor5scaleE">oneapi::dal::polynomial_kernel::descriptor::scale (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N52oneapi_dal_decision_forest_v1_train_input_properties6labelsE">oneapi_dal_decision_forest_v1_train_input_properties::labels (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel10descriptor5shiftE">oneapi::dal::polynomial_kernel::descriptor::shift (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties5modelE">oneapi_dal_decision_forest_v1_train_result_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel6method10by_defaultE">oneapi::dal::polynomial_kernel::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties7oob_errE">oneapi_dal_decision_forest_v1_train_result_properties::oob_err (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel6method5denseE">oneapi::dal::polynomial_kernel::method::dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties23oob_err_per_observationE">oneapi_dal_decision_forest_v1_train_result_properties::oob_err_per_observation (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel4task10by_defaultE">oneapi::dal::polynomial_kernel::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/ensembles/decision-forest.html#_CPPv4N53oneapi_dal_decision_forest_v1_train_result_properties14var_importanceE">oneapi_dal_decision_forest_v1_train_result_properties::var_importance (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/polynomial-kernel.html#_CPPv4N6oneapi3dal17polynomial_kernel4task7computeE">oneapi::dal::polynomial_kernel::task::compute (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N50oneapi_dal_kmeans_init_v1_compute_input_properties4dataE">oneapi_dal_kmeans_init_v1_compute_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel7computeEN10rbf_kernel14compute_resultERK10DescriptorRKN10rbf_kernel13compute_inputE">oneapi::dal::rbf_kernel::compute (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans-init.html#_CPPv4N51oneapi_dal_kmeans_init_v1_compute_result_properties9centroidsE">oneapi_dal_kmeans_init_v1_compute_result_properties::centroids (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel13compute_inputE">oneapi::dal::rbf_kernel::compute_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N43oneapi_dal_kmeans_v1_infer_input_properties4dataE">oneapi_dal_kmeans_v1_infer_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel13compute_input13compute_inputERK5tableRK5table">oneapi::dal::rbf_kernel::compute_input::compute_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N43oneapi_dal_kmeans_v1_infer_input_properties5modelE">oneapi_dal_kmeans_v1_infer_input_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel13compute_input1xE">oneapi::dal::rbf_kernel::compute_input::x (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N44oneapi_dal_kmeans_v1_infer_result_properties6labelsE">oneapi_dal_kmeans_v1_infer_result_properties::labels (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel13compute_input1yE">oneapi::dal::rbf_kernel::compute_input::y (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N44oneapi_dal_kmeans_v1_infer_result_properties24objective_function_valueE">oneapi_dal_kmeans_v1_infer_result_properties::objective_function_value (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I0EN6oneapi3dal10rbf_kernel14compute_resultE">oneapi::dal::rbf_kernel::compute_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N37oneapi_dal_kmeans_v1_model_properties9centroidsE">oneapi_dal_kmeans_v1_model_properties::centroids (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel14compute_result14compute_resultEv">oneapi::dal::rbf_kernel::compute_result::compute_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N37oneapi_dal_kmeans_v1_model_properties13cluster_countE">oneapi_dal_kmeans_v1_model_properties::cluster_count (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel14compute_result6valuesE">oneapi::dal::rbf_kernel::compute_result::values (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N43oneapi_dal_kmeans_v1_train_input_properties4dataE">oneapi_dal_kmeans_v1_train_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4I000EN6oneapi3dal10rbf_kernel10descriptorE">oneapi::dal::rbf_kernel::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N43oneapi_dal_kmeans_v1_train_input_properties17initial_centroidsE">oneapi_dal_kmeans_v1_train_input_properties::initial_centroids (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel10descriptor10descriptorEv">oneapi::dal::rbf_kernel::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N44oneapi_dal_kmeans_v1_train_result_properties15iteration_countE">oneapi_dal_kmeans_v1_train_result_properties::iteration_count (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel10descriptor5sigmaE">oneapi::dal::rbf_kernel::descriptor::sigma (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N44oneapi_dal_kmeans_v1_train_result_properties6labelsE">oneapi_dal_kmeans_v1_train_result_properties::labels (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel6method10by_defaultE">oneapi::dal::rbf_kernel::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N44oneapi_dal_kmeans_v1_train_result_properties5modelE">oneapi_dal_kmeans_v1_train_result_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel6method5denseE">oneapi::dal::rbf_kernel::method::dense (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/clustering/kmeans.html#_CPPv4N44oneapi_dal_kmeans_v1_train_result_properties24objective_function_valueE">oneapi_dal_kmeans_v1_train_result_properties::objective_function_value (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel4task10by_defaultE">oneapi::dal::rbf_kernel::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N40oneapi_dal_knn_v1_infer_input_properties4dataE">oneapi_dal_knn_v1_infer_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N6oneapi3dal10rbf_kernel4task7computeE">oneapi::dal::rbf_kernel::task::compute (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N40oneapi_dal_knn_v1_infer_input_properties5modelE">oneapi_dal_knn_v1_infer_input_properties::model (C++ member)</a>
+      <li><a href="api/data-management/data-source/csv.html#_CPPv4I00EN6oneapi3dal4readE6ObjectRK10DataSource">oneapi::dal::read (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N41oneapi_dal_knn_v1_infer_result_properties6labelsE">oneapi_dal_knn_v1_infer_result_properties::labels (C++ member)</a>
+      <li><a href="api/data-management/accessor/row.html#_CPPv4I0EN6oneapi3dal12row_accessorE">oneapi::dal::row_accessor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N40oneapi_dal_knn_v1_train_input_properties4dataE">oneapi_dal_knn_v1_train_input_properties::data (C++ member)</a>
+      <li><a href="api/data-management/accessor/row.html#_CPPv4NK6oneapi3dal12row_accessor4pullER5arrayI6data_tERK5range">oneapi::dal::row_accessor::pull (C++ function)</a>, <a href="api/data-management/accessor/row.html#_CPPv4NK6oneapi3dal12row_accessor4pullERK5range">[1]</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N40oneapi_dal_knn_v1_train_input_properties6labelsE">oneapi_dal_knn_v1_train_input_properties::labels (C++ member)</a>
+      <li><a href="api/data-management/accessor/row.html#_CPPv4I0EN6oneapi3dal12row_accessor4pushENSt11enable_if_tIXaast1Qnt11is_readonlyEEERK5arrayI6data_tERK5range">oneapi::dal::row_accessor::push (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/nearest-neighbors/knn-classification.html#_CPPv4N41oneapi_dal_knn_v1_train_result_properties5modelE">oneapi_dal_knn_v1_train_result_properties::model (C++ member)</a>
+      <li><a href="api/data-management/accessor/row.html#_CPPv4N6oneapi3dal12row_accessor12row_accessorERKN6detail13table_builderE">oneapi::dal::row_accessor::row_accessor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N61oneapi_dal_linear_kernel_detail_v1_descriptor_base_properties5scaleE">oneapi_dal_linear_kernel_detail_v1_descriptor_base_properties::scale (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0000EN6oneapi3dal3svm10descriptorE">oneapi::dal::svm::descriptor (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N61oneapi_dal_linear_kernel_detail_v1_descriptor_base_properties5shiftE">oneapi_dal_linear_kernel_detail_v1_descriptor_base_properties::shift (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor18accuracy_thresholdE">oneapi::dal::svm::descriptor::accuracy_threshold (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N52oneapi_dal_linear_kernel_v1_compute_input_properties1xE">oneapi_dal_linear_kernel_v1_compute_input_properties::x (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor1cE">oneapi::dal::svm::descriptor::c (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N52oneapi_dal_linear_kernel_v1_compute_input_properties1yE">oneapi_dal_linear_kernel_v1_compute_input_properties::y (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor10cache_sizeE">oneapi::dal::svm::descriptor::cache_size (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/linear-kernel.html#_CPPv4N53oneapi_dal_linear_kernel_v1_compute_result_properties6valuesE">oneapi_dal_linear_kernel_v1_compute_result_properties::values (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor11class_countE">oneapi::dal::svm::descriptor::class_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N40oneapi_dal_pca_v1_infer_input_properties4dataE">oneapi_dal_pca_v1_infer_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor10descriptorERK6Kernel">oneapi::dal::svm::descriptor::descriptor (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N40oneapi_dal_pca_v1_infer_input_properties5modelE">oneapi_dal_pca_v1_infer_input_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor7epsilonE">oneapi::dal::svm::descriptor::epsilon (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N41oneapi_dal_pca_v1_infer_result_properties16transformed_dataE">oneapi_dal_pca_v1_infer_result_properties::transformed_data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor6kernelE">oneapi::dal::svm::descriptor::kernel (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N34oneapi_dal_pca_v1_model_properties12eigenvectorsE">oneapi_dal_pca_v1_model_properties::eigenvectors (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor19max_iteration_countE">oneapi::dal::svm::descriptor::max_iteration_count (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N40oneapi_dal_pca_v1_train_input_properties4dataE">oneapi_dal_pca_v1_train_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor9shrinkingE">oneapi::dal::svm::descriptor::shrinking (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N41oneapi_dal_pca_v1_train_result_properties11eigenvaluesE">oneapi_dal_pca_v1_train_result_properties::eigenvalues (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm10descriptor3tauE">oneapi::dal::svm::descriptor::tau (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N41oneapi_dal_pca_v1_train_result_properties12eigenvectorsE">oneapi_dal_pca_v1_train_result_properties::eigenvectors (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm5inferEN3svm12infer_resultERK10DescriptorRKN3svm11infer_inputE">oneapi::dal::svm::infer (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N41oneapi_dal_pca_v1_train_result_properties5meansE">oneapi_dal_pca_v1_train_result_properties::means (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm11infer_inputE">oneapi::dal::svm::infer_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N41oneapi_dal_pca_v1_train_result_properties5modelE">oneapi_dal_pca_v1_train_result_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm11infer_input4dataE">oneapi::dal::svm::infer_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/decomposition/pca.html#_CPPv4N41oneapi_dal_pca_v1_train_result_properties9variancesE">oneapi_dal_pca_v1_train_result_properties::variances (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm11infer_input11infer_inputERK5modelI4TaskERK5table">oneapi::dal::svm::infer_input::infer_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N58oneapi_dal_rbf_kernel_detail_v1_descriptor_base_properties5sigmaE">oneapi_dal_rbf_kernel_detail_v1_descriptor_base_properties::sigma (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm11infer_input5modelE">oneapi::dal::svm::infer_input::model (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N49oneapi_dal_rbf_kernel_v1_compute_input_properties1xE">oneapi_dal_rbf_kernel_v1_compute_input_properties::x (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm12infer_resultE">oneapi::dal::svm::infer_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N49oneapi_dal_rbf_kernel_v1_compute_input_properties1yE">oneapi_dal_rbf_kernel_v1_compute_input_properties::y (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12infer_result17decision_functionE">oneapi::dal::svm::infer_result::decision_function (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/kernel-functions/rbf-kernel.html#_CPPv4N50oneapi_dal_rbf_kernel_v1_compute_result_properties6valuesE">oneapi_dal_rbf_kernel_v1_compute_result_properties::values (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12infer_result12infer_resultEv">oneapi::dal::svm::infer_result::infer_result (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N51oneapi_dal_svm_detail_v1_descriptor_base_properties18accuracy_thresholdE">oneapi_dal_svm_detail_v1_descriptor_base_properties::accuracy_threshold (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12infer_result6labelsE">oneapi::dal::svm::infer_result::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N51oneapi_dal_svm_detail_v1_descriptor_base_properties1cE">oneapi_dal_svm_detail_v1_descriptor_base_properties::c (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm6method10by_defaultE">oneapi::dal::svm::method::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N51oneapi_dal_svm_detail_v1_descriptor_base_properties10cache_sizeE">oneapi_dal_svm_detail_v1_descriptor_base_properties::cache_size (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm6method3smoE">oneapi::dal::svm::method::smo (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N51oneapi_dal_svm_detail_v1_descriptor_base_properties19max_iteration_countE">oneapi_dal_svm_detail_v1_descriptor_base_properties::max_iteration_count (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm6method7thunderE">oneapi::dal::svm::method::thunder (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N51oneapi_dal_svm_detail_v1_descriptor_base_properties9shrinkingE">oneapi_dal_svm_detail_v1_descriptor_base_properties::shrinking (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm5modelE">oneapi::dal::svm::model (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N51oneapi_dal_svm_detail_v1_descriptor_base_properties3tauE">oneapi_dal_svm_detail_v1_descriptor_base_properties::tau (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm5model4biasE">oneapi::dal::svm::model::bias (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N39oneapi_dal_svm_v1_descriptor_properties6kernelE">oneapi_dal_svm_v1_descriptor_properties::kernel (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm5model6biasesE">oneapi::dal::svm::model::biases (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N40oneapi_dal_svm_v1_infer_input_properties4dataE">oneapi_dal_svm_v1_infer_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm5model6coeffsE">oneapi::dal::svm::model::coeffs (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N40oneapi_dal_svm_v1_infer_input_properties5modelE">oneapi_dal_svm_v1_infer_input_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm5model17first_class_labelE">oneapi::dal::svm::model::first_class_label (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_infer_result_properties17decision_functionE">oneapi_dal_svm_v1_infer_result_properties::decision_function (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4NK6oneapi3dal3svm5model24get_support_vector_countEv">oneapi::dal::svm::model::get_support_vector_count (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_infer_result_properties6labelsE">oneapi_dal_svm_v1_infer_result_properties::labels (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm5model5modelEv">oneapi::dal::svm::model::model (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N34oneapi_dal_svm_v1_model_properties4biasE">oneapi_dal_svm_v1_model_properties::bias (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm5model18second_class_labelE">oneapi::dal::svm::model::second_class_label (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N34oneapi_dal_svm_v1_model_properties6coeffsE">oneapi_dal_svm_v1_model_properties::coeffs (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm5model15support_vectorsE">oneapi::dal::svm::model::support_vectors (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N34oneapi_dal_svm_v1_model_properties17first_class_labelE">oneapi_dal_svm_v1_model_properties::first_class_label (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm4task10by_defaultE">oneapi::dal::svm::task::by_default (C++ type)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N34oneapi_dal_svm_v1_model_properties18second_class_labelE">oneapi_dal_svm_v1_model_properties::second_class_label (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm4task14classificationE">oneapi::dal::svm::task::classification (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N34oneapi_dal_svm_v1_model_properties20support_vector_countE">oneapi_dal_svm_v1_model_properties::support_vector_count (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm4task10regressionE">oneapi::dal::svm::task::regression (C++ struct)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N34oneapi_dal_svm_v1_model_properties15support_vectorsE">oneapi_dal_svm_v1_model_properties::support_vectors (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm5trainEN3svm12train_resultERK10DescriptorRKN3svm11train_inputE">oneapi::dal::svm::train (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N40oneapi_dal_svm_v1_train_input_properties4dataE">oneapi_dal_svm_v1_train_input_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm11train_inputE">oneapi::dal::svm::train_input (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N40oneapi_dal_svm_v1_train_input_properties6labelsE">oneapi_dal_svm_v1_train_input_properties::labels (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm11train_input4dataE">oneapi::dal::svm::train_input::data (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N40oneapi_dal_svm_v1_train_input_properties7weightsE">oneapi_dal_svm_v1_train_input_properties::weights (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm11train_input6labelsE">oneapi::dal::svm::train_input::labels (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_train_result_properties4biasE">oneapi_dal_svm_v1_train_result_properties::bias (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm11train_input11train_inputERK5tableRK5tableRK5table">oneapi::dal::svm::train_input::train_input (C++ function)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_train_result_properties6coeffsE">oneapi_dal_svm_v1_train_result_properties::coeffs (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm11train_input7weightsE">oneapi::dal::svm::train_input::weights (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_train_result_properties5modelE">oneapi_dal_svm_v1_train_result_properties::model (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4I0EN6oneapi3dal3svm12train_resultE">oneapi::dal::svm::train_result (C++ class)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_train_result_properties15support_indicesE">oneapi_dal_svm_v1_train_result_properties::support_indices (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12train_result4biasE">oneapi::dal::svm::train_result::bias (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_train_result_properties20support_vector_countE">oneapi_dal_svm_v1_train_result_properties::support_vector_count (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12train_result6biasesE">oneapi::dal::svm::train_result::biases (C++ member)</a>
 </li>
-      <li><a href="onedal/algorithms/svm/svm.html#_CPPv4N41oneapi_dal_svm_v1_train_result_properties15support_vectorsE">oneapi_dal_svm_v1_train_result_properties::support_vectors (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12train_result6coeffsE">oneapi::dal::svm::train_result::coeffs (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N30oneapi_dal_v1_array_properties5countE">oneapi_dal_v1_array_properties::count (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4NK6oneapi3dal3svm12train_result24get_support_vector_countEv">oneapi::dal::svm::train_result::get_support_vector_count (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N30oneapi_dal_v1_array_properties4dataE">oneapi_dal_v1_array_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12train_result5modelE">oneapi::dal::svm::train_result::model (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N30oneapi_dal_v1_array_properties12mutable_dataE">oneapi_dal_v1_array_properties::mutable_data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12train_result15support_indicesE">oneapi::dal::svm::train_result::support_indices (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/array.html#_CPPv4N30oneapi_dal_v1_array_properties4sizeE">oneapi_dal_v1_array_properties::size (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12train_result15support_vectorsE">oneapi::dal::svm::train_result::support_vectors (C++ member)</a>
 </li>
-      <li><a href="onedal/data-management/table/homogen.html#_CPPv4N38oneapi_dal_v1_homogen_table_properties4dataE">oneapi_dal_v1_homogen_table_properties::data (C++ member)</a>
+      <li><a href="api/algorithms/svm/svm.html#_CPPv4N6oneapi3dal3svm12train_result12train_resultEv">oneapi::dal::svm::train_result::train_result (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/table/homogen.html#_CPPv4N38oneapi_dal_v1_homogen_table_properties4kindE">oneapi_dal_v1_homogen_table_properties::kind (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4N6oneapi3dal5tableE">oneapi::dal::table (C++ class)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N39oneapi_dal_v1_table_metadata_properties9data_typeE">oneapi_dal_v1_table_metadata_properties::data_type (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal5table16get_column_countEv">oneapi::dal::table::get_column_count (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N39oneapi_dal_v1_table_metadata_properties13feature_countE">oneapi_dal_v1_table_metadata_properties::feature_count (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal5table15get_data_layoutEv">oneapi::dal::table::get_data_layout (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N39oneapi_dal_v1_table_metadata_properties12feature_typeE">oneapi_dal_v1_table_metadata_properties::feature_type (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal5table8get_kindEv">oneapi::dal::table::get_kind (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N30oneapi_dal_v1_table_properties12column_countE">oneapi_dal_v1_table_properties::column_count (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal5table12get_metadataEv">oneapi::dal::table::get_metadata (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N30oneapi_dal_v1_table_properties11data_layoutE">oneapi_dal_v1_table_properties::data_layout (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal5table13get_row_countEv">oneapi::dal::table::get_row_count (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N30oneapi_dal_v1_table_properties4kindE">oneapi_dal_v1_table_properties::kind (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal5table8has_dataEv">oneapi::dal::table::has_data (C++ function)</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N30oneapi_dal_v1_table_properties8metadataE">oneapi_dal_v1_table_properties::metadata (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4N6oneapi3dal5tableaSERK5table">oneapi::dal::table::operator= (C++ function)</a>, <a href="api/data-management/tables.html#_CPPv4N6oneapi3dal5tableaSERR5table">[1]</a>
 </li>
-      <li><a href="onedal/data-management/tables.html#_CPPv4N30oneapi_dal_v1_table_properties9row_countE">oneapi_dal_v1_table_properties::row_count (C++ member)</a>
+      <li><a href="api/data-management/tables.html#_CPPv4N6oneapi3dal5table5tableERK5table">oneapi::dal::table::table (C++ function)</a>, <a href="api/data-management/tables.html#_CPPv4N6oneapi3dal5table5tableERR5table">[1]</a>, <a href="api/data-management/tables.html#_CPPv4N6oneapi3dal5table5tableEv">[2]</a>
+</li>
+      <li><a href="api/data-management/tables.html#_CPPv4N6oneapi3dal14table_metadataE">oneapi::dal::table_metadata (C++ class)</a>
+</li>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal14table_metadata13get_data_typeENSt7int64_tE">oneapi::dal::table_metadata::get_data_type (C++ function)</a>
+</li>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal14table_metadata17get_feature_countEv">oneapi::dal::table_metadata::get_feature_count (C++ function)</a>
+</li>
+      <li><a href="api/data-management/tables.html#_CPPv4NK6oneapi3dal14table_metadata16get_feature_typeENSt7int64_tE">oneapi::dal::table_metadata::get_feature_type (C++ function)</a>
+</li>
+      <li><a href="api/data-management/tables.html#_CPPv4N6oneapi3dal14table_metadata14table_metadataERK5arrayI9data_typeERK5arrayI12feature_typeE">oneapi::dal::table_metadata::table_metadata (C++ function)</a>, <a href="api/data-management/tables.html#_CPPv4N6oneapi3dal14table_metadata14table_metadataEv">[1]</a>
 </li>
       <li><a href="onedal/glossary.html#term-Online-mode"><strong>Online mode</strong></a>
 </li>
@@ -1600,7 +1683,7 @@
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2014 - 2020, Intel Corporation
+        &copy; Copyright 2014 - 2021, Intel Corporation
 
     </p>
   </div>

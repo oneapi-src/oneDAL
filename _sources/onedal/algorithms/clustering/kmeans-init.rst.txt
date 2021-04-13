@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -23,21 +23,7 @@
 K-Means initialization
 ======================
 
-The K-Means initialization algorithm receives :math:`n` feature vectors as input
-and chooses :math:`k` initial centroids. After initialization, K-Means algorithm
-uses the initialization result to partition input data into :math:`k` clusters.
-
-.. |c_math| replace:: `Computing <kmeans_init_c_math_>`_
-.. |c_dense| replace:: `Dense <kmeans_init_c_math_dense_>`_
-.. |c_input| replace:: `compute_input <kmeans_init_c_api_input_>`_
-.. |c_result| replace:: `compute_result <kmeans_init_c_api_result_>`_
-.. |c_op| replace:: `compute(...) <kmeans_init_c_api_>`_
-
-=============== =========================== ======== =========== ============
- **Operation**  **Computational methods**     **Programming Interface**
---------------- --------------------------- ---------------------------------
-   |c_math|             |c_dense|            |c_op|   |c_input|   |c_result|
-=============== =========================== ======== =========== ============
+.. include:: ../../../includes/clustering/kmeans-init-introduction.rst
 
 ------------------------
 Mathematical formulation
@@ -61,84 +47,20 @@ Computing method: *dense*
 The method chooses first :math:`k` feature vectors from the training set
 :math:`X`.
 
+---------------------
+Programming Interface
+---------------------
+
+Refer to :ref:`API Reference: K-Means initialization <api_kmeans_init>`.
+
 -------------
 Usage example
 -------------
 
-Computing
----------
-
-::
-
-   table run_compute(const table& data) {
-      const auto kmeans_desc = kmeans_init::descriptor<float,
-                                                      kmeans_init::method::dense>{}
-         .set_cluster_count(10)
-
-      const auto result = compute(kmeans_desc, data);
-
-      print_table("centroids", result.get_centroids());
-
-      return result.get_centroids();
-   }
+.. include:: ../../../includes/clustering/kmeans-init-usage-examples.rst
 
 --------
 Examples
 --------
 
-.. include:: ./includes/kmeans-init-examples.rst
-
----------------------
-Programming Interface
----------------------
-
-All types and functions in this section are declared in the
-``oneapi::dal::kmeans_init`` namespace and be available via inclusion of the
-``oneapi/dal/algo/kmeans_init.hpp`` header file.
-
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::kmeans_init::v1::descriptor
-
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans_init::method::v1
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans_init::task::v1
-
-Computing :cpp:expr:`compute(...)`
---------------------------------------
-
-.. _kmeans_init_c_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::kmeans_init::v1::compute_input
-
-.. _kmeans_init_c_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::kmeans_init::v1::compute_result
-
-.. _kmeans_init_c_api:
-
-Operation
-~~~~~~~~~
-
-.. function:: template <typename Descriptor> \
-              kmeans_init::compute_result compute(const Descriptor& desc, \
-                                         const kmeans_init::compute_input& input)
-
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans_init::desc`
-   :tparam input: Input data for the computing operation
-
-   Preconditions
-      | :expr:`input.data.has_data == true`
-      | :expr:`input.data.row_count == desc.cluster_count`
-   Postconditions
-      | :expr:`result.centroids.has_data == true`
-      | :expr:`result.centroids.row_count == desc.cluster_count`
-      | :expr:`result.centroids.column_count == input.data.column_count`
+.. include:: ../../../includes/clustering/kmeans-init-examples.rst
