@@ -1,10 +1,12 @@
-package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl",
-    "dal_module",
-    "dal_test_suite",
+load(
+    "@onedal//dev/bazel:dal.bzl",
     "dal_collect_modules",
     "dal_collect_test_suites",
+    "dal_module",
+    "dal_test_suite",
 )
+
+package(default_visibility = ["//visibility:public"])
 
 dal_module(
     name = "common",
@@ -17,49 +19,52 @@ dal_module(
 
 dal_collect_modules(
     name = "primitives",
-    root = "@onedal//cpp/oneapi/dal/backend/primitives",
+    dal_deps = [
+        ":common",
+    ],
     modules = [
         "blas",
         "lapack",
         "reduction",
         "selection",
         "sort",
+        "stat",
         "rng",
     ],
-    dal_deps = [
-        ":common",
-    ],
+    root = "@onedal//cpp/oneapi/dal/backend/primitives",
 )
 
 dal_test_suite(
     name = "dpc_compiler_tests",
-    compile_as = [ "dpc++" ],
-    framework = "catch2",
     srcs = [
         "test/fill_dpc.cpp",
     ],
+    compile_as = ["dpc++"],
     dal_deps = [
         ":common",
     ],
+    framework = "catch2",
 )
 
 dal_test_suite(
     name = "common_tests",
-    private = True,
-    framework = "catch2",
-    srcs = glob([
-        "test/*.cpp",
-    ], exclude=[
-        "test/*_dpc.cpp",
-    ]),
+    srcs = glob(
+        [
+            "test/*.cpp",
+        ],
+        exclude = [
+            "test/*_dpc.cpp",
+        ],
+    ),
     dal_deps = [
         ":common",
     ],
+    framework = "catch2",
+    private = True,
 )
 
 dal_collect_test_suites(
     name = "tests",
-    root = "@onedal//cpp/oneapi/dal/backend/primitives",
     modules = [
         "blas",
         "lapack",
@@ -68,8 +73,9 @@ dal_collect_test_suites(
         "sort",
         "stat",
     ],
+    root = "@onedal//cpp/oneapi/dal/backend/primitives",
     tests = [
         ":common_tests",
         ":dpc_compiler_tests",
-    ]
+    ],
 )

@@ -1,54 +1,59 @@
-package(default_visibility = ["//visibility:public"])
-load("@onedal//dev/bazel:dal.bzl",
+load(
+    "@onedal//dev/bazel:dal.bzl",
     "dal_module",
     "dal_test_suite",
 )
+
+package(default_visibility = ["//visibility:public"])
 
 dal_module(
     name = "pca",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
+        "@onedal//cpp/oneapi/dal/backend/primitives:stat",
+        "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/pca:kernel",
         "@onedal//cpp/daal/src/algorithms/pca/transform:kernel",
-    ]
+    ],
 )
 
 dal_test_suite(
     name = "cpu_tests",
-    private = True,
-    compile_as = [ "c++" ],
     srcs = glob([
         "backend/cpu/test/*.cpp",
     ]),
+    compile_as = ["c++"],
     dal_deps = [
         ":pca",
     ],
+    private = True,
 )
 
 dal_test_suite(
     name = "gpu_tests",
-    private = True,
-    compile_as = [ "dpc++" ],
     srcs = glob([
         "backend/gpu/test/*.cpp",
     ]),
+    compile_as = ["dpc++"],
     dal_deps = [
         ":pca",
     ],
+    private = True,
 )
 
 dal_test_suite(
     name = "interface_tests",
-    framework = "catch2",
     srcs = glob([
         "test/*.cpp",
     ]),
     dal_deps = [
         ":pca",
     ],
+    framework = "catch2",
 )
 
 dal_test_suite(

@@ -14,21 +14,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
-#include <daal/src/algorithms/pca/oneapi/pca_dense_correlation_batch_kernel_ucapi.h>
-
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/backend/primitives/lapack.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/stat.hpp"
 
 namespace oneapi::dal::pca::backend {
 
-namespace interop = dal::backend::interop;
-namespace daal_pca = daal::algorithms::pca;
-namespace daal_cov = daal::algorithms::covariance;
+namespace pr = oneapi::dal::backend::primitives;
 
 using dal::backend::context_cpu;
 using dal::backend::context_gpu;
@@ -38,107 +33,59 @@ using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
 template <typename Float>
-using daal_pca_cor_cpu_kernel_iface_ptr =
-    daal::services::SharedPtr<daal_pca::internal::PCACorrelationBaseIface<Float>>;
+static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    auto& q = ctx.get_queue();
+    const auto data = input.get_data();
+    const auto alloc = sycl::usm::alloc::device;
 
-template <typename Float, daal::CpuType Cpu>
-using daal_pca_cor_cpu_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
-
-template <typename Float>
-using daal_pca_cor_gpu_kernel_t = daal_pca::internal::PCACorrelationKernelBatchUCAPI<Float>;
-
-template <typename Float, typename Cpu>
-daal_pca_cor_cpu_kernel_iface_ptr<Float> make_daal_cpu_kernel(Cpu cpu) {
-    using Kernel = daal_pca_cor_cpu_kernel_t<Float, interop::to_daal_cpu_type<Cpu>::value>;
-    return daal::services::SharedPtr<Kernel>{ new Kernel{} };
-}
-
-template <typename Float, typename... Args>
-static void call_daal_gpu_kernel(Args&&... args) {
-    // GPU kernel depends on CPU ISA-specific kernel, so create this kernels
-    // first using CPU dispatching mechanism and then pass to GPU one
-    const auto daal_cpu_kernel = dal::backend::dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        return make_daal_cpu_kernel<Float>(cpu);
-    });
-
-    daal_pca_cor_gpu_kernel_t<Float> daal_gpu_kernel{ daal_cpu_kernel };
-    const auto status = daal_gpu_kernel.compute(std::forward<Args>(args)...);
-    interop::status_to_exception(status);
-}
-
-template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data) {
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
-
+    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = get_component_count(desc, data);
+    dal::detail::check_mul_overflow(row_count, column_count);
+    dal::detail::check_mul_overflow(column_count, column_count);
+    dal::detail::check_mul_overflow(component_count, column_count);
 
-    dal::detail::check_mul_overflow(column_count, component_count);
-    auto arr_eigvec =
-        array<Float>::empty(queue, column_count * component_count, sycl::usm::alloc::device);
-    auto arr_eigval = array<Float>::empty(queue, 1 * component_count, sycl::usm::alloc::device);
-    auto arr_means = array<Float>::empty(queue, 1 * column_count, sycl::usm::alloc::device);
-    auto arr_vars = array<Float>::empty(queue, 1 * column_count, sycl::usm::alloc::device);
+    row_accessor<const Float> data_acc{ data };
+    const auto data_arr = data_acc.pull(q, { 0, -1 }, alloc);
 
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_eigvec =
-        interop::convert_to_daal_table(queue, arr_eigvec, component_count, column_count);
-    const auto daal_eigval = interop::convert_to_daal_table(queue, arr_eigval, 1, component_count);
-    const auto daal_means = interop::convert_to_daal_table(queue, arr_means, 1, column_count);
-    const auto daal_variances = interop::convert_to_daal_table(queue, arr_vars, 1, column_count);
+    const auto data_nd =
+        pr::ndview<Float, 2>::wrap(data_arr.get_data(), { row_count, column_count });
+    auto row_sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
 
-    daal_cov::Batch<Float, daal_cov::defaultDense> covariance_alg;
-    covariance_alg.input.set(daal_cov::data, daal_data);
+    auto reduce_event =
+        pr::reduce_by_columns(q, data_nd, row_sums, pr::sum<Float>{}, pr::identity<Float>{});
 
-    constexpr bool is_correlation = false;
-    constexpr std::uint64_t results_to_compute =
-        std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);
-    const bool is_deterministic = desc.get_deterministic();
+    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
 
-    call_daal_gpu_kernel<Float>(is_correlation,
-                                is_deterministic,
-                                *daal_data,
-                                &covariance_alg,
-                                static_cast<DAAL_UINT64>(results_to_compute),
-                                *daal_eigvec,
-                                *daal_eigval,
-                                *daal_means,
-                                *daal_variances);
+    auto corr_event = pr::correlation(q, data, row_sums, corr, means, vars, tmp, { reduce_event });
 
-    // clang-format off
-    const auto model = model_t{}
-        .set_eigenvectors(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_eigvec, component_count, column_count)
-                .build()
-        );
+    auto eigenvals = pr::ndarray<Float, 1>::empty(column_count);
+    auto host_corr = corr.to_host(q, { corr_event });
+    pr::sym_eigvals_descending(host_corr, eigenvals);
+    auto eigenvecs = std::move(host_corr);
+
+    ONEDAL_ASSERT(component_count <= column_count);
+    const auto eigenvals_arr = array<Float>::empty(component_count);
+    const auto eigenvecs_arr = array<Float>::empty(component_count * column_count);
+
+    dal::backend::copy(eigenvals_arr.get_mutable_data(),
+                       eigenvals.get_data(),
+                       eigenvals_arr.get_count());
+    dal::backend::copy(eigenvecs_arr.get_mutable_data(),
+                       eigenvecs.get_data(),
+                       eigenvecs_arr.get_count());
+
+    const auto model = model_t{}.set_eigenvectors(
+        homogen_table::wrap(eigenvecs_arr, component_count, column_count));
 
     return result_t{}
         .set_model(model)
-        .set_eigenvalues(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_eigval, 1, component_count)
-                .build()
-        )
-        .set_variances(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_vars, 1, column_count)
-                .build()
-        )
-        .set_means(
-            dal::detail::homogen_table_builder{}
-                .reset(arr_means, 1, column_count)
-                .build()
-        );
-    // clang-format on
-}
-
-template <typename Float>
-static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data());
+        .set_eigenvalues(homogen_table::wrap(eigenvals_arr, 1, component_count))
+        .set_means(homogen_table::wrap(means.flatten(q), 1, column_count))
+        .set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
 }
 
 template <typename Float>
