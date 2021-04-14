@@ -34,12 +34,6 @@ class array_impl : public base {
     template <typename U>
     friend class array_impl;
 
-    template <typename U>
-    using ary_cshared = typename array_impl<U>::cshared;
-
-    template <typename U>
-    using ary_shared = typename array_impl<U>::shared;
-
 public:
     template <typename Policy, typename Allocator>
     static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
@@ -91,21 +85,20 @@ public:
     }
 
     const T* get_data() const noexcept {
-        if (const auto& mut_ptr = std::get_if<shared>(&data_owned_)) {
+        if (const auto& mut_ptr = get_if_shared()) {
             return mut_ptr->get();
         }
         else {
-            const auto& immut_ptr = std::get<cshared>(data_owned_);
+            const auto& immut_ptr = get_cshared();
             return immut_ptr.get();
         }
     }
 
     T* get_mutable_data() const {
-        try {
-            const auto& mut_ptr = std::get<shared>(data_owned_);
-            return mut_ptr.get();
+        if (const auto& mut_ptr = get_if_shared()) {
+            return mut_ptr->get();
         }
-        catch (std::bad_variant_access&) {
+        else {
             throw internal_error(
                 dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
@@ -168,11 +161,12 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
+        check_array_has_ownership_structure(ref);
         if (ref.has_mutable_data()) {
-            data_owned_ = shared(std::get<ary_shared<Y>>(ref.data_owned_), data);
+            data_owned_ = shared(ref.get_shared(), data);
         }
         else {
-            data_owned_ = shared(std::get<ary_cshared<Y>>(ref.data_owned_), data);
+            data_owned_ = shared(ref.get_cshared(), data);
         }
         count_ = count;
         reset_policy(ref);
@@ -180,11 +174,12 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
+        check_array_has_ownership_structure(ref);
         if (ref.has_mutable_data()) {
-            data_owned_ = cshared(std::get<ary_shared<Y>>(ref.data_owned_), data);
+            data_owned_ = cshared(ref.get_shared(), data);
         }
         else {
-            data_owned_ = cshared(std::get<ary_cshared<Y>>(ref.data_owned_), data);
+            data_owned_ = cshared(ref.get_cshared(), data);
         }
         count_ = count;
         reset_policy(ref);
@@ -219,7 +214,16 @@ private:
 #endif
     }
 
-    detail::shared<T> copy() {
+    template <typename Y>
+    void check_array_has_ownership_structure(const array_impl<Y>& ref) {
+        if (ref.get_if_cshared() == nullptr &&
+            ref.get_if_shared() == nullptr) {
+            throw internal_error(
+                dal::detail::error_messages::array_does_not_contain_ownership_structure());
+        }
+    }
+
+    shared copy() {
 #ifdef ONEDAL_DATA_PARALLEL
         if (dp_policy_.has_value()) {
             const auto policy = dp_policy_.value();
@@ -237,13 +241,29 @@ private:
     }
 
     template <typename Policy, typename Allocator>
-    detail::shared<T> copy_generic(const Policy& policy, const Allocator& alloc) {
+    shared copy_generic(const Policy& policy, const Allocator& alloc) {
         const T* data = get_data();
         T* data_copy = alloc.allocate(count_);
         memcpy(policy, data_copy, data, sizeof(T) * count_);
-        return detail::shared<T>(data_copy, [alloc, count = this->count_](T* ptr) {
+        return shared(data_copy, [alloc, count = this->count_](T* ptr) {
             alloc.deallocate(ptr, count);
         });
+    }
+
+    shared get_shared() const {
+        return std::get<shared>(data_owned_);
+    }
+
+    const shared* get_if_shared() const noexcept {
+        return std::get_if<shared>(&data_owned_);
+    }
+
+    cshared get_cshared() const {
+        return std::get<cshared>(data_owned_);
+    }
+
+    const cshared* get_if_cshared() const noexcept {
+        return std::get_if<cshared>(&data_owned_);
     }
 
     std::variant<cshared, shared> data_owned_;
