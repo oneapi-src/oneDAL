@@ -19,6 +19,9 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+#include "oneapi/dal/algo/kmeans/common.hpp"
+
+#include <iostream>
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -51,12 +54,14 @@ public:
               row_count_(row_count),
               column_count_(column_count),
               num_centroids_(desc.get_cluster_count()) {
+        obj_func_ = prm::ndarray<Float, 1>::empty(queue_, 1);
+        num_empty_clusters_ = prm::ndarray<std::int32_t, 1>::empty(queue_, 1);
         // TODO allocate blocks for distances, partial indices
         // TODO calc number of blocks, etc.
     }
     auto update_clusters(const prm::ndview<Float, 2>& data,
                          const prm::ndview<Float, 2>& centroids,
-                         prm::ndview<std::int32_t, 1>& labels,
+                         prm::ndview<std::int32_t, 2>& labels,
                          const bk::event_vector& deps = {}) {
         // TODO counters.fill(0);
         sycl::event selection_event;
@@ -91,12 +96,20 @@ public:
                                        { distance_event });
             count_event = count_clusters(label_block, { count_event, selection_event });
         }
-        auto obj_event = compute_objective_function({ selection_event });
+        auto obj_event = compute_objective_function(closest_distances_, { selection_event });
         return std::make_tuple(selection_event, obj_event, count_event);
     }
     auto reduce_centroids(const prm::ndview<Float, 2>& data,
-                          const prm::ndview<std::int32_t, 1>& labels,
+                          const prm::ndview<std::int32_t, 2>& labels,
                           const prm::ndview<Float, 2>& centroids,
+                          const bk::event_vector& deps = {}) {
+        return reduce_centroids_impl(data, labels, centroids, partial_centroids_, num_parts_, deps);
+    }
+    auto reduce_centroids_impl(const prm::ndview<Float, 2>& data,
+                          const prm::ndview<std::int32_t, 2>& labels,
+                          const prm::ndview<Float, 2>& centroids,
+                          const prm::ndview<Float, 2>& partial_centroids,
+                          const std::uint32_t num_parts, 
                           const bk::event_vector& deps = {}) {
         // TODO partial_centroids_.fill(0);
         const Float* data_ptr = data.get_data();
@@ -106,10 +119,9 @@ public:
         const std::int32_t* counters_ptr = counters_.get_data();
         auto event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            const auto row_count = this->row_count_;
-            const auto column_count = this->column_count_;
-            const auto num_centroids = this->num_centroids_;
-            const auto num_parts = this->num_parts_;
+            const auto row_count = data.get_shape()[0];
+            const auto column_count = data.get_shape()[0];
+            const auto num_centroids = centroids.get_shape()[0];
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ 16, num_parts }, { 16, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -167,15 +179,19 @@ public:
         });
         return final_event;
     }
-
-    sycl::event count_clusters(prm::ndview<std::int32_t, 2>& labels,
+    sycl::event count_clusters(const prm::ndview<std::int32_t, 2>& labels,
+                               const bk::event_vector& deps = {}) {
+        counters_.fill(queue_, 0).wait_and_throw();
+        return count_clusters_impl(labels, counters_, deps);
+    }
+    sycl::event count_clusters_impl(const prm::ndview<std::int32_t, 2>& labels,
+                                prm::ndview<std::int32_t, 1>& counters,
                                const bk::event_vector& deps = {}) {
         const std::int32_t* label_ptr = labels.get_data();
-        std::int32_t* counter_ptr = counters_.get_mutable_data();
-        std::uint32_t* value_ptr = &num_empty_clusters_;
+        std::int32_t* counter_ptr = counters.get_mutable_data();
         auto event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            const auto row_count = this->row_count_;
+            const auto row_count = labels.get_shape()[0];
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ 16, 128 }, { 16, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -207,6 +223,7 @@ public:
                     }
                 });
         });
+        std::int32_t* value_ptr = num_empty_clusters_.get_mutable_data();
         auto final_event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on({ event });
             const auto num_centroids = this->num_centroids_;
@@ -231,12 +248,12 @@ public:
         });
         return final_event;
     }
-    sycl::event compute_objective_function(const bk::event_vector& deps = {}) {
-        const Float* distance_ptr = closest_distances_.get_data();
-        Float* value_ptr = &objective_function_;
+    sycl::event compute_objective_function(const prm::ndview<Float, 1>& closest_distances, const bk::event_vector& deps = {}) {
+        const Float* distance_ptr = closest_distances.get_data();
+        Float* value_ptr = obj_func_.get_mutable_data();
+        const auto row_count = closest_distances.get_shape()[0];
         auto event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            const auto row_count = this->row_count_;
             cgh.parallel_for(bk::make_multiple_nd_range_2d({ 16, 1 }, { 16, 1 }),
                              [=](sycl::nd_item<2> item) {
                                  auto sg = item.get_sub_group();
@@ -245,7 +262,7 @@ public:
                                      return;
                                  const std::uint32_t local_id = sg.get_local_id()[0];
                                  const std::uint32_t local_range = sg.get_local_range()[0];
-                                 Float sum = 0;
+                                 Float sum = 0; 
                                  for (std::uint32_t i = local_id; i < row_count; i += local_range) {
                                      sum += distance_ptr[i];
                                  }
@@ -259,10 +276,12 @@ public:
     }
 
     std::int64_t get_num_empty_clusters() {
-        return num_empty_clusters_;
+        auto num = num_empty_clusters_.to_host(queue_);
+        return num.get_data()[0];
     }
     Float get_objective_function() {
-        return objective_function_;
+        auto obj_func = obj_func_.to_host(queue_);
+        return obj_func.get_data()[0];
     }
 
 private:
@@ -270,15 +289,15 @@ private:
     prm::ndarray<Float, 2> partial_centroids_;
     prm::ndarray<std::int32_t, 1> counters_;
     prm::ndarray<Float, 1> closest_distances_;
+    prm::ndarray<Float, 1> obj_func_;
+    prm::ndarray<std::int32_t, 1> num_empty_clusters_;
     sycl::queue queue_;
     std::int64_t row_count_;
     std::int64_t column_count_;
     std::int64_t num_centroids_;
-    std::uint32_t num_empty_clusters_;
     std::uint32_t num_parts_ = 126;
     std::uint32_t num_blocks_;
     std::uint32_t block_rows_;
-    Float objective_function_;
 };
 #endif
 

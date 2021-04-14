@@ -52,6 +52,19 @@ dal_test_suite(
 )
 
 dal_test_suite(
+    name = "unit_tests",
+    framework = "catch2",
+    private = True,
+    compile_as = [ "dpc++" ],
+    srcs = glob([
+        "test/unit/*.cpp",
+    ]),
+    dal_deps = [
+        ":kmeans",
+    ],
+)
+
+dal_test_suite(
     name = "tests",
     tests = [
         ":cpu_tests",

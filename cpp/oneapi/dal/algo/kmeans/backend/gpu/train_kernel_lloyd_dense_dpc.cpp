@@ -122,7 +122,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                            { cluster_count, column_count },
                                                            sycl::usm::alloc::device);
         auto arr_labels =
-            prm::ndarray<std::int32_t, 1>::empty(queue, row_count, sycl::usm::alloc::device);
+            prm::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_distances =
             prm::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
 

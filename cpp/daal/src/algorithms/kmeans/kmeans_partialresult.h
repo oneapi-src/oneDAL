@@ -26,8 +26,10 @@
 
 #include "algorithms/kmeans/kmeans_types.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 using namespace daal::data_management;
+using namespace daal::data_management::internal;
 
 namespace daal
 {
@@ -53,16 +55,35 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     size_t nClusters = kmPar2 ? kmPar2->nClusters : kmPar1->nClusters;
 
     services::Status status;
-    set(nObservations, HomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
-    DAAL_CHECK_STATUS_VAR(status);
-    set(partialSums, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
-    DAAL_CHECK_STATUS_VAR(status);
-    set(partialObjectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
-    DAAL_CHECK_STATUS_VAR(status);
-    set(partialCandidatesDistances, HomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
-    DAAL_CHECK_STATUS_VAR(status);
-    set(partialCandidatesCentroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
-    DAAL_CHECK_STATUS_VAR(status);
+    auto & context    = services::internal::getDefaultContext();
+    auto & deviceInfo = context.getInfoDevice();
+
+    if (deviceInfo.isCpu) {
+        set(nObservations, HomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialSums, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialObjectiveFunction, HomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialCandidatesDistances, HomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialCandidatesCentroids, HomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+    }
+    else
+    {
+        set(nObservations, SyclHomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialSums, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialObjectiveFunction, SyclHomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialCandidatesDistances, SyclHomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+        set(partialCandidatesCentroids, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, NumericTable::doAllocate, &status));
+        DAAL_CHECK_STATUS_VAR(status);
+
+    }
 
     const Input * step1Input = dynamic_cast<const Input *>(input);
 
