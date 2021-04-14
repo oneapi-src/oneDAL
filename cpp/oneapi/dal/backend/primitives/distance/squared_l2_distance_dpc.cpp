@@ -108,8 +108,16 @@ sycl::event distance<Float, squared_l2_metric<Float>>::initialize(const ndview<F
                                                                   const event_vector& deps) {
     auto init1_event = initialize_helper(helper1_, inp1, deps);
     auto init2_event = initialize_helper(helper2_, inp2, deps);
+    const auto events_deleter = [](const event_vector* events) { 
+        std::cerr << "before wait" << std::endl << std::flush;
+        sycl::event::wait(*events);
+        std::cerr << "after wait" << std::endl << std::flush;
+        delete events; 
+    };
+    auto initializers = std::unique_ptr<const event_vector, decltype(events_deleter)>(
+                    new const event_vector{ init1_event, init2_event }, events_deleter);
     return q_.submit([&](sycl::handler& h) {
-        h.depends_on({init1_event, init2_event});
+        h.depends_on(*(initializers.get()));
     });
 }
 
