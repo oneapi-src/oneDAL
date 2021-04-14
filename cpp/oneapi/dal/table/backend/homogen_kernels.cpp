@@ -377,11 +377,11 @@ ONEDAL_FORCEINLINE void override_policy(const Policy& policy,
     const auto block_queue_opt = block_data.get_queue();
 
     if constexpr (detail::is_data_parallel_policy_v<Policy>) {
-        check_if_same_context(policy.get_queue(), block_queue_opt, origin_queue_opt);
+        is_same_context_ignore_nullopt(policy.get_queue(), block_queue_opt, origin_queue_opt);
         body(policy);
     }
     else if (block_queue_opt.has_value()) {
-        check_if_same_context(*block_queue_opt, origin_queue_opt);
+        is_same_context_ignore_nullopt(*block_queue_opt, origin_queue_opt);
         body(detail::data_parallel_policy{ *block_queue_opt });
     }
     else if (origin_queue_opt.has_value()) {

@@ -15,10 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
-// #include "oneapi/dal/table/backend/empty_table_impl.hpp"
-
-using std::int64_t;
 
 namespace oneapi::dal {
 namespace detail {

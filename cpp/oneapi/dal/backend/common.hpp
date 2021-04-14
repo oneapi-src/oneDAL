@@ -120,75 +120,72 @@ template <typename T>
 inline constexpr bool has_get_optional_queue_v = has_get_optional_queue<T>::value;
 
 template <typename QueueLike>
-inline bool is_same_context_impl(const sycl::queue& reference, QueueLike&& queue_like) {
+struct queue_like_traits {
     using queue_like_t = std::decay_t<QueueLike>;
-    constexpr bool is_queue = std::is_same_v<queue_like_t, sycl::queue>;
-    constexpr bool is_opt_queue = std::is_same_v<queue_like_t, std::optional<sycl::queue>>;
-    constexpr bool has_get_queue = has_get_queue_v<queue_like_t>;
-    constexpr bool has_get_optional_queue = has_get_optional_queue_v<queue_like_t>;
+    static constexpr bool is_queue = std::is_same_v<queue_like_t, sycl::queue>;
+    static constexpr bool is_optional_queue =
+        std::is_same_v<queue_like_t, std::optional<sycl::queue>>;
+    static constexpr bool has_get_queue = has_get_queue_v<queue_like_t>;
+    static constexpr bool has_get_optional_queue = has_get_optional_queue_v<queue_like_t>;
+    static constexpr bool is_valid =
+        is_queue || is_optional_queue || has_get_queue || has_get_optional_queue;
+};
 
-    static_assert(is_queue || is_opt_queue || has_get_queue || has_get_optional_queue,
-                  "Unknown object type, cannot extract queue");
+template <typename QueueLike>
+inline std::optional<sycl::queue> extract_queue(QueueLike&& queue_like) {
+    static_assert(queue_like_traits<QueueLike>::is_valid,
+                  "Invalid queue-like object, cannot extract queue");
 
-    if constexpr (is_queue) {
-        return reference.get_context() == queue_like.get_context();
+    if constexpr (queue_like_traits<QueueLike>::is_queue ||
+                  queue_like_traits<QueueLike>::is_optional_queue) {
+        return queue_like;
     }
-    else if constexpr (is_opt_queue) {
-        if (queue_like) {
-            return reference.get_context() == queue_like->get_context();
-        }
-    }
-    else if constexpr (has_get_queue) {
-        return reference.get_context() == queue_like.get_queue().get_context();
-    }
-    else if constexpr (has_get_optional_queue) {
-        auto optional_queue = queue_like.get_queue();
-        if (optional_queue) {
-            return reference.get_context() == optional_queue->get_context();
-        }
+    else if constexpr (queue_like_traits<QueueLike>::has_get_queue ||
+                       queue_like_traits<QueueLike>::has_get_optional_queue) {
+        return queue_like.get_queue();
     }
 
+    return std::nullopt;
+}
+
+template <typename QueueLike>
+inline bool is_same_context_impl(const sycl::queue& reference, QueueLike&& queue_like) {
+    const auto optional_queue = extract_queue(std::forward<QueueLike>(queue_like));
+    return optional_queue && (optional_queue->get_context() == reference.get_context());
+}
+
+template <typename QueueLike>
+inline bool is_same_context_ignore_nullopt_impl(const sycl::queue& reference,
+                                                QueueLike&& queue_like) {
+    const auto optional_queue = extract_queue(std::forward<QueueLike>(queue_like));
+    if (optional_queue) {
+        return optional_queue->get_context() == reference.get_context();
+    }
     return true;
 }
 
 template <typename QueueLike>
 inline bool is_same_device_impl(const sycl::queue& reference, QueueLike&& queue_like) {
-    using queue_like_t = std::decay_t<QueueLike>;
-    constexpr bool is_queue = std::is_same_v<queue_like_t, sycl::queue>;
-    constexpr bool is_opt_queue = std::is_same_v<queue_like_t, std::optional<sycl::queue>>;
-    constexpr bool has_get_queue = has_get_queue_v<queue_like_t>;
-    constexpr bool has_get_optional_queue = has_get_optional_queue_v<queue_like_t>;
-
-    static_assert(is_queue || is_opt_queue || has_get_queue || has_get_optional_queue,
-                  "Unknown object type, cannot extract queue");
-
-    if constexpr (is_queue) {
-        return reference.get_device() == queue_like.get_device();
-    }
-    else if constexpr (is_opt_queue) {
-        if (queue_like) {
-            return reference.get_device() == queue_like->get_device();
-        }
-    }
-    else if constexpr (has_get_queue) {
-        return reference.get_device() == queue_like.get_queue().get_device();
-    }
-    else if constexpr (has_get_optional_queue) {
-        auto optional_queue = queue_like.get_queue();
-        if (optional_queue) {
-            return reference.get_device() == optional_queue->get_device();
-        }
-    }
-
-    ONEDAL_ASSERT(!"Unreachable");
-    return false;
+    const auto optional_queue = extract_queue(std::forward<QueueLike>(queue_like));
+    return optional_queue && (optional_queue->get_device() == reference.get_device());
 }
 
+/// Checks wether all queue-like objects have the same context.
 template <typename... QueueLike>
 inline bool is_same_context(const sycl::queue& reference, QueueLike&&... queues_like) {
     return (... && is_same_context_impl(reference, std::forward<QueueLike>(queues_like)));
 }
 
+/// Checks wether all queue-like objects have the same context. The queue-like
+/// objects, which does not carry context, do not participate in comparison.
+template <typename... QueueLike>
+inline bool is_same_context_ignore_nullopt(const sycl::queue& reference,
+                                           QueueLike&&... queues_like) {
+    return (... &&
+            is_same_context_ignore_nullopt_impl(reference, std::forward<QueueLike>(queues_like)));
+}
+
+/// Checks wether all queue-like objects have the same device.
 template <typename... QueueLike>
 inline bool is_same_device(const sycl::queue& reference, QueueLike&&... queues_like) {
     return (... && is_same_device_impl(reference, std::forward<QueueLike>(queues_like)));
