@@ -79,25 +79,6 @@ struct DAAL_EXPORT ParameterBase : public daal::algorithms::classifier::interfac
 };
 /* [interface1::ParameterBase source code] */
 
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__MULTI_CLASS_CLASSIFIER__PARAMETER"></a>
- * \brief Optional multi-class classifier algorithm  parameters that are used with the MultiClassClassifierWu prediction method  \DAAL_DEPRECATED
- *
- * \snippet multi_class_classifier/multi_class_classifier_model.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public ParameterBase
-{
-    DAAL_DEPRECATED Parameter(size_t nClasses, size_t maxIterations = 100, double accuracyThreshold = 1.0e-12)
-        : ParameterBase(nClasses), maxIterations(maxIterations), accuracyThreshold(accuracyThreshold)
-    {}
-
-    size_t maxIterations;     /*!< Maximum number of iterations */
-    double accuracyThreshold; /*!< Convergence threshold */
-
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface1::Parameter source code] */
 } // namespace interface1
 
 /**

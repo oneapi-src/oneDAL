@@ -1,6 +1,5 @@
-/* file: svm_train_boser_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,37 +14,25 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of SVM boser training algorithm.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/svm/inner/svm_train_batch_container_v1.h"
-#include "src/algorithms/svm/svm_train_boser_kernel.h"
-#include "src/algorithms/svm/svm_train_boser_impl.i"
+#include "oneapi/dal/table/homogen.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace svm
-{
-namespace training
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, boser, DAAL_CPU>;
-}
-namespace internal
-{
-template struct SVMTrainImpl<boser, DAAL_FPTYPE, DAAL_CPU>;
-} // namespace internal
+namespace oneapi::dal::detail {
+namespace v1 {
 
-} // namespace training
+/// Retrieves original data from homogen table including information about
+/// mutability. If the table was created from custom implementation, returns
+/// empty array.
+///
+/// @param[in] t Table to extract the data from
+/// @return      Original array of bytes held in the table.
+///              If the table was created from mutable data object,
+///              this array contains mutable data.
+ONEDAL_EXPORT array<byte_t> get_original_data(const homogen_table& t);
 
-} // namespace svm
+} // namespace v1
 
-} // namespace algorithms
+using v1::get_original_data;
 
-} // namespace daal
+} // namespace oneapi::dal::detail
