@@ -93,7 +93,7 @@ sycl::event compute_inner_product(sycl::queue& q,
                                                   const ndview<F, 2>&,      \
                                                   const ndview<F, 2>&,      \
                                                   ndview<F, 2>&,            \
-                                                  const event_vector&);     
+                                                  const event_vector&);
 
 INSTANTIATE(float);
 INSTANTIATE(double);
