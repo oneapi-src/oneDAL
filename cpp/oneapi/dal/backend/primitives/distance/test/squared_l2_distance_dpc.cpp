@@ -95,6 +95,21 @@ public:
         distance_event.wait_and_throw();
         squared_l2_groundtruth_check(output);
     }
+    
+    void test_squared_l2_distance_initialized(){
+        auto input1_arr = row_accessor<const Float>{ input_table1_ }.pull(this->get_queue());
+        auto input2_arr = row_accessor<const Float>{ input_table2_ }.pull(this->get_queue());
+        auto input1 =
+            ndview<Float, 2>::wrap(input1_arr.get_data(), { r_count1_ , c_count_ });
+        auto input2 =
+            ndview<Float, 2>::wrap(input2_arr.get_data(), { r_count2_ , c_count_ });
+        auto [output, output_event] = this->output();
+        distance<Float, squared_l2_metric<Float>> sql2_distance(this->get_queue());
+        auto initialize_event = sql2_distance.initialize(input1, input2);
+        auto distance_event = sql2_distance(input1, input2, output, {output_event, initialize_event});
+        distance_event.wait_and_throw();
+        squared_l2_groundtruth_check(output);
+    }
 
 private:
     table input_table1_;
@@ -111,6 +126,7 @@ TEMPLATE_LIST_TEST_M(sql2_distance_test_random,
     SKIP_IF(this->not_float64_friendly());
     this->generate();
     this->test_squared_l2_distance();
+    this->test_squared_l2_distance_initialized();
 }
 
 } // namespace oneapi::dal::backend::primitives::test

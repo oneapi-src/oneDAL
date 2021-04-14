@@ -96,7 +96,7 @@ template<typename Float>
 sycl::event distance<Float, squared_l2_metric<Float>>::initialize_helper(helper_ptr_t& out_helper_ptr,
                                                                          const ndview<Float, 2>& inp1,
                                                                          const event_vector& deps) {
-    ONEDAL_ASSERT(!is_initialized(helper.get()));
+    ONEDAL_ASSERT(!is_initialized(out_helper_ptr.get()));
     auto [res_helper_ptr, res_event] = helper_t::initialize(q_, inp1, deps);
     out_helper_ptr = helper_ptr_t(res_helper_ptr);
     return res_event;
