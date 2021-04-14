@@ -39,7 +39,7 @@ public:
     explicit row_accessor(const table& table) : pull_iface_(detail::get_pull_rows_iface(table)) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::table_does_not_provide_read_access_to_rows() };
+            throw invalid_argument{ msg::object_does_not_provide_read_access_to_rows() };
         }
     }
 
@@ -48,12 +48,12 @@ public:
               push_iface_(detail::get_push_rows_iface(builder)) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::table_builder_does_not_provide_read_access_to_rows() };
+            throw invalid_argument{ msg::object_does_not_provide_read_access_to_rows() };
         }
 
         if (!is_readonly && !push_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::table_builder_does_not_provide_write_access_to_rows() };
+            throw invalid_argument{ msg::object_does_not_provide_write_access_to_rows() };
         }
     }
 

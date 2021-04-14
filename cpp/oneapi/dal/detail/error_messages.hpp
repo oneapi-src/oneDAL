@@ -102,12 +102,10 @@ public:
     MSG(unsupported_conversion_types);
     MSG(rc_leq_zero);
     MSG(cc_leq_zero);
-    MSG(table_does_not_provide_read_access_to_rows);
-    MSG(table_builder_does_not_provide_read_access_to_rows);
-    MSG(table_builder_does_not_provide_write_access_to_rows);
-    MSG(table_does_not_provide_read_access_to_columns);
-    MSG(table_builder_does_not_provide_read_access_to_columns);
-    MSG(table_builder_does_not_provide_write_access_to_columns);
+    MSG(object_does_not_provide_read_access_to_rows);
+    MSG(object_does_not_provide_write_access_to_rows);
+    MSG(object_does_not_provide_read_access_to_columns);
+    MSG(object_does_not_provide_write_access_to_columns);
 
     /* Ranges */
     MSG(invalid_range_of_rows);

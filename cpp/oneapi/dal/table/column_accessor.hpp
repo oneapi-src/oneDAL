@@ -42,7 +42,7 @@ public:
             : pull_iface_(detail::get_pull_column_iface(table)) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::table_does_not_provide_read_access_to_columns() };
+            throw invalid_argument{ msg::object_does_not_provide_read_access_to_columns() };
         }
     }
 
@@ -51,12 +51,12 @@ public:
               push_iface_(detail::get_push_column_iface(builder)) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::table_builder_does_not_provide_read_access_to_columns() };
+            throw invalid_argument{ msg::object_does_not_provide_read_access_to_columns() };
         }
 
         if (!is_readonly && !push_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::table_builder_does_not_provide_write_access_to_columns() };
+            throw invalid_argument{ msg::object_does_not_provide_write_access_to_columns() };
         }
     }
 
