@@ -216,8 +216,7 @@ private:
 
     template <typename Y>
     void check_array_has_ownership_structure(const array_impl<Y>& ref) {
-        if (ref.get_if_cshared() == nullptr &&
-            ref.get_if_shared() == nullptr) {
+        if (ref.get_if_cshared() == nullptr && ref.get_if_shared() == nullptr) {
             throw internal_error(
                 dal::detail::error_messages::array_does_not_contain_ownership_structure());
         }
