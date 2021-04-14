@@ -30,12 +30,13 @@ auto distance<Float, squared_l2_metric<Float>>::get_norms(const ndview<Float, 2>
 }
 
 template <typename Float>
-sycl::event distance<Float, squared_l2_metric<Float>>::operator()(const ndview<Float, 2>& inp1,
-                                                                  const ndview<Float, 2>& inp2,
-                                                                  ndview<Float, 2>& out,
-                                                                  const ndview<Float, 1>& inp1_norms,
-                                                                  const ndview<Float, 1>& inp2_norms,
-                                                                  const event_vector& deps) const {
+sycl::event distance<Float, squared_l2_metric<Float>>::operator()(
+    const ndview<Float, 2>& inp1,
+    const ndview<Float, 2>& inp2,
+    ndview<Float, 2>& out,
+    const ndview<Float, 1>& inp1_norms,
+    const ndview<Float, 1>& inp2_norms,
+    const event_vector& deps) const {
     auto scatter_event = scatter_2d(q_, inp1_norms, inp2_norms, out, { deps });
     return compute_inner_product(q_, inp1, inp2, out, { scatter_event });
 }
