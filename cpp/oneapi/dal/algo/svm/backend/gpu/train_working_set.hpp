@@ -133,7 +133,8 @@ public:
             std::uint32_t* ws_indices_ptr = ws_indices_.get_mutable_data();
             const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
 
-            copy_event = dal::backend::copy(queue_, ws_indices_ptr + n_selected_,
+            copy_event = dal::backend::copy(queue_,
+                                            ws_indices_ptr + n_selected_,
                                             buff_indices_ptr,
                                             n_copy,
                                             { select_event });
@@ -166,11 +167,13 @@ public:
             std::uint32_t* ws_indices_ptr = ws_indices_.get_mutable_data();
             const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
 
-            copy_event = dal::backend::copy(queue_, ws_indices_ptr + n_selected_,
+            copy_event = dal::backend::copy(queue_,
+                                            ws_indices_ptr + n_selected_,
                                             buff_indices_ptr + n_lower_select - n_copy,
-                                            n_copy, { select_event });
+                                            n_copy,
+                                            { select_event });
 
-                n_selected_ += n_copy;
+            n_selected_ += n_copy;
         }
 
         if (n_selected_ < n_ws_) {
@@ -198,7 +201,8 @@ public:
             std::uint32_t* ws_indices_ptr = ws_indices_.get_mutable_data();
             const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
 
-            copy_event = dal::backend::copy(queue_, ws_indices_ptr + n_selected_,
+            copy_event = dal::backend::copy(queue_,
+                                            ws_indices_ptr + n_selected_,
                                             buff_indices_ptr,
                                             n_copy,
                                             { select_event });
