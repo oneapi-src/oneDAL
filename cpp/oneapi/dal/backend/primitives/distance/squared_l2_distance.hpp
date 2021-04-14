@@ -27,15 +27,16 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 sycl::event compute_squared_l2_norms(sycl::queue& q,
-                          const ndview<Float, 2>& inp,
-                          ndview<Float, 1>& out,
-                          const event_vector& deps = {});
+                                     const ndview<Float, 2>& inp,
+                                     ndview<Float, 1>& out,
+                                     const event_vector& deps = {});
 
 template <typename Float>
-std::tuple<array<Float>, sycl::event> compute_squared_l2_norms(sycl::queue& q,
-                                                                const ndview<Float, 2>& inp,
-                                                                const event_vector& deps = {},
-                                                                const sycl::usm::alloc& alloc = sycl::usm::alloc::shared);
+std::tuple<array<Float>, sycl::event> compute_squared_l2_norms(
+    sycl::queue& q,
+    const ndview<Float, 2>& inp,
+    const event_vector& deps = {},
+    const sycl::usm::alloc& alloc = sycl::usm::alloc::shared);
 
 template <typename Float>
 sycl::event scatter_2d(sycl::queue& q,
@@ -45,11 +46,11 @@ sycl::event scatter_2d(sycl::queue& q,
                        const event_vector& deps = {});
 
 template <typename Float>
-sycl::event inner_product(sycl::queue& q,
-                          const ndview<Float, 2>& inp1,
-                          const ndview<Float, 2>& inp2,
-                          ndview<Float, 2>& out,
-                          const event_vector& deps = {});
+sycl::event compute_inner_product(sycl::queue& q,
+                                  const ndview<Float, 2>& inp1,
+                                  const ndview<Float, 2>& inp2,
+                                  ndview<Float, 2>& out,
+                                  const event_vector& deps = {});
 
 #endif
 

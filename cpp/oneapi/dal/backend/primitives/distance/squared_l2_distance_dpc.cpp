@@ -24,17 +24,17 @@ namespace oneapi::dal::backend::primitives {
 
 template <typename Float>
 sycl::event compute_squared_l2_norms(sycl::queue& q,
-                          const ndview<Float, 2>& inp,
-                          ndview<Float, 1>& out,
-                          const event_vector& deps) {
+                                     const ndview<Float, 2>& inp,
+                                     ndview<Float, 1>& out,
+                                     const event_vector& deps) {
     return reduce_by_rows(q, inp, out, sum<Float>{}, square<Float>{}, deps);
 }
 
 template <typename Float>
 std::tuple<array<Float>, sycl::event> compute_squared_l2_norms(sycl::queue& q,
-                                                    const ndview<Float, 2>& inp,
-                                                    const event_vector& deps,
-                                                    const sycl::usm::alloc& alloc) {
+                                                               const ndview<Float, 2>& inp,
+                                                               const event_vector& deps,
+                                                               const sycl::usm::alloc& alloc) {
     const auto n_samples = inp.get_dimension(0);
     auto res_array = array<Float>::empty(q, n_samples, alloc);
     auto res_wrapper = ndview<Float, 1>::wrap(res_array.get_mutable_data(), { n_samples });
@@ -43,10 +43,10 @@ std::tuple<array<Float>, sycl::event> compute_squared_l2_norms(sycl::queue& q,
 
 template <typename Float>
 sycl::event scatter_2d(sycl::queue& q,
-                          const ndview<Float, 1>& inp1,
-                          const ndview<Float, 1>& inp2,
-                          ndview<Float, 2>& out,
-                          const event_vector& deps) {
+                       const ndview<Float, 1>& inp1,
+                       const ndview<Float, 1>& inp2,
+                       ndview<Float, 2>& out,
+                       const event_vector& deps) {
     const auto out_stride = out.get_leading_stride();
     const auto n_samples1 = inp1.get_dimension(0);
     const auto n_samples2 = inp2.get_dimension(0);
@@ -66,45 +66,50 @@ sycl::event scatter_2d(sycl::queue& q,
 }
 
 template <typename Float>
-sycl::event inner_product(sycl::queue& q,
-                          const ndview<Float, 2>& inp1,
-                          const ndview<Float, 2>& inp2,
-                          ndview<Float, 2>& out,
-                          const event_vector& deps) {
+sycl::event compute_inner_product(sycl::queue& q,
+                                  const ndview<Float, 2>& inp1,
+                                  const ndview<Float, 2>& inp2,
+                                  ndview<Float, 2>& out,
+                                  const event_vector& deps) {
     check_inputs(inp1, inp2, out);
     return gemm(q, inp1, inp2.t(), out, Float(-2.0), Float(+1.0), deps);
 }
 
-template<typename Float>
-sycl::event compute_squared_l2_distance(sycl::queue& q, 
-                                        const ndview<Float, 2>& inp1, 
+template <typename Float>
+sycl::event compute_squared_l2_distance(sycl::queue& q,
+                                        const ndview<Float, 2>& inp1,
                                         const ndview<Float, 2>& inp2,
                                         ndview<Float, 2>& out,
                                         const event_vector& deps) {
     check_inputs(inp1, inp2, out);
-    auto [l2_inp1_arr, l2_inp1_event] = get_norms(q, inp1, deps);
+    auto [l2_inp1_arr, l2_inp1_event] = compute_squared_l2_norms(q, inp1, deps);
     auto [l2_inp2_arr, l2_inp2_event] = get_norms(q, inp2, deps);
-    auto scatter_event = scatter_norms(q, l2_inp1_arr, l2_inp2_arr, out,
-                                    { l2_inp1_event, l2_inp2_event });
+    auto scatter_event =
+        scatter_norms(q, l2_inp1_arr, l2_inp2_arr, out, { l2_inp1_event, l2_inp2_event });
     return inner_product(q, inp1, inp2, out, { scatter_event });
 }
 
-#define INSTANTIATE(F)                                                                              \
-    template std::tuple<array<F>, sycl::event> compute_squared_l2_norms<F>(sycl::queue&,            \
-                                                                           const ndview<F, 2>&,     \
-                                                                           const event_vector&,     \
-                                                                           const sycl::usm::alloc&);\
-    template sycl::event scatter_2d<F>(sycl::queue& q, \
-                                       const ndview<F, 1>&,\
-                                       const ndview<F, 1>&,\
-                                       ndview<F, 2>&,\
-                                       const event_vector&);\
-    template sycl::event inner_product<F>(sycl::queue& q, \
-                                       const ndview<F, 2>&,\
-                                       const ndview<F, 2>&,\
-                                       ndview<F, 2>&,\
-                                       const event_vector&);
-
+#define INSTANTIATE(F)                                                      \
+    template sycl::event compute_squared_l2_norms<F>(sycl::queue&,          \
+                                                     const ndview<F, 2>&,   \
+                                                     ndview<F, 1>&,         \
+                                                     const event_vector&);  \
+    template std::tuple<array<F>, sycl::event> compute_squared_l2_norms<F>( \
+        sycl::queue&,                                                       \
+        const ndview<F, 2>&,                                                \
+        const event_vector&,                                                \
+        const sycl::usm::alloc&);                                           \
+    template sycl::event scatter_2d<F>(sycl::queue & q,                     \
+                                       const ndview<F, 1>&,                 \
+                                       const ndview<F, 1>&,                 \
+                                       ndview<F, 2>&,                       \
+                                       const event_vector&);                \
+    template sycl::event compute_inner_product<F>(sycl::queue & q,          \
+                                                  const ndview<F, 2>&,      \
+                                                  const ndview<F, 2>&,      \
+                                                  ndview<F, 2>&,            \
+                                                  const event_vector&);     \
+    template class distance<F, squared_l2_metric<F>>;
 
 INSTANTIATE(float);
 INSTANTIATE(double);

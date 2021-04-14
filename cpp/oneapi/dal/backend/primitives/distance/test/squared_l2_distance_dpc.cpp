@@ -165,7 +165,7 @@ template <typename Float>
 class inner_product_test_random : public te::float_algo_fixture<Float> {
 public:
     void generate() {
-        init_val_ = GENERATE(0.1, 500.0); 
+        init_val_ = GENERATE(0.1, 5.0); 
         r_count1_ = GENERATE(17, 31);
         r_count2_ = GENERATE(7, 29);
         c_count_ = GENERATE(3, 13);
@@ -218,7 +218,7 @@ public:
         auto input2 =
             ndview<Float, 2>::wrap(input2_arr.get_data(), { r_count2_ , c_count_ });
         auto [output, output_event] = this->output();
-        auto ip_event = inner_product(this->get_queue(), input1, input2, output, {output_event});
+        auto ip_event = compute_inner_product(this->get_queue(), input1, input2, output, {output_event});
         ip_event.wait_and_throw();
         inner_product_check(output);
     }
