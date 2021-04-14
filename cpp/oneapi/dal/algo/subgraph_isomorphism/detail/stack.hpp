@@ -7,8 +7,8 @@ namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 class stack {
 public:
-    stack();
-    stack(std::int64_t max_size);
+    stack(inner_alloc _allocator);
+    stack(std::int64_t max_size, inner_alloc _allocator);
     virtual ~stack();
     stack(stack&& _stack);
     stack& operator=(stack&& _stack);
@@ -21,6 +21,8 @@ public:
     void clear_state(std::int64_t index);
     void add(stack& _stack);
 
+    inner_alloc _allocator;
+
 private:
     std::int64_t max_stack_size;
     std::int64_t stack_size;
@@ -32,9 +34,11 @@ private:
 
 class vertex_stack {
 public:
-    vertex_stack();
-    vertex_stack(const std::uint64_t max_states_size);
-    vertex_stack(const std::uint64_t max_states_size, const std::uint64_t* pdata);
+    vertex_stack(inner_alloc _allocator);
+    vertex_stack(const std::uint64_t max_states_size, inner_alloc _allocator);
+    vertex_stack(const std::uint64_t max_states_size,
+                 const std::uint64_t* pdata,
+                 inner_alloc _allocator);
     virtual ~vertex_stack();
 
     graph_status push(const std::uint64_t vertex_id);
@@ -42,6 +46,8 @@ public:
     bool delete_vertex();
     std::uint64_t size() const;
     std::uint64_t max_size() const;
+
+    inner_alloc _allocator;
 
 private:
     std::uint64_t stack_size;
@@ -55,10 +61,14 @@ private:
 
 class dfs_stack {
 public:
-    dfs_stack();
-    dfs_stack(const std::uint64_t levels);
-    dfs_stack(const std::uint64_t levels, const std::uint64_t max_states_size);
-    dfs_stack(const std::uint64_t levels, const std::uint64_t* max_states_size_per_level);
+    dfs_stack(inner_alloc _allocator);
+    dfs_stack(const std::uint64_t levels, inner_alloc _allocator);
+    dfs_stack(const std::uint64_t levels,
+              const std::uint64_t max_states_size,
+              inner_alloc _allocator);
+    dfs_stack(const std::uint64_t levels,
+              const std::uint64_t* max_states_size_per_level,
+              inner_alloc _allocator);
     virtual ~dfs_stack();
     void init(const std::uint64_t levels);
     void init(const std::uint64_t levels, const std::uint64_t max_states_size);
@@ -81,6 +91,8 @@ public:
     void fill_solution(std::int64_t* solution_core, const std::uint64_t last_vertex_id) const;
 
     void delete_current_state();
+
+    inner_alloc _allocator;
 
 protected:
     std::uint64_t max_level_size;

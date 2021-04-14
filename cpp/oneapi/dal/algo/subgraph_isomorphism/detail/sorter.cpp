@@ -1,9 +1,10 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/sorter.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/debug.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-sorter::sorter() {
+sorter::sorter(inner_alloc allocator) : _allocator(allocator) {
     p_degree_probability = nullptr;
     p_vertex_attribute_probability = nullptr;
     degree_max_size = 0;
@@ -15,29 +16,28 @@ sorter::~sorter() {
     target = nullptr;
 
     if (p_degree_probability != nullptr) {
-        _mm_free(p_degree_probability);
+        _allocator.deallocate<float>(p_degree_probability, degree_max_size);
         p_degree_probability = nullptr;
     }
 
     if (p_vertex_attribute_probability != nullptr) {
-        _mm_free(p_vertex_attribute_probability);
+        _allocator.deallocate<float>(p_vertex_attribute_probability, vertex_attribute_max_size);
         p_vertex_attribute_probability = nullptr;
     }
 }
 
-sorter::sorter(const graph* ptarget) : sorter() {
+sorter::sorter(const graph* ptarget, inner_alloc allocator) : sorter(allocator) {
     target = ptarget;
     degree_max_size = target->get_max_degree() + 1;
     vertex_attribute_max_size = target->get_max_vertex_attribute() + 1;
 
     std::int64_t vertex_count = target->get_vertex_count();
 
-    p_degree_probability = static_cast<float*>(_mm_malloc(sizeof(float) * degree_max_size, 64));
+    p_degree_probability = _allocator.allocate<float>(degree_max_size);
     if (p_degree_probability == nullptr) {
         return;
     }
-    p_vertex_attribute_probability =
-        static_cast<float*>(_mm_malloc(sizeof(float) * vertex_attribute_max_size, 64));
+    p_vertex_attribute_probability = _allocator.allocate<float>(vertex_attribute_max_size);
     if (p_vertex_attribute_probability == nullptr) {
         return;
     }
@@ -102,8 +102,8 @@ graph_status sorter::sorting_pattern_vertices(const graph& pattern,
     std::int64_t bit_array_size = bit_vector::bit_vector_size(vertex_count);
     std::int64_t sorted_vertex_iterator = 0;
 
-    bit_vector vertex_candidates(bit_array_size);
-    bit_vector filling_mask(bit_array_size);
+    bit_vector vertex_candidates(bit_array_size, _allocator.get_byte_allocator());
+    bit_vector filling_mask(bit_array_size, _allocator.get_byte_allocator());
 
     std::int64_t index =
         find_minimum_probability_index_by_mask(pattern, pattern_vertex_probability);
@@ -274,7 +274,7 @@ std::int64_t sorter::get_core_linked_degree(const graph& pattern,
                                             const std::uint8_t* pbit_mask) const {
     std::int64_t vertex_count = pattern.get_vertex_count();
     std::int64_t bit_array_size = bit_vector::bit_vector_size(vertex_count);
-    bit_vector vertex_candidates(bit_array_size);
+    bit_vector vertex_candidates(bit_array_size, _allocator.get_byte_allocator());
     std::int64_t core_degree = 0;
 
     vertex_candidates |= pattern.p_edges_bit[vertex];
@@ -293,7 +293,8 @@ graph_status sorter::dfs_tree_search_width_evaluation(const graph& pattern,
                                                       const float* pattern_vertex_probability,
                                                       const edge_direction* direction,
                                                       const sconsistent_conditions* cconditions,
-                                                      std::int64_t* tree_search_width) const {
+                                                      std::int64_t* tree_search_width,
+                                                      byte_alloc_iface* alloc_ptr) const {
     if (sorted_pattern_vertex == nullptr || pattern_vertex_probability == nullptr ||
         direction == nullptr || cconditions == nullptr || tree_search_width == nullptr) {
         return bad_allocation;

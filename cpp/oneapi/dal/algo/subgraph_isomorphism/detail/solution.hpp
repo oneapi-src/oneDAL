@@ -10,17 +10,19 @@ struct state {
     std::int64_t* core;
     std::int64_t core_length;
 
-    state();
-    state(std::int64_t length);
-    state(state& parent_state, std::int64_t new_element);
-    state(state* parent_state, std::int64_t new_element);
+    state(inner_alloc a);
+    state(std::int64_t length, inner_alloc a);
+    state(state& parent_state, std::int64_t new_element, inner_alloc a);
+    state(state* parent_state, std::int64_t new_element, inner_alloc a);
     ~state();
+
+    inner_alloc _allocator;
 };
 
 class solution {
 public:
-    solution();
-    solution(const std::int64_t length, const std::int64_t* pattern_vertices);
+    solution(inner_alloc a);
+    solution(const std::int64_t length, const std::int64_t* pattern_vertices, inner_alloc a);
     virtual ~solution();
 
     solution(solution&& sol);
@@ -33,6 +35,8 @@ public:
     graph_status add(solution& _solution);
     graph_status add(solution&& _solution);
     oneapi::dal::homogen_table export_as_table();
+
+    inner_alloc _allocator;
 
 private:
     std::int64_t** data;

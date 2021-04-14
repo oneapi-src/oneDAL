@@ -8,18 +8,23 @@ struct sconsistent_conditions {
     std::int64_t* array;
     std::int64_t divider;
     std::int64_t length;
+    inner_alloc _allocator;
     void init(std::int64_t size) {
         length = size;
-        array = static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * length, 64));
+        array = _allocator.allocate<std::int64_t>(length);
         divider = length;
     }
-    sconsistent_conditions() : array(nullptr), length(0), divider(length) {}
-    sconsistent_conditions(std::int64_t size) {
+    sconsistent_conditions(inner_alloc allocator)
+            : array(nullptr),
+              length(0),
+              divider(length),
+              _allocator(allocator) {}
+    sconsistent_conditions(std::int64_t size, inner_alloc allocator) : _allocator(allocator) {
         init(size);
     }
     ~sconsistent_conditions() {
         if (array != nullptr) {
-            _mm_free(array);
+            _allocator.deallocate<std::int64_t>(array, length);
             array = nullptr;
         }
     }
@@ -27,9 +32,10 @@ struct sconsistent_conditions {
 
 class sorter {
 public:
-    sorter();
-    sorter(const graph* ptarget);
+    sorter(inner_alloc allocator);
+    sorter(const graph* ptarget, inner_alloc allocator);
     virtual ~sorter();
+    inner_alloc _allocator;
 
     graph_status get_pattern_vertex_probability(const graph& pattern,
                                                 float* pattern_vertex_probability) const;
@@ -47,7 +53,8 @@ public:
                                                   const float* pattern_vertex_probability,
                                                   const edge_direction* direction,
                                                   const sconsistent_conditions* cconditions,
-                                                  std::int64_t* tree_search_width) const;
+                                                  std::int64_t* tree_search_width,
+                                                  byte_alloc_iface* alloc_ptr) const;
 
 private:
     const graph* target;

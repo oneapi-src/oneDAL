@@ -16,3 +16,13 @@ bazel-*
 
 # Bazel directories
 bazel-*
+cpp/oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.cpp
+cpp/oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp
+dev/make/common.mk
+examples/oneapi/cpp/makefile_lnx
+examples/oneapi/data/si_pattern_graph.csv
+examples/oneapi/data/si_target_graph.csv
+dev/make/common.mk
+examples/oneapi/cpp/makefile_lnx
+examples/oneapi/data/si_pattern_graph.csv
+examples/oneapi/data/si_target_graph.csv

@@ -165,6 +165,8 @@ $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
 	$(CC) $(COPTS) $< -o $@ $(LOPTS)
 
 $(RES_DIR)/%.res:  $(RES_DIR)/%.exe
-	$< > $@
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose --log-file=_valgrind-out.txt  $<
+	# gdb --args $<
+	# $<
 
 %/.:; mkdir -p $*
