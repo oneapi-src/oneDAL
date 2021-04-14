@@ -43,16 +43,16 @@ sycl::event compute_rbf(sycl::queue& queue,
 
     const Float threshold = dal::backend::exp_treshold<Float>();
 
-    auto compute_rbf_event = queue.submit([&](sycl::handler& chg) {
-        chg.depends_on(deps);
+    auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
 
         const auto g_0 = dal::detail::integral_cast<std::size_t>(sqr_x.get_dimension(0));
         const auto g_1 = dal::detail::integral_cast<std::size_t>(sqr_y.get_dimension(0));
         const auto range = sycl::range<2>(g_0, g_1);
 
-        chg.parallel_for(range, [=](sycl::id<2> id) {
-            const int i = id[0];
-            const int j = id[1];
+        cgh.parallel_for(range, [=](sycl::id<2> id) {
+            const std::size_t i = id[0];
+            const std::size_t j = id[1];
             const Float sqr_x_i = sqr_x_ptr[i];
             const Float sqr_y_j = sqr_y_ptr[j];
             const Float res_rbf_ij = res_rbf_ptr[i * ld + j];
@@ -72,10 +72,10 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
 
     auto& queue = ctx.get_queue();
 
-    const int64_t row_count_x = x.get_row_count();
-    const int64_t col_count_x = x.get_column_count();
-    const int64_t row_count_y = y.get_row_count();
-    const int64_t col_count_y = y.get_column_count();
+    const std::int64_t row_count_x = x.get_row_count();
+    const std::int64_t col_count_x = x.get_column_count();
+    const std::int64_t row_count_y = y.get_row_count();
+    const std::int64_t col_count_y = y.get_column_count();
 
     ONEDAL_ASSERT(col_count_x == col_count_y);
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
@@ -115,9 +115,8 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
                 { reduce_x_event, reduce_y_event, gemm_event })
         .wait_and_throw();
 
-    return result_t{}.set_values(dal::detail::homogen_table_builder{}
-                                     .reset(ndarray_res.flatten(queue), row_count_x, row_count_y)
-                                     .build());
+    return result_t{}.set_values(
+        homogen_table::wrap(ndarray_res.flatten(queue), row_count_x, row_count_y));
 }
 
 template <typename Float>
