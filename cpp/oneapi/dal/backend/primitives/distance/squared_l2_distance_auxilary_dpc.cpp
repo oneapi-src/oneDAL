@@ -49,8 +49,8 @@ sycl::event scatter_2d(sycl::queue& q,
     const auto out_stride = out.get_leading_stride();
     const auto n_samples1 = inp1.get_dimension(0);
     const auto n_samples2 = inp2.get_dimension(0);
-    ONEDAL_ASSERT(n_samples1 <= out.get_dimension(1));
-    ONEDAL_ASSERT(n_samples2 <= out.get_dimension(0));
+    ONEDAL_ASSERT(n_samples1 <= out.get_dimension(0));
+    ONEDAL_ASSERT(n_samples2 <= out.get_dimension(1));
     const auto* inp1_ptr = inp1.get_data();
     const auto* inp2_ptr = inp2.get_data();
     auto* out_ptr = out.get_mutable_data();
