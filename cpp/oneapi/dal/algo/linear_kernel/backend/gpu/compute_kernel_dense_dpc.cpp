@@ -34,10 +34,10 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
 
     auto& queue = ctx.get_queue();
 
-    const int64_t row_count_x = x.get_row_count();
-    const int64_t col_count_x = x.get_column_count();
-    const int64_t row_count_y = y.get_row_count();
-    const int64_t col_count_y = y.get_column_count();
+    const std::int64_t row_count_x = x.get_row_count();
+    const std::int64_t col_count_x = x.get_column_count();
+    const std::int64_t row_count_y = y.get_row_count();
+    const std::int64_t col_count_y = y.get_column_count();
 
     ONEDAL_ASSERT(col_count_x == col_count_y);
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
@@ -54,16 +54,16 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto ndarray_res =
         pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
 
-    sycl::event event_res;
+    sycl::event fill_res_event;
     if (beta != 0.0) {
-        event_res = ndarray_res.fill(queue, Float(1));
+        fill_res_event = ndarray_res.fill(queue, Float(1));
     }
 
-    gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta, { event_res }).wait_and_throw();
+    gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta, { fill_res_event })
+        .wait_and_throw();
 
-    return result_t{}.set_values(dal::detail::homogen_table_builder{}
-                                     .reset(ndarray_res.flatten(queue), row_count_x, row_count_y)
-                                     .build());
+    return result_t{}.set_values(
+        homogen_table::wrap(ndarray_res.flatten(queue), row_count_x, row_count_y));
 }
 
 template <typename Float>
