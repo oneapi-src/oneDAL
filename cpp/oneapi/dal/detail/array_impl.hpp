@@ -167,7 +167,6 @@ public:
             if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
                 data_owned_ = shared(*ptr, data);
             }
-            ONEDAL_ASSERT(false);
         }
         else {
             using cshared_y = typename array_impl<Y>::cshared;
@@ -191,7 +190,6 @@ public:
             if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
                 data_owned_ = cshared(*ptr, data);
             }
-            ONEDAL_ASSERT(false);
         }
         else {
             using cshared_y = typename array_impl<Y>::cshared;
