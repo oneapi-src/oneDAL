@@ -50,7 +50,8 @@ ONEDAL_EXPORT void fill_relabeled_topology(const dal::detail::host_policy& polic
                                            const std::int32_t* new_ids);
 
 template <typename Allocator>
-inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
+struct relabel_by_greater_degree {
+inline void operator()(const dal::detail::host_policy& ctx,
                                       const dal::preview::detail::topology<std::int32_t>& t,
                                       std::int32_t* vertex_neighbors_relabel,
                                       std::int64_t* edge_offsets_relabel,
@@ -113,4 +114,5 @@ inline void relabel_by_greater_degree(const dal::detail::host_policy& ctx,
     oneapi::dal::preview::detail::deallocate(int64_allocator, offsets, vertex_count + 1);
     oneapi::dal::preview::detail::deallocate(int32_allocator, new_ids, vertex_count);
 }
+};
 } // namespace oneapi::dal::preview::triangle_counting::detail

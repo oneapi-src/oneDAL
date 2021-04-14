@@ -23,7 +23,8 @@
 namespace oneapi::dal::preview::triangle_counting::backend {
 
 template <typename Cpu>
-ONEDAL_FORCEINLINE std::int64_t intersection_local_tc(const std::int32_t* neigh_u,
+    struct intersection_local_tc {
+ONEDAL_FORCEINLINE std::int64_t operator()(const std::int32_t* neigh_u,
                                                       const std::int32_t* neigh_v,
                                                       std::int32_t n_u,
                                                       std::int32_t n_v,
@@ -46,6 +47,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection_local_tc(const std::int32_t* neigh_
     }
     return total;
 }
+};
 
 #if defined(__INTEL_COMPILER)
 ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
@@ -67,7 +69,8 @@ ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
 #endif
 
 template <>
-ONEDAL_FORCEINLINE std::int64_t intersection_local_tc<dal::backend::cpu_dispatch_avx512>(
+    struct intersection_local_tc<dal::backend::cpu_dispatch_avx512> {
+ONEDAL_FORCEINLINE std::int64_t operator()(
     const std::int32_t* neigh_u,
     const std::int32_t* neigh_v,
     std::int32_t n_u,
@@ -401,5 +404,6 @@ ONEDAL_FORCEINLINE std::int64_t intersection_local_tc<dal::backend::cpu_dispatch
     }
     return total;
 }
+};
 
 } // namespace oneapi::dal::preview::triangle_counting::backend
