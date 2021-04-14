@@ -144,7 +144,6 @@ public:
     }
 
     /// Creates a new ``homogen_table`` instance with zero number of rows and columns.
-    /// The :expr:`kind` is set to``homogen_table::kind()``.
     homogen_table();
 
     /// Creates a new ``homogen_table`` instance from externally-defined data block.
@@ -217,7 +216,8 @@ public:
 #endif
 
     /// Returns the :literal:`data` pointer cast to the :literal:`Data` type. No checks are
-    /// performed that this type is the actual type of the data within the table.
+    /// performed that this type is the actual type of the data within the table. If table
+    /// has no data, returns :literal:`nullptr`.
     template <typename Data>
     const Data* get_data() const {
         return reinterpret_cast<const Data*>(this->get_data());
@@ -241,18 +241,6 @@ protected:
         init_impl(std::forward<Impl>(impl));
     }
 
-    /// Creates a new ``homogen_table`` instance from externally-defined data block.
-    /// The created table stores the provided array object.
-    ///
-    /// @tparam Data         The type of elements in the data block that will be stored into the table.
-    ///                      The :literal:`Data` type should be at least :expr:`float`, :expr:`double`
-    ///                      or :expr:`std::int32_t`.
-    ///
-    /// @param data          The array that stores a homogeneous data block.
-    /// @param row_count     The number of rows in the table.
-    /// @param column_count  The number of columns in the table.
-    /// @param layout        The layout of the data. Should be :literal:`data_layout::row_major` or
-    ///                      :literal:`data_layout::column_major`.
     template <typename Data>
     homogen_table(const array<Data>& data,
                   std::int64_t row_count,
@@ -303,9 +291,8 @@ private:
         validate_input_dimensions(row_count, column_count);
 
         if (data.get_count() < detail::check_mul_overflow(row_count, column_count)) {
-            throw invalid_argument{
-                detail::error_messages::rc_and_cc_do_not_match_element_count_in_array()
-            };
+            using msg = detail::error_messages;
+            throw invalid_argument{ msg::rc_and_cc_do_not_match_element_count_in_array() };
         }
 
         detail::dispath_by_policy(data, [&](auto policy) {
@@ -328,11 +315,11 @@ private:
 
     static void validate_input_dimensions(std::int64_t row_count, std::int64_t column_count) {
         if (row_count <= 0) {
-            throw domain_error(detail::error_messages::rc_leq_zero());
+            throw domain_error{ detail::error_messages::rc_leq_zero() };
         }
 
         if (column_count <= 0) {
-            throw domain_error(detail::error_messages::cc_leq_zero());
+            throw domain_error{ detail::error_messages::cc_leq_zero() };
         }
     }
 };
