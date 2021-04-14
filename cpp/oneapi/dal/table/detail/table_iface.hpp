@@ -145,14 +145,12 @@ using homogen_table_builder_template = table_builder_template<homogen_table_buil
 
 using v1::table_iface;
 using v1::homogen_table_iface;
+using v1::table_template;
+using v1::dense_table_template;
+using v1::homogen_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
-using v1::dense_table_template;
-using v1::homogen_table_template;
-using v1::table_template;
 using v1::table_builder_template;
-using v1::dense_table_template;
-using v1::homogen_table_template;
 using v1::dense_table_builder_template;
 using v1::homogen_table_builder_template;
 
