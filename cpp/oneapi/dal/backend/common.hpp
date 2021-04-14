@@ -170,13 +170,13 @@ inline bool is_same_device_impl(const sycl::queue& reference, QueueLike&& queue_
     return optional_queue && (optional_queue->get_device() == reference.get_device());
 }
 
-/// Checks wether all queue-like objects have the same context.
+/// Checks whether all queue-like objects have the same context.
 template <typename... QueueLike>
 inline bool is_same_context(const sycl::queue& reference, QueueLike&&... queues_like) {
     return (... && is_same_context_impl(reference, std::forward<QueueLike>(queues_like)));
 }
 
-/// Checks wether all queue-like objects have the same context. The queue-like
+/// Checks whether all queue-like objects have the same context. The queue-like
 /// objects, which does not carry context, do not participate in comparison.
 template <typename... QueueLike>
 inline bool is_same_context_ignore_nullopt(const sycl::queue& reference,
@@ -185,7 +185,7 @@ inline bool is_same_context_ignore_nullopt(const sycl::queue& reference,
             is_same_context_ignore_nullopt_impl(reference, std::forward<QueueLike>(queues_like)));
 }
 
-/// Checks wether all queue-like objects have the same device.
+/// Checks whether all queue-like objects have the same device.
 template <typename... QueueLike>
 inline bool is_same_device(const sycl::queue& reference, QueueLike&&... queues_like) {
     return (... && is_same_device_impl(reference, std::forward<QueueLike>(queues_like)));
