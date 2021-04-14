@@ -56,12 +56,12 @@ public:
     sycl::event operator()(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            ndview<Float, 2>& out,
-                           const array<Float> inp1_norms,
-                           const array<Float> inp2_norms,
+                           const ndview<Float, 1>& inp1_norms,
+                           const ndview<Float, 1>& inp2_norms,
                            const event_vector& deps = {}) const;
 
 protected:
-    using norms_res_t = std::tuple<const array<Float>, sycl::event>;
+    using norms_res_t = std::tuple<ndarray<Float, 1>, sycl::event>;
     norms_res_t get_norms(const ndview<Float, 2>& inp, const event_vector& deps = {}) const;
 
 private:

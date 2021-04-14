@@ -32,11 +32,11 @@ sycl::event compute_squared_l2_norms(sycl::queue& q,
                                      const event_vector& deps = {});
 
 template <typename Float>
-std::tuple<array<Float>, sycl::event> compute_squared_l2_norms(
+std::tuple<ndarray<Float, 1>, sycl::event> compute_squared_l2_norms(
     sycl::queue& q,
     const ndview<Float, 2>& inp,
     const event_vector& deps = {},
-    const sycl::usm::alloc& alloc = sycl::usm::alloc::shared);
+    const sycl::usm::alloc& alloc = sycl::usm::alloc::device);
 
 template <typename Float>
 sycl::event scatter_2d(sycl::queue& q,

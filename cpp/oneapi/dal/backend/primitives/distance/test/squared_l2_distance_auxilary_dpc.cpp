@@ -77,10 +77,9 @@ public:
     void test_squared_l2_norms() {
         auto input_arr = row_accessor<const Float>{ input_table_ }.pull(this->get_queue());
         const auto input = ndview<Float, 2>::wrap(input_arr.get_data(), { r_count_, c_count_ });
-        auto [output_arr, norms_event] = compute_squared_l2_norms(this->get_queue(), input, {});
+        auto [output_arr, norms_event] = compute_squared_l2_norms(this->get_queue(), input, {}, sycl::usm::alloc::shared);
         norms_event.wait_and_throw();
-        const auto output = ndview<Float, 1>::wrap(output_arr.get_data(), { r_count_ });
-        squared_l2_norms_check(output);
+        squared_l2_norms_check(output_arr);
     }
 
 private:

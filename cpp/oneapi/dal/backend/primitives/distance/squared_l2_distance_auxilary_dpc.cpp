@@ -30,14 +30,13 @@ sycl::event compute_squared_l2_norms(sycl::queue& q,
 }
 
 template <typename Float>
-std::tuple<array<Float>, sycl::event> compute_squared_l2_norms(sycl::queue& q,
+std::tuple<ndarray<Float, 1>, sycl::event> compute_squared_l2_norms(sycl::queue& q,
                                                                const ndview<Float, 2>& inp,
                                                                const event_vector& deps,
                                                                const sycl::usm::alloc& alloc) {
     const auto n_samples = inp.get_dimension(0);
-    auto res_array = array<Float>::empty(q, n_samples, alloc);
-    auto res_wrapper = ndview<Float, 1>::wrap(res_array.get_mutable_data(), { n_samples });
-    return { res_array, compute_squared_l2_norms(q, inp, res_wrapper, deps) };
+    auto res_array = ndarray<Float, 1>::empty(q, { n_samples }, alloc);
+    return { res_array, compute_squared_l2_norms(q, inp, res_array, deps) };
 }
 
 template <typename Float>
@@ -79,7 +78,7 @@ sycl::event compute_inner_product(sycl::queue& q,
                                                      const ndview<F, 2>&,   \
                                                      ndview<F, 1>&,         \
                                                      const event_vector&);  \
-    template std::tuple<array<F>, sycl::event> compute_squared_l2_norms<F>( \
+    template std::tuple<ndarray<F, 1>, sycl::event> compute_squared_l2_norms<F>( \
         sycl::queue&,                                                       \
         const ndview<F, 2>&,                                                \
         const event_vector&,                                                \

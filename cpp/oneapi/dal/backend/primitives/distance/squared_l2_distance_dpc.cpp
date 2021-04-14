@@ -26,22 +26,17 @@ template <typename Float>
 auto distance<Float, squared_l2_metric<Float>>::get_norms(const ndview<Float, 2>& inp,
                                                           const event_vector& deps) const
     -> norms_res_t {
-    auto [res_array, res_event] = compute_squared_l2_norms(q_, inp, deps);
-    return { res_array, res_event };
+    return compute_squared_l2_norms(q_, inp, deps);
 }
 
 template <typename Float>
 sycl::event distance<Float, squared_l2_metric<Float>>::operator()(const ndview<Float, 2>& inp1,
                                                                   const ndview<Float, 2>& inp2,
                                                                   ndview<Float, 2>& out,
-                                                                  const array<Float> inp1_norms,
-                                                                  const array<Float> inp2_norms,
+                                                                  const ndview<Float, 1>& inp1_norms,
+                                                                  const ndview<Float, 1>& inp2_norms,
                                                                   const event_vector& deps) const {
-    const auto inp1_norms_view =
-        ndview<Float, 1>::wrap(inp1_norms.get_data(), { inp1_norms.get_count() });
-    const auto inp2_norms_view =
-        ndview<Float, 1>::wrap(inp2_norms.get_data(), { inp2_norms.get_count() });
-    auto scatter_event = scatter_2d(q_, inp1_norms_view, inp2_norms_view, out, { deps });
+    auto scatter_event = scatter_2d(q_, inp1_norms, inp2_norms, out, { deps });
     return compute_inner_product(q_, inp1, inp2, out, { scatter_event });
 }
 
