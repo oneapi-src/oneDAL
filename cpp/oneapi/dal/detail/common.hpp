@@ -49,6 +49,28 @@
     } while (0)
 #endif
 
+#ifdef ONEDAL_DATA_PARALLEL
+#define __ONEDAL_IF_QUEUE__(optional_queue, ...) \
+    do {                                         \
+        if (optional_queue) {                    \
+            __VA_ARGS__                          \
+        }                                        \
+    } while (0)
+
+#define __ONEDAL_IF_NO_QUEUE__(optional_queue, ...) \
+    do {                                            \
+        if (!(optional_queue)) {                    \
+            __VA_ARGS__                             \
+        }                                           \
+    } while (0)
+#else
+#define __ONEDAL_IF_QUEUE__(optional_queue, ...)
+#define __ONEDAL_IF_NO_QUEUE__(optional_queue, ...) \
+    do {                                            \
+        __VA_ARGS__                                 \
+    } while (0)
+#endif
+
 namespace oneapi::dal::detail {
 namespace v1 {
 

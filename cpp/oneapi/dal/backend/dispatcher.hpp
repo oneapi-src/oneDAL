@@ -38,9 +38,7 @@ struct kernel_dispatcher {};
 
 class context_cpu {
 public:
-    context_cpu() : cpu_extensions_(detect_top_cpu_extension()) {}
-
-    explicit context_cpu(const detail::host_policy& ctx)
+    explicit context_cpu(const detail::host_policy& ctx = detail::host_policy::get_default())
             : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
 
     detail::cpu_extension get_enabled_cpu_extensions() const {

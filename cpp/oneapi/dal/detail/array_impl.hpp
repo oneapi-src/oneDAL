@@ -88,18 +88,18 @@ public:
         if (const auto& mut_ptr = std::get_if<shared>(&data_owned_)) {
             return mut_ptr->get();
         }
-        else {
-            const auto& immut_ptr = std::get<cshared>(data_owned_);
-            return immut_ptr.get();
+        else if (const auto& immut_ptr = std::get_if<cshared>(&data_owned_)) {
+            return immut_ptr->get();
         }
+        ONEDAL_ASSERT(false);
+        return nullptr;
     }
 
     T* get_mutable_data() const {
-        try {
-            const auto& mut_ptr = std::get<shared>(data_owned_);
-            return mut_ptr.get();
+        if (const auto& mut_ptr = std::get_if<shared>(&data_owned_)) {
+            return mut_ptr->get();
         }
-        catch (std::bad_variant_access&) {
+        else {
             throw internal_error(
                 dal::detail::error_messages::array_does_not_contain_mutable_data());
         }
@@ -163,11 +163,22 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            data_owned_ = shared(std::get<1>(ref.data_owned_), data);
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+                data_owned_ = shared(*ptr, data);
+            }
         }
         else {
-            data_owned_ = shared(std::get<0>(ref.data_owned_), data);
+            using cshared_y = typename array_impl<Y>::cshared;
+            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
+                data_owned_ = shared(*ptr, data);
+            }
+            else {
+                throw internal_error(
+                    dal::detail::error_messages::array_does_not_contain_ownership_structure());
+            }
         }
+
         count_ = count;
         reset_policy(ref);
     }
@@ -175,10 +186,20 @@ public:
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
         if (ref.has_mutable_data()) {
-            data_owned_ = cshared(std::get<1>(ref.data_owned_), data);
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+                data_owned_ = cshared(*ptr, data);
+            }
         }
         else {
-            data_owned_ = cshared(std::get<0>(ref.data_owned_), data);
+            using cshared_y = typename array_impl<Y>::cshared;
+            if (const auto& ptr = std::get_if<cshared_y>(&ref.data_owned_)) {
+                data_owned_ = cshared(*ptr, data);
+            }
+            else {
+                throw internal_error(
+                    dal::detail::error_messages::array_does_not_contain_ownership_structure());
+            }
         }
         count_ = count;
         reset_policy(ref);

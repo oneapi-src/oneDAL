@@ -48,6 +48,10 @@ public:
         return this->get_policy().is_gpu();
     }
 
+    bool multiclass_not_available_on_device() {
+        return this->get_policy().is_gpu();
+    }
+
     te::table_id get_homogen_table_id() const {
         return te::table_id::homogen<Float>();
     }

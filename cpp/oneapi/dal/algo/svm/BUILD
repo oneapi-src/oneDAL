@@ -15,6 +15,7 @@ dal_module(
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/svm:kernel",
+        "@onedal//cpp/daal/src/algorithms/multiclassclassifier:kernel",
     ]
 )
 
