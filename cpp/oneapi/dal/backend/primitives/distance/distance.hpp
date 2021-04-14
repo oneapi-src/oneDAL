@@ -62,13 +62,17 @@ public:
     ~distance();
                            
 protected:
-    using norms_res_t = std::tuple<const array<Float>, sycl::event>;
-    using helper_ptr_t = detail::unique<l2_helper<Float>>;
+    using helper_t = l2_helper<Float>;
+    using helper_ptr_t = detail::unique<helper_t>;
+        using norms_res_t = std::tuple<const array<Float>, sycl::event>;
     norms_res_t get_norms(const helper_ptr_t& helper,
                           const ndview<Float, 2>& inp,
                           const event_vector& deps = {}) const;
 
 private:
+    sycl::event initialize_helper(helper_ptr_t& helper, 
+                                  const ndview<Float, 2>& inp1,
+                                  const event_vector& deps = {});
     sycl::queue& q_;
     helper_ptr_t helper1_;
     helper_ptr_t helper2_;
