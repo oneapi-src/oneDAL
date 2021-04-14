@@ -32,9 +32,6 @@ public:
         static_assert(dal::detail::is_tag_one_of_v<Metric, distance_metric_tag>,
                       "Metric must be a special operation defined in metrics header");
     }
-    sycl::event initialize(const ndview<Float, 2>& inp1,
-                           const ndview<Float, 2>& inp2,
-                           const event_vector& deps = {});
     sycl::event operator()(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            ndview<Float, 2>& out,
@@ -51,31 +48,24 @@ class l2_helper;
 template <typename Float>
 class distance<Float, squared_l2_metric<Float>> {
 public:
-    distance(sycl::queue& q);
-    sycl::event initialize(const ndview<Float, 2>& inp1,
-                           const ndview<Float, 2>& inp2,
-                           const event_vector& deps = {});
+    distance(sycl::queue& q) : q_{ q } {};
     sycl::event operator()(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            ndview<Float, 2>& out,
                            const event_vector& deps = {}) const;
-    ~distance();
-                           
+    sycl::event operator()(const ndview<Float, 2>& inp1,
+                           const ndview<Float, 2>& inp2,
+                           ndview<Float, 2>& out,
+                           const array<Float> inp1_norms,
+                           const array<Float> inp2_norms,
+                           const event_vector& deps = {}) const;
+
 protected:
-    using helper_t = l2_helper<Float>;
-    using helper_ptr_t = detail::unique<helper_t>;
     using norms_res_t = std::tuple<const array<Float>, sycl::event>;
-    norms_res_t get_norms(const helper_ptr_t& helper,
-                          const ndview<Float, 2>& inp,
-                          const event_vector& deps = {}) const;
+    norms_res_t get_norms(const ndview<Float, 2>& inp, const event_vector& deps = {}) const;
 
 private:
-    sycl::event initialize_helper(helper_ptr_t& helper, 
-                                  const ndview<Float, 2>& inp1,
-                                  const event_vector& deps = {});
     sycl::queue& q_;
-    helper_ptr_t helper1_;
-    helper_ptr_t helper2_;
 };
 
 template <typename Float>

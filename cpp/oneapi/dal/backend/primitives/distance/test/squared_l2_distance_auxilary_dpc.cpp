@@ -58,11 +58,11 @@ public:
     }
 
     void squared_l2_norms_check(const ndview<Float, 1>& out, const Float atol = 1.e-3) {
-        for(std::int64_t i = 0; i < r_count_; ++i) {
-            const auto inp_row = row_accessor<const Float>{ input_table_ }
-                                                                .pull(this->get_queue(), {i, i + 1});
+        for (std::int64_t i = 0; i < r_count_; ++i) {
+            const auto inp_row =
+                row_accessor<const Float>{ input_table_ }.pull(this->get_queue(), { i, i + 1 });
             Float gtv = 0;
-            for(std::int64_t j = 0; j < c_count_; ++j) {
+            for (std::int64_t j = 0; j < c_count_; ++j) {
                 gtv += (inp_row[j] * inp_row[j]);
             }
             const Float val = *(out.get_data() + i);
@@ -76,13 +76,10 @@ public:
 
     void test_squared_l2_norms() {
         auto input_arr = row_accessor<const Float>{ input_table_ }.pull(this->get_queue());
-        const auto input =
-            ndview<Float, 2>::wrap(input_arr.get_data(), { r_count_ , c_count_ });
-        auto [output_arr, norms_event] = 
-                compute_squared_l2_norms(this->get_queue(), input, {});
+        const auto input = ndview<Float, 2>::wrap(input_arr.get_data(), { r_count_, c_count_ });
+        auto [output_arr, norms_event] = compute_squared_l2_norms(this->get_queue(), input, {});
         norms_event.wait_and_throw();
-        const auto output = 
-            ndview<Float, 1>::wrap(output_arr.get_data(), { r_count_ });
+        const auto output = ndview<Float, 1>::wrap(output_arr.get_data(), { r_count_ });
         squared_l2_norms_check(output);
     }
 
@@ -116,16 +113,15 @@ public:
     auto generate_input(std::int64_t size, Float factor = 1.0) {
         auto res_array = ndarray<Float, 1>::empty(this->get_queue(), { size });
         auto* out_ptr = res_array.get_mutable_data();
-        auto res_event = this->get_queue()
-                    .parallel_for(size, [=](sycl::id<1> idx) { 
-                        out_ptr[idx] = factor * Float(idx);
-                    });
+        auto res_event = this->get_queue().parallel_for(size, [=](sycl::id<1> idx) {
+            out_ptr[idx] = factor * Float(idx);
+        });
         return std::make_tuple(res_array, res_event);
     }
 
     void scatter_check(const ndview<Float, 2>& out, const Float atol = 1.e-3) {
-        for(std::int64_t i = 0; i < count1_; ++i) {
-            for(std::int64_t j = 0; j < count2_; ++j) {
+        for (std::int64_t i = 0; i < count1_; ++i) {
+            for (std::int64_t j = 0; j < count2_; ++j) {
                 const auto val = *(out.get_data() + out.get_leading_stride() * i + j);
                 const auto gtv = Float(i) - Float(j);
                 const auto diff = gtv - val;
@@ -141,8 +137,11 @@ public:
         auto [input1_arr, input1_event] = generate_input(count1_, +1.0);
         auto [input2_arr, input2_event] = generate_input(count2_, -1.0);
         auto [output_arr, output_event] = output();
-        auto scatter_event = scatter_2d(this->get_queue(), input1_arr, input2_arr, output_arr, 
-                    {input1_event, input2_event, output_event});
+        auto scatter_event = scatter_2d(this->get_queue(),
+                                        input1_arr,
+                                        input2_arr,
+                                        output_arr,
+                                        { input1_event, input2_event, output_event });
         scatter_event.wait_and_throw();
         scatter_check(output_arr);
     }
@@ -152,10 +151,7 @@ private:
     std::int64_t count2_;
 };
 
-TEMPLATE_LIST_TEST_M(scatter_2d_test,
-                     "Scatter 2d",
-                     "[l2][norms][aux][small]",
-                     types_to_check) {
+TEMPLATE_LIST_TEST_M(scatter_2d_test, "Scatter 2d", "[l2][norms][aux][small]", types_to_check) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
     this->test_scatter();
@@ -165,7 +161,7 @@ template <typename Float>
 class inner_product_test_random : public te::float_algo_fixture<Float> {
 public:
     void generate() {
-        init_val_ = GENERATE(0.1, 5.0); 
+        init_val_ = GENERATE(0.1, 5.0);
         r_count1_ = GENERATE(17, 31);
         r_count2_ = GENERATE(7, 29);
         c_count_ = GENERATE(3, 13);
@@ -181,23 +177,24 @@ public:
     }
 
     void generate_input() {
-        const auto input1_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ r_count1_, c_count_ }.fill_uniform(-0.2, 0.5));
+        const auto input1_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ r_count1_, c_count_ }.fill_uniform(-0.2, 0.5));
         this->input_table1_ = input1_dataframe.get_table(this->get_homogen_table_id());
-        const auto input2_dataframe =
-            GENERATE_DATAFRAME(te::dataframe_builder{ r_count2_, c_count_ }.fill_uniform(-0.5, 1.0));
+        const auto input2_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ r_count2_, c_count_ }.fill_uniform(-0.5, 1.0));
         this->input_table2_ = input2_dataframe.get_table(this->get_homogen_table_id());
     }
 
     void inner_product_check(const ndview<Float, 2>& out, const Float atol = 1.e-3) {
-        for(std::int64_t i = 0; i < r_count1_; ++i) {
-            const auto inp1_row = row_accessor<const Float>{ input_table1_ }
-                                                                .pull(this->get_queue(), {i, i + 1});
-            for(std::int64_t j = 0; j < r_count2_; ++j) {
-                const auto inp2_row = row_accessor<const Float>{ input_table2_ }
-                                                                .pull(this->get_queue(), {j, j + 1});
+        for (std::int64_t i = 0; i < r_count1_; ++i) {
+            const auto inp1_row =
+                row_accessor<const Float>{ input_table1_ }.pull(this->get_queue(), { i, i + 1 });
+            for (std::int64_t j = 0; j < r_count2_; ++j) {
+                const auto inp2_row =
+                    row_accessor<const Float>{ input_table2_ }.pull(this->get_queue(),
+                                                                    { j, j + 1 });
                 Float gtv = init_val_;
-                for(std::int64_t k = 0; k < c_count_; ++k) {
+                for (std::int64_t k = 0; k < c_count_; ++k) {
                     gtv += Float(-2.0) * inp1_row[k] * inp2_row[k];
                 }
                 const auto val = *(out.get_data() + out.get_leading_stride() * i + j);
@@ -210,15 +207,14 @@ public:
         }
     }
 
-    void test_inner_product(){
+    void test_inner_product() {
         auto input1_arr = row_accessor<const Float>{ input_table1_ }.pull(this->get_queue());
         auto input2_arr = row_accessor<const Float>{ input_table2_ }.pull(this->get_queue());
-        auto input1 =
-            ndview<Float, 2>::wrap(input1_arr.get_data(), { r_count1_ , c_count_ });
-        auto input2 =
-            ndview<Float, 2>::wrap(input2_arr.get_data(), { r_count2_ , c_count_ });
+        auto input1 = ndview<Float, 2>::wrap(input1_arr.get_data(), { r_count1_, c_count_ });
+        auto input2 = ndview<Float, 2>::wrap(input2_arr.get_data(), { r_count2_, c_count_ });
         auto [output, output_event] = this->output();
-        auto ip_event = compute_inner_product(this->get_queue(), input1, input2, output, {output_event});
+        auto ip_event =
+            compute_inner_product(this->get_queue(), input1, input2, output, { output_event });
         ip_event.wait_and_throw();
         inner_product_check(output);
     }

@@ -19,15 +19,6 @@
 namespace oneapi::dal::backend::primitives {
 
 template <typename Float, typename Metric>
-sycl::event distance<Float, Metric>::initialize(const ndview<Float, 2>& inp1,
-                                                const ndview<Float, 2>& inp2,
-                                                const event_vector& deps) {
-    return q_.submit([&](sycl::handler& h) {
-        h.depends_on(deps);
-    });
-}
-
-template <typename Float, typename Metric>
 sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
                                                 const ndview<Float, 2>& inp2,
                                                 ndview<Float, 2>& out,
