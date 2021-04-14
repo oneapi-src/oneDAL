@@ -51,7 +51,7 @@ class l2_helper;
 template <typename Float>
 class distance<Float, squared_l2_metric<Float>> {
 public:
-    distance(sycl::queue& q) : q_{ q } {}
+    distance(sycl::queue& q);
     sycl::event initialize(const ndview<Float, 2>& inp1,
                            const ndview<Float, 2>& inp2,
                            const event_vector& deps = {});
@@ -59,11 +59,19 @@ public:
                            const ndview<Float, 2>& inp2,
                            ndview<Float, 2>& out,
                            const event_vector& deps = {}) const;
+    ~distance();
+                           
+protected:
+    using norms_res_t = std::tuple<const array<Float>, sycl::event>;
+    using helper_ptr_t = detail::unique<l2_helper<Float>>;
+    norms_res_t get_norms(const helper_ptr_t& helper,
+                          const ndview<Float, 2>& inp,
+                          const event_vector& deps = {}) const;
 
 private:
     sycl::queue& q_;
-    detail::shared<l2_helper<Float>> helper1;
-    detail::shared<l2_helper<Float>> helper2;
+    helper_ptr_t helper1_;
+    helper_ptr_t helper2_;
 };
 
 template <typename Float>
