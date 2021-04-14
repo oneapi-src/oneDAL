@@ -112,14 +112,6 @@ class ONEDAL_EXPORT homogen_table_builder : public table_builder {
 public:
     homogen_table_builder();
 
-    template <typename Impl,
-              typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<is_homogen_table_builder_impl_v<ImplType> &&
-                                          !std::is_base_of_v<table_builder, ImplType>>>
-    homogen_table_builder(Impl&& impl)
-            : table_builder(
-                  new detail::homogen_table_builder_impl_wrapper(std::forward<Impl>(impl))) {}
-
     homogen_table build() {
         auto& impl = get_impl();
         return impl.build_homogen();

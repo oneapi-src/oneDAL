@@ -22,6 +22,7 @@ namespace oneapi::dal::test::engine::linalg {
 
 template <typename T, layout lyt, typename Op>
 inline void enumerate_row_first(const matrix<T, lyt>& m, Op&& op) {
+    m.check_if_host_accessible();
     for (std::int64_t i = 0; i < m.get_row_count(); i++) {
         for (std::int64_t j = 0; j < m.get_column_count(); j++) {
             op(i, j, m.get(i, j));
@@ -31,6 +32,7 @@ inline void enumerate_row_first(const matrix<T, lyt>& m, Op&& op) {
 
 template <typename T, layout lyt, typename Op>
 inline void enumerate_column_first(const matrix<T, lyt>& m, Op&& op) {
+    m.check_if_host_accessible();
     for (std::int64_t j = 0; j < m.get_column_count(); j++) {
         for (std::int64_t i = 0; i < m.get_row_count(); i++) {
             op(i, j, m.get(i, j));
@@ -40,7 +42,18 @@ inline void enumerate_column_first(const matrix<T, lyt>& m, Op&& op) {
 
 template <typename T, layout lyt, typename Op>
 inline void enumerate_linear(const matrix<T, lyt>& m, Op&& op) {
+    m.check_if_host_accessible();
     const T* m_ptr = m.get_data();
+    for (std::int64_t i = 0; i < m.get_count(); i++) {
+        op(i, m_ptr[i]);
+    }
+}
+
+template <typename T, layout lyt, typename Op>
+inline void enumerate_linear_mutable(matrix<T, lyt>& m, Op&& op) {
+    m.check_if_host_accessible();
+    ONEDAL_ASSERT(m.has_mutable_data());
+    T* m_ptr = m.get_mutable_data();
     for (std::int64_t i = 0; i < m.get_count(); i++) {
         op(i, m_ptr[i]);
     }
@@ -61,6 +74,7 @@ inline void enumerate(const matrix<T, lyt>& m, Op&& op) {
 
 template <typename T, layout lyt, typename Op>
 inline void for_each(const matrix<T, lyt>& m, Op&& op) {
+    m.check_if_host_accessible();
     enumerate_linear(m, [&](std::int64_t i, T x) {
         op(x);
     });

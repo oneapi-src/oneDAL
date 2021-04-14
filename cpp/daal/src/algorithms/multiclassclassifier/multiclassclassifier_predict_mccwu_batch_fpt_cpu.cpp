@@ -41,8 +41,7 @@ template class BatchContainer<DAAL_FPTYPE, multiClassClassifierWu, training::one
 }
 namespace internal
 {
-template class MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, DAAL_FPTYPE, classifier::prediction::Batch,
-                                                 multi_class_classifier::Parameter, DAAL_CPU>;
+template class DAAL_EXPORT MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
 } // namespace prediction
 } // namespace multi_class_classifier

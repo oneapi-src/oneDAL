@@ -223,7 +223,7 @@ constexpr std::int64_t get_topology_edge_count(const topology<IndexType>& _topol
 template <typename IndexType>
 constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
                                           const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::edge_size_type {
+    typename topology<IndexType>::vertex_edge_size_type {
     return _topology._degrees[vertex];
 }
 

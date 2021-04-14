@@ -1,6 +1,5 @@
-/* file: svm_predict_dense_default_batch_fpt_cpu_v1.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,34 +14,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of SVM Fast prediction algorithm.
-//--
-*/
+#include "oneapi/dal/table/detail/homogen_utils.hpp"
+#include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
-#include "src/algorithms/svm/inner/svm_predict_batch_container_v1.h"
-#include "src/algorithms/svm/svm_predict_kernel.h"
-#include "src/algorithms/svm/svm_predict_impl.i"
+namespace oneapi::dal::detail::v1 {
 
-namespace daal
-{
-namespace algorithms
-{
-namespace svm
-{
-namespace prediction
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+array<byte_t> get_original_data(const homogen_table& t) {
+    using impl_t = backend::homogen_table_impl;
+    using wrapper_t = homogen_table_impl_wrapper<impl_t>;
+
+    auto* impl_raw_ptr = dynamic_cast<wrapper_t*>(&get_impl(t));
+    if (impl_raw_ptr != nullptr) {
+        auto& homogen_impl = impl_raw_ptr->get();
+        return homogen_impl.get_data_array();
+    }
+    else {
+        return array<byte_t>{};
+    }
 }
-namespace internal
-{
-template struct SVMPredictImpl<defaultDense, DAAL_FPTYPE, DAAL_CPU>;
 
-} // namespace internal
-} // namespace prediction
-} // namespace svm
-} // namespace algorithms
-} // namespace daal
+} // namespace oneapi::dal::detail::v1
