@@ -42,23 +42,25 @@ sycl::event compute_rbf(sycl::queue& queue,
     Float* res_rbf_ptr = res_rbf.get_mutable_data();
 
     const Float threshold = dal::backend::exp_treshold<Float>();
+    const std::size_t l_dim = dal::detail::integral_cast<std::size_t>(ld);
+
+    const auto wg_size = dal::backend::propose_wg_size(queue);
+    const auto range =
+        dal::backend::make_multiple_nd_range_2d({ sqr_x.get_dimension(0), sqr_y.get_dimension(0) },
+                                                { wg_size, 1 });
 
     auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
 
-        const auto g_0 = dal::detail::integral_cast<std::size_t>(sqr_x.get_dimension(0));
-        const auto g_1 = dal::detail::integral_cast<std::size_t>(sqr_y.get_dimension(0));
-        const auto range = sycl::range<2>(g_0, g_1);
-
-        cgh.parallel_for(range, [=](sycl::id<2> id) {
-            const std::size_t i = id[0];
-            const std::size_t j = id[1];
+        cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
+            const std::size_t i = item.get_global_id(0);
+            const std::size_t j = item.get_global_id(1);
             const Float sqr_x_i = sqr_x_ptr[i];
             const Float sqr_y_j = sqr_y_ptr[j];
-            const Float res_rbf_ij = res_rbf_ptr[i * ld + j];
+            const Float res_rbf_ij = res_rbf_ptr[i * l_dim + j];
             const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
 
-            res_rbf_ptr[i * ld + j] = sycl::exp(arg);
+            res_rbf_ptr[i * l_dim + j] = sycl::exp(arg);
         });
     });
 
