@@ -65,7 +65,7 @@ public:
 
     void generate() {
         width_ = GENERATE(28, 784, 2000, 3072);
-        height_ = GENERATE(256, 1024, 4096);
+        height_ = GENERATE(256, 1024);
         check_if_initialized();
     }
 
@@ -140,16 +140,25 @@ public:
         ndview<Float, 1>& inp2_n_view = inp2_norms;
 
         this->get_queue().wait_and_throw();
-
         BENCHMARK(fmt::format("Squared L2 Norms computation: {}", desc()).c_str()) {
             compute_squared_l2_norms(this->get_queue(), inp1_a_view, inp1_n_view).wait_and_throw();
         };
         compute_squared_l2_norms(this->get_queue(), inp2_a_view, inp2_n_view).wait_and_throw();
 
+        this->get_queue().wait_and_throw();
+        BENCHMARK(fmt::format("Scatter L2 Norms computation: {}", desc()).c_str()) {
+            scatter_2d(this->get_queue(), inp1_n_view, inp2_n_view, out_array).wait_and_throw();
+        };
+
+        this->get_queue().wait_and_throw();
+        BENCHMARK(fmt::format("Inner-Product computation: {}", desc()).c_str()) {
+            compute_inner_product(this->get_queue(), inp1_a_view, inp2_a_view, out_array)
+                .wait_and_throw();
+        };
+
         squared_l2_distance<Float> distance(this->get_queue());
 
         this->get_queue().wait_and_throw();
-
         BENCHMARK(fmt::format("Squared L2 Distance computation: {}", desc()).c_str()) {
             distance(inp1_a_view, inp2_a_view, out_array, inp1_n_view, inp2_n_view)
                 .wait_and_throw();
