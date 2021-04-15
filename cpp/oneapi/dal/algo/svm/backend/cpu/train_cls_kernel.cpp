@@ -170,15 +170,13 @@ static result_t call_binary_daal_kernel(const context_cpu& ctx,
     auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
 
     daal::data_management::NumericTablePtr daal_labels;
-    if ((unique_label.first == Float(0.0)  && unique_label.second == Float(1.0)) ||
-        (unique_label.first == Float(1.0)  && unique_label.second == Float(0.0)) ||
+    if ((unique_label.first == Float(0.0) && unique_label.second == Float(1.0)) ||
+        (unique_label.first == Float(1.0) && unique_label.second == Float(0.0)) ||
         (unique_label.first == Float(-1.0) && unique_label.second == Float(1.0)) ||
-        (unique_label.first == Float(1.0)  && unique_label.second == Float(-1.0)))
-    {
+        (unique_label.first == Float(1.0) && unique_label.second == Float(-1.0))) {
         daal_labels = interop::convert_to_daal_table<Float>(labels);
     }
-    else
-    {
+    else {
         daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
     }
 
