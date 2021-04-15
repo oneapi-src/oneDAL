@@ -41,9 +41,6 @@ public:
     using leaf_t = leaf_node_info<task_t>;
     using split_t = split_node_info<task_t>;
 
-    node_visitor_impl(const node_visitor_impl&) = delete;
-    node_visitor_impl& operator=(const node_visitor_impl&) = delete;
-
     explicit node_visitor_impl(Visitor&& visitor) : visitor_(std::forward<Visitor>(visitor)) {}
 
     bool on_leaf_node(const leaf_t& desc) override {
