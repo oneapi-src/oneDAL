@@ -52,14 +52,13 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t component_count = get_component_count(desc, data);
 
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
     auto arr_eigvec = row_accessor<const Float>{ model.get_eigenvectors() }.pull(queue);
 
     dal::detail::check_mul_overflow(row_count, component_count);
     auto arr_result =
         array<Float>::empty(queue, row_count * component_count, sycl::usm::alloc::device);
 
-    const auto daal_data = interop::convert_to_daal_table(queue, arr_data, row_count, column_count);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
     const auto daal_eigenvectors =
         interop::convert_to_daal_table(queue, arr_eigvec, component_count, column_count);
     const auto daal_result =
