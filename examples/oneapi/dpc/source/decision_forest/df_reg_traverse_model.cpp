@@ -26,7 +26,7 @@ namespace df = dal::decision_forest;
 
 /** Visitor class, prints out tree nodes of the model when it is called back by model traversal method */
 struct print_node_visitor {
-    bool operator()(const df::leaf_node_info<df::task::regression> &info) {
+    bool operator()(const df::leaf_node_info<df::task::regression>& info) {
         std::cout << std::string(info.get_level() * 2, ' ');
         std::cout << "Level " << info.get_level()
                   << ", leaf node. Response value = " << info.get_label()
@@ -35,7 +35,7 @@ struct print_node_visitor {
         return true;
     }
 
-    bool operator()(const df::split_node_info<df::task::regression> &info) {
+    bool operator()(const df::split_node_info<df::task::regression>& info) {
         std::cout << std::string(info.get_level() * 2, ' ');
         std::cout << "Level " << info.get_level()
                   << ", split node. Feature index = " << info.get_feature_index()
@@ -47,7 +47,7 @@ struct print_node_visitor {
 };
 
 template <typename Task>
-void print_model(const df::model<Task> &m) {
+void print_model(const df::model<Task>& m) {
     std::cout << "Number of trees: " << m.get_tree_count() << std::endl;
     for (std::int64_t i = 0, n = m.get_tree_count(); i < n; ++i) {
         std::cout << "Tree #" << i << std::endl;
@@ -55,7 +55,7 @@ void print_model(const df::model<Task> &m) {
     }
 }
 
-void run(sycl::queue &q) {
+void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("df_regression_train_data.csv");
     const auto train_label_file_name = get_data_path("df_regression_train_label.csv");
     const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
@@ -76,13 +76,13 @@ void run(sycl::queue &q) {
         const auto result_train = dal::train(q, df_desc, x_train, y_train);
         print_model(result_train.get_model());
     }
-    catch (dal::unimplemented &e) {
+    catch (dal::unimplemented& e) {
         std::cout << "  " << e.what() << std::endl;
         return;
     }
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_info<sycl::info::device::name>() << "\n" << std::endl;
         auto q = sycl::queue{ d };
