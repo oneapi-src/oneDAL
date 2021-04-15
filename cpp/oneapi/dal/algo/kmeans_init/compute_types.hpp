@@ -37,7 +37,7 @@ using v1::compute_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::init`.
+///              be :expr:`task::init`.
 template <typename Task = task::by_default>
 class compute_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -65,7 +65,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`oneapi::dal::kmeans::task::v1::clustering`.
+///              be :expr:`oneapi::dal::kmeans::task::clustering`.
 template <typename Task = task::by_default>
 class compute_result {
     static_assert(detail::is_valid_task_v<Task>);

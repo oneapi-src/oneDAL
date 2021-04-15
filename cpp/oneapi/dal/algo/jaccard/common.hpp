@@ -39,19 +39,11 @@ public:
     using float_t = float;
     using method_t = method::by_default;
 
-    /// Constructs the empty descriptor
     descriptor_base();
 
-    /// Returns the begin of the row of the graph block
     auto get_row_range_begin() const -> std::int64_t;
-
-    /// Returns the end of the row of the graph block
     auto get_row_range_end() const -> std::int64_t;
-
-    /// Returns the begin of the column of the graph block
     auto get_column_range_begin() const -> std::int64_t;
-
-    /// Returns the end of the column of the graph block
     auto get_column_range_end() const -> std::int64_t;
 
 protected:
@@ -67,17 +59,42 @@ protected:
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
-template <typename Float = descriptor_base::float_t, typename Method = descriptor_base::method_t>
+template <typename Float = float, typename Method = method::by_default>
 class descriptor : public descriptor_base {
+    using base_t = descriptor_base;
+
 public:
     using method_t = Method;
+
+    /// Creates a new instance of the class with the default property values.
+    descriptor() = default;
+
+    /// Returns the beginning of the row of the graph block
+    std::int64_t get_row_range_begin() const {
+        return base_t::get_row_range_begin();
+    }
+
+    /// Returns the end of the row of the graph block
+    std::int64_t get_row_range_end() const {
+        return base_t::get_row_range_end();
+    }
+
+    /// Returns the beginning of the column of the graph block
+    std::int64_t get_column_range_begin() const {
+        return base_t::get_column_range_begin();
+    }
+
+    /// Returns the end of the column of the graph block
+    std::int64_t get_column_range_end() const {
+        return base_t::get_column_range_end();
+    }
 
     /// Sets the range of the rows of the graph block for Jaccard similarity computation
     ///
     /// @param [in] begin  The begin of the row of the graph block
     /// @param [in] end    The end of the row of the graph block
     auto& set_row_range(std::int64_t begin, std::int64_t end) {
-        this->set_row_range_impl(begin, end);
+        base_t::set_row_range_impl(begin, end);
         return *this;
     }
 
@@ -86,7 +103,7 @@ public:
     /// @param [in] begin  The begin of the column of the graph block
     /// @param [in] end    The end of the column of the graph block
     auto& set_column_range(std::int64_t begin, std::int64_t end) {
-        this->set_column_range_impl(begin, end);
+        base_t::set_column_range_impl(begin, end);
         return *this;
     }
 
@@ -97,7 +114,7 @@ public:
     /// @param [in] column_range  The range of the columns of the graph block
     auto& set_block(const std::initializer_list<std::int64_t>& row_range,
                     const std::initializer_list<std::int64_t>& column_range) {
-        this->set_block_impl(row_range, column_range);
+        base_t::set_block_impl(row_range, column_range);
         return *this;
     }
 };

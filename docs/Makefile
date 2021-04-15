@@ -36,7 +36,7 @@ doxygen:
 
 parse-doxygen: doxygen
 	mkdir -p build
-	python3 -m dalapi.doxypy.cli doxygen/xml --compact > build/tree.yaml
+	python -m dalapi.doxypy.cli doxygen/oneapi/doxygen/xml --compact > build/tree.yaml
 
 .PHONY: help Makefile create_rst_examples doxygen parse-doxygen
 

@@ -69,7 +69,7 @@ TEST(table_test, can_set_custom_implementation) {
         table_metadata m;
     };
 
-    table t{ table_impl{} };
+    auto t = dal::detail::make_private<table>(table_impl{});
     ASSERT_TRUE(t.has_data());
     ASSERT_EQ(t.get_kind(), table_impl{}.get_kind());
     ASSERT_EQ(data_layout::row_major, t.get_data_layout());

@@ -20,6 +20,14 @@ from typing import (Dict, Tuple, Text)
 from collections import OrderedDict, namedtuple
 from . import doxypy
 
+class NameTransformer(doxypy.NameTransformer):
+    _v_namespace_re = re.compile(r'::v\d+')
+
+    def transform(self, fully_qualified_name):
+        v_namespace_re = NameTransformer._v_namespace_re
+        return v_namespace_re.sub('', fully_qualified_name)
+
+
 @doxypy.model.model_object
 class Property(object):
     doc: doxypy.model.Doc = None
@@ -56,8 +64,6 @@ class PropertyTransformer(doxypy.TransformerPass):
         parent_fqn = f'{info.getter.parent_fully_qualified_name}::{name}'
         default = cls._find_default(info)
         decl = f'{info.getter.return_type} {name}'
-        if default:
-            decl += f' = {default}'
         return Property(
             doc = info.getter.doc,
             name = name,
@@ -83,9 +89,10 @@ class PropertyTransformer(doxypy.TransformerPass):
     def _get_properties_info(cls, node):
         getters = OrderedDict(cls._get_access_methods(node, 'get'))
         setters = OrderedDict(cls._get_access_methods(node, 'set'))
+        intersection = getters.keys() & setters.keys()
         PropertyInfo = namedtuple('PropertyInfo', ['getter', 'setter'])
-        for name in getters.keys():
-            yield name, PropertyInfo(getters[name], setters.get(name, None))
+        for name in intersection:
+            yield name, PropertyInfo(getters[name], setters[name])
 
     @classmethod
     def _get_access_methods(cls, node, direction):

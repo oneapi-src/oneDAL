@@ -26,7 +26,12 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
+MSG(array_does_not_contain_ownership_structure,
+    "Array is empty or does not contain ownership structure for the data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
+MSG(incompatible_array_reinterpret_cast_types,
+    "Cannot reinterpret array to provided type, "
+    "because resulting array size would not match source array size")
 MSG(only_homogen_table_is_supported, "Only homogen table is supported")
 MSG(overflow_found_in_multiplication_of_two_values,
     "Overflow found in multiplication of two values")
@@ -44,11 +49,17 @@ MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current contex
 MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 
+/* Primitives */
+MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
+MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
+MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
+
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
+MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
     "Element count in data type and feature type array does not match")
 MSG(pulling_column_is_not_supported_for_dpc, "Pulling column is not supported for DPC++")
@@ -59,12 +70,14 @@ MSG(pushing_column_is_not_supported_for_dpc, "Pushing column is not supported fo
 MSG(pushing_column_is_not_supported, "Pushing column is not supported")
 MSG(pushing_rows_is_not_supported_for_dpc, "Pushing rows is not supported for DPC++")
 MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
-MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(rc_and_cc_do_not_match_element_count_in_array,
+    "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
-MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(unsupported_conversion_types, "Unsupported conversion types")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
+MSG(invalid_range_of_columns, "Invalid range of columns")
 MSG(column_index_out_of_range, "Column index out of range")
 
 /* Graphs */
@@ -158,6 +171,8 @@ MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not impl
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
+MSG(svm_multiclass_not_implemented_for_gpu,
+    "SVM with multiclass support is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")

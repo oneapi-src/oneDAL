@@ -37,7 +37,7 @@ using v1::train_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::clustering`.
+///              be :expr:`task::clustering`.
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -78,7 +78,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::clustering`.
+///              be :expr:`task::clustering`.
 template <typename Task = task::by_default>
 class train_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -119,7 +119,7 @@ public:
     }
 
     /// The value of the objective function $\\Phi_X(C)$, where C is
-    /// :expr:`model.centroids` (see :expr:`kmeans::v1::model::centroids`).
+    /// :expr:`model.centroids`.
     /// @invariant :expr:`objective_function_value >= 0.0`
     double get_objective_function_value() const;
 

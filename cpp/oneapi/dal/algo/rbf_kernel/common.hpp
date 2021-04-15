@@ -74,8 +74,6 @@ public:
 
     descriptor_base();
 
-    /// The coefficient $\\sigma$ of the RBF kernel.
-    /// @remark default = 1.0
     double get_sigma() const;
 
 protected:
@@ -103,12 +101,12 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::dense`.
+///                be :expr:`method::dense`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::compute`.
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t>
+///                be :expr:`task::compute`.
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -120,6 +118,15 @@ public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
+
+    /// Creates a new instance of the class with the default property values.
+    descriptor() = default;
+
+    /// The coefficient $\\sigma$ of the RBF kernel.
+    /// @remark default = 1.0
+    double get_sigma() const {
+        return base_t::get_sigma();
+    }
 
     auto& set_sigma(double value) {
         base_t::set_sigma_impl(value);
