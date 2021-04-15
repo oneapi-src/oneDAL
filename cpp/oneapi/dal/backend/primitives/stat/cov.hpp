@@ -36,7 +36,7 @@ namespace oneapi::dal::backend::primitives {
 /// @param[out] tmp   The [p] temporary buffer
 template <typename Float>
 sycl::event correlation(sycl::queue& queue,
-                        const table& data,
+                        const ndview<Float, 2>& data,
                         const ndview<Float, 1>& sums,
                         ndview<Float, 2>& corr,
                         ndview<Float, 1>& means,

@@ -36,7 +36,6 @@ template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& q = ctx.get_queue();
     const auto data = input.get_data();
-    const auto alloc = sycl::usm::alloc::device;
 
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
@@ -46,44 +45,34 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     dal::detail::check_mul_overflow(component_count, column_count);
 
     row_accessor<const Float> data_acc{ data };
-    const auto data_arr = data_acc.pull(q, { 0, -1 }, alloc);
+    const auto data_arr = data_acc.pull(q, { 0, -1 }, sycl::usm::alloc::device);
 
     const auto data_nd =
         pr::ndview<Float, 2>::wrap(data_arr.get_data(), { row_count, column_count });
-    auto row_sums = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
+    auto sums = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
     auto reduce_event =
-        pr::reduce_by_columns(q, data_nd, row_sums, pr::sum<Float>{}, pr::identity<Float>{});
+        pr::reduce_by_columns(q, data_nd, sums, pr::sum<Float>{}, pr::identity<Float>{});
 
-    auto corr = pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, alloc);
-    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
-    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc);
+    auto corr =
+        pr::ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+    auto means = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+    auto tmp = pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
 
-    auto corr_event = pr::correlation(q, data, row_sums, corr, means, vars, tmp, { reduce_event });
+    auto corr_event = pr::correlation(q, data, sums, corr, means, vars, tmp, { reduce_event });
 
-    auto eigenvals = pr::ndarray<Float, 1>::empty(column_count);
     auto host_corr = corr.to_host(q, { corr_event });
-    pr::sym_eigvals_descending(host_corr, eigenvals);
-    auto eigenvecs = std::move(host_corr);
-
-    ONEDAL_ASSERT(component_count <= column_count);
-    const auto eigenvals_arr = array<Float>::empty(component_count);
-    const auto eigenvecs_arr = array<Float>::empty(component_count * column_count);
-
-    dal::backend::copy(eigenvals_arr.get_mutable_data(),
-                       eigenvals.get_data(),
-                       eigenvals_arr.get_count());
-    dal::backend::copy(eigenvecs_arr.get_mutable_data(),
-                       eigenvecs.get_data(),
-                       eigenvecs_arr.get_count());
+    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
+    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
+    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
 
     const auto model = model_t{}.set_eigenvectors(
-        homogen_table::wrap(eigenvecs_arr, component_count, column_count));
+        homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
 
     return result_t{}
         .set_model(model)
-        .set_eigenvalues(homogen_table::wrap(eigenvals_arr, 1, component_count))
+        .set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count))
         .set_means(homogen_table::wrap(means.flatten(q), 1, column_count))
         .set_variances(homogen_table::wrap(vars.flatten(q), 1, column_count));
 }

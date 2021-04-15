@@ -29,18 +29,33 @@ namespace la = te::linalg;
 template <typename Float>
 class cov_test : public te::float_algo_fixture<Float> {
 public:
+    ndarray<Float, 2> generate_diagonal_data(std::int64_t row_count,
+                                             std::int64_t column_count,
+                                             Float diag_element) {
+        ONEDAL_ASSERT(row_count >= column_count);
+
+        auto data = ndarray<Float, 2>::zeros({ row_count, column_count });
+        Float* data_ptr = data.get_mutable_data();
+        for (std::int64_t i = 0; i < column_count; i++) {
+            data_ptr[i * column_count + i] = diag_element;
+        }
+
+        return data.to_device(this->get_queue());
+    }
+
     auto allocate_arrays(std::int64_t column_count) {
         auto& q = this->get_queue();
-        auto sums = ndarray<Float, 1>::empty(q, { column_count });
-        auto corr = ndarray<Float, 2>::empty(q, { column_count, column_count });
-        auto means = ndarray<Float, 1>::empty(q, { column_count });
-        auto vars = ndarray<Float, 1>::empty(q, { column_count });
-        auto tmp = ndarray<Float, 1>::empty(q, { column_count });
+        auto sums = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+        auto corr =
+            ndarray<Float, 2>::empty(q, { column_count, column_count }, sycl::usm::alloc::device);
+        auto means = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+        auto vars = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+        auto tmp = ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
         return std::make_tuple(sums, corr, means, vars, tmp);
     }
 
-    void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) const {
-        const auto corr_mat = la::matrix<Float>::wrap_nd(corr);
+    void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) {
+        const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
         const double eps = te::get_tolerance<Float>(1e-4, 1e-6);
 
         la::enumerate(corr_mat, [&](std::int64_t i, std::int64_t j, Float x) {
@@ -61,8 +76,8 @@ public:
 
     void check_constant_variance(const ndarray<Float, 1>& vars,
                                  std::int64_t row_count,
-                                 double expected_var) const {
-        const auto vars_mat = la::matrix<Float>::wrap_nd(vars);
+                                 double expected_var) {
+        const auto vars_mat = la::matrix<Float>::wrap_nd(vars.to_host(this->get_queue()));
         const double eps = std::abs(expected_var) * te::get_tolerance_for_sum<Float>(row_count);
 
         la::enumerate_linear(vars_mat, [&](std::int64_t i, Float var) {
@@ -75,8 +90,8 @@ public:
 
     void check_constant_mean(const ndarray<Float, 1>& means,
                              std::int64_t row_count,
-                             double expected_mean) const {
-        const auto means_mat = la::matrix<Float>::wrap_nd(means);
+                             double expected_mean) {
+        const auto means_mat = la::matrix<Float>::wrap_nd(means.to_host(this->get_queue()));
         const double eps = std::abs(expected_mean) * te::get_tolerance_for_sum<Float>(row_count);
 
         la::enumerate_linear(means_mat, [&](std::int64_t i, Float mean) {
@@ -96,6 +111,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     SKIP_IF(this->not_float64_friendly());
 
     const float_t diag_element = 10.5;
+    const std::int64_t row_count = 10000;
+    const std::int64_t column_count = 1;
 
     // Generate dataset, where the upper square part of the matrix is diagonal
     // and the rest are zeros, for example:
@@ -103,12 +120,11 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     // [ 0 x 0 ]
     // [ 0 0 x ]
     // [ 0 0 0 ]
-    const auto df =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 1000000, 100 }.fill_diag(diag_element));
+    const auto data = this->generate_diagonal_data(row_count, column_count, diag_element);
+    ONEDAL_ASSERT(data.get_data());
 
-    auto [sums, corr, means, vars, tmp] = this->allocate_arrays(df.get_column_count());
+    auto [sums, corr, means, vars, tmp] = this->allocate_arrays(column_count);
     auto sums_event = sums.fill(this->get_queue(), diag_element);
-    const auto data = df.get_table(this->get_policy(), this->get_homogen_table_id());
 
     INFO("run correlation");
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
@@ -123,12 +139,12 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     // value.
 
     INFO("check if mean is expected")
-    double n = df.get_row_count();
+    double n = row_count;
     const double expected_mean = double(diag_element) / n;
     this->check_constant_mean(means, n, expected_mean);
 
     INFO("check if variance is expected")
-    n = df.get_row_count();
+    n = row_count;
     const double d = double(diag_element) * double(diag_element);
     ONEDAL_ASSERT(n > 1);
     const double expected_var = (d - d / n) / (n - 1.0);
@@ -141,7 +157,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
 
     constexpr std::int64_t column_count = 3;
     const float data_ptr[column_count] = { 0.1f, 0.2f, 0.3f };
-    const auto data = homogen_table::wrap(data_ptr, 1, column_count);
+    const auto data = ndview<float_t, 2>::wrap(data_ptr, { 1, column_count });
 
     auto [sums, corr, means, vars, tmp] = this->allocate_arrays(column_count);
     auto sums_event = sums.assign(this->get_queue(), data_ptr, column_count);

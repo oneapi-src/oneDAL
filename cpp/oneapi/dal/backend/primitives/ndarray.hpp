@@ -371,6 +371,12 @@ public:
         return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
     }
 
+    static ndarray zeros(const shape_t& shape) {
+        auto ary = empty(shape);
+        ary.fill(T(0));
+        return ary;
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     static ndarray empty(const sycl::queue& q,
                          const shape_t& shape,
@@ -440,6 +446,13 @@ public:
         return reshaped_ndarray_t{ data_, new_shape }.set_mutability(this->has_mutable_data());
     }
 
+    void fill(T value) {
+        T* data_ptr = this->get_mutable_data();
+        for (std::int64_t i = 0; i < this->get_count(); i++) {
+            data_ptr[i] = value;
+        }
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
         return q.submit([&](sycl::handler& cgh) {
@@ -480,7 +493,7 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
-        ndarray dev = empty(q, this->get_shape());
+        ndarray dev = empty(q, this->get_shape(), sycl::usm::alloc::device);
         dev.assign(q, this->get_mutable_data(), this->get_count(), deps).wait_and_throw();
         return dev;
     }
