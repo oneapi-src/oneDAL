@@ -111,8 +111,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     SKIP_IF(this->not_float64_friendly());
 
     const float_t diag_element = 10.5;
-    const std::int64_t row_count = 10000;
-    const std::int64_t column_count = 1;
+    const std::int64_t row_count = 1000000;
+    const std::int64_t column_count = 100;
 
     // Generate dataset, where the upper square part of the matrix is diagonal
     // and the rest are zeros, for example:
@@ -121,7 +121,6 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     // [ 0 0 x ]
     // [ 0 0 0 ]
     const auto data = this->generate_diagonal_data(row_count, column_count, diag_element);
-    ONEDAL_ASSERT(data.get_data());
 
     auto [sums, corr, means, vars, tmp] = this->allocate_arrays(column_count);
     auto sums_event = sums.fill(this->get_queue(), diag_element);
@@ -157,7 +156,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
 
     constexpr std::int64_t column_count = 3;
     const float data_ptr[column_count] = { 0.1f, 0.2f, 0.3f };
-    const auto data = ndview<float_t, 2>::wrap(data_ptr, { 1, column_count });
+    const auto data_host = ndarray<float_t, 2>::wrap(data_ptr, { 1, column_count });
+    const auto data = data_host.to_device(this->get_queue());
 
     auto [sums, corr, means, vars, tmp] = this->allocate_arrays(column_count);
     auto sums_event = sums.assign(this->get_queue(), data_ptr, column_count);

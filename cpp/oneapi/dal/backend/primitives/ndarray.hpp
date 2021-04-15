@@ -494,7 +494,7 @@ public:
 #ifdef ONEDAL_DATA_PARALLEL
     ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
         ndarray dev = empty(q, this->get_shape(), sycl::usm::alloc::device);
-        dev.assign(q, this->get_mutable_data(), this->get_count(), deps).wait_and_throw();
+        dev.assign(q, this->get_data(), this->get_count(), deps).wait_and_throw();
         return dev;
     }
 #endif
