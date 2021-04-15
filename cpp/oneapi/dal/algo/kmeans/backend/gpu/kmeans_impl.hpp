@@ -103,6 +103,7 @@ public:
                           const prm::ndview<std::int32_t, 2>& labels,
                           const prm::ndview<Float, 2>& centroids,
                           const bk::event_vector& deps = {}) {
+        // fill 0.0
         return reduce_centroids_impl(data, labels, centroids, partial_centroids_, num_parts_, deps);
     }
     auto reduce_centroids_impl(const prm::ndview<Float, 2>& data,
@@ -114,14 +115,14 @@ public:
         // TODO partial_centroids_.fill(0);
         const Float* data_ptr = data.get_data();
         const std::int32_t* label_ptr = labels.get_data();
-        Float* partial_centroids_ptr = partial_centroids_.get_mutable_data();
-        Float* centroids_ptr = centroids.get_mutable_data();
-        const std::int32_t* counters_ptr = counters_.get_data();
+        Float* partial_centroids_ptr = partial_centroids.get_mutable_data();
+//        Float* centroids_ptr = centroids.get_mutable_data();
+//        const std::int32_t* counters_ptr = counters_.get_data();
+        const auto row_count = data.get_shape()[0];
+        const auto column_count = data.get_shape()[1];
+        const auto num_centroids = centroids.get_shape()[0];
         auto event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            const auto row_count = data.get_shape()[0];
-            const auto column_count = data.get_shape()[0];
-            const auto num_centroids = centroids.get_shape()[0];
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ 16, num_parts }, { 16, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -132,10 +133,9 @@ public:
                     const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
                     if (sg_global_id >= num_parts)
                         return;
-
                     const std::uint32_t local_id = sg.get_local_id()[0];
                     const std::uint32_t local_range = sg.get_local_range()[0];
-                    for (std::uint32_t i = sg_global_id; i < row_count; i += sg_num) {
+                    for (std::uint32_t i = sg_global_id; i < row_count; i += num_parts) {
                         std::int32_t cl = -1;
                         if (local_id == 0) {
                             cl = label_ptr[i];
@@ -143,17 +143,22 @@ public:
                         cl = reduce(sg, cl, sycl::ONEAPI::maximum<std::int32_t>());
                         for (std::uint32_t j = local_id; j < column_count; j += local_range) {
                             partial_centroids_ptr[sg_global_id * num_centroids * column_count +
-                                                  cl * column_count + j] =
-                                data_ptr[cl * column_count + local_id];
+                                                  cl * column_count + j] +=
+                                data_ptr[i * column_count + j];
                         }
                     }
                 });
         });
+        event.wait_and_throw();
+        std::cout << "Done" << std::endl;
+        std::cout << partial_centroids_ptr[0] << std::endl;
+        return event;
+        for(std::uint32_t i = 0; i < num_parts; i++)
+            std::cout << "CL[0, 0]: " << i << " " << partial_centroids_ptr[i * num_centroids * column_count] << std::endl;
+        return event;
+/*
         auto final_event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on({ event });
-            const auto column_count = this->column_count_;
-            const auto num_centroids = this->num_centroids_;
-            const auto num_parts = this->num_parts_;
             cgh.parallel_for(
                 bk::make_multiple_nd_range_2d({ 16, column_count * num_centroids }, { 16, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -177,7 +182,7 @@ public:
                         centroids_ptr[sg_global_id] = sum / counters_ptr[sg_global_id];
                 });
         });
-        return final_event;
+        return final_event;*/
     }
     sycl::event count_clusters(const prm::ndview<std::int32_t, 2>& labels,
                                const bk::event_vector& deps = {}) {
