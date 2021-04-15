@@ -46,6 +46,10 @@ namespace detail {
 namespace v1 {
 
 template <typename Task>
+constexpr bool is_valid_task_v =
+    dal::detail::is_one_of_v<Task, task::classification, task::regression>;
+
+template <typename Task>
 class node_info_impl;
 
 template <typename Task>
@@ -53,10 +57,6 @@ class split_node_info_impl;
 
 template <typename Task>
 class leaf_node_info_impl;
-
-template <typename Task>
-constexpr bool is_valid_task_v =
-    dal::detail::is_one_of_v<Task, task::classification, task::regression>;
 
 } // namespace v1
 
@@ -74,12 +74,14 @@ class node_info : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
-    using task_t = Task;
-
 public:
+    using task_t = Task;
     node_info();
+    virtual ~node_info();
     node_info(const node_info<task_t>&);
+    node_info(node_info<task_t>&&);
     node_info<task_t>& operator=(const node_info<task_t>&);
+    node_info<task_t>& operator=(node_info<task_t>&&);
 
     /// Number of connections between the node and the root
     std::int64_t get_level() const;
@@ -92,9 +94,8 @@ protected:
     using impl_t = detail::node_info_impl<task_t>;
 
     explicit node_info(impl_t* impl);
-    explicit node_info(const dal::detail::pimpl<impl_t>& impl);
 
-    dal::detail::pimpl<impl_t> impl_;
+    impl_t* impl_;
 };
 
 /// Class containing description of split node in decision tree
@@ -103,13 +104,15 @@ class split_node_info : public node_info<Task> {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
-    using task_t = Task;
-    using impl_t = detail::split_node_info_impl<task_t>;
+    using impl_t = detail::split_node_info_impl<Task>;
 
 public:
+    using task_t = Task;
     split_node_info();
     split_node_info(const split_node_info<task_t>&);
+    split_node_info(split_node_info<task_t>&&);
     split_node_info<task_t>& operator=(const split_node_info<task_t>&);
+    split_node_info<task_t>& operator=(split_node_info<task_t>&&);
 
     /// Feature used for splitting the node
     std::int64_t get_feature_index() const;
@@ -126,19 +129,19 @@ class leaf_node_info;
 /// Class containing description of leaf node in classification decision tree
 template <>
 class leaf_node_info<task::classification> : public node_info<task::classification> {
-    using task_t = task::classification;
     using impl_t = detail::leaf_node_info_impl<task_t>;
 
 public:
-    leaf_node_info() = delete;
     explicit leaf_node_info(std::int64_t class_count);
     leaf_node_info(const leaf_node_info<task_t>&);
+    leaf_node_info(leaf_node_info<task_t>&&);
     leaf_node_info<task_t>& operator=(const leaf_node_info<task_t>&);
+    leaf_node_info<task_t>& operator=(leaf_node_info<task_t>&&);
 
     /// Label to be predicted when reaching the leaf
     std::int64_t get_label() const;
-    /// Probabilities estimation for the leaf
-    double get_prob(std::int64_t class_idx) const;
+    /// Probability estimation for the leaf for certain class
+    double get_probability(std::int64_t class_idx) const;
 
 private:
     explicit leaf_node_info(impl_t* impl);
@@ -147,13 +150,14 @@ private:
 /// Class containing description of leaf node in regression decision tree
 template <>
 class leaf_node_info<task::regression> : public node_info<task::regression> {
-    using task_t = task::regression;
     using impl_t = detail::leaf_node_info_impl<task_t>;
 
 public:
     leaf_node_info();
     leaf_node_info(const leaf_node_info<task_t>&);
+    leaf_node_info(leaf_node_info<task_t>&&);
     leaf_node_info<task_t>& operator=(const leaf_node_info<task_t>&);
+    leaf_node_info<task_t>& operator=(leaf_node_info<task_t>&&);
 
     /// Label to be predicted when reaching the leaf
     double get_label() const;

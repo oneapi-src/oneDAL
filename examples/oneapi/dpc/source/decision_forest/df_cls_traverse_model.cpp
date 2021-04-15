@@ -28,11 +28,9 @@ namespace df = dal::decision_forest;
 const std::int64_t class_count = 5; /* Number of classes */
 
 /** Visitor class, prints out tree nodes of the model when it is called back by model traversal method */
-template <typename Task>
 struct print_node_visitor {
-    bool operator()(const df::leaf_node_info<Task> &info) {
-        for (std::int64_t i = 0; i < info.get_level(); ++i)
-            std::cout << "  ";
+    bool operator()(const df::leaf_node_info<df::task::classification> &info) {
+        std::cout << std::string(info.get_level() * 2, ' ');
         std::cout << "Level " << info.get_level()
                   << ", leaf node. Response value = " << info.get_label()
                   << ", Impurity = " << info.get_impurity()
@@ -44,9 +42,8 @@ struct print_node_visitor {
         return true;
     }
 
-    bool operator()(const df::split_node_info<Task> &info) {
-        for (std::int64_t i = 0; i < info.get_level(); ++i)
-            std::cout << "  ";
+    bool operator()(const df::split_node_info<df::task::classification> &info) {
+        std::cout << std::string(info.get_level() * 2, ' ');
         std::cout << "Level " << info.get_level()
                   << ", split node. Feature index = " << info.get_feature_index()
                   << ", feature value = " << info.get_feature_value()
@@ -61,7 +58,7 @@ void print_model(const df::model<Task> &m) {
     std::cout << "Number of trees: " << m.get_tree_count() << std::endl;
     for (std::int64_t i = 0, n = m.get_tree_count(); i < n; ++i) {
         std::cout << "Tree #" << i << std::endl;
-        m.traverse_dfs(i, print_node_visitor<df::task::classification>{});
+        m.traverse_depth_first(i, print_node_visitor{});
     }
 }
 

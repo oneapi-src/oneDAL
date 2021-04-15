@@ -324,6 +324,29 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
+/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
+///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+template <typename Task>
+struct decision_tree_task_map;
+
+template <>
+struct decision_tree_task_map<task::classification> {
+    using tree_task_t = decision_tree::task::classification;
+};
+
+template <>
+struct decision_tree_task_map<task::regression> {
+    using tree_task_t = decision_tree::task::regression;
+};
+
+template <typename Task>
+using decision_tree_task_map_t = typename decision_tree_task_map<Task>::tree_task_t;
+
+template <typename Task>
+using decision_tree_visitor_iface_t = dal::detail::shared<
+    typename decision_tree::detail::node_visitor_iface<decision_tree_task_map_t<Task>>>;
+//using decision_tree_visitor_iface_t = dal::detail::pimpl<typename decision_tree::detail::node_visitor_iface<decision_tree_task_map_t<Task>>>;
+
 } // namespace v1
 
 using v1::descriptor_tag;
@@ -335,6 +358,10 @@ using v1::enable_if_classification_t;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+
+using v1::decision_tree_task_map;
+using v1::decision_tree_task_map_t;
+using v1::decision_tree_visitor_iface_t;
 
 } // namespace detail
 
@@ -460,31 +487,16 @@ public:
     }
 };
 
-/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
-namespace dt = dal::decision_tree;
-template <typename Task>
-struct decision_tree_task_map;
-
-template <>
-struct decision_tree_task_map<task::classification> {
-    using tree_task_t = dt::task::classification;
-};
-
-template <>
-struct decision_tree_task_map<task::regression> {
-    using tree_task_t = dt::task::regression;
-};
-
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
+    using dtree_task_t = detail::decision_tree_task_map_t<Task>;
+    using dtree_visitor_iface_t = detail::decision_tree_visitor_iface_t<Task>;
+
 public:
     using task_t = Task;
-    using dtree_task_t = typename decision_tree_task_map<task_t>::tree_task_t;
-    using visitor_t = std::shared_ptr<typename dt::detail::node_visitor_iface<dtree_task_t>>;
 
     /// Creates a new instance of the class with the default property values.
     model();
@@ -507,9 +519,10 @@ public:
     ///                             bool operator()(const decision_forest::split_node_info<Task>&)
     ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
     template <typename Visitor>
-    void traverse_dfs(std::int64_t tree_idx, Visitor&& visitor) const {
-        traverse_dfs_impl(tree_idx,
-                          dt::detail::make_node_visitor<dtree_task_t>(std::move(visitor)));
+    void traverse_depth_first(std::int64_t tree_idx, Visitor&& visitor) const {
+        traverse_depth_first_impl(
+            tree_idx,
+            decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor)));
     }
 
     /// Performs Breadth First Traversal of i-th tree
@@ -518,16 +531,17 @@ public:
     ///                             bool operator()(const decision_forest::split_node_info<Task>&)
     ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
     template <typename Visitor>
-    void traverse_bfs(std::int64_t tree_idx, Visitor&& visitor) const {
-        traverse_bfs_impl(tree_idx,
-                          dt::detail::make_node_visitor<dtree_task_t>(std::move(visitor)));
+    void traverse_breadth_first(std::int64_t tree_idx, Visitor&& visitor) const {
+        traverse_breadth_first_impl(
+            tree_idx,
+            decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor)));
     }
 
 protected:
     std::int64_t get_class_count_impl() const;
 
-    void traverse_dfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const;
-    void traverse_bfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const;
+    void traverse_depth_first_impl(std::int64_t tree_idx, dtree_visitor_iface_t&& visitor) const;
+    void traverse_breadth_first_impl(std::int64_t tree_idx, dtree_visitor_iface_t&& visitor) const;
 
 private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
@@ -535,20 +549,20 @@ private:
 };
 
 template <typename Task>
-using node_info = dt::node_info<typename decision_tree_task_map<Task>::tree_task_t>;
+using node_info = decision_tree::node_info<detail::decision_tree_task_map_t<Task>>;
 
 template <typename Task>
-using leaf_node_info = dt::leaf_node_info<typename decision_tree_task_map<Task>::tree_task_t>;
+using leaf_node_info = decision_tree::leaf_node_info<detail::decision_tree_task_map_t<Task>>;
 
 template <typename Task>
-using split_node_info = dt::split_node_info<typename decision_tree_task_map<Task>::tree_task_t>;
+using split_node_info = decision_tree::split_node_info<detail::decision_tree_task_map_t<Task>>;
 
 template <typename Task>
-using is_leaf_node_info = dt::is_leaf_node_info<typename decision_tree_task_map<Task>::tree_task_t>;
+using is_leaf_node_info = decision_tree::is_leaf_node_info<detail::decision_tree_task_map_t<Task>>;
 
 template <typename Task>
 using is_split_node_info =
-    dt::is_split_node_info<typename decision_tree_task_map<Task>::tree_task_t>;
+    decision_tree::is_split_node_info<detail::decision_tree_task_map_t<Task>>;
 
 template <typename Task>
 inline constexpr bool is_leaf_node_info_v = is_leaf_node_info<Task>::value;

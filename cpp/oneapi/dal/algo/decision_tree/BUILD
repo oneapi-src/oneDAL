@@ -10,10 +10,6 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
     ],
-    extra_deps = [
-        "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:kernel",
-        "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:kernel",
-    ]
 )
 
 dal_test_suite(

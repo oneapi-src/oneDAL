@@ -16,13 +16,12 @@
 
 #pragma once
 
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_predict_types.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_training_types.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_regression_predict_types.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
+#include <daal/include/services/daal_defines.h>
+#include <daal/include/algorithms/tree_utils/tree_utils_classification.h>
+#include <daal/include/algorithms/tree_utils/tree_utils_regression.h>
 
 #include "oneapi/dal/algo/decision_tree/common.hpp"
-#include "oneapi/dal/algo/decision_tree/detail/node_info_impl.hpp"
+#include "oneapi/dal/algo/decision_tree/backend/node_info_impl.hpp"
 
 namespace oneapi::dal::decision_tree {
 

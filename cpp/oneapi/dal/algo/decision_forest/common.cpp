@@ -33,6 +33,7 @@ class descriptor_impl : public base {
 
 public:
     explicit descriptor_impl() {
+        static_assert(detail::is_valid_task_v<Task>);
         if constexpr (std::is_same_v<Task, task::classification>) {
             class_count = 2;
             min_observations_in_leaf_node = 1;
@@ -40,9 +41,6 @@ public:
         else if constexpr (std::is_same_v<Task, task::regression>) {
             class_count = -1;
             min_observations_in_leaf_node = 5;
-        }
-        else {
-            static_assert(detail::is_valid_task_v<Task>);
         }
     }
 
@@ -306,13 +304,15 @@ std::int64_t model<Task>::get_class_count_impl() const {
 }
 
 template <typename Task>
-void model<Task>::traverse_dfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
-    impl_->traverse_dfs_impl(tree_idx, std::move(visitor));
+void model<Task>::traverse_depth_first_impl(std::int64_t tree_idx,
+                                            dtree_visitor_iface_t&& visitor) const {
+    impl_->traverse_depth_first_impl(tree_idx, std::move(visitor));
 }
 
 template <typename Task>
-void model<Task>::traverse_bfs_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
-    impl_->traverse_dfs_impl(tree_idx, std::move(visitor));
+void model<Task>::traverse_breadth_first_impl(std::int64_t tree_idx,
+                                              dtree_visitor_iface_t&& visitor) const {
+    impl_->traverse_breadth_first_impl(tree_idx, std::move(visitor));
 }
 
 template class ONEDAL_EXPORT model<task::classification>;

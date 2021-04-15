@@ -29,7 +29,7 @@ public:
     using leaf_t = leaf_node_info<task_t>;
     using split_t = split_node_info<task_t>;
 
-    virtual ~node_visitor_iface() {}
+    virtual ~node_visitor_iface() = default;
     virtual bool on_leaf_node(const leaf_t& desc) = 0;
     virtual bool on_split_node(const split_t& desc) = 0;
 };
@@ -41,26 +41,25 @@ public:
     using leaf_t = leaf_node_info<task_t>;
     using split_t = split_node_info<task_t>;
 
-    node_visitor_impl() = delete;
     node_visitor_impl(const node_visitor_impl&) = delete;
     node_visitor_impl& operator=(const node_visitor_impl&) = delete;
 
-    explicit node_visitor_impl(Visitor&& visitor) : _visitor(std::move(visitor)) {}
+    explicit node_visitor_impl(Visitor&& visitor) : visitor_(std::forward<Visitor>(visitor)) {}
 
     bool on_leaf_node(const leaf_t& desc) override {
-        return _visitor(desc);
+        return visitor_(desc);
     }
     bool on_split_node(const split_t& desc) override {
-        return _visitor(desc);
+        return visitor_(desc);
     }
 
 private:
-    Visitor _visitor;
+    Visitor visitor_;
 };
 
 template <typename Task, typename Visitor>
-std::shared_ptr<node_visitor_iface<Task>> make_node_visitor(Visitor&& visitor) {
-    return std::make_shared<node_visitor_impl<Task, Visitor>>(std::move(visitor));
+dal::detail::shared<node_visitor_iface<Task>> make_node_visitor(Visitor&& visitor) {
+    return std::make_shared<node_visitor_impl<Task, Visitor>>(std::forward<Visitor>(visitor));
 }
 
 } // namespace v1
