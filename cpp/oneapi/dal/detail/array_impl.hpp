@@ -163,7 +163,10 @@ public:
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
         check_array_has_ownership_structure(ref);
         if (ref.has_mutable_data()) {
-            data_owned_ = shared(ref.get_shared(), data);
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+                data_owned_ = shared(*ptr, data);
+            }
         }
         else {
             data_owned_ = shared(ref.get_cshared(), data);
@@ -176,7 +179,10 @@ public:
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
         check_array_has_ownership_structure(ref);
         if (ref.has_mutable_data()) {
-            data_owned_ = cshared(ref.get_shared(), data);
+            using shared_y = typename array_impl<Y>::shared;
+            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
+                data_owned_ = cshared(*ptr, data);
+            }
         }
         else {
             data_owned_ = cshared(ref.get_cshared(), data);
