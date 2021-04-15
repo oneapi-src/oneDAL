@@ -59,6 +59,7 @@ sorter::sorter(const graph* ptarget, inner_alloc allocator) : sorter(allocator) 
         delta_probability /= static_cast<float>(vertex_count);
     }
 
+    // possible parallelization
     for (std::int64_t i = 0; i < vertex_count; i++) {
         p_degree_probability[target->get_vertex_degree(i)] += delta_probability;
 
