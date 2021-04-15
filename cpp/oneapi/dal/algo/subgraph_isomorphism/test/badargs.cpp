@@ -22,9 +22,9 @@
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
-#define isomorphism_kind dal::preview::subgraph_isomorphism::kind
-
 namespace oneapi::dal::algo::subgraph_isomorphism::test {
+
+typedef dal::preview::subgraph_isomorphism::kind isomorphism_kind;
 
 class subgraph_isomorphism_badarg_test {
 public:
@@ -86,23 +86,6 @@ public:
         const auto result =
             dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
     }
-
-    void check_emptpy_subgraph_isomorphism(bool semantic_match,
-                                           std::int64_t max_match_count,
-                                           isomorphism_kind kind) {
-        const auto target_graph = create_graph();
-        const oneapi::dal::preview::undirected_adjacency_vector_graph<std::int32_t> pattern_graph;
-
-        std::allocator<char> alloc;
-        const auto subgraph_isomorphism_desc =
-            dal::preview::subgraph_isomorphism::descriptor<>(alloc)
-                .set_kind(kind)
-                .set_semantic_match(semantic_match)
-                .set_max_match_count(max_match_count);
-
-        const auto result =
-            dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
-    }
 };
 
 #define SUBGRAPH_ISOMORPHISM_BADARG_TEST(name) \
@@ -121,5 +104,7 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if semantic match is true") {
     REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(true, 100, isomorphism_kind::induced),
                       invalid_argument);
 }
+
+// TODO: Add empty graph case after implementation
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test

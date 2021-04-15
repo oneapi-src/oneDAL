@@ -86,25 +86,6 @@ public:
         return my_graph;
     }
 
-    bool check_isomorphism(const std::vector<int> &permutation,
-                           const std::vector<std::vector<int>> &target,
-                           const std::vector<std::vector<int>> &pattern) {
-        std::vector<std::vector<int>> subgraph(permutation.size());
-        std::map<int, int> reverse_permutation;
-        for (size_t i = 0; i < permutation.size(); ++i) {
-            reverse_permutation[permutation[i]] = i;
-        }
-        for (size_t i = 0; i < permutation.size(); ++i) {
-            for (int j : target[permutation[i]]) {
-                if (reverse_permutation.find(j) != reverse_permutation.end()) {
-                    subgraph[i].push_back(reverse_permutation[j]);
-                }
-            }
-            std::sort(subgraph[i].begin(), subgraph[i].end());
-        }
-        return subgraph == pattern;
-    }
-
     auto graph_matching_wrapper(const std::vector<std::vector<int>> &target,
                                 const std::vector<std::vector<int>> &pattern,
                                 bool semantic_match,
@@ -123,9 +104,52 @@ public:
         return dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
     }
 
+    bool is_subset(const std::vector<int> &target, const std::vector<int> &pattern) {
+        size_t i_pattern = 0;
+        for (size_t i_target = 0; i_target < target.size() && i_pattern < pattern.size();
+             ++i_target) {
+            if (target[i_target] == pattern[i_pattern]) {
+                ++i_pattern;
+            }
+            else if (target[i_target] > pattern[i_pattern]) {
+                return false;
+            }
+        }
+        return i_pattern == pattern.size();
+    }
+
+    bool check_isomorphism(const std::vector<int> &permutation,
+                           const std::vector<std::vector<int>> &target,
+                           const std::vector<std::vector<int>> &pattern,
+                           bool is_induced) {
+        std::vector<std::vector<int>> subgraph(permutation.size());
+        std::map<int, int> reverse_permutation;
+        for (size_t i = 0; i < permutation.size(); ++i) {
+            reverse_permutation[permutation[i]] = i;
+        }
+        for (size_t i = 0; i < permutation.size(); ++i) {
+            for (int j : target[permutation[i]]) {
+                if (reverse_permutation.find(j) != reverse_permutation.end()) {
+                    subgraph[i].push_back(reverse_permutation[j]);
+                }
+            }
+            std::sort(subgraph[i].begin(), subgraph[i].end());
+        }
+        if (is_induced) {
+            return subgraph == pattern;
+        }
+        for (size_t i = 0; i < subgraph.size(); ++i) {
+            if (!is_subset(subgraph[i], pattern[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     bool check_graph_isomorphism_correctness(const oneapi::dal::table &table,
                                              std::vector<std::vector<int>> &target,
-                                             std::vector<std::vector<int>> &pattern) {
+                                             std::vector<std::vector<int>> &pattern,
+                                             bool is_induced) {
         if (!table.has_data())
             return true;
         auto arr = oneapi::dal::row_accessor<const int>(table).pull();
@@ -136,7 +160,7 @@ public:
             for (std::int64_t j = 0; j < table.get_column_count(); j++) {
                 permutation[j] = x[i * table.get_column_count() + j];
             }
-            if (!check_isomorphism(permutation, target, pattern)) {
+            if (!check_isomorphism(permutation, target, pattern, is_induced)) {
                 return false;
             }
         }
@@ -230,7 +254,10 @@ SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("linked_star_5  - cycle_5 matching") {
     const auto result =
         this->graph_matching_wrapper(linked_star_5, cycle_5, false, 0, isomorphism_kind::induced);
     REQUIRE(10 == result.get_match_count());
-    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(), linked_star_5, cycle_5));
+    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
+                                                linked_star_5,
+                                                cycle_5,
+                                                true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("self_matching") {
@@ -242,7 +269,8 @@ SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("self_matching") {
     REQUIRE(72 == result.get_match_count());
     REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
                                                 self_matching,
-                                                self_matching));
+                                                self_matching,
+                                                true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("double_tringle matching") {
@@ -254,14 +282,14 @@ SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("double_tringle matching") {
     REQUIRE(8 == result.get_match_count());
     REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
                                                 double_triangle_target,
-                                                double_triangle_pattern));
+                                                double_triangle_pattern,
+                                                true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("k_6 - k_5_without_edge matching") {
     const auto result =
         this->graph_matching_wrapper(k_6, k_5_without_edge, false, 0, isomorphism_kind::induced);
     REQUIRE(0 == result.get_match_count());
-    // REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(), k_6, k_5_without_edge));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("difficult matching") {
@@ -273,35 +301,41 @@ SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("difficult matching") {
     REQUIRE(272 == result.get_match_count());
     REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
                                                 difficult_graph,
-                                                triagles_edge_link));
+                                                triagles_edge_link,
+                                                true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("star_5 - star_4 matching") {
     const auto result =
         this->graph_matching_wrapper(star_5, star_4, false, 0, isomorphism_kind::induced);
     REQUIRE(120 == result.get_match_count());
-    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(), star_5, star_4));
+    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(), star_5, star_4, true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("wheel_11 - cycle_10 matching") {
     const auto result =
         this->graph_matching_wrapper(wheel_11, cycle_10, false, 0, isomorphism_kind::induced);
     REQUIRE(20 == result.get_match_count());
-    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(), wheel_11, cycle_10));
+    REQUIRE(
+        check_graph_isomorphism_correctness(result.get_vertex_match(), wheel_11, cycle_10, true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("wheel_5 - triangle matching") {
     const auto result =
         this->graph_matching_wrapper(wheel_5, triangle, false, 0, isomorphism_kind::induced);
     REQUIRE(24 == result.get_match_count());
-    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(), wheel_5, triangle));
+    REQUIRE(
+        check_graph_isomorphism_correctness(result.get_vertex_match(), wheel_5, triangle, true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("lolipop_10_15 - path_16 matching") {
     const auto result =
         this->graph_matching_wrapper(lolipop_10_15, path_16, false, 0, isomorphism_kind::induced);
     REQUIRE(20 == result.get_match_count());
-    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(), lolipop_10_15, path_16));
+    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
+                                                lolipop_10_15,
+                                                path_16,
+                                                true));
 }
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test
