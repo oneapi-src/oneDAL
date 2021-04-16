@@ -44,14 +44,6 @@ solution si(const graph& pattern,
                                             cconditions.get(),
                                             true);
 
-    auto dfs_tree_search_width = make_shared_malloc<std::int64_t>(pattern_vetrex_count);
-    sorter_graph.dfs_tree_search_width_evaluation(pattern,
-                                                  sorted_pattern_vertex.get(),
-                                                  pattern_vertex_probability.get(),
-                                                  direction.get(),
-                                                  cconditions.get(),
-                                                  dfs_tree_search_width.get());
-
     sorter_graph.~sorter();
 
     engine_bundle harness(&pattern,
