@@ -243,16 +243,4 @@ TEST_M(load_graph_test, "throws if input file does not exist") {
     REQUIRE_THROWS_AS(dal::preview::load_graph::load(desc, ds), invalid_argument);
 }
 
-TEST_M(load_graph_test, "throws if input file contains letter") {
-    REQUIRE_THROWS(create_graph<graph_data_with_letter_type>());
-}
-
-TEST_M(load_graph_test, "throws if input file contains odd number of values") {
-    REQUIRE_THROWS(create_graph<odd_number_of_values_data_type>());
-}
-
-TEST_M(load_graph_test, "throws if input file contains negative values") {
-    REQUIRE_THROWS(create_graph<negative_values_data_type>());
-}
-
 } // namespace oneapi::dal::io::test
