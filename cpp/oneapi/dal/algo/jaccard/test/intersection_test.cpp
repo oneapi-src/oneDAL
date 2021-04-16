@@ -16,7 +16,7 @@
 
 #include <array>
 
-#include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_avx512.hpp"
+#include "oneapi/dal/algo/jaccard/vertex_similarity.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 
