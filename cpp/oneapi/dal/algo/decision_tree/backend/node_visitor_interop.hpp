@@ -72,7 +72,10 @@ public:
 
         if constexpr (std::is_same_v<Task, task::classification>) {
             leaf_info.label = desc.label;
-            leaf_info.prob = desc.prob;
+            auto prob = dal::array<double>::empty(leaf_info.class_count);
+
+            std::memcpy(prob.get_mutable_data(), desc.prob, sizeof(double) * leaf_info.class_count);
+            leaf_info.prob = prob;
         }
         else if constexpr (std::is_same_v<Task, task::regression>) {
             leaf_info.label = desc.response;

@@ -50,11 +50,11 @@ class leaf_node_info_impl;
 template <>
 class leaf_node_info_impl<task::classification> : public node_info_impl<task::classification> {
 public:
-    leaf_node_info_impl(std::int64_t _class_count) {
-        check_domain_cond((_class_count > 1), "class_count should be > 1");
+    leaf_node_info_impl(std::int64_t class_count_) : class_count(class_count_) {
+        check_domain_cond((class_count_ > 1), "class_count should be > 1");
     }
     std::int64_t label = 0;
-    const double* prob = nullptr;
+    dal::array<double> prob;
     std::int64_t class_count;
 };
 
