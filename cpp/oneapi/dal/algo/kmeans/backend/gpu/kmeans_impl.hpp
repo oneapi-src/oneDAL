@@ -63,7 +63,7 @@ public:
                          const prm::ndview<Float, 2>& centroids,
                          prm::ndview<std::int32_t, 2>& labels,
                          const bk::event_vector& deps = {}) {
-        // TODO counters.fill(0);
+        // TODO add unit test and integrate with distance primitive
         sycl::event selection_event;
         sycl::event count_event;
         for (std::uint32_t iblock = 0; iblock < num_blocks_; iblock++) {
@@ -103,21 +103,27 @@ public:
                           const prm::ndview<std::int32_t, 2>& labels,
                           const prm::ndview<Float, 2>& centroids,
                           const bk::event_vector& deps = {}) {
-        // fill 0.0
-        return reduce_centroids_impl(data, labels, centroids, partial_centroids_, num_parts_, deps);
+        partial_centroids_.fill(queue_, 0.0).wait_and_throw();
+        return reduce_centroids_impl(data,
+                                     labels,
+                                     centroids,
+                                     partial_centroids_,
+                                     counters_,
+                                     num_parts_,
+                                     deps);
     }
     auto reduce_centroids_impl(const prm::ndview<Float, 2>& data,
-                          const prm::ndview<std::int32_t, 2>& labels,
-                          const prm::ndview<Float, 2>& centroids,
-                          const prm::ndview<Float, 2>& partial_centroids,
-                          const std::uint32_t num_parts, 
-                          const bk::event_vector& deps = {}) {
-        // TODO partial_centroids_.fill(0);
+                               const prm::ndview<std::int32_t, 2>& labels,
+                               const prm::ndview<Float, 2>& centroids,
+                               const prm::ndview<Float, 2>& partial_centroids,
+                               const prm::ndview<std::int32_t, 1>& counters,
+                               const std::uint32_t num_parts,
+                               const bk::event_vector& deps = {}) {
         const Float* data_ptr = data.get_data();
         const std::int32_t* label_ptr = labels.get_data();
         Float* partial_centroids_ptr = partial_centroids.get_mutable_data();
-//        Float* centroids_ptr = centroids.get_mutable_data();
-//        const std::int32_t* counters_ptr = counters_.get_data();
+        Float* centroids_ptr = centroids.get_mutable_data();
+        const std::int32_t* counters_ptr = counters.get_data();
         const auto row_count = data.get_shape()[0];
         const auto column_count = data.get_shape()[1];
         const auto num_centroids = centroids.get_shape()[0];
@@ -150,13 +156,7 @@ public:
                 });
         });
         event.wait_and_throw();
-        std::cout << "Done" << std::endl;
-        std::cout << partial_centroids_ptr[0] << std::endl;
-        return event;
-        for(std::uint32_t i = 0; i < num_parts; i++)
-            std::cout << "CL[0, 0]: " << i << " " << partial_centroids_ptr[i * num_centroids * column_count] << std::endl;
-        return event;
-/*
+
         auto final_event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on({ event });
             cgh.parallel_for(
@@ -169,7 +169,7 @@ public:
                     const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
                     if (sg_global_id >= column_count * num_centroids)
                         return;
-
+                    const std::uint32_t sg_cluster_id = sg_global_id / column_count;
                     const std::uint32_t local_id = sg.get_local_id()[0];
                     const std::uint32_t local_range = sg.get_local_range()[0];
                     Float sum = 0.0;
@@ -178,11 +178,16 @@ public:
                             partial_centroids_ptr[i * num_centroids * column_count + sg_global_id];
                     }
                     sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                    if (local_id == 0)
-                        centroids_ptr[sg_global_id] = sum / counters_ptr[sg_global_id];
+
+                    if (local_id == 0) {
+                        auto count = counters_ptr[sg_cluster_id];
+                        if (count > 0) {
+                            centroids_ptr[sg_global_id] = sum / count;
+                        }
+                    }
                 });
         });
-        return final_event;*/
+        return final_event;
     }
     sycl::event count_clusters(const prm::ndview<std::int32_t, 2>& labels,
                                const bk::event_vector& deps = {}) {
@@ -190,8 +195,8 @@ public:
         return count_clusters_impl(labels, counters_, deps);
     }
     sycl::event count_clusters_impl(const prm::ndview<std::int32_t, 2>& labels,
-                                prm::ndview<std::int32_t, 1>& counters,
-                               const bk::event_vector& deps = {}) {
+                                    prm::ndview<std::int32_t, 1>& counters,
+                                    const bk::event_vector& deps = {}) {
         const std::int32_t* label_ptr = labels.get_data();
         std::int32_t* counter_ptr = counters.get_mutable_data();
         auto event = queue_.submit([&](sycl::handler& cgh) {
@@ -253,7 +258,8 @@ public:
         });
         return final_event;
     }
-    sycl::event compute_objective_function(const prm::ndview<Float, 1>& closest_distances, const bk::event_vector& deps = {}) {
+    sycl::event compute_objective_function(const prm::ndview<Float, 1>& closest_distances,
+                                           const bk::event_vector& deps = {}) {
         const Float* distance_ptr = closest_distances.get_data();
         Float* value_ptr = obj_func_.get_mutable_data();
         const auto row_count = closest_distances.get_shape()[0];
@@ -267,7 +273,7 @@ public:
                                      return;
                                  const std::uint32_t local_id = sg.get_local_id()[0];
                                  const std::uint32_t local_range = sg.get_local_range()[0];
-                                 Float sum = 0; 
+                                 Float sum = 0;
                                  for (std::uint32_t i = local_id; i < row_count; i += local_range) {
                                      sum += distance_ptr[i];
                                  }
