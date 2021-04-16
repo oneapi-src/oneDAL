@@ -26,10 +26,8 @@
 
 #include "algorithms/kmeans/kmeans_types.h"
 #include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 using namespace daal::data_management;
-using namespace daal::data_management::internal;
 
 namespace daal
 {
