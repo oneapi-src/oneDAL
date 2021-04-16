@@ -51,6 +51,15 @@ public:
         CAPTURE(width_, stride_, height_);
     }
 
+    void generate_special() {
+        width_ = GENERATE(28, 960, 2000, 3072);
+        height_ = GENERATE(1024, 4096);
+        stride_ = height_;
+        SKIP_IF(width_ > stride_);
+        REQUIRE(width_ <= stride_);
+        CAPTURE(width_, stride_, height_);
+    }
+
     bool is_initialized() const {
         return width_ > 0 && stride_ > 0 && height_ > 0;
     }
@@ -142,15 +151,13 @@ public:
                            binary_desc());
     }
 
-    void test_raw_rw_reduce_narrow() {
-        using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
+    template <typename reduction_t>
+    void test_raw_rw_reduce(const std::string& name) {
         auto [inp_array, inp_event] = input();
         auto [out_array, out_event] = output(height_);
 
         const float_t* inp_ptr = inp_array.get_data();
         float_t* out_ptr = out_array.get_mutable_data();
-
-        const auto name = fmt::format("Narrow RW Reduction: {}", desc());
 
         this->get_queue().wait_and_throw();
 
@@ -159,44 +166,24 @@ public:
             reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_t{}, unary_t{})
                 .wait_and_throw();
         };
+    }
+
+    void test_raw_rw_reduce_narrow() {
+        using reduction_t = reduction_rm_rw_narrow<float_t, binary_t, unary_t>;
+        const auto name = fmt::format("Narrow RW Reduction: {}", desc());
+        test_raw_rw_reduce<reduction_t>(name);
     }
 
     void test_raw_rw_reduce_wide() {
         using reduction_t = reduction_rm_rw_wide<float_t, binary_t, unary_t>;
-        auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output(height_);
-
-        const float_t* inp_ptr = inp_array.get_data();
-        float_t* out_ptr = out_array.get_mutable_data();
-
         const auto name = fmt::format("Wide RW Reduction: {}", desc());
-
-        this->get_queue().wait_and_throw();
-
-        BENCHMARK(name.c_str()) {
-            reduction_t reducer(this->get_queue());
-            reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_t{}, unary_t{})
-                .wait_and_throw();
-        };
+        test_raw_rw_reduce<reduction_t>(name);
     }
 
     void test_raw_rw_reduce_wrapper() {
         using reduction_t = reduction_rm_rw<float_t, binary_t, unary_t>;
-        auto [inp_array, inp_event] = input();
-        auto [out_array, out_event] = output(height_);
-
-        const float_t* inp_ptr = inp_array.get_data();
-        float_t* out_ptr = out_array.get_mutable_data();
-
-        const auto name = fmt::format("RW Reduction Wrapper: {}", desc());
-
-        this->get_queue().wait_and_throw();
-
-        BENCHMARK(name.c_str()) {
-            reduction_t reducer(this->get_queue());
-            reducer(inp_ptr, out_ptr, width_, height_, stride_, binary_t{}, unary_t{})
-                .wait_and_throw();
-        };
+        const auto name = fmt::format("Wrapper RW Reduction: {}", desc());
+        test_raw_rw_reduce<reduction_t>(name);
     }
 
 private:
@@ -211,6 +198,19 @@ TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
                      reduction_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
+    SKIP_IF(this->should_be_skipped());
+    this->test_raw_rw_reduce_wide();
+    this->test_raw_rw_reduce_narrow();
+    this->test_raw_rw_reduce_wrapper();
+}
+
+TEMPLATE_LIST_TEST_M(reduction_rm_test_uniform,
+                     "Uniformly filled Row-Major Row-Wise reduction"
+                     " - Specific Dimensions",
+                     "[reduction][rm][special][small]",
+                     reduction_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->generate_special();
     SKIP_IF(this->should_be_skipped());
     this->test_raw_rw_reduce_wide();
     this->test_raw_rw_reduce_narrow();
