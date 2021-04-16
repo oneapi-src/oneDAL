@@ -16,7 +16,6 @@
 
 #include <array>
 
-#include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel_scalar.hpp"
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -205,18 +204,51 @@ public:
         return my_graph;
     }
 
-    template <typename Graph, std::size_t SIZE>
-    void check_triangle_counting(const Graph &my_graph,
-                                 const std::array<std::int64_t, SIZE> &correct_triangles,
-                                 std::int64_t vertex_count,
-                                 std::int64_t global_triangle_count) {
+    template <typename GraphType>
+    void check_local_task() {
+        GraphType graph_data;
+        const auto graph = create_graph<GraphType>();
+        std::int64_t vertex_count = graph_data.get_correct_vertex_count();
+
+        std::allocator<char> alloc;
+        const auto tc_desc = dal::preview::triangle_counting::descriptor<
+            float,
+            dal::preview::triangle_counting::method::ordered_count,
+            dal::preview::triangle_counting::task::local,
+            std::allocator<char>>(alloc);
+
+        const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
+
+        auto local_triangles_table = result_vertex_ranking.get_ranks();
+        const auto &local_triangles =
+            static_cast<const dal::homogen_table &>(local_triangles_table);
+        const auto local_triangles_data = local_triangles.get_data<std::int64_t>();
+
+        REQUIRE(local_triangles_table.get_row_count() == vertex_count);
+
+        int correct_local_triangle_count = 0;
+        for (std::int64_t i = 0; i < vertex_count; i++) {
+            if (local_triangles_data[i] == graph_data.local_triangles[i]) {
+                correct_local_triangle_count++;
+            }
+        }
+        REQUIRE(correct_local_triangle_count == vertex_count);
+    }
+
+    template <typename GraphType>
+    void check_local_and_global_task() {
+        GraphType graph_data;
+        const auto graph = create_graph<GraphType>();
+        std::int64_t vertex_count = graph_data.get_correct_vertex_count();
+        std::int64_t global_triangle_count = graph_data.get_correct_triangle_count();
+
         std::allocator<char> alloc;
         const auto tc_desc = dal::preview::triangle_counting::descriptor<
             float,
             dal::preview::triangle_counting::method::ordered_count,
             dal::preview::triangle_counting::task::local_and_global,
             std::allocator<char>>(alloc);
-        const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, my_graph);
+        const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
 
         auto local_triangles_table = result_vertex_ranking.get_ranks();
         const auto &local_triangles =
@@ -228,140 +260,112 @@ public:
 
         int correct_local_triangle_count = 0;
         for (std::int64_t i = 0; i < vertex_count; i++) {
-            if (local_triangles_data[i] == correct_triangles[i])
+            if (local_triangles_data[i] == graph_data.local_triangles[i])
                 correct_local_triangle_count++;
         }
         REQUIRE(correct_local_triangle_count == vertex_count);
     }
 
     template <typename GraphType>
-    void check_triangle_counting_global_scalar_() {
+    void check_global_task_relabeled() {
         GraphType graph_data;
-        REQUIRE(dal::preview::triangle_counting::backend::triangle_counting_global_scalar_<
-                    dal::backend::cpu_dispatch_default>(graph_data.cols.data(),
-                                                        graph_data.rows.data(),
-                                                        graph_data.degrees.data(),
-                                                        graph_data.get_correct_vertex_count(),
-                                                        graph_data.get_correct_edge_count()) ==
-                graph_data.get_correct_triangle_count());
+        const auto graph = create_graph<GraphType>();
+        std::int64_t global_triangle_count = graph_data.get_correct_triangle_count();
+
+        std::allocator<char> alloc;
+        auto tc_desc = dal::preview::triangle_counting::descriptor<
+            float,
+            dal::preview::triangle_counting::method::ordered_count,
+            dal::preview::triangle_counting::task::global,
+            std::allocator<char>>(alloc);
+
+        const auto relabel = tc_desc.get_relabel();
+        if (relabel == dal::preview::triangle_counting::relabel::yes) {
+            const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
+            REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
+        }
     }
 
     template <typename GraphType>
-    void check_triangle_counting_global_vector_() {
+    void check_global_task_not_relabeled() {
         GraphType graph_data;
-        REQUIRE(dal::preview::triangle_counting::backend::triangle_counting_global_vector_<
-                    dal::backend::cpu_dispatch_default>(graph_data.cols.data(),
-                                                        graph_data.rows.data(),
-                                                        graph_data.degrees.data(),
-                                                        graph_data.get_correct_vertex_count(),
-                                                        graph_data.get_correct_edge_count()) ==
-                graph_data.get_correct_triangle_count());
-    }
+        const auto graph = create_graph<GraphType>();
+        std::int64_t global_triangle_count = graph_data.get_correct_triangle_count();
 
-    template <typename GraphType>
-    void check_triangle_counting_global_vector_relabel_() {
-        GraphType graph_data;
-        REQUIRE(dal::preview::triangle_counting::backend::triangle_counting_global_vector_relabel_<
-                    dal::backend::cpu_dispatch_default>(graph_data.cols.data(),
-                                                        graph_data.rows.data(),
-                                                        graph_data.degrees.data(),
-                                                        graph_data.get_correct_vertex_count(),
-                                                        graph_data.get_correct_edge_count()) ==
-                graph_data.get_correct_triangle_count());
+        std::allocator<char> alloc;
+        auto tc_desc = dal::preview::triangle_counting::descriptor<
+            float,
+            dal::preview::triangle_counting::method::ordered_count,
+            dal::preview::triangle_counting::task::global,
+            std::allocator<char>>(alloc);
+
+        tc_desc.set_relabel(dal::preview::triangle_counting::relabel::no);
+        const auto relabel = tc_desc.get_relabel();
+        if (relabel == dal::preview::triangle_counting::relabel::no) {
+            const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
+            REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
+        }
     }
 };
 
-TEST_M(triangle_counting_test, "Average_degree < 4") {
-    complete_graph_5_type complete_graph;
-    const auto graph = create_graph<complete_graph_5_type>();
-    this->check_triangle_counting(graph,
-                                  complete_graph.local_triangles,
-                                  complete_graph.get_correct_vertex_count(),
-                                  complete_graph.get_correct_triangle_count());
+TEST_M(triangle_counting_test,
+       "local task for graphs with average_degree < average_degree_sparsity_boundary") {
+    this->check_local_task<complete_graph_5_type>();
+    this->check_local_task<acyclic_graph_type>();
+    this->check_local_task<two_vertices_graph_type>();
+    this->check_local_task<cycle_graph_type>();
+    this->check_local_task<triangle_graph_type>();
+    this->check_local_task<wheel_graph_type>();
 }
 
-TEST_M(triangle_counting_test, "Average_degree = 4") {
-    complete_graph_9_type complete_graph;
-    const auto my_graph = create_graph<complete_graph_9_type>();
-    this->check_triangle_counting(my_graph,
-                                  complete_graph.local_triangles,
-                                  complete_graph.get_correct_vertex_count(),
-                                  complete_graph.get_correct_triangle_count());
+TEST_M(triangle_counting_test,
+       "local task for graph with average_degree = average_degree_sparsity_boundary") {
+    this->check_local_task<complete_graph_9_type>();
 }
 
-TEST_M(triangle_counting_test, "Check triangle_counting_global_scalar_") {
-    this->check_triangle_counting_global_scalar_<complete_graph_5_type>();
-    this->check_triangle_counting_global_scalar_<complete_graph_9_type>();
-    this->check_triangle_counting_global_scalar_<acyclic_graph_type>();
-    this->check_triangle_counting_global_scalar_<two_vertices_graph_type>();
-    this->check_triangle_counting_global_scalar_<cycle_graph_type>();
-    this->check_triangle_counting_global_scalar_<triangle_graph_type>();
-    this->check_triangle_counting_global_scalar_<wheel_graph_type>();
+TEST_M(triangle_counting_test,
+       "local_and_global task for graphs with average_degree < average_degree_sparsity_boundary") {
+    this->check_local_and_global_task<complete_graph_5_type>();
+    this->check_local_and_global_task<acyclic_graph_type>();
+    this->check_local_and_global_task<two_vertices_graph_type>();
+    this->check_local_and_global_task<cycle_graph_type>();
+    this->check_local_and_global_task<triangle_graph_type>();
+    this->check_local_and_global_task<wheel_graph_type>();
 }
 
-TEST_M(triangle_counting_test, "Check triangle_counting_global_vector_") {
-    this->check_triangle_counting_global_vector_<complete_graph_5_type>();
-    this->check_triangle_counting_global_vector_<complete_graph_9_type>();
-    this->check_triangle_counting_global_vector_<acyclic_graph_type>();
-    this->check_triangle_counting_global_vector_<two_vertices_graph_type>();
-    this->check_triangle_counting_global_vector_<cycle_graph_type>();
-    this->check_triangle_counting_global_vector_<triangle_graph_type>();
-    this->check_triangle_counting_global_vector_<wheel_graph_type>();
+TEST_M(triangle_counting_test,
+       "local_and_global task for graph with average_degree = average_degree_sparsity_boundary") {
+    this->check_local_and_global_task<complete_graph_9_type>();
 }
 
-TEST_M(triangle_counting_test, "Check triangle_counting_global_vector_relabel_") {
-    this->check_triangle_counting_global_vector_relabel_<complete_graph_5_type>();
-    this->check_triangle_counting_global_vector_relabel_<complete_graph_9_type>();
-    this->check_triangle_counting_global_vector_relabel_<acyclic_graph_type>();
-    this->check_triangle_counting_global_vector_relabel_<two_vertices_graph_type>();
-    this->check_triangle_counting_global_vector_relabel_<cycle_graph_type>();
-    this->check_triangle_counting_global_vector_relabel_<triangle_graph_type>();
-    this->check_triangle_counting_global_vector_relabel_<wheel_graph_type>();
+TEST_M(triangle_counting_test,
+       "global task for relabeled graphs with average_degree < average_degree_sparsity_boundary") {
+    this->check_global_task_relabeled<complete_graph_5_type>();
+    this->check_global_task_relabeled<acyclic_graph_type>();
+    this->check_global_task_relabeled<two_vertices_graph_type>();
+    this->check_global_task_relabeled<cycle_graph_type>();
+    this->check_global_task_relabeled<triangle_graph_type>();
+    this->check_global_task_relabeled<wheel_graph_type>();
 }
 
-TEST_M(triangle_counting_test, "Check triangle counting in a acyclic graph") {
-    acyclic_graph_type acyclic_graph;
-    const auto my_acyclic_graph = create_graph<acyclic_graph_type>();
-    this->check_triangle_counting(my_acyclic_graph,
-                                  acyclic_graph.local_triangles,
-                                  acyclic_graph.get_correct_vertex_count(),
-                                  acyclic_graph.get_correct_triangle_count());
+TEST_M(triangle_counting_test,
+       "global task for relabeled graph with average_degree = average_degree_sparsity_boundary") {
+    this->check_global_task_relabeled<complete_graph_9_type>();
 }
 
-TEST_M(triangle_counting_test, "Check triangle counting in a graph with 2 vertices") {
-    two_vertices_graph_type two_vertices_graph;
-    const auto my_two_vertices_graph = create_graph<two_vertices_graph_type>();
-    this->check_triangle_counting(my_two_vertices_graph,
-                                  two_vertices_graph.local_triangles,
-                                  two_vertices_graph.get_correct_vertex_count(),
-                                  two_vertices_graph.get_correct_triangle_count());
+TEST_M(triangle_counting_test,
+    "global task for not relabeled graphs with average_degree < average_degree_sparsity_boundary") {
+    this->check_global_task_not_relabeled<complete_graph_5_type>();
+    this->check_global_task_not_relabeled<acyclic_graph_type>();
+    this->check_global_task_not_relabeled<two_vertices_graph_type>();
+    this->check_global_task_not_relabeled<cycle_graph_type>();
+    this->check_global_task_not_relabeled<triangle_graph_type>();
+    this->check_global_task_not_relabeled<wheel_graph_type>();
 }
 
-TEST_M(triangle_counting_test, "Check triangle counting in a cycle graph") {
-    cycle_graph_type cycle_graph;
-    const auto my_cycle_graph = create_graph<cycle_graph_type>();
-    this->check_triangle_counting(my_cycle_graph,
-                                  cycle_graph.local_triangles,
-                                  cycle_graph.get_correct_vertex_count(),
-                                  cycle_graph.get_correct_triangle_count());
-}
-
-TEST_M(triangle_counting_test, "Check triangle counting in a triangle graph") {
-    triangle_graph_type triangle_graph;
-    const auto my_triangle_graph = create_graph<triangle_graph_type>();
-    this->check_triangle_counting(my_triangle_graph,
-                                  triangle_graph.local_triangles,
-                                  triangle_graph.get_correct_vertex_count(),
-                                  triangle_graph.get_correct_triangle_count());
-}
-
-TEST_M(triangle_counting_test, "Check triangle counting in a wheel graph") {
-    wheel_graph_type wheel_graph;
-    const auto my_wheel_graph = create_graph<wheel_graph_type>();
-    this->check_triangle_counting(my_wheel_graph,
-                                  wheel_graph.local_triangles,
-                                  wheel_graph.get_correct_vertex_count(),
-                                  wheel_graph.get_correct_triangle_count());
+TEST_M(triangle_counting_test,
+    "global task for not relabeled graph with average_degree = average_degree_sparsity_boundary") {
+    this->check_global_task_not_relabeled<complete_graph_9_type>();
 }
 
 } // namespace oneapi::dal::algo::triangle_counting::test
