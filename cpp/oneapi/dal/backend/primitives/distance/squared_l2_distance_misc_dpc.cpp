@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/distance/squared_l2_distance_auxilary.hpp"
+#include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
 
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
@@ -53,7 +53,7 @@ sycl::event scatter_2d(sycl::queue& q,
     const auto* inp1_ptr = inp1.get_data();
     const auto* inp2_ptr = inp2.get_data();
     auto* out_ptr = out.get_mutable_data();
-    sycl::range<2> out_range(n_samples1, n_samples2);
+    const auto out_range = make_range_2d(n_samples1, n_samples2);
     return q.submit([&](sycl::handler& h) {
         h.depends_on(deps);
         h.parallel_for(out_range, [=](sycl::id<2> idx) {

@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
-#include "oneapi/dal/backend/primitives/distance/squared_l2_distance_auxilary.hpp"
+#include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
 
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"

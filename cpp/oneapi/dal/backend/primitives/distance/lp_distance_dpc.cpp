@@ -36,8 +36,8 @@ sycl::event distance<Float, Metric>::operator()(const ndview<Float, 2>& inp1,
     const auto inp_stride1 = inp1.get_leading_stride();
     const auto inp_stride2 = inp2.get_leading_stride();
     const auto out_stride = out.get_leading_stride();
-    // Constructing colrrect range of size m x n
-    sycl::range<2> out_range(n_samples1, n_samples2);
+    // Constructing correct range of size m x n
+    const auto out_range = make_range_2d(n_samples1, n_samples2);
     // Metric instance
     const auto& metric = this->m_;
     return q_.submit([&](sycl::handler& h) {

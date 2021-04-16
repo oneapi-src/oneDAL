@@ -25,7 +25,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
-#include "oneapi/dal/backend/primitives/distance/squared_l2_distance_auxilary.hpp"
+#include "oneapi/dal/backend/primitives/distance/squared_l2_distance_misc.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
