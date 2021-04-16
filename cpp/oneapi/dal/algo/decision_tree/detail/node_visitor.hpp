@@ -41,7 +41,8 @@ public:
     using leaf_t = leaf_node_info<task_t>;
     using split_t = split_node_info<task_t>;
 
-    explicit node_visitor_impl(Visitor&& visitor) : visitor_(std::forward<Visitor>(visitor)) {}
+    explicit node_visitor_impl(Visitor&& visitor) : visitor_(std::move(visitor)) {}
+    explicit node_visitor_impl(const Visitor& visitor) : visitor_(visitor) {}
 
     bool on_leaf_node(const leaf_t& desc) override {
         return visitor_(desc);
@@ -56,7 +57,8 @@ private:
 
 template <typename Task, typename Visitor>
 dal::detail::shared<node_visitor_iface<Task>> make_node_visitor(Visitor&& visitor) {
-    return std::make_shared<node_visitor_impl<Task, Visitor>>(std::forward<Visitor>(visitor));
+    return std::make_shared<node_visitor_impl<Task, std::decay_t<Visitor>>>(
+        std::forward<Visitor>(visitor));
 }
 
 } // namespace v1

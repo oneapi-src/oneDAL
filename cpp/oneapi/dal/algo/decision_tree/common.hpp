@@ -128,7 +128,7 @@ class leaf_node_info;
 
 /// Class containing description of leaf node in classification decision tree
 template <>
-class leaf_node_info<task::classification> : public node_info<task::classification> {
+class ONEDAL_EXPORT leaf_node_info<task::classification> : public node_info<task::classification> {
     using impl_t = detail::leaf_node_info_impl<task_t>;
 
 public:
@@ -149,7 +149,7 @@ private:
 
 /// Class containing description of leaf node in regression decision tree
 template <>
-class leaf_node_info<task::regression> : public node_info<task::regression> {
+class ONEDAL_EXPORT leaf_node_info<task::regression> : public node_info<task::regression> {
     using impl_t = detail::leaf_node_info_impl<task_t>;
 
 public:
