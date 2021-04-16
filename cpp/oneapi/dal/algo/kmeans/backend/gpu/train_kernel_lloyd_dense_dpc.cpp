@@ -99,7 +99,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
 
         const int64_t row_count = data.get_row_count();
         const int64_t column_count = data.get_column_count();
-        auto data_ptr = row_accessor<const Float>(data).pull({ 0, -1 });
+        auto data_ptr = row_accessor<const Float>(data).pull(q, { 0, -1 }, sycl::usm::alloc::device);
         auto arr_data = prm::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
 
         const int64_t cluster_count = params.get_cluster_count();
