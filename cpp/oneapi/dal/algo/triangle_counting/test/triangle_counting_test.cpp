@@ -353,7 +353,8 @@ TEST_M(triangle_counting_test,
     this->check_global_task_relabeled<complete_graph_9_type>();
 }
 
-TEST_M(triangle_counting_test,
+TEST_M(
+    triangle_counting_test,
     "global task for not relabeled graphs with average_degree < average_degree_sparsity_boundary") {
     this->check_global_task_not_relabeled<complete_graph_5_type>();
     this->check_global_task_not_relabeled<acyclic_graph_type>();
@@ -363,7 +364,8 @@ TEST_M(triangle_counting_test,
     this->check_global_task_not_relabeled<wheel_graph_type>();
 }
 
-TEST_M(triangle_counting_test,
+TEST_M(
+    triangle_counting_test,
     "global task for not relabeled graph with average_degree = average_degree_sparsity_boundary") {
     this->check_global_task_not_relabeled<complete_graph_9_type>();
 }
