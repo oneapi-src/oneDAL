@@ -21,8 +21,6 @@
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
 #include "oneapi/dal/algo/kmeans/common.hpp"
 
-#include <iostream>
-
 namespace oneapi::dal::kmeans::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL

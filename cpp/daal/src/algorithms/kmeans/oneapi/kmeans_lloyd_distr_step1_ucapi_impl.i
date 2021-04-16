@@ -29,7 +29,6 @@
 #include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step1_kernel_ucapi.h"
 
 #include "src/externals/service_ittnotify.h"
-#include <iostream>
 
 constexpr size_t maxInt32AsSizeT = static_cast<size_t>(daal::services::internal::MaxVal<int32_t>::get());
 
@@ -115,9 +114,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     auto outCCentroids = UniversalBuffer(ntCCentroidsRows.getBuffer());
 
     DAAL_ASSERT_UNIVERSAL_BUFFER(outCValues, algorithmFPType, nClusters);
-    std::cout << "context.fill" << std::endl;
     context.fill(outCValues, sizeof(algorithmFPType) == 4 ? FLT_MAX : DBL_MAX, st);
-    std::cout << "done" << std::endl;
     DAAL_CHECK_STATUS_VAR(st);
 
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
@@ -173,9 +170,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             auto finalAssignments = assignmentsRows.getBuffer();
             DAAL_ASSERT(finalAssignments.size() >= range.startIndex + range.count);
             DAAL_ASSERT_UNIVERSAL_BUFFER(assignments, int, range.count);
-            std::cout << "context.copy #1" << std::endl;
             context.copy(finalAssignments, range.startIndex, assignments, 0, range.count, st);
-            std::cout << "done" << std::endl;
             DAAL_CHECK_STATUS_VAR(st);
             DAAL_CHECK_STATUS_VAR(ntAssignments->releaseBlockOfRows(assignmentsRows));
         }
@@ -183,9 +178,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     DAAL_CHECK_STATUS_VAR(this->mergeReduceCentroids(outCentroids, nClusters, nFeatures));
     DAAL_ASSERT(outCCounters.size() >= nClusters);
     DAAL_ASSERT_UNIVERSAL_BUFFER(this->_partialCentroidsCounters, int, nClusters);
-    std::cout << "context.copy #2" << std::endl;
     context.copy(outCCounters, 0, this->_partialCentroidsCounters, 0, nClusters, st);
-    std::cout << "done" << std::endl;
     DAAL_CHECK_STATUS_VAR(st);
     DAAL_CHECK_STATUS_VAR(ntInCentroids->releaseBlockOfRows(inCentroidsRows));
     DAAL_CHECK_STATUS_VAR(ntClusterS0->releaseBlockOfRows(ntClusterS0Rows));
@@ -195,9 +188,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
     {
         DAAL_ASSERT_UNIVERSAL_BUFFER(outCValues, algorithmFPType, nClusters);
         DAAL_ASSERT_UNIVERSAL_BUFFER(this->_candidateDistances, algorithmFPType, nClusters);
-        std::cout << "context.copy #3" << std::endl;
         context.copy(outCValues, 0, this->_candidateDistances, 0, nClusters, st);
-        std::cout << "done" << std::endl;
     }
     DAAL_CHECK_STATUS_VAR(st);
     DAAL_CHECK_STATUS_VAR(ntCValues->releaseBlockOfRows(ntCValuesRows));
@@ -217,9 +208,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
             DAAL_CHECK_STATUS_VAR(ntData->getBlockOfRows(index, 1, readOnly, dataRows));
             DAAL_ASSERT_UNIVERSAL_BUFFER(outCCentroids, algorithmFPType, cPos * nFeatures + nFeatures);
             DAAL_ASSERT(dataRows.getBuffer().size() >= nFeatures);
-            std::cout << "context.copy #4" << std::endl;
             context.copy(outCCentroids, cPos * nFeatures, dataRows.getBuffer(), 0, nFeatures, st);
-            std::cout << "done" << std::endl;
             DAAL_CHECK_STATUS_VAR(st);
         }
     }
