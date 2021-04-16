@@ -17,7 +17,7 @@
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl.hpp"
+//#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -97,15 +97,18 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                               const train_input<task::clustering>& input) const {
         const auto data = input.get_data();
 
+        auto& queue = ctx.get_queue();
+        interop::execution_context_guard guard(queue);        
+
         const int64_t row_count = data.get_row_count();
         const int64_t column_count = data.get_column_count();
         auto data_ptr =
-            row_accessor<const Float>(data).pull(q, { 0, -1 }, sycl::usm::alloc::device);
+            row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
         auto arr_data = prm::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
 
         const int64_t cluster_count = params.get_cluster_count();
-        const int64_t max_iteration_count = params.get_max_iteration_count();
-        const double accuracy_threshold = params.get_accuracy_threshold();
+//        const int64_t max_iteration_count = params.get_max_iteration_count();
+//        const double accuracy_threshold = params.get_accuracy_threshold();
 
         auto initial_centroids = get_initial_centroids<Float>(ctx, params, input);
         daal::data_management::BlockDescriptor<Float> block;
@@ -113,9 +116,6 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         Float* initial_centroids_ptr = block.getBlockPtr();
         auto arr_initial =
             prm::ndarray<Float, 2>::wrap(initial_centroids_ptr, { cluster_count, column_count });
-
-        auto& queue = ctx.get_queue();
-        interop::execution_context_guard guard(queue);
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
 
@@ -126,7 +126,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             prm::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_distances =
             prm::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
-
+/*
         kmeans_impl<Float> estimator(queue, row_count, column_count, params);
         Float prev_objective_function = det::limits<Float>::max();
         std::int64_t iter;
@@ -153,6 +153,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto [assign_event, count_event, objective_function_event] =
             estimator.update_clusters(arr_data, arr_centroids, arr_labels, { centroids_event });
         //        bk::event_vec{assign_event, count_event, objective_function_event}.wait_and_throw();
+*/
         return train_result<task::clustering>()
             .set_labels(
                 dal::detail::homogen_table_builder{}
@@ -160,8 +161,8 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                            row_count,
                            1)
                     .build())
-            .set_iteration_count(iter)
-            .set_objective_function_value(estimator.get_objective_function())
+            .set_iteration_count(0/*iter*/)
+            .set_objective_function_value(0.0 /* obj_func*/)
             .set_model(model<task::clustering>().set_centroids(
                 dal::detail::homogen_table_builder{}
                     .reset(array<Float>{ arr_centroids.get_data(),
