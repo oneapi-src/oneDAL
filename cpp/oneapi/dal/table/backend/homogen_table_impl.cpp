@@ -64,13 +64,14 @@ template <typename DataSrc, typename DataDest>
 static void refer_origin_data(const array<DataSrc>& src,
                               std::int64_t src_start_index,
                               std::int64_t dst_count,
-                              array<DataDest>& dst) {
+                              array<DataDest>& dst,
+                              bool preserve_mutability) {
     ONEDAL_ASSERT(src_start_index >= 0);
     ONEDAL_ASSERT(src.get_count() > src_start_index);
     ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >=
                   dst_count * sizeof(DataDest));
 
-    if (src.has_mutable_data()) {
+    if (src.has_mutable_data() && preserve_mutability) {
         // TODO: in future, when table knows about mutability of its data this branch shall be
         // available only for builders, not for tables.
         auto start_pointer = reinterpret_cast<DataDest*>(src.get_mutable_data() + src_start_index);
@@ -146,7 +147,8 @@ public:
     void pull_by_row_major(const Policy& policy,
                            const array<byte_t>& origin_data,
                            array<BlockData>& block_data,
-                           const alloc_kind& requested_alloc_kind) const {
+                           const alloc_kind& requested_alloc_kind,
+                           bool preserve_mutability) const {
         constexpr std::int64_t block_dtype_size = sizeof(BlockData);
         const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
         const auto block_dtype = detail::make_data_type<BlockData>();
@@ -170,7 +172,8 @@ public:
             refer_origin_data(origin_data,
                               origin_offset * block_dtype_size,
                               block_.element_count,
-                              block_data);
+                              block_data,
+                              preserve_mutability);
         }
         else {
             if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
@@ -212,7 +215,8 @@ public:
     void pull_by_column_major(const Policy& policy,
                               const array<byte_t>& origin_data,
                               array<BlockData>& block_data,
-                              const alloc_kind& requested_alloc_kind) const {
+                              const alloc_kind& requested_alloc_kind,
+                              bool preserve_mutability) const {
         constexpr std::int64_t block_dtype_size = sizeof(BlockData);
         const auto origin_dtype_size = detail::get_data_type_size(origin_.dtype);
         const auto block_dtype = detail::make_data_type<BlockData>();
@@ -386,7 +390,8 @@ template <typename Policy, typename Data>
 void homogen_table_impl::pull_rows_impl(const Policy& policy,
                                         array<Data>& block,
                                         const range& rows,
-                                        const alloc_kind& kind) const {
+                                        const alloc_kind& kind,
+                                        bool preserve_mutability) const {
     check_block_row_range(rows, row_count_);
 
     const auto& data_type = meta_.get_data_type(0);
@@ -396,10 +401,10 @@ void homogen_table_impl::pull_rows_impl(const Policy& policy,
     override_policy(policy, block, [&](auto overriden_policy) {
         switch (layout_) {
             case data_layout::row_major:
-                p.pull_by_row_major(overriden_policy, data_, block, kind);
+                p.pull_by_row_major(overriden_policy, data_, block, kind, preserve_mutability);
                 break;
             case data_layout::column_major:
-                p.pull_by_column_major(overriden_policy, data_, block, kind);
+                p.pull_by_column_major(overriden_policy, data_, block, kind, preserve_mutability);
                 break;
             default: throw dal::domain_error(error_msg::unsupported_data_layout());
         }
@@ -411,7 +416,8 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
                                           array<Data>& block,
                                           std::int64_t column_index,
                                           const range& rows,
-                                          const alloc_kind& kind) const {
+                                          const alloc_kind& kind,
+                                          bool preserve_mutability) const {
     check_block_row_range(rows, row_count_);
     check_block_column_index(column_index, col_count_);
 
@@ -422,10 +428,10 @@ void homogen_table_impl::pull_column_impl(const Policy& policy,
     override_policy(policy, block, [&](auto overriden_policy) {
         switch (layout_) {
             case data_layout::row_major:
-                p.pull_by_column_major(overriden_policy, data_, block, kind);
+                p.pull_by_column_major(overriden_policy, data_, block, kind, preserve_mutability);
                 break;
             case data_layout::column_major:
-                p.pull_by_row_major(overriden_policy, data_, block, kind);
+                p.pull_by_row_major(overriden_policy, data_, block, kind, preserve_mutability);
                 break;
             default: throw dal::domain_error(error_msg::unsupported_data_layout());
         }
@@ -557,22 +563,24 @@ void homogen_table_impl::override_policy(const Policy& policy,
 #endif
 } // namespace oneapi::dal::backend
 
-#define INSTANTIATE_IMPL(Policy, Data)                                                \
-    template void homogen_table_impl::pull_rows_impl(const Policy& policy,            \
-                                                     array<Data>& block,              \
-                                                     const range& rows,               \
-                                                     const alloc_kind& kind) const;   \
-    template void homogen_table_impl::pull_column_impl(const Policy& policy,          \
-                                                       array<Data>& block,            \
-                                                       std::int64_t column_index,     \
-                                                       const range& rows,             \
-                                                       const alloc_kind& kind) const; \
-    template void homogen_table_impl::push_rows_impl(const Policy& policy,            \
-                                                     const array<Data>& block,        \
-                                                     const range& rows);              \
-    template void homogen_table_impl::push_column_impl(const Policy& policy,          \
-                                                       const array<Data>& block,      \
-                                                       std::int64_t column_index,     \
+#define INSTANTIATE_IMPL(Policy, Data)                                                  \
+    template void homogen_table_impl::pull_rows_impl(const Policy& policy,              \
+                                                     array<Data>& block,                \
+                                                     const range& rows,                 \
+                                                     const alloc_kind& kind,            \
+                                                     bool preserve_mutability) const;   \
+    template void homogen_table_impl::pull_column_impl(const Policy& policy,            \
+                                                       array<Data>& block,              \
+                                                       std::int64_t column_index,       \
+                                                       const range& rows,               \
+                                                       const alloc_kind& kind,          \
+                                                       bool preserve_mutability) const; \
+    template void homogen_table_impl::push_rows_impl(const Policy& policy,              \
+                                                     const array<Data>& block,          \
+                                                     const range& rows);                \
+    template void homogen_table_impl::push_column_impl(const Policy& policy,            \
+                                                       const array<Data>& block,        \
+                                                       std::int64_t column_index,       \
                                                        const range& rows);
 
 #ifdef ONEDAL_DATA_PARALLEL
