@@ -13,19 +13,7 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "interface_tests",
-    framework = "catch2",
-    srcs = glob([
-        "test/*.cpp",
-    ]),
-    dal_deps = [
-        ":decision_tree",
-    ],
-)
-
-dal_test_suite(
     name = "tests",
     tests = [
-        ":interface_tests",
     ],
 )
