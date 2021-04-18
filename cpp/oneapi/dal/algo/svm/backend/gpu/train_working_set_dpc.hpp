@@ -78,8 +78,8 @@ public:
         ONEDAL_ASSERT(indicator.get_dimension(0) == n_vectors_);
         ONEDAL_ASSERT(indicator.has_mutable_data());
 
-        Float* idx_ptr = idx.get_data();
-        Float* indicator_ptr = indicator.get_mutable_data();
+        const std::uint32_t* idx_ptr = idx.get_data();
+        std::uint32_t* indicator_ptr = indicator.get_mutable_data();
 
         auto reset_indicator_with_zeros_event = queue_.submit([&](sycl::handler& chg) {
             chg.depends_on(deps);
@@ -104,15 +104,24 @@ public:
         ONEDAL_ASSERT(y.get_dimension(0) == f.get_dimension(0));
         ONEDAL_ASSERT(alpha.get_dimension(0) == f.get_dimension(0));
 
+        std::cout<< "Select start" << std::endl;
+
         auto arg_sort_event = arg_sort(queue_, f, values_sort_, sorted_f_inices_, n_vectors_, deps);
+        arg_sort_event.wait_and_throw();
+
+        std::cout<< "Argsort done" << std::endl;
 
         sycl::event copy_event;
 
         {
-            const std::uint32_t n_need_select = (n_ws_ - n_selected_) / 2;
+            const std::int64_t n_need_select = (n_ws_ - n_selected_) / 2;
+
+            std::cout<< "Start check_upper" << std::endl;
 
             auto check_upper_event =
                 check_upper(queue_, y, alpha, indicator_, C, n_vectors_, { arg_sort_event });
+
+            std::cout<< "Check upper done" << std::endl;
 
             /* Reset indicator for busy Indices */
             if (n_selected_ > 0) {
@@ -122,13 +131,16 @@ public:
                                            { check_upper_event })
                     .wait_and_throw();
             }
+            std::cout<< "Reset indicator done" << std::endl;
 
-            std::uint32_t n_upper_select = 0;
-            auto select_event = pr::select_flagged_index<Float, std::uint32_t>{
+            std::int64_t n_upper_select = 0;
+            auto select_event = pr::select_flagged_index<std::uint32_t, std::uint32_t>{
                 queue_
             }(indicator_, sorted_f_inices_, buff_indices_, n_upper_select, { check_upper_event });
 
-            const std::uint32_t n_copy = std::min(n_upper_select, n_need_select);
+            std::cout<< "Select flagged done" << std::endl;
+
+            const std::int64_t n_copy = std::min(n_upper_select, n_need_select);
 
             std::uint32_t* ws_indices_ptr = ws_indices_.get_mutable_data();
             const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
@@ -143,7 +155,7 @@ public:
         }
 
         {
-            const std::uint32_t n_need_select = n_ws_ - n_selected_;
+            const std::int64_t n_need_select = n_ws_ - n_selected_;
 
             auto check_lower_event =
                 check_lower(queue_, y, alpha, indicator_, C, n_vectors_, { copy_event });
@@ -157,12 +169,12 @@ public:
                     .wait_and_throw();
             }
 
-            std::uint32_t n_lower_select = 0;
-            auto select_event = pr::select_flagged_index<Float, std::uint32_t>{
+            std::int64_t n_lower_select = 0;
+            auto select_event = pr::select_flagged_index<std::uint32_t, std::uint32_t>{
                 queue_
             }(indicator_, sorted_f_inices_, buff_indices_, n_lower_select, { check_lower_event });
 
-            const std::uint32_t n_copy = std::min(n_lower_select, n_need_select);
+            const std::int64_t n_copy = std::min(n_lower_select, n_need_select);
 
             std::uint32_t* ws_indices_ptr = ws_indices_.get_mutable_data();
             const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
@@ -177,7 +189,7 @@ public:
         }
 
         if (n_selected_ < n_ws_) {
-            const std::uint32_t n_need_select = n_ws_ - n_selected_;
+            const std::int64_t n_need_select = n_ws_ - n_selected_;
 
             auto check_lower_event =
                 check_lower(queue_, y, alpha, indicator_, C, n_vectors_, { copy_event });
@@ -191,12 +203,12 @@ public:
                     .wait_and_throw();
             }
 
-            std::uint32_t n_upper_select = 0;
-            auto select_event = pr::select_flagged_index<Float, std::uint32_t>{
+            std::int64_t n_upper_select = 0;
+            auto select_event = pr::select_flagged_index<std::uint32_t, std::uint32_t>{
                 queue_
             }(indicator_, sorted_f_inices_, buff_indices_, n_upper_select, { check_lower_event });
 
-            const std::uint32_t n_copy = std::min(n_upper_select, n_need_select);
+            const std::int64_t n_copy = std::min(n_upper_select, n_need_select);
 
             std::uint32_t* ws_indices_ptr = ws_indices_.get_mutable_data();
             const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();

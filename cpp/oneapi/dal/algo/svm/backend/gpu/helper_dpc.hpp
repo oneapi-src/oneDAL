@@ -58,7 +58,7 @@ inline sycl::event arg_sort(sycl::queue& queue,
     ONEDAL_ASSERT(values.has_mutable_data());
     sycl::event::wait_and_throw(deps);
 
-    Float* f_ptr = f.get_data();
+    const Float* f_ptr = f.get_data();
     Float* values_ptr = values.get_mutable_data();
 
     auto copy_event = dal::backend::copy(queue, values_ptr, f_ptr, n);
@@ -83,22 +83,32 @@ inline sycl::event check_upper(sycl::queue& queue,
     ONEDAL_ASSERT(indicator.get_dimension(0) == n);
     ONEDAL_ASSERT(indicator.has_mutable_data());
 
-    Float* y_ptr = y.get_data();
-    Float* alpha_ptr = alpha.get_data();
-    Float* indicator_ptr = indicator.get_mutable_data();
+    // const Float* y_ptr = y.get_data();
+    const Float* alpha_ptr = alpha.get_data();
+    std::uint32_t* indicator_ptr = indicator.get_mutable_data();
+    Float* tmp = sycl::malloc_device<Float>(n, queue);
+
+    std::cout << "start check_upper_event" << std::endl;
 
     auto check_upper_event = queue.submit([&](sycl::handler& chg) {
         chg.depends_on(deps);
-        const auto range_dim = dal::detail::integral_cast<std::size_t>(n);
-        const auto range = sycl::range<1>(range_dim);
+
+        // const auto range_dim = dal::detail::integral_cast<std::size_t>(n);
+        const auto range = sycl::range<1>(n);
 
         chg.parallel_for(range, [=](sycl::id<1> id) {
-            const uint i = id[0];
-            indicator_ptr[i] =
-                (y_ptr[i] > 0 && alpha_ptr[i] < C) || (y_ptr[i] < 0 && alpha_ptr[i] > 0);
+            const std::uint32_t i = id[0];
+            // out << i << " " << y_ptr[i] << " " << alpha_ptr[i] << " " << C << sycl::endl;
+            // indicator_ptr[i] =
+            //     (y_ptr[i] > 0 && alpha_ptr[i] < C) || (y_ptr[i] < 0 && alpha_ptr[i] > 0);
+            // Float tmp1 =y_ptr[i];
+            // Float tmp2 =alpha_ptr[i];
+            indicator_ptr[i] = 0;
+            tmp[i] = alpha_ptr[i];
+                 
         });
     });
-
+    check_upper_event.wait_and_throw();
     return check_upper_event;
 }
 
@@ -115,9 +125,9 @@ inline sycl::event check_lower(sycl::queue& queue,
     ONEDAL_ASSERT(indicator.get_dimension(0) == n);
     ONEDAL_ASSERT(indicator.has_mutable_data());
 
-    Float* y_ptr = y.get_data();
-    Float* alpha_ptr = alpha.get_data();
-    Float* indicator_ptr = indicator.get_mutable_data();
+    const Float* y_ptr = y.get_data();
+    const Float* alpha_ptr = alpha.get_data();
+    std::uint32_t* indicator_ptr = indicator.get_mutable_data();
 
     auto check_upper_event = queue.submit([&](sycl::handler& chg) {
         chg.depends_on(deps);
