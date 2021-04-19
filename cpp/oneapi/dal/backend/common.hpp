@@ -160,6 +160,15 @@ inline void check_if_same_context(const sycl::queue& q1,
     check_if_same_context(q1, q4);
 }
 
+inline sycl::range<1> make_range_1d(std::int64_t size) {
+    return { dal::detail::integral_cast<std::size_t>(size) };
+}
+
+inline sycl::range<2> make_range_2d(std::int64_t size1, std::int64_t size2) {
+    return { dal::detail::integral_cast<std::size_t>(size1),
+             dal::detail::integral_cast<std::size_t>(size2) };
+}
+
 /// Creates `nd_range`, where global size is multiple of local size
 inline sycl::nd_range<1> make_multiple_nd_range_1d(std::int64_t global_size,
                                                    std::int64_t local_size) {
