@@ -19,6 +19,9 @@
 #include "oneapi/dal/backend/primitives/loops.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#define ONEDAL_ENABLE_PROFILING
+#include "oneapi/dal/backend/profiling.hpp"
+
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 
 namespace oneapi::dal::backend::primitives {
@@ -143,12 +146,21 @@ sycl::event correlation(sycl::queue& q,
                         const event_vector& deps) {
     validate_input(q, data, sums, corr, means, vars, tmp);
 
+    ONEDAL_TIMER_BEGIN(correlation, gemm)
     auto gemm_event = gemm(q, data.t(), data, corr, Float(1), Float(0), deps);
+    ONEDAL_TIMER_END(gemm, gemm_event)
 
+    ONEDAL_TIMER_BEGIN(correlation, prepare_correlation)
     auto prepare_event =
         prepare_correlation(q, data.get_dimension(0), sums, corr, means, vars, tmp, { gemm_event });
+    ONEDAL_TIMER_END(prepare_correlation, prepare_event)
 
-    return finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
+    ONEDAL_TIMER_BEGIN(correlation, finalize_correlation)
+    auto finalize_event =
+        finalize_correlation(q, data.get_dimension(0), sums, tmp, corr, { prepare_event });
+    ONEDAL_TIMER_END(finalize_correlation, finalize_event)
+
+    return finalize_event;
 }
 
 #define INSTANTIATE(F)                                                     \

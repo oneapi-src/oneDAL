@@ -74,11 +74,16 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
     ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1));
     const std::int64_t column_count = corr.get_dimension(0);
 
+    ONEDAL_TIMER_BEGIN(pca_cov_training, corr_to_host)
     auto host_corr = corr.to_host(q, deps);
+    ONEDAL_TIMER_END(corr_to_host)
+
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
 
+    ONEDAL_TIMER_BEGIN(pca_cov_training, sym_eigvals_descending)
     pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+    ONEDAL_TIMER_END(sym_eigvals_descending)
 
     return std::make_tuple(eigvecs, eigvals);
 }
@@ -95,7 +100,9 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     dal::detail::check_mul_overflow(column_count, column_count);
     dal::detail::check_mul_overflow(component_count, column_count);
 
+    ONEDAL_TIMER_BEGIN(pca_cov_training, flatten_table)
     const auto data_nd = pr::flatten_table<Float, row_accessor>(q, data, sycl::usm::alloc::device);
+    ONEDAL_TIMER_END(flatten_table)
 
     ONEDAL_TIMER_BEGIN(pca_cov_training, compute_sums)
     auto [sums, sums_event] = compute_sums(q, data_nd);
