@@ -43,7 +43,7 @@ class detail::v1::model_impl : public base {
     static_assert(is_valid_task_v<Task>);
 
     using dtree_task_t = detail::decision_tree_task_map_t<Task>;
-    using visitor_t = detail::decision_tree_visitor_iface_t<Task>;
+    using visitor_t = detail::decision_tree_visitor_ptr<Task>;
     using visitor_interop_t = decision_tree::visitor_interop<dtree_task_t>;
 
 public:
