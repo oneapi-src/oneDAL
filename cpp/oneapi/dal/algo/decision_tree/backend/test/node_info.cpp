@@ -46,12 +46,13 @@ public:
             impl.label = zeroize ? 0 : response_cls_;
 
             auto prob_arr = dal::array<double>::empty(impl.class_count);
+            vec_prob_.push_back(prob_arr); // node_info doesn't own prob pointer
             auto prob = prob_arr.get_mutable_data();
             for (std::int64_t idx = 0; idx < impl.class_count; idx++) {
                 prob[idx] = zeroize ? 0 : static_cast<double>(idx);
             }
 
-            impl.prob = prob_arr;
+            impl.prob = prob; // node_info doesn't own prob pointer
         }
         else {
             impl.label = zeroize ? 0 : response_reg_;
@@ -164,6 +165,7 @@ private:
 
     std::int64_t response_cls_ = 4;
     double response_reg_ = 0.5;
+    std::vector<dal::array<double>> vec_prob_;
 };
 
 constexpr bool move = true;

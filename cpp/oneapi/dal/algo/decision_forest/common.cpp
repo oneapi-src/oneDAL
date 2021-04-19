@@ -33,7 +33,6 @@ class descriptor_impl : public base {
 
 public:
     explicit descriptor_impl() {
-        static_assert(detail::is_valid_task_v<Task>);
         if constexpr (std::is_same_v<Task, task::classification>) {
             class_count = 2;
             min_observations_in_leaf_node = 1;

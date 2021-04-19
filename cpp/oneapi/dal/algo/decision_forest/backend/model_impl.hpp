@@ -67,8 +67,6 @@ public:
     }
 
     void traverse_depth_first_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
-        static_assert(is_valid_task_v<Task>, "Unknown task");
-
         if (!interop_) {
             throw dal::internal_error(
                 dal::detail::error_messages::input_model_is_not_initialized());
@@ -88,8 +86,6 @@ public:
     }
 
     void traverse_breadth_first_impl(std::int64_t tree_idx, visitor_t&& visitor) const {
-        static_assert(is_valid_task_v<Task>, "Unknown task");
-
         if (!interop_) {
             throw dal::internal_error(
                 dal::detail::error_messages::input_model_is_not_initialized());

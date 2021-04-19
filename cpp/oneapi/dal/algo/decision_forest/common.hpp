@@ -256,8 +256,6 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
-/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
 template <typename Task>
 struct decision_tree_task_map;
 
@@ -275,9 +273,8 @@ template <typename Task>
 using decision_tree_task_map_t = typename decision_tree_task_map<Task>::tree_task_t;
 
 template <typename Task>
-using decision_tree_visitor_iface_t = dal::detail::shared<
-    typename decision_tree::detail::node_visitor_iface<decision_tree_task_map_t<Task>>>;
-//using decision_tree_visitor_iface_t = dal::detail::pimpl<typename decision_tree::detail::node_visitor_iface<decision_tree_task_map_t<Task>>>;
+using decision_tree_visitor_ptr =
+    decision_tree::detail::node_visitor_ptr<decision_tree_task_map_t<Task>>;
 
 } // namespace v1
 
@@ -293,7 +290,7 @@ using v1::is_valid_task_v;
 
 using v1::decision_tree_task_map;
 using v1::decision_tree_task_map_t;
-using v1::decision_tree_visitor_iface_t;
+using v1::decision_tree_visitor_ptr;
 
 } // namespace detail
 
@@ -567,7 +564,7 @@ class model : public base {
     friend dal::detail::pimpl_accessor;
 
     using dtree_task_t = detail::decision_tree_task_map_t<Task>;
-    using dtree_visitor_iface_t = detail::decision_tree_visitor_iface_t<Task>;
+    using dtree_visitor_iface_t = detail::decision_tree_visitor_ptr<Task>;
 
 public:
     using task_t = Task;

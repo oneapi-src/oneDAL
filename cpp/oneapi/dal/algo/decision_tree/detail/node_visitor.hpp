@@ -34,6 +34,9 @@ public:
     virtual bool on_split_node(const split_t& desc) = 0;
 };
 
+template <typename Task>
+using node_visitor_ptr = dal::detail::shared<node_visitor_iface<Task>>;
+
 template <typename Task, typename Visitor>
 class node_visitor_impl : public base, public node_visitor_iface<Task> {
 public:
@@ -64,6 +67,7 @@ dal::detail::shared<node_visitor_iface<Task>> make_node_visitor(Visitor&& visito
 } // namespace v1
 
 using v1::node_visitor_iface;
+using v1::node_visitor_ptr;
 using v1::node_visitor_impl;
 using v1::make_node_visitor;
 

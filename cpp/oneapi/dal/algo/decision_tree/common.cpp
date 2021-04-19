@@ -27,8 +27,7 @@ node_info<Task>::node_info() : impl_(new impl_t{}) {}
 
 template <typename Task>
 node_info<Task>::~node_info() {
-    if (impl_)
-        delete impl_;
+    delete impl_;
 }
 
 template <typename Task>
@@ -47,8 +46,7 @@ node_info<Task>& node_info<Task>::operator=(const node_info<task_t>& orig) {
     if (&orig == this)
         return *this;
 
-    if (impl_)
-        delete impl_;
+    delete impl_;
 
     impl_ = new impl_t(*orig.impl_);
     return *this;
@@ -59,8 +57,7 @@ node_info<Task>& node_info<Task>::operator=(node_info<task_t>&& orig) {
     if (&orig == this)
         return *this;
 
-    if (impl_)
-        delete impl_;
+    delete impl_;
 
     impl_ = orig.impl_;
     orig.impl_ = nullptr;
@@ -100,8 +97,7 @@ split_node_info<Task>& split_node_info<Task>::operator=(const split_node_info<ta
     if (&orig == this)
         return *this;
 
-    if (this->impl_)
-        delete this->impl_;
+    delete this->impl_;
 
     this->impl_ = new impl_t(de::cast_impl<impl_t>(orig));
     return *this;
@@ -112,8 +108,7 @@ split_node_info<Task>& split_node_info<Task>::operator=(split_node_info<task_t>&
     if (&orig == this)
         return *this;
 
-    if (this->impl_)
-        delete this->impl_;
+    delete this->impl_;
 
     this->impl_ = orig.impl_;
     orig.impl_ = nullptr;
@@ -148,8 +143,7 @@ leaf_node_info<task::classification>& leaf_node_info<task::classification>::oper
     if (&orig == this)
         return *this;
 
-    if (impl_)
-        delete impl_;
+    delete impl_;
 
     impl_ = new impl_t(de::cast_impl<impl_t>(orig));
 
@@ -161,8 +155,7 @@ leaf_node_info<task::classification>& leaf_node_info<task::classification>::oper
     if (&orig == this)
         return *this;
 
-    if (impl_)
-        delete impl_;
+    delete impl_;
 
     impl_ = orig.impl_;
     orig.impl_ = nullptr;
@@ -176,7 +169,7 @@ std::int64_t leaf_node_info<task::classification>::get_label() const {
 
 double leaf_node_info<task::classification>::get_probability(std::int64_t class_idx) const {
     auto& impl = de::cast_impl<impl_t>(*this);
-    return impl.prob.get_data() && class_idx < impl.class_count ? impl.prob[class_idx] : 0.;
+    return impl.prob && class_idx < impl.class_count ? impl.prob[class_idx] : 0.;
 }
 
 leaf_node_info<task::regression>::leaf_node_info() : node_info<task::regression>(new impl_t{}) {}
@@ -194,8 +187,7 @@ leaf_node_info<task::regression>& leaf_node_info<task::regression>::operator=(
     if (&orig == this)
         return *this;
 
-    if (impl_)
-        delete impl_;
+    delete impl_;
 
     impl_ = new impl_t(de::cast_impl<impl_t>(orig));
     return *this;
@@ -206,8 +198,7 @@ leaf_node_info<task::regression>& leaf_node_info<task::regression>::operator=(
     if (&orig == this)
         return *this;
 
-    if (impl_)
-        delete impl_;
+    delete impl_;
 
     impl_ = orig.impl_;
     orig.impl_ = nullptr;
