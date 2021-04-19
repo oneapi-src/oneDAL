@@ -57,7 +57,7 @@ TEST("can read table data via row accessor with conversion") {
     }
 }
 
-TEST("can_read table data via row accessor and array outside") {
+TEST("can read table data via row accessor and array outside") {
     using oneapi::dal::detail::empty_delete;
 
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
@@ -104,6 +104,65 @@ TEST("can read rows from column major table with conversion") {
     REQUIRE(rows_data.get_count() == 1 * t.get_column_count());
     REQUIRE(rows_data[0] == 2);
     REQUIRE(rows_data[1] == -2);
+}
+
+TEST("pull returns immutable data from homogen_table") {
+    constexpr std::int64_t row_count = 3;
+    constexpr std::int64_t column_count = 2;
+    float data[row_count * column_count] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+    array<float> block;
+
+    SECTION("pull from homogen_table created via raw pointer") {
+        const auto t = homogen_table::wrap(data, row_count, column_count);
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    SECTION("pull from homogen_table created via array") {
+        const auto ary = array<float>::wrap(data, row_count * column_count);
+        const auto t = homogen_table::wrap(ary, row_count, column_count);
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    SECTION("pull from homogen_table created via builder") {
+        const auto ary = array<float>::wrap(data, row_count * column_count);
+        const auto t = detail::homogen_table_builder{}.reset(ary, row_count, column_count).build();
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    REQUIRE(block.has_mutable_data() == false);
+}
+
+TEST("pull returns mutable data from homogen_table_builder") {
+    constexpr std::int64_t row_count = 3;
+    constexpr std::int64_t column_count = 2;
+    float data[row_count * column_count] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+
+    const auto ary = array<float>::wrap(data, row_count * column_count);
+    const auto builder = detail::homogen_table_builder{}.reset(ary, row_count, column_count);
+    const auto block = row_accessor<const float>{ builder }.pull();
+
+    REQUIRE(block.has_mutable_data() == true);
+}
+
+TEST("pull does not copy if contigious block is requested") {
+    constexpr std::int64_t row_count = 3;
+    constexpr std::int64_t column_count = 2;
+    float data[row_count * column_count] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+    array<float> block;
+
+    SECTION("pull from homogen_table") {
+        auto t = homogen_table::wrap(data, row_count, column_count);
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    SECTION("pull from homogen_table_builder") {
+        auto ary = array<float>::wrap(data, row_count * column_count);
+        auto builder = detail::homogen_table_builder{}.reset(ary, row_count, column_count);
+        block = row_accessor<const float>{ builder }.pull();
+    }
+
+    REQUIRE(block.get_data() == data);
+    REQUIRE(block.get_count() == row_count * column_count);
 }
 
 TEST("pull throws exception if invalid range") {

@@ -87,8 +87,8 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
     'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
-    'daal4py_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/%s', ''),
-    'daal4py_sycl_example': ('https://github.com/IntelPython/daal4py/tree/master/examples/sycl/%s', ''),
+    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/%s', ''),
+    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sycl/%s', ''),
     'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
 }
 
@@ -204,6 +204,13 @@ nitpick_ignore = [
     ('cpp:identifier', 'svm::infer_result'),
     ('cpp:identifier', 'svm::infer_input'),
     ('cpp:identifier', 'Kernel'),
+    ('cpp:identifier', 'oneapi::dal::svm'),
+    ('cpp:identifier', 'oneapi::dal::svm::method'),
+    ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
+    ('cpp:identifier', 'Kernel'),
+    ('cpp:identifier', 'task::regression'),
+    ('cpp:identifier', 'task::classification'),
+    ('cpp:identifier', 'detail::enable_if_regression_t<T>'),
     # linear kernel
     ('cpp:identifier', 'linear_kernel'),
     ('cpp:identifier', 'linear_kernel::descriptor'),
@@ -273,6 +280,8 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::kmeans::task'),
     ('cpp:identifier', 'oneapi::dal::decision_forest'),
     ('cpp:identifier', 'oneapi::dal::decision_forest::task'),
+    ('cpp:identifier', 'oneapi::dal::decision_forest::task::v1'),
+
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::task'),

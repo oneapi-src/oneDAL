@@ -160,6 +160,15 @@ inline void check_if_same_context(const sycl::queue& q1,
     check_if_same_context(q1, q4);
 }
 
+inline sycl::range<1> make_range_1d(std::int64_t size) {
+    return { dal::detail::integral_cast<std::size_t>(size) };
+}
+
+inline sycl::range<2> make_range_2d(std::int64_t size1, std::int64_t size2) {
+    return { dal::detail::integral_cast<std::size_t>(size1),
+             dal::detail::integral_cast<std::size_t>(size2) };
+}
+
 /// Creates `nd_range`, where global size is multiple of local size
 inline sycl::nd_range<1> make_multiple_nd_range_1d(std::int64_t global_size,
                                                    std::int64_t local_size) {
@@ -194,6 +203,14 @@ inline sycl::nd_range<3> make_multiple_nd_range_3d(const ndindex<3>& global_size
 inline std::int64_t device_max_wg_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::max_work_group_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_max_sg_size(const sycl::queue& q) {
+    const std::vector<size_t> sg_sizes =
+        q.get_device().template get_info<sycl::info::device::sub_group_sizes>();
+    auto result_iter = std::max_element(sg_sizes.begin(), sg_sizes.end());
+    ONEDAL_ASSERT(result_iter != sg_sizes.end());
+    return dal::detail::integral_cast<std::int64_t>(*result_iter);
 }
 
 inline std::int64_t propose_wg_size(const sycl::queue& q) {

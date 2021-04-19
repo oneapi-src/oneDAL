@@ -57,8 +57,7 @@ private:
 
         auto* values = this->seq_.get_mutable_data();
         auto count = this->seq_.get_count();
-        const auto count_as_size_t = static_cast<size_t>(count);
-        ONEDAL_ASSERT(count_as_size_t == count);
+        const auto count_as_size_t = dal::detail::integral_cast<std::size_t>(count);
 
         auto number_array = array<size_t>::empty(queue, count);
         daal::internal::RNGs<size_t, daal::sse2> rng;
