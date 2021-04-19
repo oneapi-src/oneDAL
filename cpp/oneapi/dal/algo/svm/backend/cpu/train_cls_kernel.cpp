@@ -131,26 +131,6 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
         .set_support_indices(table_support_indices);
 }
 
-template <typename Float>
-inline auto convert_to_daal_labels(const table& labels,
-                                   array<Float>& arr_new_label,
-                                   const binary_label_t<Float>& unique_label,
-                                   const std::int64_t row_count) {
-    daal::data_management::NumericTablePtr daal_labels;
-
-    if ((unique_label.first == Float(0.0) && unique_label.second == Float(1.0)) ||
-        (unique_label.first == Float(1.0) && unique_label.second == Float(0.0)) ||
-        (unique_label.first == Float(-1.0) && unique_label.second == Float(1.0)) ||
-        (unique_label.first == Float(1.0) && unique_label.second == Float(-1.0))) {
-        daal_labels = interop::convert_to_daal_table<Float>(labels);
-    }
-    else {
-        daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
-    }
-
-    return daal_labels;
-}
-
 template <typename Float, typename Method>
 static result_t call_binary_daal_kernel(const context_cpu& ctx,
                                         const descriptor_t& desc,
@@ -187,8 +167,8 @@ static result_t call_binary_daal_kernel(const context_cpu& ctx,
 
     auto arr_label = row_accessor<const Float>{ labels }.pull();
     binary_label_t<Float> unique_label;
-    auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
-    auto daal_labels = convert_to_daal_labels<Float>(labels, arr_new_label, unique_label, row_count);
+    auto daal_labels =
+        convert_labels(labels, arr_label, { Float(-1.0), Float(1.0) }, unique_label, row_count);
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
