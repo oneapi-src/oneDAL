@@ -161,7 +161,6 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
-        ONEDAL_ASSERT(!ref.data_owned_.valueless_by_exception());
         if (ref.has_mutable_data()) {
             data_owned_ = shared(ref.get_shared(), data);
         }
@@ -174,7 +173,6 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
-        ONEDAL_ASSERT(!ref.data_owned_.valueless_by_exception());
         if (ref.has_mutable_data()) {
             data_owned_ = cshared(ref.get_shared(), data);
         }
@@ -242,6 +240,7 @@ private:
     }
 
     shared get_shared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
         return std::get<shared>(data_owned_);
     }
 
@@ -250,6 +249,7 @@ private:
     }
 
     cshared get_cshared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
         return std::get<cshared>(data_owned_);
     }
 
