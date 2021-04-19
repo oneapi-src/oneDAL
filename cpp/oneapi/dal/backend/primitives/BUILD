@@ -25,6 +25,7 @@ dal_collect_modules(
         "selection",
         "sort",
         "rng",
+        "distance"
     ],
     dal_deps = [
         ":common",
