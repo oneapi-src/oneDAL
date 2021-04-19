@@ -156,7 +156,14 @@ public:
     void pull_rows(const detail::default_host_policy& policy,
                    array<T>& block,
                    const range& rows) const {
-        homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind::host);
+        constexpr bool preserve_mutability = true;
+        homogen_pull_rows(policy,
+                          get_info(),
+                          data_,
+                          block,
+                          rows,
+                          alloc_kind::host,
+                          preserve_mutability);
     }
 
     template <typename T>
@@ -164,7 +171,15 @@ public:
                      array<T>& block,
                      std::int64_t column_index,
                      const range& rows) const {
-        homogen_pull_column(policy, get_info(), data_, block, column_index, rows, alloc_kind::host);
+        constexpr bool preserve_mutability = true;
+        homogen_pull_column(policy,
+                            get_info(),
+                            data_,
+                            block,
+                            column_index,
+                            rows,
+                            alloc_kind::host,
+                            preserve_mutability);
     }
 
     template <typename T>
@@ -188,7 +203,14 @@ public:
                    array<T>& block,
                    const range& rows,
                    sycl::usm::alloc alloc) const {
-        homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind_from_sycl(alloc));
+        constexpr bool preserve_mutability = true;
+        homogen_pull_rows(policy,
+                          get_info(),
+                          data_,
+                          block,
+                          rows,
+                          alloc_kind_from_sycl(alloc),
+                          preserve_mutability);
     }
 
     template <typename T>
@@ -197,13 +219,15 @@ public:
                      std::int64_t column_index,
                      const range& rows,
                      sycl::usm::alloc alloc) const {
+        constexpr bool preserve_mutability = true;
         homogen_pull_column(policy,
                             get_info(),
                             data_,
                             block,
                             column_index,
                             rows,
-                            alloc_kind_from_sycl(alloc));
+                            alloc_kind_from_sycl(alloc),
+                            preserve_mutability);
     }
 
     template <typename T>
@@ -242,9 +266,8 @@ private:
         const std::int64_t reqired_size = get_data_size(row_count, column_count, dtype_);
         const std::int64_t allocated_size = get_data_size(row_count_, column_count_, dtype_);
         if (allocated_size < reqired_size) {
-            throw dal::invalid_argument{
-                dal::detail::error_messages::allocated_memory_size_is_not_enough_to_copy_data()
-            };
+            using msg = dal::detail::error_messages;
+            throw dal::invalid_argument{ msg::allocated_memory_size_is_not_enough_to_copy_data() };
         }
     }
 

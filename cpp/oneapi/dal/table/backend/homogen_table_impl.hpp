@@ -109,7 +109,9 @@ public:
                    sycl::usm::alloc alloc) const {
         homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind_from_sycl(alloc));
     }
+#endif
 
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
     void pull_column(const detail::data_parallel_policy& policy,
                      array<T>& block,

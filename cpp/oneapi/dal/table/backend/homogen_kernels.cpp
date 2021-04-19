@@ -91,15 +91,14 @@ template <typename DataSrc, typename DataDest>
 ONEDAL_FORCEINLINE void refer_origin_data(const array<DataSrc>& src,
                                           std::int64_t src_start_index,
                                           std::int64_t dst_count,
-                                          array<DataDest>& dst) {
+                                          array<DataDest>& dst,
+                                          bool preserve_mutability) {
     ONEDAL_ASSERT(src_start_index >= 0);
     ONEDAL_ASSERT(src.get_count() > src_start_index);
     ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >=
                   dst_count * sizeof(DataDest));
 
-    if (src.has_mutable_data()) {
-        // TODO: in future, when table knows about mutability of its data this branch shall be
-        // available only for builders, not for tables.
+    if (src.has_mutable_data() && preserve_mutability) {
         auto start_pointer = reinterpret_cast<DataDest*>(src.get_mutable_data() + src_start_index);
         dst.reset(src, start_pointer, dst_count);
     }
@@ -143,7 +142,8 @@ static void pull_row_major_impl(const Policy& policy,
                                 const block_info& block_info,
                                 const array<byte_t>& origin_data,
                                 array<BlockData>& block_data,
-                                alloc_kind requested_alloc_kind) {
+                                alloc_kind requested_alloc_kind,
+                                bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     const auto origin_dtype_size = origin_info.get_data_type_size();
     const auto block_dtype = detail::make_data_type<BlockData>();
@@ -169,7 +169,8 @@ static void pull_row_major_impl(const Policy& policy,
         refer_origin_data(origin_data,
                           origin_offset * block_dtype_size,
                           block_info.get_element_count(),
-                          block_data);
+                          block_data,
+                          preserve_mutability);
     }
     else {
         if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
@@ -215,7 +216,8 @@ static void pull_column_major_impl(const Policy& policy,
                                    const block_info& block_info,
                                    const array<byte_t>& origin_data,
                                    array<BlockData>& block_data,
-                                   alloc_kind requested_alloc_kind) {
+                                   alloc_kind requested_alloc_kind,
+                                   bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     const auto origin_dtype_size = origin_info.get_data_type_size();
     const auto block_dtype = detail::make_data_type<BlockData>();
@@ -437,7 +439,8 @@ void homogen_pull_rows(const Policy& policy,
                        const array<byte_t>& origin_data,
                        array<BlockData>& block_data,
                        const range& rows_range,
-                       alloc_kind requested_alloc_kind) {
+                       alloc_kind requested_alloc_kind,
+                       bool preserve_mutability) {
     check_block_row_range(rows_range, origin_info.get_row_count());
 
     const block_info b_info{ rows_range.start_idx,
@@ -452,7 +455,8 @@ void homogen_pull_rows(const Policy& policy,
                        b_info,
                        origin_data,
                        block_data,
-                       requested_alloc_kind);
+                       requested_alloc_kind,
+                       preserve_mutability);
     });
 }
 
@@ -463,7 +467,8 @@ void homogen_pull_column(const Policy& policy,
                          array<BlockData>& block_data,
                          std::int64_t column_index,
                          const range& rows_range,
-                         alloc_kind requested_alloc_kind) {
+                         alloc_kind requested_alloc_kind,
+                         bool preserve_mutability) {
     check_block_row_range(rows_range, origin_info.get_row_count());
     check_block_column_index(column_index, origin_info.get_column_count());
 
@@ -484,7 +489,8 @@ void homogen_pull_column(const Policy& policy,
                          b_info,
                          origin_data,
                          block_data,
-                         requested_alloc_kind);
+                         requested_alloc_kind,
+                         preserve_mutability);
     });
 }
 
@@ -547,14 +553,16 @@ void homogen_push_column(const Policy& policy,
                                     const array<byte_t>& origin_data,     \
                                     array<BlockData>& block_data,         \
                                     const range& rows_range,              \
-                                    alloc_kind requested_alloc_kind);     \
+                                    alloc_kind requested_alloc_kind,      \
+                                    bool preserve_mutability);            \
     template void homogen_pull_column(const Policy& policy,               \
                                       const homogen_info& origin_info,    \
                                       const array<byte_t>& origin_data,   \
                                       array<BlockData>& block_data,       \
                                       std::int64_t column_index,          \
                                       const range& rows_range,            \
-                                      alloc_kind requested_alloc_kind);   \
+                                      alloc_kind requested_alloc_kind,    \
+                                      bool preserve_mutability);          \
     template void homogen_push_rows(const Policy& policy,                 \
                                     const homogen_info& origin_info,      \
                                     array<byte_t>& origin_data,           \

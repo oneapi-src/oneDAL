@@ -29,6 +29,9 @@ MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
 MSG(array_does_not_contain_ownership_structure,
     "Array is empty or does not contain ownership structure for the data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
+MSG(incompatible_array_reinterpret_cast_types,
+    "Cannot reinterpret array to provided type, "
+    "because resulting array size would not match source array size")
 MSG(only_homogen_table_is_supported, "Only homogen table is supported")
 MSG(overflow_found_in_multiplication_of_two_values,
     "Overflow found in multiplication of two values")
@@ -66,7 +69,8 @@ MSG(pushing_column_is_not_supported_for_dpc, "Pushing column is not supported fo
 MSG(pushing_column_is_not_supported, "Pushing column is not supported")
 MSG(pushing_rows_is_not_supported_for_dpc, "Pushing rows is not supported for DPC++")
 MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
-MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(rc_and_cc_do_not_match_element_count_in_array,
+    "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
 MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 MSG(object_does_not_provide_read_access_to_rows,
@@ -77,6 +81,7 @@ MSG(object_does_not_provide_read_access_to_columns,
     "Given object does not provide read access to columns")
 MSG(object_does_not_provide_write_access_to_columns,
     "Given object does not provide write access to columns")
+MSG(unsupported_conversion_types, "Unsupported conversion types")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

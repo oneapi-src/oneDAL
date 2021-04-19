@@ -138,7 +138,8 @@ void homogen_pull_rows(const Policy& policy,
                        const array<byte_t>& origin_data,
                        array<BlockData>& block_data,
                        const range& rows_range,
-                       alloc_kind requested_alloc_kind);
+                       alloc_kind requested_alloc_kind,
+                       bool preserve_mutability = false);
 
 template <typename Policy, typename BlockData>
 void homogen_pull_column(const Policy& policy,
@@ -147,7 +148,8 @@ void homogen_pull_column(const Policy& policy,
                          array<BlockData>& block_data,
                          std::int64_t column_index,
                          const range& rows_range,
-                         alloc_kind requested_alloc_kind);
+                         alloc_kind requested_alloc_kind,
+                         bool preserve_mutability = false);
 
 template <typename Policy, typename BlockData>
 void homogen_push_rows(const Policy& policy,
