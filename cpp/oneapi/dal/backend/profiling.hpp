@@ -31,7 +31,7 @@
     oneapi::dal::backend::timer id##__timer__{ #domain "." #id }; \
     id##__timer__.start();
 
-#define ONEDAL_TIMER_END(id) id##__timer__.stop().print();
+#define ONEDAL_TIMER_END(id, ...) id##__timer__.stop(__VA_ARGS__).print();
 
 #define ONEDAL_TIMER(domain, id) \
     if (auto id##__timer__ =     \
@@ -63,9 +63,15 @@ public:
         return *this;
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    timer& stop(sycl::event event) {
+        event.wait_and_throw();
+        return stop();
+    }
+#endif
+
     timer& print() {
         std::cout << name_ << ": " //
-                  << std::setprecision(2) //
                   << duration_milliseconds() << "ms" //
                   << std::endl
                   << std::flush;

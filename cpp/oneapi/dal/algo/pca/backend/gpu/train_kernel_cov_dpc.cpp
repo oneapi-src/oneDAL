@@ -97,11 +97,13 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
 
     const auto data_nd = pr::flatten_table<Float, row_accessor>(q, data, sycl::usm::alloc::device);
 
+    ONEDAL_TIMER_BEGIN(pca_cov_training, compute_sums)
     auto [sums, sums_event] = compute_sums(q, data_nd);
+    ONEDAL_TIMER_END(compute_sums, sums_event)
 
     ONEDAL_TIMER_BEGIN(pca_cov_training, compute_correlation)
     auto [corr, means, vars, corr_event] = compute_correlation(q, data_nd, sums, { sums_event });
-    ONEDAL_TIMER_END(compute_correlation)
+    ONEDAL_TIMER_END(compute_correlation, corr_event)
 
     auto [eigvecs, eigvals] =
         compute_eigenvectors_on_host(q, std::move(corr), component_count, { corr_event });
