@@ -46,8 +46,6 @@ public:
         width_ = GENERATE(16, 128, 1024);
         stride_ = GENERATE(16, 128, 1024);
         height_ = GENERATE(16, 128, 1024, 16384, 32768);
-        SKIP_IF(width_ > stride_);
-        REQUIRE(width_ <= stride_);
         CAPTURE(width_, stride_, height_);
     }
 
@@ -55,8 +53,6 @@ public:
         width_ = GENERATE(28, 960, 2000, 3072);
         height_ = GENERATE(1024, 4096);
         stride_ = height_;
-        SKIP_IF(width_ > stride_);
-        REQUIRE(width_ <= stride_);
         CAPTURE(width_, stride_, height_);
     }
 
