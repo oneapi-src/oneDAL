@@ -54,7 +54,7 @@ public:
     model_impl& operator=(const model_impl&) = delete;
 
     explicit model_impl(backend::model_interop* interop) : interop_(interop) {
-        ONEDAL_ASSERT(interop_)
+        ONEDAL_ASSERT(interop_);
     }
 
     virtual ~model_impl() {
