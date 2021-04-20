@@ -1,6 +1,6 @@
 #%Module1.0###################################################################
 #===============================================================================
-# Copyright (c) Intel Corporation
+# Copyright 2020-2021 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,3 +100,4 @@ prepend-path    LD_LIBRARY_PATH    $daalroot/lib/$daal_target_arch
 prepend-path    LIBRARY_PATH       $daalroot/lib/$daal_target_arch
 prepend-path    CPATH              $daalroot/include
 prepend-path    CLASSPATH          $daalroot/lib/onedal.jar
+prepend-path    CMAKE_PREFIX_PATH  $daalroot
