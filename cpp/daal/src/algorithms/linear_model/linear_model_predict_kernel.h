@@ -66,10 +66,11 @@ public:
 protected:
     void computeBlockOfResponses(DAAL_INT * numFeatures, DAAL_INT * numRows, const algorithmFpType * dataBlock, DAAL_INT * numBetas,
                                  const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock, bool findBeta0);
-    void computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures, DAAL_INT * numRows, NumericTable * dataBlock,
-                                    DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock,
-                                    bool findBeta0);
-    static const size_t _numRowsInBlock = 256;
+    void computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures, DAAL_INT * numRows,
+                                    services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays,
+                                    DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses,
+                                    algorithmFpType * responseBlock, bool findBeta0);
+    static const size_t _numRowsInBlock = 1024;
 };
 
 } // namespace internal
