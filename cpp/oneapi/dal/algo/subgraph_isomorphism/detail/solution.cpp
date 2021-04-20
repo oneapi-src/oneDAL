@@ -1,5 +1,3 @@
-#include <cassert>
-
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
 #include <cassert>
 

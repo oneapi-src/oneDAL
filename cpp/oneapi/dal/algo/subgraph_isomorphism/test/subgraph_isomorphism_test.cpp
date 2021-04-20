@@ -22,6 +22,7 @@
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
 
 namespace oneapi::dal::algo::subgraph_isomorphism::test {
 
@@ -86,6 +87,23 @@ public:
         return my_graph;
     }
 
+    template <typename Graph>
+    void add_lables(Graph &graph,
+                    const std::map<std::string, std::int32_t> &labels_map,
+                    const std::vector<std::string> &labels) {
+        auto &graph_impl = oneapi::dal::detail::get_impl(graph);
+        auto &vertex_allocator = graph_impl._vertex_allocator;
+        auto &vv_p = graph_impl.get_vertex_values();
+
+        auto vertex_count = oneapi::dal::preview::get_vertex_count(graph);;
+        std::int32_t *labels_array =
+            oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
+        vv_p = oneapi::dal::array<std::int32_t>::wrap(labels_array, vertex_count);
+        for (int i = 0; i < vertex_count; i++) {
+            labels_array[i] = labels_map.at(labels[i]);
+        }
+    }
+
     auto graph_matching_wrapper(const std::vector<std::vector<int>> &target,
                                 const std::vector<std::vector<int>> &pattern,
                                 bool semantic_match,
@@ -103,6 +121,30 @@ public:
 
         return dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
     }
+
+    auto labeled_graph_matching_wrapper(const std::vector<std::vector<int>> &target,
+                                        const std::vector<std::string> &target_labels,
+                                        const std::vector<std::vector<int>> &pattern,
+                                        const std::vector<std::string> &pattern_labels,
+                                        const std::map<std::string, int> &labels_map,
+                                        bool semantic_match,
+                                        std::int64_t max_match_count,
+                                        isomorphism_kind kind) {
+        auto target_graph = this->create_graph_from_lil(target);
+        auto pattern_graph = this->create_graph_from_lil(pattern);
+
+        add_lables(target_graph, labels_map, target_labels);
+        add_lables(pattern_graph, labels_map, pattern_labels);
+
+        std::allocator<char> alloc;
+        const auto subgraph_isomorphism_desc =
+            dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+                .set_kind(kind)
+                .set_semantic_match(semantic_match)
+                .set_max_match_count(max_match_count);
+
+        return dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
+    };
 
     bool is_subset(const std::vector<int> &target, const std::vector<int> &pattern) {
         size_t i_pattern = 0;
@@ -177,7 +219,7 @@ std::vector<std::vector<int>> self_matching = { { 1 }, { 0, 2, 5, 10 }, { 1, 3, 
                                                 { 5 }, { 1, 4, 6, 9 },  { 2, 5, 7, 10 }, { 6 },
                                                 { 9 }, { 2, 5, 8, 10 }, { 1, 6, 9, 11 }, { 10 } };
 std::vector<std::vector<int>> double_triangle_target = {
-    { 1, 2, 3 },       { 0, 2, 3, 5 }, { 0, 1, 3, 4 },    { 0, 1, 2, 7 }, { 2, 5, 6, 7 },
+    { 1, 3 },          { 0, 2, 3, 5 }, { 1, 3, 4 },       { 0, 1, 2, 7 }, { 2, 5, 6, 7 },
     { 1, 4, 6, 7, 8 }, { 4, 5, 7 },    { 3, 4, 5, 6, 8 }, { 5, 7 }
 };
 std::vector<std::vector<int>> double_triangle_pattern = { { 1, 3 },
@@ -249,6 +291,40 @@ std::vector<std::vector<int>> path_16 = { { 1 },      { 0, 2 },   { 1, 3 },   { 
                                           { 3, 5 },   { 4, 6 },   { 5, 7 },   { 6, 8 },
                                           { 7, 9 },   { 8, 10 },  { 9, 11 },  { 10, 12 },
                                           { 11, 13 }, { 12, 14 }, { 13, 15 }, { 14 } };
+std::vector<std::vector<int>> paths_1_2_3_single_target = {
+    { 1, 2, 3 }, { 0 }, { 0 }, { 0, 4 }, { 3, 5 }, { 4, 7 }, { 7 }, { 5, 6, 8 }, { 7, 9 }, { 8 }
+};
+std::vector<std::vector<int>> paths_1_2_3 = { { 1, 2, 4 }, { 0 },    { 0, 3 }, { 2 },
+                                              { 0, 5 },    { 4, 6 }, { 5 } };
+
+std::map<std::string, int> labels_map = { { "A", 0 },
+                                          { "B", 1 },
+                                          { "C", 2 },
+                                          { "D", 3 },
+                                          { "E", 4 } };
+
+std::vector<std::string> linked_star_5_labels = { "A", "B", "A", "A", "B" };
+
+std::vector<std::string> cycle_5_labels = { "A", "A", "B", "B", "A" };
+
+std::vector<std::string> double_triangle_target_labels = { "B", "A", "B", "A", "A",
+                                                           "B", "A", "B", "A" };
+
+std::vector<std::string> double_triangle_pattern_labels = { "A", "B", "A", "B" };
+
+std::vector<std::string> star_5_labels = { "A", "A", "A", "A", "A", "A" };
+
+std::vector<std::string> star_4_labels = { "B", "A", "A", "A", "A" };
+
+std::vector<std::string> wheel_11_labels = {
+    "A", "B", "C", "D", "A", "A", "A", "A", "A", "A", "A"
+};
+
+std::vector<std::string> cycle_10_labels = { "B", "C", "D", "A", "A", "A", "A", "A", "A", "A" };
+
+std::vector<std::string> wheel_5_labels = { "A", "B", "B", "A", "A" };
+
+std::vector<std::string> triangle_labels = { "A", "A", "B" };
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("linked_star_5  - cycle_5 matching") {
     const auto result =
@@ -279,7 +355,7 @@ SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("double_tringle matching") {
                                                      false,
                                                      0,
                                                      isomorphism_kind::induced);
-    REQUIRE(8 == result.get_match_count());
+    REQUIRE(12 == result.get_match_count());
     REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
                                                 double_triangle_target,
                                                 double_triangle_pattern,
@@ -336,6 +412,91 @@ SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("lolipop_10_15 - path_16 matching") {
                                                 lolipop_10_15,
                                                 path_16,
                                                 true));
+}
+
+SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("paths_1_2_3_single_target - paths_1_2_3 matching") {
+    const auto result = this->graph_matching_wrapper(paths_1_2_3_single_target,
+                                                     paths_1_2_3,
+                                                     false,
+                                                     0,
+                                                     isomorphism_kind::induced);
+    REQUIRE(1 == result.get_match_count());
+    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
+                                                paths_1_2_3_single_target,
+                                                paths_1_2_3,
+                                                true));
+}
+
+SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("linked_star_5 - cycle_5 labeled matching") {
+    const auto result = this->labeled_graph_matching_wrapper(linked_star_5,
+                                                             linked_star_5_labels,
+                                                             cycle_5,
+                                                             cycle_5_labels,
+                                                             labels_map,
+                                                             false,
+                                                             0,
+                                                             isomorphism_kind::induced);
+    REQUIRE(2 == result.get_match_count());
+    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
+                                                linked_star_5,
+                                                cycle_5,
+                                                true));
+}
+
+SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("double_triangle labeled mathcing") {
+    const auto result = this->labeled_graph_matching_wrapper(double_triangle_target,
+                                                             double_triangle_target_labels,
+                                                             double_triangle_pattern,
+                                                             double_triangle_pattern_labels,
+                                                             labels_map,
+                                                             false,
+                                                             0,
+                                                             isomorphism_kind::induced);
+    REQUIRE(8 == result.get_match_count());
+    REQUIRE(check_graph_isomorphism_correctness(result.get_vertex_match(),
+                                                double_triangle_target,
+                                                double_triangle_pattern,
+                                                true));
+}
+
+SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("star_5 - star_4 labeled matching") {
+    const auto result = this->labeled_graph_matching_wrapper(star_5,
+                                                             star_5_labels,
+                                                             star_4,
+                                                             star_4_labels,
+                                                             labels_map,
+                                                             false,
+                                                             0,
+                                                             isomorphism_kind::induced);
+    REQUIRE(0 == result.get_match_count());
+}
+
+SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("wheel_11 - cycle_10 labeled matching") {
+    const auto result = this->labeled_graph_matching_wrapper(wheel_11,
+                                                             wheel_11_labels,
+                                                             cycle_10,
+                                                             cycle_10_labels,
+                                                             labels_map,
+                                                             false,
+                                                             0,
+                                                             isomorphism_kind::induced);
+    REQUIRE(1 == result.get_match_count());
+    REQUIRE(
+        check_graph_isomorphism_correctness(result.get_vertex_match(), wheel_11, cycle_10, true));
+}
+
+SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("wheel_5 - triangle labeled matching") {
+    const auto result = this->labeled_graph_matching_wrapper(wheel_5,
+                                                             wheel_5_labels,
+                                                             triangle,
+                                                             triangle_labels,
+                                                             labels_map,
+                                                             false,
+                                                             0,
+                                                             isomorphism_kind::induced);
+    REQUIRE(4 == result.get_match_count());
+    REQUIRE(
+        check_graph_isomorphism_correctness(result.get_vertex_match(), wheel_5, triangle, true));
 }
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test

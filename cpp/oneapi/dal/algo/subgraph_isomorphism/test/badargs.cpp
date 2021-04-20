@@ -100,11 +100,6 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if match count is negative") {
                       invalid_argument);
 }
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("throws if semantic match is true") {
-    REQUIRE_THROWS_AS(this->check_subgraph_isomorphism(true, 100, isomorphism_kind::induced),
-                      invalid_argument);
-}
-
 // TODO: Add empty graph case after implementation
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test
