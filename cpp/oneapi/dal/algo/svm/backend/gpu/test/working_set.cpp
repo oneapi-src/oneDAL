@@ -16,9 +16,7 @@
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
-#include "oneapi/dal/test/engine/math.hpp"
 
 #include "oneapi/dal/algo/svm/backend/gpu/working_set.hpp"
 
@@ -27,34 +25,33 @@ namespace oneapi::dal::svm::backend::test {
 namespace pr = dal::backend::primitives;
 namespace te = dal::test::engine;
 namespace la = te::linalg;
-namespace de = dal::detail;
 
 template <typename TestType>
 class working_set_test : public te::policy_fixture {
 public:
     using Float = TestType;
 
-    void test_working_set(const std::vector<float_t>& f,
-                          const std::vector<float_t>& y,
-                          const std::vector<float_t>& alpha,
-                          const float_t C,
+    void test_working_set(const std::vector<Float>& f,
+                          const std::vector<Float>& y,
+                          const std::vector<Float>& alpha,
+                          const Float C,
                           const std::int64_t n_vectors,
                           const std::int64_t expected_n_ws,
                           const std::vector<std::uint32_t>& expected_ws_indices) {
         auto& q = this->get_queue();
         INFO("Allocate ndarray");
-        auto f_ndarray = pr::ndarray<float_t, 1>::empty(q, { n_vectors });
-        auto y_ndarray = pr::ndarray<float_t, 1>::empty(q, { n_vectors });
-        auto alpha_ndarray = pr::ndarray<float_t, 1>::empty(q, { n_vectors });
-        dal::backend::copy<float_t>(q, f_ndarray.get_mutable_data(), f.data(), n_vectors)
+        auto f_ndarray = pr::ndarray<Float, 1>::empty(q, { n_vectors });
+        auto y_ndarray = pr::ndarray<Float, 1>::empty(q, { n_vectors });
+        auto alpha_ndarray = pr::ndarray<Float, 1>::empty(q, { n_vectors });
+        dal::backend::copy<Float>(q, f_ndarray.get_mutable_data(), f.data(), n_vectors)
             .wait_and_throw();
-        dal::backend::copy<float_t>(q, y_ndarray.get_mutable_data(), y.data(), n_vectors)
+        dal::backend::copy<Float>(q, y_ndarray.get_mutable_data(), y.data(), n_vectors)
             .wait_and_throw();
-        dal::backend::copy<float_t>(q, alpha_ndarray.get_mutable_data(), alpha.data(), n_vectors)
+        dal::backend::copy<Float>(q, alpha_ndarray.get_mutable_data(), alpha.data(), n_vectors)
             .wait_and_throw();
 
         INFO("Init working set");
-        auto ws = working_set<float_t>(q);
+        auto ws = working_set<Float>(q);
         ws.init(n_vectors);
 
         INFO("Check n_ws");
@@ -74,10 +71,12 @@ public:
     }
 };
 
-// using working_set_types = std::tuple<float, double>;
-using working_set_types = std::tuple<float>;
+using working_set_types = std::tuple<float, double>;
 
-TEMPLATE_LIST_TEST_M(working_set_test, "select ws common flow", "[svm][working_set]", working_set_types) {
+TEMPLATE_LIST_TEST_M(working_set_test,
+                     "select ws common flow",
+                     "[svm][working_set]",
+                     working_set_types) {
     using float_t = TestType;
 
     constexpr std::int64_t n_vectors = 9;
@@ -91,6 +90,48 @@ TEMPLATE_LIST_TEST_M(working_set_test, "select ws common flow", "[svm][working_s
     constexpr std::int64_t expected_n_ws = 8;
 
     const std::vector<std::uint32_t> expected_ws_indices = { 0, 7, 4, 8, 2, 1, 6, 3 };
+
+    this->test_working_set(f, y, alpha, C, n_vectors, expected_n_ws, expected_ws_indices);
+}
+
+TEMPLATE_LIST_TEST_M(working_set_test,
+                     "not enough elements in upper set",
+                     "[svm][working_set]",
+                     working_set_types) {
+    using float_t = TestType;
+
+    constexpr std::int64_t n_vectors = 10;
+
+    const std::vector<float_t> f = { 10, 2, 3, 6, 9, 1, 7, 5, 4, 8 };
+    const std::vector<float_t> y = { -1, -1, -1, -1, -1, 1, 1, 1, 1, 1 };
+    const std::vector<float_t> alpha = { 0.0, 0.0, 0.0, 1.3, 0.0, 1.5, 2.0, 2.5, 2.5, 2.5 };
+
+    constexpr float_t C = 2.5;
+
+    constexpr std::int64_t expected_n_ws = 8;
+
+    const std::vector<std::uint32_t> expected_ws_indices = { 5, 3, 6, 8, 7, 9, 4, 0 };
+
+    this->test_working_set(f, y, alpha, C, n_vectors, expected_n_ws, expected_ws_indices);
+}
+
+TEMPLATE_LIST_TEST_M(working_set_test,
+                     "not enough elements in lower set",
+                     "[svm][working_set]",
+                     working_set_types) {
+    using float_t = TestType;
+
+    constexpr std::int64_t n_vectors = 10;
+
+    const std::vector<float_t> f = { 10, 2, 3, 6, 9, 1, 7, 5, 4, 8 };
+    const std::vector<float_t> y = { -1, -1, -1, -1, -1, 1, 1, 1, 1, 1 };
+    const std::vector<float_t> alpha = { 0.0, 2.5, 2.5, 2.5, 1.5, 0.0, 0.0, 0.0, 2.5, 0.0 };
+
+    constexpr float_t C = 2.5;
+
+    constexpr std::int64_t expected_n_ws = 8;
+
+    const std::vector<std::uint32_t> expected_ws_indices = { 5, 1, 2, 7, 8, 4, 0, 3 };
 
     this->test_working_set(f, y, alpha, C, n_vectors, expected_n_ws, expected_ws_indices);
 }

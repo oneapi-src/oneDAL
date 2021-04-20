@@ -185,22 +185,22 @@ public:
         if (n_selected_ < n_ws_) {
             const std::int64_t n_need_select = n_ws_ - n_selected_;
 
-            auto check_lower_event =
-                check_lower(queue_, y, alpha, indicator_, C, n_vectors_, { copy_event });
+            auto check_upper_event =
+                check_upper(queue_, y, alpha, indicator_, C, n_vectors_, { copy_event });
 
             /* Reset indicator for busy Indices */
             if (n_selected_ > 0) {
                 reset_indicator_with_zeros(ws_indices_,
                                            indicator_,
                                            n_selected_,
-                                           { check_lower_event })
+                                           { check_upper_event })
                     .wait_and_throw();
             }
 
             std::int64_t n_upper_select = 0;
             auto select_event = pr::select_flagged_index<std::uint32_t, std::uint32_t>{
                 queue_
-            }(indicator_, sorted_f_inices_, buff_indices_, n_upper_select, { check_lower_event });
+            }(indicator_, sorted_f_inices_, buff_indices_, n_upper_select, { check_upper_event });
 
             const std::int64_t n_copy = std::min(n_upper_select, n_need_select);
 

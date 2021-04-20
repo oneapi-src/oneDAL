@@ -72,7 +72,7 @@ inline constexpr Integer down_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
     ONEDAL_ASSERT(x > 0);
     Integer power = 1;
-    while (power < x / 2) {
+    while (power < (x + 1) / 2) {
         power *= 2;
     }
     return power;
