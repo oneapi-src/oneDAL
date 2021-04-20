@@ -19,6 +19,8 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+#include "oneapi/dal/backend/primitives/distance.hpp"
+#include "oneapi/dal/backend/primitives/sort/sort.hpp"
 #include "oneapi/dal/algo/kmeans/common.hpp"
 
 namespace oneapi::dal::kmeans::backend {
@@ -28,54 +30,79 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace prm = dal::backend::primitives;
 
-using descriptor_t = detail::descriptor_base<task::clustering>;
-/*
 template <typename Float>
-struct distance_struct {
-    static sycl::event compute(const prm::ndview<Float, 2>& data,
-                               const prm::ndview<Float, 2>& centroids,
-                               prm::ndview<Float, 2>& distances,
-                               const bk::event_vector& deps = {}) {
-        distance<Float, squared_l2_metric<Float>>(sycl::queue& queue);
-        return distance(data, centroids, distances);
-    }
-};
-*/
+auto find_candidates_impl(sycl::queue& queue, prm::ndview<Float, 1>& closest_distances,
+                        std::int64_t num_candidates,
+                        prm::ndview<std::int32_t, 1>& candidate_indices,
+                        prm::ndview<Float, 1>& candidate_distances,
+                        const bk::event_vector& deps) {
+    auto elem_count = closest_distances.get_shape()[0];
+    auto indices = prm::ndarray<std::int32_t, 1>::empty(queue, { elem_count }, sycl::usm::alloc::device);
+    std::int32_t* indices_ptr = indices.get_mutable_data();
+    auto fill_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
+            std::int32_t ind = item.get_id()[0];
+            indices_ptr[ind] = ind;
+        });
+    });
+    auto sort_event = prm::radix_sort_indices_inplace<Float, std::int32_t>{ queue }(closest_distances, indices, {fill_event});
+    sort_event.wait_and_throw();
+    auto candidate_indices_ptr = candidate_indices.get_mutable_data();
+    auto candidate_distances_ptr = candidate_distances.get_mutable_data();
+    auto closest_distances_ptr = closest_distances.get_mutable_data();
+    auto copy_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({sort_event});
+        cgh.parallel_for(sycl::range<1>(num_candidates), [=](sycl::item<1> item) {
+            std::int32_t ind = item.get_id()[0];
+            candidate_distances_ptr[ind] = closest_distances_ptr[ind];
+            candidate_indices_ptr[ind] = indices_ptr[ind];
+        });
+    });
+    copy_event.wait_and_throw();
+    return copy_event;
+}
 
 
-template <typename Float>
-sycl::event update_clusters_impl(sycl::queue& queue, const prm::ndview<Float, 2>& data,
+template <typename Float, typename Metric>
+auto assign_clusters_impl(sycl::queue& queue, const prm::ndview<Float, 2>& data,
                         const prm::ndview<Float, 2>& centroids,
                         std::int64_t block_rows,
                         prm::ndview<std::int32_t, 2>& labels,
                         prm::ndview<Float, 2>& distances,
                         prm::ndview<Float, 2>& closest_distances,
-                        const bk::event_vector& deps) { /*
+                        const bk::event_vector& deps) { 
     sycl::event selection_event;
-    sycl::event count_event;
+    auto row_count = data.get_shape()[0];
     auto column_count = data.get_shape()[1];
     auto num_centroids = centroids.get_shape()[0];
-    for (std::uint32_t iblock = 0; iblock < num_blocks_; iblock++) {
-        auto block_rows = block_rows_;
+    prm::distance<Float, Metric> block_distances(queue);
+    auto num_blocks = row_count / block_rows + std::int64_t(row_count % block_rows > 0);
+    for (std::int64_t iblock = 0; iblock < num_blocks; iblock++) {
+        auto cur_rows = block_rows;
         auto row_offset = block_rows * iblock;
-        if (block_rows + row_offset > row_count_) {
-            block_rows = row_count - row_offset;
+        if (cur_rows + row_offset > row_count) {
+            cur_rows = row_count - row_offset;
         }
-        auto data_block =
-            prm::ndarray<Float, 2>::wrap(data.get_data() + row_offset * column_count_,
-                                            { block_rows, column_count});
         auto distance_block =
-            prm::ndarray<Float, 2>::wrap(distances.get_data(), { block_rows, num_centroids});
-        auto distance_event = distance_struct<Float>::compute(data_block,
-                                                                centroids,
-                                                                distances_,
-                                                                { selection_event });
+                    prm::ndarray<Float, 2>::wrap(distances.get_mutable_data(), { cur_rows, num_centroids});
+        auto data_block =
+            prm::ndarray<Float, 2>::wrap(data.get_data() + row_offset * column_count,
+                                            { cur_rows, column_count});
+        auto distance_event = block_distances(data_block, centroids, distance_block, { selection_event });
+/*        std::cout << "Waiting for distances" << std::endl;
+        distance_event.wait_and_throw();
+        for(int i = 0; i < cur_rows; i ++) {
+            std::cout << "D: " << i;
+            for(int j = 0; j < num_centroids; j++)
+                std::cout << " " << distance_block.get_data()[i * num_centroids + j];
+            std::cout << std::endl;
+        }*/
         auto label_block =
             prm::ndarray<int32_t, 2>::wrap(labels.get_mutable_data() + row_offset,
-                                            { block_rows, 1 });
+                                            { cur_rows, 1 });
         auto closest_distance_block =
             prm::ndarray<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
-                                            { block_rows, 1 });
+                                            { cur_rows, 1 });
         prm::kselect_by_rows<Float> selector(queue, distances.get_shape(), 1);
         selection_event = selector(queue,
                                     distance_block,
@@ -83,11 +110,12 @@ sycl::event update_clusters_impl(sycl::queue& queue, const prm::ndview<Float, 2>
                                     closest_distance_block,
                                     label_block,
                                     { distance_event });
-        count_event = count_clusters(label_block, { count_event, selection_event });
+/*        selection_event.wait_and_throw();
+        for(int i = 0; i < cur_rows; i ++) {
+            std::cout << "S: " << label_block.get_data()[i] << " " << closest_distance_block.get_data()[i] << std::endl;
+        }*/
     }
-    auto obj_event = compute_objective_function(closest_distances_, { selection_event });
-    return std::make_tuple(selection_event, obj_event, count_event);*/
-    return sycl::event();
+    return selection_event;
 }
 
 template <typename Float>
