@@ -12,7 +12,8 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo:linear_kernel",
         "@onedal//cpp/oneapi/dal/algo:polynomial_kernel",
         "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
-        "@onedal//cpp/oneapi/dal/backend/primitives",
+        "@onedal//cpp/oneapi/dal/backend/primitives:sort",
+        "@onedal//cpp/oneapi/dal/backend/primitives:selection",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/svm:kernel",
@@ -32,12 +33,12 @@ dal_test_suite(
 )
 
 dal_test_suite(
-    name = "gpu_unit_tests",
+    name = "gpu_tests",
     framework = "catch2",
     private = True,
     compile_as = ["dpc++"],
     srcs = glob([
-        "test/unit/*.cpp",
+        "backend/gpu/test/*.cpp",
     ]),
     dal_deps = [
         ":svm",
@@ -48,6 +49,6 @@ dal_test_suite(
     name = "tests",
     tests = [
         ":interface_tests",
-        ":gpu_unit_tests",
+        ":gpu_tests",
     ],
 )

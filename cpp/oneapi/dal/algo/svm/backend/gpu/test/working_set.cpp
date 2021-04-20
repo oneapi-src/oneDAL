@@ -20,7 +20,7 @@
 #include "oneapi/dal/test/engine/io.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
-#include "oneapi/dal/algo/svm/backend/gpu/train_working_set_dpc.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/working_set.hpp"
 
 namespace oneapi::dal::svm::backend::test {
 
@@ -35,16 +35,18 @@ public:
     using Float = std::tuple_element_t<0, TestType>;
     using Index = std::tuple_element_t<1, TestType>;
 
-// bool not_available_on_device() {
-//         constexpr bool is_smo = std::is_same_v<Method, svm::method::smo>;
-//         return this->get_policy().is_gpu() && is_smo;
-//     }
-
+    // bool not_available_on_device() {
+    //         constexpr bool is_smo = std::is_same_v<Method, svm::method::smo>;
+    //         return this->get_policy().is_gpu() && is_smo;
+    //     }
 };
 
 using train_working_set_types = COMBINE_TYPES((float, double), (std::uint32_t));
 
-TEMPLATE_LIST_TEST_M(train_working_set_test, "basic run", "[working_set]", train_working_set_types) {
+TEMPLATE_LIST_TEST_M(train_working_set_test,
+                     "basic run",
+                     "[working_set]",
+                     train_working_set_types) {
     using float_t = std::tuple_element_t<0, TestType>;
     // using integer_t = std::tuple_element_t<1, TestType>;
     auto& q = this->get_queue();
@@ -56,17 +58,35 @@ TEMPLATE_LIST_TEST_M(train_working_set_test, "basic run", "[working_set]", train
     std::vector<float_t> y = { -1, -1, -1, -1, -1, 1, 1, 1, 1, 1 };
     std::vector<float_t> alpha = { 0, 0, 0.1, 0.2, 1.5, 0, 0.2, 0.4, 1.5, 1.5 };
 
-    const pr::ndarray<float_t, 1> f_ndarray = pr::ndarray<float_t, 1>::wrap(f.data(), n_vectors);
-    const pr::ndarray<float_t, 1> y_ndarray = pr::ndarray<float_t, 1>::wrap(y.data(), n_vectors);
-    const pr::ndarray<float_t, 1> alpha_ndarray = pr::ndarray<float_t, 1>::wrap(alpha.data(), n_vectors);
+    float_t* f_ptr = sycl::malloc_device<float_t>(n_vectors, q);
+    float_t* y_ptr = sycl::malloc_device<float_t>(n_vectors, q);
+    float_t* alpha_ptr = sycl::malloc_device<float_t>(n_vectors, q);
+
+    q.memcpy(f_ptr, f.data(), n_vectors * sizeof(float_t));
+    q.memcpy(y_ptr, y.data(), n_vectors * sizeof(float_t));
+    q.memcpy(alpha_ptr, alpha.data(), n_vectors * sizeof(float_t));
+
+    const pr::ndarray<float_t, 1> f_ndarray = pr::ndarray<float_t, 1>::wrap(f_ptr, n_vectors);
+    const pr::ndarray<float_t, 1> y_ndarray = pr::ndarray<float_t, 1>::wrap(y_ptr, n_vectors);
+    const pr::ndarray<float_t, 1> alpha_ndarray =
+        pr::ndarray<float_t, 1>::wrap(alpha_ptr, n_vectors);
 
     float_t C = 1.5;
 
     auto ws = working_set<float_t>(q);
     ws.init(n_vectors);
-    ws.select_ws(y_ndarray, alpha_ndarray, f_ndarray, C);
-    REQUIRE(ws.get_size() == 4);
-    
+    // auto ws_copy_event = ws.copy_last_to_first();
+    ws.select_ws(y_ndarray, alpha_ndarray, f_ndarray, C).wait_and_throw();
+    // REQUIRE(ws.get_size() == 4);
+    const auto indices = ws.get_ws_indices();
+    const auto raw_arr = indices.flatten(q);
+
+    const auto raw_mat_host = la::matrix<std::uint32_t>::wrap(raw_arr).to_host();
+    const auto raw_arr_host = raw_mat_host.get_array();
+
+    std::cout << "indices\n";
+    for (std::int64_t i = 0; i < indices.get_dimension(0); i++)
+        std::cout << raw_arr_host[i] << " ";
 }
 
-} // oneapi::dal::svm::backend::test
+} // namespace oneapi::dal::svm::backend::test
