@@ -161,12 +161,8 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, T* data, std::int64_t count) {
-        check_array_has_ownership_structure(ref);
         if (ref.has_mutable_data()) {
-            using shared_y = typename array_impl<Y>::shared;
-            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
-                data_owned_ = shared(*ptr, data);
-            }
+            data_owned_ = shared(ref.get_shared(), data);
         }
         else {
             data_owned_ = shared(ref.get_cshared(), data);
@@ -177,12 +173,8 @@ public:
 
     template <typename Y>
     void reset(const array_impl<Y>& ref, const T* data, std::int64_t count) {
-        check_array_has_ownership_structure(ref);
         if (ref.has_mutable_data()) {
-            using shared_y = typename array_impl<Y>::shared;
-            if (const auto& ptr = std::get_if<shared_y>(&ref.data_owned_)) {
-                data_owned_ = cshared(*ptr, data);
-            }
+            data_owned_ = cshared(ref.get_shared(), data);
         }
         else {
             data_owned_ = cshared(ref.get_cshared(), data);
@@ -220,14 +212,6 @@ private:
 #endif
     }
 
-    template <typename Y>
-    void check_array_has_ownership_structure(const array_impl<Y>& ref) {
-        if (ref.get_if_cshared() == nullptr && ref.get_if_shared() == nullptr) {
-            throw internal_error(
-                dal::detail::error_messages::array_does_not_contain_ownership_structure());
-        }
-    }
-
     shared copy() {
 #ifdef ONEDAL_DATA_PARALLEL
         if (dp_policy_.has_value()) {
@@ -256,6 +240,7 @@ private:
     }
 
     shared get_shared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
         return std::get<shared>(data_owned_);
     }
 
@@ -264,11 +249,8 @@ private:
     }
 
     cshared get_cshared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
         return std::get<cshared>(data_owned_);
-    }
-
-    const cshared* get_if_cshared() const noexcept {
-        return std::get_if<cshared>(&data_owned_);
     }
 
     std::variant<cshared, shared> data_owned_;
