@@ -104,7 +104,17 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
         return make_daal_cpu_kernel<Float>(cpu);
     });
 
-    auto host_corr_flat = host_corr.flatten();
+    auto corr_fake = pr::ndarray<Float, 2>::empty({ column_count, column_count });
+    Float* corr_fake_ptr = corr_fake.get_mutable_data();
+    for (std::int64_t i = 0; i < column_count; i++) {
+        for (std::int64_t j = 0; j < column_count; j++) {
+            corr_fake_ptr[i * column_count + j] = 0.0f;
+        }
+        corr_fake_ptr[i * column_count + i] = 1.0f;
+    }
+
+    // auto host_corr_flat = host_corr.flatten();
+    auto host_corr_flat = corr_fake.flatten();
     auto eigvecs_flat = eigvecs.flatten();
     auto eigvals_flat = eigvals.flatten();
 
@@ -114,13 +124,13 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
         interop::convert_to_daal_homogen_table(eigvecs_flat, component_count, column_count);
     auto eigvals_nt = interop::convert_to_daal_homogen_table(eigvals_flat, 1, component_count);
 
-    ONEDAL_TIMER_BEGIN(pca_cov_training, sym_eigvals_descending)
-    daal_cpu_kernel->computeCorrelationEigenvalues(*corr_nt, *eigvecs_nt, *eigvals_nt);
-    ONEDAL_TIMER_END(sym_eigvals_descending)
-
     // ONEDAL_TIMER_BEGIN(pca_cov_training, sym_eigvals_descending)
-    // pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+    // daal_cpu_kernel->computeCorrelationEigenvalues(*corr_nt, *eigvecs_nt, *eigvals_nt);
     // ONEDAL_TIMER_END(sym_eigvals_descending)
+
+    ONEDAL_TIMER_BEGIN(pca_cov_training, sym_eigvals_descending)
+    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+    ONEDAL_TIMER_END(sym_eigvals_descending)
 
     return std::make_tuple(eigvecs, eigvals);
 }
