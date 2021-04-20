@@ -140,7 +140,7 @@ inline daal::data_management::NumericTablePtr convert_labels(
         (value_first_class_label == Float(1.0) && value_second_class_label == Float(0.0)) ||
         (value_first_class_label == Float(-1.0) && value_second_class_label == Float(1.0)) ||
         (value_first_class_label == Float(1.0) && value_second_class_label == Float(-1.0))) {
-        daal_labels = interop::convert_to_daal_table<Float>(labels);
+        daal_labels = interop::convert_to_daal_table(queue, labels);
     }
     else {
         // TODO: Replace allocation type once bug with `memcpy` and host memory is fixed
