@@ -17,15 +17,7 @@
 #include "oneapi/dal/test/engine/config.hpp"
 
 #include <stdexcept>
-
-#ifdef ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/test/engine/common.hpp"
-
-namespace oneapi::dal::backend::interop {
-void enable_daal_sycl_execution_context_cache();
-void cleanup_daal_sycl_execution_context_cache();
-} // namespace oneapi::dal::backend::interop
-#endif
 
 namespace oneapi::dal::test::engine {
 
@@ -61,12 +53,10 @@ static sycl::queue get_queue(const std::string& device_selector) {
 }
 
 void global_setup(const global_config& config) {
-    dal::backend::interop::enable_daal_sycl_execution_context_cache();
     test_queue_provider::get_instance().init(get_queue(config.device_selector));
 }
 
 void global_cleanup() {
-    dal::backend::interop::cleanup_daal_sycl_execution_context_cache();
     test_queue_provider::get_instance().reset();
 }
 

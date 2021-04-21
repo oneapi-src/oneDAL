@@ -19,10 +19,6 @@
 Decision Tree
 *************
 
-.. toctree::
-   :maxdepth: 1
-
-
 Decision trees partition the feature space into a set of hypercubes,
 and then fit a simple model in each hypercube. The simple model can
 be a prediction model, which ignores all predictors and predicts the

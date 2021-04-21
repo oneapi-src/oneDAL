@@ -29,7 +29,7 @@ class vertex_ranking_result_impl;
 template <typename Graph, typename Task>
 class vertex_ranking_input_impl : public base {
 public:
-    vertex_ranking_input_impl(const Graph& graph_data_input) : graph_data(graph_data_input) {}
+    vertex_ranking_input_impl(const Graph& g) : graph_data(g) {}
 
     const Graph& graph_data;
 };

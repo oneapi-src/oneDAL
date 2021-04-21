@@ -31,6 +31,7 @@
 #include "algorithms/kernel_function/kernel_function_rbf.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/algorithms/kernel.h"
+#include "src/algorithms/kernel_function/kernel_function_dense_base.h"
 
 using namespace daal::internal;
 
@@ -46,13 +47,13 @@ template <typename algorithmFPType, CpuType cpu>
 struct KernelCSRImplBase : public Kernel
 {
     virtual services::Status computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par) = 0;
+                                                         const KernelParameter * par) = 0;
     virtual services::Status computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par) = 0;
+                                                         const KernelParameter * par) = 0;
     virtual services::Status computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2, NumericTable * r,
-                                                         const ParameterBase * par) = 0;
+                                                         const KernelParameter * par) = 0;
 
-    services::Status compute(const NumericTable * a1, const NumericTable * a2, NumericTable * r, const ParameterBase * par)
+    services::Status compute(const NumericTable * a1, const NumericTable * a2, NumericTable * r, const KernelParameter * par)
     {
         ComputationMode computationMode = par->computationMode;
         switch (computationMode)

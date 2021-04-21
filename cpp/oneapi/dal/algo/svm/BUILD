@@ -10,10 +10,12 @@ dal_module(
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/algo:linear_kernel",
+        "@onedal//cpp/oneapi/dal/algo:polynomial_kernel",
         "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/svm:kernel",
+        "@onedal//cpp/daal/src/algorithms/multiclassclassifier:kernel",
     ]
 )
 

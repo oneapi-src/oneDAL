@@ -46,7 +46,7 @@ namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                           NumericTable * r, const ParameterBase * par)
+                                                                                           NumericTable * r, const KernelParameter * par)
 {
     //prepareData
     ReadRowsCSR<algorithmFPType, cpu> mtA1(dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(a1)), par->rowIndexX, 1);
@@ -63,8 +63,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalVe
     DAAL_CHECK_BLOCK_STATUS(mtR);
 
     //compute
-    const Parameter * rbfPar    = static_cast<const Parameter *>(par);
-    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
+    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (par->sigma * par->sigma));
     const size_t startIndex1    = rowOffsetsA1[0] - 1;
     const size_t startIndex2    = rowOffsetsA2[0] - 1;
     const size_t endIndex1      = rowOffsetsA1[1] - 1;
@@ -88,7 +87,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalVe
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                           NumericTable * r, const ParameterBase * par)
+                                                                                           NumericTable * r, const KernelParameter * par)
 {
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
@@ -108,8 +107,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
     algorithmFPType * dataR = mtR.get();
 
     //compute
-    const Parameter * rbfPar    = static_cast<const Parameter *>(par);
-    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
+    const algorithmFPType coeff = (algorithmFPType)(-0.5 / (par->sigma * par->sigma));
     const size_t startIndex2    = rowOffsetsA2[0] - 1;
     const size_t endIndex2      = rowOffsetsA2[1] - 1;
 
@@ -144,7 +142,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
-                                                                                           NumericTable * r, const ParameterBase * par)
+                                                                                           NumericTable * r, const KernelParameter * par)
 {
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
@@ -152,8 +150,7 @@ services::Status KernelImplRBF<fastCSR, algorithmFPType, cpu>::computeInternalMa
     const size_t nFeatures = a1->getNumberOfColumns();
 
     //compute
-    const Parameter * rbfPar     = static_cast<const Parameter *>(par);
-    const algorithmFPType coeff  = (algorithmFPType)(-0.5 / (rbfPar->sigma * rbfPar->sigma));
+    const algorithmFPType coeff  = (algorithmFPType)(-0.5 / (par->sigma * par->sigma));
     const algorithmFPType zero   = 0.0;
     const algorithmFPType negTwo = -2.0;
 

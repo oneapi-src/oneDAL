@@ -87,12 +87,7 @@ public:
 
     descriptor_base();
 
-    /// The number of classes c
-    /// @invariant :expr:`class_count > 1`
     std::int64_t get_class_count() const;
-
-    /// The number of neighbors k
-    /// @invariant :expr:`neighbor_count > 0`
     std::int64_t get_neighbor_count() const;
 
 protected:
@@ -122,12 +117,12 @@ namespace v1 {
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::v1::brute_force` or :expr:`method::v1::kd_tree`.
+///                be :expr:`method::brute_force` or :expr:`method::kd_tree`.
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
-template <typename Float = detail::descriptor_base<>::float_t,
-          typename Method = detail::descriptor_base<>::method_t,
-          typename Task = detail::descriptor_base<>::task_t>
+///                be :expr:`task::classification`.
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -147,9 +142,21 @@ public:
         set_neighbor_count(neighbor_count);
     }
 
+    /// The number of classes c
+    /// @invariant :expr:`class_count > 1`
+    std::int64_t get_class_count() const {
+        return base_t::get_class_count();
+    }
+
     auto& set_class_count(std::int64_t value) {
         base_t::set_class_count_impl(value);
         return *this;
+    }
+
+    /// The number of neighbors k
+    /// @invariant :expr:`neighbor_count > 0`
+    std::int64_t get_neighbor_count() const {
+        return base_t::get_neighbor_count();
     }
 
     auto& set_neighbor_count(std::int64_t value) {
@@ -159,7 +166,7 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::v1::classification`.
+///              be :expr:`task::classification`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);

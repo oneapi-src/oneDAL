@@ -40,14 +40,14 @@ public:
                   "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the graph
     ///
-    /// @param [in]   graph  The input graph
-    vertex_ranking_input(const Graph& graph);
+    /// @param [in]   g  The input graph
+    vertex_ranking_input(const Graph& g);
 
     /// Returns the constant reference to the input graph
     const Graph& get_graph() const;
 
     /// Sets the input graph
-    auto& set_graph(const Graph& value);
+    auto& set_graph(const Graph& g);
 
 private:
     dal::detail::pimpl<detail::vertex_ranking_input_impl<Graph, Task>> impl_;

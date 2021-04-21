@@ -23,9 +23,6 @@
 namespace oneapi::dal::backend::primitives {
 
 template <std::int64_t axis_count>
-using ndindex = std::array<std::int64_t, axis_count>;
-
-template <std::int64_t axis_count>
 class ndshape {
 public:
     ndshape() {

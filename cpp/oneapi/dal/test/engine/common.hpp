@@ -121,6 +121,10 @@ public:
     bool is_gpu() const {
         return false;
     }
+
+    bool has_native_float64() const {
+        return true;
+    }
 };
 
 template <typename... Args>
@@ -186,6 +190,8 @@ public:
         return queue_.get_device().is_gpu();
     }
 
+    bool has_native_float64() const;
+
 private:
     sycl::queue queue_;
 };
@@ -204,6 +210,20 @@ template <typename... Args>
 inline auto compute(device_test_policy& policy, Args&&... args) {
     return dal::compute(policy.get_queue(), std::forward<Args>(args)...);
 }
+
+template <typename T>
+struct type2str {
+    static const char* name() {
+        return "Unknown";
+    }
+};
+
+#define INSTANTIATE_TYPE_MAP(T)       \
+    template <>                       \
+    const char* type2str<T>::name() { \
+        return #T;                    \
+    }
+
 #endif
 
 } // namespace oneapi::dal::test::engine

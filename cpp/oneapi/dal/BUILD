@@ -53,6 +53,7 @@ dal_collect_modules(
     modules = [
         "algo",
         "io",
+        "backend/micromkl",
         "backend/primitives",
     ],
 )
@@ -101,9 +102,10 @@ filegroup(
 
 dal_test_suite(
     name = "common_tests",
-    srcs = [
-        "array_test.cpp",
-    ],
+    framework = "catch2",
+    srcs = glob([
+        "test/*.cpp",
+    ]),
     dal_deps = [ ":common" ],
 )
 
@@ -116,6 +118,7 @@ dal_collect_test_suites(
         "io",
         "table",
         "util",
+        "backend/micromkl",
         "backend/primitives",
     ],
     tests = [

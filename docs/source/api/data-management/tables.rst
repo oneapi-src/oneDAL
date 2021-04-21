@@ -53,7 +53,7 @@ The ``table`` type and all of its subtypes are :term:`reference-counted <Referen
    frees its implementation.
 
 
-.. onedal_class:: oneapi::dal::v1::table
+.. onedal_class:: oneapi::dal::table
 
 .. _metadata_programming_interface:
 
@@ -64,7 +64,7 @@ An implementation of the :txtref:`table_metadata` concept. Holds additional
 information about data within the table. The objects of ``table_metadata``
 are :term:`reference-counted <Reference-counted object>`.
 
-.. onedal_class:: oneapi::dal::v1::table_metadata
+.. onedal_class:: oneapi::dal::table_metadata
 
 .. _api_tables_data_layout:
 

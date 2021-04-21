@@ -17,8 +17,6 @@
 #include "oneapi/dal/algo/decision_forest/train.hpp"
 #include "oneapi/dal/algo/decision_forest/infer.hpp"
 
-#include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/dataframe.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -42,27 +40,23 @@ struct checker_info {
 };
 
 template <typename TestType>
-class df_batch_test : public te::algo_fixture {
+class df_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
     using Task = std::tuple_element_t<2, TestType>;
 
     bool is_gpu() {
-        return get_policy().is_gpu();
+        return this->get_policy().is_gpu();
     }
 
     bool not_available_on_device() {
         constexpr bool is_dense = std::is_same_v<Method, decision_forest::method::dense>;
-        return get_policy().is_gpu() && is_dense;
+        return this->get_policy().is_gpu() && is_dense;
     }
 
     auto get_default_descriptor() {
         return df::descriptor<Float, Method, Task>{};
-    }
-
-    te::table_id get_homogen_table_id() const {
-        return te::table_id::homogen<Float>();
     }
 
     auto get_cls_dataframe_base() {
@@ -177,6 +171,25 @@ public:
         }
 
         return infer_result;
+    }
+
+    template <typename Checker>
+    void model_traverse_check(const df::model<Task>& model, Checker&& check) {
+        INFO("run model check");
+        for (std::int64_t tree_idx = 0; tree_idx < model.get_tree_count(); ++tree_idx) {
+            CAPTURE(tree_idx);
+            model.traverse_depth_first(tree_idx, std::forward<Checker>(check));
+        }
+    }
+
+    void check_trees_node_min_sample_count(const df::model<Task>& model,
+                                           std::int64_t min_observations_in_leaf_node) {
+        INFO("run check trees' node min sample count");
+        model_traverse_check(model, [&](const node_info<Task>& node) {
+            CAPTURE(node.get_level());
+            REQUIRE(node.get_sample_count() >= min_observations_in_leaf_node);
+            return true;
+        });
     }
 
     void check_train_shapes(const df::descriptor<Float, Method, Task>& desc,
@@ -438,6 +451,7 @@ using df_reg_types = _TE_COMBINE_TYPES_3((float, double),
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_cls wl =
         GENERATE_COPY(workload_cls{ df_ds_ion, 0.95 }, workload_cls{ df_ds_segment, 0.938 });
@@ -468,6 +482,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls default flow") {
 
 DF_BATCH_CLS_TEST_EXT("df cls corner flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_classification, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -486,8 +502,10 @@ DF_BATCH_CLS_TEST_EXT("df cls corner flow") {
 }
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df var importance flow") {
-    SKIP_IF(this->is_gpu()); // var importance differes on GPU due to difference in built model
+    SKIP_IF(this->is_gpu()); // var importance differs on GPU due to difference in built model
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_pendigits };
     const double oob_required_accuracy = 0.65;
     const double oob_required_error = 0.00867361;
@@ -529,6 +547,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df var importance flow") {
 
 DF_BATCH_CLS_TEST_EXT("df cls small flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -548,6 +568,8 @@ DF_BATCH_CLS_TEST_EXT("df cls small flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -556,23 +578,27 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
     const auto error_metric_mode_val = error_metric_mode::out_of_bag_error;
     const auto variable_importance_mode_val = variable_importance_mode::mdi;
     const double impurity_threshold_val = GENERATE_COPY(0.0, 0.1);
+    const std::int64_t min_observations_in_leaf_node = 30;
 
     auto desc = this->get_default_descriptor();
 
     desc.set_tree_count(500);
     desc.set_error_metric_mode(error_metric_mode_val);
     desc.set_variable_importance_mode(variable_importance_mode_val);
-    desc.set_min_observations_in_leaf_node(30);
+    desc.set_min_observations_in_leaf_node(min_observations_in_leaf_node);
     desc.set_impurity_threshold(impurity_threshold_val);
     desc.set_class_count(wl.ds_info.class_count);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+    this->check_trees_node_min_sample_count(model, min_observations_in_leaf_node);
 }
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_segment, 0.738 };
 
     const auto [data, data_test, checker_list] =
@@ -596,6 +622,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_ion, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -616,6 +644,8 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls bootstrap flow") {
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_cls wl = { df_ds_ion, 0.95 };
 
     const auto [data, data_test, checker_list] =
@@ -642,8 +672,9 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls oob per observation flow") {
                                                         1 - wl.required_accuracy);
 }
 
-DF_BATCH_CLS_TEST("df cls base check with default paarams") {
+DF_BATCH_CLS_TEST("df cls base check with default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
@@ -656,8 +687,9 @@ DF_BATCH_CLS_TEST("df cls base check with default paarams") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_CLS_TEST("df cls base check with non default paarams") {
+DF_BATCH_CLS_TEST("df cls base check with non default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
 
@@ -688,8 +720,9 @@ DF_BATCH_CLS_TEST("df cls base check with non default paarams") {
 
 // regression tests
 
-DF_BATCH_REG_TEST("df reg base check with default paarams") {
+DF_BATCH_REG_TEST("df reg base check with default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, checker_list] = this->get_reg_dataframe_base();
 
@@ -700,8 +733,9 @@ DF_BATCH_REG_TEST("df reg base check with default paarams") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
-DF_BATCH_REG_TEST("df reg base check with non default paarams") {
+DF_BATCH_REG_TEST("df reg base check with non default params") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const auto [data, data_test, checker_list] = this->get_reg_dataframe_base();
 
@@ -725,6 +759,7 @@ DF_BATCH_REG_TEST("df reg base check with non default paarams") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.45, 0.5 };
 
@@ -740,6 +775,7 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
 
 DF_BATCH_REG_TEST_EXT("df reg small flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
@@ -759,6 +795,7 @@ DF_BATCH_REG_TEST_EXT("df reg small flow") {
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
 
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
@@ -766,19 +803,23 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
         this->get_reg_dataframe(wl.ds_info.name, wl.required_mse, wl.required_mae);
 
     const double impurity_threshold_val = GENERATE_COPY(0.0, 0.1);
+    const std::int64_t min_observations_in_leaf_node = 30;
 
     auto desc = this->get_default_descriptor();
     desc.set_tree_count(500);
-    desc.set_min_observations_in_leaf_node(30);
+    desc.set_min_observations_in_leaf_node(min_observations_in_leaf_node);
     desc.set_impurity_threshold(impurity_threshold_val);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+    this->check_trees_node_min_sample_count(model, min_observations_in_leaf_node);
 }
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg bootstrap flow") {
     SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
     const workload_reg wl = { df_ds_white_wine, 0.94, 0.62 };
 
     const auto [data, data_test, checker_list] =

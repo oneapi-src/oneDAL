@@ -366,6 +366,11 @@ public:
         return wrap_mutable(std::move(ary), shape_t{ ary_count });
     }
 
+    static ndarray empty(const shape_t& shape) {
+        T* ptr = detail::malloc<T>(detail::default_host_policy{}, shape.get_count());
+        return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     static ndarray empty(const sycl::queue& q,
                          const shape_t& shape,
@@ -413,6 +418,13 @@ public:
         return array_t{ data_, this->get_count() };
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    array_t flatten(sycl::queue& q) const {
+        ONEDAL_ASSERT(is_known_usm(q, data_.get()));
+        return array_t{ q, data_, this->get_count() };
+    }
+#endif
+
     auto t() const {
         using tranposed_ndarray_t = ndarray<T, axis_count, transposed_ndorder_v<order>>;
         const auto& shape = this->get_shape();
@@ -445,10 +457,32 @@ public:
         ONEDAL_ASSERT(source_ptr != nullptr);
         ONEDAL_ASSERT(source_count > 0);
         ONEDAL_ASSERT(source_count <= this->get_count());
-        return q.submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.memcpy(this->get_mutable_data(), source_ptr, sizeof(T) * source_count);
-        });
+        return copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
+    }
+
+    sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
+        ONEDAL_ASSERT(src.get_count() > 0);
+        ONEDAL_ASSERT(src.get_count() <= this->get_count());
+        return this->assign(q, src.get_data(), src.get_count(), deps);
+    }
+
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
+        T* host_ptr = detail::host_allocator<T>().allocate(this->get_count());
+        copy(q, host_ptr, this->get_data(), this->get_count(), deps).wait_and_throw();
+        return wrap(host_ptr,
+                    this->get_shape(),
+                    detail::make_default_delete<T>(detail::default_host_policy{}));
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
+        ndarray dev = empty(q, this->get_shape());
+        dev.assign(q, this->get_mutable_data(), this->get_count(), deps).wait_and_throw();
+        return dev;
     }
 #endif
 

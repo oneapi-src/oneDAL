@@ -27,22 +27,20 @@
 
 namespace oneapi::dal::preview {
 namespace jaccard {
-namespace detail {
+namespace backend {
 
-template vertex_similarity_result call_jaccard_default_kernel_avx512<
-    dal::backend::cpu_dispatch_avx512>(const descriptor_base &desc,
-                                       const dal::preview::detail::topology<std::int32_t> &data,
-                                       void *result_ptr);
+template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<
+    dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::all_vertex_pairs>& desc,
+                                       const dal::preview::detail::topology<std::int32_t>& t,
+                                       void* result_ptr);
 
 template <>
-vertex_similarity_result call_jaccard_default_kernel_int32<dal::backend::cpu_dispatch_avx512>(
-    const descriptor_base &desc,
-    const dal::preview::detail::topology<std::int32_t> &data,
-    void *result_ptr) {
-    return call_jaccard_default_kernel_avx512<dal::backend::cpu_dispatch_avx512>(desc,
-                                                                                 data,
-                                                                                 result_ptr);
+vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispatch_avx512>(
+    const detail::descriptor_base<task::all_vertex_pairs>& desc,
+    const dal::preview::detail::topology<int32_t>& t,
+    void* result_ptr) {
+    return jaccard_avx512<dal::backend::cpu_dispatch_avx512>(desc, t, result_ptr);
 }
-} // namespace detail
+} // namespace backend
 } // namespace jaccard
 } // namespace oneapi::dal::preview

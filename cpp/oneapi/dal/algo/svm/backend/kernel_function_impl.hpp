@@ -19,6 +19,7 @@
 #include "oneapi/dal/algo/svm/common.hpp"
 
 #include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
+#include "daal/src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
 #include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
 
 namespace oneapi::dal::svm::detail {

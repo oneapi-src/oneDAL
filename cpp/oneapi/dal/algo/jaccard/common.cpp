@@ -18,8 +18,10 @@
 
 namespace oneapi::dal::preview {
 namespace jaccard {
+namespace detail {
 
-class detail::descriptor_impl : public base {
+template <typename Task>
+class descriptor_impl : public base {
 public:
     std::int64_t row_range_begin = 0;
     std::int64_t row_range_end = 0;
@@ -27,43 +29,53 @@ public:
     std::int64_t column_range_end = 0;
 };
 
-using detail::descriptor_impl;
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
-
-std::int64_t descriptor_base::get_row_range_begin() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_row_range_begin() const {
     return impl_->row_range_begin;
 }
 
-std::int64_t descriptor_base::get_row_range_end() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_row_range_end() const {
     return impl_->row_range_end;
 }
 
-std::int64_t descriptor_base::get_column_range_begin() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_column_range_begin() const {
     return impl_->column_range_begin;
 }
 
-std::int64_t descriptor_base::get_column_range_end() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_column_range_end() const {
     return impl_->column_range_end;
 }
 
-void descriptor_base::set_row_range_impl(std::int64_t begin, std::int64_t end) {
+template <typename Task>
+void descriptor_base<Task>::set_row_range_impl(std::int64_t begin, std::int64_t end) {
     impl_->row_range_begin = begin;
     impl_->row_range_end = end;
 }
 
-void descriptor_base::set_column_range_impl(std::int64_t begin, std::int64_t end) {
+template <typename Task>
+void descriptor_base<Task>::set_column_range_impl(std::int64_t begin, std::int64_t end) {
     impl_->column_range_begin = begin;
     impl_->column_range_end = end;
 }
 
-void descriptor_base::set_block_impl(const std::initializer_list<std::int64_t>& row_range,
-                                     const std::initializer_list<std::int64_t>& column_range) {
+template <typename Task>
+void descriptor_base<Task>::set_block_impl(
+    const std::initializer_list<std::int64_t>& row_range,
+    const std::initializer_list<std::int64_t>& column_range) {
     impl_->row_range_begin = *row_range.begin();
     impl_->row_range_end = *(row_range.begin() + 1);
     impl_->column_range_begin = *column_range.begin();
     impl_->column_range_end = *(column_range.begin() + 1);
 }
+
+template class ONEDAL_EXPORT descriptor_base<task::all_vertex_pairs>;
+} // namespace detail
 
 void* caching_builder::operator()(std::int64_t block_max_size) {
     if (size < block_max_size) {

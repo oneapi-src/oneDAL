@@ -14,7 +14,7 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-Support Vector Machine (SVM) :capterm:`classification` is among popular classification
+Support Vector Machine (SVM) :capterm:`classification` and :capterm:`regression` are among popular
 algorithms. It belongs to a family of generalized linear classification problems.
 
 
