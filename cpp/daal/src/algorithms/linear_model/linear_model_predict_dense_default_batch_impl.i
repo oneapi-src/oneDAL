@@ -128,12 +128,16 @@ const algorithmFPType * getNtData(size_t feat_idx, size_t irow,
 template <typename algorithmFPType, CpuType cpu>
 void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures,
                                                                                    DAAL_INT * numRows,
-                                                                                   services::internal::TArrayScalable<algorithmFPType *, cpu> & soa_arrays,
+                                                                                   //services::internal::TArrayScalable<algorithmFPType *, cpu> & soa_arrays,
+                                                                                   NumericTable * dataTable,
                                                                                    DAAL_INT * numBetas,
                                                                                    const algorithmFPType * beta, DAAL_INT * numResponses,
-                                                                                   algorithmFPType * responseBlock, bool findBeta0)
+                                                                                   algorithmFPType * responseBlock, bool findBeta0,
+                                                                                   const size_t & numColsInBlock,
+                                                                                   algorithmFPType * const TlsData)
 {
     algorithmFPType one       = 1.0;
+    algorithmFPType zero      = 0.0;
     const DAAL_INT nFeatures  = *numFeatures;
     const DAAL_INT nRows      = *numRows;
     const DAAL_INT nBetas     = *numBetas;
@@ -142,25 +146,48 @@ void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesS
     char trans   = 'T';
     char notrans = 'N';
     SafeStatus safeStat;
+
     services::internal::service_memset_seq<algorithmFPType, cpu>(responseBlock, algorithmFPType(0.0), nRows);
-    for (size_t i = 0; i < nFeatures; ++i)
+
+    size_t numBlocks = nFeatures / numColsInBlock;
+    numBlocks += numBlocks * numColsInBlock < nFeatures;
+    for( size_t iBlock = 0; iBlock < numBlocks; ++iBlock)
     {
-        // ReadColumns<algorithmFPType, cpu> xBlock(dataBlock, i, startRow, nRows);
-        // DAAL_CHECK_BLOCK_STATUS_THR(xBlock);
-        const algorithmFPType * xData = getNtData(i, startRow, soa_arrays);
-        DAAL_PREFETCH_READ_T0(xData);
-        if (i + 1 < nFeatures) {
-            // ReadColumns<algorithmFPType, cpu> nextBlock(dataBlock, i + 1, startRow, nRows);
-            const algorithmFPType * nextData = getNtData(i + 1, startRow, soa_arrays);
-            DAAL_PREFETCH_READ_T0(nextData);
+        size_t startCol = iBlock * numColsInBlock;
+        size_t endCol   = startCol + numColsInBlock;
+        if (endCol > nFeatures)
+        {
+            endCol = nFeatures;
         }
-        Blas<algorithmFPType, cpu>::xxaxpy(numRows, &beta[i + 1], xData, &oneDAL, responseBlock, &oneDAL);
-        // Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans,
-        //                                    numRows, numResponses, &oneDAL,
-        //                                    &one, xData, &oneDAL,
-        //                                    beta + i, numResponses,
-        //                                    &one, responseBlock, numRows);
+
+        for (size_t i = startCol; i < endCol; ++i){
+            ReadColumns<algorithmFPType, cpu> xBlock(dataTable, i, startRow, nRows);
+            DAAL_CHECK_BLOCK_STATUS_THR(xBlock);
+            services::internal::tmemcpy<algorithmFPType, cpu>(TlsData + (i - startCol) * nRows, xBlock.get(), nRows);
+        }
+
+        Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans,
+                                           &oneDAL, numFeatures, numRows,
+                                           &one, beta + 1, &oneDAL,
+                                           TlsData, numFeatures,
+                                           &one, responseBlock, &oneDAL);
+
     }
+
+    // for (size_t i = 0; i < nFeatures; i += 512)
+    // {
+    //     // ReadColumns<algorithmFPType, cpu> xBlock(dataBlock, i, startRow, nRows);
+    //     // DAAL_CHECK_BLOCK_STATUS_THR(xBlock);
+    //     const algorithmFPType * xData = getNtData(i, startRow, soa_arrays);
+    //     DAAL_PREFETCH_READ_T0(xData);
+        
+    //     if (i + 1 < nFeatures) {
+    //         // ReadColumns<algorithmFPType, cpu> nextBlock(dataBlock, i + 1, startRow, nRows);
+    //         // const algorithmFPType * nextData = getNtData(i + 1, startRow, soa_arrays);
+    //         DAAL_PREFETCH_READ_T0(getNtData(i + 1, startRow, soa_arrays));
+    //     }
+    //     Blas<algorithmFPType, cpu>::xxaxpy(numRows, beta + i + 1, xData, &oneDAL, responseBlock, &oneDAL);
+    // }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -192,6 +219,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
 
     /* Calculate number of blocks of rows including tail block */
     size_t numBlocks = numVectors / numRowsInBlock;
+    size_t numColsInBlock = 512;
     numBlocks += numBlocks * numRowsInBlock < numVectors;
 
     SafeStatus safeStat;
@@ -200,8 +228,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         services::internal::TArrayScalable<algorithmFPType *, cpu> soa_arrays;
         bool isHomogenSOA = checkHomogenSOA<algorithmFPType, cpu>(*dataTable, soa_arrays);
         assert(isHomogenSOA);
-
-        daal::threader_for(numBlocks, numBlocks, [=, &safeStat, &soa_arrays](int iBlock) {
+        TlsMem<algorithmFPType, cpu> tlsData(numColsInBlock * numRowsInBlock);
+        daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
             size_t startRow = iBlock * numRowsInBlock;
             size_t endRow   = startRow + numRowsInBlock;
             if (endRow > numVectors)
@@ -225,8 +253,10 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
             algorithmFPType * responseBlock = responseRows.get();
             DAAL_INT * pnumResponses        = (DAAL_INT *)&numResponses;
 
-            computeBlockOfResponsesSOA(startRow, &numFeatures, &numRows, soa_arrays, &nAllBetas, beta, pnumResponses, responseBlock,
-                                       model->getInterceptFlag());
+            // computeBlockOfResponsesSOA(startRow, &numFeatures, &numRows, soa_arrays, &nAllBetas, beta, pnumResponses, responseBlock,
+            //                            model->getInterceptFlag());
+            computeBlockOfResponsesSOA(startRow, &numFeatures, &numRows, dataTable, &nAllBetas, beta, pnumResponses, responseBlock,
+                                       model->getInterceptFlag(), numColsInBlock, tlsData.local());
         });
     }
     else
