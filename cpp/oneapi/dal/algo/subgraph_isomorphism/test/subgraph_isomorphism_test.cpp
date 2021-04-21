@@ -95,7 +95,8 @@ public:
         auto &vertex_allocator = graph_impl._vertex_allocator;
         auto &vv_p = graph_impl.get_vertex_values();
 
-        auto vertex_count = oneapi::dal::preview::get_vertex_count(graph);;
+        auto vertex_count = oneapi::dal::preview::get_vertex_count(graph);
+        ;
         std::int32_t *labels_array =
             oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
         vv_p = oneapi::dal::array<std::int32_t>::wrap(labels_array, vertex_count);
@@ -296,6 +297,7 @@ std::vector<std::vector<int>> paths_1_2_3_single_target = {
 };
 std::vector<std::vector<int>> paths_1_2_3 = { { 1, 2, 4 }, { 0 },    { 0, 3 }, { 2 },
                                               { 0, 5 },    { 4, 6 }, { 5 } };
+std::vector<std::vector<int>> single_vertex = { {} };
 
 std::map<std::string, int> labels_map = { { "A", 0 },
                                           { "B", 1 },
@@ -425,6 +427,23 @@ SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("paths_1_2_3_single_target - paths_1_2_3 m
                                                 paths_1_2_3_single_target,
                                                 paths_1_2_3,
                                                 true));
+}
+
+// TODO: Add single vertex graph check
+// SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("k_6 - single_vertex matching") {
+//     const auto result =
+//         this->graph_matching_wrapper(k_6, single_vertex, false, 0, isomorphism_kind::induced);
+//     REQUIRE(6 == result.get_match_count());
+//     REQUIRE(
+//         check_graph_isomorphism_correctness(result.get_vertex_match(), k_6, single_vertex, true));
+// }
+
+SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("single_vertex - k_6 matching") {
+    const auto result =
+        this->graph_matching_wrapper(single_vertex, k_6, false, 0, isomorphism_kind::induced);
+    REQUIRE(0 == result.get_match_count());
+    REQUIRE(
+        check_graph_isomorphism_correctness(result.get_vertex_match(), single_vertex, k_6, true));
 }
 
 SUBGRAPH_ISOMORPHISM_CORRECTNESS_TEST("linked_star_5 - cycle_5 labeled matching") {
