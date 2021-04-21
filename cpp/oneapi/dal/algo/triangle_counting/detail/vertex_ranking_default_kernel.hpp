@@ -120,6 +120,9 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
         const Allocator& alloc,
         const dal::preview::detail::topology<std::int32_t>& t) const {
         const auto vertex_count = t.get_vertex_count();
+        if (vertex_count == 0) {
+            return vertex_ranking_result<task::global>();
+        }
         const auto edge_count = t.get_edge_count();
         const auto relabel = desc.get_relabel();
         std::int64_t triangles = 0;
@@ -204,6 +207,9 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
         const detail::descriptor_base<task::local>& desc,
         const Allocator& alloc,
         const dal::preview::detail::topology<std::int32_t>& t) const {
+        if (t.get_vertex_count() == 0) {
+            return vertex_ranking_result<task::local>();
+        }
         auto local_triangles = triangle_counting_local<Allocator>()(ctx, alloc, t);
 
         return vertex_ranking_result<task::local>().set_ranks(
@@ -224,7 +230,9 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
         const Allocator& alloc,
         const dal::preview::detail::topology<std::int32_t>& t) const {
         const auto vertex_count = t.get_vertex_count();
-
+        if (vertex_count == 0) {
+            return vertex_ranking_result<task::local_and_global>();
+        }
         auto local_triangles = triangle_counting_local<Allocator>()(ctx, alloc, t);
 
         std::int64_t total_s = compute_global_triangles(ctx, local_triangles, vertex_count);
