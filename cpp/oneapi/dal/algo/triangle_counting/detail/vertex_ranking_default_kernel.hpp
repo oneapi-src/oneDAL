@@ -28,7 +28,7 @@ namespace oneapi::dal::preview::triangle_counting::detail {
 
 template <typename Method, typename Task, typename Allocator, typename Topology>
 struct vertex_ranking_kernel_cpu {
-     inline vertex_ranking_result<Task> operator()(const dal::detail::host_policy& ctx,
+    inline vertex_ranking_result<Task> operator()(const dal::detail::host_policy& ctx,
                                                   const detail::descriptor_base<Task>& desc,
                                                   const Allocator& alloc,
                                                   const Topology& t) const;
@@ -83,7 +83,7 @@ ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_poli
 
 template <typename Allocator>
 struct triangle_counting_local {
-     inline array<std::int64_t> operator()(const dal::detail::host_policy& ctx,
+    inline array<std::int64_t> operator()(const dal::detail::host_policy& ctx,
                                           const Allocator& alloc,
                                           const dal::preview::detail::topology<std::int32_t>& t) {
         const auto vertex_count = t.get_vertex_count();
@@ -114,7 +114,7 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
                                  task::global,
                                  Allocator,
                                  dal::preview::detail::topology<std::int32_t>> {
-     inline vertex_ranking_result<task::global> operator()(
+    inline vertex_ranking_result<task::global> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::global>& desc,
         const Allocator& alloc,
@@ -154,11 +154,11 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
                     oneapi::dal::preview::detail::allocate(int64_allocator, vertex_count + 1);
 
                 relabel_by_greater_degree<Allocator>{}(ctx,
-                                          t,
-                                          g_vertex_neighbors_relabel,
-                                          g_edge_offsets_relabel,
-                                          g_degrees_relabel,
-                                          alloc);
+                                                       t,
+                                                       g_vertex_neighbors_relabel,
+                                                       g_edge_offsets_relabel,
+                                                       g_degrees_relabel,
+                                                       alloc);
 
                 triangles =
                     triangle_counting<task::global, vector, relabeled>()(ctx,
@@ -202,7 +202,7 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
                                  task::local,
                                  Allocator,
                                  dal::preview::detail::topology<std::int32_t>> {
-     inline vertex_ranking_result<task::local> operator()(
+    inline vertex_ranking_result<task::local> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::local>& desc,
         const Allocator& alloc,
@@ -224,7 +224,7 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
                                  task::local_and_global,
                                  Allocator,
                                  dal::preview::detail::topology<std::int32_t>> {
-     inline vertex_ranking_result<task::local_and_global> operator()(
+    inline vertex_ranking_result<task::local_and_global> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::local_and_global>& desc,
         const Allocator& alloc,

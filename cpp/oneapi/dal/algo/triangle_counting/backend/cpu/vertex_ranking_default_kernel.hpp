@@ -94,11 +94,11 @@ array<std::int64_t> triangle_counting_local(const dal::preview::detail::topology
                             int64_t indx = (int64_t)thread_id * (int64_t)vertex_count;
 
                             auto tc = intersection_local_tc<Cpu>{}(t.get_vertex_neighbors_begin(u),
-                                                                 t.get_vertex_neighbors_begin(v),
-                                                                 u_degree,
-                                                                 new_v_degree,
-                                                                 triangles_local + indx,
-                                                                 vertex_count);
+                                                                   t.get_vertex_neighbors_begin(v),
+                                                                   u_degree,
+                                                                   new_v_degree,
+                                                                   triangles_local + indx,
+                                                                   vertex_count);
 
                             triangles_local[indx + u] += tc;
                             triangles_local[indx + v] += tc;
