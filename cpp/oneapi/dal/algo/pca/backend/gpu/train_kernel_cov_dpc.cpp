@@ -24,14 +24,14 @@
 #define ONEDAL_ENABLE_PROFILING
 #include "oneapi/dal/backend/profiling.hpp"
 
-// #include "oneapi/dal/backend/interop/common_dpc.hpp"
-// #include "oneapi/dal/backend/interop/table_conversion.hpp"
-// #include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include <daal/src/algorithms/pca/pca_dense_correlation_batch_kernel.h>
 
 namespace oneapi::dal::pca::backend {
 
-// namespace interop = dal::backend::interop;
-// namespace daal_pca = daal::algorithms::pca;
+namespace interop = dal::backend::interop;
+namespace daal_pca = daal::algorithms::pca;
 namespace pr = oneapi::dal::backend::primitives;
 
 using dal::backend::context_cpu;
@@ -41,18 +41,18 @@ using input_t = train_input<task::dim_reduction>;
 using result_t = train_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
 
-// template <typename Float>
-// using daal_pca_cor_cpu_kernel_iface_ptr =
-//     daal::services::SharedPtr<daal_pca::internal::PCACorrelationBaseIface<Float>>;
+template <typename Float>
+using daal_pca_cor_cpu_kernel_iface_ptr =
+    daal::services::SharedPtr<daal_pca::internal::PCACorrelationBaseIface<Float>>;
 
-// template <typename Float, daal::CpuType Cpu>
-// using daal_pca_cor_cpu_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
+template <typename Float, daal::CpuType Cpu>
+using daal_pca_cor_cpu_kernel_t = daal_pca::internal::PCACorrelationKernel<daal::batch, Float, Cpu>;
 
-// template <typename Float, typename Cpu>
-// inline daal_pca_cor_cpu_kernel_iface_ptr<Float> make_daal_cpu_kernel(Cpu cpu) {
-//     using Kernel = daal_pca_cor_cpu_kernel_t<Float, interop::to_daal_cpu_type<Cpu>::value>;
-//     return daal::services::SharedPtr<Kernel>{ new Kernel{} };
-// }
+template <typename Float, typename Cpu>
+inline daal_pca_cor_cpu_kernel_iface_ptr<Float> make_daal_cpu_kernel(Cpu cpu) {
+    using Kernel = daal_pca_cor_cpu_kernel_t<Float, interop::to_daal_cpu_type<Cpu>::value>;
+    return daal::services::SharedPtr<Kernel>{ new Kernel{} };
+}
 
 template <typename Float>
 auto compute_sums(sycl::queue& q,
@@ -106,38 +106,41 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
     auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
     auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
 
-    // const auto daal_cpu_kernel = dal::backend::dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-    //     return make_daal_cpu_kernel<Float>(cpu);
-    // });
+    const auto daal_cpu_kernel = dal::backend::dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
+        return make_daal_cpu_kernel<Float>(cpu);
+    });
 
-    // auto corr_fake = pr::ndarray<Float, 2>::empty({ column_count, column_count });
-    // Float* corr_fake_ptr = corr_fake.get_mutable_data();
-    // for (std::int64_t i = 0; i < column_count; i++) {
-    //     for (std::int64_t j = 0; j < column_count; j++) {
-    //         corr_fake_ptr[i * column_count + j] = 0.0f;
-    //     }
-    //     corr_fake_ptr[i * column_count + i] = 1.0f;
-    // }
+    auto corr_fake = pr::ndarray<Float, 2>::empty({ column_count, column_count });
+    Float* corr_fake_ptr = corr_fake.get_mutable_data();
+    // const Float* host_corr_ptr = host_corr.get_data();
+    for (std::int64_t i = 0; i < column_count; i++) {
+        for (std::int64_t j = 0; j < column_count; j++) {
+            // corr_fake_ptr[i * column_count + j] = host_corr_ptr[i * column_count + j];
+            // const Float x = host_corr_ptr[i * column_count + j];
+            corr_fake_ptr[i * column_count + j] = 0.0f;
+        }
+        corr_fake_ptr[i * column_count + i] = 1.0f;
+    }
 
     // auto host_corr_flat = host_corr.flatten();
-    // auto host_corr_flat = corr_fake.flatten();
-    // auto eigvecs_flat = eigvecs.flatten();
-    // auto eigvals_flat = eigvals.flatten();
+    auto host_corr_flat = corr_fake.flatten();
+    auto eigvecs_flat = eigvecs.flatten();
+    auto eigvals_flat = eigvals.flatten();
 
-    // auto corr_nt =
-    //     interop::convert_to_daal_homogen_table(host_corr_flat, column_count, column_count);
-    // auto eigvecs_nt =
-    //     interop::convert_to_daal_homogen_table(eigvecs_flat, component_count, column_count);
-    // auto eigvals_nt = interop::convert_to_daal_homogen_table(eigvals_flat, 1, component_count);
+    auto corr_nt =
+        interop::convert_to_daal_homogen_table(host_corr_flat, column_count, column_count);
+    auto eigvecs_nt =
+        interop::convert_to_daal_homogen_table(eigvecs_flat, component_count, column_count);
+    auto eigvals_nt = interop::convert_to_daal_homogen_table(eigvals_flat, 1, component_count);
 
-    // ONEDAL_TIMER_BEGIN(pca_cov_training, sym_eigvals_descending)
-    // daal_cpu_kernel->computeCorrelationEigenvalues(*corr_nt, *eigvecs_nt, *eigvals_nt);
-    // ONEDAL_TIMER_END(sym_eigvals_descending)
+    ONEDAL_TIMER_BEGIN(pca_cov_training, sym_eigvals_descending)
+    daal_cpu_kernel->computeCorrelationEigenvalues(*corr_nt, *eigvecs_nt, *eigvals_nt);
+    ONEDAL_TIMER_END(sym_eigvals_descending)
 
     // write_binary_file("correlation_dal.bin", host_corr.get_data(), host_corr.get_count());
 
     // ONEDAL_TIMER_BEGIN(pca_cov_training, sym_eigvals_descending)
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
+    // pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
     // ONEDAL_TIMER_END(sym_eigvals_descending)
 
     return std::make_tuple(eigvecs, eigvals);
