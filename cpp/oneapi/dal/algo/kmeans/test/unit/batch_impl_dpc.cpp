@@ -35,7 +35,7 @@ class kmeans_impl_test : public te::float_algo_fixture<TestType> {
 public:
     using float_t = TestType;
 
-    void fill_uniform(prm::ndarray<float_t, 1>& val, float_t a, float_t b, std::int64_t seed = 777) {
+    void fill_uniform(prm::ndarray<float_t, 2>& val, float_t a, float_t b, std::int64_t seed = 777) {
         std::int32_t elem_count = de::integral_cast<std::int32_t>(val.get_count());
         std::mt19937 rng(seed);
         std::uniform_real_distribution<float_t> distr(a, b);
@@ -49,13 +49,13 @@ public:
         de::host_allocator<float_t>().deallocate(val_ptr, val.get_count());
     }
 
-    void run_obj_func_check(const prm::ndview<float_t, 1>& min_distances) {
+    void run_obj_func_check(const prm::ndview<float_t, 2>& min_distances) {
         auto obj_func = prm::ndarray<float_t, 1>::empty(this->get_queue(), 1);
         backend::compute_objective_function_impl(this->get_queue(), min_distances, obj_func).wait_and_throw();
         check_objective_function(min_distances, obj_func.get_data()[0]);
     }
 
-    void check_objective_function(const prm::ndview<float_t, 1>& min_distances,
+    void check_objective_function(const prm::ndview<float_t, 2>& min_distances,
                                   float_t objective_function_value) {
         auto row_count = min_distances.get_shape()[0];
         auto min_distance_ptr = min_distances.get_data();
@@ -140,7 +140,7 @@ public:
         check_assignments(data, centroids, labels, closest_distances);
     }
 
-    void run_candidates(prm::ndview<float_t, 1> closest_distances, std::int64_t num_candidates) {
+    void run_candidates(prm::ndview<float_t, 2> closest_distances, std::int64_t num_candidates) {
         auto candidate_indices =
             prm::ndarray<std::int32_t, 1>::empty(this->get_queue(), num_candidates);
         auto candidate_distances =
@@ -151,7 +151,7 @@ public:
         check_candidates(closest_distances, num_candidates, candidate_indices,  candidate_distances);
     }
 
-    void check_candidates(const prm::ndview<float_t, 1>& closest_distances,
+    void check_candidates(const prm::ndview<float_t, 2>& closest_distances,
                            std::int64_t num_candidates,
                            const prm::ndview<std::int32_t, 1>& candidate_indices,
                            const prm::ndview<float_t, 1>& candidate_distances) {
@@ -338,7 +338,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
         GENERATE_DATAFRAME(te::dataframe_builder{ row_count, 1 }.fill_uniform(0.0, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
     const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = prm::ndarray<float_t, 1>::wrap(df_rows.get_data(), row_count);
+    auto data_array = prm::ndarray<float_t, 2>::wrap(df_rows.get_data(), {row_count, 1});
     this->run_obj_func_check(data_array);
 }
 
@@ -476,7 +476,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     std::int64_t element_count = 10001;
     std::int64_t num_candidates = 17;
 
-    auto closest_distances = prm::ndarray<float_t, 1>::empty(this->get_queue(), element_count);
+    auto closest_distances = prm::ndarray<float_t, 2>::empty(this->get_queue(), { element_count, 1} );
     this->fill_uniform(closest_distances, 0.0, 1.75);
 
     this->run_candidates(closest_distances, num_candidates);
