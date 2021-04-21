@@ -25,8 +25,9 @@
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
+template<typename Task>
 void print_vertex_similarity_result(
-    const oneapi::dal::preview::jaccard::vertex_similarity_result &result) {
+    const oneapi::dal::preview::jaccard::vertex_similarity_result<Task> &result) {
     using namespace oneapi::dal;
     const std::int64_t nonzero_coeff_count = result.get_nonzero_coeff_count();
     const std::int64_t lines_count = 20;
