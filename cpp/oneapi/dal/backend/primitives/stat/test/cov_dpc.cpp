@@ -54,6 +54,28 @@ public:
         return std::make_tuple(sums, corr, means, vars, tmp);
     }
 
+    void check_nans(const ndarray<Float, 2>& corr) {
+        const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
+        la::enumerate_linear(corr_mat, [](std::int64_t i, Float x) {
+            CAPTURE(i, x);
+            REQUIRE(x == x);
+        });
+    }
+
+    void check_diagonal_is_ones(const ndarray<Float, 2>& corr) {
+        const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
+        const double eps = te::get_tolerance<Float>(1e-4, 1e-6);
+
+        la::enumerate(corr_mat, [&](std::int64_t i, std::int64_t j, Float x) {
+            if (i == j) {
+                if (std::abs(x - 1.0) > eps) {
+                    CAPTURE(i, j, x, eps);
+                    FAIL("Unexpected diagonal element of correlation matrix");
+                }
+            }
+        });
+    }
+
     void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) {
         const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
         const double eps = te::get_tolerance<Float>(1e-4, 1e-6);
@@ -78,7 +100,9 @@ public:
                                  std::int64_t row_count,
                                  double expected_var) {
         const auto vars_mat = la::matrix<Float>::wrap_nd(vars.to_host(this->get_queue()));
-        const double eps = std::abs(expected_var) * te::get_tolerance_for_sum<Float>(row_count);
+
+        const double corrected_var = expected_var > 0 ? expected_var : 1.0;
+        const double eps = std::abs(corrected_var) * te::get_tolerance_for_sum<Float>(row_count);
 
         la::enumerate_linear(vars_mat, [&](std::int64_t i, Float var) {
             if (std::abs(double(var) - expected_var) > eps) {
@@ -92,7 +116,9 @@ public:
                              std::int64_t row_count,
                              double expected_mean) {
         const auto means_mat = la::matrix<Float>::wrap_nd(means.to_host(this->get_queue()));
-        const double eps = std::abs(expected_mean) * te::get_tolerance_for_sum<Float>(row_count);
+
+        const double corrected_mean = expected_mean > 0 ? expected_mean : 1.0;
+        const double eps = std::abs(corrected_mean) * te::get_tolerance_for_sum<Float>(row_count);
 
         la::enumerate_linear(means_mat, [&](std::int64_t i, Float mean) {
             if (std::abs(double(mean) - expected_mean) > eps) {
@@ -100,6 +126,92 @@ public:
                 FAIL("Unexpected mean");
             }
         });
+    }
+
+    auto get_gold_input() {
+        constexpr std::int64_t row_count = 10;
+        constexpr std::int64_t column_count = 5;
+        const Float data_host[row_count * column_count] = {
+            4.59,  0.81,  -1.37, -0.04, -0.75, //
+            4.87,  0.34,  -0.98, 4.1,   -0.12, //
+            4.44,  0.11,  -0.4,  3.27,  4.82, //
+            0.59,  0.98,  -1.88, -0.64, 2.54, //
+            -1.98, 2.57,  4.11,  -1.3,  -0.66, //
+            3.26,  2.8,   2.65,  0.83,  2.12, //
+            0.21,  4.23,  2.71,  2.2,   3.85, //
+            1.27,  -1.15, 2.84,  1.11,  -1.12, //
+            0.25,  1.61,  1.69,  4.51,  0.09, //
+            -0.01, 0.58,  0.83,  2.73,  -1.33, //
+        };
+        const Float sums_host[column_count] = {
+            17.49, 12.88, 10.2, 16.77, 9.44,
+        };
+
+        auto [data, data_event] = ndarray<Float, 2>::copy(this->get_queue(),
+                                                          data_host,
+                                                          { row_count, column_count },
+                                                          sycl::usm::alloc::device);
+
+        auto [sums, sums_event] = ndarray<Float, 1>::copy(this->get_queue(),
+                                                          sums_host,
+                                                          { column_count },
+                                                          sycl::usm::alloc::device);
+
+        data_event.wait_and_throw();
+        sums_event.wait_and_throw();
+
+        return std::make_tuple(data, sums);
+    }
+
+    auto get_gold_result() {
+        constexpr std::int64_t column_count = 5;
+        const Float corr_host[column_count * column_count] = {
+            1.,          -0.36877335, -0.60139209, 0.30105244,  0.21180973, //
+            -0.36877335, 1.,          0.44353402,  -0.16607388, 0.36798015, //
+            -0.60139209, 0.44353402,  1.,          -0.14177578, -0.14416016, //
+            0.30105244,  -0.16607388, -0.14177578, 1.,          0.11189629, //
+            0.21180973,  0.36798015,  -0.14416016, 0.11189629,  1.
+        };
+        const Float means_host[column_count] = {
+            1.749, 1.288, 1.02, 1.677, 0.944,
+        };
+        const Float vars_host[column_count] = {
+            5.61381, 2.41595111, 4.333, 4.00386778, 4.90371556,
+        };
+
+        auto corr = ndarray<Float, 2>::copy(corr_host, { column_count, column_count });
+        auto means = ndarray<Float, 1>::copy(means_host, { column_count });
+        auto vars = ndarray<Float, 1>::copy(vars_host, { column_count });
+
+        return std::make_tuple(corr, means, vars);
+    }
+
+    void check_gold_results(const ndarray<Float, 2>& corr,
+                            const ndarray<Float, 1>& means,
+                            const ndarray<Float, 1>& vars) {
+        const auto [gold_corr, gold_means, gold_vars] = get_gold_result();
+        const double eps = te::get_tolerance<Float>(1e-4, 1e-7);
+
+        INFO("compare correlation matrix with gold") {
+            const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
+            const auto gold_corr_mat = la::matrix<Float>::wrap_nd(gold_corr);
+
+            REQUIRE(la::equal_approx(corr_mat, gold_corr_mat, eps).all());
+        }
+
+        INFO("compare means with gold") {
+            const auto means_mat = la::matrix<Float>::wrap_nd(means.to_host(this->get_queue()));
+            const auto gold_means_mat = la::matrix<Float>::wrap_nd(gold_means);
+
+            REQUIRE(la::equal_approx(means_mat, gold_means_mat, eps).all());
+        }
+
+        INFO("compare vars with gold") {
+            const auto vars_mat = la::matrix<Float>::wrap_nd(vars.to_host(this->get_queue()));
+            const auto gold_vars_mat = la::matrix<Float>::wrap_nd(gold_vars);
+
+            REQUIRE(la::equal_approx(vars_mat, gold_vars_mat, eps).all());
+        }
     }
 };
 
@@ -129,7 +241,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
         .wait_and_throw();
 
-    INFO("check if correlation matrix is ones")
+    INFO("check if correlation matrix is identity")
     this->check_correlation_for_uncorrelated_data(corr);
 
     // The upper part of data matrix is diagonal. In diagonal matrix each column
@@ -166,8 +278,30 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
         .wait_and_throw();
 
-    INFO("check if correlation matrix is ones")
-    this->check_correlation_for_uncorrelated_data(corr);
+    INFO("check if there is no NaNs in correlation matrix");
+    this->check_nans(corr);
+
+    INFO("check if diagonal elements are ones");
+    this->check_diagonal_is_ones(corr);
+
+    INFO("check if mean is zero")
+    this->check_constant_mean(vars, 1, 0.0);
+
+    INFO("check if variance is zero")
+    this->check_constant_variance(vars, 1, 0.0);
+}
+
+TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+
+    auto [data, sums] = this->get_gold_input();
+    auto [_, corr, means, vars, tmp] = this->allocate_arrays(data.get_dimension(1));
+
+    INFO("run correlation");
+    correlation(this->get_queue(), data, sums, corr, means, vars, tmp).wait_and_throw();
+
+    this->check_gold_results(corr, means, vars);
 }
 
 } // namespace oneapi::dal::backend::primitives::test

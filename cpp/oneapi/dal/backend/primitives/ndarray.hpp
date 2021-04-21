@@ -371,6 +371,12 @@ public:
         return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
     }
 
+    static ndarray copy(const T* data, const shape_t& shape) {
+        auto ary = empty(shape);
+        ary.assign(data, shape.get_count());
+        return ary;
+    }
+
     static ndarray zeros(const shape_t& shape) {
         auto ary = empty(shape);
         ary.fill(T(0));
@@ -383,6 +389,18 @@ public:
                          const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         T* ptr = malloc<T>(q, shape.get_count(), alloc_kind);
         return wrap(ptr, shape, usm_deleter<T>{ q });
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    static std::tuple<ndarray, sycl::event> copy(
+        sycl::queue& q,
+        const T* data,
+        const shape_t& shape,
+        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        auto ary = empty(q, shape, alloc_kind);
+        auto event = ary.assign(q, data, shape.get_count());
+        return { ary, event };
     }
 #endif
 
@@ -462,6 +480,13 @@ public:
     }
 #endif
 
+    void assign(const T* source_ptr, std::int64_t source_count) {
+        ONEDAL_ASSERT(source_ptr != nullptr);
+        ONEDAL_ASSERT(source_count > 0);
+        ONEDAL_ASSERT(source_count <= this->get_count());
+        return dal::backend::copy(this->get_mutable_data(), source_ptr, source_count);
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     sycl::event assign(sycl::queue& q,
                        const T* source_ptr,
@@ -470,7 +495,7 @@ public:
         ONEDAL_ASSERT(source_ptr != nullptr);
         ONEDAL_ASSERT(source_count > 0);
         ONEDAL_ASSERT(source_count <= this->get_count());
-        return copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
+        return dal::backend::copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
 
     sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
@@ -478,13 +503,12 @@ public:
         ONEDAL_ASSERT(src.get_count() <= this->get_count());
         return this->assign(q, src.get_data(), src.get_count(), deps);
     }
-
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
     ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
         T* host_ptr = detail::host_allocator<T>().allocate(this->get_count());
-        copy(q, host_ptr, this->get_data(), this->get_count(), deps).wait_and_throw();
+        dal::backend::copy(q, host_ptr, this->get_data(), this->get_count(), deps).wait_and_throw();
         return wrap(host_ptr,
                     this->get_shape(),
                     detail::make_default_delete<T>(detail::default_host_policy{}));

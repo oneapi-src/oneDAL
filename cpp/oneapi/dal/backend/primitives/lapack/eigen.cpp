@@ -27,9 +27,7 @@ template <typename... Args>
 inline void syevd(Args&&... args) {
     dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
         using dal::backend::micromkl::syevd;
-        ONEDAL_TIMER(eigen, syevd_inner) {
-            syevd<decltype(cpu)>(std::forward<Args>(args)...);
-        }
+        syevd<decltype(cpu)>(std::forward<Args>(args)...);
     });
 }
 
@@ -53,9 +51,7 @@ void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w) {
     std::int64_t* iwork_ptr = iwork.get_mutable_data();
 
     std::int64_t info;
-    ONEDAL_TIMER(eigen, syevd) {
-        syevd('V', 'U', n, a, lda, w, work_ptr, lwork, iwork_ptr, liwork, info);
-    }
+    syevd('V', 'U', n, a, lda, w, work_ptr, lwork, iwork_ptr, liwork, info);
 
     if (info != 0) {
         throw internal_error{ dal::detail::error_messages::failed_to_compute_eigenvectors() };

@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <iostream>
-
 #ifndef __MICROMKL_INCLUDE_GUARD__
 #error "This header cannot be included outside of micromkl module"
 #endif
@@ -38,7 +36,6 @@
 #define DISPATCH_FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, arcdecl, argcall)           \
     template <>                                                                              \
     ONEDAL_FORCEINLINE void FUNC_NAME(prefix, name)<DISPATCH_ID_NAME(nominal_cpu)> arcdecl { \
-        std::cout << STRINGIFY(actual_cpu) << std::endl;                                     \
         FUNC_NAME_CPU(actual_cpu, prefix, name) argcall;                                     \
     }
 
