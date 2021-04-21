@@ -70,6 +70,11 @@ inline daal::data_management::NumericTablePtr convert_labels(
 
     daal::data_management::NumericTablePtr daal_labels;
 
+    // need to sort class labels to be consistent with Scikit-learn*
+    if (value_first_class_label > value_second_class_label) {
+        std::swap(value_first_class_label, value_second_class_label);
+    }
+
     if ((value_first_class_label == Float(0.0) && value_second_class_label == Float(1.0)) ||
         (value_first_class_label == Float(1.0) && value_second_class_label == Float(0.0)) ||
         (value_first_class_label == Float(-1.0) && value_second_class_label == Float(1.0)) ||
@@ -80,8 +85,7 @@ inline daal::data_management::NumericTablePtr convert_labels(
         auto new_label_arr = array<Float>::empty(count);
         auto new_label_data = new_label_arr.get_mutable_data();
 
-        new_label_data[0] = in_binary_labels.first;
-        for (std::int64_t i = 1; i < count; ++i) {
+        for (std::int64_t i = 0; i < count; ++i) {
             if (arr_label[i] == value_first_class_label) {
                 new_label_data[i] = in_binary_labels.first;
             }
@@ -136,6 +140,11 @@ inline daal::data_management::NumericTablePtr convert_labels(
 
     daal::data_management::NumericTablePtr daal_labels;
 
+    // need to sort class labels to be consistent with Scikit-learn*
+    if (value_first_class_label > value_second_class_label) {
+        std::swap(value_first_class_label, value_second_class_label);
+    }
+
     if ((value_first_class_label == Float(0.0) && value_second_class_label == Float(1.0)) ||
         (value_first_class_label == Float(1.0) && value_second_class_label == Float(0.0)) ||
         (value_first_class_label == Float(-1.0) && value_second_class_label == Float(1.0)) ||
@@ -147,8 +156,7 @@ inline daal::data_management::NumericTablePtr convert_labels(
         auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
         auto new_label_data = new_label_arr.get_mutable_data();
 
-        new_label_data[0] = in_binary_labels.first;
-        for (std::int64_t i = 1; i < count; ++i) {
+        for (std::int64_t i = 0; i < count; ++i) {
             if (arr_label_host[i] == value_first_class_label) {
                 new_label_data[i] = in_binary_labels.first;
             }
