@@ -42,8 +42,8 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     ONEDAL_ASSERT(col_count_x == col_count_y);
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
 
-    const Float alpha = desc.get_scale();
-    const Float beta = desc.get_shift();
+    const Float scale = desc.get_scale();
+    const Float shift = desc.get_shift();
 
     auto arr_x = row_accessor<const Float>(x).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
     const auto ndarray_x = pr::ndarray<Float, 2>::wrap(arr_x, { row_count_x, col_count_x });
@@ -55,11 +55,11 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
         pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
 
     sycl::event fill_res_event;
-    if (beta != 0.0) {
+    if (shift != 0.0) {
         fill_res_event = ndarray_res.fill(queue, Float(1));
     }
 
-    gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta, { fill_res_event })
+    gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, scale, shift, { fill_res_event })
         .wait_and_throw();
 
     return result_t{}.set_values(
