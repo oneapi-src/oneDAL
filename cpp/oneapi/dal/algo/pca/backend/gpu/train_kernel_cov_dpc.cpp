@@ -92,6 +92,12 @@ inline void write_binary_file(const std::string& filename, const Float* data, si
 }
 
 template <typename Float>
+inline void read_binary_file(const std::string& filename, Float* data, size_t count) {
+    std::fstream file(filename, std::ios::binary | std::ios::in);
+    file.read(reinterpret_cast<char*>(data), count * sizeof(Float));
+}
+
+template <typename Float>
 auto compute_eigenvectors_on_host(sycl::queue& q,
                                   pr::ndarray<Float, 2>&& corr,
                                   std::int64_t component_count,
@@ -111,16 +117,20 @@ auto compute_eigenvectors_on_host(sycl::queue& q,
     });
 
     auto corr_fake = pr::ndarray<Float, 2>::empty({ column_count, column_count });
-    Float* corr_fake_ptr = corr_fake.get_mutable_data();
-    // const Float* host_corr_ptr = host_corr.get_data();
-    for (std::int64_t i = 0; i < column_count; i++) {
-        for (std::int64_t j = 0; j < column_count; j++) {
-            // corr_fake_ptr[i * column_count + j] = host_corr_ptr[i * column_count + j];
-            // const Float x = host_corr_ptr[i * column_count + j];
-            corr_fake_ptr[i * column_count + j] = 0.0f;
-        }
-        corr_fake_ptr[i * column_count + i] = 1.0f;
-    }
+    read_binary_file("../../correlation_daal.bin",
+                     corr_fake.get_mutable_data(),
+                     corr_fake.get_count());
+
+    // Float* corr_fake_ptr = corr_fake.get_mutable_data();
+    // // const Float* host_corr_ptr = host_corr.get_data();
+    // for (std::int64_t i = 0; i < column_count; i++) {
+    //     for (std::int64_t j = 0; j < column_count; j++) {
+    //         // corr_fake_ptr[i * column_count + j] = host_corr_ptr[i * column_count + j];
+    //         // const Float x = host_corr_ptr[i * column_count + j];
+    //         corr_fake_ptr[i * column_count + j] = 0.0f;
+    //     }
+    //     corr_fake_ptr[i * column_count + i] = 1.0f;
+    // }
 
     // auto host_corr_flat = host_corr.flatten();
     auto host_corr_flat = corr_fake.flatten();
