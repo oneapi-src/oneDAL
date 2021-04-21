@@ -26,6 +26,7 @@
 
 #include "src/services/service_utils.h"
 #include "src/externals/service_memory.h"
+#include "algorithms/svm/svm_train_types.h"
 
 namespace daal
 {

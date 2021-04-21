@@ -150,7 +150,7 @@ public:
     template <typename T>
     void pull_rows(array<T>& a, const range& r) const {
         homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_rows(a, r);
+        impl.pull_rows_mutable(a, r);
     }
 
     template <typename T>
@@ -162,7 +162,7 @@ public:
     template <typename T>
     void pull_column(array<T>& a, std::int64_t idx, const range& r) const {
         homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_column(a, idx, r);
+        impl.pull_column_mutable(a, idx, r);
     }
 
     template <typename T>
@@ -178,7 +178,7 @@ public:
                    const range& r,
                    const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_rows(q, a, r, kind);
+        impl.pull_rows_mutable(q, a, r, kind);
     }
 
     template <typename T>
@@ -194,7 +194,7 @@ public:
                      const range& r,
                      const sycl::usm::alloc& kind) const {
         homogen_table_impl impl{ row_count_, column_count_, data_, dtype_, layout_ };
-        impl.pull_column(q, a, idx, r, kind);
+        impl.pull_column_mutable(q, a, idx, r, kind);
     }
 
     template <typename T>

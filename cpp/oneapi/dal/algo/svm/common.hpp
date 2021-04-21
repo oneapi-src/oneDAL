@@ -266,7 +266,7 @@ public:
         return *this;
     }
 
-    /// The parameter of the WSS scheme $\\tau$.
+    /// The threshold parameter $\\tau$ for computing the quadratic coefficient.
     /// @invariant :expr:`tau > 0.0`
     /// @remark default = 1e-6
     double get_tau() const {
@@ -347,7 +347,9 @@ public:
         return *this;
     }
 
-    /// A $nsv \\times 1$ table containing coefficients of Lagrange multiplier
+    /// A $nsv \\times class_count - 1$ table for :expr:`task::classification`
+    /// and $nsv \\times 1$ table for :expr:`task::regression`
+    /// containing coefficients of Lagrange multiplier
     /// @remark default = table{}
     const table& get_coeffs() const;
 
@@ -358,10 +360,20 @@ public:
 
     /// The bias
     /// @remark default = 0.0
-    double get_bias() const;
+    [[deprecated("Use get_biases() instead.")]] double get_bias() const;
 
-    auto& set_bias(double value) {
+    [[deprecated("Use set_biases() instead.")]] auto& set_bias(double value) {
         set_bias_impl(value);
+        return *this;
+    }
+
+    /// A $class_count*(class_count-1)/2 \\times 1$ table for :expr:`task::classification`
+    /// and $1 \\times 1$ table for :expr:`task::regression`
+    /// calastable constants in decision function
+    const table& get_biases() const;
+
+    auto& set_biases(const table& value) {
+        set_biases_impl(value);
         return *this;
     }
 
@@ -389,6 +401,7 @@ protected:
     void set_support_vectors_impl(const table&);
     void set_coeffs_impl(const table&);
     void set_bias_impl(double);
+    void set_biases_impl(const table&);
     void set_first_class_label_impl(std::int64_t);
     void set_second_class_label_impl(std::int64_t);
 

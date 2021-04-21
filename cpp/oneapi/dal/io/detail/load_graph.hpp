@@ -33,17 +33,15 @@
 namespace oneapi::dal::preview::load_graph::detail {
 
 template <typename Vertex>
-inline edge_list<Vertex> load_edge_list(const std::string &name);
+inline void load_edge_list(const std::string &name, edge_list<Vertex> &elist);
 
 template <>
-inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
-    using int_t = std::int32_t;
-
+inline void load_edge_list(const std::string &name, edge_list<std::int32_t> &elist) {
     std::ifstream file(name);
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
     }
-    edge_list<int_t> elist;
+
     elist.reserve(1024);
     char source_vertex[32], destination_vertex[32];
     while (file >> source_vertex >> destination_vertex) {
@@ -53,7 +51,6 @@ inline edge_list<std::int32_t> load_edge_list(const std::string &name) {
     }
 
     file.close();
-    return elist;
 }
 
 template <typename Index>
@@ -106,6 +103,12 @@ EdgeIndex compute_prefix_sum(const VertexIndex *degrees,
     return total_sum_degrees;
 }
 
+template <>
+ONEDAL_EXPORT std::int64_t compute_prefix_sum<std::int64_t, std::int32_t>(
+    const std::int32_t *degrees,
+    std::int64_t degrees_count,
+    std::int64_t *edge_offsets);
+
 template <typename Index, typename AtomicIndex>
 void fill_from_atomics(Index *arr, AtomicIndex *atomic_arr, std::int64_t elements_count) {
     dal::detail::threader_for_int64(elements_count, [&](std::int64_t n) {
@@ -139,6 +142,15 @@ void fill_filtered_neighs(const EdgeIndex *unfiltered_offsets,
     });
 }
 
+template <>
+ONEDAL_EXPORT void fill_filtered_neighs<std::int32_t, std::int64_t>(
+    const std::int64_t *unfiltered_offsets,
+    const std::int32_t *unfiltered_neighs,
+    const std::int32_t *filtered_degrees,
+    const std::int64_t *filtered_offsets,
+    std::int32_t *filtered_neighs,
+    std::int64_t vertex_count);
+
 template <typename VertexIndex, typename EdgeIndex>
 void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
                                            EdgeIndex *unfiltered_offsets,
@@ -156,6 +168,13 @@ void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
         new_degrees[u] = (VertexIndex)std::distance(start_p, neighs_u_new_end);
     });
 }
+
+template <>
+ONEDAL_EXPORT void filter_neighbors_and_fill_new_degrees<std::int32_t, std::int64_t>(
+    std::int32_t *unfiltered_neighs,
+    std::int64_t *unfiltered_offsets,
+    std::int32_t *new_degrees,
+    std::int64_t vertex_count);
 
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_type> &edges,
@@ -281,9 +300,10 @@ template <typename Descriptor, typename DataSource>
 output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
     using graph_type = output_type<Descriptor>;
     graph_type graph;
-    const auto el = load_edge_list<typename Descriptor::input_type::data_t::first_type>(
-        data_source.get_filename());
-    convert_to_csr_impl(el, graph);
+    edge_list<std::int32_t> elist;
+    load_edge_list<typename Descriptor::input_type::data_t::first_type>(data_source.get_filename(),
+                                                                        elist);
+    convert_to_csr_impl(elist, graph);
     return graph;
 }
 } // namespace oneapi::dal::preview::load_graph::detail

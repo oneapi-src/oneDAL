@@ -88,6 +88,11 @@ inline std::ostream& operator<<(std::ostream& stream, const matrix_formatter<T, 
     return stream;
 }
 
+template <typename T, layout lyt>
+inline std::ostream& operator<<(std::ostream& stream, const matrix<T, lyt>& m) {
+    return stream << format_matrix(m);
+}
+
 inline std::ostream& operator<<(std::ostream& stream, layout l) {
     if (l == layout::row_major) {
         stream << "row-major";
