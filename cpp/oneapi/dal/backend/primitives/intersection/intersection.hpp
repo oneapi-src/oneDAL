@@ -362,7 +362,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx2>(
     std::int32_t n_v) {
     std::int64_t total = 0;
     std::int32_t i_u = 0, i_v = 0;
-
+#if defined(__INTEL_COMPILER)
     const std::int32_t n_u_8_end = n_u - 8;
     const std::int32_t n_v_8_end = n_v - 8;
     while (i_u <= n_u_8_end && i_v <= n_v_8_end) {
@@ -555,7 +555,7 @@ ONEDAL_FORCEINLINE std::int64_t intersection<dal::backend::cpu_dispatch_avx2>(
         }
         i_v += 4;
     }
-
+#endif
     while (i_u < n_u && i_v < n_v) {
         if ((neigh_u[i_u] > neigh_v[n_v - 1]) || (neigh_v[i_v] > neigh_u[n_u - 1])) {
             return total;
