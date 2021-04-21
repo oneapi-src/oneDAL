@@ -48,13 +48,12 @@ public:
         directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
 
     static_assert(detail::is_valid_index_v<IndexType>, "Use int32_t for vertex index type");
-    static_assert(detail::is_valid_edge_value_v<EdgeValue>, "Use double or int32_t for edge value type");
+    //static_assert(detail::is_valid_edge_value_v<EdgeValue>, "Use double or int32_t for edge value type");
 
     /// Constructs an empty directed_adjacency_vector_graph
     directed_adjacency_vector_graph();
 
-    /// Constructs an empty directed_adjacency_vector_graph
-    virtual ~directed_adjacency_vector_graph() = default;
+    ~directed_adjacency_vector_graph() = default;
 
     /// Move constructor for directed_adjacency_vector_graph
     directed_adjacency_vector_graph(directed_adjacency_vector_graph &&other) = default;
@@ -68,11 +67,11 @@ public:
     directed_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
 
     /// Construct a graph from edges & their values
-    directed_adjacency_vector(const initializer_list<tuple<IndexType, IndexType, EdgeValue>> &ilist,
+    directed_adjacency_vector(const std::initializer_list<std::tuple<IndexType, IndexType, EdgeValue>> &ilist,
                               Allocator allocator = Allocator());
 
     /// Construct a graph from edges
-    directed_adjacency_vector(const initializer_list<tuple<IndexType, IndexType>> &ilist,
+    directed_adjacency_vector(const std::initializer_list<std::tuple<IndexType, IndexType>> &ilist,
                               Allocator allocator = Allocator());
 
     /// Move operator for directed_adjacency_vector_graph
@@ -108,7 +107,6 @@ struct graph_traits<
 
     // vertex types
     using vertex_type = typename impl_type::vertex_type;
-    using vertex_allocator_type = typename impl_type::vertex_allocator_type;
     using vertex_set = typename impl_type::vertex_set;
     using vertex_iterator = typename impl_type::vertex_iterator;
     using const_vertex_iterator = typename impl_type::const_vertex_iterator;
@@ -121,8 +119,6 @@ struct graph_traits<
     using vertex_outward_edge_type = typename impl_type::vertex_outward_edge_type;
     using vertex_outward_edge_size_type = typename impl_type::vertex_outward_edge_size_type;
     using vertex_outward_edge_set = typename impl_type::vertex_outward_edge_set;
-    using vertex_outward_edge_allocator_type =
-        typename impl_type::vertex_outward_edge_allocator_type;
     using vertex_outward_edge_iterator = typename impl_type::vertex_outward_edge_iterator;
     using const_vertex_outward_edge_iterator =
         typename impl_type::const_vertex_outward_edge_iterator;
@@ -134,7 +130,6 @@ struct graph_traits<
 
     // edge types
     using edge_type = typename impl_type::edge_type;
-    using edge_allocator_type = typename impl_type::edge_allocator_type;
     using edge_set = typename impl_type::edge_set;
     using edge_size_type = typename impl_type::edge_size_type;
 
@@ -181,5 +176,14 @@ directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, A
     }
     return *this;
 }
+
+template <typename Graph>
+constexpr bool is_directed =
+    dal::detail::is_one_of_v<Graph,
+                             directed_adjacency_vector_graph<vertex_user_value_type<Graph>,
+                                                             edge_user_value_type<Graph>,
+                                                             graph_user_value_type<Graph>,
+                                                             vertex_type<Graph>,
+                                                             graph_allocator<Graph>>>;
 
 } // namespace oneapi::dal::preview

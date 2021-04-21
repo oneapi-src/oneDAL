@@ -106,6 +106,11 @@ using edge_size_type = typename graph_traits<Graph>::edge_size_type;
 template <typename Graph>
 using vertex_edge_size_type = typename graph_traits<Graph>::vertex_edge_size_type;
 
+/// Type of the graph vertex-edge size
+/// @tparam Graph Type of the graph
+template <typename Graph>
+using vertex_outward_edge_size_type = typename graph_traits<Graph>::vertex_outward_edge_size_type;
+
 /// Type of the graph vertex-edge iterator
 /// @tparam Graph Type of the graph
 template <typename Graph>
@@ -126,27 +131,15 @@ using vertex_edge_range_type = typename graph_traits<Graph>::vertex_edge_range;
 template <typename Graph>
 using const_vertex_edge_range_type = typename graph_traits<Graph>::const_vertex_edge_range;
 
+/// Type of the constant graph range of the vertex-edges
+/// @tparam Graph Type of the graph
+template <typename Graph>
+using const_vertex_outward_edge_range_type = typename graph_traits<Graph>::const_vertex_outward_edge_range;
+
 /// Type of the graph allocator
 /// @tparam Graph Type of the graph
 template <typename Graph>
 using graph_allocator = typename graph_traits<Graph>::allocator_type;
 
-template <typename Graph>
-constexpr bool is_undirected =
-    dal::detail::is_one_of_v<Graph,
-                             undirected_adjacency_vector_graph<vertex_user_value_type<Graph>,
-                                                               edge_user_value_type<Graph>,
-                                                               graph_user_value_type<Graph>,
-                                                               vertex_type<Graph>,
-                                                               graph_allocator<Graph>>>;
-
-template <typename Graph>
-constexpr bool is_directed =
-    dal::detail::is_one_of_v<Graph,
-                             directed_adjacency_vector_graph<vertex_user_value_type<Graph>,
-                                                             edge_user_value_type<Graph>,
-                                                             graph_user_value_type<Graph>,
-                                                             vertex_type<Graph>,
-                                                             graph_allocator<Graph>>>;
 
 } // namespace oneapi::dal::preview

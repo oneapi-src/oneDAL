@@ -52,8 +52,7 @@ public:
     /// Constructs an empty undirected_adjacency_vector_graph
     undirected_adjacency_vector_graph();
 
-    /// Constructs an empty undirected_adjacency_vector_graph
-    virtual ~undirected_adjacency_vector_graph() = default;
+    ~undirected_adjacency_vector_graph() = default;
 
     /// Move constructor for undirected_adjacency_vector_graph
     undirected_adjacency_vector_graph(undirected_adjacency_vector_graph &&other) = default;
@@ -168,5 +167,14 @@ undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType,
     }
     return *this;
 }
+
+template <typename Graph>
+constexpr bool is_undirected =
+    dal::detail::is_one_of_v<Graph,
+                             undirected_adjacency_vector_graph<vertex_user_value_type<Graph>,
+                                                               edge_user_value_type<Graph>,
+                                                               graph_user_value_type<Graph>,
+                                                               vertex_type<Graph>,
+                                                               graph_allocator<Graph>>>;
 
 } // namespace oneapi::dal::preview
