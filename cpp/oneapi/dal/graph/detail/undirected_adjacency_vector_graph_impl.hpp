@@ -60,30 +60,6 @@ public:
         return _edge_count;
     }
 
-    /*
-ONEDAL_FORCEINLINE auto get_vertex_degree(const IndexType& vertex) const noexcept ->
-    edge_size_type {
-    return _degrees[vertex];
-}
-
-ONEDAL_FORCEINLINE auto get_vertex_neighbors(const IndexType& vertex) const noexcept ->
-    const_vertex_edge_range {
-    const IndexType* vertex_neighbors_begin = _cols.get_data() + _rows[vertex];
-    const IndexType* vertex_neighbors_end =
-        _cols.get_data() + _rows[vertex + 1];
-    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
-}
-
-ONEDAL_FORCEINLINE auto get_vertex_neighbors_begin(const IndexType& vertex) const noexcept ->
-    const_vertex_edge_iterator {
-    return _cols.get_data() + _rows[vertex];
-}
-
-ONEDAL_FORCEINLINE auto get_vertex_neighbors_end(const IndexType& vertex) const noexcept ->
-    const_vertex_edge_iterator {
-    return _cols.get_data() + _rows[vertex + 1];
-}*/
-
     ONEDAL_FORCEINLINE auto get_vertex_degree(const IndexType& vertex) const noexcept
         -> edge_size_type {
         return _degrees_ptr[vertex];

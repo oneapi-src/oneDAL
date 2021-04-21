@@ -58,8 +58,8 @@ stump += stump/inner classifier classifier/inner weak_learner/inner
 adaboost += adaboost/inner classifier classifier/inner decision_tree decision_tree/inner stump stump/inner boosting/inner weak_learner/inner
 brownboost += brownboost/inner boosting/inner weak_learner/inner classifier classifier/inner decision_tree decision_tree/inner stump stump/inner
 logitboost += logitboost/inner boosting/inner weak_learner/inner classifier classifier/inner regression decision_tree decision_tree/inner stump stump/inner
-svm += svm/inner classifier classifier/inner kernel_function multiclassclassifier multiclassclassifier/inner
-multiclassclassifier += multiclassclassifier/inner classifier classifier/inner
+svm += classifier kernel_function multiclassclassifier
+multiclassclassifier += classifier classifier/inner
 k_nearest_neighbors += k_nearest_neighbors/inner engines classifier classifier/inner
 logistic_regression += logistic_regression/inner classifier classifier/inner optimization_solver objective_function engines
 implicit_als += engines distributions
@@ -119,7 +119,6 @@ CORE.ALGORITHMS.FULL :=                                                       \
     logitboos/inner                                                           \
     low_order_moments                                                         \
     multiclassclassifier                                                      \
-    multiclassclassifier/inner                                                \
     naivebayes                                                                \
     normalization/minmax                                                      \
     normalization/zscore                                                      \
@@ -161,7 +160,6 @@ CORE.ALGORITHMS.FULL :=                                                       \
     stump/inner                                                               \
     svd                                                                       \
     svm                                                                       \
-    svm/inner                                                                 \
     weak_learner/inner
 
 
@@ -225,7 +223,7 @@ CORE.SERVICES       := compression            \
                        data_management
 
 # Dependencies between oneAPI and core (CPU-only) algorithms
-ONEAPI.ALGOS.decision_forest := CORE.decision_forest
+ONEAPI.ALGOS.decision_forest := CORE.decision_forest decision_tree
 ONEAPI.ALGOS.kmeans := CORE.kmeans
 ONEAPI.ALGOS.kmeans_init := CORE.kmeans
 ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
@@ -238,6 +236,7 @@ ONEAPI.ALGOS.svm           := CORE.svm
 # List of algorithms in oneAPI part
 ONEAPI.ALGOS :=       \
     decision_forest   \
+    decision_tree     \
     kmeans            \
     kmeans_init       \
     knn               \
@@ -248,6 +247,7 @@ ONEAPI.ALGOS :=       \
     svm               \
     jaccard           \
     triangle_counting
+
 
 ONEAPI.IO :=     \
     csv

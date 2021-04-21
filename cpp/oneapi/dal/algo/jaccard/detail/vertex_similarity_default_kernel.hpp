@@ -31,6 +31,7 @@ ONEDAL_EXPORT struct vertex_similarity {
                                               void* result_ptr);
 };
 
+
 template <>
 ONEDAL_EXPORT struct vertex_similarity<float,
                                        task::all_vertex_pairs,
