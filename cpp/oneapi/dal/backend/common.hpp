@@ -71,8 +71,7 @@ template <typename Integer>
 inline constexpr Integer down_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
     ONEDAL_ASSERT(x > 0);
-    Integer power = 1;
-
+    Integer power = 0;
     if (!(x & (x - 1))) {
         return x;
     }
