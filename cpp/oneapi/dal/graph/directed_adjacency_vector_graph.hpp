@@ -48,7 +48,8 @@ public:
         directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>;
 
     static_assert(detail::is_valid_index_v<IndexType>, "Use int32_t for vertex index type");
-    //static_assert(detail::is_valid_edge_value_v<EdgeValue>, "Use double or int32_t for edge value type");
+    static_assert(detail::is_valid_edge_value_v<EdgeValue>,
+                  "Use empty_value, double or int32_t for edge value type");
 
     /// Constructs an empty directed_adjacency_vector_graph
     directed_adjacency_vector_graph();
@@ -66,13 +67,14 @@ public:
     /// allocator
     directed_adjacency_vector_graph(GraphValue &&value, Allocator allocator = Allocator()){};
 
+    /*
     /// Construct a graph from edges & their values
     directed_adjacency_vector(const std::initializer_list<std::tuple<IndexType, IndexType, EdgeValue>> &ilist,
                               Allocator allocator = Allocator());
 
     /// Construct a graph from edges
     directed_adjacency_vector(const std::initializer_list<std::tuple<IndexType, IndexType>> &ilist,
-                              Allocator allocator = Allocator());
+                              Allocator allocator = Allocator());*/
 
     /// Move operator for directed_adjacency_vector_graph
     directed_adjacency_vector_graph &operator=(directed_adjacency_vector_graph &&other);
@@ -177,13 +179,13 @@ directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, A
     return *this;
 }
 
-template <typename Graph>
-constexpr bool is_directed =
-    dal::detail::is_one_of_v<Graph,
-                             directed_adjacency_vector_graph<vertex_user_value_type<Graph>,
-                                                             edge_user_value_type<Graph>,
-                                                             graph_user_value_type<Graph>,
-                                                             vertex_type<Graph>,
-                                                             graph_allocator<Graph>>>;
+template <typename VertexValue,
+          typename EdgeValue,
+          typename GraphValue,
+          typename IndexType,
+          typename Allocator>
+constexpr bool is_directed<
+    directed_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> =
+    true;
 
 } // namespace oneapi::dal::preview

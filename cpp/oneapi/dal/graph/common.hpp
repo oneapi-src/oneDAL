@@ -22,6 +22,7 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/graph/detail/common.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview {
@@ -134,12 +135,18 @@ using const_vertex_edge_range_type = typename graph_traits<Graph>::const_vertex_
 /// Type of the constant graph range of the vertex-edges
 /// @tparam Graph Type of the graph
 template <typename Graph>
-using const_vertex_outward_edge_range_type = typename graph_traits<Graph>::const_vertex_outward_edge_range;
+using const_vertex_outward_edge_range_type =
+    typename graph_traits<Graph>::const_vertex_outward_edge_range;
 
 /// Type of the graph allocator
 /// @tparam Graph Type of the graph
 template <typename Graph>
 using graph_allocator = typename graph_traits<Graph>::allocator_type;
 
+template <typename Graph>
+constexpr bool is_undirected = false;
+
+template <typename Graph>
+constexpr bool is_directed = false;
 
 } // namespace oneapi::dal::preview

@@ -24,9 +24,6 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename IndexType>
-constexpr bool is_valid_index_v = dal::detail::is_one_of_v<IndexType, std::int32_t>;
-
-template <typename IndexType>
 class topology {
 public:
     using vertex_type = IndexType;
@@ -108,7 +105,7 @@ template <typename VertexValue = empty_value,
 class ONEDAL_EXPORT undirected_adjacency_vector_graph_impl {
 public:
     using allocator_type = Allocator;
-    
+
     using topology_type = topology<IndexType>;
 
     // graph weight types

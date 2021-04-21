@@ -168,13 +168,13 @@ undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType,
     return *this;
 }
 
-template <typename Graph>
-constexpr bool is_undirected =
-    dal::detail::is_one_of_v<Graph,
-                             undirected_adjacency_vector_graph<vertex_user_value_type<Graph>,
-                                                               edge_user_value_type<Graph>,
-                                                               graph_user_value_type<Graph>,
-                                                               vertex_type<Graph>,
-                                                               graph_allocator<Graph>>>;
+template <typename VertexValue,
+          typename EdgeValue,
+          typename GraphValue,
+          typename IndexType,
+          typename Allocator>
+constexpr bool is_undirected<
+    undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> =
+    true;
 
 } // namespace oneapi::dal::preview

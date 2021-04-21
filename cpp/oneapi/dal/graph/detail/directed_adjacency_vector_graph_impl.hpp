@@ -24,9 +24,6 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename IndexType>
-constexpr bool is_valid_index_v = dal::detail::is_one_of_v<IndexType, std::int32_t>;
-
-template <typename IndexType>
 class directed_topology {
 public:
     using vertex_type = IndexType;
@@ -37,17 +34,28 @@ public:
     using vertex_edge_type = vertex_type;
     using vertex_edge_size_type = vertex_type;
 
+    using vertex_outward_edge_type = vertex_type;
+    using vertex_outward_edge_size_type = vertex_type;
+
     using edge_type = std::int64_t;
     using edge_set = container<edge_type>;
 
     using vertex_edge_set = container<vertex_edge_type>;
     using vertex_edge_iterator = vertex_edge_type*;
     using const_vertex_edge_iterator = const vertex_edge_type*;
+
+    using vertex_outward_edge_set = container<vertex_outward_edge_type>;
+    using vertex_outward_edge_iterator = vertex_outward_edge_type*;
+    using const_vertex_outward_edge_iterator = const vertex_outward_edge_type*;
+
     using edge_size_type = std::int64_t;
 
     // ranges
     using vertex_edge_range = range<vertex_edge_iterator>;
     using const_vertex_edge_range = range<const_vertex_edge_iterator>;
+
+    using vertex_outward_edge_range = range<vertex_outward_edge_iterator>;
+    using const_vertex_outward_edge_range = range<const_vertex_outward_edge_iterator>;
 
     directed_topology() = default;
     virtual ~directed_topology() = default;
@@ -132,6 +140,18 @@ public:
     using vertex_edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_edge_type>;
 
+    // vertex edge types
+    using vertex_outward_edge_type = typename directed_topology_type::vertex_outward_edge_type;
+    using vertex_outward_edge_size_type =
+        typename directed_topology_type::vertex_outward_edge_size_type;
+    using vertex_outward_edge_set = typename directed_topology_type::vertex_outward_edge_set;
+    using vertex_outward_edge_iterator =
+        typename directed_topology_type::vertex_outward_edge_iterator;
+    using const_vertex_outward_edge_iterator =
+        typename directed_topology_type::const_vertex_outward_edge_iterator;
+    using vertex_outward_edge_allocator_type =
+        typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_outward_edge_type>;
+
     using edge_type = typename directed_topology_type::edge_type;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
@@ -152,6 +172,11 @@ public:
     // ranges
     using vertex_edge_range = typename directed_topology_type::vertex_edge_range;
     using const_vertex_edge_range = typename directed_topology_type::const_vertex_edge_range;
+
+    // ranges
+    using vertex_outward_edge_range = typename directed_topology_type::vertex_outward_edge_range;
+    using const_vertex_outward_edge_range =
+        typename directed_topology_type::const_vertex_outward_edge_range;
 
     directed_adjacency_vector_graph_impl() = default;
 
@@ -194,7 +219,7 @@ public:
         }
     }
 
-    inline void set_directed_topology(vertex_size_type vertex_count,
+    inline void set_topology(vertex_size_type vertex_count,
                              edge_size_type edge_count,
                              edge_type* offsets,
                              vertex_type* neighbors,
@@ -209,7 +234,22 @@ public:
         _directed_topology._degrees_ptr = _directed_topology._degrees.get_data();
     }
 
-    inline directed_topology<IndexType>& get_directed_topology() {
+    inline void set_topology(vertex_size_type vertex_count,
+                             edge_size_type edge_count,
+                             const edge_type* offsets,
+                             const vertex_type* neighbors,
+                             const vertex_type* degrees) {
+        _directed_topology._vertex_count = vertex_count;
+        _directed_topology._edge_count = edge_count;
+        _directed_topology._rows = edge_set::wrap(offsets, vertex_count + 1);
+        _directed_topology._degrees = vertex_set::wrap(degrees, vertex_count);
+        _directed_topology._cols = vertex_set::wrap(neighbors, edge_count);
+        _directed_topology._rows_ptr = _directed_topology._rows.get_data();
+        _directed_topology._cols_ptr = _directed_topology._cols.get_data();
+        _directed_topology._degrees_ptr = _directed_topology._degrees.get_data();
+    }
+
+    inline directed_topology<IndexType>& get_topology() {
         return _directed_topology;
     }
 
@@ -221,7 +261,7 @@ public:
         return _edge_values;
     }
 
-    inline const directed_topology<IndexType> get_directed_topology() const {
+    inline const directed_topology<IndexType> get_topology() const {
         return _directed_topology;
     }
 
