@@ -165,11 +165,19 @@ void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesS
             DAAL_CHECK_BLOCK_STATUS_THR(xBlock);
             services::internal::tmemcpy<algorithmFPType, cpu>(TlsData + (i - startCol) * nRows, xBlock.get(), nRows);
         }
+        // printf("TLSDATA\n");
+        // for (size_t i = 0;i < nFeatures;++i){
+        //     for(size_t j = 0;j < nRows;j++){
+        //         printf("%lf ", TlsData[i * nRows + j]);
+        //     }
+        //     printf("\n");
+        // }
+        // printf("\n");
 
         Blas<algorithmFPType, cpu>::xxgemm(&notrans, &trans,
-                                           &oneDAL, numFeatures, numRows,
+                                           &oneDAL, numRows, numFeatures,
                                            &one, beta + 1, &oneDAL,
-                                           TlsData, numFeatures,
+                                           TlsData, numRows,
                                            &one, responseBlock, &oneDAL);
 
     }
@@ -200,6 +208,16 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
 
     /* Get numeric table to store results */
     DAAL_INT numVectors = dataTable->getNumberOfRows();
+    // ReadRows<algorithmFPType, cpu> dataRows(dataTable, 0, dataTable->getNumberOfRows());        
+    // const algorithmFPType * dataBlock = dataRows.get();
+    // printf("DataTable:\n");
+    // for (size_t i = 0;i < dataTable->getNumberOfRows();++i){
+    //     for (size_t j = 0;j < dataTable->getNumberOfColumns();++j){
+    //         printf("%lf ", dataBlock[i * dataTable->getNumberOfColumns() + j]);
+    //     }
+    //     printf("\n");
+    // }
+    // printf("\n");
 
     /* Get linear regression coefficients */
     NumericTable * betaTable = model->getBeta().get();
