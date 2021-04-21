@@ -299,27 +299,27 @@ bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bo
     char trans    = 'N';
     DAAL_INT info = 0;
 
-    TArray<DAAL_INT> ipiv(n);
+    TArray<DAAL_INT, cpu> ipiv(n);
 
     /* Perform P*L*U decomposition of A */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv, &info);
+        Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv, &info);
+        Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
     }
     if (info != 0) return false;
 
     /* Solve P*L*U * x = b */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv, b, (DAAL_INT *)&n, &info);
+        Lapack<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv, b, (DAAL_INT *)&n, &info);
+        Lapack<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
     }
     return (info == 0);
 }
@@ -340,13 +340,12 @@ bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequ
 
     if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
     {
-        // bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
-        // if (status)
-        // {
-        //     status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType));
-        // }
-        // return status;
-        return false;
+        bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
+        if (status)
+        {
+            status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType));
+        }
+        return status;
     }
     return true;
 }

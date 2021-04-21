@@ -136,13 +136,13 @@ struct MklLapack<double, cpu>
 
     static void xgetrf(DAAL_INT * m, DAAL_INT * n, double * a, DAAL_INT * lda, DAAL_INT * ipiv, DAAL_INT * info)
     {
-        __DAAL_MKLFN_CALL(lapack_, dgetrf, (m, n, a, lda, ipiv, info, 1));
+        __DAAL_MKLFN_CALL(lapack_, dgetrf, (m, n, a, lda, ipiv, info));
     }
 
     static void xxgetrf(DAAL_INT * m, DAAL_INT * n, double * a, DAAL_INT * lda, DAAL_INT * ipiv, DAAL_INT * info)
     {
         int old_threads = fpk_serv_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL(lapack_, dgetrf, (m, n, a, lda, ipiv, info, 1));
+        __DAAL_MKLFN_CALL(lapack_, dgetrf, (m, n, a, lda, ipiv, info));
         fpk_serv_set_num_threads_local(old_threads);
     }
 
@@ -338,13 +338,13 @@ struct MklLapack<float, cpu>
 
     static void xgetrf(DAAL_INT * m, DAAL_INT * n, float * a, DAAL_INT * lda, DAAL_INT * ipiv, DAAL_INT * info)
     {
-        __DAAL_MKLFN_CALL(lapack_, sgetrf, (m, n, a, lda, ipiv, info, 1));
+        __DAAL_MKLFN_CALL(lapack_, sgetrf, (m, n, a, lda, ipiv, info));
     }
 
     static void xxgetrf(DAAL_INT * m, DAAL_INT * n, float * a, DAAL_INT * lda, DAAL_INT * ipiv, DAAL_INT * info)
     {
         int old_threads = fpk_serv_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL(lapack_, sgetrf, (m, n, a, lda, ipiv, info, 1));
+        __DAAL_MKLFN_CALL(lapack_, sgetrf, (m, n, a, lda, ipiv, info));
         fpk_serv_set_num_threads_local(old_threads);
     }
 
