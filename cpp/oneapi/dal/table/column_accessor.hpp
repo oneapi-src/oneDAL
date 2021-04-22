@@ -60,12 +60,40 @@ public:
         }
     }
 
+    /// Provides access to the column values of the table.
+    /// The method returns an array that directly points to the memory within the table
+    /// if it is possible. In that case, the array refers to the memory as to immutable data.
+    /// Otherwise, the new memory block is allocated, the data from the table rows is converted
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
+    ///
+    /// @param[in] column_index The index of the column from which the data is returned by the accessor.
+    /// @param[in] row_range    The range of rows that should be read in the :literal:`column_index` block.
+    ///
+    /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
+    /// @pre ``column_index`` is within the range of ``[0, obj.column_count)``.
     array<data_t> pull(std::int64_t column_index, const range& row_range = { 0, -1 }) const {
         array<data_t> block;
         pull(block, column_index, row_range);
         return block;
     }
 
+    /// Provides access to the column values of the table.
+    /// The method returns an array that directly points to the memory within the table
+    /// if it is possible. In that case, the array refers to the memory as to immutable data.
+    /// Otherwise, the new memory block is allocated, the data from the table rows is converted
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
+    /// The method updates the :expr:`block` array.
+    ///
+    /// @param[in,out] block    The block which memory is reused (if it is possible) to obtain the data
+    ///                         from the table. The block memory is reset either when its size is not big
+    ///                         enough, or when it contains immutable data, or when direct memory from the
+    ///                         table can be used. If the block is reset to use a direct memory pointer
+    ///                         from the object, it refers to this pointer as to immutable memory block.
+    /// @param[in] column_index The index of the column from which the data is returned by the accessor.
+    /// @param[in] row_range    The range of rows that should be read in the :literal:`column_index` block.
+    ///
+    /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
+    /// @pre ``column_index`` is within the range of ``[0, obj.column_count)``.
     T* pull(array<data_t>& block,
             std::int64_t column_index,
             const range& row_range = { 0, -1 }) const {
@@ -78,7 +106,7 @@ public:
     /// The method returns an array that directly points to the memory within the table
     /// if it is possible. In that case, the array refers to the memory as to immutable data.
     /// Otherwise, the new memory block is allocated, the data from the table rows is converted
-    /// and copied into this block. The array refers to the block as to mutable data.
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
     ///
     /// @param[in] queue        The SYCL* queue object.
     /// @param[in] column_index The index of the column from which the data is returned by the accessor.
@@ -99,15 +127,18 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// Provides access to the column values of the table.
-    /// The method returns the :expr:`block.data` pointer.
+    /// The method returns an array that directly points to the memory within the table
+    /// if it is possible. In that case, the array refers to the memory as to immutable data.
+    /// Otherwise, the new memory block is allocated, the data from the table rows is converted
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
+    /// The method updates the :expr:`block` array.
     ///
     /// @param[in] queue        The SYCL* queue object.
-    /// @param[in,out] block    The block which memory is reused (if it is possible) to obtain the data from the table.
-    ///                         The block memory is reset either when
-    ///                         its size is not big enough, or when it contains immutable data, or when direct
-    ///                         memory from the table can be used.
-    ///                         If the block is reset to use a direct memory pointer from the object,
-    ///                         it refers to this pointer as to immutable memory block.
+    /// @param[in,out] block    The block which memory is reused (if it is possible) to obtain the data
+    ///                         from the table. The block memory is reset either when its size is not big
+    ///                         enough, or when it contains immutable data, or when direct memory from the
+    ///                         table can be used. If the block is reset to use a direct memory pointer
+    ///                         from the object, it refers to this pointer as to immutable memory block.
     /// @param[in] column_index The index of the column from which the data is returned by the accessor.
     /// @param[in] row_range    The range of rows that should be read in the :literal:`column_index` block.
     /// @param[in] alloc        The requested kind of USM in the returned block.
@@ -156,8 +187,8 @@ private:
         return block.get_mutable_data();
     }
 
-    std::shared_ptr<detail::pull_column_iface> pull_iface_;
-    std::shared_ptr<detail::push_column_iface> push_iface_;
+    detail::shared<detail::pull_column_iface> pull_iface_;
+    detail::shared<detail::push_column_iface> push_iface_;
 };
 
 } // namespace v1

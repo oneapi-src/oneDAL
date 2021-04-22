@@ -57,6 +57,15 @@ public:
         }
     }
 
+    /// Provides access to the rows of the table.
+    /// The method returns an array that directly points to the memory within the table
+    /// if it is possible. In that case, the array refers to the memory as to immutable data.
+    /// Otherwise, the new memory block is allocated, the data from the table rows is converted
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
+    ///
+    /// @param[in] row_range The range of rows that data is returned from the accessor.
+    ///
+    /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
     array<data_t> pull(const range& row_range = { 0, -1 }) const {
         array<data_t> block;
         pull(block, row_range);
@@ -68,7 +77,7 @@ public:
     /// The method returns an array that directly points to the memory within the table
     /// if it is possible. In that case, the array refers to the memory as to immutable data.
     /// Otherwise, the new memory block is allocated, the data from the table rows is converted
-    /// and copied into this block. The array refers to the block as to mutable data.
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
     ///
     /// @param[in] queue     The SYCL* queue object.
     /// @param[in] row_range The range of rows that data is returned from the accessor.
@@ -84,6 +93,21 @@ public:
     }
 #endif
 
+    /// Provides access to the rows of the table.
+    /// The method returns an array that directly points to the memory within the table
+    /// if it is possible. In that case, the array refers to the memory as to immutable data.
+    /// Otherwise, the new memory block is allocated, the data from the table rows is converted
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
+    /// The method updates the :expr:`block` array.
+    ///
+    /// @param[in,out] block The block which memory is reused (if it is possible) to obtain the data
+    ///                      from the table. The block memory is reset either when its size is not big
+    ///                      enough, or when it contains immutable data, or when direct memory from the
+    ///                      table can be used. If the block is reset to use a direct memory pointer
+    ///                      from the object, it refers to this pointer as to immutable memory block.
+    /// @param[in] row_range The range of rows that data is returned from the accessor.
+    ///
+    /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.
     T* pull(array<data_t>& block, const range& row_range = { 0, -1 }) const {
         pull_iface_->pull_rows(detail::default_host_policy{}, block, row_range);
         return get_block_data(block);
@@ -94,16 +118,15 @@ public:
     /// The method returns an array that directly points to the memory within the table
     /// if it is possible. In that case, the array refers to the memory as to immutable data.
     /// Otherwise, the new memory block is allocated, the data from the table rows is converted
-    /// and copied into this block. The array refers to the block as to mutable data.
+    /// and copied into this block. In this case, the array refers to the block as to mutable data.
     /// The method updates the :expr:`block` array.
     ///
     /// @param[in] queue     The SYCL* queue object.
-    /// @param[in,out] block The block which memory is reused (if it is possible) to obtain the data from the table.
-    ///                      The block memory is reset either when
-    ///                      its size is not big enough, or when it contains immutable data, or when direct
-    ///                      memory from the table can be used.
-    ///                      If the block is reset to use a direct memory pointer from the object,
-    ///                      it refers to this pointer as to immutable memory block.
+    /// @param[in,out] block The block which memory is reused (if it is possible) to obtain the data
+    ///                      from the table. The block memory is reset either when its size is not big
+    ///                      enough, or when it contains immutable data, or when direct memory from the
+    ///                      table can be used. If the block is reset to use a direct memory pointer
+    ///                      from the object, it refers to this pointer as to immutable memory block.
     /// @param[in] row_range The range of rows that data is returned from the accessor.
     /// @param[in] alloc     The requested kind of USM in the returned block.
     ///
@@ -137,8 +160,8 @@ private:
         return block.get_mutable_data();
     }
 
-    std::shared_ptr<detail::pull_rows_iface> pull_iface_;
-    std::shared_ptr<detail::push_rows_iface> push_iface_;
+    detail::shared<detail::pull_rows_iface> pull_iface_;
+    detail::shared<detail::push_rows_iface> push_iface_;
 };
 
 } // namespace v1

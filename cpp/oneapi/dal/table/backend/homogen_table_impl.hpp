@@ -21,7 +21,8 @@
 
 namespace oneapi::dal::backend {
 
-class homogen_table_impl : public detail::homogen_table_template<homogen_table_impl> {
+class homogen_table_impl
+        : public detail::table_template<detail::homogen_table_iface, homogen_table_impl> {
 public:
     homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 

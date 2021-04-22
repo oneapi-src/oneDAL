@@ -16,20 +16,24 @@
 
 #pragma once
 
-#include "oneapi/dal/table/detail/access_iface.hpp"
+#include "oneapi/dal/table/detail/rows_access_iface.hpp"
+#include "oneapi/dal/table/detail/columns_access_iface.hpp"
 
-namespace oneapi::dal::v1 {
+namespace oneapi::dal {
+namespace v1 {
 class table_metadata;
 enum class data_layout;
 enum class feature_type;
-} // namespace oneapi::dal::v1
+} // namespace v1
+
+using v1::table_metadata;
+using v1::data_layout;
+using v1::feature_type;
+
+} // namespace oneapi::dal
 
 namespace oneapi::dal::detail {
 namespace v1 {
-
-using dal::v1::table_metadata;
-using dal::v1::data_layout;
-using dal::v1::feature_type;
 
 class table_iface {
 public:
@@ -129,29 +133,13 @@ public:
     }
 };
 
-template <typename Derived>
-using dense_table_template = table_template<table_iface, Derived>;
-
-template <typename Derived>
-using homogen_table_template = table_template<homogen_table_iface, Derived>;
-
-template <typename Derived>
-using dense_table_builder_template = table_builder_template<table_builder_iface, Derived>;
-
-template <typename Derived>
-using homogen_table_builder_template = table_builder_template<homogen_table_builder_iface, Derived>;
-
 } // namespace v1
 
 using v1::table_iface;
 using v1::homogen_table_iface;
 using v1::table_template;
-using v1::dense_table_template;
-using v1::homogen_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
 using v1::table_builder_template;
-using v1::dense_table_builder_template;
-using v1::homogen_table_builder_template;
 
 } // namespace oneapi::dal::detail

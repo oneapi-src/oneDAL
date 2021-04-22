@@ -131,11 +131,6 @@ ONEDAL_FORCEINLINE void reset_array(const Policy& policy,
 #endif
 }
 
-template <typename Policy, typename Data>
-ONEDAL_FORCEINLINE void make_mutable_data(const Policy& policy, array<Data>& array) {
-    array.need_mutable_data();
-}
-
 template <typename Policy, typename BlockData>
 static void pull_row_major_impl(const Policy& policy,
                                 const homogen_info& origin_info,
@@ -269,7 +264,7 @@ static void push_row_major_impl(const Policy& policy,
         throw range_error{ detail::error_messages::small_data_block() };
     }
 
-    make_mutable_data(policy, origin_data);
+    origin_data.need_mutable_data();
 
     // operation is safe because block offsets do not exceed origin element count
     const std::int64_t origin_offset =
@@ -345,7 +340,7 @@ static void push_column_major_impl(const Policy& policy,
         throw range_error{ detail::error_messages::small_data_block() };
     }
 
-    make_mutable_data(policy, origin_data);
+    origin_data.need_mutable_data();
 
     // operation is safe because block offsets do not exceed origin element count
     const std::int64_t origin_offset =

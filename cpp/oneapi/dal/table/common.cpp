@@ -91,7 +91,7 @@ private:
     array<feature_type> ftypes_;
 };
 
-class empty_table_impl : public detail::dense_table_template<empty_table_impl> {
+class empty_table_impl : public detail::table_template<detail::table_iface, empty_table_impl> {
 public:
     static constexpr std::int64_t pure_empty_table_kind = 0;
 

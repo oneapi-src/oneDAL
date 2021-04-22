@@ -23,7 +23,8 @@
 namespace oneapi::dal::backend {
 
 class homogen_table_builder_impl
-        : public detail::homogen_table_builder_template<homogen_table_builder_impl> {
+        : public detail::table_builder_template<detail::homogen_table_builder_iface,
+                                                homogen_table_builder_impl> {
 public:
     homogen_table_builder_impl() {
         reset();
@@ -38,7 +39,7 @@ public:
     }
 
     void move(detail::homogen_table_iface& t) override {
-        if (t.get_row_count() > 0 || t.get_column_count() > 0) {
+        if (t.get_row_count() > 0 && t.get_column_count() > 0) {
             const auto& meta = t.get_metadata();
             const std::int64_t data_size =
                 get_data_size(t.get_row_count(), t.get_column_count(), meta.get_data_type(0));

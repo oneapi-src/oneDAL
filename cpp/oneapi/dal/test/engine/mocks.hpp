@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::test::engine {
 
-class dummy_table_impl : public detail::dense_table_template<dummy_table_impl> {
+class dummy_table_impl : public detail::table_template<detail::table_iface, dummy_table_impl> {
 public:
     explicit dummy_table_impl(std::int64_t row_count, std::int64_t column_count)
             : row_count_(row_count),
