@@ -18,9 +18,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/micromkl/micromkl.hpp"
 
-#define ONEDAL_ENABLE_PROFILING
-#include "oneapi/dal/backend/profiling.hpp"
-
 namespace oneapi::dal::backend::primitives {
 
 template <typename... Args>
