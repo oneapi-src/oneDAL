@@ -46,6 +46,19 @@ dal_test_suite(
 )
 
 dal_test_suite(
+    name = "backend_tests",
+    srcs = glob([
+        "backend/test/*.cpp",
+    ]),
+    compile_as = ["c++"],
+    dal_deps = [
+        ":pca",
+    ],
+    private = True,
+    framework = "catch2",
+)
+
+dal_test_suite(
     name = "interface_tests",
     srcs = glob([
         "test/*.cpp",
@@ -61,6 +74,7 @@ dal_test_suite(
     tests = [
         ":cpu_tests",
         ":gpu_tests",
+        ":backend_tests",
         ":interface_tests",
     ],
 )
