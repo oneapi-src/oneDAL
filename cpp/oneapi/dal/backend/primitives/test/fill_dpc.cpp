@@ -18,26 +18,31 @@
 
 namespace oneapi::dal::backend::primitives::test {
 
-TEST("just fill", "[dpc++]") {
+TEST("fill device USM", "[usm]") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
 
-    float* x = sycl::malloc_shared<float>(10000, q);
-    q.fill(x, -1.0f, 10000).wait_and_throw();
+    const std::int64_t element_count = 10;
+    const float filler = GENERATE(1.5f, 0.25f, -1.75f);
 
-    sycl::free(x, q);
-}
+    float* data = sycl::malloc_device<float>(element_count, q);
+    q.fill(data, (float)filler, element_count).wait_and_throw();
 
-TEST_CASE("fill and write on host", "[dpc++]") {
-    DECLARE_TEST_POLICY(policy);
-    auto& q = policy.get_queue();
+    std::vector<float> data_host_vec(element_count);
+    float* data_host = data_host_vec.data();
+    INFO("copy to host") {
+        q.memcpy(data_host, data, sizeof(float) * element_count).wait_and_throw();
+    }
 
-    float* x = sycl::malloc_shared<float>(10000, q);
-    q.fill(x, -1.0f, 10000).wait_and_throw();
+    INFO("check filler on host") {
+        for (std::int64_t i = 0; i < element_count; i++) {
+            const float x = data_host[i];
+            CAPTURE(i);
+            REQUIRE(x == filler);
+        }
+    }
 
-    x[0] = 0.0f;
-
-    sycl::free(x, q);
+    sycl::free(data, q);
 }
 
 } // namespace oneapi::dal::backend::primitives::test
