@@ -71,9 +71,9 @@ protected:
                                     NumericTable * dataTable,
                                     DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses,
                                     algorithmFpType * responseBlock, bool findBeta0,
-                                    const size_t & numColsInBlock,
                                     algorithmFpType* const TlsData);
     static const size_t _numRowsInBlock = 512;
+    static const size_t _numСolsInBlock = 512;
 };
 
 } // namespace internal
