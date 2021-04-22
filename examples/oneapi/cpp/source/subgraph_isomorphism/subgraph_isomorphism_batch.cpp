@@ -27,40 +27,6 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-#include <chrono>
-#include <type_traits>
-
-template <typename Function, typename... Arguments>
-inline double measure(Function func, Arguments &... args) {
-    const auto start_time = std::chrono::high_resolution_clock::now();
-    func(std::forward<Arguments>(args)...);
-    const auto end_time = std::chrono::high_resolution_clock::now();
-    return std::chrono::duration<double>(end_time - start_time).count();
-}
-template <typename Function, typename... Arguments>
-inline std::pair<double, typename std::result_of<Function(Arguments...)>::type> measure_with_result(
-    Function func,
-    Arguments &... args) {
-    const auto start_time = std::chrono::high_resolution_clock::now();
-    auto function_result = func(std::forward<Arguments>(args)...);
-    const auto end_time = std::chrono::high_resolution_clock::now();
-    const auto time_delta = std::chrono::duration<double>(end_time - start_time).count();
-    return std::pair(time_delta, function_result);
-}
-
-// #ifndef CR_INIT()
-#define CR_INIT()                                        \
-    auto t0 = std::chrono::high_resolution_clock::now(); \
-    auto t1 = std::chrono::high_resolution_clock::now();
-#define CR_ST() t0 = std::chrono::high_resolution_clock::now();
-#define CR_END(name)                                     \
-    t1 = std::chrono::high_resolution_clock::now();      \
-    {                                                    \
-        std::chrono::duration<double> elapsed = t1 - t0; \
-        std::cout << elapsed.count();                    \
-    }
-// #endif
-
 #include <stdlib.h> // size_t, malloc, free
 #include <new> // bad_alloc, bad_array_new_length
 template <class T>
@@ -185,25 +151,11 @@ void load_graph_gff(const std::string filename_target,
 }
 
 int main(int argc, char **argv) {
-    // auto target_filename = get_data_path("si_target_graph.csv");
-    // auto pattern_filename = get_data_path("si_pattern_graph.csv");
-    // auto target_filename = get_data_path(
-    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff");
-    // auto pattern_filename = get_data_path(
-    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
-
     auto target_filename = get_data_path(
         "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff");
     auto pattern_filename = get_data_path(
         "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
 
-    //  1240	1237	1241	1242	1243
-    //  1240	1237	1241	1243	1242
-
-    // auto target_filename = get_data_path(
-    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/1blk.pdb.gff");
-    // auto pattern_filename = get_data_path(
-    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/1blk.pdb.gff_queries/query4_0.gff");
     if (argc == 3) {
         target_filename = get_data_path(argv[1]);
         pattern_filename = get_data_path(argv[2]);
@@ -225,18 +177,12 @@ int main(int argc, char **argv) {
             .set_semantic_match(false)
             .set_max_match_count(100);
 
-    std::cout << pattern_filename << ", ";
-    CR_INIT()
-    CR_ST()
     const auto result =
         dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
-    CR_END("compute")
 
     // extract the result
     const auto match_count = result.get_match_count();
-    std::cout << ", " << match_count << std::endl;
-
     // print_table_int(result.get_vertex_match());
-    // print_table_int_sorted(result.get_vertex_match());
+    print_table_int_sorted(result.get_vertex_match());
     // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
 }
