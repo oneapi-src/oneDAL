@@ -204,9 +204,8 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
         const size_t nVectors = xTable->getNumberOfRows();
         const size_t nSV      = svTable->getNumberOfRows();
 
-        size_t nRowsPerBlock = 0;
-        DAAL_SAFE_CPU_CALL((nRowsPerBlock = 128), (nRowsPerBlock = nVectors));
-        const size_t nBlocks = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
+        const size_t nRowsPerBlock = 128;
+        const size_t nBlocks       = nVectors / nRowsPerBlock + !!(nVectors % nRowsPerBlock);
 
         size_t nSVPerBlock = 0;
         DAAL_SAFE_CPU_CALL((nSVPerBlock = 128), (nSVPerBlock = nSV));
