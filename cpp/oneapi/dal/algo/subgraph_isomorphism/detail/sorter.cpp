@@ -289,40 +289,4 @@ std::int64_t sorter::get_core_linked_degree(const graph& pattern,
     return core_degree;
 }
 
-graph_status sorter::dfs_tree_search_width_evaluation(const graph& pattern,
-                                                      const std::int64_t* sorted_pattern_vertex,
-                                                      const float* pattern_vertex_probability,
-                                                      const edge_direction* direction,
-                                                      const sconsistent_conditions* cconditions,
-                                                      std::int64_t* tree_search_width,
-                                                      byte_alloc_iface* alloc_ptr) const {
-    if (sorted_pattern_vertex == nullptr || pattern_vertex_probability == nullptr ||
-        direction == nullptr || cconditions == nullptr || tree_search_width == nullptr) {
-        return bad_allocation;
-    }
-
-    // not using consistent conditions way
-    {
-        float vertex_probability = 1.0;
-        std::int64_t max_neighbours = degree_max_size;
-        for (std::int64_t i = 0; i < pattern.get_vertex_count(); i++) {
-            vertex_probability = pattern_vertex_probability[sorted_pattern_vertex[i]];
-            switch (direction[sorted_pattern_vertex[i]]) {
-                case none: {
-                    tree_search_width[i] = vertex_probability * target->get_vertex_count();
-                    break;
-                }
-                case both: {
-                    tree_search_width[i] = vertex_probability * vertex_probability * max_neighbours;
-                    break;
-                }
-                default: {
-                    tree_search_width[i] = vertex_probability * target->get_vertex_count();
-                }
-            }
-        }
-    }
-
-    return ok;
-}
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail
