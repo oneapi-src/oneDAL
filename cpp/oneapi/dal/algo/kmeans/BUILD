@@ -32,6 +32,7 @@ dal_test_suite(
 
 dal_test_suite(
     name = "gpu_tests",
+    framework = "catch2",
     private = True,
     compile_as = [ "dpc++" ],
     srcs = glob([
@@ -47,19 +48,6 @@ dal_test_suite(
     framework = "catch2",
     srcs = glob([
         "test/*.cpp",
-    ]),
-    dal_deps = [
-        ":kmeans",
-    ],
-)
-
-dal_test_suite(
-    name = "unit_tests",
-    framework = "catch2",
-    private = True,
-    compile_as = [ "dpc++" ],
-    srcs = glob([
-        "test/unit/*.cpp",
     ]),
     dal_deps = [
         ":kmeans",

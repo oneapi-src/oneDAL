@@ -31,31 +31,35 @@ namespace bk = dal::backend;
 namespace prm = dal::backend::primitives;
 
 template <typename Float>
-sycl::event find_candidates_impl(sycl::queue& queue, prm::ndview<Float, 2>& closest_distances,
-                        std::int64_t num_candidates,
-                        prm::ndview<std::int32_t, 1>& candidate_indices,
-                        prm::ndview<Float, 1>& candidate_distances,
-                        const bk::event_vector& deps = {});
+sycl::event find_candidates_impl(sycl::queue& queue,
+                                 prm::ndview<Float, 2>& closest_distances,
+                                 std::int64_t num_candidates,
+                                 prm::ndview<std::int32_t, 1>& candidate_indices,
+                                 prm::ndview<Float, 1>& candidate_distances,
+                                 const bk::event_vector& deps = {});
 
 template <typename Float, typename Metric>
-sycl::event assign_clusters_impl(sycl::queue& queue, const prm::ndview<Float, 2>& data,
-                        const prm::ndview<Float, 2>& centroids,
-                        std::int64_t block_rows,
-                        prm::ndview<std::int32_t, 2>& labels,
-                        prm::ndview<Float, 2>& distances,
-                        prm::ndview<Float, 2>& closest_distances,
-                        const bk::event_vector& deps = {});
+sycl::event assign_clusters_impl(sycl::queue& queue,
+                                 const prm::ndview<Float, 2>& data,
+                                 const prm::ndview<Float, 2>& centroids,
+                                 std::int64_t block_rows,
+                                 prm::ndview<std::int32_t, 2>& labels,
+                                 prm::ndview<Float, 2>& distances,
+                                 prm::ndview<Float, 2>& closest_distances,
+                                 const bk::event_vector& deps = {});
 
 template <typename Float>
-sycl::event reduce_centroids_impl(sycl::queue& queue, const prm::ndview<Float, 2>& data,
-                            const prm::ndview<std::int32_t, 2>& labels,
-                            const prm::ndview<Float, 2>& centroids,
-                            const prm::ndview<Float, 2>& partial_centroids,
-                            const prm::ndview<std::int32_t, 1>& counters,
-                            const std::uint32_t num_parts,
-                            const bk::event_vector& deps = {});
+sycl::event reduce_centroids_impl(sycl::queue& queue,
+                                  const prm::ndview<Float, 2>& data,
+                                  const prm::ndview<std::int32_t, 2>& labels,
+                                  const prm::ndview<Float, 2>& centroids,
+                                  const prm::ndview<Float, 2>& partial_centroids,
+                                  const prm::ndview<std::int32_t, 1>& counters,
+                                  const std::uint32_t num_parts,
+                                  const bk::event_vector& deps = {});
 
-sycl::event count_clusters_impl(sycl::queue& queue, const prm::ndview<std::int32_t, 2>& labels,
+sycl::event count_clusters_impl(sycl::queue& queue,
+                                const prm::ndview<std::int32_t, 2>& labels,
                                 std::int64_t num_centroids,
                                 prm::ndview<std::int32_t, 1>& counters,
                                 prm::ndarray<std::int32_t, 1> num_empty_clusters,
@@ -63,18 +67,20 @@ sycl::event count_clusters_impl(sycl::queue& queue, const prm::ndview<std::int32
 
 template <typename Float>
 sycl::event compute_objective_function_impl(sycl::queue& queue,
-                                        const prm::ndview<Float, 2>& closest_distances,
-                                        prm::ndarray<Float, 1> objective_function,
-                                        const bk::event_vector& deps = {});
+                                            const prm::ndview<Float, 2>& closest_distances,
+                                            prm::ndarray<Float, 1> objective_function,
+                                            const bk::event_vector& deps = {});
 
 template <typename Float>
-bk::event_vector fill_empty_clusters_impl(sycl::queue& queue, const prm::ndview<Float, 2>& data, 
-                                    const prm::ndarray<std::int32_t, 1>& counters,
-                                    const prm::ndarray<std::int32_t, 1>& candidate_indices,
-                                    const prm::ndarray<Float, 1>& candidate_distances,
-                                    prm::ndview<Float, 2>& centroids,
-                                    prm::ndarray<std::int32_t, 2>& labels, Float& objective_function,
-                        const bk::event_vector& deps = {});
+bk::event_vector fill_empty_clusters_impl(sycl::queue& queue,
+                                          const prm::ndview<Float, 2>& data,
+                                          const prm::ndarray<std::int32_t, 1>& counters,
+                                          const prm::ndarray<std::int32_t, 1>& candidate_indices,
+                                          const prm::ndarray<Float, 1>& candidate_distances,
+                                          prm::ndview<Float, 2>& centroids,
+                                          prm::ndarray<std::int32_t, 2>& labels,
+                                          Float& objective_function,
+                                          const bk::event_vector& deps = {});
 #endif
 
 } // namespace oneapi::dal::kmeans::backend

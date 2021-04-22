@@ -14,14 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <src/algorithms/kmeans/oneapi/kmeans_dense_lloyd_batch_kernel_ucapi.h>
-
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
-
+#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans::backend {
@@ -30,12 +25,7 @@ using std::int64_t;
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
-namespace daal_kmeans = daal::algorithms::kmeans;
-namespace interop = dal::backend::interop;
-
-template <typename Float>
-using daal_kmeans_lloyd_dense_ucapi_kernel_t =
-    daal_kmeans::internal::KMeansDenseLloydBatchKernelUCAPI<Float>;
+namespace prm = dal::backend::primitives;
 
 template <typename Float>
 struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
@@ -43,66 +33,56 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
                                               const descriptor_t& params,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-        interop::execution_context_guard guard(queue);
 
         const auto data = input.get_data();
-
         const int64_t row_count = data.get_row_count();
         const int64_t column_count = data.get_column_count();
-
         const int64_t cluster_count = params.get_cluster_count();
-        const int64_t max_iteration_count = 0;
-
-        daal_kmeans::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
-                                   dal::detail::integral_cast<std::size_t>(max_iteration_count));
-        par.resultsToEvaluate = static_cast<DAAL_UINT64>(daal_kmeans::computeAssignments);
-
-        auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-        const auto daal_data =
-            interop::convert_to_daal_table(queue, arr_data, row_count, column_count);
-
-        auto arr_initial_centroids =
-            row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
+        auto data_ptr =
+            row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+        auto arr_data = prm::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
-        array<Float> arr_centroids =
-            array<Float>::empty(queue, cluster_count * column_count, sycl::usm::alloc::device);
-        array<Float> arr_objective_function_value =
-            array<Float>::empty(queue, 1, sycl::usm::alloc::device);
-        array<int> arr_labels = array<int>::empty(queue, row_count, sycl::usm::alloc::device);
-        array<int> arr_iteration_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
+        auto centroids_ptr =
+            row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
+        auto arr_centroids =
+            prm::ndarray<Float, 2>::wrap(centroids_ptr, { cluster_count, column_count });
 
-        const auto daal_initial_centroids = interop::convert_to_daal_table(queue,
-                                                                           arr_initial_centroids,
-                                                                           cluster_count,
-                                                                           column_count);
-        const auto daal_centroids =
-            interop::convert_to_daal_table(queue, arr_centroids, cluster_count, column_count);
-        const auto daal_labels = interop::convert_to_daal_table(queue, arr_labels, row_count, 1);
-        const auto daal_objective_function_value =
-            interop::convert_to_daal_table(queue, arr_objective_function_value, 1, 1);
-        const auto daal_iteration_count =
-            interop::convert_to_daal_table(queue, arr_iteration_count, 1, 1);
+        // TODO function to calculate block size
+        std::int64_t block_rows = 16 * 1024;
+        auto arr_distance_block = prm::ndarray<Float, 2>::empty(queue,
+                                                                { block_rows, cluster_count },
+                                                                sycl::usm::alloc::device);
+        auto arr_closest_distances =
+            prm::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
+        auto arr_labels =
+            prm::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
+        auto arr_objective_function =
+            prm::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
 
-        daal::data_management::NumericTable* daal_input[2] = { daal_data.get(),
-                                                               daal_initial_centroids.get() };
-
-        daal::data_management::NumericTable* daal_output[4] = { daal_centroids.get(),
-                                                                daal_labels.get(),
-                                                                daal_objective_function_value.get(),
-                                                                daal_iteration_count.get() };
-
-        interop::status_to_exception(
-            daal_kmeans_lloyd_dense_ucapi_kernel_t<Float>().compute(daal_input, daal_output, &par));
-
-        const auto arr_objective_function_value_host =
-            dal::backend::to_host_sync(arr_objective_function_value);
+        auto assign_event =
+            assign_clusters_impl<Float, prm::squared_l2_metric<Float>>(queue,
+                                                                       arr_data,
+                                                                       arr_centroids,
+                                                                       block_rows,
+                                                                       arr_labels,
+                                                                       arr_distance_block,
+                                                                       arr_closest_distances);
+        compute_objective_function_impl<Float>(queue,
+                                               arr_closest_distances,
+                                               arr_objective_function,
+                                               { assign_event })
+            .wait_and_throw();
 
         return infer_result<task::clustering>()
             .set_labels(
-                dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build())
+                dal::detail::homogen_table_builder{}
+                    .reset(array<std::int32_t>{ arr_labels.get_data(), row_count * 1, [](auto) {} },
+                           row_count,
+                           1)
+                    .build())
             .set_objective_function_value(
-                static_cast<double>(arr_objective_function_value_host[0]));
+                static_cast<double>(arr_objective_function.to_host(queue).get_data()[0]));
     }
 };
 

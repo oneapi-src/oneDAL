@@ -35,7 +35,10 @@ class kmeans_impl_test : public te::float_algo_fixture<TestType> {
 public:
     using float_t = TestType;
 
-    void fill_uniform(prm::ndarray<float_t, 2>& val, float_t a, float_t b, std::int64_t seed = 777) {
+    void fill_uniform(prm::ndarray<float_t, 2>& val,
+                      float_t a,
+                      float_t b,
+                      std::int64_t seed = 777) {
         std::int32_t elem_count = de::integral_cast<std::int32_t>(val.get_count());
         std::mt19937 rng(seed);
         std::uniform_real_distribution<float_t> distr(a, b);
@@ -51,7 +54,8 @@ public:
 
     void run_obj_func_check(const prm::ndview<float_t, 2>& min_distances) {
         auto obj_func = prm::ndarray<float_t, 1>::empty(this->get_queue(), 1);
-        backend::compute_objective_function_impl(this->get_queue(), min_distances, obj_func).wait_and_throw();
+        backend::compute_objective_function_impl(this->get_queue(), min_distances, obj_func)
+            .wait_and_throw();
         check_objective_function(min_distances, obj_func.get_data()[0]);
     }
 
@@ -74,7 +78,12 @@ public:
         auto counters = prm::ndarray<std::int32_t, 1>::empty(this->get_queue(), num_clusters);
         auto empty_clusters = prm::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
-        backend::count_clusters_impl(this->get_queue(), labels, num_clusters, counters, empty_clusters).wait_and_throw();
+        backend::count_clusters_impl(this->get_queue(),
+                                     labels,
+                                     num_clusters,
+                                     counters,
+                                     empty_clusters)
+            .wait_and_throw();
         check_counters(labels, counters, num_clusters, empty_clusters.get_data()[0]);
     }
 
@@ -93,10 +102,21 @@ public:
         auto counters = prm::ndarray<std::int32_t, 1>::empty(this->get_queue(), num_clusters);
         auto empty_clusters = prm::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
-        backend::count_clusters_impl(this->get_queue(), labels, num_clusters, counters, empty_clusters).wait_and_throw();
+        backend::count_clusters_impl(this->get_queue(),
+                                     labels,
+                                     num_clusters,
+                                     counters,
+                                     empty_clusters)
+            .wait_and_throw();
         check_counters(labels, counters, num_clusters, empty_clusters.get_data()[0]);
 
-        backend::reduce_centroids_impl(this->get_queue(), data, labels, centroids, partial_centroids, counters, num_parts)
+        backend::reduce_centroids_impl(this->get_queue(),
+                                       data,
+                                       labels,
+                                       centroids,
+                                       partial_centroids,
+                                       counters,
+                                       num_parts)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, num_parts);
     }
@@ -116,27 +136,45 @@ public:
         auto counters = prm::ndarray<std::int32_t, 1>::empty(this->get_queue(), num_clusters);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         auto empty_clusters = prm::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
-        backend::count_clusters_impl(this->get_queue(), labels, num_clusters, counters, empty_clusters).wait_and_throw();
+        backend::count_clusters_impl(this->get_queue(),
+                                     labels,
+                                     num_clusters,
+                                     counters,
+                                     empty_clusters)
+            .wait_and_throw();
         check_counters(labels, counters, num_clusters, empty_clusters.get_data()[0]);
-        backend::reduce_centroids_impl(this->get_queue(), data, labels, centroids, partial_centroids, counters, num_parts)
+        backend::reduce_centroids_impl(this->get_queue(),
+                                       data,
+                                       labels,
+                                       centroids,
+                                       partial_centroids,
+                                       counters,
+                                       num_parts)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, num_parts);
         check_reduced_centroids(data, labels, centroids, counters);
     }
 
     void run_selection(const prm::ndview<float_t, 2> data,
-                       const prm::ndview<float_t, 2> centroids, std::int64_t block_rows) {
+                       const prm::ndview<float_t, 2> centroids,
+                       std::int64_t block_rows) {
         auto row_count = data.get_shape()[0];
         auto column_count = data.get_shape()[1];
-        auto labels =
-            prm::ndarray<std::int32_t, 2>::empty(this->get_queue(), { row_count, 1 });
+        auto labels = prm::ndarray<std::int32_t, 2>::empty(this->get_queue(), { row_count, 1 });
         auto closest_distances =
             prm::ndarray<float_t, 2>::empty(this->get_queue(), { row_count, 1 });
         auto distances =
             prm::ndarray<float_t, 2>::empty(this->get_queue(), { block_rows, column_count });
 
-        backend::assign_clusters_impl<float_t, prm::squared_l2_metric<float_t>>(this->get_queue(), data, centroids, block_rows, 
-                                                            labels, distances, closest_distances, {}).wait_and_throw();
+        backend::assign_clusters_impl<float_t, prm::squared_l2_metric<float_t>>(this->get_queue(),
+                                                                                data,
+                                                                                centroids,
+                                                                                block_rows,
+                                                                                labels,
+                                                                                distances,
+                                                                                closest_distances,
+                                                                                {})
+            .wait_and_throw();
         check_assignments(data, centroids, labels, closest_distances);
     }
 
@@ -146,15 +184,20 @@ public:
         auto candidate_distances =
             prm::ndarray<float_t, 1>::empty(this->get_queue(), num_candidates);
 
-        backend::find_candidates_impl(this->get_queue(), closest_distances, num_candidates, 
-                                      candidate_indices,  candidate_distances, {}).wait_and_throw();
-        check_candidates(closest_distances, num_candidates, candidate_indices,  candidate_distances);
+        backend::find_candidates_impl(this->get_queue(),
+                                      closest_distances,
+                                      num_candidates,
+                                      candidate_indices,
+                                      candidate_distances,
+                                      {})
+            .wait_and_throw();
+        check_candidates(closest_distances, num_candidates, candidate_indices, candidate_distances);
     }
 
     void check_candidates(const prm::ndview<float_t, 2>& closest_distances,
-                           std::int64_t num_candidates,
-                           const prm::ndview<std::int32_t, 1>& candidate_indices,
-                           const prm::ndview<float_t, 1>& candidate_distances) {
+                          std::int64_t num_candidates,
+                          const prm::ndview<std::int32_t, 1>& candidate_indices,
+                          const prm::ndview<float_t, 1>& candidate_distances) {
         auto elem_count = closest_distances.get_shape()[0];
         auto closest_distances_ptr = closest_distances.get_data();
         auto candidate_indices_ptr = candidate_indices.get_data();
@@ -165,10 +208,11 @@ public:
             std::int64_t count = 0;
             for (std::int64_t j = 0; j < elem_count; j++) {
                 auto cur_val = closest_distances_ptr[j];
-                if(cur_val < distance) count++;
+                if (cur_val < distance)
+                    count++;
             }
             CAPTURE(i, count);
-            REQUIRE(count    < num_candidates);
+            REQUIRE(count < num_candidates);
             REQUIRE(index >= 0);
             REQUIRE(index < elem_count);
         }
@@ -189,12 +233,14 @@ public:
             float_t min_distance = dal::detail::limits<float_t>::max();
             std::int32_t min_index = -1;
             for (std::int64_t j = 0; j < num_clusters; j++) {
-                float_t distance = 0;;
+                float_t distance = 0;
+                ;
                 for (std::int64_t k = 0; k < column_count; k++) {
-                    float_t diff =  data_ptr[i * column_count + k] - centroids_ptr[j * column_count + k];
+                    float_t diff =
+                        data_ptr[i * column_count + k] - centroids_ptr[j * column_count + k];
                     distance += diff * diff;
                 }
-                if(distance < min_distance) {
+                if (distance < min_distance) {
                     min_distance = distance;
                     min_index = j;
                 }
@@ -321,7 +367,6 @@ public:
             }
         }
     }
-
 };
 
 using kmeans_types = std::tuple<float, double>;
@@ -338,7 +383,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
         GENERATE_DATAFRAME(te::dataframe_builder{ row_count, 1 }.fill_uniform(0.0, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
     const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = prm::ndarray<float_t, 2>::wrap(df_rows.get_data(), {row_count, 1});
+    auto data_array = prm::ndarray<float_t, 2>::wrap(df_rows.get_data(), { row_count, 1 });
     this->run_obj_func_check(data_array);
 }
 
@@ -426,9 +471,9 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     const auto dfc = GENERATE_DATAFRAME(
         te::dataframe_builder{ cluster_count, column_count }.fill_uniform(-1.0, 2.7));
     const table dfc_table = dfc.get_table(this->get_homogen_table_id());
-    const auto dfc_rows =
-        row_accessor<const float_t>(dfc_table).pull(this->get_queue(), { 0, -1 });
-    auto centroids = prm::ndarray<float_t, 2>::wrap(dfc_rows.get_data(), { cluster_count, column_count });
+    const auto dfc_rows = row_accessor<const float_t>(dfc_table).pull(this->get_queue(), { 0, -1 });
+    auto centroids =
+        prm::ndarray<float_t, 2>::wrap(dfc_rows.get_data(), { cluster_count, column_count });
 
     const auto dfd = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.9, 1.7));
@@ -453,9 +498,9 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     const auto dfc = GENERATE_DATAFRAME(
         te::dataframe_builder{ cluster_count, column_count }.fill_uniform(-1.0, 2.7));
     const table dfc_table = dfc.get_table(this->get_homogen_table_id());
-    const auto dfc_rows =
-        row_accessor<const float_t>(dfc_table).pull(this->get_queue(), { 0, -1 });
-    auto centroids = prm::ndarray<float_t, 2>::wrap(dfc_rows.get_data(), { cluster_count, column_count });
+    const auto dfc_rows = row_accessor<const float_t>(dfc_table).pull(this->get_queue(), { 0, -1 });
+    auto centroids =
+        prm::ndarray<float_t, 2>::wrap(dfc_rows.get_data(), { cluster_count, column_count });
 
     const auto dfd = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.9, 1.7));
@@ -466,7 +511,6 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     this->run_selection(data, centroids, block_rows);
 }
 
-
 TEMPLATE_LIST_TEST_M(kmeans_impl_test,
                      "candidate search unit test",
                      "[kmeans][weekly][unit]",
@@ -476,7 +520,8 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     std::int64_t element_count = 10001;
     std::int64_t num_candidates = 17;
 
-    auto closest_distances = prm::ndarray<float_t, 2>::empty(this->get_queue(), { element_count, 1} );
+    auto closest_distances =
+        prm::ndarray<float_t, 2>::empty(this->get_queue(), { element_count, 1 });
     this->fill_uniform(closest_distances, 0.0, 1.75);
 
     this->run_candidates(closest_distances, num_candidates);
