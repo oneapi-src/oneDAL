@@ -66,7 +66,7 @@ public:
         const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
         const double eps = te::get_tolerance<Float>(1e-4, 1e-6);
 
-        la::enumerate(corr_mat, [&](std::int64_t i, std::int64_t j, Float x) {
+        la::enumerate(corr_mat, [&](std::int64_t i, std::int64_t j, double x) {
             if (i == j) {
                 if (std::abs(x - 1.0) > eps) {
                     CAPTURE(i, j, x, eps);
@@ -76,11 +76,12 @@ public:
         });
     }
 
-    void check_correlation_for_uncorrelated_data(const ndarray<Float, 2>& corr) {
+    void check_correlation_for_diagonal_matrix(const ndarray<Float, 2>& corr,
+                                               double expected_off_diagonal_element) {
         const auto corr_mat = la::matrix<Float>::wrap_nd(corr.to_host(this->get_queue()));
         const double eps = te::get_tolerance<Float>(1e-4, 1e-6);
 
-        la::enumerate(corr_mat, [&](std::int64_t i, std::int64_t j, Float x) {
+        la::enumerate(corr_mat, [&](std::int64_t i, std::int64_t j, double x) {
             if (i == j) {
                 if (std::abs(x - 1.0) > eps) {
                     CAPTURE(i, j, x, eps);
@@ -88,7 +89,7 @@ public:
                 }
             }
             else {
-                if (std::abs(x) > eps) {
+                if (std::abs(x - expected_off_diagonal_element) > eps) {
                     CAPTURE(i, j, x, eps);
                     FAIL("Unexpected non-diagonal element of correlation matrix");
                 }
@@ -104,8 +105,8 @@ public:
         const double corrected_var = expected_var > 0 ? expected_var : 1.0;
         const double eps = std::abs(corrected_var) * te::get_tolerance_for_sum<Float>(row_count);
 
-        la::enumerate_linear(vars_mat, [&](std::int64_t i, Float var) {
-            if (std::abs(double(var) - expected_var) > eps) {
+        la::enumerate_linear(vars_mat, [&](std::int64_t i, double var) {
+            if (std::abs(var - expected_var) > eps) {
                 CAPTURE(i, var, expected_var);
                 FAIL("Unexpected variance");
             }
@@ -120,8 +121,8 @@ public:
         const double corrected_mean = expected_mean > 0 ? expected_mean : 1.0;
         const double eps = std::abs(corrected_mean) * te::get_tolerance_for_sum<Float>(row_count);
 
-        la::enumerate_linear(means_mat, [&](std::int64_t i, Float mean) {
-            if (std::abs(double(mean) - expected_mean) > eps) {
+        la::enumerate_linear(means_mat, [&](std::int64_t i, double mean) {
+            if (std::abs(mean - expected_mean) > eps) {
                 CAPTURE(i, mean, expected_mean);
                 FAIL("Unexpected mean");
             }
@@ -215,7 +216,10 @@ public:
     }
 };
 
-TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, double) {
+TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double) {
+    using float_t = TestType;
+    using dim2_t = std::tuple<std::int64_t, std::int64_t>;
+
     // DPC++ GEMM used underneath correlation is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
 
@@ -223,8 +227,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     SKIP_IF(this->not_float64_friendly());
 
     const float_t diag_element = 10.5;
-    const std::int64_t row_count = 1000000;
-    const std::int64_t column_count = 100;
+    const auto [row_count, column_count] =
+        GENERATE(dim2_t(10, 10), dim2_t(100, 10), dim2_t(1000000, 1000));
 
     // Generate dataset, where the upper square part of the matrix is diagonal
     // and the rest are zeros, for example:
@@ -241,25 +245,30 @@ TEMPLATE_TEST_M(cov_test, "correlation on uncorrelated data", "[cor]", float, do
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })
         .wait_and_throw();
 
-    INFO("check if correlation matrix is identity")
-    this->check_correlation_for_uncorrelated_data(corr);
-
     // The upper part of data matrix is diagonal. In diagonal matrix each column
     // contains only one non-zero element (`diag_element`), so mean and
     // variances for each feature can be computed trivially using `diag_element`
     // value.
 
-    INFO("check if mean is expected")
-    double n = row_count;
-    const double expected_mean = double(diag_element) / n;
-    this->check_constant_mean(means, n, expected_mean);
+    INFO("check if correlation matrix for diagonal matrix") {
+        const double n = row_count;
+        const double off_diag_element = -1.0 / (n - 1.0);
+        this->check_correlation_for_diagonal_matrix(corr, off_diag_element);
+    }
 
-    INFO("check if variance is expected")
-    n = row_count;
-    const double d = double(diag_element) * double(diag_element);
-    ONEDAL_ASSERT(n > 1);
-    const double expected_var = (d - d / n) / (n - 1.0);
-    this->check_constant_variance(vars, n, expected_var);
+    INFO("check if mean is expected") {
+        const double n = row_count;
+        const double expected_mean = double(diag_element) / n;
+        this->check_constant_mean(means, n, expected_mean);
+    }
+
+    INFO("check if variance is expected") {
+        const double n = row_count;
+        const double d = double(diag_element) * double(diag_element);
+        ONEDAL_ASSERT(n > 1);
+        const double expected_var = (d - d / n) / (n - 1.0);
+        this->check_constant_variance(vars, n, expected_var);
+    }
 }
 
 TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
