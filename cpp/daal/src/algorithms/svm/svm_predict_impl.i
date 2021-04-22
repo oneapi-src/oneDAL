@@ -262,14 +262,7 @@ struct SVMPredictImpl<defaultDense, algorithmFPType, cpu> : public Kernel
                 const algorithmFPType * const svCoeff = mtSVCoeff.get();
                 algorithmFPType * const distanceSV    = &distanceLocal[iBlockSV * nRowsPerBlock];
 
-                if (nBlocks == 1 && nBlocksSV == 1)
-                {
-                    Blas<algorithmFPType, cpu>::xgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
-                }
-                else
-                {
-                    Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
-                }
+                Blas<algorithmFPType, cpu>::xxgemv(&trans, &m, &n, &alpha, buffBlock, &ldA, svCoeff, &incX, &beta, distanceSV, &incY);
             });
 
             WriteOnlyColumns<algorithmFPType, cpu> mtR(r, 0, startRow, nRowsPerBlockReal);
