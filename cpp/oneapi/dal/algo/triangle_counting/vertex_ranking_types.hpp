@@ -23,8 +23,7 @@
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/detail/vertex_ranking_types.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
+namespace oneapi::dal::preview::triangle_counting {
 
 /// Class for the description of the input parameters of the Triangle Counting
 /// algorithm
@@ -106,5 +105,4 @@ const Graph& vertex_ranking_input<Graph, Task>::get_graph() const {
     return impl_->graph_data;
 }
 
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting

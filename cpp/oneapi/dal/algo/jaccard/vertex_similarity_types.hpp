@@ -23,8 +23,7 @@
 #include "oneapi/dal/algo/jaccard/common.hpp"
 #include "oneapi/dal/algo/jaccard/detail/vertex_similarity_types.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
+namespace oneapi::dal::preview::jaccard {
 
 /// Class for the description of the input parameters of the Jaccard Similarity
 /// algorithm
@@ -108,5 +107,4 @@ caching_builder& vertex_similarity_input<Graph, Task>::get_caching_builder() {
     return impl_->builder;
 }
 
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard

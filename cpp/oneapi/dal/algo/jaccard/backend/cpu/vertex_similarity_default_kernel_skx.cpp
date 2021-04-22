@@ -25,9 +25,7 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace backend {
+namespace oneapi::dal::preview::jaccard::backend {
 
 template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<
     dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::all_vertex_pairs>& desc,
@@ -41,6 +39,5 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispa
     void* result_ptr) {
     return jaccard_avx512<dal::backend::cpu_dispatch_avx512>(desc, t, result_ptr);
 }
-} // namespace backend
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+
+} // namespace oneapi::dal::preview::jaccard::backend

@@ -33,9 +33,7 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace backend {
+namespace oneapi::dal::preview::jaccard::backend {
 
 using namespace preview::backend;
 
@@ -427,6 +425,5 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512(
         nnz);
     return res;
 }
-} // namespace backend
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+
+} // namespace oneapi::dal::preview::jaccard::backend

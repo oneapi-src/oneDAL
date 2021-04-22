@@ -117,4 +117,5 @@ struct relabel_by_greater_degree {
         oneapi::dal::preview::detail::deallocate(int32_allocator, new_ids, vertex_count);
     }
 };
+
 } // namespace oneapi::dal::preview::triangle_counting::detail

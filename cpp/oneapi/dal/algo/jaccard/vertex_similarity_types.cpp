@@ -16,8 +16,7 @@
 
 #include "oneapi/dal/algo/jaccard/vertex_similarity_types.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
+namespace oneapi::dal::preview::jaccard {
 
 class detail::vertex_similarity_result_impl : public base {
 public:
@@ -58,5 +57,5 @@ int64_t vertex_similarity_result<Task>::get_nonzero_coeff_count() const {
 }
 
 template class ONEDAL_EXPORT vertex_similarity_result<task::all_vertex_pairs>;
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+
+} // namespace oneapi::dal::preview::jaccard

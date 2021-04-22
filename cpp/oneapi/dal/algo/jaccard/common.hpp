@@ -19,8 +19,7 @@
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
+namespace oneapi::dal::preview::jaccard {
 
 namespace task {
 struct all_vertex_pairs {};
@@ -169,5 +168,4 @@ constexpr bool is_valid_graph =
 
 } // namespace detail
 
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard

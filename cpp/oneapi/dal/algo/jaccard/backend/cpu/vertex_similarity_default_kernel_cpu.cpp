@@ -23,15 +23,11 @@
 #include "oneapi/dal/graph/detail/service_functions_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace backend {
+namespace oneapi::dal::preview::jaccard::backend {
 
 template vertex_similarity_result<task::all_vertex_pairs> jaccard<__CPU_TAG__>(
     const detail::descriptor_base<task::all_vertex_pairs> &desc,
     const dal::preview::detail::topology<std::int32_t> &t,
     void *result_ptr);
 
-} // namespace backend
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard::backend

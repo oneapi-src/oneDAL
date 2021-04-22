@@ -16,8 +16,7 @@
 
 #include "oneapi/dal/algo/jaccard/common.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
+namespace oneapi::dal::preview::jaccard {
 namespace detail {
 
 template <typename Task>
@@ -86,5 +85,4 @@ void* caching_builder::operator()(std::int64_t block_max_size) {
     return static_cast<void*>(result_ptr.get());
 }
 
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard

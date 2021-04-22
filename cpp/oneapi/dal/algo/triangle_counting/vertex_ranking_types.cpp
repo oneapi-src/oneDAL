@@ -16,8 +16,7 @@
 
 #include "oneapi/dal/algo/triangle_counting/vertex_ranking_types.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
+namespace oneapi::dal::preview::triangle_counting {
 
 class detail::vertex_ranking_result_impl : public base {
 public:
@@ -54,5 +53,4 @@ template class ONEDAL_EXPORT vertex_ranking_result<task::local>;
 template class ONEDAL_EXPORT vertex_ranking_result<task::global>;
 template class ONEDAL_EXPORT vertex_ranking_result<task::local_and_global>;
 
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting

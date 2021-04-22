@@ -19,6 +19,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::detail {
+
 void sort_ids_by_degree(const dal::detail::host_policy& policy,
                         const std::int32_t* degrees,
                         std::pair<std::int32_t, std::size_t>* degree_id_pairs,
