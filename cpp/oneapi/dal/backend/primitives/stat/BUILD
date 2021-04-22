@@ -20,7 +20,7 @@ dal_test_suite(
     compile_as = [ "dpc++" ],
     private = True,
     srcs = glob([
-        "test/*perf_dpc.cpp",
+        "test/perf_*_dpc.cpp",
     ]),
     dal_deps = [
         ":stat",

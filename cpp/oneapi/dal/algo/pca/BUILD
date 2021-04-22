@@ -50,7 +50,6 @@ dal_test_suite(
     srcs = glob([
         "backend/test/*.cpp",
     ]),
-    compile_as = ["c++"],
     dal_deps = [
         ":pca",
     ],

@@ -35,6 +35,17 @@ void flip_eigvals_impl(Float* a,
                        std::int64_t lda_flipped,
                        Float* w_flipped);
 
+/// Do not use this.
+template <typename Cpu, typename Float>
+void flip_eigvals_impl_cpu(Float* a,
+                           Float* w,
+                           std::int64_t n,
+                           std::int64_t lda,
+                           std::int64_t w_count,
+                           Float* a_flipped,
+                           std::int64_t lda_flipped,
+                           Float* w_flipped);
+
 /// Computes eigenvectors and eigenvalues in-place.
 ///
 /// @param[in, out] data_or_eigvecs The input parameter is interpreted as symmetric matrix of
