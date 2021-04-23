@@ -57,20 +57,12 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
     }
 
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
-
     binary_label_t<Float> unique_label;
-
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_labels = convert_labels(queue,
-                                            labels,
-                                            arr_label,
-                                            { Float(-1.0), Float(1.0) },
-                                            unique_label,
-                                            row_count);
+    const auto new_labels =
+        convert_binary_labels(queue, labels, { Float(-1.0), Float(1.0) }, unique_label);
+    const auto daal_labels = interop::convert_to_daal_table(queue, new_labels);
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
@@ -93,6 +85,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     daal_svm_parameter.doShrinking = desc.get_shrinking();
     daal_svm_parameter.cacheSize = cache_byte;
 
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,
                                                                             *daal_labels,

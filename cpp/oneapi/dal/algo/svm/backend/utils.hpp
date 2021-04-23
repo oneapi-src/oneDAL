@@ -42,145 +42,151 @@ template <typename Float>
 struct binary_label_t {
     Float first;
     Float second;
+
+    bool operator==(const binary_label_t&& binary_label) const {
+        return (first == binary_label.first && second == binary_label.second) ||
+               (first == binary_label.second && second == binary_label.first);
+    }
 };
 
 template <typename Float>
-inline daal::data_management::NumericTablePtr convert_labels(
-    const table& labels,
-    const array<Float>& arr_label,
-    const binary_label_t<Float>& in_binary_labels,
-    binary_label_t<Float>& out_binary_labels,
-    const std::int64_t row_count) {
+inline binary_label_t<Float> get_unique_labels(const table& labels) {
+    auto arr_label = row_accessor<const Float>{ labels }.pull();
     const std::int64_t count = arr_label.get_count();
 
-    Float value_first_class_label = arr_label[0];
-    Float value_second_class_label = arr_label[1];
+    Float first_label = arr_label[0];
+    Float second_label = arr_label[1];
 
     for (std::int64_t i = 1; i < count; ++i) {
-        if (arr_label[i] != value_first_class_label) {
-            value_second_class_label = arr_label[i];
+        if (arr_label[i] != first_label) {
+            second_label = arr_label[i];
             break;
         }
     }
 
-    if (value_first_class_label == value_second_class_label) {
+    if (first_label == second_label) {
         throw invalid_argument(
             dal::detail::error_messages::input_labels_contain_only_one_unique_value_expect_two());
     }
 
-    daal::data_management::NumericTablePtr daal_labels;
-
     // need to sort class labels to be consistent with Scikit-learn*
-    if (value_first_class_label > value_second_class_label) {
-        std::swap(value_first_class_label, value_second_class_label);
+    if (first_label > second_label) {
+        std::swap(first_label, second_label);
     }
 
-    if ((value_first_class_label == Float(0.0) && value_second_class_label == Float(1.0)) ||
-        (value_first_class_label == Float(1.0) && value_second_class_label == Float(0.0)) ||
-        (value_first_class_label == Float(-1.0) && value_second_class_label == Float(1.0)) ||
-        (value_first_class_label == Float(1.0) && value_second_class_label == Float(-1.0))) {
-        daal_labels = interop::convert_to_daal_table<Float>(labels);
+    return { first_label, second_label };
+}
+
+template <typename Float>
+inline table get_new_labels(const table& labels,
+                            const binary_label_t<Float>& requested_unique_labels,
+                            const binary_label_t<Float>& unique_labels) {
+    auto arr_label = row_accessor<const Float>{ labels }.pull();
+    const std::int64_t count = arr_label.get_count();
+
+    auto new_label_arr = array<Float>::empty(count);
+    auto new_label_data = new_label_arr.get_mutable_data();
+
+    for (std::int64_t i = 0; i < count; ++i) {
+        if (arr_label[i] == unique_labels.first) {
+            new_label_data[i] = requested_unique_labels.first;
+        }
+        else if (arr_label[i] == unique_labels.second) {
+            new_label_data[i] = requested_unique_labels.second;
+        }
+        else {
+            throw invalid_argument(dal::detail::error_messages::
+                                       input_labels_contain_wrong_unique_values_count_expect_two());
+        }
+    }
+
+    return homogen_table::wrap(new_label_data, count, 1);
+}
+
+template <typename Float>
+inline table convert_binary_labels(const table& labels,
+                                   const binary_label_t<Float>& requested_unique_labels,
+                                   binary_label_t<Float>& unique_labels) {
+    unique_labels = get_unique_labels<Float>(labels);
+    if (unique_labels == binary_label_t<Float>{ 0, 1 } ||
+        unique_labels == binary_label_t<Float>{ -1, 1 }) {
+        return labels;
     }
     else {
-        auto new_label_arr = array<Float>::empty(count);
-        auto new_label_data = new_label_arr.get_mutable_data();
-
-        for (std::int64_t i = 0; i < count; ++i) {
-            if (arr_label[i] == value_first_class_label) {
-                new_label_data[i] = in_binary_labels.first;
-            }
-            else if (arr_label[i] == value_second_class_label) {
-                new_label_data[i] = in_binary_labels.second;
-            }
-            else {
-                throw invalid_argument(
-                    dal::detail::error_messages::
-                        input_labels_contain_wrong_unique_values_count_expect_two());
-            }
-        }
-
-        daal_labels = interop::convert_to_daal_homogen_table(new_label_arr, row_count, 1);
+        return get_new_labels(labels, requested_unique_labels, unique_labels);
     }
-
-    out_binary_labels.first = value_first_class_label;
-    out_binary_labels.second = value_second_class_label;
-
-    return daal_labels;
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float>
-inline daal::data_management::NumericTablePtr convert_labels(
-    sycl::queue& queue,
-    const table& labels,
-    const array<Float>& arr_label,
-    const binary_label_t<Float>& in_binary_labels,
-    binary_label_t<Float>& out_binary_labels,
-    const std::int64_t row_count) {
-    // TODO: Implement conversion on device
-    using error_msg = dal::detail::error_messages;
+inline binary_label_t<Float> get_unique_labels(sycl::queue& queue, const table& labels) {
+    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
+    const auto arr_label_host = dal::backend::to_host_sync(arr_label);
     const std::int64_t count = arr_label.get_count();
 
-    const auto arr_label_host = dal::backend::to_host_sync(arr_label);
-    Float value_first_class_label = arr_label_host[0];
-    Float value_second_class_label = arr_label_host[1];
+    Float first_label = arr_label_host[0];
+    Float second_label = arr_label_host[1];
 
     for (std::int64_t i = 1; i < count; ++i) {
-        if (arr_label_host[i] != value_first_class_label) {
-            value_second_class_label = arr_label_host[i];
+        if (arr_label_host[i] != first_label) {
+            second_label = arr_label_host[i];
             break;
         }
     }
 
-    if (value_first_class_label == value_second_class_label) {
-        throw invalid_argument{
-            error_msg::input_labels_contain_only_one_unique_value_expect_two()
-        };
+    if (first_label == second_label) {
+        throw invalid_argument(
+            dal::detail::error_messages::input_labels_contain_only_one_unique_value_expect_two());
     }
-
-    daal::data_management::NumericTablePtr daal_labels;
 
     // need to sort class labels to be consistent with Scikit-learn*
-    if (value_first_class_label > value_second_class_label) {
-        std::swap(value_first_class_label, value_second_class_label);
+    if (first_label > second_label) {
+        std::swap(first_label, second_label);
     }
 
-    if ((value_first_class_label == Float(0.0) && value_second_class_label == Float(1.0)) ||
-        (value_first_class_label == Float(1.0) && value_second_class_label == Float(0.0)) ||
-        (value_first_class_label == Float(-1.0) && value_second_class_label == Float(1.0)) ||
-        (value_first_class_label == Float(1.0) && value_second_class_label == Float(-1.0))) {
-        daal_labels = interop::convert_to_daal_table(queue, labels);
+    return { first_label, second_label };
+}
+
+template <typename Float>
+inline table get_new_labels(sycl::queue& queue,
+                            const table& labels,
+                            const binary_label_t<Float>& requested_unique_labels,
+                            const binary_label_t<Float>& unique_labels) {
+    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
+    const std::int64_t count = arr_label.get_count();
+
+    auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
+    auto new_label_data = new_label_arr.get_mutable_data();
+
+    for (std::int64_t i = 0; i < count; ++i) {
+        if (arr_label[i] == unique_labels.first) {
+            new_label_data[i] = requested_unique_labels.first;
+        }
+        else if (arr_label[i] == unique_labels.second) {
+            new_label_data[i] = requested_unique_labels.second;
+        }
+        else {
+            throw invalid_argument(dal::detail::error_messages::
+                                       input_labels_contain_wrong_unique_values_count_expect_two());
+        }
+    }
+
+    return homogen_table::wrap(queue, new_label_data, count, 1);
+}
+
+template <typename Float>
+inline table convert_binary_labels(sycl::queue& queue,
+                                   const table& labels,
+                                   const binary_label_t<Float>& requested_unique_labels,
+                                   binary_label_t<Float>& unique_labels) {
+    unique_labels = get_unique_labels<Float>(queue, labels);
+    if (unique_labels == binary_label_t<Float>{ 0, 1 } ||
+        unique_labels == binary_label_t<Float>{ -1, 1 }) {
+        return labels;
     }
     else {
-        // TODO: Replace allocation type once bug with `memcpy` and host memory is fixed
-        auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
-        auto new_label_data = new_label_arr.get_mutable_data();
-
-        for (std::int64_t i = 0; i < count; ++i) {
-            if (arr_label_host[i] == value_first_class_label) {
-                new_label_data[i] = in_binary_labels.first;
-            }
-            else if (arr_label_host[i] == value_second_class_label) {
-                new_label_data[i] = in_binary_labels.second;
-            }
-            else {
-                throw invalid_argument{
-                    error_msg::input_labels_contain_wrong_unique_values_count_expect_two()
-                };
-            }
-        }
-
-        daal_labels =
-            interop::convert_to_daal_table(queue,
-                                           dal::backend::to_device_sync(queue, new_label_arr),
-                                           row_count,
-                                           1);
+        return get_new_labels(queue, labels, requested_unique_labels, unique_labels);
     }
-
-    out_binary_labels.first = value_first_class_label;
-    out_binary_labels.second = value_second_class_label;
-
-    return daal_labels;
 }
 #endif
 
