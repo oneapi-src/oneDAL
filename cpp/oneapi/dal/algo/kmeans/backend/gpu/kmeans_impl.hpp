@@ -28,7 +28,7 @@ namespace oneapi::dal::kmeans::backend {
 #ifdef ONEDAL_DATA_PARALLEL
 
 namespace bk = dal::backend;
-namespace prm = dal::backend::primitives;
+namespace pr = dal::backend::primitives;
 
 template <typename Float>
 sycl::event find_candidates_impl(sycl::queue& queue,
