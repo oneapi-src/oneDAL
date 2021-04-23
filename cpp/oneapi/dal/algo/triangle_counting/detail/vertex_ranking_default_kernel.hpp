@@ -41,7 +41,7 @@ struct automatic {};
 struct relabeled {};
 
 template <typename Task, typename... Options>
-struct triangle_counting {
+ONEDAL_EXPORT struct triangle_counting {
     vertex_ranking_result<Task> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<Task>& desc,

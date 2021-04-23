@@ -32,9 +32,9 @@ ONEDAL_EXPORT struct vertex_similarity {
 };
 
 template <>
-ONEDAL_EXPORT struct vertex_similarity<float,
-                                       task::all_vertex_pairs,
-                                       dal::preview::detail::topology<std::int32_t>> {
+struct vertex_similarity<float,
+                         task::all_vertex_pairs,
+                         dal::preview::detail::topology<std::int32_t>> {
     vertex_similarity_result<task::all_vertex_pairs> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::all_vertex_pairs>& desc,
