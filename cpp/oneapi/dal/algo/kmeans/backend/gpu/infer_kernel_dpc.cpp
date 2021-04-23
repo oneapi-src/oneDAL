@@ -40,47 +40,46 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         const int64_t cluster_count = params.get_cluster_count();
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-        auto arr_data = prm::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
+        auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
         auto centroids_ptr =
             row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
         auto arr_centroids =
-            prm::ndarray<Float, 2>::wrap(centroids_ptr, { cluster_count, column_count });
+            pr::ndarray<Float, 2>::wrap(centroids_ptr, { cluster_count, column_count });
 
         // TODO function to calculate block size
         std::int64_t block_rows = 16 * 1024;
-        auto arr_distance_block = prm::ndarray<Float, 2>::empty(queue,
-                                                                { block_rows, cluster_count },
-                                                                sycl::usm::alloc::device);
+        auto arr_distance_block = pr::ndarray<Float, 2>::empty(queue,
+                                                               { block_rows, cluster_count },
+                                                               sycl::usm::alloc::device);
         auto arr_closest_distances =
-            prm::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
+            pr::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_labels =
-            prm::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
+            pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_objective_function =
-            prm::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
+            pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
 
         auto assign_event =
-            assign_clusters_impl<Float, prm::squared_l2_metric<Float>>(queue,
-                                                                       arr_data,
-                                                                       arr_centroids,
-                                                                       block_rows,
-                                                                       arr_labels,
-                                                                       arr_distance_block,
-                                                                       arr_closest_distances);
-        compute_objective_function_impl<Float>(queue,
-                                               arr_closest_distances,
-                                               arr_objective_function,
-                                               { assign_event })
+            assign_clusters<Float, pr::squared_l2_metric<Float>>(queue,
+                                                                 arr_data,
+                                                                 arr_centroids,
+                                                                 block_rows,
+                                                                 arr_labels,
+                                                                 arr_distance_block,
+                                                                 arr_closest_distances);
+        compute_objective_function<Float>(queue,
+                                          arr_closest_distances,
+                                          arr_objective_function,
+                                          { assign_event })
             .wait_and_throw();
 
         return infer_result<task::clustering>()
-            .set_labels(
-                dal::detail::homogen_table_builder{}
-                    .reset(array<std::int32_t>{ arr_labels.get_data(), row_count * 1, [](auto) {} },
-                           row_count,
-                           1)
-                    .build())
+            .set_labels(dal::detail::homogen_table_builder{}
+                            .reset(array<std::int32_t>::wrap(arr_labels.get_data(), row_count * 1),
+                                   row_count,
+                                   1)
+                            .build())
             .set_objective_function_value(
                 static_cast<double>(arr_objective_function.to_host(queue).get_data()[0]));
     }
