@@ -27,6 +27,46 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
+#include <stdlib.h> // size_t, malloc, free
+#include <new> // bad_alloc, bad_array_new_length
+template <class T>
+struct Mallocator {
+    typedef T value_type;
+    typedef T *pointer;
+    Mallocator() noexcept {} // default ctor not required
+    template <class U>
+    Mallocator(const Mallocator<U> &) noexcept {}
+    template <class U>
+    bool operator==(const Mallocator<U> &) const noexcept {
+        return true;
+    }
+    template <class U>
+    bool operator!=(const Mallocator<U> &) const noexcept {
+        return false;
+    }
+
+    T *allocate(const size_t n) const {
+        if (n == 0) {
+            return nullptr;
+        }
+        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+            throw std::bad_array_new_length();
+        }
+        void *const pv = _mm_malloc(n * sizeof(T), 64);
+        if (!pv) {
+            throw std::bad_alloc();
+        }
+        // std::cout << "my custom allocator   allocates " << n << " elements here:" << (void *)pv
+        //           << std::endl;
+        return static_cast<T *>(pv);
+    }
+    void deallocate(T *const p, size_t n) const noexcept {
+        // std::cout << "my custom allocator deallocates " << n << " elements here:" << (void *)p
+        //           << std::endl;
+        _mm_free(p);
+    }
+};
+
 namespace dal = oneapi::dal;
 inline dal::preview::edge_list<std::int32_t> load_vertex_labels_and_edge_list(
     const std::string &name,
@@ -118,22 +158,11 @@ int main(int argc, char **argv) {
     // auto pattern_filename = get_data_path(
     //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
 
-    // auto target_filename = get_data_path(
-    //     "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff");
-    // auto pattern_filename = get_data_path(
-    //     "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
     auto target_filename = get_data_path(
         "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff");
     auto pattern_filename = get_data_path(
         "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff_queries/query64_2.gff");
 
-    //  1240	1237	1241	1242	1243
-    //  1240	1237	1241	1243	1242
-
-    // auto target_filename = get_data_path(
-    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/1blk.pdb.gff");
-    // auto pattern_filename = get_data_path(
-    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/1blk.pdb.gff_queries/query4_0.gff");
     if (argc == 3) {
         target_filename = get_data_path(argv[1]);
         pattern_filename = get_data_path(argv[2]);
@@ -143,21 +172,23 @@ int main(int argc, char **argv) {
     graph_t target_graph, pattern_graph;
     load_graph_gff(target_filename, pattern_filename, target_graph, pattern_graph);
 
-    std::allocator<char> alloc;
+    // std::allocator<char> alloc;
+    Mallocator<char> alloc;
     // set algorithm parameters
     const auto subgraph_isomorphism_desc =
-        dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+        dal::preview::subgraph_isomorphism::descriptor<
+            float,
+            dal::preview::subgraph_isomorphism::method::by_default,
+            Mallocator<char>>(alloc)
             .set_kind(dal::preview::subgraph_isomorphism::kind::non_induced)
             .set_semantic_match(false)
             .set_max_match_count(100);
 
-    // compute matchings
     const auto result =
         dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
 
     // extract the result
     const auto match_count = result.get_match_count();
-
     // print_table_int(result.get_vertex_match());
     // print_table_int_sorted(result.get_vertex_match()); // Temporary disabled
     // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;

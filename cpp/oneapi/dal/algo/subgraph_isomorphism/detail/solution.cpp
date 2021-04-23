@@ -5,17 +5,18 @@
 namespace dal = oneapi::dal;
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-state::state() {
+state::state(inner_alloc a) : allocator_(a) {
     core = nullptr;
     core_length = 0;
 }
 
-state::state(std::int64_t length) {
+state::state(std::int64_t length, inner_alloc a) : allocator_(a) {
     core_length = length;
-    core = static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * core_length, 64));
+    core = allocator_.allocate<std::int64_t>(core_length);
 }
 
-state::state(state& parent_state, std::int64_t new_element) : state(parent_state.core_length + 1) {
+state::state(state& parent_state, std::int64_t new_element, inner_alloc a)
+        : state(parent_state.core_length + 1, a) {
     for (std::int64_t i = 0; i < parent_state.core_length; i++) {
         /* TODO replace by memset */
         core[i] = parent_state.core[i];
@@ -23,7 +24,8 @@ state::state(state& parent_state, std::int64_t new_element) : state(parent_state
     core[parent_state.core_length] = new_element;
 }
 
-state::state(state* parent_state, std::int64_t new_element) : state(parent_state->core_length + 1) {
+state::state(state* parent_state, std::int64_t new_element, inner_alloc a)
+        : state(parent_state->core_length + 1, a) {
     for (std::int64_t i = 0; i < parent_state->core_length; i++) {
         /* TODO replace by memset */
         core[i] = parent_state->core[i];
@@ -32,16 +34,16 @@ state::state(state* parent_state, std::int64_t new_element) : state(parent_state
 }
 
 state::~state() {
-    _mm_free(core);
+    allocator_.deallocate<std::int64_t>(core, core_length);
     core = nullptr;
     core_length = 0;
 }
 
-solution::solution() {
+solution::solution(inner_alloc a) : allocator_(a) {
     solution_count = 0;
     max_solution_cout = 100;
     solution_core_length = 0;
-    data = static_cast<std::int64_t**>(_mm_malloc(sizeof(std::int64_t*) * max_solution_cout, 64));
+    data = allocator_.allocate<std::int64_t*>(max_solution_cout);
     for (std::int64_t i = 0; i < max_solution_cout; i++) {
         data[i] = nullptr;
     }
@@ -49,11 +51,11 @@ solution::solution() {
     sorted_pattern_vertices = nullptr;
 }
 
-solution::solution(const std::int64_t length, const std::int64_t* pattern_vertices) : solution() {
+solution::solution(const std::int64_t length, const std::int64_t* pattern_vertices, inner_alloc a)
+        : solution(a) {
     solution_core_length = length;
     if (pattern_vertices != nullptr) {
-        sorted_pattern_vertices =
-            static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * solution_core_length, 64));
+        sorted_pattern_vertices = allocator_.allocate<std::int64_t>(solution_core_length);
         for (std::int64_t i = 0; i < solution_core_length; i++) {
             sorted_pattern_vertices[i] = pattern_vertices[i]; // replace memset
         }
@@ -68,22 +70,23 @@ void solution::delete_data() {
     if (data != nullptr) {
         for (std::int64_t i = 0; i < max_solution_cout; i++) {
             if (data[i] != nullptr) {
-                _mm_free(data[i]);
+                allocator_.deallocate<std::int64_t>(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        _mm_free(data);
+        allocator_.deallocate<std::int64_t*>(data, max_solution_cout);
         data = nullptr;
     }
     if (sorted_pattern_vertices != nullptr) {
-        _mm_free(sorted_pattern_vertices);
+        allocator_.deallocate<std::int64_t>(sorted_pattern_vertices, solution_core_length);
         sorted_pattern_vertices = nullptr;
     }
 }
 
 solution::solution(solution&& sol)
         : data(sol.data),
-          sorted_pattern_vertices(sol.sorted_pattern_vertices) {
+          sorted_pattern_vertices(sol.sorted_pattern_vertices),
+          allocator_(sol.allocator_) {
     max_solution_cout = sol.max_solution_cout;
     solution_count = sol.solution_count;
     solution_core_length = sol.solution_core_length;
@@ -139,7 +142,7 @@ graph_status solution::add(state* solution_state) {
         graph_status status = add(&solution_state->core);
         solution_state->~state();
         if (solution_state != nullptr) {
-            _mm_free(solution_state);
+            allocator_.deallocate<state>(solution_state, 0);
         }
         solution_state = nullptr;
         return status;
@@ -161,7 +164,7 @@ graph_status solution::add(solution& _solution) {
     }
 
     if (_solution.data != nullptr) {
-        _mm_free(_solution.data);
+        allocator_.deallocate<std::int64_t*>(_solution.data, 0);
         _solution.data = nullptr;
     }
 
@@ -177,8 +180,7 @@ graph_status solution::add(solution&& _solution) {
 }
 
 graph_status solution::increase_solutions_size() {
-    std::int64_t** tmp_data =
-        static_cast<std::int64_t**>(_mm_malloc(sizeof(std::int64_t*) * 2 * max_solution_cout, 64));
+    std::int64_t** tmp_data = allocator_.allocate<std::int64_t*>(2 * max_solution_cout);
     if (tmp_data == nullptr) {
         return bad_allocation;
     }
@@ -189,10 +191,10 @@ graph_status solution::increase_solutions_size() {
     for (std::int64_t i = max_solution_cout; i < 2 * max_solution_cout; i++) {
         tmp_data[i] = nullptr;
     }
-    max_solution_cout *= 2;
     if (data != nullptr) {
-        _mm_free(data);
+        allocator_.deallocate<std::int64_t*>(data, max_solution_cout);
     }
+    max_solution_cout *= 2;
     data = tmp_data;
     tmp_data = nullptr;
     return ok;

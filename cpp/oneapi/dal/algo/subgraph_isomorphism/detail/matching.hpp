@@ -18,15 +18,23 @@ enum flow_switch_ids {
 
 class matching_engine {
 public:
-    matching_engine(){};
+    matching_engine(inner_alloc allocator)
+            : allocator_(allocator),
+              vertex_candidates(allocator.get_byte_allocator()),
+              local_stack(allocator),
+              hlocal_stack(allocator),
+              engine_solutions(allocator){};
     matching_engine(const graph* ppattern,
                     const graph* ptarget,
                     const std::int64_t* psorted_pattern_vertex,
                     const std::int64_t* ppredecessor,
                     const edge_direction* pdirection,
                     sconsistent_conditions const* pcconditions,
-                    kind isomorphism_kind);
-    matching_engine(const matching_engine& _matching_engine, stack& _local_stack);
+                    kind isomorphism_kind,
+                    inner_alloc allocator);
+    matching_engine(const matching_engine& _matching_engine,
+                    stack& _local_stack,
+                    inner_alloc allocator);
     virtual ~matching_engine();
 
     solution run(bool main_engine = false);
@@ -49,6 +57,7 @@ public:
                                 const std::int64_t target_vertex);
 
 private:
+    inner_alloc allocator_;
     const graph* pattern;
     const graph* target;
     const std::int64_t* sorted_pattern_vertex;
@@ -91,11 +100,13 @@ public:
                   sconsistent_conditions const* pcconditions,
                   float* ppattern_vertex_probability,
                   const std::uint64_t _control_flags,
-                  kind isomorphism_kind);
+                  kind isomorphism_kind,
+                  inner_alloc allocator);
     virtual ~engine_bundle();
     solution run();
 
 private:
+    inner_alloc allocator_;
     const graph* pattern;
     const graph* target;
     const std::int64_t* sorted_pattern_vertex;
