@@ -52,10 +52,10 @@ public:
         const std::int64_t row_count = local_table.get_row_count();
         const std::int64_t column_count = local_table.get_column_count();
         const data_type dtype = local_table.get_metadata().get_data_type(0);
+        const auto byte_data = get_original_data(local_table);
 
         get_impl().set_data_type(dtype);
-        get_impl().reset(get_original_data(local_table), row_count, column_count);
-
+        get_impl().reset(byte_data, row_count, column_count);
         return *this;
     }
 
