@@ -80,7 +80,7 @@ struct graph_input_data {
     graph_input_data(const std::int64_t vertex_size, inner_alloc allocator);
     ~graph_input_data();
 
-    inner_alloc _allocator;
+    inner_alloc allocator_;
 };
 
 struct graph_input_list_data : public graph_input_data {
@@ -230,7 +230,7 @@ public:
                          const std::int64_t vertex);
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     std::uint8_t* vector;
     std::int64_t n;
 };
@@ -276,7 +276,7 @@ public:
 private:
     bool external_data;
     bool bit_representation;
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     std::int64_t n; /* number of graph vertices */
     const std::int64_t* p_degree; /* vertex data dergee arrays */
 

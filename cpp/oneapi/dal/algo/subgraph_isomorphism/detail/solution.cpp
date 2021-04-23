@@ -4,14 +4,14 @@
 namespace dal = oneapi::dal;
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-state::state(inner_alloc a) : _allocator(a) {
+state::state(inner_alloc a) : allocator_(a) {
     core = nullptr;
     core_length = 0;
 }
 
-state::state(std::int64_t length, inner_alloc a) : _allocator(a) {
+state::state(std::int64_t length, inner_alloc a) : allocator_(a) {
     core_length = length;
-    core = _allocator.allocate<std::int64_t>(core_length);
+    core = allocator_.allocate<std::int64_t>(core_length);
 }
 
 state::state(state& parent_state, std::int64_t new_element, inner_alloc a)
@@ -33,16 +33,16 @@ state::state(state* parent_state, std::int64_t new_element, inner_alloc a)
 }
 
 state::~state() {
-    _allocator.deallocate<std::int64_t>(core, core_length);
+    allocator_.deallocate<std::int64_t>(core, core_length);
     core = nullptr;
     core_length = 0;
 }
 
-solution::solution(inner_alloc a) : _allocator(a) {
+solution::solution(inner_alloc a) : allocator_(a) {
     solution_count = 0;
     max_solution_cout = 100;
     solution_core_length = 0;
-    data = _allocator.allocate<std::int64_t*>(max_solution_cout);
+    data = allocator_.allocate<std::int64_t*>(max_solution_cout);
     for (std::int64_t i = 0; i < max_solution_cout; i++) {
         data[i] = nullptr;
     }
@@ -54,7 +54,7 @@ solution::solution(const std::int64_t length, const std::int64_t* pattern_vertic
         : solution(a) {
     solution_core_length = length;
     if (pattern_vertices != nullptr) {
-        sorted_pattern_vertices = _allocator.allocate<std::int64_t>(solution_core_length);
+        sorted_pattern_vertices = allocator_.allocate<std::int64_t>(solution_core_length);
         for (std::int64_t i = 0; i < solution_core_length; i++) {
             sorted_pattern_vertices[i] = pattern_vertices[i]; // replace memset
         }
@@ -69,15 +69,15 @@ void solution::delete_data() {
     if (data != nullptr) {
         for (std::int64_t i = 0; i < max_solution_cout; i++) {
             if (data[i] != nullptr) {
-                _allocator.deallocate<std::int64_t>(data[i], 0);
+                allocator_.deallocate<std::int64_t>(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        _allocator.deallocate<std::int64_t*>(data, max_solution_cout);
+        allocator_.deallocate<std::int64_t*>(data, max_solution_cout);
         data = nullptr;
     }
     if (sorted_pattern_vertices != nullptr) {
-        _allocator.deallocate<std::int64_t>(sorted_pattern_vertices, solution_core_length);
+        allocator_.deallocate<std::int64_t>(sorted_pattern_vertices, solution_core_length);
         sorted_pattern_vertices = nullptr;
     }
 }
@@ -85,7 +85,7 @@ void solution::delete_data() {
 solution::solution(solution&& sol)
         : data(sol.data),
           sorted_pattern_vertices(sol.sorted_pattern_vertices),
-          _allocator(sol._allocator) {
+          allocator_(sol.allocator_) {
     max_solution_cout = sol.max_solution_cout;
     solution_count = sol.solution_count;
     solution_core_length = sol.solution_core_length;
@@ -141,7 +141,7 @@ graph_status solution::add(state* solution_state) {
         graph_status status = add(&solution_state->core);
         solution_state->~state();
         if (solution_state != nullptr) {
-            _allocator.deallocate<state>(solution_state, 0);
+            allocator_.deallocate<state>(solution_state, 0);
         }
         solution_state = nullptr;
         return status;
@@ -163,7 +163,7 @@ graph_status solution::add(solution& _solution) {
     }
 
     if (_solution.data != nullptr) {
-        _allocator.deallocate<std::int64_t*>(_solution.data, 0);
+        allocator_.deallocate<std::int64_t*>(_solution.data, 0);
         _solution.data = nullptr;
     }
 
@@ -179,7 +179,7 @@ graph_status solution::add(solution&& _solution) {
 }
 
 graph_status solution::increase_solutions_size() {
-    std::int64_t** tmp_data = _allocator.allocate<std::int64_t*>(2 * max_solution_cout);
+    std::int64_t** tmp_data = allocator_.allocate<std::int64_t*>(2 * max_solution_cout);
     if (tmp_data == nullptr) {
         return bad_allocation;
     }
@@ -191,7 +191,7 @@ graph_status solution::increase_solutions_size() {
         tmp_data[i] = nullptr;
     }
     if (data != nullptr) {
-        _allocator.deallocate<std::int64_t*>(data, max_solution_cout);
+        allocator_.deallocate<std::int64_t*>(data, max_solution_cout);
     }
     max_solution_cout *= 2;
     data = tmp_data;

@@ -17,7 +17,7 @@ struct state {
     ~state();
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
 };
 
 class solution {
@@ -38,7 +38,7 @@ public:
     oneapi::dal::homogen_table export_as_table();
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
 
 private:
     std::int64_t** data;

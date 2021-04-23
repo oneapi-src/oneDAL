@@ -13,7 +13,7 @@ matching_engine::~matching_engine() {
     direction = nullptr;
     pconsistent_conditions = nullptr;
 
-    _allocator.deallocate<std::int64_t>(temporary_list, temporary_list_size);
+    allocator_.deallocate<std::int64_t>(temporary_list, temporary_list_size);
     temporary_list = nullptr;
     temporary_list_size = 0;
 }
@@ -27,7 +27,7 @@ matching_engine::matching_engine(const graph* ppattern,
                                  kind isomorphism_kind,
                                  inner_alloc allocator)
         : isomorphism_kind_(isomorphism_kind),
-          _allocator(allocator),
+          allocator_(allocator),
           vertex_candidates(allocator),
           local_stack(allocator),
           hlocal_stack(allocator),
@@ -44,7 +44,7 @@ matching_engine::matching_engine(const graph* ppattern,
     std::int64_t target_vertex_count = target->get_vertex_count();
 
     //Need modification for adj lists case support, ~30Mb for Kron-28 (256 * 10^6 vertices)
-    vertex_candidates = bit_vector(bit_vector::bit_vector_size(target_vertex_count), _allocator);
+    vertex_candidates = bit_vector(bit_vector::bit_vector_size(target_vertex_count), allocator_);
 
     pstart_byte = vertex_candidates.get_vector_pointer();
     candidate = 0;
@@ -62,7 +62,7 @@ matching_engine::matching_engine(const graph* ppattern,
     }
     else {
         temporary_list_size = max_neighbours_size;
-        temporary_list = _allocator.allocate<std::int64_t>(temporary_list_size);
+        temporary_list = allocator_.allocate<std::int64_t>(temporary_list_size);
     }
 }
 
@@ -174,7 +174,7 @@ std::int64_t matching_engine::extract_candidates(bool check_solution) {
 bool matching_engine::check_vertex_candidate(bool check_solution) {
     if (match_vertex(sorted_pattern_vertex[hlocal_stack.get_current_level()], candidate)) {
         if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length) {
-            std::int64_t* solution_core = _allocator.allocate<std::int64_t>(solution_length);
+            std::int64_t* solution_core = allocator_.allocate<std::int64_t>(solution_length);
             if (solution_core != nullptr) {
                 hlocal_stack.fill_solution(solution_core, candidate);
                 engine_solutions.add(&solution_core); /* add new state into solution */
@@ -268,15 +268,15 @@ void matching_engine::push_into_stack(const std::int64_t vertex_id) {
 }
 
 std::int64_t matching_engine::first_states_generator(stack& stack) {
-    state null_state(_allocator);
+    state null_state(allocator_);
     std::int64_t candidates_count = 0;
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
     for (std::int64_t i = 0; i < target->get_vertex_count(); i++) {
         if (degree <= target->get_vertex_degree(i) &&
             pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                 target->get_vertex_attribute(i)) {
-            void* place = (void*)_allocator.allocate<state>(1);
-            state* new_state = new (place) state(&null_state, i, _allocator);
+            void* place = (void*)allocator_.allocate<state>(1);
+            state* new_state = new (place) state(&null_state, i, allocator_);
             stack.push(new_state);
             candidates_count++;
         }
@@ -328,9 +328,9 @@ std::int64_t matching_engine::extract_candidates(state* current_state, bool chec
 bool matching_engine::check_vertex_candidate(const std::int64_t pattern_vertex,
                                              const std::int64_t target_vertex) {
     if (match_vertex(pattern_vertex, target_vertex)) {
-        state null_state(_allocator);
-        void* place = (void*)_allocator.allocate<state>(1);
-        state* new_state = new (place) state(&null_state, target_vertex, _allocator);
+        state null_state(allocator_);
+        void* place = (void*)allocator_.allocate<state>(1);
+        state* new_state = new (place) state(&null_state, target_vertex, allocator_);
         local_stack.push(new_state); /* add new state into local_stack */
         return true;
     }
@@ -339,8 +339,8 @@ bool matching_engine::check_vertex_candidate(const std::int64_t pattern_vertex,
 
 bool matching_engine::check_vertex_candidate(state* current_state, bool check_solution) {
     if (match_vertex(sorted_pattern_vertex[current_state->core_length], candidate)) {
-        void* place = (void*)_allocator.allocate<state>(1);
-        state* new_state = new (place) state(current_state, candidate, _allocator);
+        void* place = (void*)allocator_.allocate<state>(1);
+        state* new_state = new (place) state(current_state, candidate, allocator_);
 
         if (check_solution && new_state->core_length == solution_length) {
             engine_solutions.add(new_state); /* add new state into solution */
@@ -397,7 +397,7 @@ engine_bundle::engine_bundle(const graph* ppattern,
                              kind isomorphism_kind,
                              inner_alloc allocator)
         : isomorphism_kind_(isomorphism_kind),
-          _allocator(allocator),
+          allocator_(allocator),
           bundle_solutions(allocator),
           exploration_stack(allocator) {
     pattern = ppattern;
@@ -409,7 +409,7 @@ engine_bundle::engine_bundle(const graph* ppattern,
     pattern_vertex_probability = ppattern_vertex_probability;
     control_flags = _control_flags;
 
-    bundle_solutions = solution(pattern->get_vertex_count(), psorted_pattern_vertex, _allocator);
+    bundle_solutions = solution(pattern->get_vertex_count(), psorted_pattern_vertex, allocator_);
 }
 
 engine_bundle::~engine_bundle() {
@@ -438,7 +438,7 @@ solution engine_bundle::run() {
     }
 
     const std::uint64_t array_size = max_threads_count * 2;
-    auto engine_array_ptr = _allocator.make_shared_memory<matching_engine>(array_size);
+    auto engine_array_ptr = allocator_.make_shared_memory<matching_engine>(array_size);
     matching_engine* engine_array = engine_array_ptr.get();
 
     for (int i = 0; i < array_size; ++i) {
@@ -449,10 +449,10 @@ solution engine_bundle::run() {
                                                direction,
                                                pconsistent_conditions,
                                                isomorphism_kind_,
-                                               _allocator);
+                                               allocator_);
     }
 
-    state null_state(_allocator);
+    state null_state(allocator_);
     std::uint64_t task_counter = 0, index = 0;
     for (std::int64_t i = 0; i < target->n; ++i) {
         if (degree <= target->get_vertex_degree(i) &&
@@ -491,13 +491,13 @@ void engine_bundle::first_states_generator(bool use_exploration_stack) {
                                   target->get_vertex_count(),
                                   [=](const int i) {
                                       bundle::ptr_t local_engine = matching_bundle.local();
-                                      state null_state(_allocator);
+                                      state null_state(allocator_);
                                       if (degree <= target->get_vertex_degree(i) &&
                                           pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                                               target->get_vertex_attribute(i)) {
-                                          void* place = (void*)_allocator.allocate<state>(1);
+                                          void* place = (void*)allocator_.allocate<state>(1);
                                           state* new_state =
-                                              new (place) state(&null_state, i, _allocator);
+                                              new (place) state(&null_state, i, allocator_);
                                           local_engine->local_stack.push(new_state);
                                       }
                                   });

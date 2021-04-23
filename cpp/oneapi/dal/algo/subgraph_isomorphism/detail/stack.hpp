@@ -22,7 +22,7 @@ public:
     void add(stack& _stack);
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     std::int64_t max_stack_size;
     std::int64_t stack_size;
     state** data;
@@ -47,7 +47,7 @@ public:
     std::uint64_t max_size() const;
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     std::uint64_t stack_size;
     std::uint64_t* stack_data;
     std::uint64_t* ptop;
@@ -91,7 +91,7 @@ public:
     void delete_current_state();
 
 protected:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     std::uint64_t max_level_size;
     vertex_stack* data_by_levels;
 

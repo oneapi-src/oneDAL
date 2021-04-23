@@ -19,7 +19,7 @@ enum flow_switch_ids {
 class matching_engine {
 public:
     matching_engine(inner_alloc allocator)
-            : _allocator(allocator),
+            : allocator_(allocator),
               vertex_candidates(allocator.get_byte_allocator()),
               local_stack(allocator),
               hlocal_stack(allocator),
@@ -57,7 +57,7 @@ public:
                                 const std::int64_t target_vertex);
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     const graph* pattern;
     const graph* target;
     const std::int64_t* sorted_pattern_vertex;
@@ -106,7 +106,7 @@ public:
     solution run();
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     const graph* pattern;
     const graph* target;
     const std::int64_t* sorted_pattern_vertex;

@@ -5,19 +5,19 @@ namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 namespace dal = oneapi::dal;
 
-stack::stack(inner_alloc allocator) : _allocator(allocator) {
+stack::stack(inner_alloc allocator) : allocator_(allocator) {
     max_stack_size = 100;
     stack_size = 0;
-    data = _allocator.allocate<state*>(max_stack_size);
+    data = allocator_.allocate<state*>(max_stack_size);
     for (std::int64_t i = 0; i < max_stack_size; i++) {
         data[i] = nullptr;
     }
 }
 
-stack::stack(std::int64_t max_size, inner_alloc allocator) : _allocator(allocator) {
+stack::stack(std::int64_t max_size, inner_alloc allocator) : allocator_(allocator) {
     max_stack_size = max_size;
     stack_size = 0;
-    data = _allocator.allocate<state*>(max_stack_size);
+    data = allocator_.allocate<state*>(max_stack_size);
     for (std::int64_t i = 0; i < max_stack_size; i++) {
         data[i] = nullptr;
     }
@@ -28,11 +28,11 @@ void stack::delete_data() {
         for (std::int64_t i = 0; i < max_stack_size; i++) {
             if (data[i] != nullptr) {
                 data[i]->~state();
-                _allocator.deallocate<state>(data[i], 0);
+                allocator_.deallocate<state>(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        _allocator.deallocate<state*>(data, max_stack_size);
+        allocator_.deallocate<state*>(data, max_stack_size);
         data = nullptr;
     }
 }
@@ -41,7 +41,7 @@ void stack::clear(bool direct) {
     for (std::int64_t i = 0; i < stack_size * direct; i++) {
         if (data[i] != nullptr) {
             data[i]->~state();
-            _allocator.deallocate<state>(data[i], 0);
+            allocator_.deallocate<state>(data[i], 0);
             data[i] = nullptr;
         }
     }
@@ -50,7 +50,7 @@ void stack::clear(bool direct) {
 
 void stack::clear_state(std::int64_t index) {
     data[index]->~state();
-    _allocator.deallocate<state>(data[index], 0);
+    allocator_.deallocate<state>(data[index], 0);
     data[index] = nullptr;
 }
 
@@ -62,7 +62,7 @@ void stack::add(stack& _stack) {
     _stack.clear();
 }
 
-stack::stack(stack&& _stack) : data(_stack.data), _allocator(_stack._allocator) {
+stack::stack(stack&& _stack) : data(_stack.data), allocator_(_stack.allocator_) {
     max_stack_size = _stack.max_stack_size;
     stack_size = _stack.stack_size;
     _stack.data = nullptr;
@@ -89,11 +89,11 @@ stack::~stack() {
         for (std::int64_t i = 0; i < max_stack_size; i++) {
             if (data[i] != nullptr) {
                 data[i]->~state();
-                _allocator.deallocate<state>(data[i], 0);
+                allocator_.deallocate<state>(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        _allocator.deallocate<state*>(data, max_stack_size);
+        allocator_.deallocate<state*>(data, max_stack_size);
         data = nullptr;
     }
     stack_size = 0;
@@ -133,7 +133,7 @@ std::int64_t stack::size() const {
 
 graph_status stack::increase_stack_size() {
     const auto new_max_stack_size = (max_stack_size > 0) ? 2 * max_stack_size : 100;
-    state** tmp_data = _allocator.allocate<state*>(new_max_stack_size);
+    state** tmp_data = allocator_.allocate<state*>(new_max_stack_size);
     if (tmp_data == nullptr) {
         throw oneapi::dal::host_bad_alloc();
     }
@@ -144,14 +144,14 @@ graph_status stack::increase_stack_size() {
     for (std::int64_t i = max_stack_size; i < new_max_stack_size; i++) {
         tmp_data[i] = nullptr;
     }
-    _allocator.deallocate<state*>(data, max_stack_size);
+    allocator_.deallocate<state*>(data, max_stack_size);
     max_stack_size = new_max_stack_size;
     data = tmp_data;
     tmp_data = nullptr;
     return ok;
 }
 
-vertex_stack::vertex_stack(inner_alloc allocator) : _allocator(allocator) {
+vertex_stack::vertex_stack(inner_alloc allocator) : allocator_(allocator) {
     stack_size = 0;
     stack_data = nullptr;
     ptop = nullptr;
@@ -159,17 +159,17 @@ vertex_stack::vertex_stack(inner_alloc allocator) : _allocator(allocator) {
 }
 
 vertex_stack::vertex_stack(const std::uint64_t max_states_size, inner_alloc allocator)
-        : _allocator(allocator) {
+        : allocator_(allocator) {
     use_external_memory = false;
     stack_size = max_states_size;
-    stack_data = _allocator.allocate<std::uint64_t>(stack_size);
+    stack_data = allocator_.allocate<std::uint64_t>(stack_size);
     ptop = stack_data;
 }
 
 vertex_stack::vertex_stack(const std::uint64_t max_states_size,
                            const std::uint64_t* pdata,
                            inner_alloc allocator)
-        : _allocator(allocator) {
+        : allocator_(allocator) {
     use_external_memory = true;
     stack_size = max_states_size;
     //stack_data = pdata;
@@ -177,7 +177,7 @@ vertex_stack::vertex_stack(const std::uint64_t max_states_size,
 }
 
 vertex_stack::~vertex_stack() {
-    _allocator.deallocate<std::uint64_t>(stack_data, stack_size);
+    allocator_.deallocate<std::uint64_t>(stack_data, stack_size);
     stack_data = nullptr;
     ptop = nullptr;
     stack_size = 0;
@@ -216,7 +216,7 @@ std::uint64_t vertex_stack::max_size() const {
 }
 
 graph_status vertex_stack::increase_stack_size() {
-    std::uint64_t* tmp_data = _allocator.allocate<std::uint64_t>(2 * stack_size);
+    std::uint64_t* tmp_data = allocator_.allocate<std::uint64_t>(2 * stack_size);
     if (tmp_data == nullptr) {
         return bad_allocation;
     }
@@ -224,7 +224,7 @@ graph_status vertex_stack::increase_stack_size() {
         tmp_data[i] = stack_data[i];
         //tmp_data[i + stack_size] = null_node;
     }
-    _allocator.deallocate<std::uint64_t>(stack_data, stack_size);
+    allocator_.deallocate<std::uint64_t>(stack_data, stack_size);
     stack_size *= 2;
     ptop = size() + tmp_data;
     stack_data = tmp_data;
@@ -232,28 +232,28 @@ graph_status vertex_stack::increase_stack_size() {
     return ok;
 }
 
-dfs_stack::dfs_stack(inner_alloc allocator) : _allocator(allocator) {
+dfs_stack::dfs_stack(inner_alloc allocator) : allocator_(allocator) {
     max_level_size = 0;
     data_by_levels = nullptr;
 
     current_level = 0;
 }
 
-dfs_stack::dfs_stack(const std::uint64_t levels, inner_alloc allocator) : _allocator(allocator) {
+dfs_stack::dfs_stack(const std::uint64_t levels, inner_alloc allocator) : allocator_(allocator) {
     init(levels);
 }
 
 dfs_stack::dfs_stack(const std::uint64_t levels,
                      const std::uint64_t max_states_size,
                      inner_alloc allocator)
-        : _allocator(allocator) {
+        : allocator_(allocator) {
     init(levels, max_states_size);
 }
 
 dfs_stack::dfs_stack(const std::uint64_t levels,
                      const std::uint64_t* max_states_size_per_level,
                      inner_alloc allocator)
-        : _allocator(allocator) {
+        : allocator_(allocator) {
     init(levels, max_states_size_per_level);
 }
 
@@ -269,7 +269,7 @@ void dfs_stack::init(const std::uint64_t levels, const std::uint64_t max_states_
     init(levels);
 
     for (std::int64_t i = 0; i < max_level_size; ++i) {
-        new (data_by_levels + i) vertex_stack(max_states_size, _allocator);
+        new (data_by_levels + i) vertex_stack(max_states_size, allocator_);
     }
 }
 
@@ -277,7 +277,7 @@ void dfs_stack::init(const std::uint64_t levels, const std::uint64_t* max_states
     init(levels);
 
     for (std::int64_t i = 0; i < max_level_size; ++i) {
-        new (data_by_levels + i) vertex_stack(max_states_size_per_level[i], _allocator);
+        new (data_by_levels + i) vertex_stack(max_states_size_per_level[i], allocator_);
     }
 }
 
@@ -336,7 +336,7 @@ void dfs_stack::update() {
 }
 
 state dfs_stack::get_current_state() const {
-    state result(current_level + 1, _allocator);
+    state result(current_level + 1, allocator_);
     for (std::int64_t i = 0; i < result.core_length; i++) {
         result.core[i] = *(data_by_levels[i].ptop - 1);
     }

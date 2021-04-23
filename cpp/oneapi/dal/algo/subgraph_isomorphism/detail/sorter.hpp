@@ -10,26 +10,26 @@ struct sconsistent_conditions {
     std::int64_t length;
     void init(std::int64_t size) {
         length = size;
-        array = _allocator.allocate<std::int64_t>(length);
+        array = allocator_.allocate<std::int64_t>(length);
         divider = length;
     }
     sconsistent_conditions(inner_alloc allocator)
             : array(nullptr),
               length(0),
               divider(length),
-              _allocator(allocator) {}
-    sconsistent_conditions(std::int64_t size, inner_alloc allocator) : _allocator(allocator) {
+              allocator_(allocator) {}
+    sconsistent_conditions(std::int64_t size, inner_alloc allocator) : allocator_(allocator) {
         init(size);
     }
     ~sconsistent_conditions() {
         if (array != nullptr) {
-            _allocator.deallocate<std::int64_t>(array, length);
+            allocator_.deallocate<std::int64_t>(array, length);
             array = nullptr;
         }
     }
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
 };
 
 class sorter {
@@ -51,7 +51,7 @@ public:
                                             bool predecessor_in_core_indexing = false) const;
 
 private:
-    inner_alloc _allocator;
+    inner_alloc allocator_;
     const graph* target;
     float* p_degree_probability;
     float* p_vertex_attribute_probability;
