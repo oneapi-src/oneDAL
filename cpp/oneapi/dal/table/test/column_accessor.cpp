@@ -24,7 +24,10 @@ namespace oneapi::dal {
 TEST(column_accessor_test, can_get_first_column_from_homogen_table) {
     using oneapi::dal::detail::empty_delete;
 
-    float data[] = { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f };
+    float data[] = { 1.f, 2.f, //
+                     3.f, 4.f, //
+                     5.f, 6.f, //
+                     7.f, 8.f };
 
     homogen_table t{ data, 4, 2, empty_delete<const float>() };
     column_accessor<const float> acc{ t };

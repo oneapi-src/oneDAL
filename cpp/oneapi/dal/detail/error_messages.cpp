@@ -26,8 +26,6 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
-MSG(array_does_not_contain_ownership_structure,
-    "Array is empty or does not contain ownership structure for the data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
 MSG(incompatible_array_reinterpret_cast_types,
     "Cannot reinterpret array to provided type, "
@@ -59,7 +57,6 @@ MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
-MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
     "Element count in data type and feature type array does not match")
 MSG(pulling_column_is_not_supported_for_dpc, "Pulling column is not supported for DPC++")
@@ -73,6 +70,15 @@ MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
 MSG(rc_and_cc_do_not_match_element_count_in_array,
     "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
+MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(object_does_not_provide_read_access_to_rows,
+    "Given object does not provide read access to rows")
+MSG(object_does_not_provide_write_access_to_rows,
+    "Given object does not provide write access to rows")
+MSG(object_does_not_provide_read_access_to_columns,
+    "Given object does not provide read access to columns")
+MSG(object_does_not_provide_write_access_to_columns,
+    "Given object does not provide write access to columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
 
 /* Ranges */
@@ -193,6 +199,7 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
     "Decision forest train dense method is not implemented for GPU")
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
+MSG(input_model_is_not_initialized, "Input model is not initialized")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

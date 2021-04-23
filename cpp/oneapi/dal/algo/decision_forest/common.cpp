@@ -29,6 +29,8 @@ inline void check_domain_cond(bool value, const char* description) {
 
 template <typename Task>
 class descriptor_impl : public base {
+    static_assert(detail::is_valid_task_v<Task>);
+
 public:
     explicit descriptor_impl() {
         if constexpr (std::is_same_v<Task, task::classification>) {
@@ -38,9 +40,6 @@ public:
         else if constexpr (std::is_same_v<Task, task::regression>) {
             class_count = -1;
             min_observations_in_leaf_node = 5;
-        }
-        else {
-            static_assert("Unknown task");
         }
     }
 
@@ -301,6 +300,18 @@ std::int64_t model<Task>::get_tree_count() const {
 template <typename Task>
 std::int64_t model<Task>::get_class_count_impl() const {
     return impl_->class_count;
+}
+
+template <typename Task>
+void model<Task>::traverse_depth_first_impl(std::int64_t tree_idx,
+                                            dtree_visitor_iface_t&& visitor) const {
+    impl_->traverse_depth_first_impl(tree_idx, std::move(visitor));
+}
+
+template <typename Task>
+void model<Task>::traverse_breadth_first_impl(std::int64_t tree_idx,
+                                              dtree_visitor_iface_t&& visitor) const {
+    impl_->traverse_breadth_first_impl(tree_idx, std::move(visitor));
 }
 
 template class ONEDAL_EXPORT model<task::classification>;

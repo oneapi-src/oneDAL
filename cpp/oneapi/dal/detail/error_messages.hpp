@@ -63,7 +63,6 @@ public:
 
     /* Common */
     MSG(array_does_not_contain_mutable_data);
-    MSG(array_does_not_contain_ownership_structure);
     MSG(feature_index_is_out_of_range);
     MSG(incompatible_array_reinterpret_cast_types);
     MSG(invalid_data_block_size);
@@ -103,6 +102,10 @@ public:
     MSG(pushing_rows_is_not_supported);
     MSG(rc_and_cc_do_not_match_element_count_in_array);
     MSG(rc_leq_zero);
+    MSG(object_does_not_provide_read_access_to_rows);
+    MSG(object_does_not_provide_write_access_to_rows);
+    MSG(object_does_not_provide_read_access_to_columns);
+    MSG(object_does_not_provide_write_access_to_columns);
     MSG(unsupported_conversion_types);
 
     /* Ranges */
@@ -137,6 +140,7 @@ public:
     MSG(bootstrap_is_incompatible_with_variable_importance_mode);
     MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu);
     MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
+    MSG(input_model_is_not_initialized);
 
     /* Jaccard */
     MSG(column_begin_gt_column_end);
