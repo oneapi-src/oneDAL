@@ -1,4 +1,4 @@
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/common.hpp"
 
@@ -231,8 +231,8 @@ oneapi::dal::homogen_table solution::export_as_table() {
         for (auto i = first; i != last; ++i) {
             for (std::int64_t j = 0; j < solution_core_length; ++j) {
                 arr[i * solution_core_length + j] = data[i][mapping[j]];
+            }
         }
-    }
     });
 
     return dal::detail::homogen_table_builder{}
