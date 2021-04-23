@@ -1,5 +1,4 @@
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/matching.hpp"
-#include "oneapi/dal/detail/threading.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/matching.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 

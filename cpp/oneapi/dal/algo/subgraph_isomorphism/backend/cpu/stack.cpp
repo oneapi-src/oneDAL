@@ -1,4 +1,4 @@
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/stack.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {

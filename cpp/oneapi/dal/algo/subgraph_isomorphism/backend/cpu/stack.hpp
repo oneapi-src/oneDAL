@@ -1,7 +1,7 @@
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/graph.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 

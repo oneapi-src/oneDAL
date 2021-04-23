@@ -22,8 +22,8 @@
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
 
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/si.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/debug.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {

@@ -1,4 +1,4 @@
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include <cassert>
 
 namespace dal = oneapi::dal;
