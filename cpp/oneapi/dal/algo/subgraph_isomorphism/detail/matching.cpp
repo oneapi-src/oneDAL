@@ -398,8 +398,8 @@ engine_bundle::engine_bundle(const graph* ppattern,
                              inner_alloc allocator)
         : isomorphism_kind_(isomorphism_kind),
           _allocator(allocator),
-          bundle_solutions(_allocator),
-          exploration_stack(_allocator) {
+          bundle_solutions(allocator),
+          exploration_stack(allocator) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
