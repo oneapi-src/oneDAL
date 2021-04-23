@@ -36,39 +36,6 @@ namespace oneapi::dal::backend {
 template <std::int64_t axis_count>
 using ndindex = std::array<std::int64_t, axis_count>;
 
-template <typename T>
-class object_store_entry : public base {
-public:
-    object_store_entry(const T& value) : inner_(value) {}
-    object_store_entry(T&& value) : inner_(std::move(value)) {}
-
-private:
-    T inner_;
-};
-
-class object_store : public base {
-public:
-    using container_t = std::vector<base*>;
-
-    ~object_store() {
-        for (auto obj : container_) {
-            delete obj;
-        }
-    }
-
-    template <typename T>
-    void add(T&& obj) {
-        container_.push_back(new object_store_entry{ std::forward<T>(obj) });
-    }
-
-    void clear() {
-        container_.clear();
-    }
-
-private:
-    container_t container_;
-};
-
 /// Finds the largest multiple of `multiple` not larger than `x`
 /// Return `x`, if `x` is already multiple of `multiple`
 /// Example: down_multiple(10, 4) == 8
@@ -131,13 +98,46 @@ inline constexpr Integer up_pow2(Integer x) {
 
 using event_vector = std::vector<sycl::event>;
 
+template <typename T>
+class object_store_entry : public base {
+public:
+    object_store_entry(const T& value) : inner_(value) {}
+    object_store_entry(T&& value) : inner_(std::move(value)) {}
+
+private:
+    T inner_;
+};
+
+class object_store : public base {
+public:
+    using container_t = std::vector<base*>;
+
+    ~object_store() {
+        for (auto obj : container_) {
+            delete obj;
+        }
+    }
+
+    template <typename T>
+    void add(T&& obj) {
+        container_.push_back(new object_store_entry{ std::forward<T>(obj) });
+    }
+
+    void clear() {
+        container_.clear();
+    }
+
+private:
+    container_t container_;
+};
+
 class smart_event : public base {
 public:
     smart_event() = default;
     smart_event(const sycl::event& event) : event_(event) {}
     smart_event(sycl::event&& event) : event_(std::move(event)) {}
 
-    operator sycl::event() {
+    operator sycl::event() const {
         return event_;
     }
 

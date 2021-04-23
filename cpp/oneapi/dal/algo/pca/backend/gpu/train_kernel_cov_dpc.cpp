@@ -101,7 +101,9 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     auto [eigvecs, eigvals] =
         compute_eigenvectors_on_host(q, std::move(corr), component_count, { corr_event });
 
-    sign_flip(eigvecs);
+    if (desc.get_deterministic()) {
+        sign_flip(eigvecs);
+    }
 
     const auto model = model_t{}.set_eigenvectors(
         homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
