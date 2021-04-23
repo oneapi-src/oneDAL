@@ -7,8 +7,8 @@ namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 class stack {
 public:
-    stack(inner_alloc _allocator);
-    stack(std::int64_t max_size, inner_alloc _allocator);
+    stack(inner_alloc allocator);
+    stack(std::int64_t max_size, inner_alloc allocator);
     virtual ~stack();
     stack(stack&& _stack);
     stack& operator=(stack&& _stack);
@@ -21,9 +21,8 @@ public:
     void clear_state(std::int64_t index);
     void add(stack& _stack);
 
-    inner_alloc _allocator;
-
 private:
+    inner_alloc _allocator;
     std::int64_t max_stack_size;
     std::int64_t stack_size;
     state** data;
@@ -34,11 +33,11 @@ private:
 
 class vertex_stack {
 public:
-    vertex_stack(inner_alloc _allocator);
-    vertex_stack(const std::uint64_t max_states_size, inner_alloc _allocator);
+    vertex_stack(inner_alloc allocator);
+    vertex_stack(const std::uint64_t max_states_size, inner_alloc allocator);
     vertex_stack(const std::uint64_t max_states_size,
                  const std::uint64_t* pdata,
-                 inner_alloc _allocator);
+                 inner_alloc allocator);
     virtual ~vertex_stack();
 
     graph_status push(const std::uint64_t vertex_id);
@@ -47,9 +46,8 @@ public:
     std::uint64_t size() const;
     std::uint64_t max_size() const;
 
-    inner_alloc _allocator;
-
 private:
+    inner_alloc _allocator;
     std::uint64_t stack_size;
     std::uint64_t* stack_data;
     std::uint64_t* ptop;
@@ -61,14 +59,14 @@ private:
 
 class dfs_stack {
 public:
-    dfs_stack(inner_alloc _allocator);
-    dfs_stack(const std::uint64_t levels, inner_alloc _allocator);
+    dfs_stack(inner_alloc allocator);
+    dfs_stack(const std::uint64_t levels, inner_alloc allocator);
     dfs_stack(const std::uint64_t levels,
               const std::uint64_t max_states_size,
-              inner_alloc _allocator);
+              inner_alloc allocator);
     dfs_stack(const std::uint64_t levels,
               const std::uint64_t* max_states_size_per_level,
-              inner_alloc _allocator);
+              inner_alloc allocator);
     virtual ~dfs_stack();
     void init(const std::uint64_t levels);
     void init(const std::uint64_t levels, const std::uint64_t max_states_size);
@@ -92,9 +90,8 @@ public:
 
     void delete_current_state();
 
-    inner_alloc _allocator;
-
 protected:
+    inner_alloc _allocator;
     std::uint64_t max_level_size;
     vertex_stack* data_by_levels;
 

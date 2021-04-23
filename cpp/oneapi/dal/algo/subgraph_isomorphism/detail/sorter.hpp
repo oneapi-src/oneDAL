@@ -8,7 +8,6 @@ struct sconsistent_conditions {
     std::int64_t* array;
     std::int64_t divider;
     std::int64_t length;
-    inner_alloc _allocator;
     void init(std::int64_t size) {
         length = size;
         array = _allocator.allocate<std::int64_t>(length);
@@ -28,6 +27,9 @@ struct sconsistent_conditions {
             array = nullptr;
         }
     }
+
+private:
+    inner_alloc _allocator;
 };
 
 class sorter {
@@ -35,7 +37,6 @@ public:
     sorter(inner_alloc allocator);
     sorter(const graph* ptarget, inner_alloc allocator);
     virtual ~sorter();
-    inner_alloc _allocator;
 
     graph_status get_pattern_vertex_probability(const graph& pattern,
                                                 float* pattern_vertex_probability) const;
@@ -57,6 +58,7 @@ public:
                                                   byte_alloc_iface* alloc_ptr) const;
 
 private:
+    inner_alloc _allocator;
     const graph* target;
     float* p_degree_probability;
     float* p_vertex_attribute_probability;

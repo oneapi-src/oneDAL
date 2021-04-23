@@ -75,28 +75,29 @@ struct graph_input_data {
     std::int64_t* degree;
     std::int64_t* attr;
     std::int64_t** edges_attribute;
-    inner_alloc _allocator;
 
-    graph_input_data(inner_alloc _allocator);
-    graph_input_data(const std::int64_t vertex_size, inner_alloc _allocator);
+    graph_input_data(inner_alloc allocator);
+    graph_input_data(const std::int64_t vertex_size, inner_alloc allocator);
     ~graph_input_data();
+
+    inner_alloc _allocator;
 };
 
 struct graph_input_list_data : public graph_input_data {
     std::int64_t** data;
 
-    graph_input_list_data(inner_alloc _allocator);
-    graph_input_list_data(const std::int64_t vertex_size, inner_alloc _allocator);
-    graph_input_list_data(graph_input_data* input_data, inner_alloc _allocator);
+    graph_input_list_data(inner_alloc allocator);
+    graph_input_list_data(const std::int64_t vertex_size, inner_alloc allocator);
+    graph_input_list_data(graph_input_data* input_data, inner_alloc allocator);
     ~graph_input_list_data();
 };
 
 struct graph_input_bit_data : public graph_input_data {
     std::uint8_t** data;
 
-    graph_input_bit_data(inner_alloc _allocator);
-    graph_input_bit_data(const std::int64_t vertex_size, inner_alloc _allocator);
-    graph_input_bit_data(graph_input_data* input_data, inner_alloc _allocator);
+    graph_input_bit_data(inner_alloc allocator);
+    graph_input_bit_data(const std::int64_t vertex_size, inner_alloc allocator);
+    graph_input_bit_data(graph_input_data* input_data, inner_alloc allocator);
     ~graph_input_bit_data();
 };
 
@@ -169,11 +170,11 @@ public:
                                    std::int64_t* registers,
                                    const register_size max_size);
 
-    bit_vector(const inner_alloc _allocator);
+    bit_vector(const inner_alloc allocator);
     bit_vector(bit_vector& bvec);
-    bit_vector(const std::int64_t vector_size, inner_alloc _allocator);
-    bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val, inner_alloc _allocator);
-    bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc _allocator);
+    bit_vector(const std::int64_t vector_size, inner_alloc allocator);
+    bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val, inner_alloc allocator);
+    bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc allocator);
     virtual ~bit_vector();
     graph_status unset_bit(const std::int64_t vertex);
     graph_status set_bit(const std::int64_t vertex);
@@ -228,9 +229,8 @@ public:
                          const std::uint8_t* vector,
                          const std::int64_t vertex);
 
-    inner_alloc _allocator;
-
 private:
+    inner_alloc _allocator;
     std::uint8_t* vector;
     std::int64_t n;
 };

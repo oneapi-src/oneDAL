@@ -16,6 +16,7 @@ struct state {
     state(state* parent_state, std::int64_t new_element, inner_alloc a);
     ~state();
 
+private:
     inner_alloc _allocator;
 };
 
@@ -36,6 +37,7 @@ public:
     graph_status add(solution&& _solution);
     oneapi::dal::homogen_table export_as_table();
 
+private:
     inner_alloc _allocator;
 
 private:

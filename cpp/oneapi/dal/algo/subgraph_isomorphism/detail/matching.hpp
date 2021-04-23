@@ -56,9 +56,8 @@ public:
     bool check_vertex_candidate(const std::int64_t pattern_vertex,
                                 const std::int64_t target_vertex);
 
-    inner_alloc _allocator;
-
 private:
+    inner_alloc _allocator;
     const graph* pattern;
     const graph* target;
     const std::int64_t* sorted_pattern_vertex;
@@ -102,13 +101,12 @@ public:
                   float* ppattern_vertex_probability,
                   const std::uint64_t _control_flags,
                   kind isomorphism_kind,
-                  inner_alloc _allocator);
+                  inner_alloc allocator);
     virtual ~engine_bundle();
     solution run();
 
-    inner_alloc _allocator;
-
 private:
+    inner_alloc _allocator;
     const graph* pattern;
     const graph* target;
     const std::int64_t* sorted_pattern_vertex;
