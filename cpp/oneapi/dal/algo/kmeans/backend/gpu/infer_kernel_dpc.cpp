@@ -25,7 +25,7 @@ using std::int64_t;
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
-namespace prm = dal::backend::primitives;
+namespace pr = dal::backend::primitives;
 
 template <typename Float>
 struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
