@@ -100,7 +100,7 @@ inline table get_new_labels(const table& labels,
         }
     }
 
-    return homogen_table::wrap(new_label_data, count, 1);
+    return homogen_table::wrap(new_label_arr, count, 1);
 }
 
 template <typename Float>
