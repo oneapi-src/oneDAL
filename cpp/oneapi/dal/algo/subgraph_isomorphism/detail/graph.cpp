@@ -445,7 +445,7 @@ graph_status bit_vector::unset_bit(std::uint8_t* result_vector, const std::int64
     return ok;
 }
 
-bit_vector::bit_vector(const inner_alloc _allocator) : _allocator(_allocator) {
+bit_vector::bit_vector(const inner_alloc allocator) : _allocator(allocator) {
     vector = nullptr;
     n = 0;
 }
@@ -456,8 +456,8 @@ bit_vector::bit_vector(bit_vector& bvec) : _allocator(bvec._allocator.get_byte_a
     set(n, vector, bvec.vector);
 }
 
-bit_vector::bit_vector(const std::int64_t vector_size, inner_alloc _allocator)
-        : bit_vector(_allocator) {
+bit_vector::bit_vector(const std::int64_t vector_size, inner_alloc allocator)
+        : bit_vector(allocator) {
     n = vector_size;
     vector = _allocator.allocate<std::uint8_t>(n);
     set(n, vector);
@@ -465,8 +465,8 @@ bit_vector::bit_vector(const std::int64_t vector_size, inner_alloc _allocator)
 
 bit_vector::bit_vector(const std::int64_t vector_size,
                        const std::uint8_t byte_val,
-                       inner_alloc _allocator)
-        : _allocator(_allocator) {
+                       inner_alloc allocator)
+        : _allocator(allocator) {
     n = vector_size;
     vector = _allocator.allocate<std::uint8_t>(n);
     set(n, vector, byte_val);
@@ -500,10 +500,8 @@ bit_vector::~bit_vector() {
     }
 }
 
-bit_vector::bit_vector(const std::int64_t vector_size,
-                       std::uint8_t* pvector,
-                       inner_alloc _allocator)
-        : _allocator(_allocator) {
+bit_vector::bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc allocator)
+        : _allocator(allocator) {
     n = vector_size;
     vector = pvector;
     pvector = nullptr;

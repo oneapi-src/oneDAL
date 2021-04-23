@@ -395,9 +395,9 @@ engine_bundle::engine_bundle(const graph* ppattern,
                              float* ppattern_vertex_probability,
                              const std::uint64_t _control_flags,
                              kind isomorphism_kind,
-                             inner_alloc _allocator)
+                             inner_alloc allocator)
         : isomorphism_kind_(isomorphism_kind),
-          _allocator(_allocator),
+          _allocator(allocator),
           bundle_solutions(_allocator),
           exploration_stack(_allocator) {
     pattern = ppattern;
