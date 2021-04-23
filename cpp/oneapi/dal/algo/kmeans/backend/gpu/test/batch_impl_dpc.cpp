@@ -104,10 +104,10 @@ public:
         backend::reduce_centroids(this->get_queue(),
                                   data,
                                   labels,
-                                  centroids,
-                                  partial_centroids,
                                   counters,
-                                  part_count)
+                                  part_count,
+                                  centroids,
+                                  partial_centroids)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, part_count);
     }
@@ -133,10 +133,10 @@ public:
         backend::reduce_centroids(this->get_queue(),
                                   data,
                                   labels,
-                                  centroids,
-                                  partial_centroids,
                                   counters,
-                                  part_count)
+                                  part_count,
+                                  centroids,
+                                  partial_centroids)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, part_count);
         check_reduced_centroids(data, labels, centroids, counters);
@@ -146,12 +146,12 @@ public:
                        const prm::ndview<float_t, 2>& centroids,
                        std::int64_t block_rows) {
         auto row_count = data.get_shape()[0];
-        auto column_count = data.get_shape()[1];
+        auto cluster_count = centroids.get_shape()[0];
         auto labels = prm::ndarray<std::int32_t, 2>::empty(this->get_queue(), { row_count, 1 });
         auto closest_distances =
             prm::ndarray<float_t, 2>::empty(this->get_queue(), { row_count, 1 });
         auto distances =
-            prm::ndarray<float_t, 2>::empty(this->get_queue(), { block_rows, column_count });
+            prm::ndarray<float_t, 2>::empty(this->get_queue(), { block_rows, cluster_count });
 
         backend::assign_clusters<float_t, prm::squared_l2_metric<float_t>>(this->get_queue(),
                                                                            data,

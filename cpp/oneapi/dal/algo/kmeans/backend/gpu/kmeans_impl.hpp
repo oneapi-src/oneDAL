@@ -29,7 +29,7 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float>
 sycl::event find_candidates(sycl::queue& queue,
-                            pr::ndview<Float, 2>& closest_distances,
+                            const pr::ndview<Float, 2>& closest_distances,
                             std::int64_t candidate_count,
                             pr::ndview<std::int32_t, 1>& candidate_indices,
                             pr::ndview<Float, 1>& candidate_distances,
@@ -49,10 +49,10 @@ template <typename Float>
 sycl::event reduce_centroids(sycl::queue& queue,
                              const pr::ndview<Float, 2>& data,
                              const pr::ndview<std::int32_t, 2>& labels,
-                             const pr::ndview<Float, 2>& centroids,
-                             const pr::ndview<Float, 2>& partial_centroids,
                              const pr::ndview<std::int32_t, 1>& counters,
-                             const std::uint32_t part_count,
+                             std::int64_t part_count,
+                             pr::ndview<Float, 2>& centroids,
+                             pr::ndview<Float, 2>& partial_centroids,
                              const bk::event_vector& deps = {});
 
 sycl::event count_clusters(sycl::queue& queue,
@@ -65,7 +65,7 @@ sycl::event count_clusters(sycl::queue& queue,
 template <typename Float>
 sycl::event compute_objective_function(sycl::queue& queue,
                                        const pr::ndview<Float, 2>& closest_distances,
-                                       pr::ndarray<Float, 1>& objective_function,
+                                       pr::ndview<Float, 1>& objective_function,
                                        const bk::event_vector& deps = {});
 
 template <typename Float>

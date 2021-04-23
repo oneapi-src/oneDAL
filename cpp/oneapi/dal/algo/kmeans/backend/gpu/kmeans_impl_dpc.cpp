@@ -27,17 +27,19 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float>
 sycl::event find_candidates(sycl::queue& queue,
-                            pr::ndview<Float, 2>& closest_distances,
+                            const pr::ndview<Float, 2>& closest_distances,
                             std::int64_t candidate_count,
                             pr::ndview<std::int32_t, 1>& candidate_indices,
                             pr::ndview<Float, 1>& candidate_distances,
                             const bk::event_vector& deps) {
+    ONEDAL_ASSERT(closest_distances.get_shape()[0] > candidate_count);
     ONEDAL_ASSERT(closest_distances.get_shape()[1] == 1);
-    // TODO assertions
+    ONEDAL_ASSERT(candidate_indices.get_shape()[0] == candidate_indices.get_shape()[0]);
+    ONEDAL_ASSERT(candidate_indices.get_shape()[0] >= candidate_count);
     auto elem_count = closest_distances.get_shape()[0];
     auto indices =
         pr::ndarray<std::int32_t, 1>::empty(queue, { elem_count }, sycl::usm::alloc::device);
-    auto values = pr::ndarray<Float, 1>::wrap(closest_distances.get_mutable_data(), { elem_count });
+    auto values = pr::ndview<Float, 1>::wrap(closest_distances.get_mutable_data(), { elem_count });
     std::int32_t* indices_ptr = indices.get_mutable_data();
     auto fill_event = queue.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
@@ -73,7 +75,14 @@ sycl::event assign_clusters(sycl::queue& queue,
                             pr::ndview<Float, 2>& distances,
                             pr::ndview<Float, 2>& closest_distances,
                             const bk::event_vector& deps) {
-    // TODO assertions
+    ONEDAL_ASSERT(data.get_shape()[1] == centroids.get_shape()[1]);
+    ONEDAL_ASSERT(data.get_shape()[0] >= centroids.get_shape()[0]);
+    ONEDAL_ASSERT(labels.get_shape()[0] >= data.get_shape()[0]);
+    ONEDAL_ASSERT(labels.get_shape()[1] == 1);
+    ONEDAL_ASSERT(closest_distances.get_shape()[0] >= data.get_shape()[0]);
+    ONEDAL_ASSERT(closest_distances.get_shape()[1] == 1);
+    ONEDAL_ASSERT(distances.get_shape()[0] >= block_rows);
+    ONEDAL_ASSERT(distances.get_shape()[1] >= centroids.get_shape()[0]);
     sycl::event selection_event;
     auto row_count = data.get_shape()[0];
     auto column_count = data.get_shape()[1];
@@ -84,16 +93,16 @@ sycl::event assign_clusters(sycl::queue& queue,
         auto row_offset = block_rows * iblock;
         auto cur_rows = std::min(block_rows, row_count - row_offset);
         auto distance_block =
-            pr::ndarray<Float, 2>::wrap(distances.get_mutable_data(), { cur_rows, centroid_count });
-        auto data_block = pr::ndarray<Float, 2>::wrap(data.get_data() + row_offset * column_count,
-                                                      { cur_rows, column_count });
+            pr::ndview<Float, 2>::wrap(distances.get_mutable_data(), { cur_rows, centroid_count });
+        auto data_block = pr::ndview<Float, 2>::wrap(data.get_data() + row_offset * column_count,
+                                                     { cur_rows, column_count });
         auto distance_event =
             block_distances(data_block, centroids, distance_block, { selection_event });
         auto label_block =
-            pr::ndarray<int32_t, 2>::wrap(labels.get_mutable_data() + row_offset, { cur_rows, 1 });
+            pr::ndview<int32_t, 2>::wrap(labels.get_mutable_data() + row_offset, { cur_rows, 1 });
         auto closest_distance_block =
-            pr::ndarray<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
-                                        { cur_rows, 1 });
+            pr::ndview<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
+                                       { cur_rows, 1 });
         pr::kselect_by_rows<Float> selector(queue, distances.get_shape(), 1);
         selection_event = selector(queue,
                                    distance_block,
@@ -109,12 +118,17 @@ template <typename Float>
 sycl::event reduce_centroids(sycl::queue& queue,
                              const pr::ndview<Float, 2>& data,
                              const pr::ndview<std::int32_t, 2>& labels,
-                             const pr::ndview<Float, 2>& centroids,
-                             const pr::ndview<Float, 2>& partial_centroids,
                              const pr::ndview<std::int32_t, 1>& counters,
-                             const std::uint32_t part_count,
+                             std::int64_t part_count,
+                             pr::ndview<Float, 2>& centroids,
+                             pr::ndview<Float, 2>& partial_centroids,
                              const bk::event_vector& deps) {
-    // TODO assertions
+    ONEDAL_ASSERT(data.get_shape()[1] == centroids.get_shape()[1]);
+    ONEDAL_ASSERT(data.get_shape()[1] == partial_centroids.get_shape()[1]);
+    ONEDAL_ASSERT(data.get_shape()[0] >= centroids.get_shape()[0]);
+    ONEDAL_ASSERT(labels.get_shape()[0] >= data.get_shape()[0]);
+    ONEDAL_ASSERT(labels.get_shape()[1] == 1);
+    ONEDAL_ASSERT(partial_centroids.get_shape()[0] >= centroids.get_shape()[0] * part_count);
     const Float* data_ptr = data.get_data();
     const std::int32_t* label_ptr = labels.get_data();
     Float* partial_centroids_ptr = partial_centroids.get_mutable_data();
@@ -191,7 +205,9 @@ sycl::event count_clusters(sycl::queue& queue,
                            pr::ndview<std::int32_t, 1>& counters,
                            pr::ndarray<std::int32_t, 1>& empty_cluster_count,
                            const bk::event_vector& deps) {
-    // TODO assertions
+    ONEDAL_ASSERT(counters.get_shape()[0] >= centroid_count);
+    ONEDAL_ASSERT(empty_cluster_count.get_shape()[0] == 1);
+    ONEDAL_ASSERT(labels.get_shape()[1] == 1);
     const std::int32_t* label_ptr = labels.get_data();
     std::int32_t* counter_ptr = counters.get_mutable_data();
     auto cluster_count_event = queue.submit([&](sycl::handler& cgh) {
@@ -255,9 +271,10 @@ sycl::event count_clusters(sycl::queue& queue,
 template <typename Float>
 sycl::event compute_objective_function(sycl::queue& queue,
                                        const pr::ndview<Float, 2>& closest_distances,
-                                       pr::ndarray<Float, 1>& objective_function,
+                                       pr::ndview<Float, 1>& objective_function,
                                        const bk::event_vector& deps) {
-    // TODO assertions
+    ONEDAL_ASSERT(closest_distances.get_shape()[1] == 1);
+    ONEDAL_ASSERT(objective_function.get_shape()[0] == 1);
     const Float* distance_ptr = closest_distances.get_data();
     Float* value_ptr = objective_function.get_mutable_data();
     const auto row_count = closest_distances.get_shape()[0];
@@ -293,7 +310,14 @@ bk::event_vector fill_empty_clusters(sycl::queue& queue,
                                      pr::ndarray<std::int32_t, 2>& labels,
                                      Float& objective_function,
                                      const bk::event_vector& deps) {
-    // TODO assertions
+    ONEDAL_ASSERT(data.get_shape()[1] == centroids.get_shape()[1]);
+    ONEDAL_ASSERT(data.get_shape()[0] >= centroids.get_shape()[0]);
+    ONEDAL_ASSERT(counters.get_shape()[1] == centroids.get_shape()[0]);
+    ONEDAL_ASSERT(candidate_indices.get_shape()[0] <= centroids.get_shape()[0]);
+    ONEDAL_ASSERT(candidate_distances.get_shape()[0] <= centroids.get_shape()[0]);
+    ONEDAL_ASSERT(labels.get_shape()[0] >= data.get_shape()[0]);
+    ONEDAL_ASSERT(labels.get_shape()[1] == 1);
+
     bk::event_vector events;
     auto column_count = data.get_shape()[1];
     auto candidate_count = candidate_indices.get_shape()[0];
@@ -307,8 +331,11 @@ bk::event_vector fill_empty_clusters(sycl::queue& queue,
     auto centroids_ptr = centroids.get_mutable_data();
     auto data_ptr = data.get_data();
 
-    auto candidate_distances_ptr = candidate_distances.get_data();
-    auto candidate_indices_ptr = candidate_indices.get_data();
+    auto host_candidate_distances = candidate_distances.to_host(queue);
+    auto candidate_distances_ptr = host_candidate_distances.get_data();
+
+    auto host_candidate_indices = candidate_indices.to_host(queue);
+    auto candidate_indices_ptr = host_candidate_indices.get_data();
     std::int64_t cpos = 0;
 
     for (std::int64_t ic = 0; ic < candidate_count; ic++) {
@@ -341,24 +368,24 @@ bk::event_vector fill_empty_clusters(sycl::queue& queue,
 
 #define INSTANTIATE(F)                                                                            \
     template sycl::event find_candidates<F>(sycl::queue & queue,                                  \
-                                            pr::ndview<F, 2> & closest_distances,                 \
+                                            const pr::ndview<F, 2>& closest_distances,            \
                                             std::int64_t candidate_count,                         \
-                                            pr::ndview<std::int32_t, 1> & candidate_indices,      \
-                                            pr::ndview<F, 1> & candidate_distances,               \
+                                            pr::ndview<std::int32_t, 1>& candidate_indices,       \
+                                            pr::ndview<F, 1>& candidate_distances,                \
                                             const bk::event_vector& deps);                        \
                                                                                                   \
     template sycl::event reduce_centroids<F>(sycl::queue & queue,                                 \
                                              const pr::ndview<F, 2>& data,                        \
                                              const pr::ndview<std::int32_t, 2>& labels,           \
-                                             const pr::ndview<F, 2>& centroids,                   \
-                                             const pr::ndview<F, 2>& partial_centroids,           \
                                              const pr::ndview<std::int32_t, 1>& counters,         \
-                                             const std::uint32_t part_count,                      \
+                                             std::int64_t part_count,                             \
+                                             pr::ndview<F, 2>& centroids,                         \
+                                             pr::ndview<F, 2>& partial_centroids,                 \
                                              const bk::event_vector& deps);                       \
                                                                                                   \
     template sycl::event compute_objective_function<F>(sycl::queue & queue,                       \
                                                        const pr::ndview<F, 2>& closest_distances, \
-                                                       pr::ndarray<F, 1>& objective_function,     \
+                                                       pr::ndview<F, 1>& objective_function,      \
                                                        const bk::event_vector& deps);             \
                                                                                                   \
     template bk::event_vector fill_empty_clusters(                                                \

@@ -175,10 +175,10 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             centroids_event = reduce_centroids<Float>(queue,
                                                       arr_data,
                                                       arr_labels,
-                                                      arr_centroids,
-                                                      arr_partial_centroids,
                                                       arr_counters,
                                                       num_parts,
+                                                      arr_centroids,
+                                                      arr_partial_centroids,
                                                       { count_event });
             count_event.wait_and_throw();
 
