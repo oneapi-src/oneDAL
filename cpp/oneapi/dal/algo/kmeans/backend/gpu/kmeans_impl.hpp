@@ -55,7 +55,7 @@ sycl::event reduce_centroids_impl(sycl::queue& queue,
                                   const prm::ndview<Float, 2>& centroids,
                                   const prm::ndview<Float, 2>& partial_centroids,
                                   const prm::ndview<std::int32_t, 1>& counters,
-                                  const std::uint32_t num_parts,
+                                  const std::uint32_t part_count,
                                   const bk::event_vector& deps = {});
 
 sycl::event count_clusters_impl(sycl::queue& queue,
