@@ -33,7 +33,7 @@ namespace pr = dal::backend::primitives;
 template <typename Float>
 sycl::event find_candidates_impl(sycl::queue& queue,
                                  prm::ndview<Float, 2>& closest_distances,
-                                 std::int64_t num_candidates,
+                                 std::int64_t candidate_count,
                                  prm::ndview<std::int32_t, 1>& candidate_indices,
                                  prm::ndview<Float, 1>& candidate_distances,
                                  const bk::event_vector& deps = {});
