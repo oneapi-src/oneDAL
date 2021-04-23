@@ -2,6 +2,7 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 #if defined(__INTEL_COMPILER)
 #define ONEAPI_RESTRICT
@@ -11,6 +12,48 @@
 #endif
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+
+struct byte_alloc_iface {
+    using byte_t = char;
+    virtual byte_t* allocate(std::int64_t n) = 0;
+    virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
+};
+
+struct inner_alloc {
+    using byte_t = char;
+
+    inner_alloc(byte_alloc_iface* byte_allocator) : byte_allocator_(byte_allocator) {}
+    inner_alloc(const byte_alloc_iface* byte_allocator)
+            : byte_allocator_(const_cast<byte_alloc_iface*>(byte_allocator)) {}
+
+    template <typename T>
+    T* allocate(std::int64_t n) {
+        return reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
+    }
+
+    template <typename T>
+    void deallocate(T* ptr, std::int64_t n) {
+        return byte_allocator_->deallocate(reinterpret_cast<byte_t*>(ptr), n * sizeof(T));
+    }
+
+    template <typename T>
+    oneapi::dal::detail::shared<T> make_shared_memory(std::int64_t n) {
+        return oneapi::dal::detail::shared<T>(allocate<T>(n), [=](T* p) {
+            deallocate<T>(p, n);
+        });
+    }
+
+    byte_alloc_iface* get_byte_allocator() {
+        return byte_allocator_;
+    }
+
+    const byte_alloc_iface* get_byte_allocator() const {
+        return byte_allocator_;
+    }
+
+private:
+    byte_alloc_iface* byte_allocator_;
+};
 
 enum graph_storage_scheme { auto_detect, bit, list };
 
@@ -33,26 +76,28 @@ struct graph_input_data {
     std::int64_t* attr;
     std::int64_t** edges_attribute;
 
-    graph_input_data();
-    graph_input_data(const std::int64_t vertex_size);
+    graph_input_data(inner_alloc allocator);
+    graph_input_data(const std::int64_t vertex_size, inner_alloc allocator);
     ~graph_input_data();
+
+    inner_alloc allocator_;
 };
 
 struct graph_input_list_data : public graph_input_data {
     std::int64_t** data;
 
-    graph_input_list_data();
-    graph_input_list_data(const std::int64_t vertex_size);
-    graph_input_list_data(graph_input_data* input_data);
+    graph_input_list_data(inner_alloc allocator);
+    graph_input_list_data(const std::int64_t vertex_size, inner_alloc allocator);
+    graph_input_list_data(graph_input_data* input_data, inner_alloc allocator);
     ~graph_input_list_data();
 };
 
 struct graph_input_bit_data : public graph_input_data {
     std::uint8_t** data;
 
-    graph_input_bit_data();
-    graph_input_bit_data(const std::int64_t vertex_size);
-    graph_input_bit_data(graph_input_data* input_data);
+    graph_input_bit_data(inner_alloc allocator);
+    graph_input_bit_data(const std::int64_t vertex_size, inner_alloc allocator);
+    graph_input_bit_data(graph_input_data* input_data, inner_alloc allocator);
     ~graph_input_bit_data();
 };
 
@@ -125,11 +170,11 @@ public:
                                    std::int64_t* registers,
                                    const register_size max_size);
 
-    bit_vector();
+    bit_vector(const inner_alloc allocator);
     bit_vector(bit_vector& bvec);
-    bit_vector(const std::int64_t vector_size);
-    bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val);
-    bit_vector(const std::int64_t vector_size, std::uint8_t* pvector);
+    bit_vector(const std::int64_t vector_size, inner_alloc allocator);
+    bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val, inner_alloc allocator);
+    bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc allocator);
     virtual ~bit_vector();
     graph_status unset_bit(const std::int64_t vertex);
     graph_status set_bit(const std::int64_t vertex);
@@ -185,6 +230,7 @@ public:
                          const std::int64_t vertex);
 
 private:
+    inner_alloc allocator_;
     std::uint8_t* vector;
     std::int64_t n;
 };
@@ -192,7 +238,8 @@ private:
 class graph {
 public:
     graph(const dal::preview::detail::topology<std::int32_t>& t,
-          graph_storage_scheme storage_scheme);
+          graph_storage_scheme storage_scheme,
+          byte_alloc_iface* byte_alloc);
     virtual ~graph();
 
     static double graph_density(const std::int64_t vertex_count, const std::int64_t edge_count);
@@ -229,6 +276,7 @@ public:
 private:
     bool external_data;
     bool bit_representation;
+    inner_alloc allocator_;
     std::int64_t n; /* number of graph vertices */
     const std::int64_t* p_degree; /* vertex data dergee arrays */
 
@@ -240,6 +288,7 @@ private:
     std::int64_t const* const* p_edges_attribute; /* edges attribute list */
 
     void delete_bit_arrays();
+    void delete_list_arrays();
 
     std::int64_t max_element(const std::int64_t* parray) const;
     std::int64_t min_element(const std::int64_t* parray) const;

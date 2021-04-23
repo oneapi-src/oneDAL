@@ -18,8 +18,8 @@ void pa_bit(char *str, std::uint8_t **a, size_t n) {
         std::cout << "    NULL";
         return;
     }
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n; j++) {
             std::cout << get_bit_val(a[i], j);
         }
         std::cout << std::endl;

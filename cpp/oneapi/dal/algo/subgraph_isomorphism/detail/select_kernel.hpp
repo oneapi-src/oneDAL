@@ -65,9 +65,11 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology, Verte
         const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_t,
         const oneapi::dal::preview::detail::vertex_values<VertexValue> &vv_p,
         const oneapi::dal::preview::detail::edge_values<EdgeValue> &ev_p) {
+        alloc_connector<allocator_t> alloc_con(descriptor.get_allocator());
         return call_subgraph_isomorphism_default_kernel(ctx,
                                                         descriptor,
                                                         descriptor.get_allocator(),
+                                                        &alloc_con,
                                                         t_data,
                                                         p_data,
                                                         vv_t,

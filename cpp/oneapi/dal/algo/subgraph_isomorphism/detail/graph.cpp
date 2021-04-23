@@ -66,7 +66,9 @@ void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 }
 
 graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
-             graph_storage_scheme storage_scheme) {
+             graph_storage_scheme storage_scheme,
+             byte_alloc_iface* byte_alloc)
+        : allocator_(byte_alloc) {
     bool has_edges_attribute = false;
     bool use_bit_representation = false;
     graph_data graph_data_storage;
@@ -88,10 +90,10 @@ graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
     }
 
     if (use_bit_representation) { // use bit vector
-        graph_data_storage.pbit_data = new graph_input_bit_data(vertex_count);
+        graph_data_storage.pbit_data = new graph_input_bit_data(vertex_count, allocator_);
     }
     else { // use adj list
-        graph_data_storage.plist_data = new graph_input_list_data(vertex_count);
+        graph_data_storage.plist_data = new graph_input_list_data(vertex_count, allocator_);
     }
 
     std::int64_t vertex_id, vertex_attribute;
@@ -103,8 +105,7 @@ graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
         else {
             graph_data_storage.plist_data->degree[i] = degree;
             if (degree > 0) {
-                graph_data_storage.plist_data->data[i] =
-                    static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * degree, 64));
+                graph_data_storage.plist_data->data[i] = allocator_.allocate<std::int64_t>(degree);
             }
             else {
                 graph_data_storage.plist_data->data[i] = nullptr;
@@ -126,8 +127,7 @@ graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
                 if (edge_attr >= 0 || has_edges_attribute) {
                     if (graph_data_storage.pbit_data->edges_attribute[i] == nullptr) {
                         graph_data_storage.pbit_data->edges_attribute[i] =
-                            static_cast<std::int64_t*>(
-                                _mm_malloc(sizeof(std::int64_t) * degree, 64));
+                            allocator_.allocate<std::int64_t>(degree);
                         has_edges_attribute = true;
                     }
                     graph_data_storage.pbit_data->edges_attribute[i][j] = edge_attr;
@@ -138,8 +138,7 @@ graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
                 if (edge_attr >= 0 || has_edges_attribute) {
                     if (graph_data_storage.plist_data->edges_attribute[i] == nullptr) {
                         graph_data_storage.plist_data->edges_attribute[i] =
-                            static_cast<std::int64_t*>(
-                                _mm_malloc(sizeof(std::int64_t) * degree, 64));
+                            allocator_.allocate<std::int64_t>(degree);
                         has_edges_attribute = true;
                     }
                     graph_data_storage.plist_data->edges_attribute[i][j] = edge_attr;
@@ -196,9 +195,12 @@ graph_data::~graph_data() {
 }
 
 graph::~graph() {
-    if (!external_data) {
+    if (external_data) {
         if (bit_representation) {
             delete_bit_arrays();
+        }
+        if (!bit_representation) {
+            delete_list_arrays();
         }
     }
     p_degree = nullptr;
@@ -233,12 +235,25 @@ void graph::delete_bit_arrays() {
     if (p_edges_bit != nullptr) {
         for (std::int64_t i = 0; i < n; i++) {
             if (p_edges_bit[i] != nullptr) {
-                _mm_free(p_edges_bit[i]);
+                allocator_.deallocate<std::uint8_t>(p_edges_bit[i], 0);
                 p_edges_bit[i] = nullptr;
             }
         }
-        _mm_free(p_edges_bit);
+        allocator_.deallocate<std::uint8_t*>(p_edges_bit, n);
         p_edges_bit = nullptr;
+    }
+}
+
+void graph::delete_list_arrays() {
+    if (p_edges_list != nullptr) {
+        for (std::int64_t i = 0; i < n; i++) {
+            if (p_edges_list[i] != nullptr) {
+                allocator_.deallocate<std::int64_t>(p_edges_list[i], 0);
+                p_edges_list[i] = nullptr;
+            }
+        }
+        allocator_.deallocate<std::int64_t*>(p_edges_list, n);
+        p_edges_list = nullptr;
     }
 }
 
@@ -341,12 +356,12 @@ bit_vector graph::get_vertex_neighbors(const std::int64_t vertex,
     std::int64_t bit_array_size = bit_vector::bit_vector_size(n);
     switch (edge_type) {
         case both: {
-            bit_vector result(bit_array_size);
+            bit_vector result(bit_array_size, allocator_.get_byte_allocator());
             bit_vector::set(bit_array_size, result.get_vector_pointer(), p_edges_bit[vertex]);
             return result;
         }
         default: {
-            return bit_vector();
+            return bit_vector(allocator_.get_byte_allocator());
         }
     }
 }
@@ -430,30 +445,36 @@ graph_status bit_vector::unset_bit(std::uint8_t* result_vector, const std::int64
     return ok;
 }
 
-bit_vector::bit_vector() {
+bit_vector::bit_vector(const inner_alloc allocator) : allocator_(allocator) {
     vector = nullptr;
     n = 0;
 }
 
-bit_vector::bit_vector(bit_vector& bvec) {
+bit_vector::bit_vector(bit_vector& bvec) : allocator_(bvec.allocator_.get_byte_allocator()) {
     n = bvec.n;
-    vector = static_cast<std::uint8_t*>(_mm_malloc(sizeof(std::uint8_t) * n, 64));
+    vector = allocator_.allocate<std::uint8_t>(n);
     set(n, vector, bvec.vector);
 }
 
-bit_vector::bit_vector(const std::int64_t vector_size) : bit_vector() {
+bit_vector::bit_vector(const std::int64_t vector_size, inner_alloc allocator)
+        : bit_vector(allocator) {
     n = vector_size;
-    vector = static_cast<std::uint8_t*>(_mm_malloc(sizeof(std::uint8_t) * n, 64));
+    vector = allocator_.allocate<std::uint8_t>(n);
     set(n, vector);
 }
 
-bit_vector::bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val) {
+bit_vector::bit_vector(const std::int64_t vector_size,
+                       const std::uint8_t byte_val,
+                       inner_alloc allocator)
+        : allocator_(allocator) {
     n = vector_size;
-    vector = static_cast<std::uint8_t*>(_mm_malloc(sizeof(std::uint8_t) * n, 64));
+    vector = allocator_.allocate<std::uint8_t>(n);
     set(n, vector, byte_val);
 }
 
-bit_vector::bit_vector(bit_vector&& a) : vector(a.vector) {
+bit_vector::bit_vector(bit_vector&& a)
+        : vector(a.vector),
+          allocator_(a.allocator_.get_byte_allocator()) {
     n = a.n;
     a.n = 0;
     a.vector = nullptr;
@@ -473,13 +494,14 @@ bit_vector& bit_vector::operator=(bit_vector&& a) {
 
 bit_vector::~bit_vector() {
     if (vector != nullptr) {
-        _mm_free(vector);
+        allocator_.deallocate<std::uint8_t>(vector, n);
         vector = nullptr;
         n = 0;
     }
 }
 
-bit_vector::bit_vector(const std::int64_t vector_size, std::uint8_t* pvector) {
+bit_vector::bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc allocator)
+        : allocator_(allocator) {
     n = vector_size;
     vector = pvector;
     pvector = nullptr;
@@ -743,21 +765,21 @@ std::int64_t bit_vector::max_index() const {
     return result;
 }
 
-graph_input_data::graph_input_data() {
+graph_input_data::graph_input_data(inner_alloc allocator) : allocator_(allocator) {
     vertex_count = 0;
     degree = nullptr;
     attr = nullptr;
     edges_attribute = nullptr;
 }
 
-graph_input_data::graph_input_data(const std::int64_t vertex_size) {
+graph_input_data::graph_input_data(const std::int64_t vertex_size, inner_alloc allocator)
+        : allocator_(allocator) {
     vertex_count = vertex_size;
 
-    degree = static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * vertex_count, 64));
-    attr = static_cast<std::int64_t*>(_mm_malloc(sizeof(std::int64_t) * vertex_count, 64));
+    degree = allocator_.allocate<std::int64_t>(vertex_count);
+    attr = allocator_.allocate<std::int64_t>(vertex_count);
 
-    edges_attribute =
-        static_cast<std::int64_t**>(_mm_malloc(sizeof(std::int64_t*) * vertex_count, 64));
+    edges_attribute = allocator_.allocate<std::int64_t*>(vertex_count);
     if (edges_attribute != nullptr) {
         for (int64_t i = 0; i < vertex_count; i++) {
             edges_attribute[i] = nullptr;
@@ -768,31 +790,32 @@ graph_input_data::graph_input_data(const std::int64_t vertex_size) {
 }
 
 graph_input_data::~graph_input_data() {
-    _mm_free(degree);
-    _mm_free(attr);
+    allocator_.deallocate<std::int64_t>(degree, vertex_count);
+    allocator_.deallocate<std::int64_t>(attr, vertex_count);
 
     for (int64_t i = 0; i < vertex_count; i++) {
         if (edges_attribute[i] != nullptr) {
-            _mm_free(edges_attribute[i]);
+            allocator_.deallocate<std::int64_t>(edges_attribute[i], 1);
             edges_attribute[i] = nullptr;
         }
     }
-    _mm_free(edges_attribute);
+    allocator_.deallocate<std::int64_t*>(edges_attribute, vertex_count);
 }
 
-graph_input_list_data::graph_input_list_data() : graph_input_data() {
+graph_input_list_data::graph_input_list_data(inner_alloc allocator) : graph_input_data(allocator) {
     data = nullptr;
 }
 
-graph_input_list_data::graph_input_list_data(const std::int64_t vertex_size)
-        : graph_input_data(vertex_size) {
-    data = static_cast<std::int64_t**>(_mm_malloc(sizeof(std::int64_t*) * vertex_count, 64));
+graph_input_list_data::graph_input_list_data(const std::int64_t vertex_size, inner_alloc allocator)
+        : graph_input_data(vertex_size, allocator) {
+    data = allocator_.allocate<std::int64_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
         data[i] = nullptr;
     }
 }
 
-graph_input_list_data::graph_input_list_data(graph_input_data* input_data) {
+graph_input_list_data::graph_input_list_data(graph_input_data* input_data, inner_alloc allocator)
+        : graph_input_data(allocator) {
     vertex_count = input_data->vertex_count;
     degree = input_data->degree;
     attr = input_data->attr;
@@ -803,7 +826,7 @@ graph_input_list_data::graph_input_list_data(graph_input_data* input_data) {
     input_data->attr = nullptr;
     input_data->edges_attribute = nullptr;
 
-    data = static_cast<std::int64_t**>(_mm_malloc(sizeof(std::int64_t*) * vertex_count, 64));
+    data = allocator_.allocate<std::int64_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
         data[i] = nullptr;
     }
@@ -812,29 +835,30 @@ graph_input_list_data::graph_input_list_data(graph_input_data* input_data) {
 graph_input_list_data::~graph_input_list_data() {
     for (int64_t i = 0; i < vertex_count; i++) {
         if (data[i] != nullptr) {
-            _mm_free(data[i]);
+            allocator_.deallocate<std::int64_t>(data[i], 0);
             data[i] = nullptr;
         }
     }
-    _mm_free(data);
+    allocator_.deallocate<std::int64_t*>(data, vertex_count);
 }
 
-graph_input_bit_data::graph_input_bit_data() : graph_input_data() {
+graph_input_bit_data::graph_input_bit_data(inner_alloc allocator) : graph_input_data(allocator) {
     data = nullptr;
 }
 
-graph_input_bit_data::graph_input_bit_data(const std::int64_t vertex_size)
-        : graph_input_data(vertex_size) {
+graph_input_bit_data::graph_input_bit_data(const std::int64_t vertex_size, inner_alloc allocator)
+        : graph_input_data(vertex_size, allocator) {
     std::int64_t bit_array_size = bit_vector::bit_vector_size(vertex_count);
 
-    data = static_cast<std::uint8_t**>(_mm_malloc(sizeof(std::uint8_t*) * vertex_count, 64));
+    data = allocator_.allocate<std::uint8_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
-        data[i] = static_cast<std::uint8_t*>(_mm_malloc(sizeof(std::uint8_t) * bit_array_size, 64));
+        data[i] = allocator_.allocate<std::uint8_t>(bit_array_size);
         bit_vector::set(bit_array_size, data[i]);
     }
 }
 
-graph_input_bit_data::graph_input_bit_data(graph_input_data* input_data) {
+graph_input_bit_data::graph_input_bit_data(graph_input_data* input_data, inner_alloc allocator)
+        : graph_input_data(allocator) {
     vertex_count = input_data->vertex_count;
     degree = input_data->degree;
     attr = input_data->attr;
@@ -847,9 +871,9 @@ graph_input_bit_data::graph_input_bit_data(graph_input_data* input_data) {
 
     std::int64_t bit_array_size = bit_vector::bit_vector_size(vertex_count);
 
-    data = static_cast<std::uint8_t**>(_mm_malloc(sizeof(std::uint8_t*) * vertex_count, 64));
+    data = allocator_.allocate<std::uint8_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
-        data[i] = static_cast<std::uint8_t*>(_mm_malloc(sizeof(std::uint8_t) * bit_array_size, 64));
+        data[i] = allocator_.allocate<std::uint8_t>(bit_array_size);
         bit_vector::set(bit_array_size, data[i]);
     }
 }
@@ -857,10 +881,10 @@ graph_input_bit_data::graph_input_bit_data(graph_input_data* input_data) {
 graph_input_bit_data::~graph_input_bit_data() {
     for (int64_t i = 0; i < vertex_count; i++) {
         if (data[i] != nullptr) {
-            _mm_free(data[i]);
+            allocator_.deallocate<std::uint8_t>(data[i], 0);
             data[i] = nullptr;
         }
     }
-    _mm_free(data);
+    allocator_.deallocate<std::uint8_t*>(data, vertex_count);
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail
