@@ -60,7 +60,7 @@ sycl::event reduce_centroids_impl(sycl::queue& queue,
 
 sycl::event count_clusters_impl(sycl::queue& queue,
                                 const prm::ndview<std::int32_t, 2>& labels,
-                                std::int64_t num_centroids,
+                                std::int64_t centroid_count,
                                 prm::ndview<std::int32_t, 1>& counters,
                                 prm::ndarray<std::int32_t, 1> num_empty_clusters,
                                 const bk::event_vector& deps = {});
