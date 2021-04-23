@@ -1,6 +1,6 @@
 
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/sorter.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/debug.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 

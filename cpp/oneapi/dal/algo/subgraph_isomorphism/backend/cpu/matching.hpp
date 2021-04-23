@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/sorter.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/solution.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/detail/stack.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
