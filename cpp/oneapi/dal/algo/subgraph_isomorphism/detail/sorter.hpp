@@ -49,13 +49,6 @@ public:
                                             edge_direction* direction,
                                             sconsistent_conditions* cconditions,
                                             bool predecessor_in_core_indexing = false) const;
-    graph_status dfs_tree_search_width_evaluation(const graph& pattern,
-                                                  const std::int64_t* sorted_pattern_vertex,
-                                                  const float* pattern_vertex_probability,
-                                                  const edge_direction* direction,
-                                                  const sconsistent_conditions* cconditions,
-                                                  std::int64_t* tree_search_width,
-                                                  byte_alloc_iface* alloc_ptr) const;
 
 private:
     inner_alloc _allocator;
