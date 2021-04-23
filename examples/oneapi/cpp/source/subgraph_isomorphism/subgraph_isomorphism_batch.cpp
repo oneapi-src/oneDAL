@@ -151,10 +151,17 @@ void load_graph_gff(const std::string filename_target,
 }
 
 int main(int argc, char **argv) {
+    // auto target_filename = get_data_path("si_target_graph.csv");
+    // auto pattern_filename = get_data_path("si_pattern_graph.csv");
+    // auto target_filename = get_data_path(
+    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff");
+    // auto pattern_filename = get_data_path(
+    //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
+
     auto target_filename = get_data_path(
-        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff");
     auto pattern_filename = get_data_path(
-        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff_queries/query64_2.gff");
 
     if (argc == 3) {
         target_filename = get_data_path(argv[1]);
@@ -183,6 +190,6 @@ int main(int argc, char **argv) {
     // extract the result
     const auto match_count = result.get_match_count();
     // print_table_int(result.get_vertex_match());
-    print_table_int_sorted(result.get_vertex_match());
+    // print_table_int_sorted(result.get_vertex_match()); // Temporary disabled
     // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
 }
