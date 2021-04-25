@@ -282,6 +282,21 @@ inline std::int64_t device_native_vector_size<double>(const sycl::queue& q) {
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 
+inline std::int64_t device_max_mem_alloc_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::max_mem_alloc_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_global_mem_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::global_mem_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_global_mem_cache_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::global_mem_cache_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
 #endif
 
 } // namespace oneapi::dal::backend

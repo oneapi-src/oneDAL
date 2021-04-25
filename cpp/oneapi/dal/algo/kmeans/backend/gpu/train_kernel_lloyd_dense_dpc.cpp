@@ -117,10 +117,9 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
 
-        // TODO function to calculate block size
-        std::int64_t block_rows = 16 * 1024;
-        // TODO function to calculate number of parts
-        std::int64_t num_parts = 128;
+        std::int64_t block_rows = get_block_size_in_rows<Float>(queue, column_count);
+        std::int64_t part_count =
+            get_part_count_for_partial_centroids<Float>(queue, column_count, cluster_count);
 
         auto arr_distance_block = pr::ndarray<Float, 2>::empty(queue,
                                                                { block_rows, cluster_count },
@@ -130,7 +129,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                           sycl::usm::alloc::device);
         auto arr_partial_centroids =
             pr::ndarray<Float, 2>::empty(queue,
-                                         { num_parts * cluster_count, column_count },
+                                         { part_count * cluster_count, column_count },
                                          sycl::usm::alloc::device);
         auto arr_labels =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
@@ -176,7 +175,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                                       arr_data,
                                                       arr_labels,
                                                       arr_counters,
-                                                      num_parts,
+                                                      part_count,
                                                       arr_centroids,
                                                       arr_partial_centroids,
                                                       { count_event });

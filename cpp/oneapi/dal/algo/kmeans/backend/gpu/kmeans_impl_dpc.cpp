@@ -26,6 +26,40 @@ namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
+std::int64_t get_block_size_in_rows(sycl::queue& queue, std::int64_t column_count) {
+    // TODO optimization
+    std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
+    return block_size_in_bytes / column_count / sizeof(Float);
+}
+
+template <typename Float>
+std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
+                                                  std::int64_t column_count,
+                                                  std::int64_t cluster_count) {
+    // TODO optimization
+    std::int64_t block_size_in_bytes =
+        std::min(bk::device_max_mem_alloc_size(queue), bk::device_global_mem_size(queue) / 4);
+    std::int64_t part_count = 128;
+    dal::detail::check_mul_overflow(cluster_count, column_count);
+    dal::detail::check_mul_overflow(cluster_count * column_count, part_count);
+    while (cluster_count * column_count * part_count > block_size_in_bytes) {
+        part_count /= 2;
+    }
+    ONEDAL_ASSERT(part_count > 0);
+    return part_count;
+}
+
+static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
+    // TODO optimization/dispatching
+    return 16;
+}
+
+static std::int64_t get_gpu_wg_count(sycl::queue& queue) {
+    // TODO optimization/dispatching
+    return 128;
+}
+
+template <typename Float>
 sycl::event find_candidates(sycl::queue& queue,
                             const pr::ndview<Float, 2>& closest_distances,
                             std::int64_t candidate_count,
@@ -137,11 +171,13 @@ sycl::event reduce_centroids(sycl::queue& queue,
     const auto row_count = data.get_shape()[0];
     const auto column_count = data.get_shape()[1];
     const auto centroid_count = centroids.get_shape()[0];
+    const auto sg_size_to_set = get_gpu_sg_size(queue);
     queue
         .submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.parallel_for(
-                bk::make_multiple_nd_range_2d({ 16, part_count }, { 16, 1 }),
+                bk::make_multiple_nd_range_2d({ sg_size_to_set, part_count },
+                                              { sg_size_to_set, 1 }),
                 [=](sycl::nd_item<2> item) {
                     auto sg = item.get_sub_group();
                     const std::uint32_t sg_id = sg.get_group_id()[0];
@@ -170,7 +206,8 @@ sycl::event reduce_centroids(sycl::queue& queue,
 
     auto merge_centroids_event = queue.submit([&](sycl::handler& cgh) {
         cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ 16, column_count * centroid_count }, { 16, 1 }),
+            bk::make_multiple_nd_range_2d({ sg_size_to_set, column_count * centroid_count },
+                                          { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
                 const std::uint32_t sg_id = sg.get_group_id()[0];
@@ -210,11 +247,14 @@ sycl::event count_clusters(sycl::queue& queue,
     ONEDAL_ASSERT(labels.get_shape()[1] == 1);
     const std::int32_t* label_ptr = labels.get_data();
     std::int32_t* counter_ptr = counters.get_mutable_data();
+    const auto sg_size_to_set = get_gpu_sg_size(queue);
+    const auto wg_count_to_set = get_gpu_wg_count(queue);
     auto cluster_count_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         const auto row_count = labels.get_shape()[0];
         cgh.parallel_for(
-            bk::make_multiple_nd_range_2d({ 16, 128 }, { 16, 1 }),
+            bk::make_multiple_nd_range_2d({ sg_size_to_set, wg_count_to_set },
+                                          { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
                 const std::uint32_t sg_id = sg.get_group_id()[0];
@@ -246,24 +286,24 @@ sycl::event count_clusters(sycl::queue& queue,
     std::int32_t* value_ptr = empty_cluster_count.get_mutable_data();
     auto empty_cluster_count_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ cluster_count_event });
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 16, 1 }, { 16, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             auto sg = item.get_sub_group();
-                             const std::uint32_t sg_id = sg.get_group_id()[0];
-                             if (sg_id > 0)
-                                 return;
-                             const std::uint32_t local_id = sg.get_local_id()[0];
-                             const std::uint32_t local_range = sg.get_local_range()[0];
-                             std::uint32_t sum = 0;
-                             for (std::uint32_t i = local_id; i < centroid_count;
-                                  i += local_range) {
-                                 sum += counter_ptr[i] == 0;
-                             }
-                             sum = reduce(sg, sum, sycl::ONEAPI::plus<std::int32_t>());
-                             if (local_id == 0) {
-                                 value_ptr[0] = sum;
-                             }
-                         });
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint32_t local_id = sg.get_local_id()[0];
+                const std::uint32_t local_range = sg.get_local_range()[0];
+                std::uint32_t sum = 0;
+                for (std::uint32_t i = local_id; i < centroid_count; i += local_range) {
+                    sum += counter_ptr[i] == 0;
+                }
+                sum = reduce(sg, sum, sycl::ONEAPI::plus<std::int32_t>());
+                if (local_id == 0) {
+                    value_ptr[0] = sum;
+                }
+            });
     });
     return empty_cluster_count_event;
 }
@@ -278,25 +318,27 @@ sycl::event compute_objective_function(sycl::queue& queue,
     const Float* distance_ptr = closest_distances.get_data();
     Float* value_ptr = objective_function.get_mutable_data();
     const auto row_count = closest_distances.get_shape()[0];
+    const auto sg_size_to_set = get_gpu_sg_size(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(bk::make_multiple_nd_range_2d({ 16, 1 }, { 16, 1 }),
-                         [=](sycl::nd_item<2> item) {
-                             auto sg = item.get_sub_group();
-                             const std::uint32_t sg_id = sg.get_group_id()[0];
-                             if (sg_id > 0)
-                                 return;
-                             const std::uint32_t local_id = sg.get_local_id()[0];
-                             const std::uint32_t local_range = sg.get_local_range()[0];
-                             Float sum = 0;
-                             for (std::uint32_t i = local_id; i < row_count; i += local_range) {
-                                 sum += distance_ptr[i];
-                             }
-                             sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
-                             if (local_id == 0) {
-                                 value_ptr[0] = sum;
-                             }
-                         });
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint32_t local_id = sg.get_local_id()[0];
+                const std::uint32_t local_range = sg.get_local_range()[0];
+                Float sum = 0;
+                for (std::uint32_t i = local_id; i < row_count; i += local_range) {
+                    sum += distance_ptr[i];
+                }
+                sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
+                if (local_id == 0) {
+                    value_ptr[0] = sum;
+                }
+            });
     });
 }
 
@@ -367,6 +409,11 @@ bk::event_vector fill_empty_clusters(sycl::queue& queue,
                                                   const bk::event_vector& deps);
 
 #define INSTANTIATE(F)                                                                            \
+    template std::int64_t get_block_size_in_rows<F>(sycl::queue & queue,                          \
+                                                    std::int64_t column_count);                   \
+    template std::int64_t get_part_count_for_partial_centroids<F>(sycl::queue & queue,            \
+                                                                  std::int64_t column_count,      \
+                                                                  std::int64_t cluster_count);    \
     template sycl::event find_candidates<F>(sycl::queue & queue,                                  \
                                             const pr::ndview<F, 2>& closest_distances,            \
                                             std::int64_t candidate_count,                         \

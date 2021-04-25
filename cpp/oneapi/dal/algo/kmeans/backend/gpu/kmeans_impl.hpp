@@ -28,6 +28,14 @@ namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
+std::int64_t get_block_size_in_rows(sycl::queue& queue, std::int64_t column_count);
+
+template <typename Float>
+std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
+                                                  std::int64_t column_count,
+                                                  std::int64_t cluster_count);
+
+template <typename Float>
 sycl::event find_candidates(sycl::queue& queue,
                             const pr::ndview<Float, 2>& closest_distances,
                             std::int64_t candidate_count,
