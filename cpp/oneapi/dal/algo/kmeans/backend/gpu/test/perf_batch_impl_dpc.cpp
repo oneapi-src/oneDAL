@@ -45,7 +45,7 @@ public:
         auto obj_func =
             pr::ndarray<float_t, 1>::empty(this->get_queue(), 1, sycl::usm::alloc::device);
         BENCHMARK(name.c_str()) {
-            backend::compute_objective_function(this->get_queue(), closest_distances, obj_func)
+            compute_objective_function(this->get_queue(), closest_distances, obj_func)
                 .wait_and_throw();
         };
     }
@@ -61,11 +61,7 @@ public:
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         BENCHMARK(name.c_str()) {
-            backend::count_clusters(this->get_queue(),
-                                    labels,
-                                    cluster_count,
-                                    counters,
-                                    empty_clusters)
+            count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
                 .wait_and_throw();
         };
     }
@@ -93,16 +89,16 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
-        backend::count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
+        count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
             .wait_and_throw();
         BENCHMARK(name.c_str()) {
-            backend::reduce_centroids(this->get_queue(),
-                                      data,
-                                      labels,
-                                      centroids,
-                                      partial_centroids,
-                                      counters,
-                                      part_count)
+            reduce_centroids(this->get_queue(),
+                             data,
+                             labels,
+                             counters,
+                             part_count,
+                             centroids,
+                             partial_centroids)
                 .wait_and_throw();
         };
     }
