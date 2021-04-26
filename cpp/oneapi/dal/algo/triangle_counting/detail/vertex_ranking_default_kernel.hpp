@@ -40,35 +40,47 @@ struct automatic {};
 
 struct relabeled {};
 
-template <typename Task, typename... Options>
+template <typename Float, typename Task, typename Topology, typename... Param>
 struct triangle_counting {
-    vertex_ranking_result<Task> operator()(
-        const dal::detail::host_policy& ctx,
-        const detail::descriptor_base<Task>& desc,
-        const dal::preview::detail::topology<std::int32_t>& t) const;
+    vertex_ranking_result<Task> operator()(const dal::detail::host_policy& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const Topology& t) const;
 };
 
-template <>
-struct triangle_counting<task::local, automatic> {
+template <typename Float>
+struct triangle_counting<Float,
+                         task::local,
+                         dal::preview::detail::topology<std::int32_t>,
+                         automatic> {
     array<std::int64_t> operator()(const dal::detail::host_policy& ctx,
                                    const dal::preview::detail::topology<std::int32_t>& t,
                                    std::int64_t* triangles_local) const;
 };
 
-template <>
-struct triangle_counting<task::global, scalar> {
+template <typename Float>
+struct triangle_counting<Float,
+                         task::global,
+                         dal::preview::detail::topology<std::int32_t>,
+                         scalar> {
     std::int64_t operator()(const dal::detail::host_policy& ctx,
                             const dal::preview::detail::topology<std::int32_t>& t) const;
 };
 
-template <>
-struct triangle_counting<task::global, vector> {
+template <typename Float>
+struct triangle_counting<Float,
+                         task::global,
+                         dal::preview::detail::topology<std::int32_t>,
+                         vector> {
     std::int64_t operator()(const dal::detail::host_policy& ctx,
                             const dal::preview::detail::topology<std::int32_t>& t) const;
 };
 
-template <>
-struct triangle_counting<task::global, vector, relabeled> {
+template <typename Float>
+struct triangle_counting<Float,
+                         task::global,
+                         dal::preview::detail::topology<std::int32_t>,
+                         vector,
+                         relabeled> {
     std::int64_t operator()(const dal::detail::host_policy& ctx,
                             const std::int32_t* vertex_neighbors,
                             const std::int64_t* edge_offsets,
@@ -81,11 +93,11 @@ std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
                                       const array<std::int64_t>& local_triangles,
                                       std::int64_t vertex_count);
 
-template <typename Allocator>
+template <typename Allocator, typename Topology>
 struct triangle_counting_local {
     inline array<std::int64_t> operator()(const dal::detail::host_policy& ctx,
                                           const Allocator& alloc,
-                                          const dal::preview::detail::topology<std::int32_t>& t) {
+                                          const Topology& t) {
         const auto vertex_count = t.get_vertex_count();
 
         std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
@@ -99,7 +111,8 @@ struct triangle_counting_local {
             oneapi::dal::preview::detail::allocate(int64_allocator,
                                                    (int64_t)thread_cnt * (int64_t)vertex_count);
 
-        auto arr_triangles = triangle_counting<task::local, automatic>{}(ctx, t, triangles_local);
+        auto arr_triangles =
+            triangle_counting<float, task::local, Topology, automatic>{}(ctx, t, triangles_local);
 
         oneapi::dal::preview::detail::deallocate(int64_allocator,
                                                  triangles_local,
@@ -109,16 +122,13 @@ struct triangle_counting_local {
     }
 };
 
-template <typename Allocator>
-struct vertex_ranking_kernel_cpu<method::ordered_count,
-                                 task::global,
-                                 Allocator,
-                                 dal::preview::detail::topology<std::int32_t>> {
+template <typename Allocator, typename Topology>
+struct vertex_ranking_kernel_cpu<method::ordered_count, task::global, Allocator, Topology> {
     inline vertex_ranking_result<task::global> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::global>& desc,
         const Allocator& alloc,
-        const dal::preview::detail::topology<std::int32_t>& t) const {
+        const Topology& t) const {
         const auto vertex_count = t.get_vertex_count();
         if (vertex_count == 0) {
             return vertex_ranking_result<task::global>();
@@ -130,7 +140,7 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
             const std::int32_t average_degree = edge_count / vertex_count;
             const std::int32_t average_degree_sparsity_boundary = 4;
             if (average_degree < average_degree_sparsity_boundary) {
-                triangles = triangle_counting<task::global, scalar>()(ctx, t);
+                triangles = triangle_counting<float, task::global, Topology, scalar>()(ctx, t);
             }
             else {
                 std::int32_t* g_vertex_neighbors_relabel = nullptr;
@@ -160,13 +170,13 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
                                                        g_degrees_relabel,
                                                        alloc);
 
-                triangles =
-                    triangle_counting<task::global, vector, relabeled>()(ctx,
-                                                                         g_vertex_neighbors_relabel,
-                                                                         g_edge_offsets_relabel,
-                                                                         g_degrees_relabel,
-                                                                         vertex_count,
-                                                                         edge_count);
+                triangles = triangle_counting<float, task::global, Topology, vector, relabeled>()(
+                    ctx,
+                    g_vertex_neighbors_relabel,
+                    g_edge_offsets_relabel,
+                    g_degrees_relabel,
+                    vertex_count,
+                    edge_count);
 
                 oneapi::dal::preview::detail::deallocate(int32_allocator,
                                                          g_vertex_neighbors_relabel,
@@ -184,10 +194,10 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
             const std::int32_t average_degree = edge_count / vertex_count;
             const std::int32_t average_degree_sparsity_boundary = 4;
             if (average_degree < average_degree_sparsity_boundary) {
-                triangles = triangle_counting<task::global, scalar>()(ctx, t);
+                triangles = triangle_counting<float, task::global, Topology, scalar>()(ctx, t);
             }
             else {
-                triangles = triangle_counting<task::global, vector>()(ctx, t);
+                triangles = triangle_counting<float, task::global, Topology, vector>()(ctx, t);
             }
         }
 
@@ -197,20 +207,17 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
     }
 };
 
-template <typename Allocator>
-struct vertex_ranking_kernel_cpu<method::ordered_count,
-                                 task::local,
-                                 Allocator,
-                                 dal::preview::detail::topology<std::int32_t>> {
+template <typename Allocator, typename Topology>
+struct vertex_ranking_kernel_cpu<method::ordered_count, task::local, Allocator, Topology> {
     inline vertex_ranking_result<task::local> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::local>& desc,
         const Allocator& alloc,
-        const dal::preview::detail::topology<std::int32_t>& t) const {
+        const Topology& t) const {
         if (t.get_vertex_count() == 0) {
             return vertex_ranking_result<task::local>();
         }
-        auto local_triangles = triangle_counting_local<Allocator>()(ctx, alloc, t);
+        auto local_triangles = triangle_counting_local<Allocator, Topology>()(ctx, alloc, t);
 
         return vertex_ranking_result<task::local>().set_ranks(
             dal::detail::homogen_table_builder{}
@@ -219,21 +226,21 @@ struct vertex_ranking_kernel_cpu<method::ordered_count,
     }
 };
 
-template <typename Allocator>
+template <typename Allocator, typename Topology>
 struct vertex_ranking_kernel_cpu<method::ordered_count,
                                  task::local_and_global,
                                  Allocator,
-                                 dal::preview::detail::topology<std::int32_t>> {
+                                 Topology> {
     inline vertex_ranking_result<task::local_and_global> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::local_and_global>& desc,
         const Allocator& alloc,
-        const dal::preview::detail::topology<std::int32_t>& t) const {
+        const Topology& t) const {
         const auto vertex_count = t.get_vertex_count();
         if (vertex_count == 0) {
             return vertex_ranking_result<task::local_and_global>();
         }
-        auto local_triangles = triangle_counting_local<Allocator>()(ctx, alloc, t);
+        auto local_triangles = triangle_counting_local<Allocator, Topology>()(ctx, alloc, t);
 
         std::int64_t total_s = compute_global_triangles(ctx, local_triangles, vertex_count);
 

@@ -20,46 +20,48 @@
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-template struct ONEDAL_EXPORT triangle_counting<task::local, automatic>;
-
-template struct ONEDAL_EXPORT triangle_counting<task::global, scalar>;
-
-template struct ONEDAL_EXPORT triangle_counting<task::local, vector>;
-
-template struct ONEDAL_EXPORT triangle_counting<task::local, vector, relabeled>;
-
-array<std::int64_t> triangle_counting<task::local, automatic>::operator()(
-    const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<std::int32_t>& t,
-    std::int64_t* triangles_local) const {
+template <typename Float>
+array<std::int64_t>
+triangle_counting<Float, task::local, dal::preview::detail::topology<std::int32_t>, automatic>::
+operator()(const dal::detail::host_policy& policy,
+           const dal::preview::detail::topology<std::int32_t>& t,
+           std::int64_t* triangles_local) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::triangle_counting_local<decltype(cpu)>(t, triangles_local);
     });
 }
 
-std::int64_t triangle_counting<task::global, scalar>::operator()(
-    const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<std::int32_t>& t) const {
+template <typename Float>
+std::int64_t
+triangle_counting<Float, task::global, dal::preview::detail::topology<std::int32_t>, scalar>::
+operator()(const dal::detail::host_policy& policy,
+           const dal::preview::detail::topology<std::int32_t>& t) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::triangle_counting_global_scalar<decltype(cpu)>(t);
     });
 }
 
-std::int64_t triangle_counting<task::global, vector>::operator()(
-    const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<std::int32_t>& t) const {
+template <typename Float>
+std::int64_t
+triangle_counting<Float, task::global, dal::preview::detail::topology<std::int32_t>, vector>::
+operator()(const dal::detail::host_policy& policy,
+           const dal::preview::detail::topology<std::int32_t>& t) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::triangle_counting_global_vector<decltype(cpu)>(t);
     });
 }
 
-std::int64_t triangle_counting<task::global, vector, relabeled>::operator()(
-    const dal::detail::host_policy& policy,
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) const {
+template <typename Float>
+std::int64_t triangle_counting<Float,
+                               task::global,
+                               dal::preview::detail::topology<std::int32_t>,
+                               vector,
+                               relabeled>::operator()(const dal::detail::host_policy& policy,
+                                                      const std::int32_t* vertex_neighbors,
+                                                      const std::int64_t* edge_offsets,
+                                                      const std::int32_t* degrees,
+                                                      std::int64_t vertex_count,
+                                                      std::int64_t edge_count) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::triangle_counting_global_vector_relabel<decltype(cpu)>(vertex_neighbors,
                                                                                edge_offsets,
@@ -76,5 +78,20 @@ ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_poli
         return backend::compute_global_triangles<decltype(cpu)>(local_triangles, vertex_count);
     });
 }
+
+template struct ONEDAL_EXPORT
+    triangle_counting<float, task::local, dal::preview::detail::topology<std::int32_t>, automatic>;
+
+template struct ONEDAL_EXPORT
+    triangle_counting<float, task::global, dal::preview::detail::topology<std::int32_t>, scalar>;
+
+template struct ONEDAL_EXPORT
+    triangle_counting<float, task::global, dal::preview::detail::topology<std::int32_t>, vector>;
+
+template struct ONEDAL_EXPORT triangle_counting<float,
+                                                task::global,
+                                                dal::preview::detail::topology<std::int32_t>,
+                                                vector,
+                                                relabeled>;
 
 } // namespace oneapi::dal::preview::triangle_counting::detail

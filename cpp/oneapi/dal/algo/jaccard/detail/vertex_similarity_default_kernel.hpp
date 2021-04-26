@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-template <typename Float, typename Task, typename Topology, typename... Options>
+template <typename Float, typename Task, typename Topology, typename... Params>
 struct vertex_similarity {
     vertex_similarity_result<Task> operator()(const dal::detail::host_policy& ctx,
                                               const detail::descriptor_base<Task>& desc,
@@ -31,8 +31,8 @@ struct vertex_similarity {
                                               void* result_ptr);
 };
 
-template <>
-struct vertex_similarity<float,
+template <typename Float>
+struct vertex_similarity<Float,
                          task::all_vertex_pairs,
                          dal::preview::detail::topology<std::int32_t>> {
     vertex_similarity_result<task::all_vertex_pairs> operator()(
@@ -50,15 +50,12 @@ struct vertex_similarity_kernel_cpu {
                                               caching_builder& result_builder) const;
 };
 
-template <>
-struct vertex_similarity_kernel_cpu<float,
-                                    method::fast,
-                                    task::all_vertex_pairs,
-                                    dal::preview::detail::topology<std::int32_t>> {
+template <typename Topology>
+struct vertex_similarity_kernel_cpu<float, method::fast, task::all_vertex_pairs, Topology> {
     vertex_similarity_result<task::all_vertex_pairs> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<task::all_vertex_pairs>& desc,
-        const dal::preview::detail::topology<std::int32_t>& t,
+        const Topology& t,
         caching_builder& result_builder) const {
         const std::int64_t row_begin = desc.get_row_range_begin();
         const std::int64_t row_end = desc.get_row_range_end();
@@ -70,9 +67,7 @@ struct vertex_similarity_kernel_cpu<float,
             typename detail::descriptor_base<task::all_vertex_pairs>::float_t,
             std::int32_t>(number_elements_in_block);
         void* result_ptr = result_builder(max_block_size);
-        using kernel_t = vertex_similarity<float,
-                                           task::all_vertex_pairs,
-                                           dal::preview::detail::topology<std::int32_t>>;
+        using kernel_t = vertex_similarity<float, task::all_vertex_pairs, Topology>;
         return kernel_t()(ctx, desc, t, result_ptr);
     }
 };

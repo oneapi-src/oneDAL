@@ -21,18 +21,19 @@
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-template struct ONEDAL_EXPORT
-    vertex_similarity<float, task::all_vertex_pairs, dal::preview::detail::topology<std::int32_t>>;
-
+template <typename Float>
 vertex_similarity_result<task::all_vertex_pairs>
-vertex_similarity<float, task::all_vertex_pairs, dal::preview::detail::topology<std::int32_t>>::
-operator()(const dal::detail::host_policy& policy,
+vertex_similarity<Float, task::all_vertex_pairs, dal::preview::detail::topology<std::int32_t>>::
+operator()(const dal::detail::host_policy& ctx,
            const detail::descriptor_base<task::all_vertex_pairs>& desc,
            const dal::preview::detail::topology<std::int32_t>& t,
            void* result_ptr) {
-    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ ctx }, [&](auto cpu) {
         return backend::jaccard<decltype(cpu)>(desc, t, result_ptr);
     });
 }
+
+template struct ONEDAL_EXPORT
+    vertex_similarity<float, task::all_vertex_pairs, dal::preview::detail::topology<std::int32_t>>;
 
 } // namespace oneapi::dal::preview::jaccard::detail
