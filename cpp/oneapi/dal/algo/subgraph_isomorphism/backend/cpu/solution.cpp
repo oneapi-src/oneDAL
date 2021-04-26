@@ -231,7 +231,9 @@ oneapi::dal::homogen_table solution::export_as_table() {
     dal::detail::threader_for(block_count, block_count, [&](int index) {
         const std::int64_t first = index * block_size;
         const std::int64_t last = min(first + block_size, solution_count);
+        // const auto solution_core_length8 = solution_core_length / 8;
         for (auto i = first; i != last; ++i) {
+#pragma ivdep
             for (std::int64_t j = 0; j < solution_core_length; ++j) {
                 arr[i * solution_core_length + j] = data[i][mapping[j]];
             }
