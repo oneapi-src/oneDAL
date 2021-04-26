@@ -160,7 +160,7 @@ TEMPLATE_LIST_TEST_M(kmeans_perf_test,
                      kmeans_types) {
     using float_t = TestType;
 
-    std::int64_t row_count = 50000;
+    std::int64_t row_count = 80000;
     std::int64_t cluster_count = 2048;
     std::int64_t column_count = 3000;
     std::int64_t part_count = 64;

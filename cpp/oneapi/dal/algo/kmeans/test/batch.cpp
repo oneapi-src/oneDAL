@@ -119,7 +119,9 @@ public:
                                   std::int64_t max_iteration_count,
                                   Float accuracy_threshold,
                                   Float ref_dbi,
-                                  Float ref_obj_func) {
+                                  Float ref_obj_func,
+                                  Float obj_ref_tol = 1.0e-4,
+                                  Float dbi_ref_tol = 1.0e-4) {
         CAPTURE(cluster_count);
 
         INFO("create descriptor")
@@ -139,8 +141,6 @@ public:
         const auto infer_result = infer(kmeans_desc, model, data);
         REQUIRE(te::has_no_nans(infer_result.get_labels()));
 
-        Float obj_ref_tol = 1.0e-4;
-        Float dbi_ref_tol = 1.0e-4;
         auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
         CAPTURE(dbi, ref_dbi);
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
@@ -224,6 +224,7 @@ public:
         Float max_abs = std::max(fabs(val), fabs(ref_val));
         if (max_abs == 0.0)
             return true;
+        CAPTURE(val, ref_val, fabs(val - ref_val) / max_abs, ref_tol);
         return fabs(val - ref_val) / max_abs < ref_tol;
     }
 
@@ -766,7 +767,8 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                                    max_iteration_count,
                                    0.0,
                                    ref_dbi,
-                                   ref_obj_func);
+                                   ref_obj_func,
+                                   1.0e-3);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
@@ -790,7 +792,8 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                                    max_iteration_count,
                                    0.0,
                                    ref_dbi,
-                                   ref_obj_func);
+                                   ref_obj_func,
+                                   1.0e-3);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
@@ -814,7 +817,8 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                                    max_iteration_count,
                                    0.0,
                                    ref_dbi,
-                                   ref_obj_func);
+                                   ref_obj_func,
+                                   1.0e-3);
 }
 
 } // namespace oneapi::dal::kmeans::test
