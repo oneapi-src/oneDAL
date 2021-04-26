@@ -30,7 +30,7 @@ namespace oneapi::dal::preview::triangle_counting {
 ///
 /// @tparam Graph  Type of the input graph
 template <typename Graph, typename Task = task::by_default>
-class ONEDAL_EXPORT vertex_ranking_input : public base {
+class vertex_ranking_input : public base {
     static_assert(detail::is_valid_task<Task>);
 
 public:
@@ -54,7 +54,7 @@ private:
 
 /// Class for the description of the result of the Triangle Counting algorithm
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT vertex_ranking_result {
+class vertex_ranking_result {
     static_assert(detail::is_valid_task<Task>);
 
 public:

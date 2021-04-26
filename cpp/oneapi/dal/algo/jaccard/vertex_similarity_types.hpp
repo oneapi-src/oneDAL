@@ -30,7 +30,7 @@ namespace oneapi::dal::preview::jaccard {
 ///
 /// @tparam Graph  Type of the input graph
 template <typename Graph, typename Task = task::by_default>
-class ONEDAL_EXPORT vertex_similarity_input : public base {
+class vertex_similarity_input : public base {
     static_assert(detail::is_valid_task<Task>);
 
 public:
@@ -55,7 +55,7 @@ private:
 
 /// Class for the description of the result of the Jaccard Similarity algorithm
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT vertex_similarity_result {
+class vertex_similarity_result {
     static_assert(detail::is_valid_task<Task>);
 
 public:

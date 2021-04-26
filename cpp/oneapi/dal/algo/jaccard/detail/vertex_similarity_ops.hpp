@@ -27,7 +27,7 @@
 namespace oneapi::dal::preview::jaccard::detail {
 
 template <typename Policy, typename Descriptor, typename Graph>
-struct ONEDAL_EXPORT vertex_similarity_ops_dispatcher {
+struct vertex_similarity_ops_dispatcher {
     using task_t = typename Descriptor::task_t;
     vertex_similarity_result<task_t> operator()(
         const Policy &policy,
