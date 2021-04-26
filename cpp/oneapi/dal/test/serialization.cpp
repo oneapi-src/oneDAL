@@ -300,7 +300,7 @@ public:
 };
 
 class polymorphic {
-    friend class detail::serialization_accessor;
+    friend struct detail::serialization_accessor;
 
 public:
     polymorphic() = default;
