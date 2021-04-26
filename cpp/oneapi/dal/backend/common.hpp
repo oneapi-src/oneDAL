@@ -63,6 +63,16 @@ inline constexpr Integer up_multiple(Integer x, Integer multiple) {
     return y + z;
 }
 
+/// Checks if 'x' is power of 2.
+/// Example: down_pow2(10) == false
+/// Example: down_pow2(16) == true
+template <typename Integer>
+inline constexpr bool is_pow2(Integer x) {
+    static_assert(std::is_integral_v<Integer>);
+    ONEDAL_ASSERT(x > 0);
+    return !(x & (x - 1)) ? true : false;
+}
+
 /// Finds the largest power of 2 number not larger than `x`.
 /// Return `x`, if `x` is already power of 2
 /// Example: down_pow2(10) == 8
@@ -72,9 +82,8 @@ inline constexpr Integer down_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
     ONEDAL_ASSERT(x > 0);
     Integer power = 0;
-    if (!(x & (x - 1))) {
+    if (is_pow2<Integer>(x))
         return x;
-    }
 
     while (x > 1) {
         x >>= 1;
