@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/detail/homogen_utils.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -46,26 +47,21 @@ public:
     }
 
     auto& reset(homogen_table&& t) {
-        get_impl().move(detail::cast_impl<detail::homogen_table_iface>(std::move(t)));
+        const homogen_table local_table = std::move(t);
+
+        const std::int64_t row_count = local_table.get_row_count();
+        const std::int64_t column_count = local_table.get_column_count();
+        const data_type dtype = local_table.get_metadata().get_data_type(0);
+        const auto byte_data = get_original_data(local_table);
+
+        get_impl().set_data_type(dtype);
+        get_impl().reset(byte_data, row_count, column_count);
         return *this;
     }
 
     template <typename Data>
     auto& reset(const array<Data>& data, std::int64_t row_count, std::int64_t column_count) {
-        array<byte_t> byte_data;
-
-        // TODO: Replace to reinterpret_array_cast
-        if (data.has_mutable_data()) {
-            byte_data.reset(data,
-                            reinterpret_cast<byte_t*>(data.get_mutable_data()),
-                            data.get_size());
-        }
-        else {
-            byte_data.reset(data,
-                            reinterpret_cast<const byte_t*>(data.get_data()),
-                            data.get_size());
-        }
-
+        const auto byte_data = detail::reinterpret_array_cast<byte_t>(data);
         get_impl().set_data_type(detail::make_data_type<Data>());
         get_impl().reset(byte_data, row_count, column_count);
         return *this;
