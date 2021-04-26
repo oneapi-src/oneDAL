@@ -193,7 +193,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
             DAAL_INT * pnumResponses        = (DAAL_INT *)&numResponses;
 
             computeBlockOfResponsesSOA(startRow, &numFeatures, &numRows, dataTable, &nAllBetas, beta, pnumResponses, responseBlock,
-                                       model->getInterceptFlag(), &numVectors, &numColumnsInData);
+                                       model->getInterceptFlag(), &numVectors);
         });
     }
     else
