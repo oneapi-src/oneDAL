@@ -1,7 +1,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/common.hpp"
-#include <iostream>
 
 namespace dal = oneapi::dal;
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
@@ -226,25 +225,16 @@ oneapi::dal::homogen_table solution::export_as_table() {
 
     constexpr std::int64_t block_size = 64;
     const std::int64_t block_count = (solution_count - 1 + block_size) / block_size;
-    std::cout << "[solution::export_as_table] Data copying started: block_count = " << block_count
-              << "; solution_count = " << solution_count << std::endl;
     dal::detail::threader_for(block_count, block_count, [&](int index) {
         const std::int64_t first = index * block_size;
         const std::int64_t last = min(first + block_size, solution_count);
         for (auto i = first; i != last; ++i) {
             for (std::int64_t j = 0; j < solution_core_length; ++j) {
-                if (!((i * solution_core_length + j < solution_core_length * solution_count))) {
-                    std::cout << "[solution::export_as_table] Failure: i = " << i << "; j = " << j
-                              << "; solution_core_length = " << solution_core_length
-                              << "; solution_count = " << solution_count << "; first = " << first
-                              << "; last = " << last << std::endl;
-                }
                 ONEDAL_ASSERT(i * solution_core_length + j < solution_core_length * solution_count);
                 arr[i * solution_core_length + j] = data[i][mapping[j]];
             }
         }
     });
-    std::cout << "[solution::export_as_table] Data copying finished" << std::endl;
 
     return dal::detail::homogen_table_builder{}
         .reset(arr_solution, solution_count, solution_core_length)
