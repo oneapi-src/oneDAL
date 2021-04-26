@@ -118,15 +118,15 @@ inline sycl::event finalize_correlation(sycl::queue& q,
     Float* corr_ptr = corr.get_mutable_data();
 
     return q.submit([&](sycl::handler& cgh) {
-        const auto range = make_multiple_nd_range_1d(detail::check_mul_overflow(p, p), //
-                                                     device_max_wg_size(q));
+        const auto range = make_range_2d(p, p);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<1> id) {
-            const std::int64_t gi = id.get_global_id();
-            if (gi < p * p) {
-                const std::int64_t i = gi / p;
-                const std::int64_t j = gi % p;
+        cgh.parallel_for(range, [=](sycl::nd_item<2> id) {
+            const std::int64_t gi = id.get_global_linear_id();
+            const std::int64_t i = id.get_global_id(0);
+            const std::int64_t j = id.get_global_id(1);
+
+            if (i < p && j < p) {
                 const Float is_diag = Float(i == j);
 
                 Float c = corr_ptr[gi];

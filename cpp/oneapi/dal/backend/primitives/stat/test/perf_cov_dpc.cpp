@@ -25,13 +25,13 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 namespace la = te::linalg;
 
-TEST("400K x 1K", "[cor][perf]") {
+TEST("100K x 4K", "[cor][perf]") {
     DECLARE_TEST_POLICY(policy);
     SKIP_IF(policy.is_cpu());
 
     auto& q = policy.get_queue();
-    const std::int64_t row_count = 400000;
-    const std::int64_t column_count = 1000;
+    const std::int64_t row_count = 100000;
+    const std::int64_t column_count = 4000;
     const auto alloc = sycl::usm::alloc::device;
 
     // 4 x 400K x 1K ~ 1.526Gb
