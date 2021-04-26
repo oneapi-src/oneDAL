@@ -10,12 +10,6 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-enum flow_switch_ids {
-    default_single_thread_mode = 0x0,
-    multi_thread_mode = 0x1,
-    use_hybrid_search = 0x2 /* dfs search - default value */
-};
-
 class matching_engine {
 public:
     matching_engine(inner_alloc allocator)
@@ -99,7 +93,6 @@ public:
                   const edge_direction* pdirection,
                   sconsistent_conditions const* pcconditions,
                   float* ppattern_vertex_probability,
-                  const std::uint64_t _control_flags,
                   kind isomorphism_kind,
                   inner_alloc allocator);
     virtual ~engine_bundle();
@@ -114,7 +107,6 @@ private:
     const edge_direction* direction;
     const sconsistent_conditions* pconsistent_conditions;
     const float* pattern_vertex_probability;
-    std::uint64_t control_flags;
     kind isomorphism_kind_;
 
     solution bundle_solutions;

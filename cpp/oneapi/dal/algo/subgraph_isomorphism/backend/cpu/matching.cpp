@@ -392,7 +392,6 @@ engine_bundle::engine_bundle(const graph* ppattern,
                              const edge_direction* pdirection,
                              sconsistent_conditions const* pcconditions,
                              float* ppattern_vertex_probability,
-                             const std::uint64_t _control_flags,
                              kind isomorphism_kind,
                              inner_alloc allocator)
         : isomorphism_kind_(isomorphism_kind),
@@ -406,7 +405,6 @@ engine_bundle::engine_bundle(const graph* ppattern,
     direction = pdirection;
     pconsistent_conditions = pcconditions;
     pattern_vertex_probability = ppattern_vertex_probability;
-    control_flags = _control_flags;
 
     bundle_solutions = solution(pattern->get_vertex_count(), psorted_pattern_vertex, allocator_);
 }

@@ -89,9 +89,7 @@ graph_matching_result call_subgraph_isomorphism_default_kernel(
         pattern.load_vertex_attribute(p_vertex_count, p_vertex_attribute);
     }
 
-    std::uint64_t control_flags = flow_switch_ids::multi_thread_mode;
-    solution results = si(pattern, target, desc.get_kind(), control_flags, alloc_ptr);
-
+    solution results = si(pattern, target, desc.get_kind(), alloc_ptr);
     if (t_vertex_attribute)
         local_allocator.deallocate<std::int64_t>(t_vertex_attribute, t_vertex_count);
     if (p_vertex_attribute)
