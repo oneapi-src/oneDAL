@@ -26,8 +26,6 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
-MSG(array_does_not_contain_ownership_structure,
-    "Array is empty or does not contain ownership structure for the data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
 MSG(incompatible_array_reinterpret_cast_types,
     "Cannot reinterpret array to provided type, "
@@ -193,6 +191,7 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
     "Decision forest train dense method is not implemented for GPU")
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
+MSG(input_model_is_not_initialized, "Input model is not initialized")
 
 } // namespace v1
 } // namespace oneapi::dal::detail
