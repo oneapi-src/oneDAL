@@ -23,10 +23,10 @@
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-inline std::int64_t get_number_elements_in_block(const std::int32_t &row_range_begin,
-                                                 const std::int32_t &row_range_end,
-                                                 const std::int32_t &column_range_begin,
-                                                 const std::int32_t &column_range_end) {
+inline std::int64_t get_number_elements_in_block(const std::int64_t &row_range_begin,
+                                                 const std::int64_t &row_range_end,
+                                                 const std::int64_t &column_range_begin,
+                                                 const std::int64_t &column_range_end) {
     ONEDAL_ASSERT(row_range_end >= row_range_begin, "Negative interval found");
     const std::int64_t row_count = row_range_end - row_range_begin;
     ONEDAL_ASSERT(column_range_end >= column_range_begin, "Negative interval found");

@@ -99,7 +99,7 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
 
 7. Download and install Python 3.7 (Windows\* only).
 
-8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform and the compiler you use:
+8. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
     - DAAL interfaces on **Linux\*** using **Intel(R) C++ Compiler**:
 
@@ -116,6 +116,10 @@ For details, see [System Requirements for oneDAL](https://software.intel.com/con
     - oneAPI C++ interfaces on **Windows\*** using **Microsoft Visual\* C++ Compiler**:
 
             make -f makefile oneapi_c PLAT=win32e COMPILER=vc
+
+    - DAAL and oneAPI C++ interfaces on **Linux\*** using **GNU Compiler Collection\***:
+
+            make -f makefile daal oneapi_c PLAT=lnx32e COMPILER=gnu
 
 It is possible to build oneDAL libraries with selected set of algorithms and/or CPU optimizations. `CORE.ALGORITHMS.CUSTOM` and `REQCPUS` makefile defines are used for it.
 
@@ -139,4 +143,3 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
 **NOTE:** Built libraries are located in the `__release_{os_name}/daal` directory.
 
 ---
-

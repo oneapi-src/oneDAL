@@ -27,6 +27,9 @@ namespace v1 {
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
+MSG(incompatible_array_reinterpret_cast_types,
+    "Cannot reinterpret array to provided type, "
+    "because resulting array size would not match source array size")
 MSG(only_homogen_table_is_supported, "Only homogen table is supported")
 MSG(overflow_found_in_multiplication_of_two_values,
     "Overflow found in multiplication of two values")
@@ -45,6 +48,7 @@ MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 
 /* Primitives */
+MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
 MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
 MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
 
@@ -63,9 +67,19 @@ MSG(pushing_column_is_not_supported_for_dpc, "Pushing column is not supported fo
 MSG(pushing_column_is_not_supported, "Pushing column is not supported")
 MSG(pushing_rows_is_not_supported_for_dpc, "Pushing rows is not supported for DPC++")
 MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
-MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(rc_and_cc_do_not_match_element_count_in_array,
+    "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
 MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(object_does_not_provide_read_access_to_rows,
+    "Given object does not provide read access to rows")
+MSG(object_does_not_provide_write_access_to_rows,
+    "Given object does not provide write access to rows")
+MSG(object_does_not_provide_read_access_to_columns,
+    "Given object does not provide read access to columns")
+MSG(object_does_not_provide_write_access_to_columns,
+    "Given object does not provide write access to columns")
+MSG(unsupported_conversion_types, "Unsupported conversion types")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
@@ -167,6 +181,8 @@ MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not impl
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
+MSG(svm_multiclass_not_implemented_for_gpu,
+    "SVM with multiclass support is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")
@@ -187,6 +203,7 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
     "Decision forest train dense method is not implemented for GPU")
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
+MSG(input_model_is_not_initialized, "Input model is not initialized")
 
 } // namespace v1
 } // namespace oneapi::dal::detail
