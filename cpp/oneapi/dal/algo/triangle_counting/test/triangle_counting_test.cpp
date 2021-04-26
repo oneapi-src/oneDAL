@@ -21,25 +21,36 @@
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::algo::triangle_counting::test {
+
 class graph_base_data {
 public:
     graph_base_data() = default;
 
-    std::int64_t get_correct_vertex_count() const {
+    std::int64_t get_vertex_count() const {
         return vertex_count;
     }
 
-    std::int64_t get_correct_edge_count() const {
+    std::int64_t get_edge_count() const {
         return edge_count;
     }
 
-    std::int64_t get_correct_triangle_count() const {
+    std::int64_t get_triangle_count() const {
         return global_triangle_count;
+    }
+
+    std::int64_t get_cols_count() const {
+        return cols_count;
+    }
+
+    std::int64_t get_rows_count() const {
+        return rows_count;
     }
 
 protected:
     std::int64_t vertex_count;
     std::int64_t edge_count;
+    std::int64_t cols_count;
+    std::int64_t rows_count;
     std::int64_t global_triangle_count;
 };
 class complete_graph_5_type : public graph_base_data {
@@ -47,6 +58,8 @@ public:
     complete_graph_5_type() {
         vertex_count = 5;
         edge_count = 10;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 10;
     }
 
@@ -63,6 +76,8 @@ public:
     complete_graph_9_type() {
         vertex_count = 9;
         edge_count = 36;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 84;
     }
 
@@ -80,6 +95,8 @@ public:
     acyclic_graph_8_type() {
         vertex_count = 8;
         edge_count = 7;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 0;
     }
 
@@ -94,6 +111,8 @@ public:
     two_vertices_graph_type() {
         vertex_count = 2;
         edge_count = 1;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 0;
     }
 
@@ -108,6 +127,8 @@ public:
     cycle_graph_9_type() {
         vertex_count = 9;
         edge_count = 9;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 0;
     }
 
@@ -122,6 +143,8 @@ public:
     triangle_graph_type() {
         vertex_count = 3;
         edge_count = 3;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 1;
     }
 
@@ -136,6 +159,8 @@ public:
     wheel_graph_6_type() {
         vertex_count = 6;
         edge_count = 10;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 5;
     }
 
@@ -152,6 +177,8 @@ public:
     isolated_vertices_graph_10_type() {
         vertex_count = 10;
         edge_count = 11;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 5;
     }
 
@@ -167,10 +194,12 @@ public:
     isolated_vertex_graph_11_type() {
         vertex_count = 11;
         edge_count = 45;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
         global_triangle_count = 120;
     }
 
-    std::array<std::int32_t, 11> degrees = { 10, 10, 10, 10, 10, 0, 10, 10, 10, 10, 10 };
+    std::array<std::int32_t, 11> degrees = { 9, 9, 9, 9, 9, 0, 9, 9, 9, 9, 9 };
     std::array<std::int32_t, 90> cols = { 1, 2, 3, 4, 6, 7, 8, 9, 10, 0, 2, 3, 4, 6, 7, 8, 9, 10,
                                           0, 1, 3, 4, 6, 7, 8, 9, 10, 0, 1, 2, 4, 6, 7, 8, 9, 10,
                                           0, 1, 2, 3, 6, 7, 8, 9, 10, 0, 1, 2, 3, 4, 7, 8, 9, 10,
@@ -194,32 +223,17 @@ public:
         auto &vertex_allocator = graph_impl._vertex_allocator;
         auto &edge_allocator = graph_impl._edge_allocator;
 
-        const std::int64_t vertex_count = graph_data.get_correct_vertex_count();
-        const std::int64_t edge_count = graph_data.get_correct_edge_count();
-        const std::int64_t cols_count = edge_count * 2;
-        const std::int64_t rows_count = vertex_count + 1;
+        const std::int64_t vertex_count = graph_data.get_vertex_count();
+        const std::int64_t edge_count = graph_data.get_edge_count();
+        const std::int64_t cols_count = graph_data.get_cols_count();
+        const std::int64_t rows_count = graph_data.get_rows_count();
 
-        std::int32_t *degrees_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                vertex_count);
-        std::int32_t *cols_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                cols_count);
-        std::int64_t *rows_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int64_t>::allocate(
-                edge_allocator,
-                rows_count);
-        std::int32_t *rows_vertex_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                rows_count);
-
-        std::int32_t *degrees = new (degrees_) std::int32_t[vertex_count];
-        std::int32_t *cols = new (cols_) std::int32_t[cols_count];
-        std::int64_t *rows = new (rows_) std::int64_t[rows_count];
-        std::int32_t *rows_vertex = new (rows_vertex_) std::int32_t[rows_count];
+        std::int32_t *degrees =
+            oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
+        std::int32_t *cols = oneapi::dal::preview::detail::allocate(vertex_allocator, cols_count);
+        std::int64_t *rows = oneapi::dal::preview::detail::allocate(edge_allocator, rows_count);
+        std::int32_t *rows_vertex =
+            oneapi::dal::preview::detail::allocate(vertex_allocator, rows_count);
 
         for (int i = 0; i < vertex_count; i++) {
             degrees[i] = graph_data.degrees[i];
@@ -242,7 +256,7 @@ public:
     void check_local_task() {
         GraphType graph_data;
         const auto graph = create_graph<GraphType>();
-        std::int64_t vertex_count = graph_data.get_correct_vertex_count();
+        std::int64_t vertex_count = graph_data.get_vertex_count();
 
         std::allocator<char> alloc;
         const auto tc_desc = dal::preview::triangle_counting::descriptor<
@@ -273,8 +287,8 @@ public:
     void check_local_and_global_task() {
         GraphType graph_data;
         const auto graph = create_graph<GraphType>();
-        std::int64_t vertex_count = graph_data.get_correct_vertex_count();
-        std::int64_t global_triangle_count = graph_data.get_correct_triangle_count();
+        std::int64_t vertex_count = graph_data.get_vertex_count();
+        std::int64_t global_triangle_count = graph_data.get_triangle_count();
 
         std::allocator<char> alloc;
         const auto tc_desc = dal::preview::triangle_counting::descriptor<
@@ -306,7 +320,7 @@ public:
     void check_global_task_relabeled() {
         GraphType graph_data;
         const auto graph = create_graph<GraphType>();
-        std::int64_t global_triangle_count = graph_data.get_correct_triangle_count();
+        std::int64_t global_triangle_count = graph_data.get_triangle_count();
 
         std::allocator<char> alloc;
         auto tc_desc = dal::preview::triangle_counting::descriptor<
@@ -315,6 +329,7 @@ public:
             dal::preview::triangle_counting::task::global,
             std::allocator<char>>(alloc);
 
+        tc_desc.set_relabel(dal::preview::triangle_counting::relabel::yes);
         const auto relabel = tc_desc.get_relabel();
         if (relabel == dal::preview::triangle_counting::relabel::yes) {
             const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
@@ -326,7 +341,7 @@ public:
     void check_global_task_not_relabeled() {
         GraphType graph_data;
         const auto graph = create_graph<GraphType>();
-        std::int64_t global_triangle_count = graph_data.get_correct_triangle_count();
+        std::int64_t global_triangle_count = graph_data.get_triangle_count();
 
         std::allocator<char> alloc;
         auto tc_desc = dal::preview::triangle_counting::descriptor<
@@ -383,7 +398,7 @@ TEST_M(triangle_counting_test, "global task for graphs with average_degree < 4")
 
 TEST_M(triangle_counting_test, "global task for relabeled graph with average_degree >= 4") {
     this->check_global_task_relabeled<complete_graph_9_type>();
-    //this->check_global_task_relabeled<isolated_vertex_graph_11_type>();
+    this->check_global_task_relabeled<isolated_vertex_graph_11_type>();
 }
 
 TEST_M(triangle_counting_test, "global task for not relabeled graph with average_degree >= 4") {
