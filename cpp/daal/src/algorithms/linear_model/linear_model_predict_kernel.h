@@ -70,7 +70,7 @@ protected:
                                     NumericTable * dataTable,
                                     DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses,
                                     algorithmFpType * responseBlock, bool findBeta0,
-                                    DAAL_INT * numRowsInData);
+                                    DAAL_INT * numRowsInData, DAAL_INT * numColsInData);
     static const size_t _numRowsInBlock = 1024;
 };
 
