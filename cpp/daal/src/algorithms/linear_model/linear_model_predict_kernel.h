@@ -68,7 +68,7 @@ protected:
                                  const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock, bool findBeta0);
     void computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures, DAAL_INT * numRows, NumericTable * dataTable,
                                     DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock,
-                                    bool findBeta0, DAAL_INT * numRowsInData, DAAL_INT * numColsInData);
+                                    bool findBeta0);
     static const size_t _numRowsInBlock = 1024;
 };
 

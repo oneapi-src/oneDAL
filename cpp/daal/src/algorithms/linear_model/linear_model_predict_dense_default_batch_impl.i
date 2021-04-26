@@ -93,8 +93,7 @@ template <typename algorithmFPType, CpuType cpu>
 void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures,
                                                                                    DAAL_INT * numRows, NumericTable * dataTable, DAAL_INT * numBetas,
                                                                                    const algorithmFPType * beta, DAAL_INT * numResponses,
-                                                                                   algorithmFPType * responseBlock, bool findBeta0,
-                                                                                   DAAL_INT * numRowsInData, DAAL_INT * numColsInData)
+                                                                                   algorithmFPType * responseBlock, bool findBeta0)
 {
     SafeStatus safeStat;
     algorithmFPType one       = 1.0;
