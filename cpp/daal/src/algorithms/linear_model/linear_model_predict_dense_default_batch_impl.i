@@ -91,21 +91,18 @@ void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(
 
 template <typename algorithmFPType, CpuType cpu>
 void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures,
-                                                                                   DAAL_INT * numRows,
-                                                                                   NumericTable * dataTable,
-                                                                                   DAAL_INT * numBetas,
+                                                                                   DAAL_INT * numRows, NumericTable * dataTable, DAAL_INT * numBetas,
                                                                                    const algorithmFPType * beta, DAAL_INT * numResponses,
                                                                                    algorithmFPType * responseBlock, bool findBeta0,
-                                                                                   DAAL_INT * numRowsInData,
-                                                                                   DAAL_INT * numColsInData)
+                                                                                   DAAL_INT * numRowsInData, DAAL_INT * numColsInData)
 {
     SafeStatus safeStat;
-    algorithmFPType one         = 1.0;
-    const DAAL_INT nFeatures    = *numFeatures;
-    const DAAL_INT nRows        = *numRows;
-    const DAAL_INT nResponses   = *numResponses;
-    char trans   = 'T';
-    char notrans = 'N';
+    algorithmFPType one       = 1.0;
+    const DAAL_INT nFeatures  = *numFeatures;
+    const DAAL_INT nRows      = *numRows;
+    const DAAL_INT nResponses = *numResponses;
+    char trans                = 'T';
+    char notrans              = 'N';
 
     services::internal::service_memset_seq<algorithmFPType, cpu>(responseBlock, algorithmFPType(0.0), nRows * nResponses);
 
@@ -120,20 +117,18 @@ void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesS
 
         ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startCol, startRow, nRows);
         DAAL_CHECK_BLOCK_STATUS_THR(xBlock);
-        const algorithmFPType* data = xBlock.get();
-        Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans,
-                                           numResponses, numRows, &colSize,
-                                           &one, beta + 1 + startCol, numBetas,
-                                           data, numRowsInData,
+        const algorithmFPType * data = xBlock.get();
+        Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, numResponses, numRows, &colSize, &one, beta + 1 + startCol, numBetas, data, numRowsInData,
                                            &one, responseBlock, numResponses);
     }
-    if (findBeta0) {
-        DAAL_INT iZero = 0;
+    if (findBeta0)
+    {
+        DAAL_INT iZero        = 0;
         const DAAL_INT nBetas = *numBetas;
-        for (DAAL_INT j = 0; j < nResponses; j++) {
-            Blas<algorithmFPType, cpu>::xxaxpy(numRows,
-                                               &one, const_cast<algorithmFPType *>(beta + j * nBetas),
-                                               &iZero, responseBlock + j, numResponses);
+        for (DAAL_INT j = 0; j < nResponses; j++)
+        {
+            Blas<algorithmFPType, cpu>::xxaxpy(numRows, &one, const_cast<algorithmFPType *>(beta + j * nBetas), &iZero, responseBlock + j,
+                                               numResponses);
         }
     }
 }
