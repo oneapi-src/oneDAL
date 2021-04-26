@@ -30,6 +30,7 @@ dal_collect_modules(
         "sort",
         "stat",
         "rng",
+        "distance"
     ],
     root = "@onedal//cpp/oneapi/dal/backend/primitives",
 )
