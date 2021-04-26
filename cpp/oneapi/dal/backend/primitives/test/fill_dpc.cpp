@@ -18,7 +18,7 @@
 
 namespace oneapi::dal::backend::primitives::test {
 
-TEST("fill device USM", "[usm]") {
+TEST("fill device USM and copy to host", "[usm]") {
     DECLARE_TEST_POLICY(policy);
     auto& q = policy.get_queue();
 
