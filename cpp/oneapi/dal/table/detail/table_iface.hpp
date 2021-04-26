@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/table/detail/rows_access_iface.hpp"
 #include "oneapi/dal/table/detail/columns_access_iface.hpp"
+#include "oneapi/dal/table/detail/sparse_access_iface.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
@@ -45,11 +46,19 @@ public:
     virtual const table_metadata& get_metadata() const = 0;
     virtual pull_rows_iface* get_pull_rows_iface() = 0;
     virtual pull_column_iface* get_pull_column_iface() = 0;
+    virtual pull_sparse_block_iface* get_pull_sparse_block_iface() = 0;
 };
 
 class homogen_table_iface : public table_iface {
 public:
     virtual array<byte_t> get_data() const = 0;
+};
+
+class csr_table_iface : public table_iface {
+public:
+    virtual const void* get_data() const = 0;
+    virtual const std::int64_t* get_column_indices() const = 0;
+    virtual const std::int64_t* get_row_indices() const = 0;
 };
 
 class table_builder_iface {
@@ -97,13 +106,18 @@ public:
 template <typename Iface, typename Derived>
 class table_template : public Iface,
                        public pull_rows_template<Derived>,
-                       public pull_column_template<Derived> {
+                       public pull_column_template<Derived>,
+                       public pull_sparse_block_template<Derived> {
 public:
     pull_rows_iface* get_pull_rows_iface() override {
         return this;
     }
 
     pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    pull_sparse_block_iface* get_pull_sparse_block_iface() override {
         return this;
     }
 };
@@ -136,6 +150,7 @@ public:
 
 using v1::table_iface;
 using v1::homogen_table_iface;
+using v1::csr_table_iface;
 using v1::table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;

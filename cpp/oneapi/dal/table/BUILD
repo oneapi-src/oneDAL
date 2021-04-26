@@ -34,6 +34,7 @@ dal_test_suite(
     srcs = [
         "test/row_accessor.cpp",
         "test/homogen.cpp",
+        "detail/test/csr_accessor.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",
