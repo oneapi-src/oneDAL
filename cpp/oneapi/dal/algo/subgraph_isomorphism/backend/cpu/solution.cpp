@@ -207,14 +207,12 @@ inline T min(const T a, const T b) {
 }
 
 oneapi::dal::homogen_table solution::export_as_table() {
-    std::cout << "[solution::export_as_table] Function started" << std::endl;
     if (solution_count == 0)
         return dal::homogen_table();
 
     const auto begin = sorted_pattern_vertices;
     const auto end = &sorted_pattern_vertices[solution_core_length];
 
-    std::cout << "[solution::export_as_table] Mapping creation started" << std::endl;
     auto mapping_array = dal::array<std::int64_t>::empty(solution_core_length);
     const auto mapping = mapping_array.get_mutable_data();
     for (std::int64_t j = 0; j < solution_core_length; ++j) {
@@ -222,25 +220,25 @@ oneapi::dal::homogen_table solution::export_as_table() {
         ONEDAL_ASSERT(p != end, "Index not found");
         mapping[j] = p - begin;
     }
-    std::cout << "[solution::export_as_table] Mapping creation finished" << std::endl;
 
     auto arr_solution = dal::array<int>::empty(solution_core_length * solution_count);
     const auto arr = arr_solution.get_mutable_data();
 
-    std::cout << "[solution::export_as_table] Data copying started" << std::endl;
     constexpr std::int64_t block_size = 64;
     const std::int64_t block_count = (solution_count - 1 + block_size) % block_size;
+    std::cout << "[solution::export_as_table] Data copying started: block_count = " << block_count
+              << "; solution_count = " << solution_count << std::endl;
     dal::detail::threader_for(block_count, block_count, [&](int index) {
         const std::int64_t first = index * block_size;
         const std::int64_t last = min(first + block_size, solution_count);
         for (auto i = first; i != last; ++i) {
             for (std::int64_t j = 0; j < solution_core_length; ++j) {
+                DAAL_ASSERT(i * solution_core_length + j < solution_core_length * solution_count);
                 arr[i * solution_core_length + j] = data[i][mapping[j]];
             }
         }
     });
     std::cout << "[solution::export_as_table] Data copying finished" << std::endl;
-    std::cout << "[solution::export_as_table] Function finished" << std::endl;
 
     return dal::detail::homogen_table_builder{}
         .reset(arr_solution, solution_count, solution_core_length)
