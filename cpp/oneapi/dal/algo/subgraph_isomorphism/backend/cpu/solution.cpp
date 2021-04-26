@@ -230,7 +230,6 @@ oneapi::dal::homogen_table solution::export_as_table() {
         const std::int64_t last = min(first + block_size, solution_count);
         for (auto i = first; i != last; ++i) {
             for (std::int64_t j = 0; j < solution_core_length; ++j) {
-                ONEDAL_ASSERT(i * solution_core_length + j < solution_core_length * solution_count);
                 arr[i * solution_core_length + j] = data[i][mapping[j]];
             }
         }
