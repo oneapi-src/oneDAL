@@ -102,6 +102,10 @@ public:
     MSG(pushing_rows_is_not_supported);
     MSG(rc_and_cc_do_not_match_element_count_in_array);
     MSG(rc_leq_zero);
+    MSG(object_does_not_provide_read_access_to_rows);
+    MSG(object_does_not_provide_write_access_to_rows);
+    MSG(object_does_not_provide_read_access_to_columns);
+    MSG(object_does_not_provide_write_access_to_columns);
     MSG(unsupported_conversion_types);
 
     /* Ranges */
