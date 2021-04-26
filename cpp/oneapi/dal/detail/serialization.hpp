@@ -72,10 +72,13 @@ public:
 };
 
 template <typename T>
-using enable_if_trivially_serializable_t = std::enable_if_t<std::is_arithmetic_v<T>>;
+inline constexpr bool is_trivially_serializable_v = std::is_arithmetic_v<T>;
 
 template <typename T>
-using enable_if_user_serializable_t = std::enable_if_t<!std::is_arithmetic_v<T>>;
+using enable_if_trivially_serializable_t = std::enable_if_t<is_trivially_serializable_v<T>>;
+
+template <typename T>
+using enable_if_user_serializable_t = std::enable_if_t<!is_trivially_serializable_v<T>>;
 
 template <typename Archive>
 class input_archive_impl : public base, public input_archive_iface {

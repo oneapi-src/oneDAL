@@ -22,9 +22,22 @@
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
+
+template <typename Policy>
+void serialize_array(const Policy& policy,
+                     output_archive& archive,
+                     const byte_t* data,
+                     std::int64_t size_in_bytes,
+                     data_type dtype);
+
+template <typename Policy>
+std::tuple<shared<byte_t>, std::int64_t> deserialize_array(const Policy& policy,
+                                                           input_archive& archive,
+                                                           data_type expected_dtype);
 
 template <typename T>
 class array_impl : public base {
@@ -184,10 +197,56 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    std::optional<data_parallel_policy> get_policy() const {
-        return dp_policy_;
+    std::optional<sycl::queue> get_queue() const {
+        if (dp_policy_) {
+            return dp_policy_->get_queue();
+        }
+        return std::nullopt;
     }
 #endif
+
+    void serialize(output_archive& ar) const {
+        static_assert(is_trivially_serializable_v<T>,
+                      "Serialization for non-trivial types is not implemented");
+        const byte_t data_bytes = reinterpret_cast<const byte_t*>(get_data());
+        const data_type dtype = make_data_type<T>();
+        const std::int64_t size_in_bytes = check_mul_overflow(sizeof(T), count_);
+
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            ONEDAL_ASSERT(dp_policy_.has_value());
+            serialize_array(dp_policy_, ar, data_bytes, size_in_bytes, dtype);
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), {
+            serialize_array(default_host_policy{}, ar, data_bytes, size_in_bytes, dtype);
+        });
+    }
+
+    void deserialize(input_archive& ar) {
+        static_assert(is_trivially_serializable_v<T>,
+                      "Serialization for non-trivial types is not implemented");
+        const data_type dtype = make_data_type<T>();
+
+        detail::shared<byte_t> data_shared;
+        std::int64_t size_in_bytes;
+
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            ONEDAL_ASSERT(dp_policy_.has_value());
+            std::tie(data_shared, count) = //
+                deserialize_array(dp_policy_, ar, size_in_bytes, dtype);
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), {
+            std::tie(data_shared, count) =
+                deserialize_array(default_host_policy{}, ar, size_in_bytes, dtype);
+        });
+
+        // TODO: Use exception
+        ONEDAL_ASSERT(size_in_bytes % sizeof(T) == 0);
+
+        data_owned_ = std::reinterpret_pointer_cast<T>(data_shared);
+        count_ = size_in_bytes / sizeof(T);
+    }
 
 private:
     void reset_policy() {
