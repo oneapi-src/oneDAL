@@ -159,9 +159,13 @@ int main(int argc, char **argv) {
     //     "/export/users/orazvens/si-non-induced/subgraph-isomorphism-prototype/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
 
     auto target_filename = get_data_path(
-        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff");
     auto pattern_filename = get_data_path(
-        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff_queries/query64_2.gff");
+        "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/103l.pdb.gff_queries/query32_1.gff");
+    // auto target_filename = get_data_path(
+    //     "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff");
+    // auto pattern_filename = get_data_path(
+    //     "/nfs/inn/disks/nn-ssg_spd_numerics_users/maverbuk/daal_branches/si-proto/data/PDBSv1/singles/3dmk.pdb.gff_queries/query64_2.gff");
 
     if (argc == 3) {
         target_filename = get_data_path(argv[1]);
