@@ -62,7 +62,7 @@ struct Lapack
     }
 
     static void xxgetrs(char * trans, SizeType * n, SizeType * nrhs, fpType * a, SizeType * lda, SizeType * ipiv, fpType * b, SizeType * ldb,
-                       SizeType * info)
+                        SizeType * info)
     {
         _impl<fpType, cpu>::xxgetrs(trans, n, nrhs, a, lda, ipiv, b, ldb, info);
     }

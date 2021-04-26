@@ -295,7 +295,7 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
 template <typename FPType, CpuType cpu>
 bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
-    // Extend symmetric matrix to generic through filling of upper triangle
+    /* Extend symmetric matrix to generic through filling of upper triangle */
     for (size_t i = 0; i < n; ++i)
     {
         for (size_t j = 0; j < i; ++j)
@@ -336,6 +336,7 @@ bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bo
 template <typename FPType, CpuType cpu>
 bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
+    /* Copy data for fallback from Cholesky to PLU factorization */
     TArray<FPType, cpu> aCopy(n * n);
     TArray<FPType, cpu> bCopy(n);
 
@@ -347,8 +348,10 @@ bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequ
         return false;
     }
 
+    /* Try solve with Cholesky factorixation */
     if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
     {
+        /* Fallback to PLU factorization */
         bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
         if (status)
         {
