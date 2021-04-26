@@ -59,9 +59,9 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     const std::int64_t column_count = data.get_column_count();
 
-    binary_label_t<Float> unique_label;
+    const binary_label_t<Float> old_unique_labels = get_unique_labels<Float>(queue, labels);
     const auto new_labels =
-        convert_binary_labels(queue, labels, { Float(-1.0), Float(1.0) }, unique_label);
+        convert_binary_labels(queue, labels, { Float(-1.0), Float(1.0) }, old_unique_labels);
     const auto daal_labels = interop::convert_to_daal_table(queue, new_labels);
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
@@ -95,8 +95,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
-                             .set_first_class_label(unique_label.first)
-                             .set_second_class_label(unique_label.second);
+                             .set_first_class_label(old_unique_labels.first)
+                             .set_second_class_label(old_unique_labels.second);
 
     return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }

@@ -24,7 +24,6 @@
 namespace oneapi::dal::svm::backend {
 
 namespace daal_svm = daal::algorithms::svm;
-namespace interop = dal::backend::interop;
 
 template <daal_svm::training::Method Value>
 using daal_method_constant = std::integral_constant<daal_svm::training::Method, Value>;
@@ -78,42 +77,37 @@ inline binary_label_t<Float> get_unique_labels(const table& labels) {
 }
 
 template <typename Float>
-inline table get_new_labels(const table& labels,
-                            const binary_label_t<Float>& requested_unique_labels,
-                            const binary_label_t<Float>& unique_labels) {
-    auto arr_label = row_accessor<const Float>{ labels }.pull();
-    const std::int64_t count = arr_label.get_count();
-
-    auto new_label_arr = array<Float>::empty(count);
-    auto new_label_data = new_label_arr.get_mutable_data();
-
-    for (std::int64_t i = 0; i < count; ++i) {
-        if (arr_label[i] == unique_labels.first) {
-            new_label_data[i] = requested_unique_labels.first;
-        }
-        else if (arr_label[i] == unique_labels.second) {
-            new_label_data[i] = requested_unique_labels.second;
-        }
-        else {
-            throw invalid_argument(dal::detail::error_messages::
-                                       input_labels_contain_wrong_unique_values_count_expect_two());
-        }
-    }
-
-    return homogen_table::wrap(new_label_arr, count, 1);
-}
-
-template <typename Float>
 inline table convert_binary_labels(const table& labels,
                                    const binary_label_t<Float>& requested_unique_labels,
-                                   binary_label_t<Float>& unique_labels) {
-    unique_labels = get_unique_labels<Float>(labels);
-    if (unique_labels == binary_label_t<Float>{ 0, 1 } ||
-        unique_labels == binary_label_t<Float>{ -1, 1 }) {
+                                   const binary_label_t<Float>& old_unique_labels) {
+    if (old_unique_labels == binary_label_t<Float>{ 0, 1 } ||
+        old_unique_labels == binary_label_t<Float>{ -1, 1 }) {
         return labels;
     }
     else {
-        return get_new_labels(labels, requested_unique_labels, unique_labels);
+        ONEDAL_ASSERT(labels.get_column_count() == 1);
+
+        auto arr_label = row_accessor<const Float>{ labels }.pull();
+        const std::int64_t count = arr_label.get_count();
+
+        auto new_label_arr = array<Float>::empty(count);
+        auto new_label_data = new_label_arr.get_mutable_data();
+
+        for (std::int64_t i = 0; i < count; ++i) {
+            if (arr_label[i] == old_unique_labels.first) {
+                new_label_data[i] = requested_unique_labels.first;
+            }
+            else if (arr_label[i] == old_unique_labels.second) {
+                new_label_data[i] = requested_unique_labels.second;
+            }
+            else {
+                throw invalid_argument(
+                    dal::detail::error_messages::
+                        input_labels_contain_wrong_unique_values_count_expect_two());
+            }
+        }
+
+        return homogen_table::wrap(new_label_arr, count, 1);
     }
 }
 
@@ -148,44 +142,38 @@ inline binary_label_t<Float> get_unique_labels(sycl::queue& queue, const table& 
 }
 
 template <typename Float>
-inline table get_new_labels(sycl::queue& queue,
-                            const table& labels,
-                            const binary_label_t<Float>& requested_unique_labels,
-                            const binary_label_t<Float>& unique_labels) {
-    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
-    const std::int64_t count = arr_label.get_count();
-
-    auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
-    auto new_label_data = new_label_arr.get_mutable_data();
-
-    for (std::int64_t i = 0; i < count; ++i) {
-        if (arr_label[i] == unique_labels.first) {
-            new_label_data[i] = requested_unique_labels.first;
-        }
-        else if (arr_label[i] == unique_labels.second) {
-            new_label_data[i] = requested_unique_labels.second;
-        }
-        else {
-            throw invalid_argument(dal::detail::error_messages::
-                                       input_labels_contain_wrong_unique_values_count_expect_two());
-        }
-    }
-
-    return homogen_table::wrap(queue, new_label_data, count, 1);
-}
-
-template <typename Float>
 inline table convert_binary_labels(sycl::queue& queue,
                                    const table& labels,
                                    const binary_label_t<Float>& requested_unique_labels,
-                                   binary_label_t<Float>& unique_labels) {
-    unique_labels = get_unique_labels<Float>(queue, labels);
-    if (unique_labels == binary_label_t<Float>{ 0, 1 } ||
-        unique_labels == binary_label_t<Float>{ -1, 1 }) {
+                                   const binary_label_t<Float>& old_unique_labels) {
+    if (old_unique_labels == binary_label_t<Float>{ 0, 1 } ||
+        old_unique_labels == binary_label_t<Float>{ -1, 1 }) {
         return labels;
     }
     else {
-        return get_new_labels(queue, labels, requested_unique_labels, unique_labels);
+        ONEDAL_ASSERT(labels.get_column_count() == 1);
+
+        auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
+        const std::int64_t count = arr_label.get_count();
+
+        auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
+        auto new_label_data = new_label_arr.get_mutable_data();
+
+        for (std::int64_t i = 0; i < count; ++i) {
+            if (arr_label[i] == old_unique_labels.first) {
+                new_label_data[i] = requested_unique_labels.first;
+            }
+            else if (arr_label[i] == old_unique_labels.second) {
+                new_label_data[i] = requested_unique_labels.second;
+            }
+            else {
+                throw invalid_argument(
+                    dal::detail::error_messages::
+                        input_labels_contain_wrong_unique_values_count_expect_two());
+            }
+        }
+
+        return homogen_table::wrap(queue, new_label_data, count, 1);
     }
 }
 #endif
