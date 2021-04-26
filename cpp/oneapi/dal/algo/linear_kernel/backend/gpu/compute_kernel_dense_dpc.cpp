@@ -35,9 +35,7 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto& queue = ctx.get_queue();
 
     const std::int64_t row_count_x = x.get_row_count();
-    const std::int64_t col_count_x = x.get_column_count();
     const std::int64_t row_count_y = y.get_row_count();
-    const std::int64_t col_count_y = y.get_column_count();
 
     ONEDAL_ASSERT(col_count_x == col_count_y);
     dal::detail::check_mul_overflow(row_count_x, row_count_y);
@@ -45,11 +43,11 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     const Float scale = desc.get_scale();
     const Float shift = desc.get_shift();
 
-    auto arr_x = row_accessor<const Float>(x).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    const auto ndarray_x = pr::ndarray<Float, 2>::wrap(arr_x, { row_count_x, col_count_x });
+    const auto ndarray_x =
+        pr::flatten_table<Float, row_accessor>(queue, x, sycl::usm::alloc::device);
 
-    auto arr_y = row_accessor<const Float>(y).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    const auto ndarray_y = pr::ndarray<Float, 2>::wrap(arr_y, { row_count_y, col_count_y });
+    const auto ndarray_y =
+        pr::flatten_table<Float, row_accessor>(queue, y, sycl::usm::alloc::device);
 
     auto ndarray_res =
         pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
@@ -59,11 +57,11 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
         fill_res_event = ndarray_res.fill(queue, Float(1));
     }
 
-    gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, scale, shift, { fill_res_event })
-        .wait_and_throw();
+    auto gemm_event =
+        gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, scale, shift, { fill_res_event });
 
     return result_t{}.set_values(
-        homogen_table::wrap(ndarray_res.flatten(queue), row_count_x, row_count_y));
+        homogen_table::wrap(ndarray_res.flatten(queue), row_count_x, row_count_y, { gemm_event }));
 }
 
 template <typename Float>
