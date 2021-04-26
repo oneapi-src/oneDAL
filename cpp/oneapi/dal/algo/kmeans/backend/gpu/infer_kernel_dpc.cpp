@@ -75,11 +75,7 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
             .wait_and_throw();
 
         return infer_result<task::clustering>()
-            .set_labels(dal::detail::homogen_table_builder{}
-                            .reset(array<std::int32_t>::wrap(arr_labels.get_data(), row_count * 1),
-                                   row_count,
-                                   1)
-                            .build())
+            .set_labels(dal::homogen_table::wrap(arr_labels.flatten(queue), row_count, 1))
             .set_objective_function_value(
                 static_cast<double>(arr_objective_function.to_host(queue).get_data()[0]));
     }

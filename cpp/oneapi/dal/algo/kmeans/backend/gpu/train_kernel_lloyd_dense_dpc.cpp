@@ -229,20 +229,13 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                           { assign_event })
             .wait_and_throw();
         return train_result<task::clustering>()
-            .set_labels(dal::detail::homogen_table_builder{}
-                            .reset(array<std::int32_t>::wrap(arr_labels.get_data(), row_count * 1),
-                                   row_count,
-                                   1)
-                            .build())
+            .set_labels(dal::homogen_table::wrap(arr_labels.flatten(queue), row_count, 1))
             .set_iteration_count(iter)
             .set_objective_function_value(arr_objective_function.to_host(queue).get_data()[0])
             .set_model(model<task::clustering>().set_centroids(
-                dal::detail::homogen_table_builder{}
-                    .reset(
-                        array<Float>::wrap(arr_centroids.get_data(), cluster_count * column_count),
-                        cluster_count,
-                        column_count)
-                    .build()));
+                dal::homogen_table::wrap(arr_centroids.flatten(queue),
+                                         cluster_count,
+                                         column_count)));
     }
 };
 
