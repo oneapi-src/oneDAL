@@ -231,11 +231,26 @@ oneapi::dal::homogen_table solution::export_as_table() {
     dal::detail::threader_for(block_count, block_count, [&](int index) {
         const std::int64_t first = index * block_size;
         const std::int64_t last = min(first + block_size, solution_count);
-        // const auto solution_core_length8 = solution_core_length / 8;
+        const auto solution_core_length8 = solution_core_length / 8 * 8;
         for (auto i = first; i != last; ++i) {
+            const auto arr_local = &(arr[i * solution_core_length]);
+            const auto data_local = data[i];
+            std::int64_t j = 0;
 #pragma ivdep
-            for (std::int64_t j = 0; j < solution_core_length; ++j) {
-                arr[i * solution_core_length + j] = data[i][mapping[j]];
+            for (; j < solution_core_length8; j += 8) {
+                arr_local[j] = data_local[mapping[j]];
+                arr_local[j + 1] = data_local[mapping[j + 1]];
+                arr_local[j + 2] = data_local[mapping[j + 2]];
+                arr_local[j + 3] = data_local[mapping[j + 3]];
+                arr_local[j + 4] = data_local[mapping[j + 4]];
+                arr_local[j + 5] = data_local[mapping[j + 5]];
+                arr_local[j + 6] = data_local[mapping[j + 6]];
+                arr_local[j + 7] = data_local[mapping[j + 7]];
+            }
+
+#pragma ivdep
+            for (; j < solution_core_length; ++j) {
+                arr_local[j] = data_local[mapping[j]];
             }
         }
     });
