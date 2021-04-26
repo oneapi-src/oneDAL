@@ -1,6 +1,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/common.hpp"
+#include <iostream>
 
 namespace dal = oneapi::dal;
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
@@ -225,6 +226,8 @@ oneapi::dal::homogen_table solution::export_as_table() {
 
     constexpr std::int64_t block_size = 64;
     const std::int64_t block_count = (solution_count - 1 + block_size) / block_size;
+    std::cout << "block_count =" << block_count << "; solution_count = " << solution_count
+              << std::endl;
     dal::detail::threader_for(block_count, block_count, [&](int index) {
         const std::int64_t first = index * block_size;
         const std::int64_t last = min(first + block_size, solution_count);
