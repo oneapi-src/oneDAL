@@ -24,7 +24,7 @@
 namespace oneapi::dal::preview::jaccard::detail {
 
 template <typename Float, typename Task, typename Topology, typename... Options>
-ONEDAL_EXPORT struct vertex_similarity {
+struct vertex_similarity {
     vertex_similarity_result<Task> operator()(const dal::detail::host_policy& ctx,
                                               const detail::descriptor_base<Task>& desc,
                                               const Topology& t,

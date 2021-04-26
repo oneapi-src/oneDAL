@@ -21,7 +21,7 @@
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-vertex_similarity_result<task::all_vertex_pairs>
+ONEDAL_EXPORT vertex_similarity_result<task::all_vertex_pairs>
 vertex_similarity<float, task::all_vertex_pairs, dal::preview::detail::topology<std::int32_t>>::
 operator()(const dal::detail::host_policy& policy,
            const detail::descriptor_base<task::all_vertex_pairs>& desc,

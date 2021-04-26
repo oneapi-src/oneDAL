@@ -41,7 +41,7 @@ struct automatic {};
 struct relabeled {};
 
 template <typename Task, typename... Options>
-ONEDAL_EXPORT struct triangle_counting {
+struct triangle_counting {
     vertex_ranking_result<Task> operator()(
         const dal::detail::host_policy& ctx,
         const detail::descriptor_base<Task>& desc,
@@ -77,9 +77,9 @@ struct triangle_counting<task::global, vector, relabeled> {
                             std::int64_t edge_count) const;
 };
 
-ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
-                                                    const array<std::int64_t>& local_triangles,
-                                                    std::int64_t vertex_count);
+std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
+                                      const array<std::int64_t>& local_triangles,
+                                      std::int64_t vertex_count);
 
 template <typename Allocator>
 struct triangle_counting_local {

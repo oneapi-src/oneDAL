@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-array<std::int64_t> triangle_counting<task::local, automatic>::operator()(
+ONEDAL_EXPORT array<std::int64_t> triangle_counting<task::local, automatic>::operator()(
     const dal::detail::host_policy& policy,
     const dal::preview::detail::topology<std::int32_t>& t,
     std::int64_t* triangles_local) const {
@@ -29,7 +29,7 @@ array<std::int64_t> triangle_counting<task::local, automatic>::operator()(
     });
 }
 
-std::int64_t triangle_counting<task::global, scalar>::operator()(
+ONEDAL_EXPORT std::int64_t triangle_counting<task::global, scalar>::operator()(
     const dal::detail::host_policy& policy,
     const dal::preview::detail::topology<std::int32_t>& t) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
@@ -37,7 +37,7 @@ std::int64_t triangle_counting<task::global, scalar>::operator()(
     });
 }
 
-std::int64_t triangle_counting<task::global, vector>::operator()(
+ONEDAL_EXPORT std::int64_t triangle_counting<task::global, vector>::operator()(
     const dal::detail::host_policy& policy,
     const dal::preview::detail::topology<std::int32_t>& t) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
@@ -45,7 +45,7 @@ std::int64_t triangle_counting<task::global, vector>::operator()(
     });
 }
 
-std::int64_t triangle_counting<task::global, vector, relabeled>::operator()(
+ONEDAL_EXPORT std::int64_t triangle_counting<task::global, vector, relabeled>::operator()(
     const dal::detail::host_policy& policy,
     const std::int32_t* vertex_neighbors,
     const std::int64_t* edge_offsets,
