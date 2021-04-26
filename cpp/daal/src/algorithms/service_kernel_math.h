@@ -295,6 +295,15 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
 template <typename FPType, CpuType cpu>
 bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
+    // Extend symmetric matrix to generic through filling of upper triangle
+    for (size_t i = 0; i < n; ++i)
+    {
+        for (size_t j = 0; j < i; ++j)
+        {
+            a[j * n + i] = a[i * n + j];
+        }
+    }
+
     /* GETRF and GETRS parameters */
     char trans    = 'N';
     DAAL_INT info = 0;
