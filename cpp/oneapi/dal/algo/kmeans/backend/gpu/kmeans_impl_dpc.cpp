@@ -180,21 +180,21 @@ sycl::event reduce_centroids(sycl::queue& queue,
                                               { sg_size_to_set, 1 }),
                 [=](sycl::nd_item<2> item) {
                     auto sg = item.get_sub_group();
-                    const std::uint32_t sg_id = sg.get_group_id()[0];
-                    const std::uint32_t wg_id = item.get_global_id(1);
-                    const std::uint32_t sg_count = sg.get_group_range()[0];
-                    const std::uint32_t sg_global_id = wg_id * sg_count + sg_id;
+                    const std::int64_t sg_id = sg.get_group_id()[0];
+                    const std::int64_t wg_id = item.get_global_id(1);
+                    const std::int64_t sg_count = sg.get_group_range()[0];
+                    const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
                     if (sg_global_id >= part_count)
                         return;
-                    const std::uint32_t local_id = sg.get_local_id()[0];
-                    const std::uint32_t local_range = sg.get_local_range()[0];
-                    for (std::uint32_t i = sg_global_id; i < row_count; i += part_count) {
+                    const std::int64_t local_id = sg.get_local_id()[0];
+                    const std::int64_t local_range = sg.get_local_range()[0];
+                    for (std::int64_t i = sg_global_id; i < row_count; i += part_count) {
                         std::int32_t cl = -1;
                         if (local_id == 0) {
                             cl = label_ptr[i];
                         }
                         cl = reduce(sg, cl, sycl::ONEAPI::maximum<std::int32_t>());
-                        for (std::uint32_t j = local_id; j < column_count; j += local_range) {
+                        for (std::int64_t j = local_id; j < column_count; j += local_range) {
                             partial_centroids_ptr[sg_global_id * centroid_count * column_count +
                                                   cl * column_count + j] +=
                                 data_ptr[i * column_count + j];
@@ -210,17 +210,17 @@ sycl::event reduce_centroids(sycl::queue& queue,
                                           { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                const std::uint32_t wg_id = item.get_global_id(1);
-                const std::uint32_t sg_count = sg.get_group_range()[0];
-                const std::uint32_t sg_global_id = wg_id * sg_count + sg_id;
+                const std::int64_t sg_id = sg.get_group_id()[0];
+                const std::int64_t wg_id = item.get_global_id(1);
+                const std::int64_t sg_count = sg.get_group_range()[0];
+                const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
                 if (sg_global_id >= column_count * centroid_count)
                     return;
-                const std::uint32_t sg_cluster_id = sg_global_id / column_count;
-                const std::uint32_t local_id = sg.get_local_id()[0];
-                const std::uint32_t local_range = sg.get_local_range()[0];
+                const std::int64_t sg_cluster_id = sg_global_id / column_count;
+                const std::int64_t local_id = sg.get_local_id()[0];
+                const std::int64_t local_range = sg.get_local_range()[0];
                 Float sum = 0.0;
-                for (std::uint32_t i = local_id; i < part_count; i += local_range) {
+                for (std::int64_t i = local_id; i < part_count; i += local_range) {
                     sum += partial_centroids_ptr[i * centroid_count * column_count + sg_global_id];
                 }
                 sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
@@ -257,22 +257,22 @@ sycl::event count_clusters(sycl::queue& queue,
                                           { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
-                const std::uint32_t wg_id = item.get_global_id(1);
-                const std::uint32_t wg_count = item.get_global_range(1);
-                const std::uint32_t sg_count = sg.get_group_range()[0];
-                const std::uint32_t sg_global_id = wg_id * sg_count + sg_id;
-                const std::uint32_t total_sg_count = wg_count * sg_count;
+                const std::int64_t sg_id = sg.get_group_id()[0];
+                const std::int64_t wg_id = item.get_global_id(1);
+                const std::int64_t wg_count = item.get_global_range(1);
+                const std::int64_t sg_count = sg.get_group_range()[0];
+                const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
+                const std::int64_t total_sg_count = wg_count * sg_count;
 
-                const std::uint32_t local_id = sg.get_local_id()[0];
-                const std::uint32_t local_range = sg.get_local_range()[0];
+                const std::int64_t local_id = sg.get_local_id()[0];
+                const std::int64_t local_range = sg.get_local_range()[0];
 
-                const std::uint32_t block_size =
-                    row_count / total_sg_count + std::uint32_t(row_count % total_sg_count > 0);
-                const std::uint32_t offset = block_size * sg_global_id;
-                const std::uint32_t end =
+                const std::int64_t block_size =
+                    row_count / total_sg_count + std::int64_t(row_count % total_sg_count > 0);
+                const std::int64_t offset = block_size * sg_global_id;
+                const std::int64_t end =
                     (offset + block_size) > row_count ? row_count : (offset + block_size);
-                for (std::uint32_t i = offset + local_id; i < end; i += local_range) {
+                for (std::int64_t i = offset + local_id; i < end; i += local_range) {
                     const std::int32_t cl = label_ptr[i];
                     sycl::ONEAPI::atomic_ref<std::int32_t,
                                              cl::sycl::ONEAPI::memory_order::relaxed,
@@ -290,13 +290,13 @@ sycl::event count_clusters(sycl::queue& queue,
             bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
+                const std::int64_t sg_id = sg.get_group_id()[0];
                 if (sg_id > 0)
                     return;
-                const std::uint32_t local_id = sg.get_local_id()[0];
-                const std::uint32_t local_range = sg.get_local_range()[0];
-                std::uint32_t sum = 0;
-                for (std::uint32_t i = local_id; i < centroid_count; i += local_range) {
+                const std::int64_t local_id = sg.get_local_id()[0];
+                const std::int64_t local_range = sg.get_local_range()[0];
+                std::int32_t sum = 0;
+                for (std::int64_t i = local_id; i < centroid_count; i += local_range) {
                     sum += counter_ptr[i] == 0;
                 }
                 sum = reduce(sg, sum, sycl::ONEAPI::plus<std::int32_t>());
@@ -325,13 +325,13 @@ sycl::event compute_objective_function(sycl::queue& queue,
             bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
-                const std::uint32_t sg_id = sg.get_group_id()[0];
+                const std::int64_t sg_id = sg.get_group_id()[0];
                 if (sg_id > 0)
                     return;
-                const std::uint32_t local_id = sg.get_local_id()[0];
-                const std::uint32_t local_range = sg.get_local_range()[0];
+                const std::int64_t local_id = sg.get_local_id()[0];
+                const std::int64_t local_range = sg.get_local_range()[0];
                 Float sum = 0;
-                for (std::uint32_t i = local_id; i < row_count; i += local_range) {
+                for (std::int64_t i = local_id; i < row_count; i += local_range) {
                     sum += distance_ptr[i];
                 }
                 sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
