@@ -67,8 +67,8 @@ protected:
     void computeBlockOfResponses(DAAL_INT * numFeatures, DAAL_INT * numRows, const algorithmFpType * dataBlock, DAAL_INT * numBetas,
                                  const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock, bool findBeta0);
     services::Status computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures, DAAL_INT * numRows, NumericTable * dataTable,
-                                    DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock,
-                                    bool findBeta0, algorithmFpType * const TlsData);
+                                                DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses,
+                                                algorithmFpType * responseBlock, bool findBeta0, algorithmFpType * const TlsData);
     static const size_t blockSizeRows    = 512;
     static const size_t blockSizeColumns = 512;
 };
