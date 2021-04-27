@@ -28,17 +28,17 @@ csr_table::csr_table() : csr_table(new backend::csr_table_impl{}) {}
 
 const void* csr_table::get_data() const {
     const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
-    return impl.get_data();
+    return impl.get_data().get_data();
 }
 
 const std::int64_t* csr_table::get_column_indices() const {
     const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
-    return impl.get_column_indices();
+    return impl.get_column_indices().get_data();
 }
 
 const std::int64_t* csr_table::get_row_indices() const {
     const auto& impl = detail::cast_impl<detail::csr_table_iface>(*this);
-    return impl.get_row_indices();
+    return impl.get_row_indices().get_data();
 }
 
 template <typename Policy>

@@ -32,10 +32,13 @@ dal_test_suite(
 dal_test_suite(
     name = "catch2_tests",
     srcs = [
+<<<<<<< HEAD
         "test/row_accessor.cpp",
         "test/homogen.cpp",
         "test/common_serialization.cpp",
         "test/homogen_serialization.cpp",
+=======
+>>>>>>> Apply comments
         "detail/test/csr_accessor.cpp",
     ],
     dal_deps = [":table"],

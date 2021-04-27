@@ -56,9 +56,9 @@ public:
 
 class csr_table_iface : public table_iface {
 public:
-    virtual const void* get_data() const = 0;
-    virtual const std::int64_t* get_column_indices() const = 0;
-    virtual const std::int64_t* get_row_indices() const = 0;
+    virtual array<byte_t> get_data() const = 0;
+    virtual array<std::int64_t> get_column_indices() const = 0;
+    virtual array<std::int64_t> get_row_indices() const = 0;
 };
 
 class table_builder_iface {
