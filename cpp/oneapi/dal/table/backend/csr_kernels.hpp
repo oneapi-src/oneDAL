@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/detail/sparse_access_iface.hpp"
-#include "oneapi/dal/table/backend/homogen_kernels.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -73,6 +72,7 @@ void csr_pull_sparse_block(const Policy& policy,
                            const array<std::int64_t>& origin_column_indices,
                            const array<std::int64_t>& origin_row_indices,
                            detail::sparse_block<BlockData>& block,
-                           alloc_kind requested_alloc_kind);
+                           alloc_kind requested_alloc_kind,
+                           bool preserve_mutability = false);
 
 } // namespace oneapi::dal::backend

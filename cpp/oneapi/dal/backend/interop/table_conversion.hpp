@@ -144,7 +144,8 @@ inline auto convert_to_daal_csr_table(array<T>& data,
                                       array<std::int64_t>& row_indices,
                                       std::int64_t row_count,
                                       std::int64_t column_count,
-                                      bool allow_copy = false) {
+                                      bool allow_copy = false,
+                                      bool check_inputs = true) {
     if (!data.get_count() || !column_indices.get_count() || !row_indices.get_count())
         return daal::services::SharedPtr<daal::data_management::CSRNumericTable>();
 
@@ -160,6 +161,14 @@ inline auto convert_to_daal_csr_table(array<T>& data,
 
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_object_owner{ data });
+    if (check_inputs) {
+        for (std::int64_t i = 0; i < column_indices.get_count(); i++) {
+            ONEDAL_ASSERT(column_indices.get_mutable_data()[i] >= 0);
+        }
+        for (std::int64_t i = 0; i < row_indices.get_count(); i++) {
+            ONEDAL_ASSERT(row_indices.get_mutable_data()[i] >= 0);
+        }
+    }
     const auto daal_column_indices = daal::services::SharedPtr<std::size_t>(
         reinterpret_cast<std::size_t*>(column_indices.get_mutable_data()),
         daal_object_owner{ column_indices });

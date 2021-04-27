@@ -83,16 +83,16 @@ public:
         return 10;
     }
 
-    const void* get_data() const override {
-        return data_.get_data();
+    array<byte_t> get_data() const override {
+        return data_;
     }
 
-    const std::int64_t* get_column_indices() const override {
-        return column_indices_.get_data();
+    array<std::int64_t> get_column_indices() const override {
+        return column_indices_;
     }
 
-    const std::int64_t* get_row_indices() const override {
-        return row_indices_.get_data();
+    array<std::int64_t> get_row_indices() const override {
+        return row_indices_;
     }
 
     data_layout get_data_layout() const override {

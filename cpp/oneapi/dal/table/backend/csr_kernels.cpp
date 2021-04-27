@@ -22,74 +22,10 @@ namespace oneapi::dal::backend {
 
 using error_msg = dal::detail::error_messages;
 
-template <typename Policy, typename Data>
-static void make_mutable_data(const Policy& policy, array<Data>& array) {
-    if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
-        array.need_mutable_data();
-    }
-    else {
-        static_assert("make_mutable_data(): undefined policy type");
-    }
-}
-
-template <typename Policy, typename Data>
-static void reset_array(const Policy& policy,
-                        array<Data>& array,
-                        std::int64_t count,
-                        const alloc_kind& kind) {
-    if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
-        array.reset(count);
-    }
-    else {
-        static_assert("reset_array(): undefined policy type");
-    }
-}
-
-template <typename Policy, typename Data>
-static bool has_array_data_kind(const Policy& policy,
-                                const array<Data>& array,
-                                const alloc_kind& kind) {
-    if (array.get_count() <= 0) {
-        return false;
-    }
-
-    if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
-        ONEDAL_ASSERT(kind == alloc_kind::host, "Incompatible policy and type of allocation");
-        return true;
-    }
-    else {
-        static_assert("has_array_data_kind(): undefined policy type");
-    }
-
-    return false;
-}
-
-template <typename DataSrc, typename DataDest>
-static void refer_origin_data(const array<DataSrc>& src,
-                              std::int64_t src_start_index,
-                              std::int64_t dst_count,
-                              array<DataDest>& dst) {
-    ONEDAL_ASSERT(src_start_index >= 0);
-    ONEDAL_ASSERT(src.get_count() > src_start_index);
-    ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >=
-                  dst_count * sizeof(DataDest));
-
-    if (src.has_mutable_data()) {
-        // TODO: in future, when table knows about mutability of its data this branch shall be
-        // available only for builders, not for tables.
-        auto start_pointer = reinterpret_cast<DataDest*>(src.get_mutable_data() + src_start_index);
-        dst.reset(src, start_pointer, dst_count);
-    }
-    else {
-        auto start_pointer = reinterpret_cast<const DataDest*>(src.get_data() + src_start_index);
-        dst.reset(src, start_pointer, dst_count);
-    }
-}
-
-static void check_origin_data(const array<byte_t>& origin_data,
-                              std::int64_t element_count,
-                              std::int64_t origin_dtype_size,
-                              std::int64_t block_dtype_size) {
+ONEDAL_FORCEINLINE void check_origin_data(const array<byte_t>& origin_data,
+                                          std::int64_t element_count,
+                                          std::int64_t origin_dtype_size,
+                                          std::int64_t block_dtype_size) {
     detail::check_mul_overflow(element_count, std::max(origin_dtype_size, block_dtype_size));
     ONEDAL_ASSERT(origin_data.get_count() >= element_count * origin_dtype_size);
 }
@@ -102,14 +38,15 @@ void pull_sparse_block_impl(const Policy& policy,
                             const array<std::int64_t>& origin_column_indices,
                             const array<std::int64_t>& origin_row_indices,
                             detail::sparse_block<BlockData>& block,
-                            alloc_kind kind) {
+                            alloc_kind kind,
+                            bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
+    constexpr data_type block_dtype = detail::make_data_type<BlockData>();
+
     const auto origin_dtype_size = detail::get_data_type_size(origin_info.dtype_);
 
     // overflows checked here
     check_origin_data(origin_data, origin_info.element_count_, origin_dtype_size, block_dtype_size);
-
-    const auto block_dtype = detail::make_data_type<BlockData>();
 
     const std::int64_t origin_offset =
         origin_row_indices[block_info.row_offset_] - origin_row_indices[0];
@@ -119,15 +56,18 @@ void pull_sparse_block_impl(const Policy& policy,
         origin_row_indices[block_info.row_offset_];
 
     const bool same_type(block_dtype == origin_info.dtype_);
-    //const bool same_indexing(block_info.indexing_ == origin_info.indexing_);
 
     // data
-    if (same_type && has_array_data_kind(policy, origin_data, kind)) {
-        refer_origin_data(origin_data, origin_offset * block_dtype_size, block_size, block.data);
+    if (same_type && !alloc_kind_requires_copy(get_alloc_kind(origin_data), kind)) {
+        refer_origin_data(origin_data,
+                          origin_offset * block_dtype_size,
+                          block_size,
+                          block.data,
+                          preserve_mutability);
     }
     else {
-        if (block.data.get_count() < block_size || block.data.has_mutable_data() == false ||
-            has_array_data_kind(policy, block.data, kind) == false) {
+        if (block.data.get_count() < block_size || !block.data.has_mutable_data() ||
+            alloc_kind_requires_copy(get_alloc_kind(block.data), kind)) {
             reset_array(policy, block.data, block_size, kind);
         }
 
@@ -143,19 +83,27 @@ void pull_sparse_block_impl(const Policy& policy,
     }
 
     // column indices
-    if (has_array_data_kind(policy, origin_column_indices, kind) == false) {
+    if (!alloc_kind_requires_copy(get_alloc_kind(origin_column_indices), kind)) {
         reset_array(policy, block.column_indices, block_size, kind);
     }
-    refer_origin_data(origin_column_indices, origin_offset, block_size, block.column_indices);
+    refer_origin_data(origin_column_indices,
+                      origin_offset,
+                      block_size,
+                      block.column_indices,
+                      preserve_mutability);
 
     // row_indices
     if (block.row_indices.get_count() < block_info.row_count_ + 1 ||
-        block.row_indices.has_mutable_data() == false ||
-        has_array_data_kind(policy, block.row_indices, kind) == false) {
+        !block.row_indices.has_mutable_data() ||
+        alloc_kind_requires_copy(get_alloc_kind(block.row_indices), kind)) {
         reset_array(policy, block.row_indices, block_info.row_count_ + 1, kind);
     }
     if (block_info.row_offset_ == 0) {
-        refer_origin_data(origin_row_indices, 0, block_info.row_count_, block.row_indices);
+        refer_origin_data(origin_row_indices,
+                          0,
+                          block_info.row_count_,
+                          block.row_indices,
+                          preserve_mutability);
     }
     else {
         auto src_row_indices = origin_row_indices.get_data();
@@ -177,7 +125,8 @@ void csr_pull_sparse_block(const Policy& policy,
                            const array<std::int64_t>& origin_column_indices,
                            const array<std::int64_t>& origin_row_indices,
                            detail::sparse_block<BlockData>& block,
-                           alloc_kind requested_alloc_kind) {
+                           alloc_kind requested_alloc_kind,
+                           bool preserve_mutability) {
     switch (origin_info.layout_) {
         case data_layout::row_major:
             pull_sparse_block_impl(policy,
@@ -187,7 +136,8 @@ void csr_pull_sparse_block(const Policy& policy,
                                    origin_column_indices,
                                    origin_row_indices,
                                    block,
-                                   requested_alloc_kind);
+                                   requested_alloc_kind,
+                                   preserve_mutability);
             break;
         default: throw dal::domain_error(error_msg::unsupported_data_layout());
     }
@@ -201,7 +151,8 @@ void csr_pull_sparse_block(const Policy& policy,
                                         const array<std::int64_t>& origin_column_indices, \
                                         const array<std::int64_t>& origin_row_indices,    \
                                         detail::sparse_block<BlockData>& block,           \
-                                        alloc_kind requested_alloc_kind);
+                                        alloc_kind requested_alloc_kind,                  \
+                                        bool preserve_mutability = false);
 
 #define INSTANTIATE_ALL_POLICIES(Data) INSTANTIATE(detail::default_host_policy, Data)
 

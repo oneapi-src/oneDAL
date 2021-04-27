@@ -39,18 +39,19 @@ TEST("can read csr table via csr accessor") {
                          empty_delete<const double>(),
                          empty_delete<const std::int64_t>(),
                          empty_delete<const std::int64_t>() };
-    const auto csr_block = detail::csr_accessor<const double>(t).pull({ 0, -1 });
+    const auto [data_array, cidx_array, ridx_array, indexing] =
+        detail::csr_accessor<const double>(t).pull({ 0, -1 });
 
-    REQUIRE(data == csr_block.data.get_data());
-    REQUIRE(column_indices == csr_block.column_indices.get_data());
-    REQUIRE(row_indices == csr_block.row_indices.get_data());
+    REQUIRE(data == data_array.get_data());
+    REQUIRE(column_indices == cidx_array.get_data());
+    REQUIRE(row_indices == ridx_array.get_data());
 
-    for (std::int64_t i = 0; i < csr_block.data.get_count(); i++) {
-        REQUIRE(csr_block.data[i] == data[i]);
-        REQUIRE(csr_block.column_indices[i] == column_indices[i]);
+    for (std::int64_t i = 0; i < data_array.get_count(); i++) {
+        REQUIRE(data_array[i] == data[i]);
+        REQUIRE(cidx_array[i] == column_indices[i]);
     }
-    for (std::int64_t i = 0; i < csr_block.row_indices.get_count(); i++) {
-        REQUIRE(csr_block.row_indices[i] == row_indices[i]);
+    for (std::int64_t i = 0; i < ridx_array.get_count(); i++) {
+        REQUIRE(ridx_array[i] == row_indices[i]);
     }
 }
 
