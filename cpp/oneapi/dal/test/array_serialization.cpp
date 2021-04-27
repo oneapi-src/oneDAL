@@ -76,7 +76,7 @@ public:
         }
     }
 
-    void serialize_deserialize(const array<T>& original, array<T> deserialized = {}) {
+    void serialize_deserialize(const array<T>& original) {
         te::mock_archive_state state;
 
         INFO("serialize") {
@@ -85,6 +85,7 @@ public:
         }
 
         INFO("deserialize") {
+            array<T> deserialized;
             te::mock_input_archive ar(state);
             detail::deserialize(deserialized, ar);
 
@@ -97,7 +98,7 @@ public:
 using array_types = std::tuple<std::int32_t, float, double>;
 
 TEMPLATE_LIST_TEST_M(array_serialization_test,
-                     "serialize-deserialize empty array",
+                     "serialize/deserialize empty array",
                      "[empty]",
                      array_types) {
     const auto empty_array = this->get_empty_array();
@@ -105,7 +106,7 @@ TEMPLATE_LIST_TEST_M(array_serialization_test,
 }
 
 TEMPLATE_LIST_TEST_M(array_serialization_test,
-                     "serialize-deserialize host array",
+                     "serialize/deserialize host array",
                      "[host]",
                      array_types) {
     const std::int64_t count = GENERATE(1, 10, 1000);
@@ -117,18 +118,6 @@ TEMPLATE_LIST_TEST_M(array_serialization_test,
 #ifdef ONEDAL_DATA_PARALLEL
 TEMPLATE_LIST_TEST_M(array_serialization_test,
                      "serialize device array, deserialize to host array",
-                     "[device]",
-                     array_types) {
-    const std::int64_t count = GENERATE(1, 10, 1000);
-    const auto device_array = this->get_device_backed_array(count);
-
-    this->serialize_deserialize(device_array);
-}
-#endif
-
-#ifdef ONEDAL_DATA_PARALLEL
-TEMPLATE_LIST_TEST_M(array_serialization_test,
-                     "serialize/deserialize device array",
                      "[device]",
                      array_types) {
     const std::int64_t count = GENERATE(1, 10, 1000);
