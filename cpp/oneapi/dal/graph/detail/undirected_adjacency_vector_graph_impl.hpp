@@ -60,27 +60,26 @@ public:
         return _edge_count;
     }
 
-    ONEDAL_FORCEINLINE auto get_vertex_degree(const IndexType& vertex) const noexcept
-        -> edge_size_type {
-        return _degrees_ptr[vertex];
+    ONEDAL_FORCEINLINE auto get_vertex_degree(const IndexType& u) const noexcept
+        -> vertex_edge_size_type {
+        return _degrees_ptr[u];
     }
 
-    ONEDAL_FORCEINLINE auto get_vertex_neighbors(const IndexType& vertex) const noexcept
+    ONEDAL_FORCEINLINE auto get_vertex_neighbors_begin(const IndexType& u) const noexcept
+        -> const_vertex_edge_iterator {
+        return _cols_ptr + _rows[u];
+    }
+
+    ONEDAL_FORCEINLINE auto get_vertex_neighbors_end(const IndexType& u) const noexcept
+        -> const_vertex_edge_iterator {
+        return _cols_ptr + _rows[u + 1];
+    }
+
+    ONEDAL_FORCEINLINE auto get_vertex_neighbors(const IndexType& u) const noexcept
         -> const_vertex_edge_range {
-        const IndexType* vertex_neighbors_begin = _cols.get_data() + _rows[vertex];
-        const IndexType* vertex_neighbors_end = _cols.get_data() + _rows[vertex + 1];
-        return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
+        return std::make_pair(get_vertex_neighbors_begin(u), get_vertex_neighbors_end(u));
     }
 
-    ONEDAL_FORCEINLINE auto get_vertex_neighbors_begin(const IndexType& vertex) const noexcept
-        -> const_vertex_edge_iterator {
-        return _cols_ptr + _rows[vertex];
-    }
-
-    ONEDAL_FORCEINLINE auto get_vertex_neighbors_end(const IndexType& vertex) const noexcept
-        -> const_vertex_edge_iterator {
-        return _cols_ptr + _rows[vertex + 1];
-    }
     vertex_set _cols;
     vertex_set _degrees;
     edge_set _rows;

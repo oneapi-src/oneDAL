@@ -22,30 +22,29 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename Graph>
-constexpr auto get_vertex_count_impl(const Graph &graph) noexcept -> vertex_size_type<Graph> {
-    const auto &layout = dal::detail::get_impl(graph).get_topology();
-    return layout.get_vertex_count();
+constexpr auto get_vertex_count_impl(const Graph &g) noexcept -> vertex_size_type<Graph> {
+    const auto &t = dal::detail::get_impl(g).get_topology();
+    return t.get_vertex_count();
 }
 
 template <typename Graph>
-constexpr auto get_edge_count_impl(const Graph &graph) noexcept -> edge_size_type<Graph> {
-    const auto &layout = dal::detail::get_impl(graph).get_topology();
-    return layout.get_edge_count();
+constexpr auto get_edge_count_impl(const Graph &g) noexcept -> edge_size_type<Graph> {
+    const auto &t = dal::detail::get_impl(g).get_topology();
+    return t.get_edge_count();
 }
 
 template <typename Graph>
-constexpr auto get_vertex_degree_impl(const Graph &graph, const vertex_type<Graph> &vertex) noexcept
+constexpr auto get_vertex_degree_impl(const Graph &g, const vertex_type<Graph> &u) noexcept
     -> vertex_edge_size_type<Graph> {
-    const auto &layout = dal::detail::get_impl(graph).get_topology();
-    return layout.get_vertex_degree(vertex);
+    const auto &t = dal::detail::get_impl(g).get_topology();
+    return t.get_vertex_degree(u);
 }
 
 template <typename Graph>
-constexpr auto get_vertex_neighbors_impl(const Graph &graph,
-                                         const vertex_type<Graph> &vertex) noexcept
+constexpr auto get_vertex_neighbors_impl(const Graph &g, const vertex_type<Graph> &u) noexcept
     -> const_vertex_edge_range_type<Graph> {
-    const auto &layout = dal::detail::get_impl(graph).get_topology();
-    return layout.get_vertex_neighbors(vertex);
+    const auto &t = dal::detail::get_impl(g).get_topology();
+    return t.get_vertex_neighbors(u);
 }
 
 } // namespace oneapi::dal::preview::detail
