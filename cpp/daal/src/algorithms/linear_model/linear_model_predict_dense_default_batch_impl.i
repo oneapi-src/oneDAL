@@ -90,9 +90,10 @@ void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(
 
 template <typename algorithmFPType, CpuType cpu>
 void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures,
-                                                                                   DAAL_INT * numRowsInBlock, NumericTable * dataTable, DAAL_INT * numBetas,
-                                                                                   const algorithmFPType * beta, DAAL_INT * numResponses,
-                                                                                   algorithmFPType * responseBlock, bool findBeta0)
+                                                                                   DAAL_INT * numRowsInBlock, NumericTable * dataTable,
+                                                                                   DAAL_INT * numBetas, const algorithmFPType * beta,
+                                                                                   DAAL_INT * numResponses, algorithmFPType * responseBlock,
+                                                                                   bool findBeta0)
 {
     SafeStatus safeStat;
     algorithmFPType one          = 1.0;
@@ -114,8 +115,8 @@ void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesS
         ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startCol, startRow, nRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS_THR(xBlock);
         const algorithmFPType * data = xBlock.get();
-        Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, numResponses, numRowsInBlock, &colSize, &one, beta + 1 + startCol, numBetas, data, &numRowsInData,
-                                           &one, responseBlock, numResponses);
+        Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, numResponses, numRowsInBlock, &colSize, &one, beta + 1 + startCol, numBetas, data,
+                                           &numRowsInData, &one, responseBlock, numResponses);
     }
     if (findBeta0)
     {
