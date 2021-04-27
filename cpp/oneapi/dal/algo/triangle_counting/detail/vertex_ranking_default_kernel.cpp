@@ -71,9 +71,9 @@ std::int64_t triangle_counting<Float,
     });
 }
 
-ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
-                                                    const array<std::int64_t>& local_triangles,
-                                                    std::int64_t vertex_count) {
+std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
+                                      const array<std::int64_t>& local_triangles,
+                                      std::int64_t vertex_count) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::compute_global_triangles<decltype(cpu)>(local_triangles, vertex_count);
     });

@@ -89,9 +89,9 @@ struct triangle_counting<Float,
                             std::int64_t edge_count) const;
 };
 
-std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
-                                      const array<std::int64_t>& local_triangles,
-                                      std::int64_t vertex_count);
+ONEDAL_EXPORT std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
+                                                    const array<std::int64_t>& local_triangles,
+                                                    std::int64_t vertex_count);
 
 template <typename Allocator, typename Topology>
 struct triangle_counting_local {
