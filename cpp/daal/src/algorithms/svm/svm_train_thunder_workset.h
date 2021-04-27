@@ -184,25 +184,13 @@ protected:
         return 1 << count;
     }
 
-    enum class CheckClassLabels
-    {
-        none,
-        positive,
-        negative
-    };
-
     void moveRight(int64_t & pLeft, const IdxValType * sortedFIndices, const algorithmFPType * y, const algorithmFPType * alpha,
                    const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none)
     {
-        auto checkLabel = [&y, &checkLabels](IndexType i) {
-            return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y[i] > 0)
-                   || (checkLabels == CheckClassLabels::negative) && (y[i] < 0);
-        };
-
         if (pLeft < _nVectors)
         {
             IndexType i = sortedFIndices[pLeft].val;
-            while (_indicator[i] || !(checkLabel(i) && HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i])))
+            while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i], checkLabels))
             {
                 pLeft++;
                 if (pLeft == _nVectors)
@@ -223,15 +211,10 @@ protected:
     void moveLeft(int64_t & pRight, const IdxValType * sortedFIndices, const algorithmFPType * y, const algorithmFPType * alpha,
                   const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none)
     {
-        auto checkLabel = [&y, &checkLabels](IndexType i) {
-            return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y[i] > 0)
-                   || (checkLabels == CheckClassLabels::negative) && (y[i] < 0);
-        };
-
         if (pRight >= 0)
         {
             IndexType i = sortedFIndices[pRight].val;
-            while (_indicator[i] || !(checkLabel(i) && HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i])))
+            while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i], checkLabels))
             {
                 pRight--;
                 if (pRight == -1)

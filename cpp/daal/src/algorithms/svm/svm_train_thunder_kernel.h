@@ -60,7 +60,7 @@ private:
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS,
                                     const size_t nVectors, const size_t nWS, const algorithmFPType * cw, const double eps, const double tau,
                                     algorithmFPType * buffer, char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,
-                                    algorithmFPType & localDiff) const;
+                                    algorithmFPType & localDiff, SvmType svmType) const;
 
     services::Status updateGrad(algorithmFPType ** kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * grad, const size_t nVectors,
                                 const size_t nTrainVectors, const size_t nWS);

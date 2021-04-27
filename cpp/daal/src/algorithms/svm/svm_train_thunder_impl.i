@@ -156,7 +156,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         }
 
         DAAL_CHECK_STATUS(status, SMOBlockSolver(y, grad, wsIndices, kernelSOARes, nVectors, nWS, cw, accuracyThreshold, tau, buffer.get(), I.get(),
-                                                 alpha, deltaAlpha.get(), diff));
+                                                 alpha, deltaAlpha.get(), diff, svmType));
 
         DAAL_CHECK_STATUS(status, updateGrad(kernelSOARes, deltaAlpha.get(), grad, nVectors, nTrainVectors, nWS));
         if (checkStopCondition(diff, diffPrev, accuracyThreshold, sameLocalDiff) && iter >= nNoChanges) break;
@@ -276,12 +276,10 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad,
-                                                                             const uint32_t * wsIndices, algorithmFPType ** kernelWS,
-                                                                             const size_t nVectors, const size_t nWS, const algorithmFPType * cw,
-                                                                             const double accuracyThreshold, const double tau,
-                                                                             algorithmFPType * buffer, char * I, algorithmFPType * alpha,
-                                                                             algorithmFPType * deltaAlpha, algorithmFPType & localDiff) const
+services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
+    const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS, const size_t nVectors,
+    const size_t nWS, const algorithmFPType * cw, const double accuracyThreshold, const double tau, algorithmFPType * buffer, char * I,
+    algorithmFPType * alpha, algorithmFPType * deltaAlpha, algorithmFPType & localDiff, SvmType svmType) const
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SMOBlockSolver);
     services::Status status;
@@ -321,6 +319,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(con
                 char Ii                                    = free;
                 Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yLocal[i], alphaLocal[i], cwLocal[i]) ? up : free;
                 Ii |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yLocal[i], alphaLocal[i], cwLocal[i]) ? low : free;
+                Ii |= (yLocal[i] > 0) ? positive : negative;
                 I[i] = Ii;
 
                 PRAGMA_IVDEP
@@ -342,15 +341,73 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(con
     size_t iter = 0;
     for (; iter < innerMaxIterations; ++iter)
     {
-        algorithmFPType GMin  = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nWS, gradLocal, I, Bi);
+        algorithmFPType GMin  = MaxVal<algorithmFPType>::get();
         algorithmFPType GMax  = -MaxVal<algorithmFPType>::get();
         algorithmFPType GMax2 = -MaxVal<algorithmFPType>::get();
 
         const algorithmFPType zero(0.0);
-        const algorithmFPType KBiBi            = kdLocal[Bi];
-        const algorithmFPType * const KBiBlock = &kernelLocal[Bi * nWS];
 
-        HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(0, nWS, KBiBlock, kdLocal, gradLocal, I, GMin, KBiBi, tau, Bj, GMax, GMax2, delta);
+        const algorithmFPType * KBiBlock = nullptr;
+
+        if (svmType == SvmType::nu_classification || svmType == SvmType::nu_regression)
+        {
+            int Bi_p = -1;
+            int Bi_n = -1;
+            int Bj_p = -1;
+            int Bj_n = -1;
+
+            algorithmFPType GMax_p  = -MaxVal<algorithmFPType>::get();
+            algorithmFPType GMax_n  = -MaxVal<algorithmFPType>::get();
+            algorithmFPType GMax2_p = -MaxVal<algorithmFPType>::get();
+            algorithmFPType GMax2_n = -MaxVal<algorithmFPType>::get();
+
+            algorithmFPType delta_p = algorithmFPType(0);
+            algorithmFPType delta_n = algorithmFPType(0);
+
+            algorithmFPType GMin_p = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nWS, gradLocal, I, Bi_p, CheckClassLabels::positive);
+            algorithmFPType GMin_n = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nWS, gradLocal, I, Bi_n, CheckClassLabels::negative);
+
+            const algorithmFPType KBiBi_p = kdLocal[Bi_p];
+            const algorithmFPType KBiBi_n = kdLocal[Bi_n];
+
+            const algorithmFPType * const KBiBlock_p = &kernelLocal[Bi_p * nWS];
+            const algorithmFPType * const KBiBlock_n = &kernelLocal[Bi_n * nWS];
+
+            HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(0, nWS, KBiBlock_p, kdLocal, gradLocal, I, GMin_p, KBiBi_p, tau, Bj_p, GMax_p, GMax2_p,
+                                                            delta_p, CheckClassLabels::positive);
+            HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(0, nWS, KBiBlock_n, kdLocal, gradLocal, I, GMin_n, KBiBi_n, tau, Bj_n, GMax_n, GMax2_n,
+                                                            delta_n, CheckClassLabels::negative);
+
+            if (GMax_p > GMax_n)
+            {
+                Bi       = Bi_p;
+                Bj       = Bj_p;
+                delta    = delta_p;
+                GMin     = GMin_p;
+                GMax     = GMax_p;
+                GMax2    = GMax2_p;
+                KBiBlock = KBiBlock_p;
+            }
+            else
+            {
+                Bi       = Bi_n;
+                Bj       = Bj_n;
+                delta    = delta_n;
+                GMin     = GMin_n;
+                GMax     = GMax_n;
+                GMax2    = GMax2_n;
+                KBiBlock = KBiBlock_n;
+            }
+        }
+        else
+        {
+            GMin = HelperTrainSVM<algorithmFPType, cpu>::WSSi(nWS, gradLocal, I, Bi);
+
+            const algorithmFPType KBiBi = kdLocal[Bi];
+            KBiBlock                    = &kernelLocal[Bi * nWS];
+
+            HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(0, nWS, KBiBlock, kdLocal, gradLocal, I, GMin, KBiBi, tau, Bj, GMax, GMax2, delta);
+        }
 
         localDiff = GMax2 - GMin;
 

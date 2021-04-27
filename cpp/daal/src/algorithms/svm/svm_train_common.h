@@ -38,36 +38,69 @@ using namespace daal::internal;
 
 enum SVMVectorStatus
 {
-    free   = 0x0,
-    up     = 0x1,
-    low    = 0x2,
-    shrink = 0x4
+    free     = 0x0,
+    up       = 0x1,
+    low      = 0x2,
+    shrink   = 0x4,
+    positive = 0x8,
+    negative = 0x16
+};
+
+enum class CheckClassLabels
+{
+    none,
+    positive,
+    negative
 };
 
 template <typename algorithmFPType, CpuType cpu>
 struct HelperTrainSVM
 {
-    DAAL_FORCEINLINE static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    DAAL_FORCEINLINE static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C,
+                                         CheckClassLabels checkLabels = CheckClassLabels::none)
     {
-        return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
+        return checkLabel(y, checkLabels) && ((y > 0 && alpha < C) || (y < 0 && alpha > 0));
     }
-    DAAL_FORCEINLINE static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C)
+    DAAL_FORCEINLINE static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C,
+                                         CheckClassLabels checkLabels = CheckClassLabels::none)
     {
-        return (y > 0 && alpha > 0) || (y < 0 && alpha < C);
+        return checkLabel(y, checkLabels) && ((y > 0 && alpha > 0) || (y < 0 && alpha < C));
     }
 
-    DAAL_FORCEINLINE static algorithmFPType WSSi(size_t nActiveVectors, const algorithmFPType * grad, const char * I, int & Bi);
+    DAAL_FORCEINLINE static algorithmFPType WSSi(size_t nActiveVectors, const algorithmFPType * grad, const char * I, int & Bi,
+                                                 CheckClassLabels checkLabels = CheckClassLabels::none);
 
     DAAL_FORCEINLINE static void WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
                                            const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                            const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
-                                           algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta);
+                                           algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
+                                           CheckClassLabels checkLabels = CheckClassLabels::none);
 
 private:
     DAAL_FORCEINLINE static void WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
                                                    const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                                    const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
-                                                   algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta);
+                                                   algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
+                                                   CheckClassLabels checkLabels = CheckClassLabels::none);
+
+    DAAL_FORCEINLINE static bool checkLabel(const algorithmFPType y, CheckClassLabels checkLabels = CheckClassLabels::none)
+    {
+        return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y > 0)
+               || (checkLabels == CheckClassLabels::negative) && (y < 0);
+    }
+    DAAL_FORCEINLINE static char getSign(CheckClassLabels checkLabels)
+    {
+        char sign = positive | negative;
+        if (checkLabels == CheckClassLabels::positive)
+        {
+            sign = positive;
+        }
+        else if (checkLabels == CheckClassLabels::negative)
+        {
+            sign = negative;
+        }
+        return sign;
+    }
 };
 
 template <CpuType cpu, typename TKey>
