@@ -29,6 +29,6 @@
 
 // Disables unexpected exceptions handing in Catch2.
 // It is easier to debug exception via GDB if there is handler.
-// #define CATCH_CONFIG_DISABLE_EXCEPTIONS
+#define CATCH_CONFIG_DISABLE_EXCEPTIONS
 
 #include <catch2/catch.hpp>

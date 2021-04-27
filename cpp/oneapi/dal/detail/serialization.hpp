@@ -72,13 +72,31 @@ public:
 };
 
 template <typename T>
-inline constexpr bool is_trivially_serializable_v = std::is_arithmetic_v<T>;
+inline constexpr bool is_trivially_serializable_v = std::is_arithmetic_v<T> || std::is_enum_v<T>;
 
 template <typename T>
 using enable_if_trivially_serializable_t = std::enable_if_t<is_trivially_serializable_v<T>>;
 
 template <typename T>
 using enable_if_user_serializable_t = std::enable_if_t<!is_trivially_serializable_v<T>>;
+
+template <typename T,
+          bool is_enum = std::is_enum_v<T>,
+          typename = enable_if_trivially_serializable_t<T>>
+struct trivial_serialization_type;
+
+template <typename T>
+struct trivial_serialization_type<T, false> {
+    using type = T;
+};
+
+template <typename T>
+struct trivial_serialization_type<T, true> {
+    using type = std::underlying_type_t<T>;
+};
+
+template <typename T>
+using trivial_serialization_type_t = typename trivial_serialization_type<T>::type;
 
 template <typename Archive>
 class input_archive_impl : public base, public input_archive_iface {
@@ -189,7 +207,8 @@ public:
 private:
     template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
     void process(T& value) {
-        get_impl().deserialize(&value, make_data_type<T>());
+        using trivial_t = trivial_serialization_type_t<T>;
+        get_impl().deserialize(reinterpret_cast<trivial_t*>(&value), make_data_type<trivial_t>());
     }
 
     template <typename T, enable_if_user_serializable_t<T>* = nullptr>
@@ -236,7 +255,9 @@ public:
 private:
     template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
     void process(const T& value) {
-        get_impl().serialize(&value, make_data_type<T>());
+        using trivial_t = trivial_serialization_type_t<T>;
+        get_impl().serialize(reinterpret_cast<const trivial_t*>(&value),
+                             make_data_type<trivial_t>());
     }
 
     template <typename T, enable_if_user_serializable_t<T>* = nullptr>

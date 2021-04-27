@@ -27,10 +27,13 @@ inline void serialize_array_on_host(output_archive& archive,
                                     const byte_t* data,
                                     std::int64_t size_in_bytes,
                                     data_type dtype) {
-    using backend::serialization_ids;
-    archive(serialization_ids::array);
+    archive(backend::serialization_ids::array);
     archive(dtype, size_in_bytes);
-    archive.range(data, data + size_in_bytes);
+
+    if (size_in_bytes > 0) {
+        ONEDAL_ASSERT(data);
+        archive.range(data, data + size_in_bytes);
+    }
 }
 
 inline deserialize_result_t deserialize_array_on_host(input_archive& archive,
@@ -38,27 +41,31 @@ inline deserialize_result_t deserialize_array_on_host(input_archive& archive,
     // TODO: Replace assertions with exceptions
 
     {
-        using backend::serialization_ids;
-        const std::uint64_t serialization_id = archive.pop<std::uint64_t>();
-        ONEDAL_ASSERT(serialization_id == serialization_ids::array);
+        [[maybe_unused]] const std::uint64_t serialization_id = archive.pop<std::uint64_t>();
+        ONEDAL_ASSERT(serialization_id == backend::serialization_ids::array);
     }
 
     {
-        const data_type dtype = archive.pop<data_type>();
+        [[maybe_unused]] const data_type dtype = archive.pop<data_type>();
         ONEDAL_ASSERT(dtype == expected_dtype);
     }
 
     const std::int64_t size_in_bytes = archive.pop<std::int64_t>();
-    ONEDAL_ASSERT(size_in_bytes > 0);
+    ONEDAL_ASSERT(size_in_bytes >= 0);
     ONEDAL_ASSERT(size_in_bytes % get_data_type_size(expected_dtype) == 0);
 
-    auto deleter = make_default_delete<byte_t>(detail::default_host_policy{});
-    byte_t* data_placeholder = malloc<byte_t>(detail::default_host_policy{}, size_in_bytes);
-    auto shared_data_placeholder = shared<byte_t>{ data_placeholder, std::move(deleter) };
+    if (size_in_bytes > 0) {
+        auto deleter = make_default_delete<byte_t>(detail::default_host_policy{});
+        byte_t* data_placeholder = malloc<byte_t>(detail::default_host_policy{}, size_in_bytes);
+        auto shared_data_placeholder = shared<byte_t>{ data_placeholder, std::move(deleter) };
 
-    archive.range(data_placeholder, data_placeholder + size_in_bytes);
+        archive.range(data_placeholder, data_placeholder + size_in_bytes);
 
-    return { shared_data_placeholder, size_in_bytes };
+        return { shared_data_placeholder, size_in_bytes };
+    }
+    else {
+        return { shared<byte_t>{}, size_in_bytes };
+    }
 }
 
 inline void serialize_array_impl(const default_host_policy& policy,
@@ -103,13 +110,19 @@ inline deserialize_result_t deserialize_array_impl(const data_parallel_policy& p
     const auto [shared_data_host, size_in_bytes] =
         deserialize_array_on_host(archive, expected_dtype);
 
-    auto deleter = make_default_delete<byte_t>(q);
-    byte_t* data_device = backend::malloc_device<byte_t>(q, size_in_bytes);
-    auto shared_data_device = shared<byte_t>{ data_device, std::move(deleter) };
+    if (size_in_bytes > 0) {
+        auto deleter = make_default_delete<byte_t>(policy);
+        byte_t* data_device = backend::malloc_device<byte_t>(q, size_in_bytes);
+        auto shared_data_device = shared<byte_t>{ data_device, std::move(deleter) };
 
-    backend::copy(q, data_device, shared_data_host.get(), size_in_bytes);
+        backend::copy(q, data_device, shared_data_host.get(), size_in_bytes);
 
-    return { shared_data_device, size_in_bytes };
+        return { shared_data_device, size_in_bytes };
+    }
+    else {
+        ONEDAL_ASSERT(shared_data_host.get() == nullptr);
+        return { shared_data_host, size_in_bytes };
+    }
 }
 #endif
 
@@ -139,10 +152,10 @@ deserialize_result_t deserialize_array(const Policy& policy,
                                                     input_archive& archive, \
                                                     data_type expected_dtype);
 
-INSTANTIATE(default_host_policy);
+INSTANTIATE(default_host_policy)
 
 #ifdef ONEDAL_DATA_PARALLEL
-INSTANTIATE(data_parallel_policy);
+INSTANTIATE(data_parallel_policy)
 #endif
 
 } // namespace oneapi::dal::detail::v1

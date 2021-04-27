@@ -695,13 +695,14 @@ private:
         count_ = 0;
     }
 
-    template <typename OuputArchive>
-    void serialize(OuputArchive& ar) const {
+    void serialize(detail::output_archive& ar) const {
         impl_->serialize(ar);
     }
 
-    template <typename InputArchive>
-    void deserialize(InputArchive& ar) {}
+    void deserialize(detail::input_archive& ar) {
+        impl_->deserialize(ar);
+        update_data(impl_.get());
+    }
 
     detail::unique<impl_t> impl_;
     const T* data_ptr_;

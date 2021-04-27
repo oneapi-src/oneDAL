@@ -14,138 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <vector>
-#include <unordered_map>
-
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/detail/serialization.hpp"
+#include "oneapi/dal/test/engine/mocks.hpp"
 
 namespace oneapi::dal::test {
 
-class mock_archive_entry {
-public:
-    explicit mock_archive_entry(const std::uint8_t* data, data_type dtype) : dtype_(dtype) {
-        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
-        data_.assign(data, data + dtype_size);
-    }
-
-    template <typename T>
-    T get() const {
-        if (dtype_ != detail::make_data_type<T>()) {
-            throw std::invalid_argument{ "Data types do not match" };
-        }
-        const T* data = reinterpret_cast<const T*>(data_.data());
-        return *data;
-    }
-
-    void write_to(std::uint8_t* dst, data_type dtype) const {
-        if (dtype != dtype_) {
-            throw std::invalid_argument{ "Data types do not match" };
-        }
-        std::copy(data_.begin(), data_.end(), dst);
-    }
-
-private:
-    std::vector<std::uint8_t> data_;
-    data_type dtype_;
-};
-
-class mock_archive_state {
-public:
-    using entries_t = std::vector<mock_archive_entry>;
-
-    mock_archive_state() : entries_(new entries_t{}) {}
-
-    const entries_t& get() const {
-        return *entries_;
-    }
-
-    entries_t& get() {
-        return *entries_;
-    }
-
-    template <typename T>
-    T get(std::int64_t index) const {
-        ONEDAL_ASSERT(index < std::int64_t(get().size()));
-        return get()[index].template get<T>();
-    }
-
-private:
-    std::shared_ptr<entries_t> entries_;
-};
-
-class mock_input_archive {
-public:
-    std::int64_t prologue_call_count = 0;
-    std::int64_t epilogue_call_count = 0;
-
-    explicit mock_input_archive(const mock_archive_state& state) : state_(state) {}
-
-    void operator()(void* data, data_type dtype, std::int64_t count = 1) {
-        check_possition();
-
-        for (std::int64_t i = 0; i < count; i++) {
-            load(i, data, dtype);
-        }
-    }
-
-    void prologue() {
-        prologue_call_count++;
-    }
-
-    void epilogue() {
-        epilogue_call_count++;
-    }
-
-private:
-    void check_possition() const {
-        if (position_ >= state_.get().size()) {
-            throw std::runtime_error{ "We reached the end of input stream" };
-        }
-    }
-
-    void load(std::int64_t index, void* data, data_type dtype) {
-        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
-        std::uint8_t* data_bytes = static_cast<std::uint8_t*>(data);
-        state_.get()[position_++].write_to(data_bytes + index * dtype_size, dtype);
-    }
-
-    mock_archive_state state_;
-    std::size_t position_ = 0;
-};
-
-class mock_output_archive {
-public:
-    std::int64_t prologue_call_count = 0;
-    std::int64_t epilogue_call_count = 0;
-
-    explicit mock_output_archive(const mock_archive_state& state) : state_(state) {}
-
-    void operator()(const void* data, data_type dtype, std::int64_t count = 1) {
-        state_.get().reserve(state_.get().size() + count);
-
-        for (std::int64_t i = 0; i < count; i++) {
-            save(i, data, dtype);
-        }
-    }
-
-    void prologue() {
-        prologue_call_count++;
-    }
-
-    void epilogue() {
-        epilogue_call_count++;
-    }
-
-private:
-    void save(std::int64_t index, const void* data, data_type dtype) {
-        const std::int64_t dtype_size = detail::get_data_type_size(dtype);
-        const std::uint8_t* data_bytes = static_cast<const std::uint8_t*>(data);
-        state_.get().emplace_back(data_bytes + index * dtype_size, dtype);
-    }
-
-    mock_archive_state state_;
-};
+namespace te = dal::test::engine;
 
 struct pod_type {
     std::int8_t x1;
@@ -167,10 +41,10 @@ struct pod_type {
 TEST("mock primitive type") {
     const float original = 3.14;
 
-    mock_archive_state state;
+    te::mock_archive_state state;
 
     INFO("serialize") {
-        mock_output_archive ar(state);
+        te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
         REQUIRE(ar.prologue_call_count == 1);
@@ -189,6 +63,33 @@ TEST("mock primitive type") {
     }
 }
 
+enum class my_enum : std::uint64_t { one, two, three };
+
+TEST("mock enum") {
+    my_enum original = my_enum::two;
+
+    te::mock_archive_state state;
+
+    INFO("serialize") {
+        te::mock_output_archive ar(state);
+        detail::serialize(original, ar);
+
+        REQUIRE(ar.prologue_call_count == 1);
+        REQUIRE(ar.epilogue_call_count == 1);
+        REQUIRE(state.get<my_enum>(0) == original);
+    }
+
+    INFO("deserialize") {
+        my_enum deserialized;
+        mock_input_archive ar(state);
+        detail::deserialize(deserialized, ar);
+
+        REQUIRE(ar.prologue_call_count == 1);
+        REQUIRE(ar.epilogue_call_count == 1);
+        REQUIRE(deserialized == original);
+    }
+}
+
 TEST("mock POD type") {
     pod_type original;
     original.x1 = 2;
@@ -198,10 +99,10 @@ TEST("mock POD type") {
     original.x5 = 32.5;
     original.x6 = 64.6;
 
-    mock_archive_state state;
+    te::mock_archive_state state;
 
     INFO("serialize") {
-        mock_output_archive ar(state);
+        te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
         REQUIRE(state.get<std::int8_t>(0) == original.x1);
@@ -267,10 +168,10 @@ TEST("mock non-trivially copyable type") {
     const vector_type original = //
         vector_type::even_odd(element_count, even_filler, odd_filler);
 
-    mock_archive_state state;
+    te::mock_archive_state state;
 
     INFO("serialize") {
-        mock_output_archive ar(state);
+        te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
         REQUIRE(state.get<std::int64_t>(0) == element_count);
@@ -424,10 +325,10 @@ TEST("mock polymorphic type") {
     const polymorphic original = derived_a{}.set_x1(a_x1).set_x2(a_x2);
     ONEDAL_ASSERT(original.get_name() == "A");
 
-    mock_archive_state state;
+    te::mock_archive_state state;
 
     INFO("serialize") {
-        mock_output_archive ar(state);
+        te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
         REQUIRE(state.get<std::uint64_t>(0) == polymorphic_impl_a::serialization_id());

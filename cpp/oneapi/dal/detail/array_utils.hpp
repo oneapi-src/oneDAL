@@ -74,7 +74,7 @@ inline array<T> discard_mutable_data(const array<T>& ary) {
     }
     return array<T>{ ary, ary.get_data(), ary.get_count() };
 }
-z
+
 } // namespace v1
 
 using v1::array_via_policy;
