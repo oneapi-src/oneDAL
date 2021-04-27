@@ -203,6 +203,7 @@ jobs:
       source ${DALROOT}/env/vars.sh
       cd daal4py
       export NO_DIST=1
+      export PYTHON=python
       ./conda-recipe/build.sh
       python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
     displayName: daal4py build
