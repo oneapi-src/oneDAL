@@ -46,7 +46,9 @@ using namespace daal::services;
 enum class SvmType
 {
     classification,
-    regression
+    regression,
+    nu_classification,
+    nu_regression
 };
 
 struct KernelParameter

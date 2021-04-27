@@ -26,6 +26,7 @@
 
 #include "src/services/service_utils.h"
 #include "src/algorithms/service_sort.h"
+#include "src/algorithms/svm/svm_train_kernel.h"
 
 namespace daal
 {
@@ -44,8 +45,8 @@ struct TaskWorkingSet
 {
     using IndexType = uint32_t;
 
-    TaskWorkingSet(const size_t nNonZeroWeights, const size_t nVectors, const size_t maxWS)
-        : _nNonZeroWeights(nNonZeroWeights), _nVectors(nVectors), _maxWS(maxWS)
+    TaskWorkingSet(const size_t nNonZeroWeights, const size_t nVectors, const size_t maxWS, SvmType svmType)
+        : _nNonZeroWeights(nNonZeroWeights), _nVectors(nVectors), _maxWS(maxWS), _svmType(svmType)
     {}
 
     struct IdxValType
@@ -103,7 +104,7 @@ struct TaskWorkingSet
         IdxValType * sortedFIndices = _sortedFIndices.get();
 
         /* The operation copy is lightweight, therefore a large size is chosen
-            so that the number of blocks is a reasonable number. */
+        so that the number of blocks is a reasonable number. */
         const size_t blockSize = 16384;
         const size_t nBlocks   = _nVectors / blockSize + !!(_nVectors % blockSize);
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
@@ -118,50 +119,32 @@ struct TaskWorkingSet
 
         algorithms::internal::qSortByKey<IdxValType, cpu>(_nVectors, sortedFIndices);
 
+        if (_svmType == SvmType::nu_classification || _svmType == SvmType::nu_regression)
+        {
+            int64_t pLeft_p  = 0;
+            int64_t pLeft_n  = 0;
+            int64_t pRight_p = _nVectors - 1;
+            int64_t pRight_n = _nVectors - 1;
+            while (_nSelected < _nWS && (pRight_p >= 0 || pRight_n >= 0 || pLeft_p < _nVectors || pLeft_n < _nVectors))
+            {
+                moveRight(pLeft_p, sortedFIndices, y, alpha, cw, CheckClassLabels::positive);
+                if (_nSelected == _nWS) break;
+                moveRight(pLeft_n, sortedFIndices, y, alpha, cw, CheckClassLabels::negative);
+                if (_nSelected == _nWS) break;
+                moveLeft(pRight_p, sortedFIndices, y, alpha, cw, CheckClassLabels::positive);
+                if (_nSelected == _nWS) break;
+                moveLeft(pRight_n, sortedFIndices, y, alpha, cw, CheckClassLabels::negative);
+            }
+        }
+        else
         {
             int64_t pLeft  = 0;
             int64_t pRight = _nVectors - 1;
             while (_nSelected < _nWS && (pRight >= 0 || pLeft < _nVectors))
             {
-                if (pLeft < _nVectors)
-                {
-                    IndexType i = sortedFIndices[pLeft].val;
-                    while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i]))
-                    {
-                        pLeft++;
-                        if (pLeft == _nVectors)
-                        {
-                            break;
-                        }
-                        i = sortedFIndices[pLeft].val;
-                    }
-                    if (pLeft < _nVectors)
-                    {
-                        _wsIndices[_nSelected] = i;
-                        _indicator[i]          = true;
-                        ++_nSelected;
-                    }
-                }
+                moveRight(pLeft, sortedFIndices, y, alpha, cw);
                 if (_nSelected == _nWS) break;
-                if (pRight >= 0)
-                {
-                    IndexType i = sortedFIndices[pRight].val;
-                    while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i]))
-                    {
-                        pRight--;
-                        if (pRight == -1)
-                        {
-                            break;
-                        }
-                        i = sortedFIndices[pRight].val;
-                    }
-                    if (pRight >= 0)
-                    {
-                        _wsIndices[_nSelected] = i;
-                        _indicator[i]          = true;
-                        ++_nSelected;
-                    }
-                }
+                moveLeft(pRight, sortedFIndices, y, alpha, cw);
             }
         }
 
@@ -201,6 +184,71 @@ protected:
         return 1 << count;
     }
 
+    enum class CheckClassLabels
+    {
+        none,
+        positive,
+        negative
+    };
+
+    void moveRight(int64_t & pLeft, const IdxValType * sortedFIndices, const algorithmFPType * y, const algorithmFPType * alpha,
+                   const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none)
+    {
+        auto checkLabel = [&y, &checkLabels](IndexType i) {
+            return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y[i] > 0)
+                   || (checkLabels == CheckClassLabels::negative) && (y[i] < 0);
+        };
+
+        if (pLeft < _nVectors)
+        {
+            IndexType i = sortedFIndices[pLeft].val;
+            while (_indicator[i] || !(checkLabel(i) && HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i])))
+            {
+                pLeft++;
+                if (pLeft == _nVectors)
+                {
+                    break;
+                }
+                i = sortedFIndices[pLeft].val;
+            }
+            if (pLeft < _nVectors)
+            {
+                _wsIndices[_nSelected] = i;
+                _indicator[i]          = true;
+                ++_nSelected;
+            }
+        }
+    }
+
+    void moveLeft(int64_t & pRight, const IdxValType * sortedFIndices, const algorithmFPType * y, const algorithmFPType * alpha,
+                  const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none)
+    {
+        auto checkLabel = [&y, &checkLabels](IndexType i) {
+            return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y[i] > 0)
+                   || (checkLabels == CheckClassLabels::negative) && (y[i] < 0);
+        };
+
+        if (pRight >= 0)
+        {
+            IndexType i = sortedFIndices[pRight].val;
+            while (_indicator[i] || !(checkLabel(i) && HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i])))
+            {
+                pRight--;
+                if (pRight == -1)
+                {
+                    break;
+                }
+                i = sortedFIndices[pRight].val;
+            }
+            if (pRight >= 0)
+            {
+                _wsIndices[_nSelected] = i;
+                _indicator[i]          = true;
+                ++_nSelected;
+            }
+        }
+    }
+
 private:
     size_t _nNonZeroWeights;
     size_t _nVectors;
@@ -211,6 +259,8 @@ private:
     TArray<IdxValType, cpu> _sortedFIndices;
     TArray<bool, cpu> _indicator;
     TArray<IndexType, cpu> _wsIndices;
+
+    SvmType _svmType;
 };
 
 } // namespace internal

@@ -116,7 +116,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         DAAL_CHECK_STATUS(status, regressionInit(yTable, wTable, C, epsilon, y, grad, alpha, cw, nNonZeroWeights));
     }
 
-    TaskWorkingSet<algorithmFPType, cpu> workSet(nNonZeroWeights, nTrainVectors, maxBlockSize);
+    TaskWorkingSet<algorithmFPType, cpu> workSet(nNonZeroWeights, nTrainVectors, maxBlockSize, svmType);
     DAAL_CHECK_STATUS(status, workSet.init());
     const size_t nWS = workSet.getSize();
 
@@ -179,7 +179,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
     /* The operation copy is lightweight, therefore a large size is chosen
-            so that the number of blocks is a reasonable number. */
+          so that the number of blocks is a reasonable number. */
     const size_t blockSize = 16384;
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
@@ -229,7 +229,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
     /* The operation copy is lightweight, therefore a large size is chosen
-            so that the number of blocks is a reasonable number. */
+          so that the number of blocks is a reasonable number. */
     const size_t blockSize = 16384;
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
