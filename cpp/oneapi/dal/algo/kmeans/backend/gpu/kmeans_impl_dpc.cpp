@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
+#include "oneapi/dal/backend/primitives/selection/kselect_by_rows_single_col.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl.hpp"
 
@@ -137,13 +137,13 @@ sycl::event assign_clusters(sycl::queue& queue,
         auto closest_distance_block =
             pr::ndview<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
                                        { cur_rows, 1 });
-        pr::kselect_by_rows<Float> selector(queue, distances.get_shape(), 1);
-        selection_event = selector(queue,
-                                   distance_block,
-                                   1,
-                                   closest_distance_block,
-                                   label_block,
-                                   { distance_event });
+        auto selection_event =
+            pr::kselect_by_rows_single_col<Float>{}.operator()(queue,
+                                                               distance_block,
+                                                               1,
+                                                               closest_distance_block,
+                                                               label_block,
+                                                               { distance_event });
     }
     return selection_event;
 }
