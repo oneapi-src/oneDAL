@@ -192,28 +192,22 @@ jobs:
       git clone https://github.com/IntelPython/daal4py.git
     displayName: Clone daal4py
   - script: |
-      .ci/env/clang.sh
       python -m venv venv
       source venv/bin/activate
-      pip install -r .ci/scripts/conformance-scripts/requirements.txt
+      pip install -r daal4py/requirements-dev.txt
+      pip install -r daal4py/requirements-test.txt
     displayName: Create python environment
   - script: |
       source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
       cd daal4py
       export NO_DIST=1
-      export CC=clang++
-      export CXX=clang++
-      export LDFLAGS="-fPIC"
-      python setup.py install --single-version-externally-managed --record=record.txt
+      ./conda-recipe/build.sh
+      python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
     displayName: daal4py build
   - script: |
       source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
       export TBBROOT=/opt/intel/oneapi/tbb/latest
@@ -225,8 +219,6 @@ jobs:
     displayName: daal4py test
   - script: |
       source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
       export TBBROOT=/opt/intel/oneapi/tbb/latest
@@ -241,8 +233,6 @@ jobs:
     displayName: daal4py examples
   - script: |
       source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
       export TBBROOT=/opt/intel/oneapi/tbb/latest
