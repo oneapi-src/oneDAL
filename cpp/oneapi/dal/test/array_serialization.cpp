@@ -33,23 +33,14 @@ public:
     }
 
     array<T> get_host_backed_array(std::int64_t count, int seed = 7777) {
-        std::mt19937 rng(seed);
-        std::uniform_real_distribution<double> distr{ -10, 10 };
-
-        auto data = array<T>::empty(count);
-        T* data_ptr = data.get_mutable_data();
-        for (std::int64_t i = 0; i < count; i++) {
-            data_ptr[i] = T(distr(rng));
-        }
-
-        return data;
+        auto random_mat = la::generate_uniform_matrix<T>({ 1, count }, -10, 10, seed);
+        return random_mat.get_array();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     array<T> get_device_backed_array(std::int64_t count, int seed = 7777) {
-        auto q = this->get_queue();
-        const auto host_data = get_host_backed_array(count, seed);
-        return la::matrix<T>::wrap(host_data).to_device(q).get_array();
+        auto random_mat = la::generate_uniform_matrix<T>({ 1, count }, -10, 10, seed);
+        return random_mat.to_device(this->get_queue()).get_array();
     }
 #endif
 
