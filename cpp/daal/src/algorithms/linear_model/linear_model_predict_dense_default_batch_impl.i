@@ -104,7 +104,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
     const DAAL_INT nBlockSizeCols = static_cast<DAAL_INT>(blockSizeColumns);
     services::internal::service_memset_seq<algorithmFPType, cpu>(responseBlock, algorithmFPType(0.0), nRowsInBlock * nResponses);
 
-    size_t numBlocks = nFeatures / blockSizeColumns + !!(nFeatures % blockSizeColumns);
+    const size_t numBlocks = nFeatures / blockSizeColumns + !!(nFeatures % blockSizeColumns);
     for (size_t iBlock = 0; iBlock < numBlocks; ++iBlock)
     {
         const size_t startCol         = iBlock * blockSizeColumns;
@@ -178,12 +178,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         Status s;
 
         WriteOnlyRows<algorithmFPType, cpu> responseRows(r, startRow, numRowsInBlock);
-        s = responseRows.status();
-        if (!s)
-        {
-            safeStat |= s;
-            return;
-        }
+        DAAL_CHECK_BLOCK_STATUS_THR(responseRows);
         algorithmFPType * responseBlock = responseRows.get();
         DAAL_INT * pnumResponses        = (DAAL_INT *)&numResponses;
         DAAL_INT * pnumRowsInBlock      = (DAAL_INT *)&numRowsInBlock;
@@ -203,12 +198,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         {
             /* Retrieve data blocks associated with input and resulting tables */
             ReadRows<algorithmFPType, cpu> dataRows(dataTable, startRow, numRowsInBlock);
-            s = dataRows.status();
-            if (!s)
-            {
-                safeStat |= s;
-                return;
-            }
+            DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
             const algorithmFPType * dataBlock = dataRows.get();
             /* Calculate predictions */
             computeBlockOfResponses(&numFeatures, pnumRowsInBlock, dataBlock, &nAllBetas, beta, pnumResponses, responseBlock,
