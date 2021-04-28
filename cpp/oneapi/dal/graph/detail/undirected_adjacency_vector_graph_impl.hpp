@@ -52,10 +52,42 @@ public:
     topology() = default;
     virtual ~topology() = default;
 
+    ONEDAL_FORCEINLINE std::int64_t get_vertex_count() const {
+        return _vertex_count;
+    }
+
+    ONEDAL_FORCEINLINE std::int64_t get_edge_count() const {
+        return _edge_count;
+    }
+
+    ONEDAL_FORCEINLINE auto get_vertex_degree(const IndexType& u) const noexcept
+        -> vertex_edge_size_type {
+        return _degrees_ptr[u];
+    }
+
+    ONEDAL_FORCEINLINE auto get_vertex_neighbors_begin(const IndexType& u) const noexcept
+        -> const_vertex_edge_iterator {
+        return _cols_ptr + _rows[u];
+    }
+
+    ONEDAL_FORCEINLINE auto get_vertex_neighbors_end(const IndexType& u) const noexcept
+        -> const_vertex_edge_iterator {
+        return _cols_ptr + _rows[u + 1];
+    }
+
+    ONEDAL_FORCEINLINE auto get_vertex_neighbors(const IndexType& u) const noexcept
+        -> const_vertex_edge_range {
+        return std::make_pair(get_vertex_neighbors_begin(u), get_vertex_neighbors_end(u));
+    }
+
     vertex_set _cols;
     vertex_set _degrees;
     edge_set _rows;
     vertex_edge_set _rows_vertex;
+
+    const vertex_type* _cols_ptr;
+    const vertex_type* _degrees_ptr;
+    const edge_type* _rows_ptr;
 
     std::int64_t _vertex_count = 0;
     std::int64_t _edge_count = 0;
@@ -171,6 +203,9 @@ public:
         _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
         _topology._degrees = vertex_set::wrap(degrees, vertex_count);
         _topology._cols = vertex_set::wrap(neighbors, edge_count * 2);
+        _topology._rows_ptr = _topology._rows.get_data();
+        _topology._cols_ptr = _topology._cols.get_data();
+        _topology._degrees_ptr = _topology._degrees.get_data();
     }
 
     inline topology<IndexType>& get_topology() {
@@ -209,32 +244,5 @@ private:
     vertex_values<VertexValue> _vertex_values;
     edge_values<EdgeValue> _edge_values;
 };
-
-template <typename IndexType>
-constexpr std::int64_t get_topology_vertex_count(const topology<IndexType>& _topology) {
-    return _topology._vertex_count;
-}
-
-template <typename IndexType>
-constexpr std::int64_t get_topology_edge_count(const topology<IndexType>& _topology) {
-    return _topology._edge_count;
-}
-
-template <typename IndexType>
-constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
-                                          const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::vertex_edge_size_type {
-    return _topology._degrees[vertex];
-}
-
-template <typename IndexType>
-constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
-                                             const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::const_vertex_edge_range {
-    const IndexType* vertex_neighbors_begin = _topology._cols.get_data() + _topology._rows[vertex];
-    const IndexType* vertex_neighbors_end =
-        _topology._cols.get_data() + _topology._rows[vertex + 1];
-    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
-}
 
 } // namespace oneapi::dal::preview::detail
