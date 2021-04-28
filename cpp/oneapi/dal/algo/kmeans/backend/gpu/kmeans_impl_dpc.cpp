@@ -59,6 +59,18 @@ static std::int64_t get_gpu_wg_count(sycl::queue& queue) {
     return 128;
 }
 
+inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
+                                               std::int64_t column_count,
+                                               std::int64_t preffered_wg_size) {
+    const std::int64_t sg_max_size = bk::device_max_sg_size(queue);
+    const std::int64_t row_adjusted_sg_num =
+        column_count / sg_max_size + std::int64_t(column_count % sg_max_size > 0);
+    std::int64_t expected_sg_num = std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
+    if (expected_sg_num < 1)
+        expected_sg_num = 1;
+    return dal::detail::check_mul_overflow(expected_sg_num, sg_max_size);
+}
+
 template <typename Float>
 sycl::event find_candidates(sycl::queue& queue,
                             const pr::ndview<Float, 2>& closest_distances,
@@ -100,6 +112,76 @@ sycl::event find_candidates(sycl::queue& queue,
     return copy_event;
 }
 
+template <typename Float>
+sycl::event select(sycl::queue& queue,
+                   const pr::ndview<Float, 2>& data,
+                   pr::ndview<Float, 2>& selection,
+                   pr::ndview<std::int32_t, 2>& indices,
+                   const bk::event_vector& deps = {}) {
+    ONEDAL_ASSERT(!indices_out || indices.get_shape()[0] == data.get_shape()[0]);
+    ONEDAL_ASSERT(!indices_out || indices.get_shape()[1] == 1);
+    ONEDAL_ASSERT(!selection_out || selection.get_shape()[0] == data.get_shape()[0]);
+    ONEDAL_ASSERT(!selection_out || selection.get_shape()[1] == 1);
+
+    const std::int64_t col_count = data.get_dimension(1);
+    const std::int64_t row_count = data.get_dimension(0);
+    const std::int64_t stride = data.get_shape()[1];
+
+    const std::int64_t preffered_wg_size = 128;
+    const std::int64_t wg_size = get_scaled_wg_size_per_row(queue, col_count, preffered_wg_size);
+
+    const Float* data_ptr = data.get_data();
+    Float* selection_ptr = selection.get_mutable_data();
+    std::int32_t* indices_ptr = indices.get_mutable_data();
+    const auto fp_max = detail::limits<Float>::max();
+
+    auto event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                const std::uint32_t wg_id = item.get_global_id(1);
+                const std::uint32_t sg_num = sg.get_group_range()[0];
+                const std::uint32_t sg_global_id = wg_id * sg_num + sg_id;
+                if (sg_global_id >= row_count)
+                    return;
+                const std::uint32_t in_offset = sg_global_id * stride;
+                const std::uint32_t out_offset = sg_global_id;
+
+                const std::uint32_t local_id = sg.get_local_id()[0];
+                const std::uint32_t local_range = sg.get_local_range()[0];
+
+                std::int32_t index = -1;
+                Float value = fp_max;
+                for (std::uint32_t i = local_id; i < col_count; i += local_range) {
+                    const Float cur_val = data_ptr[in_offset + i];
+                    if (cur_val < value) {
+                        index = i;
+                        value = cur_val;
+                    }
+                }
+
+                sg.barrier();
+
+                const Float final_value = reduce(sg, value, sycl::ONEAPI::minimum<Float>());
+                const bool present = (final_value == value);
+                const std::int32_t pos =
+                    exclusive_scan(sg, present ? 1 : 0, sycl::ONEAPI::plus<std::int32_t>());
+                const bool owner = present && pos == 0;
+                const std::int32_t final_index =
+                    -reduce(sg, owner ? -index : 1, sycl::ONEAPI::minimum<std::int32_t>());
+
+                if (local_id == 0) {
+                    indices_ptr[out_offset] = final_index;
+                    selection_ptr[out_offset] = final_value;
+                }
+            });
+    });
+    return event;
+}
+
 template <typename Float, typename Metric>
 sycl::event assign_clusters(sycl::queue& queue,
                             const pr::ndview<Float, 2>& data,
@@ -137,12 +219,8 @@ sycl::event assign_clusters(sycl::queue& queue,
         auto closest_distance_block =
             pr::ndview<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
                                        { cur_rows, 1 });
-        selection_event = pr::kselect_by_rows_single_col<Float>{}.operator()(queue,
-                                                                             distance_block,
-                                                                             1,
-                                                                             closest_distance_block,
-                                                                             label_block,
-                                                                             { distance_event });
+        selection_event =
+            select(queue, distance_block, closest_distance_block, label_block, { distance_event });
     }
     return selection_event;
 }
