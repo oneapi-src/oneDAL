@@ -1,12 +1,13 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
 void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
               const std::uint8_t* ONEAPI_RESTRICT pa,
               std::int64_t size) {
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] |= pa[i];
     }
@@ -14,14 +15,14 @@ void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
                const std::uint8_t* ONEAPI_RESTRICT pa,
                std::int64_t size) {
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] &= pa[i];
     }
 }
 
 void inversion(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size) {
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = ~vec[i];
     }
@@ -30,14 +31,14 @@ void inversion(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size) {
 void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
               const std::int64_t* ONEAPI_RESTRICT bit_index,
               const std::int64_t list_size) {
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
         vec[bit_vector::byte(bit_index[i])] |= bit_vector::bit(bit_index[i]);
     }
 }
 
 void set(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size, const std::uint8_t byte_val) {
-#pragma vector always
+    ONEDAL_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = byte_val;
     }
@@ -50,7 +51,7 @@ void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
                std::int64_t* ONEAPI_RESTRICT tmp_array,
                const std::int64_t tmp_size) {
     std::int64_t counter = 0;
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
         tmp_array[counter] = bit_index[i];
         counter += bit_vector::bit_set_table[vec[bit_vector::byte(bit_index[i])] &
@@ -59,7 +60,7 @@ void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 
     set(vec, bit_size, 0x0);
 
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < counter; i++) {
         vec[bit_vector::byte(tmp_array[i])] |= bit_vector::bit(tmp_array[i]);
     }
@@ -96,7 +97,6 @@ graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
         graph_data_storage.plist_data = new graph_input_list_data(vertex_count, allocator_);
     }
 
-    std::int64_t vertex_id, vertex_attribute;
     for (std::int64_t i = 0; i < vertex_count; i++) {
         auto degree = t._degrees[i];
         if (use_bit_representation) {
@@ -423,7 +423,7 @@ graph_status bit_vector::set(const std::int64_t vector_size,
 
 void bit_vector::set(const std::uint8_t byte_val) {
     const std::int64_t nn = n;
-#pragma vector always
+    ONEDAL_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < nn; i++) {
         vector[i] = byte_val;
     }
@@ -473,8 +473,8 @@ bit_vector::bit_vector(const std::int64_t vector_size,
 }
 
 bit_vector::bit_vector(bit_vector&& a)
-        : vector(a.vector),
-          allocator_(a.allocator_.get_byte_allocator()) {
+        : allocator_(a.allocator_.get_byte_allocator()),
+          vector(a.vector) {
     n = a.n;
     a.n = 0;
     a.vector = nullptr;
@@ -565,7 +565,7 @@ bit_vector& bit_vector::operator=(bit_vector& a) {
 
 bit_vector& bit_vector::operator~() {
     const std::int64_t nn = n;
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < nn; i++) {
         vector[i] = ~vector[i];
     }

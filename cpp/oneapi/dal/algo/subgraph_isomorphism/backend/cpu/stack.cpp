@@ -62,7 +62,7 @@ void stack::add(stack& _stack) {
     _stack.clear();
 }
 
-stack::stack(stack&& _stack) : data(_stack.data), allocator_(_stack.allocator_) {
+stack::stack(stack&& _stack) : allocator_(_stack.allocator_), data(_stack.data) {
     max_stack_size = _stack.max_stack_size;
     stack_size = _stack.stack_size;
     _stack.data = nullptr;
@@ -220,7 +220,7 @@ graph_status vertex_stack::increase_stack_size() {
     if (tmp_data == nullptr) {
         return bad_allocation;
     }
-    for (std::int64_t i = 0; i < stack_size; i++) {
+    for (std::uint64_t i = 0; i < stack_size; i++) {
         tmp_data[i] = stack_data[i];
         //tmp_data[i + stack_size] = null_node;
     }
@@ -268,7 +268,7 @@ void dfs_stack::init(const std::uint64_t levels) {
 void dfs_stack::init(const std::uint64_t levels, const std::uint64_t max_states_size) {
     init(levels);
 
-    for (std::int64_t i = 0; i < max_level_size; ++i) {
+    for (std::uint64_t i = 0; i < max_level_size; ++i) {
         new (data_by_levels + i) vertex_stack(max_states_size, allocator_);
     }
 }
@@ -276,13 +276,13 @@ void dfs_stack::init(const std::uint64_t levels, const std::uint64_t max_states_
 void dfs_stack::init(const std::uint64_t levels, const std::uint64_t* max_states_size_per_level) {
     init(levels);
 
-    for (std::int64_t i = 0; i < max_level_size; ++i) {
+    for (std::uint64_t i = 0; i < max_level_size; ++i) {
         new (data_by_levels + i) vertex_stack(max_states_size_per_level[i], allocator_);
     }
 }
 
 void dfs_stack::delete_data() {
-    for (std::int64_t i = 0; i < max_level_size; i++) {
+    for (std::uint64_t i = 0; i < max_level_size; i++) {
         data_by_levels[i].~vertex_stack();
     }
     operator delete[](data_by_levels);
@@ -345,7 +345,7 @@ state dfs_stack::get_current_state() const {
 
 void dfs_stack::fill_solution(std::int64_t* solution_core,
                               const std::uint64_t last_vertex_id) const {
-    for (std::int64_t i = 0; i <= current_level; i++) {
+    for (std::uint64_t i = 0; i <= current_level; i++) {
         solution_core[i] = *(data_by_levels[i].ptop - 1);
     }
     solution_core[current_level + 1] = last_vertex_id;
@@ -366,7 +366,7 @@ void dfs_stack::delete_current_state() {
 
 std::uint64_t dfs_stack::states_in_stack() const {
     std::int64_t size = 0;
-    for (std::int64_t i = 0; i <= current_level; i++) {
+    for (std::uint64_t i = 0; i <= current_level; i++) {
         size += data_by_levels[i].size();
     }
     return size - current_level;

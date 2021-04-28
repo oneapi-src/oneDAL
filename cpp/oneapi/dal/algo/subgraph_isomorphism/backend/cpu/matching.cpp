@@ -25,12 +25,12 @@ matching_engine::matching_engine(const graph* ppattern,
                                  sconsistent_conditions const* pcconditions,
                                  kind isomorphism_kind,
                                  inner_alloc allocator)
-        : isomorphism_kind_(isomorphism_kind),
-          allocator_(allocator),
+        : allocator_(allocator),
           vertex_candidates(allocator),
           local_stack(allocator),
           hlocal_stack(allocator),
-          engine_solutions(ppattern->get_vertex_count(), psorted_pattern_vertex, allocator) {
+          engine_solutions(ppattern->get_vertex_count(), psorted_pattern_vertex, allocator),
+          isomorphism_kind_(isomorphism_kind) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
@@ -84,7 +84,7 @@ std::int64_t matching_engine::state_exploration_bit(state* current_state, bool c
     const std::int64_t divider = pconsistent_conditions[i_cc].divider;
 
     if (isomorphism_kind_ != kind::non_induced) {
-#pragma ivdep
+        ONEDAL_IVDEP
         for (std::int64_t j = 0; j < divider; j++) {
             or_equal(
                 vertex_candidates.get_vector_pointer(),
@@ -95,7 +95,7 @@ std::int64_t matching_engine::state_exploration_bit(state* current_state, bool c
 
     ~vertex_candidates; // inversion?
 
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t j = i_cc; j >= divider; j--) { // > divider - 1
         and_equal(vertex_candidates.get_vector_pointer(),
                   target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
@@ -114,7 +114,7 @@ std::int64_t matching_engine::state_exploration_bit(bool check_solution) {
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
     if (isomorphism_kind_ != kind::non_induced) {
-#pragma ivdep
+        ONEDAL_IVDEP
         for (std::int64_t j = 0; j < divider; j++) {
             or_equal(vertex_candidates.get_vector_pointer(),
                      target->p_edges_bit[hlocal_stack.top(
@@ -125,7 +125,7 @@ std::int64_t matching_engine::state_exploration_bit(bool check_solution) {
 
     ~vertex_candidates; // inversion ?
 
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
         and_equal(vertex_candidates.get_vector_pointer(),
                   target->p_edges_bit[hlocal_stack.top(
@@ -133,7 +133,7 @@ std::int64_t matching_engine::state_exploration_bit(bool check_solution) {
                   vertex_candidates.size());
     }
 
-    for (std::int64_t i = 0; i <= current_level_index; i++) {
+    for (std::uint64_t i = 0; i <= current_level_index; i++) {
         vertex_candidates.get_vector_pointer()[bit_vector::byte(hlocal_stack.top(i))] &=
             ~bit_vector::bit(hlocal_stack.top(i));
     }
@@ -143,14 +143,14 @@ std::int64_t matching_engine::state_exploration_bit(bool check_solution) {
 std::int64_t matching_engine::extract_candidates(bool check_solution) {
     std::int64_t feasible_result_count = 0;
 
-    std::uint64_t size_in_dword = vertex_candidates.size() >> 3;
+    std::int64_t size_in_dword = vertex_candidates.size() >> 3;
     std::uint64_t* ptr;
-    std::uint64_t popcnt;
+    std::int32_t popcnt;
     for (std::int64_t i = 0; i < size_in_dword; i++) {
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
-        popcnt = _popcnt64(*ptr);
+        popcnt = ONEDAL_popcnt64(*ptr);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            candidate = 63 - _lzcnt_u64(*ptr);
+            candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
             feasible_result_count += check_vertex_candidate(check_solution);
@@ -171,8 +171,9 @@ std::int64_t matching_engine::extract_candidates(bool check_solution) {
 }
 
 bool matching_engine::check_vertex_candidate(bool check_solution) {
+    std::uint64_t solution_length_unsigned = solution_length;
     if (match_vertex(sorted_pattern_vertex[hlocal_stack.get_current_level()], candidate)) {
-        if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length) {
+        if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length_unsigned) {
             std::int64_t* solution_core = allocator_.allocate<std::int64_t>(solution_length);
             if (solution_core != nullptr) {
                 hlocal_stack.fill_solution(solution_core, candidate);
@@ -190,7 +191,7 @@ bool matching_engine::check_vertex_candidate(bool check_solution) {
 std::int64_t matching_engine::state_exploration_list(state* current_state, bool check_solution) {
     std::int64_t divider = pconsistent_conditions[current_state->core_length - 1].divider;
 
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t j = 0; j < divider; j++) {
         or_equal(vertex_candidates.get_vector_pointer(),
                  target->p_edges_list
@@ -203,7 +204,7 @@ std::int64_t matching_engine::state_exploration_list(state* current_state, bool 
 
     ~vertex_candidates;
 
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t j = current_state->core_length - 1; j >= divider; j--) { // j> divider - 1
         and_equal(
             vertex_candidates.get_vector_pointer(),
@@ -227,7 +228,7 @@ std::int64_t matching_engine::state_exploration_list(bool check_solution) {
     std::uint64_t current_level_index = hlocal_stack.get_current_level_index();
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t j = 0; j < divider; j++) {
         or_equal(
             vertex_candidates.get_vector_pointer(),
@@ -239,7 +240,7 @@ std::int64_t matching_engine::state_exploration_list(bool check_solution) {
 
     ~vertex_candidates;
 
-#pragma ivdep
+    ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
         and_equal(
             vertex_candidates.get_vector_pointer(),
@@ -251,7 +252,7 @@ std::int64_t matching_engine::state_exploration_list(bool check_solution) {
             temporary_list);
     }
 
-    for (std::int64_t i = 0; i <= current_level_index; i++) {
+    for (std::uint64_t i = 0; i <= current_level_index; i++) {
         vertex_candidates.get_vector_pointer()[bit_vector::byte(hlocal_stack.top(i))] &=
             ~bit_vector::bit(hlocal_stack.top(i));
     }
@@ -300,14 +301,14 @@ std::int64_t matching_engine::first_states_generator(dfs_stack& stack) {
 std::int64_t matching_engine::extract_candidates(state* current_state, bool check_solution) {
     std::int64_t feasible_result_count = 0;
 
-    std::uint64_t size_in_dword = vertex_candidates.size() >> 3;
+    std::int64_t size_in_dword = vertex_candidates.size() >> 3;
     std::uint64_t* ptr;
-    std::uint64_t popcnt;
+    std::int64_t popcnt;
     for (std::int64_t i = 0; i < size_in_dword; i++) {
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
-        popcnt = _popcnt64(*ptr);
+        popcnt = ONEDAL_popcnt64(*ptr);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            candidate = 63 - _lzcnt_u64(*ptr);
+            candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
             feasible_result_count += check_vertex_candidate(current_state, check_solution);
@@ -394,10 +395,10 @@ engine_bundle::engine_bundle(const graph* ppattern,
                              float* ppattern_vertex_probability,
                              kind isomorphism_kind,
                              inner_alloc allocator)
-        : isomorphism_kind_(isomorphism_kind),
+        : exploration_stack(allocator),
           allocator_(allocator),
-          bundle_solutions(allocator),
-          exploration_stack(allocator) {
+          isomorphism_kind_(isomorphism_kind),
+          bundle_solutions(allocator) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
@@ -423,7 +424,7 @@ solution engine_bundle::run() {
 
     std::uint64_t first_states_count =
         pattern_vertex_probability[0] * target->get_vertex_count() + 1;
-    int max_threads_count = dal::detail::threader_get_max_threads();
+    std::uint64_t max_threads_count = dal::detail::threader_get_max_threads();
     std::uint64_t possible_first_states_count_per_thread = first_states_count / max_threads_count;
     if (possible_first_states_count_per_thread < 1) {
         max_threads_count = first_states_count;
@@ -438,7 +439,7 @@ solution engine_bundle::run() {
     auto engine_array_ptr = allocator_.make_shared_memory<matching_engine>(array_size);
     matching_engine* engine_array = engine_array_ptr.get();
 
-    for (int i = 0; i < array_size; ++i) {
+    for (std::uint64_t i = 0; i < array_size; ++i) {
         new (engine_array + i) matching_engine(pattern,
                                                target,
                                                sorted_pattern_vertex,
@@ -469,7 +470,7 @@ solution engine_bundle::run() {
         engine_array[index].run_and_wait(false);
     });
 
-    for (int i = 0; i < array_size; i++) {
+    for (std::uint64_t i = 0; i < array_size; i++) {
         bundle_solutions.add(engine_array[i].get_solution());
         engine_array[i].~matching_engine();
     }

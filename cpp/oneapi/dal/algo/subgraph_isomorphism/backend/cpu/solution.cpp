@@ -84,9 +84,9 @@ void solution::delete_data() {
 }
 
 solution::solution(solution&& sol)
-        : data(sol.data),
-          sorted_pattern_vertices(sol.sorted_pattern_vertices),
-          allocator_(sol.allocator_) {
+        : allocator_(sol.allocator_),
+          data(sol.data),
+          sorted_pattern_vertices(sol.sorted_pattern_vertices) {
     max_solution_cout = sol.max_solution_cout;
     solution_count = sol.solution_count;
     solution_core_length = sol.solution_core_length;
@@ -224,7 +224,7 @@ oneapi::dal::homogen_table solution::export_as_table() {
     const auto arr = arr_solution.get_mutable_data();
 
     constexpr std::int64_t block_size = 64;
-    const std::int64_t block_count = (solution_count - 1 + block_size) % block_size;
+    const std::int64_t block_count = (solution_count - 1 + block_size) / block_size;
     dal::detail::threader_for(block_count, block_count, [&](int index) {
         const std::int64_t first = index * block_size;
         const std::int64_t last = min(first + block_size, solution_count);
