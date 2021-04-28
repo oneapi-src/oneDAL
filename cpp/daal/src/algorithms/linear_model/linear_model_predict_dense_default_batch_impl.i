@@ -61,85 +61,89 @@ using namespace daal::services;
  *                              false - otherwise.
  */
 template <typename algorithmFPType, CpuType cpu>
-void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(DAAL_INT * numFeatures, DAAL_INT * numRows,
-                                                                                const algorithmFPType * dataBlock, DAAL_INT * numBetas,
-                                                                                const algorithmFPType * beta, DAAL_INT * numResponses,
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(size_t startRow, size_t numFeatures, size_t numRows,
+                                                                                NumericTable * dataTable, size_t numBetas,
+                                                                                const algorithmFPType * beta, size_t numResponses,
                                                                                 algorithmFPType * responseBlock, bool findBeta0)
 {
+    Status st;
+    /* Retrieve data blocks associated with input and resulting tables */
+    ReadRows<algorithmFPType, cpu> dataRows(dataTable, startRow, numRows);
+    DAAL_CHECK_BLOCK_STATUS(dataRows);
+    const algorithmFPType * dataBlock = dataRows.get();
+
     /* GEMM parameters */
     char trans           = 'T';
     char notrans         = 'N';
     algorithmFPType one  = 1.0;
     algorithmFPType zero = 0.0;
 
-    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, numResponses, numRows, numFeatures, &one, beta + 1, numBetas, dataBlock, numFeatures, &zero,
-                                       responseBlock, numResponses);
+    Blas<algorithmFPType, cpu>::xxgemm(&trans, &notrans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numFeatures, &one, beta + 1, (DAAL_INT *)&numBetas, dataBlock, (DAAL_INT *)&numFeatures, &zero,
+                                       responseBlock, (DAAL_INT *)&numResponses);
 
     if (findBeta0)
     {
         /* Add intercept term to linear regression results */
         DAAL_INT iZero             = 0;
-        DAAL_INT numBetasValue     = *numBetas;
-        DAAL_INT numResponsesValue = *numResponses;
-        for (size_t j = 0; j < numResponsesValue; ++j)
+        for (size_t j = 0; j < numResponses; ++j)
         {
-            Blas<algorithmFPType, cpu>::xxaxpy(numRows, &one, beta + j * numBetasValue, &iZero, responseBlock + j, numResponses);
+            Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRows, &one, beta + j * numBetas, &iZero, responseBlock + j, (DAAL_INT *)&numResponses);
         }
     } /* if (findBeta0) */
+    return st;
 } /* void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses */
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(
-    const size_t & startRow, DAAL_INT * numFeatures, DAAL_INT * numRowsInBlock, NumericTable * dataTable, DAAL_INT * numBetas,
-    const algorithmFPType * beta, DAAL_INT * numResponses, algorithmFPType * responseBlock, bool findBeta0, algorithmFPType * const TlsData)
+    size_t startRow, size_t numFeatures, size_t numRowsInBlock, NumericTable * dataTable, size_t numBetas,
+    const algorithmFPType * beta, size_t numResponses, algorithmFPType * responseBlock, bool findBeta0, TlsMem<algorithmFPType, cpu> & tlsData)
 {
-    SafeStatus safeStat;
+    Status st;
     char trans                    = 'T';
     char notrans                  = 'N';
     algorithmFPType one           = 1.0;
-    const DAAL_INT nFeatures      = *numFeatures;
-    const DAAL_INT nRowsInBlock   = *numRowsInBlock;
-    const DAAL_INT nResponses     = *numResponses;
-    const DAAL_INT nRowsInData    = dataTable->getNumberOfRows();
-    const DAAL_INT nBlockSizeCols = static_cast<DAAL_INT>(blockSizeColumns);
-    services::internal::service_memset_seq<algorithmFPType, cpu>(responseBlock, algorithmFPType(0.0), nRowsInBlock * nResponses);
+    const size_t nRowsInData    = dataTable->getNumberOfRows();
+    const size_t numBlockSizeColumns  = blockSizeColumns;
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, numRowsInBlock, numResponses);
+    services::internal::service_memset_seq<algorithmFPType, cpu>(responseBlock, algorithmFPType(0.0), numRowsInBlock * numResponses);
 
-    const size_t numBlocks = nFeatures / blockSizeColumns + !!(nFeatures % blockSizeColumns);
+    const size_t numBlocks = numFeatures / blockSizeColumns + !!(numFeatures % blockSizeColumns);
     for (size_t iBlock = 0; iBlock < numBlocks; ++iBlock)
     {
-        const size_t startCol         = iBlock * blockSizeColumns;
-        const DAAL_INT numColsInBlock = (iBlock == numBlocks - 1) ? nFeatures - startCol : blockSizeColumns;
+        const size_t startColumn         = iBlock * blockSizeColumns;
+        const size_t numColumnsInBlock = (iBlock == numBlocks - 1) ? numFeatures - startColumn : blockSizeColumns;
 
         if (static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble())
         {
-            ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startCol, startRow, nRowsInBlock);
+            ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
             const algorithmFPType * data = xBlock.get();
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, numResponses, numRowsInBlock, &numColsInBlock, &one, beta + 1 + startCol, numBetas,
-                                               data, &nRowsInData, &one, responseBlock, numResponses);
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&numColumnsInBlock, &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas,
+                                               data, (DAAL_INT *)&nRowsInData, &one, responseBlock, (DAAL_INT *)&numResponses);
         }
         else
         {
-            for (size_t i = 0; i < numColsInBlock; ++i)
+            algorithmFPType * tlsLocal = tlsData.local();
+            DAAL_CHECK_MALLOC(tlsLocal);
+            for (size_t i = 0; i < numColumnsInBlock; ++i)
             {
-                ReadColumns<algorithmFPType, cpu> xBlock(dataTable, i + startCol, startRow, nRowsInBlock);
+                ReadColumns<algorithmFPType, cpu> xBlock(dataTable, i + startColumn, startRow, numRowsInBlock);
                 DAAL_CHECK_BLOCK_STATUS(xBlock);
-                services::internal::tmemcpy<algorithmFPType, cpu>(TlsData + i * blockSizeRows, xBlock.get(), nRowsInBlock);
+                services::internal::tmemcpy<algorithmFPType, cpu>(tlsLocal + i * blockSizeRows, xBlock.get(), numRowsInBlock);
             }
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, numResponses, numRowsInBlock, &numColsInBlock, &one, beta + 1 + startCol, numBetas,
-                                               TlsData, &nBlockSizeCols, &one, responseBlock, numResponses);
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&numColumnsInBlock, &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas,
+                                               tlsLocal, (DAAL_INT *)&numBlockSizeColumns, &one, responseBlock, (DAAL_INT *)&numResponses);
         }
     }
     if (findBeta0)
     {
         DAAL_INT zero       = 0;
-        const size_t nBetas = *numBetas;
-        for (size_t j = 0; j < nResponses; ++j)
+        for (size_t j = 0; j < numResponses; ++j)
         {
-            Blas<algorithmFPType, cpu>::xxaxpy(numRowsInBlock, &one, beta + j * nBetas, &zero, responseBlock + j, numResponses);
+            Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRowsInBlock, &one, beta + j * numBetas, &zero, responseBlock + j, (DAAL_INT *)&numResponses);
         }
     }
-    return safeStat.detach();
+    return st;
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -150,59 +154,46 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
     /* Get numeric tables with input data */
     NumericTable * dataTable = const_cast<NumericTable *>(a);
 
-    /* Get numeric table to store results */
-    DAAL_INT numVectors       = dataTable->getNumberOfRows();
-    DAAL_INT numColumnsInData = dataTable->getNumberOfColumns();
+    /* Get sizes of input data */
+    const size_t numVectors  = dataTable->getNumberOfRows();
+    const size_t numFeatures = dataTable->getNumberOfColumns();
 
     /* Get linear regression coefficients */
     NumericTable * betaTable = model->getBeta().get();
-    DAAL_INT numResponses    = betaTable->getNumberOfRows();
+    const size_t numResponses    = betaTable->getNumberOfRows();
+    const size_t nAllBetas   = betaTable->getNumberOfColumns();
 
     /* Retrieve data associated with coefficients */
     ReadRows<algorithmFPType, cpu> betaRows(betaTable, 0, numResponses);
     DAAL_CHECK_BLOCK_STATUS(betaRows)
     const algorithmFPType * beta = betaRows.get();
 
-    /* Calculate number of blocks of rows including tail block */
-    size_t numBlocks = numVectors / blockSizeRows + !!(numVectors % blockSizeRows);
+    /* Calculate number of blocks */
+    const size_t numBlocks = numVectors / blockSizeRows + !!(numVectors % blockSizeRows);
 
     SafeStatus safeStat;
     TlsMem<algorithmFPType, cpu> tlsData(blockSizeRows * blockSizeColumns);
-    daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
-        size_t startRow       = iBlock * blockSizeRows;
-        size_t numRowsInBlock = (iBlock == numBlocks - 1) ? numVectors - startRow : blockSizeRows;
 
-        DAAL_INT numFeatures = dataTable->getNumberOfColumns();
-        DAAL_INT nAllBetas   = betaTable->getNumberOfColumns();
+    daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
+        const size_t startRow       = iBlock * blockSizeRows;
+        const size_t numRowsInBlock = (iBlock == numBlocks - 1) ? numVectors - startRow : blockSizeRows;
 
         Status s;
 
         WriteOnlyRows<algorithmFPType, cpu> responseRows(r, startRow, numRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS_THR(responseRows);
         algorithmFPType * responseBlock = responseRows.get();
-        DAAL_INT * pnumResponses        = (DAAL_INT *)&numResponses;
-        DAAL_INT * pnumRowsInBlock      = (DAAL_INT *)&numRowsInBlock;
 
+        /* Calculate predictions */
         if (dataTable->getDataLayout() & NumericTableIface::soa)
         {
-            /* Calculate predictions */
-            s = computeBlockOfResponsesSOA(startRow, &numFeatures, pnumRowsInBlock, dataTable, &nAllBetas, beta, pnumResponses, responseBlock,
-                                           model->getInterceptFlag(), tlsData.local());
-            if (!s)
-            {
-                safeStat |= s;
-                return;
-            }
+            DAAL_CHECK_STATUS_THR(computeBlockOfResponsesSOA(startRow, numFeatures, numRowsInBlock, dataTable, nAllBetas, beta, numResponses, responseBlock,
+                                                             model->getInterceptFlag(), tlsData));
         }
         else
         {
-            /* Retrieve data blocks associated with input and resulting tables */
-            ReadRows<algorithmFPType, cpu> dataRows(dataTable, startRow, numRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
-            const algorithmFPType * dataBlock = dataRows.get();
-            /* Calculate predictions */
-            computeBlockOfResponses(&numFeatures, pnumRowsInBlock, dataBlock, &nAllBetas, beta, pnumResponses, responseBlock,
-                                    model->getInterceptFlag());
+            DAAL_CHECK_STATUS_THR(computeBlockOfResponses(startRow, numFeatures, numRowsInBlock, dataTable, nAllBetas, beta, numResponses, responseBlock,
+                                    model->getInterceptFlag()));
         }
     }); /* daal::threader_for */
     return safeStat.detach();

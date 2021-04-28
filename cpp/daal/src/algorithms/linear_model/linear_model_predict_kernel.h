@@ -64,11 +64,13 @@ public:
     services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
 
 protected:
-    void computeBlockOfResponses(DAAL_INT * numFeatures, DAAL_INT * numRows, const algorithmFpType * dataBlock, DAAL_INT * numBetas,
-                                 const algorithmFpType * beta, DAAL_INT * numResponses, algorithmFpType * responseBlock, bool findBeta0);
-    services::Status computeBlockOfResponsesSOA(const size_t & startRow, DAAL_INT * numFeatures, DAAL_INT * numRows, NumericTable * dataTable,
-                                                DAAL_INT * numBetas, const algorithmFpType * beta, DAAL_INT * numResponses,
-                                                algorithmFpType * responseBlock, bool findBeta0, algorithmFpType * const TlsData);
+    services::Status computeBlockOfResponses(size_t startRow, size_t numFeatures, size_t numRows,
+                                 NumericTable * dataTable, size_t numBetas,
+                                 const algorithmFpType * beta, size_t numResponses,
+                                 algorithmFpType * responseBlock, bool findBeta0);
+    services::Status computeBlockOfResponsesSOA(size_t startRow, size_t numFeatures, size_t numRowsInBlock, NumericTable * dataTable, size_t numBetas,
+                                                const algorithmFpType * beta, size_t numResponses, algorithmFpType * responseBlock, bool findBeta0,
+                                                TlsMem<algorithmFpType, cpu> & tlsData);
     static const size_t blockSizeRows    = 512;
     static const size_t blockSizeColumns = 512;
 };
