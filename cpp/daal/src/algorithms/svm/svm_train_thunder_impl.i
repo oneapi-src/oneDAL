@@ -82,6 +82,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     const algorithmFPType accuracyThreshold = svmPar.accuracyThreshold;
     const algorithmFPType tau               = svmPar.tau;
     const algorithmFPType epsilon           = svmPar.epsilon;
+    const algorithmFPType nu                = svmPar.nu;
     const size_t maxIterations              = svmPar.maxIterations;
     const size_t cacheSize                  = svmPar.cacheSize;
     const auto kernel                       = svmPar.kernel->clone();
@@ -109,11 +110,11 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     size_t nNonZeroWeights = nTrainVectors;
     if (svmType == SvmType::classification)
     {
-        DAAL_CHECK_STATUS(status, classificationInit(yTable, wTable, C, y, grad, alpha, cw, nNonZeroWeights));
+        DAAL_CHECK_STATUS(status, classificationInit(yTable, wTable, C, y, grad, alpha, cw, nNonZeroWeights, nu, svmType));
     }
     else
     {
-        DAAL_CHECK_STATUS(status, regressionInit(yTable, wTable, C, epsilon, y, grad, alpha, cw, nNonZeroWeights));
+        DAAL_CHECK_STATUS(status, regressionInit(yTable, wTable, C, epsilon, y, grad, alpha, cw, nNonZeroWeights, nu, svmType));
     }
 
     TaskWorkingSet<algorithmFPType, cpu> workSet(nNonZeroWeights, nTrainVectors, maxBlockSize, svmType);
@@ -174,7 +175,8 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit(NumericTable & yTable, const NumericTablePtr & wTable,
                                                                                  const algorithmFPType c, algorithmFPType * const y,
                                                                                  algorithmFPType * const grad, algorithmFPType * const alpha,
-                                                                                 algorithmFPType * const cw, size_t & nNonZeroWeights)
+                                                                                 algorithmFPType * const cw, size_t & nNonZeroWeights,
+                                                                                 const algorithmFPType nu, const SvmType svmType)
 {
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
@@ -199,15 +201,31 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
         const algorithmFPType * const weights = mtW.get();
 
         size_t * const wc = weights ? weightsCounter.local() : nullptr;
-        for (size_t i = 0; i < nRowsInBlock; ++i)
+        if (svmType == SvmType::classification)
         {
-            y[i + startRow]     = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
-            grad[i + startRow]  = -y[i + startRow];
-            alpha[i + startRow] = algorithmFPType(0);
-            cw[i + startRow]    = weights ? weights[i] * c : c;
-            if (weights)
+            for (size_t i = 0; i < nRowsInBlock; ++i)
             {
-                *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                y[i + startRow]     = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
+                grad[i + startRow]  = -y[i + startRow];
+                alpha[i + startRow] = algorithmFPType(0);
+                cw[i + startRow]    = weights ? weights[i] * c : c;
+                if (weights)
+                {
+                    *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                }
+            }
+        }
+        else if (svmType == SvmType::nu_classification)
+        {
+            for (size_t i = 0; i < nRowsInBlock; ++i)
+            {
+                y[i + startRow]    = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
+                grad[i + startRow] = algorithmFPType(0);
+                cw[i + startRow]   = weights ? weights[i] * c : c;
+                if (weights)
+                {
+                    *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                }
             }
         }
     });
@@ -216,6 +234,27 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
     {
         weightsCounter.reduceTo(&nNonZeroWeights, 1);
     }
+
+    if (svmType == SvmType::nu_classification)
+    {
+        algorithmFPType sum_p = nu * nVectors / algorithmFPType(2);
+        algorithmFPType sum_n = nu * nVectors / algorithmFPType(2);
+
+        for (size_t i = 0; i < nVectors; ++i)
+        {
+            if (y[i] > 0)
+            {
+                alpha[i] = services::internal::min<cpu, algorithmFPType>(sum_p, 1);
+                sum_p -= alpha[i];
+            }
+            else
+            {
+                alpha[i] = services::internal::min<cpu, algorithmFPType>(sum_n, 1);
+                sum_n -= alpha[i];
+            }
+        }
+    }
+
     return status;
 }
 
@@ -224,7 +263,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
                                                                              const algorithmFPType c, const algorithmFPType epsilon,
                                                                              algorithmFPType * const y, algorithmFPType * const grad,
                                                                              algorithmFPType * const alpha, algorithmFPType * const cw,
-                                                                             size_t & nNonZeroWeights)
+                                                                             size_t & nNonZeroWeights, const algorithmFPType nu,
+                                                                             const SvmType svmType)
 {
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
@@ -248,22 +288,43 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
         const algorithmFPType * const weights = mtW.get();
 
         size_t * const wc = weights ? weightsCounter.local() : nullptr;
-        for (size_t i = 0; i < nRowsInBlock; ++i)
+        if (svmType == SvmType::regression)
         {
-            y[i + startRow]            = algorithmFPType(1.0);
-            y[i + startRow + nVectors] = algorithmFPType(-1.0);
-
-            grad[i + startRow]            = epsilon - yIn[i];
-            grad[i + startRow + nVectors] = -epsilon - yIn[i];
-
-            alpha[i + startRow]            = algorithmFPType(0);
-            alpha[i + startRow + nVectors] = algorithmFPType(0);
-
-            cw[i + startRow]            = weights ? weights[i] * c : c;
-            cw[i + startRow + nVectors] = weights ? weights[i] * c : c;
-            if (weights)
+            for (size_t i = 0; i < nRowsInBlock; ++i)
             {
-                *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                y[i + startRow]            = algorithmFPType(1.0);
+                y[i + startRow + nVectors] = algorithmFPType(-1.0);
+
+                grad[i + startRow]            = epsilon - yIn[i];
+                grad[i + startRow + nVectors] = -epsilon - yIn[i];
+
+                alpha[i + startRow]            = algorithmFPType(0);
+                alpha[i + startRow + nVectors] = algorithmFPType(0);
+
+                cw[i + startRow]            = weights ? weights[i] * c : c;
+                cw[i + startRow + nVectors] = weights ? weights[i] * c : c;
+                if (weights)
+                {
+                    *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                }
+            }
+        }
+        else if (svmType == SvmType::nu_regression)
+        {
+            for (size_t i = 0; i < nRowsInBlock; ++i)
+            {
+                y[i + startRow]            = algorithmFPType(1.0);
+                y[i + startRow + nVectors] = algorithmFPType(-1.0);
+
+                grad[i + startRow]            = -yIn[i];
+                grad[i + startRow + nVectors] = -yIn[i];
+
+                cw[i + startRow]            = weights ? weights[i] * c : c;
+                cw[i + startRow + nVectors] = weights ? weights[i] * c : c;
+                if (weights)
+                {
+                    *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                }
             }
         }
     });
@@ -272,6 +333,17 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
     {
         weightsCounter.reduceTo(&nNonZeroWeights, 1);
     }
+
+    if (svmType == SvmType::nu_regression)
+    {
+        algorithmFPType sum = c * nu * nVectors / algorithmFPType(2);
+        for (size_t i = 0; i < nVectors; ++i)
+        {
+            alpha[i] = alpha[i + nVectors] = services::internal::min<cpu, algorithmFPType>(sum, c);
+            sum -= alpha[i];
+        }
+    }
+
     return status;
 }
 

@@ -57,6 +57,7 @@ struct KernelParameter
     double accuracyThreshold;
     double tau;
     double epsilon;
+    double nu;
     size_t maxIterations;
     size_t cacheSize;
     bool doShrinking;

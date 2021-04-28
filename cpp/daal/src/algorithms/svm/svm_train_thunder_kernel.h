@@ -51,11 +51,12 @@ struct SVMTrainImpl<thunder, algorithmFPType, cpu> : public Kernel
 
 private:
     services::Status classificationInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, algorithmFPType * y,
-                                        algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw, size_t & nNonZeroWeights);
+                                        algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw, size_t & nNonZeroWeights,
+                                        const algorithmFPType nu, const SvmType svmType);
 
     services::Status regressionInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType epsilon,
                                     algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw,
-                                    size_t & nNonZeroWeights);
+                                    size_t & nNonZeroWeights, const algorithmFPType nu, const SvmType svmType);
 
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS,
                                     const size_t nVectors, const size_t nWS, const algorithmFPType * cw, const double eps, const double tau,
