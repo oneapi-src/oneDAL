@@ -135,7 +135,7 @@ public:
     static homogen_table wrap(const array<Data>& data,
                               std::int64_t row_count,
                               std::int64_t column_count,
-                              const sycl::vector_class<sycl::event>& dependencies = {},
+                              const sycl::vector_class<sycl::event>& dependencies,
                               data_layout layout = data_layout::row_major) {
         sycl::event::wait_and_throw(dependencies);
         return homogen_table{ data, row_count, column_count, layout };

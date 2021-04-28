@@ -34,11 +34,11 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
 
     auto& queue = ctx.get_queue();
 
-    const std::int64_t row_count_x = x.get_row_count();
-    const std::int64_t row_count_y = y.get_row_count();
+    const std::int64_t x_row_count = x.get_row_count();
+    const std::int64_t y_row_count = y.get_row_count();
 
-    ONEDAL_ASSERT(col_count_x == col_count_y);
-    dal::detail::check_mul_overflow(row_count_x, row_count_y);
+    ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
+    dal::detail::check_mul_overflow(x_row_count, y_row_count);
 
     const Float scale = desc.get_scale();
     const Float shift = desc.get_shift();
@@ -50,7 +50,7 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
         pr::flatten_table<Float, row_accessor>(queue, y, sycl::usm::alloc::device);
 
     auto ndarray_res =
-        pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
+        pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
     sycl::event fill_res_event;
     if (shift != 0.0) {
@@ -60,8 +60,10 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     auto gemm_event =
         gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, scale, shift, { fill_res_event });
 
-    return result_t{}.set_values(
-        homogen_table::wrap(ndarray_res.flatten(queue), row_count_x, row_count_y, { gemm_event }));
+    auto table_res =
+        homogen_table::wrap(ndarray_res.flatten(queue), x_row_count, y_row_count, { gemm_event });
+
+    return result_t{}.set_values(table_res);
 }
 
 template <typename Float>
