@@ -182,16 +182,13 @@ void table::serialize(detail::output_archive& ar) const {
 
 void table::deserialize(detail::input_archive& ar) {
     // Workaround for the case of deserialization to specific table type
-    // TODO: Remove once deserialization is moved to constructor
-    const auto empty_table_ptr = dynamic_cast<backend::empty_table_impl*>(impl_.get());
-    const bool strict_type_match = empty_table_ptr != nullptr;
-
+    const bool strict_type_match = false;
     detail::deserialize_polymorphic(impl_, ar, strict_type_match);
 }
 
 } // namespace v1
 } // namespace oneapi::dal
 
-// We need this to make sure that all table types are registered
-// for serialization, see "table/backend/register_serializable.cpp"
+// We need to make sure that all table types are registered for serialization,
+// see "table/backend/register_serializable.cpp"
 __ONEDAL_FORCE_SERIALIZABLE_INIT__(tables)

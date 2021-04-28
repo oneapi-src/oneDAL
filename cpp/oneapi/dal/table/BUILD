@@ -34,7 +34,8 @@ dal_test_suite(
     srcs = [
         "test/row_accessor.cpp",
         "test/homogen.cpp",
-        "test/table_serialization.cpp",
+        "test/common_serialization.cpp",
+        "test/homogen_serialization.cpp",
     ],
     dal_deps = [":table"],
     framework = "catch2",

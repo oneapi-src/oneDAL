@@ -173,8 +173,8 @@ private:
     mock_archive_state state_;
 };
 
-template <typename T>
-T serialize_deserialize(const T& original) {
+template <typename T, typename U = T>
+void serialize_deserialize(const T& original, U& deserialized) {
     mock_archive_state state;
 
     INFO("serialize") {
@@ -182,13 +182,16 @@ T serialize_deserialize(const T& original) {
         detail::serialize(original, ar);
     }
 
-    T deserialized;
-
     INFO("deserialize") {
         mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
     }
+}
 
+template <typename T>
+T serialize_deserialize(const T& original) {
+    T deserialized;
+    serialize_deserialize(original, deserialized);
     return deserialized;
 }
 

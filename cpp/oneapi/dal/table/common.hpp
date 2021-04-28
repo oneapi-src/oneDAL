@@ -116,6 +116,7 @@ public:
 
 protected:
     explicit table(detail::table_iface* impl) : impl_(impl) {}
+    explicit table(const detail::shared<detail::table_iface>& impl) : impl_(impl) {}
 
     void init_impl(detail::table_iface* impl) {
         impl_.reset(impl);

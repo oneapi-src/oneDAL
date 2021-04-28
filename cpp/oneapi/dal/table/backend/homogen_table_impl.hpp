@@ -132,11 +132,11 @@ public:
 #endif
 
     void serialize(detail::output_archive& ar) const override {
-        // ar(meta_, data_, row_count_, col_count_, layout_);
+        ar(meta_, data_, row_count_, col_count_, layout_);
     }
 
     void deserialize(detail::input_archive& ar) override {
-        // ar(meta_, data_, row_count_, col_count_, layout_);
+        ar(meta_, data_, row_count_, col_count_, layout_);
     }
 
 private:
