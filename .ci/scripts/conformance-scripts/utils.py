@@ -22,44 +22,44 @@ class CallCounter:
         self.clear()
 
     def clear(self):
-        self.dalCalls = 0
+        self.sklearnexCalls = 0
         self.sklearnCalls = 0
-        self.dalFailCalls = 0
-        self.dalDeviceCallsRatio = 0.0
-        self.dalDevicePatchedCalls = 0
+        self.sklearnexFailCalls = 0
+        self.sklearnexDeviceCallsRatio = 0.0
+        self.sklearnexDevicePatchedCalls = 0
 
-        self.dalDeviceOffloadSuccess = 0
-        self.dalDeviceOffloadFail = 0
+        self.sklearnexDeviceOffloadSuccess = 0
+        self.sklearnexDeviceOffloadFail = 0
 
     def calcDeviceCalls(self):
-        offloadSum = self.dalDeviceOffloadSuccess + self.dalDeviceOffloadFail
+        offloadSum = self.sklearnexDeviceOffloadSuccess + self.sklearnexDeviceOffloadFail
         if offloadSum > 0:
-            self.dalDeviceCallsRatio += self.dalDeviceOffloadSuccess / offloadSum
-        self.dalDeviceOffloadSuccess = 0
-        self.dalDeviceOffloadFail = 0
+            self.sklearnexDeviceCallsRatio += self.sklearnexDeviceOffloadSuccess / offloadSum
+        self.sklearnexDeviceOffloadSuccess = 0
+        self.sklearnexDeviceOffloadFail = 0
 
     def inc(self, other):
-        self.dalCalls += other.dalCalls
+        self.sklearnexCalls += other.sklearnexCalls
         self.sklearnCalls += other.sklearnCalls
-        self.dalFailCalls += other.dalFailCalls
-        self.dalDeviceCallsRatio += other.dalDeviceCallsRatio
-        self.dalDevicePatchedCalls += other.dalDevicePatchedCalls
-        self.dalDeviceOffloadSuccess += other.dalDeviceOffloadSuccess
-        self.dalDeviceOffloadFail += other.dalDeviceOffloadFail
+        self.sklearnexFailCalls += other.sklearnexFailCalls
+        self.sklearnexDeviceCallsRatio += other.sklearnexDeviceCallsRatio
+        self.sklearnexDevicePatchedCalls += other.sklearnexDevicePatchedCalls
+        self.sklearnexDeviceOffloadSuccess += other.sklearnexDeviceOffloadSuccess
+        self.sklearnexDeviceOffloadFail += other.sklearnexDeviceOffloadFail
 
 class LineParser:
 
     def __init__(self, device=None, consider_fails=False):
-        self.dalLine = "running accelerated version"
+        self.sklearnexLine = "running accelerated version"
         self.sklearnLine = "fallback to original Scikit-learn"
-        self.dalFailLine = "failed to run accelerated version, fallback to original Scikit-learn"
+        self.sklearnexFailLine = "failed to run accelerated version, fallback to original Scikit-learn"
 
         if device != 'CPU':
-            self.dalDeviceOffloadSuccessLine = f"successfully run on {device.lower()}"
-            self.dalDeviceOffloadFailLine = f"failed to run on {device.lower()}. Fallback to host"
+            self.sklearnexDeviceOffloadSuccessLine = f"successfully run on {device.lower()}"
+            self.sklearnexDeviceOffloadFailLine = f"failed to run on {device.lower()}. Fallback to host"
         self.device = device
 
-        self.dalDeviceLine = f"{self.dalLine} on {self.device}"
+        self.sklearnexDeviceLine = f"{self.sklearnexLine} on {self.device}"
 
         self.consider_fails = consider_fails
 
@@ -74,20 +74,20 @@ class LineParser:
         test_signal_fail = "FAILED"
         test_signal_pass = "PASSED"
 
-        if self.dalLine in line:
-            self._localTestCalls.dalCalls += 1
+        if self.sklearnexLine in line:
+            self._localTestCalls.sklearnexCalls += 1
         if self.sklearnLine in line:
             self._localTestCalls.sklearnCalls += 1
-        if self.dalFailLine in line:
-            self._localTestCalls.dalFailCalls += 1
-        if self.dalDeviceLine in line:
-            self._localTestCalls.dalDevicePatchedCalls += 1
+        if self.sklearnexFailLine in line:
+            self._localTestCalls.sklearnexFailCalls += 1
+        if self.sklearnexDeviceLine in line:
+            self._localTestCalls.sklearnexDevicePatchedCalls += 1
 
         if self.device != 'CPU':
-            if self.dalDeviceOffloadSuccessLine in line:
-                self._localTestCalls.dalDeviceOffloadSuccess += 1
-            elif self.dalDeviceOffloadFailLine in line:
-                self._localTestCalls.dalDeviceOffloadFail += 1
+            if self.sklearnexDeviceOffloadSuccessLine in line:
+                self._localTestCalls.sklearnexDeviceOffloadSuccess += 1
+            elif self.sklearnexDeviceOffloadFailLine in line:
+                self._localTestCalls.sklearnexDeviceOffloadFail += 1
             else:
                 self._localTestCalls.calcDeviceCalls()
 
@@ -98,31 +98,31 @@ class LineParser:
             self._localTestCalls.clear()
 
 def make_summory(counter, device):
-    countAllCalls = counter.sklearnCalls + counter.dalCalls
-    percentDalCalls = float(counter.dalCalls - counter.dalFailCalls) / (countAllCalls) * 100 if countAllCalls else 0
+    countAllCalls = counter.sklearnCalls + counter.sklearnexCalls
+    percentDalCalls = float(counter.sklearnexCalls - counter.sklearnexFailCalls) / (countAllCalls) * 100 if countAllCalls else 0
 
-    # to calculate deviceOffloadCalls, we try to use dalDeivceCallsRatio as more fine-grained metric
-    # if it is unavailable, we use dalDevicePatchedCalls count instead
-    deviceOffloadCalls = counter.dalDeviceCallsRatio if counter.dalDeviceCallsRatio > 0 else counter.dalDevicePatchedCalls
-    daal4pyOffloadPersent = float(deviceOffloadCalls / counter.dalCalls) * 100 if counter.dalCalls else 0
-    totalOffloatPersent = percentDalCalls * daal4pyOffloadPersent / 100
+    # to calculate deviceOffloadCalls, we try to use sklearnexDeivceCallsRatio as more fine-grained metric
+    # if it is unavailable, we use sklearnexDevicePatchedCalls count instead
+    deviceOffloadCalls = counter.sklearnexDeviceCallsRatio if counter.sklearnexDeviceCallsRatio > 0 else counter.sklearnexDevicePatchedCalls
+    sklearnexOffloadPersent = float(deviceOffloadCalls / counter.sklearnexCalls) * 100 if counter.sklearnexCalls else 0
+    totalOffloatPersent = percentDalCalls * sklearnexOffloadPersent / 100
 
     reportText = ""
     reportText += "Number of Scikit-learn calls: %d <br>" % counter.sklearnCalls
-    reportText += "Number of daal4py calls: %d <br>" % counter.dalCalls
-    reportText += "Number of daal4py fail calls: %d <br>" % counter.dalFailCalls
-    reportText += "Percent of using daal4py: %d %% <br>" % int(percentDalCalls)
+    reportText += "Number of sklearnex calls: %d <br>" % counter.sklearnexCalls
+    reportText += "Number of sklearnex fail calls: %d <br>" % counter.sklearnexFailCalls
+    reportText += "Percent of using sklearnex: %d %% <br>" % int(percentDalCalls)
     if device != 'CPU':
-        reportText += "Percent of daal4py calls offloaded to %s: %d %% <br>" % (device, int(daal4pyOffloadPersent))
-        reportText += "Percent of using daal4py on %s: %d %% <br>" % (device, int(totalOffloatPersent))
+        reportText += "Percent of sklearnex calls offloaded to %s: %d %% <br>" % (device, int(sklearnexOffloadPersent))
+        reportText += "Percent of using sklearnex on %s: %d %% <br>" % (device, int(totalOffloatPersent))
 
     print('Number of Scikit-learn calls: %d' % counter.sklearnCalls)
-    print('Number of daal4py calls: %d' % counter.dalCalls)
-    print('Number of daal4py fail calls: %d' % counter.dalFailCalls)
-    print('Percent of using daal4py: %d %%' % int(percentDalCalls))
+    print('Number of sklearnex calls: %d' % counter.sklearnexCalls)
+    print('Number of sklearnex fail calls: %d' % counter.sklearnexFailCalls)
+    print('Percent of using sklearnex: %d %%' % int(percentDalCalls))
     if device != 'CPU':
-        print("Percent of daal4py calls offloaded to %s: %d %%" % (device, int(daal4pyOffloadPersent)))
-        print("Percent of using daal4py on %s: %d %%" % (device, int(totalOffloatPersent)))
+        print("Percent of sklearnex calls offloaded to %s: %d %%" % (device, int(sklearnexOffloadPersent)))
+        print("Percent of using sklearnex on %s: %d %%" % (device, int(totalOffloatPersent)))
 
     return reportText
 
@@ -184,7 +184,7 @@ def make_report(algs_filename, report_filename, device=None, consider_fails=Fals
 
         globalCalls.inc(parser.algoCalls)
 
-        if parser.algoCalls.dalCalls == 0 and parser.algoCalls.sklearnCalls == 0 and parser.algoCalls.dalFailCalls == 0:
+        if parser.algoCalls.sklearnexCalls == 0 and parser.algoCalls.sklearnCalls == 0 and parser.algoCalls.sklearnexFailCalls == 0:
             raise Exception('Algorithm %s has never been called' % (alg_name))
 
         print('*********************************************')
