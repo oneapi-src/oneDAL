@@ -14,17 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/table/backend/empty_table_impl.hpp"
+#include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
-namespace oneapi::dal::backend {
+using oneapi::dal::backend::empty_table_impl;
+using oneapi::dal::backend::homogen_table_impl;
 
-#define ID(name, value) static constexpr std::uint64_t name = value
-
-class serialization_ids {
-public:
-    ID(array, 10000);
-    ID(empty_table, 20000);
-    ID(homogen_table, 21000);
-};
-
-} // namespace oneapi::dal::backend
+__ONEDAL_REGISTER_SERIALIZABLE__(empty_table_impl)
+__ONEDAL_REGISTER_SERIALIZABLE__(homogen_table_impl)
+__ONEDAL_REGISTER_SERIALIZABLE_INIT__(tables)

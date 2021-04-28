@@ -218,9 +218,11 @@ public:
     void serialize(output_archive& ar) const {
         static_assert(is_trivially_serializable_v<T>,
                       "Serialization for non-trivial types is not implemented");
+
+        using data_t = detail::trivial_serialization_type_t<T>;
         const byte_t* data_bytes = reinterpret_cast<const byte_t*>(get_data());
-        const data_type dtype = make_data_type<T>();
-        const std::int64_t size_in_bytes = check_mul_overflow<std::int64_t>(sizeof(T), count_);
+        const data_type dtype = make_data_type<data_t>();
+        const std::int64_t size_in_bytes = check_mul_overflow<std::int64_t>(sizeof(data_t), count_);
 
         __ONEDAL_IF_QUEUE__(get_queue(), {
             ONEDAL_ASSERT(dp_policy_.has_value());
@@ -235,7 +237,9 @@ public:
     void deserialize(input_archive& ar) {
         static_assert(is_trivially_serializable_v<T>,
                       "Serialization for non-trivial types is not implemented");
-        const data_type expected_dtype = make_data_type<T>();
+
+        using data_t = detail::trivial_serialization_type_t<T>;
+        const data_type expected_dtype = make_data_type<data_t>();
 
         detail::shared<byte_t> data_shared;
         std::int64_t size_in_bytes;
@@ -252,10 +256,10 @@ public:
         });
 
         // TODO: Use exception
-        ONEDAL_ASSERT(size_in_bytes % sizeof(T) == 0);
+        ONEDAL_ASSERT(size_in_bytes % sizeof(data_t) == 0);
 
         data_owned_ = std::reinterpret_pointer_cast<T>(data_shared);
-        count_ = size_in_bytes / sizeof(T);
+        count_ = size_in_bytes / sizeof(data_t);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL

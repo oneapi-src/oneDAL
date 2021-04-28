@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/mocks.hpp"
+#include "oneapi/dal/test/engine/serialization.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -66,24 +66,6 @@ public:
             }
         }
     }
-
-    void serialize_deserialize(const array<T>& original) {
-        te::mock_archive_state state;
-
-        INFO("serialize") {
-            te::mock_output_archive ar(state);
-            detail::serialize(original, ar);
-        }
-
-        INFO("deserialize") {
-            array<T> deserialized;
-            te::mock_input_archive ar(state);
-            detail::deserialize(deserialized, ar);
-
-            check_array_invariants(deserialized);
-            compare_arrays(original, deserialized);
-        }
-    }
 };
 
 using array_types = std::tuple<std::int32_t, float, double>;
@@ -93,7 +75,11 @@ TEMPLATE_LIST_TEST_M(array_serialization_test,
                      "[empty]",
                      array_types) {
     const auto empty_array = this->get_empty_array();
-    this->serialize_deserialize(empty_array);
+
+    const auto deserialized = te::serialize_deserialize(empty_array);
+
+    this->check_array_invariants(deserialized);
+    this->compare_arrays(empty_array, deserialized);
 }
 
 TEMPLATE_LIST_TEST_M(array_serialization_test,
@@ -103,7 +89,10 @@ TEMPLATE_LIST_TEST_M(array_serialization_test,
     const std::int64_t count = GENERATE(1, 10, 1000);
     const auto host_array = this->get_host_backed_array(count);
 
-    this->serialize_deserialize(host_array);
+    const auto deserialized = te::serialize_deserialize(host_array);
+
+    this->check_array_invariants(deserialized);
+    this->compare_arrays(host_array, deserialized);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -114,7 +103,10 @@ TEMPLATE_LIST_TEST_M(array_serialization_test,
     const std::int64_t count = GENERATE(1, 10, 1000);
     const auto device_array = this->get_device_backed_array(count);
 
-    this->serialize_deserialize(device_array);
+    const auto deserialized = te::serialize_deserialize(device_array);
+
+    this->check_array_invariants(deserialized);
+    this->compare_arrays(device_array, deserialized);
 }
 #endif
 

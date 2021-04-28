@@ -25,14 +25,14 @@
 #define __ONEDAL_SERIALIZATION_DUMMY_NAME__(name) \
     __ONEDAL_SERIALIZATION_DUMMY_NAME_IMPL__(name, __LINE__)
 
-#define __ONEDAL_REGISTER_SERIALIZABLE__(T)                                                 \
-    static char __ONEDAL_SERIALIZATION_DUMMY_NAME__(register_serializable_func)() {         \
-        oneapi::dal::detail::serializable_registry::instance().register_default_factory<T>( \
-            T::serialization_id());                                                         \
-        return 0;                                                                           \
-    }                                                                                       \
-    [[maybe_unused]] volatile static char __ONEDAL_SERIALIZATION_DUMMY_NAME__(              \
-        register_serializable) =                                                            \
+#define __ONEDAL_REGISTER_SERIALIZABLE__(T)                                                   \
+    static char __ONEDAL_SERIALIZATION_DUMMY_NAME__(register_serializable_func)() {           \
+        ::oneapi::dal::detail::serializable_registry::instance().register_default_factory<T>( \
+            T::serialization_id());                                                           \
+        return 0;                                                                             \
+    }                                                                                         \
+    [[maybe_unused]] volatile static char __ONEDAL_SERIALIZATION_DUMMY_NAME__(                \
+        register_serializable) =                                                              \
         __ONEDAL_SERIALIZATION_DUMMY_NAME__(register_serializable_func)();
 
 namespace oneapi::dal::detail {

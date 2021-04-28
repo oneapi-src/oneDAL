@@ -15,6 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/backend/empty_table_impl.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal {
 namespace detail {
@@ -35,7 +37,8 @@ namespace v1 {
 
 using detail::v1::table_metadata_impl;
 
-class empty_metadata_impl : public table_metadata_impl, public base {
+class empty_metadata_impl : public table_metadata_impl,
+                            public __ONEDAL_SERIALIZABLE__(empty_table_metadata) {
 public:
     int64_t get_feature_count() const override {
         return 0;
@@ -49,10 +52,22 @@ public:
     const data_type& get_data_type(int64_t) const override {
         throw domain_error(dal::detail::error_messages::cannot_get_data_type_from_empty_metadata());
     }
-};
 
-class simple_metadata_impl : public table_metadata_impl, public base {
+    void serialize(detail::output_archive& ar) const override {
+        // Nothing to serialize
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        // Nothing to deserialize
+    }
+};
+__ONEDAL_REGISTER_SERIALIZABLE__(empty_metadata_impl)
+
+class simple_metadata_impl : public table_metadata_impl,
+                             public __ONEDAL_SERIALIZABLE__(simple_table_metadata) {
 public:
+    simple_metadata_impl() = default;
+
     simple_metadata_impl(const array<data_type>& dtypes, const array<feature_type>& ftypes)
             : dtypes_(dtypes),
               ftypes_(ftypes) {
@@ -82,6 +97,14 @@ public:
         return dtypes_[i];
     }
 
+    void serialize(detail::output_archive& ar) const override {
+        ar(dtypes_, ftypes_);
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        ar(dtypes_, ftypes_);
+    }
+
 private:
     bool is_in_range(int64_t i) const {
         return i >= 0 && i < dtypes_.get_count();
@@ -90,58 +113,7 @@ private:
     array<data_type> dtypes_;
     array<feature_type> ftypes_;
 };
-
-class empty_table_impl : public detail::table_template<detail::table_iface, empty_table_impl> {
-public:
-    static constexpr std::int64_t pure_empty_table_kind = 0;
-
-    std::int64_t get_column_count() const override {
-        return 0;
-    }
-
-    std::int64_t get_row_count() const override {
-        return 0;
-    }
-
-    std::int64_t get_kind() const override {
-        return pure_empty_table_kind;
-    }
-
-    data_layout get_data_layout() const override {
-        return data_layout::unknown;
-    }
-
-    const table_metadata& get_metadata() const override {
-        static table_metadata metadata;
-        return metadata;
-    }
-
-    template <typename T>
-    void pull_rows(const detail::default_host_policy& policy,
-                   array<T>& block,
-                   const range& rows) const {}
-
-    template <typename T>
-    void pull_column(const detail::default_host_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) const {}
-
-#ifdef ONEDAL_DATA_PARALLEL
-    template <typename T>
-    void pull_rows(const detail::data_parallel_policy& policy,
-                   array<T>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) const {}
-
-    template <typename T>
-    void pull_column(const detail::data_parallel_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) const {}
-#endif
-};
+__ONEDAL_REGISTER_SERIALIZABLE__(simple_metadata_impl)
 
 table_metadata::table_metadata() : impl_(new empty_metadata_impl()) {}
 
@@ -160,10 +132,19 @@ const data_type& table_metadata::get_data_type(int64_t feature_index) const {
     return impl_->get_data_type(feature_index);
 }
 
-table::table() : table(new empty_table_impl{}) {}
+void table_metadata::serialize(detail::output_archive& ar) const {
+    detail::serialize_polymorphic(impl_, ar);
+}
+
+void table_metadata::deserialize(detail::input_archive& ar) {
+    constexpr bool strict_type_match = false;
+    detail::deserialize_polymorphic(impl_, ar, strict_type_match);
+}
+
+table::table() : table(new backend::empty_table_impl{}) {}
 
 table::table(table&& t) : impl_(std::move(t.impl_)) {
-    t.impl_.reset(new empty_table_impl{});
+    t.impl_.reset(new backend::empty_table_impl{});
 }
 
 table& table::operator=(table&& t) {
@@ -195,5 +176,22 @@ data_layout table::get_data_layout() const {
     return impl_->get_data_layout();
 }
 
+void table::serialize(detail::output_archive& ar) const {
+    detail::serialize_polymorphic(impl_, ar);
+}
+
+void table::deserialize(detail::input_archive& ar) {
+    // Workaround for the case of deserialization to specific table type
+    // TODO: Remove once deserialization is moved to constructor
+    const auto empty_table_ptr = dynamic_cast<backend::empty_table_impl*>(impl_.get());
+    const bool strict_type_match = empty_table_ptr != nullptr;
+
+    detail::deserialize_polymorphic(impl_, ar, strict_type_match);
+}
+
 } // namespace v1
 } // namespace oneapi::dal
+
+// We need this to make sure that all table types are registered
+// for serialization, see "table/backend/register_serializable.cpp"
+__ONEDAL_FORCE_SERIALIZABLE_INIT__(tables)

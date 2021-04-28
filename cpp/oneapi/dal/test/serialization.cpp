@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/test/engine/common.hpp"
-#include "oneapi/dal/test/engine/mocks.hpp"
+#include "oneapi/dal/test/engine/serialization.hpp"
 
 namespace oneapi::dal::test {
 
@@ -54,7 +54,7 @@ TEST("mock primitive type") {
 
     INFO("deserialize") {
         float deserialized;
-        mock_input_archive ar(state);
+        te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(ar.prologue_call_count == 1);
@@ -81,7 +81,7 @@ TEST("mock enum") {
 
     INFO("deserialize") {
         my_enum deserialized;
-        mock_input_archive ar(state);
+        te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(ar.prologue_call_count == 1);
@@ -115,7 +115,7 @@ TEST("mock POD type") {
 
     INFO("deserialize") {
         pod_type deserialized;
-        mock_input_archive ar(state);
+        te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(deserialized.x1 == original.x1);
@@ -183,7 +183,7 @@ TEST("mock non-trivially copyable type") {
 
     INFO("deserialize") {
         vector_type deserialized;
-        mock_input_archive ar(state);
+        te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(deserialized.vec.size() == element_count);
@@ -338,7 +338,7 @@ TEST("mock polymorphic type") {
 
     SECTION("deserialize to base type") {
         polymorphic deserialized;
-        mock_input_archive ar(state);
+        te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(deserialized.get_name() == "A");
@@ -348,7 +348,7 @@ TEST("mock polymorphic type") {
 
     SECTION("deserialize to exact type") {
         derived_a deserialized;
-        mock_input_archive ar(state);
+        te::mock_input_archive ar(state);
         detail::deserialize(deserialized, ar);
 
         REQUIRE(deserialized.get_name() == "A");
@@ -358,7 +358,7 @@ TEST("mock polymorphic type") {
 
     SECTION("deserialize to wrong type") {
         derived_b deserialized;
-        mock_input_archive ar(state);
+        te::mock_input_archive ar(state);
 
         REQUIRE_THROWS_AS(detail::deserialize(deserialized, ar), invalid_argument);
     }

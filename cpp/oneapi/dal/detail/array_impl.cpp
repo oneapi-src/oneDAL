@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/array_impl.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
-#include "oneapi/dal/backend/serialization_ids.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::detail::v1 {
 
