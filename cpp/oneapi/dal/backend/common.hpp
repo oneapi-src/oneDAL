@@ -82,8 +82,9 @@ inline constexpr Integer down_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
     ONEDAL_ASSERT(x > 0);
     Integer power = 0;
-    if (is_pow2<Integer>(x))
+    if (is_pow2<Integer>(x)) {
         return x;
+    }
 
     while (x > 1) {
         x >>= 1;
