@@ -137,13 +137,12 @@ sycl::event assign_clusters(sycl::queue& queue,
         auto closest_distance_block =
             pr::ndview<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
                                        { cur_rows, 1 });
-        auto selection_event =
-            pr::kselect_by_rows_single_col<Float>{}.operator()(queue,
-                                                               distance_block,
-                                                               1,
-                                                               closest_distance_block,
-                                                               label_block,
-                                                               { distance_event });
+        selection_event = pr::kselect_by_rows_single_col<Float>{}.operator()(queue,
+                                                                             distance_block,
+                                                                             1,
+                                                                             closest_distance_block,
+                                                                             label_block,
+                                                                             { distance_event });
     }
     return selection_event;
 }
