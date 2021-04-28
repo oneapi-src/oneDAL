@@ -18,7 +18,7 @@
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/io.hpp"
 
-#include "oneapi/dal/algo/svm/backend/gpu/working_set.hpp"
+#include "oneapi/dal/algo/svm/backend/gpu/working_set_selector.hpp"
 
 namespace oneapi::dal::svm::backend::test {
 
@@ -50,23 +50,22 @@ public:
         dal::backend::copy<Float>(q, alpha_ndarray.get_mutable_data(), alpha.data(), n_vectors)
             .wait_and_throw();
 
+        auto n_ws = propose_working_set_size(q, n_vectors);
+        auto ws_indices =
+            pr::ndarray<std::uint32_t, 1>::empty(q, { n_ws }, sycl::usm::alloc::device);
+
         INFO("Init working set");
-        auto ws = working_set<Float>(q);
-        ws.init(n_vectors);
+        auto ws = working_set_selector<Float>(q, y_ndarray, C, n_vectors, n_ws);
 
-        INFO("Check n_ws");
-        REQUIRE(ws.get_size() == expected_n_ws);
-
-        INFO("Run select_ws");
-        ws.select_ws(y_ndarray, alpha_ndarray, f_ndarray, C).wait_and_throw();
+        INFO("Run select");
+        ws.select(alpha_ndarray, f_ndarray, ws_indices).wait_and_throw();
 
         INFO("Check ws_indices");
-        const auto indices = ws.get_ws_indices();
-        const auto indices_arr = indices.flatten(q);
+        const auto indices_arr = ws_indices.flatten(q);
 
         const auto indices_mat_host = la::matrix<std::uint32_t>::wrap(indices_arr).to_host();
         const auto indices_arr_host = indices_mat_host.get_array();
-        for (std::int64_t i = 0; i < indices.get_dimension(0); i++)
+        for (std::int64_t i = 0; i < ws_indices.get_dimension(0); i++)
             REQUIRE(indices_arr_host[i] == expected_ws_indices[i]);
     }
 };
