@@ -78,7 +78,7 @@ sycl::event partial_reduce_centroids(sycl::queue& queue,
                              std::int64_t part_count,
                              pr::ndview<Float, 2>& partial_centroids,
                              const bk::event_vector& deps = {});
-                             
+
 /*
 sycl::event count_clusters(sycl::queue& queue,
                            const pr::ndview<std::int32_t, 2>& labels,
@@ -86,7 +86,7 @@ sycl::event count_clusters(sycl::queue& queue,
                            pr::ndview<std::int32_t, 1>& counters,
                            pr::ndarray<std::int32_t, 1>& empty_cluster_count,
                            const bk::event_vector& deps = {});*/
-                           
+
 sycl::event count_clusters(sycl::queue& queue,
                            const pr::ndview<std::int32_t, 2>& labels,
                            std::int64_t cluster_count,
