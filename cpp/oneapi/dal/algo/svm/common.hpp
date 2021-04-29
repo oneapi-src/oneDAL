@@ -33,12 +33,22 @@ struct classification {};
 /// :capterm:`regression problem <regression>`.
 struct regression {};
 
+/// Tag-type that parameterizes entities that are used for solving
+/// :capterm:`classification problem <classification>`.
+struct nu_classification {};
+
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`regression problem <regression>`.
+struct nu_regression {};
+
 /// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
 using v1::classification;
 using v1::regression;
+using v1::nu_classification;
+using v1::nu_regression;
 using v1::by_default;
 
 } // namespace task
@@ -82,6 +92,10 @@ using enable_if_classification_t =
 template <typename T>
 using enable_if_regression_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
 
+template <typename T>
+using enable_if_nu_task_t =
+    std::enable_if_t<dal::detail::is_one_of_v<T, task::nu_classification, task::nu_regression>>;
+
 template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
@@ -89,12 +103,19 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::smo, method::thunder>;
 
 template <typename Task>
-constexpr bool is_valid_task_v =
-    dal::detail::is_one_of_v<Task, task::classification, task::regression>;
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task,
+                                                          task::classification,
+                                                          task::regression,
+                                                          task::nu_classification,
+                                                          task::nu_regression>;
 
 template <typename Method, typename Task>
 constexpr bool is_valid_method_task_combination = dal::detail::is_one_of_v<Method, method::smo>&&
     dal::detail::is_one_of_v<Task, task::regression>;
+
+template <typename Method, typename Task>
+constexpr bool is_valid_method_nu_task_combination = dal::detail::is_one_of_v<Method, method::smo>&&
+    dal::detail::is_one_of_v<Task, task::nu_classification, task::nu_regression>;
 
 template <typename Kernel>
 constexpr bool is_valid_kernel_v =
@@ -130,6 +151,10 @@ public:
         return get_epsilon_impl();
     }
 
+    double get_nu() const {
+        return get_nu_impl();
+    }
+
 protected:
     explicit descriptor_base(const detail::kernel_function_ptr& kernel);
 
@@ -142,9 +167,11 @@ protected:
     void set_kernel_impl(const detail::kernel_function_ptr&);
     void set_class_count_impl(std::int64_t);
     void set_epsilon_impl(double);
+    void set_nu_impl(double);
 
     std::int64_t get_class_count_impl() const;
     double get_epsilon_impl() const;
+    double get_nu_impl() const;
     const detail::kernel_function_ptr& get_kernel_impl() const;
 
 private:
@@ -160,10 +187,12 @@ using v1::descriptor_base;
 
 using v1::enable_if_classification_t;
 using v1::enable_if_regression_t;
+using v1::enable_if_nu_task_t;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
 using v1::is_valid_method_task_combination;
+using v1::is_valid_method_nu_task_combination;
 using v1::is_valid_kernel_v;
 
 } // namespace detail
@@ -187,6 +216,8 @@ class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_task_v<Task>);
     static_assert(!detail::is_valid_method_task_combination<Method, Task>,
                   "Regression SVM not supported with SMO method");
+    static_assert(!detail::is_valid_method_nu_task_combination<Method, Task>,
+                  "nuSVM is not supported with SMO method");
     static_assert(detail::is_valid_kernel_v<Kernel>,
                   "Custom kernel for SVM is not supported. "
                   "Use one of the predefined kernels.");
@@ -219,6 +250,7 @@ public:
     }
 
     /// The upper bound $C$ in constraints of the quadratic optimization problem.
+    /// Used with :expr:`task::classification`, :expr:`task::regression`, and :expr:`task::nu_regression` only.
     /// @invariant :expr:`c > 0`
     /// @remark default = 1.0
     double get_c() const {
@@ -315,6 +347,20 @@ public:
     template <typename T = Task, typename = detail::enable_if_regression_t<T>>
     auto& set_epsilon(double value) {
         base_t::set_epsilon_impl(value);
+        return *this;
+    }
+
+    template <typename T = Task, typename = detail::enable_if_nu_task_t<T>>
+    /// The nu. Used with :expr:`task::nu_classification` and :expr:`task::nu_regression` only.
+    /// @invariant :expr:`0 < nu <= 1`
+    /// @remark default = 0.5
+    double get_nu() const {
+        return base_t::get_nu_impl();
+    }
+
+    template <typename T = Task, typename = detail::enable_if_nu_task_t<T>>
+    auto& set_nu(double value) {
+        base_t::set_nu_impl(value);
         return *this;
     }
 };

@@ -38,6 +38,7 @@ public:
     bool shrinking = true;
     std::int64_t class_count = 2;
     double epsilon = 0.1;
+    double nu = 0.5;
 };
 
 template <typename Task>
@@ -148,6 +149,22 @@ void descriptor_base<Task>::set_epsilon_impl(double value) {
 template <typename Task>
 double descriptor_base<Task>::get_epsilon_impl() const {
     return impl_->epsilon;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_nu_impl(double value) {
+    if (value <= 0.0) {
+        throw domain_error(dal::detail::error_messages::nu_leq_zero());
+    }
+    if (value > 1.0) {
+        throw domain_error(dal::detail::error_messages::nu_gt_one());
+    }
+    impl_->nu = value;
+}
+
+template <typename Task>
+double descriptor_base<Task>::get_nu_impl() const {
+    return impl_->nu;
 }
 
 template <typename Task>

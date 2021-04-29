@@ -198,6 +198,8 @@ public:
     MSG(input_model_support_vectors_are_empty);
     MSG(input_model_support_vectors_cc_neq_input_data_cc);
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
+    MSG(nu_gt_one);
+    MSG(nu_leq_zero);
     MSG(polynomial_kenrel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
