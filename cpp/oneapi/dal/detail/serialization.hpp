@@ -19,21 +19,15 @@
 #include <unordered_map>
 #include "oneapi/dal/detail/common.hpp"
 
-#define __ONEDAL_SERIALIZATION_CONCAT4__(_1, _2, _3, _4) _1##_2##_3##_4
-#define __ONEDAL_SERIALIZATION_DUMMY_NAME_IMPL__(_1, _2) \
-    __ONEDAL_SERIALIZATION_CONCAT4__(__, _1, _2, __)
-#define __ONEDAL_SERIALIZATION_DUMMY_NAME__(name) \
-    __ONEDAL_SERIALIZATION_DUMMY_NAME_IMPL__(name, __LINE__)
-
+#define __ONEDAL_REGISTER_SERIALIZABLE__VAR2__(name, unique) name##unique
+#define __ONEDAL_REGISTER_SERIALIZABLE__VAR__(unique) \
+    __ONEDAL_REGISTER_SERIALIZABLE__VAR2__(__serializable_stub, unique)
 #define __ONEDAL_REGISTER_SERIALIZABLE__(T)                                                   \
-    static char __ONEDAL_SERIALIZATION_DUMMY_NAME__(register_serializable_func)() {           \
+    namespace {                                                                               \
+    [[maybe_unused]] volatile static bool __ONEDAL_REGISTER_SERIALIZABLE__VAR__(__LINE__) =   \
         ::oneapi::dal::detail::serializable_registry::instance().register_default_factory<T>( \
             T::serialization_id());                                                           \
-        return 0;                                                                             \
-    }                                                                                         \
-    [[maybe_unused]] volatile static char __ONEDAL_SERIALIZATION_DUMMY_NAME__(                \
-        register_serializable) =                                                              \
-        __ONEDAL_SERIALIZATION_DUMMY_NAME__(register_serializable_func)();
+    }
 
 namespace oneapi::dal::detail {
 
@@ -331,20 +325,21 @@ public:
     }
 
     template <typename T>
-    void register_default_factory(std::uint64_t serialization_id) {
-        register_factory(serialization_id, &default_serializable_factory<T>::instance());
+    bool register_default_factory(std::uint64_t serialization_id) {
+        return register_factory(serialization_id, &default_serializable_factory<T>::instance());
     }
 
 private:
     serializable_registry() = default;
 
-    void register_factory(std::uint64_t serialization_id,
+    bool register_factory(std::uint64_t serialization_id,
                           const serializable_factory_iface* factory) {
         ONEDAL_ASSERT(factory);
         ONEDAL_ASSERT(factories_.find(serialization_id) == factories_.end(),
                       "Factory with the provided serialization_id is already registered");
 
         factories_[serialization_id] = factory;
+        return true;
     }
 
     // TODO: Use own implementation of hash map
@@ -359,7 +354,7 @@ public:
     }
 
     std::uint64_t get_serialization_id() const override {
-        return SerializationId;
+        return serialization_id();
     }
 };
 

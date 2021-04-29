@@ -22,7 +22,7 @@
 namespace oneapi::dal::backend {
 
 class empty_table_impl : public detail::table_template<detail::table_iface, empty_table_impl>,
-                         public __ONEDAL_SERIALIZABLE__(empty_table) {
+                         public ONEDAL_SERIALIZABLE(empty_table_id) {
 public:
     static constexpr std::int64_t pure_empty_table_kind = 0;
 

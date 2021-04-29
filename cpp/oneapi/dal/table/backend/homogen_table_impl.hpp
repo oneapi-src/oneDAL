@@ -24,7 +24,7 @@ namespace oneapi::dal::backend {
 
 class homogen_table_impl
         : public detail::table_template<detail::homogen_table_iface, homogen_table_impl>,
-          public __ONEDAL_SERIALIZABLE__(homogen_table) {
+          public ONEDAL_SERIALIZABLE(homogen_table_id) {
 public:
     homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 

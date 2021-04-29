@@ -38,7 +38,7 @@ namespace v1 {
 using detail::v1::table_metadata_impl;
 
 class empty_metadata_impl : public table_metadata_impl,
-                            public __ONEDAL_SERIALIZABLE__(empty_table_metadata) {
+                            public ONEDAL_SERIALIZABLE(empty_table_metadata_id) {
 public:
     int64_t get_feature_count() const override {
         return 0;
@@ -61,10 +61,10 @@ public:
         // Nothing to deserialize
     }
 };
-__ONEDAL_REGISTER_SERIALIZABLE__(empty_metadata_impl)
+ONEDAL_REGISTER_SERIALIZABLE(empty_metadata_impl)
 
 class simple_metadata_impl : public table_metadata_impl,
-                             public __ONEDAL_SERIALIZABLE__(simple_table_metadata) {
+                             public ONEDAL_SERIALIZABLE(simple_table_metadata_id) {
 public:
     simple_metadata_impl() = default;
 
@@ -191,4 +191,4 @@ void table::deserialize(detail::input_archive& ar) {
 
 // We need to make sure that all table types are registered for serialization,
 // see "table/backend/register_serializable.cpp"
-__ONEDAL_FORCE_SERIALIZABLE_INIT__(tables)
+ONEDAL_FORCE_SERIALIZABLE_INIT(tables)

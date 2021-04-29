@@ -20,6 +20,6 @@
 using oneapi::dal::backend::empty_table_impl;
 using oneapi::dal::backend::homogen_table_impl;
 
-__ONEDAL_REGISTER_SERIALIZABLE__(empty_table_impl)
-__ONEDAL_REGISTER_SERIALIZABLE__(homogen_table_impl)
-__ONEDAL_REGISTER_SERIALIZABLE_INIT__(tables)
+ONEDAL_REGISTER_SERIALIZABLE(empty_table_impl)
+ONEDAL_REGISTER_SERIALIZABLE(homogen_table_impl)
+ONEDAL_REGISTER_SERIALIZABLE_INIT(tables)

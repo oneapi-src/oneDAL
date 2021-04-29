@@ -16,8 +16,11 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/interop/common.hpp"
 #include <daal/include/algorithms/multi_class_classifier/multi_class_classifier_model.h>
+
+#include "oneapi/dal/backend/serialization.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/archive.hpp"
 
 namespace oneapi::dal::svm::backend {
 
@@ -29,12 +32,25 @@ public:
 };
 
 template <typename DaalModel>
-class model_interop_impl : public model_interop {
+class model_interop_impl : public model_interop,
+                           public ONEDAL_SERIALIZABLE(svm_model_interop_impl_multiclass_id) {
 public:
+    model_interop_impl() = default;
+
     model_interop_impl(DaalModel& model) : daal_model_(model) {}
 
     const DaalModel get_model() const {
         return daal_model_;
+    }
+
+    void serialize(dal::detail::output_archive& ar) const override {
+        dal::backend::interop::daal_output_data_archive daal_ar(ar);
+        daal_model_->serialize(daal_ar);
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        dal::backend::interop::daal_input_data_archive daal_ar(ar);
+        daal_model_->deserialize(daal_ar);
     }
 
 private:

@@ -27,7 +27,7 @@ inline void serialize_array_on_host(output_archive& archive,
                                     const byte_t* data,
                                     std::int64_t size_in_bytes,
                                     data_type dtype) {
-    archive(backend::serialization_ids::array);
+    archive(ONEDAL_SERIALIZATION_ID(array_id));
     archive(dtype, size_in_bytes);
 
     if (size_in_bytes > 0) {

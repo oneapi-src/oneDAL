@@ -239,5 +239,9 @@ void model<Task>::set_second_class_label_impl(std::int64_t value) {
 template class ONEDAL_EXPORT model<task::classification>;
 template class ONEDAL_EXPORT model<task::regression>;
 
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::regression>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
+
 } // namespace v1
 } // namespace oneapi::dal::svm
