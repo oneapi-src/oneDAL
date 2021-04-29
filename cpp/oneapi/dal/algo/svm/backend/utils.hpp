@@ -140,8 +140,7 @@ inline table convert_binary_labels(sycl::queue& queue,
                                    const table& labels,
                                    const binary_label_t<Float>& requested_unique_labels,
                                    const binary_label_t<Float>& old_unique_labels) {
-    if (old_unique_labels == binary_label_t<Float>{ 0, 1 } ||
-        old_unique_labels == binary_label_t<Float>{ -1, 1 }) {
+    if (old_unique_labels == binary_label_t<Float>{ -1, 1 }) {
         return labels;
     }
     else {
@@ -150,15 +149,15 @@ inline table convert_binary_labels(sycl::queue& queue,
         auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
         const std::int64_t count = arr_label.get_count();
 
+        const auto arr_label_host = dal::backend::to_host_sync(arr_label);
         auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
         convert_binary_labels_impl<Float>(requested_unique_labels,
                                           old_unique_labels,
-                                          arr_label,
+                                          arr_label_host,
                                           new_label_arr);
 
-        auto device_arr_data =
-            dal::backend::to_device_sync(queue, new_label_arr).get_mutable_data();
-        return homogen_table::wrap(queue, device_arr_data, count, 1);
+        auto device_arr_data = dal::backend::to_device_sync(queue, new_label_arr);
+        return homogen_table::wrap(device_arr_data, count, 1);
     }
 }
 #endif
