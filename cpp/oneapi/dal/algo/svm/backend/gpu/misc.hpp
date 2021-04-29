@@ -23,6 +23,8 @@ namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
+enum class borders { up, low };
+
 inline sycl::event make_range(sycl::queue& queue,
                               pr::ndview<std::uint32_t, 1>& indices_sort,
                               const std::int64_t n,
@@ -70,13 +72,14 @@ inline sycl::event arg_sort(sycl::queue& queue,
 }
 
 template <typename Float>
-inline sycl::event check_upper(sycl::queue& queue,
-                               const pr::ndview<Float, 1>& y,
-                               const pr::ndview<Float, 1>& alpha,
-                               pr::ndview<std::uint32_t, 1>& indicator,
-                               const Float C,
-                               const std::int64_t n,
-                               const dal::backend::event_vector& deps = {}) {
+inline sycl::event check_borders(sycl::queue& queue,
+                                 const pr::ndview<Float, 1>& y,
+                                 const pr::ndview<Float, 1>& alpha,
+                                 pr::ndview<std::uint32_t, 1>& indicator,
+                                 const Float C,
+                                 const std::int64_t n,
+                                 borders bord,
+                                 const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(y.get_dimension(0) == n);
     ONEDAL_ASSERT(alpha.get_dimension(0) == n);
     ONEDAL_ASSERT(indicator.get_dimension(0) == n);
@@ -89,49 +92,31 @@ inline sycl::event check_upper(sycl::queue& queue,
     const auto wg_size = std::min(dal::backend::propose_wg_size(queue), n);
     const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
 
-    auto check_upper_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
+    sycl::event check_event;
 
-        cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-            const std::uint32_t i = item.get_global_id(0);
-            indicator_ptr[i] =
-                (y_ptr[i] > 0 && alpha_ptr[i] < C) || (y_ptr[i] < 0 && alpha_ptr[i] > 0);
+    if (bord == borders::up) {
+        check_event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
+
+            cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
+                const std::uint32_t i = item.get_global_id(0);
+                indicator_ptr[i] =
+                    (y_ptr[i] > 0 && alpha_ptr[i] < C) || (y_ptr[i] < 0 && alpha_ptr[i] > 0);
+            });
         });
-    });
-    return check_upper_event;
-}
+    }
+    else {
+        check_event = queue.submit([&](sycl::handler& cgh) {
+            cgh.depends_on(deps);
 
-template <typename Float>
-inline sycl::event check_lower(sycl::queue& queue,
-                               const pr::ndview<Float, 1>& y,
-                               const pr::ndview<Float, 1>& alpha,
-                               pr::ndview<std::uint32_t, 1>& indicator,
-                               const Float C,
-                               const std::int64_t n,
-                               const dal::backend::event_vector& deps = {}) {
-    ONEDAL_ASSERT(y.get_dimension(0) == n);
-    ONEDAL_ASSERT(alpha.get_dimension(0) == n);
-    ONEDAL_ASSERT(indicator.get_dimension(0) == n);
-    ONEDAL_ASSERT(indicator.has_mutable_data());
-
-    const Float* y_ptr = y.get_data();
-    const Float* alpha_ptr = alpha.get_data();
-    std::uint32_t* indicator_ptr = indicator.get_mutable_data();
-
-    const auto wg_size = std::min(dal::backend::propose_wg_size(queue), n);
-    const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
-
-    auto check_upper_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-
-        cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-            const std::uint32_t i = item.get_global_id(0);
-            indicator_ptr[i] =
-                (y_ptr[i] > 0 && alpha_ptr[i] > 0) || (y_ptr[i] < 0 && alpha_ptr[i] < C);
+            cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
+                const std::uint32_t i = item.get_global_id(0);
+                indicator_ptr[i] =
+                    (y_ptr[i] > 0 && alpha_ptr[i] > 0) || (y_ptr[i] < 0 && alpha_ptr[i] < C);
+            });
         });
-    });
-
-    return check_upper_event;
+    }
+    return check_event;
 }
 
 } // namespace oneapi::dal::svm::backend

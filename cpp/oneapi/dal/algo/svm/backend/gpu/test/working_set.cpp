@@ -39,16 +39,16 @@ public:
                           const std::int64_t expected_n_ws,
                           const std::vector<std::uint32_t>& expected_ws_indices) {
         auto& q = this->get_queue();
+
         INFO("Allocate ndarray");
         auto f_ndarray = pr::ndarray<Float, 1>::empty(q, { n_vectors });
+        auto assign_f_event = f_ndarray.assign(q, f.data(), n_vectors);
+
         auto y_ndarray = pr::ndarray<Float, 1>::empty(q, { n_vectors });
+        auto assign_y_event = y_ndarray.assign(q, y.data(), n_vectors);
+
         auto alpha_ndarray = pr::ndarray<Float, 1>::empty(q, { n_vectors });
-        dal::backend::copy<Float>(q, f_ndarray.get_mutable_data(), f.data(), n_vectors)
-            .wait_and_throw();
-        dal::backend::copy<Float>(q, y_ndarray.get_mutable_data(), y.data(), n_vectors)
-            .wait_and_throw();
-        dal::backend::copy<Float>(q, alpha_ndarray.get_mutable_data(), alpha.data(), n_vectors)
-            .wait_and_throw();
+        auto assign_alpha_event = alpha_ndarray.assign(q, alpha.data(), n_vectors);
 
         auto n_ws = propose_working_set_size(q, n_vectors);
         auto ws_indices =
@@ -58,7 +58,11 @@ public:
         auto ws = working_set_selector<Float>(q, y_ndarray, C, n_vectors, n_ws);
 
         INFO("Run select");
-        ws.select(alpha_ndarray, f_ndarray, ws_indices).wait_and_throw();
+        ws.select(alpha_ndarray,
+                  f_ndarray,
+                  ws_indices,
+                  { assign_f_event, assign_y_event, assign_alpha_event })
+            .wait_and_throw();
 
         INFO("Check ws_indices");
         const auto indices_arr = ws_indices.flatten(q);

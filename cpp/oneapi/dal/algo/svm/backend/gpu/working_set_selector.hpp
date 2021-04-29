@@ -87,115 +87,23 @@ public:
 
         auto arg_sort_event = arg_sort(queue_, f, values_sort_, sorted_f_inices_, n_vectors_, deps);
 
-        sycl::event copy_event;
+        std::int64_t n_need_select = (n_ws_ - n_selected_) / 2;
+        auto select_part_event =
+            select_part(alpha, ws_indices, n_need_select, borders::up, { arg_sort_event });
 
-        {
-            const std::int64_t n_need_select = (n_ws_ - n_selected_) / 2;
-
-            auto check_upper_event =
-                check_upper(queue_, labels_, alpha, indicator_, C_, n_vectors_, { arg_sort_event });
-
-            /* Reset indicator for busy Indices */
-            if (n_selected_ > 0) {
-                reset_indicator_with_zeros(ws_indices,
-                                           indicator_,
-                                           n_selected_,
-                                           { check_upper_event })
-                    .wait_and_throw();
-            }
-            std::int64_t n_upper_select = 0;
-            auto select_event = pr::select_flagged_index<std::uint32_t, std::uint32_t>{
-                queue_
-            }(indicator_, sorted_f_inices_, buff_indices_, n_upper_select, { check_upper_event });
-
-            const std::int64_t n_copy = std::min(n_upper_select, n_need_select);
-
-            std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
-            const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
-
-            if (n_copy > 0)
-                copy_event = dal::backend::copy(queue_,
-                                                ws_indices_ptr + n_selected_,
-                                                buff_indices_ptr,
-                                                n_copy,
-                                                { select_event });
-
-            n_selected_ += n_copy;
-        }
-
-        {
-            const std::int64_t n_need_select = n_ws_ - n_selected_;
-
-            auto check_lower_event =
-                check_lower(queue_, labels_, alpha, indicator_, C_, n_vectors_, { copy_event });
-
-            /* Reset indicator for busy Indices */
-            if (n_selected_ > 0) {
-                reset_indicator_with_zeros(ws_indices,
-                                           indicator_,
-                                           n_selected_,
-                                           { check_lower_event })
-                    .wait_and_throw();
-            }
-
-            std::int64_t n_lower_select = 0;
-            auto select_event = pr::select_flagged_index<std::uint32_t, std::uint32_t>{
-                queue_
-            }(indicator_, sorted_f_inices_, buff_indices_, n_lower_select, { check_lower_event });
-
-            const std::int64_t n_copy = std::min(n_lower_select, n_need_select);
-
-            std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
-            const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
-
-            if (n_copy > 0)
-                copy_event = dal::backend::copy(queue_,
-                                                ws_indices_ptr + n_selected_,
-                                                buff_indices_ptr + n_lower_select - n_copy,
-                                                n_copy,
-                                                { select_event });
-
-            n_selected_ += n_copy;
-        }
+        n_need_select = n_ws_ - n_selected_;
+        select_part_event =
+            select_part(alpha, ws_indices, n_need_select, borders::low, { select_part_event });
 
         if (n_selected_ < n_ws_) {
-            const std::int64_t n_need_select = n_ws_ - n_selected_;
-
-            auto check_upper_event =
-                check_upper(queue_, labels_, alpha, indicator_, C_, n_vectors_, { copy_event });
-
-            /* Reset indicator for busy Indices */
-            if (n_selected_ > 0) {
-                reset_indicator_with_zeros(ws_indices,
-                                           indicator_,
-                                           n_selected_,
-                                           { check_upper_event })
-                    .wait_and_throw();
-            }
-
-            std::int64_t n_upper_select = 0;
-            auto select_event = pr::select_flagged_index<std::uint32_t, std::uint32_t>{
-                queue_
-            }(indicator_, sorted_f_inices_, buff_indices_, n_upper_select, { check_upper_event });
-
-            const std::int64_t n_copy = std::min(n_upper_select, n_need_select);
-
-            std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
-            const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
-
-            if (n_copy > 0)
-                copy_event = dal::backend::copy(queue_,
-                                                ws_indices_ptr + n_selected_,
-                                                buff_indices_ptr,
-                                                n_copy,
-                                                { select_event });
-
-            n_selected_ += n_copy;
+            n_need_select = n_ws_ - n_selected_;
+            select_part_event =
+                select_part(alpha, ws_indices, n_need_select, borders::up, { select_part_event });
         }
         ONEDAL_ASSERT(n_selected_ == n_ws_);
 
         n_selected_ = 0;
-        return copy_event;
+        return select_part_event;
     }
 
 private:
@@ -225,6 +133,45 @@ private:
         return reset_indicator_with_zeros_event;
     }
 
+    sycl::event select_part(const pr::ndview<Float, 1>& alpha,
+                            pr::ndview<std::uint32_t, 1>& ws_indices,
+                            const std::int64_t n_need_select,
+                            borders bord,
+                            const dal::backend::event_vector& deps = {}) {
+        auto kernel_event =
+            check_borders(queue_, labels_, alpha, indicator_, C_, n_vectors_, bord, deps);
+
+        /* Reset indicator for busy Indices */
+        if (n_selected_ > 0) {
+            kernel_event =
+                reset_indicator_with_zeros(ws_indices, indicator_, n_selected_, { kernel_event });
+        }
+        std::int64_t n_select = 0;
+        auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint32_t>{ queue_ };
+        kernel_event =
+            select_flagged(indicator_, sorted_f_inices_, buff_indices_, n_select, { kernel_event });
+
+        const std::int64_t n_copy = std::min(n_select, n_need_select);
+
+        std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
+        const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
+
+        if (n_copy > 0) {
+            std::int64_t offset = 0;
+            if (bord == borders::low)
+                offset = n_select - n_copy;
+            kernel_event = dal::backend::copy(queue_,
+                                              ws_indices_ptr + n_selected_,
+                                              buff_indices_ptr + offset,
+                                              n_copy,
+                                              { kernel_event });
+        }
+
+        n_selected_ += n_copy;
+
+        return kernel_event;
+    }
+
     sycl::queue queue_;
 
     std::int64_t n_selected_;
@@ -237,7 +184,7 @@ private:
     pr::ndarray<std::uint32_t, 1> buff_indices_;
     pr::ndarray<Float, 1> values_sort_;
     pr::ndarray<Float, 1> labels_;
-};
+}; // namespace oneapi::dal::svm::backend
 
 #define INSTANTIATE_WORKING_SET(F) template class ONEDAL_EXPORT working_set_selector<F>;
 
