@@ -66,10 +66,13 @@ public:
 protected:
     services::Status computeBlockOfResponses(size_t startRow, size_t numFeatures, size_t numRows, NumericTable * dataTable, size_t numBetas,
                                              const algorithmFpType * beta, size_t numResponses, algorithmFpType * responseBlock, bool findBeta0);
-    services::Status computeBlockOfResponsesSOA(size_t startRow, size_t numFeatures, size_t numRowsInBlock, NumericTable * dataTable, size_t numBetas,
-                                                const algorithmFpType * beta, size_t numResponses, algorithmFpType * responseBlock, bool findBeta0,
+    services::Status computeBlockOfResponsesSOA(size_t startRow,
+                                                size_t numRowsInBlock, NumericTable * dataTable,
+                                                size_t numBetas, const algorithmFpType * beta,
+                                                size_t numResponses, algorithmFpType * responseBlock,
+                                                bool findBeta0, bool isHomogeneous,
                                                 TlsMem<algorithmFpType, cpu> & tlsData);
-    static const size_t blockSizeRows    = 128;
+    static const size_t blockSizeRows    = 256;
     static const size_t blockSizeColumns = 512;
 };
 

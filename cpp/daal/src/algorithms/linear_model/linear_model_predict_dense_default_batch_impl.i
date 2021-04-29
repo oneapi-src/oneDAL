@@ -46,20 +46,7 @@ namespace internal
 using namespace daal::internal;
 using namespace daal::services;
 
-/**
- *  \brief Function that computes linear regression prediction results
- *         for a block of input data rows
- *
- *  \param numFeatures[in]      Number of features in input data row
- *  \param numRows[in]          Number of input data rows
- *  \param dataBlock[in]        Block of input data rows
- *  \param numBetas[in]         Number of regression coefficients
- *  \param beta[in]             Regression coefficients
- *  \param numResponses[in]     Number of responses to calculate for each input data row
- *  \param responseBlock[out]   Resulting block of responses
- *  \param findBeta0[in]        Flag. True if regression coefficient contain intercept term;
- *                              false - otherwise.
- */
+
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(size_t startRow, size_t numFeatures, size_t numRows,
                                                                                             NumericTable * dataTable, size_t numBetas,
@@ -94,17 +81,18 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
 } /* void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses */
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(size_t startRow, size_t numFeatures,
-                                                                                               size_t numRowsInBlock, NumericTable * dataTable,
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(size_t startRow, size_t numRowsInBlock, NumericTable * dataTable,
                                                                                                size_t numBetas, const algorithmFPType * beta,
                                                                                                size_t numResponses, algorithmFPType * responseBlock,
-                                                                                               bool findBeta0, TlsMem<algorithmFPType, cpu> & tlsData)
+                                                                                               bool findBeta0, bool isHomogeneous,
+                                                                                               TlsMem<algorithmFPType, cpu> & tlsData)
 {
     Status st;
     char trans                       = 'T';
     char notrans                     = 'N';
     algorithmFPType one              = 1.0;
-    const size_t nRowsInData         = dataTable->getNumberOfRows();
+    const size_t numFeatures         = dataTable->getNumberOfColumns();
+    const size_t numRowsInData       = dataTable->getNumberOfRows();
     const size_t numBlockSizeColumns = blockSizeColumns;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, numRowsInBlock, numResponses);
     services::internal::service_memset_seq<algorithmFPType, cpu>(responseBlock, algorithmFPType(0.0), numRowsInBlock * numResponses);
@@ -115,23 +103,17 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
         const size_t startColumn       = iBlock * blockSizeColumns;
         const size_t numColumnsInBlock = (iBlock == numBlocks - 1) ? numFeatures - startColumn : blockSizeColumns;
 
-        bool wasInside = 0;
-        if (static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble())
+        if (isHomogeneous)
         // if (true)
         {
-            auto f = (*const_cast<NumericTable &>(*dataTable).getDictionary())[0];
-            if (daal::data_management::features::getIndexNumType<algorithmFPType>() == f.indexType)
-            {
-                wasInside = 1;
-                ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRowsInBlock);
-                DAAL_CHECK_BLOCK_STATUS(xBlock);
-                const algorithmFPType * data = xBlock.get();
-                Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&numColumnsInBlock,
-                                                &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&nRowsInData, &one,
-                                                responseBlock, (DAAL_INT *)&numResponses);
-            }
+            ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRowsInBlock);
+            DAAL_CHECK_BLOCK_STATUS(xBlock);
+            const algorithmFPType * data = xBlock.get();
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&numColumnsInBlock,
+                                            &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&numRowsInData, &one,
+                                            responseBlock, (DAAL_INT *)&numResponses);
         }
-        if (!wasInside)
+        else
         {
             algorithmFPType * tlsLocal = tlsData.local();
             DAAL_CHECK_MALLOC(tlsLocal);
@@ -165,6 +147,28 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
 
     /* Get numeric tables with input data */
     NumericTable * dataTable = const_cast<NumericTable *>(a);
+    bool isHomogeneous = false;
+    if (dataTable->getDataLayout() & NumericTableIface::soa)
+    {
+        isHomogeneous = static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble();
+        auto f = (*const_cast<NumericTable &>(*dataTable).getDictionary())[0];
+        isHomogeneous &= data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
+        // if (data_management::features::getIndexNumType<double>() == f.indexType){
+        //     printf("data DOUBLE\n");
+        // }
+        // if (data_management::features::getIndexNumType<float>() == f.indexType){
+        //     printf("data FLOAT\n");
+        // }
+    }
+    // printf("isHomogeneous = %d\n", (int)isHomogeneous);
+    // if (IsSameType<algorithmFPType, double>::value){
+    //     printf("algorithmFPType = DOUBLE\n");
+    // }
+    // if (IsSameType<algorithmFPType, float>::value){
+    //     printf("algorithmFPType = FLOAT\n");
+    // }
+
+    // printf("isHomogeneous = %d\n", (int)isHomogeneous);
 
     /* Get sizes of input data */
     const size_t numVectors  = dataTable->getNumberOfRows();
@@ -173,7 +177,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
     /* Get linear regression coefficients */
     NumericTable * betaTable  = model->getBeta().get();
     const size_t numResponses = betaTable->getNumberOfRows();
-    const size_t nAllBetas    = betaTable->getNumberOfColumns();
+    const size_t numBetas    = betaTable->getNumberOfColumns();
 
     /* Retrieve data associated with coefficients */
     ReadRows<algorithmFPType, cpu> betaRows(betaTable, 0, numResponses);
@@ -199,12 +203,12 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         /* Calculate predictions */
         if (dataTable->getDataLayout() & NumericTableIface::soa)
         {
-            DAAL_CHECK_STATUS_THR(computeBlockOfResponsesSOA(startRow, numFeatures, numRowsInBlock, dataTable, nAllBetas, beta, numResponses,
-                                                             responseBlock, model->getInterceptFlag(), tlsData));
+            DAAL_CHECK_STATUS_THR(computeBlockOfResponsesSOA(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses,
+                                                             responseBlock, model->getInterceptFlag(), isHomogeneous, tlsData));
         }
         else
         {
-            DAAL_CHECK_STATUS_THR(computeBlockOfResponses(startRow, numFeatures, numRowsInBlock, dataTable, nAllBetas, beta, numResponses,
+            DAAL_CHECK_STATUS_THR(computeBlockOfResponses(startRow, numFeatures, numRowsInBlock, dataTable, numBetas, beta, numResponses,
                                                           responseBlock, model->getInterceptFlag()));
         }
     }); /* daal::threader_for */
