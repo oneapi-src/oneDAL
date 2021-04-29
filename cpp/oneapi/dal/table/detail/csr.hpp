@@ -50,8 +50,8 @@ public:
     /// @param data           The pointer to values in the CSR layout.
     /// @param column_indices The pointer to column indices in the CSR layout.
     /// @param row_indices    The pointer to row indices in the CSR layout.
-    /// @param column_count   The number of columns in the corresponding dense table.
     /// @param row_count      The number of rows in the corresponding dense table.
+    /// @param column_count   The number of columns in the corresponding dense table.
     /// @param data_deleter   The deleter that is called on the ``data`` when the last table that refers it
     ///                       is out of the scope.
     /// @param column_deleter The deleter that is called on the ``column_indices`` when the last table that refers it
@@ -63,8 +63,8 @@ public:
     csr_table(const Data* data,
               const std::int64_t* column_indices,
               const std::int64_t* row_indices,
-              std::int64_t column_count,
               std::int64_t row_count,
+              std::int64_t column_count,
               DataDeleter&& data_deleter,
               ColumnDeleter&& column_deleter,
               RowDeleter&& row_deleter,
@@ -106,6 +106,18 @@ public:
 private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
 
+    bool correct_indices(const std::int64_t size,
+                         const std::int64_t* indices,
+                         const csr_indexing indexing) const {
+        const std::int64_t min_value = (indexing == csr_indexing::zero_based) ? 0 : 1;
+        for (std::int64_t i = 0; i < size; i++) {
+            if (indices[i] < min_value) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     template <typename Policy,
               typename Data,
               typename DataDeleter,
@@ -129,6 +141,11 @@ private:
 
         if (column_count <= 0) {
             throw dal::domain_error(error_msg::cc_leq_zero());
+        }
+
+        if (!correct_indices(column_count, column_indices, indexing) ||
+            !correct_indices(row_count, row_indices, indexing)) {
+            throw dal::domain_error(error_msg::invalid_indices());
         }
 
         array<Data> data_array{ data,

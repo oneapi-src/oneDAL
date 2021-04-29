@@ -80,6 +80,7 @@ MSG(object_does_not_provide_read_access_to_columns,
 MSG(object_does_not_provide_write_access_to_columns,
     "Given object does not provide write access to columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(invalid_indices, "Invalid indices")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

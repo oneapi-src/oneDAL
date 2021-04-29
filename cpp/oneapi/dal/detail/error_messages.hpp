@@ -107,6 +107,7 @@ public:
     MSG(object_does_not_provide_read_access_to_columns);
     MSG(object_does_not_provide_write_access_to_columns);
     MSG(unsupported_conversion_types);
+    MSG(invalid_indices);
 
     /* Ranges */
     MSG(invalid_range_of_rows);

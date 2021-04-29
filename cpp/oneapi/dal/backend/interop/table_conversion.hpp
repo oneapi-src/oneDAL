@@ -129,8 +129,7 @@ inline auto convert_to_daal_csr_table(array<T>& data,
                                       array<std::int64_t>& row_indices,
                                       std::int64_t row_count,
                                       std::int64_t column_count,
-                                      bool allow_copy = false,
-                                      bool check_inputs = true) {
+                                      bool allow_copy = false) {
     if (!data.get_count() || !column_indices.get_count() || !row_indices.get_count())
         return daal::services::SharedPtr<daal::data_management::CSRNumericTable>();
 
@@ -146,14 +145,7 @@ inline auto convert_to_daal_csr_table(array<T>& data,
 
     const auto daal_data =
         daal::services::SharedPtr<T>(data.get_mutable_data(), daal_object_owner{ data });
-    if (check_inputs) {
-        for (std::int64_t i = 0; i < column_indices.get_count(); i++) {
-            ONEDAL_ASSERT(column_indices.get_mutable_data()[i] >= 0);
-        }
-        for (std::int64_t i = 0; i < row_indices.get_count(); i++) {
-            ONEDAL_ASSERT(row_indices.get_mutable_data()[i] >= 0);
-        }
-    }
+    ONEDAL_ASSERT(sizeof(std::size_t) == sizeof(std::int64_t));
     const auto daal_column_indices = daal::services::SharedPtr<std::size_t>(
         reinterpret_cast<std::size_t*>(column_indices.get_mutable_data()),
         daal_object_owner{ column_indices });
@@ -185,27 +177,56 @@ inline daal::data_management::CSRNumericTablePtr copy_to_daal_csr_table(
 template <typename T>
 inline detail::csr_table convert_from_daal_csr_table(
     const daal::data_management::NumericTablePtr& nt) {
-    daal::data_management::CSRNumericTable* csr_nt =
-        dynamic_cast<daal::data_management::CSRNumericTable*>(nt.get());
-    ONEDAL_ASSERT(csr_nt);
-    daal::data_management::CSRBlockDescriptor<T> block;
-    const std::int64_t row_count = csr_nt->getNumberOfRows();
-    const std::int64_t column_count = csr_nt->getNumberOfColumns();
+    struct sparse_block_owner {
+        sparse_block_owner(const daal::data_management::NumericTablePtr& nt) {
+            _csr_nt = dynamic_cast<daal::data_management::CSRNumericTable*>(nt.get());
+            ONEDAL_ASSERT(_csr_nt);
+            _row_count = _csr_nt->getNumberOfRows();
+            _column_count = _csr_nt->getNumberOfColumns();
+            _csr_nt->getSparseBlock(0, _row_count, daal::data_management::readOnly, _block);
+        }
 
-    csr_nt->getSparseBlock(0, row_count, daal::data_management::readOnly, block);
-    T* daal_data = block.getBlockValuesPtr();
-    std::size_t* daal_column_indices = block.getBlockColumnIndicesPtr();
-    std::size_t* daal_row_indices = block.getBlockRowIndicesPtr();
+        ~sparse_block_owner() {
+            _csr_nt->releaseSparseBlock(_block);
+        }
 
-    detail::csr_table table{ daal_data,
-                             reinterpret_cast<std::int64_t*>(daal_column_indices),
-                             reinterpret_cast<std::int64_t*>(daal_row_indices),
-                             row_count,
-                             column_count,
-                             [](const T* p) {},
-                             [](const std::int64_t* p) {},
-                             [](const std::int64_t* p) {} };
-    csr_nt->releaseSparseBlock(block);
+        std::int64_t get_row_count() const {
+            return _row_count;
+        }
+
+        std::int64_t get_column_count() const {
+            return _column_count;
+        }
+
+        T* get_data() const {
+            return _block.getBlockValuesPtr();
+        }
+
+        std::size_t* get_column_indices() const {
+            return _block.getBlockColumnIndicesPtr();
+        }
+
+        std::size_t* get_row_indices() const {
+            return _block.getBlockRowIndicesPtr();
+        }
+
+        daal::data_management::CSRBlockDescriptor<T> _block;
+        daal::data_management::CSRNumericTable* _csr_nt;
+        std::int64_t _row_count;
+        std::int64_t _column_count;
+    };
+
+    auto block_owner = std::make_shared<sparse_block_owner>(sparse_block_owner{ nt });
+
+    ONEDAL_ASSERT(sizeof(std::size_t) == sizeof(std::int64_t));
+    detail::csr_table table{ block_owner->get_data(),
+                             reinterpret_cast<std::int64_t*>(block_owner->get_column_indices()),
+                             reinterpret_cast<std::int64_t*>(block_owner->get_row_indices()),
+                             block_owner->get_row_count(),
+                             block_owner->get_column_count(),
+                             [block_owner](const T* p) {},
+                             [block_owner](const std::int64_t* p) {},
+                             [block_owner](const std::int64_t* p) {} };
     return table;
 }
 
