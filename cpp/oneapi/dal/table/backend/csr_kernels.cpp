@@ -31,33 +31,20 @@ ONEDAL_FORCEINLINE void check_origin_data(const array<byte_t>& origin_data,
 }
 
 template <typename Policy, typename BlockData>
-void pull_sparse_block_impl(const Policy& policy,
-                            const csr_info& origin_info,
-                            const block_info& block_info,
-                            const array<byte_t>& origin_data,
-                            const array<std::int64_t>& origin_column_indices,
-                            const array<std::int64_t>& origin_row_indices,
-                            detail::sparse_block<BlockData>& block,
-                            alloc_kind kind,
-                            bool preserve_mutability) {
+void pull_data_impl(const Policy& policy,
+                    const csr_info& origin_info,
+                    const array<byte_t>& origin_data,
+                    const bool same_type,
+                    const std::int64_t origin_offset,
+                    const std::int64_t block_size,
+                    detail::sparse_block<BlockData>& block,
+                    alloc_kind kind,
+                    bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     constexpr data_type block_dtype = detail::make_data_type<BlockData>();
 
     const auto origin_dtype_size = detail::get_data_type_size(origin_info.dtype_);
 
-    // overflows checked here
-    check_origin_data(origin_data, origin_info.element_count_, origin_dtype_size, block_dtype_size);
-
-    const std::int64_t origin_offset =
-        origin_row_indices[block_info.row_offset_] - origin_row_indices[0];
-
-    const std::int64_t block_size =
-        origin_row_indices[block_info.row_offset_ + block_info.row_count_] -
-        origin_row_indices[block_info.row_offset_];
-
-    const bool same_type(block_dtype == origin_info.dtype_);
-
-    // data
     if (same_type && !alloc_kind_requires_copy(get_alloc_kind(origin_data), kind)) {
         refer_origin_data(origin_data,
                           origin_offset * block_dtype_size,
@@ -81,8 +68,16 @@ void pull_sparse_block_impl(const Policy& policy,
                                 block_dtype,
                                 block_size);
     }
+}
 
-    // column indices
+template <typename Policy, typename BlockData>
+void pull_column_indices_impl(const Policy& policy,
+                              const array<std::int64_t>& origin_column_indices,
+                              const std::int64_t origin_offset,
+                              const std::int64_t block_size,
+                              detail::sparse_block<BlockData>& block,
+                              alloc_kind kind,
+                              bool preserve_mutability) {
     if (!alloc_kind_requires_copy(get_alloc_kind(origin_column_indices), kind)) {
         reset_array(policy, block.column_indices, block_size, kind);
     }
@@ -91,8 +86,15 @@ void pull_sparse_block_impl(const Policy& policy,
                       block_size,
                       block.column_indices,
                       preserve_mutability);
+}
 
-    // row_indices
+template <typename Policy, typename BlockData>
+void pull_row_indices_impl(const Policy& policy,
+                           const array<std::int64_t>& origin_row_indices,
+                           const block_info& block_info,
+                           detail::sparse_block<BlockData>& block,
+                           alloc_kind kind,
+                           bool preserve_mutability) {
     if (block.row_indices.get_count() < block_info.row_count_ + 1 ||
         !block.row_indices.has_mutable_data() ||
         alloc_kind_requires_copy(get_alloc_kind(block.row_indices), kind)) {
@@ -115,6 +117,61 @@ void pull_sparse_block_impl(const Policy& policy,
         }
         block.row_indices.reset(origin_row_indices, dst_row_indices, block_info.row_count_ + 1);
     }
+}
+
+template <typename Policy, typename BlockData>
+void pull_sparse_block_impl(const Policy& policy,
+                            const csr_info& origin_info,
+                            const block_info& block_info,
+                            const array<byte_t>& origin_data,
+                            const array<std::int64_t>& origin_column_indices,
+                            const array<std::int64_t>& origin_row_indices,
+                            detail::sparse_block<BlockData>& block,
+                            alloc_kind kind,
+                            bool preserve_mutability) {
+    constexpr std::int64_t block_dtype_size = sizeof(BlockData);
+    constexpr data_type block_dtype = detail::make_data_type<BlockData>();
+
+    const auto origin_dtype_size = detail::get_data_type_size(origin_info.dtype_);
+
+    // overflows checked here
+    check_origin_data(origin_data, origin_info.element_count_, origin_dtype_size, block_dtype_size);
+
+    const std::int64_t origin_offset =
+        origin_row_indices[block_info.row_offset_] - origin_row_indices[0];
+    ONEDAL_ASSERT(origin_offset >= 0);
+
+    const std::int64_t block_size =
+        origin_row_indices[block_info.row_offset_ + block_info.row_count_] -
+        origin_row_indices[block_info.row_offset_];
+    ONEDAL_ASSERT(block_size >= 0);
+
+    const bool same_type(block_dtype == origin_info.dtype_);
+
+    pull_data_impl<Policy, BlockData>(policy,
+                                      origin_info,
+                                      origin_data,
+                                      same_type,
+                                      origin_offset,
+                                      block_size,
+                                      block,
+                                      kind,
+                                      preserve_mutability);
+
+    pull_column_indices_impl<Policy, BlockData>(policy,
+                                                origin_column_indices,
+                                                origin_offset,
+                                                block_size,
+                                                block,
+                                                kind,
+                                                preserve_mutability);
+
+    pull_row_indices_impl<Policy, BlockData>(policy,
+                                             origin_row_indices,
+                                             block_info,
+                                             block,
+                                             kind,
+                                             preserve_mutability);
 }
 
 template <typename Policy, typename BlockData>

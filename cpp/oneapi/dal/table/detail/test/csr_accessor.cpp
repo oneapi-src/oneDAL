@@ -34,8 +34,8 @@ TEST("can read csr table via csr accessor") {
     detail::csr_table t{ data,
                          column_indices,
                          row_indices,
-                         column_count,
                          row_count,
+                         column_count,
                          empty_delete<const double>(),
                          empty_delete<const std::int64_t>(),
                          empty_delete<const std::int64_t>() };
@@ -68,8 +68,8 @@ TEST("can read csr table via csr accessor create smaller block") {
     detail::csr_table t{ data,
                          column_indices,
                          row_indices,
-                         column_count,
                          row_count,
+                         column_count,
                          empty_delete<const double>(),
                          empty_delete<const std::int64_t>(),
                          empty_delete<const std::int64_t>() };
@@ -101,8 +101,8 @@ TEST("can read csr table via csr accessor with conversion") {
     detail::csr_table t{ data,
                          column_indices,
                          row_indices,
-                         column_count,
                          row_count,
+                         column_count,
                          empty_delete<const float>(),
                          empty_delete<const std::int64_t>(),
                          empty_delete<const std::int64_t>() };
@@ -138,8 +138,8 @@ TEST("conver csr table from dal to daal") {
     detail::csr_table t{ data,
                          column_indices,
                          row_indices,
-                         column_count,
                          row_count,
+                         column_count,
                          empty_delete<const double>(),
                          empty_delete<const std::int64_t>(),
                          empty_delete<const std::int64_t>() };
