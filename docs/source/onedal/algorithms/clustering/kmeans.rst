@@ -22,28 +22,8 @@
 =======
 K-Means
 =======
-The K-Means algorithm solves :capterm:`clustering` problem by partitioning
-:math:`n` feature vectors into :math:`k` clusters minimizing some criterion.
-Each cluster is characterized by a representative point, called *a centroid*.
 
-.. |t_math| replace:: `Training <kmeans_t_math_>`_
-.. |t_lloyd| replace:: `Lloyd's <kmeans_t_math_lloyd_>`_
-.. |t_input| replace:: `train_input <kmeans_t_api_input_>`_
-.. |t_result| replace:: `train_result <kmeans_t_api_result_>`_
-.. |t_op| replace:: `train(...) <kmeans_t_api_>`_
-
-.. |i_math| replace:: `Inference <kmeans_i_math_>`_
-.. |i_lloyd| replace:: `Lloyd's <kmeans_i_math_lloyd_>`_
-.. |i_input| replace:: `infer_input <kmeans_i_api_input_>`_
-.. |i_result| replace:: `infer_result <kmeans_i_api_result_>`_
-.. |i_op| replace:: `infer(...) <kmeans_i_api_>`_
-
-=============== =========================== ======== =========== ============
- **Operation**  **Computational methods**     **Programming Interface**
---------------- --------------------------- ---------------------------------
-   |t_math|             |t_lloyd|            |t_op|   |t_input|   |t_result|
-   |i_math|             |i_lloyd|            |i_op|   |i_input|   |i_result|
-=============== =========================== ======== =========== ============
+.. include:: ../../../includes/clustering/kmeans-introduction.rst
 
 ------------------------
 Mathematical formulation
@@ -134,150 +114,20 @@ closest to the feature vector :math:`x_j'`,
 .. math::
    y_j' = \mathrm{arg}\min_{1 \leq l \leq k} \| x_j' - c_l \|^2, \quad 1 \leq j \leq m.
 
+---------------------
+Programming Interface
+---------------------
+
+Refer to :ref:`API Reference: K-Means <api_kmeans>`.
 
 -------------
 Usage example
 -------------
-Training
---------
 
-::
-
-   kmeans::model<> run_training(const table& data,
-                              const table& initial_centroids) {
-      const auto kmeans_desc = kmeans::descriptor<float>{}
-         .set_cluster_count(10)
-         .set_max_iteration_count(50)
-         .set_accuracy_threshold(1e-4);
-
-      const auto result = train(kmeans_desc, data, initial_centroids);
-
-      print_table("labels", result.get_labels());
-      print_table("centroids", result.get_model().get_centroids());
-      print_value("objective", result.get_objective_function_value());
-
-      return result.get_model();
-   }
-
-Inference
----------
-
-::
-
-   table run_inference(const kmeans::model<>& model,
-                     const table& new_data) {
-      const auto kmeans_desc = kmeans::descriptor<float>{}
-         .set_cluster_count(model.get_cluster_count());
-
-      const auto result = infer(kmeans_desc, model, new_data);
-
-      print_table("labels", result.get_labels());
-   }
+.. include:: ../../../includes/clustering/kmeans-usage-examples.rst
 
 --------
 Examples
 --------
 
-.. include:: ./includes/kmeans-examples.rst
-
----------------------
-Programming Interface
----------------------
-All types and functions in this section are declared in the
-``oneapi::dal::kmeans`` namespace and be available via inclusion of the
-``oneapi/dal/algo/kmeans.hpp`` header file.
-
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::kmeans::v1::descriptor
-
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans::method::v1
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::kmeans::task::v1
-
-Model
------
-.. onedal_class:: oneapi::dal::kmeans::v1::model
-
-
-.. _kmeans_t_api:
-
-Training :cpp:expr:`train(...)`
---------------------------------
-.. _kmeans_t_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::train_input
-
-
-.. _kmeans_t_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::train_result
-
-Operation
-~~~~~~~~~
-
-.. function:: template <typename Descriptor> \
-              kmeans::train_result train(const Descriptor& desc, \
-                                         const kmeans::train_input& input)
-
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
-   :tparam input: Input data for the training operation
-
-   Preconditions
-      | :expr:`input.data.has_data == true`
-      | :expr:`input.initial_centroids.row_count == desc.cluster_count`
-      | :expr:`input.initial_centroids.column_count == input.data.column_count`
-   Postconditions
-      | :expr:`result.labels.row_count == input.data.row_count`
-      | :expr:`result.labels.column_count == 1`
-      | :expr:`result.labels[i] >= 0`
-      | :expr:`result.labels[i] < desc.cluster_count`
-      | :expr:`result.iteration_count <= desc.max_iteration_count`
-      | :expr:`result.model.centroids.row_count == desc.cluster_count`
-      | :expr:`result.model.centroids.column_count == input.data.column_count`
-
-.. _kmeans_i_api:
-
-Inference :cpp:expr:`infer(...)`
----------------------------------
-.. _kmeans_i_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::infer_input
-
-
-.. _kmeans_i_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::kmeans::v1::infer_result
-
-Operation
-~~~~~~~~~
-
-.. function:: template <typename Descriptor> \
-              kmeans::infer_result infer(const Descriptor& desc, \
-                                         const kmeans::infer_input& input)
-
-   :tparam desc: K-Means algorithm descriptor :expr:`kmeans::desc`
-   :tparam input: Input data for the inference operation
-
-   Preconditions
-      | :expr:`input.data.has_data == true`
-      | :expr:`input.model.centroids.has_data == true`
-      | :expr:`input.model.centroids.row_count == desc.cluster_count`
-      | :expr:`input.model.centroids.column_count == input.data.column_count`
-   Postconditions
-      | :expr:`result.labels.row_count == input.data.row_count`
-      | :expr:`result.labels.column_count == 1`
-      | :expr:`result.labels[i] >= 0`
-      | :expr:`result.labels[i] < desc.cluster_count`
+.. include:: ../../../includes/clustering/kmeans-examples.rst

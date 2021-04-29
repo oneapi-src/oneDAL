@@ -17,7 +17,7 @@
 .. highlight:: cpp
 .. default-domain:: cpp
 
-.. _data-sources:
+.. _dm_data-sources:
 
 ============
 Data Sources
