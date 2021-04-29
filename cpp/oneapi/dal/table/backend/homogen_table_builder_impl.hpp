@@ -38,29 +38,6 @@ public:
         dtype_ = data_type::float32;
     }
 
-    void move(detail::homogen_table_iface& t) override {
-        if (t.get_row_count() > 0 && t.get_column_count() > 0) {
-            const auto& meta = t.get_metadata();
-            const std::int64_t data_size =
-                get_data_size(t.get_row_count(), t.get_column_count(), meta.get_data_type(0));
-
-            // TODO: make data move without copying
-            // now we are accepting const data pointer from table
-            data_.reset(reinterpret_cast<const byte_t*>(t.get_data()),
-                        data_size,
-                        detail::empty_delete<const byte_t>());
-            data_.need_mutable_data();
-
-            layout_ = t.get_data_layout();
-            dtype_ = meta.get_data_type(0);
-            row_count_ = t.get_row_count();
-            column_count_ = t.get_column_count();
-        }
-        else {
-            reset();
-        }
-    }
-
     void reset(const array<byte_t>& data,
                std::int64_t row_count,
                std::int64_t column_count) override {

@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernels.hpp"
+#include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernel.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::backend {
 
@@ -36,12 +36,11 @@ template void parallel_prefix_sum<__CPU_TAG__>(const std::int32_t* degrees_relab
                                                std::int64_t num_blocks,
                                                std::int64_t vertex_count);
 
-template void fill_relabeled_topology<__CPU_TAG__>(const std::int32_t* vertex_neighbors,
-                                                   const std::int64_t* edge_offsets,
-                                                   std::int32_t* vertex_neighbors_relabel,
-                                                   std::int64_t* edge_offsets_relabel,
-                                                   std::int64_t* offsets,
-                                                   const std::int32_t* new_ids,
-                                                   std::int64_t vertex_count);
+template void fill_relabeled_topology<__CPU_TAG__>(
+    const dal::preview::detail::topology<std::int32_t>& t,
+    std::int32_t* vertex_neighbors_relabel,
+    std::int64_t* edge_offsets_relabel,
+    std::int64_t* offsets,
+    const std::int32_t* new_ids);
 
 } // namespace oneapi::dal::preview::triangle_counting::backend
