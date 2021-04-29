@@ -92,7 +92,7 @@ The most used Bazel commands are `build`, `test` and `run`.
   `dbg` and `fastbuild`. \
   Possible values:
    - `opt` _(default)_ compiles everything with optimizations `-O2`.
-   - `dbg` enables `-g`, `-O0` compiler switches and **enables assertions**.
+   - `dbg` enables `-g`, `-O0` compiler switches and **assertions**.
    - `fastbuild` optimizes build time, no optimizations, no debug information.
      Useful when one introduces massive changes and wants to check whether they
      break the build.
@@ -102,22 +102,30 @@ The most used Bazel commands are `build`, `test` and `run`.
    bazel test -c dbg //cpp/oneapi/dal:tests
    ```
 
-   It's highly encouraged to run newly added tests on the local machine with
+   It is highly encouraged to run newly added tests on the local machine with
    `-c dbg` option to test assertions.
 
 - `--config` Takes effect only for `run` or `test` commands. Specifies
   interface that is used to build and run tests. \
   Possible values:
   - `<not specified>` _(default)_ Build and run all tests.
-  - `host` Build and run tests for HOST interface without dependencies on DPC++
+  - `host` Build and run tests for HOST part without dependencies on DPC++
     runtime. Uses regular C++ compiler.
-  - `dpc` Build and run tests for DPC++ interface. Uses Intel(R) DPC++ Compiler.
+  - `dpc` Build and run tests for DPC++ part. Uses Intel(R) DPC++ Compiler.
+  - `public` Build and run tests for public C++ and DPC++ parts.
   - `host-public` Build and run tests only for public part of C++ interfaces.
   - `dpc-public` Build and run tests only for public part of DPC++ interfaces.
+  - `private` Build and run tests for private C++ and DPC++ parts.
+  - `host-private` Build and run tests only for private C++ part.
+  - `dpc-private` Build and run tests only for private DPC++ part.
 
    Example:
    ```sh
+   # To run all HOST tests
    bazel test --config=host //cpp/oneapi/dal:tests
+
+   # To run tests for internal DPC++ functionality
+   bazel test --config=dpc-private //cpp/oneapi/dal:tests
    ```
 
 - `--device` Takes effect only for `run` or `test` commands and option
@@ -155,12 +163,53 @@ The most used Bazel commands are `build`, `test` and `run`.
    bazel test --cpu="avx,avx512" //cpp/oneapi/dal:tests
    ```
 
-- `--test_external_datasets` TBD
-- `--test_nightly` TBD
-- `--test_weekly` TBD
-- `--test_link_mode` TBD
-- `--test_thread_mode` TBD
+- `--test_external_datasets` A switch that enables
+  [tests which depend on datasets stored on local drive](#tests-that-use-external-datasets).
+  Disabled by default.
 
+   Example:
+   ```sh
+   bazel test --test_external_datasets //cpp/oneapi/dal:tests
+   ```
+
+- `--test_nightly` A switch that enables [nightly tests](#nightly-tests).
+  Disabled by default.
+
+   Example:
+   ```sh
+   bazel test --test_nightly //cpp/oneapi/dal:tests
+   ```
+
+- `--test_weekly` A switch that enables [weekly tests](#weekly-tests). Nightly
+  tests are included to weekly. Disabled by default.
+
+   Example:
+   ```sh
+   bazel test --test_weekly //cpp/oneapi/dal:tests
+   ```
+
+- `--test_link_mode` Specifies linking mode for tests. \
+  Possible values:
+  - `dev` _(default)_ Automatically determines the set of object files need to
+    be linked to the particular test.
+  - `release_static` Links tests against static libraries found in `$DAALROOT`.
+  - `release_dynamic` Links tests against dynamic libraries found in `$DAALROOT`.
+
+   Example:
+   ```sh
+   export DAALROOT=`pwd`/__release_lnx/daal/latest
+   bazel test --test_link_mode=release_dynamic //cpp/oneapi/dal:tests
+   ```
+
+- `--test_thread_mode` Specifies threading mode for tests. \
+  Possible values:
+  - `par` _default_ Links against `onedal_thread`.
+  - `seq` Links against `onedal_sequential`.
+
+   Example:
+   ```sh
+   bazel test --test_thread_mode=seq //cpp/oneapi/dal:tests
+   ```
 
 ## Build recipes for oneDAL
 ### Run oneAPI examples
@@ -292,9 +341,21 @@ dal_test_suite(
 ```
 
 ### Run tests for the existing oneDAL build
-TBD
+1. Set `DAALROOT` env var:
+   ```sh
+   export DAALROOT=`pwd`/__release_lnx/daal/latest
+   ```
 
+2. Run Bazel:
+   - If linking against static version of the lib is required:
+     ```sh
+     bazel test --test_link_mode=release_static //cpp/oneapi/dal:tests
+     ```
+
+   - If linking against dynamic version of the lib is required:
+     ```sh
+     bazel test --test_link_mode=release_dynamic //cpp/oneapi/dal:tests
+     ```
 
 ## What is missing in this guide
-- Choice of threading layer
 - How to get make-like release structure

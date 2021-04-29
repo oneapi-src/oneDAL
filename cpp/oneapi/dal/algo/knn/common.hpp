@@ -38,14 +38,14 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes `k-d tree <knn_t_math_kd_tree_>`_ computational method.
+/// Tag-type that denotes :ref:`k-d tree <knn_t_math_kd_tree>` computational method.
 struct kd_tree {};
 
-/// Tag-type that denotes `brute-force <knn_t_math_brute_force_>`_ computational
+/// Tag-type that denotes :ref:`brute-force <knn_t_math_brute_force>` computational
 /// method.
 struct brute_force {};
 
-/// Alias tag-type for `brute-force <knn_t_math_brute_force_>`_ computational
+/// Alias tag-type for :ref:`brute-force <knn_t_math_brute_force>` computational
 /// method.
 using by_default = brute_force;
 } // namespace v1

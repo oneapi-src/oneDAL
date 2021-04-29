@@ -15,8 +15,8 @@ struct sconsistent_conditions {
     }
     sconsistent_conditions(inner_alloc allocator)
             : array(nullptr),
+              divider(0),
               length(0),
-              divider(length),
               allocator_(allocator) {}
     sconsistent_conditions(std::int64_t size, inner_alloc allocator) : allocator_(allocator) {
         init(size);

@@ -15,17 +15,17 @@
 *******************************************************************************/
 
 #include <iostream>
-#include <set>
 #include <map>
+#include <set>
 
 #include "example_util/output_helpers_graph.hpp"
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
+#include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
 
 #include <stdlib.h> // size_t, malloc, free
 #include <new> // bad_alloc, bad_array_new_length
@@ -52,7 +52,7 @@ struct Mallocator {
         if (n > static_cast<size_t>(-1) / sizeof(T)) {
             throw std::bad_array_new_length();
         }
-        void *const pv = _mm_malloc(n * sizeof(T), 64);
+        void *const pv = malloc(n * sizeof(T));
         if (!pv) {
             throw std::bad_alloc();
         }
@@ -63,7 +63,7 @@ struct Mallocator {
     void deallocate(T *const p, size_t n) const noexcept {
         // std::cout << "my custom allocator deallocates " << n << " elements here:" << (void *)p
         //           << std::endl;
-        _mm_free(p);
+        free(p);
     }
 };
 
@@ -128,10 +128,6 @@ void load_graph_gff(const std::string filename_target,
     std::vector<std::string> labels_p, labels_t;
     const dal::preview::graph_csv_data_source ds_target(filename_target),
         ds_pattern(filename_pattern); // n vertices
-    const dal::preview::load_graph::descriptor<
-        dal::preview::edge_list<>,
-        dal::preview::undirected_adjacency_vector_graph<std::int32_t>>
-        d_target, d_pattern;
 
     {
         auto el_p = load_vertex_labels_and_edge_list(filename_pattern, mapping, labels_p);
@@ -192,7 +188,7 @@ int main(int argc, char **argv) {
         dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
 
     // extract the result
-    const auto match_count = result.get_match_count();
+    // const auto match_count = result.get_match_count();
     // print_table_int(result.get_vertex_match());
     // print_table_int_sorted(result.get_vertex_match()); // Temporary disabled
     // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;

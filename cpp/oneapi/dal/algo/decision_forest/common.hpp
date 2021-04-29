@@ -44,15 +44,15 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes `dense <df_t_math_dense_>`_ computational
+/// Tag-type that denotes :ref:`dense <df_t_math_dense>` computational
 /// method.
 struct dense {};
 
-/// Tag-type that denotes `hist <df_t_math_hist_>`_ computational
+/// Tag-type that denotes :ref:`hist <df_t_math_hist>` computational
 /// method.
 struct hist {};
 
-/// Alias tag-type for `dense <df_t_math_dense_>`_ computational
+/// Alias tag-type for :ref:`dense <df_t_math_dense>` computational
 /// method.
 using by_default = dense;
 } // namespace v1

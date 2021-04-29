@@ -159,6 +159,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'detail::is_table_impl_v<ImplType>'),
     ('cpp:identifier', 'detail::is_homogen_table_impl_v<ImplType>'),
     ('cpp:identifier', 'detail::enable_if_classification_t<T>'),
+    ('cpp:identifier', 'detail::enable_if_regression_t<T>'),
     ('cpp:identifier', 'detail::descriptor_base<>::kernel_t'),
     # data types
     ('cpp:identifier', 'int64_t'),
@@ -212,6 +213,11 @@ nitpick_ignore = [
     ('cpp:identifier', 'linear_kernel::desc'),
     ('cpp:identifier', 'linear_kernel::compute_result'),
     ('cpp:identifier', 'linear_kernel::compute_input'),
+    # polynomial kernel
+    ('cpp:identifier', 'polynomial_kernel'),
+    ('cpp:identifier', 'polynomial_kernel::desc'),
+    ('cpp:identifier', 'polynomial_kernel::compute_result'),
+    ('cpp:identifier', 'polynomial_kernel::compute_input'),
     # rbf kernel
     ('cpp:identifier', 'rbf_kernel'),
     ('cpp:identifier', 'rbf_kernel::desc'),
@@ -277,4 +283,6 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::svm'),
     ('cpp:identifier', 'oneapi::dal::svm::method'),
     ('cpp:identifier', 'oneapi::dal::svm::method::v1'),
+    ('cpp:identifier', 'oneapi::dal::svm::task'),
+    ('cpp:identifier', 'oneapi::dal::svm::task::v1'),
     ]

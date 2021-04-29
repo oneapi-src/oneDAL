@@ -2,6 +2,7 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 #if defined(__INTEL_COMPILER)
@@ -163,7 +164,7 @@ public:
     };
 
     static constexpr std::uint8_t power_of_two(const std::uint8_t bit_val) {
-        return 31 - _lzcnt_u32(bit_val);
+        return 31 - ONEDAL_lzcnt_u32(bit_val);
     };
 
     static void split_by_registers(const std::int64_t vector_size,

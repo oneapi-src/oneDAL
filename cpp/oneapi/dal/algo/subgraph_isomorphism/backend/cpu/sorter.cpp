@@ -117,7 +117,7 @@ graph_status sorter::sorting_pattern_vertices(const graph& pattern,
         return static_cast<graph_status>(index);
     }
 
-    for (sorted_vertex_iterator; sorted_vertex_iterator < vertex_count; sorted_vertex_iterator++) {
+    for (; sorted_vertex_iterator < vertex_count; sorted_vertex_iterator++) {
         vertex_candidates |= pattern.p_edges_bit[sorted_pattern_vertex[sorted_vertex_iterator - 1]];
         vertex_candidates.andn(filling_mask);
 
