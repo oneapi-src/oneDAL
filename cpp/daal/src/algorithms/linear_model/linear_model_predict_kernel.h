@@ -69,8 +69,8 @@ protected:
     services::Status computeBlockOfResponsesSOA(size_t startRow, size_t numFeatures, size_t numRowsInBlock, NumericTable * dataTable, size_t numBetas,
                                                 const algorithmFpType * beta, size_t numResponses, algorithmFpType * responseBlock, bool findBeta0,
                                                 TlsMem<algorithmFpType, cpu> & tlsData);
-    static const size_t blockSizeRows    = 512;
-    static const size_t blockSizeColumns = 256;
+    static const size_t blockSizeRows    = 128;
+    static const size_t blockSizeColumns = 512;
 };
 
 } // namespace internal

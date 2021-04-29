@@ -115,19 +115,23 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
         const size_t startColumn       = iBlock * blockSizeColumns;
         const size_t numColumnsInBlock = (iBlock == numBlocks - 1) ? numFeatures - startColumn : blockSizeColumns;
 
-        // auto f = (*const_cast<NumericTable &>(*dataTable).getDictionary())[0];
-        // bool dbl = daal::data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
-        // if (static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble() && dbl)
-        if (true)
+        bool wasInside = 0;
+        if (static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble())
+        // if (true)
         {
-            ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRowsInBlock);
-            DAAL_CHECK_BLOCK_STATUS(xBlock);
-            const algorithmFPType * data = xBlock.get();
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&numColumnsInBlock,
-                                               &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&nRowsInData, &one,
-                                               responseBlock, (DAAL_INT *)&numResponses);
+            auto f = (*const_cast<NumericTable &>(*dataTable).getDictionary())[0];
+            if (daal::data_management::features::getIndexNumType<algorithmFPType>() == f.indexType)
+            {
+                wasInside = 1;
+                ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRowsInBlock);
+                DAAL_CHECK_BLOCK_STATUS(xBlock);
+                const algorithmFPType * data = xBlock.get();
+                Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&numColumnsInBlock,
+                                                &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&nRowsInData, &one,
+                                                responseBlock, (DAAL_INT *)&numResponses);
+            }
         }
-        else
+        if (!wasInside)
         {
             algorithmFPType * tlsLocal = tlsData.local();
             DAAL_CHECK_MALLOC(tlsLocal);
