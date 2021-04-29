@@ -287,7 +287,7 @@ protected:
      * \param[in]  C        Upper bound in constraints of the quadratic optimization problem
      * \return Bias for the SVM model
      */
-    algorithmFPType calculateBias(const algorithmFPType * cw) const
+    algorithmFPType calculateBiasImpl(const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none) const
     {
         algorithmFPType bias    = algorithmFPType(0.0);
         size_t nGrad            = 0;
@@ -297,7 +297,7 @@ protected:
         algorithmFPType ub          = fpMax;
         algorithmFPType lb          = -fpMax;
 
-        const size_t nTrainVectors = _task == SvmType::regression ? _nVectors * 2 : _nVectors;
+        const size_t nTrainVectors = (_task == SvmType::regression || _task == SvmType::nu_regression) ? _nVectors * 2 : _nVectors;
         for (size_t i = 0; i < nTrainVectors; ++i)
         {
             const algorithmFPType gradi = _grad[i];
@@ -306,7 +306,7 @@ protected:
             const algorithmFPType ai    = _alpha[i];
 
             /* free SV: (0 < alpha < C)*/
-            if (0 < ai && ai < cwi)
+            if (HelperTrainSVM<algorithmFPType, cpu>::checkLabel(yi) && 0 < ai && ai < cwi)
             {
                 sumGrad += gradi;
                 ++nGrad;
@@ -327,6 +327,35 @@ protected:
         else
         {
             bias = -sumGrad / algorithmFPType(nGrad);
+        }
+
+        return bias;
+    }
+
+    algorithmFPType calculateBias(const algorithmFPType * cw) const
+    {
+        algorithmFPType bias = 0;
+
+        if (_task == SvmType::classification || _task == SvmType::regression)
+        {
+            bias = calculateBiasImpl(cw);
+        }
+        else if (_task == SvmType::nu_classification || _task == SvmType::nu_regression)
+        {
+            const algorithmFPType bias_p = calculateBiasImpl(cw, CheckClassLabels::positive);
+            const algorithmFPType bias_n = calculateBiasImpl(cw, CheckClassLabels::negative);
+            bias                         = (bias_p - bias_n) / algorithmFPType(2);
+
+            if (_task == SvmType::nu_classification)
+            {
+                const algorithmFPType r = (bias_p + bias_n) / algorithmFPType(2);
+
+                for (size_t i = 0; i < _nVectors; ++i)
+                {
+                    _alpha[i] /= r;
+                }
+                bias /= r;
+            }
         }
 
         return bias;

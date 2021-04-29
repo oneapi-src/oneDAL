@@ -76,6 +76,12 @@ struct HelperTrainSVM
                                            algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
                                            CheckClassLabels checkLabels = CheckClassLabels::none);
 
+    DAAL_FORCEINLINE static bool checkLabel(const algorithmFPType y, CheckClassLabels checkLabels = CheckClassLabels::none)
+    {
+        return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y > 0)
+               || (checkLabels == CheckClassLabels::negative) && (y < 0);
+    }
+
 private:
     DAAL_FORCEINLINE static void WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
                                                    const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
@@ -83,11 +89,6 @@ private:
                                                    algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
                                                    CheckClassLabels checkLabels = CheckClassLabels::none);
 
-    DAAL_FORCEINLINE static bool checkLabel(const algorithmFPType y, CheckClassLabels checkLabels = CheckClassLabels::none)
-    {
-        return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y > 0)
-               || (checkLabels == CheckClassLabels::negative) && (y < 0);
-    }
     DAAL_FORCEINLINE static char getSign(CheckClassLabels checkLabels)
     {
         char sign = positive | negative;
