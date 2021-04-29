@@ -42,7 +42,6 @@ sycl::event compute_rbf(sycl::queue& queue,
     Float* res_rbf_ptr = res_rbf.get_mutable_data();
 
     const Float threshold = dal::backend::exp_treshold<Float>();
-    const std::size_t l_dim = dal::detail::integral_cast<std::size_t>(ld);
 
     const auto wg_size = dal::backend::propose_wg_size(queue);
     const auto range =
@@ -57,10 +56,10 @@ sycl::event compute_rbf(sycl::queue& queue,
             const std::size_t j = item.get_global_id(1);
             const Float sqr_x_i = sqr_x_ptr[i];
             const Float sqr_y_j = sqr_y_ptr[j];
-            const Float res_rbf_ij = res_rbf_ptr[i * l_dim + j];
+            const Float res_rbf_ij = res_rbf_ptr[i * ld + j];
             const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
 
-            res_rbf_ptr[i * l_dim + j] = sycl::exp(arg);
+            res_rbf_ptr[i * ld + j] = sycl::exp(arg);
         });
     });
 
@@ -74,30 +73,28 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
 
     auto& queue = ctx.get_queue();
 
-    const std::int64_t row_count_x = x.get_row_count();
-    const std::int64_t col_count_x = x.get_column_count();
-    const std::int64_t row_count_y = y.get_row_count();
-    const std::int64_t col_count_y = y.get_column_count();
+    const std::int64_t x_row_count = x.get_row_count();
+    const std::int64_t y_row_count = y.get_row_count();
 
-    ONEDAL_ASSERT(col_count_x == col_count_y);
-    dal::detail::check_mul_overflow(row_count_x, row_count_y);
+    ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
+    dal::detail::check_mul_overflow(x_row_count, y_row_count);
 
     const double sigma = desc.get_sigma();
     const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
 
-    auto arr_x = row_accessor<const Float>(x).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    const auto ndarray_x = pr::ndarray<Float, 2>::wrap(arr_x, { row_count_x, col_count_x });
+    const auto ndarray_x =
+        pr::flatten_table<Float, row_accessor>(queue, x, sycl::usm::alloc::device);
 
-    auto arr_y = row_accessor<const Float>(y).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    const auto ndarray_y = pr::ndarray<Float, 2>::wrap(arr_y, { row_count_y, col_count_y });
+    const auto ndarray_y =
+        pr::flatten_table<Float, row_accessor>(queue, y, sycl::usm::alloc::device);
 
     auto ndarray_res =
-        pr::ndarray<Float, 2>::empty(queue, { row_count_x, row_count_y }, sycl::usm::alloc::device);
+        pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
     auto ndarray_sqr_x =
-        pr::ndarray<Float, 1>::empty(queue, { row_count_x }, sycl::usm::alloc::device);
+        pr::ndarray<Float, 1>::empty(queue, { x_row_count }, sycl::usm::alloc::device);
     auto ndarray_sqr_y =
-        pr::ndarray<Float, 1>::empty(queue, { row_count_y }, sycl::usm::alloc::device);
+        pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
 
     auto reduce_x_event =
         reduce_by_rows(queue, ndarray_x, ndarray_sqr_x, pr::sum<Float>{}, pr::square<Float>{});
@@ -108,17 +105,20 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     constexpr Float beta = 0.0;
     auto gemm_event = gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta);
 
-    compute_rbf(queue,
-                ndarray_sqr_x,
-                ndarray_sqr_y,
-                ndarray_res,
-                coeff,
-                row_count_y,
-                { reduce_x_event, reduce_y_event, gemm_event })
-        .wait_and_throw();
+    auto compute_rbf_event = compute_rbf(queue,
+                                         ndarray_sqr_x,
+                                         ndarray_sqr_y,
+                                         ndarray_res,
+                                         coeff,
+                                         y_row_count,
+                                         { reduce_x_event, reduce_y_event, gemm_event });
 
-    return result_t{}.set_values(
-        homogen_table::wrap(ndarray_res.flatten(queue), row_count_x, row_count_y));
+    auto table_res = homogen_table::wrap(ndarray_res.flatten(queue),
+                                         x_row_count,
+                                         y_row_count,
+                                         { compute_rbf_event });
+
+    return result_t{}.set_values(table_res);
 }
 
 template <typename Float>

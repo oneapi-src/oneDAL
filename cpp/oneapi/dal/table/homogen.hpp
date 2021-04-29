@@ -143,6 +143,33 @@ public:
         return homogen_table{ data, row_count, column_count, layout };
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a new ``homogen_table`` instance from an array.
+    /// The created table shares data ownership with the given array.
+    ///
+    /// @tparam Data        The type of elements in the data block that will be stored into the
+    ///                     table. The table initializes data types of metadata with this data type.
+    ///                     The feature types should be set to default values for :literal:`Data` type:
+    ///                     contiguous for floating-point, ordinal for integer types. The :literal:`Data`
+    ///                     type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///
+    /// @param data         The array that stores a homogeneous data block.
+    /// @param row_count    The number of rows in the table.
+    /// @param column_count The number of columns in the table.
+    /// @param dependencies Events indicating availability of the :literal:`Data` for reading or writing.
+    /// @param layout       The layout of the data. Should be :literal:`data_layout::row_major` or
+    ///                     :literal:`data_layout::column_major`.
+    template <typename Data>
+    static homogen_table wrap(const array<Data>& data,
+                              std::int64_t row_count,
+                              std::int64_t column_count,
+                              const sycl::vector_class<sycl::event>& dependencies,
+                              data_layout layout = data_layout::row_major) {
+        sycl::event::wait_and_throw(dependencies);
+        return homogen_table{ data, row_count, column_count, layout };
+    }
+#endif
+
     /// Creates a new ``homogen_table`` instance with zero number of rows and columns.
     homogen_table();
 
