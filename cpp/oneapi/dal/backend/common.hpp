@@ -69,8 +69,21 @@ inline constexpr Integer up_multiple(Integer x, Integer multiple) {
 template <typename Integer>
 inline constexpr bool is_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
-    ONEDAL_ASSERT(x > 0);
-    return !(x & (x - 1)) ? true : false;
+    return !(x & (x - 1)) && (x > 0) ? true : false;
+}
+
+/// Checks for overflow at bit shift by the number of bits 'shift_length'
+/// Example: is_safe_bit_shift<std::uint32_t(31)> == true
+/// Example: is_safe_bit_shift<std::int32_t(31)> == false
+template <typename Integer>
+inline bool is_safe_bit_shift(const Integer& shift_length) {
+    const Integer bit_size = sizeof(Integer) * 8;
+    if (std::is_signed<Integer>::value) {
+        return bit_size - 1 > shift_length;
+    }
+    else {
+        return bit_size > shift_length;
+    }
 }
 
 /// Finds the largest power of 2 number not larger than `x`.
@@ -82,7 +95,7 @@ inline constexpr Integer down_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
     ONEDAL_ASSERT(x > 0);
     Integer power = 0;
-    if (is_pow2<Integer>(x)) {
+    if (is_pow2(x)) {
         return x;
     }
 
@@ -90,6 +103,7 @@ inline constexpr Integer down_pow2(Integer x) {
         x >>= 1;
         power++;
     }
+    ONEDAL_ASSERT(is_safe_bit_shift(power));
     return 1 << power;
 }
 
