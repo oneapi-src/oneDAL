@@ -61,8 +61,9 @@ public:
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         BENCHMARK(name.c_str()) {
-            count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
-                .wait_and_throw();
+            auto event = count_clusters(this->get_queue(), labels, cluster_count, counters);
+            count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters, {event})
+            .wait_and_throw();
         };
     }
 
@@ -89,17 +90,22 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
-        count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
+        auto event = count_clusters(this->get_queue(), labels, cluster_count, counters);
+        count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters, {event})
             .wait_and_throw();
         BENCHMARK(name.c_str()) {
-            reduce_centroids(this->get_queue(),
+            auto partial_reduce_event = partial_reduce_centroids(this->get_queue(),
                              data,
                              labels,
+                             cluster_count,
+                             part_count,
+                             partial_centroids);
+            merge_reduce_centroids(this->get_queue(),
                              counters,
+                             partial_centroids,
                              part_count,
                              centroids,
-                             partial_centroids)
-                .wait_and_throw();
+                             {partial_reduce_event}).wait_and_throw();
         };
     }
 };

@@ -60,64 +60,25 @@ template<typename T>
 struct centroid_merge {};
 
 template <typename Float>
-sycl::event reduce_centroids(sycl::queue& queue,
-                             const pr::ndview<Float, 2>& data,
-                             const pr::ndview<std::int32_t, 2>& labels,
+sycl::event merge_reduce_centroids(sycl::queue& queue,
                              const pr::ndview<std::int32_t, 1>& counters,
+                             const pr::ndview<Float, 2>& partial_centroids,
                              std::int64_t part_count,
                              pr::ndview<Float, 2>& centroids,
-                             pr::ndview<Float, 2>& partial_centroids,
                              const bk::event_vector& deps) {
-    ONEDAL_ASSERT(data.get_shape()[1] == centroids.get_shape()[1]);
-    ONEDAL_ASSERT(data.get_shape()[1] == partial_centroids.get_shape()[1]);
-    ONEDAL_ASSERT(data.get_shape()[0] >= centroids.get_shape()[0]);
-    ONEDAL_ASSERT(labels.get_shape()[0] >= data.get_shape()[0]);
-    ONEDAL_ASSERT(labels.get_shape()[1] == 1);
     ONEDAL_ASSERT(partial_centroids.get_shape()[0] >= centroids.get_shape()[0] * part_count);
-    const Float* data_ptr = data.get_data();
-    const std::int32_t* label_ptr = labels.get_data();
+    ONEDAL_ASSERT(counters.get_shape()[0] == centroids.get_shape()[0]);
     Float* partial_centroids_ptr = partial_centroids.get_mutable_data();
     Float* centroids_ptr = centroids.get_mutable_data();
     const std::int32_t* counters_ptr = counters.get_data();
-    const auto row_count = data.get_shape()[0];
-    const auto column_count = data.get_shape()[1];
-    const auto centroid_count = centroids.get_shape()[0];
+    const auto column_count = centroids.get_shape()[1];
+    const auto cluster_count = centroids.get_shape()[0];
     const auto sg_size_to_set = get_gpu_sg_size(queue);
-    queue
-        .submit([&](sycl::handler& cgh) {
-            cgh.depends_on(deps);
-            cgh.parallel_for<centroid_reduction<Float>>(
-                bk::make_multiple_nd_range_2d({ sg_size_to_set, part_count },
-                                              { sg_size_to_set, 1 }),
-                [=](sycl::nd_item<2> item) {
-                    auto sg = item.get_sub_group();
-                    const std::int64_t sg_id = sg.get_group_id()[0];
-                    const std::int64_t wg_id = item.get_global_id(1);
-                    const std::int64_t sg_count = sg.get_group_range()[0];
-                    const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
-                    if (sg_global_id >= part_count)
-                        return;
-                    const std::int64_t local_id = sg.get_local_id()[0];
-                    const std::int64_t local_range = sg.get_local_range()[0];
-                    for (std::int64_t i = sg_global_id; i < row_count; i += part_count) {
-                        std::int32_t cl = -1;
-                        if (local_id == 0) {
-                            cl = label_ptr[i];
-                        }
-                        cl = reduce(sg, cl, sycl::ONEAPI::maximum<std::int32_t>());
-                        for (std::int64_t j = local_id; j < column_count; j += local_range) {
-                            partial_centroids_ptr[sg_global_id * centroid_count * column_count +
-                                                  cl * column_count + j] +=
-                                data_ptr[i * column_count + j];
-                        }
-                    }
-                });
-        })
-        .wait_and_throw();
 
-    auto merge_centroids_event = queue.submit([&](sycl::handler& cgh) {
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
         cgh.parallel_for<centroid_merge<Float>>(
-            bk::make_multiple_nd_range_2d({ sg_size_to_set, column_count * centroid_count },
+            bk::make_multiple_nd_range_2d({ sg_size_to_set, column_count * cluster_count },
                                           { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();
@@ -125,14 +86,14 @@ sycl::event reduce_centroids(sycl::queue& queue,
                 const std::int64_t wg_id = item.get_global_id(1);
                 const std::int64_t sg_count = sg.get_group_range()[0];
                 const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
-                if (sg_global_id >= column_count * centroid_count)
+                if (sg_global_id >= column_count * cluster_count)
                     return;
                 const std::int64_t sg_cluster_id = sg_global_id / column_count;
                 const std::int64_t local_id = sg.get_local_id()[0];
                 const std::int64_t local_range = sg.get_local_range()[0];
                 Float sum = 0.0;
                 for (std::int64_t i = local_id; i < part_count; i += local_range) {
-                    sum += partial_centroids_ptr[i * centroid_count * column_count + sg_global_id];
+                    sum += partial_centroids_ptr[i * cluster_count * column_count + sg_global_id];
                 }
                 sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
 
@@ -144,7 +105,6 @@ sycl::event reduce_centroids(sycl::queue& queue,
                 }
             });
     });
-    return merge_centroids_event;
 }
 
 
@@ -155,13 +115,11 @@ sycl::event reduce_centroids(sycl::queue& queue,
     template std::int64_t get_part_count_for_partial_centroids<F>(sycl::queue & queue,            \
                                                                   std::int64_t column_count,      \
                                                                   std::int64_t cluster_count);    \
-    template sycl::event reduce_centroids<F>(sycl::queue & queue,                                 \
-                                             const pr::ndview<F, 2>& data,                        \
-                                             const pr::ndview<std::int32_t, 2>& labels,           \
+    template sycl::event merge_reduce_centroids<F>(sycl::queue & queue,                                 \
                                              const pr::ndview<std::int32_t, 1>& counters,         \
+                                             const pr::ndview<F, 2>& partial_centroids,           \
                                              std::int64_t part_count,                             \
                                              pr::ndview<F, 2>& centroids,                         \
-                                             pr::ndview<F, 2>& partial_centroids,                 \
                                              const bk::event_vector& deps);
 
 

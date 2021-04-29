@@ -74,7 +74,9 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
-        count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
+        count_clusters(this->get_queue(), labels, cluster_count, counters)
+            .wait_and_throw();
+        count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters)
             .wait_and_throw();
         check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
     }
@@ -94,16 +96,17 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
-        count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
+        count_clusters(this->get_queue(), labels, cluster_count, counters)
+            .wait_and_throw();
+        count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters)
             .wait_and_throw();
         check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
 
-        reduce_centroids(this->get_queue(),
+        partial_reduce_centroids(this->get_queue(),
                          data,
                          labels,
-                         counters,
+                         cluster_count,
                          part_count,
-                         centroids,
                          partial_centroids)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, part_count);
@@ -124,18 +127,25 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
-        count_clusters(this->get_queue(), labels, cluster_count, counters, empty_clusters)
+        count_clusters(this->get_queue(), labels, cluster_count, counters)
+            .wait_and_throw();
+        count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters)
             .wait_and_throw();
         check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
-        reduce_centroids(this->get_queue(),
+        partial_reduce_centroids(this->get_queue(),
                          data,
                          labels,
-                         counters,
+                         cluster_count,
                          part_count,
-                         centroids,
                          partial_centroids)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, part_count);
+        merge_reduce_centroids(this->get_queue(),
+                         counters,
+                         partial_centroids,
+                         part_count,
+                         centroids)
+            .wait_and_throw();
         check_reduced_centroids(data, labels, centroids, counters);
     }
 

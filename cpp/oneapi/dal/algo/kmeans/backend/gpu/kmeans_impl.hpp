@@ -53,7 +53,7 @@ sycl::event assign_clusters(sycl::queue& queue,
                             pr::ndview<Float, 2>& closest_distances,
                             const bk::event_vector& deps = {});
 
-template <typename Float>
+/*template <typename Float>
 sycl::event reduce_centroids(sycl::queue& queue,
                              const pr::ndview<Float, 2>& data,
                              const pr::ndview<std::int32_t, 2>& labels,
@@ -61,11 +61,39 @@ sycl::event reduce_centroids(sycl::queue& queue,
                              std::int64_t part_count,
                              pr::ndview<Float, 2>& centroids,
                              pr::ndview<Float, 2>& partial_centroids,
-                             const bk::event_vector& deps = {});
+                             const bk::event_vector& deps = {});*/
 
+template <typename Float>
+sycl::event merge_reduce_centroids(sycl::queue& queue,
+                             const pr::ndview<std::int32_t, 1>& counters,
+                             const pr::ndview<Float, 2>& partial_centroids,
+                             std::int64_t part_count,
+                             pr::ndview<Float, 2>& centroids,
+                             const bk::event_vector& deps = {});
+template <typename Float>
+sycl::event partial_reduce_centroids(sycl::queue& queue,
+                             const pr::ndview<Float, 2>& data,
+                             const pr::ndview<std::int32_t, 2>& labels,
+                             std::int64_t cluster_count,
+                             std::int64_t part_count,
+                             pr::ndview<Float, 2>& partial_centroids,
+                             const bk::event_vector& deps = {});
+                             
+/*
 sycl::event count_clusters(sycl::queue& queue,
                            const pr::ndview<std::int32_t, 2>& labels,
-                           std::int64_t centroid_count,
+                           std::int64_t cluster_count,
+                           pr::ndview<std::int32_t, 1>& counters,
+                           pr::ndarray<std::int32_t, 1>& empty_cluster_count,
+                           const bk::event_vector& deps = {});*/
+                           
+sycl::event count_clusters(sycl::queue& queue,
+                           const pr::ndview<std::int32_t, 2>& labels,
+                           std::int64_t cluster_count,
+                           pr::ndview<std::int32_t, 1>& counters,
+                           const bk::event_vector& deps = {});
+sycl::event count_empty_clusters(sycl::queue& queue,
+                           std::int64_t cluster_count,
                            pr::ndview<std::int32_t, 1>& counters,
                            pr::ndarray<std::int32_t, 1>& empty_cluster_count,
                            const bk::event_vector& deps = {});
