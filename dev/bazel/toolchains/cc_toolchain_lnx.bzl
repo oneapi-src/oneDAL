@@ -361,13 +361,8 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
 
                     # Disable optimizations explicitly
                     # Some compilers like Intel uses -O2 by default
-<<<<<<< HEAD
-#                    "-O0",
-                    "-O2",
-=======
                     # Prefer -O1 because -O0 code may be painfully slow
                     "-O1",
->>>>>>> master
 
                     # oneDAL specific defined to enabled assertions
                     "-DDEBUG_ASSERT",
