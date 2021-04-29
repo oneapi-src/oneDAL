@@ -31,6 +31,9 @@ static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
     return 16;
 }
 
+template<typename T>
+struct compute_obj_function {};
+
 template <typename Float>
 sycl::event compute_objective_function(sycl::queue& queue,
                                        const pr::ndview<Float, 2>& closest_distances,
@@ -44,7 +47,7 @@ sycl::event compute_objective_function(sycl::queue& queue,
     const auto sg_size_to_set = get_gpu_sg_size(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(
+        cgh.parallel_for<compute_obj_function<Float>>(
             bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();

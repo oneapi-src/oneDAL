@@ -33,6 +33,10 @@ static std::int64_t get_gpu_wg_count(sycl::queue& queue) {
     return 128;
 }
 
+struct partial_counters {};
+
+struct merge_counters {};
+
 sycl::event count_clusters(sycl::queue& queue,
                            const pr::ndview<std::int32_t, 2>& labels,
                            std::int64_t centroid_count,
@@ -49,7 +53,7 @@ sycl::event count_clusters(sycl::queue& queue,
     auto cluster_count_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         const auto row_count = labels.get_shape()[0];
-        cgh.parallel_for(
+        cgh.parallel_for<partial_counters>(
             bk::make_multiple_nd_range_2d({ sg_size_to_set, wg_count_to_set },
                                           { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
@@ -83,7 +87,7 @@ sycl::event count_clusters(sycl::queue& queue,
     std::int32_t* value_ptr = empty_cluster_count.get_mutable_data();
     auto empty_cluster_count_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on({ cluster_count_event });
-        cgh.parallel_for(
+        cgh.parallel_for<merge_counters>(
             bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();

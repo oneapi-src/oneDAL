@@ -35,6 +35,9 @@ inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
     return dal::detail::check_mul_overflow(expected_sg_num, sg_max_size);
 }
 
+template<typename T>
+struct select_min_distance {};
+
 template <typename Float>
 sycl::event select(sycl::queue& queue,
                    const pr::ndview<Float, 2>& data,
@@ -60,7 +63,7 @@ sycl::event select(sycl::queue& queue,
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(
+        cgh.parallel_for<select_min_distance<Float>>(
             bk::make_multiple_nd_range_2d({ wg_size, row_count }, { wg_size, 1 }),
             [=](sycl::nd_item<2> item) {
                 auto sg = item.get_sub_group();

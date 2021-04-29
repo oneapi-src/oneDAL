@@ -52,6 +52,13 @@ static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
     return 16;
 }
 
+
+template<typename T>
+struct centroid_reduction {};
+
+template<typename T>
+struct centroid_merge {};
+
 template <typename Float>
 sycl::event reduce_centroids(sycl::queue& queue,
                              const pr::ndview<Float, 2>& data,
@@ -79,7 +86,7 @@ sycl::event reduce_centroids(sycl::queue& queue,
     queue
         .submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            cgh.parallel_for(
+            cgh.parallel_for<centroid_reduction<Float>>(
                 bk::make_multiple_nd_range_2d({ sg_size_to_set, part_count },
                                               { sg_size_to_set, 1 }),
                 [=](sycl::nd_item<2> item) {
@@ -109,7 +116,7 @@ sycl::event reduce_centroids(sycl::queue& queue,
         .wait_and_throw();
 
     auto merge_centroids_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(
+        cgh.parallel_for<centroid_merge<Float>>(
             bk::make_multiple_nd_range_2d({ sg_size_to_set, column_count * centroid_count },
                                           { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
