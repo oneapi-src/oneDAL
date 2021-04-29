@@ -24,7 +24,7 @@ namespace oneapi::dal::svm::backend {
 namespace pr = dal::backend::primitives;
 
 inline sycl::event make_range(sycl::queue& queue,
-                              pr::ndarray<std::uint32_t, 1>& indices_sort,
+                              pr::ndview<std::uint32_t, 1>& indices_sort,
                               const std::int64_t n,
                               const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(indices_sort.get_dimension(0) == n);
@@ -49,9 +49,9 @@ inline sycl::event make_range(sycl::queue& queue,
 
 template <typename Float>
 inline sycl::event arg_sort(sycl::queue& queue,
-                            const pr::ndarray<Float, 1>& f,
-                            pr::ndarray<Float, 1>& values,
-                            pr::ndarray<std::uint32_t, 1>& indices_sort,
+                            const pr::ndview<Float, 1>& f,
+                            pr::ndview<Float, 1>& values,
+                            pr::ndview<std::uint32_t, 1>& indices_sort,
                             const std::int64_t n,
                             const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(f.get_dimension(0) == n);
@@ -63,18 +63,17 @@ inline sycl::event arg_sort(sycl::queue& queue,
 
     auto copy_event = dal::backend::copy(queue, values_ptr, f_ptr, n, deps);
     auto make_range_event = make_range(queue, indices_sort, n);
-    auto radix_sort_event = pr::radix_sort_indices_inplace<Float, std::uint32_t>{
-        queue
-    }(values, indices_sort, { copy_event, make_range_event });
+    auto radix_sort = pr::radix_sort_indices_inplace<Float, std::uint32_t>{ queue };
+    auto radix_sort_event = radix_sort(values, indices_sort, { copy_event, make_range_event });
 
     return radix_sort_event;
 }
 
 template <typename Float>
 inline sycl::event check_upper(sycl::queue& queue,
-                               const pr::ndarray<Float, 1>& y,
-                               const pr::ndarray<Float, 1>& alpha,
-                               pr::ndarray<std::uint32_t, 1>& indicator,
+                               const pr::ndview<Float, 1>& y,
+                               const pr::ndview<Float, 1>& alpha,
+                               pr::ndview<std::uint32_t, 1>& indicator,
                                const Float C,
                                const std::int64_t n,
                                const dal::backend::event_vector& deps = {}) {
@@ -104,9 +103,9 @@ inline sycl::event check_upper(sycl::queue& queue,
 
 template <typename Float>
 inline sycl::event check_lower(sycl::queue& queue,
-                               const pr::ndarray<Float, 1>& y,
-                               const pr::ndarray<Float, 1>& alpha,
-                               pr::ndarray<std::uint32_t, 1>& indicator,
+                               const pr::ndview<Float, 1>& y,
+                               const pr::ndview<Float, 1>& alpha,
+                               pr::ndview<std::uint32_t, 1>& indicator,
                                const Float C,
                                const std::int64_t n,
                                const dal::backend::event_vector& deps = {}) {

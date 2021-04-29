@@ -58,14 +58,12 @@ public:
             pr::ndarray<Float, 1>::empty(queue_, { n_vectors_ }, sycl::usm::alloc::device);
         buff_indices_ =
             pr::ndarray<std::uint32_t, 1>::empty(queue_, { n_vectors_ }, sycl::usm::alloc::device);
-        // ws_indices_ =
-        //     pr::ndarray<std::uint32_t, 1>::empty(queue_, { n_ws_ }, sycl::usm::alloc::device);
 
         indicator_event.wait_and_throw();
         indicator_ = indicator;
     }
 
-    sycl::event copy_last_to_first(pr::ndarray<std::uint32_t, 1>& ws_indices,
+    sycl::event copy_last_to_first(pr::ndview<std::uint32_t, 1>& ws_indices,
                                    const dal::backend::event_vector& deps = {}) {
         ONEDAL_ASSERT(ws_indices.get_dimension(0) == n_ws_);
         ONEDAL_ASSERT(ws_indices.has_mutable_data());
@@ -77,9 +75,9 @@ public:
         return copy_event;
     }
 
-    sycl::event select(const pr::ndarray<Float, 1>& alpha,
-                       const pr::ndarray<Float, 1>& f,
-                       pr::ndarray<std::uint32_t, 1>& ws_indices,
+    sycl::event select(const pr::ndview<Float, 1>& alpha,
+                       const pr::ndview<Float, 1>& f,
+                       pr::ndview<std::uint32_t, 1>& ws_indices,
                        const dal::backend::event_vector& deps = {}) {
         ONEDAL_ASSERT(labels_.get_dimension(0) == alpha.get_dimension(0));
         ONEDAL_ASSERT(labels_.get_dimension(0) == f.get_dimension(0));
@@ -201,8 +199,8 @@ public:
     }
 
 private:
-    sycl::event reset_indicator_with_zeros(const pr::ndarray<std::uint32_t, 1>& idx,
-                                           pr::ndarray<std::uint32_t, 1>& indicator,
+    sycl::event reset_indicator_with_zeros(const pr::ndview<std::uint32_t, 1>& idx,
+                                           pr::ndview<std::uint32_t, 1>& indicator,
                                            const std::int64_t n,
                                            const dal::backend::event_vector& deps = {}) {
         ONEDAL_ASSERT(idx.get_dimension(0) == n_ws_);
