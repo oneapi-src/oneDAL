@@ -269,7 +269,7 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
     char uplo     = 'U';
     DAAL_INT info = 0;
 
-    /* Perform L*L' decomposition of A */
+    /* Perform L*L' factorization of A */
     if (sequential)
     {
         Lapack<FPType, cpu>::xxpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
@@ -310,7 +310,7 @@ bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bo
 
     TArray<DAAL_INT, cpu> ipiv(n);
 
-    /* Perform P*L*U decomposition of A */
+    /* Perform P*L*U factorization of A */
     if (sequential)
     {
         Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
@@ -348,7 +348,7 @@ bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequ
         return false;
     }
 
-    /* Try solve with Cholesky factorixation */
+    /* Try solve with Cholesky factorization */
     if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
     {
         /* Fallback to PLU factorization */
