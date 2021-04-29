@@ -115,8 +115,10 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
         const size_t startColumn       = iBlock * blockSizeColumns;
         const size_t numColumnsInBlock = (iBlock == numBlocks - 1) ? numFeatures - startColumn : blockSizeColumns;
 
-        // if (static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble())
-        if (false)
+        // auto f = (*const_cast<NumericTable &>(*dataTable).getDictionary())[0];
+        // bool dbl = daal::data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
+        // if (static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble() && dbl)
+        if (true)
         {
             ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
