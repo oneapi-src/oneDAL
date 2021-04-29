@@ -37,7 +37,8 @@ public:
                    const array<std::int64_t>& row_indices,
                    data_type dtype,
                    detail::csr_indexing indexing)
-            : meta_(create_csr_metadata(1, dtype)),
+            : meta_(create_csr_metadata(column_count, dtype)),
+              //meta_(create_csr_metadata(1, dtype)),
               data_(data),
               column_indices_(column_indices),
               row_indices_(row_indices),
@@ -106,6 +107,16 @@ public:
         static_assert("row_accessor doesn't supported for csr table");
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_rows(const detail::data_parallel_policy& policy,
+                   array<T>& block,
+                   const range& rows,
+                   sycl::usm::alloc alloc) const {
+        static_assert("row_accessor doesn't supported for csr table");
+    }
+#endif
+
     template <typename T>
     void pull_column(const detail::default_host_policy& policy,
                      array<T>& block,
@@ -113,6 +124,17 @@ public:
                      const range& rows) const {
         static_assert("column_accessor doesn't supported for csr table");
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_column(const detail::data_parallel_policy& policy,
+                     array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows,
+                     sycl::usm::alloc alloc) const {
+        static_assert("column_accessor doesn't supported for csr table");
+    }
+#endif
 
     template <typename T>
     void pull_sparse_block(const detail::default_host_policy& policy,
