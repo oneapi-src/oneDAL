@@ -200,11 +200,15 @@ public:
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
     MSG(nu_gt_one);
     MSG(nu_leq_zero);
+    MSG(nu_svm_smo_method_is_not_implemented_for_gpu);
+    MSG(nu_svm_thunder_method_is_not_implemented_for_gpu);
     MSG(polynomial_kenrel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
-    MSG(svm_smo_method_is_not_implemented_for_gpu);
-    MSG(svm_regression_task_is_not_implemented_for_gpu);
     MSG(svm_multiclass_not_implemented_for_gpu);
+    MSG(svm_nu_classification_task_is_not_implemented_for_gpu);
+    MSG(svm_nu_regression_task_is_not_implemented_for_gpu);
+    MSG(svm_regression_task_is_not_implemented_for_gpu);
+    MSG(svm_smo_method_is_not_implemented_for_gpu);
     MSG(tau_leq_zero);
     MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);

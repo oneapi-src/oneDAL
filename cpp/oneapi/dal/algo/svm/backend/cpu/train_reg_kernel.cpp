@@ -40,6 +40,11 @@ using input_t = train_input<task::regression>;
 using result_t = train_result<task::regression>;
 using descriptor_t = detail::descriptor_base<task::regression>;
 
+using nu_model_t = model<task::regression>;
+using nu_input_t = train_input<task::regression>;
+using nu_result_t = train_result<task::regression>;
+using nu_descriptor_t = detail::descriptor_base<task::regression>;
+
 namespace daal_svm = daal::algorithms::svm;
 namespace interop = dal::backend::interop;
 
@@ -47,17 +52,35 @@ template <typename Float, daal::CpuType Cpu, typename Method>
 using daal_svm_kernel_t =
     daal_svm::training::internal::SVMTrainImpl<to_daal_method<Method>::value, Float, Cpu>;
 
-template <typename Float, typename Method>
-static result_t call_daal_kernel(const context_cpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data,
-                                 const table& labels,
-                                 const table& weights) {
-    const std::int64_t column_count = data.get_column_count();
+template <typename Task>
+static void set_specific_parameters(
+    const descriptor_t& desc,
+    daal_svm::training::internal::KernelParameter& daal_svm_parameter);
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
-    const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
+template <>
+void set_specific_parameters<task::regression>(
+    const descriptor_t& desc,
+    daal_svm::training::internal::KernelParameter& daal_svm_parameter) {
+    daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.epsilon = desc.get_epsilon();
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::regression;
+}
+
+template <>
+void set_specific_parameters<task::nu_regression>(
+    const descriptor_t& desc,
+    daal_svm::training::internal::KernelParameter& daal_svm_parameter) {
+    daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.nu = desc.get_nu();
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::nu_regression;
+}
+
+template <typename Task>
+static auto create_daal_parameter(const descriptor_t& desc) {
+    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
+    constexpr std::uint64_t megabyte = 1024 * 1024;
+    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
+    const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
@@ -65,22 +88,34 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     }
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
-    constexpr std::uint64_t megabyte = 1024 * 1024;
-    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
-    const std::uint64_t cache_byte = cache_megabyte * megabyte;
-
     daal_svm::training::internal::KernelParameter daal_svm_parameter;
+
     daal_svm_parameter.kernel = daal_kernel;
-    daal_svm_parameter.C = desc.get_c();
     daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
     daal_svm_parameter.tau = desc.get_tau();
     daal_svm_parameter.maxIterations =
         dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
     daal_svm_parameter.doShrinking = desc.get_shrinking();
     daal_svm_parameter.cacheSize = cache_byte;
-    daal_svm_parameter.epsilon = desc.get_epsilon();
-    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::regression;
+
+    set_specific_parameters<Task>(desc, daal_svm_parameter);
+
+    return daal_svm_parameter;
+}
+
+template <typename Float, typename Method>
+static result_t call_daal_kernel(
+    const context_cpu& ctx,
+    const descriptor_t& desc,
+    const table& data,
+    const table& labels,
+    const table& weights,
+    const daal_svm::training::internal::KernelParameter& daal_svm_parameter) {
+    const std::int64_t column_count = data.get_column_count();
+
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
+    const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
@@ -97,13 +132,16 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }
 
-template <typename Float, typename Method>
+template <typename Float, typename Method, typename Task>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
+    daal_svm::training::internal::KernelParameter daal_svm_parameter =
+        create_daal_parameter<Task>(desc);
     return call_daal_kernel<Float, Method>(ctx,
                                            desc,
                                            input.get_data(),
                                            input.get_labels(),
-                                           input.get_weights());
+                                           input.get_weights(),
+                                           daal_svm_parameter);
 }
 
 template <typename Float, typename Method>
@@ -111,11 +149,22 @@ struct train_kernel_cpu<Float, Method, task::regression> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return train<Float, Method>(ctx, desc, input);
+        return train<Float, Method, task::regression>(ctx, desc, input);
+    }
+};
+
+template <typename Float, typename Method>
+struct train_kernel_cpu<Float, Method, task::nu_regression> {
+    nu_result_t operator()(const context_cpu& ctx,
+                           const nu_descriptor_t& desc,
+                           const nu_input_t& input) const {
+        return train<Float, Method, task::nu_regression>(ctx, desc, input);
     }
 };
 
 template struct train_kernel_cpu<float, method::thunder, task::regression>;
 template struct train_kernel_cpu<double, method::thunder, task::regression>;
+template struct train_kernel_cpu<float, method::thunder, task::nu_regression>;
+template struct train_kernel_cpu<double, method::thunder, task::nu_regression>;
 
 } // namespace oneapi::dal::svm::backend
