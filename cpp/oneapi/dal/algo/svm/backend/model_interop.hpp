@@ -45,12 +45,12 @@ public:
 
     void serialize(dal::detail::output_archive& ar) const override {
         dal::backend::interop::daal_output_data_archive daal_ar(ar);
-        daal_model_->serialize(daal_ar);
+        daal_ar.setSharedPtrObj(const_cast<DaalModel&>(daal_model_));
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         dal::backend::interop::daal_input_data_archive daal_ar(ar);
-        daal_model_->deserialize(daal_ar);
+        daal_ar.setSharedPtrObj(daal_model_);
     }
 
 private:

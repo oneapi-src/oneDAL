@@ -42,31 +42,33 @@ public:
     }
 
     void setMajorVersion(int majorVersion) override {
-        ONEDAL_ASSERT(!"Not implemented");
+        major_version_ = majorVersion;
     }
 
     void setMinorVersion(int minorVersion) override {
-        ONEDAL_ASSERT(!"Not implemented");
+        minor_version_ = minorVersion;
     }
 
     void setUpdateVersion(int updateVersion) override {
-        ONEDAL_ASSERT(!"Not implemented");
+        update_version_ = updateVersion;
     }
 
     int getMajorVersion() override {
-        ONEDAL_ASSERT(!"Not implemented");
-        return 0;
+        return major_version_;
     }
 
     int getMinorVersion() override {
-        ONEDAL_ASSERT(!"Not implemented");
-        return 0;
+        return minor_version_;
     }
 
     int getUpdateVersion() override {
-        ONEDAL_ASSERT(!"Not implemented");
-        return 0;
+        return update_version_;
     }
+
+private:
+    int major_version_;
+    int minor_version_;
+    int update_version_;
 };
 
 class daal_input_data_archive_adapter : public daal_data_archive_stub {

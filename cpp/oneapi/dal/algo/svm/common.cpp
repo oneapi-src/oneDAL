@@ -236,6 +236,16 @@ void model<Task>::set_second_class_label_impl(std::int64_t value) {
     impl_->second_class_label = value;
 }
 
+template <typename Task>
+void model<Task>::serialize(dal::detail::output_archive& ar) const {
+    dal::detail::serialize_polymorphic_shared(impl_, ar);
+}
+
+template <typename Task>
+void model<Task>::deserialize(dal::detail::input_archive& ar) {
+    dal::detail::deserialize_polymorphic_shared(impl_, ar);
+}
+
 template class ONEDAL_EXPORT model<task::classification>;
 template class ONEDAL_EXPORT model<task::regression>;
 

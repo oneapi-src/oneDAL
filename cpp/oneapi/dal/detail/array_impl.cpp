@@ -42,7 +42,7 @@ inline deserialize_result_t deserialize_array_on_host(input_archive& archive,
 
     {
         [[maybe_unused]] const std::uint64_t serialization_id = archive.pop<std::uint64_t>();
-        ONEDAL_ASSERT(serialization_id == backend::serialization_ids::array);
+        ONEDAL_ASSERT(serialization_id == backend::serialization_ids::array_id);
     }
 
     {
