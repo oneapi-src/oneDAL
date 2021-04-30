@@ -32,11 +32,6 @@ class detail::v1::model_impl : public SVM_SERIALIZABLE(Task,
                                                        svm_classification_model_impl_id,
                                                        svm_regression_model_impl_id) {
 public:
-    model_impl() = default;
-    model_impl(const model_impl&) = delete;
-    model_impl& operator=(const model_impl&) = delete;
-    model_impl(backend::model_interop* interop) : interop_(interop) {}
-
     table support_vectors;
     table coeffs;
     double bias;
@@ -45,12 +40,17 @@ public:
     double second_class_label;
     std::int64_t class_count = 2;
 
-    backend::model_interop* get_interop() const {
-        return interop_;
+    model_impl() = default;
+    model_impl(const model_impl&) = delete;
+    model_impl& operator=(const model_impl&) = delete;
+    model_impl(backend::model_interop* interop) : interop_(interop) {}
+
+    ~model_impl() {
+        delete interop_;
     }
 
-    bool has_interop() const {
-        return interop_ != nullptr;
+    backend::model_interop* get_interop() const {
+        return interop_;
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
