@@ -78,14 +78,16 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
     }
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
-    daal_svm::Parameter daal_svm_parameter(
-        daal_kernel,
-        desc.get_c(),
-        desc.get_accuracy_threshold(),
-        desc.get_tau(),
-        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count()),
-        cache_byte,
-        desc.get_shrinking());
+    daal_svm::training::internal::KernelParameter daal_svm_parameter;
+    daal_svm_parameter.kernel = daal_kernel;
+    daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
+    daal_svm_parameter.tau = desc.get_tau();
+    daal_svm_parameter.maxIterations =
+        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
+    daal_svm_parameter.doShrinking = desc.get_shrinking();
+    daal_svm_parameter.cacheSize = cache_byte;
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
 
     const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 

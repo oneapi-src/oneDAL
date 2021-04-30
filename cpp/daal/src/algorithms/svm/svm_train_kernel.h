@@ -51,18 +51,10 @@ enum class SvmType
     nu_regression
 };
 
-struct KernelParameter
+struct KernelParameter : svm::Parameter
 {
-    double C;
-    double accuracyThreshold;
-    double tau;
     double epsilon;
     double nu;
-    size_t maxIterations;
-    size_t cacheSize;
-    bool doShrinking;
-    size_t shrinkingStep;
-    algorithms::kernel_function::KernelIfacePtr kernel;
     SvmType svmType = SvmType::classification;
 };
 
