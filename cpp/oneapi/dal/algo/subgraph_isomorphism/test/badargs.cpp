@@ -39,22 +39,14 @@ public:
         const std::int64_t cols_count = edge_count * 2;
         const std::int64_t rows_count = vertex_count + 1;
 
-        std::int32_t *degrees_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                vertex_count);
-        std::int32_t *cols_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                cols_count);
-        std::int64_t *rows_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int64_t>::allocate(
-                edge_allocator,
-                rows_count);
-        std::int32_t *rows_vertex_ =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                rows_count);
+        typedef std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>
+            int32_traits_t;
+        typedef std::allocator_traits<std::allocator<char>>::rebind_traits<std::int64_t>
+            int64_traits_t;
+        std::int32_t *degrees_ = int32_traits_t::allocate(vertex_allocator, vertex_count);
+        std::int32_t *cols_ = int32_traits_t::allocate(vertex_allocator, cols_count);
+        std::int64_t *rows_ = int64_traits_t::allocate(edge_allocator, rows_count);
+        std::int32_t *rows_vertex_ = int32_traits_t::allocate(vertex_allocator, rows_count);
 
         std::int32_t *degrees = new (degrees_) std::int32_t[vertex_count]{ 1, 3, 4, 2, 3, 1, 2 };
         std::int32_t *cols =

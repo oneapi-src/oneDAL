@@ -982,22 +982,14 @@ public:
         const std::int64_t cols_count = graph_data.get_cols_count();
         const std::int64_t rows_count = graph_data.get_rows_count();
 
-        std::int32_t *degrees =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                vertex_count);
-        std::int32_t *cols =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                cols_count);
-        std::int64_t *rows =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int64_t>::allocate(
-                edge_allocator,
-                rows_count);
-        std::int32_t *rows_vertex =
-            std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>::allocate(
-                vertex_allocator,
-                rows_count);
+        typedef std::allocator_traits<std::allocator<char>>::rebind_traits<std::int32_t>
+            int32_traits_t;
+        typedef std::allocator_traits<std::allocator<char>>::rebind_traits<std::int64_t>
+            int64_traits_t;
+        std::int32_t *degrees = int32_traits_t::allocate(vertex_allocator, vertex_count);
+        std::int32_t *cols = int32_traits_t::allocate(vertex_allocator, cols_count);
+        std::int64_t *rows = int64_traits_t::allocate(edge_allocator, rows_count);
+        std::int32_t *rows_vertex = int32_traits_t::allocate(vertex_allocator, rows_count);
 
         for (int i = 0; i < vertex_count; i++) {
             degrees[i] = graph_data.degrees[i];
