@@ -35,7 +35,7 @@ inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
     return dal::detail::check_mul_overflow(expected_sg_num, sg_max_size);
 }
 
-template<typename T>
+template <typename T>
 struct select_min_distance {};
 
 template <typename Float>
@@ -44,14 +44,14 @@ sycl::event select(sycl::queue& queue,
                    pr::ndview<Float, 2>& selection,
                    pr::ndview<std::int32_t, 2>& indices,
                    const bk::event_vector& deps = {}) {
-    ONEDAL_ASSERT(!indices_out || indices.get_shape()[0] == data.get_shape()[0]);
-    ONEDAL_ASSERT(!indices_out || indices.get_shape()[1] == 1);
-    ONEDAL_ASSERT(!selection_out || selection.get_shape()[0] == data.get_shape()[0]);
-    ONEDAL_ASSERT(!selection_out || selection.get_shape()[1] == 1);
+    ONEDAL_ASSERT(indices.get_dimension(0) == data.get_dimension(0));
+    ONEDAL_ASSERT(indices.get_dimension(1) == 1);
+    ONEDAL_ASSERT(selection.get_dimension(0) == data.get_dimension(0));
+    ONEDAL_ASSERT(selection.get_dimension(1) == 1);
 
     const std::int64_t col_count = data.get_dimension(1);
     const std::int64_t row_count = data.get_dimension(0);
-    const std::int64_t stride = data.get_shape()[1];
+    const std::int64_t stride = data.get_dimension(1);
 
     const std::int64_t preffered_wg_size = 128;
     const std::int64_t wg_size = get_scaled_wg_size_per_row(queue, col_count, preffered_wg_size);
@@ -117,22 +117,22 @@ sycl::event assign_clusters(sycl::queue& queue,
                             pr::ndview<Float, 2>& distances,
                             pr::ndview<Float, 2>& closest_distances,
                             const bk::event_vector& deps) {
-    ONEDAL_ASSERT(data.get_shape()[1] == centroids.get_shape()[1]);
-    ONEDAL_ASSERT(data.get_shape()[0] >= centroids.get_shape()[0]);
-    ONEDAL_ASSERT(labels.get_shape()[0] >= data.get_shape()[0]);
-    ONEDAL_ASSERT(labels.get_shape()[1] == 1);
-    ONEDAL_ASSERT(closest_distances.get_shape()[0] >= data.get_shape()[0]);
-    ONEDAL_ASSERT(closest_distances.get_shape()[1] == 1);
-    ONEDAL_ASSERT(distances.get_shape()[0] >= block_rows);
-    ONEDAL_ASSERT(distances.get_shape()[1] >= centroids.get_shape()[0]);
+    ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
+    ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
+    ONEDAL_ASSERT(labels.get_dimension(0) >= data.get_dimension(0));
+    ONEDAL_ASSERT(labels.get_dimension(1) == 1);
+    ONEDAL_ASSERT(closest_distances.get_dimension(0) >= data.get_dimension(0));
+    ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
+    ONEDAL_ASSERT(distances.get_dimension(0) >= block_rows);
+    ONEDAL_ASSERT(distances.get_dimension(1) >= centroids.get_dimension(0));
     sycl::event selection_event;
-    auto row_count = data.get_shape()[0];
-    auto column_count = data.get_shape()[1];
-    auto centroid_count = centroids.get_shape()[0];
+    const auto row_count = data.get_dimension(0);
+    const auto column_count = data.get_dimension(1);
+    const auto centroid_count = centroids.get_dimension(0);
     pr::distance<Float, Metric> block_distances(queue);
     auto block_count = row_count / block_rows + std::int64_t(row_count % block_rows > 0);
     for (std::int64_t iblock = 0; iblock < block_count; iblock++) {
-        auto row_offset = block_rows * iblock;
+        const auto row_offset = block_rows * iblock;
         auto cur_rows = std::min(block_rows, row_count - row_offset);
         auto distance_block =
             pr::ndview<Float, 2>::wrap(distances.get_mutable_data(), { cur_rows, centroid_count });
@@ -161,8 +161,7 @@ sycl::event assign_clusters(sycl::queue& queue,
                                                   pr::ndview<F, 2>& closest_distances, \
                                                   const bk::event_vector& deps);
 
-#define INSTANTIATE(F)                                                                            \
-    INSTANTIATE_WITH_METRIC(F, pr::squared_l2_metric)
+#define INSTANTIATE(F) INSTANTIATE_WITH_METRIC(F, pr::squared_l2_metric)
 
 INSTANTIATE(float)
 INSTANTIATE(double)

@@ -62,8 +62,12 @@ public:
         counters.fill(this->get_queue(), 0).wait_and_throw();
         BENCHMARK(name.c_str()) {
             auto event = count_clusters(this->get_queue(), labels, cluster_count, counters);
-            count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters, {event})
-            .wait_and_throw();
+            count_empty_clusters(this->get_queue(),
+                                 cluster_count,
+                                 counters,
+                                 empty_clusters,
+                                 { event })
+                .wait_and_throw();
         };
     }
 
@@ -91,21 +95,22 @@ public:
         counters.fill(this->get_queue(), 0).wait_and_throw();
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         auto event = count_clusters(this->get_queue(), labels, cluster_count, counters);
-        count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters, {event})
+        count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters, { event })
             .wait_and_throw();
         BENCHMARK(name.c_str()) {
             auto partial_reduce_event = partial_reduce_centroids(this->get_queue(),
-                             data,
-                             labels,
-                             cluster_count,
-                             part_count,
-                             partial_centroids);
+                                                                 data,
+                                                                 labels,
+                                                                 cluster_count,
+                                                                 part_count,
+                                                                 partial_centroids);
             merge_reduce_centroids(this->get_queue(),
-                             counters,
-                             partial_centroids,
-                             part_count,
-                             centroids,
-                             {partial_reduce_event}).wait_and_throw();
+                                   counters,
+                                   partial_centroids,
+                                   part_count,
+                                   centroids,
+                                   { partial_reduce_event })
+                .wait_and_throw();
         };
     }
 };

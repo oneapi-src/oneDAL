@@ -25,13 +25,12 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-
 static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
     // TODO optimization/dispatching
     return 16;
 }
 
-template<typename T>
+template <typename T>
 struct compute_obj_function {};
 
 template <typename Float>
@@ -39,11 +38,11 @@ sycl::event compute_objective_function(sycl::queue& queue,
                                        const pr::ndview<Float, 2>& closest_distances,
                                        pr::ndview<Float, 1>& objective_function,
                                        const bk::event_vector& deps) {
-    ONEDAL_ASSERT(closest_distances.get_shape()[1] == 1);
-    ONEDAL_ASSERT(objective_function.get_shape()[0] == 1);
+    ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
+    ONEDAL_ASSERT(objective_function.get_dimension(0) == 1);
     const Float* distance_ptr = closest_distances.get_data();
     Float* value_ptr = objective_function.get_mutable_data();
-    const auto row_count = closest_distances.get_shape()[0];
+    const auto row_count = closest_distances.get_dimension(0);
     const auto sg_size_to_set = get_gpu_sg_size(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);

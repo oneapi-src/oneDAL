@@ -33,13 +33,13 @@ struct partial_counters {};
 struct merge_counters {};
 
 sycl::event count_empty_clusters(sycl::queue& queue,
-                           std::int64_t cluster_count,
-                           pr::ndview<std::int32_t, 1>& counters,
-                           pr::ndarray<std::int32_t, 1>& empty_cluster_count,
-                           const bk::event_vector& deps) {
-    ONEDAL_ASSERT(counters.get_shape()[0] >= cluster_count);
-    ONEDAL_ASSERT(empty_cluster_count.get_shape()[0] == 1);
-    std::int32_t* counter_ptr = counters.get_mutable_data();
+                                 std::int64_t cluster_count,
+                                 pr::ndview<std::int32_t, 1>& counters,
+                                 pr::ndarray<std::int32_t, 1>& empty_cluster_count,
+                                 const bk::event_vector& deps) {
+    ONEDAL_ASSERT(counters.get_dimension(0) >= cluster_count);
+    ONEDAL_ASSERT(empty_cluster_count.get_dimension(0) == 1);
+    const std::int32_t* counter_ptr = counters.get_data();
     const auto sg_size_to_set = get_gpu_sg_size(queue);
     std::int32_t* value_ptr = empty_cluster_count.get_mutable_data();
     return queue.submit([&](sycl::handler& cgh) {

@@ -21,7 +21,6 @@
 
 namespace oneapi::dal::kmeans::backend {
 
-using std::int64_t;
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
@@ -35,9 +34,9 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         auto& queue = ctx.get_queue();
 
         const auto data = input.get_data();
-        const int64_t row_count = data.get_row_count();
-        const int64_t column_count = data.get_column_count();
-        const int64_t cluster_count = params.get_cluster_count();
+        const std::int64_t row_count = data.get_row_count();
+        const std::int64_t column_count = data.get_column_count();
+        const std::int64_t cluster_count = params.get_cluster_count();
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
         auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });

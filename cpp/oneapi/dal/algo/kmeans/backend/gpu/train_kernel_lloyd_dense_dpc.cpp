@@ -160,30 +160,32 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 arr_distance_block,
                 arr_closest_distances,
                 { centroids_event });
-            auto count_event = count_clusters(queue,
-                                              arr_labels,
-                                              cluster_count,
-                                              arr_counters,
-                                              { assign_event });
+            auto count_event =
+                count_clusters(queue, arr_labels, cluster_count, arr_counters, { assign_event });
             auto objective_function_event =
                 compute_objective_function<Float>(queue,
                                                   arr_closest_distances,
                                                   arr_objective_function,
                                                   { assign_event });
             centroids_event = partial_reduce_centroids<Float>(queue,
-                                                      arr_data,
-                                                      arr_labels,
-                                                      cluster_count,
-                                                      part_count,
-                                                      arr_partial_centroids,
-                                                      { count_event });
+                                                              arr_data,
+                                                              arr_labels,
+                                                              cluster_count,
+                                                              part_count,
+                                                              arr_partial_centroids,
+                                                              { count_event });
             centroids_event = merge_reduce_centroids<Float>(queue,
-                                                      arr_counters,
-                                                      arr_partial_centroids,
-                                                      part_count,
-                                                      arr_centroids,
-                                                      { count_event, centroids_event });
-            count_empty_clusters(queue, cluster_count, arr_counters, arr_num_empty_clusters, {count_event}).wait_and_throw();
+                                                            arr_counters,
+                                                            arr_partial_centroids,
+                                                            part_count,
+                                                            arr_centroids,
+                                                            { count_event, centroids_event });
+            count_empty_clusters(queue,
+                                 cluster_count,
+                                 arr_counters,
+                                 arr_num_empty_clusters,
+                                 { count_event })
+                .wait_and_throw();
 
             std::int64_t num_candidates = arr_num_empty_clusters.to_host(queue).get_data()[0];
             sycl::event find_candidates_event;

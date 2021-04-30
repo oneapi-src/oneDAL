@@ -42,16 +42,15 @@ sycl::event count_clusters(sycl::queue& queue,
                            std::int64_t cluster_count,
                            pr::ndview<std::int32_t, 1>& counters,
                            const bk::event_vector& deps) {
-    ONEDAL_ASSERT(counters.get_shape()[0] >= cluster_count);
-    ONEDAL_ASSERT(empty_cluster_count.get_shape()[0] == 1);
-    ONEDAL_ASSERT(labels.get_shape()[1] == 1);
+    ONEDAL_ASSERT(counters.get_dimension(0) >= cluster_count);
+    ONEDAL_ASSERT(labels.get_dimension(1) == 1);
     const std::int32_t* label_ptr = labels.get_data();
     std::int32_t* counter_ptr = counters.get_mutable_data();
     const auto sg_size_to_set = get_gpu_sg_size(queue);
     const auto wg_count_to_set = get_gpu_wg_count(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        const auto row_count = labels.get_shape()[0];
+        const auto row_count = labels.get_dimension(0);
         cgh.parallel_for<partial_counters>(
             bk::make_multiple_nd_range_2d({ sg_size_to_set, wg_count_to_set },
                                           { sg_size_to_set, 1 }),
