@@ -137,7 +137,6 @@ static result_t call_binary_daal_kernel(const context_cpu& ctx,
                                         const table& data,
                                         const table& labels,
                                         const table& weights) {
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -165,10 +164,10 @@ static result_t call_binary_daal_kernel(const context_cpu& ctx,
     daal_svm_parameter.cacheSize = cache_byte;
     daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
 
-    auto arr_label = row_accessor<const Float>{ labels }.pull();
-    binary_label_t<Float> unique_label;
-    auto arr_new_label = convert_labels(arr_label, { Float(-1.0), Float(1.0) }, unique_label);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_new_label, row_count, 1);
+    const binary_label_t<Float> old_unique_labels = get_unique_labels<Float>(labels);
+    const auto new_labels =
+        convert_binary_labels(labels, { Float(-1.0), Float(1.0) }, old_unique_labels);
+    const auto daal_labels = interop::convert_to_daal_table<Float>(new_labels);
 
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
@@ -183,8 +182,8 @@ static result_t call_binary_daal_kernel(const context_cpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
-                             .set_first_class_label(unique_label.first)
-                             .set_second_class_label(unique_label.second);
+                             .set_first_class_label(old_unique_labels.first)
+                             .set_second_class_label(old_unique_labels.second);
 
     return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }
