@@ -266,7 +266,9 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 }
 
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::nu_classification>;
 template class ONEDAL_EXPORT model<task::regression>;
+template class ONEDAL_EXPORT model<task::nu_regression>;
 
 ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::classification>)
 ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::regression>)
