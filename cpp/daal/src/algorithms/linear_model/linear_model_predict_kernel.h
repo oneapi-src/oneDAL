@@ -72,7 +72,7 @@ protected:
                                                 size_t numResponses, algorithmFpType * responseBlock,
                                                 bool findBeta0, bool isHomogeneous,
                                                 TlsMem<algorithmFpType, cpu> & tlsData);
-    static const size_t blockSizeRows    = 256;
+    static const size_t blockSizeRows    = 512;
     static const size_t blockSizeColumns = 512;
 };
 
