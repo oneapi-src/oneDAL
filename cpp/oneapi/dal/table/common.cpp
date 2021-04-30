@@ -133,12 +133,11 @@ const data_type& table_metadata::get_data_type(int64_t feature_index) const {
 }
 
 void table_metadata::serialize(detail::output_archive& ar) const {
-    detail::serialize_polymorphic(impl_, ar);
+    detail::serialize_polymorphic_shared(impl_, ar);
 }
 
 void table_metadata::deserialize(detail::input_archive& ar) {
-    constexpr bool strict_type_match = false;
-    detail::deserialize_polymorphic(impl_, ar, strict_type_match);
+    impl_ = detail::deserialize_polymorphic_shared<detail::table_metadata_impl>(ar);
 }
 
 table::table() : table(new backend::empty_table_impl{}) {}
@@ -177,13 +176,11 @@ data_layout table::get_data_layout() const {
 }
 
 void table::serialize(detail::output_archive& ar) const {
-    detail::serialize_polymorphic(impl_, ar);
+    detail::serialize_polymorphic_shared(impl_, ar);
 }
 
 void table::deserialize(detail::input_archive& ar) {
-    // Workaround for the case of deserialization to specific table type
-    const bool strict_type_match = false;
-    detail::deserialize_polymorphic(impl_, ar, strict_type_match);
+    detail::deserialize_polymorphic_shared(impl_, ar);
 }
 
 } // namespace v1

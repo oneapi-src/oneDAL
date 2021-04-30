@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <unordered_map>
 #include "oneapi/dal/detail/common.hpp"
 
@@ -82,6 +83,11 @@ struct trivial_serialization_type;
 template <typename T>
 struct trivial_serialization_type<T, false> {
     using type = T;
+};
+
+template <>
+struct trivial_serialization_type<bool, false> {
+    using type = std::uint8_t;
 };
 
 template <typename T>
@@ -202,7 +208,9 @@ private:
     template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
     void process(T& value) {
         using trivial_t = trivial_serialization_type_t<T>;
-        get_impl().deserialize(reinterpret_cast<trivial_t*>(&value), make_data_type<trivial_t>());
+        trivial_t value_to_deserialize;
+        get_impl().deserialize(&value_to_deserialize, make_data_type<trivial_t>());
+        value = T(value_to_deserialize);
     }
 
     template <typename T, enable_if_user_serializable_t<T>* = nullptr>
@@ -250,8 +258,8 @@ private:
     template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
     void process(const T& value) {
         using trivial_t = trivial_serialization_type_t<T>;
-        get_impl().serialize(reinterpret_cast<const trivial_t*>(&value),
-                             make_data_type<trivial_t>());
+        const auto value_to_serialize = trivial_t(value);
+        get_impl().serialize(&value_to_serialize, make_data_type<trivial_t>());
     }
 
     template <typename T, enable_if_user_serializable_t<T>* = nullptr>
@@ -373,27 +381,57 @@ inline serializable_iface& get_serializable(const std::shared_ptr<T>& object) {
 }
 
 template <typename T>
-inline void serialize_polymorphic(const std::shared_ptr<T>& serializable_object,
-                                  output_archive& archive) {
-    auto& serializable = get_serializable(serializable_object);
-    archive(serializable.get_serialization_id());
-    serializable.serialize(archive);
+inline void serialize_polymorphic(T* serializable_object, output_archive& archive) {
+    const bool is_not_nullptr = (serializable_object != nullptr);
+    archive(is_not_nullptr);
+
+    if (is_not_nullptr) {
+        auto& serializable = get_serializable(serializable_object);
+        archive(serializable.get_serialization_id());
+        serializable.serialize(archive);
+    }
 }
 
 template <typename T>
-inline void deserialize_polymorphic(std::shared_ptr<T>& serializable_object,
-                                    input_archive& archive,
-                                    bool strict_type_match = true) {
+inline void serialize_polymorphic_shared(const std::shared_ptr<T>& serializable_object,
+                                         output_archive& archive) {
+    serialize_polymorphic(serializable_object.get(), archive);
+}
+
+template <typename T>
+inline T* deserialize_polymorphic(input_archive& archive,
+                                  const std::initializer_list<std::uint64_t>& allowed_ids = {}) {
+    const bool is_not_nullptr = archive.pop<bool>();
+    if (!is_not_nullptr) {
+        return nullptr;
+    }
+
     const auto serialization_id = archive.pop<std::uint64_t>();
-    if (serializable_object && strict_type_match) {
-        if (get_serializable(serializable_object).get_serialization_id() != serialization_id) {
+    if (allowed_ids.size() > 0) {
+        const auto it = std::find(allowed_ids.begin(), allowed_ids.end(), serialization_id);
+        if (it == allowed_ids.end()) {
             throw invalid_argument{ error_messages::archive_content_does_not_match_type() };
         }
     }
 
     T* object_ptr = serializable_registry::instance().make<T>(serialization_id);
     get_serializable(object_ptr).deserialize(archive);
-    serializable_object.reset(object_ptr);
+    return object_ptr;
+}
+
+template <typename T>
+inline std::shared_ptr<T> deserialize_polymorphic_shared(
+    input_archive& archive,
+    const std::initializer_list<std::uint64_t>& allowed_ids = {}) {
+    return std::shared_ptr<T>{ deserialize_polymorphic<T>(archive, allowed_ids) };
+}
+
+template <typename T>
+inline void deserialize_polymorphic_shared(
+    std::shared_ptr<T>& serializable_object,
+    input_archive& archive,
+    const std::initializer_list<std::uint64_t>& allowed_ids = {}) {
+    serializable_object.reset(deserialize_polymorphic<T>(archive, allowed_ids));
 }
 
 template <typename T, typename OutputArchive>

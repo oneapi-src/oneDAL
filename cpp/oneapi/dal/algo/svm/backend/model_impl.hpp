@@ -60,11 +60,7 @@ public:
             ar(first_class_label, second_class_label, class_count);
         }
 
-        // TODO:
-        // ar(has_interop());
-        // if (has_interop()) {
-        //     dal::detail::serialize_polymorphic(interop_, ar);
-        // }
+        dal::detail::serialize_polymorphic(interop_, ar);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
@@ -74,11 +70,7 @@ public:
             ar(first_class_label, second_class_label, class_count);
         }
 
-        // TODO:
-        // const bool has_interop_in_archive = ar.pop<bool>();
-        // if (has_interop_in_archive) {
-        //     interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
-        // }
+        interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
     }
 
 private:

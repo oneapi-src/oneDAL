@@ -223,19 +223,27 @@ protected:
         return static_cast<Impl&>(*impl_);
     }
 
+    void init_impl(polymorphic_iface* impl) {
+        impl_.reset(impl);
+    }
+
 private:
     void serialize(detail::output_archive& ar) const {
-        detail::serialize_polymorphic(impl_, ar);
+        detail::serialize_polymorphic_shared(impl_, ar);
     }
 
     void deserialize(detail::input_archive& ar) {
-        detail::deserialize_polymorphic(impl_, ar);
+        detail::deserialize_polymorphic_shared(impl_, ar);
     }
 
     detail::pimpl<polymorphic_iface> impl_;
 };
 
-class polymorphic_impl_a : public polymorphic_iface, public detail::serializable<77777> {
+inline constexpr std::uint64_t a_serialization_id = 77777;
+inline constexpr std::uint64_t b_serialization_id = 88888;
+
+class polymorphic_impl_a : public polymorphic_iface,
+                           public detail::serializable<a_serialization_id> {
 public:
     std::string get_name() override {
         return "A";
@@ -254,7 +262,8 @@ public:
 };
 __ONEDAL_REGISTER_SERIALIZABLE__(polymorphic_impl_a)
 
-class polymorphic_impl_b : public polymorphic_iface, public detail::serializable<88888> {
+class polymorphic_impl_b : public polymorphic_iface,
+                           public detail::serializable<b_serialization_id> {
 public:
     std::string get_name() override {
         return "B";
@@ -294,6 +303,10 @@ public:
         get_impl<polymorphic_impl_a>().x2 = value;
         return *this;
     }
+
+    void deserialize(detail::input_archive& ar) {
+        init_impl(detail::deserialize_polymorphic<polymorphic_iface>(ar, { a_serialization_id }));
+    }
 };
 
 class derived_b : public polymorphic {
@@ -317,6 +330,10 @@ public:
         get_impl<polymorphic_impl_b>().x2 = value;
         return *this;
     }
+
+    void deserialize(detail::input_archive& ar) {
+        init_impl(detail::deserialize_polymorphic<polymorphic_iface>(ar, { b_serialization_id }));
+    }
 };
 
 TEST("mock polymorphic type") {
@@ -331,9 +348,10 @@ TEST("mock polymorphic type") {
         te::mock_output_archive ar(state);
         detail::serialize(original, ar);
 
-        REQUIRE(state.get<std::uint64_t>(0) == polymorphic_impl_a::serialization_id());
-        REQUIRE(state.get<float>(1) == a_x1);
-        REQUIRE(state.get<std::int64_t>(2) == a_x2);
+        REQUIRE(state.get<std::uint8_t>(0) == 1);
+        REQUIRE(state.get<std::uint64_t>(1) == polymorphic_impl_a::serialization_id());
+        REQUIRE(state.get<float>(2) == a_x1);
+        REQUIRE(state.get<std::int64_t>(3) == a_x2);
     }
 
     SECTION("deserialize to base type") {
