@@ -348,7 +348,7 @@ bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequ
         return false;
     }
 
-    /* Try solve with Cholesky factorization */
+    /* Try to solve with Cholesky factorization */
     if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
     {
         /* Fallback to PLU factorization */
@@ -361,7 +361,6 @@ bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequ
     }
     return true;
 }
-
 } // namespace internal
 } // namespace algorithms
 } // namespace daal
