@@ -87,7 +87,7 @@ class model_impl;
 
 template <typename T>
 using enable_if_classification_t =
-    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
+    std::enable_if_t<dal::detail::is_one_of_v<T, task::classification, task::nu_classification>>;
 
 template <typename T>
 using enable_if_regression_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;

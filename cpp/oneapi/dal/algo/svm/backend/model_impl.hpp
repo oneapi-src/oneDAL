@@ -80,7 +80,9 @@ private:
 namespace backend {
 
 using model_impl_cls = detail::model_impl<task::classification>;
+using model_impl_nu_cls = detail::model_impl<task::nu_classification>;
 using model_impl_reg = detail::model_impl<task::regression>;
+using model_impl_nu_reg = detail::model_impl<task::nu_regression>;
 
 } // namespace backend
 } // namespace oneapi::dal::svm

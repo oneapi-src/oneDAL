@@ -35,10 +35,6 @@
 namespace oneapi::dal::svm::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::classification>;
-using input_t = train_input<task::classification>;
-using result_t = train_result<task::classification>;
-using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_classifier = daal::algorithms::classifier;
@@ -55,18 +51,29 @@ template <typename Float, daal::CpuType Cpu>
 using daal_multiclass_kernel_t = daal_multiclass::training::internal::
     MultiClassClassifierTrainKernel<daal_multiclass::training::oneAgainstOne, Float, Cpu>;
 
-template <typename Float, typename Method>
-static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
-                                            const descriptor_t& desc,
-                                            const table& data,
-                                            const table& labels,
-                                            const table& weights,
-                                            const std::uint64_t class_count) {
-    const std::int64_t column_count = data.get_column_count();
+template <typename Task>
+static void set_specific_parameters(
+    const detail::descriptor_base<Task>& desc,
+    daal_svm::training::internal::KernelParameter& daal_svm_parameter);
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
+template <>
+void set_specific_parameters<task::classification>(
+    const detail::descriptor_base<task::classification>& desc,
+    daal_svm::training::internal::KernelParameter& daal_svm_parameter) {
+    daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
+}
 
+template <>
+void set_specific_parameters<task::nu_classification>(
+    const detail::descriptor_base<task::nu_classification>& desc,
+    daal_svm::training::internal::KernelParameter& daal_svm_parameter) {
+    daal_svm_parameter.nu = desc.get_nu();
+    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::nu_classification;
+}
+
+template <typename Task>
+static auto create_daal_parameter(const detail::descriptor_base<Task>& desc) {
     const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
     constexpr std::uint64_t megabyte = 1024 * 1024;
     dal::detail::check_mul_overflow(cache_megabyte, megabyte);
@@ -79,15 +86,34 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
     const auto daal_kernel = kernel_impl->get_daal_kernel_function();
 
     daal_svm::training::internal::KernelParameter daal_svm_parameter;
+
     daal_svm_parameter.kernel = daal_kernel;
-    daal_svm_parameter.C = desc.get_c();
     daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
     daal_svm_parameter.tau = desc.get_tau();
     daal_svm_parameter.maxIterations =
         dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
     daal_svm_parameter.doShrinking = desc.get_shrinking();
     daal_svm_parameter.cacheSize = cache_byte;
-    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
+
+    set_specific_parameters<Task>(desc, daal_svm_parameter);
+
+    return daal_svm_parameter;
+}
+
+template <typename Float, typename Method, typename Task, typename ModelImpl>
+static train_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
+                                                      const detail::descriptor_base<Task>& desc,
+                                                      const table& data,
+                                                      const table& labels,
+                                                      const table& weights,
+                                                      const std::uint64_t class_count) {
+    const std::int64_t column_count = data.get_column_count();
+
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
+
+    daal_svm::training::internal::KernelParameter daal_svm_parameter =
+        create_daal_parameter<Task>(desc);
 
     const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 
@@ -117,54 +143,33 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
 
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_svm_model->getSupportIndices());
-    const auto trained_model =
-        std::make_shared<model_impl_cls>(new model_interop_cls{ daal_model });
+    const auto trained_model = std::make_shared<ModelImpl>(new model_interop_cls{ daal_model });
     trained_model->class_count = class_count;
 
-    auto trained_model_svm =
-        convert_from_daal_multiclass_model<task::classification, Float>(daal_svm_model);
+    auto trained_model_svm = convert_from_daal_multiclass_model<Task, Float>(daal_svm_model);
 
     trained_model->support_vectors = trained_model_svm.get_support_vectors();
     trained_model->biases = trained_model_svm.get_biases();
     trained_model->coeffs = trained_model_svm.get_coeffs();
 
-    return result_t()
-        .set_model(dal::detail::make_private<model_t>(trained_model))
-        .set_support_indices(table_support_indices);
+    auto m = dal::detail::make_private<model<Task>>(trained_model);
+
+    return train_result<Task>().set_model(m).set_support_indices(table_support_indices);
 }
 
-template <typename Float, typename Method>
-static result_t call_binary_daal_kernel(const context_cpu& ctx,
-                                        const descriptor_t& desc,
-                                        const table& data,
-                                        const table& labels,
-                                        const table& weights) {
+template <typename Float, typename Method, typename Task>
+static train_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
+                                                  const detail::descriptor_base<Task>& desc,
+                                                  const table& data,
+                                                  const table& labels,
+                                                  const table& weights) {
     const std::int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
-    const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
-    constexpr std::uint64_t megabyte = 1024 * 1024;
-    dal::detail::check_mul_overflow(cache_megabyte, megabyte);
-    const std::uint64_t cache_byte = cache_megabyte * megabyte;
-
-    auto kernel_impl = detail::get_kernel_function_impl(desc);
-    if (!kernel_impl) {
-        throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
-    }
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
-
-    daal_svm::training::internal::KernelParameter daal_svm_parameter;
-    daal_svm_parameter.kernel = daal_kernel;
-    daal_svm_parameter.C = desc.get_c();
-    daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
-    daal_svm_parameter.tau = desc.get_tau();
-    daal_svm_parameter.maxIterations =
-        dal::detail::integral_cast<std::size_t>(desc.get_max_iteration_count());
-    daal_svm_parameter.doShrinking = desc.get_shrinking();
-    daal_svm_parameter.cacheSize = cache_byte;
-    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::classification;
+    daal_svm::training::internal::KernelParameter daal_svm_parameter =
+        create_daal_parameter<Task>(desc);
 
     const binary_label_t<Float> old_unique_labels = get_unique_labels<Float>(labels);
     const auto new_labels =
@@ -183,55 +188,70 @@ static result_t call_binary_daal_kernel(const context_cpu& ctx,
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
-    auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
+    auto trained_model = convert_from_daal_model<Task, Float>(*daal_model)
                              .set_first_class_label(old_unique_labels.first)
                              .set_second_class_label(old_unique_labels.second);
 
-    return result_t().set_model(trained_model).set_support_indices(table_support_indices);
+    return train_result<Task>().set_model(trained_model).set_support_indices(table_support_indices);
 }
 
-template <typename Float, typename Method>
-static result_t call_daal_kernel(const context_cpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& data,
-                                 const table& labels,
-                                 const table& weights) {
+template <typename Float, typename Method, typename Task, typename ModelImpl>
+static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const table& data,
+                                           const table& labels,
+                                           const table& weights) {
     const std::uint64_t class_count = desc.get_class_count();
 
     if (class_count > 2) {
-        return call_multiclass_daal_kernel<Float, Method>(ctx,
-                                                          desc,
-                                                          data,
-                                                          labels,
-                                                          weights,
-                                                          class_count);
+        return call_multiclass_daal_kernel<Float, Method, Task, ModelImpl>(ctx,
+                                                                           desc,
+                                                                           data,
+                                                                           labels,
+                                                                           weights,
+                                                                           class_count);
     }
     else {
-        return call_binary_daal_kernel<Float, Method>(ctx, desc, data, labels, weights);
+        return call_binary_daal_kernel<Float, Method, Task>(ctx, desc, data, labels, weights);
     }
 }
 
-template <typename Float, typename Method>
-static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float, Method>(ctx,
-                                           desc,
-                                           input.get_data(),
-                                           input.get_labels(),
-                                           input.get_weights());
+template <typename Float, typename Method, typename Task, typename ModelImpl>
+static train_result<Task> train(const context_cpu& ctx,
+                                const detail::descriptor_base<Task>& desc,
+                                const train_input<Task>& input) {
+    return call_daal_kernel<Float, Method, Task, ModelImpl>(ctx,
+                                                            desc,
+                                                            input.get_data(),
+                                                            input.get_labels(),
+                                                            input.get_weights());
 }
 
 template <typename Float, typename Method>
 struct train_kernel_cpu<Float, Method, task::classification> {
-    result_t operator()(const context_cpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) const {
-        return train<Float, Method>(ctx, desc, input);
+    train_result<task::classification> operator()(
+        const context_cpu& ctx,
+        const detail::descriptor_base<task::classification>& desc,
+        const train_input<task::classification>& input) const {
+        return train<Float, Method, task::classification, model_impl_cls>(ctx, desc, input);
+    }
+};
+
+template <typename Float, typename Method>
+struct train_kernel_cpu<Float, Method, task::nu_classification> {
+    train_result<task::nu_classification> operator()(
+        const context_cpu& ctx,
+        const detail::descriptor_base<task::nu_classification>& desc,
+        const train_input<task::nu_classification>& input) const {
+        return train<Float, Method, task::nu_classification, model_impl_nu_cls>(ctx, desc, input);
     }
 };
 
 template struct train_kernel_cpu<float, method::thunder, task::classification>;
 template struct train_kernel_cpu<float, method::smo, task::classification>;
+template struct train_kernel_cpu<float, method::thunder, task::nu_classification>;
 template struct train_kernel_cpu<double, method::thunder, task::classification>;
 template struct train_kernel_cpu<double, method::smo, task::classification>;
+template struct train_kernel_cpu<double, method::thunder, task::nu_classification>;
 
 } // namespace oneapi::dal::svm::backend
