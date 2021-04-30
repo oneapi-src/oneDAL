@@ -46,10 +46,10 @@ public:
               labels_(y) {
         ONEDAL_ASSERT(n_vectors > 0);
         ONEDAL_ASSERT(n_vectors <= dal::detail::limits<std::uint32_t>::max());
+        auto [indicator, indicator_event] =
+            pr::ndarray<std::uint8_t, 1>::zeros(queue_, { n_vectors_ }, sycl::usm::alloc::device);
         sorted_f_inices_ =
             pr::ndarray<std::uint32_t, 1>::empty(queue_, { n_vectors_ }, sycl::usm::alloc::device);
-        auto [indicator, indicator_event] =
-            pr::ndarray<std::uint32_t, 1>::zeros(queue_, { n_vectors_ }, sycl::usm::alloc::device);
 
         if (!n_ws_) {
             n_ws_ = propose_working_set_size(queue_, n_vectors);
@@ -88,40 +88,46 @@ public:
         auto arg_sort_event = arg_sort(queue_, f, values_sort_, sorted_f_inices_, n_vectors_, deps);
 
         std::int64_t n_need_select = (n_ws_ - n_selected_) / 2;
-        auto select_part_event =
-            select_part(alpha, ws_indices, n_need_select, borders::up, { arg_sort_event });
+        auto select_ws_edge_event =
+            select_ws_edge(alpha, ws_indices, n_need_select, ws_edge::up, { arg_sort_event });
 
         n_need_select = n_ws_ - n_selected_;
-        select_part_event =
-            select_part(alpha, ws_indices, n_need_select, borders::low, { select_part_event });
+        select_ws_edge_event = select_ws_edge(alpha,
+                                              ws_indices,
+                                              n_need_select,
+                                              ws_edge::low,
+                                              { select_ws_edge_event });
 
         if (n_selected_ < n_ws_) {
             n_need_select = n_ws_ - n_selected_;
-            select_part_event =
-                select_part(alpha, ws_indices, n_need_select, borders::up, { select_part_event });
+            select_ws_edge_event = select_ws_edge(alpha,
+                                                  ws_indices,
+                                                  n_need_select,
+                                                  ws_edge::up,
+                                                  { select_ws_edge_event });
         }
         ONEDAL_ASSERT(n_selected_ == n_ws_);
 
         n_selected_ = 0;
-        return select_part_event;
+        return select_ws_edge_event;
     }
 
 private:
-    sycl::event reset_indicator_with_zeros(const pr::ndview<std::uint32_t, 1>& idx,
-                                           pr::ndview<std::uint32_t, 1>& indicator,
-                                           const std::int64_t n,
-                                           const dal::backend::event_vector& deps = {}) {
+    sycl::event reset_indicator(const pr::ndview<std::uint32_t, 1>& idx,
+                                pr::ndview<std::uint8_t, 1>& indicator,
+                                const std::int64_t n,
+                                const dal::backend::event_vector& deps = {}) {
         ONEDAL_ASSERT(idx.get_dimension(0) == n_ws_);
         ONEDAL_ASSERT(indicator.get_dimension(0) == n_vectors_);
         ONEDAL_ASSERT(indicator.has_mutable_data());
 
         const std::uint32_t* idx_ptr = idx.get_data();
-        std::uint32_t* indicator_ptr = indicator.get_mutable_data();
+        std::uint8_t* indicator_ptr = indicator.get_mutable_data();
 
         const auto wg_size = std::min(dal::backend::propose_wg_size(queue_), n);
         const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
 
-        auto reset_indicator_with_zeros_event = queue_.submit([&](sycl::handler& cgh) {
+        auto reset_indicator_event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
 
             cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
@@ -130,26 +136,29 @@ private:
             });
         });
 
-        return reset_indicator_with_zeros_event;
+        return reset_indicator_event;
     }
 
-    sycl::event select_part(const pr::ndview<Float, 1>& alpha,
-                            pr::ndview<std::uint32_t, 1>& ws_indices,
-                            const std::int64_t n_need_select,
-                            borders bord,
-                            const dal::backend::event_vector& deps = {}) {
-        auto kernel_event =
-            check_borders(queue_, labels_, alpha, indicator_, C_, n_vectors_, bord, deps);
+    sycl::event select_ws_edge(const pr::ndview<Float, 1>& alpha,
+                               pr::ndview<std::uint32_t, 1>& ws_indices,
+                               const std::int64_t n_need_select,
+                               ws_edge edge,
+                               const dal::backend::event_vector& deps = {}) {
+        auto select_ws_edge_event =
+            check_ws_edge(queue_, labels_, alpha, indicator_, C_, n_vectors_, edge, deps);
 
         /* Reset indicator for busy Indices */
         if (n_selected_ > 0) {
-            kernel_event =
-                reset_indicator_with_zeros(ws_indices, indicator_, n_selected_, { kernel_event });
+            select_ws_edge_event =
+                reset_indicator(ws_indices, indicator_, n_selected_, { select_ws_edge_event });
         }
         std::int64_t n_select = 0;
-        auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint32_t>{ queue_ };
-        kernel_event =
-            select_flagged(indicator_, sorted_f_inices_, buff_indices_, n_select, { kernel_event });
+        auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ queue_ };
+        select_ws_edge_event = select_flagged(indicator_,
+                                              sorted_f_inices_,
+                                              buff_indices_,
+                                              n_select,
+                                              { select_ws_edge_event });
 
         const std::int64_t n_copy = std::min(n_select, n_need_select);
 
@@ -158,18 +167,18 @@ private:
 
         if (n_copy > 0) {
             std::int64_t offset = 0;
-            if (bord == borders::low)
+            if (edge == ws_edge::low)
                 offset = n_select - n_copy;
-            kernel_event = dal::backend::copy(queue_,
-                                              ws_indices_ptr + n_selected_,
-                                              buff_indices_ptr + offset,
-                                              n_copy,
-                                              { kernel_event });
+            select_ws_edge_event = dal::backend::copy(queue_,
+                                                      ws_indices_ptr + n_selected_,
+                                                      buff_indices_ptr + offset,
+                                                      n_copy,
+                                                      { select_ws_edge_event });
         }
 
         n_selected_ += n_copy;
 
-        return kernel_event;
+        return select_ws_edge_event;
     }
 
     sycl::queue queue_;
@@ -180,8 +189,8 @@ private:
     Float C_;
 
     pr::ndarray<std::uint32_t, 1> sorted_f_inices_;
-    pr::ndarray<std::uint32_t, 1> indicator_;
     pr::ndarray<std::uint32_t, 1> buff_indices_;
+    pr::ndarray<std::uint8_t, 1> indicator_;
     pr::ndarray<Float, 1> values_sort_;
     pr::ndarray<Float, 1> labels_;
 }; // namespace oneapi::dal::svm::backend

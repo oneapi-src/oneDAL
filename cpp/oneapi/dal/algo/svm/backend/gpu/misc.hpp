@@ -23,12 +23,12 @@ namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
-enum class borders { up, low };
+enum class ws_edge { up, low };
 
-inline sycl::event make_range(sycl::queue& queue,
-                              pr::ndview<std::uint32_t, 1>& indices_sort,
-                              const std::int64_t n,
-                              const dal::backend::event_vector& deps = {}) {
+inline sycl::event arrange(sycl::queue& queue,
+                           pr::ndview<std::uint32_t, 1>& indices_sort,
+                           const std::int64_t n,
+                           const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(indices_sort.get_dimension(0) == n);
     ONEDAL_ASSERT(indices_sort.has_mutable_data());
 
@@ -37,16 +37,18 @@ inline sycl::event make_range(sycl::queue& queue,
     const auto wg_size = std::min(dal::backend::propose_wg_size(queue), n);
     const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
 
-    auto make_range_event = queue.submit([&](sycl::handler& cgh) {
+    auto arrange_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
 
         cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
             const std::uint32_t i = item.get_global_id(0);
-            indices_sort_ptr[i] = i;
+            if (i < n) {
+                indices_sort_ptr[i] = i;
+            }
         });
     });
 
-    return make_range_event;
+    return arrange_event;
 }
 
 template <typename Float>
@@ -64,21 +66,21 @@ inline sycl::event arg_sort(sycl::queue& queue,
     Float* values_ptr = values.get_mutable_data();
 
     auto copy_event = dal::backend::copy(queue, values_ptr, f_ptr, n, deps);
-    auto make_range_event = make_range(queue, indices_sort, n);
+    auto arrange_event = arrange(queue, indices_sort, n);
     auto radix_sort = pr::radix_sort_indices_inplace<Float, std::uint32_t>{ queue };
-    auto radix_sort_event = radix_sort(values, indices_sort, { copy_event, make_range_event });
+    auto radix_sort_event = radix_sort(values, indices_sort, { copy_event, arrange_event });
 
     return radix_sort_event;
 }
 
 template <typename Float>
-inline sycl::event check_borders(sycl::queue& queue,
+inline sycl::event check_ws_edge(sycl::queue& queue,
                                  const pr::ndview<Float, 1>& y,
                                  const pr::ndview<Float, 1>& alpha,
-                                 pr::ndview<std::uint32_t, 1>& indicator,
+                                 pr::ndview<std::uint8_t, 1>& indicator,
                                  const Float C,
                                  const std::int64_t n,
-                                 borders bord,
+                                 ws_edge edge,
                                  const dal::backend::event_vector& deps = {}) {
     ONEDAL_ASSERT(y.get_dimension(0) == n);
     ONEDAL_ASSERT(alpha.get_dimension(0) == n);
@@ -87,14 +89,14 @@ inline sycl::event check_borders(sycl::queue& queue,
 
     const Float* y_ptr = y.get_data();
     const Float* alpha_ptr = alpha.get_data();
-    std::uint32_t* indicator_ptr = indicator.get_mutable_data();
+    std::uint8_t* indicator_ptr = indicator.get_mutable_data();
 
     const auto wg_size = std::min(dal::backend::propose_wg_size(queue), n);
     const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
 
     sycl::event check_event;
 
-    if (bord == borders::up) {
+    if (edge == ws_edge::up) {
         check_event = queue.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
 
