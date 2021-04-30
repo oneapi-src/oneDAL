@@ -29,10 +29,6 @@
 namespace oneapi::dal::svm::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::regression>;
-using input_t = infer_input<task::regression>;
-using result_t = infer_result<task::regression>;
-using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_kernel_function = daal::algorithms::kernel_function;
@@ -42,11 +38,11 @@ template <typename Float, daal::CpuType Cpu>
 using daal_svm_predict_kernel_t =
     daal_svm::prediction::internal::SVMPredictImpl<daal_svm::prediction::defaultDense, Float, Cpu>;
 
-template <typename Float>
-static result_t call_daal_kernel(const context_cpu& ctx,
-                                 const descriptor_t& desc,
-                                 const model_t& trained_model,
-                                 const table& data) {
+template <typename Float, typename Task>
+static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const model<Task>& trained_model,
+                                           const table& data) {
     const std::int64_t row_count = data.get_row_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -82,25 +78,39 @@ static result_t call_daal_kernel(const context_cpu& ctx,
                                                                     *daal_decision_function,
                                                                     &daal_parameter));
 
-    return result_t().set_labels(
+    return infer_result<Task>().set_labels(
         dal::detail::homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build());
 }
 
-template <typename Float>
-static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
+template <typename Float, typename Task>
+static infer_result<Task> infer(const context_cpu& ctx,
+                                const detail::descriptor_base<Task>& desc,
+                                const infer_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
 }
 
 template <typename Float>
 struct infer_kernel_cpu<Float, method::by_default, task::regression> {
-    result_t operator()(const context_cpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) const {
-        return infer<Float>(ctx, desc, input);
+    infer_result<task::regression> operator()(const context_cpu& ctx,
+                                              const detail::descriptor_base<task::regression>& desc,
+                                              const infer_input<task::regression>& input) const {
+        return infer<Float, task::regression>(ctx, desc, input);
+    }
+};
+
+template <typename Float>
+struct infer_kernel_cpu<Float, method::by_default, task::nu_regression> {
+    infer_result<task::nu_regression> operator()(
+        const context_cpu& ctx,
+        const detail::descriptor_base<task::nu_regression>& desc,
+        const infer_input<task::nu_regression>& input) const {
+        return infer<Float, task::nu_regression>(ctx, desc, input);
     }
 };
 
 template struct infer_kernel_cpu<float, method::by_default, task::regression>;
 template struct infer_kernel_cpu<double, method::by_default, task::regression>;
+template struct infer_kernel_cpu<float, method::by_default, task::nu_regression>;
+template struct infer_kernel_cpu<double, method::by_default, task::nu_regression>;
 
 } // namespace oneapi::dal::svm::backend
