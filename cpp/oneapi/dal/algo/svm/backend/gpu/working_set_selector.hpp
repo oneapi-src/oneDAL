@@ -63,27 +63,20 @@ public:
         indicator_ = indicator;
     }
 
-    sycl::event copy_last_to_first(pr::ndview<std::uint32_t, 1>& ws_indices,
-                                   const dal::backend::event_vector& deps = {}) {
-        ONEDAL_ASSERT(ws_indices.get_dimension(0) == n_ws_);
-        ONEDAL_ASSERT(ws_indices.has_mutable_data());
-        const std::int64_t q = n_ws_ / 2;
-        std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
-        auto copy_event =
-            dal::backend::copy(queue_, ws_indices_ptr, ws_indices_ptr + q, n_ws_ - q, deps);
-        n_selected_ = q;
-        return copy_event;
-    }
-
     sycl::event select(const pr::ndview<Float, 1>& alpha,
                        const pr::ndview<Float, 1>& f,
                        pr::ndview<std::uint32_t, 1>& ws_indices,
+                       const std::uint32_t iteration_count,
                        const dal::backend::event_vector& deps = {}) {
         ONEDAL_ASSERT(labels_.get_dimension(0) == alpha.get_dimension(0));
         ONEDAL_ASSERT(labels_.get_dimension(0) == f.get_dimension(0));
         ONEDAL_ASSERT(alpha.get_dimension(0) == f.get_dimension(0));
         ONEDAL_ASSERT(ws_indices.get_dimension(0) == n_ws_);
         ONEDAL_ASSERT(ws_indices.has_mutable_data());
+
+        if (iteration_count > 0) {
+            copy_last_to_first(ws_indices, deps);
+        }
 
         auto arg_sort_event = arg_sort(queue_, f, values_sort_, sorted_f_inices_, n_vectors_, deps);
 
@@ -179,6 +172,18 @@ private:
         n_selected_ += n_copy;
 
         return select_ws_edge_event;
+    }
+
+    sycl::event copy_last_to_first(pr::ndview<std::uint32_t, 1>& ws_indices,
+                                   const dal::backend::event_vector& deps = {}) {
+        ONEDAL_ASSERT(ws_indices.get_dimension(0) == n_ws_);
+        ONEDAL_ASSERT(ws_indices.has_mutable_data());
+        const std::int64_t q = n_ws_ / 2;
+        std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
+        auto copy_event =
+            dal::backend::copy(queue_, ws_indices_ptr, ws_indices_ptr + q, n_ws_ - q, deps);
+        n_selected_ = q;
+        return copy_event;
     }
 
     sycl::queue queue_;

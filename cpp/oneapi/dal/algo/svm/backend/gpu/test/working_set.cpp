@@ -61,6 +61,7 @@ public:
         ws.select(alpha_ndarray,
                   f_ndarray,
                   ws_indices,
+                  0,
                   { assign_f_event, assign_y_event, assign_alpha_event })
             .wait_and_throw();
 
