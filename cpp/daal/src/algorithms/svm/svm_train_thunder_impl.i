@@ -90,7 +90,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
     const size_t nVectors = xTable->getNumberOfRows();
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nVectors, 2);
-    const size_t nTrainVectors = svmType == SvmType::regression ? nVectors * 2 : nVectors;
+    const size_t nTrainVectors = (svmType == SvmType::regression || svmType == SvmType::nu_regression) ? nVectors * 2 : nVectors;
     TArray<algorithmFPType, cpu> yTArray(nTrainVectors);
     DAAL_CHECK_MALLOC(yTArray.get());
     algorithmFPType * const y = yTArray.get();
@@ -108,7 +108,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     algorithmFPType * const cw = cwTArray.get();
 
     size_t nNonZeroWeights = nTrainVectors;
-    if (svmType == SvmType::classification)
+    if (svmType == SvmType::classification || svmType == SvmType::nu_classification)
     {
         DAAL_CHECK_STATUS(status, classificationInit(yTable, wTable, C, y, grad, alpha, cw, nNonZeroWeights, nu, svmType));
     }
@@ -511,11 +511,13 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
         char IBi = free;
         IBi |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBi, alphaLocal[Bi], cwBi) ? up : free;
         IBi |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBi, alphaLocal[Bi], cwBi) ? low : free;
+        IBi |= (yBi > 0) ? positive : negative;
         I[Bi] = IBi;
 
         char IBj = free;
         IBj |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yBj, alphaLocal[Bj], cwBj) ? up : free;
         IBj |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yBj, alphaLocal[Bj], cwBj) ? low : free;
+        IBj |= (yBj > 0) ? positive : negative;
         I[Bj] = IBj;
 
         const algorithmFPType * const KBjBlock = &kernelLocal[Bj * nWS];

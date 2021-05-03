@@ -66,9 +66,11 @@ public:
         DAAL_ITTNOTIFY_SCOPED_TASK(saveResult);
 
         services::Status s;
+
+        /* Calculate bias and write it into model */
         model.setBias(double(calculateBias(cw)));
 
-        if (_task == SvmType::regression)
+        if (_task == SvmType::regression || _task == SvmType::nu_regression)
         {
             for (size_t i = 0; i < _nVectors; ++i)
             {
@@ -99,8 +101,6 @@ public:
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
         DAAL_CHECK_STATUS(s, setSVIndices(nSV, model));
         DAAL_CHECK_STATUS(s, setSVByIndices(xTable.get(), model.getSupportIndices(), model.getSupportVectors()));
-
-        /* Calculate bias and write it into model */
 
         return s;
     }
