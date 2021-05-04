@@ -202,7 +202,7 @@ public:
     std::array<std::int32_t, 5> degrees = { 2, 4, 2, 4, 4 };
     std::array<std::int32_t, 16> cols = { 1, 4, 0, 2, 1, 1, 1, 3, 2, 4, 3, 3, 0, 3, 4, 4 };
     std::array<std::int64_t, 6> rows = { 0, 2, 6, 8, 12, 16 };
-    std::array<std::int32_t, 5> labels = { 0, 0, 0, 0, 0 };
+    std::array<std::int32_t, 5> labels = { 1, 0, 1, 0, 1 };
 };
 
 class path_3_self_loops_type : public graph_base_data {
@@ -216,7 +216,7 @@ public:
     std::array<std::int32_t, 3> degrees = { 3, 2, 3 };
     std::array<std::int32_t, 8> cols = { 1, 0, 0, 0, 2, 1, 2, 2 };
     std::array<std::int64_t, 4> rows = { 0, 3, 5, 8 };
-    std::array<std::int32_t, 3> labels = { 0, 0, 0 };
+    std::array<std::int32_t, 3> labels = { 1, 0, 1 };
 };
 
 class self_matching_type : public graph_base_data {
@@ -964,6 +964,280 @@ public:
                                             0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 };
 };
 
+class linked_k_5_k_6_type : public graph_base_data {
+public:
+    linked_k_5_k_6_type() {
+        vertex_count = 11;
+        edge_count = 26;
+        cols_count = 52;
+        rows_count = 12;
+    }
+    std::array<std::int32_t, 11> degrees = { 5, 4, 4, 4, 4, 6, 5, 5, 5, 5, 5 };
+    std::array<std::int32_t, 52> cols = { 1,  2, 3, 4, 5, 0,  2, 3,  4, 0, 1,  3, 4, 0,  1, 2, 4, 0,
+                                          1,  2, 3, 6, 7, 8,  9, 10, 0, 5, 7,  8, 9, 10, 5, 6, 8, 9,
+                                          10, 5, 6, 7, 9, 10, 5, 6,  7, 8, 10, 5, 6, 7,  8, 9 };
+    std::array<std::int64_t, 12> rows = { 0, 5, 9, 13, 17, 21, 27, 32, 37, 42, 47, 52 };
+    std::array<std::int32_t, 11> labels = { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 };
+};
+
+class center_cycles_target_type : public graph_base_data {
+public:
+    center_cycles_target_type() {
+        vertex_count = 25;
+        edge_count = 48;
+        cols_count = 96;
+        rows_count = 26;
+    }
+    std::array<std::int32_t, 25> degrees = { 12, 5, 2, 5, 2, 5, 2, 5, 2, 5, 2, 5, 2,
+                                             5,  2, 5, 2, 5, 2, 5, 2, 5, 2, 5, 2 };
+    std::array<std::int32_t, 96> cols = { 1, 9,  17, 3,  11, 19, 5,  13, 21, 7,  15, 23, 2,  8,
+                                          0, 9,  17, 1,  3,  2,  4,  0,  11, 19, 3,  5,  4,  6,
+                                          0, 13, 21, 5,  7,  6,  8,  0,  15, 23, 7,  1,  10, 16,
+                                          0, 1,  17, 9,  11, 10, 12, 0,  3,  19, 11, 13, 12, 14,
+                                          0, 5,  21, 13, 15, 14, 16, 0,  7,  23, 15, 9,  18, 24,
+                                          0, 1,  9,  17, 19, 18, 20, 0,  3,  11, 19, 21, 20, 22,
+                                          0, 5,  13, 21, 23, 22, 24, 0,  7,  15, 23, 17 };
+    std::array<std::int64_t, 26> rows = { 0,  12, 17, 19, 24, 26, 31, 33, 38, 40, 45, 47, 52,
+                                          54, 59, 61, 66, 68, 73, 75, 80, 82, 87, 89, 94, 96 };
+    std::array<std::int32_t, 25> labels = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
+                                            2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3 };
+};
+
+class center_cycles_pattern_type : public graph_base_data {
+public:
+    center_cycles_pattern_type() {
+        vertex_count = 25;
+        edge_count = 36;
+        cols_count = 72;
+        rows_count = 26;
+    }
+    std::array<std::int32_t, 25> degrees = { 12, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2,
+                                             3,  2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2 };
+    std::array<std::int32_t, 72> cols = { 1,  9,  17, 3,  11, 19, 5,  13, 21, 7, 15, 23, 2,  8,  0,
+                                          1,  3,  2,  4,  0,  3,  5,  4,  6,  0, 5,  7,  6,  8,  0,
+                                          7,  1,  10, 16, 0,  9,  11, 10, 12, 0, 11, 13, 12, 14, 0,
+                                          13, 15, 14, 16, 0,  15, 9,  18, 24, 0, 17, 19, 18, 20, 0,
+                                          19, 21, 20, 22, 0,  21, 23, 22, 24, 0, 23, 17 };
+    std::array<std::int64_t, 26> rows = { 0,  12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40,
+                                          42, 45, 47, 50, 52, 55, 57, 60, 62, 65, 67, 70, 72 };
+    std::array<std::int32_t, 25> labels = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
+                                            2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3 };
+};
+
+class difficult_graph_labeled_type : public graph_base_data {
+public:
+    difficult_graph_labeled_type() {
+        vertex_count = 16;
+        edge_count = 29;
+        cols_count = 58;
+        rows_count = 17;
+    }
+    std::array<std::int32_t, 16> degrees = { 3, 2, 2, 6, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 3, 3 };
+    std::array<std::int32_t, 58> cols = { 2,  1,  3,  0,  2,  0,  1,  4,  7,  6,  5,  8,
+                                          0,  3,  6,  5,  7,  7,  4,  6,  3,  4,  5,  3,
+                                          7,  3,  5,  6,  4,  9,  11, 3,  10, 8,  11, 10,
+                                          13, 9,  11, 8,  9,  8,  10, 12, 13, 15, 14, 11,
+                                          12, 14, 9,  15, 13, 15, 12, 12, 14, 13 };
+    std::array<std::int64_t, 17> rows = { 0,  3,  5,  7,  13, 17, 21, 25, 29,
+                                          33, 37, 40, 44, 48, 52, 55, 58 };
+    std::array<std::int32_t, 16> labels = { 0, 1, 2, 0, 1, 2, 1, 2, 2, 0, 1, 0, 0, 0, 1, 2 };
+};
+
+class triangles_edge_link_labeled_type : public graph_base_data {
+public:
+    triangles_edge_link_labeled_type() {
+        vertex_count = 6;
+        edge_count = 7;
+        cols_count = 14;
+        rows_count = 7;
+    }
+    std::array<std::int32_t, 6> degrees = { 2, 2, 3, 3, 2, 2 };
+    std::array<std::int32_t, 14> cols = { 1, 2, 0, 2, 1, 3, 0, 4, 2, 5, 3, 5, 4, 3 };
+    std::array<std::int64_t, 7> rows = { 0, 2, 4, 7, 10, 12, 14 };
+    std::array<std::int32_t, 6> labels = { 1, 2, 0, 0, 2, 1 };
+};
+
+class path_4_type : public graph_base_data {
+public:
+    path_4_type() {
+        vertex_count = 4;
+        edge_count = 3;
+        cols_count = 6;
+        rows_count = 5;
+    }
+    std::array<std::int32_t, 4> degrees = { 1, 2, 2, 1 };
+    std::array<std::int32_t, 6> cols = { 1, 0, 2, 1, 3, 2 };
+    std::array<std::int64_t, 5> rows = { 0, 1, 3, 5, 6 };
+    std::array<std::int32_t, 4> labels = { 0, 3, 3, 3 };
+};
+
+class wheel_11_labeled_type : public graph_base_data {
+public:
+    wheel_11_labeled_type() {
+        vertex_count = 11;
+        edge_count = 20;
+        cols_count = 40;
+        rows_count = 12;
+    }
+    std::array<std::int32_t, 11> degrees = { 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+    std::array<std::int32_t, 40> cols = { 2, 5, 8, 1, 7, 4, 10, 3,  9, 6, 0, 2, 10, 0,
+                                          1, 3, 4, 0, 2, 3, 5,  0,  0, 4, 6, 5, 7,  0,
+                                          0, 6, 8, 9, 0, 7, 8,  10, 0, 9, 0, 1 };
+    std::array<std::int64_t, 12> rows = { 0, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40 };
+    std::array<std::int32_t, 11> labels = { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+};
+
+class cycle_4_type : public graph_base_data {
+public:
+    cycle_4_type() {
+        vertex_count = 4;
+        edge_count = 4;
+        cols_count = 8;
+        rows_count = 5;
+    }
+    std::array<std::int32_t, 4> degrees = { 2, 2, 2, 2 };
+    std::array<std::int32_t, 8> cols = { 1, 3, 0, 2, 1, 3, 2, 0 };
+    std::array<std::int64_t, 5> rows = { 0, 2, 4, 6, 8 };
+    std::array<std::int32_t, 4> labels = { 0, 1, 1, 1 };
+};
+
+class k_6_labeled_type : public graph_base_data {
+public:
+    k_6_labeled_type() {
+        vertex_count = 6;
+        edge_count = 15;
+        cols_count = 30;
+        rows_count = 7;
+    }
+    std::array<std::int32_t, 6> degrees = { 5, 5, 5, 5, 5, 5 };
+    std::array<std::int32_t, 30> cols = { 1, 4, 3, 2, 5, 0, 2, 5, 4, 3, 4, 1, 3, 0, 5,
+                                          4, 0, 2, 1, 5, 2, 0, 3, 1, 5, 1, 4, 0, 2, 3 };
+    std::array<std::int64_t, 7> rows = { 0, 5, 10, 15, 20, 25, 30 };
+    std::array<std::int32_t, 6> labels = { 0, 0, 0, 0, 1, 1 };
+};
+
+class triangle_path_target_type : public graph_base_data {
+public:
+    triangle_path_target_type() {
+        vertex_count = 10;
+        edge_count = 11;
+        cols_count = 22;
+        rows_count = 11;
+    }
+    std::array<std::int32_t, 10> degrees = { 1, 3, 2, 3, 2, 3, 2, 3, 2, 1 };
+    std::array<std::int32_t, 22> cols = { 1, 0, 2, 3, 1, 3, 1, 2, 4, 3, 5,
+                                          4, 6, 7, 5, 7, 5, 6, 8, 7, 9, 8 };
+    std::array<std::int64_t, 11> rows = { 0, 1, 4, 6, 9, 11, 14, 16, 19, 21, 22 };
+    std::array<std::int32_t, 10> labels = { 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
+};
+
+class triangle_path_pattern_type : public graph_base_data {
+public:
+    triangle_path_pattern_type() {
+        vertex_count = 10;
+        edge_count = 10;
+        cols_count = 20;
+        rows_count = 11;
+    }
+    std::array<std::int32_t, 10> degrees = { 1, 2, 2, 2, 2, 2, 3, 2, 3, 1 };
+    std::array<std::int32_t, 20> cols = {
+        1, 0, 2, 1, 3, 2, 4, 3, 5, 4, 6, 5, 7, 8, 6, 8, 6, 7, 9, 8
+    };
+    std::array<std::int64_t, 11> rows = { 0, 1, 3, 5, 7, 9, 11, 14, 16, 19, 20 };
+    std::array<std::int32_t, 10> labels = { 1, 0, 0, 0, 0, 0, 0, 1, 0, 1 };
+};
+
+class tree_1_3_25_target_type : public graph_base_data {
+public:
+    tree_1_3_25_target_type() {
+        vertex_count = 25;
+        edge_count = 48;
+        cols_count = 96;
+        rows_count = 26;
+    }
+    std::array<std::int32_t, 25> degrees = { 8, 6, 3, 3, 3, 4, 3, 6, 3, 3, 3, 4, 3,
+                                             6, 3, 3, 3, 4, 3, 6, 3, 3, 3, 4, 3 };
+    std::array<std::int32_t, 96> cols = { 1,  5,  7,  11, 13, 17, 19, 23, 0,  2,  3,  4,  5,  23,
+                                          1,  3,  24, 1,  2,  4,  1,  3,  6,  0,  6,  1,  7,  5,
+                                          4,  8,  0,  8,  9,  10, 5,  11, 7,  6,  9,  7,  8,  10,
+                                          7,  9,  12, 0,  12, 7,  13, 11, 10, 14, 0,  14, 15, 16,
+                                          11, 17, 13, 12, 15, 13, 14, 16, 13, 15, 18, 0,  18, 13,
+                                          19, 17, 16, 20, 0,  20, 21, 22, 17, 23, 19, 18, 21, 19,
+                                          20, 22, 19, 21, 24, 0,  24, 19, 1,  23, 22, 2 };
+    std::array<std::int64_t, 26> rows = { 0,  8,  14, 17, 20, 23, 27, 30, 36, 39, 42, 45, 49,
+                                          52, 58, 61, 64, 67, 71, 74, 80, 83, 86, 89, 93, 96 };
+    std::array<std::int32_t, 25> labels = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                            3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4 };
+};
+
+class tree_1_3_25_pattern_type : public graph_base_data {
+public:
+    tree_1_3_25_pattern_type() {
+        vertex_count = 25;
+        edge_count = 24;
+        cols_count = 48;
+        rows_count = 26;
+    }
+    std::array<std::int32_t, 25> degrees = { 8, 4, 1, 1, 1, 2, 1, 4, 1, 1, 1, 2, 1,
+                                             4, 1, 1, 1, 2, 1, 4, 1, 1, 1, 2, 1 };
+    std::array<std::int32_t, 48> cols = { 1,  5,  7,  11, 13, 17, 19, 23, 0,  2,  3,  4,
+                                          1,  1,  1,  0,  6,  5,  0,  8,  9,  10, 7,  7,
+                                          7,  0,  12, 11, 0,  14, 15, 16, 13, 13, 13, 0,
+                                          18, 17, 0,  20, 21, 22, 19, 19, 19, 0,  24, 23 };
+    std::array<std::int64_t, 26> rows = { 0,  8,  12, 13, 14, 15, 17, 18, 22, 23, 24, 25, 27,
+                                          28, 32, 33, 34, 35, 37, 38, 42, 43, 44, 45, 47, 48 };
+    std::array<std::int32_t, 25> labels = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
+                                            3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4 };
+};
+
+class k_4_type : public graph_base_data {
+public:
+    k_4_type() {
+        vertex_count = 4;
+        edge_count = 4;
+        cols_count = 8;
+        rows_count = 5;
+    }
+    std::array<std::int32_t, 4> degrees = { 2, 2, 2, 2 };
+    std::array<std::int32_t, 8> cols = { 1, 3, 0, 2, 1, 3, 2, 0 };
+    std::array<std::int64_t, 5> rows = { 0, 2, 4, 6, 8 };
+    std::array<std::int32_t, 4> labels = { 0, 1, 1, 1 };
+};
+
+class paths_1_2_5_type : public graph_base_data {
+public:
+    paths_1_2_5_type() {
+        vertex_count = 9;
+        edge_count = 8;
+        cols_count = 16;
+        rows_count = 10;
+    }
+    std::array<std::int32_t, 9> degrees = { 3, 1, 2, 1, 2, 2, 2, 2, 1 };
+    std::array<std::int32_t, 16> cols = { 1, 2, 4, 0, 3, 0, 2, 5, 0, 4, 6, 5, 7, 6, 8, 7 };
+    std::array<std::int64_t, 10> rows = { 0, 3, 4, 6, 7, 9, 11, 13, 15, 16 };
+    std::array<std::int32_t, 9> labels = { 1, 1, 1, 0, 0, 0, 0, 0, 0 };
+};
+
+class path_25_type : public graph_base_data {
+public:
+    path_25_type() {
+        vertex_count = 25;
+        edge_count = 24;
+        cols_count = 48;
+        rows_count = 26;
+    }
+    std::array<std::int32_t, 25> degrees = { 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                                             2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1 };
+    std::array<std::int32_t, 48> cols = { 1,  0,  2,  1,  3,  2,  4,  3,  5,  4,  6,  5,
+                                          7,  6,  8,  7,  9,  8,  10, 9,  11, 10, 12, 11,
+                                          13, 12, 14, 13, 15, 14, 16, 15, 17, 16, 18, 17,
+                                          19, 18, 20, 19, 21, 20, 22, 21, 23, 22, 24, 23 };
+    std::array<std::int64_t, 26> rows = { 0,  1,  3,  5,  7,  9,  11, 13, 15, 17, 19, 21, 23,
+                                          25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 48 };
+    std::array<std::int32_t, 25> labels = { 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 };
+};
+
 class subgraph_isomorphism_test {
 public:
     using my_graph_type = dal::preview::undirected_adjacency_vector_graph<std::int32_t>;
@@ -1060,8 +1334,8 @@ public:
                                                reverse_permutation[edge.second]);
             }
         }
+        std::sort(subgraph_edgelist.begin(), subgraph_edgelist.end());
         if (is_induced) {
-            std::sort(subgraph_edgelist.begin(), subgraph_edgelist.end());
             return subgraph_edgelist == pattern_edgelist;
         }
         for (const auto &edge : pattern_edgelist) {
@@ -1139,7 +1413,6 @@ public:
 
         const auto result =
             dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
-        // print_table_int_sorted(result.get_vertex_match());
         REQUIRE(expected_match_count == result.get_match_count());
         REQUIRE(check_isomorphism_result<TargetGraphType, PatternGraphType>(
             result.get_vertex_match(),
@@ -1444,6 +1717,286 @@ TEST_M(
                                                                          0,
                                                                          100,
                                                                          true);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced: Bit target representation, edge count > number of threads") {
+    this->check_subgraph_isomorphism<linked_3_k_6_type, linked_k_5_k_6_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        86400,
+        false);
+}
+
+TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, all matches check") {
+    this->check_subgraph_isomorphism<cycle_5_self_loops_type, path_3_self_loops_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        4,
+        false);
+    this->check_subgraph_isomorphism<difficult_graph_labeled_type,
+                                     triangles_edge_link_labeled_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        336,
+        false);
+    this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_pattern_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        36,
+        false);
+    this->check_subgraph_isomorphism<self_matching_type, path_4_type>(false,
+                                                                      isomorphism_kind::non_induced,
+                                                                      0,
+                                                                      162,
+                                                                      false);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced: Bit target representation, max_match_count > total number of SI") {
+    this->check_subgraph_isomorphism<wheel_11_labeled_type, cycle_4_type>(
+        false,
+        isomorphism_kind::non_induced,
+        81,
+        80,
+        false);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced: Bit target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<k_6_labeled_type, k_5_without_edge_labeled_type>(
+        false,
+        isomorphism_kind::non_induced,
+        50,
+        50,
+        false);
+}
+
+TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, single match") {
+    this->check_subgraph_isomorphism<triangle_path_target_type, triangle_path_pattern_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        1,
+        false);
+}
+
+TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, no matches") {
+    this->check_subgraph_isomorphism<tree_1_3_25_pattern_type, tree_1_3_25_target_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        0,
+        false);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced: List target representation, vertex count > number of threads & edge count > number of threads") {
+    this->check_subgraph_isomorphism<lolipop_5_100_type, lolipop_5_100_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        24,
+        false);
+}
+
+TEST_M(subgraph_isomorphism_test, "Non-induced: List target representation, all matches check") {
+    this->check_subgraph_isomorphism<wheel_201_type, k_4_type>(false,
+                                                               isomorphism_kind::non_induced,
+                                                               0,
+                                                               1600,
+                                                               false);
+    this->check_subgraph_isomorphism<lolipop_5_100_type, k_4_type>(false,
+                                                                   isomorphism_kind::non_induced,
+                                                                   0,
+                                                                   120,
+                                                                   false);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced: List target representation, max_match_count > total number of SI") {
+    this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
+        false,
+        isomorphism_kind::non_induced,
+        50,
+        48,
+        false);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced: List target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<wheel_201_type, star_3_type>(false,
+                                                                  isomorphism_kind::non_induced,
+                                                                  100,
+                                                                  100,
+                                                                  false);
+}
+
+TEST_M(subgraph_isomorphism_test, "Non-induced: List target representation, no matches") {
+    this->check_subgraph_isomorphism<wheel_201_type, tree_pattern_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        0,
+        false);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: Bit target representation, vertex count > number of threads") {
+    this->check_subgraph_isomorphism<tree_1_3_25_target_type, tree_1_3_25_pattern_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        1296,
+        true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: Bit target representation, edge count > number of threads") {
+    this->check_subgraph_isomorphism<linked_3_k_6_type, linked_k_5_k_6_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        288,
+        true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: Bit target representation, vertex count > number of threads & edge count > number of threads") {
+    this->check_subgraph_isomorphism<center_cycles_target_type, center_cycles_pattern_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        512,
+        true);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced + labels on vertexes: Bit target representation, all matches check") {
+    this->check_subgraph_isomorphism<difficult_graph_labeled_type,
+                                     triangles_edge_link_labeled_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        12,
+        true);
+    this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_pattern_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        12,
+        true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: Bit target representation, max_match_count > total number of SI") {
+    this->check_subgraph_isomorphism<self_matching_type, path_4_type>(false,
+                                                                      isomorphism_kind::non_induced,
+                                                                      20,
+                                                                      12,
+                                                                      true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: Bit target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<wheel_11_labeled_type, cycle_4_type>(
+        false,
+        isomorphism_kind::non_induced,
+        19,
+        19,
+        true);
+    this->check_subgraph_isomorphism<k_6_labeled_type, k_5_without_edge_labeled_type>(
+        false,
+        isomorphism_kind::non_induced,
+        30,
+        30,
+        true);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced + labels on vertexes: Bit target representation, no matches") {
+    this->check_subgraph_isomorphism<cycle_5_self_loops_type, path_3_self_loops_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        0,
+        true);
+    this->check_subgraph_isomorphism<triangle_path_target_type, triangle_path_pattern_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        0,
+        true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: List target representation, vertex count > number of threads") {
+    this->check_subgraph_isomorphism<wheel_201_type, path_25_type>(false,
+                                                                   isomorphism_kind::non_induced,
+                                                                   0,
+                                                                   3,
+                                                                   true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: List target representation, vertex count > number of threads & edge count > number of threads") {
+    this->check_subgraph_isomorphism<lolipop_5_100_type, lolipop_5_100_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        4,
+        true);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced + labels on vertexes: List target representation, all matches check") {
+    this->check_subgraph_isomorphism<lolipop_5_100_type, k_4_type>(false,
+                                                                   isomorphism_kind::non_induced,
+                                                                   0,
+                                                                   12,
+                                                                   true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: List target representation, max_match_count > total number of SI") {
+    this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
+        false,
+        isomorphism_kind::non_induced,
+        10,
+        4,
+        true);
+}
+
+TEST_M(
+    subgraph_isomorphism_test,
+    "Non-induced + labels on vertexes: List target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<wheel_201_type, k_4_type>(false,
+                                                               isomorphism_kind::non_induced,
+                                                               1,
+                                                               1,
+                                                               true);
+}
+
+TEST_M(subgraph_isomorphism_test,
+       "Non-induced + labels on vertexes: LList target representation, no matches") {
+    this->check_subgraph_isomorphism<wheel_201_type, star_3_type>(false,
+                                                                  isomorphism_kind::non_induced,
+                                                                  0,
+                                                                  0,
+                                                                  true);
 }
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test
