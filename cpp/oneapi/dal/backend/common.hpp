@@ -63,6 +63,22 @@ inline constexpr Integer up_multiple(Integer x, Integer multiple) {
     return y + z;
 }
 
+/// Checks if 'x' is power of 2.
+/// Example: down_pow2(10) == false
+/// Example: down_pow2(16) == true
+template <typename Integer>
+inline constexpr bool is_pow2(Integer x) {
+    static_assert(std::is_integral_v<Integer>);
+    return !(x & (x - 1)) && (x > 0) ? true : false;
+}
+
+template <typename Integer>
+inline constexpr std::int64_t get_magnitude_bit_count() {
+    static_assert(std::is_integral_v<Integer>);
+    constexpr std::int64_t bit_count = sizeof(Integer) * 8;
+    return std::is_signed_v<Integer> ? bit_count - 1 : bit_count;
+}
+
 /// Finds the largest power of 2 number not larger than `x`.
 /// Return `x`, if `x` is already power of 2
 /// Example: down_pow2(10) == 8
@@ -71,11 +87,17 @@ template <typename Integer>
 inline constexpr Integer down_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
     ONEDAL_ASSERT(x > 0);
-    Integer power = 1;
-    while (power < x / 2) {
-        power *= 2;
+    Integer power = 0;
+    if (is_pow2(x)) {
+        return x;
     }
-    return power;
+
+    while (x > 1) {
+        x >>= 1;
+        power++;
+    }
+    ONEDAL_ASSERT(power < get_magnitude_bit_count<Integer>());
+    return 1 << power;
 }
 
 /// Finds the smallest power of 2 number not smaller than `x`.
