@@ -46,7 +46,6 @@ namespace internal
 using namespace daal::internal;
 using namespace daal::services;
 
-
 template <typename algorithmFPType, CpuType cpu>
 services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(size_t startRow, size_t numFeatures, size_t numRows,
                                                                                             NumericTable * dataTable, size_t numBetas,
@@ -81,11 +80,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
 } /* void PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses */
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(size_t startRow, size_t numRowsInBlock, NumericTable * dataTable,
-                                                                                               size_t numBetas, const algorithmFPType * beta,
-                                                                                               size_t numResponses, algorithmFPType * responseBlock,
-                                                                                               bool findBeta0, bool isHomogeneous,
-                                                                                               TlsMem<algorithmFPType, cpu> & tlsData)
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponsesSOA(
+    size_t startRow, size_t numRowsInBlock, NumericTable * dataTable, size_t numBetas, const algorithmFPType * beta, size_t numResponses,
+    algorithmFPType * responseBlock, bool findBeta0, bool isHomogeneous, TlsMem<algorithmFPType, cpu> & tlsData)
 {
     Status st;
     char trans                       = 'T';
@@ -109,8 +106,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
             DAAL_CHECK_BLOCK_STATUS(xBlock);
             const algorithmFPType * data = xBlock.get();
             Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRowsInBlock, (DAAL_INT *)&numColumnsInBlock,
-                                            &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&numRowsInData, &one,
-                                            responseBlock, (DAAL_INT *)&numResponses);
+                                               &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&numRowsInData, &one,
+                                               responseBlock, (DAAL_INT *)&numResponses);
         }
         else
         {
@@ -154,12 +151,12 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
     bool isHomogeneous = false;
     if (dataTable->getDataLayout() & NumericTableIface::soa)
     {
-        SOANumericTable * soaDataPtr                      = dynamic_cast<SOANumericTable *>(dataTable);
-        isHomogeneous = soaDataPtr->isHomogeneousFloatOrDouble();
-        auto f = (*(soaDataPtr->getDictionary()))[0];
+        SOANumericTable * soaDataPtr = dynamic_cast<SOANumericTable *>(dataTable);
+        isHomogeneous                = soaDataPtr->isHomogeneousFloatOrDouble();
+        auto f                       = (*(soaDataPtr->getDictionary()))[0];
         isHomogeneous &= data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
-        
-        for (size_t i = 1; i < numFeatures && isHomogeneous; i++)
+
+        for (size_t i = 1; i < numFeatures && isHomogeneous; ++i)
         {
             algorithmFPType * fisrtArrayPtr = (algorithmFPType *)(soaDataPtr->getArray(i - 1));
             algorithmFPType * lastArrayPtr  = (algorithmFPType *)(soaDataPtr->getArray(i));
@@ -169,11 +166,11 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
             }
         }
     }
-    
+
     /* Get linear regression coefficients */
     NumericTable * betaTable  = model->getBeta().get();
     const size_t numResponses = betaTable->getNumberOfRows();
-    const size_t numBetas    = betaTable->getNumberOfColumns();
+    const size_t numBetas     = betaTable->getNumberOfColumns();
 
     /* Retrieve data associated with coefficients */
     ReadRows<algorithmFPType, cpu> betaRows(betaTable, 0, numResponses);
@@ -199,8 +196,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         /* Calculate predictions */
         if (dataTable->getDataLayout() & NumericTableIface::soa)
         {
-            DAAL_CHECK_STATUS_THR(computeBlockOfResponsesSOA(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses,
-                                                             responseBlock, model->getInterceptFlag(), isHomogeneous, tlsData));
+            DAAL_CHECK_STATUS_THR(computeBlockOfResponsesSOA(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses, responseBlock,
+                                                             model->getInterceptFlag(), isHomogeneous, tlsData));
         }
         else
         {
