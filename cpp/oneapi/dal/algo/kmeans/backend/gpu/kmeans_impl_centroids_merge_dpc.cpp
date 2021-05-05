@@ -65,8 +65,10 @@ sycl::event merge_reduce_centroids(sycl::queue& queue,
                                    std::int64_t part_count,
                                    pr::ndview<Float, 2>& centroids,
                                    const bk::event_vector& deps) {
-    ONEDAL_ASSERT(partial_centroids.get_dimension(0) >= centroids.get_dimension(0) * part_count);
+    ONEDAL_ASSERT(partial_centroids.get_dimension(0) == centroids.get_dimension(0) * part_count);
+    ONEDAL_ASSERT(partial_centroids.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(counters.get_dimension(0) == centroids.get_dimension(0));
+    ONEDAL_ASSERT(counters.get_dimension(1) == 1);
     const Float* partial_centroids_ptr = partial_centroids.get_data();
     Float* centroids_ptr = centroids.get_mutable_data();
     const std::int32_t* counters_ptr = counters.get_data();

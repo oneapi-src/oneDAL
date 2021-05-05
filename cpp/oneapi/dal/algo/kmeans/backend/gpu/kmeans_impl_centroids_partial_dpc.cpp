@@ -63,10 +63,10 @@ sycl::event partial_reduce_centroids(sycl::queue& queue,
                                      std::int64_t part_count,
                                      pr::ndview<Float, 2>& partial_centroids,
                                      const bk::event_vector& deps) {
-    ONEDAL_ASSERT(data.get_dimension(1) * part_count <= partial_centroids.get_dimension(1));
-    ONEDAL_ASSERT(labels.get_dimension(0) >= data.get_dimension(0));
+    ONEDAL_ASSERT(data.get_dimension(1) == partial_centroids.get_dimension(1));
+    ONEDAL_ASSERT(partial_centroids.get_dimension(0) == cluster_count * part_count);
+    ONEDAL_ASSERT(labels.get_dimension(0) == data.get_dimension(0));
     ONEDAL_ASSERT(labels.get_dimension(1) == 1);
-    ONEDAL_ASSERT(partial_centroids.get_dimension(0) >= cluster_count * part_count);
     const Float* data_ptr = data.get_data();
     const std::int32_t* label_ptr = labels.get_data();
     Float* partial_centroids_ptr = partial_centroids.get_mutable_data();
