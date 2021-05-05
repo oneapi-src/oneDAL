@@ -104,7 +104,6 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
         const size_t numColumnsInBlock = (iBlock == numBlocks - 1) ? numFeatures - startColumn : blockSizeColumns;
 
         if (isHomogeneous)
-        // if (true)
         {
             ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRowsInBlock);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
@@ -147,33 +146,30 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
 
     /* Get numeric tables with input data */
     NumericTable * dataTable = const_cast<NumericTable *>(a);
-    bool isHomogeneous = false;
-    if (dataTable->getDataLayout() & NumericTableIface::soa)
-    {
-        isHomogeneous = static_cast<const SOANumericTable &>(*dataTable).isHomogeneousFloatOrDouble();
-        auto f = (*const_cast<NumericTable &>(*dataTable).getDictionary())[0];
-        isHomogeneous &= data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
-        // if (data_management::features::getIndexNumType<double>() == f.indexType){
-        //     printf("data DOUBLE\n");
-        // }
-        // if (data_management::features::getIndexNumType<float>() == f.indexType){
-        //     printf("data FLOAT\n");
-        // }
-    }
-    // printf("isHomogeneous = %d\n", (int)isHomogeneous);
-    // if (IsSameType<algorithmFPType, double>::value){
-    //     printf("algorithmFPType = DOUBLE\n");
-    // }
-    // if (IsSameType<algorithmFPType, float>::value){
-    //     printf("algorithmFPType = FLOAT\n");
-    // }
-
-    // printf("isHomogeneous = %d\n", (int)isHomogeneous);
 
     /* Get sizes of input data */
     const size_t numVectors  = dataTable->getNumberOfRows();
     const size_t numFeatures = dataTable->getNumberOfColumns();
 
+    bool isHomogeneous = false;
+    if (dataTable->getDataLayout() & NumericTableIface::soa)
+    {
+        SOANumericTable * soaDataPtr                      = dynamic_cast<SOANumericTable *>(dataTable);
+        isHomogeneous = soaDataPtr->isHomogeneousFloatOrDouble();
+        auto f = (*(soaDataPtr->getDictionary()))[0];
+        isHomogeneous &= data_management::features::getIndexNumType<algorithmFPType>() == f.indexType;
+        
+        for (size_t i = 1; i < numFeatures && isHomogeneous; i++)
+        {
+            algorithmFPType * fisrtArrayPtr = (algorithmFPType *)(soaDataPtr->getArray(i - 1));
+            algorithmFPType * lastArrayPtr  = (algorithmFPType *)(soaDataPtr->getArray(i));
+            if ((lastArrayPtr - fisrtArrayPtr) != numVectors)
+            {
+                isHomogeneous = false;
+            }
+        }
+    }
+    
     /* Get linear regression coefficients */
     NumericTable * betaTable  = model->getBeta().get();
     const size_t numResponses = betaTable->getNumberOfRows();
