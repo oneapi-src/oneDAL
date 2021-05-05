@@ -19,25 +19,40 @@
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::preview {
-namespace jaccard {
-namespace detail {
-struct tag {};
-class descriptor_impl;
+namespace oneapi::dal::preview::jaccard {
 
-} // namespace detail
+namespace task {
+struct all_vertex_pairs {};
+using by_default = all_vertex_pairs;
+} // namespace task
 
 namespace method {
 struct fast {};
 using by_default = fast;
 } // namespace method
 
+namespace detail {
+struct descriptor_tag {};
+
+template <typename Task>
+class descriptor_impl;
+
+template <typename Method>
+constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::fast>;
+
+template <typename Task>
+constexpr bool is_valid_task = dal::detail::is_one_of_v<Task, task::all_vertex_pairs>;
+
 /// The base class for the Jaccard similarity algorithm descriptor
-class ONEDAL_EXPORT descriptor_base : public base {
+template <typename Task = task::by_default>
+class descriptor_base : public base {
+    static_assert(is_valid_task<Task>);
+
 public:
-    using tag_t = detail::tag;
+    using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
+    using task_t = Task;
 
     descriptor_base();
 
@@ -52,19 +67,28 @@ protected:
     void set_block_impl(const std::initializer_list<std::int64_t>& row_range,
                         const std::initializer_list<std::int64_t>& column_range);
 
-    dal::detail::pimpl<detail::descriptor_impl> impl_;
+    dal::detail::pimpl<detail::descriptor_impl<task_t>> impl_;
 };
+
+} // namespace detail
 
 /// Class for the Jaccard similarity algorithm descriptor
 ///
 /// @tparam Float The data type of the result
 /// @tparam Method The algorithm method
-template <typename Float = float, typename Method = method::by_default>
-class descriptor : public descriptor_base {
-    using base_t = descriptor_base;
+template <typename Float = float,
+          typename Method = method::by_default,
+          typename Task = task::by_default>
+class descriptor : public detail::descriptor_base<Task> {
+    static_assert(detail::is_valid_method<Method>);
+    static_assert(detail::is_valid_task<Task>);
+
+    using base_t = detail::descriptor_base<Task>;
 
 public:
+    using float_t = Float;
     using method_t = Method;
+    using task_t = Task;
 
     /// Creates a new instance of the class with the default property values.
     descriptor() = default;
@@ -144,5 +168,4 @@ constexpr bool is_valid_graph =
 
 } // namespace detail
 
-} // namespace jaccard
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::jaccard

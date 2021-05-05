@@ -19,8 +19,7 @@
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
+namespace oneapi::dal::preview::triangle_counting {
 
 namespace task {
 struct local {};
@@ -150,5 +149,4 @@ constexpr bool is_valid_graph =
                                                                graph_allocator<Graph>>>;
 
 } // namespace detail
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting

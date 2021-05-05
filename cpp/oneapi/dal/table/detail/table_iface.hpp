@@ -49,7 +49,7 @@ public:
 
 class homogen_table_iface : public table_iface {
 public:
-    virtual const void* get_data() const = 0;
+    virtual array<byte_t> get_data() const = 0;
 };
 
 class table_builder_iface {
@@ -70,7 +70,6 @@ public:
     virtual void set_layout(data_layout layout) = 0;
     virtual void set_feature_type(feature_type ft) = 0;
 
-    virtual void move(homogen_table_iface& t) = 0;
     virtual void reset(const array<byte_t>& data,
                        std::int64_t row_count,
                        std::int64_t column_count) = 0;
