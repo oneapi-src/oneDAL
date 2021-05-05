@@ -33,7 +33,6 @@ struct vertex_similarity_ops_dispatcher {
         const Policy &policy,
         const Descriptor &descriptor,
         vertex_similarity_input<Graph, task_t> &input) const {
-
         const std::int64_t row_begin = descriptor.get_row_range_begin();
         const std::int64_t row_end = descriptor.get_row_range_end();
         const std::int64_t column_begin = descriptor.get_column_range_begin();
