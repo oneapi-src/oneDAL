@@ -33,16 +33,6 @@ struct vertex_similarity_ops_dispatcher {
         const Policy &policy,
         const Descriptor &descriptor,
         vertex_similarity_input<Graph, task_t> &input) const {
-        const std::int64_t row_begin = descriptor.get_row_range_begin();
-        const std::int64_t row_end = descriptor.get_row_range_end();
-        const std::int64_t column_begin = descriptor.get_column_range_begin();
-        const std::int64_t column_end = descriptor.get_column_range_end();
-        const std::int64_t number_elements_in_block =
-            compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
-        if (number_elements_in_block == 0) {
-            return vertex_similarity_result();
-        }
-
         const auto &t = dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
 
         static auto impl = get_backend<Policy, Descriptor>(descriptor, t);
