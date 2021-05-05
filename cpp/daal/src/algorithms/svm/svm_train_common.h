@@ -43,7 +43,7 @@ enum SVMVectorStatus
     low      = 0x2,
     shrink   = 0x4,
     positive = 0x8,
-    negative = 0x16
+    negative = 0x10
 };
 
 enum class CheckClassLabels
