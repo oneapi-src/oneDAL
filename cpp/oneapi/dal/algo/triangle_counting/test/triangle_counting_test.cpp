@@ -198,7 +198,6 @@ public:
                            std::allocator<char>>(alloc)
                            .set_relabel(dal::preview::triangle_counting::relabel::yes);
 
-        const auto relabel = tc_desc.get_relabel();
         const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
         REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
     }
@@ -217,7 +216,6 @@ public:
                            std::allocator<char>>(alloc)
                            .set_relabel(dal::preview::triangle_counting::relabel::no);
 
-        const auto relabel = tc_desc.get_relabel();
         const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
         REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
     }
