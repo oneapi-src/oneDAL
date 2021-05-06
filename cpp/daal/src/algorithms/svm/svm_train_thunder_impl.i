@@ -634,14 +634,14 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const Num
 
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
 
-    TlsMem<uint32_t, cpu> tlsIndices(maxBlockSize);
-    TlsSum<algorithmFPType, cpu> tlsGrad(nVectors);
-    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+    StaticTlsMem<uint32_t, cpu> tlsIndices(maxBlockSize);
+    StaticTlsSum<algorithmFPType, cpu> tlsGrad(nVectors);
+    daal::static_threader_for(nBlocks, [&](const size_t iBlock, const size_t tid) {
         const size_t startRow     = iBlock * maxBlockSize;
         const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nVectors - iBlock * maxBlockSize;
 
-        uint32_t * const localIndices     = tlsIndices.local();
-        algorithmFPType * const localGrad = tlsGrad.local();
+        uint32_t * const localIndices     = tlsIndices.local(tid);
+        algorithmFPType * const localGrad = tlsGrad.local(tid);
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
