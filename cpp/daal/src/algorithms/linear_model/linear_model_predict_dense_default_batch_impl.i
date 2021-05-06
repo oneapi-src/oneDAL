@@ -47,13 +47,13 @@ using namespace daal::internal;
 using namespace daal::services;
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(size_t startRow, size_t numRows,
-                                                                                            NumericTable * dataTable, size_t numBetas,
-                                                                                            const algorithmFPType * beta, size_t numResponses,
-                                                                                            algorithmFPType * responseBlock, bool findBeta0)
+services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlockOfResponses(size_t startRow, size_t numRows, NumericTable * dataTable,
+                                                                                            size_t numBetas, const algorithmFPType * beta,
+                                                                                            size_t numResponses, algorithmFPType * responseBlock,
+                                                                                            bool findBeta0)
 {
     Status st;
-    const size_t numFeatures         = dataTable->getNumberOfColumns();
+    const size_t numFeatures = dataTable->getNumberOfColumns();
     /* Retrieve data blocks associated with input and resulting tables */
     ReadRows<algorithmFPType, cpu> dataRows(dataTable, startRow, numRows);
     DAAL_CHECK_BLOCK_STATUS(dataRows);
@@ -106,9 +106,9 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
             ReadColumns<algorithmFPType, cpu> xBlock(dataTable, startColumn, startRow, numRows);
             DAAL_CHECK_BLOCK_STATUS(xBlock);
             const algorithmFPType * data = xBlock.get();
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock,
-                                               &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&numRowsInData, &one,
-                                               responseBlock, (DAAL_INT *)&numResponses);
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock, &one,
+                                               beta + 1 + startColumn, (DAAL_INT *)&numBetas, data, (DAAL_INT *)&numRowsInData, &one, responseBlock,
+                                               (DAAL_INT *)&numResponses);
         }
         else
         {
@@ -120,8 +120,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
                 DAAL_CHECK_BLOCK_STATUS(xBlock);
                 services::internal::tmemcpy<algorithmFPType, cpu>(tlsLocal + i * blockSizeRows, xBlock.get(), numRows);
             }
-            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock,
-                                               &one, beta + 1 + startColumn, (DAAL_INT *)&numBetas, tlsLocal, (DAAL_INT *)&numBlockSizeColumns, &one,
+            Blas<algorithmFPType, cpu>::xxgemm(&trans, &trans, (DAAL_INT *)&numResponses, (DAAL_INT *)&numRows, (DAAL_INT *)&numColumnsInBlock, &one,
+                                               beta + 1 + startColumn, (DAAL_INT *)&numBetas, tlsLocal, (DAAL_INT *)&numBlockSizeColumns, &one,
                                                responseBlock, (DAAL_INT *)&numResponses);
         }
     }
@@ -130,8 +130,7 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::computeBlock
         const DAAL_INT zero = 0;
         for (size_t j = 0; j < numResponses; ++j)
         {
-            Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRows, &one, beta + j * numBetas, &zero, responseBlock + j,
-                                               (DAAL_INT *)&numResponses);
+            Blas<algorithmFPType, cpu>::xxaxpy((DAAL_INT *)&numRows, &one, beta + j * numBetas, &zero, responseBlock + j, (DAAL_INT *)&numResponses);
         }
     }
     return st;
@@ -202,8 +201,8 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         }
         else
         {
-            DAAL_CHECK_STATUS_THR(computeBlockOfResponses(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses,
-                                                          responseBlock, model->getInterceptFlag()));
+            DAAL_CHECK_STATUS_THR(
+                computeBlockOfResponses(startRow, numRowsInBlock, dataTable, numBetas, beta, numResponses, responseBlock, model->getInterceptFlag()));
         }
     }); /* daal::threader_for */
     return safeStat.detach();

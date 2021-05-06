@@ -64,8 +64,8 @@ public:
     services::Status compute(const NumericTable * a, const linear_model::Model * m, NumericTable * r);
 
 protected:
-    services::Status computeBlockOfResponses(size_t startRow, size_t numRows, NumericTable * dataTable, size_t numBetas,
-                                             const algorithmFpType * beta, size_t numResponses, algorithmFpType * responseBlock, bool findBeta0);
+    services::Status computeBlockOfResponses(size_t startRow, size_t numRows, NumericTable * dataTable, size_t numBetas, const algorithmFpType * beta,
+                                             size_t numResponses, algorithmFpType * responseBlock, bool findBeta0);
     services::Status computeBlockOfResponsesSOA(size_t startRow, size_t numRows, NumericTable * dataTable, size_t numBetas,
                                                 const algorithmFpType * beta, size_t numResponses, algorithmFpType * responseBlock, bool findBeta0,
                                                 bool isHomogeneous, TlsMem<algorithmFpType, cpu> & tlsData);
