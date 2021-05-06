@@ -24,6 +24,60 @@ namespace oneapi::dal::algo::triangle_counting::test {
 
 namespace gt = dal::graph::test;
 
+class complete_graph_5_type_tc : public gt::complete_graph_5_type {
+public:
+    std::int64_t global_triangle_count = 10;
+    std::array<std::int64_t, 5> local_triangles = { 6, 6, 6, 6, 6 };
+};
+
+class complete_graph_9_type_tc : public gt::complete_graph_9_type {
+public:
+    std::int64_t global_triangle_count = 84;
+    std::array<std::int64_t, 9> local_triangles = { 28, 28, 28, 28, 28, 28, 28, 28, 28 };
+};
+
+class acyclic_graph_8_type_tc : public gt::acyclic_graph_8_type {
+public:
+    std::int64_t global_triangle_count = 0;
+    std::array<std::int64_t, 8> local_triangles = { 0, 0, 0, 0, 0, 0, 0, 0 };
+};
+
+class two_vertices_graph_type_tc : public gt::two_vertices_graph_type {
+public:
+    std::int64_t global_triangle_count = 0;
+    std::array<std::int64_t, 2> local_triangles = { 0, 0 };
+};
+
+class cycle_graph_9_type_tc : public gt::cycle_graph_9_type {
+public:
+    std::int64_t global_triangle_count = 0;
+    std::array<std::int64_t, 9> local_triangles = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+};
+
+class triangle_graph_type_tc : public gt::triangle_graph_type {
+public:
+    std::int64_t global_triangle_count = 1;
+    std::array<std::int64_t, 3> local_triangles = { 1, 1, 1 };
+};
+
+class wheel_graph_6_type_tc : public gt::wheel_graph_6_type {
+public:
+    std::int64_t global_triangle_count = 5;
+    std::array<std::int64_t, 6> local_triangles = { 5, 2, 2, 2, 2, 2 };
+};
+
+class graph_with_isolated_vertices_10_type_tc : public gt::graph_with_isolated_vertices_10_type {
+public:
+    std::int64_t global_triangle_count = 5;
+    std::array<std::int64_t, 10> local_triangles = { 3, 2, 1, 0, 2, 4, 0, 1, 0, 2 };
+};
+
+class graph_with_isolated_vertex_11_type_tc : public gt::graph_with_isolated_vertex_11_type {
+public:
+    std::int64_t global_triangle_count = 120;
+    std::array<std::int64_t, 11> local_triangles = { 36, 36, 36, 36, 36, 0, 36, 36, 36, 36, 36 };
+};
+
 class triangle_counting_test {
 public:
     using my_graph_type = dal::preview::undirected_adjacency_vector_graph<>;
@@ -102,7 +156,7 @@ public:
         GraphType graph_data;
         const auto graph = create_graph<GraphType>();
         std::int64_t vertex_count = graph_data.get_vertex_count();
-        std::int64_t global_triangle_count = graph_data.get_triangle_count();
+        std::int64_t global_triangle_count = graph_data.global_triangle_count;
 
         std::allocator<char> alloc;
         const auto tc_desc = dal::preview::triangle_counting::descriptor<
@@ -134,84 +188,86 @@ public:
     void check_global_task_relabeled() {
         GraphType graph_data;
         const auto graph = create_graph<GraphType>();
-        std::int64_t global_triangle_count = graph_data.get_triangle_count();
+        std::int64_t global_triangle_count = graph_data.global_triangle_count;
 
         std::allocator<char> alloc;
         auto tc_desc = dal::preview::triangle_counting::descriptor<
-            float,
-            dal::preview::triangle_counting::method::ordered_count,
-            dal::preview::triangle_counting::task::global,
-            std::allocator<char>>(alloc).set_relabel(dal::preview::triangle_counting::relabel::yes);
+                           float,
+                           dal::preview::triangle_counting::method::ordered_count,
+                           dal::preview::triangle_counting::task::global,
+                           std::allocator<char>>(alloc)
+                           .set_relabel(dal::preview::triangle_counting::relabel::yes);
 
         const auto relabel = tc_desc.get_relabel();
-            const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
-            REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
+        const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
+        REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
     }
 
     template <typename GraphType>
     void check_global_task_not_relabeled() {
         GraphType graph_data;
         const auto graph = create_graph<GraphType>();
-        std::int64_t global_triangle_count = graph_data.get_triangle_count();
+        std::int64_t global_triangle_count = graph_data.global_triangle_count;
 
         std::allocator<char> alloc;
         auto tc_desc = dal::preview::triangle_counting::descriptor<
-            float,
-            dal::preview::triangle_counting::method::ordered_count,
-            dal::preview::triangle_counting::task::global,
-            std::allocator<char>>(alloc).set_relabel(dal::preview::triangle_counting::relabel::no);
+                           float,
+                           dal::preview::triangle_counting::method::ordered_count,
+                           dal::preview::triangle_counting::task::global,
+                           std::allocator<char>>(alloc)
+                           .set_relabel(dal::preview::triangle_counting::relabel::no);
 
         const auto relabel = tc_desc.get_relabel();
-            const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
-            REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
+        const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
+        REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
     }
 };
 
 TEST_M(triangle_counting_test, "local task for graphs with average_degree < 4") {
-    this->check_local_task<gt::complete_graph_5_type>();
-    this->check_local_task<gt::acyclic_graph_8_type>();
-    this->check_local_task<gt::two_vertices_graph_type>();
-    this->check_local_task<gt::cycle_graph_9_type>();
-    this->check_local_task<gt::triangle_graph_type>();
-    this->check_local_task<gt::wheel_graph_6_type>();
+    this->check_local_task<complete_graph_5_type_tc>();
+    this->check_local_task<acyclic_graph_8_type_tc>();
+    this->check_local_task<two_vertices_graph_type_tc>();
+    this->check_local_task<cycle_graph_9_type_tc>();
+    this->check_local_task<triangle_graph_type_tc>();
+    this->check_local_task<wheel_graph_6_type_tc>();
 }
 
 TEST_M(triangle_counting_test, "local task for graphs with average_degree >= 4") {
-    this->check_local_task<gt::complete_graph_9_type>();
-    this->check_local_task<gt::graph_with_isolated_vertex_11_type>();
+    this->check_local_task<complete_graph_9_type_tc>();
+    this->check_local_task<graph_with_isolated_vertex_11_type_tc>();
 }
 
 TEST_M(triangle_counting_test, "local_and_global task for graphs with average_degree < 4") {
-    this->check_local_and_global_task<gt::complete_graph_5_type>();
-    this->check_local_and_global_task<gt::acyclic_graph_8_type>();
-    this->check_local_and_global_task<gt::two_vertices_graph_type>();
-    this->check_local_and_global_task<gt::cycle_graph_9_type>();
-    this->check_local_and_global_task<gt::triangle_graph_type>();
-    this->check_local_and_global_task<gt::wheel_graph_6_type>();
+    this->check_local_and_global_task<complete_graph_5_type_tc>();
+    this->check_local_and_global_task<acyclic_graph_8_type_tc>();
+    this->check_local_and_global_task<two_vertices_graph_type_tc>();
+    this->check_local_and_global_task<cycle_graph_9_type_tc>();
+    this->check_local_and_global_task<triangle_graph_type_tc>();
+    this->check_local_and_global_task<wheel_graph_6_type_tc>();
 }
 
 TEST_M(triangle_counting_test, "local_and_global task for graphs with average_degree >= 4") {
-    this->check_local_and_global_task<gt::complete_graph_9_type>();
-    this->check_local_and_global_task<gt::graph_with_isolated_vertex_11_type>();
+    this->check_local_and_global_task<complete_graph_9_type_tc>();
+    this->check_local_and_global_task<graph_with_isolated_vertex_11_type_tc>();
 }
 
 TEST_M(triangle_counting_test, "global task for graphs with average_degree < 4") {
-    this->check_global_task_relabeled<gt::complete_graph_5_type>();
-    this->check_global_task_relabeled<gt::acyclic_graph_8_type>();
-    this->check_global_task_relabeled<gt::two_vertices_graph_type>();
-    this->check_global_task_relabeled<gt::cycle_graph_9_type>();
-    this->check_global_task_relabeled<gt::triangle_graph_type>();
-    this->check_global_task_relabeled<gt::wheel_graph_6_type>();
+    this->check_global_task_relabeled<complete_graph_5_type_tc>();
+    this->check_global_task_relabeled<acyclic_graph_8_type_tc>();
+    this->check_global_task_relabeled<two_vertices_graph_type_tc>();
+    this->check_global_task_relabeled<cycle_graph_9_type_tc>();
+    this->check_global_task_relabeled<triangle_graph_type_tc>();
+    this->check_global_task_relabeled<wheel_graph_6_type_tc>();
 }
 
 TEST_M(triangle_counting_test, "global task for relabeled graph with average_degree >= 4") {
-    this->check_global_task_relabeled<gt::complete_graph_9_type>();
-    this->check_global_task_relabeled<gt::graph_with_isolated_vertex_11_type>();
+    this->check_global_task_relabeled<complete_graph_9_type_tc>();
+    this->check_global_task_relabeled<graph_with_isolated_vertex_11_type_tc>();
 }
 
 TEST_M(triangle_counting_test, "global task for not relabeled graph with average_degree >= 4") {
-    this->check_global_task_not_relabeled<gt::complete_graph_9_type>();
-    this->check_global_task_not_relabeled<gt::graph_with_isolated_vertex_11_type>();
+    this->check_global_task_not_relabeled<complete_graph_9_type_tc>();
+    this->check_global_task_not_relabeled<graph_with_isolated_vertex_11_type_tc>();
 }
 
 } // namespace oneapi::dal::algo::triangle_counting::test
