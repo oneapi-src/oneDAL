@@ -187,8 +187,6 @@ services::Status PredictKernel<algorithmFPType, defaultDense, cpu>::compute(cons
         const size_t startRow       = iBlock * blockSizeRows;
         const size_t numRowsInBlock = (iBlock == numBlocks - 1) ? numVectors - startRow : blockSizeRows;
 
-        Status s;
-
         WriteOnlyRows<algorithmFPType, cpu> responseRows(r, startRow, numRowsInBlock);
         DAAL_CHECK_BLOCK_STATUS_THR(responseRows);
         algorithmFPType * responseBlock = responseRows.get();
