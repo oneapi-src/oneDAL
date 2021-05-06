@@ -139,6 +139,11 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
     DAAL_CHECK_STATUS_VAR(status);
 
+    if (svmType == SvmType::nu_classification || svmType == SvmType::nu_regression)
+    {
+        DAAL_CHECK_STATUS(status, initGrad(xTable, kernel, nVectors, nTrainVectors, cacheSize, y, alpha, grad));
+    }
+
     size_t iter = 0;
     for (; iter < maxIterations; ++iter)
     {
@@ -485,7 +490,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
 
         if (iter == 0)
         {
-            localEps = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
+            localEps  = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
+            localDiff = services::internal::max<cpu, algorithmFPType>(localDiff, localEps);
         }
         if (localDiff < localEps)
         {
@@ -597,6 +603,69 @@ bool SVMTrainImpl<thunder, algorithmFPType, cpu>::checkStopCondition(const algor
         return true;
     }
     return false;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
+                                                                       const size_t nVectors, const size_t nTrainVectors, const size_t cacheSize,
+                                                                       algorithmFPType * const y, algorithmFPType * const alpha,
+                                                                       algorithmFPType * grad)
+{
+    services::Status status;
+
+    TArray<algorithmFPType, cpu> deltaAlphaTArray(nVectors);
+    DAAL_CHECK_MALLOC(deltaAlphaTArray.get());
+    algorithmFPType * const deltaAlpha = deltaAlphaTArray.get();
+
+    const size_t nBlocks = nVectors / maxBlockSize + !!(nVectors % maxBlockSize);
+
+    SafeStatus safeStat;
+    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        const size_t startRow     = iBlock * maxBlockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nVectors - iBlock * maxBlockSize;
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < nRowsInBlock; ++i)
+        {
+            deltaAlpha[i + startRow] = alpha[i + startRow] * y[i + startRow];
+        }
+    });
+
+    size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
+
+    TlsMem<uint32_t, cpu> tlsIndices(maxBlockSize);
+    TlsSum<algorithmFPType, cpu> tlsGrad(nVectors);
+    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        const size_t startRow     = iBlock * maxBlockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nVectors - iBlock * maxBlockSize;
+
+        uint32_t * const localIndices     = tlsIndices.local();
+        algorithmFPType * const localGrad = tlsGrad.local();
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < nRowsInBlock; ++i)
+        {
+            localIndices[i] = i + startRow;
+        }
+
+        defaultCacheSize = services::internal::max<cpu, size_t>(nRowsInBlock, defaultCacheSize);
+        auto cachePtr = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nRowsInBlock, nVectors, xTable, kernel, status);
+        DAAL_CHECK_STATUS_THR(status);
+
+        algorithmFPType ** kernelSOARes = nullptr;
+        {
+            DAAL_ITTNOTIFY_SCOPED_TASK(getRowsBlock);
+
+            DAAL_CHECK_STATUS_THR(cachePtr->getRowsBlock(localIndices, nRowsInBlock, kernelSOARes));
+        }
+
+        DAAL_CHECK_STATUS_THR(updateGrad(kernelSOARes, deltaAlpha, localGrad, nVectors, nTrainVectors, nRowsInBlock));
+    });
+    tlsGrad.reduceTo(grad, nVectors);
+
+    return services::Status();
 }
 
 } // namespace internal

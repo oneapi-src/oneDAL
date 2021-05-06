@@ -68,6 +68,10 @@ private:
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
 
+    services::Status initGrad(const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel, const size_t nVectors,
+                              const size_t nTrainVectors, const size_t cacheSize, algorithmFPType * const y, algorithmFPType * const alpha,
+                              algorithmFPType * grad);
+
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
     static const size_t nNoChanges = 5;
     // The maximum numbers of iteration of the subtask is number of observation in WS x cInnerIterations.
