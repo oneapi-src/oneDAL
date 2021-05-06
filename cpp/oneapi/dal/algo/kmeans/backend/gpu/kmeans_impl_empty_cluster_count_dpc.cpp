@@ -23,11 +23,6 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
-    // TODO optimization/dispatching
-    return 16;
-}
-
 struct partial_counters {};
 
 struct merge_counters {};
@@ -40,7 +35,7 @@ sycl::event count_empty_clusters(sycl::queue& queue,
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
     ONEDAL_ASSERT(empty_cluster_count.get_dimension(0) == 1);
     const std::int32_t* counter_ptr = counters.get_data();
-    const auto sg_size_to_set = get_gpu_sg_size(queue);
+    const auto sg_size_to_set = get_recommended_sg_size(queue);
     std::int32_t* value_ptr = empty_cluster_count.get_mutable_data();
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);

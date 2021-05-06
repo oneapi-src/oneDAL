@@ -23,16 +23,6 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
-    // TODO optimization/dispatching
-    return 16;
-}
-
-static std::int64_t get_gpu_wg_count(sycl::queue& queue) {
-    // TODO optimization/dispatching
-    return 128;
-}
-
 struct partial_counters {};
 
 struct merge_counters {};
@@ -46,8 +36,8 @@ sycl::event count_clusters(sycl::queue& queue,
     ONEDAL_ASSERT(labels.get_dimension(1) == 1);
     const std::int32_t* label_ptr = labels.get_data();
     std::int32_t* counter_ptr = counters.get_mutable_data();
-    const auto sg_size_to_set = get_gpu_sg_size(queue);
-    const auto wg_count_to_set = get_gpu_wg_count(queue);
+    const auto sg_size_to_set = get_recommended_sg_size(queue);
+    const auto wg_count_to_set = get_recommended_wg_count(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         const auto row_count = labels.get_dimension(0);

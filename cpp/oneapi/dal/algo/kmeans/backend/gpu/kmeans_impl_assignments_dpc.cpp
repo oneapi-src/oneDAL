@@ -23,7 +23,7 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
+static std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
                                                std::int64_t column_count,
                                                std::int64_t preffered_wg_size) {
     const std::int64_t sg_max_size = bk::device_max_sg_size(queue);

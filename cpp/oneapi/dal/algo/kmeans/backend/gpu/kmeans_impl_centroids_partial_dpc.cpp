@@ -47,11 +47,6 @@ std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
     return part_count;
 }
 
-static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
-    // TODO optimization/dispatching
-    return 16;
-}
-
 template <typename T>
 struct centroid_reduction {};
 
@@ -72,7 +67,7 @@ sycl::event partial_reduce_centroids(sycl::queue& queue,
     Float* partial_centroids_ptr = partial_centroids.get_mutable_data();
     const auto row_count = data.get_dimension(0);
     const auto column_count = data.get_dimension(1);
-    const auto sg_size_to_set = get_gpu_sg_size(queue);
+    const auto sg_size_to_set = get_recommended_sg_size(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for<centroid_reduction<Float>>(

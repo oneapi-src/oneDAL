@@ -25,11 +25,6 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
-    // TODO optimization/dispatching
-    return 16;
-}
-
 template <typename T>
 struct compute_obj_function {};
 
@@ -43,7 +38,7 @@ sycl::event compute_objective_function(sycl::queue& queue,
     const Float* distance_ptr = closest_distances.get_data();
     Float* value_ptr = objective_function.get_mutable_data();
     const auto row_count = closest_distances.get_dimension(0);
-    const auto sg_size_to_set = get_gpu_sg_size(queue);
+    const auto sg_size_to_set = get_recommended_sg_size(queue);
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for<compute_obj_function<Float>>(

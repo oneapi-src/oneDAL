@@ -49,21 +49,21 @@ public:
         de::host_allocator<float_t>().deallocate(val_ptr, val.get_count());
     }
 
-    void run_obj_func_check(const pr::ndview<float_t, 2>& closest_distances) {
+    void run_obj_func_check(const pr::ndview<float_t, 2>& closest_distances, float_t tol = 1.0e-5) {
         auto obj_func = pr::ndarray<float_t, 1>::empty(this->get_queue(), 1);
         compute_objective_function(this->get_queue(), closest_distances, obj_func).wait_and_throw();
-        check_objective_function(closest_distances, obj_func.get_data()[0]);
+        check_objective_function(closest_distances, obj_func.get_data()[0], tol);
     }
 
     void check_objective_function(const pr::ndview<float_t, 2>& closest_distances,
-                                  float_t objective_function_value) {
+                                  float_t objective_function_value,
+                                  float_t tol) {
         auto row_count = closest_distances.get_shape()[0];
         auto min_distance_ptr = closest_distances.get_data();
         float_t sum = 0.0;
         for (std::int64_t i = 0; i < row_count; i++) {
             sum += min_distance_ptr[i];
         }
-        float_t tol = 1.0e-5;
         CAPTURE(sum, objective_function_value);
         REQUIRE(std::fabs(sum - objective_function_value) /
                     std::max(std::fabs(sum), std::fabs(objective_function_value)) <
@@ -83,7 +83,8 @@ public:
     void run_partial_reduce(const pr::ndview<float_t, 2>& data,
                             const pr::ndview<int32_t, 2>& labels,
                             std::int64_t cluster_count,
-                            std::int64_t part_count) {
+                            std::int64_t part_count,
+                            float_t tol = 1.0e-5) {
         auto column_count = data.get_shape()[1];
         auto centroids =
             pr::ndarray<float_t, 2>::empty(this->get_queue(), { cluster_count, column_count });
@@ -107,13 +108,14 @@ public:
                                  part_count,
                                  partial_centroids)
             .wait_and_throw();
-        check_partial_centroids(data, labels, partial_centroids, part_count);
+        check_partial_centroids(data, labels, partial_centroids, part_count, tol);
     }
 
     void run_reduce_centroids(const pr::ndview<float_t, 2>& data,
                               const pr::ndview<int32_t, 2>& labels,
                               std::int64_t cluster_count,
-                              std::int64_t part_count) {
+                              std::int64_t part_count,
+                              float_t tol = 1.0e-5) {
         auto column_count = data.get_shape()[1];
         auto centroids =
             pr::ndarray<float_t, 2>::empty(this->get_queue(), { cluster_count, column_count });
@@ -136,19 +138,20 @@ public:
                                  part_count,
                                  partial_centroids)
             .wait_and_throw();
-        check_partial_centroids(data, labels, partial_centroids, part_count);
+        check_partial_centroids(data, labels, partial_centroids, part_count, tol);
         merge_reduce_centroids(this->get_queue(),
                                counters,
                                partial_centroids,
                                part_count,
                                centroids)
             .wait_and_throw();
-        check_reduced_centroids(data, labels, centroids, counters);
+        check_reduced_centroids(data, labels, centroids, counters, tol);
     }
 
     void run_selection(const pr::ndview<float_t, 2>& data,
                        const pr::ndview<float_t, 2>& centroids,
-                       std::int64_t block_rows) {
+                       std::int64_t block_rows,
+                       float_t tol = 1.0e-5) {
         auto row_count = data.get_shape()[0];
         auto cluster_count = centroids.get_shape()[0];
         auto labels = pr::ndarray<std::int32_t, 2>::empty(this->get_queue(), { row_count, 1 });
@@ -166,7 +169,7 @@ public:
                                                                  closest_distances,
                                                                  {})
             .wait_and_throw();
-        check_assignments(data, centroids, labels, closest_distances);
+        check_assignments(data, centroids, labels, closest_distances, tol);
     }
 
     void run_candidates(pr::ndview<float_t, 2>& closest_distances, std::int64_t candidate_count) {
@@ -215,7 +218,8 @@ public:
     void check_assignments(const pr::ndview<float_t, 2>& data,
                            const pr::ndview<float_t, 2>& centroids,
                            const pr::ndview<std::int32_t, 2>& labels,
-                           const pr::ndview<float_t, 2>& closest_distances) {
+                           const pr::ndview<float_t, 2>& closest_distances,
+                           float_t tol) {
         auto row_count = data.get_shape()[0];
         auto column_count = data.get_shape()[1];
         auto cluster_count = centroids.get_shape()[0];
@@ -241,7 +245,6 @@ public:
             }
             CAPTURE(i, labels_ptr[i]);
             REQUIRE(labels_ptr[i] == min_index);
-            float_t tol = 1.0e-5;
             auto v1 = closest_distances_ptr[i];
             auto v2 = min_distance;
             CAPTURE(v1, v2);
@@ -283,7 +286,8 @@ public:
     void check_partial_centroids(const pr::ndview<float_t, 2>& data,
                                  const pr::ndview<std::int32_t, 2>& labels,
                                  const pr::ndview<float_t, 2>& partial_centroids,
-                                 std::int64_t part_count) {
+                                 std::int64_t part_count,
+                                 float_t tol) {
         auto row_count = data.get_shape()[0];
         auto column_count = data.get_shape()[1];
         auto cluster_count = partial_centroids.get_shape()[0] / part_count;
@@ -305,7 +309,6 @@ public:
             }
         }
         auto partial_centroids_ptr = partial_centroids.get_data();
-        float_t tol = 1.0e-5;
         for (std::int64_t i = 0; i < part_count; i++) {
             for (std::int64_t k = 0; k < cluster_count; k++) {
                 for (std::int64_t j = 0; j < column_count; j++) {
@@ -325,7 +328,8 @@ public:
     void check_reduced_centroids(const pr::ndview<float_t, 2>& data,
                                  const pr::ndview<std::int32_t, 2>& labels,
                                  const pr::ndview<float_t, 2>& centroids,
-                                 const pr::ndview<std::int32_t, 1>& counters) {
+                                 const pr::ndview<std::int32_t, 1>& counters,
+                                 float_t tol) {
         auto row_count = data.get_shape()[0];
         auto column_count = data.get_shape()[1];
         auto cluster_count = centroids.get_shape()[0];
@@ -345,7 +349,6 @@ public:
         }
         auto centroids_ptr = centroids.get_data();
         auto counters_ptr = counters.get_data();
-        float_t tol = 1.0e-5;
         for (std::int64_t i = 0; i < cluster_count; i++) {
             if (counters_ptr[i] == 0)
                 continue;

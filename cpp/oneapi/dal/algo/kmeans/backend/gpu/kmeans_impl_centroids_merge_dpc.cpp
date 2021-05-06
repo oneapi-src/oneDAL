@@ -23,30 +23,6 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-template <typename Float>
-std::int64_t get_block_size_in_rows(sycl::queue& queue, std::int64_t column_count) {
-    // TODO optimization
-    std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
-    return block_size_in_bytes / column_count / sizeof(Float);
-}
-
-template <typename Float>
-std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
-                                                  std::int64_t column_count,
-                                                  std::int64_t cluster_count) {
-    // TODO optimization
-    std::int64_t block_size_in_bytes =
-        std::min(bk::device_max_mem_alloc_size(queue), bk::device_global_mem_size(queue) / 4);
-    std::int64_t part_count = 128;
-    dal::detail::check_mul_overflow(cluster_count, column_count);
-    dal::detail::check_mul_overflow(cluster_count * column_count, part_count);
-    while (cluster_count * column_count * part_count > block_size_in_bytes) {
-        part_count /= 2;
-    }
-    ONEDAL_ASSERT(part_count > 0);
-    return part_count;
-}
-
 static std::int64_t get_gpu_sg_size(sycl::queue& queue) {
     // TODO optimization/dispatching
     return 16;
@@ -68,7 +44,6 @@ sycl::event merge_reduce_centroids(sycl::queue& queue,
     ONEDAL_ASSERT(partial_centroids.get_dimension(0) == centroids.get_dimension(0) * part_count);
     ONEDAL_ASSERT(partial_centroids.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(counters.get_dimension(0) == centroids.get_dimension(0));
-    ONEDAL_ASSERT(counters.get_dimension(1) == 1);
     const Float* partial_centroids_ptr = partial_centroids.get_data();
     Float* centroids_ptr = centroids.get_mutable_data();
     const std::int32_t* counters_ptr = counters.get_data();
@@ -109,11 +84,6 @@ sycl::event merge_reduce_centroids(sycl::queue& queue,
 }
 
 #define INSTANTIATE(F)                                                                          \
-    template std::int64_t get_block_size_in_rows<F>(sycl::queue & queue,                        \
-                                                    std::int64_t column_count);                 \
-    template std::int64_t get_part_count_for_partial_centroids<F>(sycl::queue & queue,          \
-                                                                  std::int64_t column_count,    \
-                                                                  std::int64_t cluster_count);  \
     template sycl::event merge_reduce_centroids<F>(sycl::queue & queue,                         \
                                                    const pr::ndview<std::int32_t, 1>& counters, \
                                                    const pr::ndview<F, 2>& partial_centroids,   \
