@@ -205,8 +205,11 @@ jobs:
       export NO_DIST=1
       export PYTHON=python
       ./conda-recipe/build.sh
-      python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
     displayName: daal4py build
+  - script: |
+      source venv/bin/activate
+      python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
+    displayName: sklearnex build
   - script: |
       source venv/bin/activate
       export DALROOT=$(Pipeline.Workspace)/daal/latest
