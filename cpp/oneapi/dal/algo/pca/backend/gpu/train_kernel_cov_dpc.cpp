@@ -21,6 +21,7 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 
 namespace oneapi::dal::pca::backend {
 
@@ -93,7 +94,7 @@ static result_t train(const context_gpu& ctx, const descriptor_t& desc, const in
     dal::detail::check_mul_overflow(column_count, column_count);
     dal::detail::check_mul_overflow(component_count, column_count);
 
-    const auto data_nd = pr::flatten_table<Float, row_accessor>(q, data, sycl::usm::alloc::device);
+    const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
     auto [sums, sums_event] = compute_sums(q, data_nd);
     auto [corr, means, vars, corr_event] = compute_correlation(q, data_nd, sums, { sums_event });
