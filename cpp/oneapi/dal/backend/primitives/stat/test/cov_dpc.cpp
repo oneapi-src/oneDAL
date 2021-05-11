@@ -228,7 +228,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
 
     const float_t diag_element = 10.5;
     const auto [row_count, column_count] =
-        GENERATE(dim2_t(10, 10), dim2_t(100, 10), dim2_t(1000000, 1000));
+        GENERATE(dim2_t(10, 10), dim2_t(100, 10), dim2_t(1000, 100));
 
     // Generate dataset, where the upper square part of the matrix is diagonal
     // and the rest are zeros, for example:

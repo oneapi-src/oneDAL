@@ -249,7 +249,10 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
     this->general_checks(data, component_count, data_table_id);
 }
 
-TEMPLATE_LIST_TEST_M(pca_batch_test, "pca on gold data", "[pca][integration][batch]", pca_types) {
+TEMPLATE_LIST_TEST_M(pca_batch_test,
+                     "pca on gold data",
+                     "[pca][integration][batch][gold]",
+                     pca_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 

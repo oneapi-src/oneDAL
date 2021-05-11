@@ -19,15 +19,20 @@
 namespace oneapi::dal::pca::backend {
 
 template <typename Float>
+ONEDAL_FORCEINLINE Float abs(Float x) {
+    return (x >= Float(0)) ? x : -x;
+}
+
+template <typename Float>
 ONEDAL_FORCEINLINE Float max_by_abs(Float* x, std::int64_t count) {
     ONEDAL_ASSERT(x);
     ONEDAL_ASSERT(count > 0);
 
     Float max = x[0];
-    Float abs_max = std::abs(x[0]);
+    Float abs_max = abs(x[0]);
 
     for (std::int64_t i = 0; i < count; i++) {
-        const Float x_abs = std::abs(x[i]);
+        const Float x_abs = abs(x[i]);
         if (x_abs > abs_max) {
             abs_max = x_abs;
             max = x[i];
