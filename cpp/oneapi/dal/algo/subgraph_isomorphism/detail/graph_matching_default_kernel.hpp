@@ -23,11 +23,15 @@
 #include "oneapi/dal/graph/detail/container.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+
+struct byte_alloc_iface {
+    using byte_t = char;
+    virtual byte_t* allocate(std::int64_t n) = 0;
+    virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
+};
 
 template <typename Alloc>
 struct alloc_connector : public byte_alloc_iface {

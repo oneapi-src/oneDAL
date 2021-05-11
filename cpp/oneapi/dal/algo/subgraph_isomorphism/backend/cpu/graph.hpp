@@ -3,6 +3,7 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/graph_matching_default_kernel.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 #if defined(__INTEL_COMPILER)
@@ -13,12 +14,6 @@
 #endif
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
-
-struct byte_alloc_iface {
-    using byte_t = char;
-    virtual byte_t* allocate(std::int64_t n) = 0;
-    virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
-};
 
 struct inner_alloc {
     using byte_t = char;
