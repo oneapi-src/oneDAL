@@ -258,7 +258,7 @@ public:
         // TODO: Use exception
         ONEDAL_ASSERT(size_in_bytes % sizeof(data_t) == 0);
 
-        data_owned_ = std::reinterpret_pointer_cast<T>(data_shared);
+        data_owned_ = shared{ data_shared, reinterpret_cast<T*>(data_shared.get()) };
         count_ = size_in_bytes / sizeof(data_t);
     }
 
