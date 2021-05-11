@@ -37,7 +37,7 @@ using v1::train_result_impl;
 namespace v1 {
 
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -75,7 +75,7 @@ private:
 };
 
 /// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class train_result {
     static_assert(detail::is_valid_task_v<Task>);

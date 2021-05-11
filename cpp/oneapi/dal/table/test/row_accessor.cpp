@@ -57,7 +57,7 @@ TEST("can read table data via row accessor with conversion") {
     }
 }
 
-TEST("can_read table data via row accessor and array outside") {
+TEST("can read table data via row accessor and array outside") {
     using oneapi::dal::detail::empty_delete;
 
     float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
@@ -106,10 +106,69 @@ TEST("can read rows from column major table with conversion") {
     REQUIRE(rows_data[1] == -2);
 }
 
+TEST("pull returns immutable data from homogen_table") {
+    constexpr std::int64_t row_count = 3;
+    constexpr std::int64_t column_count = 2;
+    float data[row_count * column_count] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+    array<float> block;
+
+    SECTION("pull from homogen_table created via raw pointer") {
+        const auto t = homogen_table::wrap(data, row_count, column_count);
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    SECTION("pull from homogen_table created via array") {
+        const auto ary = array<float>::wrap(data, row_count * column_count);
+        const auto t = homogen_table::wrap(ary, row_count, column_count);
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    SECTION("pull from homogen_table created via builder") {
+        const auto ary = array<float>::wrap(data, row_count * column_count);
+        const auto t = detail::homogen_table_builder{}.reset(ary, row_count, column_count).build();
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    REQUIRE(block.has_mutable_data() == false);
+}
+
+TEST("pull returns mutable data from homogen_table_builder") {
+    constexpr std::int64_t row_count = 3;
+    constexpr std::int64_t column_count = 2;
+    float data[row_count * column_count] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+
+    const auto ary = array<float>::wrap(data, row_count * column_count);
+    const auto builder = detail::homogen_table_builder{}.reset(ary, row_count, column_count);
+    const auto block = row_accessor<const float>{ builder }.pull();
+
+    REQUIRE(block.has_mutable_data() == true);
+}
+
+TEST("pull does not copy if contigious block is requested") {
+    constexpr std::int64_t row_count = 3;
+    constexpr std::int64_t column_count = 2;
+    float data[row_count * column_count] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+    array<float> block;
+
+    SECTION("pull from homogen_table") {
+        auto t = homogen_table::wrap(data, row_count, column_count);
+        block = row_accessor<const float>{ t }.pull();
+    }
+
+    SECTION("pull from homogen_table_builder") {
+        auto ary = array<float>::wrap(data, row_count * column_count);
+        auto builder = detail::homogen_table_builder{}.reset(ary, row_count, column_count);
+        block = row_accessor<const float>{ builder }.pull();
+    }
+
+    REQUIRE(block.get_data() == data);
+    REQUIRE(block.get_count() == row_count * column_count);
+}
+
 TEST("pull throws exception if invalid range") {
-    detail::homogen_table_builder b;
-    b.reset(array<float>::zeros(3 * 2), 3, 2);
-    row_accessor<float> acc{ b };
+    float data[] = { 1.0f, 2.0f, 3.0f, -1.0f, -2.0f, -3.0f };
+    auto t = homogen_table::wrap(data, 3, 2, data_layout::column_major);
+    row_accessor<const float> acc{ t };
 
     REQUIRE_THROWS_AS(acc.pull({ 1, 4 }), dal::range_error);
 }
@@ -164,9 +223,7 @@ TEST("pull as device usm from host-allocated homogen table") {
         row_accessor<const float>{ data } //
             .pull(q, { 1, 3 }, sycl::usm::alloc::device);
 
-    const auto data_arr_host =
-        la::matrix<float>::wrap(q, data_arr_device.get_data(), { row_count, column_count })
-            .to_host();
+    const auto data_arr_host = la::matrix<float>::wrap(data_arr_device).to_host();
     const float* data_arr_host_ptr = data_arr_host.get_data();
 
     REQUIRE(data_arr_host_ptr[0] == 3.0f);

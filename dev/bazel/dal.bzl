@@ -186,8 +186,7 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
     iface_access_tag = "private" if private else "public"
     test_args = _expand_select(
         _test_eternal_datasets_args(framework) +
-        _test_nightly_args(framework) +
-        _test_weekly_args(framework) +
+        _test_filter_args(framework) +
         _test_device_args() +
         args
     )
@@ -344,22 +343,13 @@ def _test_eternal_datasets_args(framework):
         })
     return []
 
-def _test_nightly_args(framework):
+def _test_filter_args(framework):
     if framework == "catch2":
         return _select({
-            "@config//:test_nightly_enabled": [],
-            "//conditions:default": [
-                "~[nightly]",
-            ],
-        })
-    return []
-
-def _test_weekly_args(framework):
-    if framework == "catch2":
-        return _select({
+            "@config//:test_nightly_enabled": ["~[weekly]"],
             "@config//:test_weekly_enabled": [],
             "//conditions:default": [
-                "~[weekly]",
+                "~[nightly]", "~[weekly]",
             ],
         })
     return []

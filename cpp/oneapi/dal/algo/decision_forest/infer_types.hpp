@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -75,7 +75,7 @@ private:
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class infer_result : public base {
     static_assert(detail::is_valid_task_v<Task>);

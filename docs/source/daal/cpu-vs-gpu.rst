@@ -34,10 +34,12 @@ For the following algorithms, only listed computation modes are supported on GPU
 
    * - Algortihm
      - Supported on GPU
-   * - :ref:`Covariance <cor_cov>`
+   * - :ref:`dbscan`
+     - :ref:`batch <batch_mode>`
+   * - :ref:`linear_regression`
      - :ref:`batch <batch_mode>`, :ref:`online <online_mode>`
-   * - :ref:`pca`
-     - :ref:`batch <batch_mode>` 
+   * - :ref:`logistic_regression`
+     - :ref:`batch <batch_mode>`, :ref:`online <online_mode>`
 
 Methods
 *******
@@ -67,17 +69,10 @@ For the following algorithms, only listed methods are supported on GPU:
      - ``defaultDense``
    * - :ref:`knn`
      - Brute Force
-
-       .. note:: This method is not supported on CPU.
-
    * - :ref:`svm`
      - ``thunder``
-
-       .. note:: This method is not supported on CPU.
    * - :ref:`decision_forest`
      - ``hist``
-
-       .. note:: This method is not supported on CPU.
 
 Parameters
 **********
@@ -92,13 +87,13 @@ Parameters
    * - :ref:`svm`
      - ``doShrinking`` is only supported for ``defaultDense`` method.
    * - :ref:`dbscan`
-     - 
+     -
        - On GPU, the ``memorySavingMode`` flag can only be set to ``true``.
        - On GPU, the ``weights`` parameter is not supported.
    * - :ref:`kernel`
      - On GPU, the only supported computation mode (``ComputationMode``) is ``matrixMatrix``.
    * - :ref:`objective_function`
-     - 
+     -
        - On GPU, only :ref:`logistic_loss` and :ref:`cross_entropy_loss` are supported, :ref:`mse` is not supported.
        - On GPU, ``resultsToCompute`` only computes ``value``, ``gradient``, and ``hessian``.
    * - :ref:`logistic_regression`
