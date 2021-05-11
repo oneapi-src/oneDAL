@@ -24,7 +24,7 @@
 namespace dal = oneapi::dal;
 namespace df = dal::decision_forest;
 
-void run(sycl::queue &q) {
+void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("df_regression_train_data.csv");
     const auto train_label_file_name = get_data_path("df_regression_train_label.csv");
     const auto test_data_file_name = get_data_path("df_regression_test_data.csv");
@@ -34,7 +34,7 @@ void run(sycl::queue &q) {
     const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_label_file_name });
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
 
     const auto df_desc =
         df::descriptor<float, df::method::hist, df::task::regression>{}
@@ -61,13 +61,13 @@ void run(sycl::queue &q) {
 
         std::cout << "Ground truth:\n" << y_test << std::endl;
     }
-    catch (dal::unimplemented &e) {
+    catch (dal::unimplemented& e) {
         std::cout << "  " << e.what() << std::endl;
         return;
     }
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_info<sycl::info::device::name>() << std::endl
                   << std::endl;

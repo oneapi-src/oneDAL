@@ -194,11 +194,7 @@ public:
                          Y* data,
                          std::int64_t count,
                          const sycl::vector_class<sycl::event>& dependencies = {}) {
-        return array<T>{ detail::data_parallel_policy{ queue },
-                         data,
-                         count,
-                         dal::detail::empty_delete<const T>{},
-                         dependencies };
+        return array<T>{ queue, data, count, dal::detail::empty_delete<const T>{}, dependencies };
     }
 #endif
 
@@ -670,7 +666,6 @@ private:
         std::swap(a.count_, b.count_);
     }
 
-private:
     array(impl_t* impl) : impl_(impl) {
         update_data(impl_.get());
     }
@@ -702,7 +697,6 @@ private:
         count_ = 0;
     }
 
-private:
     detail::unique<impl_t> impl_;
     const T* data_ptr_;
     T* mutable_data_ptr_;

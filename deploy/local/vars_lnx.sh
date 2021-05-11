@@ -16,58 +16,50 @@
 #===============================================================================
 
 # shellcheck shell=sh
+
+# Copyright Intel Corporation
+# SPDX-License-Identifier: MIT
+# https://opensource.org/licenses/MIT
+
+
 # ############################################################################
 
-# Get absolute path/filename of this script.
-# Uses only POSIX compliant commands.
-#
-# Attribution of this rreadlink() function goes to Michael Klement.
-# Based on https://github.com/mklement0/rreadlink/blob/master/bin/rreadlink#L125
-# Above licensed under MIT license > https://spdx.org/licenses/MIT#licenseText
-# See https://stackoverflow.com/a/29835459/2914328 for detailed "how it works."
-#
-# This POSIX-compliant shell function implements an equivalent to the GNU
-# `readlink -e` command and is a reasonably robust solution that only fails
-# in two rare edge cases:
-#   * paths with embedded newlines (very rare)
-#   * filenames containing the literal string " -> " (also rare)
+# Copy and include at the top of your `env/vars.sh` script (don't forget to
+# remove the test/example code at the end of this file). See the test/example
+# code at the end of this file for more help.
+
+
+# ############################################################################
+
+# Get absolute path to this script.
+# Uses `readlink` to remove links and `pwd -P` to turn into an absolute path.
 
 # Usage:
-#   script_path=$(rreadlink "$vars_script_rel_path")
-#   script_dir_path=$(dirname -- "$(rreadlink "$vars_script_rel_path")")
+#   script_dir=$(get_script_path "$script_rel_path")
 #
 # Inputs:
 #   script/relative/pathname/scriptname
 #
 # Outputs:
-#   /script/absolute/pathname/scriptname
+#   /script/absolute/pathname
 
 # executing function in a *subshell* to localize vars and effects on `cd`
-rreadlink() (
-  target=$1 fname="" targetDir="" CDPATH=
-  { \unalias command; \unset -f command; } >/dev/null 2>&1 || :
-  # shellcheck disable=SC2034
-  [ -n "${ZSH_VERSION:-}" ] && options[POSIX_BUILTINS]=on
-  while :; do
-    [ -L "$target" ] || [ -e "$target" ] || { command printf '%s\n' "   ERROR: rreadlink(): '$target' does not exist." >&2; return 1; }
-    command cd "$(command dirname -- "$target")" >/dev/null 2>&1
-    fname=$(command basename -- "$target")
-    [ "$fname" = '/' ] && fname=''
-    if [ -L "$fname" ] ; then
-      target=$(command ls -l "$fname")
-      target=${target#* -> } # delete everything left of first " -> " string
-      continue
-    fi
-    break
+get_script_path() (
+  script="$1"
+  while [ -L "$script" ] ; do
+    # combining next two lines fails in zsh shell
+    script_dir=$(command dirname -- "$script")
+    script_dir=$(cd "$script_dir" && command pwd -P)
+    script="$(readlink "$script")"
+    case $script in
+      (/*) ;;
+       (*) script="$script_dir/$script" ;;
+    esac
   done
-  targetDir=$(command pwd -P)
-  if   [ "$fname" = '.' ] ;  then
-    command printf '%s\n' "${targetDir%/}"
-  elif [ "$fname" = '..' ] ; then
-    command printf '%s\n' "$(command dirname -- "${targetDir}")"
-  else
-    command printf '%s\n' "${targetDir%/}/$fname"
-  fi
+  # combining next two lines fails in zsh shell
+  script_dir=$(command dirname -- "$script")
+  script_dir=$(cd "$script_dir" && command pwd -P)
+  printf "%s" "$script_dir"
 )
 
 
@@ -220,7 +212,7 @@ fi
 
 
 # ############################################################################
-my_script_path=$(dirname -- "$(rreadlink "${vars_script_name:-}")")
+my_script_path=$(get_script_path "${vars_script_name:-}")
 component_root=$(dirname -- "${my_script_path}")
 
 __daal_tmp_dir="<INSTALLDIR>"

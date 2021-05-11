@@ -63,6 +63,22 @@ inline constexpr Integer up_multiple(Integer x, Integer multiple) {
     return y + z;
 }
 
+/// Checks if 'x' is power of 2.
+/// Example: down_pow2(10) == false
+/// Example: down_pow2(16) == true
+template <typename Integer>
+inline constexpr bool is_pow2(Integer x) {
+    static_assert(std::is_integral_v<Integer>);
+    return !(x & (x - 1)) && (x > 0) ? true : false;
+}
+
+template <typename Integer>
+inline constexpr std::int64_t get_magnitude_bit_count() {
+    static_assert(std::is_integral_v<Integer>);
+    constexpr std::int64_t bit_count = sizeof(Integer) * 8;
+    return std::is_signed_v<Integer> ? bit_count - 1 : bit_count;
+}
+
 /// Finds the largest power of 2 number not larger than `x`.
 /// Return `x`, if `x` is already power of 2
 /// Example: down_pow2(10) == 8
@@ -71,11 +87,17 @@ template <typename Integer>
 inline constexpr Integer down_pow2(Integer x) {
     static_assert(std::is_integral_v<Integer>);
     ONEDAL_ASSERT(x > 0);
-    Integer power = 1;
-    while (power < x / 2) {
-        power *= 2;
+    Integer power = 0;
+    if (is_pow2(x)) {
+        return x;
     }
-    return power;
+
+    while (x > 1) {
+        x >>= 1;
+        power++;
+    }
+    ONEDAL_ASSERT(power < get_magnitude_bit_count<Integer>());
+    return 1 << power;
 }
 
 /// Finds the smallest power of 2 number not smaller than `x`.
@@ -98,66 +120,113 @@ inline constexpr Integer up_pow2(Integer x) {
 
 using event_vector = std::vector<sycl::event>;
 
-inline bool is_same_context(const sycl::queue& q1, const sycl::queue& q2) {
-    return q1.get_context() == q2.get_context();
-}
-
-inline bool is_same_context(const sycl::queue& q1, const sycl::queue& q2, const sycl::queue& q3) {
-    return is_same_context(q1, q2) && is_same_context(q1, q3);
-}
-
-inline bool is_same_context(const sycl::queue& q1,
-                            const sycl::queue& q2,
-                            const sycl::queue& q3,
-                            const sycl::queue& q4) {
-    return is_same_context(q1, q2, q3) && is_same_context(q1, q4);
-}
+template <typename, typename = void>
+struct has_get_queue : std::false_type {};
 
 template <typename T>
-inline bool is_same_context(const sycl::queue& q, const array<T>& ary) {
-    if (ary.get_queue().has_value()) {
-        auto ary_q = ary.get_queue().value();
-        return is_same_context(q, ary_q);
+struct has_get_queue<T, std::void_t<decltype(&T::get_queue)>>
+        : std::is_same<sycl::queue, std::decay_t<decltype(std::declval<T>().get_queue())>> {};
+
+template <typename, typename = void>
+struct has_get_optional_queue : std::false_type {};
+
+template <typename T>
+struct has_get_optional_queue<T, std::void_t<decltype(&T::get_queue)>>
+        : std::is_same<std::optional<sycl::queue>,
+                       std::decay_t<decltype(std::declval<T>().get_queue())>> {};
+
+template <typename T>
+inline constexpr bool has_get_queue_v = has_get_queue<T>::value;
+
+template <typename T>
+inline constexpr bool has_get_optional_queue_v = has_get_optional_queue<T>::value;
+
+template <typename QueueLike>
+struct queue_like_traits {
+    using queue_like_t = std::decay_t<QueueLike>;
+    static constexpr bool is_queue = std::is_same_v<queue_like_t, sycl::queue>;
+    static constexpr bool is_optional_queue =
+        std::is_same_v<queue_like_t, std::optional<sycl::queue>>;
+    static constexpr bool has_get_queue = has_get_queue_v<queue_like_t>;
+    static constexpr bool has_get_optional_queue = has_get_optional_queue_v<queue_like_t>;
+    static constexpr bool is_valid =
+        is_queue || is_optional_queue || has_get_queue || has_get_optional_queue;
+};
+
+template <typename QueueLike>
+inline std::optional<sycl::queue> extract_queue(QueueLike&& queue_like) {
+    static_assert(queue_like_traits<QueueLike>::is_valid,
+                  "Invalid queue-like object, cannot extract queue");
+
+    if constexpr (queue_like_traits<QueueLike>::is_queue ||
+                  queue_like_traits<QueueLike>::is_optional_queue) {
+        return queue_like;
     }
-    else {
-        return false;
+    else if constexpr (queue_like_traits<QueueLike>::has_get_queue ||
+                       queue_like_traits<QueueLike>::has_get_optional_queue) {
+        return queue_like.get_queue();
     }
+
+    return std::nullopt;
 }
 
-inline bool is_same_device(const sycl::queue& q1, const sycl::queue& q2) {
-    return q1.get_device() == q2.get_device();
+template <typename QueueLike>
+inline bool is_same_context_impl(const sycl::queue& reference, QueueLike&& queue_like) {
+    const auto optional_queue = extract_queue(std::forward<QueueLike>(queue_like));
+    return optional_queue && (optional_queue->get_context() == reference.get_context());
 }
 
-inline bool is_same_device(const sycl::queue& q1, const sycl::queue& q2, const sycl::queue& q3) {
-    return is_same_device(q1, q2) && is_same_device(q1, q3);
+template <typename QueueLike>
+inline bool is_same_context_ignore_nullopt_impl(const sycl::queue& reference,
+                                                QueueLike&& queue_like) {
+    const auto optional_queue = extract_queue(std::forward<QueueLike>(queue_like));
+    if (optional_queue) {
+        return optional_queue->get_context() == reference.get_context();
+    }
+    return true;
 }
 
-inline bool is_same_device(const sycl::queue& q1,
-                           const sycl::queue& q2,
-                           const sycl::queue& q3,
-                           const sycl::queue& q4) {
-    return is_same_device(q1, q2, q3) && is_same_device(q1, q4);
+template <typename QueueLike>
+inline bool is_same_device_impl(const sycl::queue& reference, QueueLike&& queue_like) {
+    const auto optional_queue = extract_queue(std::forward<QueueLike>(queue_like));
+    return optional_queue && (optional_queue->get_device() == reference.get_device());
 }
 
-inline void check_if_same_context(const sycl::queue& q1, const sycl::queue& q2) {
-    if (!is_same_context(q1, q2)) {
+/// Checks whether all queue-like objects have the same context.
+template <typename... QueueLike>
+inline bool is_same_context(const sycl::queue& reference, QueueLike&&... queues_like) {
+    return (... && is_same_context_impl(reference, std::forward<QueueLike>(queues_like)));
+}
+
+/// Checks whether all queue-like objects have the same context. The queue-like
+/// objects, which does not carry context, do not participate in comparison.
+template <typename... QueueLike>
+inline bool is_same_context_ignore_nullopt(const sycl::queue& reference,
+                                           QueueLike&&... queues_like) {
+    return (... &&
+            is_same_context_ignore_nullopt_impl(reference, std::forward<QueueLike>(queues_like)));
+}
+
+/// Checks whether all queue-like objects have the same device.
+template <typename... QueueLike>
+inline bool is_same_device(const sycl::queue& reference, QueueLike&&... queues_like) {
+    return (... && is_same_device_impl(reference, std::forward<QueueLike>(queues_like)));
+}
+
+template <typename... QueueLike>
+inline void check_if_same_context(const sycl::queue& reference, QueueLike&&... queues_like) {
+    if (!is_same_context(reference, std::forward<QueueLike>(queues_like)...)) {
         throw invalid_argument{ dal::detail::error_messages::queues_in_different_contexts() };
     }
 }
 
-inline void check_if_same_context(const sycl::queue& q1,
-                                  const sycl::queue& q2,
-                                  const sycl::queue& q3) {
-    check_if_same_context(q1, q2);
-    check_if_same_context(q1, q3);
+inline sycl::range<1> make_range_1d(std::int64_t size) {
+    return { dal::detail::integral_cast<std::size_t>(size) };
 }
 
-inline void check_if_same_context(const sycl::queue& q1,
-                                  const sycl::queue& q2,
-                                  const sycl::queue& q3,
-                                  const sycl::queue& q4) {
-    check_if_same_context(q1, q2, q3);
-    check_if_same_context(q1, q4);
+inline sycl::range<2> make_range_2d(std::int64_t size1, std::int64_t size2) {
+    return { dal::detail::integral_cast<std::size_t>(size1),
+             dal::detail::integral_cast<std::size_t>(size2) };
 }
 
 /// Creates `nd_range`, where global size is multiple of local size
@@ -194,6 +263,14 @@ inline sycl::nd_range<3> make_multiple_nd_range_3d(const ndindex<3>& global_size
 inline std::int64_t device_max_wg_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::max_work_group_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_max_sg_size(const sycl::queue& q) {
+    const std::vector<size_t> sg_sizes =
+        q.get_device().template get_info<sycl::info::device::sub_group_sizes>();
+    auto result_iter = std::max_element(sg_sizes.begin(), sg_sizes.end());
+    ONEDAL_ASSERT(result_iter != sg_sizes.end());
+    return dal::detail::integral_cast<std::int64_t>(*result_iter);
 }
 
 inline std::int64_t propose_wg_size(const sycl::queue& q) {

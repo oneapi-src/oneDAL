@@ -40,7 +40,7 @@ dal_test_suite(
     compile_as = [ "dpc++" ],
     private = True,
     srcs = glob([
-        "test/*perf_select_flagged*.cpp",
+        "test/perf_*.cpp",
     ]),
     dal_deps = [
         ":selection",

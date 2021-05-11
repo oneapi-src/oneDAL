@@ -51,3 +51,4 @@
 #include "oneapi/dal/algo/polynomial_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
 #include "oneapi/dal/algo/svm.hpp"
+#include "oneapi/dal/algo/triangle_counting.hpp"

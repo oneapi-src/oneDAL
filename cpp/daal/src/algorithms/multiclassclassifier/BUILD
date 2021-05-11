@@ -7,5 +7,6 @@ daal_module(
     deps = [
         "@onedal//cpp/daal:core",
         "@onedal//cpp/daal/src/algorithms/classifier:kernel",
+        "@onedal//cpp/daal/src/algorithms/svm:kernel",
     ],
 )

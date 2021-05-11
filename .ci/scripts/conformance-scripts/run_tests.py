@@ -22,9 +22,9 @@ from subprocess import Popen, PIPE
 from utils import make_report
 
 try:
-    import daal4py
+    import sklearnex
 except:
-    raise Exception('daal4py is not installed')
+    raise Exception('sklearnex is not installed')
 
 algs_filename = "algorithms.txt"
 report_filename = "report.html"
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         print(alg_name)
 
         alg_log = open("_log_%s.txt" % (alg_name), "w")
-        subprocess.call(["python", "-m", "daal4py", "-m", "pytest", "-s", "--disable-warnings", "-v", "test_%s.py" % (alg_name)],
+        subprocess.call(["python", "-m", "sklearnex", "-m", "pytest", "-s", "--disable-warnings", "-v", "test_%s.py" % (alg_name)],
                          stdout=alg_log)
         alg_log.close()
 
