@@ -15,8 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/dispatcher.hpp"
-
-#include <iostream>
 #include <daal/src/services/service_defines.h>
 
 namespace oneapi::dal::backend {

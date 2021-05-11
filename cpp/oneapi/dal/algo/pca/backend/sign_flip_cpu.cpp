@@ -27,7 +27,7 @@ ONEDAL_FORCEINLINE Float max_by_abs(Float* x, std::int64_t count) {
     Float abs_max = std::abs(x[0]);
 
     for (std::int64_t i = 0; i < count; i++) {
-        const float x_abs = std::abs(x[i]);
+        const Float x_abs = std::abs(x[i]);
         if (x_abs > abs_max) {
             abs_max = x_abs;
             max = x[i];
@@ -56,9 +56,10 @@ void sign_flip_impl(Float* eigvecs, std::int64_t row_count, std::int64_t column_
     ONEDAL_ASSERT(eigvecs);
     ONEDAL_ASSERT(row_count > 0);
     ONEDAL_ASSERT(column_count > 0);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, row_count, column_count);
 
     for (std::int64_t i = 0; i < row_count; i++) {
-        sign_flip_vector(eigvecs + column_count * i, column_count);
+        sign_flip_vector(eigvecs + i * column_count, column_count);
     }
 }
 
