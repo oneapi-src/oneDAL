@@ -189,7 +189,7 @@ jobs:
     displayName: 'Create dpcpp enviroment'
   - script: |
       sudo apt-get install git
-      git clone https://github.com/IntelPython/daal4py.git
+      git clone https://github.com/intel/scikit-learn-intelex.git daal4py
     displayName: Clone daal4py
   - script: |
       python -m venv venv
@@ -208,6 +208,7 @@ jobs:
     displayName: daal4py build
   - script: |
       source venv/bin/activate
+      cd daal4py
       python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
     displayName: sklearnex build
   - script: |
