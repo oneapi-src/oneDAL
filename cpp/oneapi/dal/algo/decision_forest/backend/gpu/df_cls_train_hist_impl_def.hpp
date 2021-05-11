@@ -900,7 +900,7 @@ cl::sycl::event df_cls_train_hist_impl<Float, Bin, Index>::compute_best_split_by
     auto event = queue_.submit([&](cl::sycl::handler& cgh) {
         //cl::sycl::stream out(1024, 256, cgh);
         cgh.depends_on(deps);
-        cgh.parallel_for<class compute_best_split_by_histogram_krn<Float, Bin, Index>>(nd_range, [=](cl::sycl::nd_item<2> item) 
+        cgh.parallel_for<class compute_best_split_by_histogram_krn<Float, Bin, Index>>(nd_range, [=](cl::sycl::nd_item<2> item)
         {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
@@ -1141,7 +1141,7 @@ cl::sycl::event df_cls_train_hist_impl<Float, Bin, Index>::compute_best_split_si
 
     auto event = queue_.submit([&](cl::sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for<class compute_best_split_single_pass_krn<Float, Bin, Index>>(nd_range, [=](cl::sycl::nd_item<2> item) 
+        cgh.parallel_for<class compute_best_split_single_pass_krn<Float, Bin, Index>>(nd_range, [=](cl::sycl::nd_item<2> item)
         {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
