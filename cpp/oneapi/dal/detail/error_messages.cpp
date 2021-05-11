@@ -150,6 +150,8 @@ MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
 /* Subgraph Isomorphism */
 MSG(max_match_count_lt_zero, "Maximum number of match count less that zero")
 MSG(unsupported_semantic_match, "Unsupported semantic match mode")
+MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
+    "Subgraph isomorphism is not implemented for labeled edges")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
