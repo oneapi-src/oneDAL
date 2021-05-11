@@ -77,6 +77,7 @@ MSG(unsupported_conversion_types, "Unsupported conversion types")
 MSG(invalid_range_of_rows, "Invalid range of rows")
 MSG(invalid_range_of_columns, "Invalid range of columns")
 MSG(column_index_out_of_range, "Column index out of range")
+MSG(invalid_number_of_trees, "Invalid number of trees")
 
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,

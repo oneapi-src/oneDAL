@@ -137,6 +137,7 @@ public:
     MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu);
     MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
     MSG(input_model_is_not_initialized);
+    MSG(invalid_number_of_trees);
 
     /* Jaccard */
     MSG(column_begin_gt_column_end);
