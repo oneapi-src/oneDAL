@@ -110,4 +110,16 @@ TEMPLATE_LIST_TEST_M(array_serialization_test,
 }
 #endif
 
+TEMPLATE_TEST_M(array_serialization_test,
+                "deserialize array to wrong type",
+                "[badarg]",
+                float,
+                double) {
+    const std::int64_t count = 10;
+    const auto host_array = this->get_host_backed_array(count);
+
+    array<std::int32_t> deserialized;
+    REQUIRE_THROWS_AS(te::serialize_deserialize(host_array, deserialized), invalid_argument);
+}
+
 } // namespace oneapi::dal::test

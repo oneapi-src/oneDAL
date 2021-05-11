@@ -38,21 +38,20 @@ inline void serialize_array_on_host(output_archive& archive,
 
 inline deserialize_result_t deserialize_array_on_host(input_archive& archive,
                                                       data_type expected_dtype) {
-    // TODO: Replace assertions with exceptions
-
-    {
-        [[maybe_unused]] const std::uint64_t serialization_id = archive.pop<std::uint64_t>();
-        ONEDAL_ASSERT(serialization_id == backend::serialization_ids::array_id);
+    const std::uint64_t serialization_id = archive.pop<std::uint64_t>();
+    if (serialization_id != ONEDAL_SERIALIZATION_ID(array_id)) {
+        throw invalid_argument{ error_messages::archive_content_does_not_match_type() };
     }
 
-    {
-        [[maybe_unused]] const data_type dtype = archive.pop<data_type>();
-        ONEDAL_ASSERT(dtype == expected_dtype);
+    const data_type dtype = archive.pop<data_type>();
+    if (dtype != expected_dtype) {
+        throw invalid_argument{ error_messages::archive_content_does_not_match_type() };
     }
 
     const std::int64_t size_in_bytes = archive.pop<std::int64_t>();
-    ONEDAL_ASSERT(size_in_bytes >= 0);
-    ONEDAL_ASSERT(size_in_bytes % get_data_type_size(expected_dtype) == 0);
+    if (size_in_bytes < 0 || size_in_bytes % get_data_type_size(expected_dtype) > 0) {
+        throw invalid_argument{ error_messages::archive_content_does_not_match_type() };
+    }
 
     if (size_in_bytes > 0) {
         auto deleter = make_default_delete<byte_t>(detail::default_host_policy{});
