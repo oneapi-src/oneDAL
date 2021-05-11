@@ -52,7 +52,7 @@ namespace prediction
 namespace internal
 {
 //Base class for binary classification subtask
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SubTask
 {
 public:
@@ -64,7 +64,8 @@ public:
                                              const size_t * nonEmptyClassMap, Model * model, size_t nIter, double eps);
 
 protected:
-    SubTask(size_t nClasses, size_t nRowsInBlock, NumericTable * rTable, const services::SharedPtr<ClsType> & sp) : _simplePrediction(sp->clone())
+    SubTask(size_t nClasses, size_t nRowsInBlock, NumericTable * rTable, const services::SharedPtr<classifier::prediction::Batch> & sp)
+        : _simplePrediction(sp->clone())
     {
         const size_t bufferSize = nRowsInBlock * nClasses * nClasses + nClasses * nClasses + 2 * nClasses + nRowsInBlock;
         _buffer.reset(bufferSize);
@@ -83,17 +84,17 @@ protected:
 
 protected:
     WriteOnlyColumns<int, cpu> _mtR;
-    services::SharedPtr<ClsType> _simplePrediction;
+    services::SharedPtr<classifier::prediction::Batch> _simplePrediction;
     TArray<algorithmFPType, cpu> _buffer;
 };
 
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
-class SubTaskCSR : public SubTask<algorithmFPType, ClsType, cpu>
+template <typename algorithmFPType, CpuType cpu>
+class SubTaskCSR : public SubTask<algorithmFPType, cpu>
 {
 public:
-    typedef SubTask<algorithmFPType, ClsType, cpu> super;
+    typedef SubTask<algorithmFPType, cpu> super;
     static SubTaskCSR * create(size_t nClasses, size_t nRowsInBlock, const NumericTable * xTable, NumericTable * rTable,
-                               const services::SharedPtr<ClsType> & sp)
+                               const services::SharedPtr<classifier::prediction::Batch> & sp)
     {
         auto val = new SubTaskCSR(nClasses, nRowsInBlock, dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable)), rTable, sp);
         if (val && val->isValid()) return val;
@@ -102,7 +103,8 @@ public:
     }
 
 private:
-    SubTaskCSR(size_t nClasses, size_t nRowsInBlock, CSRNumericTableIface * xTable, NumericTable * rTable, const services::SharedPtr<ClsType> & sp)
+    SubTaskCSR(size_t nClasses, size_t nRowsInBlock, CSRNumericTableIface * xTable, NumericTable * rTable,
+               const services::SharedPtr<classifier::prediction::Batch> & sp)
         : super(nClasses, nRowsInBlock, rTable, sp), _mtX(xTable)
     {}
     virtual services::Status getInput(size_t nFeatures, size_t startRow, size_t nRows, NumericTablePtr & res) DAAL_C11_OVERRIDE;
@@ -111,13 +113,13 @@ private:
     ReadRowsCSR<algorithmFPType, cpu> _mtX;
 };
 
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
-class SubTaskDense : public SubTask<algorithmFPType, ClsType, cpu>
+template <typename algorithmFPType, CpuType cpu>
+class SubTaskDense : public SubTask<algorithmFPType, cpu>
 {
 public:
-    typedef SubTask<algorithmFPType, ClsType, cpu> super;
+    typedef SubTask<algorithmFPType, cpu> super;
     static SubTaskDense * create(size_t nClasses, size_t nRowsInBlock, const NumericTable * xTable, NumericTable * rTable,
-                                 const services::SharedPtr<ClsType> & sp)
+                                 const services::SharedPtr<classifier::prediction::Batch> & sp)
     {
         auto val = new SubTaskDense(nClasses, nRowsInBlock, xTable, rTable, sp);
         if (val && val->isValid()) return val;
@@ -126,7 +128,8 @@ public:
     }
 
 private:
-    SubTaskDense(size_t nClasses, size_t nRowsInBlock, const NumericTable * xTable, NumericTable * rTable, const services::SharedPtr<ClsType> & sp)
+    SubTaskDense(size_t nClasses, size_t nRowsInBlock, const NumericTable * xTable, NumericTable * rTable,
+                 const services::SharedPtr<classifier::prediction::Batch> & sp)
         : super(nClasses, nRowsInBlock, rTable, sp), _mtX(const_cast<NumericTable *>(xTable))
     {}
     virtual services::Status getInput(size_t nFeatures, size_t startRow, size_t nRows, NumericTablePtr & res) DAAL_C11_OVERRIDE;
@@ -135,11 +138,10 @@ private:
     ReadRows<algorithmFPType, cpu> _mtX;
 };
 
-template <typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
-struct MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu>
-    : public Kernel
+template <typename algorithmFPType, CpuType cpu>
+struct MultiClassClassifierPredictKernel<multiClassClassifierWu, training::oneAgainstOne, algorithmFPType, cpu> : public Kernel
 {
-    services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df,
+    services::Status compute(const NumericTable * a, const daal::algorithms::Model * m, SvmModel * svmModel, NumericTable * pred, NumericTable * df,
                              const daal::algorithms::Parameter * par);
 };
 

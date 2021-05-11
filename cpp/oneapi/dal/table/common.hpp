@@ -18,36 +18,16 @@
 
 #include <type_traits>
 
-#include "oneapi/dal/table/detail/table_impl_wrapper.hpp"
+#include "oneapi/dal/table/detail/table_iface.hpp"
 
 namespace oneapi::dal {
 
 namespace detail {
 namespace v1 {
-
 class table_metadata_impl;
-
-template <typename T>
-struct is_table_impl {
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_column_count, () const)
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_row_count, () const)
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(const table_metadata&, get_metadata, () const)
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(std::int64_t, get_kind, () const)
-    ONEDAL_SIMPLE_HAS_METHOD_TRAIT(data_layout, get_data_layout, () const)
-
-    static constexpr bool value = has_method_get_column_count_v<T> &&
-                                  has_method_get_row_count_v<T> && has_method_get_metadata_v<T> &&
-                                  has_method_get_kind_v<T> && has_method_get_data_layout_v<T>;
-};
-
-template <typename T>
-inline constexpr bool is_table_impl_v = is_table_impl<T>::value;
-
 } // namespace v1
 
 using v1::table_metadata_impl;
-using v1::is_table_impl;
-using v1::is_table_impl_v;
 
 } // namespace detail
 
@@ -58,7 +38,6 @@ enum class data_layout { unknown, row_major, column_major };
 
 class ONEDAL_EXPORT table_metadata {
     friend detail::pimpl_accessor;
-    using pimpl = detail::pimpl<detail::table_metadata_impl>;
 
 public:
     /// Creates the metadata instance without information about the features.
@@ -74,7 +53,7 @@ public:
     table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes);
 
     /// The number of features that metadata contains information about
-    /// @pre :expr:`feature_count >= 0`
+    /// @invariant :literal:`feature_count >= 0`
     std::int64_t get_feature_count() const;
 
     /// Feature types in the metadata object. Should be within the range ``[0, feature_count)``
@@ -84,20 +63,14 @@ public:
     const data_type& get_data_type(std::int64_t feature_index) const;
 
 private:
-    table_metadata(const pimpl& impl) : impl_(impl) {}
-
-private:
-    pimpl impl_;
+    detail::pimpl<detail::table_metadata_impl> impl_;
 };
 
 class ONEDAL_EXPORT table {
     friend detail::pimpl_accessor;
-    using pimpl = detail::pimpl<detail::table_impl_iface>;
 
 public:
     /// An empty table constructor: creates the table instance with zero number of rows and columns.
-    /// Implementation is set to the special "empty" object that returns all the property values
-    /// set to default (see Properties section).
     table();
 
     /// Creates a new table instance that shares the implementation with another one.
@@ -105,14 +78,6 @@ public:
 
     /// Creates a new table instance and moves implementation from another one into it.
     table(table&&);
-
-    template <typename Impl,
-              typename ImplType = std::decay_t<Impl>,
-              typename = std::enable_if_t<detail::is_table_impl_v<ImplType> &&
-                                          !std::is_base_of_v<table, ImplType>>>
-    table(Impl&& impl) {
-        init_impl(new detail::table_impl_wrapper(std::forward<Impl>(impl)));
-    }
 
     /// Replaces the implementation by another one.
     table& operator=(const table&) = default;
@@ -133,26 +98,27 @@ public:
 
     /// The metadata object that holds additional information
     /// about the data within the table.
-    /// @remark default = table_metadata()
+    /// @remark default = :expr:`table_metadata{}`
     const table_metadata& get_metadata() const;
 
     /// The runtime id of the table type.
     /// Each table sub-type has its unique ``kind``.
-    /// An empty table (see the default constructor) has a unique ``kind`` value as well.
-    /// @remark default = empty_table_kind
+    /// An empty table has a unique ``kind`` value as well.
     std::int64_t get_kind() const;
 
     /// The layout of the data within the table
-    /// @remark default = data_layout::unknown
+    /// @remark default = :expr:`data_layout::unknown`
     data_layout get_data_layout() const;
 
 protected:
-    table(const pimpl& impl) : impl_(impl) {}
+    explicit table(detail::table_iface* impl) : impl_(impl) {}
 
-    void init_impl(pimpl::element_type* impl);
+    void init_impl(detail::table_iface* impl) {
+        impl_.reset(impl);
+    }
 
 private:
-    pimpl impl_;
+    detail::pimpl<detail::table_iface> impl_;
 };
 
 } // namespace v1

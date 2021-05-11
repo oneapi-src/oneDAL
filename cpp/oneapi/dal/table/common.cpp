@@ -15,25 +15,27 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/exceptions.hpp"
-#include "oneapi/dal/table/backend/empty_table_impl.hpp"
-
-using std::int64_t;
 
 namespace oneapi::dal {
+namespace detail {
+namespace v1 {
 
-class detail::v1::table_metadata_impl {
+class table_metadata_impl {
 public:
-    virtual ~table_metadata_impl() {}
-
+    virtual ~table_metadata_impl() = default;
     virtual int64_t get_feature_count() const = 0;
     virtual const feature_type& get_feature_type(int64_t index) const = 0;
     virtual const data_type& get_data_type(int64_t index) const = 0;
 };
 
+} // namespace v1
+} // namespace detail
+
 namespace v1 {
 
-class empty_metadata_impl : public detail::table_metadata_impl {
+using detail::v1::table_metadata_impl;
+
+class empty_metadata_impl : public table_metadata_impl, public base {
 public:
     int64_t get_feature_count() const override {
         return 0;
@@ -49,15 +51,16 @@ public:
     }
 };
 
-class simple_metadata_impl : public detail::table_metadata_impl {
+class simple_metadata_impl : public table_metadata_impl, public base {
 public:
     simple_metadata_impl(const array<data_type>& dtypes, const array<feature_type>& ftypes)
             : dtypes_(dtypes),
               ftypes_(ftypes) {
         if (dtypes_.get_count() != ftypes_.get_count()) {
-            throw out_of_range(
+            throw out_of_range{
                 dal::detail::error_messages::
-                    element_count_in_data_type_and_feature_type_arrays_does_not_match());
+                    element_count_in_data_type_and_feature_type_arrays_does_not_match()
+            };
         }
     }
 
@@ -84,9 +87,60 @@ private:
         return i >= 0 && i < dtypes_.get_count();
     }
 
-private:
     array<data_type> dtypes_;
     array<feature_type> ftypes_;
+};
+
+class empty_table_impl : public detail::table_template<detail::table_iface, empty_table_impl> {
+public:
+    static constexpr std::int64_t pure_empty_table_kind = 0;
+
+    std::int64_t get_column_count() const override {
+        return 0;
+    }
+
+    std::int64_t get_row_count() const override {
+        return 0;
+    }
+
+    std::int64_t get_kind() const override {
+        return pure_empty_table_kind;
+    }
+
+    data_layout get_data_layout() const override {
+        return data_layout::unknown;
+    }
+
+    const table_metadata& get_metadata() const override {
+        static table_metadata metadata;
+        return metadata;
+    }
+
+    template <typename T>
+    void pull_rows(const detail::default_host_policy& policy,
+                   array<T>& block,
+                   const range& rows) const {}
+
+    template <typename T>
+    void pull_column(const detail::default_host_policy& policy,
+                     array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows) const {}
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_rows(const detail::data_parallel_policy& policy,
+                   array<T>& block,
+                   const range& rows,
+                   sycl::usm::alloc alloc) const {}
+
+    template <typename T>
+    void pull_column(const detail::data_parallel_policy& policy,
+                     array<T>& block,
+                     std::int64_t column_index,
+                     const range& rows,
+                     sycl::usm::alloc alloc) const {}
+#endif
 };
 
 table_metadata::table_metadata() : impl_(new empty_metadata_impl()) {}
@@ -106,13 +160,10 @@ const data_type& table_metadata::get_data_type(int64_t feature_index) const {
     return impl_->get_data_type(feature_index);
 }
 
-table::table() : table(backend::empty_table_impl{}) {}
+table::table() : table(new empty_table_impl{}) {}
 
 table::table(table&& t) : impl_(std::move(t.impl_)) {
-    using wrapper = detail::table_impl_wrapper<backend::empty_table_impl>;
-    using wrapper_ptr = detail::shared<wrapper>;
-
-    t.impl_ = wrapper_ptr(new wrapper(backend::empty_table_impl{}));
+    t.impl_.reset(new empty_table_impl{});
 }
 
 table& table::operator=(table&& t) {
@@ -142,10 +193,6 @@ int64_t table::get_kind() const {
 
 data_layout table::get_data_layout() const {
     return impl_->get_data_layout();
-}
-
-void table::init_impl(detail::table_impl_iface* impl) {
-    impl_ = pimpl{ impl };
 }
 
 } // namespace v1

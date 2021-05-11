@@ -28,53 +28,6 @@ TEST(table_test, can_construct_empty_table) {
     ASSERT_EQ(t.get_column_count(), 0);
 }
 
-TEST(table_test, can_set_custom_implementation) {
-    struct table_impl {
-        const std::int64_t kind = 123456;
-
-        std::int64_t get_column_count() const noexcept {
-            return 10;
-        }
-
-        std::int64_t get_row_count() const noexcept {
-            return 1000;
-        }
-
-        const table_metadata& get_metadata() const noexcept {
-            return m;
-        }
-
-        std::int64_t get_kind() const {
-            return kind;
-        }
-
-        data_layout get_data_layout() const {
-            return data_layout::row_major;
-        }
-
-        void pull_rows(array<float>& a, const range& r) const {}
-        void pull_rows(array<double>& a, const range& r) const {}
-        void pull_rows(array<std::int32_t>& a, const range& r) const {}
-        void push_rows(const array<float>&, const range&) {}
-        void push_rows(const array<double>&, const range&) {}
-        void push_rows(const array<std::int32_t>&, const range&) {}
-
-        void pull_column(array<float>& a, std::int64_t idx, const range& r) const {}
-        void pull_column(array<double>& a, std::int64_t idx, const range& r) const {}
-        void pull_column(array<std::int32_t>& a, std::int64_t idx, const range& r) const {}
-        void push_column(const array<float>&, std::int64_t idx, const range&) {}
-        void push_column(const array<double>&, std::int64_t idx, const range&) {}
-        void push_column(const array<std::int32_t>&, std::int64_t idx, const range&) {}
-
-        table_metadata m;
-    };
-
-    table t{ table_impl{} };
-    ASSERT_TRUE(t.has_data());
-    ASSERT_EQ(t.get_kind(), table_impl{}.get_kind());
-    ASSERT_EQ(data_layout::row_major, t.get_data_layout());
-}
-
 TEST(simple_metadata_bad_arg_tests, get_feature_type) {
     const std::int64_t n_features = 5;
     auto dtypes = array<data_type>::full(n_features, data_type::int32);

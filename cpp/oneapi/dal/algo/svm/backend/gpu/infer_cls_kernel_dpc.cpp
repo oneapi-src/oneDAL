@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/algo/svm/backend/gpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/svm/backend/model_interop.hpp"
+#include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -56,10 +56,14 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         interop::convert_to_daal_table(queue, trained_model.get_support_vectors());
     const auto daal_coeffs = interop::convert_to_daal_table(queue, trained_model.get_coeffs());
 
+    const auto biases = trained_model.get_biases();
+    const auto biases_acc = row_accessor<const Float>{ biases }.pull();
+    const double bias = biases_acc[0];
+
     auto daal_model = daal_model_builder{}
                           .set_support_vectors(daal_support_vectors)
                           .set_coeffs(daal_coeffs)
-                          .set_bias(trained_model.get_bias());
+                          .set_bias(bias);
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {

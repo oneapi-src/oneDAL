@@ -23,15 +23,14 @@
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/algo/triangle_counting/detail/vertex_ranking_types.hpp"
 
-namespace oneapi::dal::preview {
-namespace triangle_counting {
+namespace oneapi::dal::preview::triangle_counting {
 
 /// Class for the description of the input parameters of the Triangle Counting
 /// algorithm
 ///
 /// @tparam Graph  Type of the input graph
 template <typename Graph, typename Task = task::by_default>
-class ONEDAL_EXPORT vertex_ranking_input : public base {
+class vertex_ranking_input : public base {
     static_assert(detail::is_valid_task<Task>);
 
 public:
@@ -40,14 +39,14 @@ public:
                   "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the graph
     ///
-    /// @param [in]   graph  The input graph
-    vertex_ranking_input(const Graph& graph);
+    /// @param [in]   g  The input graph
+    vertex_ranking_input(const Graph& g);
 
     /// Returns the constant reference to the input graph
     const Graph& get_graph() const;
 
     /// Sets the input graph
-    auto& set_graph(const Graph& value);
+    auto& set_graph(const Graph& g);
 
 private:
     dal::detail::pimpl<detail::vertex_ranking_input_impl<Graph, Task>> impl_;
@@ -55,7 +54,7 @@ private:
 
 /// Class for the description of the result of the Triangle Counting algorithm
 template <typename Task = task::by_default>
-class ONEDAL_EXPORT vertex_ranking_result {
+class vertex_ranking_result {
     static_assert(detail::is_valid_task<Task>);
 
 public:
@@ -106,5 +105,4 @@ const Graph& vertex_ranking_input<Graph, Task>::get_graph() const {
     return impl_->graph_data;
 }
 
-} // namespace triangle_counting
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::triangle_counting

@@ -52,7 +52,6 @@ class RstBuilder(object):
         assert declaration
         assert parent_fully_qualified_name
         fake_parent_namespace = '_'.join(parent_fully_qualified_name.split('::'))
-        self(f'.. cpp:namespace:: {fake_parent_namespace}_properties', level)
         self(f'.. cpp:member:: {declaration}', level)
         self.add_blank_line()
 
