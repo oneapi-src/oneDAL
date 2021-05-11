@@ -31,7 +31,7 @@ public:
         return nullptr;
     }
 
-    virtual std::string getArchiveAsString() override {
+    std::string getArchiveAsString() override {
         ONEDAL_ASSERT(!"Not implemented");
         return std::string{};
     }

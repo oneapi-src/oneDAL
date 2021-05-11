@@ -37,8 +37,34 @@ inline void check_if_table_content_equal(const table& actual, const table& refer
     const auto reference_ary = row_accessor<const Data>{ reference }.pull();
 
     for (std::int64_t i = 0; i < reference_ary.get_count(); i++) {
-        if (actual_ary[i] != reference_ary[i]) {
-            CAPTURE(i, actual_ary[i], reference_ary[i]);
+        const Data actual = actual_ary[i];
+        const Data reference = reference_ary[i];
+        if (actual != reference) {
+            CAPTURE(i, actual, reference);
+            FAIL("Found elements mismatch in tables");
+            break;
+        }
+    }
+}
+
+template <typename Float>
+inline void check_if_table_content_equal_approx(const table& actual,
+                                                const table& reference,
+                                                double tolerance) {
+    static_assert(std::is_floating_point_v<Float>);
+    const auto actual_ary = row_accessor<const Float>{ actual }.pull();
+    const auto reference_ary = row_accessor<const Float>{ reference }.pull();
+
+    for (std::int64_t i = 0; i < reference_ary.get_count(); i++) {
+        const Float actual = actual_ary[i];
+        const Float reference = reference_ary[i];
+
+        const double div = std::max(std::abs(actual), std::abs(reference));
+        const double relative_error =
+            (div > tolerance) ? (std::abs(double(actual) - double(reference)) / div) : 0.0;
+
+        if (relative_error > tolerance) {
+            CAPTURE(i, actual, reference, relative_error);
             FAIL("Found elements mismatch in tables");
             break;
         }
@@ -54,6 +80,19 @@ inline void check_if_tables_equal(const table& actual, const table& reference) {
 
     check_if_metadata_equal(actual.get_metadata(), reference.get_metadata());
     check_if_table_content_equal<Data>(actual, reference);
+}
+
+template <typename Float>
+inline void check_if_tables_equal_approx(const table& actual,
+                                         const table& reference,
+                                         double tolerance) {
+    REQUIRE(actual.get_row_count() == reference.get_row_count());
+    REQUIRE(actual.get_column_count() == reference.get_column_count());
+    REQUIRE(actual.get_data_layout() == reference.get_data_layout());
+    REQUIRE(actual.get_kind() == reference.get_kind());
+
+    check_if_metadata_equal(actual.get_metadata(), reference.get_metadata());
+    check_if_table_content_equal_approx<Float>(actual, reference, tolerance);
 }
 
 } // namespace oneapi::dal::test::engine
