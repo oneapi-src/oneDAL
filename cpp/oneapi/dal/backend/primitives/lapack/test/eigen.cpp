@@ -37,17 +37,35 @@ public:
         return la::generate_symmetric_positive_matrix<Float>(dim, -1, 1, seed_);
     }
 
-    auto call_sym_eigvals(const la::matrix<Float>& symmetric_matrix) {
+    auto call_sym_eigvals_inplace(const la::matrix<Float>& symmetric_matrix) {
         constexpr bool is_ascending = true;
-        return call_sym_eigvals_generic(symmetric_matrix, is_ascending);
+        return call_sym_eigvals_inplace_generic(symmetric_matrix, is_ascending);
     }
 
-    auto call_sym_eigvals_descending(const la::matrix<Float>& symmetric_matrix) {
+    auto call_sym_eigvals_inplace_descending(const la::matrix<Float>& symmetric_matrix) {
         constexpr bool is_ascending = false;
-        return call_sym_eigvals_generic(symmetric_matrix, is_ascending);
+        return call_sym_eigvals_inplace_generic(symmetric_matrix, is_ascending);
     }
 
-    auto call_sym_eigvals_generic(const la::matrix<Float>& symmetric_matrix, bool is_ascending) {
+    auto call_sym_eigvals_descending(const la::matrix<Float>& symmetric_matrix,
+                                     std::int64_t eigval_count) {
+        ONEDAL_ASSERT(symmetric_matrix.get_row_count() == symmetric_matrix.get_column_count());
+
+        const std::int64_t dim = symmetric_matrix.get_row_count();
+        const auto s_copy_flat = symmetric_matrix.copy().get_array();
+
+        auto data_or_scratchpad_nd = ndarray<Float, 2>::wrap_mutable(s_copy_flat, { dim, dim });
+        auto eigvecs_nd = ndarray<Float, 2>::empty({ eigval_count, dim });
+        auto eigvals_nd = ndarray<Float, 1>::empty(eigval_count);
+        sym_eigvals_descending(data_or_scratchpad_nd, eigval_count, eigvecs_nd, eigvals_nd);
+
+        const auto eigvecs = la::matrix<Float>::wrap_nd(eigvecs_nd);
+        const auto eigvals = la::matrix<Float>::wrap_nd(eigvals_nd);
+        return std::make_tuple(eigvecs, eigvals);
+    }
+
+    auto call_sym_eigvals_inplace_generic(const la::matrix<Float>& symmetric_matrix,
+                                          bool is_ascending) {
         ONEDAL_ASSERT(symmetric_matrix.get_row_count() == symmetric_matrix.get_column_count());
 
         const std::int64_t dim = symmetric_matrix.get_row_count();
@@ -117,20 +135,32 @@ private:
 #define SYM_EIGVALS_TEST(name) \
     TEMPLATE_TEST_M(sym_eigvals_test, name, "[sym_eigvals]", float, double)
 
-SYM_EIGVALS_TEST("check sym_eigvals on symmetric positive-definite matrix") {
+SYM_EIGVALS_TEST("check inplace sym_eigvals on symmetric positive-definite matrix") {
     const auto s = this->generate_symmetric_positive();
 
-    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals(s);
+    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace(s);
 
     this->check_eigvals_definition(s, eigenvectors, eigenvalues);
     this->check_eigvals_are_ascending(eigenvalues);
 }
 
-SYM_EIGVALS_TEST("check sym_eigvals_descending on symmetric positive-definite matrix") {
+SYM_EIGVALS_TEST("check inplace sym_eigvals_descending on symmetric positive-definite matrix") {
     const auto s = this->generate_symmetric_positive();
 
-    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_descending(s);
+    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace_descending(s);
 
+    this->check_eigvals_definition(s, eigenvectors, eigenvalues);
+    this->check_eigvals_are_descending(eigenvalues);
+}
+
+SYM_EIGVALS_TEST("check sym_eigvals_descending on symmetric positive-definite matrix") {
+    const auto s = this->generate_symmetric_positive();
+    const std::int64_t eigvals_count = GENERATE_COPY(1, s.get_row_count() / 2, s.get_row_count());
+
+    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_descending(s, eigvals_count);
+
+    REQUIRE(eigenvectors.get_row_count() == eigvals_count);
+    REQUIRE(eigenvalues.get_count() == eigvals_count);
     this->check_eigvals_definition(s, eigenvectors, eigenvalues);
     this->check_eigvals_are_descending(eigenvalues);
 }

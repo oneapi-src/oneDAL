@@ -120,6 +120,84 @@ inline constexpr Integer up_pow2(Integer x) {
 
 using event_vector = std::vector<sycl::event>;
 
+template <typename T>
+class object_store_entry : public base {
+public:
+    object_store_entry(const T& value) : inner_(value) {}
+    object_store_entry(T&& value) : inner_(std::move(value)) {}
+
+private:
+    T inner_;
+};
+
+class object_store : public base {
+public:
+    using container_t = std::vector<base*>;
+
+    ~object_store() {
+        for (auto obj : container_) {
+            delete obj;
+        }
+    }
+
+    template <typename T>
+    void add(T&& obj) {
+        container_.push_back(new object_store_entry{ std::forward<T>(obj) });
+    }
+
+    void clear() {
+        container_.clear();
+    }
+
+private:
+    container_t container_;
+};
+
+class smart_event : public base {
+public:
+    smart_event() = default;
+    smart_event(const sycl::event& event) : event_(event) {}
+    smart_event(sycl::event&& event) : event_(std::move(event)) {}
+
+    operator sycl::event() const {
+        return event_;
+    }
+
+    smart_event& operator=(const sycl::event& event) {
+        event_ = event;
+        return *this;
+    }
+
+    smart_event& operator=(sycl::event&& event) {
+        event_ = std::move(event);
+        return *this;
+    }
+
+    void wait() {
+        event_.wait();
+        store_->clear();
+    }
+
+    void wait_and_throw() {
+        event_.wait_and_throw();
+        store_->clear();
+    }
+
+    template <typename T>
+    smart_event& attach(T&& value) {
+        store_->add(std::forward<T>(value));
+        return *this;
+    }
+
+private:
+    sycl::event event_;
+    std::shared_ptr<object_store> store_ = std::make_shared<object_store>();
+};
+
+inline bool is_same_context(const sycl::queue& q1, const sycl::queue& q2) {
+    return q1.get_context() == q2.get_context();
+}
+
 template <typename, typename = void>
 struct has_get_queue : std::false_type {};
 

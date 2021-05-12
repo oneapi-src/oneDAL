@@ -17,32 +17,18 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
-
-/// Computes correlation matrix and variances
-///
-/// @tparam Float Floating-point type used to perform computations
-///
-/// @param[in]  queue The queue
-/// @param[in]  data  The [n x p] input dataset
-/// @param[in]  sums  The [p] sums computed along each column of the data
-/// @param[out] corr  The [p x p] correlation matrix
-/// @param[out] means The [p] means for each feature
-/// @param[out] vars  The [p] variances for each feature
-/// @param[out] tmp   The [p] temporary buffer
 template <typename Float>
-sycl::event correlation(sycl::queue& queue,
-                        const ndview<Float, 2>& data,
-                        const ndview<Float, 1>& sums,
-                        ndview<Float, 2>& corr,
-                        ndview<Float, 1>& means,
-                        ndview<Float, 1>& vars,
-                        ndview<Float, 1>& tmp,
-                        const event_vector& deps = {});
-
+inline ndarray<Float, 2> table2ndarray(sycl::queue& q, const table& table, sycl::usm::alloc alloc) {
+    row_accessor<const Float> accessor{ table };
+    const auto data = accessor.pull(q, { 0, -1 }, alloc);
+    return ndarray<Float, 2>::wrap(data, { table.get_row_count(), table.get_column_count() });
+}
 #endif
 
 } // namespace oneapi::dal::backend::primitives
