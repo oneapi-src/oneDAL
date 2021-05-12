@@ -81,9 +81,9 @@ private:
     void internal_push(dfs_stack& s, std::uint64_t level);
 
     std::stack<std::vector<std::uint64_t>> data_;
-    mutex mutex_;
+    std::mutex mutex_;
 
-    using lock_type = std::scoped_lock<mutex>;
+    using lock_type = std::scoped_lock<std::mutex>;
 };
 
 class dfs_stack {

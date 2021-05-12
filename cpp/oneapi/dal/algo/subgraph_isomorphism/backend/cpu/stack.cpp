@@ -221,7 +221,7 @@ graph_status vertex_stack::increase_stack_size() {
     if (tmp_data == nullptr) {
         return bad_allocation;
     }
-    const auto skip_count = _bottom - stack_data;
+    const auto skip_count = bottom_ - stack_data;
     for (std::uint64_t i = 0; i < stack_size - skip_count; i++) {
         tmp_data[i] = stack_data[i + skip_count];
         //tmp_data[i + stack_size] = null_node;
@@ -284,7 +284,7 @@ void global_stack::internal_push(dfs_stack& s, std::uint64_t level) {
         v[level] = *(s.data_by_levels[level].bottom_);
 
         lock_type lock(mutex_);
-        data_.push_back(v);
+        data_.push(v);
     }
 
     // Remove state
