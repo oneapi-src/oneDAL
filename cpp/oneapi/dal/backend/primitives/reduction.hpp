@@ -15,3 +15,5 @@
 *******************************************************************************/
 
 #pragma once
+
+#include "oneapi/dal/backend/primitives/reduction/reduction.hpp"

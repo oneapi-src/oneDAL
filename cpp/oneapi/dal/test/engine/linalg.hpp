@@ -20,3 +20,4 @@
 #include "oneapi/dal/test/engine/linalg/loops.hpp"
 #include "oneapi/dal/test/engine/linalg/umath.hpp"
 #include "oneapi/dal/test/engine/linalg/dot.hpp"
+#include "oneapi/dal/test/engine/linalg/random.hpp"

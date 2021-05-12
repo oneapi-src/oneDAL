@@ -58,7 +58,7 @@ struct SVMTrainTask
     Status compute(const KernelParameter & svmPar);
 
     /* Write support vectors and classification coefficients into model */
-    Status setResultsToModel(const NumericTable & xTable, Model & model) const;
+    Status setResultsToModel(const NumericTablePtr & xTable, Model & model) const;
 
     ~SVMTrainTask();
 

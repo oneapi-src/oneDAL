@@ -19,6 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
 
@@ -40,108 +41,124 @@ template <typename Float>
 struct binary_label_t {
     Float first;
     Float second;
+
+    bool operator==(const binary_label_t&& binary_label) const {
+        return (first == binary_label.first && second == binary_label.second) ||
+               (first == binary_label.second && second == binary_label.first);
+    }
 };
 
 template <typename Float>
-inline array<Float> convert_labels(const array<Float>& arr_label,
-                                   const binary_label_t<Float>& in_binary_labels,
-                                   binary_label_t<Float>& out_binary_labels) {
+inline binary_label_t<Float> get_unique_labels_impl(const array<Float>& arr_label) {
     const std::int64_t count = arr_label.get_count();
-    auto new_label_arr = array<Float>::empty(count);
-    auto new_label_data = new_label_arr.get_mutable_data();
 
-    Float value_first_class_label = arr_label[0];
-    Float value_second_class_label = arr_label[1];
+    Float first_label = arr_label[0];
+    Float second_label = arr_label[1];
 
-    new_label_data[0] = in_binary_labels.first;
-    std::int64_t i = 1;
-    for (; i < count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
-        }
-        else {
-            value_second_class_label = arr_label[i];
-            new_label_data[i] = in_binary_labels.second;
+    for (std::int64_t i = 1; i < count; ++i) {
+        if (arr_label[i] != first_label) {
+            second_label = arr_label[i];
             break;
         }
     }
-    if (value_first_class_label == value_second_class_label) {
+
+    if (first_label == second_label) {
         throw invalid_argument(
             dal::detail::error_messages::input_labels_contain_only_one_unique_value_expect_two());
     }
 
-    for (; i < count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
+    // need to sort class labels to be consistent with Scikit-learn*
+    if (first_label > second_label) {
+        std::swap(first_label, second_label);
+    }
+
+    return { first_label, second_label };
+}
+
+template <typename Float>
+inline void convert_binary_labels_impl(const binary_label_t<Float>& requested_unique_labels,
+                                       const binary_label_t<Float>& old_unique_labels,
+                                       const array<Float>& arr_label,
+                                       array<Float>& new_label_arr) {
+    const std::int64_t count = arr_label.get_count();
+    auto new_label_data = new_label_arr.get_mutable_data();
+
+    for (std::int64_t i = 0; i < count; ++i) {
+        if (arr_label[i] == old_unique_labels.first) {
+            new_label_data[i] = requested_unique_labels.first;
         }
-        else if (arr_label[i] == value_second_class_label) {
-            new_label_data[i] = in_binary_labels.second;
+        else if (arr_label[i] == old_unique_labels.second) {
+            new_label_data[i] = requested_unique_labels.second;
         }
         else {
             throw invalid_argument(dal::detail::error_messages::
                                        input_labels_contain_wrong_unique_values_count_expect_two());
         }
     }
+}
 
-    out_binary_labels.first = value_first_class_label;
-    out_binary_labels.second = value_second_class_label;
-    return new_label_arr;
+template <typename Float>
+inline binary_label_t<Float> get_unique_labels(const table& labels) {
+    auto arr_label = row_accessor<const Float>{ labels }.pull();
+    return get_unique_labels_impl<Float>(arr_label);
+}
+
+template <typename Float>
+inline table convert_binary_labels(const table& labels,
+                                   const binary_label_t<Float>& requested_unique_labels,
+                                   const binary_label_t<Float>& old_unique_labels) {
+    if (old_unique_labels == binary_label_t<Float>{ 0, 1 } ||
+        old_unique_labels == binary_label_t<Float>{ -1, 1 }) {
+        return labels;
+    }
+    else {
+        ONEDAL_ASSERT(labels.get_column_count() == 1);
+
+        auto arr_label = row_accessor<const Float>{ labels }.pull();
+        const std::int64_t count = arr_label.get_count();
+
+        auto new_label_arr = array<Float>::empty(count);
+        convert_binary_labels_impl<Float>(requested_unique_labels,
+                                          old_unique_labels,
+                                          arr_label,
+                                          new_label_arr);
+
+        return homogen_table::wrap(new_label_arr, count, 1);
+    }
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float>
-inline array<Float> convert_labels(sycl::queue& queue,
-                                   const array<Float>& arr_label,
-                                   const binary_label_t<Float>& in_binary_labels,
-                                   binary_label_t<Float>& out_binary_labels) {
-    // TODO: Implement conversion on device
-    using error_msg = dal::detail::error_messages;
-    const std::int64_t count = arr_label.get_count();
-
-    // TODO: Replace allocation type once bug with `memcpy` and host memory is fixed
-    auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
-    auto new_label_data = new_label_arr.get_mutable_data();
-
+inline binary_label_t<Float> get_unique_labels(sycl::queue& queue, const table& labels) {
+    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
     const auto arr_label_host = dal::backend::to_host_sync(arr_label);
-    Float value_first_class_label = arr_label_host[0];
-    Float value_second_class_label = arr_label_host[1];
+    return get_unique_labels_impl<Float>(arr_label_host);
+}
 
-    new_label_data[0] = in_binary_labels.first;
-    std::int64_t i = 1;
-    for (; i < count; ++i) {
-        if (arr_label_host[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
-        }
-        else {
-            value_second_class_label = arr_label_host[i];
-            new_label_data[i] = in_binary_labels.second;
-            break;
-        }
+template <typename Float>
+inline table convert_binary_labels(sycl::queue& queue,
+                                   const table& labels,
+                                   const binary_label_t<Float>& requested_unique_labels,
+                                   const binary_label_t<Float>& old_unique_labels) {
+    if (old_unique_labels == binary_label_t<Float>{ -1, 1 }) {
+        return labels;
     }
-    if (value_first_class_label == value_second_class_label) {
-        throw invalid_argument{
-            error_msg::input_labels_contain_only_one_unique_value_expect_two()
-        };
+    else {
+        ONEDAL_ASSERT(labels.get_column_count() == 1);
+
+        auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
+        const std::int64_t count = arr_label.get_count();
+
+        const auto arr_label_host = dal::backend::to_host_sync(arr_label);
+        auto new_label_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
+        convert_binary_labels_impl<Float>(requested_unique_labels,
+                                          old_unique_labels,
+                                          arr_label_host,
+                                          new_label_arr);
+
+        auto device_arr_data = dal::backend::to_device_sync(queue, new_label_arr);
+        return homogen_table::wrap(device_arr_data, count, 1);
     }
-
-    for (; i < count; ++i) {
-        if (arr_label_host[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
-        }
-        else if (arr_label_host[i] == value_second_class_label) {
-            new_label_data[i] = in_binary_labels.second;
-        }
-        else {
-            throw invalid_argument{
-                error_msg::input_labels_contain_wrong_unique_values_count_expect_two()
-            };
-        }
-    }
-
-    out_binary_labels.first = value_first_class_label;
-    out_binary_labels.second = value_second_class_label;
-
-    return dal::backend::to_device_sync(queue, new_label_arr);
 }
 #endif
 

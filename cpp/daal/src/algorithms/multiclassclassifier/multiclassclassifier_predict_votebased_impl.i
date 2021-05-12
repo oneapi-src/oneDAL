@@ -44,15 +44,15 @@ using namespace daal::internal;
 using namespace daal::services;
 using namespace daal::services::internal;
 
-template <typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
-struct MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu> : public Kernel
+template <typename algorithmFPType, CpuType cpu>
+struct MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, cpu> : public Kernel
 {
-    Status compute(const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df,
+    Status compute(const NumericTable * a, const daal::algorithms::Model * m, SvmModel * svmModel, NumericTable * pred, NumericTable * df,
                    const daal::algorithms::Parameter * par);
 };
 
 /** Base class for threading subtask */
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SubTaskVoteBased
 {
 public:
@@ -70,59 +70,56 @@ public:
      * \return Status of the computations
      */
     Status predict(size_t startRow, size_t nRows, const NumericTable * a, Model * model, NumericTable * pred, NumericTable * df,
-                   const size_t * nonEmptyClassMap)
+                   const size_t * nonEmptyClassMap, const size_t * classIndicesData, const bool isSvmModel)
     {
         Status s;
-        int * votes         = _aVotes.get(); // array of two-class classifiers' votes
-        algorithmFPType * y = _aY.get();     // array of two-class classifier predictions
-
+        int * votes          = _aVotes.get(); // array of two-class classifiers' votes
+        algorithmFPType * y  = _aY.get();     // array of two-class classifier predictions
+        const size_t nModels = (_nClasses * (_nClasses - 1)) >> 1;
         daal::services::internal::service_memset_seq<int, cpu>(votes, 0, _nClasses * nRows);
+        NumericTablePtr xTable; // block of rows from the input data set
+        s = getDataBlock(startRow, nRows, a, xTable);
+        if (!s) return s;
+
+        if (!df && nRows != _yTable->getNumberOfRows()) _yTable->resize(nRows);
+
+        /* TODO: Try threading here */
+        for (size_t imodel = 0; imodel < nModels; ++imodel)
         {
-            NumericTablePtr xTable; // block of rows from the input data set
-            s = getDataBlock(startRow, nRows, a, xTable);
-            if (!s) return s;
-
-            if (!df && nRows != _yTable->getNumberOfRows()) _yTable->resize(nRows);
-
-            /* TODO: Try threading here */
-            for (size_t iClass = 1, imodel = 0; iClass < _nClasses; ++iClass)
-            {
-                for (size_t jClass = 0; jClass < iClass; ++jClass, ++imodel)
-                {
-                    /* Compute two-class predictions for the pair of classes (iClass, jClass)
+            const size_t iClass = classIndicesData[imodel];
+            const size_t jClass = classIndicesData[imodel + nModels];
+            /* Compute two-class predictions for the pair of classes (iClass, jClass)
                        for the block of input observations */
-                    classifier::prediction::Input * input = _simplePrediction->getInput();
-                    DAAL_CHECK(input, ErrorNullInput);
-                    input->set(classifier::prediction::data, xTable);
-                    input->set(classifier::prediction::model, model->getTwoClassClassifierModel(imodel));
+            classifier::prediction::Input * input = _simplePrediction->getInput();
+            DAAL_CHECK(input, ErrorNullInput);
+            input->set(classifier::prediction::data, xTable);
+            input->set(classifier::prediction::model, model->getTwoClassClassifierModel(imodel));
 
-                    const size_t iClassesForDF = (jClass * (2 * _nClasses - jClass - 1)) / 2 + (iClass - jClass - 1);
-                    WriteOnlyColumns<algorithmFPType, cpu> dfBlock(df, iClassesForDF, startRow, nRows);
-                    DAAL_CHECK_BLOCK_STATUS(dfBlock);
-                    algorithmFPType * dfData = dfBlock.get();
+            const size_t iClassesForDF = isSvmModel ? imodel : (jClass * (2 * _nClasses - jClass - 1)) / 2 + (iClass - jClass - 1);
+            WriteOnlyColumns<algorithmFPType, cpu> dfBlock(df, iClassesForDF, startRow, nRows);
+            DAAL_CHECK_BLOCK_STATUS(dfBlock);
+            algorithmFPType * dfData = dfBlock.get();
 
-                    if (dfData)
-                    {
-                        y       = dfData;
-                        _yTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(dfData, 1, nRows);
-                        _yRes->set(classifier::prediction::prediction, _yTable);
-                        _simplePrediction->setResult(_yRes);
-                    }
+            if (dfData)
+            {
+                y       = dfData;
+                _yTable = HomogenNumericTableCPU<algorithmFPType, cpu>::create(dfData, 1, nRows);
+                _yRes->set(classifier::prediction::prediction, _yTable);
+                _simplePrediction->setResult(_yRes);
+            }
 
-                    s = _simplePrediction->computeNoThrow();
-                    if (!s) return Status(ErrorMultiClassFailedToComputeTwoClassPrediction).add(s);
+            s = _simplePrediction->computeNoThrow();
+            if (!s) return Status(ErrorMultiClassFailedToComputeTwoClassPrediction).add(s);
 
-                    /* Compute votes for the block of input observations */
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (size_t i = 0; i < nRows; ++i)
-                    {
-                        if (y[i] >= 0)
-                            votes[i * _nClasses + iClass]++;
-                        else
-                            votes[i * _nClasses + jClass]++;
-                    }
-                }
+            /* Compute votes for the block of input observations */
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < nRows; ++i)
+            {
+                if (y[i] >= 0)
+                    votes[i * _nClasses + iClass]++;
+                else
+                    votes[i * _nClasses + jClass]++;
             }
         }
 
@@ -169,8 +166,12 @@ protected:
      * \param[in] simplePrediction  Two-class classifier prediction algorithm
      * \param[out] valid            Flag. True if the task was constructed successfully, false otherwise
      */
-    SubTaskVoteBased(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool isComputeDecisionFunction, bool & valid)
-        : _nClasses(nClasses), _aVotes(nClasses * nRows), _yRes(new typename ClsType::ResultType()), _simplePrediction(simplePrediction->clone())
+    SubTaskVoteBased(size_t nClasses, size_t nRows, const SharedPtr<classifier::prediction::Batch> & simplePrediction, bool isComputeDecisionFunction,
+                     bool & valid)
+        : _nClasses(nClasses),
+          _aVotes(nClasses * nRows),
+          _yRes(new typename classifier::prediction::Batch::ResultType()),
+          _simplePrediction(simplePrediction->clone())
     {
         if (!_aVotes.get() || !_yRes)
         {
@@ -202,16 +203,16 @@ private:
     TArray<algorithmFPType, cpu> _aY;
     TArray<int, cpu> _aVotes;
     NumericTablePtr _yTable;
-    services::SharedPtr<typename ClsType::ResultType> _yRes;
-    SharedPtr<ClsType> _simplePrediction;
-};
+    services::SharedPtr<typename classifier::prediction::Batch::ResultType> _yRes;
+    SharedPtr<classifier::prediction::Batch> _simplePrediction;
+}; // namespace internal
 
 /** Class for threading subtask that works with dense input data */
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
-class SubTaskVoteBasedDense : public SubTaskVoteBased<algorithmFPType, ClsType, cpu>
+template <typename algorithmFPType, CpuType cpu>
+class SubTaskVoteBasedDense : public SubTaskVoteBased<algorithmFPType, cpu>
 {
 public:
-    typedef SubTaskVoteBased<algorithmFPType, ClsType, cpu> super;
+    typedef SubTaskVoteBased<algorithmFPType, cpu> super;
     using super::predict;
 
     /**
@@ -221,7 +222,8 @@ public:
      * \param[in] simplePrediction  Two-class classifier prediction algorithm
      * \return Pointer to the newly constructed subtask in case of success; NULL pointer in case of failure
      */
-    static super * create(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool isComputeDecisionFunction)
+    static super * create(size_t nClasses, size_t nRows, const SharedPtr<classifier::prediction::Batch> & simplePrediction,
+                          bool isComputeDecisionFunction)
     {
         bool valid  = true;
         super * res = new SubTaskVoteBasedDense(nClasses, nRows, simplePrediction, isComputeDecisionFunction, valid);
@@ -242,18 +244,19 @@ protected:
     }
 
 private:
-    SubTaskVoteBasedDense(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool isComputeDecisionFunction, bool & valid)
+    SubTaskVoteBasedDense(size_t nClasses, size_t nRows, const SharedPtr<classifier::prediction::Batch> & simplePrediction,
+                          bool isComputeDecisionFunction, bool & valid)
         : super(nClasses, nRows, simplePrediction, isComputeDecisionFunction, valid)
     {}
     ReadRows<algorithmFPType, cpu> _xRows;
 };
 
 /** Class for threading subtask that works with CSR input data */
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
-class SubTaskVoteBasedCSR : public SubTaskVoteBased<algorithmFPType, ClsType, cpu>
+template <typename algorithmFPType, CpuType cpu>
+class SubTaskVoteBasedCSR : public SubTaskVoteBased<algorithmFPType, cpu>
 {
 public:
-    typedef SubTaskVoteBased<algorithmFPType, ClsType, cpu> super;
+    typedef SubTaskVoteBased<algorithmFPType, cpu> super;
     using super::predict;
 
     /**
@@ -263,7 +266,8 @@ public:
      * \param[in] simplePrediction  Two-class classifier prediction algorithm
      * \return Pointer to the newly constructed subtask in case of success; NULL pointer in case of failure
      */
-    static super * create(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool isComputeDecisionFunction)
+    static super * create(size_t nClasses, size_t nRows, const SharedPtr<classifier::prediction::Batch> & simplePrediction,
+                          bool isComputeDecisionFunction)
     {
         bool valid  = true;
         super * res = new SubTaskVoteBasedCSR(nClasses, nRows, simplePrediction, isComputeDecisionFunction, valid);
@@ -289,43 +293,57 @@ protected:
     }
 
 private:
-    SubTaskVoteBasedCSR(size_t nClasses, size_t nRows, const SharedPtr<ClsType> & simplePrediction, bool isComputeDecisionFunction, bool & valid)
+    SubTaskVoteBasedCSR(size_t nClasses, size_t nRows, const SharedPtr<classifier::prediction::Batch> & simplePrediction,
+                        bool isComputeDecisionFunction, bool & valid)
         : super(nClasses, nRows, simplePrediction, isComputeDecisionFunction, valid)
     {}
 
     ReadRowsCSR<algorithmFPType, cpu> _xRows;
 };
 
-template <typename algorithmFPType, typename ClsType, typename MultiClsParam, CpuType cpu>
-Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, ClsType, MultiClsParam, cpu>::compute(
-    const NumericTable * a, const daal::algorithms::Model * m, NumericTable * pred, NumericTable * df, const daal::algorithms::Parameter * par)
+template <typename algorithmFPType, CpuType cpu>
+Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, algorithmFPType, cpu>::compute(const NumericTable * a,
+                                                                                                            const daal::algorithms::Model * m,
+                                                                                                            SvmModel * svmModel, NumericTable * pred,
+                                                                                                            NumericTable * df,
+                                                                                                            const daal::algorithms::Parameter * par)
 {
-    Model * model          = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
-    MultiClsParam * mccPar = static_cast<MultiClsParam *>(const_cast<daal::algorithms::Parameter *>(par));
-    size_t nClasses        = mccPar->nClasses;
+    Model * model                              = static_cast<Model *>(const_cast<daal::algorithms::Model *>(m));
+    multi_class_classifier::Parameter * mccPar = static_cast<multi_class_classifier::Parameter *>(const_cast<daal::algorithms::Parameter *>(par));
+    size_t nClasses                            = mccPar->nClasses;
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClasses, sizeof(size_t));
 
     TArray<size_t, cpu> nonEmptyClassMapBuffer(nClasses);
     DAAL_CHECK_MALLOC(nonEmptyClassMapBuffer.get());
 
+    const bool isSvmModel = svmModel != nullptr;
+
+    const size_t nModels = (nClasses * (nClasses - 1)) >> 1;
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nModels, 2);
+    TArray<size_t, cpu> classIndices(nModels * 2);
+    DAAL_CHECK_MALLOC(classIndices.get());
+    size_t * classIndicesData = classIndices.get();
+    Status s                  = getClassIndices<algorithmFPType, cpu>(nClasses, isSvmModel, classIndicesData);
+    DAAL_CHECK_STATUS_VAR(s);
+
     size_t * nonEmptyClassMap = (size_t *)nonEmptyClassMapBuffer.get();
-    Status s                  = getNonEmptyClassMap<algorithmFPType, cpu>(nClasses, model, nonEmptyClassMap);
+    s |= getNonEmptyClassMap<algorithmFPType, cpu>(nClasses, model, classIndicesData, nonEmptyClassMap);
     DAAL_CHECK_STATUS_VAR(s);
 
     const size_t nVectors = a->getNumberOfRows();
 
-    SharedPtr<ClsType> simplePrediction = mccPar->prediction;
+    SharedPtr<classifier::prediction::Batch> simplePrediction = mccPar->prediction;
 
     const size_t nRowsInBlock = 256;
     size_t nBlocks            = nVectors / nRowsInBlock;
     if (nBlocks * nRowsInBlock < nVectors) nBlocks++;
 
-    typedef SubTaskVoteBased<algorithmFPType, ClsType, cpu> TSubTask;
+    typedef SubTaskVoteBased<algorithmFPType, cpu> TSubTask;
     daal::ls<TSubTask *> lsTask([=, &simplePrediction]() {
         if (a->getDataLayout() == NumericTableIface::csrArray)
-            return SubTaskVoteBasedCSR<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, simplePrediction, df);
-        return SubTaskVoteBasedDense<algorithmFPType, ClsType, cpu>::create(nClasses, nRowsInBlock, simplePrediction, df);
+            return SubTaskVoteBasedCSR<algorithmFPType, cpu>::create(nClasses, nRowsInBlock, simplePrediction, df);
+        return SubTaskVoteBasedDense<algorithmFPType, cpu>::create(nClasses, nRowsInBlock, simplePrediction, df);
     });
 
     /* Process input data set block by block */
@@ -343,7 +361,7 @@ Status MultiClassClassifierPredictKernel<voteBased, training::oneAgainstOne, alg
         const size_t nRows    = (startRow + nRowsInBlock > nVectors) ? nVectors - startRow : nRowsInBlock;
 
         /* Get a block of predictions */
-        Status s = local->predict(startRow, nRows, a, model, pred, df, nonEmptyClassMap);
+        Status s = local->predict(startRow, nRows, a, model, pred, df, nonEmptyClassMap, classIndicesData, isSvmModel);
         DAAL_CHECK_STATUS_THR(s);
     });
 

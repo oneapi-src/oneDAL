@@ -28,8 +28,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(multi_class_classifier::prediction::interface1::BatchContainer, batch, DAAL_FPTYPE,
-                                      multi_class_classifier::prediction::multiClassClassifierWu, multi_class_classifier::training::oneAgainstOne)
 __DAAL_INSTANTIATE_DISPATCH_CONTAINER(multi_class_classifier::prediction::BatchContainer, batch, DAAL_FPTYPE,
                                       multi_class_classifier::prediction::multiClassClassifierWu, multi_class_classifier::training::oneAgainstOne)
 

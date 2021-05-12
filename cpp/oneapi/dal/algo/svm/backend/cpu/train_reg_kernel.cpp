@@ -24,6 +24,7 @@
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/utils.hpp"
 #include "oneapi/dal/algo/svm/backend/model_impl.hpp"
+#include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
@@ -70,7 +71,8 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     const std::uint64_t cache_byte = cache_megabyte * megabyte;
 
     daal_svm::training::internal::KernelParameter daal_svm_parameter;
-    daal_svm_parameter.kernel = daal_kernel, daal_svm_parameter.C = desc.get_c();
+    daal_svm_parameter.kernel = daal_kernel;
+    daal_svm_parameter.C = desc.get_c();
     daal_svm_parameter.accuracyThreshold = desc.get_accuracy_threshold();
     daal_svm_parameter.tau = desc.get_tau();
     daal_svm_parameter.maxIterations =
