@@ -210,9 +210,8 @@ namespace v1 {
 /// @tparam Method Tag-type that specifies an implementation of algorithm. Can
 ///                be :expr:`method::thunder` or :expr:`method::smo`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve.
-/// Can
-///                be :expr:`task::classification` or
-///                :expr:`task::regression`.
+///                Can be :expr:`task::classification`, :expr:`task::nu_classification`,
+///                :expr:`task::regression`, or :expr:`task::nu_regression`.
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -381,7 +380,8 @@ public:
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::classification` or :expr:`task::regression`.
+///              be :expr:`task::classification`, :expr:`task::nu_classification`,
+///              :expr:`task::regression`, or :expr:`task::nu_regression`.
 template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
