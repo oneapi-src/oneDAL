@@ -3,7 +3,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include <stack>
-#include <vertex>
+#include <vector>
 #include <mutex>
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
