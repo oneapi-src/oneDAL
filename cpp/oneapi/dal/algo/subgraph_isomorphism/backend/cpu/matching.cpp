@@ -435,10 +435,10 @@ void matching_engine::run_and_wait(global_stack& gstack,
     return;
 }
 
-solution matching_engine::run(bool main_engine) {
-    run_and_wait(main_engine);
-    return std::move(engine_solutions);
-}
+// solution matching_engine::run(bool main_engine) {
+//     run_and_wait(main_engine);
+//     return std::move(engine_solutions);
+// }
 
 engine_bundle::engine_bundle(const graph* ppattern,
                              const graph* ptarget,
