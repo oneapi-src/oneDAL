@@ -450,18 +450,85 @@ inline void deserialize(T& value, InputArchive& archive) {
     internal_archive.epilogue();
 }
 
+constexpr std::uint32_t binary_archive_magic = 0x4441414F;
+
 class binary_output_archive : public base {
 public:
-    void prologue() {}
+    void prologue() {
+        const std::uint32_t magic = binary_archive_magic;
+        operator()(&magic, make_data_type<std::uint32_t>());
+    }
+
     void epilogue() {}
-    void operator()(const void* data, data_type dtype, std::int64_t count = 1) {}
+
+    void operator()(const void* data, data_type dtype, std::int64_t count = 1) {
+        ONEDAL_ASSERT(data);
+        ONEDAL_ASSERT(count > 0);
+
+        const std::int64_t type_size = get_data_type_size(dtype);
+        const std::int64_t byte_count = check_mul_overflow(type_size, count);
+        const std::int64_t content_count = integral_cast<std::int64_t>(content_.size());
+
+        content_.reserve(check_sum_overflow(content_count, byte_count));
+        for (std::int64_t i = 0; i < byte_count; i++) {
+            content_.push_back(reinterpret_cast<const byte_t*>(data)[i]);
+        }
+    }
+
+    std::int64_t get_size() const {
+        return integral_cast<std::int64_t>(content_.size());
+    }
+
+    const byte_t* get_data() const {
+        return content_.data();
+    }
+
+private:
+    std::vector<byte_t> content_;
 };
 
 class binary_input_archive : public base {
 public:
-    void prologue() {}
+    binary_input_archive(const byte_t* data, std::int64_t size_in_bytes)
+            : input_data_(data),
+              input_data_size_(size_in_bytes),
+              position_(0) {
+        if (!data || size_in_bytes <= 0) {
+            throw invalid_argument{ error_messages::invalid_data_block_size() };
+        }
+    }
+
+    void prologue() {
+        std::uint32_t magic;
+        operator()(&magic, make_data_type<std::uint32_t>());
+        if (magic != binary_archive_magic) {
+            throw invalid_argument{ error_messages::archive_content_does_not_match_type() };
+        }
+    }
+
     void epilogue() {}
-    void operator()(void* data, data_type dtype, std::int64_t count = 1) {}
+
+    void operator()(void* data, data_type dtype, std::int64_t count = 1) {
+        ONEDAL_ASSERT(data);
+        ONEDAL_ASSERT(count > 0);
+
+        const std::int64_t type_size = get_data_type_size(dtype);
+        const std::int64_t byte_count = check_mul_overflow(type_size, count);
+
+        if (position_ + byte_count > input_data_size_) {
+            throw invalid_argument{ error_messages::archive_content_does_not_match_type() };
+        }
+
+        for (std::int64_t i = 0; i < byte_count; i++) {
+            reinterpret_cast<byte_t*>(data)[i] = input_data_[position_ + i];
+        }
+        position_ += byte_count;
+    }
+
+private:
+    const byte_t* input_data_;
+    std::int64_t input_data_size_;
+    std::int64_t position_;
 };
 
 } // namespace oneapi::dal::detail
