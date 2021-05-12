@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <unordered_map>
+#include <vector>
 #include "oneapi/dal/detail/common.hpp"
 
 #define __ONEDAL_REGISTER_SERIALIZABLE__VAR2__(name, unique) name##unique
