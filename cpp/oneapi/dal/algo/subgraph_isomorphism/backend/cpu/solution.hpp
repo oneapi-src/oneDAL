@@ -1,6 +1,7 @@
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
@@ -40,7 +41,7 @@ public:
 private:
     inner_alloc allocator_;
 
-private:
+public:
     std::int64_t** data;
     std::int64_t* sorted_pattern_vertices;
 

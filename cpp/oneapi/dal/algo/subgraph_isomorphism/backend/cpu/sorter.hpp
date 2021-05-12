@@ -1,6 +1,7 @@
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -32,6 +33,8 @@ private:
     inner_alloc allocator_;
 };
 
+class graph;
+
 class sorter {
 public:
     sorter(inner_alloc allocator);
@@ -50,7 +53,6 @@ public:
                                             sconsistent_conditions* cconditions,
                                             bool predecessor_in_core_indexing = false) const;
 
-private:
     inner_alloc allocator_;
     const graph* target;
     float* p_degree_probability;

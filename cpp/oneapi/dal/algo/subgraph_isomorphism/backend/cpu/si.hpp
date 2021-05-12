@@ -11,7 +11,7 @@
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 using namespace oneapi::dal::preview::subgraph_isomorphism::detail;
 
-template <typename Cpu>
+template <typename Cpu = oneapi::dal::backend::cpu_dispatch_sse2>
 solution si(const graph& pattern,
             const graph& target,
             kind isomorphism_kind,
@@ -49,15 +49,15 @@ solution si(const graph& pattern,
 
     sorter_graph.~sorter();
 
-    engine_bundle harness(&pattern,
-                          &target,
-                          sorted_pattern_vertex.get(),
-                          predecessor.get(),
-                          direction.get(),
-                          cconditions.get(),
-                          pattern_vertex_probability.get(),
-                          isomorphism_kind,
-                          local_allocator);
+    engine_bundle<Cpu> harness(&pattern,
+                               &target,
+                               sorted_pattern_vertex.get(),
+                               predecessor.get(),
+                               direction.get(),
+                               cconditions.get(),
+                               pattern_vertex_probability.get(),
+                               isomorphism_kind,
+                               local_allocator);
     sol = harness.run();
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {

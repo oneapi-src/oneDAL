@@ -1,6 +1,7 @@
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
@@ -46,15 +47,12 @@ public:
     std::uint64_t size() const;
     std::uint64_t max_size() const;
 
-private:
     inner_alloc allocator_;
     std::uint64_t stack_size;
     std::uint64_t* stack_data;
     std::uint64_t* ptop;
     graph_status increase_stack_size();
     bool use_external_memory;
-
-    friend class dfs_stack;
 };
 
 class dfs_stack {

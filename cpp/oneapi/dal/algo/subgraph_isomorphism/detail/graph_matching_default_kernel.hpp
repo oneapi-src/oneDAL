@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/detail/byte_alloc.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
@@ -26,36 +27,6 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
-
-struct byte_alloc_iface {
-    using byte_t = char;
-    virtual byte_t* allocate(std::int64_t n) = 0;
-    virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
-};
-
-template <typename Alloc>
-struct alloc_connector : public byte_alloc_iface {
-    using byte_t = char;
-    using t_allocator_traits =
-        typename std::allocator_traits<Alloc>::template rebind_traits<byte_t>;
-    alloc_connector(Alloc alloc) : _alloc(alloc) {}
-    byte_t* allocate(std::int64_t count) override {
-        typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(_alloc, count);
-        if (ptr == nullptr) {
-            throw host_bad_alloc();
-        }
-        return ptr;
-    };
-
-    void deallocate(byte_t* ptr, std::int64_t count) override {
-        if (ptr != nullptr) {
-            t_allocator_traits::deallocate(_alloc, ptr, count);
-        }
-    };
-
-private:
-    Alloc _alloc;
-};
 
 ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
     const dal::detail::host_policy& ctx,
