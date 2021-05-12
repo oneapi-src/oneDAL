@@ -75,7 +75,6 @@ public:
 
     void push(dfs_stack& s);
     void pop(dfs_stack& s);
-    bool empty() const;
 
 private:
     void internal_push(dfs_stack& s, std::uint64_t level);

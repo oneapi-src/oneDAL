@@ -263,11 +263,6 @@ void global_stack::pop(dfs_stack& s) {
     }
 }
 
-bool global_stack::empty() const {
-    lock_type lock(mutex_);
-    return data_.empty();
-}
-
 void global_stack::internal_push(dfs_stack& s, std::uint64_t level) {
     // Collect state and push back
     {
