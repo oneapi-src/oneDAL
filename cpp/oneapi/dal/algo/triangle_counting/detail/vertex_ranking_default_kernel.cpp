@@ -16,69 +16,58 @@
 
 #include "oneapi/dal/algo/triangle_counting/detail/vertex_ranking_default_kernel.hpp"
 #include "oneapi/dal/algo/triangle_counting/backend/cpu/vertex_ranking_default_kernel.hpp"
-#include "oneapi/dal/algo/triangle_counting/backend/cpu/relabel_kernels.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::triangle_counting::detail {
 
-template <>
-ONEDAL_EXPORT std::int64_t triangle_counting_global_scalar<std::int32_t>(
-    const dal::detail::host_policy& policy,
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+template <typename Float>
+array<std::int64_t>
+triangle_counting<Float, task::local, dal::preview::detail::topology<std::int32_t>, automatic>::
+operator()(const dal::detail::host_policy& policy,
+           const dal::preview::detail::topology<std::int32_t>& t,
+           std::int64_t* triangles_local) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::triangle_counting_global_scalar<decltype(cpu)>(vertex_neighbors,
-                                                                       edge_offsets,
-                                                                       degrees,
-                                                                       vertex_count,
-                                                                       edge_count);
+        return backend::triangle_counting_local<decltype(cpu)>(t, triangles_local);
     });
 }
 
-template <>
-ONEDAL_EXPORT std::int64_t triangle_counting_global_vector<std::int32_t>(
-    const dal::detail::host_policy& policy,
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+template <typename Float>
+std::int64_t
+triangle_counting<Float, task::global, dal::preview::detail::topology<std::int32_t>, scalar>::
+operator()(const dal::detail::host_policy& policy,
+           const dal::preview::detail::topology<std::int32_t>& t) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::triangle_counting_global_vector<decltype(cpu)>(vertex_neighbors,
-                                                                       edge_offsets,
-                                                                       degrees,
-                                                                       vertex_count,
-                                                                       edge_count);
+        return backend::triangle_counting_global_scalar<decltype(cpu)>(t);
     });
 }
 
-template <>
-ONEDAL_EXPORT std::int64_t triangle_counting_global_vector_relabel<std::int32_t>(
-    const dal::detail::host_policy& policy,
-    const std::int32_t* vertex_neighbors,
-    const std::int64_t* edge_offsets,
-    const std::int32_t* degrees,
-    std::int64_t vertex_count,
-    std::int64_t edge_count) {
+template <typename Float>
+std::int64_t
+triangle_counting<Float, task::global, dal::preview::detail::topology<std::int32_t>, vector>::
+operator()(const dal::detail::host_policy& policy,
+           const dal::preview::detail::topology<std::int32_t>& t) const {
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+        return backend::triangle_counting_global_vector<decltype(cpu)>(t);
+    });
+}
+
+template <typename Float>
+std::int64_t triangle_counting<Float,
+                               task::global,
+                               dal::preview::detail::topology<std::int32_t>,
+                               vector,
+                               relabeled>::operator()(const dal::detail::host_policy& policy,
+                                                      const std::int32_t* vertex_neighbors,
+                                                      const std::int64_t* edge_offsets,
+                                                      const std::int32_t* degrees,
+                                                      std::int64_t vertex_count,
+                                                      std::int64_t edge_count) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::triangle_counting_global_vector_relabel<decltype(cpu)>(vertex_neighbors,
                                                                                edge_offsets,
                                                                                degrees,
                                                                                vertex_count,
                                                                                edge_count);
-    });
-}
-
-template <>
-ONEDAL_EXPORT array<std::int64_t> triangle_counting_local<std::int32_t>(
-    const dal::detail::host_policy& policy,
-    const dal::preview::detail::topology<std::int32_t>& data,
-    int64_t* triangles_local) {
-    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::triangle_counting_local<decltype(cpu)>(data, triangles_local);
     });
 }
 
@@ -90,64 +79,19 @@ std::int64_t compute_global_triangles(const dal::detail::host_policy& policy,
     });
 }
 
-void sort_ids_by_degree(const dal::detail::host_policy& policy,
-                        const std::int32_t* degrees,
-                        std::pair<std::int32_t, std::size_t>* degree_id_pairs,
-                        std::int64_t vertex_count) {
-    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::sort_ids_by_degree<decltype(cpu)>(degrees, degree_id_pairs, vertex_count);
-    });
-}
+template struct ONEDAL_EXPORT
+    triangle_counting<float, task::local, dal::preview::detail::topology<std::int32_t>, automatic>;
 
-void fill_new_degrees_and_ids(const dal::detail::host_policy& policy,
-                              const std::pair<std::int32_t, std::size_t>* degree_id_pairs,
-                              std::int32_t* new_ids,
-                              std::int32_t* degrees_relabel,
-                              std::int64_t vertex_count) {
-    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::fill_new_degrees_and_ids<decltype(cpu)>(degree_id_pairs,
-                                                                new_ids,
-                                                                degrees_relabel,
-                                                                vertex_count);
-    });
-}
+template struct ONEDAL_EXPORT
+    triangle_counting<float, task::global, dal::preview::detail::topology<std::int32_t>, scalar>;
 
-void parallel_prefix_sum(const dal::detail::host_policy& policy,
-                         const std::int32_t* degrees_relabel,
-                         std::int64_t* offsets,
-                         std::int64_t* part_prefix,
-                         std::int64_t* local_sums,
-                         std::int64_t block_size,
-                         std::int64_t num_blocks,
-                         std::int64_t vertex_count) {
-    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::parallel_prefix_sum<decltype(cpu)>(degrees_relabel,
-                                                           offsets,
-                                                           part_prefix,
-                                                           local_sums,
-                                                           block_size,
-                                                           num_blocks,
-                                                           vertex_count);
-    });
-}
+template struct ONEDAL_EXPORT
+    triangle_counting<float, task::global, dal::preview::detail::topology<std::int32_t>, vector>;
 
-void fill_relabeled_topology(const dal::detail::host_policy& policy,
-                             const std::int32_t* vertex_neighbors,
-                             const std::int64_t* edge_offsets,
-                             std::int32_t* vertex_neighbors_relabel,
-                             std::int64_t* edge_offsets_relabel,
-                             std::int64_t* offsets,
-                             const std::int32_t* new_ids,
-                             std::int64_t vertex_count) {
-    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::fill_relabeled_topology<decltype(cpu)>(vertex_neighbors,
-                                                               edge_offsets,
-                                                               vertex_neighbors_relabel,
-                                                               edge_offsets_relabel,
-                                                               offsets,
-                                                               new_ids,
-                                                               vertex_count);
-    });
-}
+template struct ONEDAL_EXPORT triangle_counting<float,
+                                                task::global,
+                                                dal::preview::detail::topology<std::int32_t>,
+                                                vector,
+                                                relabeled>;
 
 } // namespace oneapi::dal::preview::triangle_counting::detail

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2020-2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,19 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/detail/homogen_utils.hpp"
-#include "oneapi/dal/table/backend/homogen_table_impl.hpp"
+#include <daal/include/services/daal_memory.h>
+#include "oneapi/dal/backend/memory.hpp"
 
-namespace oneapi::dal::detail::v1 {
+namespace oneapi::dal::backend {
 
-array<byte_t> get_original_data(const homogen_table& t) {
-    auto impl = dynamic_cast<backend::homogen_table_impl*>(&get_impl(t));
-    if (impl) {
-        return impl->get_data_array();
-    }
-    else {
-        return array<byte_t>{};
+void memcpy(void* dest, const void* src, std::int64_t size) {
+    ONEDAL_ASSERT(dest != nullptr);
+    ONEDAL_ASSERT(src != nullptr);
+
+    const size_t converted_size = detail::integral_cast<std::size_t>(size);
+    std::int32_t status =
+        daal::services::internal::daal_memcpy_s(dest, converted_size, src, converted_size);
+    if (status) {
+        throw dal::internal_error(detail::error_messages::unknown_memcpy_error());
     }
 }
 
-} // namespace oneapi::dal::detail::v1
+} // namespace oneapi::dal::backend

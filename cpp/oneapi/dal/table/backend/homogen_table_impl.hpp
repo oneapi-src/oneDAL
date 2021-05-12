@@ -73,8 +73,8 @@ public:
         return meta_;
     }
 
-    const void* get_data() const override {
-        return data_.get_data();
+    array<byte_t> get_data() const override {
+        return data_;
     }
 
     data_layout get_data_layout() const override {
@@ -83,10 +83,6 @@ public:
 
     std::int64_t get_kind() const override {
         return 1;
-    }
-
-    array<byte_t> get_data_array() const {
-        return data_;
     }
 
     template <typename T>
