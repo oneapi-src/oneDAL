@@ -2,6 +2,9 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
+#include <stack>
+#include <vertex>
+#include <mutex>
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -53,8 +56,34 @@ private:
     std::uint64_t* ptop;
     graph_status increase_stack_size();
     bool use_external_memory;
+    std::uint64_t* bottom_;
 
     friend class dfs_stack;
+    friend class global_stack;
+};
+
+class dfs_stack;
+
+class global_stack {
+public:
+    global_stack() {}
+    global_stack(const global_stack&) = delete;
+    global_stack(global_stack&&) = delete;
+
+    global_stack& operator=(const global_stack&) = delete;
+    global_stack& operator=(global_stack&&) = delete;
+
+    void push(dfs_stack& s);
+    void pop(dfs_stack& s);
+    bool empty() const;
+
+private:
+    void internal_push(dfs_stack& s, std::uint64_t level);
+
+    std::stack<std::vector<std::uint64_t>> data_;
+    mutex mutex_;
+
+    using lock_type = std::scoped_lock<mutex>;
 };
 
 class dfs_stack {
@@ -90,6 +119,8 @@ public:
 
     void delete_current_state();
 
+    bool empty() const;
+
 protected:
     inner_alloc allocator_;
     std::uint64_t max_level_size;
@@ -102,6 +133,8 @@ protected:
 
 private:
     void delete_data();
+
+    friend class global_stack;
 };
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

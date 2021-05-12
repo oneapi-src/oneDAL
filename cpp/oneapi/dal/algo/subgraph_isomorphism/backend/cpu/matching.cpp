@@ -1,4 +1,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/matching.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
+#include <atomic>
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
@@ -364,19 +366,71 @@ solution matching_engine::get_solution() {
     return std::move(engine_solutions);
 }
 
-void matching_engine::run_and_wait(bool main_engine) {
+void matching_engine::run_and_wait(global_stack& gstack,
+                                   std::atomic<std::uint64_t>& busy_engine_count,
+                                   bool main_engine) {
     if (main_engine) {
         first_states_generator(hlocal_stack);
     }
+    bool is_busy_engine = true;
+    ONEDAL_ASSERT(pattern != nullptr);
     if (target->bit_representation) { /* dense graph case */
-        while (hlocal_stack.states_in_stack() > 0) {
-            state_exploration_bit();
+        for (;;) {
+            if (hlocal_stack.states_in_stack() > 0) {
+                while (hlocal_stack.states_in_stack() > pattern->get_vertex_count()) {
+                    gstack.push(hlocal_stack);
+                }
+                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+                state_exploration_bit();
+            }
+            else {
+                gstack.pop(hlocal_stack);
+                if (hlocal_stack.empty()) {
+                    if (is_busy_engine) {
+                        is_busy_engine = false;
+                        --busy_engine_count;
+                    }
+                    if (busy_engine_count.load() == 0)
+                        break;
+                }
+                else if (!is_busy_engine) {
+                    is_busy_engine = true;
+                    ++busy_engine_count;
+                }
+            }
         }
     }
+    // while (hlocal_stack.states_in_stack() > 0) {
+    //     state_exploration_bit();
+    // }
     else { /* sparse graph case */
-        while (hlocal_stack.states_in_stack() > 0) {
-            state_exploration_list();
+        for (;;) {
+            if (hlocal_stack.states_in_stack() > 0) {
+                while (hlocal_stack.states_in_stack() > pattern->get_vertex_count()) {
+                    gstack.push(hlocal_stack);
+                }
+                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+                state_exploration_list();
+            }
+            else {
+                gstack.pop(hlocal_stack);
+                if (hlocal_stack.empty()) {
+                    if (is_busy_engine) {
+                        is_busy_engine = false;
+                        --busy_engine_count;
+                    }
+                    if (busy_engine_count.load() == 0)
+                        break;
+                }
+                else if (!is_busy_engine) {
+                    is_busy_engine = true;
+                    ++busy_engine_count;
+                }
+            }
         }
+        // while (hlocal_stack.states_in_stack() > 0) {
+        //     state_exploration_list();
+        // }
     }
     return;
 }
@@ -466,8 +520,10 @@ solution engine_bundle::run() {
         }
     }
 
+    global_stack gstack;
+    std::atomic<std::uint64_t> busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
-        engine_array[index].run_and_wait(false);
+        engine_array[index].run_and_wait(gstack, busy_engine_count, false);
     });
 
     for (std::uint64_t i = 0; i < array_size; i++) {

@@ -151,7 +151,7 @@ graph_status stack::increase_stack_size() {
     return ok;
 }
 
-vertex_stack::vertex_stack(inner_alloc allocator) : allocator_(allocator) {
+vertex_stack::vertex_stack(inner_alloc allocator) : allocator_(allocator), bottom_(nullptr) {
     stack_size = 0;
     stack_data = nullptr;
     ptop = nullptr;
@@ -164,6 +164,7 @@ vertex_stack::vertex_stack(const std::uint64_t max_states_size, inner_alloc allo
     stack_size = max_states_size;
     stack_data = allocator_.allocate<std::uint64_t>(stack_size);
     ptop = stack_data;
+    bottom_ = stack_data;
 }
 
 vertex_stack::vertex_stack(const std::uint64_t max_states_size,
@@ -195,7 +196,7 @@ graph_status vertex_stack::push(const std::uint64_t vertex_id) {
 }
 
 std::int64_t vertex_stack::pop() {
-    if (ptop != nullptr && ptop != stack_data) {
+    if (ptop != nullptr && ptop != bottom_) {
         ptop--;
         return *ptop;
     }
@@ -203,12 +204,12 @@ std::int64_t vertex_stack::pop() {
 }
 
 bool vertex_stack::delete_vertex() {
-    ptop -= (ptop != nullptr) && (ptop != stack_data);
-    return !(ptop - stack_data);
+    ptop -= (ptop != nullptr) && (ptop != bottom_);
+    return !(ptop - bottom_);
 }
 
 std::uint64_t vertex_stack::size() const {
-    return ptop - stack_data;
+    return ptop - bottom_;
 }
 
 std::uint64_t vertex_stack::max_size() const {
@@ -220,16 +221,74 @@ graph_status vertex_stack::increase_stack_size() {
     if (tmp_data == nullptr) {
         return bad_allocation;
     }
-    for (std::uint64_t i = 0; i < stack_size; i++) {
-        tmp_data[i] = stack_data[i];
+    const auto skip_count = _bottom - stack_data;
+    for (std::uint64_t i = 0; i < stack_size - skip_count; i++) {
+        tmp_data[i] = stack_data[i + skip_count];
         //tmp_data[i + stack_size] = null_node;
     }
     allocator_.deallocate<std::uint64_t>(stack_data, stack_size);
     stack_size *= 2;
     ptop = size() + tmp_data;
+    bottom_ = tmp_data;
     stack_data = tmp_data;
     tmp_data = nullptr;
     return ok;
+}
+
+void global_stack::push(dfs_stack& s) {
+    for (auto level = s.get_current_level_index(); level > 0; --level) {
+        if (s.data_by_levels[level].size() > 1) {
+            internal_push(s, level);
+            return;
+        }
+    }
+
+    if (s.data_by_levels[0].size() > 1) {
+        internal_push(s, 0);
+    }
+}
+
+void global_stack::pop(dfs_stack& s) {
+    ONEDAL_ASSERT(s.empty());
+    lock_type lock(mutex_);
+    if (!data_.empty()) {
+        const auto& v = data_.top();
+        for (std::uint64_t i = 0; i < v.size(); ++i) {
+            s.push_into_current_level(v[i]);
+            if (i != v.size() - 1) {
+                s.increase_core_level();
+            }
+        }
+        data_.pop();
+    }
+}
+
+bool global_stack::empty() const {
+    lock_type lock(mutex_);
+    return data_.empty();
+}
+
+void global_stack::internal_push(dfs_stack& s, std::uint64_t level) {
+    // Collect state and push back
+    {
+        decltype(data_)::value_type v(level + 1);
+
+        for (std::uint64_t i = 0; i < level; ++i) {
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop != nullptr);
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop != s.data_by_levels[i].bottom_);
+            v[i] = s.data_by_levels[i].ptop[-1];
+        }
+
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop != nullptr);
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop != s.data_by_levels[level].bottom_);
+        v[level] = *(s.data_by_levels[level].bottom_);
+
+        lock_type lock(mutex_);
+        data_.push_back(v);
+    }
+
+    // Remove state
+    ++(s.data_by_levels[level].bottom_);
 }
 
 dfs_stack::dfs_stack(inner_alloc allocator) : allocator_(allocator) {
@@ -379,4 +438,9 @@ std::uint64_t dfs_stack::size(const std::uint64_t level) const {
 std::uint64_t dfs_stack::max_level_width(const std::uint64_t level) const {
     return data_by_levels[level].max_size();
 }
+
+bool dfs_stack::empty() const {
+    return (current_level == 0) && ((max_level_size == 0) || (data_by_levels[0].size() == 0));
+}
+
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail

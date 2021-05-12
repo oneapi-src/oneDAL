@@ -32,7 +32,9 @@ public:
     virtual ~matching_engine();
 
     solution run(bool main_engine = false);
-    void run_and_wait(bool main_engine = false);
+    void run_and_wait(global_stack& gstack,
+                      std::atomic<std::uint64_t>& busy_engine_count,
+                      bool main_engine = false);
     solution get_solution();
 
     std::int64_t state_exploration_bit(state* current_state, bool check_solution = true);
