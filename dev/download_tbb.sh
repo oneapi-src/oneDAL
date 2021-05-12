@@ -15,8 +15,8 @@
 # limitations under the License.
 #===============================================================================
 
-TBB_URL_ROOT="https://github.com/oneapi-src/oneTBB/releases/download/v2021.2.0/"
-TBB_VERSION="oneapi-tbb-2021.2.0"
+TBB_URL_ROOT="https://github.com/oneapi-src/oneTBB/releases/download/v2021.1.1/"
+TBB_VERSION="oneapi-tbb-2021.1.1"
 
 os=$(uname)
 if [ "${os}" = "Linux" ]; then
