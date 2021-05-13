@@ -377,7 +377,7 @@ void matching_engine::run_and_wait(global_stack& gstack,
     if (target->bit_representation) { /* dense graph case */
         for (;;) {
             if (hlocal_stack.states_in_stack() > 0) {
-                while ((hlocal_stack.states_in_stack() > pattern->get_vertex_count()) &&
+                while ((hlocal_stack.states_in_stack() > pattern->get_vertex_count() + 10) &&
                        gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
@@ -406,7 +406,7 @@ void matching_engine::run_and_wait(global_stack& gstack,
     else { /* sparse graph case */
         for (;;) {
             if (hlocal_stack.states_in_stack() > 0) {
-                while ((hlocal_stack.states_in_stack() > pattern->get_vertex_count()) &&
+                while ((hlocal_stack.states_in_stack() > pattern->get_vertex_count() + 10) &&
                        gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
