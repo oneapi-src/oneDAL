@@ -35,7 +35,7 @@ template <typename VertexValue = empty_value,
           typename GraphValue = empty_value,
           typename IndexType = std::int32_t,
           typename Allocator = std::allocator<char>>
-class ONEDAL_EXPORT undirected_adjacency_vector_graph_impl {
+class ONEDAL_EXPORT directed_adjacency_vector_graph_impl {
 public:
     using allocator_type = Allocator;
 
@@ -62,6 +62,15 @@ public:
     using vertex_edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_edge_type>;
 
+    // vertex edge types
+    using vertex_outward_edge_type = typename topology_type::vertex_edge_type;
+    using vertex_outward_edge_size_type = typename topology_type::vertex_edge_size_type;
+    using vertex_outward_edge_set = typename topology_type::vertex_edge_set;
+    using vertex_outward_edge_iterator = typename topology_type::vertex_edge_iterator;
+    using const_vertex_outward_edge_iterator = typename topology_type::const_vertex_edge_iterator;
+    using vertex_outward_edge_allocator_type =
+        typename std::allocator_traits<Allocator>::template rebind_alloc<vertex_edge_type>;
+
     using edge_type = typename topology_type::edge_type;
     using edge_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_type>;
@@ -83,9 +92,13 @@ public:
     using vertex_edge_range = typename topology_type::vertex_edge_range;
     using const_vertex_edge_range = typename topology_type::const_vertex_edge_range;
 
-    undirected_adjacency_vector_graph_impl() = default;
+    // ranges
+    using vertex_outward_edge_range = typename topology_type::vertex_edge_range;
+    using const_vertex_outward_edge_range = typename topology_type::const_vertex_edge_range;
 
-    virtual ~undirected_adjacency_vector_graph_impl() {
+    directed_adjacency_vector_graph_impl() = default;
+
+    virtual ~directed_adjacency_vector_graph_impl() {
         auto& cols = _topology._cols;
         auto& degrees = _topology._degrees;
         auto& rows = _topology._rows;
@@ -133,7 +146,33 @@ public:
         _topology._edge_count = edge_count;
         _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
         _topology._degrees = vertex_set::wrap(degrees, vertex_count);
-        _topology._cols = vertex_set::wrap(neighbors, edge_count * 2);
+        _topology._cols = vertex_set::wrap(neighbors, edge_count);
+        _topology._rows_ptr = _topology._rows.get_data();
+        _topology._cols_ptr = _topology._cols.get_data();
+        _topology._degrees_ptr = _topology._degrees.get_data();
+    }
+
+    inline void set_topology(vertex_size_type vertex_count,
+                             edge_size_type edge_count,
+                             const edge_type* offsets,
+                             const vertex_type* neighbors,
+                             const vertex_type* degrees) {
+        _topology._vertex_count = vertex_count;
+        _topology._edge_count = edge_count;
+        _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
+        _topology._degrees = vertex_set::wrap(degrees, vertex_count);
+        _topology._cols = vertex_set::wrap(neighbors, edge_count);
+        _topology._rows_ptr = _topology._rows.get_data();
+        _topology._cols_ptr = _topology._cols.get_data();
+        _topology._degrees_ptr = _topology._degrees.get_data();
+    }
+
+    inline void set_edge_values(EdgeValue* values, int64_t values_count) {
+        _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
+    }
+
+    inline void set_edge_values(const EdgeValue* values, int64_t values_count) {
+        _edge_values = edge_values<EdgeValue>::wrap(values, values_count);
     }
 
     inline topology<IndexType>& get_topology() {
@@ -172,32 +211,5 @@ private:
     vertex_values<VertexValue> _vertex_values;
     edge_values<EdgeValue> _edge_values;
 };
-
-template <typename IndexType>
-constexpr std::int64_t get_topology_vertex_count(const topology<IndexType>& _topology) {
-    return _topology._vertex_count;
-}
-
-template <typename IndexType>
-constexpr std::int64_t get_topology_edge_count(const topology<IndexType>& _topology) {
-    return _topology._edge_count;
-}
-
-template <typename IndexType>
-constexpr auto get_topology_vertex_degree(const topology<IndexType>& _topology,
-                                          const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::edge_size_type {
-    return _topology._degrees[vertex];
-}
-
-template <typename IndexType>
-constexpr auto get_topology_vertex_neighbors(const topology<IndexType>& _topology,
-                                             const IndexType& vertex) noexcept ->
-    typename topology<IndexType>::const_vertex_edge_range {
-    const IndexType* vertex_neighbors_begin = _topology._cols.get_data() + _topology._rows[vertex];
-    const IndexType* vertex_neighbors_end =
-        _topology._cols.get_data() + _topology._rows[vertex + 1];
-    return std::make_pair(vertex_neighbors_begin, vertex_neighbors_end);
-}
 
 } // namespace oneapi::dal::preview::detail

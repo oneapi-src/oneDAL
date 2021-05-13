@@ -1,3 +1,4 @@
+/* file: common.hpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -14,10 +15,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+/// @file
+/// Graph related common data type aliases
+
+#pragma once
+
+#include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/graph/detail/container.hpp"
 
 namespace oneapi::dal::preview::detail {
 
-template class ONEDAL_EXPORT topology<int32_t>;
+template <typename IndexType>
+constexpr bool is_valid_index_v = dal::detail::is_one_of_v<IndexType, std::int32_t>;
+
+template <typename EdgeValue>
+constexpr bool is_valid_edge_value_v =
+    dal::detail::is_one_of_v<EdgeValue, empty_value, double, std::int32_t>;
 
 } // namespace oneapi::dal::preview::detail

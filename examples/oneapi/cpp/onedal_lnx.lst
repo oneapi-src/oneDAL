@@ -34,4 +34,5 @@ ONEDAL = column_accessor_homogen             \
          jaccard_batch                       \
          load_graph                          \
          graph_service_functions             \
+         directed_graph                      \
          triangle_counting_batch
