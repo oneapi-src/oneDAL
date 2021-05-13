@@ -31,8 +31,8 @@ void pa(char *str, const fpType *a, size_t nCols, size_t nRows = 1) {
         std::cout << "    NULL";
         return;
     }
-    for (int i = 0; i < nRows; i++) {
-        for (int j = 0; j < nCols; j++) {
+    for (size_t i = 0; i < nRows; i++) {
+        for (size_t j = 0; j < nCols; j++) {
             std::cout << a[i * nCols + j] << " ";
         }
         std::cout << std::endl;
