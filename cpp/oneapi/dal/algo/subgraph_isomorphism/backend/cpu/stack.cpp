@@ -256,8 +256,7 @@ void global_stack::pop(dfs_stack& s) {
     lock_type lock(mutex_);
     if (!data_.empty()) {
         const auto& v = data_.top();
-        ONEDAL_ASSERT(v.size() < s.max_level_size);
-        ONEDAL_ASSERT(v.size() == s.max_level_size);
+        ONEDAL_ASSERT(v.size() <= s.max_level_size);
         for (std::uint64_t i = 0; i < v.size(); ++i) {
             s.push_into_current_level(v[i]);
             if (i != v.size() - 1) {
