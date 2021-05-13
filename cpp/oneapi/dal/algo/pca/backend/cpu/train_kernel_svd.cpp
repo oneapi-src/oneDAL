@@ -75,6 +75,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     norm_alg->parameter().resultsToCompute |= daal_zscore::variance;
 
     daal_pca::BatchParameter<Float, daal_pca::svdDense> parameter;
+    parameter.isDeterministic = desc.get_deterministic();
     parameter.normalization = norm_alg;
     parameter.resultsToCompute =
         std::uint64_t(daal_pca::mean | daal_pca::variance | daal_pca::eigenvalue);

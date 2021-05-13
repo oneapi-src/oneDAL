@@ -13,10 +13,27 @@ dal_module(
 )
 
 dal_test_suite(
+    name = "perf_tests",
+    framework = "catch2",
+    compile_as = [ "dpc++" ],
+    private = True,
+    srcs = glob([
+        "test/*perf_dpc.cpp",
+    ]),
+    dal_deps = [
+        ":reduction",
+    ],
+)
+
+dal_test_suite(
     name = "tests",
     framework = "catch2",
+    compile_as = [ "dpc++" ],
+    private = True,
     srcs = glob([
-        "test/*.cpp",
+        "test/*_dpc.cpp",
+    ], exclude=[
+        "test/*perf*.cpp",
     ]),
     dal_deps = [
         ":reduction",

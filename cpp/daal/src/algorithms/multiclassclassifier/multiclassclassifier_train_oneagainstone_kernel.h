@@ -31,6 +31,7 @@
 #include "src/algorithms/service_sort.h"
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_numeric_table.h"
+#include "src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -47,7 +48,7 @@ namespace training
 namespace internal
 {
 //Base class for binary classification subtask
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
+template <typename algorithmFPType, CpuType cpu>
 class SubTask
 {
 public:
@@ -70,7 +71,7 @@ public:
         _subsetXTable->resize(nRowsInSubset);
         _subsetYTable->resize(nRowsInSubset);
 
-        typename ClsType::InputType * input = _simpleTraining->getInput();
+        auto input = _simpleTraining->getInput();
         DAAL_CHECK(input, services::ErrorNullInput);
         input->set(classifier::training::data, _subsetXTable);
         input->set(classifier::training::labels, _subsetYTable);
@@ -89,7 +90,8 @@ public:
 protected:
     typedef HomogenNumericTableCPU<algorithmFPType, cpu> HomogenNT;
 
-    SubTask(size_t nSubsetVectors, size_t dataSize, const algorithmFPType * weights, const services::SharedPtr<ClsType> & st)
+    SubTask(size_t nSubsetVectors, size_t dataSize, const algorithmFPType * weights,
+            const services::SharedPtr<classifier::training::Batch> & training)
         : _subsetX(dataSize + nSubsetVectors), _subsetY(nullptr), _weights(weights)
     {
         services::Status status;
@@ -103,7 +105,7 @@ protected:
         }
 
         if (!status) return;
-        _simpleTraining = st->clone();
+        _simpleTraining = training->clone();
     }
 
     bool isValid() const { return _subsetX.get() && _subsetYTable.get() && _simpleTraining.get(); }
@@ -119,18 +121,18 @@ protected:
     NumericTablePtr _subsetYTable;
     NumericTablePtr _subsetXTable;
     NumericTablePtr _subsetWTable;
-    services::SharedPtr<ClsType> _simpleTraining;
+    services::SharedPtr<classifier::training::Batch> _simpleTraining;
 };
 
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
-class SubTaskCSR : public SubTask<algorithmFPType, ClsType, cpu>
+template <typename algorithmFPType, CpuType cpu>
+class SubTaskCSR : public SubTask<algorithmFPType, cpu>
 {
 public:
     virtual ~SubTaskCSR() DAAL_C11_OVERRIDE {}
 
-    typedef SubTask<algorithmFPType, ClsType, cpu> super;
+    typedef SubTask<algorithmFPType, cpu> super;
     static SubTaskCSR * create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable, const algorithmFPType * weights,
-                               const services::SharedPtr<ClsType> & st)
+                               const services::SharedPtr<classifier::training::Batch> & st)
     {
         auto val = new SubTaskCSR(nFeatures, nSubsetVectors, dataSize, dynamic_cast<CSRNumericTableIface *>(const_cast<NumericTable *>(xTable)),
                                   weights, st);
@@ -144,7 +146,7 @@ private:
     bool isValid() const { return super::isValid() && _colIndicesX.get() && this->_subsetXTable.get(); }
 
     SubTaskCSR(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, CSRNumericTableIface * xTable, const algorithmFPType * weights,
-               const services::SharedPtr<ClsType> & st)
+               const services::SharedPtr<classifier::training::Batch> & st)
         : super(nSubsetVectors, dataSize, weights, st), _mtX(xTable), _colIndicesX(dataSize + nSubsetVectors + 1), _rowOffsetsX(nullptr)
     {
         if (_colIndicesX.get())
@@ -166,15 +168,15 @@ private:
     ReadRowsCSR<algorithmFPType, cpu> _mtX;
 };
 
-template <typename algorithmFPType, typename ClsType, CpuType cpu>
-class SubTaskDense : public SubTask<algorithmFPType, ClsType, cpu>
+template <typename algorithmFPType, CpuType cpu>
+class SubTaskDense : public SubTask<algorithmFPType, cpu>
 {
 public:
     virtual ~SubTaskDense() DAAL_C11_OVERRIDE {}
 
-    typedef SubTask<algorithmFPType, ClsType, cpu> super;
+    typedef SubTask<algorithmFPType, cpu> super;
     static SubTaskDense * create(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable,
-                                 const algorithmFPType * weights, const services::SharedPtr<ClsType> & st)
+                                 const algorithmFPType * weights, const services::SharedPtr<classifier::training::Batch> & st)
     {
         auto val = new SubTaskDense(nFeatures, nSubsetVectors, dataSize, xTable, weights, st);
         if (val && val->isValid()) return val;
@@ -188,7 +190,7 @@ private:
     bool isValid() const { return super::isValid() && this->_subsetXTable.get(); }
 
     SubTaskDense(size_t nFeatures, size_t nSubsetVectors, size_t dataSize, const NumericTable * xTable, const algorithmFPType * weights,
-                 const services::SharedPtr<ClsType> & st)
+                 const services::SharedPtr<classifier::training::Batch> & st)
         : super(nSubsetVectors, dataSize, weights, st), _mtX(const_cast<NumericTable *>(xTable))
     {
         services::Status status;
@@ -203,12 +205,12 @@ private:
     ReadRows<algorithmFPType, cpu> _mtX;
 };
 
-template <typename algorithmFPType, typename ClsType, typename MccParType, CpuType cpu>
-class MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, ClsType, MccParType, cpu> : public Kernel
+template <typename algorithmFPType, CpuType cpu>
+class MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu> : public Kernel
 {
 public:
-    services::Status compute(const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * r,
-                             const daal::algorithms::Parameter * par);
+    services::Status compute(const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * m,
+                             multi_class_classifier::internal::SvmModel * svmModel, const KernelParameter & par);
 
 protected:
     services::Status computeDataSize(size_t nVectors, size_t nFeatures, size_t nClasses, const NumericTable * xTable, const algorithmFPType * y,
