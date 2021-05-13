@@ -98,8 +98,6 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
     const auto t_vertex_count = t_data._vertex_count;
     const auto p_vertex_count = p_data._vertex_count;
 
-    int64_t *t_vertex_attribute = nullptr, *p_vertex_attribute = nullptr;
-
     if (vv_t != nullptr) {
         target.load_vertex_attribute(t_vertex_count, vv_t);
     }
