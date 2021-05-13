@@ -73,7 +73,7 @@ public:
     global_stack& operator=(const global_stack&) = delete;
     global_stack& operator=(global_stack&&) = delete;
 
-    void push(dfs_stack& s);
+    bool push(dfs_stack& s);
     void pop(dfs_stack& s);
 
 private:

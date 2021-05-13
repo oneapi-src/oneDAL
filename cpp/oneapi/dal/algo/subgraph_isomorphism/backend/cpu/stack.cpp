@@ -235,17 +235,20 @@ graph_status vertex_stack::increase_stack_size() {
     return ok;
 }
 
-void global_stack::push(dfs_stack& s) {
+bool global_stack::push(dfs_stack& s) {
     for (auto level = s.get_current_level_index(); level > 0; --level) {
         if (s.data_by_levels[level].size() > 1) {
             internal_push(s, level);
-            return;
+            return true;
         }
     }
 
     if (s.data_by_levels[0].size() > 1) {
         internal_push(s, 0);
+        return true;
     }
+
+    return false;
 }
 
 void global_stack::pop(dfs_stack& s) {
