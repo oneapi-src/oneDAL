@@ -80,6 +80,7 @@ public:
     MSG(unsupported_device_type);
     MSG(unsupported_feature_type);
     MSG(unsupported_usm_alloc);
+    MSG(page_size_leq_zero);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
@@ -124,6 +125,7 @@ public:
     /* Serialization */
     MSG(object_is_not_serializable);
     MSG(archive_content_does_not_match_type);
+    MSG(archive_is_in_invalid_state);
 
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);

@@ -15,7 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/array.hpp"
-#include "oneapi/dal/detail/serialization.hpp"
+#include "oneapi/dal/detail/array_utils.hpp"
+#include "oneapi/dal/detail/archives.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/serialization.hpp"
 
@@ -34,7 +35,8 @@ TEMPLATE_TEST("can write to binary_ouput_archive",
         const TestType original = TestType(3.14);
         archive(&original, detail::make_data_type<TestType>());
 
-        const TestType written = *reinterpret_cast<const TestType*>(archive.get_data());
+        const TestType written = detail::reinterpret_array_cast<TestType>(archive.to_array())[0];
+        REQUIRE(archive.is_valid() == true);
         REQUIRE(written == original);
     }
 
@@ -47,7 +49,8 @@ TEMPLATE_TEST("can write to binary_ouput_archive",
 
         archive(original, detail::make_data_type<TestType>(), count);
 
-        const TestType* written = reinterpret_cast<const TestType*>(archive.get_data());
+        const auto written = detail::reinterpret_array_cast<TestType>(archive.to_array());
+        REQUIRE(archive.is_valid() == true);
         for (std::int64_t i = 0; i < count; i++) {
             REQUIRE(written[i] == TestType(i));
         }
@@ -68,6 +71,7 @@ TEMPLATE_TEST("can read from binary_input_archive",
         TestType read;
         archive(&read, detail::make_data_type<TestType>());
 
+        REQUIRE(archive.is_valid() == true);
         REQUIRE(read == original);
     }
 
@@ -84,6 +88,7 @@ TEMPLATE_TEST("can read from binary_input_archive",
         TestType read[count];
         archive(read, detail::make_data_type<TestType>(), count);
 
+        REQUIRE(archive.is_valid() == true);
         for (std::int64_t i = 0; i < count; i++) {
             REQUIRE(read[i] == TestType(i));
         }
@@ -104,12 +109,13 @@ TEMPLATE_TEST("serialize/deserialize array to binary archive",
     INFO("serialize");
     detail::binary_output_archive output_archive;
     detail::serialize(original, output_archive);
+    REQUIRE(output_archive.is_valid() == true);
 
     INFO("deserialize");
     array<TestType> deserialized;
-    detail::binary_input_archive input_archive{ output_archive.get_data(),
-                                                output_archive.get_size() };
+    detail::binary_input_archive input_archive{ output_archive.to_array() };
     detail::deserialize(deserialized, input_archive);
+    REQUIRE(input_archive.is_valid() == true);
 
     REQUIRE(deserialized.get_count() == original.get_count());
     for (std::int64_t i = 0; i < count; i++) {
@@ -130,9 +136,10 @@ TEST("binary_input_archive throws if truncated data buffer is provided", "[binar
 
     INFO("deserialize");
     array<float> deserialized;
-    detail::binary_input_archive input_archive{ output_archive.get_data(),
+    detail::binary_input_archive input_archive{ output_archive.to_array().get_data(),
                                                 output_archive.get_size() / 2 };
     REQUIRE_THROWS_AS(detail::deserialize(deserialized, input_archive), invalid_argument);
+    REQUIRE(input_archive.is_valid() == false);
 }
 
 } // namespace oneapi::dal::test
