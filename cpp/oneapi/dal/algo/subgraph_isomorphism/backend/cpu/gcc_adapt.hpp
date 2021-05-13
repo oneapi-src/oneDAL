@@ -19,12 +19,6 @@
 #if defined(__INTEL_COMPILER)
 #define ONEDAL_IVDEP         _Pragma("ivdep")
 #define ONEDAL_VECTOR_ALWAYS _Pragma("vector always")
-#elif defined(__GNUC__)
-#define ONEDAL_IVDEP _Pragma("GCC ivdep")
-#define ONEDAL_VECTOR_ALWAYS
-#elif defined(_MSC_VER)
-#define ONEDAL_IVDEP
-#define ONEDAL_VECTOR_ALWAYS
 #else
 #define ONEDAL_IVDEP
 #define ONEDAL_VECTOR_ALWAYS
