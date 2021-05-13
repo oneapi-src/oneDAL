@@ -49,9 +49,9 @@ load("@onedal//dev/bazel/deps:tbb.bzl", "tbb_repo")
 tbb_repo(
     name = "tbb",
     root_env_var = "TBBROOT",
-    url = "https://github.com/oneapi-src/oneTBB/releases/download/v2021.1-beta08/oneapi-tbb-2021.1-beta08-lin.tgz",
-    sha256 = "02cfd300e3880f2376457feeb8d29e0a3aabf2ac4caf0883b57ca1a2dba073f0",
-    strip_prefix = "oneapi-tbb-2021.1-beta08",
+    url = "https://github.com/oneapi-src/oneTBB/releases/download/v2021.2.0/oneapi-tbb-2021.2.0-lin.tgz",
+    sha256 = "bcaa0aa7c0d2851a730cb0f64ad120f06a7b63811c8cc49e51ea8e1579f51b05",
+    strip_prefix = "oneapi-tbb-2021.2.0",
 )
 
 load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
