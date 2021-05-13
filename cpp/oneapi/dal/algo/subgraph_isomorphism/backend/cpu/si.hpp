@@ -63,8 +63,6 @@ solution si(const graph& pattern,
                                             cconditions.get(),
                                             true);
 
-    sorter_graph.~sorter();
-
     engine_bundle<Cpu> harness(&pattern,
                                &target,
                                sorted_pattern_vertex.get(),
