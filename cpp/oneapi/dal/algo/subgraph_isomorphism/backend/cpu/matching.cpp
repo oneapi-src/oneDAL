@@ -489,7 +489,8 @@ solution engine_bundle::run() {
             static_cast<bool>(first_states_count % max_threads_count);
     }
 
-    const std::uint64_t array_size = max_threads_count * 2;
+    // const std::uint64_t array_size = max_threads_count * 2;
+    const std::uint64_t array_size = max_threads_count;
     auto engine_array_ptr = allocator_.make_shared_memory<matching_engine>(array_size);
     matching_engine* engine_array = engine_array_ptr.get();
 
