@@ -81,6 +81,8 @@ public:
     MSG(unsupported_feature_type);
     MSG(unsupported_usm_alloc);
     MSG(page_size_leq_zero);
+    MSG(invalid_key);
+    MSG(capacity_leq_zero);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);

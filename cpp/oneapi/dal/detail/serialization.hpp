@@ -17,8 +17,7 @@
 #pragma once
 
 #include <algorithm>
-#include <unordered_map>
-#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/detail/hash_map.hpp"
 
 #define __ONEDAL_REGISTER_SERIALIZABLE__VAR2__(name, unique) name##unique
 #define __ONEDAL_REGISTER_SERIALIZABLE__VAR__(unique) \
@@ -307,17 +306,14 @@ private:
 
 class serializable_registry : public base {
 public:
-    static serializable_registry& instance() {
-        static serializable_registry factory;
-        return factory;
-    }
+    static serializable_registry& instance();
 
     template <typename T>
     T* make(std::uint64_t serialization_id) {
-        ONEDAL_ASSERT(factories_.find(serialization_id) != factories_.end(),
+        ONEDAL_ASSERT(factories_.has(serialization_id),
                       "Factory with requested serialization_id was not registered");
 
-        auto serializable = factories_[serialization_id]->make();
+        auto serializable = factories_.get(serialization_id)->make();
         ONEDAL_ASSERT(serializable, "Factory produced null object");
 
         if (serializable->get_serialization_id() != serialization_id) {
@@ -343,15 +339,15 @@ private:
     bool register_factory(std::uint64_t serialization_id,
                           const serializable_factory_iface* factory) {
         ONEDAL_ASSERT(factory);
-        ONEDAL_ASSERT(factories_.find(serialization_id) == factories_.end(),
+        ONEDAL_ASSERT(!factories_.has(serialization_id),
                       "Factory with the provided serialization_id is already registered");
 
-        factories_[serialization_id] = factory;
+        factories_.set(serialization_id, factory);
         return true;
     }
 
-    // TODO: Use own implementation of hash map
-    std::unordered_map<std::uint64_t, const serializable_factory_iface*> factories_;
+    static constexpr std::int64_t hash_map_capacity = 1024;
+    hash_map<std::uint64_t, const serializable_factory_iface*> factories_{ hash_map_capacity };
 };
 
 template <std::uint64_t SerializationId>
