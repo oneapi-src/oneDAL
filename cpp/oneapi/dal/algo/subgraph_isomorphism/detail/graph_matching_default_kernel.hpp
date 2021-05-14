@@ -34,57 +34,78 @@ ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
     byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
-    const std::int64_t* vv_t,
-    const std::int64_t* vv_p);
+    const std::int64_t* vv_t = nullptr,
+    const std::int64_t* vv_p = nullptr);
 
 template <typename Allocator, typename VertexValue, typename EdgeValue>
-graph_matching_result call_subgraph_isomorphism_kernel_cpu(
-    const dal::detail::host_policy& ctx,
-    const descriptor_base& desc,
-    const Allocator& alloc,
-    byte_alloc_iface* alloc_ptr,
-    const dal::preview::detail::topology<std::int32_t>& t_data,
-    const dal::preview::detail::topology<std::int32_t>& p_data,
-    const dal::preview::detail::vertex_values<VertexValue>& vv_t,
-    const dal::preview::detail::edge_values<EdgeValue>& ev_t,
-    const dal::preview::detail::vertex_values<VertexValue>& vv_p,
-    const dal::preview::detail::edge_values<EdgeValue>& ev_p) {
-    int64_t *t_vertex_attribute = nullptr, *p_vertex_attribute = nullptr;
+struct call_subgraph_isomorphism_kernel_cpu {
+    graph_matching_result operator()(const dal::detail::host_policy& ctx,
+                                     const descriptor_base& desc,
+                                     const Allocator& alloc,
+                                     byte_alloc_iface* alloc_ptr,
+                                     const dal::preview::detail::topology<std::int32_t>& t_data,
+                                     const dal::preview::detail::topology<std::int32_t>& p_data,
+                                     const dal::preview::detail::vertex_values<VertexValue>& vv_t,
+                                     const dal::preview::detail::edge_values<EdgeValue>& ev_t,
+                                     const dal::preview::detail::vertex_values<VertexValue>& vv_p,
+                                     const dal::preview::detail::edge_values<EdgeValue>& ev_p) {
+        int64_t *t_vertex_attribute = nullptr, *p_vertex_attribute = nullptr;
 
-    const auto t_vertex_count = t_data._vertex_count;
-    const auto p_vertex_count = p_data._vertex_count;
-    if (vv_t.get_count() != 0) {
-        t_vertex_attribute = reinterpret_cast<std::int64_t*>(
-            alloc_ptr->allocate(t_vertex_count * sizeof(std::int64_t)));
-        for (std::int32_t i = 0; i < t_vertex_count; i++) {
-            t_vertex_attribute[i] = vv_t[i];
+        const auto t_vertex_count = t_data._vertex_count;
+        const auto p_vertex_count = p_data._vertex_count;
+        if (vv_t.get_count() != 0) {
+            t_vertex_attribute = reinterpret_cast<std::int64_t*>(
+                alloc_ptr->allocate(t_vertex_count * sizeof(std::int64_t)));
+            for (std::int32_t i = 0; i < t_vertex_count; i++) {
+                t_vertex_attribute[i] = vv_t[i];
+            }
         }
-    }
-    if (vv_p.get_count() != 0) {
-        p_vertex_attribute = reinterpret_cast<std::int64_t*>(
-            alloc_ptr->allocate(p_vertex_count * sizeof(std::int64_t)));
-        for (std::int32_t i = 0; i < p_vertex_count; i++) {
-            p_vertex_attribute[i] = vv_p[i];
+        if (vv_p.get_count() != 0) {
+            p_vertex_attribute = reinterpret_cast<std::int64_t*>(
+                alloc_ptr->allocate(p_vertex_count * sizeof(std::int64_t)));
+            for (std::int32_t i = 0; i < p_vertex_count; i++) {
+                p_vertex_attribute[i] = vv_p[i];
+            }
         }
+        if (ev_t.get_count() != 0 || ev_p.get_count() != 0) {
+            using msg = dal::detail::error_messages;
+            throw unimplemented(msg::subgraph_isomorphism_is_not_implemented_for_labeled_edges());
+        }
+        auto result = call_kernel(ctx,
+                                  desc.get_kind(),
+                                  alloc_ptr,
+                                  t_data,
+                                  p_data,
+                                  t_vertex_attribute,
+                                  p_vertex_attribute);
+        if (t_vertex_attribute)
+            alloc_ptr->deallocate(reinterpret_cast<byte_alloc_iface::byte_t*>(t_vertex_attribute),
+                                  t_vertex_count * sizeof(std::int64_t));
+        if (p_vertex_attribute)
+            alloc_ptr->deallocate(reinterpret_cast<byte_alloc_iface::byte_t*>(p_vertex_attribute),
+                                  p_vertex_count * sizeof(std::int64_t));
+        return result;
     }
-    if (ev_t.get_count() != 0 || ev_p.get_count() != 0) {
-        using msg = dal::detail::error_messages;
-        throw unimplemented(msg::subgraph_isomorphism_is_not_implemented_for_labeled_edges());
+};
+
+template <typename Allocator>
+struct call_subgraph_isomorphism_kernel_cpu<Allocator,
+                                            oneapi::dal::preview::empty_value,
+                                            oneapi::dal::preview::empty_value> {
+    graph_matching_result operator()(
+        const dal::detail::host_policy& ctx,
+        const descriptor_base& desc,
+        const Allocator& alloc,
+        byte_alloc_iface* alloc_ptr,
+        const dal::preview::detail::topology<std::int32_t>& t_data,
+        const dal::preview::detail::topology<std::int32_t>& p_data,
+        const dal::preview::detail::vertex_values<oneapi::dal::preview::empty_value>& vv_t,
+        const dal::preview::detail::edge_values<oneapi::dal::preview::empty_value>& ev_t,
+        const dal::preview::detail::vertex_values<oneapi::dal::preview::empty_value>& vv_p,
+        const dal::preview::detail::edge_values<oneapi::dal::preview::empty_value>& ev_p) {
+        auto result = call_kernel(ctx, desc.get_kind(), alloc_ptr, t_data, p_data);
+        return result;
     }
-    auto result = call_kernel(ctx,
-                              desc.get_kind(),
-                              alloc_ptr,
-                              t_data,
-                              p_data,
-                              t_vertex_attribute,
-                              p_vertex_attribute);
-    if (t_vertex_attribute)
-        alloc_ptr->deallocate(reinterpret_cast<byte_alloc_iface::byte_t*>(t_vertex_attribute),
-                              t_vertex_count * sizeof(std::int64_t));
-    if (p_vertex_attribute)
-        alloc_ptr->deallocate(reinterpret_cast<byte_alloc_iface::byte_t*>(p_vertex_attribute),
-                              p_vertex_count * sizeof(std::int64_t));
-    return result;
-}
+};
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::detail
