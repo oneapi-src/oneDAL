@@ -155,6 +155,10 @@ public:
                     const table_id& id,
                     const range& r = { 0, 0 },
                     sycl::usm::alloc alloc = sycl::usm::alloc::shared) const;
+
+    table get_table(device_test_policy& policy, const table_id& id, sycl::usm::alloc alloc) const {
+        return get_table(policy, id, { 0, 0 }, alloc);
+    }
 #endif
 
     table get_table(const table_id& id, const range& r = { 0, 0 }) const {

@@ -19,6 +19,7 @@
 
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
+#include "oneapi/dal/test/engine/io.hpp"
 
 namespace oneapi::dal::pca::test {
 
@@ -36,10 +37,48 @@ public:
         return this->get_policy().is_gpu() && is_svd;
     }
 
-    auto get_descriptor(std::int64_t component_count) const {
+    auto get_descriptor(std::int64_t component_count, bool deterministic = false) const {
         return pca::descriptor<Float, Method>{}
             .set_component_count(component_count)
-            .set_deterministic(false);
+            .set_deterministic(deterministic);
+    }
+
+    table get_gold_data() {
+        const std::int64_t row_count = 10;
+        const std::int64_t column_count = 5;
+        static const Float data[] = {
+            4.59,  0.81,  -1.37, -0.04, -0.75, //
+            4.87,  0.34,  -0.98, 4.1,   -0.12, //
+            4.44,  0.11,  -0.4,  3.27,  4.82, //
+            0.59,  0.98,  -1.88, -0.64, 2.54, //
+            -1.98, 2.57,  4.11,  -1.3,  -0.66, //
+            3.26,  2.8,   2.65,  0.83,  2.12, //
+            0.21,  4.23,  2.71,  2.2,   3.85, //
+            1.27,  -1.15, 2.84,  1.11,  -1.12, //
+            0.25,  1.61,  1.69,  4.51,  0.09, //
+            -0.01, 0.58,  0.83,  2.73,  -1.33, //
+        };
+        return homogen_table::wrap(data, row_count, column_count);
+    }
+
+    table get_gold_eigenvectors() {
+        const std::int64_t component_count = 5;
+        static const Float data[] = {
+            0.58693744,  -0.46709857, -0.57460003, 0.32053585,  0.0664451, //
+            0.18207761,  0.53331191,  -0.04798588, 0.19145584,  0.80216467, //
+            -0.11054327, -0.01167475, 0.38203369,  0.90339519,  -0.15991021, //
+            0.77818759,  0.2819281,   0.44987364,  -0.14493743, -0.30256812, //
+            -0.06750144, 0.64635716,  -0.56497445, 0.15320478,  -0.48476607, //
+        };
+        return homogen_table::wrap(data, component_count, component_count);
+    }
+
+    table get_gold_eigenvalues() {
+        const std::int64_t component_count = 5;
+        static const Float data[] = {
+            2.07061706, 1.32805591, 0.88554629, 0.38030539, 0.33547535,
+        };
+        return homogen_table::wrap(data, 1, component_count);
     }
 
     void general_checks(const te::dataframe& data,
@@ -162,6 +201,22 @@ public:
         CHECK(diff < tol);
     }
 
+    void check_eigenvalues(const table& reference, const table& eigenvalues) {
+        const auto v_ref = la::matrix<double>::wrap(reference);
+        const auto v_actual = la::matrix<double>::wrap(eigenvalues);
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-8);
+        const double diff = te::rel_error(v_ref, v_actual, tol);
+        CHECK(diff < tol);
+    }
+
+    void check_eigenvectors(const table& reference, const table& eigenvectors) {
+        const auto v_ref = la::matrix<double>::wrap(reference);
+        const auto v_actual = la::matrix<double>::wrap(eigenvectors);
+        const double tol = te::get_tolerance<Float>(1e-3, 1e-6);
+        const double diff = te::rel_error(v_ref, v_actual, tol);
+        CHECK(diff < tol);
+    }
+
 private:
     static auto unpack_result(const pca::train_result<>& result) {
         const auto means = result.get_means();
@@ -192,6 +247,33 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
                                                        data.get_column_count() / 2);
 
     this->general_checks(data, component_count, data_table_id);
+}
+
+TEMPLATE_LIST_TEST_M(pca_batch_test,
+                     "pca on gold data",
+                     "[pca][integration][batch][gold]",
+                     pca_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const std::int64_t component_count = 0;
+    const bool deterministic = true;
+    const auto pca_desc = this->get_descriptor(component_count, deterministic);
+    const auto gold_data = this->get_gold_data();
+
+    const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
+    const auto eigenvalues = pca_result.get_eigenvalues();
+    const auto eigenvectors = pca_result.get_eigenvectors();
+
+    INFO("check eigenvalues") {
+        const auto gold_eigenvalues = this->get_gold_eigenvalues();
+        this->check_eigenvalues(gold_eigenvalues, eigenvalues);
+    }
+
+    INFO("check eigenvectors") {
+        const auto gold_eigenvectors = this->get_gold_eigenvectors();
+        this->check_eigenvectors(gold_eigenvectors, eigenvectors);
+    }
 }
 
 TEMPLATE_LIST_TEST_M(pca_batch_test,
