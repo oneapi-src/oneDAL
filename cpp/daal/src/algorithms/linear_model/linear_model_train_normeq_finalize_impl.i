@@ -153,8 +153,14 @@ template <typename algorithmFPType, CpuType cpu>
 Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFPType * a, DAAL_INT ny, algorithmFPType * b,
                                                          const ErrorID & internalError)
 {
-    daal::algorithms::internal::solveEquationsSystem<algorithmFPType, cpu>(a, b, p, ny, false);
-    return Status();
+    if (daal::algorithms::internal::solveSymmetricEquationsSystem<algorithmFPType, cpu>(a, b, p, ny, false))
+    {
+        return Status();
+    }
+    else
+    {
+        return Status(internalError);
+    }
 }
 
 } // namespace internal

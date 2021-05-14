@@ -73,7 +73,7 @@ void ImplicitALSTrainKernelBase<algorithmFPType, cpu>::updateSystem(size_t nCols
 template <typename algorithmFPType, CpuType cpu>
 bool ImplicitALSTrainKernelBase<algorithmFPType, cpu>::solve(size_t nCols, algorithmFPType * a, algorithmFPType * b)
 {
-    return daal::algorithms::internal::solveEquationsSystem<algorithmFPType, cpu>(a, b, nCols, 1, true);
+    return daal::algorithms::internal::solveSymmetricEquationsSystem<algorithmFPType, cpu>(a, b, nCols, 1, true);
 }
 
 static inline void getSizes(size_t nRows, size_t nCols, size_t & nBlocks, size_t & blockSize, size_t & tailSize)

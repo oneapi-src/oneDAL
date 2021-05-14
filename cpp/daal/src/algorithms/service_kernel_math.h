@@ -28,6 +28,7 @@
 #include "services/error_handling.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/services/service_data_utils.h"
+#include "src/services/service_allocators.h"
 #include "src/services/service_arrays.h"
 #include "src/externals/service_blas.h"
 #include "src/externals/service_lapack.h"
@@ -293,14 +294,17 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
 }
 
 template <typename FPType, CpuType cpu>
-bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential, bool extendFromSymmetric)
 {
-    /* Extend symmetric matrix to generic through filling of upper triangle */
-    for (size_t i = 0; i < n; ++i)
+    if (extendFromSymmetric)
     {
-        for (size_t j = 0; j < i; ++j)
+        /* Extend symmetric matrix to generic through filling of upper triangle */
+        for (size_t i = 0; i < n; ++i)
         {
-            a[j * n + i] = a[i * n + j];
+            for (size_t j = 0; j < i; ++j)
+            {
+                a[j * n + i] = a[i * n + j];
+            }
         }
     }
 
@@ -308,43 +312,48 @@ bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bo
     char trans    = 'N';
     DAAL_INT info = 0;
 
-    TArray<DAAL_INT, cpu> ipiv(n);
+    ScalableMalloc<DAAL_INT, cpu> ipivMalloc;
+    DAAL_INT * ipiv = ipivMalloc.allocate(n);
 
     /* Perform P*L*U factorization of A */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
+        Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv, &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
+        Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv, &info);
     }
     if (info != 0) return false;
 
     /* Solve P*L*U * x = b */
     if (sequential)
     {
-        Lapack<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+        Lapack<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv, b, (DAAL_INT *)&n, &info);
     }
     else
     {
-        Lapack<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+        Lapack<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv, b, (DAAL_INT *)&n, &info);
     }
+    ipivMalloc.deallocate(ipiv);
     return (info == 0);
 }
 
 template <typename FPType, CpuType cpu>
-bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
     /* Copy data for fallback from Cholesky to PLU factorization */
-    TArray<FPType, cpu> aCopy(n * n);
-    TArray<FPType, cpu> bCopy(n);
+    ScalableMalloc<FPType, cpu> copyMalloc;
+    FPType * aCopy = copyMalloc.allocate(n * n);
+    FPType * bCopy = copyMalloc.allocate(n);
 
-    int copy_status = services::internal::daal_memcpy_s(aCopy.get(), n * n * sizeof(FPType), a, n * n * sizeof(FPType));
-    copy_status |= services::internal::daal_memcpy_s(bCopy.get(), n * sizeof(FPType), b, n * sizeof(FPType));
+    int copy_status = services::internal::daal_memcpy_s(aCopy, n * n * sizeof(FPType), a, n * n * sizeof(FPType));
+    copy_status |= services::internal::daal_memcpy_s(bCopy, n * sizeof(FPType), b, n * sizeof(FPType));
 
     if (copy_status != 0)
     {
+        copyMalloc.deallocate(aCopy);
+        copyMalloc.deallocate(bCopy);
         return false;
     }
 
@@ -352,13 +361,17 @@ bool solveEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequ
     if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
     {
         /* Fallback to PLU factorization */
-        bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
+        bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy, bCopy, n, nX, sequential, true);
         if (status)
         {
-            status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType));
+            status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy, n * sizeof(FPType));
         }
+        copyMalloc.deallocate(aCopy);
+        copyMalloc.deallocate(bCopy);
         return status;
     }
+    copyMalloc.deallocate(aCopy);
+    copyMalloc.deallocate(bCopy);
     return true;
 }
 } // namespace internal
