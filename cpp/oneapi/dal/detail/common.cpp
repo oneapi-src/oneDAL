@@ -51,6 +51,7 @@ template struct ONEDAL_EXPORT integer_overflow_ops<std::uint8_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint16_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint32_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint64_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::size_t>;
 
 } // namespace v1
 
@@ -106,6 +107,7 @@ template struct ONEDAL_EXPORT integer_overflow_ops<std::uint8_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint16_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint32_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint64_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::size_t>;
 
 } // namespace v2
 
