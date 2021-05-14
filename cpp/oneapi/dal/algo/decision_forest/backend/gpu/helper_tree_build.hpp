@@ -184,6 +184,7 @@ public:
                                  class_count_,
                                  last_tree_pos_ + tree_idx);
         }
+        last_tree_pos_ += tree_count;
     }
 
     Float get_tree_response(Index tree_idx, const Float* x) const {

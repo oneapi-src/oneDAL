@@ -892,7 +892,7 @@ cl::sycl::event df_cls_train_hist_impl<Float, Bin, Index>::compute_best_split_by
 
     const Index selected_ftr_count = selected_ftr_count_;
 
-    auto local_size = preferable_sbg_size_;
+    auto local_size = be::device_max_sg_size(queue_);
 
     const cl::sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
@@ -1132,7 +1132,7 @@ cl::sycl::event df_cls_train_hist_impl<Float, Bin, Index>::compute_best_split_si
     //ev.wait_and_throw();
     //auto* buf_ptr = buf.get_mutable_data();
 
-    auto local_size = preferable_sbg_size_;
+    auto local_size = be::device_max_sg_size(queue_);
 
     ////_P("compute best split single pass");
 
