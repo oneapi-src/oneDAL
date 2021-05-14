@@ -16,7 +16,7 @@
 
 #pragma once
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 enum graph_status {
     ok = 0, /*!< No error found*/
@@ -29,4 +29,4 @@ enum edge_direction {
     both = 1 /*!< Edge exist */
 };
 
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

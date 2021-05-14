@@ -17,11 +17,11 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 graph::graph(const dal::preview::detail::topology<std::int32_t>& t,
              graph_storage_scheme storage_scheme,
-             byte_alloc_iface* byte_alloc)
+             detail::byte_alloc_iface* byte_alloc)
         : allocator_(byte_alloc) {
     bool has_edges_attribute = false;
     bool use_bit_representation = false;
@@ -460,4 +460,4 @@ graph_input_bit_data::~graph_input_bit_data() {
     }
     allocator_.deallocate<std::uint8_t*>(data, vertex_count);
 }
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

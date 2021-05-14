@@ -30,7 +30,7 @@
 #define ONEAPI_RESTRICT
 #endif
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 enum register_size { r8 = 1, r16 = 2, r32 = 4, r64 = 8, r128 = 16, r256 = 32, r512 = 64 };
 
@@ -155,4 +155,4 @@ private:
     std::int64_t n;
 };
 
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

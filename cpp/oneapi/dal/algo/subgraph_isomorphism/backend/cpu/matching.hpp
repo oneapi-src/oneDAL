@@ -27,7 +27,7 @@
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 template <typename Cpu>
 class engine_bundle;
@@ -661,4 +661,4 @@ void engine_bundle<Cpu>::first_states_generator(bool use_exploration_stack) {
                                   });
     }
 }
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

@@ -19,7 +19,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 struct sconsistent_conditions {
     std::int64_t* array;
@@ -86,4 +86,4 @@ public:
                                         const std::int64_t vertex,
                                         const std::uint8_t* pbit_mask) const;
 };
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

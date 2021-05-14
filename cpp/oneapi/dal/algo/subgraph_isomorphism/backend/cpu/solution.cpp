@@ -19,7 +19,7 @@
 #include "oneapi/dal/common.hpp"
 
 namespace dal = oneapi::dal;
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 state::state(inner_alloc a) : allocator_(a) {
     core = nullptr;
@@ -255,4 +255,4 @@ oneapi::dal::homogen_table solution::export_as_table() {
         .reset(arr_solution, solution_count, solution_core_length)
         .build();
 }
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

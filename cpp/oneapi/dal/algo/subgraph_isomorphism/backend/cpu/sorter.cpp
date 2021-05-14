@@ -18,7 +18,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 sorter::sorter(inner_alloc allocator) : allocator_(allocator) {
     p_degree_probability = nullptr;
@@ -305,4 +305,4 @@ std::int64_t sorter::get_core_linked_degree(const graph& pattern,
     return core_degree;
 }
 
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

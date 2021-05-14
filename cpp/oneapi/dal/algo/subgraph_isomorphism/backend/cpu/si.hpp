@@ -25,13 +25,13 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
-using namespace oneapi::dal::preview::subgraph_isomorphism::detail;
+using namespace oneapi::dal::preview::subgraph_isomorphism::backend;
 
 template <typename Cpu = oneapi::dal::backend::cpu_dispatch_sse2>
 solution si(const graph& pattern,
             const graph& target,
             kind isomorphism_kind,
-            byte_alloc_iface* alloc_ptr) {
+            detail::byte_alloc_iface* alloc_ptr) {
     inner_alloc local_allocator(alloc_ptr);
     solution sol(local_allocator);
     sorter sorter_graph(&target, local_allocator);
@@ -85,7 +85,7 @@ solution si(const graph& pattern,
 template <typename Cpu>
 subgraph_isomorphism::graph_matching_result si_call_kernel(
     const kind& si_kind,
-    byte_alloc_iface* alloc_ptr,
+    detail::byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
     const std::int64_t* vv_t,

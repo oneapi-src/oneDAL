@@ -21,7 +21,7 @@
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 struct state {
     std::int64_t* core;
@@ -68,4 +68,4 @@ public:
     graph_status increase_solutions_size();
     void delete_data();
 };
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

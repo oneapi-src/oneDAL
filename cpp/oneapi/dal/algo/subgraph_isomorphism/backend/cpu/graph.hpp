@@ -27,7 +27,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 enum graph_storage_scheme { auto_detect, bit, list };
 
@@ -87,7 +87,7 @@ class graph {
 public:
     graph(const dal::preview::detail::topology<std::int32_t>& t,
           graph_storage_scheme storage_scheme,
-          byte_alloc_iface* byte_alloc);
+          detail::byte_alloc_iface* byte_alloc);
     virtual ~graph();
 
     static double graph_density(const std::int64_t vertex_count, const std::int64_t edge_count);
@@ -145,4 +145,4 @@ public:
     void init_from_list(const graph_input_list_data* input_list_data);
     void init_from_bit(const graph_input_bit_data* input_bit_data);
 };
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

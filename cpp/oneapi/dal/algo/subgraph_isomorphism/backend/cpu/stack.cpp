@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 namespace dal = oneapi::dal;
 
@@ -395,4 +395,4 @@ std::uint64_t dfs_stack::size(const std::uint64_t level) const {
 std::uint64_t dfs_stack::max_level_width(const std::uint64_t level) const {
     return data_by_levels[level].max_size();
 }
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
