@@ -324,7 +324,11 @@ bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bo
     {
         Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv, &info);
     }
-    if (info != 0) return false;
+    if (info != 0)
+    {
+        ipivMalloc.deallocate(ipiv);
+        return false;
+    }
 
     /* Solve P*L*U * x = b */
     if (sequential)
