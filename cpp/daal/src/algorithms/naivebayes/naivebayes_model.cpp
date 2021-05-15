@@ -33,25 +33,6 @@ namespace algorithms
 {
 namespace multinomial_naive_bayes
 {
-namespace interface1
-{
-PartialModel::PartialModel() : _nObservations(0) {}
-
-Status Parameter::check() const
-{
-    Status s;
-    DAAL_CHECK_STATUS(s, classifier::interface1::Parameter::check());
-
-    if (priorClassEstimates)
-    {
-        s |= checkNumericTable(priorClassEstimates.get(), priorClassEstimatesStr(), 0, 0, 1, nClasses);
-    }
-
-    return s;
-}
-
-} // namespace interface1
-
 namespace interface2
 {
 Status Parameter::check() const

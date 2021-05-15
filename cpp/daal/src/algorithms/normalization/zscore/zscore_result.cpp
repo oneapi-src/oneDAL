@@ -46,9 +46,7 @@ namespace interface2
 */
 Status ResultImpl::check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par) const
 {
-    Status status = interface1::ResultImpl::check(in);
-    DAAL_CHECK_STATUS_VAR(status);
-
+    Status status;
     const interface1::Input * input = static_cast<const interface1::Input *>(in);
     DAAL_CHECK(input, ErrorNullInput);
 

@@ -44,7 +44,7 @@ namespace interface2
 template <typename algorithmFPType>
 Status ResultImpl::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter)
 {
-    Status status = interface1::ResultImpl::allocate<algorithmFPType>(input);
+    Status status;
     DAAL_CHECK_STATUS_VAR(status);
 
     const Input * in = static_cast<const Input *>(input);
