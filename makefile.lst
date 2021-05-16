@@ -25,6 +25,7 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
                 coordinate_descent jaccard triangle_counting shortest_paths subgraph_isomorphism
 
+classifier += classifier/inner
 low_order_moments +=
 quantiles +=
 covariance +=

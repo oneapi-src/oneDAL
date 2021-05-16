@@ -20,7 +20,7 @@
 #include "daal.h"
 #include "com_intel_daal_algorithms_binary_adaboost_quality_metric_set_QualityMetricSetBatch.h"
 
-using namespace daal::algorithms::adaboost::quality_metric_set::interface1;
+using namespace daal::algorithms::adaboost::quality_metric_set;
 
 /*
  * Class:     com_intel_daal_algorithms_binary_1adaboost_quality_metric_set_QualityMetricSetBatch
