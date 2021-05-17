@@ -208,6 +208,7 @@ protected:
             DAAL_CHECK_THR(!services::internal::daal_memcpy_s(dataOut, p * sizeof(algorithmFPType), dataIn, p * sizeof(algorithmFPType)),
                            services::ErrorMemoryCopyFailedInternal);
         });
+
         return safeStat.detach();
     }
 
@@ -306,27 +307,29 @@ protected:
             const algorithmFPType ai    = _alpha[i];
 
             /* free SV: (0 < alpha < C)*/
-            if (HelperTrainSVM<algorithmFPType, cpu>::checkLabel(yi) && 0 < ai && ai < cwi)
+            if (HelperTrainSVM<algorithmFPType, cpu>::checkLabel(yi, checkLabels) && 0 < ai && ai < cwi)
             {
                 sumGrad += gradi;
                 ++nGrad;
             }
-            if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, ai, cwi))
+            if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, ai, cwi, checkLabels))
             {
                 ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
             }
-            if (HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, ai, cwi))
+            if (HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, ai, cwi, checkLabels))
             {
                 lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
             }
         }
+
         if (nGrad == 0)
         {
             bias = -0.5 * (ub + lb);
         }
         else
         {
-            bias = -sumGrad / algorithmFPType(nGrad);
+            double factor = (checkLabels == CheckClassLabels::positive) ? 1.0 : -1.0;
+            bias          = factor * sumGrad / algorithmFPType(nGrad);
         }
 
         return bias;
@@ -344,7 +347,7 @@ protected:
         {
             const algorithmFPType bias_p = calculateBiasImpl(cw, CheckClassLabels::positive);
             const algorithmFPType bias_n = calculateBiasImpl(cw, CheckClassLabels::negative);
-            bias                         = (bias_p - bias_n) / algorithmFPType(2);
+            bias                         = (bias_n - bias_p) / algorithmFPType(2);
 
             if (_task == SvmType::nu_classification)
             {
