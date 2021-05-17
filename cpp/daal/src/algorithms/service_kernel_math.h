@@ -25,7 +25,21 @@
 #define __SERVICE_KERNEL_MATH_H__
 
 #include "services/daal_defines.h"
-#include "services/service_defines.h"
+
+#include "services/env_detect.h"
+#include "src/externals/service_dispatch.h"
+#include "src/services/service_data_utils.h"
+#include "src/services/service_utils.h"
+#include "src/services/service_defines.h"
+#include "src/threading/threading.h"
+#include "src/data_management/service_numeric_table.h"
+#include "data_management/features/defines.h"
+#include "src/algorithms/service_error_handling.h"
+#include "src/externals/service_math_mkl.h"
+#include "data_management/data/data_dictionary.h"
+#include "data_management/features/defines.h"
+#include "immintrin.h"
+
 #include "services/error_handling.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/services/service_data_utils.h"
@@ -33,6 +47,7 @@
 #include "src/externals/service_blas.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
+#include <iostream>
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -83,6 +98,12 @@ FPType distance(const FPType * a, const FPType * b, size_t dim, FPType p)
     return daal::internal::Math<FPType, cpu>::sPowx(sum, (FPType)1.0 / p);
 }
 
+// void printOneTime(const char * format)
+// {
+//     static bool flag = 0;
+//     if (!flag) {printf(format); flag=1;}
+// }
+
 template <typename FPType, CpuType cpu>
 class PairwiseDistances
 {
@@ -91,15 +112,15 @@ public:
 
     virtual services::Status init() = 0;
 
-    virtual services::Status computeBatch(const FPType * const a, const FPType * const b)/* , size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                          FPType * const res) */                                                             = 0;
+    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                          FPType * const res)                                                             = 0;
     // virtual services::Status computeBatch(size_t aOffset, size_t aSize, size_t bOffset, size_t bSize, FPType * const res) = 0;
     // virtual services::Status computeFull(FPType * const res)                                                              = 0;
 };
 
 // compute: sum(A^2, 2) + sum(B^2, 2) -2*A*B'
 template <typename FPType, CpuType cpu>
-class EuclideanDistances/*  : public PairwiseDistances<FPType, cpu> */
+class EuclideanDistances : public PairwiseDistances<FPType, cpu>
 {
 public:
     EuclideanDistances(const NumericTable & a, const NumericTable & b, bool squared = true) : _a(a), _b(b), _squared(squared) {}
@@ -264,36 +285,36 @@ protected:
 
 // compute Minkowski distance
 template <typename FPType, CpuType cpu>
-class MinkowskiDistances /* : public PairwiseDistances<FPType, cpu> */
+class MinkowskiDistances : public PairwiseDistances<FPType, cpu>
 {
 public:
-    MinkowskiDistances(const NumericTable & a, const NumericTable & b, const FPType p, bool squared = true) : _a(a), _b(b), _p(p), _squared(squared) {}
+    MinkowskiDistances(const NumericTable & a, const NumericTable & b, const bool powered=true, const FPType p = 2.) : _a(a), _b(b), _powered(powered), _p(p) {}
 
     virtual ~MinkowskiDistances() {}
 
-    virtual DAAL_EXPORT void computeBatch(const NumericTablePtr & xTable, const NumericTablePtr & yTable,
-                            const NumericTablePtr & distancesTable,/*  const FPType & p */);
+    virtual services::Status init()
+    {
+        services::Status s;
+        return s;
+    }
+
+    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                          FPType * const res)
+    {
+        computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
+
+        return services::Status();
+    }
+
 
 protected:
-    FPType computeDistance(const FPType * x, const FPType * y, const FPType p, const size_t n)
+    FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
     {
         daal::internal::mkl::MklMath<FPType, cpu> math;
 
         FPType d = 0;
         
-        if ( math.sFabs(p - 0.0) < std::numeric_limits<FPType>::epsilon())
-        {
-            for (size_t i = 0; i < n; ++i)
-            {
-                if (math.sFabs(x[i] - y[i]) > d)
-                {
-                    d = math.sFabs(x[i] - y[i]);
-                }
-            }
-
-            return d;
-        }
-        else if ( math.sFabs(p - 1.0) < std::numeric_limits<FPType>::epsilon())
+        if (_p == 1.0)
         {
             for (size_t i = 0; i < n; ++i)
             {
@@ -306,150 +327,108 @@ protected:
         {
             for (size_t i = 0; i < n; ++i)
             {
-                d += math.sPowx(math.sFabs(x[i] - y[i]), p);
+                d += math.sPowx(math.sFabs(x[i] - y[i]), _p);
             }
 
-            return math.sPowx(d, 1.0 / p);
+            if (!_powered)
+                return math.sPowx(d, 1.0 / _p);
+
+            return d;
         }
     }
 
-    services::Status minkowskiImpl(const NumericTablePtr & xTable, const NumericTablePtr & yTable,
-                                const NumericTablePtr & distancesTable, const FPType & p)
+    services::Status computeBatchImpl(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                          FPType * const res)
     {
-            daal::internal::mkl::MklMath<FPType, cpu> math;
+        daal::internal::mkl::MklMath<FPType, cpu> math;
 
-            const size_t nDims = xTable->getNumberOfColumns();
-            const size_t nX = xTable->getNumberOfRows();
-            const size_t nY = xTable->getNumberOfRows();
+        const size_t nDims = _a.getNumberOfColumns();
+        const size_t nX = aSize;
+        const size_t nY = bSize;
 
-            daal::internal::ReadRows<FPType, cpu> xBlock(*xTable, 0, nX);
-            const FPType* x = xBlock.get();
-            DAAL_CHECK_MALLOC(x);
+        const FPType* x = a;
+        DAAL_CHECK_MALLOC(x);
 
-            daal::internal::ReadRows<FPType, cpu> yBlock(*yTable, 0, nY);
-            const FPType* y = yBlock.get();
-            DAAL_CHECK_MALLOC(y);
+        const FPType* y = b;
+        DAAL_CHECK_MALLOC(y);
 
-            daal::internal::WriteRows<FPType, cpu> distancesBlock(*distancesTable, 0, nX);
-            FPType* distances = distancesBlock.get();
-            DAAL_CHECK_MALLOC(distances);
+        const size_t BlockSize = 64;
+        const size_t THREADING_BORDER = 32768;
+        const size_t nBlocksX = nX / BlockSize;
+        const size_t nBlocksY = nY / BlockSize;
+        const size_t nThreads = threader_get_threads_number();
 
-            const size_t BlockSize = 64;
-            const size_t THREADING_BORDER = 32768;
-            const size_t nBlocksX = nX / BlockSize;
-            const size_t nBlocksY = nY / BlockSize;
-            const size_t nThreads = threader_get_threads_number();
+        if (nThreads > 1 && nX * nY > THREADING_BORDER)
+        {
+            daal::threader_for(nBlocksX, nBlocksX, [&](size_t iBlockX) {
 
-            if (nThreads > 1 && nX * nY > THREADING_BORDER)
-            {
-                daal::threader_for(nBlocksX, nBlocksX, [&](size_t iBlockX) {
+                const size_t startX = iBlockX * BlockSize;
+                const size_t endX = (nBlocksX - iBlockX - 1) ? startX + BlockSize : nX;
 
-                    const size_t startX = iBlockX * BlockSize;
-                    const size_t endX = (nBlocksX - iBlockX - 1) ? startX + BlockSize : nX;
+                daal::threader_for(nBlocksY, nBlocksY, [&](size_t iBlockY) {
 
-                    daal::threader_for(nBlocksY, nBlocksY, [&](size_t iBlockY) {
+                    const size_t startY = iBlockY * BlockSize;
+                    const size_t endY = (nBlocksY - iBlockY - 1) ? startY + BlockSize : nY;
 
-                        const size_t startY = iBlockY * BlockSize;
-                        const size_t endY = (nBlocksY - iBlockY - 1) ? startY + BlockSize : nY;
-
-                        for (size_t ix = startX; ix < endX; ++ix)
-                            for (size_t iy = startY; iy < endY; ++iy)
-                            {
-                                distances[ix * nY + iy] = computeDistance<FPType, cpu>(x + ix * nDims, y + iy * nDims, p, nDims); 
-                            }
-                    });
+                    for (size_t ix = startX; ix < endX; ++ix)
+                        for (size_t iy = startY; iy < endY; ++iy)
+                        {
+                            res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims); 
+                        }
                 });
-            }
-            else
-            {
-                for (size_t ix = 0; ix < nX; ++ix)
-                    for (size_t iy = 0; iy < nY; ++iy)
-                    {
-                        distances[ix * nY + iy] = computeDistance<FPType, cpu>(x + ix * nDims, y + iy * nDims, p, nDims);
-                    }
-            }
-
-            return services::Status();
-
+            });
+        }
+        else
+        {
+            for (size_t ix = 0; ix < nX; ++ix)
+                for (size_t iy = 0; iy < nY; ++iy)
+                {
+                    res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
+                }
         }
 
-    void minkowskiDispImpl(const NumericTablePtr & xTable, const NumericTablePtr & yTable,
-                        const NumericTablePtr & distancesTable, const FPType & p)
-    {
-    #define DAAL_MINKOWSKI(cpuId, ...) minkowskiImpl<algorithmFPType, cpuId>(__VA_ARGS__);
-        DAAL_DISPATCH_FUNCTION_BY_CPU(DAAL_MINKOWSKI, xTable, yTable, distancesTable, p);
-    #undef DAAL_MINKOWSKI
+        return services::Status();
     }
 
+private:
     const NumericTable & _a;
     const NumericTable & _b;
     const FPType & _p;
-    const bool _squared;
-
-    TArray<FPType, cpu> normBufferA;
-    TArray<FPType, cpu> normBufferB;
+    const bool _powered;
 };
 
+// compute Minkowski distance
 template <typename FPType, CpuType cpu>
-DAAL_EXPORT void MinkowskiDistances<FPType, cpu>::computeBatch(const NumericTablePtr & xTable, const NumericTablePtr & yTable,
-                        const NumericTablePtr & distancesTable, const FPType & p)
+class ChebychevDistances : public PairwiseDistances<FPType, cpu>
 {
-    NumericTableDictionaryPtr tableFeaturesDict = xTable->getDictionarySharedPtr();
+public:
+    ChebychevDistances(const NumericTable & a, const NumericTable & b) : _a(a), _b(b) {}
 
-    switch ((*tableFeaturesDict)[0].getIndexType())
+    virtual ~ChebychevDistances() {}
+
+    virtual services::Status init()
     {
-    case daal::data_management::features::IndexNumType::DAAL_FLOAT32:
-        DAAL_SAFE_CPU_CALL((minkowskiDispImpl<float>(xTable, yTable, distancesTable, p)),
-                        (minkowskiImpl<float, daal::CpuType::sse2>(xTable, yTable, distancesTable, p)));
-        break;
-    case daal::data_management::features::IndexNumType::DAAL_FLOAT64:
-        DAAL_SAFE_CPU_CALL((minkowskiDispImpl<double>(xTable, yTable, distancesTable, p)),
-                        (minkowskiImpl<double, daal::CpuType::sse2>(xTable, yTable, distancesTable, p)));
-        break;
+        services::Status s;
+        return s;
     }
-}
 
-template DAAL_EXPORT void MinkowskiDistances<float, avx512>::computeBatch(const NumericTablePtr & xTable, const NumericTablePtr & yTable,
-                                        const NumericTablePtr & distancesTable, const float & p);
-
-template DAAL_EXPORT void MinkowskiDistances<double, avx512>::computeBatch(const NumericTablePtr & xTable, const NumericTablePtr & yTable,
-                                            const NumericTablePtr & distancesTable, const double & p);
-
-#if defined(__INTEL_COMPILER)
-
-template <>
-float MinkowskiDistances<float, avx512>::computeDistance/* <float, avx512> */(const float * x, const float * y, const float p, const size_t n)
-{
-    daal::internal::mkl::MklMath<float, avx512> math;
-    float* tmp = new float[16];
-    float d = 0.0;
-
-    __m512 * ptr512x = (__m512 *)x;
-    __m512 * ptr512y = (__m512 *)y;
-
-    if ( math.sFabs(p - 0.0) < std::numeric_limits<float>::epsilon())
+    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                          FPType * const res)
     {
-        __m512  tmp512 = _mm512_abs_ps(_mm512_sub_ps(ptr512x[0], ptr512y[0]));
+        computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
+
+        return services::Status();
+    }
+
+
+protected:
+    FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
+    {
+        daal::internal::mkl::MklMath<FPType, cpu> math;
+
+        FPType d = 0;
         
-
-        for (size_t i = 1; i < n / 16; ++i)
-        {
-            tmp512 = _mm512_max_ps(tmp512, _mm512_abs_ps(_mm512_sub_ps(ptr512x[i], ptr512y[i])));
-        }
-
-        _mm512_storeu_ps(tmp, tmp512);
-
-        for (size_t i = 0; i < 16; ++i)
-        {
-            if (tmp[i] > d)
-            {
-                d = tmp[i];
-            }
-        }
-
-        delete[] tmp;
-
-        for (size_t i = (n / 16) * 16; i < n; ++i)
+        for (size_t i = 0; i < n; ++i)
         {
             if (math.sFabs(x[i] - y[i]) > d)
             {
@@ -459,7 +438,78 @@ float MinkowskiDistances<float, avx512>::computeDistance/* <float, avx512> */(co
 
         return d;
     }
-    else if ( math.sFabs(p - 1.0) < std::numeric_limits<float>::epsilon())
+
+    services::Status computeBatchImpl(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                          FPType * const res)
+    {
+        daal::internal::mkl::MklMath<FPType, cpu> math;
+
+        const size_t nDims = _a.getNumberOfColumns();
+        const size_t nX = aSize;
+        const size_t nY = bSize;
+
+        const FPType* x = a;
+        DAAL_CHECK_MALLOC(x);
+
+        const FPType* y = b;
+        DAAL_CHECK_MALLOC(y);
+
+        const size_t BlockSize = 64;
+        const size_t THREADING_BORDER = 32768;
+        const size_t nBlocksX = nX / BlockSize;
+        const size_t nBlocksY = nY / BlockSize;
+        const size_t nThreads = threader_get_threads_number();
+
+        if (nThreads > 1 && nX * nY > THREADING_BORDER)
+        {
+            daal::threader_for(nBlocksX, nBlocksX, [&](size_t iBlockX) {
+
+                const size_t startX = iBlockX * BlockSize;
+                const size_t endX = (nBlocksX - iBlockX - 1) ? startX + BlockSize : nX;
+
+                daal::threader_for(nBlocksY, nBlocksY, [&](size_t iBlockY) {
+
+                    const size_t startY = iBlockY * BlockSize;
+                    const size_t endY = (nBlocksY - iBlockY - 1) ? startY + BlockSize : nY;
+
+                    for (size_t ix = startX; ix < endX; ++ix)
+                        for (size_t iy = startY; iy < endY; ++iy)
+                        {
+                            res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims); 
+                        }
+                });
+            });
+        }
+        else
+        {
+            for (size_t ix = 0; ix < nX; ++ix)
+                for (size_t iy = 0; iy < nY; ++iy)
+                {
+                    res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
+                }
+        }
+
+        return services::Status();
+    }
+
+private:
+    const NumericTable & _a;
+    const NumericTable & _b;
+};
+
+#if defined(__INTEL_COMPILER)
+
+template <>
+float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)
+{
+    daal::internal::mkl::MklMath<float, avx512> math;
+    float* tmp = new float[16];
+    float d = 0.0;
+
+    __m512 * ptr512x = (__m512 *)x;
+    __m512 * ptr512y = (__m512 *)y;
+
+    if ( _p == 1.0)
     {
         for (size_t i = 0; i < n / 16; ++i)
         {
@@ -478,7 +528,7 @@ float MinkowskiDistances<float, avx512>::computeDistance/* <float, avx512> */(co
         for (size_t i = 0; i < n / 16 ; ++i)
         {
             _mm512_storeu_ps(tmp, _mm512_abs_ps(_mm512_sub_ps(ptr512x[i], ptr512y[i])));
-            math.vPowx(4, tmp, p, tmp);
+            math.vPowx(4, tmp, _p, tmp);
             d += _mm512_reduce_add_ps(_mm512_loadu_ps(tmp));
         }
 
@@ -486,15 +536,18 @@ float MinkowskiDistances<float, avx512>::computeDistance/* <float, avx512> */(co
 
         for (size_t i = (n / 16) * 16; i < n; ++i)
         {
-            d += math.sPowx(math.sFabs(x[i] - y[i]), p);
+            d += math.sPowx(math.sFabs(x[i] - y[i]), _p);
         }
 
-        return math.sPowx(d, 1.0 / p);
+        if (!_powered)
+            return math.sPowx(d, 1.0 / _p);
+
+        return d;
     }
 }
 
 template <>
-double MinkowskiDistances<double, avx512>::computeDistance/* <double, avx512> */(const double * x, const double * y, const double p, const size_t n)
+double MinkowskiDistances<double, avx512>::computeDistance(const double * x, const double * y, const size_t n)
 {
     daal::internal::mkl::MklMath<double, avx512> math;
 
@@ -503,38 +556,7 @@ double MinkowskiDistances<double, avx512>::computeDistance/* <double, avx512> */
     __m512d* ptr512x = (__m512d*)x;
     __m512d* ptr512y = (__m512d*)y;
 
-    if ( math.sFabs(p - 0.0) < std::numeric_limits<double>::epsilon())
-    {
-        __m512d  tmp512 = _mm512_abs_pd(_mm512_sub_pd(ptr512x[0], ptr512y[0]));
-
-        for (size_t i = 1; i < n / 8; ++i)
-        {
-            tmp512 = _mm512_max_pd(tmp512, _mm512_abs_pd(_mm512_sub_pd(ptr512x[i], ptr512y[i])));
-        }
-
-        _mm512_storeu_pd(tmp, tmp512);
-
-        for (size_t i = 0; i < 8; ++i)
-        {
-            if (tmp[i] > d)
-            {
-                d = tmp[i];
-            }
-        }
-
-        delete[] tmp;
-
-        for (size_t i = (n / 8) * 8; i < n; ++i)
-        {
-            if (math.sFabs(x[i] - y[i]) > d)
-            {
-                d = math.sFabs(x[i] - y[i]);
-            }
-        }
-
-        return d;
-    }
-    else if ( math.sFabs(p - 1.0) < std::numeric_limits<double>::epsilon())
+    if ( _p == 1.0)
     {
         for (size_t i = 0; i < n / 8; ++i)
         {
@@ -552,7 +574,7 @@ double MinkowskiDistances<double, avx512>::computeDistance/* <double, avx512> */
         for (size_t i = 0; i < n / 8; ++i)
         {
             _mm512_storeu_pd(tmp, _mm512_abs_pd(_mm512_sub_pd(ptr512x[i], ptr512y[i])));
-            math.vPowx(8, tmp, p, tmp);
+            math.vPowx(8, tmp, _p, tmp);
             d += _mm512_reduce_add_pd(_mm512_loadu_pd(tmp));
         }
 
@@ -560,11 +582,96 @@ double MinkowskiDistances<double, avx512>::computeDistance/* <double, avx512> */
 
         for (size_t i = (n / 8) * 8; i < n; ++i)
         {
-            d += math.sPowx(math.sFabs(x[i] - y[i]), p);
+            d += math.sPowx(math.sFabs(x[i] - y[i]), _p);
         }
 
-        return math.sPowx(d, 1.0 / p);
+        if (!_powered)
+            return math.sPowx(d, 1.0 / _p);
+
+        return d;
     }
+}
+
+template <>
+float ChebychevDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)
+{
+    daal::internal::mkl::MklMath<float, avx512> math;
+    float* tmp = new float[16];
+    float d = 0.0;
+
+    __m512 * ptr512x = (__m512 *)x;
+    __m512 * ptr512y = (__m512 *)y;
+
+    __m512  tmp512 = _mm512_abs_ps(_mm512_sub_ps(ptr512x[0], ptr512y[0]));
+    
+
+    for (size_t i = 1; i < n / 16; ++i)
+    {
+        tmp512 = _mm512_max_ps(tmp512, _mm512_abs_ps(_mm512_sub_ps(ptr512x[i], ptr512y[i])));
+    }
+
+    _mm512_storeu_ps(tmp, tmp512);
+
+    for (size_t i = 0; i < 16; ++i)
+    {
+        if (tmp[i] > d)
+        {
+            d = tmp[i];
+        }
+    }
+
+    delete[] tmp;
+
+    for (size_t i = (n / 16) * 16; i < n; ++i)
+    {
+        if (math.sFabs(x[i] - y[i]) > d)
+        {
+            d = math.sFabs(x[i] - y[i]);
+        }
+    }
+
+    return d;
+
+}
+
+template <>
+double ChebychevDistances<double, avx512>::computeDistance(const double * x, const double * y, const size_t n)
+{
+    daal::internal::mkl::MklMath<double, avx512> math;
+
+    double d = 0.0;
+    double* tmp = new double[8];
+    __m512d* ptr512x = (__m512d*)x;
+    __m512d* ptr512y = (__m512d*)y;
+
+    __m512d  tmp512 = _mm512_abs_pd(_mm512_sub_pd(ptr512x[0], ptr512y[0]));
+
+    for (size_t i = 1; i < n / 8; ++i)
+    {
+        tmp512 = _mm512_max_pd(tmp512, _mm512_abs_pd(_mm512_sub_pd(ptr512x[i], ptr512y[i])));
+    }
+
+    _mm512_storeu_pd(tmp, tmp512);
+
+    for (size_t i = 0; i < 8; ++i)
+    {
+        if (tmp[i] > d)
+        {
+            d = tmp[i];
+        }
+    }
+
+    delete[] tmp;
+
+    for (size_t i = (n / 8) * 8; i < n; ++i)
+    {
+        if (math.sFabs(x[i] - y[i]) > d)
+        {
+            d = math.sFabs(x[i] - y[i]);
+        }
+    }
+
+    return d;
 }
 
 #endif
