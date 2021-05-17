@@ -41,8 +41,8 @@ public:
               local_stack(allocator),
               hlocal_stack(allocator),
               engine_solutions(allocator){};
-    matching_engine(const graph* ppattern,
-                    const graph* ptarget,
+    matching_engine(const graph<Cpu>* ppattern,
+                    const graph<Cpu>* ptarget,
                     const std::int64_t* psorted_pattern_vertex,
                     const std::int64_t* ppredecessor,
                     const edge_direction* pdirection,
@@ -74,15 +74,15 @@ public:
                                 const std::int64_t target_vertex);
 
     inner_alloc allocator_;
-    const graph* pattern;
-    const graph* target;
+    const graph<Cpu>* pattern;
+    const graph<Cpu>* target;
     const std::int64_t* sorted_pattern_vertex;
     const std::int64_t* predecessor;
     const edge_direction* direction;
     const sconsistent_conditions* pconsistent_conditions;
 
     std::int64_t solution_length;
-    bit_vector vertex_candidates;
+    bit_vector<Cpu> vertex_candidates;
 
     std::int64_t temporary_list_size;
     std::int64_t* temporary_list;
@@ -107,8 +107,8 @@ template <typename Cpu = oneapi::dal::backend::cpu_dispatch_sse2>
 class engine_bundle {
 public:
     stack exploration_stack;
-    engine_bundle(const graph* ppattern,
-                  const graph* ptarget,
+    engine_bundle(const graph<Cpu>* ppattern,
+                  const graph<Cpu>* ptarget,
                   const std::int64_t* psorted_pattern_vertex,
                   const std::int64_t* ppredecessor,
                   const edge_direction* pdirection,
@@ -120,8 +120,8 @@ public:
     solution run();
 
     inner_alloc allocator_;
-    const graph* pattern;
-    const graph* target;
+    const graph<Cpu>* pattern;
+    const graph<Cpu>* target;
     const std::int64_t* sorted_pattern_vertex;
     const std::int64_t* predecessor;
     const edge_direction* direction;
@@ -153,8 +153,8 @@ matching_engine<Cpu>::~matching_engine() {
 }
 
 template <typename Cpu>
-matching_engine<Cpu>::matching_engine(const graph* ppattern,
-                                      const graph* ptarget,
+matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
+                                      const graph<Cpu>* ptarget,
                                       const std::int64_t* psorted_pattern_vertex,
                                       const std::int64_t* ppredecessor,
                                       const edge_direction* pdirection,
@@ -179,7 +179,8 @@ matching_engine<Cpu>::matching_engine(const graph* ppattern,
     std::int64_t target_vertex_count = target->get_vertex_count();
 
     //Need modification for adj lists case support, ~30Mb for Kron-28 (256 * 10^6 vertices)
-    vertex_candidates = bit_vector(bit_vector::bit_vector_size(target_vertex_count), allocator_);
+    vertex_candidates =
+        bit_vector<Cpu>(bit_vector<Cpu>::bit_vector_size(target_vertex_count), allocator_);
 
     pstart_byte = vertex_candidates.get_vector_pointer();
     candidate = 0;
@@ -225,7 +226,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(state* current_state,
     if (isomorphism_kind_ != kind::non_induced) {
         ONEDAL_IVDEP
         for (std::int64_t j = 0; j < divider; j++) {
-            or_equal(
+            or_equal<Cpu>(
                 vertex_candidates.get_vector_pointer(),
                 target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
                 vertex_candidates.size());
@@ -236,14 +237,15 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(state* current_state,
 
     ONEDAL_IVDEP
     for (std::int64_t j = i_cc; j >= divider; j--) { // > divider - 1
-        and_equal(vertex_candidates.get_vector_pointer(),
-                  target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
-                  vertex_candidates.size());
+        and_equal<Cpu>(
+            vertex_candidates.get_vector_pointer(),
+            target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
+            vertex_candidates.size());
     }
 
     for (std::int64_t i = 0; i < current_state->core_length; i++) {
-        vertex_candidates.get_vector_pointer()[bit_vector::byte(current_state->core[i])] &=
-            ~bit_vector::bit(current_state->core[i]);
+        vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(current_state->core[i])] &=
+            ~bit_vector<Cpu>::bit(current_state->core[i]);
     }
     return extract_candidates(current_state, check_solution);
 }
@@ -256,10 +258,10 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     if (isomorphism_kind_ != kind::non_induced) {
         ONEDAL_IVDEP
         for (std::int64_t j = 0; j < divider; j++) {
-            or_equal(vertex_candidates.get_vector_pointer(),
-                     target->p_edges_bit[hlocal_stack.top(
-                         pconsistent_conditions[current_level_index].array[j])],
-                     vertex_candidates.size());
+            or_equal<Cpu>(vertex_candidates.get_vector_pointer(),
+                          target->p_edges_bit[hlocal_stack.top(
+                              pconsistent_conditions[current_level_index].array[j])],
+                          vertex_candidates.size());
         }
     }
 
@@ -267,15 +269,15 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
 
     ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
-        and_equal(vertex_candidates.get_vector_pointer(),
-                  target->p_edges_bit[hlocal_stack.top(
-                      pconsistent_conditions[current_level_index].array[j])],
-                  vertex_candidates.size());
+        and_equal<Cpu>(vertex_candidates.get_vector_pointer(),
+                       target->p_edges_bit[hlocal_stack.top(
+                           pconsistent_conditions[current_level_index].array[j])],
+                       vertex_candidates.size());
     }
 
     for (std::uint64_t i = 0; i <= current_level_index; i++) {
-        vertex_candidates.get_vector_pointer()[bit_vector::byte(hlocal_stack.top(i))] &=
-            ~bit_vector::bit(hlocal_stack.top(i));
+        vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(hlocal_stack.top(i))] &=
+            ~bit_vector<Cpu>::bit(hlocal_stack.top(i));
     }
     return extract_candidates(check_solution);
 }
@@ -299,7 +301,7 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
     }
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         while (pstart_byte[i] > 0) {
-            candidate = bit_vector::power_of_two(pstart_byte[i]);
+            candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
             pstart_byte[i] ^= (1 << candidate);
             candidate += (i << 3);
             feasible_result_count += check_vertex_candidate(check_solution);
@@ -337,20 +339,21 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(state* current_state,
 
     ONEDAL_IVDEP
     for (std::int64_t j = 0; j < divider; j++) {
-        or_equal(vertex_candidates.get_vector_pointer(),
-                 target->p_edges_list
-                     [current_state
-                          ->core[pconsistent_conditions[current_state->core_length - 1].array[j]]],
-                 target->p_degree
-                     [current_state
-                          ->core[pconsistent_conditions[current_state->core_length - 1].array[j]]]);
+        or_equal<Cpu>(
+            vertex_candidates.get_vector_pointer(),
+            target->p_edges_list
+                [current_state
+                     ->core[pconsistent_conditions[current_state->core_length - 1].array[j]]],
+            target
+                ->p_degree[current_state->core
+                               [pconsistent_conditions[current_state->core_length - 1].array[j]]]);
     }
 
     ~vertex_candidates;
 
     ONEDAL_IVDEP
     for (std::int64_t j = current_state->core_length - 1; j >= divider; j--) { // j> divider - 1
-        and_equal(
+        and_equal<Cpu>(
             vertex_candidates.get_vector_pointer(),
             target->p_edges_list
                 [current_state
@@ -362,8 +365,8 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(state* current_state,
     }
 
     for (std::int64_t i = 0; i < current_state->core_length; i++) {
-        vertex_candidates.get_vector_pointer()[bit_vector::byte(current_state->core[i])] &=
-            ~bit_vector::bit(current_state->core[i]);
+        vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(current_state->core[i])] &=
+            ~bit_vector<Cpu>::bit(current_state->core[i]);
     }
     return extract_candidates(current_state, check_solution);
 }
@@ -375,7 +378,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
 
     ONEDAL_IVDEP
     for (std::int64_t j = 0; j < divider; j++) {
-        or_equal(
+        or_equal<Cpu>(
             vertex_candidates.get_vector_pointer(),
             target->p_edges_list[hlocal_stack.top(
                 pconsistent_conditions[current_level_index].array[j])],
@@ -387,7 +390,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
 
     ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
-        and_equal(
+        and_equal<Cpu>(
             vertex_candidates.get_vector_pointer(),
             target->p_edges_list[hlocal_stack.top(
                 pconsistent_conditions[current_level_index].array[j])],
@@ -398,8 +401,8 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
     }
 
     for (std::uint64_t i = 0; i <= current_level_index; i++) {
-        vertex_candidates.get_vector_pointer()[bit_vector::byte(hlocal_stack.top(i))] &=
-            ~bit_vector::bit(hlocal_stack.top(i));
+        vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(hlocal_stack.top(i))] &=
+            ~bit_vector<Cpu>::bit(hlocal_stack.top(i));
     }
     return extract_candidates(check_solution);
 }
@@ -466,7 +469,7 @@ std::int64_t matching_engine<Cpu>::extract_candidates(state* current_state, bool
     }
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         while (pstart_byte[i] > 0) {
-            candidate = bit_vector::power_of_two(pstart_byte[i]);
+            candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
             pstart_byte[i] ^= (1 << candidate);
             candidate += (i << 3);
             feasible_result_count += check_vertex_candidate(current_state, check_solution);
@@ -543,8 +546,8 @@ solution matching_engine<Cpu>::run(bool main_engine) {
 }
 
 template <typename Cpu>
-engine_bundle<Cpu>::engine_bundle(const graph* ppattern,
-                                  const graph* ptarget,
+engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
+                                  const graph<Cpu>* ptarget,
                                   const std::int64_t* psorted_pattern_vertex,
                                   const std::int64_t* ppredecessor,
                                   const edge_direction* pdirection,

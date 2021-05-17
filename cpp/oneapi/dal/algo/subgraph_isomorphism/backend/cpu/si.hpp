@@ -27,14 +27,14 @@
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 using namespace oneapi::dal::preview::subgraph_isomorphism::backend;
 
-template <typename Cpu = oneapi::dal::backend::cpu_dispatch_sse2>
-solution si(const graph& pattern,
-            const graph& target,
+template <typename Cpu>
+solution si(const graph<Cpu>& pattern,
+            const graph<Cpu>& target,
             kind isomorphism_kind,
             detail::byte_alloc_iface* alloc_ptr) {
     inner_alloc local_allocator(alloc_ptr);
     solution sol(local_allocator);
-    sorter sorter_graph(&target, local_allocator);
+    sorter<Cpu> sorter_graph(&target, local_allocator);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
     auto pattern_vertex_probability =
         local_allocator.make_shared_memory<float>(pattern_vetrex_count);
@@ -90,8 +90,8 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
     const dal::preview::detail::topology<std::int32_t>& p_data,
     const std::int64_t* vv_t,
     const std::int64_t* vv_p) {
-    graph pattern(p_data, graph_storage_scheme::bit, alloc_ptr);
-    graph target(t_data, graph_storage_scheme::auto_detect, alloc_ptr);
+    graph<Cpu> pattern(p_data, graph_storage_scheme::bit, alloc_ptr);
+    graph<Cpu> target(t_data, graph_storage_scheme::auto_detect, alloc_ptr);
 
     const auto t_vertex_count = t_data._vertex_count;
     const auto p_vertex_count = p_data._vertex_count;

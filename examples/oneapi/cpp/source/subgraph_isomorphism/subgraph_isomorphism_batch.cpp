@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
         dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
 
     // extract the result
-    const auto match_count = result.get_match_count();
+    std::cout << "Number of matchings: " << result.get_match_count() << std::endl;
     std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
     // print_table_int_sorted(result.get_vertex_match());
 }

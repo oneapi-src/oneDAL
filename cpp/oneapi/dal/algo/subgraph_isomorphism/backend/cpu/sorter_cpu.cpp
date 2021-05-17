@@ -14,21 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/si.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
-
-template solution si<__CPU_TAG__>(const graph<__CPU_TAG__>& pattern,
-                                  const graph<__CPU_TAG__>& target,
-                                  kind isomorphism_kind,
-                                  detail::byte_alloc_iface* alloc_ptr);
-
-template subgraph_isomorphism::graph_matching_result si_call_kernel<__CPU_TAG__>(
-    const kind& si_kind,
-    detail::byte_alloc_iface* alloc_ptr,
-    const dal::preview::detail::topology<std::int32_t>& t_data,
-    const dal::preview::detail::topology<std::int32_t>& p_data,
-    const std::int64_t* vv_t,
-    const std::int64_t* vv_p);
+template class sorter<__CPU_TAG__>;
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
