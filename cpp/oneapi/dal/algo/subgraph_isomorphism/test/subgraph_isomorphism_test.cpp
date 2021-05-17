@@ -1268,7 +1268,7 @@ public:
         auto &vv_p = graph_impl.get_vertex_values();
 
         auto vertex_count = graph_data.get_vertex_count();
-        ;
+
         std::int32_t *labels_array =
             oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
         vv_p = oneapi::dal::array<std::int32_t>::wrap(labels_array, vertex_count);
@@ -1300,7 +1300,7 @@ public:
         const std::vector<std::pair<std::int32_t, std::int32_t>> &pattern_edgelist,
         bool is_induced) {
         std::map<std::int32_t, std::int32_t> reverse_permutation;
-        for (std::int32_t pattern_index = 0; pattern_index < permutation.size(); ++pattern_index) {
+        for (std::size_t pattern_index = 0; pattern_index < permutation.size(); ++pattern_index) {
             reverse_permutation[permutation[pattern_index]] = pattern_index;
         }
         std::vector<std::pair<std::int32_t, std::int32_t>> subgraph_edgelist;
@@ -1348,7 +1348,7 @@ public:
                 permutation[j] = x[i * table.get_column_count() + j];
             }
             if (is_vertex_labeled) {
-                for (std::int32_t pattern_vertex = 0; pattern_vertex < permutation.size();
+                for (std::size_t pattern_vertex = 0; pattern_vertex < permutation.size();
                      ++pattern_vertex) {
                     if (target_graph_data.labels[permutation[pattern_vertex]] !=
                         pattern_graph_data.labels[pattern_vertex]) {
