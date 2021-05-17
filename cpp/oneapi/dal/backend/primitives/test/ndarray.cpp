@@ -434,9 +434,23 @@ TEST_M(ndarray_test, "can be flattened on host", "[ndarray]") {
     }
 }
 
+TEST_M(ndarray_test, "can allocate zeros ndarray", "[ndarray]") {
+    auto x = ndarray<float, 2>::zeros({ 7, 5 });
+    check_if_all_zeros(x);
+}
+
+TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
+    const float c = 42.2;
+    auto x = ndarray<float, 2>::empty({ 7, 5 });
+
+    x.fill(c);
+
+    check_if_all_equal(x, c);
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
-TEST("can allocate empty ndarray", "[ndarray]") {
+TEST("can allocate empty ndarray with queue", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 
@@ -445,7 +459,7 @@ TEST("can allocate empty ndarray", "[ndarray]") {
     REQUIRE(x.get_data() != nullptr);
 }
 
-TEST_M(ndarray_test, "can allocate zeros ndarray", "[ndarray]") {
+TEST_M(ndarray_test, "can allocate zeros ndarray with queue", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 
@@ -454,7 +468,7 @@ TEST_M(ndarray_test, "can allocate zeros ndarray", "[ndarray]") {
     check_if_all_zeros(x);
 }
 
-TEST_M(ndarray_test, "can allocate ones ndarray", "[ndarray]") {
+TEST_M(ndarray_test, "can allocate ones ndarray with queue", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 
@@ -463,7 +477,7 @@ TEST_M(ndarray_test, "can allocate ones ndarray", "[ndarray]") {
     check_if_all_ones(x);
 }
 
-TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
+TEST_M(ndarray_test, "can fill ndarray with queue", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 
@@ -475,7 +489,7 @@ TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
     check_if_all_equal(x, c);
 }
 
-TEST_M(ndarray_test, "can assign ndarray", "[ndarray]") {
+TEST_M(ndarray_test, "can assign ndarray with queue", "[ndarray]") {
     DECLARE_TEST_POLICY(policy);
     auto& queue = policy.get_queue();
 

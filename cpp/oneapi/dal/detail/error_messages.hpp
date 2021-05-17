@@ -64,6 +64,7 @@ public:
     /* Common */
     MSG(array_does_not_contain_mutable_data);
     MSG(feature_index_is_out_of_range);
+    MSG(incompatible_array_reinterpret_cast_types);
     MSG(invalid_data_block_size);
     MSG(method_not_implemented);
     MSG(only_homogen_table_is_supported);
@@ -81,12 +82,15 @@ public:
     MSG(unsupported_usm_alloc);
 
     /* Primitives */
+    MSG(invalid_number_of_elements_to_process);
     MSG(invalid_number_of_elements_to_sort);
+    MSG(failed_to_compute_eigenvectors);
 
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
     MSG(cannot_get_data_type_from_empty_metadata);
     MSG(cannot_get_feature_type_from_empty_metadata);
+    MSG(cc_leq_zero);
     MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match);
     MSG(pulling_column_is_not_supported_for_dpc);
     MSG(pulling_column_is_not_supported);
@@ -96,9 +100,13 @@ public:
     MSG(pushing_column_is_not_supported);
     MSG(pushing_rows_is_not_supported_for_dpc);
     MSG(pushing_rows_is_not_supported);
-    MSG(unsupported_conversion_types);
+    MSG(rc_and_cc_do_not_match_element_count_in_array);
     MSG(rc_leq_zero);
-    MSG(cc_leq_zero);
+    MSG(object_does_not_provide_read_access_to_rows);
+    MSG(object_does_not_provide_write_access_to_rows);
+    MSG(object_does_not_provide_read_access_to_columns);
+    MSG(object_does_not_provide_write_access_to_columns);
+    MSG(unsupported_conversion_types);
 
     /* Ranges */
     MSG(invalid_range_of_rows);
@@ -132,6 +140,7 @@ public:
     MSG(bootstrap_is_incompatible_with_variable_importance_mode);
     MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu);
     MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
+    MSG(input_model_is_not_initialized);
 
     /* Jaccard */
     MSG(column_begin_gt_column_end);
@@ -185,6 +194,7 @@ public:
     MSG(sigma_leq_zero);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
     MSG(svm_regression_task_is_not_implemented_for_gpu);
+    MSG(svm_multiclass_not_implemented_for_gpu);
     MSG(tau_leq_zero);
     MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);

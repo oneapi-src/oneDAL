@@ -19,6 +19,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/util/common.hpp"
+#include "oneapi/dal/algo/decision_tree/detail/node_visitor.hpp"
 
 namespace oneapi::dal::decision_forest {
 
@@ -255,6 +256,26 @@ private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
 
+template <typename Task>
+struct decision_tree_task_map;
+
+template <>
+struct decision_tree_task_map<task::classification> {
+    using tree_task_t = decision_tree::task::classification;
+};
+
+template <>
+struct decision_tree_task_map<task::regression> {
+    using tree_task_t = decision_tree::task::regression;
+};
+
+template <typename Task>
+using decision_tree_task_map_t = typename decision_tree_task_map<Task>::tree_task_t;
+
+template <typename Task>
+using decision_tree_visitor_ptr =
+    decision_tree::detail::node_visitor_ptr<decision_tree_task_map_t<Task>>;
+
 } // namespace v1
 
 using v1::descriptor_tag;
@@ -266,6 +287,10 @@ using v1::enable_if_classification_t;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+
+using v1::decision_tree_task_map;
+using v1::decision_tree_task_map_t;
+using v1::decision_tree_visitor_ptr;
 
 } // namespace detail
 
@@ -538,6 +563,9 @@ class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
 
+    using dtree_task_t = detail::decision_tree_task_map_t<Task>;
+    using dtree_visitor_iface_t = detail::decision_tree_visitor_ptr<Task>;
+
 public:
     using task_t = Task;
 
@@ -556,17 +584,72 @@ public:
         return get_class_count_impl();
     }
 
+    /// Performs Depth First Traversal of i-th tree
+    /// @param[in] tree_idx     Index of the tree to traverse
+    /// @param[in] visitor      This functor gets notified when tree nodes are visited, via corresponding operators:
+    ///                             bool operator()(const decision_forest::split_node_info<Task>&)
+    ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
+    template <typename Visitor>
+    void traverse_depth_first(std::int64_t tree_idx, Visitor&& visitor) const {
+        traverse_depth_first_impl(
+            tree_idx,
+            decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor)));
+    }
+
+    /// Performs Breadth First Traversal of i-th tree
+    /// @param[in] tree_idx    Index of the tree to traverse
+    /// @param[in] visitor      This functor gets notified when tree nodes are visited, via corresponding operators:
+    ///                             bool operator()(const decision_forest::split_node_info<Task>&)
+    ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
+    template <typename Visitor>
+    void traverse_breadth_first(std::int64_t tree_idx, Visitor&& visitor) const {
+        traverse_breadth_first_impl(
+            tree_idx,
+            decision_tree::detail::make_node_visitor<dtree_task_t>(std::forward<Visitor>(visitor)));
+    }
+
 protected:
     std::int64_t get_class_count_impl() const;
+
+    void traverse_depth_first_impl(std::int64_t tree_idx, dtree_visitor_iface_t&& visitor) const;
+    void traverse_breadth_first_impl(std::int64_t tree_idx, dtree_visitor_iface_t&& visitor) const;
 
 private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 
+template <typename Task>
+using node_info = decision_tree::node_info<detail::decision_tree_task_map_t<Task>>;
+
+template <typename Task>
+using leaf_node_info = decision_tree::leaf_node_info<detail::decision_tree_task_map_t<Task>>;
+
+template <typename Task>
+using split_node_info = decision_tree::split_node_info<detail::decision_tree_task_map_t<Task>>;
+
+template <typename Task>
+using is_leaf_node_info = decision_tree::is_leaf_node_info<detail::decision_tree_task_map_t<Task>>;
+
+template <typename Task>
+using is_split_node_info =
+    decision_tree::is_split_node_info<detail::decision_tree_task_map_t<Task>>;
+
+template <typename Task>
+inline constexpr bool is_leaf_node_info_v = is_leaf_node_info<Task>::value;
+
+template <typename Task>
+inline constexpr bool is_split_node_info_v = is_split_node_info<Task>::value;
 } // namespace v1
 
 using v1::descriptor;
 using v1::model;
+using v1::node_info;
+using v1::leaf_node_info;
+using v1::split_node_info;
+using v1::is_leaf_node_info;
+using v1::is_leaf_node_info_v;
+using v1::is_split_node_info;
+using v1::is_split_node_info_v;
 
 } // namespace oneapi::dal::decision_forest

@@ -15,10 +15,24 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/dispatcher.hpp"
-
 #include <daal/src/services/service_defines.h>
 
 namespace oneapi::dal::backend {
+
+struct global_context_cpu_init {
+public:
+    global_context_cpu_init() {
+        using daal::services::Environment;
+
+        // Call to `getCpuId` changes global settings, in particular,
+        // changes default number of threads in the threading layer
+        Environment::getInstance()->getCpuId();
+    }
+};
+
+void context_cpu::global_init() {
+    [[maybe_unused]] static volatile global_context_cpu_init init;
+}
 
 inline constexpr detail::cpu_extension from_daal_cpu_type(daal::CpuType cpu) {
     using detail::cpu_extension;

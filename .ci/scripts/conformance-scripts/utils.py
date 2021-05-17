@@ -17,14 +17,128 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-daalLine = "uses Intel(R) oneAPI Data Analytics Library solver"
-sklearnLine = "uses original Scikit-learn solver"
-failLine = "uses original Scikit-learn solver, because the task was not solved with Intel(R) oneAPI Data Analytics Library"
+class CallCounter:
+    def __init__(self):
+        self.clear()
 
-def make_report(algs_filename, report_filename):
-    countDaalCalls = 0
-    countSklearnCalls = 0
-    countDaalFailCalls = 0
+    def clear(self):
+        self.sklearnexCalls = 0
+        self.sklearnCalls = 0
+        self.sklearnexFailCalls = 0
+        self.sklearnexDeviceCallsRatio = 0.0
+        self.sklearnexDevicePatchedCalls = 0
+
+        self.sklearnexDeviceOffloadSuccess = 0
+        self.sklearnexDeviceOffloadFail = 0
+
+    def calcDeviceCalls(self):
+        offloadSum = self.sklearnexDeviceOffloadSuccess + self.sklearnexDeviceOffloadFail
+        if offloadSum > 0:
+            self.sklearnexDeviceCallsRatio += self.sklearnexDeviceOffloadSuccess / offloadSum
+        self.sklearnexDeviceOffloadSuccess = 0
+        self.sklearnexDeviceOffloadFail = 0
+
+    def inc(self, other):
+        self.sklearnexCalls += other.sklearnexCalls
+        self.sklearnCalls += other.sklearnCalls
+        self.sklearnexFailCalls += other.sklearnexFailCalls
+        self.sklearnexDeviceCallsRatio += other.sklearnexDeviceCallsRatio
+        self.sklearnexDevicePatchedCalls += other.sklearnexDevicePatchedCalls
+        self.sklearnexDeviceOffloadSuccess += other.sklearnexDeviceOffloadSuccess
+        self.sklearnexDeviceOffloadFail += other.sklearnexDeviceOffloadFail
+
+class LineParser:
+
+    def __init__(self, device=None, consider_fails=False):
+        self.sklearnexLine = "running accelerated version"
+        self.sklearnLine = "fallback to original Scikit-learn"
+        self.sklearnexFailLine = "failed to run accelerated version, fallback to original Scikit-learn"
+
+        if device != 'CPU':
+            self.sklearnexDeviceOffloadSuccessLine = f"successfully run on {device.lower()}"
+            self.sklearnexDeviceOffloadFailLine = f"failed to run on {device.lower()}. Fallback to host"
+        self.device = device
+
+        self.sklearnexDeviceLine = f"{self.sklearnexLine} on {self.device}"
+
+        self.consider_fails = consider_fails
+
+        self.algoCalls = CallCounter()
+        self._localTestCalls = CallCounter()
+
+    def clearCounters(self):
+        self.algoCalls.clear()
+        self._localTestCalls.clear()
+
+    def parseLine(self, line):
+        test_signal_fail = "FAILED"
+        test_signal_pass = "PASSED"
+
+        if self.sklearnexLine in line:
+            self._localTestCalls.sklearnexCalls += 1
+        if self.sklearnLine in line:
+            self._localTestCalls.sklearnCalls += 1
+        if self.sklearnexFailLine in line:
+            self._localTestCalls.sklearnexFailCalls += 1
+        if self.sklearnexDeviceLine in line:
+            self._localTestCalls.sklearnexDevicePatchedCalls += 1
+
+        if self.device != 'CPU':
+            if self.sklearnexDeviceOffloadSuccessLine in line:
+                self._localTestCalls.sklearnexDeviceOffloadSuccess += 1
+            elif self.sklearnexDeviceOffloadFailLine in line:
+                self._localTestCalls.sklearnexDeviceOffloadFail += 1
+            else:
+                self._localTestCalls.calcDeviceCalls()
+
+        if test_signal_fail in line or test_signal_pass in line:
+            self._localTestCalls.calcDeviceCalls()
+            if not self.consider_fails or test_signal_pass in line:
+                self.algoCalls.inc(self._localTestCalls)
+            self._localTestCalls.clear()
+
+def make_summory(counter, device):
+    countAllCalls = counter.sklearnCalls + counter.sklearnexCalls
+    percentDalCalls = float(counter.sklearnexCalls - counter.sklearnexFailCalls) / (countAllCalls) * 100 if countAllCalls else 0
+
+    # to calculate deviceOffloadCalls, we try to use sklearnexDeivceCallsRatio as more fine-grained metric
+    # if it is unavailable, we use sklearnexDevicePatchedCalls count instead
+    deviceOffloadCalls = counter.sklearnexDeviceCallsRatio if counter.sklearnexDeviceCallsRatio > 0 else counter.sklearnexDevicePatchedCalls
+    sklearnexOffloadPersent = float(deviceOffloadCalls / counter.sklearnexCalls) * 100 if counter.sklearnexCalls else 0
+    totalOffloatPersent = percentDalCalls * sklearnexOffloadPersent / 100
+
+    reportText = ""
+    reportText += "Number of Scikit-learn calls: %d <br>" % counter.sklearnCalls
+    reportText += "Number of sklearnex calls: %d <br>" % counter.sklearnexCalls
+    reportText += "Number of sklearnex fail calls: %d <br>" % counter.sklearnexFailCalls
+    reportText += "Percent of using sklearnex: %d %% <br>" % int(percentDalCalls)
+    if device != 'CPU':
+        reportText += "Percent of sklearnex calls offloaded to %s: %d %% <br>" % (device, int(sklearnexOffloadPersent))
+        reportText += "Percent of using sklearnex on %s: %d %% <br>" % (device, int(totalOffloatPersent))
+
+    print('Number of Scikit-learn calls: %d' % counter.sklearnCalls)
+    print('Number of sklearnex calls: %d' % counter.sklearnexCalls)
+    print('Number of sklearnex fail calls: %d' % counter.sklearnexFailCalls)
+    print('Percent of using sklearnex: %d %%' % int(percentDalCalls))
+    if device != 'CPU':
+        print("Percent of sklearnex calls offloaded to %s: %d %%" % (device, int(sklearnexOffloadPersent)))
+        print("Percent of using sklearnex on %s: %d %%" % (device, int(totalOffloatPersent)))
+
+    return reportText
+
+
+def device_from_sycl_terminology(device):
+    if device == 'cpu' or device == 'host' or device is None:
+        return 'CPU'
+    if device == 'gpu':
+        return 'GPU'
+    else:
+        raise ValueError(f"Unexpected device name {device}."
+                         " Supported types are host, cpu and gpu")
+
+
+def make_report(algs_filename, report_filename, device=None, consider_fails=False):
+    device = device_from_sycl_terminology(device)
 
     with open(algs_filename, "r") as file_algs:
         algs = file_algs.read().split("\n")
@@ -42,7 +156,11 @@ def make_report(algs_filename, report_filename):
             Start of testing in """ + str(datetime.now())+ "<br>"
     report_file.write(textHTML)
 
+    globalCalls = CallCounter()
+    parser = LineParser(device, consider_fails)
+
     for alg_name in algs:
+        parser.clearCounters()
         report_file.write("<br><h2>Testing %s</h2>" % alg_name)
 
         log_filename = "_log_%s.txt" % alg_name
@@ -50,20 +168,12 @@ def make_report(algs_filename, report_filename):
         lines = log_file.readlines()
         log_file.close()
 
-        countDaalCallsLocal = 0
-        countSklearnCallsLocal = 0
-        countDaalFailCallsLocal = 0
         result_str = ""
-        reportAlgText = ""
 
         for line in lines:
-            if daalLine in line:
-                countDaalCallsLocal += 1
-            if sklearnLine in line:
-                countSklearnCallsLocal += 1
-            if failLine in line:
-                countDaalFailCallsLocal += 1
-        
+            if '====' in line and not 'test session starts' in line:
+                break
+            parser.parseLine(line)
 
         for line in reversed(lines):
             if '=====' in line:
@@ -71,49 +181,24 @@ def make_report(algs_filename, report_filename):
                     raise Exception('Found an error while testing %s' % (alg_name))
                 result_str = line
                 break
-        
-        countDaalCalls += countDaalCallsLocal
-        countSklearnCalls += countSklearnCallsLocal
-        countDaalFailCalls += countDaalFailCallsLocal
 
-        if countDaalCalls == 0 and countSklearnCalls == 0 and countDaalFailCalls == 0:
+        globalCalls.inc(parser.algoCalls)
+
+        if parser.algoCalls.sklearnexCalls == 0 and parser.algoCalls.sklearnCalls == 0 and parser.algoCalls.sklearnexFailCalls == 0:
             raise Exception('Algorithm %s has never been called' % (alg_name))
-
-        countAllCallsLocal = countSklearnCallsLocal + countDaalCallsLocal
-        percentDaalCallsLocal = float(countDaalCallsLocal - countDaalFailCallsLocal) / (countAllCallsLocal) * 100 if countAllCallsLocal else 0
-
-        reportAlgText += "Number of Scikit-learn calls: %d <br>" % countSklearnCallsLocal
-        reportAlgText += "Number of daal4py calls: %d <br>" % countDaalCallsLocal
-        reportAlgText += "Number of daal4py fail calls: %d <br>" % countDaalFailCallsLocal
-        reportAlgText += "Percent of using daal4py: %d %% <br>" % int(percentDaalCallsLocal)
-        reportAlgText += result_str + "<br>"
-        report_file.write(reportAlgText)
 
         print('*********************************************')
         print('Algorithm: %s' % alg_name)
-        print('Number of Scikit-learn calls: %d' % countSklearnCallsLocal)
-        print('Number of daal4py calls: %d' % countDaalCallsLocal)
-        print('Number of daal4py fail calls: %d' % countDaalFailCallsLocal)
-        print('Percent of using daal4py: %d %%' % int(percentDaalCallsLocal))
+        reportAlgText = make_summory(parser.algoCalls, device)
+        report_file.write(reportAlgText)
         print(result_str)
-        
-    report_file.write("<br><h1>Summary</h1>")
-
-    countAllCalls = countSklearnCalls + countDaalCalls
-    percentDaalCalls = float(countDaalCalls - countDaalFailCalls) / (countAllCalls) * 100 if countAllCalls else 0
-
-    summaryText = "Number of Scikit-learn calls: %d <br>" % countSklearnCalls
-    summaryText += "Number of daal4py calls: %d <br>" % countDaalCalls
-    summaryText += "Number of daal4py fail calls: %d <br>" % countDaalFailCalls
-    summaryText += "Percent of using daal4py: %d %% <br>" % int(percentDaalCalls)
-    report_file.write(summaryText)
+        report_file.write(result_str + "<br>")
 
     print('*********************************************')
     print('Summary')
-    print('Number of Scikit-learn calls: %d' % countSklearnCalls)
-    print('Number of daal4py calls: %d' % countDaalCalls)
-    print('Number of daal4py fail calls: %d' % countDaalFailCalls)
-    print('Percent of using daal4py: %d %%' % int(percentDaalCalls))
+    report_file.write("<br><h1>Summary</h1>")
+    summaryText = make_summory(globalCalls, device)
+    report_file.write(summaryText)
 
     textHTML = """<br>
     Finishing testing in """+str(datetime.now())+"""<br></p>
