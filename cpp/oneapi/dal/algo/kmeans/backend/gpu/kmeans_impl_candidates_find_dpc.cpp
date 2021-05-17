@@ -56,7 +56,7 @@ sycl::event find_candidates(sycl::queue& queue,
     auto candidate_distances_ptr = candidate_distances.get_mutable_data();
     auto values_ptr = values.get_mutable_data();
     auto copy_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ sort_event });
+        cgh.depends_on(sort_event);
         cgh.parallel_for<find_candidates_kernel<Float>>(
             sycl::range<1>(candidate_count),
             [=](sycl::id<1> idx) {
