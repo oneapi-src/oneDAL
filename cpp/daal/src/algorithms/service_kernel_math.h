@@ -313,6 +313,7 @@ bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bo
     DAAL_INT info = 0;
 
     TArrayScalable<DAAL_INT, cpu> ipiv(n);
+    DAAL_CHECK_MALLOC(ipiv.get());
 
     /* Perform P*L*U factorization of A */
     if (sequential)
@@ -343,6 +344,8 @@ bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, 
     /* Copy data for fallback from Cholesky to PLU factorization */
     TArrayScalable<FPType, cpu> aCopy(n * n);
     TArrayScalable<FPType, cpu> bCopy(n);
+    DAAL_CHECK_MALLOC(aCopy.get());
+    DAAL_CHECK_MALLOC(bCopy.get());
 
     int copy_status = services::internal::daal_memcpy_s(aCopy.get(), n * n * sizeof(FPType), a, n * n * sizeof(FPType));
     copy_status |= services::internal::daal_memcpy_s(bCopy.get(), n * sizeof(FPType), b, n * sizeof(FPType));
