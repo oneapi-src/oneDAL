@@ -114,6 +114,7 @@ dal_collect_test_suites(
     root = "@onedal//cpp/oneapi/dal",
     modules = [
         "algo",
+        "distributed",
         "graph",
         "io",
         "table",

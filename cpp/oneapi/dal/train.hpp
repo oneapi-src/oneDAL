@@ -39,3 +39,12 @@ auto train(sycl::queue& queue, Args&&... args) {
 using v1::train;
 
 } // namespace oneapi::dal
+
+namespace oneapi::dal::preview {
+
+template <typename... Args>
+auto distributed_train(Args&&... args) {
+    return dal::preview::detail::distributed_train_dispatch(std::forward<Args>(args)...);
+}
+
+} // namespace oneapi::dal::preview

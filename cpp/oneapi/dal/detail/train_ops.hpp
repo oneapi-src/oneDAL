@@ -38,3 +38,14 @@ auto train_dispatch(Head&& head, Tail&&... tail) {
 using v1::train_dispatch;
 
 } // namespace oneapi::dal::detail
+
+namespace oneapi::dal::preview::detail {
+
+template <typename Communicator, typename Head, typename... Tail>
+auto distributed_train_dispatch(const Communicator& comm, Head&& head, Tail&&... tail) {
+    using dispatcher_t =
+        dal::detail::ops_policy_dispatcher<std::decay_t<Head>, dal::detail::v1::tagged_train_ops>;
+    return dispatcher_t{}(comm, std::forward<Head>(head), std::forward<Tail>(tail)...);
+}
+
+} // namespace oneapi::dal::preview::detail
