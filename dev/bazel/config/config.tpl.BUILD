@@ -89,6 +89,18 @@ config_setting(
 )
 
 config_bool_flag(
+    name = "test_disable_fp64",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "test_fp64_enabled",
+    flag_values  = {
+        ":test_disable_fp64": "False",
+    },
+)
+
+config_bool_flag(
     name = "release_dpc",
     build_setting_default = False,
 )
