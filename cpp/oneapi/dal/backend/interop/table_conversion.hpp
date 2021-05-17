@@ -179,15 +179,20 @@ inline detail::csr_table convert_from_daal_csr_table(
     const daal::data_management::NumericTablePtr& nt) {
     struct sparse_block_owner {
         sparse_block_owner(const daal::data_management::NumericTablePtr& nt) {
-            _csr_nt = dynamic_cast<daal::data_management::CSRNumericTable*>(nt.get());
+            _csr_nt = daal::services::dynamicPointerCast<daal::data_management::CSRNumericTable,
+                                                         daal::data_management::NumericTable>(nt);
             ONEDAL_ASSERT(_csr_nt);
             _row_count = _csr_nt->getNumberOfRows();
             _column_count = _csr_nt->getNumberOfColumns();
             _csr_nt->getSparseBlock(0, _row_count, daal::data_management::readOnly, _block);
+            _is_free = false;
         }
 
-        ~sparse_block_owner() {
-            _csr_nt->releaseSparseBlock(_block);
+        void release() {
+            if (!_is_free) {
+                _csr_nt->releaseSparseBlock(_block);
+                _is_free = true;
+            }
         }
 
         std::int64_t get_row_count() const {
@@ -211,9 +216,10 @@ inline detail::csr_table convert_from_daal_csr_table(
         }
 
         daal::data_management::CSRBlockDescriptor<T> _block;
-        daal::data_management::CSRNumericTable* _csr_nt;
+        daal::data_management::CSRNumericTablePtr _csr_nt;
         std::int64_t _row_count;
         std::int64_t _column_count;
+        bool _is_free;
     };
 
     auto block_owner = std::make_shared<sparse_block_owner>(sparse_block_owner{ nt });
@@ -224,9 +230,15 @@ inline detail::csr_table convert_from_daal_csr_table(
                              reinterpret_cast<std::int64_t*>(block_owner->get_row_indices()),
                              block_owner->get_row_count(),
                              block_owner->get_column_count(),
-                             [block_owner](const T* p) {},
-                             [block_owner](const std::int64_t* p) {},
-                             [block_owner](const std::int64_t* p) {} };
+                             [block_owner](const T* p) {
+                                 block_owner->release();
+                             },
+                             [block_owner](const std::int64_t* p) {
+                                 block_owner->release();
+                             },
+                             [block_owner](const std::int64_t* p) {
+                                 block_owner->release();
+                             } };
     return table;
 }
 
