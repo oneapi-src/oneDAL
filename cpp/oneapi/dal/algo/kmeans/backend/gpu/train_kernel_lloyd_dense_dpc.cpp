@@ -187,7 +187,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                  { count_event })
                 .wait_and_throw();
 
-            std::int64_t num_candidates = arr_num_empty_clusters.to_host(queue).get_data()[0];
+            std::int64_t candidate_count = arr_num_empty_clusters.to_host(queue).get_data()[0];
             sycl::event find_candidates_event;
             if (num_candidates > 0) {
                 find_candidates_event = find_candidates<Float>(queue,
