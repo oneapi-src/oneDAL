@@ -34,18 +34,20 @@ public:
 template <typename DaalModel>
 class model_interop_impl : public model_interop,
                            public ONEDAL_SERIALIZABLE(svm_model_interop_impl_multiclass_id) {
+    using model_ptr_t = daal::services::SharedPtr<DaalModel>;
+
 public:
     model_interop_impl() = default;
 
-    model_interop_impl(DaalModel& model) : daal_model_(model) {}
+    model_interop_impl(const model_ptr_t& model) : daal_model_(model) {}
 
-    const DaalModel get_model() const {
+    const model_ptr_t get_model() const {
         return daal_model_;
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
         dal::backend::interop::daal_output_data_archive daal_ar(ar);
-        daal_ar.setSharedPtrObj(const_cast<DaalModel&>(daal_model_));
+        daal_ar.setSharedPtrObj(const_cast<model_ptr_t&>(daal_model_));
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
@@ -54,9 +56,9 @@ public:
     }
 
 private:
-    DaalModel daal_model_;
+    model_ptr_t daal_model_;
 };
 
-using model_interop_cls = model_interop_impl<daal_multiclass::ModelPtr>;
+using model_interop_cls = model_interop_impl<daal_multiclass::Model>;
 
 } // namespace oneapi::dal::svm::backend
