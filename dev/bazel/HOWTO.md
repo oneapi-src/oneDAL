@@ -211,7 +211,7 @@ The most used Bazel commands are `build`, `test` and `run`.
    bazel test --test_thread_mode=seq //cpp/oneapi/dal:tests
    ```
 
-- `--test_disable_fp64` Flag that disables tests for double precision (`fp64`).
+- `--test_disable_fp64` A switch that disables tests for double precision (`fp64`).
 
   Example:
   ```sh
