@@ -32,7 +32,7 @@ namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 template <typename Cpu>
 class engine_bundle;
 
-template <typename Cpu = oneapi::dal::backend::cpu_dispatch_sse2>
+template <typename Cpu>
 class matching_engine {
 public:
     matching_engine(inner_alloc allocator)
@@ -103,7 +103,7 @@ public:
     bool check_vertex_candidate(bool check_solution);
 };
 
-template <typename Cpu = oneapi::dal::backend::cpu_dispatch_sse2>
+template <typename Cpu>
 class engine_bundle {
 public:
     stack exploration_stack;
@@ -131,9 +131,7 @@ public:
 
     solution bundle_solutions;
 
-    typedef oneapi::dal::detail::tls_mem<matching_engine<oneapi::dal::backend::cpu_dispatch_sse2>,
-                                         std::allocator<double>>
-        bundle;
+    typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
     bundle matching_bundle;
     void first_states_generator(bool use_exploration_stack = true);
 };
@@ -643,7 +641,7 @@ solution engine_bundle<Cpu>::run() {
 template <typename Cpu>
 void engine_bundle<Cpu>::first_states_generator(bool use_exploration_stack) {
     if (use_exploration_stack) {
-        bundle::ptr_t local_engine = matching_bundle.local();
+        typename bundle::ptr_t local_engine = matching_bundle.local();
         local_engine->first_states_generator(exploration_stack);
     }
     else {
@@ -651,7 +649,7 @@ void engine_bundle<Cpu>::first_states_generator(bool use_exploration_stack) {
         dal::detail::threader_for(target->get_vertex_count(),
                                   target->get_vertex_count(),
                                   [=](const int i) {
-                                      bundle::ptr_t local_engine = matching_bundle.local();
+                                      typename bundle::ptr_t local_engine = matching_bundle.local();
                                       state null_state(allocator_);
                                       if (degree <= target->get_vertex_degree(i) &&
                                           pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
