@@ -386,7 +386,7 @@ protected:
 private:
     const NumericTable & _a;
     const NumericTable & _b;
-    const FPType & _p;
+    const FPType _p;
     const bool _powered;
 };
 
