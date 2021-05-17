@@ -46,13 +46,12 @@ public:
         using vertex_t = typename graph_traits<graph_type>::vertex_type;
         auto& vertex_allocator = graph_impl._vertex_allocator;
 
-        vertex_t* degrees_data =
-            oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
+        vertex_t* degrees = oneapi::dal::preview::detail::allocate(vertex_allocator, vertex_count);
         for (std::int64_t u = 0; u < vertex_count; u++) {
-            degrees_data[u] = rows[u + 1] - rows[u];
+            degrees[u] = rows[u + 1] - rows[u];
         }
 
-        graph_impl.set_topology(vertex_count, edge_count, rows, cols, degrees_data);
+        graph_impl.set_topology(vertex_count, edge_count, rows, cols, degrees);
         graph_impl.set_edge_values(vals, edge_count);
     }
 
