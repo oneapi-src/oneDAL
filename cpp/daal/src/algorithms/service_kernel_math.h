@@ -98,12 +98,6 @@ FPType distance(const FPType * a, const FPType * b, size_t dim, FPType p)
     return daal::internal::Math<FPType, cpu>::sPowx(sum, (FPType)1.0 / p);
 }
 
-// void printOneTime(const char * format)
-// {
-//     static bool flag = 0;
-//     if (!flag) {printf(format); flag=1;}
-// }
-
 template <typename FPType, CpuType cpu>
 class PairwiseDistances
 {
@@ -283,7 +277,6 @@ protected:
     TArray<FPType, cpu> normBufferB;
 };
 
-// compute Minkowski distance
 template <typename FPType, CpuType cpu>
 class MinkowskiDistances : public PairwiseDistances<FPType, cpu>
 {
@@ -397,7 +390,6 @@ private:
     const bool _powered;
 };
 
-// compute Minkowski distance
 template <typename FPType, CpuType cpu>
 class ChebychevDistances : public PairwiseDistances<FPType, cpu>
 {
