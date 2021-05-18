@@ -99,9 +99,6 @@ public:
     bit_vector<Cpu>& orn(const std::uint8_t* pa);
     bit_vector<Cpu>& orn(bit_vector<Cpu>& a);
 
-    std::int64_t min_index() const;
-    std::int64_t max_index() const;
-
     graph_status get_vertices_ids(std::int64_t* vertices_ids);
     bool test_bit(const std::int64_t vertex);
 
@@ -314,8 +311,8 @@ bit_vector<Cpu>::bit_vector(const std::int64_t vector_size,
                             std::uint8_t* pvector,
                             inner_alloc allocator)
         : allocator_(allocator),
-          n(vector_size),
-          vector(pvector) {}
+          vector(pvector),
+          n(vector_size) {}
 
 template <typename Cpu>
 graph_status bit_vector<Cpu>::unset_bit(std::int64_t vertex) {
@@ -573,34 +570,6 @@ void bit_vector<Cpu>::split_by_registers(const std::int64_t vector_size,
         registers[i] = size >> i;
         size -= registers[i] << i;
     }
-}
-
-template <typename Cpu>
-std::int64_t bit_vector<Cpu>::min_index() const {
-    std::int64_t result = 0;
-
-    for (std::int64_t i = n; i > 0; i--) {
-        if (vector[i] > 0) {
-            result = power_of_two(vector[i]);
-            result += (i << 3);
-            break;
-        }
-    }
-    return result;
-}
-
-template <typename Cpu>
-std::int64_t bit_vector<Cpu>::max_index() const {
-    std::int64_t result = 1 << n;
-
-    for (std::int64_t i = 0; i < n; i++) {
-        if (vector[i] > 0) {
-            result = power_of_two(vector[i]);
-            result += (i << 3);
-            break;
-        }
-    }
-    return result;
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
