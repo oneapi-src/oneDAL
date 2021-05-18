@@ -613,16 +613,16 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const Num
 {
     services::Status status;
 
-    TArray<algorithmFPType, cpu> deltaAlphaTArray(nVectors);
+    TArray<algorithmFPType, cpu> deltaAlphaTArray(nTrainVectors);
     DAAL_CHECK_MALLOC(deltaAlphaTArray.get());
     algorithmFPType * const deltaAlpha = deltaAlphaTArray.get();
 
-    const size_t nBlocks = nVectors / maxBlockSize + !!(nVectors % maxBlockSize);
+    const size_t nBlocks = nTrainVectors / maxBlockSize + !!(nTrainVectors % maxBlockSize);
 
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
         const size_t startRow     = iBlock * maxBlockSize;
-        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nVectors - iBlock * maxBlockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nTrainVectors - iBlock * maxBlockSize;
 
         PRAGMA_IVDEP
         PRAGMA_VECTOR_ALWAYS
@@ -635,10 +635,11 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const Num
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
 
     StaticTlsMem<uint32_t, cpu> tlsIndices(maxBlockSize);
-    StaticTlsSum<algorithmFPType, cpu> tlsGrad(nVectors);
+    StaticTlsMem<algorithmFPType, cpu> tlsGrad(nTrainVectors);
+
     daal::static_threader_for(nBlocks, [&](const size_t iBlock, const size_t tid) {
         const size_t startRow     = iBlock * maxBlockSize;
-        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nVectors - iBlock * maxBlockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nTrainVectors - iBlock * maxBlockSize;
 
         uint32_t * const localIndices     = tlsIndices.local(tid);
         algorithmFPType * const localGrad = tlsGrad.local(tid);
@@ -662,8 +663,20 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const Num
         }
 
         DAAL_CHECK_STATUS_THR(updateGrad(kernelSOARes, deltaAlpha, localGrad, nVectors, nTrainVectors, nRowsInBlock));
+
+        cachePtr->clear();
     });
-    tlsGrad.reduceTo(grad, nVectors);
+
+    tlsGrad.reduce([grad, nTrainVectors](algorithmFPType * localGrad) -> void {
+        if (!localGrad) return;
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < nTrainVectors; ++i)
+        {
+            grad[i] += localGrad[i];
+        }
+    });
 
     return services::Status();
 }
