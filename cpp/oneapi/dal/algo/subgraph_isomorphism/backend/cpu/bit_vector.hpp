@@ -96,10 +96,7 @@ public:
 
     bit_vector<Cpu>& andn(const std::uint8_t* pa);
     bit_vector<Cpu>& andn(bit_vector<Cpu>& a);
-    bit_vector<Cpu>& orn(const std::uint8_t* pa);
-    bit_vector<Cpu>& orn(bit_vector<Cpu>& a);
 
-    graph_status get_vertices_ids(std::int64_t* vertices_ids);
     bool test_bit(const std::int64_t vertex);
 
     static graph_status set(const std::int64_t vector_size,
@@ -435,25 +432,6 @@ bit_vector<Cpu>& bit_vector<Cpu>::andn(bit_vector<Cpu>& a) {
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::orn(const std::uint8_t* pa) {
-    for (std::int64_t i = 0; i < n; i++) {
-        vector[i] |= ~pa[i];
-    }
-    return *this;
-}
-
-template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::orn(bit_vector<Cpu>& a) {
-    if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
-        for (std::int64_t i = 0; i < n; i++) {
-            vector[i] |= ~pa[i];
-        }
-    }
-    return *this;
-}
-
-template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::or_equal(const std::int64_t* bit_index,
                                            const std::int64_t list_size) {
     for (std::int64_t i = 0; i < list_size; i++) {
@@ -478,26 +456,6 @@ bit_vector<Cpu>& bit_vector<Cpu>::and_equal(const std::int64_t* bit_index,
         vector[byte(tmp_array[i])] |= bit(tmp_array[i]);
     }
     return *this;
-}
-
-template <typename Cpu>
-graph_status bit_vector<Cpu>::get_vertices_ids(std::int64_t* vertices_ids) {
-    std::int64_t vertex_iterator = 0;
-    if (vertices_ids == nullptr) {
-        return bad_arguments;
-    }
-    std::uint8_t current_byte = 0;
-    std::uint8_t current_bit = 0;
-    for (std::int64_t i = 0; i < n; i++) {
-        current_byte = vector[i];
-        while (current_byte > 0) {
-            current_bit = current_byte & (-current_byte);
-            current_byte &= ~current_bit;
-            vertices_ids[vertex_iterator] = 8 * i + power_of_two(current_bit);
-            vertex_iterator++;
-        }
-    }
-    return static_cast<graph_status>(vertex_iterator);
 }
 
 template <typename Cpu>
