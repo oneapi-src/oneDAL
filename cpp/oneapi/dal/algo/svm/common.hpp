@@ -90,7 +90,8 @@ using enable_if_classification_t =
     std::enable_if_t<dal::detail::is_one_of_v<T, task::classification, task::nu_classification>>;
 
 template <typename T>
-using enable_if_regression_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
+using enable_if_regression_t =
+    std::enable_if_t<dal::detail::is_one_of_v<T, task::regression, task::nu_regression>>;
 
 template <typename T>
 using enable_if_nu_task_t =
@@ -99,6 +100,10 @@ using enable_if_nu_task_t =
 template <typename T>
 using enable_if_c_available_t = std::enable_if_t<
     dal::detail::is_one_of_v<T, task::classification, task::regression, task::nu_regression>>;
+
+template <typename T>
+using enable_if_epsilon_available_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::regression>>;
 
 template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
@@ -192,6 +197,7 @@ using v1::descriptor_base;
 using v1::enable_if_classification_t;
 using v1::enable_if_regression_t;
 using v1::enable_if_c_available_t;
+using v1::enable_if_epsilon_available_t;
 using v1::enable_if_nu_task_t;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
@@ -349,7 +355,7 @@ public:
         return *this;
     }
 
-    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
+    template <typename T = Task, typename = detail::enable_if_epsilon_available_t<T>>
     /// The epsilon. Used with :expr:`task::regression` only.
     /// @invariant :expr:`epsilon >= 0`
     /// @remark default = 0.1
@@ -357,7 +363,7 @@ public:
         return base_t::get_epsilon_impl();
     }
 
-    template <typename T = Task, typename = detail::enable_if_regression_t<T>>
+    template <typename T = Task, typename = detail::enable_if_epsilon_available_t<T>>
     auto &set_epsilon(double value) {
         base_t::set_epsilon_impl(value);
         return *this;
@@ -469,10 +475,10 @@ protected:
     void set_second_class_label_impl(std::int64_t);
 
 private:
-    void serialize(dal::detail::output_archive& ar) const;
-    void deserialize(dal::detail::input_archive& ar);
+    void serialize(dal::detail::output_archive &ar) const;
+    void deserialize(dal::detail::input_archive &ar);
 
-    explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
+    explicit model(const std::shared_ptr<detail::model_impl<Task>> &impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 
