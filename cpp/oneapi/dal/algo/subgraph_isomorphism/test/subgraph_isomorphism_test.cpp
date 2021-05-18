@@ -55,6 +55,13 @@ protected:
     std::int64_t rows_count;
 };
 
+/*
+  O------O---
+ /|\    /|\  \
+O | O--O-+-O--O
+ \|/    \|/  /
+  O------O---
+*/
 class double_triangle_target_type : public graph_base_data {
 public:
     double_triangle_target_type() {
@@ -70,6 +77,13 @@ public:
     std::array<std::int32_t, 9> labels = { 1, 0, 1, 0, 0, 1, 0, 1, 0 };
 };
 
+/*
+  O
+ / \ 
+O---O
+ \ /
+  O
+*/
 class double_triangle_pattern_type : public graph_base_data {
 public:
     double_triangle_pattern_type() {
@@ -113,6 +127,7 @@ public:
     std::array<std::int32_t, 5> labels = { 0, 0, 0, 0, 0 };
 };
 
+// k_10(0-9) + path_15(10-24) connected by edge 9-10
 class lolipop_10_15_type : public graph_base_data {
 public:
     lolipop_10_15_type() {
@@ -168,6 +183,7 @@ public:
     std::array<std::int32_t, 1> labels = { 1 };
 };
 
+// cycle 5 with self loops on 1, 3, 4 vertexes (0-index)
 class cycle_5_self_loops_type : public graph_base_data {
 public:
     cycle_5_self_loops_type() {
@@ -182,6 +198,7 @@ public:
     std::array<std::int32_t, 5> labels = { 1, 0, 1, 0, 1 };
 };
 
+// path 3 with self loops on 0, 2 vertexes (0-index)
 class path_3_self_loops_type : public graph_base_data {
 public:
     path_3_self_loops_type() {
@@ -196,6 +213,13 @@ public:
     std::array<std::int32_t, 3> labels = { 1, 0, 1 };
 };
 
+/*
+  O--O---O--O
+    / \ / \
+O--O---*---O--O
+    \ / \ /
+  O--O---O--O
+*/
 class self_matching_type : public graph_base_data {
 public:
     self_matching_type() {
@@ -243,6 +267,7 @@ public:
     std::array<std::int32_t, 10> labels = { 1, 2, 3, 0, 0, 0, 0, 0, 0, 0 };
 };
 
+// k3(0-2), k5(3-7), k4(8-11), k4(12-13). additional edges 0-3, 3-8, 9-12, 11-13
 class difficult_graph_type : public graph_base_data {
 public:
     difficult_graph_type() {
@@ -262,6 +287,7 @@ public:
     std::array<std::int32_t, 16> labels = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 };
 
+// k3(0-2), k3(3-5), additional edge 2-3
 class triangles_edge_link_type : public graph_base_data {
 public:
     triangles_edge_link_type() {
@@ -304,6 +330,11 @@ public:
     std::array<std::int32_t, 3> labels = { 0, 0, 1 };
 };
 
+/*
+  O       O
+  |       |
+O-O-O-O-O-O-O-O
+*/
 class paths_1_2_3_single_target_type : public graph_base_data {
 public:
     paths_1_2_3_single_target_type() {
@@ -318,6 +349,11 @@ public:
     std::array<std::int32_t, 10> labels = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 };
 
+/*
+    O
+    | 
+O-O-O-O-O-O
+*/
 class paths_1_2_3_type : public graph_base_data {
 public:
     paths_1_2_3_type() {
@@ -586,6 +622,7 @@ public:
     std::array<std::int32_t, 5> labels = { 1, 0, 0, 0, 1 };
 };
 
+// k_5(0-4) + path_15(5-104) connected by edge 4-5
 class lolipop_5_100_type : public graph_base_data {
 public:
     lolipop_5_100_type() {
@@ -645,6 +682,11 @@ public:
     std::array<std::int32_t, 5> labels = { 0, 1, 0, 1, 0 };
 };
 
+/*
+    O
+    |
+O-O-O-...100 vertexes...
+*/
 class paths_1_2_100_type : public graph_base_data {
 public:
     paths_1_2_100_type() {
@@ -715,6 +757,7 @@ public:
     std::array<std::int32_t, 5> labels = { 0, 0, 1, 1, 0 };
 };
 
+// cycle 5 0-2-4-1-3
 class linked_star_5_type : public graph_base_data {
 public:
     linked_star_5_type() {
@@ -757,6 +800,7 @@ public:
     std::array<std::int32_t, 5> labels = { 1, 0, 0, 0, 0 };
 };
 
+// k6(0-5), k6(6-11), k6(12-17) connected by edges 0-6, 0-12, 6-12
 class linked_3_k_6_type : public graph_base_data {
 public:
     linked_3_k_6_type() {
@@ -778,6 +822,7 @@ public:
     std::array<std::int32_t, 18> labels = { 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 };
 };
 
+// k6(0-5), k6(6-11) connected by edge 0-6
 class linked_2_k_6_type : public graph_base_data {
 public:
     linked_2_k_6_type() {
@@ -795,6 +840,17 @@ public:
     std::array<std::int32_t, 12> labels = { 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0 };
 };
 
+/*
+O-\          /-O
+O--O        O--O
+O-/ \      / \-O
+O-\  \    /  /-O
+O--O--O--O--O--O
+O-/  /    \  \-O
+O-\ /      \ /-O
+O--O        O--O
+O-/          \-O
+*/
 class tree_target_type : public graph_base_data {
 public:
     tree_target_type() {
@@ -815,6 +871,17 @@ public:
                                             1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1 };
 };
 
+/*
+O-\          /-O
+O--O        O--O
+O-/ \      / \-O
+O-\  \    /  /-O
+   O--O--O--O
+O-/  /    \  \-O
+O-\ /      \ /-O
+O--O        O--O
+O-/          \-O
+*/
 class tree_pattern_type : public graph_base_data {
 public:
     tree_pattern_type() {
@@ -835,6 +902,12 @@ public:
                                             1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1 };
 };
 
+/*
+4 cycle_8 graphs connected by edges: 0-8, 0-16, 0-24, 8-16, 8-24, 16-24,
+                                     2-10, 2-18, 2-26, 10-18, 10-26, 18-26,
+                                     4-12, 4-20, 4-28, 12-20, 12-28, 20-28,
+                                     6-14, 6-22, 6-30, 14-22, 14-30, 22-30
+*/
 class connected_4_cycle_8_type : public graph_base_data {
 public:
     connected_4_cycle_8_type() {
@@ -859,6 +932,12 @@ public:
                                             1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2 };
 };
 
+/*
+3 cycle_8 graphs connected by edges: 0-8, 0-16, 8-16,
+                                     2-10, 2-18, 10-18,
+                                     4-12, 4-20, 12-20,
+                                     6-14, 6-22, 14-22
+*/
 class connected_3_cycle_8_type : public graph_base_data {
 public:
     connected_3_cycle_8_type() {
@@ -941,6 +1020,7 @@ public:
                                             0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 };
 };
 
+// k5(0-4), k5(5-10) connected by edge 0-5
 class linked_k_5_k_6_type : public graph_base_data {
 public:
     linked_k_5_k_6_type() {
@@ -957,6 +1037,12 @@ public:
     std::array<std::int32_t, 11> labels = { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 };
 };
 
+/*
+vertex (0) and 3 cycle_8 graphs connected by edges: 0-1, 0-9, 0-17, 1-9, 1-17, 9-17,
+                                                    0-3, 0-11, 0-19, 3-11, 3-19, 11-19,
+                                                    0-5, 0-13, 0-21, 5-13, 5-21, 13-21,
+                                                    0-7, 0-15, 0-23, 7-15, 7-23, 15-23
+*/
 class center_cycles_target_type : public graph_base_data {
 public:
     center_cycles_target_type() {
@@ -980,6 +1066,12 @@ public:
                                             2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3 };
 };
 
+/*
+vertex (0) and 3 cycle_8 graphs connected by edges: 0-1, 0-9, 0-17,
+                                                    0-3, 0-11, 0-19,
+                                                    0-5, 0-13, 0-21,
+                                                    0-7, 0-15, 0-23
+*/
 class center_cycles_pattern_type : public graph_base_data {
 public:
     center_cycles_pattern_type() {
@@ -1001,6 +1093,7 @@ public:
                                             2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3 };
 };
 
+// k3(0-2), k5(3-7), k4(8-11), k4(12-13). additional edges 0-3, 3-8, 9-12, 11-13
 class difficult_graph_labeled_type : public graph_base_data {
 public:
     difficult_graph_labeled_type() {
@@ -1020,6 +1113,7 @@ public:
     std::array<std::int32_t, 16> labels = { 0, 1, 2, 0, 1, 2, 1, 2, 2, 0, 1, 0, 0, 0, 1, 2 };
 };
 
+// k3(0-2), k3(3-5), additional edge 2-3
 class triangles_edge_link_labeled_type : public graph_base_data {
 public:
     triangles_edge_link_labeled_type() {
@@ -1093,6 +1187,11 @@ public:
     std::array<std::int32_t, 6> labels = { 0, 0, 0, 0, 1, 1 };
 };
 
+/*
+        O         O
+       / \       / \
+O--O--O---O--O--O---O--O
+*/
 class triangle_path_target_type : public graph_base_data {
 public:
     triangle_path_target_type() {
@@ -1108,6 +1207,11 @@ public:
     std::array<std::int32_t, 10> labels = { 1, 0, 0, 1, 0, 0, 1, 0, 0, 1 };
 };
 
+/*
+                     O
+                    / \
+O--O--O--O---O--O--O---O--O
+*/
 class triangle_path_pattern_type : public graph_base_data {
 public:
     triangle_path_pattern_type() {
@@ -1124,6 +1228,21 @@ public:
     std::array<std::int32_t, 10> labels = { 1, 0, 0, 0, 0, 0, 0, 1, 0, 1 };
 };
 
+/*
+     /--O--\
+   /O   |   O\
+  O   \ O /   O
+ /  \   |   /  \
+ O    O-O-O    O
+/ \  / \|/ \  / \
+O---O---O---O---O
+\ /  \ /|\ /  \ /
+ O    O-O-O    O
+ \  /   |   \  /
+  O   / O \   O
+   \O   |   O/
+     \--O--/
+*/
 class tree_1_3_25_target_type : public graph_base_data {
 public:
     tree_1_3_25_target_type() {
@@ -1147,6 +1266,21 @@ public:
                                             3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4 };
 };
 
+/*
+        O
+    O   |   O
+  O   \ O /   O
+    \   |   /
+ O    O O O    O
+  \    \|/    /
+O---O---O---O---O
+  /    /|\    \
+ O    O O O    O
+    /   |   \
+  O   / O \   O
+    O   |   O
+        O
+*/
 class tree_1_3_25_pattern_type : public graph_base_data {
 public:
     tree_1_3_25_pattern_type() {
@@ -1181,6 +1315,12 @@ public:
     std::array<std::int32_t, 4> labels = { 0, 1, 1, 1 };
 };
 
+
+/*
+      O
+      |
+O--O--O--O--O--O--O--O
+*/
 class paths_1_2_5_type : public graph_base_data {
 public:
     paths_1_2_5_type() {
