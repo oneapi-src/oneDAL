@@ -42,7 +42,6 @@ void run(sycl::queue& q) {
 
     std::cout << "Test results:\n" << test_result.get_labels() << std::endl;
     std::cout << "True labels:\n" << y_test << std::endl;
-
 }
 
 int main(int argc, char const* argv[]) {
