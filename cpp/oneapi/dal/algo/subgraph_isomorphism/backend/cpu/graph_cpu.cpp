@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 

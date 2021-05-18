@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"

@@ -51,9 +51,6 @@ private:
     inner_alloc allocator_;
 };
 
-// template <typename Cpu>
-// class graph;
-
 template <typename Cpu>
 class sorter {
 public:
