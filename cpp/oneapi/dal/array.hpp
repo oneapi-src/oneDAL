@@ -32,6 +32,8 @@ template <typename T>
 class array {
     static_assert(!std::is_const_v<T>, "array class cannot have const-qualified type of data");
 
+    friend struct detail::serialization_accessor;
+
     template <typename U>
     friend class array;
 
@@ -650,11 +652,7 @@ public:
     /// If no queue was provided at the array construction phase,
     /// returns empty :literal:`std::optional` object.
     std::optional<sycl::queue> get_queue() const {
-        const auto policy_opt = impl_->get_policy();
-        if (policy_opt.has_value()) {
-            return policy_opt->get_queue();
-        }
-        return std::nullopt;
+        return impl_->get_queue();
     }
 #endif
 
@@ -695,6 +693,15 @@ private:
         data_ptr_ = nullptr;
         mutable_data_ptr_ = nullptr;
         count_ = 0;
+    }
+
+    void serialize(detail::output_archive& ar) const {
+        impl_->serialize(ar);
+    }
+
+    void deserialize(detail::input_archive& ar) {
+        impl_->deserialize(ar);
+        update_data(impl_.get());
     }
 
     detail::unique<impl_t> impl_;
