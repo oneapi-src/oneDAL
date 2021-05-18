@@ -19,5 +19,22 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
+
 ONEDAL_EXPORT std::int32_t daal_string_to_int(const char *nptr, char **endptr);
+
+ONEDAL_EXPORT double daal_string_to_double(const char *nptr, char **endptr);
+
+template <typename T>
+T daal_string_to(const char *nptr, char **endptr);
+
+template <>
+std::int32_t daal_string_to(const char *nptr, char **endptr) {
+    return daal_string_to_int(nptr, endptr);
+}
+
+template <>
+double daal_string_to(const char *nptr, char **endptr) {
+    return daal_string_to_double(nptr, endptr);
+}
+
 } // namespace oneapi::dal::preview::load_graph::detail

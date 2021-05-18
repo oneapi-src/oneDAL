@@ -21,12 +21,17 @@
 #include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/directed_adjacency_vector_graph.hpp"
 #include "oneapi/dal/graph/detail/directed_adjacency_vector_graph_builder.hpp"
+#include "oneapi/dal/io/graph_csv_data_source.hpp"
+#include "oneapi/dal/io/load_graph.hpp"
 
 using namespace std;
 
 namespace dal = oneapi::dal;
 
 int main(int argc, char** argv) {
+    //const auto filename = get_data_path("graph.csv");
+    const auto filename = get_data_path("weighted_edge_list.csv");
+    /*
     std::vector<int64_t> rows = { 0, 1, 3, 4 };
     std::vector<int32_t> cols = { 1, 0, 4, 1 };
     std::vector<int32_t> vals = { 10, 15, 14, 5 };
@@ -38,11 +43,24 @@ int main(int argc, char** argv) {
         builder(vertex_count, edge_count, rows.data(), cols.data(), vals.data());
 
     const auto& my_graph = builder.get_graph();
-
+*/
+        // read the graph
+    /*
+    const dal::preview::graph_csv_data_source ds(filename);
+    using my_graph_type = dal::preview::directed_adjacency_vector_graph<>;
+    const dal::preview::load_graph::descriptor<dal::preview::edge_list<>, my_graph_type> d;
+    const auto my_graph = dal::preview::load_graph::load(d, ds);
+*/
+        const dal::preview::graph_csv_data_source ds(filename);
+        using vertex_type = int32_t;
+        using weight_type = int32_t;
+    using my_graph_type = dal::preview::directed_adjacency_vector_graph<vertex_type, weight_type>;
+    const dal::preview::load_graph::descriptor<dal::preview::weighted_edge_list<vertex_type, weight_type>, my_graph_type> d;
+    const auto my_graph = dal::preview::load_graph::load(d, ds);
     std::cout << "Number of vertices: " << dal::preview::get_vertex_count(my_graph) << std::endl;
     std::cout << "Number of edges: " << dal::preview::get_edge_count(my_graph) << std::endl;
 
-    using my_graph_type = dal::preview::directed_adjacency_vector_graph<>;
+    
     dal::preview::vertex_outward_edge_size_type<my_graph_type> vertex_id = 0;
     std::cout << "Degree of " << vertex_id << ": "
               << dal::preview::get_vertex_outward_degree(my_graph, vertex_id) << std::endl;
