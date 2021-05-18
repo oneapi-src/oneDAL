@@ -59,10 +59,6 @@ public:
         return 31 - ONEDAL_lzcnt_u32(bit_val);
     };
 
-    static void split_by_registers(const std::int64_t vector_size,
-                                   std::int64_t* registers,
-                                   const register_size max_size);
-
     bit_vector(const inner_alloc allocator);
     bit_vector(bit_vector<Cpu>& bvec);
     bit_vector(const std::int64_t vector_size, inner_alloc allocator);
@@ -96,8 +92,6 @@ public:
 
     bit_vector<Cpu>& andn(const std::uint8_t* pa);
     bit_vector<Cpu>& andn(bit_vector<Cpu>& a);
-
-    bool test_bit(const std::int64_t vertex);
 
     static graph_status set(const std::int64_t vector_size,
                             std::uint8_t* result_vector,
@@ -459,11 +453,6 @@ bit_vector<Cpu>& bit_vector<Cpu>::and_equal(const std::int64_t* bit_index,
 }
 
 template <typename Cpu>
-bool bit_vector<Cpu>::test_bit(const std::int64_t vertex) {
-    return vector[byte(vertex)] & bit(vertex);
-}
-
-template <typename Cpu>
 bool bit_vector<Cpu>::test_bit(const std::int64_t vector_size,
                                const std::uint8_t* vector,
                                const std::int64_t vertex) {
@@ -513,17 +502,6 @@ std::int64_t bit_vector<Cpu>::popcount(const std::int64_t vector_size, const std
 template <typename Cpu>
 std::int64_t bit_vector<Cpu>::popcount() const {
     return popcount(n, vector);
-}
-
-template <typename Cpu>
-void bit_vector<Cpu>::split_by_registers(const std::int64_t vector_size,
-                                         std::int64_t* registers,
-                                         const register_size max_size) {
-    std::int64_t size = vector_size;
-    for (std::int64_t i = power_of_two(max_size); i >= 0; i--) {
-        registers[i] = size >> i;
-        size -= registers[i] << i;
-    }
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
