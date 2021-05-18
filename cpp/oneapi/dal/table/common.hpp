@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include <type_traits>
-
 #include "oneapi/dal/table/detail/table_iface.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 
 namespace oneapi::dal {
 
@@ -38,6 +37,7 @@ enum class data_layout { unknown, row_major, column_major };
 
 class ONEDAL_EXPORT table_metadata {
     friend detail::pimpl_accessor;
+    friend detail::serialization_accessor;
 
 public:
     /// Creates the metadata instance without information about the features.
@@ -63,11 +63,15 @@ public:
     const data_type& get_data_type(std::int64_t feature_index) const;
 
 private:
+    void serialize(detail::output_archive& ar) const;
+    void deserialize(detail::input_archive& ar);
+
     detail::pimpl<detail::table_metadata_impl> impl_;
 };
 
 class ONEDAL_EXPORT table {
     friend detail::pimpl_accessor;
+    friend detail::serialization_accessor;
 
 public:
     /// An empty table constructor: creates the table instance with zero number of rows and columns.
@@ -112,12 +116,16 @@ public:
 
 protected:
     explicit table(detail::table_iface* impl) : impl_(impl) {}
+    explicit table(const detail::shared<detail::table_iface>& impl) : impl_(impl) {}
 
     void init_impl(detail::table_iface* impl) {
         impl_.reset(impl);
     }
 
 private:
+    void serialize(detail::output_archive& ar) const;
+    void deserialize(detail::input_archive& ar);
+
     detail::pimpl<detail::table_iface> impl_;
 };
 

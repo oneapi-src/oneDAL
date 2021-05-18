@@ -80,6 +80,9 @@ public:
     MSG(unsupported_device_type);
     MSG(unsupported_feature_type);
     MSG(unsupported_usm_alloc);
+    MSG(page_size_leq_zero);
+    MSG(invalid_key);
+    MSG(capacity_leq_zero);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
@@ -118,6 +121,14 @@ public:
     MSG(negative_vertex_id);
     MSG(unimplemented_sorting_procedure);
 
+    /* I/O */
+    MSG(file_not_found);
+
+    /* Serialization */
+    MSG(object_is_not_serializable);
+    MSG(archive_content_does_not_match_type);
+    MSG(archive_is_in_invalid_state);
+
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
@@ -131,9 +142,6 @@ public:
     MSG(iteration_count_lt_zero);
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
-
-    /* I/O */
-    MSG(file_not_found);
 
     /* Decision Forest */
     MSG(bootstrap_is_incompatible_with_error_metric);
