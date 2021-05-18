@@ -125,9 +125,7 @@ private:
 };
 
 template <typename Cpu>
-void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-              const std::uint8_t* ONEAPI_RESTRICT pa,
-              std::int64_t size) {
+void or_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] |= pa[i];
@@ -135,9 +133,7 @@ void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 }
 
 template <typename Cpu>
-void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-               const std::uint8_t* ONEAPI_RESTRICT pa,
-               std::int64_t size) {
+void and_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] &= pa[i];
@@ -145,7 +141,7 @@ void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 }
 
 template <typename Cpu>
-void inversion(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size) {
+void inversion(std::uint8_t* vec, std::int64_t size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = ~vec[i];
@@ -153,9 +149,7 @@ void inversion(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size) {
 }
 
 template <typename Cpu>
-void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-              const std::int64_t* ONEAPI_RESTRICT bit_index,
-              const std::int64_t list_size) {
+void or_equal(std::uint8_t* vec, const std::int64_t* bit_index, const std::int64_t list_size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
         vec[bit_vector<Cpu>::byte(bit_index[i])] |= bit_vector<Cpu>::bit(bit_index[i]);
@@ -163,7 +157,7 @@ void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 }
 
 template <typename Cpu>
-void set(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size, const std::uint8_t byte_val = 0x0) {
+void set(std::uint8_t* vec, std::int64_t size, const std::uint8_t byte_val = 0x0) {
     ONEDAL_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = byte_val;
@@ -171,11 +165,11 @@ void set(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size, const std::uint8_
 }
 
 template <typename Cpu>
-void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-               const std::int64_t* ONEAPI_RESTRICT bit_index,
+void and_equal(std::uint8_t* vec,
+               const std::int64_t* bit_index,
                const std::int64_t bit_size,
                const std::int64_t list_size,
-               std::int64_t* ONEAPI_RESTRICT tmp_array = nullptr,
+               std::int64_t* tmp_array = nullptr,
                const std::int64_t tmp_size = 0) {
     std::int64_t counter = 0;
     ONEDAL_IVDEP
@@ -388,7 +382,8 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator~() {
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator&=(const std::uint8_t* ONEAPI_RESTRICT pa) {
+bit_vector<Cpu>& bit_vector<Cpu>::operator&=(const std::uint8_t* pa) {
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < n; i++) {
         vector[i] &= pa[i];
     }
@@ -396,7 +391,8 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator&=(const std::uint8_t* ONEAPI_RESTRICT
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator|=(const std::uint8_t* ONEAPI_RESTRICT pa) {
+bit_vector<Cpu>& bit_vector<Cpu>::operator|=(const std::uint8_t* pa) {
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < n; i++) {
         vector[i] |= pa[i];
     }

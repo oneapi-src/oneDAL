@@ -18,26 +18,24 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-template void inversion<__CPU_TAG__>(std::uint8_t* ONEAPI_RESTRICT vec, const std::int64_t size);
-template void or_equal<__CPU_TAG__>(std::uint8_t* ONEAPI_RESTRICT vec,
-                                    const std::uint8_t* ONEAPI_RESTRICT pa,
+template void inversion<__CPU_TAG__>(std::uint8_t* vec, const std::int64_t size);
+template void or_equal<__CPU_TAG__>(std::uint8_t* vec,
+                                    const std::uint8_t* pa,
                                     const std::int64_t size);
-template void and_equal<__CPU_TAG__>(std::uint8_t* ONEAPI_RESTRICT vec,
-                                     const std::uint8_t* ONEAPI_RESTRICT pa,
+template void and_equal<__CPU_TAG__>(std::uint8_t* vec,
+                                     const std::uint8_t* pa,
                                      const std::int64_t size);
 
-template void or_equal<__CPU_TAG__>(std::uint8_t* ONEAPI_RESTRICT vec,
-                                    const std::int64_t* ONEAPI_RESTRICT bit_index,
+template void or_equal<__CPU_TAG__>(std::uint8_t* vec,
+                                    const std::int64_t* bit_index,
                                     const std::int64_t list_size);
-template void and_equal<__CPU_TAG__>(std::uint8_t* ONEAPI_RESTRICT vec,
-                                     const std::int64_t* ONEAPI_RESTRICT bit_index,
+template void and_equal<__CPU_TAG__>(std::uint8_t* vec,
+                                     const std::int64_t* bit_index,
                                      const std::int64_t bit_size,
                                      const std::int64_t list_size,
-                                     std::int64_t* ONEAPI_RESTRICT tmp_array,
+                                     std::int64_t* tmp_array,
                                      const std::int64_t tmp_size);
-template void set<__CPU_TAG__>(std::uint8_t* ONEAPI_RESTRICT vec,
-                               std::int64_t size,
-                               const std::uint8_t byte_val);
+template void set<__CPU_TAG__>(std::uint8_t* vec, std::int64_t size, const std::uint8_t byte_val);
 template class bit_vector<__CPU_TAG__>;
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

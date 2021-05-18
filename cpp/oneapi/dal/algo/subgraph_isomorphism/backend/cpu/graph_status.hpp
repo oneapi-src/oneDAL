@@ -26,13 +26,6 @@ enum graph_status {
     bad_allocation = -11, /*!< Memory allocation error*/
 };
 
-#if defined(__INTEL_COMPILER)
-#define ONEAPI_RESTRICT
-//restrict
-#else
-#define ONEAPI_RESTRICT
-#endif
-
 enum register_size { r8 = 1, r16 = 2, r32 = 4, r64 = 8, r128 = 16, r256 = 32, r512 = 64 };
 
 const std::int64_t null_node = 0xffffffffffffffff; /*!< Null node value*/
