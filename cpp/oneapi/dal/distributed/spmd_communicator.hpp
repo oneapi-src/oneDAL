@@ -92,6 +92,16 @@ class spmd_communicator : public base {
 public:
     spmd_communicator() = delete;
 
+    std::int64_t get_rank() {
+        // TODO: Handle null impl_
+        return impl_->get_rank();
+    }
+
+    std::int64_t get_rank_count() {
+        // TODO: Handle null impl_
+        return impl_->get_rank_count();
+    }
+
     /// Broadcasts a message from the `root` rank to all other ranks
     ///
     /// @param send_buff

@@ -22,7 +22,11 @@ mpi_repo = repos.prebuilt_libs_repo_rule(
     ],
     libs = [
         "lib/release/libmpi.so",
+        "lib/release/libmpi.so.12",
+        "lib/release/libmpi.so.12.0",
+        "lib/release/libmpi.so.12.0.0",
         "libfabric/lib/libfabric.so",
+        "libfabric/lib/libfabric.so.1",
     ],
     build_template = "@onedal//dev/bazel/deps:mpi.tpl.BUILD",
 )

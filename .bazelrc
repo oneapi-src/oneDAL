@@ -18,6 +18,9 @@ build --flag_alias=cpu=@config//:cpu
 test --test_env=OCL_ICD_FILENAMES \
      --test_env=SYCL_DEVICE_FILTER
 
+# This variable is needed for MPI
+test --test_env=FI_PROVIDER_PATH
+
 # This variable is used to determine location of datasets for testing
 test --test_env=DAAL_DATASETS
 

@@ -9,14 +9,14 @@ cc_library(
 cc_library(
     name = "libmpi",
     srcs = [
-        "lib/release/libmpi.so",
+        "lib/release/libmpi.so.12",
     ],
 )
 
 cc_library(
     name = "libfabric",
     srcs = [
-        "libfabric/lib/libfabric.so",
+        "libfabric/lib/libfabric.so.1",
     ],
 )
 

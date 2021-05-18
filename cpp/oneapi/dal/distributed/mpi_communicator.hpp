@@ -47,7 +47,9 @@ public:
     explicit mpi_request_impl(const MPI_Request& request) : mpi_request_(request) {}
 
     ~mpi_request_impl() {
-        MPI_Request_free(&mpi_request_);
+        if (!is_completed_) {
+            MPI_Request_free(&mpi_request_);
+        }
     }
 
     mpi_request_impl(const mpi_request_impl&) = delete;
@@ -55,12 +57,14 @@ public:
 
     void wait() override {
         try_throw(MPI_Wait(&mpi_request_, MPI_STATUS_IGNORE));
+        is_completed_ = true;
     }
 
     bool test() override {
         int flag;
         try_throw(MPI_Test(&mpi_request_, &flag, MPI_STATUS_IGNORE));
-        return bool(flag != 0);
+        is_completed_ = bool(flag != 0);
+        return is_completed_;
     }
 
 private:
@@ -71,6 +75,7 @@ private:
     }
 
     MPI_Request mpi_request_;
+    bool is_completed_ = false;
 };
 
 class mpi_communicator_impl : public spmd_communicator_iface {
