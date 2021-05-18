@@ -94,9 +94,9 @@ config_bool_flag(
 )
 
 config_setting(
-    name = "test_fp64_enabled",
+    name = "test_fp64_disabled",
     flag_values  = {
-        ":test_disable_fp64": "False",
+        ":test_disable_fp64": "True",
     },
 )
 
