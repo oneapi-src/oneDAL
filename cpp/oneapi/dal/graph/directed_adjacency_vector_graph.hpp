@@ -141,6 +141,7 @@ struct graph_traits<
     using const_vertex_outward_edge_range = typename impl_type::const_vertex_outward_edge_range;
     using vertex_edge_range = typename impl_type::vertex_edge_range;
     using const_vertex_edge_range = typename impl_type::const_vertex_edge_range;
+    using const_edge_value_range_type = typename impl_type::const_edge_value_range_type;
 };
 
 template <typename VertexValue,

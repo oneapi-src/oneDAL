@@ -87,6 +87,7 @@ public:
     using edge_user_value_allocator_type =
         typename std::allocator_traits<Allocator>::template rebind_alloc<edge_user_value_type>;
     using edge_user_value_set = container<edge_user_value_type>;
+    using const_edge_value_iterator = const edge_user_value_type*;
 
     // ranges
     using vertex_edge_range = typename topology_type::vertex_edge_range;
@@ -95,6 +96,8 @@ public:
     // ranges
     using vertex_outward_edge_range = typename topology_type::vertex_edge_range;
     using const_vertex_outward_edge_range = typename topology_type::const_vertex_edge_range;
+    using const_edge_value_range_type = range<const_edge_value_iterator>;
+    ;
 
     directed_adjacency_vector_graph_impl() = default;
 
@@ -197,6 +200,17 @@ public:
 
     inline const edge_values<EdgeValue> get_edge_values() const {
         return _edge_values;
+    }
+
+    inline const EdgeValue& get_edge_value(vertex_type u, vertex_type v) const {
+        const auto u_neighs = _topology.get_vertex_neighbors(u);
+        for (auto i = u_neighs.first; i < u_neighs.second; i++) {
+            if (v == *i) {
+                return _edge_values[i - _topology._cols_ptr];
+            }
+        }
+        throw out_of_range(dal::detail::error_messages::
+                               vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
 
     allocator_type _allocator;

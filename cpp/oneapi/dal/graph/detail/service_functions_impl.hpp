@@ -62,4 +62,10 @@ constexpr auto get_vertex_outward_neighbors_impl(const Graph &g,
     return t.get_vertex_neighbors(u);
 }
 
+template <typename Graph>
+constexpr auto get_edge_value_impl(const Graph &g, vertex_type<Graph> u, vertex_type<Graph> v)
+    -> const edge_user_value_type<Graph> & {
+    return dal::detail::get_impl(g).get_edge_value(u, v);
+}
+
 } // namespace oneapi::dal::preview::detail

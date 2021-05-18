@@ -87,6 +87,18 @@ template <typename Graph>
 constexpr auto get_vertex_outward_neighbors(const Graph &g, vertex_type<Graph> u)
     -> const_vertex_outward_edge_range_type<Graph>;
 
+/// Returns the value of an edge represented as source and destination vertices
+///
+/// @tparam Graph  Type of the graph
+/// @param [in]   graph  Input graph object
+/// @param [in]   u Identifier of the source vertex in edge
+/// @param [in]   v Identifier of the source vertex in edge
+///
+/// @return Edge Value
+template <typename Graph>
+constexpr auto get_edge_value(const Graph &g, vertex_type<Graph> u, vertex_type<Graph> v)
+    -> const edge_user_value_type<Graph> &;
+
 //Functions implementation
 template <typename Graph>
 constexpr auto get_vertex_count(const Graph &g) noexcept -> vertex_size_type<Graph> {
@@ -118,7 +130,6 @@ constexpr auto get_vertex_outward_degree(const Graph &g, vertex_type<Graph> u)
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
     return detail::get_vertex_outward_degree_impl(g, u);
-    return detail::get_vertex_degree_impl(g, u);
 }
 
 template <typename Graph>
@@ -141,6 +152,13 @@ constexpr auto get_vertex_outward_neighbors(const Graph &g, vertex_type<Graph> u
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
     }
     return detail::get_vertex_outward_neighbors_impl(g, u);
+}
+
+template <typename Graph>
+constexpr auto get_edge_value(const Graph &g, vertex_type<Graph> u, vertex_type<Graph> v)
+    -> const edge_user_value_type<Graph> & {
+    static_assert(is_directed<Graph>, "get_edge_value supported only for directed graph");
+    return detail::get_edge_value_impl(g, u, v);
 }
 
 } // namespace oneapi::dal::preview
