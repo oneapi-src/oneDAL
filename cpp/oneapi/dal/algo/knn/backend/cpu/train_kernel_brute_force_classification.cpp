@@ -35,8 +35,7 @@ namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_knn_bf_kernel_t = daal_knn::training::internal::
-    KNNClassificationTrainKernel<Float, Cpu>;
+using daal_knn_bf_kernel_t = daal_knn::training::internal::KNNClassificationTrainKernel<Float, Cpu>;
 
 template <typename Float>
 static train_result<task::classification> call_daal_kernel(const context_cpu& ctx,
@@ -56,11 +55,8 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
         data_use_in_model);
 
     Status status;
-    const auto /* daal_knn::ModelPtr  */model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
-    //TODO: add checker for pointer
+    const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
     interop::status_to_exception(status);
-
-    // auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
 
     // Data or labels should not be copied, copy is already happened when
     // the tables are converted to NumericTables
@@ -70,11 +66,11 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(ctx,
-                                                                daal_data.get(),
-                                                                daal_labels.get(),
-                                                                model_ptr.get(),
-                                                                daal_parameter,
-                                                                *daal_parameter.engine));
+                                                               daal_data.get(),
+                                                               daal_labels.get(),
+                                                               model_ptr.get(),
+                                                               daal_parameter,
+                                                               *daal_parameter.engine));
 
     auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<model_impl_cls>(interop);
@@ -91,9 +87,10 @@ static train_result<task::classification> train(const context_cpu& ctx,
 
 template <typename Float>
 struct train_kernel_cpu<Float, method::brute_force, task::classification> {
-    train_result<task::classification> operator()(const context_cpu& ctx,
-                                  const descriptor_t& desc,
-                                  const train_input<task::classification>& input) const {
+    train_result<task::classification> operator()(
+        const context_cpu& ctx,
+        const descriptor_t& desc,
+        const train_input<task::classification>& input) const {
         return train<Float>(ctx, desc, input);
     }
 };

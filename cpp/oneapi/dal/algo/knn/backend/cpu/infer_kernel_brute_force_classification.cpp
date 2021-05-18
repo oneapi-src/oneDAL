@@ -33,8 +33,8 @@ namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
-using daal_knn_bf_kernel_t = daal_knn::prediction::internal::
-    KNNClassificationPredictKernel<Float, Cpu>;
+using daal_knn_bf_kernel_t =
+    daal_knn::prediction::internal::KNNClassificationPredictKernel<Float, Cpu>;
 
 template <typename Float>
 static infer_result<task::classification> call_daal_kernel(const context_cpu &ctx,
@@ -75,9 +75,10 @@ static infer_result<task::classification> infer(const context_cpu &ctx,
 
 template <typename Float>
 struct infer_kernel_cpu<Float, method::brute_force, task::classification> {
-    infer_result<task::classification> operator()(const context_cpu &ctx,
-                                  const descriptor_t &desc,
-                                  const infer_input<task::classification> &input) const {
+    infer_result<task::classification> operator()(
+        const context_cpu &ctx,
+        const descriptor_t &desc,
+        const infer_input<task::classification> &input) const {
         return infer<Float>(ctx, desc, input);
     }
 };
