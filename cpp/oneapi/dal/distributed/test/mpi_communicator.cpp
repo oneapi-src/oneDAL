@@ -60,7 +60,7 @@ TEST_M(mpi_test, "mpi_communicator has expected rank") {
     REQUIRE(comm.get_rank_count() == mpi_comm_size());
 }
 
-TEST_M(mpi_test, "mpi_communicator can broadcast") {
+TEST_M(mpi_test, "mpi_communicator broadcasts correctly") {
     preview::mpi_communicator comm;
     constexpr std::int64_t count = 10;
     std::array<byte_t, count> data_to_send = { 0, 8, 5, 3, 6, 7, 1, 0, 9 };
@@ -75,6 +75,34 @@ TEST_M(mpi_test, "mpi_communicator can broadcast") {
     }
 
     REQUIRE(data_to_recv == data_to_send);
+}
+
+TEST_M(mpi_test, "mpi_communicator gathers correctly") {
+    preview::mpi_communicator comm;
+    constexpr std::int64_t count = 10;
+    std::array<byte_t, count> data_to_send = { 0, 8, 5, 3, 6, 7, 1, 0, 9 };
+    for (std::int64_t i = 0; i < count; i++) {
+        data_to_send[i] *= (mpi_comm_rank() + 1);
+    }
+
+    std::vector<byte_t> data_to_recv;
+    if (mpi_comm_rank() == 0) {
+        data_to_recv.resize(count * mpi_comm_size());
+    }
+
+    comm.gather(data_to_send.data(),
+                sizeof(byte_t) * count,
+                data_to_recv.data(),
+                sizeof(byte_t) * count,
+                0)
+        .wait();
+
+    if (mpi_comm_rank() == 0) {
+        for (std::int64_t i = 0; i < std::int64_t(data_to_recv.size()); i++) {
+            const std::int64_t expected = data_to_send[i % count] * (i / count + 1);
+            REQUIRE(data_to_recv[i] == expected);
+        }
+    }
 }
 
 } // namespace oneapi::dal::test

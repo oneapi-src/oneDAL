@@ -47,9 +47,9 @@ public:
     explicit mpi_request_impl(const MPI_Request& request) : mpi_request_(request) {}
 
     ~mpi_request_impl() {
-        if (!is_completed_) {
-            MPI_Request_free(&mpi_request_);
-        }
+        // TODO: Figure out how to free collective operation's request
+        // https://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node126.htm
+        ONEDAL_ASSERT(is_completed_);
     }
 
     mpi_request_impl(const mpi_request_impl&) = delete;
