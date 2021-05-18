@@ -76,7 +76,8 @@ public:
             DAAL_CHECK_MALLOC(trainLabel);
         }
 
-        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable, true);
+        daal::algorithms::internal::MinkowskiDistances<FPType, cpu> euclDist(*testTable, *trainTable, true);
+        // daal::algorithms::internal::ChebychevDistances<FPType, cpu> euclDist(*testTable, *trainTable);
         euclDist.init();
 
         const size_t outBlockSize = 128;
@@ -147,7 +148,7 @@ protected:
         TArrayScalable<HeapType, cpu> _heaps;
     };
 
-    services::Status computeKNearestBlock(daal::algorithms::internal::EuclideanDistances<FPType, cpu> * distancesInstance, const size_t blockSize,
+    services::Status computeKNearestBlock(daal::algorithms::internal::PairwiseDistances<FPType, cpu> * distancesInstance, const size_t blockSize,
                                           const size_t trainBlockSize, const size_t startTestIdx, const size_t nTrain, DAAL_UINT64 resultsToEvaluate,
                                           DAAL_UINT64 resultsToCompute, const size_t nClasses, const size_t k, VoteWeights voteWeights,
                                           FPType * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
