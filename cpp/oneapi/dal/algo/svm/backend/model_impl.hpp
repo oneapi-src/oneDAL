@@ -22,15 +22,19 @@
 
 namespace oneapi::dal::svm {
 
-#define SVM_SERIALIZABLE(Task, ClassificationId, RegressionId)         \
-    ONEDAL_SERIALIZABLE_MAP2(Task,                                     \
-                             (task::classification, ClassificationId), \
-                             (task::regression, RegressionId))
+#define SVM_SERIALIZABLE(Task, ClassificationId, RegressionId, NuClassificationId, NuRegressionId) \
+    ONEDAL_SERIALIZABLE_MAP4(Task,                                                                 \
+                             (task::classification, ClassificationId),                             \
+                             (task::regression, RegressionId),                                     \
+                             (task::nu_classification, NuClassificationId),                        \
+                             (task::nu_regression, NuRegressionId))
 
 template <typename Task>
 class detail::v1::model_impl : public SVM_SERIALIZABLE(Task,
                                                        svm_classification_model_impl_id,
-                                                       svm_regression_model_impl_id) {
+                                                       svm_regression_model_impl_id,
+                                                       svm_nu_classification_model_impl_id,
+                                                       svm_nu_regression_model_impl_id) {
 public:
     table support_vectors;
     table coeffs;
