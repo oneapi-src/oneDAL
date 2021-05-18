@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -68,18 +68,18 @@ public:
     bit_vector(const std::int64_t vector_size, inner_alloc allocator);
     bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val, inner_alloc allocator);
     bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc allocator);
-    virtual ~bit_vector();
-    graph_status unset_bit(const std::int64_t vertex);
-    graph_status set_bit(const std::int64_t vertex);
+    ~bit_vector();
+    graph_status unset_bit(std::int64_t vertex);
+    graph_status set_bit(std::int64_t vertex);
     void set(const std::uint8_t byte_val = 0x0);
-    std::uint8_t* get_vector_pointer();
+    std::uint8_t* get_vector_pointer() const;
     std::int64_t size() const;
     std::int64_t popcount() const;
 
     bit_vector<Cpu>& operator&=(bit_vector<Cpu>& a);
     bit_vector<Cpu>& operator|=(bit_vector<Cpu>& a);
     bit_vector<Cpu>& operator^=(bit_vector<Cpu>& a);
-    bit_vector<Cpu>& operator=(bit_vector<Cpu>& a);
+    bit_vector<Cpu>& operator=(const bit_vector<Cpu>& a);
     bit_vector<Cpu>& operator~();
     bit_vector<Cpu>& operator&=(const std::uint8_t* pa);
     bit_vector<Cpu>& operator|=(const std::uint8_t* pa);
@@ -93,7 +93,6 @@ public:
                                const std::int64_t tmp_size = 0);
 
     bit_vector(bit_vector<Cpu>&& a);
-    bit_vector<Cpu>& operator=(bit_vector<Cpu>&& a);
 
     bit_vector<Cpu>& andn(const std::uint8_t* pa);
     bit_vector<Cpu>& andn(bit_vector<Cpu>& a);
@@ -297,31 +296,16 @@ bit_vector<Cpu>::bit_vector(const std::int64_t vector_size,
 template <typename Cpu>
 bit_vector<Cpu>::bit_vector(bit_vector<Cpu>&& a)
         : allocator_(a.allocator_.get_byte_allocator()),
-          vector(a.vector) {
-    n = a.n;
+          vector(a.vector),
+          n(a.n) {
     a.n = 0;
     a.vector = nullptr;
-}
-
-template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator=(bit_vector<Cpu>&& a) {
-    if (&a == this) {
-        return *this;
-    }
-    vector = a.vector;
-    n = a.n;
-
-    a.vector = nullptr;
-    a.n = 0;
-    return *this;
 }
 
 template <typename Cpu>
 bit_vector<Cpu>::~bit_vector() {
     if (vector != nullptr) {
         allocator_.deallocate<std::uint8_t>(vector, n);
-        vector = nullptr;
-        n = 0;
     }
 }
 
@@ -329,24 +313,22 @@ template <typename Cpu>
 bit_vector<Cpu>::bit_vector(const std::int64_t vector_size,
                             std::uint8_t* pvector,
                             inner_alloc allocator)
-        : allocator_(allocator) {
-    n = vector_size;
-    vector = pvector;
-    pvector = nullptr;
-}
+        : allocator_(allocator),
+          n(vector_size),
+          vector(pvector) {}
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::unset_bit(const std::int64_t vertex) {
+graph_status bit_vector<Cpu>::unset_bit(std::int64_t vertex) {
     return unset_bit(vector, vertex);
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set_bit(const std::int64_t vertex) {
+graph_status bit_vector<Cpu>::set_bit(std::int64_t vertex) {
     return set_bit(vector, vertex);
 }
 
 template <typename Cpu>
-std::uint8_t* bit_vector<Cpu>::get_vector_pointer() {
+std::uint8_t* bit_vector<Cpu>::get_vector_pointer() const {
     return vector;
 }
 
@@ -358,7 +340,7 @@ std::int64_t bit_vector<Cpu>::size() const {
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator&=(bit_vector<Cpu>& a) {
     if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
+        const std::uint8_t* pa = a.get_vector_pointer();
         for (std::int64_t i = 0; i < n; i++) {
             vector[i] &= pa[i];
         }
@@ -369,7 +351,7 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator&=(bit_vector<Cpu>& a) {
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator|=(bit_vector<Cpu>& a) {
     if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
+        const std::uint8_t* pa = a.get_vector_pointer();
         for (std::int64_t i = 0; i < n; i++) {
             vector[i] |= pa[i];
         }
@@ -389,9 +371,9 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator^=(bit_vector<Cpu>& a) {
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator=(bit_vector<Cpu>& a) {
+bit_vector<Cpu>& bit_vector<Cpu>::operator=(const bit_vector<Cpu>& a) {
     if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
+        const std::uint8_t* pa = a.get_vector_pointer();
         for (std::int64_t i = 0; i < n; i++) {
             vector[i] = pa[i];
         }
