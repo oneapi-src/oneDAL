@@ -18,12 +18,10 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector.hpp"
-// #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/matching.hpp"
-// #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
@@ -83,21 +81,13 @@ struct graph_data {
     ~graph_data();
 };
 
-// template <typename Cpu>
-// class matching_engine;
-
-// template <typename Cpu>
-// class engine_bundle;
-
-// class sorter;
-
 template <typename Cpu>
 class graph {
 public:
     graph(const dal::preview::detail::topology<std::int32_t>& t,
           graph_storage_scheme storage_scheme,
           detail::byte_alloc_iface* byte_alloc);
-    virtual ~graph();
+    ~graph();
 
     static double graph_density(const std::int64_t vertex_count, const std::int64_t edge_count);
 
@@ -151,6 +141,9 @@ public:
 
     std::int64_t get_edge_index(const std::int64_t current_vertex, const std::int64_t vertex) const;
 
+    void init_bit_representation(const dal::preview::detail::topology<std::int32_t>& t);
+    void init_list_representation(const dal::preview::detail::topology<std::int32_t>& t);
+
     void init_from_list(const graph_input_list_data<Cpu>* input_list_data);
     void init_from_bit(const graph_input_bit_data<Cpu>* input_bit_data);
 };
@@ -160,46 +153,63 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
                   graph_storage_scheme storage_scheme,
                   detail::byte_alloc_iface* byte_alloc)
         : allocator_(byte_alloc) {
+    bool use_bit_representation = (storage_scheme != list);
+
+    (use_bit_representation) ? init_bit_representation(t) : init_list_representation(t);
+
+    return;
+}
+
+template <typename Cpu>
+void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<std::int32_t>& t) {
     bool has_edges_attribute = false;
-    bool use_bit_representation = false;
-    graph_data<Cpu> graph_data_storage;
     std::int64_t vertex_count = t._vertex_count;
-    if (vertex_count <= 0) {
-        vertex_count = 0;
-        return;
-    }
-
-    switch (storage_scheme) {
-        case list: {
-            use_bit_representation = false;
-            break;
-        }
-        default: {
-            use_bit_representation = true;
-            break;
-        }
-    }
-
-    if (use_bit_representation) { // use bit vector
-        graph_data_storage.pbit_data = new graph_input_bit_data<Cpu>(vertex_count, allocator_);
-    }
-    else { // use adj list
-        graph_data_storage.plist_data = new graph_input_list_data<Cpu>(vertex_count, allocator_);
+    graph_data<Cpu> graph_data_storage;
+    graph_data_storage.pbit_data = new graph_input_bit_data<Cpu>(vertex_count, allocator_);
+    for (std::int64_t i = 0; i < vertex_count; i++) {
+        auto degree = t._degrees[i];
+        graph_data_storage.pbit_data->degree[i] = degree;
     }
 
     for (std::int64_t i = 0; i < vertex_count; i++) {
         auto degree = t._degrees[i];
-        if (use_bit_representation) {
-            graph_data_storage.pbit_data->degree[i] = degree;
+
+        for (std::int64_t j = 0; j < degree; j++) {
+            std::int64_t edge_attr = 0;
+            std::int64_t vertex_1 = i;
+            std::int64_t vertex_2 = t._cols[t._rows[i] + j];
+
+            bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_1], vertex_2);
+            bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_2], vertex_1);
+            if (edge_attr >= 0 || has_edges_attribute) {
+                if (graph_data_storage.pbit_data->edges_attribute[i] == nullptr) {
+                    graph_data_storage.pbit_data->edges_attribute[i] =
+                        allocator_.allocate<std::int64_t>(degree);
+                    has_edges_attribute = true;
+                }
+                graph_data_storage.pbit_data->edges_attribute[i][j] = edge_attr;
+            }
+        }
+    }
+    init_from_bit(graph_data_storage.pbit_data);
+    return;
+}
+
+template <typename Cpu>
+void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<std::int32_t>& t) {
+    bool has_edges_attribute = false;
+    std::int64_t vertex_count = t._vertex_count;
+    graph_data<Cpu> graph_data_storage;
+    graph_data_storage.plist_data = new graph_input_list_data<Cpu>(vertex_count, allocator_);
+
+    for (std::int64_t i = 0; i < vertex_count; i++) {
+        auto degree = t._degrees[i];
+        graph_data_storage.plist_data->degree[i] = degree;
+        if (degree > 0) {
+            graph_data_storage.plist_data->data[i] = allocator_.allocate<std::int64_t>(degree);
         }
         else {
-            graph_data_storage.plist_data->degree[i] = degree;
-            if (degree > 0) {
-                graph_data_storage.plist_data->data[i] = allocator_.allocate<std::int64_t>(degree);
-            }
-            else {
-                graph_data_storage.plist_data->data[i] = nullptr;
-            }
+            graph_data_storage.plist_data->data[i] = nullptr;
         }
     }
 
@@ -211,37 +221,18 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
             std::int64_t vertex_1 = i;
             std::int64_t vertex_2 = t._cols[t._rows[i] + j];
 
-            if (use_bit_representation) {
-                bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_1], vertex_2);
-                bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_2], vertex_1);
-                if (edge_attr >= 0 || has_edges_attribute) {
-                    if (graph_data_storage.pbit_data->edges_attribute[i] == nullptr) {
-                        graph_data_storage.pbit_data->edges_attribute[i] =
-                            allocator_.allocate<std::int64_t>(degree);
-                        has_edges_attribute = true;
-                    }
-                    graph_data_storage.pbit_data->edges_attribute[i][j] = edge_attr;
+            graph_data_storage.plist_data->data[i][j] = vertex_2;
+            if (edge_attr >= 0 || has_edges_attribute) {
+                if (graph_data_storage.plist_data->edges_attribute[i] == nullptr) {
+                    graph_data_storage.plist_data->edges_attribute[i] =
+                        allocator_.allocate<std::int64_t>(degree);
+                    has_edges_attribute = true;
                 }
-            }
-            else {
-                graph_data_storage.plist_data->data[i][j] = vertex_2;
-                if (edge_attr >= 0 || has_edges_attribute) {
-                    if (graph_data_storage.plist_data->edges_attribute[i] == nullptr) {
-                        graph_data_storage.plist_data->edges_attribute[i] =
-                            allocator_.allocate<std::int64_t>(degree);
-                        has_edges_attribute = true;
-                    }
-                    graph_data_storage.plist_data->edges_attribute[i][j] = edge_attr;
-                }
+                graph_data_storage.plist_data->edges_attribute[i][j] = edge_attr;
             }
         }
     }
-    if (graph_data_storage.pbit_data != nullptr) {
-        init_from_bit(graph_data_storage.pbit_data);
-    }
-    else if (graph_data_storage.plist_data != nullptr) {
-        init_from_list(graph_data_storage.plist_data);
-    }
+    init_from_list(graph_data_storage.plist_data);
     return;
 }
 

@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -383,9 +383,8 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator=(const bit_vector<Cpu>& a) {
 
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator~() {
-    const std::int64_t nn = n;
     ONEDAL_IVDEP
-    for (std::int64_t i = 0; i < nn; i++) {
+    for (std::int64_t i = 0; i < n; i++) {
         vector[i] = ~vector[i];
     }
     return *this;
