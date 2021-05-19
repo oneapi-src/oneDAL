@@ -89,22 +89,12 @@ static infer_result<Task> infer(const context_cpu& ctx,
     return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
 }
 
-template <typename Float>
-struct infer_kernel_cpu<Float, method::by_default, task::regression> {
-    infer_result<task::regression> operator()(const context_cpu& ctx,
-                                              const detail::descriptor_base<task::regression>& desc,
-                                              const infer_input<task::regression>& input) const {
-        return infer<Float, task::regression>(ctx, desc, input);
-    }
-};
-
-template <typename Float>
-struct infer_kernel_cpu<Float, method::by_default, task::nu_regression> {
-    infer_result<task::nu_regression> operator()(
-        const context_cpu& ctx,
-        const detail::descriptor_base<task::nu_regression>& desc,
-        const infer_input<task::nu_regression>& input) const {
-        return infer<Float, task::nu_regression>(ctx, desc, input);
+template <typename Float, typename Task>
+struct infer_kernel_cpu<Float, method::by_default, Task> {
+    infer_result<Task> operator()(const context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
+        return infer<Float, Task>(ctx, desc, input);
     }
 };
 
