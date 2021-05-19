@@ -85,7 +85,7 @@ public:
 
     undirected_adjacency_vector_graph_impl() = default;
 
-    virtual ~undirected_adjacency_vector_graph_impl() {
+    ~undirected_adjacency_vector_graph_impl() {
         auto& cols = _topology._cols;
         auto& degrees = _topology._degrees;
         auto& rows = _topology._rows;

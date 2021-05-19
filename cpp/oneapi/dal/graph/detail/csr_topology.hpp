@@ -47,7 +47,7 @@ public:
     using const_vertex_edge_range = range<const_vertex_edge_iterator>;
 
     topology() = default;
-    virtual ~topology() = default;
+    ~topology() = default;
 
     ONEDAL_FORCEINLINE std::int64_t get_vertex_count() const {
         return _vertex_count;
