@@ -1315,7 +1315,6 @@ public:
     std::array<std::int32_t, 4> labels = { 0, 1, 1, 1 };
 };
 
-
 /*
       O
       |
@@ -1353,6 +1352,53 @@ public:
                                           25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 48 };
     std::array<std::int32_t, 25> labels = { 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 };
+};
+
+template <class T>
+struct LimitedAllocator {
+    typedef T value_type;
+    typedef T *pointer;
+
+    bool is_limited;
+    size_t max_allocation_size;
+
+    LimitedAllocator(bool is_limited = false, size_t max_allocation_size = 0)
+            : is_limited(is_limited),
+              max_allocation_size(max_allocation_size) {}
+
+    template <class U>
+    LimitedAllocator(const LimitedAllocator<U> &other) noexcept {
+        is_limited = other.is_limited;
+        max_allocation_size = other.max_allocation_size;
+    }
+
+    template <class U>
+    bool operator==(const LimitedAllocator<U> &) const noexcept {
+        return true;
+    }
+
+    template <class U>
+    bool operator!=(const LimitedAllocator<U> &) const noexcept {
+        return false;
+    }
+
+    T *allocate(const size_t n) const {
+        if (n == 0 || (is_limited && max_allocation_size < n)) {
+            return nullptr;
+        }
+        if (n > static_cast<size_t>(-1) / sizeof(T)) {
+            throw std::bad_array_new_length();
+        }
+        void *const pv = malloc(n * sizeof(T));
+        if (!pv) {
+            throw std::bad_alloc();
+        }
+        return static_cast<T *>(pv);
+    }
+
+    void deallocate(T *const p, size_t n) const noexcept {
+        free(p);
+    }
 };
 
 class subgraph_isomorphism_test {
@@ -1512,6 +1558,21 @@ public:
                                     std::int64_t max_match_count,
                                     std::int64_t expected_match_count,
                                     bool is_vertex_labeled = false) {
+        check_subgraph_isomorphism<TargetGraphType, PatternGraphType>(semantic_match,
+                                                                      kind,
+                                                                      max_match_count,
+                                                                      expected_match_count,
+                                                                      is_vertex_labeled,
+                                                                      std::allocator<char>());
+    }
+
+    template <typename TargetGraphType, typename PatternGraphType, typename AllocatorType>
+    void check_subgraph_isomorphism(bool semantic_match,
+                                    isomorphism_kind kind,
+                                    std::int64_t max_match_count,
+                                    std::int64_t expected_match_count,
+                                    bool is_vertex_labeled,
+                                    AllocatorType alloc) {
         TargetGraphType target_graph_data;
         PatternGraphType pattern_graph_data;
         const auto target_graph = is_vertex_labeled
@@ -1521,9 +1582,11 @@ public:
                                        ? create_graph_with_vertex_labels<PatternGraphType>()
                                        : create_graph<PatternGraphType>();
 
-        std::allocator<char> alloc;
         const auto subgraph_isomorphism_desc =
-            dal::preview::subgraph_isomorphism::descriptor<>(alloc)
+            dal::preview::subgraph_isomorphism::descriptor<
+                float,
+                dal::preview::subgraph_isomorphism::method::by_default,
+                AllocatorType>(alloc)
                 .set_kind(kind)
                 .set_semantic_match(semantic_match)
                 .set_max_match_count(max_match_count);
@@ -2125,6 +2188,27 @@ TEST_M(subgraph_isomorphism_test,
                                                                   0,
                                                                   0,
                                                                   true);
+}
+
+TEST_M(subgraph_isomorphism_test, "Custom allocator, positive case") {
+    this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
+        false,
+        isomorphism_kind::non_induced,
+        10,
+        4,
+        true,
+        LimitedAllocator<char>());
+}
+
+TEST_M(subgraph_isomorphism_test, "Custom allocator with limit") {
+    REQUIRE_THROWS_AS((this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
+                          false,
+                          isomorphism_kind::non_induced,
+                          10,
+                          4,
+                          true,
+                          LimitedAllocator<char>(true, 10))),
+                      std::bad_alloc);
 }
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test
