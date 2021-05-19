@@ -53,6 +53,23 @@ public:
 
 protected:
     explicit ExecutionContext(ImplType * impl) : _impl(impl) {}
+    explicit ExecutionContext(ImplType * impl, bool needEmptyDeleter)
+    {
+        // This branch is needed to avoid problems with deleting SYCL entities
+        // after SYCL RT static objects are already released.
+        // This is caused by "C++ static initialization order fiasco" problem between
+        // oneDAL static Environment object and internal static contexts of SYCL RT.
+        // Here we solve this temporary with a small memory leak.
+        // TODO: remove this after complete transition to DPC++ kernels.
+        if (needEmptyDeleter)
+        {
+            _impl = SharedPtr<ImplType>(impl, EmptyDeleter());
+        }
+        else
+        {
+            _impl = SharedPtr<ImplType>(impl);
+        }
+    }
 
     const SharedPtr<ImplType> & getImplPtr() const { return _impl; }
 
@@ -110,7 +127,7 @@ public:
      *  are performed on the device associated with the queue
      *  \param[in] deviceQueue SYCL* queue object to the device that is selected to perform computations
      */
-    SyclExecutionContext(const cl::sycl::queue & deviceQueue) : ExecutionContext(createContext(deviceQueue)) {}
+    SyclExecutionContext(const cl::sycl::queue & deviceQueue) : ExecutionContext(createContext(deviceQueue), !deviceQueue.get_device().is_cpu()) {}
 
 private:
     static daal::services::internal::sycl::ExecutionContextIface * createContext(const cl::sycl::queue & queue)
