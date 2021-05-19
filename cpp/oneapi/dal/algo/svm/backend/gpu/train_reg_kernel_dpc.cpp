@@ -31,9 +31,10 @@ struct train_kernel_gpu<Float, Method, task::regression> {
 
 template <typename Float, typename Method>
 struct train_kernel_gpu<Float, Method, task::nu_regression> {
-    train_result<task::regression> operator()(const dal::backend::context_gpu& ctx,
-                                              const detail::descriptor_base<task::regression>& desc,
-                                              const train_input<task::regression>& input) const {
+    train_result<task::nu_regression> operator()(
+        const dal::backend::context_gpu& ctx,
+        const detail::descriptor_base<task::nu_regression>& desc,
+        const train_input<task::nu_regression>& input) const {
         throw unimplemented(
             dal::detail::error_messages::svm_nu_regression_task_is_not_implemented_for_gpu());
     }
