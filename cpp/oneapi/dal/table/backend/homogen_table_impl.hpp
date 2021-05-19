@@ -18,11 +18,13 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
 
 class homogen_table_impl
-        : public detail::table_template<detail::homogen_table_iface, homogen_table_impl> {
+        : public detail::table_template<detail::homogen_table_iface, homogen_table_impl>,
+          public ONEDAL_SERIALIZABLE(homogen_table_id) {
 public:
     homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 
@@ -124,6 +126,14 @@ public:
                             alloc_kind_from_sycl(alloc));
     }
 #endif
+
+    void serialize(detail::output_archive& ar) const override {
+        ar(meta_, data_, row_count_, col_count_, layout_);
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        ar(meta_, data_, row_count_, col_count_, layout_);
+    }
 
 private:
     static table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype) {

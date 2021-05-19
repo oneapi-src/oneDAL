@@ -22,9 +22,41 @@
 #include "oneapi/dal/detail/memory.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
+
+/// Serialize the provided array data to the output archive.
+/// If the data is on device, the function copies it to host.
+///
+/// @param[in] policy        The data parallel or default host policy
+/// @param[in] archive       The output archive
+/// @param[in] data          The pointer to the array data that is written to the
+///                          archive. Can be either pure host or USM pointer.
+/// @param[in] size_in_bytes The size of the array data buffer in bytes.
+/// @param[in] dtype         The type of the values stored in the data buffer
+template <typename Policy>
+void serialize_array(const Policy& policy,
+                     output_archive& archive,
+                     const byte_t* data,
+                     std::int64_t size_in_bytes,
+                     data_type dtype);
+
+/// Deserialize the array data from the input archive.
+/// If data parallel policy is provided, the resulting buffer will be allocated on device.
+///
+/// @param[in] policy         The data parallel or default host policy
+/// @param[in] archive        The input archive
+/// @param[in] expected_dtype The data type that is expected to be read from archive.
+///                           If the expected type does not match the actual data type
+///                           stored in the archive, the function throws an exception.
+///
+/// @return The tuple of shared pointer to the deserialized buffer and its size in bytes.
+template <typename Policy>
+std::tuple<shared<byte_t>, std::int64_t> deserialize_array(const Policy& policy,
+                                                           input_archive& archive,
+                                                           data_type expected_dtype);
 
 template <typename T>
 class array_impl : public base {
@@ -38,9 +70,9 @@ public:
     template <typename Policy, typename Allocator>
     static array_impl<T>* empty(const Policy& policy, std::int64_t count, const Allocator& alloc) {
         auto data = alloc.allocate(count);
-        return new array_impl<T>{ policy, data, count, [alloc, count](T* ptr) {
-                                     alloc.deallocate(ptr, count);
-                                 } };
+        return new array_impl<T>(policy, data, count, [alloc, count](T* ptr) {
+            alloc.deallocate(ptr, count);
+        });
     }
 
     template <typename Policy, typename K, typename Allocator>
@@ -183,9 +215,59 @@ public:
         reset_policy(ref);
     }
 
+    void serialize(output_archive& ar) const {
+        static_assert(is_trivially_serializable_v<T>,
+                      "Serialization for non-trivial types is not implemented");
+
+        using data_t = detail::trivial_serialization_type_t<T>;
+        const byte_t* data_bytes = reinterpret_cast<const byte_t*>(get_data());
+        const data_type dtype = make_data_type<data_t>();
+        const std::int64_t size_in_bytes = check_mul_overflow<std::int64_t>(sizeof(data_t), count_);
+
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            ONEDAL_ASSERT(dp_policy_.has_value());
+            serialize_array(*dp_policy_, ar, data_bytes, size_in_bytes, dtype);
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), {
+            serialize_array(default_host_policy{}, ar, data_bytes, size_in_bytes, dtype);
+        });
+    }
+
+    void deserialize(input_archive& ar) {
+        static_assert(is_trivially_serializable_v<T>,
+                      "Serialization for non-trivial types is not implemented");
+
+        using data_t = detail::trivial_serialization_type_t<T>;
+        const data_type expected_dtype = make_data_type<data_t>();
+
+        detail::shared<byte_t> data_shared;
+        std::int64_t size_in_bytes;
+
+        __ONEDAL_IF_QUEUE__(get_queue(), {
+            ONEDAL_ASSERT(dp_policy_.has_value());
+            std::tie(data_shared, size_in_bytes) =
+                deserialize_array(*dp_policy_, ar, expected_dtype);
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(get_queue(), {
+            std::tie(data_shared, size_in_bytes) =
+                deserialize_array(default_host_policy{}, ar, expected_dtype);
+        });
+
+        // TODO: Use exception
+        ONEDAL_ASSERT(size_in_bytes % sizeof(data_t) == 0);
+
+        data_owned_ = shared{ data_shared, reinterpret_cast<T*>(data_shared.get()) };
+        count_ = size_in_bytes / sizeof(data_t);
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
-    std::optional<data_parallel_policy> get_policy() const {
-        return dp_policy_;
+    std::optional<sycl::queue> get_queue() const {
+        if (dp_policy_) {
+            return dp_policy_->get_queue();
+        }
+        return std::nullopt;
     }
 #endif
 
@@ -221,12 +303,8 @@ private:
             const auto allocator = data_parallel_allocator<T>{ policy, alloc_kind };
             return copy_generic(policy, allocator);
         }
-        else {
-            return copy_generic(default_host_policy{}, host_allocator<T>{});
-        }
-#else
-        return copy_generic(default_host_policy{}, host_allocator<T>{});
 #endif
+        return copy_generic(default_host_policy{}, host_allocator<T>{});
     }
 
     template <typename Policy, typename Allocator>
