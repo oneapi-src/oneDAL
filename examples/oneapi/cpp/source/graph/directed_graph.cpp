@@ -19,7 +19,6 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/directed_adjacency_vector_graph.hpp"
-#include "oneapi/dal/graph/detail/directed_adjacency_vector_graph_builder.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 

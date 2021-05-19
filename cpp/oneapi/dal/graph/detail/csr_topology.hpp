@@ -49,6 +49,36 @@ public:
     topology() = default;
     ~topology() = default;
 
+    inline void set_topology(vertex_size_type vertex_count,
+                             edge_size_type edge_count,
+                             edge_type* offsets,
+                             vertex_type* neighbors,
+                             vertex_type* degrees) {
+        _vertex_count = vertex_count;
+        _edge_count = edge_count;
+        _rows = edge_set::wrap(offsets, vertex_count + 1);
+        _degrees = vertex_set::wrap(degrees, vertex_count);
+        _cols = vertex_set::wrap(neighbors, edge_count);
+        _rows_ptr = _rows.get_data();
+        _cols_ptr = _cols.get_data();
+        _degrees_ptr = _degrees.get_data();
+    }
+
+    inline void set_topology(vertex_size_type vertex_count,
+                             edge_size_type edge_count,
+                             const edge_type* offsets,
+                             const vertex_type* neighbors,
+                             const vertex_type* degrees) {
+        _vertex_count = vertex_count;
+        _edge_count = edge_count;
+        _rows = edge_set::wrap(offsets, vertex_count + 1);
+        _degrees = vertex_set::wrap(degrees, vertex_count);
+        _cols = vertex_set::wrap(neighbors, edge_count);
+        _rows_ptr = _rows.get_data();
+        _cols_ptr = _cols.get_data();
+        _degrees_ptr = _degrees.get_data();
+    }
+
     ONEDAL_FORCEINLINE std::int64_t get_vertex_count() const {
         return _vertex_count;
     }

@@ -139,34 +139,9 @@ public:
         }
     }
 
-    inline void set_topology(vertex_size_type vertex_count,
-                             edge_size_type edge_count,
-                             edge_type* offsets,
-                             vertex_type* neighbors,
-                             vertex_type* degrees) {
-        _topology._vertex_count = vertex_count;
-        _topology._edge_count = edge_count;
-        _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
-        _topology._degrees = vertex_set::wrap(degrees, vertex_count);
-        _topology._cols = vertex_set::wrap(neighbors, edge_count);
-        _topology._rows_ptr = _topology._rows.get_data();
-        _topology._cols_ptr = _topology._cols.get_data();
-        _topology._degrees_ptr = _topology._degrees.get_data();
-    }
-
-    inline void set_topology(vertex_size_type vertex_count,
-                             edge_size_type edge_count,
-                             const edge_type* offsets,
-                             const vertex_type* neighbors,
-                             const vertex_type* degrees) {
-        _topology._vertex_count = vertex_count;
-        _topology._edge_count = edge_count;
-        _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
-        _topology._degrees = vertex_set::wrap(degrees, vertex_count);
-        _topology._cols = vertex_set::wrap(neighbors, edge_count);
-        _topology._rows_ptr = _topology._rows.get_data();
-        _topology._cols_ptr = _topology._cols.get_data();
-        _topology._degrees_ptr = _topology._degrees.get_data();
+    template <typename... Args>
+    inline void set_topology(Args&&... args) {
+        _topology.set_topology(std::forward<Args>(args)...);
     }
 
     inline void set_edge_values(EdgeValue* values, int64_t values_count) {
