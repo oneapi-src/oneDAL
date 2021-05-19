@@ -35,9 +35,6 @@ namespace oneapi::dal::preview::load_graph::detail {
 template <typename EdgeList>
 inline void load_edge_list(const std::string &name, EdgeList &elist);
 
-template <typename Vertex>
-inline void load_edge_list(const std::string &name, edge_list<Vertex> &elist);
-
 template <>
 inline void load_edge_list(const std::string &name, edge_list<std::int32_t> &elist) {
     std::ifstream file(name);
@@ -531,6 +528,7 @@ void convert_to_csr_impl(
                                              unfiltered_neighs_and_vals,
                                              total_sum_degrees);
     oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
+
     graph_impl.set_topology(vertex_count,
                             get_edges_count<Graph>{}(total_sum_degrees),
                             edge_offsets_data,

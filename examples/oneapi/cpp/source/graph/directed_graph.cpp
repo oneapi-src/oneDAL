@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include <iostream>
-#include <vector>
 
 #include "example_util/utils.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"

@@ -97,7 +97,6 @@ public:
     using vertex_outward_edge_range = typename topology_type::vertex_edge_range;
     using const_vertex_outward_edge_range = typename topology_type::const_vertex_edge_range;
     using const_edge_value_range_type = range<const_edge_value_iterator>;
-    ;
 
     directed_adjacency_vector_graph_impl() = default;
 
