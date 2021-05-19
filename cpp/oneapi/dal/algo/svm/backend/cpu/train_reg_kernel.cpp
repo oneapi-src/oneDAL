@@ -44,29 +44,6 @@ using daal_svm_kernel_t =
     daal_svm::training::internal::SVMTrainImpl<to_daal_method<Method>::value, Float, Cpu>;
 
 template <typename Task>
-static void set_specific_parameters(
-    const detail::descriptor_base<Task>& desc,
-    daal_svm::training::internal::KernelParameter& daal_svm_parameter);
-
-template <>
-void set_specific_parameters<task::regression>(
-    const detail::descriptor_base<task::regression>& desc,
-    daal_svm::training::internal::KernelParameter& daal_svm_parameter) {
-    daal_svm_parameter.C = desc.get_c();
-    daal_svm_parameter.epsilon = desc.get_epsilon();
-    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::regression;
-}
-
-template <>
-void set_specific_parameters<task::nu_regression>(
-    const detail::descriptor_base<task::nu_regression>& desc,
-    daal_svm::training::internal::KernelParameter& daal_svm_parameter) {
-    daal_svm_parameter.C = desc.get_c();
-    daal_svm_parameter.nu = desc.get_nu();
-    daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::nu_regression;
-}
-
-template <typename Task>
 static auto create_daal_parameter(const detail::descriptor_base<Task>& desc) {
     const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
     constexpr std::uint64_t megabyte = 1024 * 1024;
@@ -89,7 +66,16 @@ static auto create_daal_parameter(const detail::descriptor_base<Task>& desc) {
     daal_svm_parameter.doShrinking = desc.get_shrinking();
     daal_svm_parameter.cacheSize = cache_byte;
 
-    set_specific_parameters<Task>(desc, daal_svm_parameter);
+    if constexpr (std::is_same_v<Task, task::nu_regression>) {
+        daal_svm_parameter.C = desc.get_c();
+        daal_svm_parameter.nu = desc.get_nu();
+        daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::nu_regression;
+    }
+    else {
+        daal_svm_parameter.C = desc.get_c();
+        daal_svm_parameter.epsilon = desc.get_epsilon();
+        daal_svm_parameter.svmType = daal_svm::training::internal::SvmType::regression;
+    }
 
     return daal_svm_parameter;
 }
