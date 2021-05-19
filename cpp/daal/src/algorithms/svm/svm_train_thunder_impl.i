@@ -192,6 +192,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
 
     DAAL_ITTNOTIFY_SCOPED_TASK(init.set);
     TlsSum<size_t, cpu> weightsCounter(1);
+    TlsSum<algorithmFPType, cpu> weightsSumTls(1);
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
         const size_t startRow     = iBlock * blockSize;
@@ -205,7 +206,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
         DAAL_CHECK_BLOCK_STATUS_THR(mtW);
         const algorithmFPType * const weights = mtW.get();
 
-        size_t * const wc = weights ? weightsCounter.local() : nullptr;
+        size_t * const wc          = weights ? weightsCounter.local() : nullptr;
+        algorithmFPType * const ws = weights ? weightsSumTls.local() : nullptr;
         for (size_t i = 0; i < nRowsInBlock; ++i)
         {
             y[i + startRow]     = yIn[i] == algorithmFPType(0) ? algorithmFPType(-1) : yIn[i];
@@ -215,30 +217,35 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
             if (weights)
             {
                 *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                *ws += weights[i];
             }
         }
     });
 
+    algorithmFPType nuWeightsSum = nu * nVectors;
+
     if (wTable.get())
     {
         weightsCounter.reduceTo(&nNonZeroWeights, 1);
+        weightsSumTls.reduceTo(&nuWeightsSum, 1);
+        nuWeightsSum *= nu;
     }
 
     if (svmType == SvmType::nu_classification)
     {
-        algorithmFPType sumPos = nu * nVectors / algorithmFPType(2);
-        algorithmFPType sumNeg = nu * nVectors / algorithmFPType(2);
+        algorithmFPType sumPos = nuWeightsSum / algorithmFPType(2);
+        algorithmFPType sumNeg = nuWeightsSum / algorithmFPType(2);
 
         for (size_t i = 0; i < nVectors; ++i)
         {
             if (y[i] > 0)
             {
-                alpha[i] = services::internal::min<cpu, algorithmFPType>(sumPos, 1);
+                alpha[i] = services::internal::min<cpu, algorithmFPType>(sumPos, cw[i]);
                 sumPos -= alpha[i];
             }
             else
             {
-                alpha[i] = services::internal::min<cpu, algorithmFPType>(sumNeg, 1);
+                alpha[i] = services::internal::min<cpu, algorithmFPType>(sumNeg, cw[i]);
                 sumNeg -= alpha[i];
             }
         }
@@ -263,6 +270,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
     TlsSum<size_t, cpu> weightsCounter(1);
+    TlsSum<algorithmFPType, cpu> cwSumTls(1);
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
         const size_t startRow     = iBlock * blockSize;
@@ -276,7 +284,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
         DAAL_CHECK_BLOCK_STATUS_THR(mtW);
         const algorithmFPType * const weights = mtW.get();
 
-        size_t * const wc = weights ? weightsCounter.local() : nullptr;
+        size_t * const wc           = weights ? weightsCounter.local() : nullptr;
+        algorithmFPType * const cws = weights ? cwSumTls.local() : nullptr;
         for (size_t i = 0; i < nRowsInBlock; ++i)
         {
             y[i + startRow]            = algorithmFPType(1.0);
@@ -293,21 +302,25 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
             if (weights)
             {
                 *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
+                *cws += cw[i + startRow] + cw[i + startRow + nVectors];
             }
         }
     });
 
+    algorithmFPType cwSum = c * nVectors;
+
     if (wTable.get())
     {
         weightsCounter.reduceTo(&nNonZeroWeights, 1);
+        cwSumTls.reduceTo(&cwSum, 1);
     }
 
     if (svmType == SvmType::nu_regression)
     {
-        algorithmFPType sum = c * nu * nVectors / algorithmFPType(2);
+        algorithmFPType sum = nu * cwSum / algorithmFPType(2);
         for (size_t i = 0; i < nVectors; ++i)
         {
-            alpha[i] = alpha[i + nVectors] = services::internal::min<cpu, algorithmFPType>(sum, c);
+            alpha[i] = alpha[i + nVectors] = services::internal::min<cpu, algorithmFPType>(sum, cw[i]);
             sum -= alpha[i];
         }
     }
