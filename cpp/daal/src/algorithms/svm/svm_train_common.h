@@ -46,7 +46,7 @@ enum SVMVectorStatus
     negative = 0x10
 };
 
-enum class CheckClassLabels
+enum class SignNuType
 {
     none,
     positive,
@@ -57,29 +57,28 @@ template <typename algorithmFPType, CpuType cpu>
 struct HelperTrainSVM
 {
     DAAL_FORCEINLINE static bool isUpper(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C,
-                                         CheckClassLabels checkLabels = CheckClassLabels::none)
+                                         SignNuType signNuType = SignNuType::none)
     {
-        return checkLabel(y, checkLabels) && ((y > 0 && alpha < C) || (y < 0 && alpha > 0));
+        return checkLabel(y, signNuType) && ((y > 0 && alpha < C) || (y < 0 && alpha > 0));
     }
     DAAL_FORCEINLINE static bool isLower(const algorithmFPType y, const algorithmFPType alpha, const algorithmFPType C,
-                                         CheckClassLabels checkLabels = CheckClassLabels::none)
+                                         SignNuType signNuType = SignNuType::none)
     {
-        return checkLabel(y, checkLabels) && ((y > 0 && alpha > 0) || (y < 0 && alpha < C));
+        return checkLabel(y, signNuType) && ((y > 0 && alpha > 0) || (y < 0 && alpha < C));
     }
 
     DAAL_FORCEINLINE static algorithmFPType WSSi(size_t nActiveVectors, const algorithmFPType * grad, const char * I, int & Bi,
-                                                 CheckClassLabels checkLabels = CheckClassLabels::none);
+                                                 SignNuType signNuType = SignNuType::none);
 
     DAAL_FORCEINLINE static void WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
                                            const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                            const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
                                            algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
-                                           CheckClassLabels checkLabels = CheckClassLabels::none);
+                                           SignNuType signNuType = SignNuType::none);
 
-    DAAL_FORCEINLINE static bool checkLabel(const algorithmFPType y, CheckClassLabels checkLabels = CheckClassLabels::none)
+    DAAL_FORCEINLINE static bool checkLabel(const algorithmFPType y, SignNuType signNuType = SignNuType::none)
     {
-        return (checkLabels == CheckClassLabels::none) || (checkLabels == CheckClassLabels::positive) && (y > 0)
-               || (checkLabels == CheckClassLabels::negative) && (y < 0);
+        return (signNuType == SignNuType::none) || (signNuType == SignNuType::positive) && (y > 0) || (signNuType == SignNuType::negative) && (y < 0);
     }
 
 private:
@@ -87,16 +86,16 @@ private:
                                                    const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                                    const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
                                                    algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
-                                                   CheckClassLabels checkLabels = CheckClassLabels::none);
+                                                   SignNuType signNuType = SignNuType::none);
 
-    DAAL_FORCEINLINE static char getSign(CheckClassLabels checkLabels)
+    DAAL_FORCEINLINE static char getSign(SignNuType signNuType)
     {
         char sign = positive | negative;
-        if (checkLabels == CheckClassLabels::positive)
+        if (signNuType == SignNuType::positive)
         {
             sign = positive;
         }
-        else if (checkLabels == CheckClassLabels::negative)
+        else if (signNuType == SignNuType::negative)
         {
             sign = negative;
         }

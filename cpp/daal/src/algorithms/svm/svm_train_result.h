@@ -288,7 +288,7 @@ protected:
      * \param[in]  C        Upper bound in constraints of the quadratic optimization problem
      * \return Bias for the SVM model
      */
-    algorithmFPType calculateBiasImpl(const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none) const
+    algorithmFPType calculateBiasImpl(const algorithmFPType * cw, SignNuType signNuType = SignNuType::none) const
     {
         algorithmFPType bias    = algorithmFPType(0.0);
         size_t nGrad            = 0;
@@ -307,16 +307,16 @@ protected:
             const algorithmFPType ai    = _alpha[i];
 
             /* free SV: (0 < alpha < C)*/
-            if (HelperTrainSVM<algorithmFPType, cpu>::checkLabel(yi, checkLabels) && 0 < ai && ai < cwi)
+            if (HelperTrainSVM<algorithmFPType, cpu>::checkLabel(yi, signNuType) && 0 < ai && ai < cwi)
             {
                 sumGrad += gradi;
                 ++nGrad;
             }
-            if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, ai, cwi, checkLabels))
+            if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, ai, cwi, signNuType))
             {
                 ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
             }
-            if (HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, ai, cwi, checkLabels))
+            if (HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, ai, cwi, signNuType))
             {
                 lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
             }
@@ -328,7 +328,7 @@ protected:
         }
         else
         {
-            double factor = (checkLabels == CheckClassLabels::positive) ? 1.0 : -1.0;
+            double factor = (signNuType == SignNuType::positive) ? 1.0 : -1.0;
             bias          = factor * sumGrad / algorithmFPType(nGrad);
         }
 
@@ -345,13 +345,13 @@ protected:
         }
         else if (_task == SvmType::nu_classification || _task == SvmType::nu_regression)
         {
-            const algorithmFPType bias_p = calculateBiasImpl(cw, CheckClassLabels::positive);
-            const algorithmFPType bias_n = calculateBiasImpl(cw, CheckClassLabels::negative);
-            bias                         = (bias_n - bias_p) / algorithmFPType(2);
+            const algorithmFPType biasPos = calculateBiasImpl(cw, SignNuType::positive);
+            const algorithmFPType biasNeg = calculateBiasImpl(cw, SignNuType::negative);
+            bias                          = (biasNeg - biasPos) / algorithmFPType(2);
 
             if (_task == SvmType::nu_classification)
             {
-                const algorithmFPType r = (bias_p + bias_n) / algorithmFPType(2);
+                const algorithmFPType r = (biasPos + biasNeg) / algorithmFPType(2);
 
                 for (size_t i = 0; i < _nVectors; ++i)
                 {

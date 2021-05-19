@@ -50,13 +50,13 @@ struct SVMTrainImpl<thunder, algorithmFPType, cpu> : public Kernel
                              data_management::NumericTable & yTable, daal::algorithms::Model * r, const KernelParameter & par);
 
 private:
-    services::Status classificationInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, algorithmFPType * y,
-                                        algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw, size_t & nNonZeroWeights,
-                                        const algorithmFPType nu, const SvmType svmType);
+    services::Status classificationInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType nu,
+                                        algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw,
+                                        size_t & nNonZeroWeights, const SvmType svmType);
 
-    services::Status regressionInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType epsilon,
-                                    algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw,
-                                    size_t & nNonZeroWeights, const algorithmFPType nu, const SvmType svmType);
+    services::Status regressionInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType nu,
+                                    const algorithmFPType epsilon, algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha,
+                                    algorithmFPType * cw, size_t & nNonZeroWeights, const SvmType svmType);
 
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS,
                                     const size_t nVectors, const size_t nWS, const algorithmFPType * cw, const double eps, const double tau,

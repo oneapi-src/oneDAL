@@ -121,19 +121,19 @@ struct TaskWorkingSet
 
         if (_svmType == SvmType::nu_classification || _svmType == SvmType::nu_regression)
         {
-            int64_t pLeft_p  = 0;
-            int64_t pLeft_n  = 0;
-            int64_t pRight_p = _nVectors - 1;
-            int64_t pRight_n = _nVectors - 1;
-            while (_nSelected < _nWS && (pRight_p >= 0 || pRight_n >= 0 || pLeft_p < _nVectors || pLeft_n < _nVectors))
+            int64_t pLeftPos  = 0;
+            int64_t pLeftNeg  = 0;
+            int64_t pRightPos = _nVectors - 1;
+            int64_t pRightNeg = _nVectors - 1;
+            while (_nSelected < _nWS && (pRightPos >= 0 || pRightNeg >= 0 || pLeftPos < _nVectors || pLeftNeg < _nVectors))
             {
-                moveRight(pLeft_p, sortedFIndices, y, alpha, cw, CheckClassLabels::positive);
+                moveRight(pLeftPos, sortedFIndices, y, alpha, cw, SignNuType::positive);
                 if (_nSelected == _nWS) break;
-                moveRight(pLeft_n, sortedFIndices, y, alpha, cw, CheckClassLabels::negative);
+                moveRight(pLeftNeg, sortedFIndices, y, alpha, cw, SignNuType::negative);
                 if (_nSelected == _nWS) break;
-                moveLeft(pRight_p, sortedFIndices, y, alpha, cw, CheckClassLabels::positive);
+                moveLeft(pRightPos, sortedFIndices, y, alpha, cw, SignNuType::positive);
                 if (_nSelected == _nWS) break;
-                moveLeft(pRight_n, sortedFIndices, y, alpha, cw, CheckClassLabels::negative);
+                moveLeft(pRightNeg, sortedFIndices, y, alpha, cw, SignNuType::negative);
             }
         }
         else
@@ -185,12 +185,12 @@ protected:
     }
 
     void moveRight(int64_t & pLeft, const IdxValType * sortedFIndices, const algorithmFPType * y, const algorithmFPType * alpha,
-                   const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none)
+                   const algorithmFPType * cw, SignNuType signNuType = SignNuType::none)
     {
         if (pLeft < _nVectors)
         {
             IndexType i = sortedFIndices[pLeft].val;
-            while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i], checkLabels))
+            while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i], signNuType))
             {
                 pLeft++;
                 if (pLeft == _nVectors)
@@ -209,12 +209,12 @@ protected:
     }
 
     void moveLeft(int64_t & pRight, const IdxValType * sortedFIndices, const algorithmFPType * y, const algorithmFPType * alpha,
-                  const algorithmFPType * cw, CheckClassLabels checkLabels = CheckClassLabels::none)
+                  const algorithmFPType * cw, SignNuType signNuType = SignNuType::none)
     {
         if (pRight >= 0)
         {
             IndexType i = sortedFIndices[pRight].val;
-            while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i], checkLabels))
+            while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i], signNuType))
             {
                 pRight--;
                 if (pRight == -1)

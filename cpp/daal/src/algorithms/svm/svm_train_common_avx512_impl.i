@@ -34,11 +34,11 @@ namespace internal
 template <>
 void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd, const float * KiBlock, const float * kernelDiag,
                                               const float * grad, const char * I, const float GMin, const float Kii, const float tau, int & Bj,
-                                              float & GMax, float & GMax2, float & delta, CheckClassLabels checkLabels)
+                                              float & GMax, float & GMax2, float & delta, SignNuType signNuType)
 {
-    if (checkLabels != CheckClassLabels::none)
+    if (signNuType != SignNuType::none)
     {
-        WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, checkLabels);
+        WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
     }
 
     float fpMax      = MaxVal<float>::get();
@@ -165,7 +165,7 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
         int Bj_local = -1;
         float GMax_local, GMax2_local, delta_local;
         WSSjLocalBaseline(j_cur, jEnd, (KiBlock + j_cur - jStart), kernelDiag, grad, I, GMin, Kii, tau, Bj_local, GMax_local, GMax2_local,
-                          delta_local, checkLabels);
+                          delta_local, signNuType);
         if (GMax_local > GMax)
         {
             GMax  = GMax_local;
@@ -182,11 +182,11 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
 template <>
 void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t jEnd, const double * KiBlock, const double * kernelDiag,
                                                const double * grad, const char * I, const double GMin, const double Kii, const double tau, int & Bj,
-                                               double & GMax, double & GMax2, double & delta, CheckClassLabels checkLabels)
+                                               double & GMax, double & GMax2, double & delta, SignNuType signNuType)
 {
-    if (checkLabels != CheckClassLabels::none)
+    if (signNuType != SignNuType::none)
     {
-        WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, checkLabels);
+        WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
     }
 
     double fpMax      = MaxVal<double>::get();
@@ -324,7 +324,7 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
         int Bj_local = -1;
         double GMax_local, GMax2_local, delta_local;
         WSSjLocalBaseline(j_cur, jEnd, (KiBlock + j_cur - jStart), kernelDiag, grad, I, GMin, Kii, tau, Bj_local, GMax_local, GMax2_local,
-                          delta_local, checkLabels);
+                          delta_local, signNuType);
         if (GMax_local > GMax)
         {
             GMax  = GMax_local;

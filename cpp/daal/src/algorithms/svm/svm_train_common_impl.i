@@ -65,13 +65,13 @@ namespace internal
  */
 template <typename algorithmFPType, CpuType cpu>
 algorithmFPType HelperTrainSVM<algorithmFPType, cpu>::WSSi(size_t nActiveVectors, const algorithmFPType * grad, const char * I, int & Bi,
-                                                           CheckClassLabels checkLabels)
+                                                           SignNuType signNuType)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSi);
 
     Bi                   = -1;
     algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
-    char sign            = getSign(checkLabels);
+    char sign            = getSign(signNuType);
 
     /* Find i index of the working set (Bi) */
     for (size_t i = 0; i < nActiveVectors; ++i)
@@ -91,7 +91,7 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart
                                                              const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                                              const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau,
                                                              int & Bj, algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
-                                                             CheckClassLabels checkLabels)
+                                                             SignNuType signNuType)
 {
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
     GMax                  = -fpMax; // some big negative number
@@ -100,7 +100,7 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart
     const algorithmFPType zero(0.0);
     const algorithmFPType two(2.0);
 
-    char sign = getSign(checkLabels);
+    char sign = getSign(signNuType);
 
     for (size_t j = jStart; j < jEnd; j++)
     {
@@ -143,10 +143,9 @@ template <typename algorithmFPType, CpuType cpu>
 void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
                                                      const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                                      const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
-                                                     algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
-                                                     CheckClassLabels checkLabels)
+                                                     algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta, SignNuType signNuType)
 {
-    WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, checkLabels);
+    WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
 }
 
 template <CpuType cpu, typename TKey>
