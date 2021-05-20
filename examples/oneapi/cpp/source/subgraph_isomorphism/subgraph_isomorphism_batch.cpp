@@ -28,6 +28,7 @@
 #include "oneapi/dal/table/common.hpp"
 
 namespace dal = oneapi::dal;
+
 inline dal::preview::edge_list<std::int32_t> load_vertex_labels_and_edge_list(
     const std::string &name,
     std::set<std::string> &labels_set,
