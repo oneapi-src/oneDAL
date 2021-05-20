@@ -453,4 +453,9 @@ std::uint64_t dfs_stack::size(const std::uint64_t level) const {
 std::uint64_t dfs_stack::max_level_width(const std::uint64_t level) const {
     return data_by_levels[level].max_size();
 }
+
+bool dfs_stack::empty() const {
+    return (current_level == 0) && ((max_level_size == 0) || (data_by_levels[0].size() == 0));
+}
+
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
