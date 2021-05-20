@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
 
     // extract the result
     std::cout << "Number of matchings: " << result.get_match_count() << std::endl;
-    std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
+    // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
     // print_table_int_sorted(result.get_vertex_match());
 
     return 0;
