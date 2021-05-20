@@ -1,7 +1,23 @@
+/*******************************************************************************
+* Copyright 2020-2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 namespace dal = oneapi::dal;
 
@@ -437,9 +453,4 @@ std::uint64_t dfs_stack::size(const std::uint64_t level) const {
 std::uint64_t dfs_stack::max_level_width(const std::uint64_t level) const {
     return data_by_levels[level].max_size();
 }
-
-bool dfs_stack::empty() const {
-    return (current_level == 0) && ((max_level_size == 0) || (data_by_levels[0].size() == 0));
-}
-
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

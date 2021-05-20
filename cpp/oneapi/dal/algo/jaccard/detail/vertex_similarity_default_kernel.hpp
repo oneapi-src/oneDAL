@@ -64,7 +64,7 @@ struct vertex_similarity_kernel_cpu<float, method::fast, task::all_vertex_pairs,
         const std::int64_t number_elements_in_block =
             compute_number_elements_in_block(row_begin, row_end, column_begin, column_end);
         if (number_elements_in_block == 0) {
-            return vertex_similarity_result();
+            return vertex_similarity_result<task::all_vertex_pairs>();
         }
         const std::int64_t max_block_size = compute_max_block_size<
             typename detail::descriptor_base<task::all_vertex_pairs>::float_t,

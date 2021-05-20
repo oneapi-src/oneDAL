@@ -1,9 +1,25 @@
+/*******************************************************************************
+* Copyright 2020-2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/common.hpp"
 
 namespace dal = oneapi::dal;
-namespace oneapi::dal::preview::subgraph_isomorphism::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 state::state(inner_alloc a) : allocator_(a) {
     core = nullptr;
@@ -239,4 +255,4 @@ oneapi::dal::homogen_table solution::export_as_table() {
         .reset(arr_solution, solution_count, solution_core_length)
         .build();
 }
-} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

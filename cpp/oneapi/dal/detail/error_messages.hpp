@@ -154,6 +154,7 @@ public:
     MSG(unsupported_kind);
     MSG(max_match_count_lt_zero);
     MSG(unsupported_semantic_match);
+    MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
