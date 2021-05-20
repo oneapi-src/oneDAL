@@ -40,9 +40,10 @@ public:
 
     bool not_available_on_device() {
         constexpr bool is_smo = std::is_same_v<Method, svm::method::smo>;
+        constexpr bool is_reg = std::is_same_v<Task, svm::task::regression>;
         constexpr bool is_nu =
             dal::detail::is_one_of_v<Task, svm::task::nu_classification, svm::task::nu_regression>;
-        return get_policy().is_gpu() && (is_smo || is_nu);
+        return get_policy().is_gpu() && (is_smo || is_reg || is_nu);
     }
 
     auto get_descriptor() const {
