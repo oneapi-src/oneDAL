@@ -17,32 +17,22 @@
 #pragma once
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/table/detail/sparse_block.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-enum class csr_indexing { zero_based, one_based };
-
-template <typename T>
-struct sparse_block {
-    array<T> data;
-    array<std::int64_t> column_indices;
-    array<std::int64_t> row_indices;
-    csr_indexing indexing;
-
-    sparse_block() : data(), column_indices(), row_indices(), indexing(csr_indexing::one_based) {}
-};
-
 #define PULL_SPARSE_BLOCK_SIGNATURE_HOST(T)                   \
     void pull_sparse_block(const default_host_policy& policy, \
                            sparse_block<T>& block,            \
+                           const csr_indexing& indexing,      \
                            const range& row_range)
 
 #define DECLARE_PULL_SPARSE_BLOCK_HOST(T) virtual PULL_SPARSE_BLOCK_SIGNATURE_HOST(T) = 0;
 
-#define DEFINE_TEMPLATE_PULL_SPARSE_BLOCK_HOST(Derived, T)                        \
-    PULL_SPARSE_BLOCK_SIGNATURE_HOST(T) override {                                \
-        static_cast<Derived*>(this)->pull_sparse_block(policy, block, row_range); \
+#define DEFINE_TEMPLATE_PULL_SPARSE_BLOCK_HOST(Derived, T)                                  \
+    PULL_SPARSE_BLOCK_SIGNATURE_HOST(T) override {                                          \
+        static_cast<Derived*>(this)->pull_sparse_block(policy, block, indexing, row_range); \
     }
 
 class pull_sparse_block_iface {
@@ -74,8 +64,6 @@ inline std::shared_ptr<pull_sparse_block_iface> get_pull_sparse_block_iface(Obje
 
 } // namespace v1
 
-using v1::sparse_block;
-using v1::csr_indexing;
 using v1::pull_sparse_block_iface;
 using v1::pull_sparse_block_template;
 using v1::get_pull_sparse_block_iface;

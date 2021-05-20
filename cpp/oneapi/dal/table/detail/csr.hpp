@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/array_utils.hpp"
-#include "oneapi/dal/table/detail/sparse_access_iface.hpp"
+#include "oneapi/dal/table/detail/sparse_block.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -106,16 +106,39 @@ public:
 private:
     explicit csr_table(detail::csr_table_iface* impl) : table(impl) {}
 
-    bool correct_indices(const std::int64_t size,
-                         const std::int64_t* indices,
-                         const csr_indexing indexing) const {
+    void check_indices(const std::int64_t row_count,
+                       const std::int64_t column_count,
+                       const std::int64_t* row_indices,
+                       const std::int64_t* column_indices,
+                       const csr_indexing indexing) const {
+        using error_msg = dal::detail::error_messages;
         const std::int64_t min_value = (indexing == csr_indexing::zero_based) ? 0 : 1;
-        for (std::int64_t i = 0; i < size; i++) {
-            if (indices[i] < min_value) {
-                return false;
+        const std::int64_t max_value =
+            (indexing == csr_indexing::zero_based) ? column_count - 1 : column_count;
+        const std::int64_t element_count = row_indices[row_count] - row_indices[0];
+        const std::int64_t last_value = row_indices[row_count];
+
+        if (element_count < 0) {
+            throw dal::domain_error(error_msg::row_indices_less_min_value());
+        }
+
+        for (std::int64_t i = 0; i <= row_count; i++) {
+            if (row_indices[i] < min_value) {
+                throw dal::domain_error(error_msg::row_indices_less_min_value());
+            }
+            if (row_indices[i] > last_value) {
+                throw dal::domain_error(error_msg::row_indices_larger_max_value());
             }
         }
-        return true;
+
+        for (std::int64_t i = 0; i < element_count; i++) {
+            if (column_indices[i] < min_value) {
+                throw dal::domain_error(error_msg::column_indices_less_min_value());
+            }
+            if (column_indices[i] > max_value) {
+                throw dal::domain_error(error_msg::column_indices_larger_max_value());
+            }
+        }
     }
 
     template <typename Policy,
@@ -143,10 +166,11 @@ private:
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
-        if (!correct_indices(column_count, column_indices, indexing) ||
-            !correct_indices(row_count, row_indices, indexing)) {
-            throw dal::domain_error(error_msg::invalid_indices());
+        if (indexing != csr_indexing::one_based) {
+            throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
+
+        check_indices(row_count, column_count, row_indices, column_indices, indexing);
 
         array<Data> data_array{ data,
                                 row_indices[row_count] - row_indices[0],

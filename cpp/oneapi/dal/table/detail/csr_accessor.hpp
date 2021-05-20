@@ -33,17 +33,18 @@ public:
     /// Creates a read-only accessor object from the csr table. Available only for
     /// const-qualified :literal:`T`.
     template <typename U = T, std::enable_if_t<std::is_const_v<U>, int> = 0>
-    explicit csr_accessor(const table& table)
+    explicit csr_accessor(const csr_table& table)
             : pull_iface_(detail::get_pull_sparse_block_iface(table)) {
         if (!pull_iface_) {
             using msg = detail::error_messages;
-            throw invalid_argument{ msg::object_does_not_provide_read_access_to_rows() };
+            throw invalid_argument{ msg::object_does_not_provide_read_access_to_csr() };
         }
     }
 
-    sparse_block<data_t> pull(const range& row_range = { 0, -1 }) const {
+    sparse_block<data_t> pull(const range& row_range = { 0, -1 },
+                              const csr_indexing indexing = csr_indexing::one_based) const {
         sparse_block<data_t> block;
-        pull_iface_->pull_sparse_block(detail::default_host_policy{}, block, row_range);
+        pull_iface_->pull_sparse_block(detail::default_host_policy{}, block, indexing, row_range);
         return block;
     }
 

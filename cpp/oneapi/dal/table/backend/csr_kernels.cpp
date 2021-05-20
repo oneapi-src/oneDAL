@@ -34,7 +34,7 @@ template <typename Policy, typename BlockData>
 void pull_data_impl(const Policy& policy,
                     const csr_info& origin_info,
                     const array<byte_t>& origin_data,
-                    const bool same_type,
+                    const bool same_data_type,
                     const std::int64_t origin_offset,
                     const std::int64_t block_size,
                     detail::sparse_block<BlockData>& block,
@@ -45,7 +45,7 @@ void pull_data_impl(const Policy& policy,
 
     const auto origin_dtype_size = detail::get_data_type_size(origin_info.dtype_);
 
-    if (same_type && !alloc_kind_requires_copy(get_alloc_kind(origin_data), kind)) {
+    if (same_data_type && !alloc_kind_requires_copy(get_alloc_kind(origin_data), kind)) {
         refer_origin_data(origin_data,
                           origin_offset * block_dtype_size,
                           block_size,
@@ -79,13 +79,26 @@ void pull_column_indices_impl(const Policy& policy,
                               alloc_kind kind,
                               bool preserve_mutability) {
     if (!alloc_kind_requires_copy(get_alloc_kind(origin_column_indices), kind)) {
-        reset_array(policy, block.column_indices, block_size, kind);
+        refer_origin_data(origin_column_indices,
+                          origin_offset,
+                          block_size,
+                          block.column_indices,
+                          preserve_mutability);
     }
-    refer_origin_data(origin_column_indices,
-                      origin_offset,
-                      block_size,
-                      block.column_indices,
-                      preserve_mutability);
+    else {
+        reset_array(policy, block.column_indices, block_size, kind);
+
+        const auto dtype_size = sizeof(std::int64_t);
+        auto src_data = origin_column_indices.get_data() + origin_offset * dtype_size;
+        auto dst_data = block.column_indices.get_mutable_data();
+
+        backend::convert_vector(policy,
+                                src_data + origin_offset * dtype_size,
+                                dst_data,
+                                data_type::int64,
+                                data_type::int64,
+                                block_size);
+    }
 }
 
 template <typename Policy, typename BlockData>
@@ -115,7 +128,6 @@ void pull_row_indices_impl(const Policy& policy,
             dst_row_indices[i] = src_row_indices[block_info.row_offset_ + i] -
                                  src_row_indices[block_info.row_offset_] + 1;
         }
-        block.row_indices.reset(origin_row_indices, dst_row_indices, block_info.row_count_ + 1);
     }
 }
 
@@ -146,12 +158,12 @@ void pull_sparse_block_impl(const Policy& policy,
         origin_row_indices[block_info.row_offset_];
     ONEDAL_ASSERT(block_size >= 0);
 
-    const bool same_type(block_dtype == origin_info.dtype_);
+    const bool same_data_type(block_dtype == origin_info.dtype_);
 
     pull_data_impl<Policy, BlockData>(policy,
                                       origin_info,
                                       origin_data,
-                                      same_type,
+                                      same_data_type,
                                       origin_offset,
                                       block_size,
                                       block,

@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/csr_kernels.hpp"
 #include "oneapi/dal/table/detail/sparse_access_iface.hpp"
 
@@ -37,8 +38,7 @@ public:
                    const array<std::int64_t>& row_indices,
                    data_type dtype,
                    detail::csr_indexing indexing)
-            : meta_(create_csr_metadata(column_count, dtype)),
-              //meta_(create_csr_metadata(1, dtype)),
+            : meta_(create_metadata(column_count, dtype)),
               data_(data),
               column_indices_(column_indices),
               row_indices_(row_indices),
@@ -56,15 +56,16 @@ public:
             throw dal::domain_error(error_msg::cc_leq_zero());
         }
 
+        if (indexing != detail::csr_indexing::one_based) {
+            throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
+        }
+
         const int64_t element_count = row_indices_[row_count] - 1;
         const int64_t dtype_size = detail::get_data_type_size(dtype);
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {
             throw dal::domain_error(error_msg::invalid_data_block_size());
-        }
-        if (layout_ != data_layout::row_major) {
-            throw dal::domain_error(error_msg::unsupported_data_layout());
         }
     }
 
@@ -104,7 +105,7 @@ public:
     void pull_rows(const detail::default_host_policy& policy,
                    array<T>& block,
                    const range& rows) const {
-        static_assert("row_accessor doesn't supported for csr table");
+        throw dal::domain_error(detail::error_messages::row_accessor_is_not_supported());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -113,7 +114,7 @@ public:
                    array<T>& block,
                    const range& rows,
                    sycl::usm::alloc alloc) const {
-        static_assert("row_accessor doesn't supported for csr table");
+        throw dal::domain_error(detail::error_messages::row_accessor_is_not_supported());
     }
 #endif
 
@@ -122,7 +123,7 @@ public:
                      array<T>& block,
                      std::int64_t column_index,
                      const range& rows) const {
-        static_assert("column_accessor doesn't supported for csr table");
+        throw dal::domain_error(detail::error_messages::column_accessor_is_not_supported());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -132,13 +133,14 @@ public:
                      std::int64_t column_index,
                      const range& rows,
                      sycl::usm::alloc alloc) const {
-        static_assert("column_accessor doesn't supported for csr table");
+        throw dal::domain_error(detail::error_messages::column_accessor_is_not_supported());
     }
 #endif
 
     template <typename T>
     void pull_sparse_block(const detail::default_host_policy& policy,
                            detail::sparse_block<T>& block,
+                           const detail::csr_indexing& indexing,
                            const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
                               layout_,
@@ -150,9 +152,11 @@ public:
         // Overflow is checked here
         check_block_row_range(rows);
 
-        block_info block_info{ rows.start_idx,
-                               rows.get_element_count(row_count_),
-                               detail::csr_indexing::one_based };
+        if (indexing != detail::csr_indexing::one_based) {
+            throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
+        }
+
+        block_info block_info{ rows.start_idx, rows.get_element_count(row_count_), indexing };
 
         csr_pull_sparse_block(policy,
                               origin_info,
@@ -165,15 +169,6 @@ public:
     }
 
 private:
-    static table_metadata create_csr_metadata(std::int64_t feature_count, data_type dtype) {
-        auto default_ftype =
-            detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal;
-
-        auto dtypes = array<data_type>::full(feature_count, dtype);
-        auto ftypes = array<feature_type>::full(feature_count, default_ftype);
-        return table_metadata{ dtypes, ftypes };
-    }
-
     void check_block_row_range(const range& rows) const {
         const std::int64_t range_row_count = rows.get_element_count(row_count_);
         detail::check_sum_overflow(rows.start_idx, range_row_count);

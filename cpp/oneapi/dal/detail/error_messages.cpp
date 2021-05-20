@@ -83,7 +83,14 @@ MSG(object_does_not_provide_read_access_to_columns,
 MSG(object_does_not_provide_write_access_to_columns,
     "Given object does not provide write access to columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
-MSG(invalid_indices, "Invalid indices")
+MSG(row_indices_less_min_value, "Row indices are less than minimum acceptable value")
+MSG(row_indices_larger_max_value, "Row indices are larger than maximum acceptable value")
+MSG(column_indices_less_min_value, "Column indices are less than minimum acceptable value")
+MSG(column_indices_larger_max_value, "Column indices are larger than maximum acceptable value")
+MSG(row_accessor_is_not_supported, "Row accessor is not supported for csr table")
+MSG(column_accessor_is_not_supported, "Column accessor is not supported for csr table")
+MSG(zero_based_indexing_is_not_supported, "Zero based indexing is not supported for csr table")
+MSG(object_does_not_provide_read_access_to_csr, "Given object does not provide read access to csr")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")

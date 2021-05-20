@@ -131,4 +131,13 @@ ONEDAL_FORCEINLINE void refer_origin_data(const array<DataSrc>& src,
     }
 }
 
+inline table_metadata create_metadata(std::int64_t feature_count, data_type dtype) {
+    auto default_ftype =
+        detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal;
+
+    auto dtypes = array<data_type>::full(feature_count, dtype);
+    auto ftypes = array<feature_type>::full(feature_count, default_ftype);
+    return table_metadata{ dtypes, ftypes };
+}
+
 } // namespace oneapi::dal::backend

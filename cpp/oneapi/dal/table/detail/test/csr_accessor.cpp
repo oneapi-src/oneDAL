@@ -38,7 +38,7 @@ TEST("can read csr table via csr accessor") {
                          empty_delete<const double>(),
                          empty_delete<const std::int64_t>(),
                          empty_delete<const std::int64_t>() };
-    const auto [data_array, cidx_array, ridx_array, indexing] =
+    const auto [data_array, cidx_array, ridx_array] =
         detail::csr_accessor<const double>(t).pull({ 0, -1 });
 
     REQUIRE(data == data_array.get_data());
