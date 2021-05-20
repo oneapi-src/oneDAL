@@ -19,6 +19,12 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn {
+
+namespace optional_results {
+const optional_result_id indices{ 0 };
+const optional_result_id distances{ 1 };
+} // namespace optional_results
+
 namespace detail {
 namespace v1 {
 
@@ -27,6 +33,7 @@ class descriptor_impl : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
+    optional_result_id optional_results;
 };
 
 template <typename Task>
@@ -56,6 +63,16 @@ void descriptor_base<Task>::set_neighbor_count_impl(std::int64_t value) {
         throw domain_error(dal::detail::error_messages::neighbor_count_lt_one());
     }
     impl_->neighbor_count = value;
+}
+
+template <typename Task>
+optional_result_id descriptor_base<Task>::get_optional_results() const {
+    return impl_->optional_results;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_optional_results_impl(const optional_result_id& value) {
+    impl_->optional_results = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;

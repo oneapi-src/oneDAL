@@ -45,7 +45,9 @@ public:
     auto get_descriptor(std::int64_t override_class_count,
                         std::int64_t override_neighbor_count) const {
         return knn::descriptor<Float, Method, knn::task::classification>(override_class_count,
-                                                                         override_neighbor_count);
+                                                                         override_neighbor_count)
+            .set_optional_results(knn::optional_results::indices |
+                                  knn::optional_results::distances);
     }
 
     static constexpr bool is_kd_tree = std::is_same_v<Method, knn::method::kd_tree>;
