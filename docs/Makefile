@@ -42,5 +42,8 @@ parse-doxygen: doxygen
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: create_rst_examples Makefile
-	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+html: create_rst_examples Makefile
+	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -t use_intelname -b $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+html-github: create_rst_examples Makefile
+	@$(SPHINXBUILD) -W --keep-going -w docbuild-log.txt -n -b html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
