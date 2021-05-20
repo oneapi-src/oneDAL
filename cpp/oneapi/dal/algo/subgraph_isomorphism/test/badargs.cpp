@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -158,19 +158,19 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("Positive check") {
             100));
 }
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty target graph") {
-    REQUIRE_NOTHROW(this->check_subgraph_isomorphism<empty_graph_type, double_triangle_target_type>(
-        false,
-        isomorphism_kind::induced,
-        100));
-}
+// SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty target graph") {
+//     REQUIRE_NOTHROW(this->check_subgraph_isomorphism<empty_graph_type, double_triangle_target_type>(
+//         false,
+//         isomorphism_kind::induced,
+//         100));
+// }
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty pattern graph") {
-    REQUIRE_NOTHROW(this->check_subgraph_isomorphism<double_triangle_target_type, empty_graph_type>(
-        false,
-        isomorphism_kind::induced,
-        100));
-}
+// SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty pattern graph") {
+//     REQUIRE_NOTHROW(this->check_subgraph_isomorphism<double_triangle_target_type, empty_graph_type>(
+//         false,
+//         isomorphism_kind::induced,
+//         100));
+// }
 
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is negative") {
     REQUIRE_THROWS_AS(

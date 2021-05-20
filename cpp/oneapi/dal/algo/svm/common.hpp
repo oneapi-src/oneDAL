@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/algo/svm/detail/kernel_function.hpp"
 
 namespace oneapi::dal::svm {
@@ -325,6 +325,7 @@ template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
+    friend dal::detail::serialization_accessor;
 
 public:
     using task_t = Task;
@@ -406,6 +407,9 @@ protected:
     void set_second_class_label_impl(std::int64_t);
 
 private:
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
+
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };

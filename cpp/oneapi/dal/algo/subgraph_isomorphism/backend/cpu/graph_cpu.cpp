@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 

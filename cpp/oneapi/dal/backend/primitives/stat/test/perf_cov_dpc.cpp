@@ -23,36 +23,38 @@
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
+namespace la = te::linalg;
 
-TEST("400K x 1K", "[cor][perf]") {
+TEST("100K x 4K", "[cor][perf]") {
     DECLARE_TEST_POLICY(policy);
     SKIP_IF(policy.is_cpu());
 
-    auto& queue = policy.get_queue();
-    const auto alloc = sycl::usm::alloc::shared;
+    auto& q = policy.get_queue();
+    const std::int64_t row_count = 100000;
+    const std::int64_t column_count = 4000;
+    const auto alloc = sycl::usm::alloc::device;
 
     // 4 x 400K x 1K ~ 1.526Gb
-    const auto df = GENERATE_DATAFRAME(te::dataframe_builder{ 400000, 1000 }.fill_uniform(-1, 1));
+    const auto data_mat =
+        la::generate_uniform_matrix<float_t>({ row_count, column_count }, -2.0, 5.0, 7777);
+    const auto data =
+        ndarray<float_t, 2>::wrap(data_mat.to_device(q).get_array(), { row_count, column_count });
 
-    const auto column_count = df.get_column_count();
-    auto corr = ndarray<float_t, 2>::empty(queue, { column_count, column_count }, alloc);
-    auto means = ndarray<float_t, 1>::empty(queue, { column_count }, alloc);
-    auto vars = ndarray<float_t, 1>::empty(queue, { column_count }, alloc);
-    auto tmp = ndarray<float_t, 1>::empty(queue, { column_count }, alloc);
+    auto corr = ndarray<float_t, 2>::empty(q, { column_count, column_count }, alloc);
+    auto means = ndarray<float_t, 1>::empty(q, { column_count }, alloc);
+    auto vars = ndarray<float_t, 1>::empty(q, { column_count }, alloc);
+    auto tmp = ndarray<float_t, 1>::empty(q, { column_count }, alloc);
 
     // This is not valid sums across `df`, but it's OK for benchmarking
     ndarray<float, 1> sums;
     sycl::event sums_event;
-    std::tie(sums, sums_event) = ndarray<float_t, 1>::zeros(queue, { column_count }, alloc);
-
-    // Table is allocated using shared USM
-    const auto data = df.get_table(policy, te::table_id::homogen<float_t>());
+    std::tie(sums, sums_event) = ndarray<float_t, 1>::zeros(q, { column_count }, alloc);
 
     // We need to wait until all previously submitted kernels are executed
-    queue.wait_and_throw();
+    q.wait_and_throw();
 
     BENCHMARK("correlation") {
-        correlation(queue, data, sums, corr, means, vars, tmp, { sums_event }).wait_and_throw();
+        correlation(q, data, sums, corr, means, vars, tmp, { sums_event }).wait_and_throw();
     };
 }
 

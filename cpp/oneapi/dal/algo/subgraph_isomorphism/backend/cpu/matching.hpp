@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -163,7 +163,8 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
                                       kind isomorphism_kind,
                                       inner_alloc allocator)
         : allocator_(allocator),
-          vertex_candidates(allocator),
+          vertex_candidates(bit_vector<Cpu>::bit_vector_size(ptarget->get_vertex_count()),
+                            allocator),
           local_stack(allocator),
           hlocal_stack(allocator),
           engine_solutions(ppattern->get_vertex_count(), psorted_pattern_vertex, allocator),
@@ -178,10 +179,6 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
     solution_length = pattern->get_vertex_count();
 
     std::int64_t target_vertex_count = target->get_vertex_count();
-
-    //Need modification for adj lists case support, ~30Mb for Kron-28 (256 * 10^6 vertices)
-    vertex_candidates =
-        bit_vector<Cpu>(bit_vector<Cpu>::bit_vector_size(target_vertex_count), allocator_);
 
     pstart_byte = vertex_candidates.get_vector_pointer();
     candidate = 0;

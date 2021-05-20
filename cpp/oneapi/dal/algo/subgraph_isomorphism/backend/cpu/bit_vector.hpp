@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/common.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/gcc_adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
@@ -59,27 +59,23 @@ public:
         return 31 - ONEDAL_lzcnt_u32(bit_val);
     };
 
-    static void split_by_registers(const std::int64_t vector_size,
-                                   std::int64_t* registers,
-                                   const register_size max_size);
-
     bit_vector(const inner_alloc allocator);
     bit_vector(bit_vector<Cpu>& bvec);
     bit_vector(const std::int64_t vector_size, inner_alloc allocator);
     bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val, inner_alloc allocator);
     bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc allocator);
-    virtual ~bit_vector();
-    graph_status unset_bit(const std::int64_t vertex);
-    graph_status set_bit(const std::int64_t vertex);
+    ~bit_vector();
+    graph_status unset_bit(std::int64_t vertex);
+    graph_status set_bit(std::int64_t vertex);
     void set(const std::uint8_t byte_val = 0x0);
-    std::uint8_t* get_vector_pointer();
+    std::uint8_t* get_vector_pointer() const;
     std::int64_t size() const;
     std::int64_t popcount() const;
 
     bit_vector<Cpu>& operator&=(bit_vector<Cpu>& a);
     bit_vector<Cpu>& operator|=(bit_vector<Cpu>& a);
     bit_vector<Cpu>& operator^=(bit_vector<Cpu>& a);
-    bit_vector<Cpu>& operator=(bit_vector<Cpu>& a);
+    bit_vector<Cpu>& operator=(const bit_vector<Cpu>& a);
     bit_vector<Cpu>& operator~();
     bit_vector<Cpu>& operator&=(const std::uint8_t* pa);
     bit_vector<Cpu>& operator|=(const std::uint8_t* pa);
@@ -93,18 +89,9 @@ public:
                                const std::int64_t tmp_size = 0);
 
     bit_vector(bit_vector<Cpu>&& a);
-    bit_vector<Cpu>& operator=(bit_vector<Cpu>&& a);
 
     bit_vector<Cpu>& andn(const std::uint8_t* pa);
     bit_vector<Cpu>& andn(bit_vector<Cpu>& a);
-    bit_vector<Cpu>& orn(const std::uint8_t* pa);
-    bit_vector<Cpu>& orn(bit_vector<Cpu>& a);
-
-    std::int64_t min_index() const;
-    std::int64_t max_index() const;
-
-    graph_status get_vertices_ids(std::int64_t* vertices_ids);
-    bool test_bit(const std::int64_t vertex);
 
     static graph_status set(const std::int64_t vector_size,
                             std::uint8_t* result_vector,
@@ -129,9 +116,7 @@ private:
 };
 
 template <typename Cpu>
-void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-              const std::uint8_t* ONEAPI_RESTRICT pa,
-              std::int64_t size) {
+void or_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] |= pa[i];
@@ -139,9 +124,7 @@ void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 }
 
 template <typename Cpu>
-void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-               const std::uint8_t* ONEAPI_RESTRICT pa,
-               std::int64_t size) {
+void and_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] &= pa[i];
@@ -149,7 +132,7 @@ void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 }
 
 template <typename Cpu>
-void inversion(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size) {
+void inversion(std::uint8_t* vec, std::int64_t size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = ~vec[i];
@@ -157,9 +140,7 @@ void inversion(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size) {
 }
 
 template <typename Cpu>
-void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-              const std::int64_t* ONEAPI_RESTRICT bit_index,
-              const std::int64_t list_size) {
+void or_equal(std::uint8_t* vec, const std::int64_t* bit_index, const std::int64_t list_size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
         vec[bit_vector<Cpu>::byte(bit_index[i])] |= bit_vector<Cpu>::bit(bit_index[i]);
@@ -167,7 +148,7 @@ void or_equal(std::uint8_t* ONEAPI_RESTRICT vec,
 }
 
 template <typename Cpu>
-void set(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size, const std::uint8_t byte_val = 0x0) {
+void set(std::uint8_t* vec, std::int64_t size, const std::uint8_t byte_val = 0x0) {
     ONEDAL_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = byte_val;
@@ -175,11 +156,11 @@ void set(std::uint8_t* ONEAPI_RESTRICT vec, std::int64_t size, const std::uint8_
 }
 
 template <typename Cpu>
-void and_equal(std::uint8_t* ONEAPI_RESTRICT vec,
-               const std::int64_t* ONEAPI_RESTRICT bit_index,
+void and_equal(std::uint8_t* vec,
+               const std::int64_t* bit_index,
                const std::int64_t bit_size,
                const std::int64_t list_size,
-               std::int64_t* ONEAPI_RESTRICT tmp_array = nullptr,
+               std::int64_t* tmp_array = nullptr,
                const std::int64_t tmp_size = 0) {
     std::int64_t counter = 0;
     ONEDAL_IVDEP
@@ -297,31 +278,16 @@ bit_vector<Cpu>::bit_vector(const std::int64_t vector_size,
 template <typename Cpu>
 bit_vector<Cpu>::bit_vector(bit_vector<Cpu>&& a)
         : allocator_(a.allocator_.get_byte_allocator()),
-          vector(a.vector) {
-    n = a.n;
+          vector(a.vector),
+          n(a.n) {
     a.n = 0;
     a.vector = nullptr;
-}
-
-template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator=(bit_vector<Cpu>&& a) {
-    if (&a == this) {
-        return *this;
-    }
-    vector = a.vector;
-    n = a.n;
-
-    a.vector = nullptr;
-    a.n = 0;
-    return *this;
 }
 
 template <typename Cpu>
 bit_vector<Cpu>::~bit_vector() {
     if (vector != nullptr) {
         allocator_.deallocate<std::uint8_t>(vector, n);
-        vector = nullptr;
-        n = 0;
     }
 }
 
@@ -329,24 +295,22 @@ template <typename Cpu>
 bit_vector<Cpu>::bit_vector(const std::int64_t vector_size,
                             std::uint8_t* pvector,
                             inner_alloc allocator)
-        : allocator_(allocator) {
-    n = vector_size;
-    vector = pvector;
-    pvector = nullptr;
-}
+        : allocator_(allocator),
+          vector(pvector),
+          n(vector_size) {}
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::unset_bit(const std::int64_t vertex) {
+graph_status bit_vector<Cpu>::unset_bit(std::int64_t vertex) {
     return unset_bit(vector, vertex);
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set_bit(const std::int64_t vertex) {
+graph_status bit_vector<Cpu>::set_bit(std::int64_t vertex) {
     return set_bit(vector, vertex);
 }
 
 template <typename Cpu>
-std::uint8_t* bit_vector<Cpu>::get_vector_pointer() {
+std::uint8_t* bit_vector<Cpu>::get_vector_pointer() const {
     return vector;
 }
 
@@ -358,7 +322,7 @@ std::int64_t bit_vector<Cpu>::size() const {
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator&=(bit_vector<Cpu>& a) {
     if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
+        const std::uint8_t* pa = a.get_vector_pointer();
         for (std::int64_t i = 0; i < n; i++) {
             vector[i] &= pa[i];
         }
@@ -369,7 +333,7 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator&=(bit_vector<Cpu>& a) {
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator|=(bit_vector<Cpu>& a) {
     if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
+        const std::uint8_t* pa = a.get_vector_pointer();
         for (std::int64_t i = 0; i < n; i++) {
             vector[i] |= pa[i];
         }
@@ -389,9 +353,9 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator^=(bit_vector<Cpu>& a) {
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator=(bit_vector<Cpu>& a) {
+bit_vector<Cpu>& bit_vector<Cpu>::operator=(const bit_vector<Cpu>& a) {
     if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
+        const std::uint8_t* pa = a.get_vector_pointer();
         for (std::int64_t i = 0; i < n; i++) {
             vector[i] = pa[i];
         }
@@ -401,16 +365,16 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator=(bit_vector<Cpu>& a) {
 
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator~() {
-    const std::int64_t nn = n;
     ONEDAL_IVDEP
-    for (std::int64_t i = 0; i < nn; i++) {
+    for (std::int64_t i = 0; i < n; i++) {
         vector[i] = ~vector[i];
     }
     return *this;
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator&=(const std::uint8_t* ONEAPI_RESTRICT pa) {
+bit_vector<Cpu>& bit_vector<Cpu>::operator&=(const std::uint8_t* pa) {
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < n; i++) {
         vector[i] &= pa[i];
     }
@@ -418,7 +382,8 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator&=(const std::uint8_t* ONEAPI_RESTRICT
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::operator|=(const std::uint8_t* ONEAPI_RESTRICT pa) {
+bit_vector<Cpu>& bit_vector<Cpu>::operator|=(const std::uint8_t* pa) {
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < n; i++) {
         vector[i] |= pa[i];
     }
@@ -461,25 +426,6 @@ bit_vector<Cpu>& bit_vector<Cpu>::andn(bit_vector<Cpu>& a) {
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::orn(const std::uint8_t* pa) {
-    for (std::int64_t i = 0; i < n; i++) {
-        vector[i] |= ~pa[i];
-    }
-    return *this;
-}
-
-template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::orn(bit_vector<Cpu>& a) {
-    if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
-        for (std::int64_t i = 0; i < n; i++) {
-            vector[i] |= ~pa[i];
-        }
-    }
-    return *this;
-}
-
-template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::or_equal(const std::int64_t* bit_index,
                                            const std::int64_t list_size) {
     for (std::int64_t i = 0; i < list_size; i++) {
@@ -504,31 +450,6 @@ bit_vector<Cpu>& bit_vector<Cpu>::and_equal(const std::int64_t* bit_index,
         vector[byte(tmp_array[i])] |= bit(tmp_array[i]);
     }
     return *this;
-}
-
-template <typename Cpu>
-graph_status bit_vector<Cpu>::get_vertices_ids(std::int64_t* vertices_ids) {
-    std::int64_t vertex_iterator = 0;
-    if (vertices_ids == nullptr) {
-        return bad_arguments;
-    }
-    std::uint8_t current_byte = 0;
-    std::uint8_t current_bit = 0;
-    for (std::int64_t i = 0; i < n; i++) {
-        current_byte = vector[i];
-        while (current_byte > 0) {
-            current_bit = current_byte & (-current_byte);
-            current_byte &= ~current_bit;
-            vertices_ids[vertex_iterator] = 8 * i + power_of_two(current_bit);
-            vertex_iterator++;
-        }
-    }
-    return static_cast<graph_status>(vertex_iterator);
-}
-
-template <typename Cpu>
-bool bit_vector<Cpu>::test_bit(const std::int64_t vertex) {
-    return vector[byte(vertex)] & bit(vertex);
 }
 
 template <typename Cpu>
@@ -581,45 +502,6 @@ std::int64_t bit_vector<Cpu>::popcount(const std::int64_t vector_size, const std
 template <typename Cpu>
 std::int64_t bit_vector<Cpu>::popcount() const {
     return popcount(n, vector);
-}
-
-template <typename Cpu>
-void bit_vector<Cpu>::split_by_registers(const std::int64_t vector_size,
-                                         std::int64_t* registers,
-                                         const register_size max_size) {
-    std::int64_t size = vector_size;
-    for (std::int64_t i = power_of_two(max_size); i >= 0; i--) {
-        registers[i] = size >> i;
-        size -= registers[i] << i;
-    }
-}
-
-template <typename Cpu>
-std::int64_t bit_vector<Cpu>::min_index() const {
-    std::int64_t result = 0;
-
-    for (std::int64_t i = n; i > 0; i--) {
-        if (vector[i] > 0) {
-            result = power_of_two(vector[i]);
-            result += (i << 3);
-            break;
-        }
-    }
-    return result;
-}
-
-template <typename Cpu>
-std::int64_t bit_vector<Cpu>::max_index() const {
-    std::int64_t result = 1 << n;
-
-    for (std::int64_t i = 0; i < n; i++) {
-        if (vector[i] > 0) {
-            result = power_of_two(vector[i]);
-            result += (i << 3);
-            break;
-        }
-    }
-    return result;
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

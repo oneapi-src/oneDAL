@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,26 +22,9 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 struct byte_alloc_iface;
-}
-
-#if defined(__INTEL_COMPILER)
-#define ONEAPI_RESTRICT
-//restrict
-#else
-#define ONEAPI_RESTRICT
-#endif
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
-
-enum register_size { r8 = 1, r16 = 2, r32 = 4, r64 = 8, r128 = 16, r256 = 32, r512 = 64 };
-
-const std::int64_t null_node = 0xffffffffffffffff; /*!< Null node value*/
-
-// 1/64 for memory capacity and ~0.005 for cpu.
-const double graph_storage_divider_by_density = 0.015625;
-
-enum graph_storage_scheme { auto_detect, bit, list };
-
 struct inner_alloc {
     using byte_t = char;
 

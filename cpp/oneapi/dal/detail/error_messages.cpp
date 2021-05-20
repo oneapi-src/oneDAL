@@ -46,6 +46,9 @@ MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
+MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
+MSG(invalid_key, "Cannot find the given key")
+MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
@@ -92,6 +95,16 @@ MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
 MSG(negative_vertex_id, "Negative vertex ID")
 MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
 
+/* IO */
+MSG(file_not_found, "File not found")
+
+/* Serialization */
+MSG(object_is_not_serializable, "Object is not serializable")
+MSG(archive_content_does_not_match_type, "Archive content does not match requested type")
+MSG(archive_is_in_invalid_state,
+    "Archive state is invalid. It may indicate that "
+    "serialization or deserialization was interupted by an exception")
+
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
@@ -110,9 +123,6 @@ MSG(input_labels_table_has_wrong_cc_expect_one,
 MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
-
-/* IO */
-MSG(file_not_found, "File not found")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
