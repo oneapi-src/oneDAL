@@ -520,7 +520,9 @@ solution matching_engine<Cpu>::get_solution() {
 }
 
 template <typename Cpu>
-void matching_engine<Cpu>::run_and_wait(global_stack& gstack, bool main_engine) {
+void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
+                                        std::atomic<std::uint64_t>& busy_engine_count,
+                                        bool main_engine) {
     if (main_engine) {
         first_states_generator(hlocal_stack);
     }
