@@ -75,7 +75,7 @@ substitutions = [
 
 # sys.path.insert(0, path_relative_to_repo_root('source/elements/oneDAL'))
 
-extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi']
+extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi', 'sphinx.ext.githubpages']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -123,13 +123,11 @@ html_favicon = '_static/favicons.png'
 
 # Theme options
 html_theme_options = {
-    # 'typekit_id': 'hiw1hhg',
-    # 'analytics_id': '',
-    # 'sticky_navigation': True,  # Set to False to disable the sticky nav while scrolling.
-    # 'logo_only': True,  # if we have a html_logo below, this shows /only/ the logo with no title text
-    'collapse_navigation': False,  # Collapse navigation (False makes it tree-like)
-    # 'display_version': True,  # Display the docs version
-    'navigation_depth': 4  # Depth of the headers shown in the navigation bar
+    'repository_url': 'https://github.com/oneapi-src/oneDAL',
+    'path_to_docs': 'docs/source',
+    'use_issues_button': True,
+    'use_edit_page_button': True,
+    'repository_branch': 'master'
 }
 
 # oneDAL project directory is needed for `dalapi` extension
