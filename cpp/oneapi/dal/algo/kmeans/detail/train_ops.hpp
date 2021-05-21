@@ -22,9 +22,9 @@
 namespace oneapi::dal::kmeans::detail {
 namespace v1 {
 
-template <typename Context, typename Float, typename Method, typename Task, typename... Options>
+template <typename Policy, typename Float, typename Method, typename Task, typename... Options>
 struct train_ops_dispatcher {
-    train_result<Task> operator()(const Context&,
+    train_result<Task> operator()(const Policy&,
                                   const descriptor_base<Task>&,
                                   const train_input<Task>&) const;
 };
@@ -36,16 +36,18 @@ struct train_ops {
     using task_t = typename Descriptor::task_t;
     using input_t = train_input<task_t>;
     using result_t = train_result<task_t>;
-    using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor& params, const input_t& input) const {
+    template <typename Policy>
+    void check_preconditions(const Policy& policy,
+                             const Descriptor& desc,
+                             const input_t& input) const {
         using msg = dal::detail::error_messages;
 
         if (!(input.get_data().has_data())) {
             throw domain_error(msg::input_data_is_empty());
         }
         if (input.get_initial_centroids().has_data()) {
-            if (input.get_initial_centroids().get_row_count() != params.get_cluster_count()) {
+            if (input.get_initial_centroids().get_row_count() != desc.get_cluster_count()) {
                 throw invalid_argument(msg::input_initial_centroids_rc_neq_desc_cluster_count());
             }
             if (input.get_initial_centroids().get_column_count() !=
@@ -55,26 +57,32 @@ struct train_ops {
         }
     }
 
-    void check_postconditions(const Descriptor& params,
+    template <typename Policy>
+    void check_postconditions(const Policy& policy,
+                              const Descriptor& desc,
                               const input_t& input,
                               const result_t& result) const {
         ONEDAL_ASSERT(result.get_labels().has_data());
         ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
-        ONEDAL_ASSERT(result.get_iteration_count() <= params.get_max_iteration_count());
-        ONEDAL_ASSERT(result.get_model().get_centroids().has_data());
-        ONEDAL_ASSERT(result.get_model().get_centroids().get_row_count() ==
-                      params.get_cluster_count());
-        ONEDAL_ASSERT(result.get_model().get_centroids().get_column_count() ==
-                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_iteration_count() <= desc.get_max_iteration_count());
         ONEDAL_ASSERT(result.get_labels().get_row_count() == input.get_data().get_row_count());
+
+        // K-Means model is initialized only on root rank
+        if (dal::detail::is_root_rank(policy)) {
+            ONEDAL_ASSERT(result.get_model().get_centroids().has_data());
+            ONEDAL_ASSERT(result.get_model().get_centroids().get_row_count() ==
+                          desc.get_cluster_count());
+            ONEDAL_ASSERT(result.get_model().get_centroids().get_column_count() ==
+                          input.get_data().get_column_count());
+        }
     }
 
-    template <typename Context>
-    auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
-        check_preconditions(desc, input);
+    template <typename Policy>
+    auto operator()(const Policy& policy, const Descriptor& desc, const input_t& input) const {
+        check_preconditions(policy, desc, input);
         const auto result =
-            train_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, input);
-        check_postconditions(desc, input, result);
+            train_ops_dispatcher<Policy, float_t, method_t, task_t>()(policy, desc, input);
+        check_postconditions(policy, desc, input, result);
         return result;
     }
 };

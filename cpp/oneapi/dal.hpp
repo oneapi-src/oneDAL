@@ -40,6 +40,10 @@
 #include "oneapi/dal/io/csv.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 
+/* Policies */
+#include "oneapi/dal/policy/host.hpp"
+#include "oneapi/dal/policy/sycl.hpp"
+
 /* Algos */
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"

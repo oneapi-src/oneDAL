@@ -16,11 +16,6 @@
 
 #pragma once
 
-#include <type_traits>
-#ifdef ONEDAL_DATA_PARALLEL
-#include <CL/sycl.hpp>
-#endif
-
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {

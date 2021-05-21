@@ -19,6 +19,10 @@
 #include <cstdint>
 #include <utility>
 
+#ifdef ONEDAL_DATA_PARALLEL
+#include <CL/sycl.hpp>
+#endif
+
 #if defined(_WIN32) || defined(_WIN64)
 #ifdef __ONEDAL_ENABLE_DLL_EXPORT__
 #define ONEDAL_EXPORT __declspec(dllexport)

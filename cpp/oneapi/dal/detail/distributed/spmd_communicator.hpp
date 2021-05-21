@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 
-namespace oneapi::dal::preview {
+namespace oneapi::dal::detail {
 
 class spmd_request_iface {
 public:
@@ -32,6 +32,7 @@ public:
     virtual ~spmd_communicator_iface() = default;
 
     virtual std::int64_t get_rank() = 0;
+    virtual std::int64_t get_root_rank() = 0;
     virtual std::int64_t get_rank_count() = 0;
 
     virtual spmd_request_iface* bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) = 0;
@@ -102,6 +103,11 @@ public:
         return impl_->get_rank_count();
     }
 
+    std::int64_t get_root_rank() {
+        // TODO: Handle null impl_
+        return impl_->get_root_rank();
+    }
+
     /// Broadcasts a message from the `root` rank to all other ranks
     ///
     /// @param send_buff
@@ -146,8 +152,14 @@ public:
 protected:
     explicit spmd_communicator(spmd_communicator_iface* impl) : impl_(impl) {}
 
+    template <typename Impl>
+    Impl& get_impl() {
+        // TODO: Handle null impl_
+        return static_cast<Impl&>(*impl_);
+    }
+
 private:
     dal::detail::pimpl<spmd_communicator_iface> impl_;
 };
 
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::detail

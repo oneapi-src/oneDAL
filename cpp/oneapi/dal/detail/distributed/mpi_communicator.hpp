@@ -17,9 +17,9 @@
 #pragma once
 
 #include <mpi.h>
-#include "oneapi/dal/distributed/spmd_communicator.hpp"
+#include "oneapi/dal/detail/distributed/spmd_communicator.hpp"
 
-namespace oneapi::dal::preview {
+namespace oneapi::dal::detail {
 
 class mpi_communicator_error : public communication_error {
 public:
@@ -84,9 +84,23 @@ public:
             : mpi_comm_(mpi_comm) {}
 
     std::int64_t get_rank() override {
+        if (my_rank_ >= 0) {
+            return my_rank_;
+        }
+
         int rank;
         try_throw(MPI_Comm_rank(mpi_comm_, &rank));
-        return std::int64_t(rank);
+        my_rank_ = std::int64_t(rank);
+        return my_rank_;
+    }
+
+    std::int64_t get_root_rank() override {
+        return root_rank_;
+    }
+
+    void set_root_rank(std::int64_t rank) {
+        ONEDAL_ASSERT(rank >= 0);
+        root_rank_ = rank;
     }
 
     std::int64_t get_rank_count() override {
@@ -96,6 +110,10 @@ public:
     }
 
     spmd_request_iface* bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) override {
+        ONEDAL_ASSERT(root >= 0);
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(count > 0);
+
         MPI_Request mpi_request;
         try_throw(MPI_Ibcast(send_buf,
                              dal::detail::integral_cast<int>(count),
@@ -111,6 +129,16 @@ public:
                                byte_t* recv_buf,
                                std::int64_t recv_count,
                                std::int64_t root) override {
+        ONEDAL_ASSERT(root >= 0);
+        if (get_rank() == root) {
+            ONEDAL_ASSERT(recv_buf);
+            ONEDAL_ASSERT(recv_count > 0);
+        }
+        else {
+            ONEDAL_ASSERT(send_buf);
+            ONEDAL_ASSERT(send_count > 0);
+        }
+
         MPI_Request mpi_request;
         try_throw(MPI_Igather(send_buf,
                               dal::detail::integral_cast<int>(send_count),
@@ -130,11 +158,27 @@ public:
                                 const std::int64_t* recv_count,
                                 const std::int64_t* displs,
                                 std::int64_t root) override {
+        ONEDAL_ASSERT(root >= 0);
+        if (get_rank() == root) {
+            ONEDAL_ASSERT(recv_buf);
+            ONEDAL_ASSERT(displs);
+            ONEDAL_ASSERT(recv_count > 0);
+        }
+        else {
+            ONEDAL_ASSERT(send_buf);
+            ONEDAL_ASSERT(send_count > 0);
+        }
+
         const std::int64_t rank_count = get_rank_count();
         auto recv_count_int = std::make_unique<int[]>(rank_count);
         auto displs_int = std::make_unique<int[]>(rank_count);
 
+        std::int64_t displs_counter = 0;
         for (std::int64_t i = 0; i < rank_count; i++) {
+            ONEDAL_ASSERT(recv_count[i] > 0);
+            ONEDAL_ASSERT(displs[i] >= displs_counter);
+            displs_counter += recv_count[i];
+
             recv_count_int[i] = dal::detail::integral_cast<int>(recv_count[i]);
             displs_int[i] = dal::detail::integral_cast<int>(displs[i]);
         }
@@ -161,12 +205,18 @@ private:
     }
 
     MPI_Comm mpi_comm_;
+    std::int64_t my_rank_ = -1;
+    std::int64_t root_rank_ = 0;
 };
 
 class mpi_communicator : public spmd_communicator {
 public:
     explicit mpi_communicator(const MPI_Comm& mpi_comm = MPI_COMM_WORLD)
             : spmd_communicator(new mpi_communicator_impl{ mpi_comm }) {}
+
+    void set_root_rank(std::int64_t rank) {
+        get_impl<mpi_communicator_impl>().set_root_rank(rank);
+    }
 };
 
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::detail

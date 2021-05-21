@@ -14,28 +14,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/detail/train_ops.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/policy/mpi.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
 
-template <typename... Args>
-auto train(Args&&... args) {
-    return dal::detail::train_dispatch(std::forward<Args>(args)...);
+TEST("can create host mpi policy") {
+    preview::host_policy host_policy;
+    preview::mpi_policy<preview::host_policy> mpi_host_policy{ host_policy };
 }
-
-#ifdef ONEDAL_DATA_PARALLEL
-template <typename... Args>
-auto train(sycl::queue& queue, Args&&... args) {
-    return dal::detail::train_dispatch(detail::data_parallel_policy{ queue },
-                                       std::forward<Args>(args)...);
-}
-#endif
-
-} // namespace v1
-
-using v1::train;
 
 } // namespace oneapi::dal

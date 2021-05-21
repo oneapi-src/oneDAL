@@ -16,26 +16,33 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/train_ops.hpp"
+#include "oneapi/dal/detail/policy.hpp"
 
-namespace oneapi::dal {
-namespace v1 {
-
-template <typename... Args>
-auto train(Args&&... args) {
-    return dal::detail::train_dispatch(std::forward<Args>(args)...);
-}
+namespace oneapi::dal::preview {
 
 #ifdef ONEDAL_DATA_PARALLEL
-template <typename... Args>
-auto train(sycl::queue& queue, Args&&... args) {
-    return dal::detail::train_dispatch(detail::data_parallel_policy{ queue },
-                                       std::forward<Args>(args)...);
-}
+class sycl_policy : public base {
+public:
+    sycl_policy(const sycl::queue& queue) : internal_policy_(queue) {}
+
+private:
+    dal::detail::data_parallel_policy internal_policy_;
+};
 #endif
 
-} // namespace v1
+#ifdef ONEDAL_DATA_PARALLEL
+template <>
+struct is_execution_policy<sycl_policy> : std::bool_constant<true> {};
+#endif
 
-using v1::train;
+#ifdef ONEDAL_DATA_PARALLEL
+template <>
+struct is_sycl_policy<sycl_policy> : std::bool_constant<true> {};
+#endif
 
-} // namespace oneapi::dal
+#ifdef ONEDAL_DATA_PARALLEL
+template <>
+struct is_local_policy<sycl_policy> : std::bool_constant<true> {};
+#endif
+
+} // namespace oneapi::dal::preview

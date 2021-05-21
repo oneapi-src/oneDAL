@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/distributed/mpi_communicator.hpp"
+#include "oneapi/dal/detail/distributed/mpi_communicator.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::test {
