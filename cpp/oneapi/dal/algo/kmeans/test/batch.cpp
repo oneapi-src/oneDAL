@@ -46,6 +46,10 @@ public:
             .set_accuracy_threshold(accuracy_threshold);
     }
 
+    bool is_gpu() {
+        return this->get_policy().is_gpu();
+    }
+
     auto get_descriptor(std::int64_t cluster_count) const {
         return kmeans::descriptor<Float, Method>{ cluster_count };
     }
@@ -66,12 +70,12 @@ public:
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
         INFO("run training");
-        const auto train_result = train(kmeans_desc, data, initial_centroids);
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
         check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, test_convergence);
 
         INFO("run inference");
-        const auto infer_result = infer(kmeans_desc, model, data);
+        const auto infer_result = this->infer(kmeans_desc, model, data);
         check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
     }
 
@@ -91,7 +95,7 @@ public:
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
         INFO("run training");
-        const auto train_result = train(kmeans_desc, data, initial_centroids);
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
 
         auto match_map = array<Float>::zeros(cluster_count);
@@ -106,7 +110,7 @@ public:
                            ref_labels,
                            test_convergence);
         INFO("run inference");
-        const auto infer_result = infer(kmeans_desc, model, data);
+        const auto infer_result = this->infer(kmeans_desc, model, data);
         check_infer_result(kmeans_desc,
                            infer_result,
                            match_map,
@@ -133,15 +137,53 @@ public:
             homogen_table::wrap(data_rows.get_data(), cluster_count, data.get_column_count());
 
         INFO("run training");
-        const auto train_result = train(kmeans_desc, data, initial_centroids);
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
         REQUIRE(te::has_no_nans(model.get_centroids()));
 
         INFO("run inference");
-        const auto infer_result = infer(kmeans_desc, model, data);
+        const auto infer_result = this->infer(kmeans_desc, model, data);
         REQUIRE(te::has_no_nans(infer_result.get_labels()));
 
         auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        std::cout << "DBI: " << dbi << " " << ref_dbi << std::endl;
+        std::cout << "Obj: " << infer_result.get_objective_function_value() << " " << ref_obj_func << std::endl;
+        CAPTURE(dbi, ref_dbi);
+        CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
+        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
+        REQUIRE(check_value_with_ref_tol(infer_result.get_objective_function_value(),
+                                         ref_obj_func,
+                                         obj_ref_tol));
+    }
+
+    void dbi_determenistic_checks_with_centroids(const table& data,
+                                  const table& initial_centroids,
+                                  std::int64_t cluster_count,
+                                  std::int64_t max_iteration_count,
+                                  Float accuracy_threshold,
+                                  Float ref_dbi,
+                                  Float ref_obj_func,
+                                  Float obj_ref_tol = 1.0e-4,
+                                  Float dbi_ref_tol = 1.0e-4) {
+        std::cout << "Is gpu: " << is_gpu() << std::endl;
+        CAPTURE(cluster_count);
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        INFO("run training");
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
+        const auto model = train_result.get_model();
+        REQUIRE(te::has_no_nans(model.get_centroids()));
+
+        INFO("run inference");
+        const auto infer_result = this->infer(kmeans_desc, model, data);
+        REQUIRE(te::has_no_nans(infer_result.get_labels()));
+
+        auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        std::cout << "DBI: " << dbi << " " << ref_dbi << std::endl;
+        std::cout << "Obj: " << infer_result.get_objective_function_value() << " " << ref_obj_func << std::endl;
         CAPTURE(dbi, ref_dbi);
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
@@ -164,7 +206,7 @@ public:
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
         INFO("run training");
-        const auto train_result = train(kmeans_desc, data);
+        const auto train_result = this->train(kmeans_desc, data);
         check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, false);
         model = train_result.get_model();
     }
@@ -179,7 +221,7 @@ public:
         const auto kmeans_desc = get_descriptor(model.get_cluster_count());
 
         INFO("run inference");
-        const auto infer_result = infer(kmeans_desc, model, data);
+        const auto infer_result = this->infer(kmeans_desc, model, data);
         check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
     }
 
@@ -447,6 +489,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     Float labels[] = { 0, 1, 2 };
     const auto y = homogen_table::wrap(labels, 3, 1);
     this->exact_checks(x, x, x, y, 3, 2, 0.0, 0.0, false);
+    std::cout << "Degenerated done" << std::endl;
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batch]", kmeans_types) {
@@ -477,6 +520,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
                                        0.0,
                                        expected_obj_function,
                                        false);
+    std::cout << "Relocation done" << std::endl;
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
@@ -500,6 +544,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     const auto y = homogen_table::wrap(labels, 10, 1);
 
     this->exact_checks(x, c_init, c_final, y, 3, 1, 0.0);
+    std::cout << "Empty cluster done" << std::endl;
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
@@ -528,6 +573,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     const auto x2 = homogen_table::wrap(data_infer, 9, 2);
     Float expected_obj_function = 4;
     this->infer_checks(x, model, y, expected_obj_function);
+    std::cout << "Train/infer done" << std::endl;
 }
 /*
 // This stress test is commented due to CPU K-Means crash.
@@ -602,6 +648,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
 }
 */
+
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, clusters=10, iters=3",
                      "[kmeans][batch][external-dataset]",
@@ -820,5 +867,37 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                                    ref_obj_func,
                                    1.0e-3);
 }
+/*
+TEMPLATE_LIST_TEST_M(kmeans_batch_test,
+                     "example, clusters=20, iters=5",
+                     "[kmeans][batch][external-dataset]",
+                     kmeans_types) {
+    
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
 
+    const te::dataframe data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "kmeans_dense_train_data.csv" });
+    const table x = data.get_table(this->get_homogen_table_id());
+
+    const te::dataframe centroids = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "kmeans_dense_train_centroids.csv" });
+    const table c = centroids.get_table(this->get_homogen_table_id());
+
+    constexpr std::int64_t cluster_count = 20;
+    constexpr std::int64_t max_iteration_count = 5;
+    constexpr Float threshold = 0.001;
+    constexpr Float ref_dbi = 1.937667982;
+    constexpr Float ref_obj_func = 169010144.0;
+
+    this->dbi_determenistic_checks_with_centroids(x,
+                                   c,
+                                   cluster_count,
+                                   max_iteration_count,
+                                   threshold,
+                                   ref_dbi,
+                                   ref_obj_func,
+                                   1.0e-3);
+}
+*/
 } // namespace oneapi::dal::kmeans::test

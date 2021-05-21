@@ -17,7 +17,8 @@
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_int.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_fp.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -46,6 +47,7 @@ template <typename Float>
 static NumericTablePtr get_initial_centroids(const dal::backend::context_gpu& ctx,
                                              const descriptor_t& params,
                                              const train_input<task::clustering>& input) {
+    std::cout << "Initial centroids on GPU" << std::endl;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -95,6 +97,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
+        std::cout << "Running on GPU" << std::endl;
         auto& queue = ctx.get_queue();
 
         const auto data = input.get_data();
@@ -112,8 +115,9 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         daal::data_management::BlockDescriptor<Float> block;
         initial_centroids->getBlockOfRows(0, cluster_count, daal::data_management::readOnly, block);
         Float* initial_centroids_ptr = block.getBlockPtr();
-        auto arr_initial =
+        auto arr_host_initial =
             pr::ndarray<Float, 2>::wrap(initial_centroids_ptr, { cluster_count, column_count });
+        auto arr_initial = arr_host_initial.to_device(queue);
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
 
@@ -141,98 +145,138 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             pr::ndarray<std::int32_t, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_candidate_distances =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
-        auto arr_num_empty_clusters =
+        auto arr_empty_cluster_count =
             pr::ndarray<std::int32_t, 1>::empty(queue, 1, sycl::usm::alloc::device);
         auto arr_objective_function =
             pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
 
-        Float prev_objective_function = det::limits<Float>::max();
+        Float prev_objective_function = de::limits<Float>::max();
         std::int64_t iter;
         sycl::event centroids_event;
 
         for (iter = 0; iter < max_iteration_count; iter++) {
-            auto assign_event = assign_clusters<Float, pr::squared_l2_metric<Float>>(
+//            std::cout << "Iter: " << iter << std::endl;
+            /*auto assign_event = */assign_clusters<Float, pr::squared_l2_metric<Float>>(
                 queue,
                 arr_data,
                 (iter == 0) ? arr_initial : arr_centroids,
                 block_rows,
                 arr_labels,
                 arr_distance_block,
-                arr_closest_distances,
-                { centroids_event });
-            auto count_event =
-                count_clusters(queue, arr_labels, cluster_count, arr_counters, { assign_event });
-            auto objective_function_event =
+                arr_closest_distances/*,
+                { centroids_event }*/).wait_and_throw();
+/*            auto host_distances = arr_distance_block.to_host(queue);    
+            for(int i = 0; i < row_count; i++) {
+                for(int j = 0; j < column_count; j++) {
+                    std::cout << host_distances.get_data()[j + i * column_count] << " ";
+                }
+                std::cout << std::endl;
+            }
+            auto host_closest_distances = arr_closest_distances.to_host(queue);
+            auto host_labels = arr_labels.to_host(queue);
+            for(int i = 0; i < row_count; i++) {
+                std::cout << "\t" << host_labels.get_data()[i] << " " << host_closest_distances.get_data()[i] << std::endl;
+            }*/
+            /*auto count_event =*/
+                count_clusters(queue, arr_labels, cluster_count, arr_counters/*, { assign_event }*/).wait_and_throw();
+/*                auto host_counters = arr_counters.to_host(queue);
+                for(int i = 0; i < cluster_count; i++) {
+                    std::cout << "Count: " << host_counters.get_data()[i] << std::endl;
+                }*/
+            /*auto objective_function_event =*/
                 compute_objective_function<Float>(queue,
                                                   arr_closest_distances,
-                                                  arr_objective_function,
-                                                  { assign_event });
-            centroids_event = partial_reduce_centroids<Float>(queue,
+                                                  arr_objective_function/*,
+                                                  { assign_event }*/).wait_and_throw();
+//            std::cout << "Before reset" << std::endl;
+            auto reset_event = arr_partial_centroids.fill(queue, 0.0);
+            reset_event.wait_and_throw();
+//            std::cout << "After reset" << std::endl;
+            /*centroids_event = */partial_reduce_centroids<Float>(queue,
                                                               arr_data,
                                                               arr_labels,
                                                               cluster_count,
                                                               part_count,
-                                                              arr_partial_centroids,
-                                                              { count_event });
-            centroids_event = merge_reduce_centroids<Float>(queue,
+                                                              arr_partial_centroids/*,
+                                                              { count_event }*/).wait_and_throw();
+            /*centroids_event = */merge_reduce_centroids<Float>(queue,
                                                             arr_counters,
                                                             arr_partial_centroids,
                                                             part_count,
-                                                            arr_centroids,
-                                                            { count_event, centroids_event });
+                                                            arr_centroids/*,
+                                                            { count_event, centroids_event }*/).wait_and_throw();
             count_empty_clusters(queue,
                                  cluster_count,
                                  arr_counters,
-                                 arr_num_empty_clusters,
-                                 { count_event })
+                                 arr_empty_cluster_count/*,
+                                 { count_event }*/)
                 .wait_and_throw();
 
-            std::int64_t candidate_count = arr_num_empty_clusters.to_host(queue).get_data()[0];
+            std::int64_t candidate_count = arr_empty_cluster_count.to_host(queue).get_data()[0];
             sycl::event find_candidates_event;
-            if (num_candidates > 0) {
-                find_candidates_event = find_candidates<Float>(queue,
+//            std::cout << "\tcandidate_count: " << candidate_count << std::endl;
+            if (candidate_count > 0) {
+/*                auto host_closest_distances = arr_closest_distances.to_host(queue);
+                for(int i = 0; i < row_count; i++) {
+                    std::cout << "Elem: " << host_closest_distances.get_data()[i] << std::endl;
+                }*/
+                /*find_candidates_event =*/ find_candidates<Float>(queue,
                                                                arr_closest_distances,
-                                                               num_candidates,
+                                                               candidate_count,
                                                                arr_candidate_indices,
-                                                               arr_candidate_distances);
+                                                               arr_candidate_distances).wait_and_throw();
+                
+/*                auto host_candidates = arr_candidate_indices.to_host(queue);
+                auto host_candidate_values = arr_candidate_distances.to_host(queue);
+                for(int i = 0; i < candidate_count; i++) {
+                    std::cout << "Cnd: " << host_candidates.get_data()[i] << " " << host_candidate_values.get_data()[i] << std::endl;
+                }*/
             }
 
-            objective_function_event.wait_and_throw();
-            sycl::event::wait({ find_candidates_event, objective_function_event });
+//            sycl::event::wait({ find_candidates_event, objective_function_event });
             Float objective_function = arr_objective_function.to_host(queue).get_data()[0];
-
+//            std::cout << "Candidate[0]: "  << arr_candidate_indices.to_host(queue).get_data()[0] << std::endl;
             bk::event_vector candidate_events;
-            if (num_candidates > 0) {
-                candidate_events = fill_empty_clusters(queue,
+            if (candidate_count > 0) {
+                /*candidate_events = */sycl::event::wait(fill_empty_clusters(queue,
                                                        arr_data,
                                                        arr_counters,
                                                        arr_candidate_indices,
                                                        arr_candidate_distances,
                                                        arr_centroids,
                                                        arr_labels,
-                                                       objective_function,
-                                                       { find_candidates_event });
+                                                       objective_function/*,
+                                                       { find_candidates_event }*/));
             }
-            sycl::event::wait(candidate_events);
-            if (objective_function + accuracy_threshold > prev_objective_function) {
+/*            auto host_centroids = arr_centroids.to_host(queue);
+            for(int i = 0; i < cluster_count; i++) {
+                std::cout << "Cntr: ";
+                for(int j = 0; j < column_count; j++) {
+                    std::cout << host_centroids.get_data()[i * column_count + j] << " ";
+                }
+                std::cout << std::endl;
+            }*/
+//            sycl::event::wait(candidate_events);
+            if (accuracy_threshold > 0 && objective_function + accuracy_threshold > prev_objective_function) {
                 iter++;
                 break;
             }
+//            std::cout << "\tobjective_function: " << objective_function << std::endl;
             prev_objective_function = objective_function;
         }
-        auto assign_event = assign_clusters<Float, pr::squared_l2_metric<Float>>(
+        /*auto assign_event = */assign_clusters<Float, pr::squared_l2_metric<Float>>(
             queue,
             arr_data,
-            (iter == 0) ? arr_initial : arr_centroids,
+            arr_centroids,
             block_rows,
             arr_labels,
             arr_distance_block,
-            arr_closest_distances,
-            { centroids_event });
+            arr_closest_distances/*,
+            { centroids_event }*/).wait_and_throw();
         compute_objective_function<Float>(queue,
                                           arr_closest_distances,
-                                          arr_objective_function,
-                                          { assign_event })
+                                          arr_objective_function/*,
+                                          { assign_event }*/)
             .wait_and_throw();
         return train_result<task::clustering>()
             .set_labels(dal::homogen_table::wrap(arr_labels.flatten(queue), row_count, 1))

@@ -17,7 +17,8 @@
 #include <limits>
 #include <tuple>
 
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_fp.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_int.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
