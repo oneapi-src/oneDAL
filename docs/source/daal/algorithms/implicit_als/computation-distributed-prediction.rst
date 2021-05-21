@@ -61,7 +61,7 @@ and item factors :math:`Y_1, Y_2, \ldots, Y_{\mathrm{nblocks}}` produced at the 
 Each pair of partial models :math:`(X_i , Y_j)` is used to compute a numeric table with ratings :math:`R_{ij}`
 that correspond to the user factors and item factors from the input partial models.
 
-.. image:: images/implicit-als-distributed-computation-prediction-step-1.png
+.. figure:: images/implicit-als-distributed-computation-prediction-step-1.png
     :width: 800
     :align: center
     

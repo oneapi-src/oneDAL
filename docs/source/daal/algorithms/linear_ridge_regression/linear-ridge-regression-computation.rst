@@ -312,7 +312,7 @@ The following table lists parameters of linear and ridge regressions at the trai
 Step 1 - on Local Nodes
 +++++++++++++++++++++++
 
-.. image:: images/distributed-step-1.png
+.. figure:: images/distributed-step-1.png
   :width: 600
 
 In this step, linear and ridge regression training accepts the input described below.
@@ -352,7 +352,7 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 +++++++++++++++++++++++
 
-.. image:: images/distributed-step-2.png
+.. figure:: images/distributed-step-2.png
   :width: 600
 
 In this step, linear and ridge regression training accepts the input described below.

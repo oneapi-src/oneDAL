@@ -70,7 +70,7 @@ Family
     
     The example below demonstrates the idea for the case when 2 engines from the same family are used to generate 2 random sequences:
 
-    .. image:: images/englines-family-method-example.jpg
+    .. figure:: images/englines-family-method-example.jpg
         :width: 300
 
 SkipAhead
@@ -79,7 +79,7 @@ SkipAhead
     
     The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
 
-    .. image:: images/englines-skipahead-method-example.jpg
+    .. figure:: images/englines-skipahead-method-example.jpg
         :width: 300
 
 LeapFrog
@@ -88,7 +88,7 @@ LeapFrog
     
     The example below demonstrates the idea for the case when 2 subsequences are used from the random sequence:
 
-    .. image:: images/englines-leapfrog-method-example.jpg
+    .. figure:: images/englines-leapfrog-method-example.jpg
         :width: 300
 
 These methods are represented with member functions of classes that represent functionality described in the Engines section. See API References for details.

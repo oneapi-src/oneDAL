@@ -30,7 +30,7 @@ For a list of these parameters, refer to the description of an appropriate recom
 Training Stage
 **************
 
-.. image:: images/training-stage-recommendation-systems.png
+.. figure:: images/training-stage-recommendation-systems.png
     :width: 600
 
 At the training stage, recommender algorithms accept the input described below.
@@ -69,7 +69,7 @@ For more details, see :ref:`algorithms`.
 Prediction Stage
 ****************
 
-.. image:: images/prediction-stage-recommendation-systems.png
+.. figure:: images/prediction-stage-recommendation-systems.png
     :width: 600
 
 At the prediction stage, recommender algorithms accept the input described below.

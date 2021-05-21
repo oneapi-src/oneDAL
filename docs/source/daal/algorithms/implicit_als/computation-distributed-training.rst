@@ -80,11 +80,11 @@ Each part includes four steps executed either on local nodes or on the master no
 as explained below and illustrated by graphics for :math:`\mathrm{nblocks} = 3`.
 The main loop of the implicit ALS training stage is executed on the master node.
 
-.. image:: images/implicit-als-distributed-computation-training-general-scheme-1.png
+.. figure:: images/implicit-als-distributed-computation-training-general-scheme-1.png
     :width: 600
     :align: center
 
-.. image:: images/implicit-als-distributed-computation-training-general-scheme-2.png
+.. figure:: images/implicit-als-distributed-computation-training-general-scheme-2.png
     :width: 600
     :align: center
 
@@ -100,7 +100,7 @@ This step works with the matrix:
 
 Parts of this matrix are used as input partial models.
 
-.. image:: images/implicit-als-distributed-computation-training-step-1.png
+.. figure:: images/implicit-als-distributed-computation-training-step-1.png
     :width: 600
     :align: center
 
@@ -139,7 +139,7 @@ Step 2 - on Master Node
 
 This step uses local partial results from :ref:`Step 1 <implicit_als_distributed_training_step_1>` as input.
 
-.. image:: images/implicit-als-distributed-computation-training-step-2.png
+.. figure:: images/implicit-als-distributed-computation-training-step-2.png
     :width: 600
     :align: center
 
@@ -195,7 +195,7 @@ The Input Of Step 3 From Init is a key-value data collection that refers to the 
 - Output of the :ref:`step 1 of the distributed initialization algorithm <implicit_als_distributed_init_step_1>` in :ref:`part 1 <implicit_als_computation_parts>` of the iteration
 - Output of the :ref:`step 2 of the distributed initialization algorithm <implicit_als_distributed_init_step_2>` in :ref:`part 2 <implicit_als_computation_parts>` of the iteration
 
-.. image:: images/implicit-als-distributed-computation-training-step-3.png
+.. figure:: images/implicit-als-distributed-computation-training-step-3.png
     :width: 600
     :align: center
 
@@ -242,7 +242,7 @@ This step uses the results of the previous steps and parts of the following matr
 
 The results of the step are the re-computed parts of this matrix.
 
-.. image:: images/implicit-als-distributed-computation-training-step-4.png
+.. figure:: images/implicit-als-distributed-computation-training-step-4.png
     :width: 600
     :align: center
 

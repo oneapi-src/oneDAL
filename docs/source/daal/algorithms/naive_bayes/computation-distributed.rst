@@ -70,7 +70,7 @@ Use the two-step computation schema for Naïve Bayes classifier training in the 
 Step 1 - on Local Nodes
 -----------------------
 
-.. image:: images/naive-bayes-distributed-step-1.png
+.. figure:: images/naive-bayes-distributed-step-1.png
     :width: 600
 
 In this step, Naïve Bayes classifier training accepts the input described below.
@@ -110,7 +110,7 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 ------------------------
 
-.. image:: images/naive-bayes-distributed-step-2.png
+.. figure:: images/naive-bayes-distributed-step-2.png
     :width: 600
 
 In this step, Naïve Bayes classifier training accepts the input described below.

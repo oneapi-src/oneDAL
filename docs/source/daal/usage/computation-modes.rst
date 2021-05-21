@@ -51,10 +51,10 @@ for a given data source to check whether a new block of data is available for lo
 
 The following diagram illustrates the computation schema for online processing:
 
-.. image:: ./images/online-1.png
+.. figure:: ./images/online-1.png
   :width: 600
 
-.. image:: ./images/online-2.png
+.. figure:: ./images/online-2.png
   :width: 600
 
 .. note::
@@ -62,10 +62,10 @@ The following diagram illustrates the computation schema for online processing:
     While different data blocks may have different numbers of observations :math:`n_i`, 
     they must have the same number of feature vectors :math:`p`.
 
-.. image:: ./images/online-3.png
+.. figure:: ./images/online-3.png
   :width: 600
 
-.. image:: ./images/online-4.png
+.. figure:: ./images/online-4.png
   :width: 600
 
 .. _distributed_mode:
@@ -87,10 +87,10 @@ a new block of data is available for loading.
 
 The computation schema is algorithm-specific. The following diagram illustrates a typical computation schema for distribute processing:
 
-.. image:: ./images/distributed-1.png
+.. figure:: ./images/distributed-1.png
   :width: 600
 
-.. image:: ./images/distributed-2.png
+.. figure:: ./images/distributed-2.png
   :width: 600
 
 For the algorithm-specific computation schema, refer to the Distributed Processing section in the description of an appropriate algorithm.

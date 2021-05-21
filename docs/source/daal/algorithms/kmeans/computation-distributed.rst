@@ -69,7 +69,7 @@ To compute K-Means clustering in the distributed processing mode, use the genera
 Step 1 - on Local Nodes
 +++++++++++++++++++++++
 
-.. image:: images/kmeans-distributed-computation-step-1.png
+.. figure:: images/kmeans-distributed-computation-step-1.png
     :width: 1000
 
 In this step, the K-Means clustering algorithm accepts the input described below.
@@ -161,7 +161,7 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 +++++++++++++++++++++++
 
-.. image:: images/kmeans-distributed-computation-step-2.png
+.. figure:: images/kmeans-distributed-computation-step-2.png
     :width: 1000
 
 In this step, the K-Means clustering algorithm accepts the input from each local node described below.

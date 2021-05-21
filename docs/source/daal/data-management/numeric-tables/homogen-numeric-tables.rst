@@ -40,5 +40,5 @@ between representations of triangular and symmetric matrices:
 -  Lower packed: ``lowerPackedSymetricMatrix`` or ``lowerPackedTriangularMatrix``
 -  Upper packed: ``upperPackedTriangularMatrix`` or ``upperPackedSymetricMatrix``
 
-.. image:: ./images/packed-storage-format.png
+.. figure:: ./images/packed-storage-format.png
   :width: 600

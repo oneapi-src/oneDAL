@@ -24,7 +24,7 @@ blocks covering all stages of data analytics: data acquisition from a
 data source, preprocessing, transformation, data mining, modeling,
 validation, and decision making.
 
-.. image:: _static/data_analytics_stages.png
+.. figure:: _static/data_analytics_stages.png
   :width: 800
   :alt: Data analytics stages
 
@@ -36,6 +36,6 @@ Interfaces (APIs) are agnostic about a particular cross-device
 communication technology and, therefore, can be used within different
 end-to-end analytics frameworks.
 
-.. image:: _static/e2eframeworks.png
+.. figure:: _static/e2eframeworks.png
   :width: 800
   :alt: End to End Analytics Frameworks

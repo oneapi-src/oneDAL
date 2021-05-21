@@ -33,7 +33,7 @@ matrices, the number of rows in a merged table equals :math:`min(r_1, r_2, \ldot
 where :math:`r_i` is the number of
 rows in the i-th matrix, :math:`i = 1, 2, 3, \ldots, m`.
 
-.. image:: ./images/merged-numeric-table.png
+.. figure:: ./images/merged-numeric-table.png
   :width: 400
 
 Examples

@@ -111,11 +111,11 @@ Centroid initialization for K-Means clustering follows the general schema descri
 
     .. tab:: ``plusPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-plusPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-plusPlus-methods.png
 
     .. tab:: ``parrallelPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-parallelPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-parallelPlus-methods.png
 
 .. _kmeans_init_step_1:
 
@@ -126,11 +126,11 @@ Step 1 - on Local Nodes (``deterministic``, ``random``, ``plusPlus``, and ``para
 
     .. tab:: ``plusPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-1-plusPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-1-plusPlus-methods.png
 
     .. tab:: ``parrallelPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-1-parallelPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-1-parallelPlus-methods.png
 
 In this step, centroid initialization for K-Means clustering accepts the input described below.
 Pass the ``Input ID`` as a parameter to the methods that provide input for your algorithm.
@@ -223,11 +223,11 @@ Step 2 - on Local Nodes (``plusPlus`` and ``parallelPlus`` methods)
 
     .. tab:: ``plusPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-2-plusPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-2-plusPlus-methods.png
 
     .. tab:: ``parrallelPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-2-parallelPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-2-parallelPlus-methods.png
 
 This step is applicable for ``plusPlus`` and ``parallelPlus`` methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
@@ -308,11 +308,11 @@ Step 3 - on Master Node (``plusPlus`` and ``parallelPlus`` methods)
 
     .. tab:: ``plusPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-3-plusPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-3-plusPlus-methods.png
 
     .. tab:: ``parrallelPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-3-parallelPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-3-parallelPlus-methods.png
 
 This step is applicable for plusPlus and parallelPlus methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
@@ -364,11 +364,11 @@ Step 4 - on Local Nodes (``plusPlus`` and ``parallelPlus`` methods)
 
     .. tab:: ``plusPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-4-plusPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-4-plusPlus-methods.png
 
     .. tab:: ``parrallelPlus`` methods
 
-        .. image:: images/kmeans-distributed-init-step-4-parallelPlus-methods.png
+        .. figure:: images/kmeans-distributed-init-step-4-parallelPlus-methods.png
 
 This step is applicable for plusPlus and parallelPlus methods only.
 Centroid initialization for K-Means clustering accepts the input from each local node described below.
@@ -436,7 +436,7 @@ For more details, see :ref:`algorithms`.
 Step 5 - on Master Node (``parallelPlus`` methods)
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
-.. image:: images/kmeans-distributed-init-step-5-parallelPlus-methods.png
+.. figure:: images/kmeans-distributed-init-step-5-parallelPlus-methods.png
     :width: 1000
 
 This step is applicable for parallelPlus methods only.

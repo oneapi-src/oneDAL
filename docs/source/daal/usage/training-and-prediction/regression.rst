@@ -30,7 +30,7 @@ For a list of these parameters, refer to the description of an appropriate regre
 Training Stage
 **************
 
-.. image:: images/training-stage-regression.png
+.. figure:: images/training-stage-regression.png
     :width: 600
 
 At the training stage, regression algorithms accept the input described below. 
@@ -70,7 +70,7 @@ For more details, see :ref:`algorithms`.
 Prediction Stage
 ****************
 
-.. image:: images/prediction-stage-regression.png
+.. figure:: images/prediction-stage-regression.png
     :width: 600
 
 At the prediction stage, regression algorithms accept the input described below.

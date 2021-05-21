@@ -97,7 +97,7 @@ structure and you want to use continuous indexing, do the following:
 
    Repeat these steps for each next data source.
 
-.. image:: ./images/data-source.png
+.. figure:: ./images/data-source.png
   :width: 600
 
 |short_name| implements classes for some popular types of data
@@ -225,7 +225,7 @@ columns 1, 2 in the output numeric table. *Feature Modifier 2*
 behaves similarly, but processes features :math:`f_2, f_5` and
 has 3 output features.
 
-.. image:: ./images/data-source-2.png
+.. figure:: ./images/data-source-2.png
   :width: 600
    
 The |short_name| has several predefined feature modifiers available

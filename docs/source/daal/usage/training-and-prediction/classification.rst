@@ -29,7 +29,7 @@ The parameters used by classification algorithms at each stage depend on a speci
 Training Stage
 **************
 
-.. image:: images/training-stage-classification.png
+.. figure:: images/training-stage-classification.png
     :width: 600
 
 At the training stage, classification algorithms accept the input described below.
@@ -71,7 +71,7 @@ For more details, see :ref:`algorithms`.
 Prediction Stage
 ****************
 
-.. image:: images/prediction-stage-classification.png
+.. figure:: images/prediction-stage-classification.png
     :width: 600
 
 At the prediction stage, classification algorithms accept the input described below.

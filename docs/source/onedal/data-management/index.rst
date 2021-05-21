@@ -54,7 +54,7 @@ and prepared.
 
 .. _typical_data_management_flow:
 
-.. image:: _static/data_management_flow.png
+.. figure:: _static/data_management_flow.png
   :width: 800
   :alt: Typical data management flow
 
@@ -75,7 +75,7 @@ The main data-related concept that |short_name| works with is a
 :capterm:`observations <observation>` and columns represent the
 :capterm:`features <feature>`.
 
-.. image:: _static/dataset.png
+.. figure:: _static/dataset.png
   :width: 400
   :alt: Dataset
 
@@ -221,7 +221,7 @@ of these concepts, which are highlighted by colors:
 
 .. _table_accessor_usage_example:
 
-.. image:: _static/table_accessor_usage_example.png
+.. figure:: _static/table_accessor_usage_example.png
   :width: 800
   :alt: Sequence diagram of accessor-builder-table relations
 

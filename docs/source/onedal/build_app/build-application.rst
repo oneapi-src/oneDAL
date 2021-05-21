@@ -40,7 +40,7 @@ Applications on Windows* OS
 
    - Set |dpcpp| platform toolset:
 
-     .. image:: ./images/MSVSPlatformToolset.jpg
+     .. figure:: ./images/MSVSPlatformToolset.jpg
        :width: 600
        :align: center
        :alt: In General configuration properties, choose Platform Toolset property
@@ -48,14 +48,14 @@ Applications on Windows* OS
    - Add |short_name| ``includes`` folder to :guilabel:`Additional Include Directories`.
    - Add folders with |short_name| and oneTBB libraries to :guilabel:`Library Directories`:
 
-     .. image:: ./images/LibraryDirectories.jpg
+     .. figure:: ./images/LibraryDirectories.jpg
        :width: 600
        :align: center
        :alt: In VC++ Directories, choose Library Directories property
 
    - Add |short_name| and OpenCL libraries to :guilabel:`Additional Dependencies`:
 
-     .. image:: ./images/AdditionalDependencies.jpg
+     .. figure:: ./images/AdditionalDependencies.jpg
        :width: 600
        :align: center
        :alt: In Linker configuration properties, choose Input.

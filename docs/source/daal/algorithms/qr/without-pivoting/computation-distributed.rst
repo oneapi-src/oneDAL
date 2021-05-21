@@ -53,7 +53,7 @@ Use the three-step computation schema to compute QR decomposition:
 Step 1 - on Local Nodes
 ***********************
 
-.. image:: images/qr-without-pivoting-distributed-step-1.png
+.. figure:: images/qr-without-pivoting-distributed-step-1.png
     :width: 800
 
 In this step, QR decomposition accepts the input described below.
@@ -104,7 +104,7 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 ***********************
 
-.. image:: images/qr-without-pivoting-distributed-step-2.png
+.. figure:: images/qr-without-pivoting-distributed-step-2.png
     :width: 800
 
 In this step, QR decomposition accepts the input from each local node described below.
@@ -168,7 +168,7 @@ For more details, see :ref:`algorithms`.
 Step 3 - on Local Nodes
 ***********************
 
-.. image:: images/qr-without-pivoting-distributed-step-3.png
+.. figure:: images/qr-without-pivoting-distributed-step-3.png
     :width: 800
 
 In this step, QR decomposition accepts the input described below.

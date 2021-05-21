@@ -34,7 +34,7 @@ these steps applies to different types of numeric tables supported in
 the library, such as CSR, with appropriate changes in the method
 names and respective arguments.
 
-.. image:: images/numeric-table-lifecycle.png
+.. figure:: images/numeric-table-lifecycle.png
   :width: 400
 
 Initialize

@@ -61,7 +61,7 @@ ready for the prediction stage.
 
 The following schema illustrates the use of Model Builder class:
 
-.. image:: images/model_builders.png
+.. figure:: images/model_builders.png
    :width: 600
 
 The Model Builder class is implemented for the following algorithms:

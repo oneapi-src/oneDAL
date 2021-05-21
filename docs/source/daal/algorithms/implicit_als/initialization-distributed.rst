@@ -55,7 +55,7 @@ In the distributed processing mode, initialization of item factors for the impli
 
 To initialize the implicit ALS algorithm in the distributed processing mode, use the one-step process illustrated by the following diagram for :math:`\mathrm{nblocks} = 3`:
 
-.. image:: images/implicit-als-distributed-init-general-scheme.png
+.. figure:: images/implicit-als-distributed-init-general-scheme.png
     :width: 600
     :align: center
 
@@ -64,7 +64,7 @@ To initialize the implicit ALS algorithm in the distributed processing mode, use
 Step 1 - on Local Nodes
 ***********************
 
-.. image:: images/implicit-als-distributed-init-step-1.png
+.. figure:: images/implicit-als-distributed-init-step-1.png
     :width: 600
     :align: center
 
@@ -129,7 +129,7 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Local Nodes
 ***********************
 
-.. image:: images/implicit-als-distributed-init-step-2.png
+.. figure:: images/implicit-als-distributed-init-step-2.png
     :width: 600
     :align: center
 

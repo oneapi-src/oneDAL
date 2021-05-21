@@ -66,7 +66,7 @@ Use the three-step computation schema to compute SVD:
 Step 1 - on Local Nodes
 ***********************
 
-.. image:: images/svd-distributed-step-1.png
+.. figure:: images/svd-distributed-step-1.png
     :width: 800
 
 In this step, SVD accepts the input described below.
@@ -111,7 +111,7 @@ For more details, see :ref:`algorithms`.
 Step 2 - on Master Node
 ***********************
 
-.. image:: images/svd-distributed-step-2.png
+.. figure:: images/svd-distributed-step-2.png
     :width: 800
 
 In this step, SVD accepts the input from each local node described below.
@@ -184,7 +184,7 @@ For more details, see :ref:`algorithms`.
 Step 3 - on Local Nodes
 ***********************
 
-.. image:: images/svd-distributed-step-2.png
+.. figure:: images/svd-distributed-step-2.png
     :width: 800
 
 In this step, SVD accepts the input described below.

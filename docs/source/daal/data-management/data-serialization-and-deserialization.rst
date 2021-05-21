@@ -34,7 +34,7 @@ compression and decompression, see :ref:`data_compression`.
 
 A general structure of an archive is as follows:
 
-.. image:: ./images/data-archive-structure.png
+.. figure:: ./images/data-archive-structure.png
   :width: 400
 
 Headers and footers contain information required to reconstruct the
