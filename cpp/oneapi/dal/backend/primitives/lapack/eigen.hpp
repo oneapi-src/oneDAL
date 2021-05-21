@@ -26,7 +26,25 @@ void sym_eigvals_impl(Float* a, std::int64_t n, std::int64_t lda, Float* w);
 
 /// Do not use this.
 template <typename Float>
-void flip_eigvals_impl(Float* a, Float* w, std::int64_t n, std::int64_t lda);
+void flip_eigvals_impl(Float* a,
+                       Float* w,
+                       std::int64_t n,
+                       std::int64_t lda,
+                       std::int64_t w_count,
+                       Float* a_flipped,
+                       std::int64_t lda_flipped,
+                       Float* w_flipped);
+
+/// Do not use this.
+template <typename Cpu, typename Float>
+void flip_eigvals_impl_cpu(Float* a,
+                           Float* w,
+                           std::int64_t n,
+                           std::int64_t lda,
+                           std::int64_t w_count,
+                           Float* a_flipped,
+                           std::int64_t lda_flipped,
+                           Float* w_flipped);
 
 /// Computes eigenvectors and eigenvalues in-place.
 ///
@@ -61,7 +79,44 @@ inline void sym_eigvals_descending(ndview<Float, 2, order>& data_or_eigvecs,
     flip_eigvals_impl(data_or_eigvecs.get_mutable_data(),
                       eigvals.get_mutable_data(),
                       data_or_eigvecs.get_dimension(0),
-                      data_or_eigvecs.get_leading_stride());
+                      data_or_eigvecs.get_leading_stride(),
+                      data_or_eigvecs.get_dimension(0),
+                      data_or_eigvecs.get_mutable_data(),
+                      data_or_eigvecs.get_leading_stride(),
+                      eigvals.get_mutable_data());
+}
+
+/// Computes eigenvectors and eigenvalues in-place. `eigval_count` eigenvectors
+/// and eigenvalues are written in descending order determined by eigenvalues to
+/// `eigvecs` and `eigvals` arrays.
+///
+/// @param[in, out] data_or_scratchpad The input parameter is interpreted as symmetric matrix
+///                                    of size [n x n]. The memory is used as a storage for
+///                                    intermediate computations.
+/// @param[in] eigval_count            The number of eigenvalues and eigenvectors to store to
+///                                    the output buffers.
+/// @param[out] eigvecs                The output array of size [eigval_count x n] that stores
+///                                    eigenvectors. If `order == ndorder::c`, $i$-th row of the
+///                                    matrix contains $i$-th eigenvector. If `order == ndorder::f`,
+///                                    $i$-th column of the matrix contains $i$-th eigenvector.
+/// @param[out] eigvals                The output array of size [eigval_count] that stores computed
+///                                    eigenvalues. The eigenvalues are written in ascending order.
+///                                    $i$-th eigenvalue corrensponds to $i$-th eigenvector.
+template <typename Float, ndorder order>
+inline void sym_eigvals_descending(ndview<Float, 2, order>& data_or_scratchpad,
+                                   std::int64_t eigval_count,
+                                   ndview<Float, 2, order>& eigvecs,
+                                   ndview<Float, 1>& eigvals) {
+    auto eigvals_full = ndarray<Float, 1>::empty(data_or_scratchpad.get_dimension(0));
+    sym_eigvals(data_or_scratchpad, eigvals_full);
+    flip_eigvals_impl(data_or_scratchpad.get_mutable_data(),
+                      eigvals_full.get_mutable_data(),
+                      data_or_scratchpad.get_dimension(0),
+                      data_or_scratchpad.get_leading_stride(),
+                      eigval_count,
+                      eigvecs.get_mutable_data(),
+                      eigvecs.get_leading_stride(),
+                      eigvals.get_mutable_data());
 }
 
 } // namespace oneapi::dal::backend::primitives

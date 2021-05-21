@@ -46,6 +46,9 @@ MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
+MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
+MSG(invalid_key, "Cannot find the given key")
+MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
@@ -57,7 +60,6 @@ MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
-MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
     "Element count in data type and feature type array does not match")
 MSG(pulling_column_is_not_supported_for_dpc, "Pulling column is not supported for DPC++")
@@ -71,6 +73,15 @@ MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
 MSG(rc_and_cc_do_not_match_element_count_in_array,
     "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
+MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(object_does_not_provide_read_access_to_rows,
+    "Given object does not provide read access to rows")
+MSG(object_does_not_provide_write_access_to_rows,
+    "Given object does not provide write access to rows")
+MSG(object_does_not_provide_read_access_to_columns,
+    "Given object does not provide read access to columns")
+MSG(object_does_not_provide_write_access_to_columns,
+    "Given object does not provide write access to columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
 
 /* Ranges */
@@ -84,6 +95,16 @@ MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")
 MSG(negative_vertex_id, "Negative vertex ID")
 MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
+
+/* IO */
+MSG(file_not_found, "File not found")
+
+/* Serialization */
+MSG(object_is_not_serializable, "Object is not serializable")
+MSG(archive_content_does_not_match_type, "Archive content does not match requested type")
+MSG(archive_is_in_invalid_state,
+    "Archive state is invalid. It may indicate that "
+    "serialization or deserialization was interupted by an exception")
 
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
@@ -103,9 +124,6 @@ MSG(input_labels_table_has_wrong_cc_expect_one,
 MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
-
-/* IO */
-MSG(file_not_found, "File not found")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")

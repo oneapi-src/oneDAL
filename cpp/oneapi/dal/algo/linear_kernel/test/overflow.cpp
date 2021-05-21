@@ -37,11 +37,11 @@ public:
     }
 
     table get_x_data() const {
-        return te::dummy_homogen_table{ row_count_x, column_count };
+        return te::dummy_table{ row_count_x, column_count };
     }
 
     table get_y_data() const {
-        return te::dummy_homogen_table{ row_count_y, column_count };
+        return te::dummy_table{ row_count_y, column_count };
     }
 };
 

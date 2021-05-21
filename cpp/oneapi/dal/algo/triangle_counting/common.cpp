@@ -17,8 +17,7 @@
 #include "oneapi/dal/algo/triangle_counting/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
-namespace oneapi::dal::preview::triangle_counting {
-namespace detail {
+namespace oneapi::dal::preview::triangle_counting::detail {
 
 template <typename Task>
 class descriptor_impl : public base {
@@ -74,5 +73,4 @@ template class ONEDAL_EXPORT descriptor_base<task::local>;
 template class ONEDAL_EXPORT descriptor_base<task::global>;
 template class ONEDAL_EXPORT descriptor_base<task::local_and_global>;
 
-} // namespace detail
-} // namespace oneapi::dal::preview::triangle_counting
+} // namespace oneapi::dal::preview::triangle_counting::detail
