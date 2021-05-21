@@ -117,7 +117,7 @@ private:
 
 template <typename Cpu>
 void or_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
-    // ONEDAL_IVDEP
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] |= pa[i];
     }
@@ -125,7 +125,7 @@ void or_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
 
 template <typename Cpu>
 void and_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
-    // ONEDAL_IVDEP
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] &= pa[i];
     }
@@ -133,7 +133,7 @@ void and_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
 
 template <typename Cpu>
 void inversion(std::uint8_t* vec, std::int64_t size) {
-    // ONEDAL_IVDEP
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = ~vec[i];
     }
@@ -141,7 +141,7 @@ void inversion(std::uint8_t* vec, std::int64_t size) {
 
 template <typename Cpu>
 void or_equal(std::uint8_t* vec, const std::int64_t* bit_index, const std::int64_t list_size) {
-    // ONEDAL_IVDEP
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
         vec[bit_vector<Cpu>::byte(bit_index[i])] |= bit_vector<Cpu>::bit(bit_index[i]);
     }
@@ -149,7 +149,7 @@ void or_equal(std::uint8_t* vec, const std::int64_t* bit_index, const std::int64
 
 template <typename Cpu>
 void set(std::uint8_t* vec, std::int64_t size, const std::uint8_t byte_val = 0x0) {
-    // ONEDAL_VECTOR_ALWAYS
+    ONEDAL_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] = byte_val;
     }
@@ -163,7 +163,7 @@ void and_equal(std::uint8_t* vec,
                std::int64_t* tmp_array = nullptr,
                const std::int64_t tmp_size = 0) {
     std::int64_t counter = 0;
-    // ONEDAL_IVDEP
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
         tmp_array[counter] = bit_index[i];
         counter += bit_vector<Cpu>::bit_set_table[vec[bit_vector<Cpu>::byte(bit_index[i])] &
@@ -172,7 +172,7 @@ void and_equal(std::uint8_t* vec,
 
     set<Cpu>(vec, bit_size, 0x0);
 
-    // ONEDAL_IVDEP
+    ONEDAL_IVDEP
     for (std::int64_t i = 0; i < counter; i++) {
         vec[bit_vector<Cpu>::byte(tmp_array[i])] |= bit_vector<Cpu>::bit(tmp_array[i]);
     }
