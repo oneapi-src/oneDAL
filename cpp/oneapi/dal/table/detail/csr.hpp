@@ -40,45 +40,21 @@ public:
     ///
     /// @tparam Data          The type of elements in the data block that will be stored into the table.
     ///                       The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
-    /// @tparam DataDeleter   The type of a deleter called on ``data`` when
-    ///                       the last table that refers it is out of the scope.
-    /// @tparam ColumnDeleter The type of a deleter called on ``column_indices`` when
-    ///                       the last table that refers it is out of the scope.
-    /// @tparam RowDeleter    The type of a deleter called on ``row_indices`` when
-    ///                       the last table that refers it is out of the scope.
     ///
-    /// @param data           The pointer to values in the CSR layout.
-    /// @param column_indices The pointer to column indices in the CSR layout.
-    /// @param row_indices    The pointer to row indices in the CSR layout.
+    /// @param data           The array of values in the CSR layout.
+    /// @param column_indices The array of column indices in the CSR layout.
+    /// @param row_indices    The array of row indices in the CSR layout.
     /// @param row_count      The number of rows in the corresponding dense table.
     /// @param column_count   The number of columns in the corresponding dense table.
-    /// @param data_deleter   The deleter that is called on the ``data`` when the last table that refers it
-    ///                       is out of the scope.
-    /// @param column_deleter The deleter that is called on the ``column_indices`` when the last table that refers it
-    ///                       is out of the scope.
-    /// @param row_deleter    The deleter that is called on the ``row_indices`` when the last table that refers it
-    ///                       is out of the scope.
     /// @param indexing       The indexing scheme used to access data in the CSR layout. Support only :literal:`csr_indexing::one_based`.
-    template <typename Data, typename DataDeleter, typename ColumnDeleter, typename RowDeleter>
-    csr_table(const Data* data,
-              const std::int64_t* column_indices,
-              const std::int64_t* row_indices,
+    template <typename Data>
+    csr_table(const array<Data>& data,
+              const array<std::int64_t>& column_indices,
+              const array<std::int64_t>& row_indices,
               std::int64_t row_count,
               std::int64_t column_count,
-              DataDeleter&& data_deleter,
-              ColumnDeleter&& column_deleter,
-              RowDeleter&& row_deleter,
               csr_indexing indexing = csr_indexing::one_based) {
-        init_impl(detail::default_host_policy{},
-                  column_count,
-                  row_count,
-                  data,
-                  column_indices,
-                  row_indices,
-                  std::forward<DataDeleter>(data_deleter),
-                  std::forward<ColumnDeleter>(column_deleter),
-                  std::forward<RowDeleter>(row_deleter),
-                  indexing);
+        init_impl(data, column_indices, row_indices, row_count, column_count, indexing);
     }
 
     /// The unique id of the csr table type.
@@ -141,20 +117,12 @@ private:
         }
     }
 
-    template <typename Policy,
-              typename Data,
-              typename DataDeleter,
-              typename ColumnDeleter,
-              typename RowDeleter>
-    void init_impl(const Policy& policy,
-                   std::int64_t column_count,
+    template <typename Data>
+    void init_impl(const array<Data>& data,
+                   const array<std::int64_t>& column_indices,
+                   const array<std::int64_t>& row_indices,
                    std::int64_t row_count,
-                   const Data* data,
-                   const std::int64_t* column_indices,
-                   const std::int64_t* row_indices,
-                   DataDeleter&& data_deleter,
-                   ColumnDeleter&& column_deleter,
-                   RowDeleter&& row_deleter,
+                   std::int64_t column_count,
                    csr_indexing indexing) {
         using error_msg = dal::detail::error_messages;
 
@@ -170,41 +138,26 @@ private:
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
-        check_indices(row_count, column_count, row_indices, column_indices, indexing);
+        check_indices(row_count,
+                      column_count,
+                      row_indices.get_data(),
+                      column_indices.get_data(),
+                      indexing);
 
-        array<Data> data_array{ data,
-                                row_indices[row_count] - row_indices[0],
-                                std::forward<DataDeleter>(data_deleter) };
+        //TODO: policy for all arrays must be the same
 
-        array<std::int64_t> column_indices_array{ column_indices,
-                                                  row_indices[row_count] - row_indices[0],
-                                                  std::forward<ColumnDeleter>(column_deleter) };
-
-        array<std::int64_t> row_indices_array{ row_indices,
-                                               row_count + 1,
-                                               std::forward<RowDeleter>(row_deleter) };
-
-        auto byte_data = reinterpret_cast<const byte_t*>(data);
-        dal::detail::check_mul_overflow(data_array.get_count(),
-                                        static_cast<std::int64_t>(sizeof(Data)));
-        const std::int64_t byte_count =
-            data_array.get_count() * static_cast<std::int64_t>(sizeof(Data));
-
-        auto byte_array = array<byte_t>{ data_array, byte_data, byte_count };
-
-        init_impl(policy,
-                  column_count,
-                  row_count,
-                  byte_array,
-                  column_indices_array,
-                  row_indices_array,
-                  detail::make_data_type<Data>(),
-                  indexing);
+        detail::dispath_by_policy(data, [&](auto policy) {
+            init_impl(column_count,
+                      row_count,
+                      detail::reinterpret_array_cast<byte_t>(data),
+                      column_indices,
+                      row_indices,
+                      detail::make_data_type<Data>(),
+                      indexing);
+        });
     }
 
-    template <typename Policy>
-    void init_impl(const Policy& policy,
-                   std::int64_t column_count,
+    void init_impl(std::int64_t column_count,
                    std::int64_t row_count,
                    const array<byte_t>& data,
                    const array<std::int64_t>& column_indices,

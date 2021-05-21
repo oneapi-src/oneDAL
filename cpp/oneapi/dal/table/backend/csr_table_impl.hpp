@@ -105,7 +105,8 @@ public:
     void pull_rows(const detail::default_host_policy& policy,
                    array<T>& block,
                    const range& rows) const {
-        throw dal::domain_error(detail::error_messages::object_does_not_provide_read_access_to_rows());
+        throw dal::domain_error(
+            detail::error_messages::object_does_not_provide_read_access_to_rows());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -114,7 +115,8 @@ public:
                    array<T>& block,
                    const range& rows,
                    sycl::usm::alloc alloc) const {
-        throw dal::domain_error(detail::error_messages::object_does_not_provide_read_access_to_rows());
+        throw dal::domain_error(
+            detail::error_messages::object_does_not_provide_read_access_to_rows());
     }
 #endif
 
@@ -123,7 +125,8 @@ public:
                      array<T>& block,
                      std::int64_t column_index,
                      const range& rows) const {
-        throw dal::domain_error(detail::error_messages::object_does_not_provide_read_access_to_columns());
+        throw dal::domain_error(
+            detail::error_messages::object_does_not_provide_read_access_to_columns());
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -133,7 +136,8 @@ public:
                      std::int64_t column_index,
                      const range& rows,
                      sycl::usm::alloc alloc) const {
-        throw dal::domain_error(detail::error_messages::object_does_not_provide_read_access_to_columns());
+        throw dal::domain_error(
+            detail::error_messages::object_does_not_provide_read_access_to_columns());
     }
 #endif
 

@@ -27,6 +27,7 @@ struct csr_block_owner {
         ONEDAL_ASSERT(_csr_nt);
         _row_count = dal::detail::integral_cast<std::int64_t>(_csr_nt->getNumberOfRows());
         _column_count = dal::detail::integral_cast<std::int64_t>(_csr_nt->getNumberOfColumns());
+        _element_count = dal::detail::integral_cast<std::int64_t>(_csr_nt->getDataSize());
         status = _csr_nt->getSparseBlock(0,
                                          _csr_nt->getNumberOfRows(),
                                          daal::data_management::readOnly,
@@ -51,6 +52,10 @@ struct csr_block_owner {
         return _column_count;
     }
 
+    std::int64_t get_element_count() const {
+        return _element_count;
+    }
+
     T* get_data() const {
         return _block.getBlockValuesPtr();
     }
@@ -67,6 +72,7 @@ struct csr_block_owner {
     daal::data_management::CSRNumericTablePtr _csr_nt;
     std::int64_t _row_count;
     std::int64_t _column_count;
+    std::int64_t _element_count;
     bool _is_empty;
 };
 

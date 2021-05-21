@@ -186,14 +186,20 @@ inline detail::csr_table convert_from_daal_csr_table(
     auto block_owner = std::make_shared<csr_block_owner<T>>(csr_block_owner<T>{ nt });
 
     ONEDAL_ASSERT(sizeof(std::size_t) == sizeof(std::int64_t));
-    detail::csr_table table{ block_owner->get_data(),
-                             reinterpret_cast<std::int64_t*>(block_owner->get_column_indices()),
-                             reinterpret_cast<std::int64_t*>(block_owner->get_row_indices()),
-                             block_owner->get_row_count(),
-                             block_owner->get_column_count(),
-                             [block_owner](const T* p) {},
-                             [block_owner](const std::int64_t* p) {},
-                             [block_owner](const std::int64_t* p) {} };
+
+    detail::csr_table table{
+        array<T>{ block_owner->get_data(),
+                  block_owner->get_element_count(),
+                  [block_owner](const T* p) {} },
+        array<std::int64_t>{ reinterpret_cast<std::int64_t*>(block_owner->get_column_indices()),
+                             block_owner->get_element_count(),
+                             [block_owner](const std::int64_t* p) {} },
+        array<std::int64_t>{ reinterpret_cast<std::int64_t*>(block_owner->get_row_indices()),
+                             block_owner->get_row_count() + 1,
+                             [block_owner](const std::int64_t* p) {} },
+        block_owner->get_row_count(),
+        block_owner->get_column_count()
+    };
     return table;
 }
 

@@ -41,9 +41,7 @@ const std::int64_t* csr_table::get_row_indices() const {
     return impl.get_row_indices().get_data();
 }
 
-template <typename Policy>
-void csr_table::init_impl(const Policy& policy,
-                          std::int64_t column_count,
+void csr_table::init_impl(std::int64_t column_count,
                           std::int64_t row_count,
                           const array<byte_t>& data,
                           const array<std::int64_t>& column_indices,
@@ -59,14 +57,13 @@ void csr_table::init_impl(const Policy& policy,
                                                  indexing));
 }
 
-template ONEDAL_EXPORT void csr_table::init_impl(const detail::default_host_policy&,
-                                                 std::int64_t,
-                                                 std::int64_t,
-                                                 const array<byte_t>&,
-                                                 const array<std::int64_t>&,
-                                                 const array<std::int64_t>&,
-                                                 const data_type&,
-                                                 csr_indexing);
+ONEDAL_EXPORT void csr_table::init_impl(std::int64_t,
+                                        std::int64_t,
+                                        const array<byte_t>&,
+                                        const array<std::int64_t>&,
+                                        const array<std::int64_t>&,
+                                        const data_type&,
+                                        csr_indexing);
 
 } // namespace v1
 } // namespace oneapi::dal::detail

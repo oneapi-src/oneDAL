@@ -29,15 +29,13 @@ TEST("can read csr table via csr accessor") {
 
     const std::int64_t row_count{ 4 };
     const std::int64_t column_count{ 4 };
+    const std::int64_t element_count{ 7 };
 
-    detail::csr_table t{ data,
-                         column_indices,
-                         row_indices,
+    detail::csr_table t{ array<double>::wrap(data, element_count),
+                         array<std::int64_t>::wrap(column_indices, element_count),
+                         array<std::int64_t>::wrap(row_indices, row_count + 1),
                          row_count,
-                         column_count,
-                         empty_delete<const double>(),
-                         empty_delete<const std::int64_t>(),
-                         empty_delete<const std::int64_t>() };
+                         column_count };
     const auto [data_array, cidx_array, ridx_array] =
         detail::csr_accessor<const double>(t).pull({ 0, -1 });
 
@@ -63,15 +61,13 @@ TEST("can read csr table via csr accessor create smaller block") {
 
     const std::int64_t row_count{ 4 };
     const std::int64_t column_count{ 4 };
+    const std::int64_t element_count{ 7 };
 
-    detail::csr_table t{ data,
-                         column_indices,
-                         row_indices,
+    detail::csr_table t{ array<double>::wrap(data, element_count),
+                         array<std::int64_t>::wrap(column_indices, element_count),
+                         array<std::int64_t>::wrap(row_indices, row_count + 1),
                          row_count,
-                         column_count,
-                         empty_delete<const double>(),
-                         empty_delete<const std::int64_t>(),
-                         empty_delete<const std::int64_t>() };
+                         column_count };
     const auto csr_block = detail::csr_accessor<const double>(t).pull({ 1, 3 });
 
     REQUIRE(data + 3 == csr_block.data.get_data());
@@ -96,15 +92,13 @@ TEST("can read csr table via csr accessor with conversion") {
 
     const std::int64_t row_count{ 4 };
     const std::int64_t column_count{ 4 };
+    const std::int64_t element_count{ 7 };
 
-    detail::csr_table t{ data,
-                         column_indices,
-                         row_indices,
+    detail::csr_table t{ array<float>::wrap(data, element_count),
+                         array<std::int64_t>::wrap(column_indices, element_count),
+                         array<std::int64_t>::wrap(row_indices, row_count + 1),
                          row_count,
-                         column_count,
-                         empty_delete<const float>(),
-                         empty_delete<const std::int64_t>(),
-                         empty_delete<const std::int64_t>() };
+                         column_count };
     const auto csr_block = detail::csr_accessor<const double>(t).pull({ 0, -1 });
 
     REQUIRE((void*)data != (void*)csr_block.data.get_data());
