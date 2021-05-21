@@ -49,10 +49,21 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
     const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
 
     const auto data_use_in_model = daal_knn::doNotUse;
-    daal_knn::Parameter daal_parameter(
+    daal_knn::Parameter original_daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
+
+    daal_knn::prediction::internal::KernelParameter daal_parameter;
+    daal_parameter.nClasses = original_daal_parameter.nClasses;
+    daal_parameter.k = original_daal_parameter.k;
+    daal_parameter.dataUseInModel = original_daal_parameter.dataUseInModel;
+    daal_parameter.resultsToCompute = original_daal_parameter.resultsToCompute;
+    daal_parameter.voteWeights = original_daal_parameter.voteWeights;
+    daal_parameter.engine = original_daal_parameter.engine->clone();
+    daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
+    // daal_parameter.pairwiseDistance = pairwiseDistance;
+    // daal_parameter.minkowskiDegree = minkowskiDegree;
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(
         ctx,

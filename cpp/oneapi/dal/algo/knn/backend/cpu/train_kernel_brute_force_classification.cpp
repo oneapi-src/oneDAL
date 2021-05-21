@@ -49,11 +49,31 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     const auto daal_labels = interop::copy_to_daal_homogen_table<Float>(labels);
 
     const auto data_use_in_model = daal_knn::doUse;
-    daal_knn::Parameter daal_parameter(
+    daal_knn::Parameter original_daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
 
+    daal_knn::training::internal::KernelParameter daal_parameter;
+    daal_parameter.nClasses = original_daal_parameter.nClasses;
+    daal_parameter.k = original_daal_parameter.k;
+    daal_parameter.dataUseInModel = original_daal_parameter.dataUseInModel;
+    daal_parameter.resultsToCompute = original_daal_parameter.resultsToCompute;
+    daal_parameter.voteWeights = convert_to_daal_bf_voting_mode(desc.get_voting_mode());
+    daal_parameter.engine = original_daal_parameter.engine->clone();
+    daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
+
+    // //prototype
+    // const auto desc_dist = desc.get_distance();
+    // if constexpr (std::is_same_v<desc_dist::tag_t, minkowski::tag>) {
+    //     daal_parameter.pairwiseDistance = pairwiseDistance;dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
+    //     daal_parameter.minkowskiDegree = desc_dist.get_degree();
+    // }
+    // else //for chebychev
+    // {
+    //     //without degree
+    // }
+    
     Status status;
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
     interop::status_to_exception(status);

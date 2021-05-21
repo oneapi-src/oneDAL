@@ -27,6 +27,7 @@ class descriptor_impl : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
+    voting_mode voting_mode_value = voting_mode::uniform;
 };
 
 template <typename Task>
@@ -56,6 +57,16 @@ void descriptor_base<Task>::set_neighbor_count_impl(std::int64_t value) {
         throw domain_error(dal::detail::error_messages::neighbor_count_lt_one());
     }
     impl_->neighbor_count = value;
+}
+
+template <typename Task>
+voting_mode descriptor_base<Task>::get_voting_mode() const {
+    return impl_->voting_mode_value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
+    impl_->voting_mode_value = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;

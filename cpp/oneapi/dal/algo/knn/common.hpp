@@ -18,8 +18,22 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/algo/minkowski_distance/common.hpp"
+#include "oneapi/dal/algo/chebychev_distance/common.hpp"
 
 namespace oneapi::dal::knn {
+
+namespace v1 {
+/// Weight function used in prediction
+enum class voting_mode {
+    /// Uniform weights for neighbors for prediction voting.
+    uniform,
+    /// Weight neighbors by the inverse of their distance.
+    distance
+};
+} // namespace v1
+
+using v1::voting_mode;
 
 namespace task {
 namespace v1 {
@@ -89,10 +103,12 @@ public:
 
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
+    voting_mode get_voting_mode() const;
 
 protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
+    void set_voting_mode_impl(voting_mode value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -122,7 +138,8 @@ namespace v1 {
 ///                be :expr:`task::classification`.
 template <typename Float = float,
           typename Method = method::by_default,
-          typename Task = task::by_default>
+          typename Task = task::by_default,
+          typename Distance = oneapi::dal::minkowski_distance::descriptor< Float, Method, Task >>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
@@ -140,6 +157,10 @@ public:
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
+    }
+
+    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count, const Distance& distance) {
+
     }
 
     /// The number of classes c
@@ -161,6 +182,16 @@ public:
 
     auto& set_neighbor_count(std::int64_t value) {
         base_t::set_neighbor_count_impl(value);
+        return *this;
+    }
+
+    /// The voting mode. Used with :expr:`task::classification` only.
+    voting_mode get_voting_mode() const {
+        return get_voting_mode_impl();
+    }
+
+    auto& set_voting_mode(voting_mode value) {
+        base_t::set_voting_mode_impl(value);
         return *this;
     }
 };

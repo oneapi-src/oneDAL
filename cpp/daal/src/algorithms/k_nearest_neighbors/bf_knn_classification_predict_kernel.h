@@ -35,12 +35,27 @@ namespace internal
 {
 using namespace daal::data_management;
 
+enum class PairwiseDistanceType
+{
+    mannhattan,
+    euclidean,
+    minkowski,
+    chebychev
+};
+
+struct KernelParameter : bf_knn_classification::Parameter
+{
+    bf_knn_classification::VoteWeights voteWeights = bf_knn_classification::VoteWeights::voteUniform;
+    PairwiseDistanceType pairwiseDistance          = PairwiseDistanceType::euclidean;
+    double minkowskiDegree                         = 2.0;
+};
+
 template <typename algorithmFpType, CpuType cpu>
 class KNNClassificationPredictKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(const NumericTable * data, const classifier::Model * m, NumericTable * label, NumericTable * indices,
-                             NumericTable * distances, const daal::algorithms::Parameter * par);
+                             NumericTable * distances, const KernelParameter * par);
 };
 
 } // namespace internal

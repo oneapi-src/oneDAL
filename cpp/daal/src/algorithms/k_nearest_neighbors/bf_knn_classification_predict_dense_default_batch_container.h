@@ -54,7 +54,6 @@ BatchContainer<algorithmFpType, method, cpu>::~BatchContainer()
 template <typename algorithmFpType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
-    const Parameter * const par                              = static_cast<const Parameter *>(_par);
     const classifier::prediction::Input * const input        = static_cast<const classifier::prediction::Input *>(_in);
     bf_knn_classification::prediction::Result * const result = static_cast<bf_knn_classification::prediction::Result *>(_res);
     const data_management::NumericTableConstPtr a            = input->get(classifier::prediction::data);
@@ -64,11 +63,22 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     const data_management::NumericTablePtr distances         = result->get(bf_knn_classification::prediction::distances);
     auto & context                                           = services::internal::getDefaultContext();
     auto & deviceInfo                                        = context.getInfoDevice();
+    const Parameter * const par                              = static_cast<const Parameter *>(_par);
+
+    internal::KernelParameter kernelPar;
+
+    kernelPar.nClasses = par->nClasses;
+    kernelPar.k = par->k;
+    kernelPar.dataUseInModel = par->dataUseInModel;
+    kernelPar.resultsToCompute = par->resultsToCompute;
+    kernelPar.voteWeights = par->voteWeights;
+    kernelPar.engine = par->engine->clone();
+    kernelPar.resultsToEvaluate = par->resultsToEvaluate;
 
     if (deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(), m.get(),
-                           label.get(), indices.get(), distances.get(), par);
+                           label.get(), indices.get(), distances.get(), &kernelPar);
     }
     else
     {

@@ -5,6 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 ALGOS = [
+    "chebychev_distance",
     "decision_forest",
     "decision_tree",
     "jaccard",
@@ -12,6 +13,7 @@ ALGOS = [
     "kmeans_init",
     "knn",
     "linear_kernel",
+    "minkowski_distance",
     "pca",
     "polynomial_kernel",
     "rbf_kernel",
