@@ -507,7 +507,7 @@ inline void compute_hist_for_node(
     item.barrier(cl::sycl::access::fence_space::local_space);
 
     Float imp = Float(1);
-    Float div = Float(1) / (row_count * row_count);
+    Float div = Float(1) / (Float(row_count) * row_count);
     Index max_cls_count = 0;
     Index win_cls = 0;
     Index cls_count = 0;
@@ -1431,8 +1431,8 @@ public:
                           Float(node_class_hist_ptr[class_id] - left_class_hist_[class_id]) * divR;
         }
 
-        left_imp_ = Float(0) < left_imp_ ? left_imp_ : Float(0);
-        right_imp_ = Float(0) < right_imp_ ? right_imp_ : Float(0);
+        left_imp_ = cl::sycl::max(left_imp_, Float(0));
+        right_imp_ = cl::sycl::max(right_imp_, Float(0));
 
         imp_dec_ = node_imp - (Float(left_count_) * left_imp_ + Float(right_count_) * right_imp_) /
                                   Float(node_row_count);
