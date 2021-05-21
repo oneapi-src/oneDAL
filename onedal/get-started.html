@@ -2069,14 +2069,14 @@ in the same directory level relative to each other.</p>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-TGludXg=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-TGludXg=" name="TGludXg=" role="tab" tabindex="0">Linux</button><button aria-controls="panel-1-V2luZG93cw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-V2luZG93cw==" name="V2luZG93cw==" role="tab" tabindex="-1">Windows</button></div><div aria-labelledby="tab-1-TGludXg=" class="sphinx-tabs-panel group-tab" id="panel-1-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to DPC++ examples directory and build examples</span>
 <span class="nb">cd</span> /examples/oneapi/dpc
-make <span class="nv">example</span><span class="o">=</span>cor_dense_batch <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
-make <span class="nv">mode</span><span class="o">=</span>build                    <span class="c1"># This will compile all DPC++ examples</span>
+make so <span class="nv">example</span><span class="o">=</span>svm_two_class_thunder_dense_batch <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
+make so <span class="nv">mode</span><span class="o">=</span>build                         <span class="c1"># This will compile all DPC++ examples</span>
 </pre></div>
 </div>
 </div><div aria-labelledby="tab-1-V2luZG93cw==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-V2luZG93cw==" name="V2luZG93cw==" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to DPC++ examples directory and build examples</span>
 <span class="nb">cd</span> /examples/oneapi/dpc
-nmake libintel64 <span class="nv">example</span><span class="o">=</span>cor_dense_batch+ <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
-nmake libintel64 <span class="nv">mode</span><span class="o">=</span>build                          <span class="c1"># This will compile all DPC++ examples</span>
+nmake dll <span class="nv">example</span><span class="o">=</span>svm_two_class_thunder_dense_batch+ <span class="c1"># This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler</span>
+nmake dll <span class="nv">mode</span><span class="o">=</span>build                         <span class="c1"># This will compile all DPC++ examples</span>
 </pre></div>
 </div>
 </div></div>

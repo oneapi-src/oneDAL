@@ -2224,6 +2224,19 @@ variance, that is, the directions where the data is mostly spread out.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3pca12train_result5modelE">
+<span id="_CPPv3N6oneapi3dal3pca12train_result5modelE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result5modelE"></span><span id="oneapi::dal::pca::train_result::model__model:Task:CR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3pca12train_result5modelE" title="oneapi::dal::pca::train_result::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The trained PCA model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3pca12train_result11eigenvaluesE">
 <span id="_CPPv3N6oneapi3dal3pca12train_result11eigenvaluesE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result11eigenvaluesE"></span><span id="oneapi::dal::pca::train_result::eigenvalues__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">eigenvalues</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result11eigenvaluesE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>A <span class="math notranslate nohighlight">\(1 \times r\)</span> table that contains the eigenvalues for for the first <code class="docutils literal notranslate"><span class="pre">r</span></code> features. <strong>Default value</strong>: table{}.</p>
@@ -2231,19 +2244,6 @@ variance, that is, the directions where the data is mostly spread out.</p>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_eigenvalues()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_eigenvalues(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3pca12train_result5meansE">
-<span id="_CPPv3N6oneapi3dal3pca12train_result5meansE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result5meansE"></span><span id="oneapi::dal::pca::train_result::means__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">means</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result5meansE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>A <span class="math notranslate nohighlight">\(1 \times r\)</span> table that contains the mean values for the first <code class="docutils literal notranslate"><span class="pre">r</span></code> features. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_means()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_means(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2263,13 +2263,13 @@ variance, that is, the directions where the data is mostly spread out.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3pca12train_result5modelE">
-<span id="_CPPv3N6oneapi3dal3pca12train_result5modelE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result5modelE"></span><span id="oneapi::dal::pca::train_result::model__model:Task:CR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3pca12train_result5modelE" title="oneapi::dal::pca::train_result::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result5modelE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The trained PCA model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
+<dt id="_CPPv4N6oneapi3dal3pca12train_result5meansE">
+<span id="_CPPv3N6oneapi3dal3pca12train_result5meansE"></span><span id="_CPPv2N6oneapi3dal3pca12train_result5meansE"></span><span id="oneapi::dal::pca::train_result::means__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">means</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca12train_result5meansE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A <span class="math notranslate nohighlight">\(1 \times r\)</span> table that contains the mean values for the first <code class="docutils literal notranslate"><span class="pre">r</span></code> features. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_means()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_means(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2335,19 +2335,6 @@ variance, that is, the directions where the data is mostly spread out.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3pca11infer_input4dataE">
-<span id="_CPPv3N6oneapi3dal3pca11infer_input4dataE"></span><span id="_CPPv2N6oneapi3dal3pca11infer_input4dataE"></span><span id="oneapi::dal::pca::infer_input::data__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca11infer_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The dataset for inference <span class="math notranslate nohighlight">\(X'\)</span>. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3pca11infer_input5modelE">
 <span id="_CPPv3N6oneapi3dal3pca11infer_input5modelE"></span><span id="_CPPv2N6oneapi3dal3pca11infer_input5modelE"></span><span id="oneapi::dal::pca::infer_input::model__model:Task:CR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3pca11infer_input5modelE" title="oneapi::dal::pca::infer_input::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca11infer_input5modelE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The trained PCA model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
@@ -2355,6 +2342,19 @@ variance, that is, the directions where the data is mostly spread out.</p>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3pca11infer_input4dataE">
+<span id="_CPPv3N6oneapi3dal3pca11infer_input4dataE"></span><span id="_CPPv2N6oneapi3dal3pca11infer_input4dataE"></span><span id="oneapi::dal::pca::infer_input::data__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3pca11infer_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The dataset for inference <span class="math notranslate nohighlight">\(X'\)</span>. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
