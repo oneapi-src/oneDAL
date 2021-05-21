@@ -416,11 +416,6 @@ public:
     }
 #endif
 
-    static ndarray zeros(const shape_t& shape) {
-        T* ptr = detail::calloc<T>(detail::default_host_policy{}, shape.get_count());
-        return wrap(ptr, shape, detail::make_default_delete<T>(detail::default_host_policy{}));
-    }
-
 #ifdef ONEDAL_DATA_PARALLEL
     static std::tuple<ndarray, sycl::event> zeros(
         sycl::queue& q,
