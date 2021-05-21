@@ -37,7 +37,7 @@ void pull_data_impl(const Policy& policy,
                     const bool same_data_type,
                     const std::int64_t origin_offset,
                     const std::int64_t block_size,
-                    detail::sparse_block<BlockData>& block,
+                    detail::csr_block<BlockData>& block,
                     alloc_kind kind,
                     bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
@@ -75,7 +75,7 @@ void pull_column_indices_impl(const Policy& policy,
                               const array<std::int64_t>& origin_column_indices,
                               const std::int64_t origin_offset,
                               const std::int64_t block_size,
-                              detail::sparse_block<BlockData>& block,
+                              detail::csr_block<BlockData>& block,
                               alloc_kind kind,
                               bool preserve_mutability) {
     if (!alloc_kind_requires_copy(get_alloc_kind(origin_column_indices), kind)) {
@@ -105,7 +105,7 @@ template <typename Policy, typename BlockData>
 void pull_row_indices_impl(const Policy& policy,
                            const array<std::int64_t>& origin_row_indices,
                            const block_info& block_info,
-                           detail::sparse_block<BlockData>& block,
+                           detail::csr_block<BlockData>& block,
                            alloc_kind kind,
                            bool preserve_mutability) {
     if (block.row_indices.get_count() < block_info.row_count_ + 1 ||
@@ -132,15 +132,15 @@ void pull_row_indices_impl(const Policy& policy,
 }
 
 template <typename Policy, typename BlockData>
-void pull_sparse_block_impl(const Policy& policy,
-                            const csr_info& origin_info,
-                            const block_info& block_info,
-                            const array<byte_t>& origin_data,
-                            const array<std::int64_t>& origin_column_indices,
-                            const array<std::int64_t>& origin_row_indices,
-                            detail::sparse_block<BlockData>& block,
-                            alloc_kind kind,
-                            bool preserve_mutability) {
+void pull_csr_block_impl(const Policy& policy,
+                         const csr_info& origin_info,
+                         const block_info& block_info,
+                         const array<byte_t>& origin_data,
+                         const array<std::int64_t>& origin_column_indices,
+                         const array<std::int64_t>& origin_row_indices,
+                         detail::csr_block<BlockData>& block,
+                         alloc_kind kind,
+                         bool preserve_mutability) {
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     constexpr data_type block_dtype = detail::make_data_type<BlockData>();
 
@@ -187,41 +187,41 @@ void pull_sparse_block_impl(const Policy& policy,
 }
 
 template <typename Policy, typename BlockData>
-void csr_pull_sparse_block(const Policy& policy,
-                           const csr_info& origin_info,
-                           const block_info& block_info,
-                           const array<byte_t>& origin_data,
-                           const array<std::int64_t>& origin_column_indices,
-                           const array<std::int64_t>& origin_row_indices,
-                           detail::sparse_block<BlockData>& block,
-                           alloc_kind requested_alloc_kind,
-                           bool preserve_mutability) {
+void csr_pull_block(const Policy& policy,
+                    const csr_info& origin_info,
+                    const block_info& block_info,
+                    const array<byte_t>& origin_data,
+                    const array<std::int64_t>& origin_column_indices,
+                    const array<std::int64_t>& origin_row_indices,
+                    detail::csr_block<BlockData>& block,
+                    alloc_kind requested_alloc_kind,
+                    bool preserve_mutability) {
     switch (origin_info.layout_) {
         case data_layout::row_major:
-            pull_sparse_block_impl(policy,
-                                   origin_info,
-                                   block_info,
-                                   origin_data,
-                                   origin_column_indices,
-                                   origin_row_indices,
-                                   block,
-                                   requested_alloc_kind,
-                                   preserve_mutability);
+            pull_csr_block_impl(policy,
+                                origin_info,
+                                block_info,
+                                origin_data,
+                                origin_column_indices,
+                                origin_row_indices,
+                                block,
+                                requested_alloc_kind,
+                                preserve_mutability);
             break;
         default: throw dal::domain_error(error_msg::unsupported_data_layout());
     }
 }
 
-#define INSTANTIATE(Policy, BlockData)                                                    \
-    template void csr_pull_sparse_block(const Policy& policy,                             \
-                                        const csr_info& origin_info,                      \
-                                        const block_info& block_info,                     \
-                                        const array<byte_t>& origin_data,                 \
-                                        const array<std::int64_t>& origin_column_indices, \
-                                        const array<std::int64_t>& origin_row_indices,    \
-                                        detail::sparse_block<BlockData>& block,           \
-                                        alloc_kind requested_alloc_kind,                  \
-                                        bool preserve_mutability);
+#define INSTANTIATE(Policy, BlockData)                                             \
+    template void csr_pull_block(const Policy& policy,                             \
+                                 const csr_info& origin_info,                      \
+                                 const block_info& block_info,                     \
+                                 const array<byte_t>& origin_data,                 \
+                                 const array<std::int64_t>& origin_column_indices, \
+                                 const array<std::int64_t>& origin_row_indices,    \
+                                 detail::csr_block<BlockData>& block,              \
+                                 alloc_kind requested_alloc_kind,                  \
+                                 bool preserve_mutability);
 
 #ifdef ONEDAL_DATA_PARALLEL
 #define INSTANTIATE_ALL_POLICIES(Data)             \

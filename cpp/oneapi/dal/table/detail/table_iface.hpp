@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/table/detail/rows_access_iface.hpp"
 #include "oneapi/dal/table/detail/columns_access_iface.hpp"
-#include "oneapi/dal/table/detail/sparse_access_iface.hpp"
+#include "oneapi/dal/table/detail/csr_access_iface.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
@@ -46,7 +46,7 @@ public:
     virtual const table_metadata& get_metadata() const = 0;
     virtual pull_rows_iface* get_pull_rows_iface() = 0;
     virtual pull_column_iface* get_pull_column_iface() = 0;
-    virtual pull_sparse_block_iface* get_pull_sparse_block_iface() = 0;
+    virtual pull_csr_block_iface* get_pull_csr_block_iface() = 0;
 };
 
 class homogen_table_iface : public table_iface {
@@ -107,7 +107,7 @@ template <typename Iface, typename Derived>
 class table_template : public Iface,
                        public pull_rows_template<Derived>,
                        public pull_column_template<Derived>,
-                       public pull_sparse_block_template<Derived> {
+                       public pull_csr_block_template<Derived> {
 public:
     pull_rows_iface* get_pull_rows_iface() override {
         return this;
@@ -117,7 +117,7 @@ public:
         return this;
     }
 
-    pull_sparse_block_iface* get_pull_sparse_block_iface() override {
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
         return this;
     }
 };

@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/csr_kernels.hpp"
-#include "oneapi/dal/table/detail/sparse_access_iface.hpp"
+#include "oneapi/dal/table/detail/csr_access_iface.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -142,10 +142,10 @@ public:
 #endif
 
     template <typename T>
-    void pull_sparse_block(const detail::default_host_policy& policy,
-                           detail::sparse_block<T>& block,
-                           const detail::csr_indexing& indexing,
-                           const range& rows) const {
+    void pull_csr_block(const detail::default_host_policy& policy,
+                        detail::csr_block<T>& block,
+                        const detail::csr_indexing& indexing,
+                        const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
                               layout_,
                               row_count_,
@@ -162,14 +162,14 @@ public:
 
         block_info block_info{ rows.start_idx, rows.get_element_count(row_count_), indexing };
 
-        csr_pull_sparse_block(policy,
-                              origin_info,
-                              block_info,
-                              data_,
-                              column_indices_,
-                              row_indices_,
-                              block,
-                              alloc_kind::host);
+        csr_pull_block(policy,
+                       origin_info,
+                       block_info,
+                       data_,
+                       column_indices_,
+                       row_indices_,
+                       block,
+                       alloc_kind::host);
     }
 
 private:

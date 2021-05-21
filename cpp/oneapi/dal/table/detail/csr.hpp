@@ -17,7 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/detail/sparse_block.hpp"
+#include "oneapi/dal/table/backend/csr_table_impl.hpp"
+#include "oneapi/dal/table/detail/csr_block.hpp"
 #include "oneapi/dal/detail/array_utils.hpp"
 
 namespace oneapi::dal::detail {
@@ -144,26 +145,14 @@ private:
                       column_indices.get_data(),
                       indexing);
 
-        //TODO: policy for all arrays must be the same
-
-        detail::dispath_by_policy(data, [&](auto policy) {
-            init_impl(column_count,
-                      row_count,
-                      detail::reinterpret_array_cast<byte_t>(data),
-                      column_indices,
-                      row_indices,
-                      detail::make_data_type<Data>(),
-                      indexing);
-        });
+        table::init_impl(new backend::csr_table_impl(column_count,
+                                                     row_count,
+                                                     detail::reinterpret_array_cast<byte_t>(data),
+                                                     column_indices,
+                                                     row_indices,
+                                                     detail::make_data_type<Data>(),
+                                                     indexing));
     }
-
-    void init_impl(std::int64_t column_count,
-                   std::int64_t row_count,
-                   const array<byte_t>& data,
-                   const array<std::int64_t>& column_indices,
-                   const array<std::int64_t>& row_indices,
-                   const data_type& dtype,
-                   csr_indexing indexing);
 };
 
 } // namespace v1

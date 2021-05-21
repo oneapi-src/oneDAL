@@ -25,18 +25,18 @@ namespace v1 {
 enum class csr_indexing { zero_based, one_based };
 
 /// @tparam T The type of data values in block.
-///           Sparse block supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
+///           CSR block supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
 template <typename T>
-struct sparse_block {
+struct csr_block {
     array<T> data;
     array<std::int64_t> column_indices;
     array<std::int64_t> row_indices;
 
-    sparse_block() : data(), column_indices(), row_indices() {}
+    csr_block() : data(), column_indices(), row_indices() {}
 };
 } // namespace v1
 
-using v1::sparse_block;
+using v1::csr_block;
 using v1::csr_indexing;
 
 } // namespace oneapi::dal::detail
