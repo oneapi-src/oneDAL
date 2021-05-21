@@ -618,12 +618,9 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                        obj_function);
 }
 */
-/*
-// This stress test is commented due to GPU K-Means crash.
-// Will be added when the issue is resolved.
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "kmeans partial centroid adjustment test",
-                     "[kmeans][batch][nightly]",
+                     "kmeans partial centroids stress test",
+                     "[kmeans][batch][nightly][stress]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
@@ -647,7 +644,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
 
     this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
 }
-*/
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "higgs: samples=1M, clusters=10, iters=3",
@@ -867,37 +863,5 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                                    ref_obj_func,
                                    1.0e-3);
 }
-/*
-TEMPLATE_LIST_TEST_M(kmeans_batch_test,
-                     "example, clusters=20, iters=5",
-                     "[kmeans][batch][external-dataset]",
-                     kmeans_types) {
-    
-    SKIP_IF(this->not_float64_friendly());
-    using Float = std::tuple_element_t<0, TestType>;
 
-    const te::dataframe data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "kmeans_dense_train_data.csv" });
-    const table x = data.get_table(this->get_homogen_table_id());
-
-    const te::dataframe centroids = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "kmeans_dense_train_centroids.csv" });
-    const table c = centroids.get_table(this->get_homogen_table_id());
-
-    constexpr std::int64_t cluster_count = 20;
-    constexpr std::int64_t max_iteration_count = 5;
-    constexpr Float threshold = 0.001;
-    constexpr Float ref_dbi = 1.937667982;
-    constexpr Float ref_obj_func = 169010144.0;
-
-    this->dbi_determenistic_checks_with_centroids(x,
-                                   c,
-                                   cluster_count,
-                                   max_iteration_count,
-                                   threshold,
-                                   ref_dbi,
-                                   ref_obj_func,
-                                   1.0e-3);
-}
-*/
 } // namespace oneapi::dal::kmeans::test
