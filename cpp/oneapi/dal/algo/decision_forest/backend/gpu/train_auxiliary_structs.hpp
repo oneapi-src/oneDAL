@@ -45,7 +45,7 @@ struct ONEDAL_EXPORT impl_const<Index, task::classification> {
     constexpr static Index node_imp_prop_count_ = 1; // impurity
     constexpr static Index oob_aux_prop_count_ =
         0; // class count is used instead for classification
-        // added for consistency with regression
+    // added for consistency with regression
 };
 
 template <typename Index>
