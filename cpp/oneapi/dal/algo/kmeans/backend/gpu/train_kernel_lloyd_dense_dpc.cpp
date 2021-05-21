@@ -17,8 +17,8 @@
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_int.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_fp.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"

@@ -16,8 +16,8 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_int.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_fp.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::kmeans::backend {
