@@ -466,8 +466,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
 
         if (iter == 0)
         {
-            localEps  = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
-            localDiff = services::internal::max<cpu, algorithmFPType>(localDiff, localEps);
+            localEps = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
         }
         if (localDiff < localEps)
         {
