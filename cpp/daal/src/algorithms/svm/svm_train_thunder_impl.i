@@ -421,7 +421,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorit
     DAAL_ITTNOTIFY_SCOPED_TASK(updateGrad);
 
     SafeStatus safeStat;
-    const size_t blockSizeGrad = 128;
+    const size_t blockSizeGrad = 64;
     const size_t nBlocksGrad   = (nTrainVectors / blockSizeGrad) + !!(nTrainVectors % blockSizeGrad);
 
     DAAL_INT incX(1);
