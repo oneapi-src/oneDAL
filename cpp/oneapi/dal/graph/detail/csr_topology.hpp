@@ -88,7 +88,7 @@ public:
     }
 
     ONEDAL_FORCEINLINE auto get_vertex_degree(const IndexType& vertex) const noexcept
-        -> edge_size_type {
+        -> vertex_edge_size_type {
         return _degrees_ptr[vertex];
     }
 
