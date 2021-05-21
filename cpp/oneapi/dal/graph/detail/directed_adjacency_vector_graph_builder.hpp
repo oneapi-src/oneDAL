@@ -1,4 +1,4 @@
-/* file: undirected_adjacency_vector_graph_topology_builder.hpp */
+/* file: directed_adjacency_vector_graph_builder.hpp */
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
