@@ -17,19 +17,23 @@
 #pragma once
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_cls_hist_aux_props.hpp"
+#include "oneapi/dal/algo/decision_forest/train_types.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_auxiliary_structs.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename Float, typename Bin = std::uint32_t, typename Index = std::int32_t>
-class helper_cls_tree_level_build {
-    using impl_const_t = impl_const<task::classification, Index>;
+template <typename Float,
+          typename Bin = std::uint32_t,
+          typename Index = std::int32_t,
+          typename Task = task::by_default>
+class train_service_kernels {
+    using impl_const_t = impl_const<Index, Task>;
 
 public:
-    helper_cls_tree_level_build(sycl::queue& q) : queue_(q){};
-    ~helper_cls_tree_level_build() = default;
+    train_service_kernels(sycl::queue& q) : queue_(q){};
+    ~train_service_kernels() = default;
 
     std::uint64_t get_oob_rows_required_mem_size(Index row_count,
                                                  Index tree_count,
@@ -126,8 +130,8 @@ private:
     static constexpr inline double aproximate_oob_rows_fraction_ = 0.6;
     static constexpr inline Index big_node_low_border_blocks_num_ = 32;
     static constexpr inline Index partition_min_block_size_ = 128;
-    static constexpr inline Index partition_max_block_count_ =
-        256; // max blocks number for one node
+    // max blocks number for one node
+    static constexpr inline Index partition_max_block_count_ = 256;
     static constexpr inline Index min_rows_block_ = 256;
 
     static constexpr inline Index max_local_sums_ = 256;
@@ -135,8 +139,8 @@ private:
     static constexpr inline Index preferable_group_size_ = 256;
     static constexpr inline Index preferable_partition_group_size_ = 128; // it showed best perf
     static constexpr inline Index preferable_partition_groups_count_ = 8192;
-    static constexpr inline Index aux_node_buffer_prop_count_ =
-        2; // auxilliary buffer for nodes partitioning
+    // auxilliary buffer for nodes partitioning
+    static constexpr inline Index aux_node_buffer_prop_count_ = 2;
 
     static constexpr inline Index preferable_sbg_size_ = 16;
 };

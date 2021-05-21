@@ -14,21 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/services/service_algo_utils.h>
-#include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_training_batch.h>
-#include <daal/include/algorithms/decision_forest/decision_forest_classification_training_types.h>
-#include <daal/src/algorithms/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h>
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/model_impl.hpp"
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/df_cls_train_hist_impl.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel_hist_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -38,24 +28,15 @@ using input_t = train_input<task::classification>;
 using result_t = train_result<task::classification>;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
-namespace daal_df = daal::algorithms::decision_forest;
-namespace daal_df_cls_train = daal_df::classification::training;
-namespace interop = dal::backend::interop;
-
-template <typename Float>
-using cls_hist_kernel_t =
-    daal_df_cls_train::internal::ClassificationTrainBatchKernelOneAPI<Float,
-                                                                      daal_df_cls_train::hist>;
-
 template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
                                  const table& labels) {
     auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
 
-    df_cls_train_hist_impl<Float> train_hist_impl(queue);
+    train_kernel_hist_impl<Float, std::uint32_t, std::int32_t, task::classification>
+        train_hist_impl(queue);
     return train_hist_impl(desc, data, labels);
 }
 

@@ -14,24 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/helper_feature_type.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
-
-#define _P(...)              \
-    do {                     \
-        printf(__VA_ARGS__); \
-        printf("\n");        \
-        fflush(0);           \
-    } while (0)
-
-#define _PL(...)             \
-    do {                     \
-        printf(__VA_ARGS__); \
-        fflush(0);           \
-    } while (0)
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -270,20 +257,6 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
 
     const auto data_nd_ =
         pr::flatten_table<Float, row_accessor>(queue_, tbl, sycl::usm::alloc::device);
-
-#ifdef PP
-    const auto data_h = data_nd_.to_host(queue_);
-    const auto row_count = tbl.get_row_count();
-    const auto column_count = tbl.get_column_count();
-    _P("Orig data ");
-    for (std::int64_t i = 0; i < row_count; i++) {
-        _PL("%ld ", i);
-        for (std::int64_t j = 0; j < column_count; j++) {
-            _PL("%.6f ", data_h.get_data()[i * column_count + j]);
-        }
-    }
-    _P("----");
-#endif
 
     if (tbl.get_row_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_rows());

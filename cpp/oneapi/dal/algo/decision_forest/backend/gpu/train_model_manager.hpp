@@ -19,7 +19,8 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/algo/decision_forest/common.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/model_impl.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_cls_hist_aux_props.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_auxiliary_structs.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_impurity_data.hpp"
 
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_model_impl.h>
@@ -52,25 +53,25 @@ using namespace daal::services::internal;
 
 template <typename Float, typename Index, typename Task = task::by_default>
 struct tree_level_record {
-    using impl_const_t = impl_const<Task, Index>;
+    using impl_const_t = impl_const<Index, Task>;
+    using context_t = df_train_context<Float, Index, Task>;
+    using imp_data_t = impurity_data<Float, Index, Task>;
 
-    tree_level_record(cl::sycl::queue queue,
+    tree_level_record(cl::sycl::queue& queue,
                       dal::backend::primitives::ndarray<Index, 1> node_list,
-                      dal::backend::primitives::ndarray<Float, 1> imp_list,
-                      dal::backend::primitives::ndarray<Index, 1> class_hist_list,
+                      const imp_data_t& imp_data_list,
                       Index node_count,
-                      Index class_count,
+                      const context_t& ctx,
                       const dal::backend::event_vector& deps = {})
             : node_count_(node_count),
-              class_count_(class_count) {
+              ctx_(ctx) {
         ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
-        ONEDAL_ASSERT(imp_list.get_count() == node_count * impl_const_t::node_imp_prop_count_);
-        ONEDAL_ASSERT(class_hist_list.get_count() == node_count * class_count);
+        //ONEDAL_ASSERT(imp_list.get_count() == node_count * impl_const_t::node_imp_prop_count_);
+        //ONEDAL_ASSERT(class_hist_list.get_count() == node_count * class_count);
 
         // Add to host async??
         node_list_ = node_list.to_host(queue, deps);
-        imp_list_ = imp_list.to_host(queue);
-        class_hist_list_ = class_hist_list.to_host(queue);
+        imp_data_list_ = imp_data_list.to_host(queue);
     }
 
     Index get_node_count() {
@@ -87,16 +88,30 @@ struct tree_level_record {
         return node_list_.get_data()[node_idx * impl_const_t::node_prop_count_ + 3];
     }
 
-    Index get_response(Index node_idx) {
-        return node_list_.get_data()[node_idx * impl_const_t::node_prop_count_ + 5];
+    auto get_response(Index node_idx) {
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            return node_list_.get_data()[node_idx * impl_const_t::node_prop_count_ + 5];
+        }
+        else {
+            return imp_data_list_.imp_list_
+                .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + 0];
+        }
     }
-
     Float get_impurity(Index node_idx) {
-        return imp_list_.get_data()[node_idx * impl_const_t::node_imp_prop_count_ + 0];
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            return imp_data_list_.imp_list_
+                .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + 0];
+        }
+        else {
+            return imp_data_list_.imp_list_
+                       .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + 1] /
+                   get_row_count(node_idx);
+        }
     }
 
+    template <typename T = Task, typename = decision_forest::detail::enable_if_classification_t<T>>
     const Index* get_class_hist(Index node_idx) {
-        return &(class_hist_list_.get_data()[node_idx * class_count_]);
+        return &(imp_data_list_.class_hist_list_.get_data()[node_idx * ctx_.class_count_]);
     }
 
     bool is_leaf(Index node_idx) {
@@ -107,15 +122,15 @@ struct tree_level_record {
     }
 
     dal::backend::primitives::ndarray<Index, 1> node_list_;
-    dal::backend::primitives::ndarray<Float, 1> imp_list_;
-    dal::backend::primitives::ndarray<Index, 1> class_hist_list_;
+    imp_data_t imp_data_list_;
 
     Index node_count_;
-    Index class_count_;
+    const context_t& ctx_;
 };
 
 template <typename Float, typename Index, typename Task = task::by_default>
-class model_builder_interop {
+class train_model_manager {
+    using context_t = df_train_context<Float, Index, Task>;
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
     using model_interop_impl_t =
@@ -126,14 +141,16 @@ class model_builder_interop {
     using NodeType = typename TreeType::NodeType;
 
 public:
-    explicit model_builder_interop(Index tree_count, Index column_count, Index class_count)
+    explicit train_model_manager(Index tree_count, Index column_count, const context_t& ctx)
             : allocator_(allocator_node_count_hint_),
               daal_model_ptr_(new daal_model_impl_t(column_count)),
               daal_model_interface_ptr_(daal_model_ptr_),
-              class_count_(class_count),
-              tree_list_(tree_count) {
+              tree_list_(tree_count),
+              ctx_(ctx) {
         daal_model_ptr_->resize(tree_count);
     }
+
+    ~train_model_manager() = default;
 
     void add_tree_block(std::vector<tree_level_record<Float, Index, Task>>& treeLevelsList,
                         std::vector<dal::backend::primitives::ndarray<Float, 1>>& binValues,
@@ -180,8 +197,13 @@ public:
         for (Index tree_idx = 0; tree_idx < tree_count; tree_idx++) {
             tree_list_[last_tree_pos_ + tree_idx].reset((*dfTreeLevelNodesPrev)[tree_idx],
                                                         unorderedFeaturesUsed);
+            Index class_count = 0;
+            if constexpr (std::is_same_v<task::classification, Task>) {
+                class_count = ctx_.class_count_;
+            }
+
             daal_model_ptr_->add(tree_list_[last_tree_pos_ + tree_idx],
-                                 class_count_,
+                                 class_count,
                                  last_tree_pos_ + tree_idx);
         }
         last_tree_pos_ += tree_count;
@@ -194,34 +216,47 @@ public:
                 tree_list_[tree_idx],
                 x);
         DAAL_ASSERT(pNode);
-        //Float resp = NodeType::castLeaf(pNode)->response.value;
-        //_P("pnode %p, resp %.6f", (void*)pNode, resp);
-        return NodeType::castLeaf(pNode)->response.value;
+        if constexpr (std::is_same_v<task::classification, Task>) {
+            return NodeType::castLeaf(pNode)->response.value;
+        }
+        else {
+            return NodeType::castLeaf(pNode)->response;
+        }
     }
 
     model_t get_model() {
         const auto model_impl =
             std::make_shared<model_impl_t>(new model_interop_impl_t{ daal_model_interface_ptr_ });
         model_impl->tree_count = daal_model_ptr_->getNumberOfTrees();
-        model_impl->class_count = daal_model_ptr_->getNumberOfClasses();
+
+        if constexpr (std::is_same_v<task::classification, Task>) {
+            model_impl->class_count = daal_model_ptr_->getNumberOfClasses();
+        }
 
         return dal::detail::make_private<model_t>(model_impl);
     }
 
 private:
-    //typename NodeType::Leaf * makeLeaf(Index n, Index response, Float impurity, Float * hist, size_t nClasses)
     typename NodeType::Leaf* makeLeaf(tree_level_record<Float, Index, Task>& record,
                                       Index node_idx) {
-        typename NodeType::Leaf* pNode = allocator_.allocLeaf(class_count_);
         DAAL_ASSERT(record.get_row_count(node_idx) > 0);
-        pNode->response.value = record.get_response(node_idx);
+
+        typename NodeType::Leaf* pNode;
+        if constexpr (std::is_same_v<task::classification, Task>) {
+            pNode = allocator_.allocLeaf(ctx_.class_count_);
+            pNode->response.value = record.get_response(node_idx);
+        }
+        else {
+            pNode = allocator_.allocLeaf();
+            pNode->response = record.get_response(node_idx);
+        }
+
         pNode->count = record.get_row_count(node_idx);
         pNode->impurity = record.get_impurity(node_idx);
 
-        //_P("leaf node %d, resp %d, rc %d, imp %.6f ", node_idx, record.get_response(node_idx), record.get_row_count(node_idx), record.get_impurity(node_idx));
         if constexpr (std::is_same_v<task::classification, Task>) {
             const Index* hist_ptr = record.get_class_hist(node_idx);
-            for (Index i = 0; i < class_count_; i++) {
+            for (Index i = 0; i < ctx_.class_count_; i++) {
                 pNode->hist[i] = static_cast<Float>(hist_ptr[i]);
             }
         }
@@ -229,10 +264,8 @@ private:
         return pNode;
     }
 
-    //typename NodeType::Split * makeSplit(size_t n, size_t iFeature, Float featureValue, bool bUnordered, Float impurity,
-    //                                     typename NodeType::Base * left, typename NodeType::Base * right)
     typename NodeType::Split* makeSplit(
-        tree_level_record<Float, Index, Task>& record,
+        tree_level_record<Float, Index, Task>& record, //const ???
         std::vector<dal::backend::primitives::ndarray<Float, 1>>& feature_value_arr,
         Index node_idx,
         typename NodeType::Base* left,
@@ -251,16 +284,16 @@ private:
     }
 
 private:
-    constexpr static Index allocator_node_count_hint_ =
-        512; //number of nodes as a hint for allocator to grow by
+    //number of nodes as a hint for allocator to grow by
+    constexpr static Index allocator_node_count_hint_ = 512;
     typename TreeType::Allocator allocator_;
     daal_model_impl_t* daal_model_ptr_;
     daal_model_ptr_t daal_model_interface_ptr_;
 
     Index last_tree_pos_ = 0;
-    Index class_count_ = 0;
 
     std::vector<TreeType> tree_list_;
+    const context_t& ctx_;
 };
 
 } // namespace oneapi::dal::decision_forest::backend

@@ -14,32 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/algo/decision_forest/common.hpp"
-#include "oneapi/dal/detail/common.hpp"
-
-//#define _P(...) do{ \
-//    printf(__VA_ARGS__); printf("\n"); fflush(0); \
-//    } while(0)
-//
-//#define _PL(...) do{ \
-//    printf(__VA_ARGS__); fflush(0); \
-//    } while(0)
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels_def_dpc.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
-template <typename Task, typename Index = std::int32_t>
-struct impl_const;
-
-template <typename Index>
-struct ONEDAL_EXPORT impl_const<task::classification, Index> {
-    //constexpr static Index bad_val_ = dal::detail::limits<Index>::max();
-    constexpr static Index bad_val_ = -1;
-    constexpr static Index leaf_node_ = bad_val_;
-    constexpr static Index node_prop_count_ = 6; // rows offset, rows count, ftr id, ftr val(bin),
-        // left part rows count, response
-    constexpr static Index node_imp_prop_count_ = 1; // impurity
-};
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::classification);
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::regression);
 
 } // namespace oneapi::dal::decision_forest::backend

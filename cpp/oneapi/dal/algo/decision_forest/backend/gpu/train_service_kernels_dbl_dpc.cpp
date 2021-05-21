@@ -14,10 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/df_cls_train_hist_impl_def.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels_def_dpc.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
-INSTANTIATE(double, std::uint32_t);
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::classification);
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::regression);
 
 } // namespace oneapi::dal::decision_forest::backend

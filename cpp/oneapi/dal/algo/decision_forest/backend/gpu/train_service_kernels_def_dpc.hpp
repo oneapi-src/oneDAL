@@ -14,10 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/helper_cls_tree_level_build.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
-///
+
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 
 namespace oneapi::dal::decision_forest::backend {
@@ -43,20 +43,20 @@ inline T atomic_global_add(T* ptr, T operand) {
         operand);
 }
 
-template <typename Float, typename Bin, typename Index>
-std::uint64_t helper_cls_tree_level_build<Float, Bin, Index>::get_oob_rows_required_mem_size(
+template <typename Float, typename Bin, typename Index, typename Task>
+std::uint64_t train_service_kernels<Float, Bin, Index, Task>::get_oob_rows_required_mem_size(
     Index row_count,
     Index tree_count,
     double observations_per_tree_fraction) {
     // mem size occupied on GPU for storing OOB rows indices
     const std::uint64_t oob_rows_aprox_count =
-        row_count * (1.0 - observations_per_tree_fraction) +
+        row_count * (Float(1) - observations_per_tree_fraction) +
         row_count * observations_per_tree_fraction * aproximate_oob_rows_fraction_;
     return sizeof(Index) * oob_rows_aprox_count * tree_count;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::initialize_tree_order(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_order(
     pr::ndarray<Index, 1>& tree_order,
     Index tree_count,
     Index row_count,
@@ -80,8 +80,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::initialize_tree_orde
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::split_node_list_on_groups_by_size(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_groups_by_size(
     const dal::backend::primitives::ndarray<Index, 1>& node_list,
     dal::backend::primitives::ndarray<Index, 1>& node_groups,
     dal::backend::primitives::ndarray<Index, 1>& node_indices,
@@ -95,11 +95,13 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::split_node_list_on_g
     ONEDAL_ASSERT(node_indices.get_count() == node_count);
     ONEDAL_ASSERT(node_groups.get_count() == group_count * group_prop_count);
 
+    //_P("split node lists on groups");
     [[maybe_unused]] const Index bigNodeLowBorderBlocksNum = big_node_low_border_blocks_num_;
     const Index blockSize = min_rows_block_;
     [[maybe_unused]] const Index nNodeProp =
         impl_const_t::node_prop_count_; // num of split attributes for node
 
+    //_P("node_prop count %d", nNodeProp);
     [[maybe_unused]] const Index* node_list_ptr = node_list.get_data();
     [[maybe_unused]] Index* node_groups_ptr = node_groups.get_mutable_data();
     [[maybe_unused]] Index* node_indices_ptr = node_indices.get_mutable_data();
@@ -181,8 +183,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::split_node_list_on_g
 }
 
 // todo migrate to tuple
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::get_split_node_count(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count(
     const dal::backend::primitives::ndarray<Index, 1>& node_list,
     Index node_count,
     Index& split_node_count,
@@ -229,8 +231,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::get_split_node_count
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::do_level_partition_by_groups(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_by_groups(
     const pr::ndarray<Bin, 2>& data,
     const pr::ndarray<Index, 1>& node_list,
     pr::ndarray<Index, 1>& tree_order,
@@ -368,8 +370,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::do_level_partition_b
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::update_mdi_var_importance(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_importance(
     const pr::ndarray<Index, 1>& node_list,
     const pr::ndarray<Float, 1>& node_imp_decrease_list,
     pr::ndarray<Float, 1>& res_var_imp,
@@ -465,8 +467,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::update_mdi_var_impor
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::mark_present_rows(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
     const pr::ndarray<Index, 1>& rowsList,
     pr::ndarray<Index, 1>& rowsBuffer,
     Index nRows,
@@ -519,8 +521,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::mark_present_rows(
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::count_absent_rows_for_blocks(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_for_blocks(
     const pr::ndarray<Index, 1>& rowsBuffer,
     pr::ndarray<Index, 1>& partial_sum,
     Index nRows,
@@ -576,8 +578,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::count_absent_rows_fo
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::count_absent_rows_total(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_total(
     const pr::ndarray<Index, 1>& partial_sum,
     pr::ndarray<Index, 1>& partial_prefix_sum,
     pr::ndarray<Index, 1>& oob_rows_num_list,
@@ -627,8 +629,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::count_absent_rows_to
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::fill_oob_rows_list_by_blocks(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_by_blocks(
     const pr::ndarray<Index, 1>& rowsBuffer,
     const pr::ndarray<Index, 1>& partial_prefix_sum,
     const pr::ndarray<Index, 1>& oob_row_num_list,
@@ -696,8 +698,8 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::fill_oob_rows_list_b
     return event;
 }
 
-template <typename Float, typename Bin, typename Index>
-sycl::event helper_cls_tree_level_build<Float, Bin, Index>::get_oob_row_list(
+template <typename Float, typename Bin, typename Index, typename Task>
+sycl::event train_service_kernels<Float, Bin, Index, Task>::get_oob_row_list(
     const pr::ndarray<Index, 1>& rowsList,
     pr::ndarray<Index, 1>& oobRowsNumList,
     pr::ndarray<Index, 1>& oobRowsList,
@@ -791,6 +793,6 @@ sycl::event helper_cls_tree_level_build<Float, Bin, Index>::get_oob_row_list(
     return last_event;
 }
 
-#define INSTANTIATE(F, B, I) template class helper_cls_tree_level_build<F, B, I>;
+#define INSTANTIATE(F, B, I, T) template class train_service_kernels<F, B, I, T>;
 
 } // namespace oneapi::dal::decision_forest::backend

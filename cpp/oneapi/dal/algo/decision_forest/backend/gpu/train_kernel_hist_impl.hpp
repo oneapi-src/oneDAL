@@ -21,57 +21,61 @@
 //#include "oneapi/dal/algo/decision_forest/common.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_cls_hist_aux_props.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/helper_cls_tree_level_build.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/helper_rng_engine.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/helper_feature_type.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/helper_tree_build.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_auxiliary_structs.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_impurity_data.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_model_manager.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <typename F>
-struct float_accuracy;
+// task_types
+template <typename Float, typename Index, typename Task = task::by_default>
+struct task_types;
 
-template <>
-struct float_accuracy<float> {
-    static constexpr float val = float(1e-5);
+template <typename Float, typename Index>
+struct task_types<Float, Index, task::classification> {
+    using hist_type_t = Index;
 };
 
-template <>
-struct float_accuracy<double> {
-    static constexpr double val = double(1e-10);
+template <typename Float, typename Index>
+struct task_types<Float, Index, task::regression> {
+    using hist_type_t = Float;
 };
 
-template <typename Float, typename Bin = std::uint32_t, typename Index = std::int32_t>
-class df_cls_train_hist_impl {
-    using tree_level_build_helper_t = helper_cls_tree_level_build<Float, Bin, Index>;
-    using impl_const_t = impl_const<task::classification, Index>;
-    using result_t = train_result<task::classification>;
-    using model_builder_t = model_builder_interop<Float, Index, task::classification>;
+// imp_info
+// main impl
+template <typename Float,
+          typename Bin = std::uint32_t,
+          typename Index = std::int32_t,
+          typename Task = task::by_default>
+class train_kernel_hist_impl {
+    using result_t = train_result<Task>;
+    using train_service_kernels_t = train_service_kernels<Float, Bin, Index, Task>;
+    using impl_const_t = impl_const<Index, Task>;
+    using descriptor_t = detail::descriptor_base<Task>;
+    using model_manager_t = train_model_manager<Float, Index, Task>;
+    using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
+    using context_t = df_train_context<Float, Index, Task>;
+    using imp_data_t = impurity_data<Float, Index, Task>;
 
 public:
-    df_cls_train_hist_impl(cl::sycl::queue& q) : queue_(q), tree_level_build_helper_(q) {}
-    ~df_cls_train_hist_impl() = default;
+    train_kernel_hist_impl(cl::sycl::queue& q) : queue_(q), train_service_kernels_(q) {}
+    ~train_kernel_hist_impl() = default;
 
-    // ?? return train_result
-    result_t operator()(const detail::descriptor_base<task::classification>& desc,
-                        const table& data,
-                        const table& labels);
+    result_t operator()(const descriptor_t& desc, const table& data, const table& labels);
 
 private:
     std::uint64_t get_part_hist_required_mem_size(Index selected_ftr_count,
                                                   Index max_bin_count_among_ftrs,
                                                   Index class_count) const;
 
-    void validate_input(const detail::descriptor_base<task::classification>& desc,
-                        const table& data,
-                        const table& labels) const;
+    void validate_input(const descriptor_t& desc, const table& data, const table& labels) const;
 
-    void init_params(const detail::descriptor_base<task::classification>& desc,
-                     const table& data,
-                     const table& labels);
+    void init_params(const descriptor_t& desc, const table& data, const table& labels);
     void allocate_buffers();
 
     dal::backend::primitives::ndarray<Index, 1> gen_features(
@@ -79,25 +83,22 @@ private:
         const dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map,
         dal::array<engine_impl>& engines);
 
-    cl::sycl::event compute_class_histogram(
+    cl::sycl::event compute_initial_histogram(
         const dal::backend::primitives::ndarray<Float, 1>& response,
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
         const dal::backend::primitives::ndarray<Index, 1>& nodeList,
-        const dal::backend::primitives::ndarray<Float, 1>& impList,
-        dal::backend::primitives::ndarray<Index, 1>& class_histogram,
+        imp_data_t& imp_data_list,
         Index node_count,
-        const dal::backend::event_vector& deps = {});
+        const dal::backend::event_vector& deps);
 
     cl::sycl::event do_node_split(
         const dal::backend::primitives::ndarray<Index, 1>& node_list,
-        const dal::backend::primitives::ndarray<Index, 1>& class_hist_list,
-        const dal::backend::primitives::ndarray<Float, 1>& left_child_imp_list,
-        const dal::backend::primitives::ndarray<Index, 1>& left_child_class_hist_list,
         const dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map,
+        const imp_data_t& imp_data_list,
+        const imp_data_t& left_child_imp_data_list,
         dal::backend::primitives::ndarray<Index, 1>& node_list_new,
-        dal::backend::primitives::ndarray<Float, 1>& imp_list_new,
-        dal::backend::primitives::ndarray<Index, 1>& class_hist_list_new,
         dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map_new,
+        imp_data_t& imp_data_list_new,
         Index node_count,
         Index node_count_new,
         const dal::backend::event_vector& deps);
@@ -108,11 +109,9 @@ private:
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
         const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
         const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
-        const dal::backend::primitives::ndarray<Float, 1>& impList,
-        const dal::backend::primitives::ndarray<Index, 1>& class_hist_list,
+        const imp_data_t& imp_data_list,
         dal::backend::primitives::ndarray<Index, 1>& nodeList,
-        dal::backend::primitives::ndarray<Float, 1>& left_child_imp_list,
-        dal::backend::primitives::ndarray<Index, 1>& left_child_class_hist_list,
+        imp_data_t& left_child_imp_data_list,
         dal::backend::primitives::ndarray<Float, 1>& nodeImpDecreaseList,
         bool updateImpDecreaseRequired,
         Index nNodes,
@@ -127,34 +126,32 @@ private:
         const dal::backend::primitives::ndarray<Index, 1>& nodeList,
         const dal::backend::primitives::ndarray<Index, 1>& nodeIndices,
         Index nodeIndicesOffset,
-        dal::backend::primitives::ndarray<Index, 1>& partialHistograms,
+        dal::backend::primitives::ndarray<hist_type_t, 1>& partialHistograms,
         Index nPartialHistograms,
         Index node_count,
         const dal::backend::event_vector& deps = {});
 
     cl::sycl::event reduce_partial_histograms(
-        const dal::backend::primitives::ndarray<Index, 1>& partialHistograms,
-        dal::backend::primitives::ndarray<Index, 1>& histograms,
+        const dal::backend::primitives::ndarray<hist_type_t, 1>& partialHistograms,
+        dal::backend::primitives::ndarray<hist_type_t, 1>& histograms,
         Index nPartialHistograms,
         Index node_count,
         Index reduce_local_size,
         const dal::backend::event_vector& deps = {});
 
     cl::sycl::event compute_best_split_by_histogram(
-        const dal::backend::primitives::ndarray<Index, 1>& nodesHistograms,
+        const dal::backend::primitives::ndarray<hist_type_t, 1>& nodesHistograms,
         const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
         const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
-        const dal::backend::primitives::ndarray<Float, 1>& impList,
-        const dal::backend::primitives::ndarray<Index, 1>& class_hist_list,
+        const imp_data_t& imp_data_list,
         const dal::backend::primitives::ndarray<Index, 1>& nodeIndices,
         Index nodeIndicesOffset,
         dal::backend::primitives::ndarray<Index, 1>& nodeList,
-        dal::backend::primitives::ndarray<Float, 1>& left_child_imp_list,
-        dal::backend::primitives::ndarray<Index, 1>& left_child_class_hist_list,
+        imp_data_t& left_child_imp_data_list,
         dal::backend::primitives::ndarray<Float, 1>& nodeImpDecreaseList,
         bool updateImpDecreaseRequired,
         Index node_count,
-        const dal::backend::event_vector& deps);
+        const dal::backend::event_vector& deps = {});
 
     cl::sycl::event compute_best_split_single_pass(
         const dal::backend::primitives::ndarray<Bin, 2>& data,
@@ -162,29 +159,27 @@ private:
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
         const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
         const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
-        const dal::backend::primitives::ndarray<Float, 1>& impList,
-        const dal::backend::primitives::ndarray<Index, 1>& class_hist_list,
+        const imp_data_t& imp_data_list,
         const dal::backend::primitives::ndarray<Index, 1>& nodeIndices,
         Index nodeIndicesOffset,
         dal::backend::primitives::ndarray<Index, 1>& nodeList,
-        dal::backend::primitives::ndarray<Float, 1>& left_child_imp_list,
-        dal::backend::primitives::ndarray<Index, 1>& left_child_class_hist_list,
+        imp_data_t& left_child_imp_data_list,
         dal::backend::primitives::ndarray<Float, 1>& nodeImpDecreaseList,
         bool updateImpDecreaseRequired,
         Index node_count,
-        const dal::backend::event_vector& deps);
+        const dal::backend::event_vector& deps = {});
 
-    Float compute_oob_error(const model_builder_t& model_builder,
+    Float compute_oob_error(const model_manager_t& model_manager,
                             const dal::backend::primitives::ndarray<Float, 1>& data_host,
                             const dal::backend::primitives::ndarray<Float, 1>& response_host,
                             const dal::backend::primitives::ndarray<Index, 1>& oob_row_list,
-                            dal::backend::primitives::ndarray<Index, 1>& oobBuf,
+                            dal::backend::primitives::ndarray<hist_type_t, 1>& oob_per_obs_list,
                             Index tree_idx,
                             Index indicesOffset,
                             Index n,
                             const dal::backend::event_vector& deps = {});
     Float compute_oob_error_perm(
-        const model_builder_t& model_builder,
+        const model_manager_t& model_manager,
         const dal::backend::primitives::ndarray<Float, 1>& data_host,
         const dal::backend::primitives::ndarray<Float, 1>& response_host,
         const dal::backend::primitives::ndarray<Index, 1>& oob_row_list,
@@ -194,13 +189,14 @@ private:
         Index n,
         Index column_idx,
         const dal::backend::event_vector& deps = {});
+
     cl::sycl::event compute_results(
-        const model_builder_t& model_builder,
+        const model_manager_t& model_manager,
         const dal::backend::primitives::ndarray<Float, 1>& data_host,
         const dal::backend::primitives::ndarray<Float, 1>& response_host,
         const dal::backend::primitives::ndarray<Index, 1>& oob_row_list,
         const dal::backend::primitives::ndarray<Index, 1>& oobRowsNumList,
-        dal::backend::primitives::ndarray<Index, 1>& oobBuf,
+        dal::backend::primitives::ndarray<hist_type_t, 1>& oob_per_obs_list,
         dal::backend::primitives::ndarray<Float, 1>& var_imp,
         dal::backend::primitives::ndarray<Float, 1>& var_imp_variance,
         const dal::array<engine_impl>& engine_arr,
@@ -211,21 +207,21 @@ private:
 
     cl::sycl::event finalize_oob_error(
         const dal::backend::primitives::ndarray<Float, 1>& response_host,
-        dal::backend::primitives::ndarray<Index, 1>& oob_per_obs_list,
+        dal::backend::primitives::ndarray<hist_type_t, 1>& oob_per_obs_list,
         dal::backend::primitives::ndarray<Float, 1>& res_oob_err,
         dal::backend::primitives::ndarray<Float, 1>& res_oob_err_obs,
         const dal::backend::event_vector& deps = {});
+
     cl::sycl::event finalize_var_imp(dal::backend::primitives::ndarray<Float, 1>& var_imp,
                                      dal::backend::primitives::ndarray<Float, 1>& var_imp_variance,
                                      const dal::backend::event_vector& deps = {});
 
 private:
+    context_t ctx_;
     cl::sycl::queue queue_;
 
-    /// for dbg
-    //dal::backend::primitives::ndarray<Index, 1> buf_;
+    train_service_kernels_t train_service_kernels_;
 
-    tree_level_build_helper_t tree_level_build_helper_;
     dal::backend::primitives::ndarray<Bin, 2> full_data_nd_;
     dal::backend::primitives::ndarray<Index, 1> ftr_bin_offsets_nd_;
     std::vector<dal::backend::primitives::ndarray<Float, 1>> bin_borders_host_;
@@ -239,7 +235,7 @@ private:
 
     dal::backend::primitives::ndarray<Float, 1> node_imp_decr_list_;
 
-    dal::backend::primitives::ndarray<Index, 1> oob_per_obs_list_;
+    dal::backend::primitives::ndarray<hist_type_t, 1> oob_per_obs_list_;
     dal::backend::primitives::ndarray<Float, 1> var_imp_variance_host_;
 
     Index class_count_ = 0;
@@ -269,14 +265,15 @@ private:
     Index tree_in_block_ = 0;
     Index preferable_local_size_for_part_hist_kernel_ = 0;
     Index max_part_hist_cumulative_size_ = 0;
+    Index oob_prop_count_ = 0;
 
-    static constexpr inline double global_mem_fraction_for_tree_block_ =
-        0.6; // part of free global mem which can be used for processing block of tree
-    static constexpr inline double global_mem_fraction_for_part_hist_ =
-        0.2; // part of free global mem which can be used for partial histograms
+    // part of free global mem which can be used for processing block of tree
+    static constexpr inline double global_mem_fraction_for_tree_block_ = 0.6;
+    // part of free global mem which can be used for partial histograms
+    static constexpr inline double global_mem_fraction_for_part_hist_ = 0.2;
 
-    static constexpr inline std::uint64_t max_mem_alloc_size_for_algo_ =
-        1073741824; // 1 Gb it showed better efficiency than using just platform info.maxMemAllocSize
+    // 1 Gb it showed better efficiency than using just platform info.maxMemAllocSize
+    static constexpr inline std::uint64_t max_mem_alloc_size_for_algo_ = 1073741824;
     static constexpr inline Index _minRowsBlocksForMaxPartHistNum = 16384;
     static constexpr inline Index _minRowsBlocksForOneHist = 128;
     static constexpr inline Index _maxLocalHistograms = 256;
