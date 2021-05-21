@@ -48,8 +48,7 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         auto arr_centroids =
             pr::ndarray<Float, 2>::wrap(centroids_ptr, { cluster_count, column_count });
 
-        // TODO function to calculate block size
-        std::int64_t block_rows = 16 * 1024;
+        std::int64_t block_rows = get_block_size_in_rows<Float>(queue, column_count);
         auto arr_distance_block = pr::ndarray<Float, 2>::empty(queue,
                                                                { block_rows, cluster_count },
                                                                sycl::usm::alloc::device);

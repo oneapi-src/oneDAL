@@ -146,8 +146,6 @@ public:
         REQUIRE(te::has_no_nans(infer_result.get_labels()));
 
         auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
-        std::cout << "DBI: " << dbi << " " << ref_dbi << std::endl;
-        std::cout << "Obj: " << infer_result.get_objective_function_value() << " " << ref_obj_func << std::endl;
         CAPTURE(dbi, ref_dbi);
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
@@ -165,7 +163,6 @@ public:
                                   Float ref_obj_func,
                                   Float obj_ref_tol = 1.0e-4,
                                   Float dbi_ref_tol = 1.0e-4) {
-        std::cout << "Is gpu: " << is_gpu() << std::endl;
         CAPTURE(cluster_count);
 
         INFO("create descriptor")
@@ -182,8 +179,6 @@ public:
         REQUIRE(te::has_no_nans(infer_result.get_labels()));
 
         auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
-        std::cout << "DBI: " << dbi << " " << ref_dbi << std::endl;
-        std::cout << "Obj: " << infer_result.get_objective_function_value() << " " << ref_obj_func << std::endl;
         CAPTURE(dbi, ref_dbi);
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
@@ -489,7 +484,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     Float labels[] = { 0, 1, 2 };
     const auto y = homogen_table::wrap(labels, 3, 1);
     this->exact_checks(x, x, x, y, 3, 2, 0.0, 0.0, false);
-    std::cout << "Degenerated done" << std::endl;
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batch]", kmeans_types) {
@@ -520,7 +514,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
                                        0.0,
                                        expected_obj_function,
                                        false);
-    std::cout << "Relocation done" << std::endl;
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
@@ -544,7 +537,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     const auto y = homogen_table::wrap(labels, 10, 1);
 
     this->exact_checks(x, c_init, c_final, y, 3, 1, 0.0);
-    std::cout << "Empty cluster done" << std::endl;
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
@@ -573,7 +565,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     const auto x2 = homogen_table::wrap(data_infer, 9, 2);
     Float expected_obj_function = 4;
     this->infer_checks(x, model, y, expected_obj_function);
-    std::cout << "Train/infer done" << std::endl;
 }
 /*
 // This stress test is commented due to CPU K-Means crash.
