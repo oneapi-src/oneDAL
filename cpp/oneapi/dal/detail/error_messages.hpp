@@ -110,12 +110,10 @@ public:
     MSG(object_does_not_provide_read_access_to_columns);
     MSG(object_does_not_provide_write_access_to_columns);
     MSG(unsupported_conversion_types);
-    MSG(row_indices_less_min_value);
-    MSG(row_indices_larger_max_value);
-    MSG(column_indices_less_min_value);
-    MSG(column_indices_larger_max_value);
-    MSG(row_accessor_is_not_supported);
-    MSG(column_accessor_is_not_supported);
+    MSG(row_indices_lt_min_value);
+    MSG(row_indices_gt_max_value);
+    MSG(column_indices_lt_min_value);
+    MSG(column_indices_gt_max_value);
     MSG(zero_based_indexing_is_not_supported);
     MSG(object_does_not_provide_read_access_to_csr);
 

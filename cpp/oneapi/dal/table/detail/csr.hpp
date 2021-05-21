@@ -119,24 +119,24 @@ private:
         const std::int64_t last_value = row_indices[row_count];
 
         if (element_count < 0) {
-            throw dal::domain_error(error_msg::row_indices_less_min_value());
+            throw dal::domain_error(error_msg::row_indices_lt_min_value());
         }
 
         for (std::int64_t i = 0; i <= row_count; i++) {
             if (row_indices[i] < min_value) {
-                throw dal::domain_error(error_msg::row_indices_less_min_value());
+                throw dal::domain_error(error_msg::row_indices_lt_min_value());
             }
             if (row_indices[i] > last_value) {
-                throw dal::domain_error(error_msg::row_indices_larger_max_value());
+                throw dal::domain_error(error_msg::row_indices_gt_max_value());
             }
         }
 
         for (std::int64_t i = 0; i < element_count; i++) {
             if (column_indices[i] < min_value) {
-                throw dal::domain_error(error_msg::column_indices_less_min_value());
+                throw dal::domain_error(error_msg::column_indices_lt_min_value());
             }
             if (column_indices[i] > max_value) {
-                throw dal::domain_error(error_msg::column_indices_larger_max_value());
+                throw dal::domain_error(error_msg::column_indices_gt_max_value());
             }
         }
     }

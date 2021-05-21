@@ -26,7 +26,7 @@
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_soa_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_csr_table_adapter.hpp"
-#include "oneapi/dal/backend/interop/sparse_block.hpp"
+#include "oneapi/dal/backend/interop/csr_block_owner.hpp"
 
 namespace oneapi::dal::backend::interop {
 
@@ -183,7 +183,7 @@ inline daal::data_management::CSRNumericTablePtr copy_to_daal_csr_table(
 template <typename T>
 inline detail::csr_table convert_from_daal_csr_table(
     const daal::data_management::NumericTablePtr& nt) {
-    auto block_owner = std::make_shared<sparse_block_owner<T>>(sparse_block_owner<T>{ nt });
+    auto block_owner = std::make_shared<csr_block_owner<T>>(csr_block_owner<T>{ nt });
 
     ONEDAL_ASSERT(sizeof(std::size_t) == sizeof(std::int64_t));
     detail::csr_table table{ block_owner->get_data(),

@@ -19,23 +19,26 @@
 namespace oneapi::dal::backend::interop {
 
 template <typename T>
-struct sparse_block_owner {
-    sparse_block_owner(const daal::data_management::NumericTablePtr& nt) {
+struct csr_block_owner {
+    csr_block_owner(const daal::data_management::NumericTablePtr& nt) {
+        daal::services::Status status;
         _csr_nt = daal::services::dynamicPointerCast<daal::data_management::CSRNumericTable,
                                                      daal::data_management::NumericTable>(nt);
         ONEDAL_ASSERT(_csr_nt);
         _row_count = dal::detail::integral_cast<std::int64_t>(_csr_nt->getNumberOfRows());
         _column_count = dal::detail::integral_cast<std::int64_t>(_csr_nt->getNumberOfColumns());
-        _csr_nt->getSparseBlock(0,
-                                _csr_nt->getNumberOfRows(),
-                                daal::data_management::readOnly,
-                                _block);
+        status = _csr_nt->getSparseBlock(0,
+                                         _csr_nt->getNumberOfRows(),
+                                         daal::data_management::readOnly,
+                                         _block);
+        status_to_exception(status);
         _is_empty = false;
     }
 
-    ~sparse_block_owner() {
+    ~csr_block_owner() {
         if (!_is_empty) {
-            _csr_nt->releaseSparseBlock(_block);
+            daal::services::Status status = _csr_nt->releaseSparseBlock(_block);
+            status_to_exception(status);
             _is_empty = true;
         }
     }
