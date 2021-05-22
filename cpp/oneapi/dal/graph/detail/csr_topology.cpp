@@ -14,17 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "src/externals/service_service.h"
+#include "oneapi/dal/graph/detail/csr_topology.hpp"
 
-namespace oneapi::dal::preview::load_graph::detail {
+namespace oneapi::dal::preview::detail {
 
-ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
-}
+template class ONEDAL_EXPORT topology<int32_t>;
 
-ONEDAL_EXPORT double daal_string_to_double(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
-}
-
-} // namespace oneapi::dal::preview::load_graph::detail
+} // namespace oneapi::dal::preview::detail
