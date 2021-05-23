@@ -489,9 +489,9 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     cl::sycl::event assign(cl::sycl::queue& q,
-                       const T* source_ptr,
-                       std::int64_t source_count,
-                       const event_vector& deps = {}) {
+                           const T* source_ptr,
+                           std::int64_t source_count,
+                           const event_vector& deps = {}) {
         ONEDAL_ASSERT(source_ptr != nullptr);
         ONEDAL_ASSERT(source_count > 0);
         ONEDAL_ASSERT(source_count <= this->get_count());
@@ -550,7 +550,9 @@ private:
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float, template <typename> typename Accessor, typename Table>
-inline ndarray<Float, 2> flatten_table(cl::sycl::queue& q, const Table& table, cl::sycl::usm::alloc alloc) {
+inline ndarray<Float, 2> flatten_table(cl::sycl::queue& q,
+                                       const Table& table,
+                                       cl::sycl::usm::alloc alloc) {
     Accessor<const Float> accessor{ table };
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Float, 2>::wrap(data, { table.get_row_count(), table.get_column_count() });
