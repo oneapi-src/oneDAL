@@ -36,7 +36,7 @@ template <typename Index, typename Task>
 struct impl_const;
 
 template <typename Index>
-struct ONEDAL_EXPORT impl_const<Index, task::classification> {
+struct impl_const<Index, task::classification> {
     constexpr static Index bad_val_ = -1;
     constexpr static Index leaf_node_ = bad_val_;
     constexpr static Index leaf_mark_ = bad_val_;
@@ -49,7 +49,7 @@ struct ONEDAL_EXPORT impl_const<Index, task::classification> {
 };
 
 template <typename Index>
-struct ONEDAL_EXPORT impl_const<Index, task::regression> {
+struct impl_const<Index, task::regression> {
     constexpr static Index bad_val_ = -1;
     constexpr static Index leaf_node_ = bad_val_;
     constexpr static Index leaf_mark_ = bad_val_;
