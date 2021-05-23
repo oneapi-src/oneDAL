@@ -43,128 +43,128 @@ jobs:
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
     displayName: 'make oneapi_c'
-  - script: |
-      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
-    displayName: 'Copy build'
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: '$(platform.type) build'
-      targetPath: '$(release.dir)'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
-    displayName: 'examples'
+  # - script: |
+  #     cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
+  #   displayName: 'Copy build'
+  # - task: PublishPipelineArtifact@0
+  #   inputs:
+  #     artifactName: '$(platform.type) build'
+  #     targetPath: '$(release.dir)'
+  # - script: |
+  #     .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --platform $(platform.type)
+  #   displayName: 'examples'
 
-- job: 'LinuxBazel'
-  timeoutInMinutes: 0
-  pool:
-    vmImage: 'ubuntu-20.04'
-  variables:
-    BAZEL_VERSION: bazel-4.0.0
-    BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
-    BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
-  steps:
-  - script: |
-      # Add bazel repository
-      sudo apt install curl gnupg
-      curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
-      sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
-      echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
-        sudo tee /etc/apt/sources.list.d/bazel.list
+# - job: 'LinuxBazel'
+#   timeoutInMinutes: 0
+#   pool:
+#     vmImage: 'ubuntu-20.04'
+#   variables:
+#     BAZEL_VERSION: bazel-4.0.0
+#     BAZEL_CACHE_DIR: $(Pipeline.Workspace)/.bazel-cache
+#     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
+#   steps:
+#   - script: |
+#       # Add bazel repository
+#       sudo apt install curl gnupg
+#       curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
+#       sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
+#       echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
+#         sudo tee /etc/apt/sources.list.d/bazel.list
 
-      sudo apt-get update
-      sudo apt-get install gcc-multilib \
-                           g++-multilib \
-                           binutils \
-                           openjdk-11-jdk \
-                           $(BAZEL_VERSION)
+#       sudo apt-get update
+#       sudo apt-get install gcc-multilib \
+#                            g++-multilib \
+#                            binutils \
+#                            openjdk-11-jdk \
+#                            $(BAZEL_VERSION)
 
-    displayName: 'install-deps'
+#     displayName: 'install-deps'
 
-  - task: Cache@2
-    inputs:
-      # Commit ID is added to a cache key. Caches are immutable by design,
-      # so we always need to change a key to upload the last version
-      # of the Bazel cache. Cache lookup is based on `restoreKeys` option.
-      key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2" | "$(Build.SourceVersion)"'
-      restoreKeys: |
-        "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2"
-      path: $(BAZEL_CACHE_DIR)
-    displayName: 'bazel-cache'
+#   - task: Cache@2
+#     inputs:
+#       # Commit ID is added to a cache key. Caches are immutable by design,
+#       # so we always need to change a key to upload the last version
+#       # of the Bazel cache. Cache lookup is based on `restoreKeys` option.
+#       key: '"$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2" | "$(Build.SourceVersion)"'
+#       restoreKeys: |
+#         "$(BAZEL_VERSION)" | "$(Agent.OS)" | "v2"
+#       path: $(BAZEL_CACHE_DIR)
+#     displayName: 'bazel-cache'
 
-  - script: |
-      if [ -f "${BAZEL_CACHE_DIR}/cache-clean-timestamp" ]; then
-        echo
-        echo "Last time the cache is cleaned:"
-        cat "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
-        echo
-      fi
+#   - script: |
+#       if [ -f "${BAZEL_CACHE_DIR}/cache-clean-timestamp" ]; then
+#         echo
+#         echo "Last time the cache is cleaned:"
+#         cat "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
+#         echo
+#       fi
 
-      # Create `.bazelrc` and set cache directory
-      # Minimal CPU instruction set in Azure is AVX2
-      echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
+#       # Create `.bazelrc` and set cache directory
+#       # Minimal CPU instruction set in Azure is AVX2
+#       echo "build --disk_cache=$(BAZEL_CACHE_DIR) --cpu=avx2" > ~/.bazelrc
 
-      # Display oneDAL build configuration
-      bazel build @config//:dump
-      echo
-      cat bazel-bin/external/config/config.json
-      echo
-    displayName: 'bazel-configure'
+#       # Display oneDAL build configuration
+#       bazel build @config//:dump
+#       echo
+#       cat bazel-bin/external/config/config.json
+#       echo
+#     displayName: 'bazel-configure'
 
-  - script: |
-      bazel build :release
-    displayName: 'release'
+#   - script: |
+#       bazel build :release
+#     displayName: 'release'
 
-  - script: |
-      bazel test //examples/oneapi/cpp:all \
-                 --test_link_mode=dev \
-                 --test_thread_mode=par
-    displayName: 'cpp-examples-thread-dev'
+#   - script: |
+#       bazel test //examples/oneapi/cpp:all \
+#                  --test_link_mode=dev \
+#                  --test_thread_mode=par
+#     displayName: 'cpp-examples-thread-dev'
 
-  - script: |
-      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
-      bazel test //examples/oneapi/cpp:all \
-                 --test_link_mode=release_static \
-                 --test_thread_mode=par
-    displayName: 'cpp-examples-thread-release-static'
+#   - script: |
+#       export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+#       bazel test //examples/oneapi/cpp:all \
+#                  --test_link_mode=release_static \
+#                  --test_thread_mode=par
+#     displayName: 'cpp-examples-thread-release-static'
 
-  - script: |
-      export DAALROOT=`pwd`/bazel-bin/release/daal/latest
-      bazel test //examples/oneapi/cpp:all \
-                 --test_link_mode=release_dynamic \
-                 --test_thread_mode=par
-    displayName: 'cpp-examples-thread-release-dynamic'
+#   - script: |
+#       export DAALROOT=`pwd`/bazel-bin/release/daal/latest
+#       bazel test //examples/oneapi/cpp:all \
+#                  --test_link_mode=release_dynamic \
+#                  --test_thread_mode=par
+#     displayName: 'cpp-examples-thread-release-dynamic'
 
-  - script: |
-      bazel test //cpp/oneapi/dal:tests \
-                 --config=host \
-                 --test_link_mode=dev \
-                 --test_thread_mode=par
-    displayName: 'cpp-tests-thread-dev'
+#   - script: |
+#       bazel test //cpp/oneapi/dal:tests \
+#                  --config=host \
+#                  --test_link_mode=dev \
+#                  --test_thread_mode=par
+#     displayName: 'cpp-tests-thread-dev'
 
-  - script: |
-      # Clear cache if its size exceeds some predefined value
-      cache_size=$(du -sk "${BAZEL_CACHE_DIR}" | cut -f1)
-      cache_size_mb=$(du -sm "${BAZEL_CACHE_DIR}" | cut -f1)
-      echo "Bazel cache dir is ${BAZEL_CACHE_DIR}"
-      echo "Bazel cache size is ${cache_size_mb}Mb"
-      if [ ${cache_size} -ge ${BAZEL_CACHE_MAX_SIZE_KB} ]; then
-          echo "Run cache cleanup..."
-          echo "Current cache directory content:"
-          ls -1 "${BAZEL_CACHE_DIR}"
-          echo "--------------------------------"
-          echo "Run bazel clean with expunge"
-          echo "Remove cache directory"
-          rm -r "${BAZEL_CACHE_DIR}"
-          mkdir -p "${BAZEL_CACHE_DIR}"
-          echo "Write timestamp to the cache"
-          date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
-          echo "Current cache directory content:"
-          ls -1 "${BAZEL_CACHE_DIR}"
-          echo "--------------------------------"
-      else
-          echo "No need for cleanup"
-      fi
-    displayName: 'bazel-cache-limit'
+#   - script: |
+#       # Clear cache if its size exceeds some predefined value
+#       cache_size=$(du -sk "${BAZEL_CACHE_DIR}" | cut -f1)
+#       cache_size_mb=$(du -sm "${BAZEL_CACHE_DIR}" | cut -f1)
+#       echo "Bazel cache dir is ${BAZEL_CACHE_DIR}"
+#       echo "Bazel cache size is ${cache_size_mb}Mb"
+#       if [ ${cache_size} -ge ${BAZEL_CACHE_MAX_SIZE_KB} ]; then
+#           echo "Run cache cleanup..."
+#           echo "Current cache directory content:"
+#           ls -1 "${BAZEL_CACHE_DIR}"
+#           echo "--------------------------------"
+#           echo "Run bazel clean with expunge"
+#           echo "Remove cache directory"
+#           rm -r "${BAZEL_CACHE_DIR}"
+#           mkdir -p "${BAZEL_CACHE_DIR}"
+#           echo "Write timestamp to the cache"
+#           date > "${BAZEL_CACHE_DIR}/cache-clean-timestamp"
+#           echo "Current cache directory content:"
+#           ls -1 "${BAZEL_CACHE_DIR}"
+#           echo "--------------------------------"
+#       else
+#           echo "No need for cleanup"
+#       fi
+#     displayName: 'bazel-cache-limit'
 
 - job: daal4py
   dependsOn: LinuxMake
@@ -203,6 +203,7 @@ jobs:
       source ${DALROOT}/env/vars.sh
       cd daal4py
       export NO_DIST=1
+      export DAAL4PY_VERSION=2021.3
       export PYTHON=python
       ./conda-recipe/build.sh
     displayName: daal4py build
@@ -213,10 +214,8 @@ jobs:
     displayName: sklearnex build
   - script: |
       source venv/bin/activate
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      export TBBROOT=/opt/intel/oneapi/tbb/latest
-      source ${TBBROOT}/env/vars.sh
+      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
+      source /opt/intel/oneapi/tbb/latest/env/vars.sh
       export NO_DIST=1
       cd daal4py
       ./conda-recipe/run_test.sh
@@ -224,10 +223,8 @@ jobs:
     displayName: daal4py test
   - script: |
       source venv/bin/activate
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      export TBBROOT=/opt/intel/oneapi/tbb/latest
-      source ${TBBROOT}/env/vars.sh
+      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
+      source /opt/intel/oneapi/tbb/latest/env/vars.sh
       cd daal4py
       ret_code=0
       python -m daal4py examples/run_examples.py
@@ -238,10 +235,8 @@ jobs:
     displayName: daal4py examples
   - script: |
       source venv/bin/activate
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      export TBBROOT=/opt/intel/oneapi/tbb/latest
-      source ${TBBROOT}/env/vars.sh
+      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
+      source /opt/intel/oneapi/tbb/latest/env/vars.sh
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: Conformance tests

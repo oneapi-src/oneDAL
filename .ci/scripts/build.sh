@@ -79,6 +79,7 @@ echo "Calling make"
 make ${target:-daal} ${make_op} \
     PLAT=${platform} \
     COMPILER=${compiler} \
-    REQCPU="${CPU_OPTIMIZATIONS}"
+    REQCPU="${CPU_OPTIMIZATIONS}" \
+    -j 4
 
 exit $?
