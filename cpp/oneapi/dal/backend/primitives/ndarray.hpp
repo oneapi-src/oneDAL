@@ -229,7 +229,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    sycl::event prefetch(sycl::queue& queue) const {
+    cl::sycl::event prefetch(cl::sycl::queue& queue) const {
         return queue.prefetch(data_, this->get_count());
     }
 #endif
@@ -384,20 +384,20 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static ndarray empty(const sycl::queue& q,
+    static ndarray empty(const cl::sycl::queue& q,
                          const shape_t& shape,
-                         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+                         const cl::sycl::usm::alloc& alloc_kind = cl::sycl::usm::alloc::shared) {
         T* ptr = malloc<T>(q, shape.get_count(), alloc_kind);
         return wrap(ptr, shape, usm_deleter<T>{ q });
     }
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static std::tuple<ndarray, sycl::event> copy(
-        sycl::queue& q,
+    static std::tuple<ndarray, cl::sycl::event> copy(
+        cl::sycl::queue& q,
         const T* data,
         const shape_t& shape,
-        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        const cl::sycl::usm::alloc& alloc_kind = cl::sycl::usm::alloc::shared) {
         auto ary = empty(q, shape, alloc_kind);
         auto event = ary.assign(q, data, shape.get_count());
         return { ary, event };
@@ -405,11 +405,11 @@ public:
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static std::tuple<ndarray, sycl::event> full(
-        sycl::queue& q,
+    static std::tuple<ndarray, cl::sycl::event> full(
+        cl::sycl::queue& q,
         const shape_t& shape,
         const T& value,
-        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        const cl::sycl::usm::alloc& alloc_kind = cl::sycl::usm::alloc::shared) {
         auto ary = empty(q, shape, alloc_kind);
         auto event = ary.fill(q, value);
         return { ary, event };
@@ -417,19 +417,19 @@ public:
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static std::tuple<ndarray, sycl::event> zeros(
-        sycl::queue& q,
+    static std::tuple<ndarray, cl::sycl::event> zeros(
+        cl::sycl::queue& q,
         const shape_t& shape,
-        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        const cl::sycl::usm::alloc& alloc_kind = cl::sycl::usm::alloc::shared) {
         return full(q, shape, T(0), alloc_kind);
     }
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-    static std::tuple<ndarray, sycl::event> ones(
-        sycl::queue& q,
+    static std::tuple<ndarray, cl::sycl::event> ones(
+        cl::sycl::queue& q,
         const shape_t& shape,
-        const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
+        const cl::sycl::usm::alloc& alloc_kind = cl::sycl::usm::alloc::shared) {
         return full(q, shape, T(1), alloc_kind);
     }
 #endif
@@ -443,7 +443,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    array_t flatten(sycl::queue& q) const {
+    array_t flatten(cl::sycl::queue& q) const {
         ONEDAL_ASSERT(is_known_usm(q, data_.get()));
         return array_t{ q, data_, this->get_count() };
     }
@@ -472,8 +472,8 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    sycl::event fill(sycl::queue& q, T value, const event_vector& deps = {}) {
-        return q.submit([&](sycl::handler& cgh) {
+    cl::sycl::event fill(cl::sycl::queue& q, T value, const event_vector& deps = {}) {
+        return q.submit([&](cl::sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.fill(this->get_mutable_data(), value, this->get_count());
         });
@@ -488,7 +488,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    sycl::event assign(sycl::queue& q,
+    cl::sycl::event assign(cl::sycl::queue& q,
                        const T* source_ptr,
                        std::int64_t source_count,
                        const event_vector& deps = {}) {
@@ -498,7 +498,7 @@ public:
         return dal::backend::copy(q, this->get_mutable_data(), source_ptr, source_count, deps);
     }
 
-    sycl::event assign(sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
+    cl::sycl::event assign(cl::sycl::queue& q, const ndarray& src, const event_vector& deps = {}) {
         ONEDAL_ASSERT(src.get_count() > 0);
         ONEDAL_ASSERT(src.get_count() <= this->get_count());
         return this->assign(q, src.get_data(), src.get_count(), deps);
@@ -506,7 +506,7 @@ public:
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-    ndarray to_host(sycl::queue& q, const event_vector& deps = {}) const {
+    ndarray to_host(cl::sycl::queue& q, const event_vector& deps = {}) const {
         T* host_ptr = detail::host_allocator<T>().allocate(this->get_count());
         dal::backend::copy(q, host_ptr, this->get_data(), this->get_count(), deps).wait_and_throw();
         return wrap(host_ptr,
@@ -516,8 +516,8 @@ public:
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-    ndarray to_device(sycl::queue& q, const event_vector& deps = {}) const {
-        ndarray dev = empty(q, this->get_shape(), sycl::usm::alloc::device);
+    ndarray to_device(cl::sycl::queue& q, const event_vector& deps = {}) const {
+        ndarray dev = empty(q, this->get_shape(), cl::sycl::usm::alloc::device);
         dev.assign(q, this->get_data(), this->get_count(), deps).wait_and_throw();
         return dev;
     }
@@ -550,16 +550,16 @@ private:
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float, template <typename> typename Accessor, typename Table>
-inline ndarray<Float, 2> flatten_table(sycl::queue& q, const Table& table, sycl::usm::alloc alloc) {
+inline ndarray<Float, 2> flatten_table(cl::sycl::queue& q, const Table& table, cl::sycl::usm::alloc alloc) {
     Accessor<const Float> accessor{ table };
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Float, 2>::wrap(data, { table.get_row_count(), table.get_column_count() });
 }
 
 template <typename Float, template <typename> typename Accessor, typename Table>
-inline ndarray<Float, 1> flatten_table_1d(sycl::queue& q,
+inline ndarray<Float, 1> flatten_table_1d(cl::sycl::queue& q,
                                           const Table& table,
-                                          sycl::usm::alloc alloc) {
+                                          cl::sycl::usm::alloc alloc) {
     Accessor<const Float> accessor{ table };
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Float, 1>::wrap(data, { table.get_row_count() * table.get_column_count() });
