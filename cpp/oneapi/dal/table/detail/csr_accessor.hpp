@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
-
 namespace oneapi::dal::detail {
 namespace v1 {
 

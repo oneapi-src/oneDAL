@@ -34,6 +34,7 @@ dal_test_suite(
     srcs = [
         "test/row_accessor.cpp",
         "test/homogen.cpp",
+        "detail/test/csr_accessor.cpp",
         "test/common_serialization.cpp",
         "test/homogen_serialization.cpp",
         "detail/test/csr_accessor.cpp",

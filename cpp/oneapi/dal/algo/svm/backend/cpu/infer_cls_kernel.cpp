@@ -23,6 +23,7 @@
 #include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/detail/csr.hpp"
 
 #include <daal/src/algorithms/svm/svm_predict_kernel.h>
 #include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>
@@ -159,7 +160,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+    const bool is_dense{ data.get_kind() != dal::detail::csr_table::kind() };
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
     daal_svm::Parameter daal_parameter(daal_kernel);
 
     if (class_count > 2) {
