@@ -223,16 +223,10 @@ void csr_pull_block(const Policy& policy,
                                  alloc_kind requested_alloc_kind,                  \
                                  bool preserve_mutability);
 
-#ifdef ONEDAL_DATA_PARALLEL
-#define INSTANTIATE_ALL_POLICIES(Data)             \
-    INSTANTIATE(detail::default_host_policy, Data) \
-    INSTANTIATE(detail::data_parallel_policy, Data)
-#else
-#define INSTANTIATE_ALL_POLICIES(Data) INSTANTIATE(detail::default_host_policy, Data)
-#endif
+#define INSTANTIATE_HOST_POLICY(Data) INSTANTIATE(detail::default_host_policy, Data)
 
-INSTANTIATE_ALL_POLICIES(float)
-INSTANTIATE_ALL_POLICIES(double)
-INSTANTIATE_ALL_POLICIES(std::int32_t)
+INSTANTIATE_HOST_POLICY(float)
+INSTANTIATE_HOST_POLICY(double)
+INSTANTIATE_HOST_POLICY(std::int32_t)
 
 } // namespace oneapi::dal::backend
