@@ -17,8 +17,8 @@
 #include <limits>
 #include <tuple>
 
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_fp.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl_int.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
@@ -205,12 +205,12 @@ public:
             auto index = candidate_indices_ptr[i];
             std::int64_t count = 0;
             for (std::int64_t j = 0; j < elem_count; j++) {
-                auto cur_val = closest_distances_ptr[j];
-                if (cur_val < distance)
+                auto cur_val = -1.0 * closest_distances_ptr[j];
+                if (cur_val >= distance)
                     count++;
             }
             CAPTURE(i, count);
-            REQUIRE(count < candidate_count);
+            REQUIRE(count <= candidate_count);
             REQUIRE(index >= 0);
             REQUIRE(index < elem_count);
         }
@@ -515,8 +515,11 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
                      kmeans_types) {
     using float_t = TestType;
 
-    std::int64_t element_count = 10001;
-    std::int64_t candidate_count = 17;
+//    std::int64_t element_count = 10001;
+//    std::int64_t candidate_count = 17;
+    std::int64_t element_count = 11;
+    std::int64_t candidate_count = 2;
+
 
     auto closest_distances =
         pr::ndarray<float_t, 2>::empty(this->get_queue(), { element_count, 1 });

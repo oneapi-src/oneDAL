@@ -45,7 +45,7 @@ namespace pr = dal::backend::primitives;
         F objective_function,                                                                     \
         const bk::event_vector& deps);                                                            \
     template sycl::event find_candidates<F>(sycl::queue & queue,                                  \
-                                            const pr::ndview<F, 2>& closest_distances,            \
+                                            pr::ndview<F, 2>& closest_distances,            \
                                             std::int64_t candidate_count,                         \
                                             pr::ndview<std::int32_t, 1>& candidate_indices,       \
                                             pr::ndview<F, 1>& candidate_distances,                \

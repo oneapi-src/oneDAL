@@ -286,7 +286,7 @@ std::tuple<Float, bk::event_vector> fill_empty_clusters(
 
 template <typename Float>
 sycl::event find_candidates(sycl::queue& queue,
-                            const pr::ndview<Float, 2>& closest_distances,
+                            pr::ndview<Float, 2>& closest_distances,
                             std::int64_t candidate_count,
                             pr::ndview<std::int32_t, 1>& candidate_indices,
                             pr::ndview<Float, 1>& candidate_distances,

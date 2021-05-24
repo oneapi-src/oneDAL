@@ -18,7 +18,8 @@
 #include <tuple>
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/kmeans_impl.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
