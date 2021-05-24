@@ -235,7 +235,7 @@ std::tuple<Float, bk::event_vector> fill_empty_clusters(
     const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
-    ONEDAL_ASSERT(counters.get_dimension(1) == centroids.get_dimension(0));
+    ONEDAL_ASSERT(counters.get_dimension(0) == centroids.get_dimension(0));
     ONEDAL_ASSERT(candidate_indices.get_dimension(0) <= centroids.get_dimension(0));
     ONEDAL_ASSERT(candidate_distances.get_dimension(0) <= centroids.get_dimension(0));
     ONEDAL_ASSERT(labels.get_dimension(0) >= data.get_dimension(0));
