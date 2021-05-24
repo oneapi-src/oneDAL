@@ -95,6 +95,18 @@ private:
         const std::int64_t element_count = row_indices[row_count] - row_indices[0];
         const std::int64_t last_value = row_indices[row_count];
 
+        if (row_count <= 0) {
+            throw dal::domain_error(error_msg::rc_leq_zero());
+        }
+
+        if (column_count <= 0) {
+            throw dal::domain_error(error_msg::cc_leq_zero());
+        }
+
+        if (indexing != csr_indexing::one_based) {
+            throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
+        }
+
         if (element_count < 0) {
             throw dal::domain_error(error_msg::row_indices_lt_min_value());
         }
@@ -125,34 +137,28 @@ private:
                    std::int64_t row_count,
                    std::int64_t column_count,
                    csr_indexing indexing) {
-        using error_msg = dal::detail::error_messages;
-
-        if (row_count <= 0) {
-            throw dal::domain_error(error_msg::rc_leq_zero());
-        }
-
-        if (column_count <= 0) {
-            throw dal::domain_error(error_msg::cc_leq_zero());
-        }
-
-        if (indexing != csr_indexing::one_based) {
-            throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
-        }
-
         check_indices(row_count,
                       column_count,
                       row_indices.get_data(),
                       column_indices.get_data(),
                       indexing);
 
-        table::init_impl(new backend::csr_table_impl(column_count,
-                                                     row_count,
-                                                     detail::reinterpret_array_cast<byte_t>(data),
-                                                     column_indices,
-                                                     row_indices,
-                                                     detail::make_data_type<Data>(),
-                                                     indexing));
+        init_impl(column_count,
+                  row_count,
+                  detail::reinterpret_array_cast<byte_t>(data),
+                  column_indices,
+                  row_indices,
+                  detail::make_data_type<Data>(),
+                  indexing);
     }
+
+    void init_impl(std::int64_t column_count,
+                   std::int64_t row_count,
+                   const array<byte_t>& data,
+                   const array<std::int64_t>& column_indices,
+                   const array<std::int64_t>& row_indices,
+                   const data_type& dtype,
+                   csr_indexing indexing);
 };
 
 } // namespace v1

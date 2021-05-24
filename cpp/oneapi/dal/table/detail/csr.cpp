@@ -40,5 +40,21 @@ const std::int64_t* csr_table::get_row_indices() const {
     return impl.get_row_indices().get_data();
 }
 
+void csr_table::init_impl(std::int64_t column_count,
+                          std::int64_t row_count,
+                          const array<byte_t>& data,
+                          const array<std::int64_t>& column_indices,
+                          const array<std::int64_t>& row_indices,
+                          const data_type& dtype,
+                          csr_indexing indexing) {
+    table::init_impl(new backend::csr_table_impl(column_count,
+                                                 row_count,
+                                                 data,
+                                                 column_indices,
+                                                 row_indices,
+                                                 dtype,
+                                                 indexing));
+}
+
 } // namespace v1
 } // namespace oneapi::dal::detail

@@ -33,7 +33,6 @@ struct csr_block_owner {
                                          daal::data_management::readOnly,
                                          _block);
         status_to_exception(status);
-        _is_empty = false;
     }
 
     ~csr_block_owner() {
