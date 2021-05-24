@@ -157,6 +157,7 @@ public:
 
         // Overflow is checked here
         check_block_row_range(rows);
+
         if (indexing != detail::csr_indexing::one_based) {
             throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
         }

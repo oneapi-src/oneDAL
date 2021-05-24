@@ -40,6 +40,7 @@ public:
     ///
     /// @tparam Data          The type of elements in the data block that will be stored into the table.
     ///                       The :literal:`Data` type should be at least :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+    ///
     /// @param data           The array of values in the CSR layout.
     /// @param column_indices The array of column indices in the CSR layout.
     /// @param row_indices    The array of row indices in the CSR layout.

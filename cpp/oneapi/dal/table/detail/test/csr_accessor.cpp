@@ -68,7 +68,6 @@ TEST("can read csr table via csr accessor create smaller block") {
                          array<std::int64_t>::wrap(row_indices, row_count + 1),
                          row_count,
                          column_count };
-
     const auto csr_block = detail::csr_accessor<const double>(t).pull({ 1, 3 });
 
     REQUIRE(data + 3 == csr_block.data.get_data());

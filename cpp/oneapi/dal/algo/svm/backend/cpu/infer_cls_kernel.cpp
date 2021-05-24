@@ -23,7 +23,6 @@
 #include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/detail/csr.hpp"
 
 #include <daal/src/algorithms/svm/svm_predict_kernel.h>
 #include <daal/src/algorithms/multiclassclassifier/multiclassclassifier_train_kernel.h>

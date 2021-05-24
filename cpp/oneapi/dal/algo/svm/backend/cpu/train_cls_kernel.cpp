@@ -31,7 +31,6 @@
 #include "oneapi/dal/algo/svm/backend/model_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
-#include "oneapi/dal/table/detail/csr.hpp"
 
 namespace oneapi::dal::svm::backend {
 
