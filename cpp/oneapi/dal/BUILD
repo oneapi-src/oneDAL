@@ -41,7 +41,6 @@ dal_collect_modules(
         "graph",
         "table",
         "util",
-        "policy",
     ],
     dal_deps = [
         ":common",
@@ -54,6 +53,7 @@ dal_collect_modules(
     modules = [
         "algo",
         "io",
+        "policy",
         "backend/micromkl",
         "backend/primitives",
     ],
@@ -66,7 +66,7 @@ dal_public_includes(
         ":optional",
         # MPI module is not included to policy module to not
         # create dependency on MPI at the library build stage.
-        # MPI deps are header-only, so we inculde them explicitly
+        # MPI deps are header-only, so we include them explicitly
         # to public_includes
         "@onedal//cpp/oneapi/dal/policy:mpi",
     ],
@@ -125,7 +125,6 @@ dal_collect_test_suites(
         "policy",
         "table",
         "util",
-        "detail/distributed",
         "backend/micromkl",
         "backend/primitives",
     ],

@@ -14,10 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/distributed/mpi_communicator.hpp"
+#include "oneapi/dal/policy/mpi.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::test {
+
+using mpi_communicator = dal::preview::detail::mpi_communicator;
 
 class mpi_test_setup {
 public:
@@ -50,18 +52,18 @@ public:
 };
 
 TEST_M(mpi_test, "can create default mpi_communicator") {
-    preview::mpi_communicator{};
+    mpi_communicator{};
 }
 
 TEST_M(mpi_test, "mpi_communicator has expected rank") {
-    preview::mpi_communicator comm;
+    mpi_communicator comm;
 
     REQUIRE(comm.get_rank() == mpi_comm_rank());
     REQUIRE(comm.get_rank_count() == mpi_comm_size());
 }
 
 TEST_M(mpi_test, "mpi_communicator broadcasts correctly") {
-    preview::mpi_communicator comm;
+    mpi_communicator comm;
     constexpr std::int64_t count = 10;
     std::array<byte_t, count> data_to_send = { 0, 8, 5, 3, 6, 7, 1, 0, 9 };
     std::array<byte_t, count> data_to_recv;
@@ -78,7 +80,7 @@ TEST_M(mpi_test, "mpi_communicator broadcasts correctly") {
 }
 
 TEST_M(mpi_test, "mpi_communicator gathers correctly") {
-    preview::mpi_communicator comm;
+    mpi_communicator comm;
     constexpr std::int64_t count = 10;
     std::array<byte_t, count> data_to_send = { 0, 8, 5, 3, 6, 7, 1, 0, 9 };
     for (std::int64_t i = 0; i < count; i++) {

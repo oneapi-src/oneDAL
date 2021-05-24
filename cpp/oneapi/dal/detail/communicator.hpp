@@ -19,6 +19,16 @@
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::detail {
+namespace v1 {
+
+class communication_error : public runtime_error, public std::runtime_error {
+public:
+    using std::runtime_error::runtime_error;
+
+    const char* what() const noexcept override {
+        return std::runtime_error::what();
+    }
+};
 
 class spmd_request_iface {
 public:
@@ -35,6 +45,8 @@ public:
     virtual std::int64_t get_root_rank() = 0;
     virtual std::int64_t get_rank_count() = 0;
 
+    virtual void barrier() = 0;
+
     virtual spmd_request_iface* bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) = 0;
 
     virtual spmd_request_iface* gather(const byte_t* send_buf,
@@ -49,20 +61,6 @@ public:
                                         const std::int64_t* recv_count,
                                         const std::int64_t* displs,
                                         std::int64_t root) = 0;
-};
-
-class communication_error : public runtime_error, public std::runtime_error {
-public:
-    using std::runtime_error::runtime_error;
-
-    const char* what() const noexcept override {
-        return std::runtime_error::what();
-    }
-};
-
-class empty_spmd_request : public spmd_request_iface {
-public:
-    empty_spmd_request() = default;
 };
 
 class spmd_request : public base {
@@ -91,21 +89,24 @@ private:
 
 class spmd_communicator : public base {
 public:
-    spmd_communicator() = delete;
-
-    std::int64_t get_rank() {
+    std::int64_t get_rank() const {
         // TODO: Handle null impl_
         return impl_->get_rank();
     }
 
-    std::int64_t get_rank_count() {
+    std::int64_t get_rank_count() const {
         // TODO: Handle null impl_
         return impl_->get_rank_count();
     }
 
-    std::int64_t get_root_rank() {
+    std::int64_t get_root_rank() const {
         // TODO: Handle null impl_
         return impl_->get_root_rank();
+    }
+
+    void barrier() const {
+        // TODO: Handle null impl_
+        return impl_->barrier();
     }
 
     /// Broadcasts a message from the `root` rank to all other ranks
@@ -114,7 +115,7 @@ public:
     /// @param count
     /// @param root
     /// @return The object to track the progress of the operation
-    spmd_request bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) {
+    spmd_request bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) const {
         // TODO: Handle null impl_
         return dal::detail::make_private<spmd_request>(impl_->bcast(send_buf, count, root));
     }
@@ -132,7 +133,7 @@ public:
                         std::int64_t send_count,
                         byte_t* recv_buf,
                         std::int64_t recv_count,
-                        std::int64_t root) {
+                        std::int64_t root) const {
         // TODO: Handle null impl_
         return dal::detail::make_private<spmd_request>(
             impl_->gather(send_buf, send_count, recv_buf, recv_count, root));
@@ -143,14 +144,19 @@ public:
                          byte_t* recv_buf,
                          const std::int64_t* recv_count,
                          const std::int64_t* displs,
-                         std::int64_t root) {
+                         std::int64_t root) const {
         // TODO: Handle null impl_
         return dal::detail::make_private<spmd_request>(
             impl_->gatherv(send_buf, send_count, recv_buf, recv_count, displs, root));
     }
 
 protected:
+    spmd_communicator() = default;
     explicit spmd_communicator(spmd_communicator_iface* impl) : impl_(impl) {}
+
+    void init_impl(spmd_communicator_iface* impl) {
+        impl_.reset(impl);
+    }
 
     template <typename Impl>
     Impl& get_impl() {
@@ -161,5 +167,13 @@ protected:
 private:
     dal::detail::pimpl<spmd_communicator_iface> impl_;
 };
+
+} // namespace v1
+
+using v1::communication_error;
+using v1::spmd_request_iface;
+using v1::spmd_communicator_iface;
+using v1::spmd_request;
+using v1::spmd_communicator;
 
 } // namespace oneapi::dal::detail

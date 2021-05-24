@@ -25,7 +25,15 @@ class sycl_policy : public base {
 public:
     sycl_policy(const sycl::queue& queue) : internal_policy_(queue) {}
 
+    const sycl::queue& get_queue() const {
+        return internal_policy_.get_queue();
+    }
+
 private:
+    const dal::detail::data_parallel_policy& get_internal_policy() const {
+        return internal_policy_;
+    }
+
     dal::detail::data_parallel_policy internal_policy_;
 };
 #endif

@@ -22,13 +22,17 @@
 namespace oneapi::dal::preview {
 
 class host_policy : public base {
-    friend dal::detail::pimpl_accessor;
+    friend dal::detail::internal_policy_accessor;
 
 public:
-    host_policy();
+    host_policy() = default;
 
 private:
-    dal::detail::pimpl<dal::detail::host_policy> impl_;
+    const dal::detail::host_policy &get_internal_policy() const {
+        return internal_policy_;
+    }
+
+    dal::detail::host_policy internal_policy_;
 };
 
 template <>

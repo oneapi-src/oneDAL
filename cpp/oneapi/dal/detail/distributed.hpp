@@ -16,26 +16,26 @@
 
 #pragma once
 
+#include "oneapi/dal/detail/policy.hpp"
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
-struct cpu_dispatch_sse2 {};
-struct cpu_dispatch_ssse3 {};
-struct cpu_dispatch_sse42 {};
-struct cpu_dispatch_avx {};
-struct cpu_dispatch_avx2 {};
-struct cpu_dispatch_avx512 {};
+template <typename Policy>
+inline auto is_root_rank(const Policy& policy)
+    -> std::enable_if_t<is_local_policy_v<Policy>, bool> {
+    return true;
+}
 
-using cpu_dispatch_default = cpu_dispatch_sse2;
+template <typename Policy>
+inline auto is_root_rank(const Policy& policy)
+    -> std::enable_if_t<is_distributed_policy_v<Policy>, bool> {
+    const auto comm = policy.get_communicator();
+    return comm.get_rank() == comm.get_root_rank();
+}
 
 } // namespace v1
 
-using v1::cpu_dispatch_sse2;
-using v1::cpu_dispatch_ssse3;
-using v1::cpu_dispatch_sse42;
-using v1::cpu_dispatch_avx;
-using v1::cpu_dispatch_avx2;
-using v1::cpu_dispatch_avx512;
-using v1::cpu_dispatch_default;
+using v1::is_root_rank;
 
 } // namespace oneapi::dal::detail

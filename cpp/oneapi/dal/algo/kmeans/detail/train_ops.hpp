@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/kmeans/train_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/detail/distributed.hpp"
 
 namespace oneapi::dal::kmeans::detail {
 namespace v1 {

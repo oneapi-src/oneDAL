@@ -41,5 +41,18 @@ void data_parallel_policy::init_impl(const sycl::queue& queue) {
 }
 #endif
 
+class spmd_policy_impl {
+public:
+    explicit spmd_policy_impl(const spmd_communicator& comm) : comm(comm) {}
+    spmd_communicator comm;
+};
+
+spmd_policy_base::spmd_policy_base(const spmd_communicator& comm)
+        : impl_(new spmd_policy_impl{ comm }) {}
+
+const spmd_communicator& spmd_policy_base::get_communicator() const {
+    return impl_->comm;
+}
+
 } // namespace v1
 } // namespace oneapi::dal::detail

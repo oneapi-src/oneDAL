@@ -19,22 +19,26 @@
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/mocks.hpp"
 
 namespace oneapi::dal::kmeans::test {
 
-using te = oneapi::dal::test::engine;
+namespace te = dal::test::engine;
 
-TEST("distributed kmeans") {
-    const auto queue = sycl::queue{ sycl::gpu_selector{} };
-    const auto communicator = dal::preview::mpi_communicator{ queue };
+TEST("distributed kmeans on host") {
+    const std::int64_t thread_count = 2;
+    auto thread_comm = te::thread_communicator{ thread_count };
+    auto host_spmd_policy = dal::detail::spmd_policy{ dal::detail::host_policy{}, thread_comm };
 
-    const std::int64_t cluster_count = 5;
-    const auto kmeans_desc = kmeans::descriptor<float>{ cluster_count }
-                                 .set_max_iteration_count(10)
-                                 .set_accuracy_threshold(0.001);
+    thread_comm.execute([=](std::int64_t rank) {
+        const std::int64_t cluster_count = 5;
 
-    const auto distributed_train_result =
-        dal::preview::distributed_train(communicator, kmeans_desc, data);
+        const auto kmeans_desc = kmeans::descriptor<float>{ cluster_count }
+                                     .set_max_iteration_count(10)
+                                     .set_accuracy_threshold(0.001);
+
+        // const auto distributed_train_result = dal::train(host_spmd_policy, kmeans_desc, data);
+    });
 }
 
 } // namespace oneapi::dal::kmeans::test

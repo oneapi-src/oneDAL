@@ -44,7 +44,9 @@ dal_module(
     dal_deps = [
         ":host",
         ":sycl",
-        "@onedal//cpp/oneapi/dal/policy/detail:mpi_comm",
+    ],
+    extra_deps = [
+        "@mpi//:mpi",
     ],
 )
 
