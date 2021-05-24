@@ -515,11 +515,10 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
                      kmeans_types) {
     using float_t = TestType;
 
-//    std::int64_t element_count = 10001;
-//    std::int64_t candidate_count = 17;
+    //    std::int64_t element_count = 10001;
+    //    std::int64_t candidate_count = 17;
     std::int64_t element_count = 11;
     std::int64_t candidate_count = 2;
-
 
     auto closest_distances =
         pr::ndarray<float_t, 2>::empty(this->get_queue(), { element_count, 1 });

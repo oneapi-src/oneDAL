@@ -45,10 +45,10 @@ namespace pr = dal::backend::primitives;
         F objective_function,                                                                     \
         const bk::event_vector& deps);                                                            \
     template sycl::event find_candidates<F>(sycl::queue & queue,                                  \
-                                            pr::ndview<F, 2>& closest_distances,            \
+                                            pr::ndview<F, 2> & closest_distances,                 \
                                             std::int64_t candidate_count,                         \
-                                            pr::ndview<std::int32_t, 1>& candidate_indices,       \
-                                            pr::ndview<F, 1>& candidate_distances,                \
+                                            pr::ndview<std::int32_t, 1> & candidate_indices,      \
+                                            pr::ndview<F, 1> & candidate_distances,               \
                                             const bk::event_vector& deps);                        \
     template sycl::event merge_reduce_centroids<F>(sycl::queue & queue,                           \
                                                    const pr::ndview<std::int32_t, 1>& counters,   \
