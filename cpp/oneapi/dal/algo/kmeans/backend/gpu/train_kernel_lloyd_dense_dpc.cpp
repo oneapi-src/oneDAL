@@ -14,10 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <tuple>
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/update_clusters.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -29,7 +31,6 @@
 
 namespace oneapi::dal::kmeans::backend {
 
-using std::int64_t;
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
@@ -153,67 +154,26 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         sycl::event centroids_event;
 
         for (iter = 0; iter < max_iteration_count; iter++) {
-            auto assign_event = assign_clusters<Float, pr::squared_l2_metric<Float>>(
-                queue,
-                arr_data,
-                (iter == 0) ? arr_initial : arr_centroids,
-                block_rows,
-                arr_labels,
-                arr_distance_block,
-                arr_closest_distances,
-                { centroids_event });
-            auto count_event =
-                count_clusters(queue, arr_labels, cluster_count, arr_counters, { assign_event });
-            auto objective_function_event =
-                compute_objective_function<Float>(queue,
-                                                  arr_closest_distances,
-                                                  arr_objective_function,
-                                                  { assign_event });
-            auto reset_event = arr_partial_centroids.fill(queue, 0.0);
-            reset_event.wait_and_throw();
-            centroids_event = partial_reduce_centroids<Float>(queue,
-                                                              arr_data,
-                                                              arr_labels,
-                                                              cluster_count,
-                                                              part_count,
-                                                              arr_partial_centroids,
-                                                              { count_event });
-            centroids_event = merge_reduce_centroids<Float>(queue,
-                                                            arr_counters,
-                                                            arr_partial_centroids,
-                                                            part_count,
-                                                            arr_centroids,
-                                                            { count_event, centroids_event });
-            count_empty_clusters(queue,
-                                 cluster_count,
-                                 arr_counters,
-                                 arr_empty_cluster_count,
-                                 { count_event });
-
-            std::int64_t candidate_count = arr_empty_cluster_count.to_host(queue).get_data()[0];
-            sycl::event find_candidates_event;
-            if (candidate_count > 0) {
-                find_candidates_event = find_candidates<Float>(queue,
-                                                               arr_closest_distances,
-                                                               candidate_count,
-                                                               arr_candidate_indices,
-                                                               arr_candidate_distances);
-                
-            }
-
-            Float objective_function = arr_objective_function.to_host(queue).get_data()[0];
-            bk::event_vector candidate_events;
-            if (candidate_count > 0) {
-                sycl::event::wait(fill_empty_clusters(queue,
-                                                       arr_data,
-                                                       arr_counters,
-                                                       arr_candidate_indices,
-                                                       arr_candidate_distances,
-                                                       arr_centroids,
-                                                       arr_labels,
-                                                       objective_function,
-                                                       { find_candidates_event }));
-            }
+            auto [objective_function, update_clusters_event] =  update_clusters(queue,
+                    cluster_count,
+                    max_iteration_count,
+                    accuracy_threshold,
+                    block_rows,
+                    part_count,
+                    arr_data,
+                    iter == 0 ? arr_initial : arr_centroids,
+                    arr_centroids,
+                    arr_partial_centroids,
+                    arr_distance_block,
+                    arr_closest_distances,
+                    arr_objective_function,
+                    arr_labels,
+                    arr_counters,
+                    arr_candidate_indices,
+                    arr_candidate_distances,
+                    arr_empty_cluster_count,
+                    {centroids_event});
+            centroids_event = update_clusters_event;
             if (accuracy_threshold > 0 && objective_function + accuracy_threshold > prev_objective_function) {
                 iter++;
                 break;
