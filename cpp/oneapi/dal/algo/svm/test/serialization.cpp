@@ -40,7 +40,9 @@ public:
     bool not_available_on_device() {
         constexpr bool is_smo = std::is_same_v<method_t, svm::method::smo>;
         constexpr bool is_reg = std::is_same_v<task_t, svm::task::regression>;
-        return this->get_policy().is_gpu() && (is_smo || is_reg);
+        constexpr bool is_nu = dal::detail::
+            is_one_of_v<task_t, svm::task::nu_classification, svm::task::nu_regression>;
+        return this->get_policy().is_gpu() && (is_smo || is_reg || is_nu);
     }
 
     template <typename T = task_t, detail::enable_if_classification_t<T>* = nullptr>
@@ -213,7 +215,11 @@ using svm_cls_types = COMBINE_TYPES((float, double),
 
 using svm_reg_types = COMBINE_TYPES((float, double),
                                     (svm::method::thunder),
-                                    (svm::task::regression));
+                                    (svm::task::regression, svm::task::nu_regression));
+
+using svm_nu_cls_types = COMBINE_TYPES((float, double),
+                                       (svm::method::thunder),
+                                       (svm::task::nu_classification));
 
 TEMPLATE_LIST_TEST_M(svm_serialization_test,
                      "serialize/deserialize classification svm model",
@@ -238,6 +244,19 @@ TEMPLATE_LIST_TEST_M(svm_serialization_test,
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());
 
+    this->run_test();
+}
+
+TEMPLATE_LIST_TEST_M(svm_serialization_test,
+                     "serialize/deserialize nu classification svm model",
+                     "[nu_cls]",
+                     svm_nu_cls_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_available_on_device());
+
+    const std::int64_t class_count = GENERATE(2, 3);
+
+    this->set_class_count(class_count);
     this->run_test();
 }
 

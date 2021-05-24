@@ -32,7 +32,7 @@ struct train_ops_dispatcher {
 template <typename Descriptor>
 struct train_ops {
     using float_t = typename Descriptor::float_t;
-    using method_t = method::by_default;
+    using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
     using kernel_t = typename Descriptor::kernel_t;
     using input_t = train_input<task_t>;

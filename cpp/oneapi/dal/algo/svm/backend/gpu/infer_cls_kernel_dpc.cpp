@@ -113,7 +113,20 @@ struct infer_kernel_gpu<Float, method::by_default, task::classification> {
     }
 };
 
+template <typename Float>
+struct infer_kernel_gpu<Float, method::by_default, task::nu_classification> {
+    infer_result<task::nu_classification> operator()(
+        const context_gpu& ctx,
+        const detail::descriptor_base<task::nu_classification>& desc,
+        const infer_input<task::nu_classification>& input) const {
+        throw unimplemented(
+            dal::detail::error_messages::svm_nu_classification_task_is_not_implemented_for_gpu());
+    }
+};
+
 template struct infer_kernel_gpu<float, method::by_default, task::classification>;
 template struct infer_kernel_gpu<double, method::by_default, task::classification>;
+template struct infer_kernel_gpu<float, method::by_default, task::nu_classification>;
+template struct infer_kernel_gpu<double, method::by_default, task::nu_classification>;
 
 } // namespace oneapi::dal::svm::backend
