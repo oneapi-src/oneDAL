@@ -62,8 +62,36 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
     daal_parameter.voteWeights = original_daal_parameter.voteWeights;
     daal_parameter.engine = original_daal_parameter.engine->clone();
     daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
-    // daal_parameter.pairwiseDistance = pairwiseDistance;
-    // daal_parameter.minkowskiDegree = minkowskiDegree;
+
+    // //prototype
+    // const auto desc_dist = *desc.get_distance_impl()->get_distance();
+    // // Euclidean distance
+    // if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, minkowski_distance::detail::descriptor_tag> &
+    //               desc_dist.get_degree() == 2.0) {
+    //     daal_parameter.pairwiseDistance =
+    //         daal_knn::training::internal::PairwiseDistanceType::euclidean;
+    //     daal_parameter.minkowskiDegree = desc_dist.get_degree();
+    // }
+    // // Manhattan distance
+    // else if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, minkowski_distance::detail::descriptor_tag> &
+    //                    desc_dist.get_degree() == 1.0) {
+    //     daal_parameter.pairwiseDistance =
+    //         daal_knn::training::internal::PairwiseDistanceType::manhattan;
+    //     daal_parameter.minkowskiDegree = desc_dist.get_degree();
+    // }
+    // // Minkowski distance for other p
+    // else if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, minkowski_distance::detail::descriptor_tag> &
+    //                    desc_dist.get_degree() != 1.0 & desc_dist.get_degree() != 2.0) {
+    //     daal_parameter.pairwiseDistance =
+    //         daal_knn::training::internal::PairwiseDistanceType::minkowski;
+    //     daal_parameter.minkowskiDegree = desc_dist.get_degree();
+    // }
+    // // Chebychev distance (p->inf)
+    // else if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, chebychev_distance::detail::descriptor_tag>) {
+    //     daal_parameter.pairwiseDistance =
+    //         daal_knn::training::internal::PairwiseDistanceType::chebychev;
+    //     daal_parameter.minkowskiDegree = 0.0;
+    // }
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(
         ctx,

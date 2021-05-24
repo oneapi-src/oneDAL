@@ -118,8 +118,8 @@ protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
     void set_voting_mode_impl(voting_mode value);
-    const detail::distance_ptr& get_distance_impl() const;
     void set_distance_impl(const detail::distance_ptr& distance);
+    const detail::distance_ptr& get_distance_impl() const;
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
