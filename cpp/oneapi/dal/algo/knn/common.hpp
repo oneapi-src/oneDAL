@@ -18,8 +18,7 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/algo/minkowski_distance/common.hpp"
-#include "oneapi/dal/algo/chebychev_distance/common.hpp"
+#include "oneapi/dal/algo/knn/detail/distance.hpp"
 
 namespace oneapi::dal::knn {
 
@@ -89,6 +88,16 @@ constexpr bool is_valid_method_v =
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
 
+template <typename Distance>
+constexpr bool is_valid_distance_v =
+    dal::detail::is_tag_one_of_v<Distance,
+                                 minkowski_distance::detail::descriptor_tag,
+                                 chebychev_distance::detail::descriptor_tag>;
+
+template <typename T>
+using enable_if_brute_force_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, method::brute_force>>;
+
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -109,6 +118,8 @@ protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
     void set_voting_mode_impl(voting_mode value);
+    const detail::distance_ptr& get_distance_impl() const;
+    void set_distance_impl(const detail::distance_ptr& distance);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -124,6 +135,8 @@ using v1::descriptor_base;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+using v1::is_valid_distance_v;
+using v1::enable_if_brute_force_t;
 
 } // namespace detail
 
@@ -139,11 +152,14 @@ namespace v1 {
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
-          typename Distance = oneapi::dal::minkowski_distance::descriptor< Float, Method, Task >>
+          typename Distance = oneapi::dal::minkowski_distance::descriptor<Float>>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
+    static_assert(detail::is_valid_distance_v<Distance>,
+                  "Custom distances for kNN is not supported. "
+                  "Use one of the predefined distances.");
 
     using base_t = detail::descriptor_base<Task>;
 
@@ -151,6 +167,7 @@ public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
+    using distance_t = Distance;
 
     /// Creates a new instance of the class with the given :literal:`class_count`
     /// and :literal:`neighbor_count` property values
@@ -159,8 +176,13 @@ public:
         set_neighbor_count(neighbor_count);
     }
 
-    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count, const Distance& distance) {
-
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
+    explicit descriptor(std::int64_t class_count,
+                        std::int64_t neighbor_count,
+                        const Distance& distance) {
+        set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
+        set_distance(distance);
     }
 
     /// The number of classes c
@@ -185,13 +207,27 @@ public:
         return *this;
     }
 
-    /// The voting mode. Used with :expr:`task::classification` only.
+    /// The voting mode.
     voting_mode get_voting_mode() const {
-        return get_voting_mode_impl();
+        return base_t::get_voting_mode();
     }
 
     auto& set_voting_mode(voting_mode value) {
         base_t::set_voting_mode_impl(value);
+        return *this;
+    }
+
+    /// Choose distance type for calculations. Used with :expr:`method::brute_force` only.
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
+    distance_t get_distance() const {
+        using dist_t = detail::distance<distance_t>;
+        const auto dist = std::static_pointer_cast<dist_t>(base_t::get_distance_impl());
+        return dist;
+    }
+
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
+    auto& set_distance(distance_t dist) {
+        base_t::set_distance_impl(std::make_shared<detail::distance<distance_t>>(dist));
         return *this;
     }
 };

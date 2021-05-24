@@ -28,6 +28,7 @@ public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
+    detail::distance_ptr distance;
 };
 
 template <typename Task>
@@ -67,6 +68,16 @@ voting_mode descriptor_base<Task>::get_voting_mode() const {
 template <typename Task>
 void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
     impl_->voting_mode_value = value;
+}
+
+template <typename Task>
+const detail::distance_ptr& descriptor_base<Task>::get_distance_impl() const {
+    return impl_->distance;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distance) {
+    impl_->distance = distance;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
