@@ -41,11 +41,12 @@ struct impurity_data;
 template <typename Float, typename Index>
 struct impurity_data<Float, Index, task::classification> {
     using task_t = task::classification;
-    using context_t = df_train_context<Float, Index, task_t>;
+    using context_t = train_context<Float, Index, task_t>;
     using impl_const_t = impl_const<Index, task_t>;
     using imp_data_t = impurity_data<Float, Index, task_t>;
 
     impurity_data() = default;
+    ~impurity_data() = default;
     impurity_data(const cl::sycl::queue& q, Index node_count, Index class_count)
             : imp_list_(
                   pr::ndarray<Float, 1>::empty(q,
@@ -77,11 +78,12 @@ struct impurity_data<Float, Index, task::classification> {
 template <typename Float, typename Index>
 struct impurity_data<Float, Index, task::regression> {
     using task_t = task::regression;
-    using context_t = df_train_context<Float, Index, task_t>;
+    using context_t = train_context<Float, Index, task_t>;
     using impl_const_t = impl_const<Index, task::regression>;
     using imp_data_t = impurity_data<Float, Index, task_t>;
 
     impurity_data() = default;
+    ~impurity_data() = default;
     impurity_data(const cl::sycl::queue& q, Index node_count)
             : imp_list_(
                   pr::ndarray<Float, 1>::empty(q,
@@ -110,11 +112,12 @@ template <typename Float, typename Index>
 struct impurity_data_manager<Float, Index, task::classification> {
     using task_t = task::classification;
     using imp_data_t = impurity_data<Float, Index, task_t>;
-    using context_t = df_train_context<Float, Index, task_t>;
+    using context_t = train_context<Float, Index, task_t>;
 
     impurity_data_manager(const cl::sycl::queue& q, const context_t& ctx)
             : queue_(q),
               class_count_(ctx.class_count_) {}
+    ~impurity_data_manager() = default;
 
     void init_new_level(Index node_count) {
         ONEDAL_ASSERT(node_count);
@@ -140,9 +143,10 @@ template <typename Float, typename Index>
 struct impurity_data_manager<Float, Index, task::regression> {
     using task_t = task::regression;
     using imp_data_t = impurity_data<Float, Index, task_t>;
-    using context_t = df_train_context<Float, Index, task_t>;
+    using context_t = train_context<Float, Index, task_t>;
 
     impurity_data_manager(const cl::sycl::queue& q, const context_t& ctx) : queue_(q) {}
+    ~impurity_data_manager() = default;
 
     void init_new_level(Index node_count) {
         ONEDAL_ASSERT(node_count);

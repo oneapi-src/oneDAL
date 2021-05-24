@@ -54,7 +54,7 @@ using namespace daal::services::internal;
 template <typename Float, typename Index, typename Task = task::by_default>
 struct tree_level_record {
     using impl_const_t = impl_const<Index, Task>;
-    using context_t = df_train_context<Float, Index, Task>;
+    using context_t = train_context<Float, Index, Task>;
     using imp_data_t = impurity_data<Float, Index, Task>;
 
     tree_level_record(cl::sycl::queue& queue,
@@ -115,7 +115,7 @@ struct tree_level_record {
     }
 
     bool is_leaf(Index node_idx) {
-        return get_feature_id(node_idx) == impl_const_t::leaf_node_;
+        return get_feature_id(node_idx) == impl_const_t::leaf_mark_;
     }
     bool has_unordered_feature(Index node_idx) {
         return false; /* unordered features are not supported yet */
@@ -130,7 +130,7 @@ struct tree_level_record {
 
 template <typename Float, typename Index, typename Task = task::by_default>
 class train_model_manager {
-    using context_t = df_train_context<Float, Index, Task>;
+    using context_t = train_context<Float, Index, Task>;
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
     using model_interop_impl_t =
@@ -215,7 +215,7 @@ public:
             daal::algorithms::dtrees::prediction::internal::findNode<Float, TreeType, daal::sse2>(
                 tree_list_[tree_idx],
                 x);
-        DAAL_ASSERT(pNode);
+        ONEDAL_ASSERT(pNode);
         if constexpr (std::is_same_v<task::classification, Task>) {
             return NodeType::castLeaf(pNode)->response.value;
         }

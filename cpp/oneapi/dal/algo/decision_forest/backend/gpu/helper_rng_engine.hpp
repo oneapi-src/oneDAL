@@ -151,8 +151,6 @@ public:
         }
 
         dal::array<engine_impl> arr = dal::array<engine_impl>::empty(count_);
-        //std::vector<engine> arr;
-        //arr.resize(count_);
         engine_impl* arr_data = arr.get_mutable_data();
         for (Size i = 0; i < count_; i++) {
             if (arr_data)
