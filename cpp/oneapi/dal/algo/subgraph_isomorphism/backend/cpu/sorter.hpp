@@ -30,6 +30,7 @@ struct sconsistent_conditions {
     void init(std::int64_t size) {
         length = size;
         array = allocator_.allocate<std::int64_t>(length);
+        ___PR___(length)
         divider = length;
     }
     sconsistent_conditions(inner_alloc allocator)
@@ -320,21 +321,34 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
     std::int64_t _p = 0;
     std::int64_t _n = 0;
 
+    ___PR___(vertex_count);
     for (std::int64_t i = 1; i < vertex_count; i++) {
+        ___PR___(i);
         predecessor[sorted_pattern_vertex[i]] = null_node;
 
         _p = i - 1;
         _n = 0;
         for (std::int64_t j = 0; j < i; j++) {
+            ___PR___(j);
+            auto sorted_pattern_vertex_j = sorted_pattern_vertex[j];
+            auto sorted_pattern_vertex_i = sorted_pattern_vertex[i];
+            ___PR___(sorted_pattern_vertex_i)
+            ___PR___(sorted_pattern_vertex_j)
             edge_direction edir =
                 pattern.check_edge(sorted_pattern_vertex[j], sorted_pattern_vertex[i]);
             switch (edir) {
                 case none: {
+                    std::cout << "none" << std::endl;
+                    ONEDAL_ASSERT(_n < i);
+                    ONEDAL_ASSERT(_n >= 0);
                     cconditions[i - 1].array[_n] = j;
                     _n++;
                     break;
                 }
                 case both: {
+                    std::cout << "both" << std::endl;
+                    ONEDAL_ASSERT(_p < i);
+                    ONEDAL_ASSERT(_p >= 0);
                     cconditions[i - 1].array[_p] = j;
                     _p--;
                     break;
@@ -351,7 +365,13 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
                 direction[sorted_pattern_vertex[i]] = edir;
             }
         }
+        ___PR___(_n)
+        ___PR___(_p)
         cconditions[i - 1].divider = _n;
+
+        auto* ptr = cconditions[i - 1].array;
+        auto vertex_count_minus_1 = vertex_count - 1;
+        ___PR_ARR___(ptr, i)
     }
     return ok;
 }

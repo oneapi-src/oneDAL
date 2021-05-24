@@ -359,6 +359,17 @@ state dfs_stack::get_current_state() const {
     return result;
 }
 
+void dfs_stack::print() const {
+    std::cout << "dfs_stack_print" << std::endl;
+    for (std::int64_t i = 0; i < current_level + 1; i++) {
+        for (std::int64_t j = 0; j < data_by_levels[i].size(); j++) {
+            std::cout << data_by_levels[i].stack_data[j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 void dfs_stack::fill_solution(std::int64_t* solution_core,
                               const std::uint64_t last_vertex_id) const {
     for (std::uint64_t i = 0; i <= current_level; i++) {

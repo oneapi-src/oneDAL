@@ -390,6 +390,7 @@ std::int64_t graph<Cpu>::get_vertex_count() const {
 
 template <typename Cpu>
 std::int64_t graph<Cpu>::get_vertex_degree(std::int64_t vertex) const {
+    ONEDAL_ASSERT(vertex < n);
     return p_degree[vertex];
 }
 

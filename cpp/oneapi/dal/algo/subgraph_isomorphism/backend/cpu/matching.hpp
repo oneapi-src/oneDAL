@@ -88,7 +88,6 @@ public:
     std::int64_t* temporary_list;
 
     std::uint8_t* pstart_byte;
-    std::int64_t candidate;
 
     stack local_stack;
     dfs_stack hlocal_stack;
@@ -97,10 +96,10 @@ public:
     kind isomorphism_kind_;
 
     std::int64_t extract_candidates(state* current_state, bool check_solution);
-    bool check_vertex_candidate(state* current_state, bool check_solution);
+    bool check_vertex_candidate(state* current_state, bool check_solution, std::int64_t candidate);
 
     std::int64_t extract_candidates(bool check_solution);
-    bool check_vertex_candidate(bool check_solution);
+    bool check_vertex_candidate(bool check_solution, std::int64_t candidate);
 };
 
 template <typename Cpu>
@@ -178,7 +177,6 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
     std::int64_t target_vertex_count = target->get_vertex_count();
 
     pstart_byte = vertex_candidates.get_vector_pointer();
-    candidate = 0;
 
     std::int64_t max_neighbours_size = target->get_max_degree();
     std::int64_t max_degree = target->get_max_degree();
@@ -248,9 +246,18 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(state* current_state,
 template <typename Cpu>
 std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     std::uint64_t current_level_index = hlocal_stack.get_current_level_index();
+    hlocal_stack.print();
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
+    {
+        std::cout << "\n\n state_exploration_bit\n";
+        ___PR___(current_level_index)
+        ___PR___(divider)
+        auto vertex_candidates_size_ = vertex_candidates.size();
+        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
+    }
     if (isomorphism_kind_ != kind::non_induced) {
+        std::cout << "induced" << std::endl;
         ONEDAL_IVDEP
         for (std::int64_t j = 0; j < divider; j++) {
             or_equal<Cpu>(vertex_candidates.get_vector_pointer(),
@@ -260,19 +267,56 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
         }
     }
 
+    {
+        std::cout << "\n or_equal\n";
+        auto vertex_candidates_size_ = vertex_candidates.size();
+        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
+    }
+
     ~vertex_candidates; // inversion ?
+
+    {
+        std::cout << "\n inversion\n";
+        auto vertex_candidates_size_ = vertex_candidates.size();
+        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
+    }
 
     ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
+        {
+            ___PR___(j)
+            std::cout << "\n and_equal target\n";
+            auto* ptr = target->p_edges_bit[hlocal_stack.top(
+                pconsistent_conditions[current_level_index].array[j])];
+            ___PR8___(ptr, vertex_candidates.size());
+        }
         and_equal<Cpu>(vertex_candidates.get_vector_pointer(),
                        target->p_edges_bit[hlocal_stack.top(
                            pconsistent_conditions[current_level_index].array[j])],
                        vertex_candidates.size());
     }
+    if ((current_level_index + 1) == divider) {
+        vertex_candidates.set(0x0);
+        std::cout << "\n set to zero\n";
+
+        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
+    }
+
+    {
+        std::cout << "\n and_equal\n";
+        auto vertex_candidates_size_ = vertex_candidates.size();
+        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
+    }
 
     for (std::uint64_t i = 0; i <= current_level_index; i++) {
         vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(hlocal_stack.top(i))] &=
             ~bit_vector<Cpu>::bit(hlocal_stack.top(i));
+    }
+
+    {
+        std::cout << "\n last\n\n";
+        auto vertex_candidates_size_ = vertex_candidates.size();
+        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
     }
     return extract_candidates(check_solution);
 }
@@ -280,26 +324,45 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
 template <typename Cpu>
 std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
     std::int64_t feasible_result_count = 0;
-
+    {
+        std::cout << "\n\nextract_candidates\n";
+        auto vertex_candidates_size_ = vertex_candidates.size();
+        ___PR___(vertex_candidates_size_);
+        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
+    }
     std::int64_t size_in_dword = vertex_candidates.size() >> 3;
     std::uint64_t* ptr;
     std::int32_t popcnt;
     for (std::int64_t i = 0; i < size_in_dword; i++) {
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
         popcnt = ONEDAL_popcnt64(*ptr);
+        ___PR___(popcnt)
+        ONEDAL_ASSERT(popcnt <= 64);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
+            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
-            feasible_result_count += check_vertex_candidate(check_solution);
+            feasible_result_count += check_vertex_candidate(check_solution, candidate);
         }
     }
+    auto size_in_dword_3 = size_in_dword << 3;
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
+        ___PR___(i)
         while (pstart_byte[i] > 0) {
-            candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
+            std::cout << "\ntake a bit\n";
+            auto pstart_byte_i = pstart_byte[i];
+            ___PR8___(&pstart_byte_i, 1);
+
+            std::int64_t candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
+            ___PR___(candidate);
+            ONEDAL_ASSERT(candidate < 8);
             pstart_byte[i] ^= (1 << candidate);
+            auto i_shifted = i << 3;
+            ___PR___(i_shifted)
+
             candidate += (i << 3);
-            feasible_result_count += check_vertex_candidate(check_solution);
+            ___PR___(candidate);
+            feasible_result_count += check_vertex_candidate(check_solution, candidate);
         }
     }
 
@@ -309,8 +372,9 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
 }
 
 template <typename Cpu>
-bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution) {
+bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int64_t candidate) {
     std::uint64_t solution_length_unsigned = solution_length;
+    ONEDAL_ASSERT(hlocal_stack.get_current_level() < pattern->get_vertex_count());
     if (match_vertex(sorted_pattern_vertex[hlocal_stack.get_current_level()], candidate)) {
         if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length_unsigned) {
             std::int64_t* solution_core = allocator_.allocate<std::int64_t>(solution_length);
@@ -456,18 +520,20 @@ std::int64_t matching_engine<Cpu>::extract_candidates(state* current_state, bool
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
         popcnt = ONEDAL_popcnt64(*ptr);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
+            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
-            feasible_result_count += check_vertex_candidate(current_state, check_solution);
+            feasible_result_count +=
+                check_vertex_candidate(current_state, check_solution, candidate);
         }
     }
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         while (pstart_byte[i] > 0) {
-            candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
+            std::int64_t candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
             pstart_byte[i] ^= (1 << candidate);
             candidate += (i << 3);
-            feasible_result_count += check_vertex_candidate(current_state, check_solution);
+            feasible_result_count +=
+                check_vertex_candidate(current_state, check_solution, candidate);
         }
     }
     return feasible_result_count;
@@ -487,7 +553,9 @@ bool matching_engine<Cpu>::check_vertex_candidate(const std::int64_t pattern_ver
 }
 
 template <typename Cpu>
-bool matching_engine<Cpu>::check_vertex_candidate(state* current_state, bool check_solution) {
+bool matching_engine<Cpu>::check_vertex_candidate(state* current_state,
+                                                  bool check_solution,
+                                                  std::int64_t candidate) {
     if (match_vertex(sorted_pattern_vertex[current_state->core_length], candidate)) {
         void* place = (void*)allocator_.allocate<state>(1);
         state* new_state = new (place) state(current_state, candidate, allocator_);
@@ -506,6 +574,10 @@ bool matching_engine<Cpu>::check_vertex_candidate(state* current_state, bool che
 template <typename Cpu>
 bool matching_engine<Cpu>::match_vertex(const std::int64_t pattern_vertex,
                                         const std::int64_t target_vertex) const {
+    ___PR___(pattern_vertex);
+    ___PR___(target_vertex);
+    ONEDAL_ASSERT(pattern_vertex < pattern->get_vertex_count());
+    ONEDAL_ASSERT(target_vertex < target->get_vertex_count());
     return pattern->get_vertex_degree(pattern_vertex) <= target->get_vertex_degree(target_vertex) &&
            pattern->get_vertex_attribute(pattern_vertex) ==
                target->get_vertex_attribute(target_vertex);
@@ -577,6 +649,7 @@ engine_bundle<Cpu>::~engine_bundle() {
 
 template <typename Cpu>
 solution engine_bundle<Cpu>::run() {
+    std::cout << "\n\n run\n";
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
     std::uint64_t first_states_count =
@@ -615,6 +688,8 @@ solution engine_bundle<Cpu>::run() {
                 target->get_vertex_attribute(i)) {
             index = task_counter % array_size;
             engine_array[index].push_into_stack(i);
+
+            ___PR___(i);
 
             if ((engine_array[index].hlocal_stack.states_in_stack() /
                  possible_first_states_count_per_thread) > 0) {
