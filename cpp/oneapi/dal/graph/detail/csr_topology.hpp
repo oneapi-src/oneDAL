@@ -58,7 +58,7 @@ public:
         _edge_count = edge_count;
         _rows = edge_set::wrap(offsets, vertex_count + 1);
         _degrees = vertex_set::wrap(degrees, vertex_count);
-        _cols = vertex_set::wrap(neighbors, edge_count);
+        _cols = vertex_set::wrap(neighbors, edge_count * 2);
         _rows_ptr = _rows.get_data();
         _cols_ptr = _cols.get_data();
         _degrees_ptr = _degrees.get_data();
@@ -73,7 +73,7 @@ public:
         _edge_count = edge_count;
         _rows = edge_set::wrap(offsets, vertex_count + 1);
         _degrees = vertex_set::wrap(degrees, vertex_count);
-        _cols = vertex_set::wrap(neighbors, edge_count);
+        _cols = vertex_set::wrap(neighbors, edge_count * 2);
         _rows_ptr = _rows.get_data();
         _cols_ptr = _cols.get_data();
         _degrees_ptr = _degrees.get_data();
