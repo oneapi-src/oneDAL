@@ -19,7 +19,6 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/byte_alloc.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 struct byte_alloc_iface;

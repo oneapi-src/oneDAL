@@ -104,8 +104,6 @@ public:
 
     void delete_current_state();
 
-    void print() const;
-
 protected:
     inner_alloc allocator_;
     std::uint64_t max_level_size;

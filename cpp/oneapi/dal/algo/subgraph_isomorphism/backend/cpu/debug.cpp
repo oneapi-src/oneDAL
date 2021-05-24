@@ -18,11 +18,11 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 void ___PR8___(const std::uint8_t* arr, int n) {
-    // for (int i = 0; i < n; i++) {
-    //     std::bitset<8> x(arr[i]);
-    //     std::cout << x;
-    //     std::cout << std::endl;
-    // }
+    for (int i = 0; i < n; i++) {
+        std::bitset<8> x(arr[i]);
+        std::cout << x;
+        std::cout << std::endl;
+    }
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
