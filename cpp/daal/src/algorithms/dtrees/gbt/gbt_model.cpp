@@ -25,6 +25,7 @@
 #include "src/algorithms/dtrees/gbt/gbt_model_impl.h"
 #include "src/algorithms/dtrees/dtrees_model_impl_common.h"
 
+
 using namespace daal::data_management;
 using namespace daal::services;
 
@@ -115,8 +116,16 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
 
     auto onSplitNodeFunc = [&splitFeatures, &splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::SplitNodeDescriptor descSplit;
-        descSplit.impurity         = imp[iRowInTable];
-        descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        if (imp) {
+            descSplit.impurity         = imp[iRowInTable];
+        } else {
+            descSplit.impurity         = 0;
+        }
+        if (nodeSamplesCount) {
+            descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        } else {
+            descSplit.nNodeSampleCount = 0;
+        }
         descSplit.featureIndex     = splitFeatures[iRowInTable];
         descSplit.featureValue     = splitPoints[iRowInTable];
         descSplit.level            = level;
@@ -126,8 +135,16 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     auto onLeafNodeFunc = [&splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::regression::LeafNodeDescriptor descLeaf;
 
-        descLeaf.impurity         = imp[iRowInTable];
-        descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        if (imp) {
+            descLeaf.impurity         = imp[iRowInTable];
+        } else {
+            descLeaf.impurity         = 0;
+        }
+        if (nodeSamplesCount) {
+            descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        } else {
+            descLeaf.nNodeSampleCount = 0;
+        }
         descLeaf.level            = level;
         descLeaf.response         = splitPoints[iRowInTable];
         return visitor.onLeafNode(descLeaf);
@@ -151,11 +168,18 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     const gbt::prediction::internal::FeatureIndexType * splitFeatures = gbtTree.getFeatureIndexesForSplit();
     const int * nodeSamplesCount                                      = getNodeSampleCount(iTree);
     const double * imp                                                = getImpVals(iTree);
-
     auto onSplitNodeFunc = [&splitFeatures, &splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::SplitNodeDescriptor descSplit;
-        descSplit.impurity         = imp[iRowInTable];
-        descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        if (imp) {
+            descSplit.impurity         = imp[iRowInTable];
+        } else {
+            descSplit.impurity         = 0;
+        }
+        if (nodeSamplesCount) {
+            descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        } else {
+            descSplit.nNodeSampleCount = 0;
+        }
         descSplit.featureIndex     = splitFeatures[iRowInTable];
         descSplit.featureValue     = splitPoints[iRowInTable];
         descSplit.level            = level;
@@ -165,8 +189,16 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     auto onLeafNodeFunc = [&splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::regression::LeafNodeDescriptor descLeaf;
 
-        descLeaf.impurity         = imp[iRowInTable];
-        descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        if (imp) {
+            descLeaf.impurity         = imp[iRowInTable];
+        } else {
+            descLeaf.impurity         = 0;
+        }
+        if (nodeSamplesCount) {
+            descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        } else {
+            descLeaf.nNodeSampleCount = 0;
+        }
         descLeaf.level            = level;
         descLeaf.response         = splitPoints[iRowInTable];
         return visitor.onLeafNode(descLeaf);
