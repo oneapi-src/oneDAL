@@ -338,7 +338,7 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
                 pattern.check_edge(sorted_pattern_vertex[j], sorted_pattern_vertex[i]);
             switch (edir) {
                 case none: {
-                    std::cout << "none" << std::endl;
+                    // std::cout << "none" << std::endl;
                     ONEDAL_ASSERT(_n < i);
                     ONEDAL_ASSERT(_n >= 0);
                     cconditions[i - 1].array[_n] = j;
@@ -346,7 +346,7 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
                     break;
                 }
                 case both: {
-                    std::cout << "both" << std::endl;
+                    // std::cout << "both" << std::endl;
                     ONEDAL_ASSERT(_p < i);
                     ONEDAL_ASSERT(_p >= 0);
                     cconditions[i - 1].array[_p] = j;

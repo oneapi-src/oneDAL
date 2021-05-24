@@ -24,7 +24,7 @@ namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 template <typename T>
 void pr(char* msg, const T& val) {
-    std::cout << msg << " " << val << std::endl;
+    // std::cout << msg << " " << val << std::endl;
 }
 
 #define ___PR___(x) pr(#x, x);
@@ -33,11 +33,11 @@ void ___PR8___(const std::uint8_t* arr, int n);
 
 template <typename T>
 void pr(char* msg, const T* arr, int n) {
-    std::cout << msg << "[" << n << "] : ";
-    for (int i = 0; i < n; i++) {
-        std::cout << arr[i] << " ";
-    }
-    std::cout << std::endl;
+    // std::cout << msg << "[" << n << "] : ";
+    // for (int i = 0; i < n; i++) {
+    //     std::cout << arr[i] << " ";
+    // }
+    // std::cout << std::endl;
 }
 #define ___PR_ARR___(x, n) pr(#x, x, n);
 

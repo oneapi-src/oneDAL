@@ -250,14 +250,12 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
     {
-        std::cout << "\n\n state_exploration_bit\n";
         ___PR___(current_level_index)
         ___PR___(divider)
         auto vertex_candidates_size_ = vertex_candidates.size();
         ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
     }
     if (isomorphism_kind_ != kind::non_induced) {
-        std::cout << "induced" << std::endl;
         ONEDAL_IVDEP
         for (std::int64_t j = 0; j < divider; j++) {
             or_equal<Cpu>(vertex_candidates.get_vector_pointer(),
@@ -268,7 +266,6 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     }
 
     {
-        std::cout << "\n or_equal\n";
         auto vertex_candidates_size_ = vertex_candidates.size();
         ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
     }
@@ -276,7 +273,6 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     ~vertex_candidates; // inversion ?
 
     {
-        std::cout << "\n inversion\n";
         auto vertex_candidates_size_ = vertex_candidates.size();
         ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
     }
@@ -285,7 +281,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
         {
             ___PR___(j)
-            std::cout << "\n and_equal target\n";
+
             auto* ptr = target->p_edges_bit[hlocal_stack.top(
                 pconsistent_conditions[current_level_index].array[j])];
             ___PR8___(ptr, vertex_candidates.size());
@@ -295,15 +291,13 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
                            pconsistent_conditions[current_level_index].array[j])],
                        vertex_candidates.size());
     }
-    if ((current_level_index + 1) == divider) {
-        vertex_candidates.set(0x0);
-        std::cout << "\n set to zero\n";
+    // if ((current_level_index + 1) == divider) {
+    //     vertex_candidates.set(0xff);
 
-        ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
-    }
+    //     ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
+    // }
 
     {
-        std::cout << "\n and_equal\n";
         auto vertex_candidates_size_ = vertex_candidates.size();
         ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
     }
@@ -314,7 +308,6 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     }
 
     {
-        std::cout << "\n last\n\n";
         auto vertex_candidates_size_ = vertex_candidates.size();
         ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
     }
@@ -325,7 +318,6 @@ template <typename Cpu>
 std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
     std::int64_t feasible_result_count = 0;
     {
-        std::cout << "\n\nextract_candidates\n";
         auto vertex_candidates_size_ = vertex_candidates.size();
         ___PR___(vertex_candidates_size_);
         ___PR8___(vertex_candidates.get_vector_pointer(), vertex_candidates.size());
@@ -349,7 +341,6 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         ___PR___(i)
         while (pstart_byte[i] > 0) {
-            std::cout << "\ntake a bit\n";
             auto pstart_byte_i = pstart_byte[i];
             ___PR8___(&pstart_byte_i, 1);
 
@@ -576,6 +567,8 @@ bool matching_engine<Cpu>::match_vertex(const std::int64_t pattern_vertex,
                                         const std::int64_t target_vertex) const {
     ___PR___(pattern_vertex);
     ___PR___(target_vertex);
+    if (target_vertex >= target->get_vertex_count())
+        return false;
     ONEDAL_ASSERT(pattern_vertex < pattern->get_vertex_count());
     ONEDAL_ASSERT(target_vertex < target->get_vertex_count());
     return pattern->get_vertex_degree(pattern_vertex) <= target->get_vertex_degree(target_vertex) &&
@@ -649,7 +642,6 @@ engine_bundle<Cpu>::~engine_bundle() {
 
 template <typename Cpu>
 solution engine_bundle<Cpu>::run() {
-    std::cout << "\n\n run\n";
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
     std::uint64_t first_states_count =
