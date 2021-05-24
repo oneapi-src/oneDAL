@@ -30,6 +30,7 @@ struct sconsistent_conditions {
     void init(std::int64_t size) {
         length = size;
         array = allocator_.allocate<std::int64_t>(length);
+
         divider = length;
     }
     sconsistent_conditions(inner_alloc allocator)
@@ -330,11 +331,15 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
                 pattern.check_edge(sorted_pattern_vertex[j], sorted_pattern_vertex[i]);
             switch (edir) {
                 case none: {
+                    ONEDAL_ASSERT(_n < i);
+                    ONEDAL_ASSERT(_n >= 0);
                     cconditions[i - 1].array[_n] = j;
                     _n++;
                     break;
                 }
                 case both: {
+                    ONEDAL_ASSERT(_p < i);
+                    ONEDAL_ASSERT(_p >= 0);
                     cconditions[i - 1].array[_p] = j;
                     _p--;
                     break;

@@ -21,15 +21,6 @@
 namespace oneapi::dal::preview::load_graph::detail {
 
 template <>
-ONEDAL_EXPORT std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges) {
-    return dal::backend::dispatch_by_cpu(
-        dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
-        [&](auto cpu) {
-            return backend::get_vertex_count_from_edge_list<decltype(cpu)>(edges);
-        });
-}
-
-template <>
 ONEDAL_EXPORT std::int64_t compute_prefix_sum(const std::int32_t *degrees,
                                               std::int64_t degrees_count,
                                               std::int64_t *edge_offsets) {

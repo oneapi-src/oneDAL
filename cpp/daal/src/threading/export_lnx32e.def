@@ -193,6 +193,8 @@ fpk_lapack_avx2_dormrq
 fpk_lapack_avx2_dpotrf
 fpk_lapack_avx2_dpotri
 fpk_lapack_avx2_dpotrs
+fpk_lapack_avx2_dgetrf
+fpk_lapack_avx2_dgetrs
 fpk_lapack_avx2_dpptrf
 fpk_lapack_avx2_dsyev
 fpk_lapack_avx2_dsyevd
@@ -207,6 +209,8 @@ fpk_lapack_avx2_sormrq
 fpk_lapack_avx2_spotrf
 fpk_lapack_avx2_spotri
 fpk_lapack_avx2_spotrs
+fpk_lapack_avx2_sgetrf
+fpk_lapack_avx2_sgetrs
 fpk_lapack_avx2_spptrf
 fpk_lapack_avx2_ssyev
 fpk_lapack_avx2_ssyevd
@@ -221,6 +225,8 @@ fpk_lapack_avx512_dormrq
 fpk_lapack_avx512_dpotrf
 fpk_lapack_avx512_dpotri
 fpk_lapack_avx512_dpotrs
+fpk_lapack_avx512_dgetrf
+fpk_lapack_avx512_dgetrs
 fpk_lapack_avx512_dpptrf
 fpk_lapack_avx512_dsyev
 fpk_lapack_avx512_dsyevd
@@ -235,6 +241,8 @@ fpk_lapack_avx512_mic_dormrq
 fpk_lapack_avx512_mic_dpotrf
 fpk_lapack_avx512_mic_dpotri
 fpk_lapack_avx512_mic_dpotrs
+fpk_lapack_avx512_mic_dgetrf
+fpk_lapack_avx512_mic_dgetrs
 fpk_lapack_avx512_mic_dpptrf
 fpk_lapack_avx512_mic_dsyev
 fpk_lapack_avx512_mic_dsyevd
@@ -249,6 +257,8 @@ fpk_lapack_avx512_mic_sormrq
 fpk_lapack_avx512_mic_spotrf
 fpk_lapack_avx512_mic_spotri
 fpk_lapack_avx512_mic_spotrs
+fpk_lapack_avx512_mic_sgetrf
+fpk_lapack_avx512_mic_sgetrs
 fpk_lapack_avx512_mic_spptrf
 fpk_lapack_avx512_mic_ssyev
 fpk_lapack_avx512_mic_ssyevd
@@ -263,6 +273,8 @@ fpk_lapack_avx512_sormrq
 fpk_lapack_avx512_spotrf
 fpk_lapack_avx512_spotri
 fpk_lapack_avx512_spotrs
+fpk_lapack_avx512_sgetrf
+fpk_lapack_avx512_sgetrs
 fpk_lapack_avx512_spptrf
 fpk_lapack_avx512_ssyev
 fpk_lapack_avx512_ssyevd
@@ -277,6 +289,8 @@ fpk_lapack_avx_dormrq
 fpk_lapack_avx_dpotrf
 fpk_lapack_avx_dpotri
 fpk_lapack_avx_dpotrs
+fpk_lapack_avx_dgetrf
+fpk_lapack_avx_dgetrs
 fpk_lapack_avx_dpptrf
 fpk_lapack_avx_dsyev
 fpk_lapack_avx_dsyevd
@@ -291,6 +305,8 @@ fpk_lapack_avx_sormrq
 fpk_lapack_avx_spotrf
 fpk_lapack_avx_spotri
 fpk_lapack_avx_spotrs
+fpk_lapack_avx_sgetrf
+fpk_lapack_avx_sgetrs
 fpk_lapack_avx_spptrf
 fpk_lapack_avx_ssyev
 fpk_lapack_avx_ssyevd
@@ -305,6 +321,8 @@ fpk_lapack_sse2_dormrq
 fpk_lapack_sse2_dpotrf
 fpk_lapack_sse2_dpotri
 fpk_lapack_sse2_dpotrs
+fpk_lapack_sse2_dgetrf
+fpk_lapack_sse2_dgetrs
 fpk_lapack_sse2_dpptrf
 fpk_lapack_sse2_dsyev
 fpk_lapack_sse2_dsyevd
@@ -319,6 +337,8 @@ fpk_lapack_sse2_sormrq
 fpk_lapack_sse2_spotrf
 fpk_lapack_sse2_spotri
 fpk_lapack_sse2_spotrs
+fpk_lapack_sse2_sgetrf
+fpk_lapack_sse2_sgetrs
 fpk_lapack_sse2_spptrf
 fpk_lapack_sse2_ssyev
 fpk_lapack_sse2_ssyevd
@@ -333,6 +353,8 @@ fpk_lapack_sse42_dormrq
 fpk_lapack_sse42_dpotrf
 fpk_lapack_sse42_dpotri
 fpk_lapack_sse42_dpotrs
+fpk_lapack_sse42_dgetrf
+fpk_lapack_sse42_dgetrs
 fpk_lapack_sse42_dpptrf
 fpk_lapack_sse42_dsyev
 fpk_lapack_sse42_dsyevd
@@ -347,6 +369,8 @@ fpk_lapack_sse42_sormrq
 fpk_lapack_sse42_spotrf
 fpk_lapack_sse42_spotri
 fpk_lapack_sse42_spotrs
+fpk_lapack_sse42_sgetrf
+fpk_lapack_sse42_sgetrs
 fpk_lapack_sse42_spptrf
 fpk_lapack_sse42_ssyev
 fpk_lapack_sse42_ssyevd
@@ -361,6 +385,8 @@ fpk_lapack_ssse3_dormrq
 fpk_lapack_ssse3_dpotrf
 fpk_lapack_ssse3_dpotri
 fpk_lapack_ssse3_dpotrs
+fpk_lapack_ssse3_dgetrf
+fpk_lapack_ssse3_dgetrs
 fpk_lapack_ssse3_dpptrf
 fpk_lapack_ssse3_dsyev
 fpk_lapack_ssse3_dsyevd
@@ -375,6 +401,8 @@ fpk_lapack_ssse3_sormrq
 fpk_lapack_ssse3_spotrf
 fpk_lapack_ssse3_spotri
 fpk_lapack_ssse3_spotrs
+fpk_lapack_ssse3_sgetrf
+fpk_lapack_ssse3_sgetrs
 fpk_lapack_ssse3_spptrf
 fpk_lapack_ssse3_ssyev
 fpk_lapack_ssse3_ssyevd

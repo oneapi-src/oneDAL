@@ -91,7 +91,6 @@ public:
     std::int64_t* temporary_list;
 
     std::uint8_t* pstart_byte;
-    std::int64_t candidate;
 
     stack local_stack;
     dfs_stack hlocal_stack;
@@ -100,10 +99,10 @@ public:
     kind isomorphism_kind_;
 
     std::int64_t extract_candidates(state* current_state, bool check_solution);
-    bool check_vertex_candidate(state* current_state, bool check_solution);
+    bool check_vertex_candidate(state* current_state, bool check_solution, std::int64_t candidate);
 
     std::int64_t extract_candidates(bool check_solution);
-    bool check_vertex_candidate(bool check_solution);
+    bool check_vertex_candidate(bool check_solution, std::int64_t candidate);
 };
 
 template <typename Cpu>
@@ -181,7 +180,6 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
     std::int64_t target_vertex_count = target->get_vertex_count();
 
     pstart_byte = vertex_candidates.get_vector_pointer();
-    candidate = 0;
 
     std::int64_t max_neighbours_size = target->get_max_degree();
     std::int64_t max_degree = target->get_max_degree();
@@ -277,32 +275,34 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
         vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(hlocal_stack.top(i))] &=
             ~bit_vector<Cpu>::bit(hlocal_stack.top(i));
     }
+
     return extract_candidates(check_solution);
 }
 
 template <typename Cpu>
 std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
     std::int64_t feasible_result_count = 0;
-
     std::int64_t size_in_dword = vertex_candidates.size() >> 3;
     std::uint64_t* ptr;
     std::int32_t popcnt;
     for (std::int64_t i = 0; i < size_in_dword; i++) {
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
         popcnt = ONEDAL_popcnt64(*ptr);
+        ONEDAL_ASSERT(popcnt <= 64);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
+            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
-            feasible_result_count += check_vertex_candidate(check_solution);
+            feasible_result_count += check_vertex_candidate(check_solution, candidate);
         }
     }
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         while (pstart_byte[i] > 0) {
-            candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
+            std::int64_t candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
+            ONEDAL_ASSERT(candidate < 8);
             pstart_byte[i] ^= (1 << candidate);
             candidate += (i << 3);
-            feasible_result_count += check_vertex_candidate(check_solution);
+            feasible_result_count += check_vertex_candidate(check_solution, candidate);
         }
     }
 
@@ -312,7 +312,7 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
 }
 
 template <typename Cpu>
-bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution) {
+bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int64_t candidate) {
     std::uint64_t solution_length_unsigned = solution_length;
     if (match_vertex(sorted_pattern_vertex[hlocal_stack.get_current_level()], candidate)) {
         if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length_unsigned) {
@@ -459,18 +459,20 @@ std::int64_t matching_engine<Cpu>::extract_candidates(state* current_state, bool
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
         popcnt = ONEDAL_popcnt64(*ptr);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
+            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
-            feasible_result_count += check_vertex_candidate(current_state, check_solution);
+            feasible_result_count +=
+                check_vertex_candidate(current_state, check_solution, candidate);
         }
     }
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         while (pstart_byte[i] > 0) {
-            candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
+            std::int64_t candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
             pstart_byte[i] ^= (1 << candidate);
             candidate += (i << 3);
-            feasible_result_count += check_vertex_candidate(current_state, check_solution);
+            feasible_result_count +=
+                check_vertex_candidate(current_state, check_solution, candidate);
         }
     }
     return feasible_result_count;
@@ -490,7 +492,9 @@ bool matching_engine<Cpu>::check_vertex_candidate(const std::int64_t pattern_ver
 }
 
 template <typename Cpu>
-bool matching_engine<Cpu>::check_vertex_candidate(state* current_state, bool check_solution) {
+bool matching_engine<Cpu>::check_vertex_candidate(state* current_state,
+                                                  bool check_solution,
+                                                  std::int64_t candidate) {
     if (match_vertex(sorted_pattern_vertex[current_state->core_length], candidate)) {
         void* place = (void*)allocator_.allocate<state>(1);
         state* new_state = new (place) state(current_state, candidate, allocator_);
@@ -509,6 +513,10 @@ bool matching_engine<Cpu>::check_vertex_candidate(state* current_state, bool che
 template <typename Cpu>
 bool matching_engine<Cpu>::match_vertex(const std::int64_t pattern_vertex,
                                         const std::int64_t target_vertex) const {
+    if (target_vertex >= target->get_vertex_count())
+        return false;
+    ONEDAL_ASSERT(pattern_vertex < pattern->get_vertex_count());
+    ONEDAL_ASSERT(target_vertex < target->get_vertex_count());
     return pattern->get_vertex_degree(pattern_vertex) <= target->get_vertex_degree(target_vertex) &&
            pattern->get_vertex_attribute(pattern_vertex) ==
                target->get_vertex_attribute(target_vertex);

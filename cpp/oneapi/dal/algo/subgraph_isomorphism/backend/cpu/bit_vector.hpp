@@ -29,8 +29,8 @@ template <typename Cpu>
 class bit_vector {
 public:
     // precomputed count of ones in a number from 0 to 255
-    // e.g. bit_set_table[2] = 1, because of 2 is 0x00000010
-    // e.g. bit_set_table[3] = 7, because of 7 is 0x00000111
+    // e.g. bit_set_table[2] = 1, because of 2 is 0x00000010 contains 1 one
+    // e.g. bit_set_table[7] = 3, because of 7 is 0x00000111 contains only
     static constexpr std::uint8_t bit_set_table[256] = {
         0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3,
         4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4,
@@ -259,8 +259,8 @@ bit_vector<Cpu>::bit_vector(bit_vector<Cpu>& bvec)
 
 template <typename Cpu>
 bit_vector<Cpu>::bit_vector(const std::int64_t vector_size, inner_alloc allocator)
-        : bit_vector(allocator) {
-    n = vector_size;
+        : allocator_(allocator),
+          n(vector_size) {
     vector = allocator_.allocate<std::uint8_t>(n);
     this->set(n, vector);
 }
@@ -321,44 +321,40 @@ std::int64_t bit_vector<Cpu>::size() const {
 
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator&=(bit_vector<Cpu>& a) {
-    if (n <= a.size()) {
-        const std::uint8_t* pa = a.get_vector_pointer();
-        for (std::int64_t i = 0; i < n; i++) {
-            vector[i] &= pa[i];
-        }
+    ONEDAL_ASSERT(n == a.size());
+    const std::uint8_t* pa = a.get_vector_pointer();
+    for (std::int64_t i = 0; i < n; i++) {
+        vector[i] &= pa[i];
     }
     return *this;
 }
 
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator|=(bit_vector<Cpu>& a) {
-    if (n <= a.size()) {
-        const std::uint8_t* pa = a.get_vector_pointer();
-        for (std::int64_t i = 0; i < n; i++) {
-            vector[i] |= pa[i];
-        }
+    ONEDAL_ASSERT(n == a.size());
+    const std::uint8_t* pa = a.get_vector_pointer();
+    for (std::int64_t i = 0; i < n; i++) {
+        vector[i] |= pa[i];
     }
     return *this;
 }
 
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator^=(bit_vector<Cpu>& a) {
-    if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
-        for (std::int64_t i = 0; i < n; i++) {
-            vector[i] ^= pa[i];
-        }
+    ONEDAL_ASSERT(n == a.size());
+    std::uint8_t* pa = a.get_vector_pointer();
+    for (std::int64_t i = 0; i < n; i++) {
+        vector[i] ^= pa[i];
     }
     return *this;
 }
 
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::operator=(const bit_vector<Cpu>& a) {
-    if (n <= a.size()) {
-        const std::uint8_t* pa = a.get_vector_pointer();
-        for (std::int64_t i = 0; i < n; i++) {
-            vector[i] = pa[i];
-        }
+    ONEDAL_ASSERT(n == a.size());
+    const std::uint8_t* pa = a.get_vector_pointer();
+    for (std::int64_t i = 0; i < n; i++) {
+        vector[i] = pa[i];
     }
     return *this;
 }
@@ -416,11 +412,10 @@ bit_vector<Cpu>& bit_vector<Cpu>::andn(const std::uint8_t* pa) {
 
 template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::andn(bit_vector<Cpu>& a) {
-    if (n <= a.size()) {
-        std::uint8_t* pa = a.get_vector_pointer();
-        for (std::int64_t i = 0; i < n; i++) {
-            vector[i] &= ~pa[i];
-        }
+    ONEDAL_ASSERT(n == a.size());
+    std::uint8_t* pa = a.get_vector_pointer();
+    for (std::int64_t i = 0; i < n; i++) {
+        vector[i] &= ~pa[i];
     }
     return *this;
 }

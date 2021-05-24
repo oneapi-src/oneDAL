@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,17 +14,31 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "src/externals/service_service.h"
+#pragma once
 
-namespace oneapi::dal::preview::load_graph::detail {
+#include <bitset>
+#include <cstdint>
+#include <iostream>
 
-ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+
+template <typename T>
+void pr(char* msg, const T& val) {
+    std::cout << msg << " " << val << std::endl;
 }
 
-ONEDAL_EXPORT double daal_string_to_double(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
-}
+#define ___PR___(x) pr(#x, x);
 
-} // namespace oneapi::dal::preview::load_graph::detail
+void ___PR8___(const std::uint8_t* arr, int n);
+
+template <typename T>
+void pr(char* msg, const T* arr, int n) {
+    std::cout << msg << "[" << n << "] : ";
+    for (int i = 0; i < n; i++) {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << std::endl;
+}
+#define ___PR_ARR___(x, n) pr(#x, x, n);
+
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

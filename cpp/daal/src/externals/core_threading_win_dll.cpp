@@ -1088,6 +1088,22 @@ CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, spotrs,
                          const DAAL_INT * ldb, DAAL_INT * info, int iuplo),
                         (uplo, n, nrhs, a, lda, b, ldb, info, iuplo));
 
+CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, dgetrf,
+                        (const DAAL_INT * m, const DAAL_INT * n, const double * a, const DAAL_INT * lda, const DAAL_INT * ipiv, DAAL_INT * info),
+                        (m, n, a, lda, ipiv, info));
+CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, sgetrf,
+                        (const DAAL_INT * m, const DAAL_INT * n, const float * a, const DAAL_INT * lda, const DAAL_INT * ipiv, DAAL_INT * info),
+                        (m, n, a, lda, ipiv, info));
+
+CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, dgetrs,
+                        (const char * trans, const DAAL_INT * n, const DAAL_INT * nrhs, const double * a, const DAAL_INT * lda, const DAAL_INT * ipiv,
+                         double * b, const DAAL_INT * ldb, DAAL_INT * info, int iuplo),
+                        (trans, n, nrhs, a, lda, ipiv, b, ldb, info, iuplo));
+CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, sgetrs,
+                        (const char * trans, const DAAL_INT * n, const DAAL_INT * nrhs, const float * a, const DAAL_INT * lda, const DAAL_INT * ipiv,
+                         float * b, const DAAL_INT * ldb, DAAL_INT * info, int iuplo),
+                        (trans, n, nrhs, a, lda, ipiv, b, ldb, info, iuplo));
+
 CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, dpotri, (const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, DAAL_INT * info, int iuplo),
                         (uplo, n, a, lda, info, iuplo));
 CALL_VOID_FUNC_FROM_DLL(fpk_lapack_, spotri, (const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, DAAL_INT * info, int iuplo),

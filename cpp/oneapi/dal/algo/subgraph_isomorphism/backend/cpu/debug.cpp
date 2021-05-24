@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,17 +14,15 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/io/detail/load_graph_service.hpp"
-#include "src/externals/service_service.h"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp"
 
-namespace oneapi::dal::preview::load_graph::detail {
-
-ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+void ___PR8___(const std::uint8_t* arr, int n) {
+    for (int i = 0; i < n; i++) {
+        std::bitset<8> x(arr[i]);
+        std::cout << x;
+        std::cout << std::endl;
+    }
 }
 
-ONEDAL_EXPORT double daal_string_to_double(const char* nptr, char** endptr) {
-    return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
-}
-
-} // namespace oneapi::dal::preview::load_graph::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
