@@ -46,20 +46,15 @@ using namespace daal::services;
 enum class SvmType
 {
     classification,
-    regression
+    regression,
+    nu_classification,
+    nu_regression
 };
 
-struct KernelParameter
+struct KernelParameter : svm::Parameter
 {
-    double C;
-    double accuracyThreshold;
-    double tau;
     double epsilon;
-    size_t maxIterations;
-    size_t cacheSize;
-    bool doShrinking;
-    size_t shrinkingStep;
-    algorithms::kernel_function::KernelIfacePtr kernel;
+    double nu;
     SvmType svmType = SvmType::classification;
 };
 
