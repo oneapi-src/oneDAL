@@ -509,6 +509,9 @@ bool matching_engine<Cpu>::check_vertex_candidate(state* current_state, bool che
 template <typename Cpu>
 bool matching_engine<Cpu>::match_vertex(const std::int64_t pattern_vertex,
                                         const std::int64_t target_vertex) const {
+    if (target_vertex >= target->get_vertex_count() ||
+        pattern_vertex >= pattern->get_vertex_count())
+        return false;
     return pattern->get_vertex_degree(pattern_vertex) <= target->get_vertex_degree(target_vertex) &&
            pattern->get_vertex_attribute(pattern_vertex) ==
                target->get_vertex_attribute(target_vertex);
