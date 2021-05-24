@@ -155,14 +155,14 @@ public:
     }
 
     void dbi_determenistic_checks_with_centroids(const table& data,
-                                  const table& initial_centroids,
-                                  std::int64_t cluster_count,
-                                  std::int64_t max_iteration_count,
-                                  Float accuracy_threshold,
-                                  Float ref_dbi,
-                                  Float ref_obj_func,
-                                  Float obj_ref_tol = 1.0e-4,
-                                  Float dbi_ref_tol = 1.0e-4) {
+                                                 const table& initial_centroids,
+                                                 std::int64_t cluster_count,
+                                                 std::int64_t max_iteration_count,
+                                                 Float accuracy_threshold,
+                                                 Float ref_dbi,
+                                                 Float ref_obj_func,
+                                                 Float obj_ref_tol = 1.0e-4,
+                                                 Float dbi_ref_tol = 1.0e-4) {
         CAPTURE(cluster_count);
 
         INFO("create descriptor")

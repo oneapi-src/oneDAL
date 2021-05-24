@@ -45,9 +45,9 @@ using daal_kmeans_init_plus_plus_dense_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
 
 template <typename Float>
-static NumericTablePtr get_initial_centroids(const dal::backend::context_gpu& ctx,
-                                             const descriptor_t& params,
-                                             const train_input<task::clustering>& input) {
+static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_gpu& ctx,
+                                                   const descriptor_t& params,
+                                                   const train_input<task::clustering>& input) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -84,12 +84,19 @@ static NumericTablePtr get_initial_centroids(const dal::backend::context_gpu& ct
                 init_output,
                 &par,
                 *(par.engine)));
+        daal::data_management::BlockDescriptor<Float> block;
+        daal_initial_centroids->getBlockOfRows(0,
+                                               cluster_count,
+                                               daal::data_management::readOnly,
+                                               block);
+        Float* initial_centroids_ptr = block.getBlockPtr();
+        auto arr_host_initial =
+            pr::ndarray<Float, 2>::wrap(initial_centroids_ptr, { cluster_count, column_count });
+        return arr_host_initial.to_device(queue);
     }
-    else {
-        daal_initial_centroids =
-            interop::convert_to_daal_table(queue, input.get_initial_centroids());
-    }
-    return daal_initial_centroids;
+    auto initial_centroids_ptr = row_accessor<const Float>(input.get_initial_centroids())
+                                     .pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+    return pr::ndarray<Float, 2>::wrap(initial_centroids_ptr, { cluster_count, column_count });
 }
 
 template <typename Float>
@@ -102,23 +109,15 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         const auto data = input.get_data();
         const int64_t row_count = data.get_row_count();
         const int64_t column_count = data.get_column_count();
-        auto data_ptr =
-            row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-        auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
-
         const int64_t cluster_count = params.get_cluster_count();
         const int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
-
-        auto initial_centroids = get_initial_centroids<Float>(ctx, params, input);
-        daal::data_management::BlockDescriptor<Float> block;
-        initial_centroids->getBlockOfRows(0, cluster_count, daal::data_management::readOnly, block);
-        Float* initial_centroids_ptr = block.getBlockPtr();
-        auto arr_host_initial =
-            pr::ndarray<Float, 2>::wrap(initial_centroids_ptr, { cluster_count, column_count });
-        auto arr_initial = arr_host_initial.to_device(queue);
-
         dal::detail::check_mul_overflow(cluster_count, column_count);
+
+        auto data_ptr =
+            row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
+        auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
+        auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
 
         std::int64_t block_rows = get_block_size_in_rows<Float>(queue, column_count);
         std::int64_t part_count =
@@ -154,41 +153,43 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         sycl::event centroids_event;
 
         for (iter = 0; iter < max_iteration_count; iter++) {
-            auto [objective_function, update_clusters_event] =  update_clusters(queue,
-                    cluster_count,
-                    max_iteration_count,
-                    accuracy_threshold,
-                    block_rows,
-                    part_count,
-                    arr_data,
-                    iter == 0 ? arr_initial : arr_centroids,
-                    arr_centroids,
-                    arr_partial_centroids,
-                    arr_distance_block,
-                    arr_closest_distances,
-                    arr_objective_function,
-                    arr_labels,
-                    arr_counters,
-                    arr_candidate_indices,
-                    arr_candidate_distances,
-                    arr_empty_cluster_count,
-                    {centroids_event});
+            auto [objective_function, update_clusters_event] =
+                update_clusters(queue,
+                                cluster_count,
+                                max_iteration_count,
+                                accuracy_threshold,
+                                block_rows,
+                                part_count,
+                                arr_data,
+                                iter == 0 ? arr_initial : arr_centroids,
+                                arr_centroids,
+                                arr_partial_centroids,
+                                arr_distance_block,
+                                arr_closest_distances,
+                                arr_objective_function,
+                                arr_labels,
+                                arr_counters,
+                                arr_candidate_indices,
+                                arr_candidate_distances,
+                                arr_empty_cluster_count,
+                                { centroids_event });
             centroids_event = update_clusters_event;
-            if (accuracy_threshold > 0 && objective_function + accuracy_threshold > prev_objective_function) {
+            if (accuracy_threshold > 0 &&
+                objective_function + accuracy_threshold > prev_objective_function) {
                 iter++;
                 break;
             }
             prev_objective_function = objective_function;
         }
-        auto assign_event = assign_clusters<Float, pr::squared_l2_metric<Float>>(
-            queue,
-            arr_data,
-            arr_centroids,
-            block_rows,
-            arr_labels,
-            arr_distance_block,
-            arr_closest_distances,
-            { centroids_event });
+        auto assign_event =
+            assign_clusters<Float, pr::squared_l2_metric<Float>>(queue,
+                                                                 arr_data,
+                                                                 arr_centroids,
+                                                                 block_rows,
+                                                                 arr_labels,
+                                                                 arr_distance_block,
+                                                                 arr_closest_distances,
+                                                                 { centroids_event });
         compute_objective_function<Float>(queue,
                                           arr_closest_distances,
                                           arr_objective_function,

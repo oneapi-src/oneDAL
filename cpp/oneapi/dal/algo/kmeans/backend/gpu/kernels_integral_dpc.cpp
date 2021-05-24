@@ -36,11 +36,9 @@ inline std::int64_t get_recommended_wg_count2(sycl::queue& queue) {
     return 128;
 }
 
-
 struct partial_counters {};
 
 struct merge_counters {};
-
 
 sycl::event count_clusters(sycl::queue& queue,
                            const pr::ndview<std::int32_t, 2>& labels,
@@ -53,13 +51,13 @@ sycl::event count_clusters(sycl::queue& queue,
     std::int32_t* counter_ptr = counters.get_mutable_data();
     const auto sg_size_to_set = get_recommended_sg_size2(queue);
     const auto wg_count_to_set = get_recommended_wg_count2(queue);
-    queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for(
-            sycl::range<1>(cluster_count),
-            [=](sycl::id<1> idx) {
-                counter_ptr[idx] =0;
-        });
-    }).wait_and_throw();
+    queue
+        .submit([&](sycl::handler& cgh) {
+            cgh.parallel_for(sycl::range<1>(cluster_count), [=](sycl::id<1> idx) {
+                counter_ptr[idx] = 0;
+            });
+        })
+        .wait_and_throw();
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         const auto row_count = labels.get_dimension(0);

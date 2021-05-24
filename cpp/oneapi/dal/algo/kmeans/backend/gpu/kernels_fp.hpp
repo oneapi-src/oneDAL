@@ -223,15 +223,16 @@ sycl::event assign_clusters(sycl::queue& queue,
 }
 
 template <typename Float>
-bk::event_vector fill_empty_clusters(sycl::queue& queue,
-                                     const pr::ndview<Float, 2>& data,
-                                     const pr::ndarray<std::int32_t, 1>& counters,
-                                     const pr::ndarray<std::int32_t, 1>& candidate_indices,
-                                     const pr::ndarray<Float, 1>& candidate_distances,
-                                     pr::ndview<Float, 2>& centroids,
-                                     pr::ndarray<std::int32_t, 2>& labels,
-                                     Float& objective_function,
-                                     const bk::event_vector& deps = {}) {
+std::tuple<Float, bk::event_vector> fill_empty_clusters(
+    sycl::queue& queue,
+    const pr::ndview<Float, 2>& data,
+    const pr::ndarray<std::int32_t, 1>& counters,
+    const pr::ndarray<std::int32_t, 1>& candidate_indices,
+    const pr::ndarray<Float, 1>& candidate_distances,
+    pr::ndview<Float, 2>& centroids,
+    pr::ndarray<std::int32_t, 2>& labels,
+    Float objective_function,
+    const bk::event_vector& deps = {}) {
     ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
     ONEDAL_ASSERT(counters.get_dimension(1) == centroids.get_dimension(0));
@@ -271,18 +272,16 @@ bk::event_vector fill_empty_clusters(sycl::queue& queue,
         labels_ptr[index] = ic;
         objective_function -= value;
         auto copy_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.parallel_for<fill_empty_cluster_kernel<Float>>(
-            sycl::range<1>(column_count),
-            [=](sycl::id<1> idx) {
-                centroids_ptr[idx + ic * column_count] = data_ptr[idx + index * column_count];
-            });
+            cgh.parallel_for<fill_empty_cluster_kernel<Float>>(
+                sycl::range<1>(column_count),
+                [=](sycl::id<1> idx) {
+                    centroids_ptr[idx + ic * column_count] = data_ptr[idx + index * column_count];
+                });
         });
-        copy_event.wait_and_throw();
-        
         events.push_back(copy_event);
         cpos++;
     }
-    return events;
+    return std::make_tuple(objective_function, events);
 }
 
 template <typename Float>
@@ -309,9 +308,8 @@ sycl::event find_candidates(sycl::queue& queue,
             values_ptr[idx] *= -1.0;
         });
     });
-    pr::radix_sort_indices_inplace<Float, std::int32_t>{ queue }(values,
-                                                                                   indices,
-                                                                                   { fill_event }).wait_and_throw();
+    pr::radix_sort_indices_inplace<Float, std::int32_t>{ queue }(values, indices, { fill_event })
+        .wait_and_throw();
     auto candidate_indices_ptr = candidate_indices.get_mutable_data();
     auto candidate_distances_ptr = candidate_distances.get_mutable_data();
     auto copy_event = queue.submit([&](sycl::handler& cgh) {
