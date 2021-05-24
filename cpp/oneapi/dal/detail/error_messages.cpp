@@ -46,6 +46,9 @@ MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
+MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
+MSG(invalid_key, "Cannot find the given key")
+MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
@@ -92,6 +95,16 @@ MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
 MSG(negative_vertex_id, "Negative vertex ID")
 MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
 
+/* IO */
+MSG(file_not_found, "File not found")
+
+/* Serialization */
+MSG(object_is_not_serializable, "Object is not serializable")
+MSG(archive_content_does_not_match_type, "Archive content does not match requested type")
+MSG(archive_is_in_invalid_state,
+    "Archive state is invalid. It may indicate that "
+    "serialization or deserialization was interupted by an exception")
+
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
@@ -110,9 +123,6 @@ MSG(input_labels_table_has_wrong_cc_expect_one,
 MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
-
-/* IO */
-MSG(file_not_found, "File not found")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
@@ -173,12 +183,21 @@ MSG(input_model_support_vectors_cc_neq_input_data_cc,
     "Input model support vectors column count is not equal to input data column count")
 MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count,
     "Support vectors row count is not equal to support vector count in input model")
+MSG(nu_gt_one, "Nu is greater than one")
+MSG(nu_leq_zero, "Nu is lower than or equal to zero")
+MSG(nu_svm_smo_method_is_not_implemented_for_gpu, "nuSVM SMO method is not implemented for GPU")
+MSG(nu_svm_thunder_method_is_not_implemented_for_gpu,
+    "nuSVM Thunder method is not implemented for GPU")
 MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
-MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
-MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
 MSG(svm_multiclass_not_implemented_for_gpu,
     "SVM with multiclass support is not implemented for GPU")
+MSG(svm_nu_classification_task_is_not_implemented_for_gpu,
+    "Classification nuSVM is not implemented for GPU")
+MSG(svm_nu_regression_task_is_not_implemented_for_gpu,
+    "Regression nuSVM is not implemented for GPU")
+MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
+MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")

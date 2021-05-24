@@ -80,6 +80,9 @@ public:
     MSG(unsupported_device_type);
     MSG(unsupported_feature_type);
     MSG(unsupported_usm_alloc);
+    MSG(page_size_leq_zero);
+    MSG(invalid_key);
+    MSG(capacity_leq_zero);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
@@ -118,6 +121,14 @@ public:
     MSG(negative_vertex_id);
     MSG(unimplemented_sorting_procedure);
 
+    /* I/O */
+    MSG(file_not_found);
+
+    /* Serialization */
+    MSG(object_is_not_serializable);
+    MSG(archive_content_does_not_match_type);
+    MSG(archive_is_in_invalid_state);
+
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
@@ -131,9 +142,6 @@ public:
     MSG(iteration_count_lt_zero);
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
-
-    /* I/O */
-    MSG(file_not_found);
 
     /* Decision Forest */
     MSG(bootstrap_is_incompatible_with_error_metric);
@@ -190,11 +198,17 @@ public:
     MSG(input_model_support_vectors_are_empty);
     MSG(input_model_support_vectors_cc_neq_input_data_cc);
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
+    MSG(nu_gt_one);
+    MSG(nu_leq_zero);
+    MSG(nu_svm_smo_method_is_not_implemented_for_gpu);
+    MSG(nu_svm_thunder_method_is_not_implemented_for_gpu);
     MSG(polynomial_kenrel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
-    MSG(svm_smo_method_is_not_implemented_for_gpu);
-    MSG(svm_regression_task_is_not_implemented_for_gpu);
     MSG(svm_multiclass_not_implemented_for_gpu);
+    MSG(svm_nu_classification_task_is_not_implemented_for_gpu);
+    MSG(svm_nu_regression_task_is_not_implemented_for_gpu);
+    MSG(svm_regression_task_is_not_implemented_for_gpu);
+    MSG(svm_smo_method_is_not_implemented_for_gpu);
     MSG(tau_leq_zero);
     MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
