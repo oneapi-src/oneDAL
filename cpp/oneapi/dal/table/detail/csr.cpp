@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/detail/csr.hpp"
+#include "oneapi/dal/table/backend/csr_table_impl.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {

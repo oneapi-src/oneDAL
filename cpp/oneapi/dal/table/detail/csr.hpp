@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/table/backend/csr_table_impl.hpp"
 #include "oneapi/dal/table/detail/csr_block.hpp"
 #include "oneapi/dal/detail/array_utils.hpp"
 
