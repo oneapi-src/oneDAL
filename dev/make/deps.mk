@@ -114,7 +114,7 @@ $(call .inject.dep.gen, LINK.JAVA,  ,$$(call md5,$$(link.java.cmd)))
 # do all dep generation work on temp file, rename it on finish (to survive build halts: DPD200288373)
 .dep-file-tmp = $@.d.tmp
 # icc/gcc compiler options to generate dependency files
-.copt-gen-deps = $(-Q)MMD -MD $@ $(-Q)MF $(.dep-file-tmp)
+.copt-gen-deps = $(-Q)MMD $(-Q)MT $@ $(-Q)MF $(.dep-file-tmp)
 
 # -------------------------------------------
 # SED scripts used for dep files processing {
