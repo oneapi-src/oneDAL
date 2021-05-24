@@ -152,6 +152,8 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
     ONEDAL_ASSERT(indices_nd.get_count() == row_count_);
     ONEDAL_ASSERT(bins_nd.get_count() == row_count_);
 
+    sycl::event::wait_and_throw(deps);
+
     const Index max_bins = std::min(max_bins_, row_count_);
     const Index local_size = preferable_sbg_size_;
     const Index local_block_count = max_local_block_count_ * local_size < row_count_
@@ -237,17 +239,15 @@ template <typename Float, typename Bin, typename Index>
 std::int64_t indexed_features<Float, Bin, Index>::get_required_mem_size(std::int64_t row_count,
                                                                         std::int64_t column_count,
                                                                         std::int64_t max_bins) {
-    std::int64_t requiredMem = 0;
-    requiredMem += sizeof(Bin) * (column_count + 1); // bin_offsets
-    requiredMem +=
+    std::int64_t required_mem = 0;
+    required_mem += sizeof(Bin) * (column_count + 1); // bin_offsets
+    required_mem +=
         sizeof(Bin) * row_count * column_count; // data vs ftrs bin map table (full_data_nd)
-    requiredMem +=
+    required_mem +=
         sizeof(Float) * column_count * std::min(max_bins, row_count); // bin_borders for each column
 
-    return requiredMem;
+    return required_mem;
 }
-
-//#define PP 1
 
 template <typename Float, typename Bin, typename Index>
 sycl::event indexed_features<Float, Bin, Index>::operator()(

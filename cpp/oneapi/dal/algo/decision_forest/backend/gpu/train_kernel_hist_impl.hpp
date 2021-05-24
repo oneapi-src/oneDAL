@@ -58,6 +58,7 @@ class train_kernel_hist_impl {
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using context_t = train_context<Float, Index, Task>;
     using imp_data_t = impurity_data<Float, Index, Task>;
+    using msg = dal::detail::error_messages;
 
 public:
     train_kernel_hist_impl(cl::sycl::queue& q) : queue_(q), train_service_kernels_(q) {}

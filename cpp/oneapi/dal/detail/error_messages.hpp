@@ -150,6 +150,13 @@ public:
     MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
     MSG(input_model_is_not_initialized);
     MSG(invalid_number_of_trees);
+    MSG(invalid_number_of_min_observations_in_leaf_node);
+    MSG(invalid_number_of_feature_per_node);
+    MSG(invalid_number_of_max_bins);
+    MSG(invalid_value_for_min_bin_size);
+    MSG(invalid_number_of_classes);
+    MSG(invalid_value_for_observations_per_tree_fraction);
+    MSG(not_enough_memory_to_build_one_tree);
 
     /* Jaccard */
     MSG(column_begin_gt_column_end);

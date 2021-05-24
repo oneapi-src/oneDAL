@@ -93,7 +93,23 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::validate_input(const descr
     if (desc.get_tree_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_number_of_trees());
     }
-    /// more input checks is going to be added
+    if (desc.get_min_observations_in_leaf_node() > de::limits<Index>::max()) {
+        throw domain_error(msg::invalid_number_of_min_observations_in_leaf_node());
+    }
+    if (desc.get_features_per_node() > de::limits<Index>::max()) {
+        throw domain_error(msg::invalid_number_of_feature_per_node());
+    }
+    if (desc.get_max_bins() > de::limits<Index>::max()) {
+        throw domain_error(msg::invalid_number_of_max_bins());
+    }
+    if (desc.get_min_bin_size() > de::limits<Index>::max()) {
+        throw domain_error(msg::invalid_value_for_min_bin_size());
+    }
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        if (desc.get_class_count() > de::limits<Index>::max()) {
+            throw domain_error(msg::invalid_number_of_classes());
+        }
+    }
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
@@ -130,8 +146,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(context_t& ctx
     ctx.impurity_threshold_ = desc.get_impurity_threshold();
 
     if (0 >= ctx.selected_row_count_) {
-        //throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
-        //DAAL_CHECK_EX((_nSelectedRows > 0), ErrorIncorrectParameter, ParameterName, observationsPerTreeFractionStr());
+        throw domain_error(msg::invalid_value_for_observations_per_tree_fraction());
     }
 
     ctx.preferable_local_size_for_part_hist_kernel_ = ctx.preferable_group_size_;
@@ -167,7 +182,6 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(context_t& ctx
 
     bin_borders_host_.resize(ctx.column_count_);
     for (Index i = 0; i < ctx.column_count_; i++) {
-        //ONEDAL_ASSERT(ind_ftrs.get_bin_borders(i).get_count() == static_cast<std::int64_t>(ind_ftrs.get_bin_count(i)));
         bin_borders_host_[i] = ind_ftrs.get_bin_borders(i).to_host(queue_);
     }
 
@@ -229,8 +243,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(context_t& ctx
 
     if (ctx.tree_in_block_ <= 0) {
         // not enough memory even for one tree
-        //throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
-        //return services::Status(services::ErrorMemoryAllocationFailed);
+        throw domain_error(msg::not_enough_memory_to_build_one_tree());
     }
 
     ctx.tree_in_block_ = std::min(ctx.tree_count_, ctx.tree_in_block_);
@@ -268,7 +281,6 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::allocate_buffers(const con
     if (ctx.oob_required_) {
         // oob_per_obs_list contains class_count number of counters for all out of bag observations for all trees
         de::check_mul_overflow(ctx.row_count_, ctx.class_count_);
-        // oobBufferPerObs contains pair <cumulative value, count> for all out of bag observations for all trees
         auto [oob_per_obs_list, event] =
             pr::ndarray<hist_type_t, 1>::zeros(queue_,
                                                { ctx.row_count_ * ctx.oob_prop_count_ },
@@ -1091,8 +1103,8 @@ public:
         const Float divR =
             (0 < right_count_) ? Float(1) / (Float(right_count_) * Float(right_count_)) : Float(0);
 
-        Float left_imp_ = Float(1);
-        Float right_imp_ = Float(1);
+        left_imp_ = Float(1);
+        right_imp_ = Float(1);
 
         for (Index class_id = 0; class_id < ctx.class_count_; class_id++) {
             left_imp_ -=
