@@ -327,9 +327,6 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
         _p = i - 1;
         _n = 0;
         for (std::int64_t j = 0; j < i; j++) {
-            auto sorted_pattern_vertex_j = sorted_pattern_vertex[j];
-            auto sorted_pattern_vertex_i = sorted_pattern_vertex[i];
-
             edge_direction edir =
                 pattern.check_edge(sorted_pattern_vertex[j], sorted_pattern_vertex[i]);
             switch (edir) {
@@ -359,11 +356,7 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
                 direction[sorted_pattern_vertex[i]] = edir;
             }
         }
-
         cconditions[i - 1].divider = _n;
-
-        auto* ptr = cconditions[i - 1].array;
-        auto vertex_count_minus_1 = vertex_count - 1;
     }
     return ok;
 }

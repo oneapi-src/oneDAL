@@ -262,10 +262,6 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
 
     ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
-        {
-            auto* ptr = target->p_edges_bit[hlocal_stack.top(
-                pconsistent_conditions[current_level_index].array[j])];
-        }
         and_equal<Cpu>(vertex_candidates.get_vector_pointer(),
                        target->p_edges_bit[hlocal_stack.top(
                            pconsistent_conditions[current_level_index].array[j])],
@@ -297,16 +293,11 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
             feasible_result_count += check_vertex_candidate(check_solution, candidate);
         }
     }
-    auto size_in_dword_3 = size_in_dword << 3;
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         while (pstart_byte[i] > 0) {
-            auto pstart_byte_i = pstart_byte[i];
-
             std::int64_t candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
             ONEDAL_ASSERT(candidate < 8);
             pstart_byte[i] ^= (1 << candidate);
-            auto i_shifted = i << 3;
-
             candidate += (i << 3);
             feasible_result_count += check_vertex_candidate(check_solution, candidate);
         }
@@ -320,7 +311,6 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
 template <typename Cpu>
 bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int64_t candidate) {
     std::uint64_t solution_length_unsigned = solution_length;
-    ONEDAL_ASSERT(hlocal_stack.get_current_level() < pattern->get_vertex_count());
     if (match_vertex(sorted_pattern_vertex[hlocal_stack.get_current_level()], candidate)) {
         if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length_unsigned) {
             std::int64_t* solution_core = allocator_.allocate<std::int64_t>(solution_length);
