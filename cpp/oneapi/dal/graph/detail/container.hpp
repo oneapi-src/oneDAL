@@ -120,6 +120,10 @@ public:
         return count_;
     }
 
+    bool empty() const noexcept {
+        return (count_ == 0);
+    }
+
     const allocator_type& get_allocator() const noexcept {
         return allocator_;
     }
@@ -148,6 +152,7 @@ public:
     constexpr void reserve(std::int64_t new_capacity) {
         if (new_capacity > capacity_) {
             T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, new_capacity);
+            data_ptr = new (data_ptr) T[new_capacity]();
             T* old_data_ptr = impl_->get_mutable_data();
             preview::detail::copy(old_data_ptr, old_data_ptr + count_, data_ptr);
             impl_->reset(data_ptr, new_capacity, empty_delete{});

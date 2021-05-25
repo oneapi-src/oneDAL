@@ -50,12 +50,13 @@ struct shortest_paths {
 };
 
 template <typename Topology, typename EdgeValue>
-inline void relax_edges(const Topology& t,
-                        const EdgeValue* vals,
-                        typename Topology::vertex_type u,
-                        EdgeValue delta,
-                        std::atomic<EdgeValue>* dist,
-                        std::vector<std::vector<typename Topology::vertex_type>>& local_bins) {
+inline void relax_edges(
+    const Topology& t,
+    const EdgeValue* vals,
+    typename Topology::vertex_type u,
+    EdgeValue delta,
+    std::atomic<EdgeValue>* dist,
+    vector_container<vector_container<typename Topology::vertex_type>>& local_bins) {
     for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
         const auto v = t._cols_ptr[v_];
         const auto v_w = vals[v_];
@@ -75,8 +76,9 @@ inline void relax_edges(const Topology& t,
 }
 
 template <typename T>
-bool find_next_bin_index(std::int64_t& curr_bin_index,
-                         const std::vector<std::vector<std::vector<T>>>& local_bins) {
+bool find_next_bin_index(
+    std::int64_t& curr_bin_index,
+    const vector_container<vector_container<vector_container<T>>>& local_bins) {
     const std::int64_t kMaxBin = std::numeric_limits<std::int64_t>::max() / 2;
     bool is_queue_empty = true;
 
@@ -107,9 +109,10 @@ bool find_next_bin_index(std::int64_t& curr_bin_index,
 }
 
 template <typename T>
-std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
-                                  std::vector<std::vector<std::vector<T>>>& local_bins,
-                                  vector_container<T>& frontier) {
+std::int64_t reduce_to_common_bin(
+    const std::int64_t& curr_bin_index,
+    vector_container<vector_container<vector_container<T>>>& local_bins,
+    vector_container<T>& frontier) {
     const std::int64_t kBinSizeThreshold = 1000;
     std::atomic<std::int64_t> curr_frontier_tail = 0;
     dal::detail::threader_for(local_bins.size(), local_bins.size(), [&](std::int64_t i) {
@@ -117,9 +120,9 @@ std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
         if (curr_bin_index < local_bins[thread_id].size()) {
             std::int64_t copy_start =
                 curr_frontier_tail.fetch_add(local_bins[thread_id][curr_bin_index].size());
-            std::copy(local_bins[thread_id][curr_bin_index].begin(),
-                      local_bins[thread_id][curr_bin_index].end(),
-                      frontier.get_mutable_data() + copy_start);
+            copy(local_bins[thread_id][curr_bin_index].begin(),
+                 local_bins[thread_id][curr_bin_index].end(),
+                 frontier.get_mutable_data() + copy_start);
             local_bins[thread_id][curr_bin_index].resize(0);
         }
     });
@@ -168,7 +171,9 @@ struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, 
         bool empty_queue = false;
         std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
 
-        std::vector<std::vector<std::vector<vertex_type>>> local_bins(thread_cnt);
+        vector_container<vector_container<vector_container<vertex_type>>> local_bins(thread_cnt);
+
+        local_bins[0].reserve(t.get_vertex_degree(source));
 
         std::int64_t iter = 0;
 
@@ -192,11 +197,15 @@ struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, 
                 while (curr_bin_index < local_bins[thread_id].size() &&
                        !local_bins[thread_id][curr_bin_index].empty() &&
                        local_bins[thread_id][curr_bin_index].size() < kBinSizeThreshold) {
-                    std::vector<vertex_type> curr_bin_copy = local_bins[thread_id][curr_bin_index];
+                    vector_container<vertex_type> curr_bin_copy(
+                        local_bins[thread_id][curr_bin_index].size());
+                    copy(local_bins[thread_id][curr_bin_index].begin(),
+                         local_bins[thread_id][curr_bin_index].end(),
+                         curr_bin_copy.begin());
 
                     local_bins[thread_id][curr_bin_index].resize(0);
-                    for (vertex_type u : curr_bin_copy)
-                        relax_edges(t, vals, u, delta, dist, local_bins[thread_id]);
+                    for (std::int64_t j = 0; j < curr_bin_copy.size(); ++j)
+                        relax_edges(t, vals, curr_bin_copy[j], delta, dist, local_bins[thread_id]);
                 }
             });
 
