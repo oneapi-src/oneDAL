@@ -317,9 +317,9 @@ void global_stack::internal_push(dfs_stack& s, std::uint64_t level) {
         ONEDAL_ASSERT(s.data_by_levels[level].ptop != nullptr);
         ONEDAL_ASSERT(s.data_by_levels[level].bottom_ != nullptr);
         ONEDAL_ASSERT(s.data_by_levels[level].ptop != s.data_by_levels[level].bottom_);
-        ONEDAL_ASSERT(s.data_by_levels[i].ptop >= s.data_by_levels[i].bottom_);
-        ONEDAL_ASSERT(s.data_by_levels[i].ptop <=
-                      s.data_by_levels[i].stack_data + s.data_by_levels[i].stack_size);
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop >= s.data_by_levels[level].bottom_);
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop <=
+                      s.data_by_levels[level].stack_data + s.data_by_levels[level].stack_size);
         v[level] = *(s.data_by_levels[level].bottom_);
 
         lock_type lock(mutex_);
