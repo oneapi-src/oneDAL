@@ -188,8 +188,6 @@ vertex_stack::vertex_stack(const std::uint64_t max_states_size,
         : allocator_(allocator) {
     use_external_memory = true;
     stack_size = max_states_size;
-    //stack_data = pdata;
-    //ptop = stack_data;
 }
 
 vertex_stack::~vertex_stack() {
@@ -238,7 +236,6 @@ graph_status vertex_stack::increase_stack_size() {
     }
     for (std::uint64_t i = 0; i < stack_size; i++) {
         tmp_data[i] = stack_data[i];
-        //tmp_data[i + stack_size] = null_node;
     }
     allocator_.deallocate<std::uint64_t>(stack_data, stack_size);
     stack_size *= 2;
@@ -329,7 +326,6 @@ std::uint64_t dfs_stack::get_current_level_index() const {
 }
 
 void dfs_stack::push_into_next_level(const std::uint64_t vertex_id) {
-    //current_level++;
     data_by_levels[current_level + 1].push(vertex_id);
 }
 
@@ -368,10 +364,7 @@ void dfs_stack::fill_solution(std::int64_t* solution_core,
 }
 
 std::uint64_t dfs_stack::top(const std::uint64_t level) const {
-    //if (data_by_levels[level].size()) {
     return *(data_by_levels[level].ptop - 1);
-    //}
-    //return null_node;
 }
 
 void dfs_stack::delete_current_state() {

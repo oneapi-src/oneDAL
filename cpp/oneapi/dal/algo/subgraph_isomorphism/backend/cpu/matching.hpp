@@ -258,7 +258,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
         }
     }
 
-    ~vertex_candidates; // inversion ?
+    ~vertex_candidates;
 
     ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
