@@ -23,21 +23,23 @@ namespace oneapi::dal::kmeans::detail {
 namespace v1 {
 
 using dal::detail::data_parallel_policy;
+using dal::detail::spmd_data_parallel_policy;
 
-template <typename Float, typename Method, typename Task>
-struct train_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
-    train_result<Task> operator()(const data_parallel_policy& ctx,
+template <typename Policy, typename Float, typename Method, typename Task>
+struct train_ops_dispatcher<Policy, Float, Method, Task> {
+    train_result<Task> operator()(const Policy& policy,
                                   const descriptor_base<Task>& params,
                                   const train_input<Task>& input) const {
         using kernel_dispatcher_t =
             dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method, Task>,
                                             backend::train_kernel_gpu<Float, Method, Task>>;
-        return kernel_dispatcher_t{}(ctx, params, input);
+        return kernel_dispatcher_t{}(policy, params, input);
     }
 };
 
-#define INSTANTIATE(F, M, T) \
-    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>;
+#define INSTANTIATE(F, M, T)                                                           \
+    template struct ONEDAL_EXPORT train_ops_dispatcher<data_parallel_policy, F, M, T>; \
+    template struct ONEDAL_EXPORT train_ops_dispatcher<spmd_data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::lloyd_dense, task::clustering)
 INSTANTIATE(double, method::lloyd_dense, task::clustering)

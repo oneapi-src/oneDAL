@@ -110,6 +110,10 @@ public:
         return queue_;
     }
 
+    host_policy to_host() const {
+        return host_policy::get_default();
+    }
+
 private:
     void init_impl(const sycl::queue& queue);
 
@@ -155,6 +159,11 @@ public:
 
     const LocalPolicy& get_local() const {
         return local_policy_;
+    }
+
+    template <typename T = LocalPolicy, std::enable_if<is_data_parallel_policy_v<T>>* = nullptr>
+    spmd_policy<host_policy> to_host() const {
+        return spmd_policy<host_policy>{ local_policy_.to_host(), get_communicator() };
     }
 
 private:

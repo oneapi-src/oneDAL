@@ -46,25 +46,38 @@ struct kernel_dispatcher {};
 
 class context_cpu {
 public:
-    explicit context_cpu(const detail::host_policy& ctx = detail::host_policy::get_default())
-            : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {
+    explicit context_cpu(const detail::host_policy& policy = detail::host_policy::get_default())
+            : local_policy_(policy) {
+        global_init();
+    }
+
+    explicit context_cpu(const detail::spmd_host_policy& policy)
+            : local_policy_(policy.get_local()),
+              comm_(policy.get_communicator()) {
         global_init();
     }
 
     detail::cpu_extension get_enabled_cpu_extensions() const {
-        return cpu_extensions_;
+        return local_policy_.get_enabled_cpu_extensions();
+    }
+
+    const detail::spmd_communicator& get_communicator() const {
+        return comm_;
     }
 
 private:
     void global_init();
-    detail::cpu_extension cpu_extensions_;
+
+    detail::host_policy local_policy_;
+    detail::spmd_communicator comm_;
 };
 
 template <typename CpuKernel>
 struct kernel_dispatcher<CpuKernel> {
-    template <typename... Args>
-    auto operator()(const detail::host_policy& ctx, Args&&... args) const {
-        return CpuKernel()(context_cpu{ ctx }, std::forward<Args>(args)...);
+    template <typename Policy, typename... Args>
+    auto operator()(const Policy& policy, Args&&... args) const {
+        static_assert(detail::is_host_policy_v<Policy>);
+        return CpuKernel()(context_cpu{ policy }, std::forward<Args>(args)...);
     }
 };
 
