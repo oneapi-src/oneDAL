@@ -16,7 +16,7 @@
 
 #include <initializer_list>
 
-#include "oneapi/dal/algo/subgraph_isomorphism.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/graph_matching.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -178,6 +178,15 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is negative") {
             false,
             isomorphism_kind::induced,
             -1)),
+        invalid_argument);
+}
+
+SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if semantic match is true") {
+    REQUIRE_THROWS_AS(
+        (this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_target_type>(
+            true,
+            isomorphism_kind::induced,
+            0)),
         invalid_argument);
 }
 
