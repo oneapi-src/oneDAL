@@ -28,7 +28,7 @@ namespace oneapi::dal::kmeans::backend {
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
-inline std::int64_t get_recommended_sg_size(sycl::queue& queue) {
+inline std::int64_t get_recommended_sg_size(const sycl::queue& queue) {
     // TODO optimization/dispatching
     return 16;
 }
