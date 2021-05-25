@@ -37,7 +37,7 @@ using descriptor_t = detail::descriptor_base<task::clustering>;
 namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
-namespace de = oneapi::dal::detail;
+namespace de = dal::detail;
 namespace bk = dal::backend;
 
 template <typename Float, daal::CpuType Cpu>
