@@ -16,7 +16,7 @@
 
 #include <initializer_list>
 
-#include "oneapi/dal/algo/subgraph_isomorphism.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/graph_matching.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -1877,7 +1877,16 @@ public:
     }
 };
 
-TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, all matches check") {
+#define SUBGRAPH_ISOMORPHISM_INDUCED_TEST(name) \
+    TEST_M(subgraph_isomorphism_test, name, "[subgraph_isomorphism][induced]")
+
+#define SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(name) \
+    TEST_M(subgraph_isomorphism_test, name, "[subgraph_isomorphism][non-induced]")
+
+#define SUBGRAPH_ISOMORPHISM_ALLOCATOR_TEST(name) \
+    TEST_M(subgraph_isomorphism_test, name, "[subgraph_isomorphism][allocator]")
+
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: Bit target representation, all matches check") {
     this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_pattern_type>(
         false,
         isomorphism_kind::induced,
@@ -1889,7 +1898,7 @@ TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, all match
                                                                        20);
 }
 
-// TEST_M(subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
 //        "Induced: Bit target representation, single vertex pattern check") {
 //     this->check_subgraph_isomorphism<k_6_type, single_vertex_type>(false,
 //                                                                    isomorphism_kind::induced,
@@ -1897,7 +1906,7 @@ TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, all match
 //                                                                    12);
 // }
 
-TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, self loops check") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: Bit target representation, self loops check") {
     this->check_subgraph_isomorphism<cycle_5_self_loops_type, path_3_self_loops_type>(
         false,
         isomorphism_kind::induced,
@@ -1905,8 +1914,8 @@ TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, self loop
         4);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced: Bit target representation, max_match_count > total number of SI") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced: Bit target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<self_matching_type, self_matching_type>(
         false,
         isomorphism_kind::induced,
@@ -1918,7 +1927,7 @@ TEST_M(subgraph_isomorphism_test,
                                                                    20);
 }
 
-// TEST_M(subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
 //        "Induced: Bit target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<difficult_graph_type, triangles_edge_link_type>(
 //         false,
@@ -1931,7 +1940,7 @@ TEST_M(subgraph_isomorphism_test,
 //                                                                   10);
 // }
 
-TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, single match") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: Bit target representation, single match") {
     this->check_subgraph_isomorphism<paths_1_2_3_single_target_type, paths_1_2_3_type>(
         false,
         isomorphism_kind::induced,
@@ -1939,15 +1948,14 @@ TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, single ma
         1);
 }
 
-TEST_M(subgraph_isomorphism_test, "Induced: Bit target representation, no matches") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: Bit target representation, no matches") {
     this->check_subgraph_isomorphism<k_6_type, k_5_without_edge_type>(false,
                                                                       isomorphism_kind::induced,
                                                                       1,
                                                                       0);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced: Bit target representation, vertex count > number of threads & edge count > number of threads") {
     this->check_subgraph_isomorphism<connected_4_cycle_80_type, connected_3_cycle_80_type>(
         false,
@@ -1956,7 +1964,7 @@ TEST_M(
         192);
 }
 
-TEST_M(subgraph_isomorphism_test, "Induced: List target representation, all matches check") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: List target representation, all matches check") {
     this->check_subgraph_isomorphism<cycle_100_type, path_10_type>(false,
                                                                    isomorphism_kind::induced,
                                                                    0,
@@ -1967,16 +1975,16 @@ TEST_M(subgraph_isomorphism_test, "Induced: List target representation, all matc
                                                                 941094);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced: List target representation, max_match_count > total number of SI") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced: List target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<wheel_201_type, triangle_type>(false,
                                                                     isomorphism_kind::induced,
                                                                     1201,
                                                                     1200);
 }
 
-// TEST_M(subgraph_isomorphism_test,
-//        "List target representation, max_match_count <= total number of SI") {
+// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+//        "Induced: List target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<path_100_type, path_5_type>(false,
 //                                                                  isomorphism_kind::induced,
 //                                                                  100,
@@ -1988,7 +1996,7 @@ TEST_M(subgraph_isomorphism_test,
 //         10);
 // }
 
-TEST_M(subgraph_isomorphism_test, "Induced: List target representation, single match") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: List target representation, single match") {
     this->check_subgraph_isomorphism<paths_1_2_100_type, paths_1_2_3_type>(
         false,
         isomorphism_kind::induced,
@@ -1996,7 +2004,7 @@ TEST_M(subgraph_isomorphism_test, "Induced: List target representation, single m
         1);
 }
 
-TEST_M(subgraph_isomorphism_test, "Induced: List target representation, no matches") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: List target representation, no matches") {
     this->check_subgraph_isomorphism<cycle_100_type, triangle_type>(false,
                                                                     isomorphism_kind::induced,
                                                                     1,
@@ -2008,16 +2016,15 @@ TEST_M(subgraph_isomorphism_test, "Induced: List target representation, no match
         0);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced: List target representation, vertex count > number of threads") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced: List target representation, vertex count > number of threads") {
     this->check_subgraph_isomorphism<cycle01_100_type, path01_24_type>(false,
                                                                        isomorphism_kind::induced,
                                                                        0,
                                                                        200);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced: List target representation, vertex count > number of threads & edge count > number of threads") {
     this->check_subgraph_isomorphism<cycle01_100_type, cycle01_100_type>(false,
                                                                          isomorphism_kind::induced,
@@ -2025,8 +2032,8 @@ TEST_M(
                                                                          200);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced + Labeled vertexes: Bit target representation, all matches check") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: Bit target representation, all matches check") {
     this->check_subgraph_isomorphism<cycle_5_type, linked_star_5_type>(false,
                                                                        isomorphism_kind::induced,
                                                                        0,
@@ -2040,8 +2047,7 @@ TEST_M(subgraph_isomorphism_test,
         true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced + Labeled vertexes: Bit target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_pattern_type>(
         false,
@@ -2051,8 +2057,7 @@ TEST_M(
         true);
 }
 
-// TEST_M(
-//     subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
 //     "Induced + Labeled vertexes: Bit target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<wheel_5_type, triangle_type>(false,
 //                                                                   isomorphism_kind::induced,
@@ -2066,8 +2071,8 @@ TEST_M(
 //                                                                        true);
 // }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced + Labeled vertexes: Bit target representation, single match") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: Bit target representation, single match") {
     this->check_subgraph_isomorphism<wheel_11_type, cycle_10_type>(false,
                                                                    isomorphism_kind::induced,
                                                                    10,
@@ -2075,22 +2080,22 @@ TEST_M(subgraph_isomorphism_test,
                                                                    true);
 }
 
-// TEST_M(subgraph_isomorphism_test,
-//        "Induced + Labeled vertexes: Bit target representation, no matches") {
-//     this->check_subgraph_isomorphism<star_5_type, star_4_type>(false,
-//                                                                isomorphism_kind::induced,
-//                                                                12,
-//                                                                0,
-//                                                                true);
-//     this->check_subgraph_isomorphism<k_6_type, single_vertex_type>(false,
-//                                                                    isomorphism_kind::induced,
-//                                                                    1,
-//                                                                    0,
-//                                                                    true);
-// }
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: Bit target representation, no matches") {
+    this->check_subgraph_isomorphism<star_5_type, star_4_type>(false,
+                                                               isomorphism_kind::induced,
+                                                               12,
+                                                               0,
+                                                               true);
+    // this->check_subgraph_isomorphism<k_6_type, single_vertex_type>(false,
+    //                                                                isomorphism_kind::induced,
+    //                                                                1,
+    //                                                                0,
+    //                                                                true);
+}
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced + Labeled vertexes: Bit target representation, edge count > number of threads") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: Bit target representation, edge count > number of threads") {
     this->check_subgraph_isomorphism<k_20_labeled_type, k_20_labeled_type>(
         false,
         isomorphism_kind::induced,
@@ -2099,18 +2104,17 @@ TEST_M(subgraph_isomorphism_test,
         true);
 }
 
-// TEST_M(subgraph_isomorphism_test,
-//        "Induced + Labeled vertexes: Bit target representation, vertex count > number of threads") {
-//     this->check_subgraph_isomorphism<vertexes_300_edge_1_labeled_type,
-//                                      vertexes_300_edge_1_labeled_type>(false,
-//                                                                         isomorphism_kind::induced,
-//                                                                         0,
-//                                                                         4,
-//                                                                         true);
-// }
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: Bit target representation, vertex count > number of threads") {
+    this->check_subgraph_isomorphism<vertexes_300_edge_1_labeled_type,
+                                     vertexes_300_edge_1_labeled_type>(false,
+                                                                       isomorphism_kind::induced,
+                                                                       0,
+                                                                       4,
+                                                                       true);
+}
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced + Labeled vertexes: Bit target representation, vertex count > number of threads & edge count > number of threads") {
     this->check_subgraph_isomorphism<connected_4_cycle_80_type, connected_3_cycle_80_type>(
         false,
@@ -2120,8 +2124,8 @@ TEST_M(
         true);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced + Labeled vertexes: List target representation, all matches check") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: List target representation, all matches check") {
     this->check_subgraph_isomorphism<cycle_100_type, path_10_type>(false,
                                                                    isomorphism_kind::induced,
                                                                    0,
@@ -2129,8 +2133,7 @@ TEST_M(subgraph_isomorphism_test,
                                                                    true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced + Labeled vertexes: List target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<path_100_type, path_5_type>(false,
                                                                  isomorphism_kind::induced,
@@ -2139,8 +2142,7 @@ TEST_M(
                                                                  true);
 }
 
-// TEST_M(
-//     subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
 //     "Induced + Labeled vertexes: List target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<star_99_type, star_3_type>(false,
 //                                                                 isomorphism_kind::induced,
@@ -2149,7 +2151,7 @@ TEST_M(
 //                                                                 true);
 // }
 
-// TEST_M(subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
 //        "Induced + Labeled vertexes: List target representation, single match") {
 //     this->check_subgraph_isomorphism<wheel_201_type, triangle_type>(false,
 //                                                                     isomorphism_kind::induced,
@@ -2158,8 +2160,8 @@ TEST_M(
 //                                                                     true);
 // }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced + Labeled vertexes: List target representation, no matches") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: List target representation, no matches") {
     this->check_subgraph_isomorphism<paths_1_2_100_type, paths_1_2_3_type>(
         false,
         isomorphism_kind::induced,
@@ -2168,8 +2170,8 @@ TEST_M(subgraph_isomorphism_test,
         true);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Induced + Labeled vertexes: List target representation, vertex count > number of threads") {
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: List target representation, vertex count > number of threads") {
     this->check_subgraph_isomorphism<cycle01_100_type, path01_24_type>(false,
                                                                        isomorphism_kind::induced,
                                                                        0,
@@ -2177,8 +2179,7 @@ TEST_M(subgraph_isomorphism_test,
                                                                        true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced + Labeled vertexes: List target representation, vertex count > number of threads & edge count > number of threads") {
     this->check_subgraph_isomorphism<cycle01_100_type, cycle01_100_type>(false,
                                                                          isomorphism_kind::induced,
@@ -2187,7 +2188,7 @@ TEST_M(
                                                                          true);
 }
 
-TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, all matches check") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST("Non-induced: Bit target representation, all matches check") {
     this->check_subgraph_isomorphism<cycle_5_self_loops_type, path_3_self_loops_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2214,8 +2215,8 @@ TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, all m
                                                                       false);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Non-induced: Bit target representation, max_match_count > total number of SI") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced: Bit target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<wheel_11_labeled_type, cycle_4_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2224,7 +2225,7 @@ TEST_M(subgraph_isomorphism_test,
         false);
 }
 
-// TEST_M(subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
 //        "Non-induced: Bit target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<k_6_labeled_type, k_5_without_edge_labeled_type>(
 //         false,
@@ -2234,7 +2235,7 @@ TEST_M(subgraph_isomorphism_test,
 //         false);
 // }
 
-TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, single match") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST("Non-induced: Bit target representation, single match") {
     this->check_subgraph_isomorphism<triangle_path_target_type, triangle_path_pattern_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2243,7 +2244,7 @@ TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, singl
         false);
 }
 
-TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, no matches") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST("Non-induced: Bit target representation, no matches") {
     this->check_subgraph_isomorphism<tree_1_3_25_pattern_type, tree_1_3_25_target_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2252,8 +2253,7 @@ TEST_M(subgraph_isomorphism_test, "Non-induced: Bit target representation, no ma
         false);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced: List target representation, vertex count > number of threads & edge count > number of threads") {
     this->check_subgraph_isomorphism<lolipop_5_100_type, lolipop_5_100_type>(
         false,
@@ -2263,7 +2263,8 @@ TEST_M(
         false);
 }
 
-TEST_M(subgraph_isomorphism_test, "Non-induced: List target representation, all matches check") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced: List target representation, all matches check") {
     this->check_subgraph_isomorphism<wheel_201_type, k_4_type>(false,
                                                                isomorphism_kind::non_induced,
                                                                0,
@@ -2276,8 +2277,8 @@ TEST_M(subgraph_isomorphism_test, "Non-induced: List target representation, all 
                                                                    false);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Non-induced: List target representation, max_match_count > total number of SI") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced: List target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2286,7 +2287,7 @@ TEST_M(subgraph_isomorphism_test,
         false);
 }
 
-// TEST_M(subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
 //        "Non-induced: List target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<wheel_201_type, star_3_type>(false,
 //                                                                   isomorphism_kind::non_induced,
@@ -2295,7 +2296,7 @@ TEST_M(subgraph_isomorphism_test,
 //                                                                   false);
 // }
 
-TEST_M(subgraph_isomorphism_test, "Non-induced: List target representation, no matches") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST("Non-induced: List target representation, no matches") {
     this->check_subgraph_isomorphism<wheel_201_type, tree_pattern_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2304,20 +2305,18 @@ TEST_M(subgraph_isomorphism_test, "Non-induced: List target representation, no m
         false);
 }
 
-// TEST_M(
-//     subgraph_isomorphism_test,
-//     "Non-induced + labels on vertexes: Bit target representation, vertex count > number of threads") {
-//     this->check_subgraph_isomorphism<vertexes_300_edge_1_labeled_type,
-//                                      vertexes_300_edge_1_labeled_type>(
-//         false,
-//         isomorphism_kind::non_induced,
-//         0,
-//         4,
-//         true);
-// }
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced + labels on vertexes: Bit target representation, vertex count > number of threads") {
+    this->check_subgraph_isomorphism<vertexes_300_edge_1_labeled_type,
+                                     vertexes_300_edge_1_labeled_type>(
+        false,
+        isomorphism_kind::non_induced,
+        0,
+        4,
+        true);
+}
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: Bit target representation, edge count > number of threads") {
     this->check_subgraph_isomorphism<k_20_labeled_type, k_20_without_edge_labeled_type>(
         false,
@@ -2327,8 +2326,7 @@ TEST_M(
         true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: Bit target representation, vertex count > number of threads & edge count > number of threads") {
     this->check_subgraph_isomorphism<center_cycles_target_type, center_cycles_pattern_type>(
         false,
@@ -2338,8 +2336,8 @@ TEST_M(
         true);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Non-induced + labels on vertexes: Bit target representation, all matches check") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced + labels on vertexes: Bit target representation, all matches check") {
     this->check_subgraph_isomorphism<difficult_graph_labeled_type,
                                      triangles_edge_link_labeled_type>(
         false,
@@ -2355,8 +2353,7 @@ TEST_M(subgraph_isomorphism_test,
         true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: Bit target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<self_matching_type, path_4_type>(false,
                                                                       isomorphism_kind::non_induced,
@@ -2365,8 +2362,7 @@ TEST_M(
                                                                       true);
 }
 
-// TEST_M(
-//     subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
 //     "Non-induced + labels on vertexes: Bit target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<wheel_11_labeled_type, cycle_4_type>(
 //         false,
@@ -2382,8 +2378,8 @@ TEST_M(
 //         true);
 // }
 
-TEST_M(subgraph_isomorphism_test,
-       "Non-induced + labels on vertexes: Bit target representation, no matches") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced + labels on vertexes: Bit target representation, no matches") {
     this->check_subgraph_isomorphism<cycle_5_self_loops_type, path_3_self_loops_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2398,8 +2394,7 @@ TEST_M(subgraph_isomorphism_test,
         true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: List target representation, vertex count > number of threads") {
     this->check_subgraph_isomorphism<wheel_201_type, path_25_type>(false,
                                                                    isomorphism_kind::non_induced,
@@ -2408,8 +2403,7 @@ TEST_M(
                                                                    true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: List target representation, vertex count > number of threads & edge count > number of threads") {
     this->check_subgraph_isomorphism<lolipop_5_100_type, lolipop_5_100_type>(
         false,
@@ -2419,8 +2413,8 @@ TEST_M(
         true);
 }
 
-TEST_M(subgraph_isomorphism_test,
-       "Non-induced + labels on vertexes: List target representation, all matches check") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced + labels on vertexes: List target representation, all matches check") {
     this->check_subgraph_isomorphism<lolipop_5_100_type, k_4_type>(false,
                                                                    isomorphism_kind::non_induced,
                                                                    0,
@@ -2428,8 +2422,7 @@ TEST_M(subgraph_isomorphism_test,
                                                                    true);
 }
 
-TEST_M(
-    subgraph_isomorphism_test,
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: List target representation, max_match_count > total number of SI") {
     this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
         false,
@@ -2439,8 +2432,7 @@ TEST_M(
         true);
 }
 
-// TEST_M(
-//     subgraph_isomorphism_test,
+// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
 //     "Non-induced + labels on vertexes: List target representation, max_match_count <= total number of SI") {
 //     this->check_subgraph_isomorphism<wheel_201_type, k_4_type>(false,
 //                                                                isomorphism_kind::non_induced,
@@ -2449,8 +2441,8 @@ TEST_M(
 //                                                                true);
 // }
 
-TEST_M(subgraph_isomorphism_test,
-       "Non-induced + labels on vertexes: LList target representation, no matches") {
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced + labels on vertexes: LList target representation, no matches") {
     this->check_subgraph_isomorphism<wheel_201_type, star_3_type>(false,
                                                                   isomorphism_kind::non_induced,
                                                                   0,
@@ -2458,7 +2450,7 @@ TEST_M(subgraph_isomorphism_test,
                                                                   true);
 }
 
-TEST_M(subgraph_isomorphism_test, "Custom allocator, positive case") {
+SUBGRAPH_ISOMORPHISM_ALLOCATOR_TEST("Custom allocator, positive case") {
     this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
         false,
         isomorphism_kind::non_induced,
@@ -2468,7 +2460,7 @@ TEST_M(subgraph_isomorphism_test, "Custom allocator, positive case") {
         LimitedAllocator<char>());
 }
 
-TEST_M(subgraph_isomorphism_test, "Custom allocator with limit") {
+SUBGRAPH_ISOMORPHISM_ALLOCATOR_TEST("Custom allocator with limit") {
     REQUIRE_THROWS_AS((this->check_subgraph_isomorphism<lolipop_5_100_type, paths_1_2_5_type>(
                           false,
                           isomorphism_kind::non_induced,
