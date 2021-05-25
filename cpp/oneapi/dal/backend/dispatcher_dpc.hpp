@@ -16,15 +16,11 @@
 
 #pragma once
 
-#ifndef ONEDAL_DATA_PARALLEL
-#error ONEDAL_DATA_PARALLEL must be defined to include this file
-#endif
-
-#include <stdexcept> // TODO: change by onedal exceptions
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::backend {
 
+#ifdef ONEDAL_DATA_PARALLEL
 class context_gpu : public base {
 public:
     explicit context_gpu(const detail::data_parallel_policy& policy) : queue_(policy.get_queue()) {}
@@ -39,7 +35,9 @@ public:
 private:
     sycl::queue& queue_;
 };
+#endif
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename CpuKernel, typename GpuKernel>
 struct kernel_dispatcher<CpuKernel, GpuKernel> {
     template <typename... Args>
@@ -58,5 +56,6 @@ struct kernel_dispatcher<CpuKernel, GpuKernel> {
         }
     }
 };
+#endif
 
 } // namespace oneapi::dal::backend

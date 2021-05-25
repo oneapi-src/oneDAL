@@ -37,7 +37,9 @@ TEST("distributed kmeans on host") {
                                      .set_max_iteration_count(10)
                                      .set_accuracy_threshold(0.001);
 
-        // const auto distributed_train_result = dal::train(host_spmd_policy, kmeans_desc, data);
+        const auto data = table{};
+
+        const auto distributed_train_result = dal::train(host_spmd_policy, kmeans_desc, data);
     });
 }
 

@@ -28,6 +28,7 @@ class thread_communicator_context : public base {
 public:
     explicit thread_communicator_context(std::int64_t thread_count) : thread_count_(thread_count) {
         ONEDAL_ASSERT(thread_count > 0);
+        thread_pool_.reserve(thread_count);
         thread_id_map_.reserve(thread_count);
     }
 
@@ -47,6 +48,21 @@ public:
         return thread_count_;
     }
 
+    template <typename Body>
+    void execute(const Body& body) {
+        for (std::int64_t i = 0; i < thread_count_; i++) {
+            thread_pool_.emplace_back([=]() {
+                init(i);
+                body(i);
+            });
+        }
+
+        for (auto& thread : thread_pool_) {
+            thread.join();
+        }
+    }
+
+private:
     /// Blocks until all threads are mapped to ranks
     void init(std::int64_t rank) {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -62,8 +78,8 @@ public:
         }
     }
 
-private:
     std::int64_t thread_count_;
+    std::vector<std::thread> thread_pool_;
     std::unordered_map<std::thread::id, std::int64_t> thread_id_map_;
     std::mutex mutex_;
     std::condition_variable cv_;
@@ -71,7 +87,7 @@ private:
 
 class thread_communicator_barrier {
 public:
-    explicit thread_communicator_barrier(const thread_communicator_context& ctx)
+    explicit thread_communicator_barrier(thread_communicator_context& ctx)
             : ctx_(ctx),
               thread_counter_(ctx.get_thread_count()),
               generation_counter_(0) {}
@@ -99,7 +115,7 @@ public:
     }
 
 private:
-    thread_communicator_context ctx_;
+    thread_communicator_context& ctx_;
     std::int64_t thread_counter_;
     std::uint64_t generation_counter_;
     std::mutex mutex_;
@@ -108,7 +124,7 @@ private:
 
 class thread_communicator_bcast {
 public:
-    explicit thread_communicator_bcast(const thread_communicator_context& ctx)
+    explicit thread_communicator_bcast(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               source_count_(0),
@@ -143,7 +159,7 @@ public:
     }
 
 private:
-    thread_communicator_context ctx_;
+    thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::int64_t source_count_;
     byte_t* source_buf_;
@@ -151,7 +167,7 @@ private:
 
 class thread_communicator_gather {
 public:
-    explicit thread_communicator_gather(const thread_communicator_context& ctx)
+    explicit thread_communicator_gather(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
               recv_count_(0),
@@ -193,7 +209,7 @@ public:
     }
 
 private:
-    thread_communicator_context ctx_;
+    thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
     std::int64_t recv_count_;
     byte_t* recv_buf_;
@@ -212,10 +228,10 @@ public:
 
 class thread_communicator_impl : public dal::detail::spmd_communicator_iface {
 public:
-    explicit thread_communicator_impl(const thread_communicator_context& ctx)
-            : ctx_(ctx),
-              bcast_(ctx),
-              barrier_(ctx) {}
+    explicit thread_communicator_impl(std::int64_t thread_count)
+            : ctx_(thread_count),
+              bcast_(ctx_),
+              barrier_(ctx_) {}
 
     std::int64_t get_rank() override {
         return ctx_.map_thread_id_to_rank(std::this_thread::get_id());
@@ -257,6 +273,10 @@ public:
         return new thread_communicator_request_impl{};
     }
 
+    thread_communicator_context& get_context() {
+        return ctx_;
+    }
+
 private:
     thread_communicator_context ctx_;
     thread_communicator_bcast bcast_;
@@ -266,35 +286,16 @@ private:
 class thread_communicator : public dal::detail::spmd_communicator {
 public:
     explicit thread_communicator(std::int64_t thread_count)
-            : thread_count_(thread_count),
-              ctx_(thread_count) {
-        ONEDAL_ASSERT(thread_count > 0);
-        thread_pool_.reserve(thread_count);
-        init_impl(new thread_communicator_impl{ ctx_ });
-    }
+            : dal::detail::spmd_communicator(new thread_communicator_impl{ thread_count }) {}
 
     std::int64_t get_root_rank() const {
-        return ctx_.get_root_rank();
+        return get_impl<thread_communicator_impl>().get_root_rank();
     }
 
     template <typename Body>
     void execute(const Body& body) {
-        for (std::int64_t i = 0; i < thread_count_; i++) {
-            thread_pool_.emplace_back([=]() {
-                ctx_.init(i);
-                body(i);
-            });
-        }
-
-        for (auto& thread : thread_pool_) {
-            thread.join();
-        }
+        get_impl<thread_communicator_impl>().get_context().execute(body);
     }
-
-private:
-    std::int64_t thread_count_;
-    thread_communicator_context ctx_;
-    std::vector<std::thread> thread_pool_;
 };
 
 } // namespace oneapi::dal::test::engine

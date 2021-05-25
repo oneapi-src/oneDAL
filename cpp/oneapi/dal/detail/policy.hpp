@@ -134,7 +134,7 @@ template <>
 struct is_data_parallel_policy<data_parallel_policy> : std::bool_constant<true> {};
 #endif
 
-class spmd_policy_base : public base {
+class ONEDAL_EXPORT spmd_policy_base : public base {
 public:
     explicit spmd_policy_base(const spmd_communicator& comm);
 
@@ -173,6 +173,12 @@ struct is_host_policy<spmd_policy<LocalPolicy>> : is_host_policy<LocalPolicy> {}
 template <typename LocalPolicy>
 struct is_data_parallel_policy<spmd_policy<LocalPolicy>> : is_data_parallel_policy<LocalPolicy> {};
 
+using spmd_host_policy = spmd_policy<host_policy>;
+
+#ifdef ONEDAL_DATA_PARALLEL
+using spmd_data_parallel_policy = spmd_policy<data_parallel_policy>;
+#endif
+
 struct internal_policy_accessor {
     template <typename, typename = void>
     struct can_get_internal : std::false_type {};
@@ -207,15 +213,13 @@ inline auto get_internal_policy(T&& object) {
 template <typename T>
 using internal_policy_type_t = decltype(get_internal_policy(std::declval<T>()));
 
-template <typename T>
-inline auto cast_to_internal_policy(const T& object)
-    -> std::enable_if_t<is_execution_policy_v<T>, T> {
+template <typename T, std::enable_if_t<is_execution_policy_v<T>>* = nullptr>
+inline T cast_to_internal_policy(const T& object) {
     return object;
 }
 
-template <typename T>
-inline auto cast_to_internal_policy(const T& object)
-    -> std::enable_if_t<can_get_internal_policy_v<T>, internal_policy_type_t<T>> {
+template <typename T, std::enable_if_t<can_get_internal_policy_v<T>>* = nullptr>
+inline internal_policy_type_t<T> cast_to_internal_policy(const T& object) {
     return get_internal_policy(object);
 }
 
@@ -233,10 +237,16 @@ using v1::cpu_extension;
 using v1::default_host_policy;
 using v1::host_policy;
 using v1::spmd_policy;
+using v1::spmd_host_policy;
 using v1::internal_policy_accessor;
 using v1::internal_policy_type_t;
 
 using v1::get_internal_policy;
 using v1::cast_to_internal_policy;
+
+#ifdef ONEDAL_DATA_PARALLEL
+using v1::data_parallel_policy;
+using v1::spmd_data_parallel_policy;
+#endif
 
 } // namespace oneapi::dal::detail

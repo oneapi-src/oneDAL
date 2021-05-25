@@ -89,6 +89,8 @@ private:
 
 class spmd_communicator : public base {
 public:
+    spmd_communicator() = default;
+
     std::int64_t get_rank() const {
         // TODO: Handle null impl_
         return impl_->get_rank();
@@ -151,15 +153,10 @@ public:
     }
 
 protected:
-    spmd_communicator() = default;
     explicit spmd_communicator(spmd_communicator_iface* impl) : impl_(impl) {}
 
-    void init_impl(spmd_communicator_iface* impl) {
-        impl_.reset(impl);
-    }
-
     template <typename Impl>
-    Impl& get_impl() {
+    Impl& get_impl() const {
         // TODO: Handle null impl_
         return static_cast<Impl&>(*impl_);
     }
