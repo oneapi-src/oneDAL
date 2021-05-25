@@ -474,7 +474,12 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         local_defines = local_defines + ([
             "DAAL_SYCL_INTERFACE",
             "ONEDAL_DATA_PARALLEL"
-        ] if is_dpc else []),
+        ] if is_dpc else []) + select({
+            "@config//:test_fp64_disabled": [
+                "ONEDAL_DISABLE_FP64_TESTS=1",
+            ],
+            "//conditions:default": [],
+        }),
         deps = _expand_select(deps),
         **kwargs,
     )

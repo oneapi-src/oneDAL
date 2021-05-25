@@ -397,6 +397,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                             get_edges_count<Graph>{}(total_sum_degrees),
                             edge_offsets_data,
                             vertex_neighbors,
+                            total_sum_degrees,
                             degrees_data);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
@@ -536,6 +537,7 @@ void convert_to_csr_impl(
                             get_edges_count<Graph>{}(total_sum_degrees),
                             edge_offsets_data,
                             vertex_neighbors,
+                            total_sum_degrees,
                             degrees_data);
     graph_impl.set_edge_values(vals, get_edges_count<Graph>{}(total_sum_degrees));
 
