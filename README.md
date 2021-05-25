@@ -238,8 +238,10 @@ In C++ APIs, technical preview features are located in `daal::preview` and `onea
 The preview features list:
 - Graph Analytics:
 	- Undirected graph without edge and vertex weights (`undirected_adjacency_vector_graph`), where vertex indices can only be of type int32
+  - Directed graph with and without edge weights (`directed_adjacency_vector_graph`), where vertex indices can only be of type int32, edge weights can be int32 and double
 	- Jaccard Similarity Coefficients for all pairs of vertices, a batch algorithm that processes the graph by blocks
   - Local and Global Triangle Counting
+  - Single Source Shortest Paths (SSSP)
 
 ## oneDAL and Intel&reg; DAAL
 

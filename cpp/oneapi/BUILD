@@ -38,6 +38,8 @@ dal_global_header_test(
     algo_exclude = [],
     algo_preview = [
         "jaccard",
+        "triangle_counting",
+        "shortest_paths"
     ],
     dal_deps = [
         ":dal_header",
