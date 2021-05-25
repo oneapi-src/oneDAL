@@ -18,7 +18,6 @@
 #include <map>
 #include <set>
 
-#include "example_util/output_helpers_graph.hpp"
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
 #include "oneapi/dal/exceptions.hpp"
