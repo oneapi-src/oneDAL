@@ -77,10 +77,32 @@ public:
             DAAL_CHECK_MALLOC(trainLabel);
         }
 
+        services::SharedPtr<daal::algorithms::internal::PairwiseDistances<FPType, cpu> > dist;
 
-        daal::algorithms::internal::MinkowskiDistances<FPType, cpu> euclDist(*testTable, *trainTable, true);
-        // daal::algorithms::internal::ChebychevDistances<FPType, cpu> euclDist(*testTable, *trainTable);
-        euclDist.init();
+        switch (pairwiseDistance)
+        {
+        case bf_knn_classification::prediction::internal::PairwiseDistanceType::minkowski:
+            if (minkowskiDegree == 2.0) dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
+            else dist.reset(new daal::algorithms::internal::MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
+            break;
+        case bf_knn_classification::prediction::internal::PairwiseDistanceType::chebychev:
+            dist.reset(new daal::algorithms::internal::ChebychevDistances<FPType, cpu>(*testTable, *trainTable));
+        default: 
+            dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
+            break;
+        }
+
+        // if (pairwiseDistance == bf_knn_classification::prediction::internal::PairwiseDistanceType::chebychev) {
+        //     dist.reset(new daal::algorithms::internal::ChebychevDistances<FPType, cpu>(*testTable, *trainTable));
+        // }
+        // else if (pairwiseDistance == bf_knn_classification::prediction::internal::PairwiseDistanceType::minkowski && minkowskiDegree != 2.0) {
+        //     dist.reset(new daal::algorithms::internal::MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
+        // }
+        // else {
+        //     dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
+        // }
+
+        dist->init();
 
         const size_t outBlockSize = 128;
         const size_t inBlockSize  = 128;
@@ -99,7 +121,7 @@ public:
             const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + outBlockSize;
             const size_t outerSize  = outerEnd - outerStart;
 
-            DAAL_CHECK_STATUS_THR(computeKNearestBlock(&euclDist, outerSize, inBlockSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute,
+            DAAL_CHECK_STATUS_THR(computeKNearestBlock(dist.get(), outerSize, inBlockSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute,
                                                        nClasses, k, voteWeights, trainLabel, trainTable, testTable, testLabelTable, indicesTable,
                                                        distancesTable, tlsDistances, tlsIdx, tlsKDistances, tlsKIndexes, tlsVoting, nOuterBlocks));
         });
