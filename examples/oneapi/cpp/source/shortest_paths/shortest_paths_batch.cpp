@@ -26,7 +26,13 @@ namespace dal = oneapi::dal;
 using namespace dal::preview::shortest_paths;
 
 int main(int argc, char** argv) {
-    const auto filename = get_data_path("weighted_edge_list.csv");
+    std::string filename;
+    if (argc < 2) {
+        filename = get_data_path("weighted_edge_list.csv");
+    }
+    else {
+        filename = argv[1];
+    }
 
     //read the graph
     const dal::preview::graph_csv_data_source ds(filename);
@@ -52,8 +58,40 @@ int main(int argc, char** argv) {
     const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, my_graph);
 
     // extract the result
-    std::cout << "Distances: " << result_shortest_paths.get_distances() << std::endl;
-    std::cout << "Predecessors: " << result_shortest_paths.get_predecessors() << std::endl;
+    if (argc < 2) {
+        std::cout << "Distances: " << result_shortest_paths.get_distances() << std::endl;
+        std::cout << "Predecessors: " << result_shortest_paths.get_predecessors() << std::endl;
+    }
+
+    const auto shortest_paths_desc_ref =
+        descriptor<float, method::dijkstra, task::one_to_all, std::allocator<char>>(
+            0,
+            0.85,
+            optional_results::distances | optional_results::predecessors,
+            alloc);
+    // compute shortest paths
+    const auto result_shortest_paths_ref =
+        dal::preview::traverse(shortest_paths_desc_ref, my_graph);
+
+    const auto res = oneapi::dal::row_accessor<const double>(result_shortest_paths.get_distances())
+                         .pull()
+                         .get_data();
+    const auto res_ref =
+        oneapi::dal::row_accessor<const double>(result_shortest_paths_ref.get_distances())
+            .pull()
+            .get_data();
+    int k = 0;
+    for (int i = 0; i < result_shortest_paths.get_distances().get_row_count(); i++) {
+        if (res[i] == res_ref[i]) {
+            k++;
+        }
+    }
+
+    std::cout << k << "right from " << result_shortest_paths.get_distances().get_row_count()
+              << std::endl;
+    if (k == result_shortest_paths.get_distances().get_row_count()) {
+        std::cout << "Validated." << std::endl;
+    }
 
     return 0;
 }

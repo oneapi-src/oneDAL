@@ -31,6 +31,7 @@ using by_default = one_to_all;
 
 namespace method {
 struct delta_stepping {};
+struct dijkstra {};
 using by_default = delta_stepping;
 } // namespace method
 
@@ -90,7 +91,8 @@ using enable_if_delta_stepping_t =
     std::enable_if_t<dal::detail::is_one_of_v<M, method::delta_stepping>>;
 
 template <typename Method>
-constexpr bool is_valid_method = dal::detail::is_one_of_v<Method, method::delta_stepping>;
+constexpr bool is_valid_method =
+    dal::detail::is_one_of_v<Method, method::delta_stepping, method::dijkstra>;
 
 template <typename Task>
 constexpr bool is_valid_task = dal::detail::is_one_of_v<Task, task::one_to_all>;

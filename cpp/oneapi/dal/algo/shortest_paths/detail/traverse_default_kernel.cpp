@@ -19,5 +19,16 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::shortest_paths::detail {
-
+/*
+template <typename Float>
+array<std::int64_t>
+triangle_counting<Float, task::local, dal::preview::detail::topology<std::int32_t>, automatic>::
+operator()(const dal::detail::host_policy& policy,
+           const dal::preview::detail::topology<std::int32_t>& t,
+           std::int64_t* triangles_local) const {
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+        return backend::triangle_counting_local<decltype(cpu)>(t, triangles_local);
+    });
+}
+*/
 } // namespace oneapi::dal::preview::shortest_paths::detail
