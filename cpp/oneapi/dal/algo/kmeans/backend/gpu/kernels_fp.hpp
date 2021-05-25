@@ -55,8 +55,6 @@ inline std::int64_t get_gpu_sg_size(sycl::queue& queue) {
     return 16;
 }
 
-namespace bk = dal::backend;
-namespace pr = dal::backend::primitives;
 
 template <typename T>
 struct select_min_distance {};
