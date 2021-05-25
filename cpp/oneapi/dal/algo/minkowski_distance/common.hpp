@@ -124,7 +124,7 @@ public:
     descriptor() = default;
 
     /// Creates a new instance of the class with the external property values.
-    explicit descriptor(Float degree) {
+    explicit descriptor(double degree) {
         set_degree(degree);
     }
 

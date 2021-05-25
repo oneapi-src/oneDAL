@@ -82,8 +82,12 @@ public:
         switch (pairwiseDistance)
         {
         case bf_knn_classification::prediction::internal::PairwiseDistanceType::minkowski:
-            if (minkowskiDegree == 2.0) dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
-            else dist.reset(new daal::algorithms::internal::MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
+            if (minkowskiDegree == 2.0) {
+                dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
+            }
+            else {
+                dist.reset(new daal::algorithms::internal::MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
+            }
             break;
         case bf_knn_classification::prediction::internal::PairwiseDistanceType::chebychev:
             dist.reset(new daal::algorithms::internal::ChebychevDistances<FPType, cpu>(*testTable, *trainTable));

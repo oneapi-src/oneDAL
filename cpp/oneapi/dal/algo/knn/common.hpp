@@ -175,12 +175,14 @@ public:
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
+        const auto distance = oneapi::dal::minkowski_distance::descriptor{2.0};
+        set_distance(distance);
     }
 
     template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
     explicit descriptor(std::int64_t class_count,
                         std::int64_t neighbor_count,
-                        const Distance& distance) {
+                        const distance_t& distance) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
         set_distance(distance);
@@ -220,14 +222,14 @@ public:
 
     /// Choose distance type for calculations. Used with :expr:`method::brute_force` only.
     template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
-    distance_t get_distance() const {
+    const distance_t& get_distance() const {
         using dist_t = detail::distance<distance_t>;
         const auto dist = std::static_pointer_cast<dist_t>(base_t::get_distance_impl());
         return dist;
     }
 
     template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
-    auto& set_distance(distance_t dist) {
+    auto& set_distance(const distance_t& dist) {
         base_t::set_distance_impl(std::make_shared<detail::distance<distance_t>>(dist));
         return *this;
     }

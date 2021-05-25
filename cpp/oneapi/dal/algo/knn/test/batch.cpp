@@ -52,8 +52,7 @@ public:
     static constexpr bool is_brute_force = std::is_same_v<Method, knn::method::brute_force>;
 
     bool not_available_on_device() {
-        return (this->get_policy().is_gpu() && is_kd_tree) || //
-               (this->get_policy().is_cpu() && is_brute_force);
+        return (this->get_policy().is_gpu() && is_kd_tree);
     }
 
     Float classification(const table& train_data,
