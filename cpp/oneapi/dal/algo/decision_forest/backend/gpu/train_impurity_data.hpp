@@ -105,6 +105,47 @@ struct impurity_data<Float, Index, task::regression> {
     dal::backend::primitives::ndarray<Float, 1> imp_list_;
 };
 
+// holders for impurity data pointers parametrized by task
+template <typename Float, typename Index, typename Task = task::by_default>
+struct imp_data_list_ptr;
+
+template <typename Float, typename Index>
+struct imp_data_list_ptr<Float, Index, task::classification> {
+    imp_data_list_ptr(const impurity_data<Float, Index, task::classification>& imp_data)
+            : imp_list_ptr_(imp_data.imp_list_.get_data()),
+              class_hist_list_ptr_(imp_data.class_hist_list_.get_data()) {}
+    const Float* imp_list_ptr_;
+    const Index* class_hist_list_ptr_;
+};
+
+template <typename Float, typename Index>
+struct imp_data_list_ptr<Float, Index, task::regression> {
+    imp_data_list_ptr(const impurity_data<Float, Index, task::regression>& imp_data)
+            : imp_list_ptr_(imp_data.imp_list_.get_data()) {}
+    const Float* imp_list_ptr_;
+};
+
+template <typename Float, typename Index, typename Task = task::by_default>
+struct imp_data_list_ptr_mutable;
+
+template <typename Float, typename Index>
+struct imp_data_list_ptr_mutable<Float, Index, task::classification> {
+    imp_data_list_ptr_mutable(impurity_data<Float, Index, task::classification>& imp_data)
+            : imp_list_ptr_(imp_data.imp_list_.get_mutable_data()),
+              class_hist_list_ptr_(imp_data.class_hist_list_.get_mutable_data()) {}
+
+    Float* imp_list_ptr_;
+    Index* class_hist_list_ptr_;
+};
+
+template <typename Float, typename Index>
+struct imp_data_list_ptr_mutable<Float, Index, task::regression> {
+    imp_data_list_ptr_mutable(impurity_data<Float, Index, task::regression>& imp_data)
+            : imp_list_ptr_(imp_data.imp_list_.get_mutable_data()) {}
+
+    Float* imp_list_ptr_;
+};
+
 template <typename Float, typename Index, typename Task>
 struct impurity_data_manager;
 
