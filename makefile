@@ -215,7 +215,7 @@ TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
 TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc14),$(TBBDIR.libia.prefix)/$(_IA)/vc14)))
 TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
-TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12.dll)))
+TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12_debug.dll)))
 
 TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
 
@@ -321,8 +321,8 @@ daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
 daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
-daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
-daaldep.win32e.rt.seq  := msvcrt.lib msvcprt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
+daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
+daaldep.win32e.rt.seq  := msvcrtd.lib msvcprtd.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export.def
 
 daaldep.win.threxport.create = grep -v -E '^(;|$$)' $< $(USECPUS.out.grep.filter)

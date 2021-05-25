@@ -114,7 +114,7 @@ EXT_LIB = tbb12.lib tbbmalloc.lib
 
 DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" $(DAAL_LIB_T)
 
-COPTS = -MD -Isource\utils $(COPTS) $(OUT_OPTS)
+COPTS = -MDd -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB) $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 

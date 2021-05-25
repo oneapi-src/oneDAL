@@ -103,7 +103,7 @@ DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
 RT_LIB=/link /ignore:4078
 !ENDIF
 
-COPTS = -MD /Isource /I"$(DAALROOT)\include" $(COPTS) $(OUT_OPTS)
+COPTS = -MDd /Isource /I"$(DAALROOT)\include" $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(DAAL_LIB_T) $(EXT_LIB) $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 
