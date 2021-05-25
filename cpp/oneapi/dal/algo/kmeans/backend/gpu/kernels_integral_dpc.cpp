@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/distance.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
@@ -47,10 +48,14 @@ sycl::event count_clusters(sycl::queue& queue,
                            const bk::event_vector& deps) {
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
     ONEDAL_ASSERT(labels.get_dimension(1) == 1);
+    ONEDAL_ASSERT(cluster_count < = detail::limits::max(std::int32_t));
+    ONEDAL_ASSERT(cluster_count > 0);
     const std::int32_t* label_ptr = labels.get_data();
     std::int32_t* counter_ptr = counters.get_mutable_data();
     const auto sg_size_to_set = get_recommended_sg_size2(queue);
     const auto wg_count_to_set = get_recommended_wg_count2(queue);
+    const auto row_count = labels.get_dimension(0);
+    ONEDAL_ASSERT(row_count < = detail::limits::max(std::int32_t));
     queue
         .submit([&](sycl::handler& cgh) {
             cgh.parallel_for(sycl::range<1>(cluster_count), [=](sycl::id<1> idx) {
@@ -60,7 +65,6 @@ sycl::event count_clusters(sycl::queue& queue,
         .wait_and_throw();
     return queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        const auto row_count = labels.get_dimension(0);
         cgh.parallel_for<partial_counters>(
             bk::make_multiple_nd_range_2d({ sg_size_to_set, wg_count_to_set },
                                           { sg_size_to_set, 1 }),
@@ -77,7 +81,7 @@ sycl::event count_clusters(sycl::queue& queue,
                 const std::int64_t local_range = sg.get_local_range()[0];
 
                 const std::int64_t block_size =
-                    row_count / total_sg_count + std::int64_t(row_count % total_sg_count > 0);
+                    row_count / total_sg_count + bool(row_count % total_sg_count);
                 const std::int64_t offset = block_size * sg_global_id;
                 const std::int64_t end =
                     (offset + block_size) > row_count ? row_count : (offset + block_size);
@@ -101,6 +105,8 @@ sycl::event count_empty_clusters(sycl::queue& queue,
                                  const bk::event_vector& deps) {
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
     ONEDAL_ASSERT(empty_cluster_count.get_dimension(0) == 1);
+    ONEDAL_ASSERT(cluster_count < = detail::limits::max(std::int32_t));
+    ONEDAL_ASSERT(cluster_count > 0);
     const std::int32_t* counter_ptr = counters.get_data();
     const auto sg_size_to_set = get_recommended_sg_size2(queue);
     std::int32_t* value_ptr = empty_cluster_count.get_mutable_data();

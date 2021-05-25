@@ -86,7 +86,9 @@ template <typename Float>
 std::int64_t get_block_size_in_rows(sycl::queue& queue, std::int64_t column_count) {
     // TODO optimization
     std::int64_t block_size_in_bytes = bk::device_global_mem_cache_size(queue);
-    return block_size_in_bytes / column_count / sizeof(Float);
+    std::int64_t block_size_in_rows = block_size_in_bytes / column_count / sizeof(Float);
+    ONEDAL_ASSERT(block_size_in_rows > 0);
+    return block_size_in_rows;
 }
 
 template <typename Float>
@@ -94,12 +96,14 @@ std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
                                                   std::int64_t column_count,
                                                   std::int64_t cluster_count) {
     // TODO optimization
+    constexpr std::int64_t mem_block_count = 4; // To ensure all blocks fit in memory
     const std::int64_t block_size_in_bytes =
-        std::min(bk::device_max_mem_alloc_size(queue), bk::device_global_mem_size(queue) / 4);
-    std::int64_t part_count = 128;
+        std::min(bk::device_max_mem_alloc_size(queue),
+                 bk::device_global_mem_size(queue) / mem_block_count);
+    std::int64_t part_count = 128; // Number of partial centroids. Reasonable initial guess.
     dal::detail::check_mul_overflow(cluster_count, column_count);
     dal::detail::check_mul_overflow(cluster_count * column_count, part_count);
-    std::int64_t fp_size = dal::detail::integral_cast<std::int64_t>(sizeof(Float));
+    std::int64_t fp_size = dal::detail::get_data_type_size(dal::detail::make_data_type<Float>());
     dal::detail::check_mul_overflow(cluster_count * column_count * part_count, fp_size);
     const std::int64_t part_size = cluster_count * column_count * fp_size;
     while (part_count * part_size > block_size_in_bytes / 2) {

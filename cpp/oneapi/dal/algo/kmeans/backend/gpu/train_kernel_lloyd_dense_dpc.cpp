@@ -119,12 +119,12 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
         auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
 
-        std::int64_t block_rows = get_block_size_in_rows<Float>(queue, column_count);
+        std::int64_t rows_block_size = get_block_size_in_rows<Float>(queue, column_count);
         std::int64_t part_count =
             get_part_count_for_partial_centroids<Float>(queue, column_count, cluster_count);
 
         auto arr_distance_block = pr::ndarray<Float, 2>::empty(queue,
-                                                               { block_rows, cluster_count },
+                                                               { rows_block_size, cluster_count },
                                                                sycl::usm::alloc::device);
         auto arr_centroids = pr::ndarray<Float, 2>::empty(queue,
                                                           { cluster_count, column_count },
@@ -158,7 +158,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                 cluster_count,
                                 max_iteration_count,
                                 accuracy_threshold,
-                                block_rows,
+                                rows_block_size,
                                 part_count,
                                 arr_data,
                                 iter == 0 ? arr_initial : arr_centroids,
@@ -185,7 +185,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             assign_clusters<Float, pr::squared_l2_metric<Float>>(queue,
                                                                  arr_data,
                                                                  arr_centroids,
-                                                                 block_rows,
+                                                                 rows_block_size,
                                                                  arr_labels,
                                                                  arr_distance_block,
                                                                  arr_closest_distances,

@@ -24,7 +24,6 @@
 #include "oneapi/dal/exceptions.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
-#include <iostream>
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -50,7 +49,6 @@ static daal::data_management::NumericTablePtr get_initial_centroids(
     const descriptor_t& desc,
     const table& data,
     const table& initial_centroids) {
-    std::cout << "INitial centroids on CPU" << std::endl;
     const int64_t column_count = data.get_column_count();
     const int64_t cluster_count = desc.get_cluster_count();
 
@@ -90,7 +88,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const descriptor_t& desc,
                                            const table& data,
                                            const table& initial_centroids) {
-    std::cout << "Running on CPU" << std::endl;
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 

@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -28,7 +29,7 @@ using descriptor_t = detail::descriptor_base<task::clustering>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
+struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     infer_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
                                               const descriptor_t& params,
                                               const infer_input<task::clustering>& input) const {
@@ -38,9 +39,8 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
         const std::int64_t cluster_count = params.get_cluster_count();
-        auto data_ptr =
-            row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-        auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
+
+        auto arr_data = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
 
         dal::detail::check_mul_overflow(cluster_count, column_count);
         auto centroids_ptr =
@@ -48,9 +48,9 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
         auto arr_centroids =
             pr::ndarray<Float, 2>::wrap(centroids_ptr, { cluster_count, column_count });
 
-        std::int64_t block_rows = get_block_size_in_rows<Float>(queue, column_count);
+        std::int64_t rows_block_size = get_block_size_in_rows<Float>(queue, column_count);
         auto arr_distance_block = pr::ndarray<Float, 2>::empty(queue,
-                                                               { block_rows, cluster_count },
+                                                               { rows_block_size, cluster_count },
                                                                sycl::usm::alloc::device);
         auto arr_closest_distances =
             pr::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
@@ -63,7 +63,7 @@ struct infer_kernel_gpu<Float, method::by_default, task::clustering> {
             assign_clusters<Float, pr::squared_l2_metric<Float>>(queue,
                                                                  arr_data,
                                                                  arr_centroids,
-                                                                 block_rows,
+                                                                 rows_block_size,
                                                                  arr_labels,
                                                                  arr_distance_block,
                                                                  arr_closest_distances);
