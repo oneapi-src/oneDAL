@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <atomic>
 #include <fstream>
-#include <set>
-#include <vector>
 
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -31,7 +29,6 @@
 #include "oneapi/dal/io/common.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
-#include "oneapi/dal/graph/service_functions.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
 
@@ -573,5 +570,4 @@ output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data
     convert_to_csr_impl(elist, graph);
     return graph;
 }
-
 } // namespace oneapi::dal::preview::load_graph::detail
