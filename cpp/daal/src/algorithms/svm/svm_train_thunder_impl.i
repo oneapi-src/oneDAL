@@ -186,7 +186,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
     /* The operation copy is lightweight, therefore a large size is chosen
-          so that the number of blocks is a reasonable number. */
+        so that the number of blocks is a reasonable number. */
     const size_t blockSize = 16384;
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
@@ -265,7 +265,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
     /* The operation copy is lightweight, therefore a large size is chosen
-          so that the number of blocks is a reasonable number. */
+        so that the number of blocks is a reasonable number. */
     const size_t blockSize = 16384;
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
@@ -610,7 +610,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const Num
     size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
 
     StaticTlsMem<uint32_t, cpu> tlsIndices(maxBlockSize);
-    StaticTlsMem<algorithmFPType, cpu> tlsGrad(nTrainVectors);
+    StaticTlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsGrad(nTrainVectors);
 
     daal::static_threader_for(nBlocks, [&](const size_t iBlock, const size_t tid) {
         const size_t startRow     = iBlock * maxBlockSize;
