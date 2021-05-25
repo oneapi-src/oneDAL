@@ -186,7 +186,7 @@ inline table convert_from_daal_csr_table(const daal::data_management::NumericTab
 
     ONEDAL_ASSERT(sizeof(std::size_t) == sizeof(std::int64_t));
 
-    detail::csr_table table{
+    return detail::csr_table{
         array<T>{ block_owner->get_data(),
                   block_owner->get_element_count(),
                   [block_owner](const T* p) {} },
@@ -199,7 +199,6 @@ inline table convert_from_daal_csr_table(const daal::data_management::NumericTab
         block_owner->get_row_count(),
         block_owner->get_column_count()
     };
-    return table;
 }
 
 inline daal::data_management::CSRNumericTablePtr wrap_by_host_csr_adapter(
