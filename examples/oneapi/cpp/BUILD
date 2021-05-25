@@ -74,6 +74,7 @@ dal_algo_example_suite(
         "pca",
         "polynomial_kernel",
         "rbf_kernel",
+        "shortest_paths",
         "svm",
         "triangle_counting",
     ],
