@@ -36,7 +36,7 @@ namespace training
 namespace internal
 {
 template <typename algorithmFpType, CpuType cpu>
-services::Status KNNClassificationTrainKernel<algorithmFpType, cpu>::compute(NumericTable * x, NumericTable * y, Model * r, const KernelParameter & par,
+services::Status KNNClassificationTrainKernel<algorithmFpType, cpu>::compute(NumericTable * x, NumericTable * y, Model * r, const Parameter & par,
                                                                              engines::BatchBase & engine)
 {
     return services::Status();

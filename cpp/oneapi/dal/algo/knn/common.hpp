@@ -101,6 +101,7 @@ using enable_if_brute_force_t =
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
+    friend detail::distance_accessor;
 
 public:
     using tag_t = descriptor_tag;

@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -59,39 +60,19 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
     daal_parameter.k = original_daal_parameter.k;
     daal_parameter.dataUseInModel = original_daal_parameter.dataUseInModel;
     daal_parameter.resultsToCompute = original_daal_parameter.resultsToCompute;
-    daal_parameter.voteWeights = original_daal_parameter.voteWeights;
     daal_parameter.engine = original_daal_parameter.engine->clone();
     daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
 
-    // //prototype
-    // const auto desc_dist = *desc.get_distance_impl()->get_distance();
-    // // Euclidean distance
-    // if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, minkowski_distance::detail::descriptor_tag> &
-    //               desc_dist.get_degree() == 2.0) {
-    //     daal_parameter.pairwiseDistance =
-    //         daal_knn::training::internal::PairwiseDistanceType::euclidean;
-    //     daal_parameter.minkowskiDegree = desc_dist.get_degree();
-    // }
-    // // Manhattan distance
-    // else if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, minkowski_distance::detail::descriptor_tag> &
-    //                    desc_dist.get_degree() == 1.0) {
-    //     daal_parameter.pairwiseDistance =
-    //         daal_knn::training::internal::PairwiseDistanceType::manhattan;
-    //     daal_parameter.minkowskiDegree = desc_dist.get_degree();
-    // }
-    // // Minkowski distance for other p
-    // else if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, minkowski_distance::detail::descriptor_tag> &
-    //                    desc_dist.get_degree() != 1.0 & desc_dist.get_degree() != 2.0) {
-    //     daal_parameter.pairwiseDistance =
-    //         daal_knn::training::internal::PairwiseDistanceType::minkowski;
-    //     daal_parameter.minkowskiDegree = desc_dist.get_degree();
-    // }
-    // // Chebychev distance (p->inf)
-    // else if constexpr (std::is_same_v<desc_dist::detail::descriptor_tag, chebychev_distance::detail::descriptor_tag>) {
-    //     daal_parameter.pairwiseDistance =
-    //         daal_knn::training::internal::PairwiseDistanceType::chebychev;
-    //     daal_parameter.minkowskiDegree = 0.0;
-    // }
+    auto distance_impl = detail::get_distance_impl(desc);
+    if (!distance_impl ) {
+        throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
+    }
+
+    daal_parameter.pairwiseDistance = distance_impl->get_daal_distance_type();
+    daal_parameter.minkowskiDegree = distance_impl->get_degree();
+
+    const auto daal_voting_mode = convert_to_daal_bf_voting_mode(desc.get_voting_mode());
+    daal_parameter.voteWeights = daal_voting_mode;
 
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(
         ctx,

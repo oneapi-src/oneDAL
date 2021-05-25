@@ -37,8 +37,6 @@ using namespace daal::data_management;
 
 enum class PairwiseDistanceType
 {
-    mannhattan,
-    euclidean,
     minkowski,
     chebychev
 };
@@ -46,7 +44,7 @@ enum class PairwiseDistanceType
 struct KernelParameter : bf_knn_classification::Parameter
 {
     bf_knn_classification::VoteWeights voteWeights = bf_knn_classification::VoteWeights::voteUniform;
-    PairwiseDistanceType pairwiseDistance          = PairwiseDistanceType::euclidean;
+    PairwiseDistanceType pairwiseDistance          = PairwiseDistanceType::minkowski;
     double minkowskiDegree                         = 2.0;
 };
 

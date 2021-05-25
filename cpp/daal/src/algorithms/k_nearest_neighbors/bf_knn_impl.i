@@ -59,7 +59,8 @@ public:
     services::Status kNeighbors(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
                                 DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
                                 const NumericTable * trainLabelTable, NumericTable * testLabelTable, NumericTable * indicesTable,
-                                NumericTable * distancesTable)
+                                NumericTable * distancesTable, bf_knn_classification::prediction::internal::PairwiseDistanceType pairwiseDistance,
+                                double minkowskiDegree)
     {
         const size_t nDims  = trainTable->getNumberOfColumns();
         const size_t nTrain = trainTable->getNumberOfRows();
@@ -75,6 +76,7 @@ public:
             trainLabel = trainLabelBlock.getBlockPtr();
             DAAL_CHECK_MALLOC(trainLabel);
         }
+
 
         daal::algorithms::internal::MinkowskiDistances<FPType, cpu> euclDist(*testTable, *trainTable, true);
         // daal::algorithms::internal::ChebychevDistances<FPType, cpu> euclDist(*testTable, *trainTable);

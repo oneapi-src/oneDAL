@@ -64,18 +64,7 @@ template <typename algorithmFpType, training::Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 {
     services::Status status;
-    const bf_knn_classification::Parameter * const par = static_cast<bf_knn_classification::Parameter *>(_par);
-
-    internal::KernelParameter kernelPar;
-
-    kernelPar.nClasses = par->nClasses;
-    kernelPar.k = par->k;
-    kernelPar.dataUseInModel = par->dataUseInModel;
-    kernelPar.resultsToCompute = par->resultsToCompute;
-    kernelPar.voteWeights = par->voteWeights;
-    kernelPar.engine = par->engine->clone();
-    kernelPar.resultsToEvaluate = par->resultsToEvaluate;
-
+    const bf_knn_classification::Parameter * const par         = static_cast<bf_knn_classification::Parameter *>(_par);
     const bf_knn_classification::training::Input * const input = static_cast<bf_knn_classification::training::Input *>(_in);
     Result * const result                                      = static_cast<Result *>(_res);
 
@@ -85,9 +74,9 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    const bool copy = (kernelPar.dataUseInModel == doNotUse);
+    const bool copy = (par->dataUseInModel == doNotUse);
     status |= r->impl()->setData<algorithmFpType>(x, copy);
-    if ((kernelPar.resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) != 0)
+    if ((par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels) != 0)
     {
         const NumericTablePtr y = input->get(classifier::training::labels);
         status |= r->impl()->setLabels<algorithmFpType>(y, copy);
@@ -100,12 +89,12 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     if (deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::KNNClassificationTrainKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, r->impl()->getData().get(),
-                           r->impl()->getLabels().get(), r.get(), kernelPar, *kernelPar.engine);
+                           r->impl()->getLabels().get(), r.get(), *par, *par->engine);
     }
     else
     {
         __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationTrainKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute,
-                                r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), kernelPar, *kernelPar.engine);
+                                r->impl()->getData().get(), r->impl()->getLabels().get(), r.get(), *par, *par->engine);
     }
 }
 
