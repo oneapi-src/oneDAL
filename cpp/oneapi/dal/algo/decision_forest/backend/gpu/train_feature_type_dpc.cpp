@@ -185,7 +185,7 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
             bin_count++;
         }
     }
-    bin_borders_nd_device = bin_borders_nd_host.to_device(queue_);
+    bin_borders_nd_device.assign(queue_, bin_borders_nd_host).wait_and_throw();
 
     auto event = compute_bins(values_nd,
                               indices_nd,
