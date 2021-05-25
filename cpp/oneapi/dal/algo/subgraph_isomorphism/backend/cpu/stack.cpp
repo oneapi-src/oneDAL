@@ -206,6 +206,9 @@ graph_status vertex_stack::push(const std::uint64_t vertex_id) {
             throw dal::host_bad_alloc();
         }
     }
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(ptop >= bottom_);
+    ONEDAL_ASSERT(ptop <= stack_data + stack_size);
     *ptop = vertex_id;
     ptop++;
     return ok;
@@ -213,6 +216,9 @@ graph_status vertex_stack::push(const std::uint64_t vertex_id) {
 
 std::int64_t vertex_stack::pop() {
     if (ptop != nullptr && ptop != bottom_) {
+        ONEDAL_ASSERT(ptop >= bottom_);
+        ONEDAL_ASSERT(ptop <= stack_data + stack_size);
+
         ptop--;
         return *ptop;
     }
@@ -220,6 +226,10 @@ std::int64_t vertex_stack::pop() {
 }
 
 bool vertex_stack::delete_vertex() {
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(ptop >= bottom_);
+    ONEDAL_ASSERT(ptop <= stack_data + stack_size);
+
     ptop -= (ptop != nullptr) && (ptop != bottom_);
     return !(ptop - bottom_);
 }
@@ -248,6 +258,11 @@ graph_status vertex_stack::increase_stack_size() {
     bottom_ = tmp_data;
     stack_data = tmp_data;
     tmp_data = nullptr;
+
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(ptop >= bottom_);
+    ONEDAL_ASSERT(ptop <= stack_data + stack_size);
+
     return ok;
 }
 
@@ -289,13 +304,22 @@ void global_stack::internal_push(dfs_stack& s, std::uint64_t level) {
         decltype(data_)::value_type v(level + 1);
 
         for (std::uint64_t i = 0; i < level; ++i) {
+            ONEDAL_ASSERT(i < s.max_level_size);
             ONEDAL_ASSERT(s.data_by_levels[i].ptop != nullptr);
             ONEDAL_ASSERT(s.data_by_levels[i].ptop != s.data_by_levels[i].bottom_);
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop >= s.data_by_levels[i].bottom_);
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop <=
+                          s.data_by_levels[i].stack_data + s.data_by_levels[i].stack_size);
             v[i] = s.data_by_levels[i].ptop[-1];
         }
 
+        ONEDAL_ASSERT(level < s.max_level_size);
         ONEDAL_ASSERT(s.data_by_levels[level].ptop != nullptr);
+        ONEDAL_ASSERT(s.data_by_levels[level].bottom_ != nullptr);
         ONEDAL_ASSERT(s.data_by_levels[level].ptop != s.data_by_levels[level].bottom_);
+        ONEDAL_ASSERT(s.data_by_levels[i].ptop >= s.data_by_levels[i].bottom_);
+        ONEDAL_ASSERT(s.data_by_levels[i].ptop <=
+                      s.data_by_levels[i].stack_data + s.data_by_levels[i].stack_size);
         v[level] = *(s.data_by_levels[level].bottom_);
 
         lock_type lock(mutex_);
