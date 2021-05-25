@@ -118,6 +118,10 @@ public:
     /// Creates a new ``homogen_table`` instance with zero number of rows and columns.
     homogen_table();
 
+    /// Casts an object of the base table type to a homogen table. If cast is
+    /// not possible, the operation is equivalent to a default constructor call.
+    explicit homogen_table(const table& other);
+
     /// Creates a new ``homogen_table`` instance from externally-defined data block.
     /// Table object owns the data pointer.
     /// The :literal:`data` should point to the ``data_pointer`` memory block.
@@ -214,6 +218,7 @@ private:
     }
 
     explicit homogen_table(detail::homogen_table_iface* impl) : table(impl) {}
+    explicit homogen_table(const detail::shared<detail::homogen_table_iface>& impl) : table(impl) {}
 
     template <typename Policy, typename Data, typename ConstDeleter>
     void init_impl(const Policy& policy,

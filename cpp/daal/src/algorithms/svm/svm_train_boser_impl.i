@@ -546,6 +546,7 @@ inline void SVMTrainTask<algorithmFPType, cpu>::updateFlag(size_t index)
 
     Ii |= HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, alphai, cwi) ? up : free;
     Ii |= HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, alphai, cwi) ? low : free;
+    Ii |= (yi > 0) ? positive : negative;
     _flags[index] = Ii;
 }
 

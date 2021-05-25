@@ -43,6 +43,10 @@ INSTANTIATE(float, method::by_default, task::classification)
 INSTANTIATE(double, method::by_default, task::classification)
 INSTANTIATE(float, method::by_default, task::regression)
 INSTANTIATE(double, method::by_default, task::regression)
+INSTANTIATE(float, method::by_default, task::nu_classification)
+INSTANTIATE(double, method::by_default, task::nu_classification)
+INSTANTIATE(float, method::by_default, task::nu_regression)
+INSTANTIATE(double, method::by_default, task::nu_regression)
 
 } // namespace v1
 } // namespace oneapi::dal::svm::detail
