@@ -32,6 +32,7 @@
 
 namespace oneapi::dal::preview::shortest_paths::detail {
 
+using namespace dal::preview::detail;
 template <typename Method, typename Task, typename Allocator, typename Graph>
 struct traverse_kernel_cpu {
     inline traverse_result<Task> operator()(const dal::detail::host_policy& ctx,
@@ -40,11 +41,12 @@ struct traverse_kernel_cpu {
                                             const Graph& g) const;
 };
 
-template <typename Float, typename Task, typename Graph, typename... Param>
+template <typename Float, typename Task, typename Topology, typename EdgeValues, typename... Param>
 struct shortest_paths {
     traverse_result<Task> operator()(const dal::detail::host_policy& ctx,
                                      const detail::descriptor_base<Task>& desc,
-                                     const Graph& g) const;
+                                     const Topology& t,
+                                     const EdgeValues& vals) const;
 };
 
 template <typename Topology, typename EdgeValue>
@@ -77,18 +79,6 @@ bool find_next_bin_index(std::int64_t& curr_bin_index,
                          const std::vector<std::vector<std::vector<T>>>& local_bins) {
     const std::int64_t kMaxBin = std::numeric_limits<std::int64_t>::max() / 2;
     bool is_queue_empty = true;
-    /*
-    for (const auto &local_bins_id : local_bins) {
-      for (std::int64_t i = curr_bin_index; i < local_bins_id.size(); i++) {
-          if (!local_bins_id[i].empty()) {
-              curr_bin_index = std::min(kMaxBin, i);
-              is_queue_empty = false;
-              break;
-          }
-      }
-  }
-*/
-    // curr_bin_index = kMaxBin;
 
     auto total = oneapi::dal::detail::parallel_reduce_int32_int64_t(
         (std::int64_t)local_bins.size(),
@@ -119,7 +109,7 @@ bool find_next_bin_index(std::int64_t& curr_bin_index,
 template <typename T>
 std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
                                   std::vector<std::vector<std::vector<T>>>& local_bins,
-                                  std::vector<T>& frontier) {
+                                  vector_container<T>& frontier) {
     const std::int64_t kBinSizeThreshold = 1000;
     std::atomic<std::int64_t> curr_frontier_tail = 0;
     dal::detail::threader_for(local_bins.size(), local_bins.size(), [&](std::int64_t i) {
@@ -129,7 +119,7 @@ std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
                 curr_frontier_tail.fetch_add(local_bins[thread_id][curr_bin_index].size());
             std::copy(local_bins[thread_id][curr_bin_index].begin(),
                       local_bins[thread_id][curr_bin_index].end(),
-                      frontier.data() + copy_start);
+                      frontier.get_mutable_data() + copy_start);
             local_bins[thread_id][curr_bin_index].resize(0);
         }
     });
@@ -170,7 +160,7 @@ struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, 
         });
         dist[source].store(0);
 
-        std::vector<vertex_type> frontier(t.get_edge_count());
+        vector_container<vertex_type> frontier(t.get_edge_count());
 
         frontier[0] = source;
         std::int64_t curr_bin_index = 0;

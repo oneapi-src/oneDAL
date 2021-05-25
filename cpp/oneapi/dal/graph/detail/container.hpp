@@ -85,6 +85,10 @@ public:
         impl_->reset(data_ptr, capacity_, empty_delete{});
     }
 
+    vector_container(int64_t count) : vector_container() {
+        this->resize(count);
+    }
+
     vector_container(const allocator_type& a) : impl_(new impl_t()), allocator_(a) {
         T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
         impl_->reset(data_ptr, capacity_, empty_delete{});
