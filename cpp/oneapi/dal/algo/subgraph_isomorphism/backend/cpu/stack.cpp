@@ -201,7 +201,9 @@ vertex_stack::~vertex_stack() {
 }
 
 graph_status vertex_stack::push(const std::uint64_t vertex_id) {
-    if (size() >= stack_size) {
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(stack_data != nullptr);
+    if (ptop - stack_data >= stack_size) {
         if (increase_stack_size() != ok) {
             throw dal::host_bad_alloc();
         }
