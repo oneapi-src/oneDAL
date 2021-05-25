@@ -301,9 +301,6 @@ void global_stack::pop(dfs_stack& s) {
 }
 
 void global_stack::internal_push(dfs_stack& s, std::uint64_t level) {
-    // Temporary
-    static std::mutex m;
-
     // Collect state and push back
     {
         decltype(data_)::value_type v(level + 1);
@@ -318,24 +315,6 @@ void global_stack::internal_push(dfs_stack& s, std::uint64_t level) {
             v[i] = s.data_by_levels[i].ptop[-1];
         }
 
-        // Temporary
-        if (!(s.data_by_levels[level].ptop <=
-              s.data_by_levels[level].stack_data + s.data_by_levels[level].stack_size)) {
-            const std::scoped_lock<std::mutex> lock(m);
-            std::cout << "[global_stack::internal_push] this = " << (const void*)this << std::endl;
-            std::cout << "[global_stack::internal_push] level = " << level << std::endl;
-            std::cout << "[global_stack::internal_push] s.max_level_size = " << s.max_level_size
-                      << std::endl;
-            std::cout << "[global_stack::internal_push] s.data_by_levels[level].ptop = "
-                      << (const void*)s.data_by_levels[level].ptop << std::endl;
-            std::cout << "[global_stack::internal_push] s.data_by_levels[level].bottom_ = "
-                      << (const void*)s.data_by_levels[level].bottom_ << std::endl;
-            std::cout << "[global_stack::internal_push] s.data_by_levels[level].stack_data = "
-                      << (const void*)s.data_by_levels[level].stack_data << std::endl;
-
-            std::cout << "[global_stack::internal_push] s.data_by_levels[level].stack_size = "
-                      << s.data_by_levels[level].stack_size << std::endl;
-        }
         ONEDAL_ASSERT(level < s.max_level_size);
         ONEDAL_ASSERT(s.data_by_levels[level].ptop != nullptr);
         ONEDAL_ASSERT(s.data_by_levels[level].bottom_ != nullptr);
