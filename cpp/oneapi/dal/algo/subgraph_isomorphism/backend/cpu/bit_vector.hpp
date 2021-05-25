@@ -20,6 +20,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector_popcount.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
@@ -28,21 +29,6 @@ namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 template <typename Cpu>
 class bit_vector {
 public:
-    // precomputed count of ones in a number from 0 to 255
-    // e.g. bit_set_table[2] = 1, because of 2 is 0x00000010 contains 1 one
-    // e.g. bit_set_table[7] = 3, because of 7 is 0x00000111 contains only
-    static constexpr std::uint8_t bit_set_table[256] = {
-        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3,
-        4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4,
-        4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4,
-        5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5,
-        4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2,
-        3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5,
-        5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4,
-        5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6,
-        4, 5, 5, 6, 5, 6, 6, 7, 4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
-    };
-
     static constexpr std::int64_t byte(std::int64_t x) {
         return x >> 3;
     };
@@ -166,8 +152,8 @@ void and_equal(std::uint8_t* vec,
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
         tmp_array[counter] = bit_index[i];
-        counter += bit_vector<Cpu>::bit_set_table[vec[bit_vector<Cpu>::byte(bit_index[i])] &
-                                                  bit_vector<Cpu>::bit(bit_index[i])];
+        counter += precomputed_popcount(vec[bit_vector<Cpu>::byte(bit_index[i])] &
+                                        bit_vector<Cpu>::bit(bit_index[i]));
     }
 
     set<Cpu>(vec, bit_size, 0x0);
@@ -437,7 +423,7 @@ bit_vector<Cpu>& bit_vector<Cpu>::and_equal(const std::int64_t* bit_index,
     std::int64_t counter = 0;
     for (std::int64_t i = 0; i < list_size; i++) {
         tmp_array[counter] = bit_index[i];
-        counter += bit_set_table[vector[byte(bit_index[i])] & bit(bit_index[i])];
+        counter += precomputed_popcount(vector[byte(bit_index[i])] & bit(bit_index[i]));
     }
 
     this->set(0x0);
@@ -470,7 +456,7 @@ std::int64_t bit_vector<Cpu>::get_bit_index(const std::int64_t vector_size,
     std::int64_t result = 0;
 
     for (std::int64_t i = 0; i < nbyte; i++)
-        result += bit_vector<Cpu>::bit_set_table[vector[i]];
+        result += precomputed_popcount(vector[i]);
 
     std::uint8_t checkbyte = vector[nbyte];
     for (std::uint8_t i = 0; i < bit; i++) {
@@ -488,7 +474,7 @@ std::int64_t bit_vector<Cpu>::popcount(const std::int64_t vector_size, const std
 
     std::int64_t result = 0;
     for (std::int64_t i = 0; i < vector_size; i++) {
-        result += bit_vector<Cpu>::bit_set_table[vector[i]];
+        result += precomputed_popcount(vector[i]);
     }
 
     return result;

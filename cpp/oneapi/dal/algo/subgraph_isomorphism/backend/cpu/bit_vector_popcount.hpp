@@ -14,15 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/debug.hpp"
+#pragma once
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
-void ___PR8___(const std::uint8_t* arr, int n) {
-    for (int i = 0; i < n; i++) {
-        std::bitset<8> x(arr[i]);
-        std::cout << x;
-        std::cout << std::endl;
-    }
-}
+
+std::uint8_t precomputed_popcount(std::int64_t i);
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

@@ -19,8 +19,6 @@
 #include <algorithm>
 #include <atomic>
 #include <fstream>
-#include <set>
-#include <vector>
 
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -31,7 +29,6 @@
 #include "oneapi/dal/io/common.hpp"
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph_descriptor.hpp"
-#include "oneapi/dal/graph/service_functions.hpp"
 
 namespace oneapi::dal::preview::load_graph::detail {
 
@@ -397,6 +394,7 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                             get_edges_count<Graph>{}(total_sum_degrees),
                             edge_offsets_data,
                             vertex_neighbors,
+                            total_sum_degrees,
                             degrees_data);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
@@ -536,6 +534,7 @@ void convert_to_csr_impl(
                             get_edges_count<Graph>{}(total_sum_degrees),
                             edge_offsets_data,
                             vertex_neighbors,
+                            total_sum_degrees,
                             degrees_data);
     graph_impl.set_edge_values(vals, get_edges_count<Graph>{}(total_sum_degrees));
 
@@ -571,5 +570,4 @@ output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data
     convert_to_csr_impl(elist, graph);
     return graph;
 }
-
 } // namespace oneapi::dal::preview::load_graph::detail

@@ -16,29 +16,27 @@
 
 #pragma once
 
-#include <bitset>
-#include <cstdint>
-#include <iostream>
+#include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+namespace oneapi::dal::detail {
+namespace v1 {
 
+/// Type of csr indexing, currently it's implemented only `one_based` indexing.
+enum class csr_indexing { zero_based, one_based };
+
+/// @tparam T The type of data values in block.
+///           CSR block supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
 template <typename T>
-void pr(char* msg, const T& val) {
-    std::cout << msg << " " << val << std::endl;
-}
+struct csr_block {
+    array<T> data;
+    array<std::int64_t> column_indices;
+    array<std::int64_t> row_indices;
 
-#define ___PR___(x) pr(#x, x);
+    csr_block() : data(), column_indices(), row_indices() {}
+};
+} // namespace v1
 
-void ___PR8___(const std::uint8_t* arr, int n);
+using v1::csr_block;
+using v1::csr_indexing;
 
-template <typename T>
-void pr(char* msg, const T* arr, int n) {
-    std::cout << msg << "[" << n << "] : ";
-    for (int i = 0; i < n; i++) {
-        std::cout << arr[i] << " ";
-    }
-    std::cout << std::endl;
-}
-#define ___PR_ARR___(x, n) pr(#x, x, n);
-
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+} // namespace oneapi::dal::detail

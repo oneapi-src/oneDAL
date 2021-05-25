@@ -120,7 +120,7 @@ public:
             rows[i] = graph_data.rows[i];
             rows_vertex[i] = graph_data.rows[i];
         }
-        graph_impl.set_topology(vertex_count, edge_count, rows, cols, degrees);
+        graph_impl.set_topology(vertex_count, edge_count, rows, cols, cols_count, degrees);
         graph_impl.get_topology()._rows_vertex =
             oneapi::dal::preview::detail::container<std::int32_t>::wrap(rows_vertex, rows_count);
         return my_graph;
