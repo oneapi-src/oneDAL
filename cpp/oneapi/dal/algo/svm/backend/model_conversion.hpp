@@ -52,11 +52,8 @@ struct daal_model_builder : public daal::algorithms::svm::Model {
 
 template <typename Task, typename Float>
 inline auto convert_from_daal_model(daal_svm::Model& daal_model) {
-    bool is_sparse{ daal_model.getSupportVectors()->getDataLayout() ==
-                    daal::data_management::NumericTableIface::StorageLayout::csrArray };
     auto table_support_vectors =
-        is_sparse ? interop::convert_from_daal_csr_table<Float>(daal_model.getSupportVectors())
-                  : interop::convert_from_daal_homogen_table<Float>(daal_model.getSupportVectors());
+        interop::convert_from_daal_table<Float>(daal_model.getSupportVectors());
     auto table_classification_coeffs =
         interop::convert_from_daal_homogen_table<Float>(daal_model.getClassificationCoefficients());
     const double bias = daal_model.getBias();
@@ -92,13 +89,9 @@ inline auto convert_from_daal_multiclass_model(
     auto table_biases = interop::convert_from_daal_homogen_table<Float>(daal_model->getBiases());
     auto table_coeffs =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getCoefficients());
-
-    bool is_sparse{ daal_model->getSupportVectors()->getDataLayout() ==
-                    daal::data_management::NumericTableIface::StorageLayout::csrArray };
     auto table_support_vectors =
-        is_sparse
-            ? interop::convert_from_daal_csr_table<Float>(daal_model->getSupportVectors())
-            : interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportVectors());
+        interop::convert_from_daal_table<Float>(daal_model->getSupportVectors());
+
     return dal::svm::model<Task>()
         .set_support_vectors(table_support_vectors)
         .set_coeffs(table_coeffs)

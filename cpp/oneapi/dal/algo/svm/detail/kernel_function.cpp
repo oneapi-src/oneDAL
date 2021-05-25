@@ -41,14 +41,14 @@ public:
 
     daal_kf_t get_daal_kernel_function(bool is_dense) override {
         if (is_dense) {
-            constexpr daal_linear_kernel::Method daal_method = get_daal_method(true);
+            constexpr daal_linear_kernel::Method daal_method = get_daal_dense_method();
             auto alg = new daal_linear_kernel::Batch<Float, daal_method>;
             alg->parameter.k = scale_;
             alg->parameter.b = shift_;
             return daal_kf_t(alg);
         }
         else {
-            constexpr daal_linear_kernel::Method daal_method = get_daal_method(false);
+            constexpr daal_linear_kernel::Method daal_method = get_daal_csr_method();
             auto alg = new daal_linear_kernel::Batch<Float, daal_method>;
             alg->parameter.k = scale_;
             alg->parameter.b = shift_;
@@ -57,13 +57,12 @@ public:
     }
 
 private:
-    static constexpr daal_linear_kernel::Method get_daal_method(bool is_dense) {
-        if (is_dense) {
-            return daal_linear_kernel::Method::defaultDense;
-        }
-        else {
-            return daal_linear_kernel::Method::fastCSR;
-        }
+    static constexpr daal_linear_kernel::Method get_daal_dense_method() {
+        return daal_linear_kernel::Method::defaultDense;
+    }
+
+    static constexpr daal_linear_kernel::Method get_daal_csr_method() {
+        return daal_linear_kernel::Method::fastCSR;
     }
 
     double scale_;
@@ -80,7 +79,7 @@ public:
 
     daal_kf_t get_daal_kernel_function(bool is_dense) override {
         if (is_dense) {
-            constexpr daal_polynomial_kernel::Method daal_method = get_daal_method(true);
+            constexpr daal_polynomial_kernel::Method daal_method = get_daal_dense_method();
             auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
@@ -88,7 +87,7 @@ public:
             return daal_kf_t(alg);
         }
         else {
-            constexpr daal_polynomial_kernel::Method daal_method = get_daal_method(false);
+            constexpr daal_polynomial_kernel::Method daal_method = get_daal_csr_method();
             auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
@@ -98,13 +97,12 @@ public:
     }
 
 private:
-    static constexpr daal_polynomial_kernel::Method get_daal_method(bool is_dense) {
-        if (is_dense) {
-            return daal_polynomial_kernel::Method::defaultDense;
-        }
-        else {
-            return daal_polynomial_kernel::Method::fastCSR;
-        }
+    static constexpr daal_polynomial_kernel::Method get_daal_dense_method() {
+        return daal_polynomial_kernel::Method::defaultDense;
+    }
+
+    static constexpr daal_polynomial_kernel::Method get_daal_csr_method() {
+        return daal_polynomial_kernel::Method::fastCSR;
     }
 
     double scale_;
@@ -119,13 +117,13 @@ public:
 
     daal_kf_t get_daal_kernel_function(bool is_dense) override {
         if (is_dense) {
-            constexpr daal_rbf_kernel::Method daal_method = get_daal_method(true);
+            constexpr daal_rbf_kernel::Method daal_method = get_daal_dense_method();
             auto alg = new daal_rbf_kernel::Batch<Float, daal_method>;
             alg->parameter.sigma = sigma_;
             return daal_kf_t(alg);
         }
         else {
-            constexpr daal_rbf_kernel::Method daal_method = get_daal_method(false);
+            constexpr daal_rbf_kernel::Method daal_method = get_daal_csr_method();
             auto alg = new daal_rbf_kernel::Batch<Float, daal_method>;
             alg->parameter.sigma = sigma_;
             return daal_kf_t(alg);
@@ -133,13 +131,11 @@ public:
     }
 
 private:
-    static constexpr daal_rbf_kernel::Method get_daal_method(bool is_dense) {
-        if (is_dense) {
-            return daal_rbf_kernel::Method::defaultDense;
-        }
-        else {
-            return daal_rbf_kernel::Method::fastCSR;
-        }
+    static constexpr daal_rbf_kernel::Method get_daal_dense_method() {
+        return daal_rbf_kernel::Method::defaultDense;
+    }
+    static constexpr daal_rbf_kernel::Method get_daal_csr_method() {
+        return daal_rbf_kernel::Method::fastCSR;
     }
 
     double sigma_;
