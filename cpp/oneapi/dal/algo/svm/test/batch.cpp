@@ -198,8 +198,14 @@ public:
         const auto [support_vectors, support_indices, coeffs] = unpack_result(result);
 
         INFO("check if there is no NaN in support_vectors")
-        REQUIRE(te::has_no_nans(support_vectors));
-
+        if (support_vectors.get_kind() == dal::detail::csr_table::kind()) {
+            const auto& csr = static_cast<const dal::detail::csr_table&>(support_vectors);
+            REQUIRE(te::has_no_nans(
+                array<double>::wrap(csr.get_data<double>(), csr.get_non_zero_count())));
+        }
+        else {
+            REQUIRE(te::has_no_nans(support_vectors));
+        }
         INFO("check if there is no NaN in support_indices")
         REQUIRE(te::has_no_nans(support_indices));
 
@@ -385,19 +391,17 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     constexpr std::int64_t row_count_train = 6;
     constexpr std::int64_t column_count = 2;
+    constexpr std::int64_t element_count_train = row_count_train * column_count;
 
     float data[] = { -2.0, -1.0, -1.0, -1.0, -1.0, -2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0 };
     std::int64_t column_indices[] = { 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2 };
     std::int64_t row_indices[] = { 1, 3, 5, 7, 9, 11, 13 };
 
-    dal::detail::csr_table x{ data,
-                              column_indices,
-                              row_indices,
-                              column_count,
+    dal::detail::csr_table x{ array<float>::wrap(data, element_count_train),
+                              array<std::int64_t>::wrap(column_indices, element_count_train),
+                              array<std::int64_t>::wrap(row_indices, row_count_train + 1),
                               row_count_train,
-                              dal::detail::empty_delete<const float>(),
-                              dal::detail::empty_delete<const std::int64_t>(),
-                              dal::detail::empty_delete<const std::int64_t>() };
+                              column_count };
 
     constexpr std::array<float_t, row_count_train> y_data = {
         -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,

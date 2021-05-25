@@ -158,11 +158,11 @@ void pull_csr_block_impl(const Policy& policy,
         origin_row_indices[block_info.row_offset_];
     ONEDAL_ASSERT(block_size >= 0);
 
-    const bool same_type(block_dtype == origin_info.dtype_);
+    const bool same_data_type(block_dtype == origin_info.dtype_);
     pull_data_impl<Policy, BlockData>(policy,
                                       origin_info,
                                       origin_data,
-                                      same_type,
+                                      same_data_type,
                                       origin_offset,
                                       block_size,
                                       block,

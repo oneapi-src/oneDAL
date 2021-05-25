@@ -114,7 +114,7 @@ TEST("can read csr table via csr accessor with conversion") {
     }
 }
 
-TEST("conver csr table from dal to daal") {
+/*TEST("conver csr table from dal to daal") {
     using oneapi::dal::detail::empty_delete;
 
     double data[] = { 1.0, 2.0, 3.0, 4.0, 1.0, 11.0, 8.0 };
@@ -193,6 +193,6 @@ TEST("conver csr table from daal to dal") {
     for (std::int64_t i = 0; i < csr_block.row_indices.get_count(); i++) {
         REQUIRE(row_indices[i] == static_cast<std::size_t>(csr_block.row_indices[i]));
     }
-}
+}*/
 
 } // namespace oneapi::dal::detail
