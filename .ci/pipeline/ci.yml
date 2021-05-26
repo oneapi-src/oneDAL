@@ -35,7 +35,7 @@ jobs:
   pool:
     vmImage: 'ubuntu-20.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
+  - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --target daal
@@ -184,7 +184,7 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
-  - script: sudo apt-get update && sudo apt-get install gcc g++
+  - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib
     displayName: 'apt-get'
   - script: |
         .ci/env/oneapi.sh dpcpp
@@ -205,7 +205,6 @@ jobs:
       source ${DALROOT}/env/vars.sh
       cd daal4py
       export NO_DIST=1
-      export DAAL4PY_VERSION=2021.3
       export PYTHON=python
       ./conda-recipe/build.sh
     displayName: daal4py build
@@ -251,27 +250,27 @@ jobs:
       artifactName: '$(platform.type) conformance tests report'
       targetPath: '$(Build.ArtifactStagingDirectory)/'
 
-- job: 'macOSMake'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_mac_clang'
-    platform.type : 'mac32e'
-  pool:
-    vmImage:  'macOS-10.15'
-  steps:
-  - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
-    displayName: 'make oneapi_c'
-  - script: |
-      cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
-    displayName: 'Copy build'
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'Mac build'
-      targetPath: '$(release.dir)'
+# - job: 'macOSMake'
+#   timeoutInMinutes: 0
+#   variables:
+#     release.dir: '__release_mac_clang'
+#     platform.type : 'mac32e'
+#   pool:
+#     vmImage:  'macOS-10.15'
+#   steps:
+#   - script: |
+#       .ci/scripts/build.sh --platform $(platform.type) --target daal
+#     displayName: 'make daal'
+#   - script: |
+#       .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+#     displayName: 'make oneapi_c'
+#   - script: |
+#       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
+#     displayName: 'Copy build'
+#   - task: PublishPipelineArtifact@0
+#     inputs:
+#       artifactName: 'Mac build'
+#       targetPath: '$(release.dir)'
 
 #- job: Windows
 #  timeoutInMinutes: 0
