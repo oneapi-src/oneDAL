@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the input and output for Shortest Paths
+/// Contains the definition of the input and output for the Shortest Paths
 /// algorithm
 
 #pragma once
