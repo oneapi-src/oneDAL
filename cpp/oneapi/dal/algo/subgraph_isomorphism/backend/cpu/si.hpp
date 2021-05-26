@@ -28,12 +28,12 @@ namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 using namespace oneapi::dal::preview::subgraph_isomorphism::backend;
 
 template <typename Cpu>
-solution si(const graph<Cpu>& pattern,
-            const graph<Cpu>& target,
-            kind isomorphism_kind,
-            detail::byte_alloc_iface* alloc_ptr) {
+solution<Cpu> si(const graph<Cpu>& pattern,
+                 const graph<Cpu>& target,
+                 kind isomorphism_kind,
+                 detail::byte_alloc_iface* alloc_ptr) {
     inner_alloc local_allocator(alloc_ptr);
-    solution sol(local_allocator);
+    solution<Cpu> sol(local_allocator);
     sorter<Cpu> sorter_graph(&target, local_allocator);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
     auto pattern_vertex_probability =
@@ -103,7 +103,7 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
         pattern.load_vertex_attribute(p_vertex_count, vv_p);
     }
 
-    solution results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
+    solution<Cpu> results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
 
     return graph_matching_result(results.export_as_table(), results.get_solution_count());
 }

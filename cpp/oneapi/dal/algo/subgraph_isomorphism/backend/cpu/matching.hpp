@@ -23,7 +23,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
@@ -50,24 +49,24 @@ public:
                     kind isomorphism_kind,
                     inner_alloc allocator);
     matching_engine(const matching_engine& _matching_engine,
-                    stack& _local_stack,
+                    stack<Cpu>& _local_stack,
                     inner_alloc allocator);
     virtual ~matching_engine();
 
-    solution run(bool main_engine = false);
+    solution<Cpu> run(bool main_engine = false);
     void run_and_wait(bool main_engine = false);
-    solution get_solution();
+    solution<Cpu> get_solution();
 
-    std::int64_t state_exploration_bit(state* current_state, bool check_solution = true);
-    std::int64_t state_exploration_list(state* current_state, bool check_solution = true);
+    std::int64_t state_exploration_bit(state<Cpu>* current_state, bool check_solution = true);
+    std::int64_t state_exploration_list(state<Cpu>* current_state, bool check_solution = true);
 
     std::int64_t state_exploration_bit(bool check_solution = true);
     std::int64_t state_exploration_list(bool check_solution = true);
 
-    std::int64_t first_states_generator(stack& stack);
-    std::int64_t first_states_generator(dfs_stack& stack);
+    std::int64_t first_states_generator(stack<Cpu>& stack);
+    std::int64_t first_states_generator(dfs_stack<Cpu>& stack);
 
-    void push_into_stack(state* _state);
+    void push_into_stack(state<Cpu>* _state);
     void push_into_stack(const std::int64_t vertex_id);
     bool match_vertex(const std::int64_t pattern_vertex, const std::int64_t target_vertex) const;
     bool check_vertex_candidate(const std::int64_t pattern_vertex,
@@ -89,14 +88,16 @@ public:
 
     std::uint8_t* pstart_byte;
 
-    stack local_stack;
-    dfs_stack hlocal_stack;
-    solution engine_solutions;
+    stack<Cpu> local_stack;
+    dfs_stack<Cpu> hlocal_stack;
+    solution<Cpu> engine_solutions;
 
     kind isomorphism_kind_;
 
-    std::int64_t extract_candidates(state* current_state, bool check_solution);
-    bool check_vertex_candidate(state* current_state, bool check_solution, std::int64_t candidate);
+    std::int64_t extract_candidates(state<Cpu>* current_state, bool check_solution);
+    bool check_vertex_candidate(state<Cpu>* current_state,
+                                bool check_solution,
+                                std::int64_t candidate);
 
     std::int64_t extract_candidates(bool check_solution);
     bool check_vertex_candidate(bool check_solution, std::int64_t candidate);
@@ -105,7 +106,7 @@ public:
 template <typename Cpu>
 class engine_bundle {
 public:
-    stack exploration_stack;
+    stack<Cpu> exploration_stack;
     engine_bundle(const graph<Cpu>* ppattern,
                   const graph<Cpu>* ptarget,
                   const std::int64_t* psorted_pattern_vertex,
@@ -116,7 +117,7 @@ public:
                   kind isomorphism_kind,
                   inner_alloc allocator);
     virtual ~engine_bundle();
-    solution run();
+    solution<Cpu> run();
 
     inner_alloc allocator_;
     const graph<Cpu>* pattern;
@@ -128,7 +129,7 @@ public:
     const float* pattern_vertex_probability;
     kind isomorphism_kind_;
 
-    solution bundle_solutions;
+    solution<Cpu> bundle_solutions;
 
     typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
     bundle matching_bundle;
@@ -197,7 +198,7 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
 
 template <typename Cpu>
 matching_engine<Cpu>::matching_engine(const matching_engine& _matching_engine,
-                                      stack& _local_stack,
+                                      stack<Cpu>& _local_stack,
                                       inner_alloc allocator)
         : matching_engine(_matching_engine.pattern,
                           _matching_engine.target,
@@ -211,7 +212,7 @@ matching_engine<Cpu>::matching_engine(const matching_engine& _matching_engine,
 }
 
 template <typename Cpu>
-std::int64_t matching_engine<Cpu>::state_exploration_bit(state* current_state,
+std::int64_t matching_engine<Cpu>::state_exploration_bit(state<Cpu>* current_state,
                                                          bool check_solution) {
     const std::int64_t i_cc = current_state->core_length - 1;
     const std::int64_t divider = pconsistent_conditions[i_cc].divider;
@@ -316,11 +317,11 @@ bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int6
             std::int64_t* solution_core = allocator_.allocate<std::int64_t>(solution_length);
             if (solution_core != nullptr) {
                 hlocal_stack.fill_solution(solution_core, candidate);
-                engine_solutions.add(&solution_core); /* add new state into solution */
+                engine_solutions.add(&solution_core); /* add new state<Cpu>* into solution<Cpu> */
             }
         }
         else {
-            hlocal_stack.push_into_next_level(candidate); /* add new state into local_stack */
+            hlocal_stack.push_into_next_level(candidate); /* add new state<Cpu>* into local_stack */
         }
         return true;
     }
@@ -328,7 +329,7 @@ bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int6
 }
 
 template <typename Cpu>
-std::int64_t matching_engine<Cpu>::state_exploration_list(state* current_state,
+std::int64_t matching_engine<Cpu>::state_exploration_list(state<Cpu>* current_state,
                                                           bool check_solution) {
     std::int64_t divider = pconsistent_conditions[current_state->core_length - 1].divider;
 
@@ -403,7 +404,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
 }
 
 template <typename Cpu>
-void matching_engine<Cpu>::push_into_stack(state* _state) {
+void matching_engine<Cpu>::push_into_stack(state<Cpu>* _state) {
     local_stack.push(_state);
 }
 
@@ -413,16 +414,16 @@ void matching_engine<Cpu>::push_into_stack(const std::int64_t vertex_id) {
 }
 
 template <typename Cpu>
-std::int64_t matching_engine<Cpu>::first_states_generator(stack& stack) {
-    state null_state(allocator_);
+std::int64_t matching_engine<Cpu>::first_states_generator(stack<Cpu>& stack) {
+    state<Cpu> null_state(allocator_);
     std::int64_t candidates_count = 0;
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
     for (std::int64_t i = 0; i < target->get_vertex_count(); i++) {
         if (degree <= target->get_vertex_degree(i) &&
             pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                 target->get_vertex_attribute(i)) {
-            void* place = (void*)allocator_.allocate<state>(1);
-            state* new_state = new (place) state(&null_state, i, allocator_);
+            void* place = (void*)allocator_.allocate<state<Cpu>>(1);
+            state<Cpu>* new_state = new (place) state<Cpu>(&null_state, i, allocator_);
             stack.push(new_state);
             candidates_count++;
         }
@@ -432,7 +433,7 @@ std::int64_t matching_engine<Cpu>::first_states_generator(stack& stack) {
 }
 
 template <typename Cpu>
-std::int64_t matching_engine<Cpu>::first_states_generator(dfs_stack& stack) {
+std::int64_t matching_engine<Cpu>::first_states_generator(dfs_stack<Cpu>& stack) {
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
     for (std::int64_t i = 0; i < target->get_vertex_count(); i++) {
         if (degree <= target->get_vertex_degree(i) &&
@@ -446,7 +447,8 @@ std::int64_t matching_engine<Cpu>::first_states_generator(dfs_stack& stack) {
 }
 
 template <typename Cpu>
-std::int64_t matching_engine<Cpu>::extract_candidates(state* current_state, bool check_solution) {
+std::int64_t matching_engine<Cpu>::extract_candidates(state<Cpu>* current_state,
+                                                      bool check_solution) {
     std::int64_t feasible_result_count = 0;
 
     std::int64_t size_in_dword = vertex_candidates.size() >> 3;
@@ -479,28 +481,28 @@ template <typename Cpu>
 bool matching_engine<Cpu>::check_vertex_candidate(const std::int64_t pattern_vertex,
                                                   const std::int64_t target_vertex) {
     if (match_vertex(pattern_vertex, target_vertex)) {
-        state null_state(allocator_);
-        void* place = (void*)allocator_.allocate<state>(1);
-        state* new_state = new (place) state(&null_state, target_vertex, allocator_);
-        local_stack.push(new_state); /* add new state into local_stack */
+        state<Cpu> null_state(allocator_);
+        void* place = (void*)allocator_.allocate<state<Cpu>>(1);
+        state<Cpu>* new_state = new (place) state<Cpu>(&null_state, target_vertex, allocator_);
+        local_stack.push(new_state); /* add new state<Cpu> into local_stack */
         return true;
     }
     return false;
 }
 
 template <typename Cpu>
-bool matching_engine<Cpu>::check_vertex_candidate(state* current_state,
+bool matching_engine<Cpu>::check_vertex_candidate(state<Cpu>* current_state,
                                                   bool check_solution,
                                                   std::int64_t candidate) {
     if (match_vertex(sorted_pattern_vertex[current_state->core_length], candidate)) {
-        void* place = (void*)allocator_.allocate<state>(1);
-        state* new_state = new (place) state(current_state, candidate, allocator_);
+        void* place = (void*)allocator_.allocate<state<Cpu>>(1);
+        state<Cpu>* new_state = new (place) state<Cpu>(current_state, candidate, allocator_);
 
         if (check_solution && new_state->core_length == solution_length) {
-            engine_solutions.add(new_state); /* add new state into solution */
+            engine_solutions.add(new_state); /* add new state<Cpu>* into solution<Cpu> */
         }
         else {
-            local_stack.push(new_state); /* add new state into local_stack */
+            local_stack.push(new_state); /* add new state<Cpu>* into local_stack */
         }
         return true;
     }
@@ -520,7 +522,7 @@ bool matching_engine<Cpu>::match_vertex(const std::int64_t pattern_vertex,
 }
 
 template <typename Cpu>
-solution matching_engine<Cpu>::get_solution() {
+solution<Cpu> matching_engine<Cpu>::get_solution() {
     return std::move(engine_solutions);
 }
 
@@ -543,7 +545,7 @@ void matching_engine<Cpu>::run_and_wait(bool main_engine) {
 }
 
 template <typename Cpu>
-solution matching_engine<Cpu>::run(bool main_engine) {
+solution<Cpu> matching_engine<Cpu>::run(bool main_engine) {
     run_and_wait(main_engine);
     return std::move(engine_solutions);
 }
@@ -570,7 +572,8 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
     pconsistent_conditions = pcconditions;
     pattern_vertex_probability = ppattern_vertex_probability;
 
-    bundle_solutions = solution(pattern->get_vertex_count(), psorted_pattern_vertex, allocator_);
+    bundle_solutions =
+        solution<Cpu>(pattern->get_vertex_count(), psorted_pattern_vertex, allocator_);
 }
 
 template <typename Cpu>
@@ -584,7 +587,7 @@ engine_bundle<Cpu>::~engine_bundle() {
 }
 
 template <typename Cpu>
-solution engine_bundle<Cpu>::run() {
+solution<Cpu> engine_bundle<Cpu>::run() {
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
     std::uint64_t first_states_count =
@@ -615,7 +618,7 @@ solution engine_bundle<Cpu>::run() {
                                                     allocator_);
     }
 
-    state null_state(allocator_);
+    state<Cpu> null_state(allocator_);
     std::uint64_t task_counter = 0, index = 0;
     for (std::int64_t i = 0; i < target->n; ++i) {
         if (degree <= target->get_vertex_degree(i) &&
@@ -655,13 +658,13 @@ void engine_bundle<Cpu>::first_states_generator(bool use_exploration_stack) {
                                   target->get_vertex_count(),
                                   [=](const int i) {
                                       typename bundle::ptr_t local_engine = matching_bundle.local();
-                                      state null_state(allocator_);
+                                      state<Cpu> null_state(allocator_);
                                       if (degree <= target->get_vertex_degree(i) &&
                                           pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                                               target->get_vertex_attribute(i)) {
-                                          void* place = (void*)allocator_.allocate<state>(1);
-                                          state* new_state =
-                                              new (place) state(&null_state, i, allocator_);
+                                          void* place = (void*)allocator_.allocate<state<Cpu>>(1);
+                                          state<Cpu>* new_state =
+                                              new (place) state<Cpu>(&null_state, i, allocator_);
                                           local_engine->local_stack.push(new_state);
                                       }
                                   });
