@@ -100,6 +100,16 @@ public:
         return array_;
     }
 
+    dataframe_impl* slice(std::int64_t row_offset, std::int64_t row_count) const {
+        ONEDAL_ASSERT(row_offset >= 0);
+        ONEDAL_ASSERT(row_count > 0);
+        ONEDAL_ASSERT(row_offset + row_count <= row_count_);
+
+        const float* data = array_.get_data() + row_offset * column_count_;
+        const auto ary = array<float>{ array_, data, row_count * column_count_ };
+        return new dataframe_impl{ ary, row_count, column_count_ };
+    }
+
     dataframe_impl* copy() const {
         auto array_copy = array<float>::empty(array_.get_count());
         float* array_copy_data = array_copy.get_mutable_data();
@@ -184,6 +194,34 @@ public:
 
     const array<float>& get_array() const {
         return impl_->get_array();
+    }
+
+    dataframe slice(std::int64_t row_offset, std::int64_t row_count) const {
+        return dataframe{ impl_->slice(row_offset, row_count) };
+    }
+
+    std::vector<dataframe> split(std::int64_t fold_count) const {
+        ONEDAL_ASSERT(fold_count >= 0);
+        if (fold_count <= 0) {
+            return {};
+        }
+
+        const std::int64_t regular_row_count = get_row_count() / fold_count;
+
+        std::vector<dataframe> slices;
+        slices.reserve(fold_count);
+
+        for (std::int64_t i = 0; i < fold_count - 1; i++) {
+            slices.push_back(slice(i * regular_row_count, regular_row_count));
+        }
+
+        {
+            const std::int64_t i = fold_count - 1;
+            const std::int64_t tail_row_count = get_row_count() - regular_row_count * i;
+            slices.push_back(slice(i * regular_row_count, tail_row_count));
+        }
+
+        return slices;
     }
 
     template <typename T>

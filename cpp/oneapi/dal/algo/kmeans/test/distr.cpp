@@ -30,6 +30,8 @@ TEST("distributed kmeans on host") {
     auto thread_comm = te::thread_communicator{ thread_count };
     auto host_spmd_policy = dal::detail::spmd_policy{ dal::detail::host_policy{}, thread_comm };
 
+    const auto df = te::dataframe_builder{ 1000, 10 }.fill_normal(-1.2, 5.1).build();
+
     thread_comm.execute([=](std::int64_t rank) {
         const std::int64_t cluster_count = 5;
 
