@@ -83,6 +83,13 @@ MSG(object_does_not_provide_read_access_to_columns,
 MSG(object_does_not_provide_write_access_to_columns,
     "Given object does not provide write access to columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(row_indices_lt_min_value, "Row indices are less than the minimum acceptable value")
+MSG(row_indices_gt_max_value, "Row indices are larger than the maximum acceptable value")
+MSG(column_indices_lt_min_value, "Column indices are less than the minimum acceptable value")
+MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acceptable value")
+MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for csr table")
+MSG(object_does_not_provide_read_access_to_csr,
+    "Given object does not provide read access to the block of csr format")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
@@ -183,12 +190,21 @@ MSG(input_model_support_vectors_cc_neq_input_data_cc,
     "Input model support vectors column count is not equal to input data column count")
 MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count,
     "Support vectors row count is not equal to support vector count in input model")
+MSG(nu_gt_one, "Nu is greater than one")
+MSG(nu_leq_zero, "Nu is lower than or equal to zero")
+MSG(nu_svm_smo_method_is_not_implemented_for_gpu, "nuSVM SMO method is not implemented for GPU")
+MSG(nu_svm_thunder_method_is_not_implemented_for_gpu,
+    "nuSVM Thunder method is not implemented for GPU")
 MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
-MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
-MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
 MSG(svm_multiclass_not_implemented_for_gpu,
     "SVM with multiclass support is not implemented for GPU")
+MSG(svm_nu_classification_task_is_not_implemented_for_gpu,
+    "Classification nuSVM is not implemented for GPU")
+MSG(svm_nu_regression_task_is_not_implemented_for_gpu,
+    "Regression nuSVM is not implemented for GPU")
+MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
+MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")

@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
@@ -33,7 +34,7 @@ public:
                        const array<byte_t>& data,
                        data_type dtype,
                        data_layout layout)
-            : meta_(create_homogen_metadata(column_count, dtype)),
+            : meta_(create_metadata(column_count, dtype)),
               data_(data),
               row_count_(row_count),
               col_count_(column_count),
@@ -136,15 +137,6 @@ public:
     }
 
 private:
-    static table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype) {
-        auto default_ftype =
-            detail::is_floating_point(dtype) ? feature_type::ratio : feature_type::ordinal;
-
-        auto dtypes = array<data_type>::full(feature_count, dtype);
-        auto ftypes = array<feature_type>::full(feature_count, default_ftype);
-        return table_metadata{ dtypes, ftypes };
-    }
-
     homogen_info get_info() const {
         return { row_count_, col_count_, meta_.get_data_type(0), layout_ };
     }
