@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ using namespace dal::preview::shortest_paths;
 int main(int argc, char** argv) {
     const auto filename = get_data_path("weighted_edge_list.csv");
 
-    //read the graph
+    // read the graph
     const dal::preview::graph_csv_data_source ds(filename);
 
     using vertex_type = int32_t;
