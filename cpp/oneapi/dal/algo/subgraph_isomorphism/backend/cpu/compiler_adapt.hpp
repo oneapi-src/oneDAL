@@ -25,9 +25,9 @@
 #endif
 
 constexpr std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
-#if defined(__INTEL_COMPILER)
-    return _lzcnt_u32(a);
-#else
+    // #if defined(__INTEL_COMPILER)
+    //     return _lzcnt_u32(a);
+    // #else
     if (a == 0)
         return 32;
     std::uint32_t one_bit = 0x80000000; // binary: 1000 0000 0000 0000 0000 0000 0000 0000
@@ -37,7 +37,7 @@ constexpr std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
         one_bit >>= 1;
     }
     return bit_pos;
-#endif
+    // #endif
 }
 
 constexpr std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
