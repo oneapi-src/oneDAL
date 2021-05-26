@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <tuple>
+
 #include "oneapi/dal/array.hpp"
 
 #if defined(__INTEL_COMPILER)
@@ -27,6 +29,45 @@
 #endif
 
 namespace oneapi::dal::preview::detail {
+
+template <typename T>
+inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
+    const int64_t count = std::distance(old_begin, old_end);
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
+    for (std::int64_t i = 0; i < count; i++) {
+        new_begin[i] = old_begin[i];
+    }
+}
+
+template <typename T>
+inline void copy(const T& from, T& to) {
+    to = from;
+}
+
+template <typename First, typename Second, typename Third>
+inline void copy(const std::tuple<First, Second, Third>* old_begin,
+                 const std::tuple<First, Second, Third>* old_end,
+                 std::tuple<First, Second, Third>* new_begin) {
+    const int64_t count = std::distance(old_begin, old_end);
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
+    for (std::int64_t i = 0; i < count; i++) {
+        const auto& b = old_begin[i];
+        auto& a = new_begin[i];
+        std::get<0>(a) = std::get<0>(b);
+        std::get<1>(a) = std::get<1>(b);
+        std::get<2>(a) = std::get<2>(b);
+    }
+}
+
+template <typename First, typename Second, typename Third>
+inline void copy(const std::tuple<First, Second, Third>& from,
+                 std::tuple<First, Second, Third>& to) {
+    std::get<0>(to) = std::get<0>(from);
+    std::get<1>(to) = std::get<1>(from);
+    std::get<2>(to) = std::get<2>(from);
+}
 
 template <typename T>
 using container = dal::array<T>;
@@ -104,14 +145,9 @@ public:
         if (new_capacity > capacity_) {
             T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, new_capacity);
             T* old_data_ptr = impl_->get_mutable_data();
-            const std::int64_t old_count = count_;
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (std::int64_t i = 0; i < old_count; i++) {
-                data_ptr[i] = old_data_ptr[i];
-            }
-
+            preview::detail::copy(old_data_ptr, old_data_ptr + count_, data_ptr);
             impl_->reset(data_ptr, new_capacity, empty_delete{});
+            // TODO: move deallocation to dal array deleter.
             oneapi::dal::preview::detail::deallocate(allocator_, old_data_ptr, capacity_);
             capacity_ = new_capacity;
         }
@@ -119,7 +155,7 @@ public:
 
     constexpr void push_back(const T& value) {
         resize(count_ + 1);
-        operator[](count_ - 1) = value;
+        preview::detail::copy(value, operator[](count_ - 1));
     }
 
     using iterator = T*;

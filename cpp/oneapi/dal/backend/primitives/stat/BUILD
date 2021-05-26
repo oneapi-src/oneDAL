@@ -8,7 +8,6 @@ dal_module(
     name = "stat",
     auto = True,
     dal_deps = [
-        "@onedal//cpp/oneapi/dal:table",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:blas",
     ],
@@ -20,7 +19,7 @@ dal_test_suite(
     compile_as = [ "dpc++" ],
     private = True,
     srcs = glob([
-        "test/*perf_dpc.cpp",
+        "test/perf_*_dpc.cpp",
     ]),
     dal_deps = [
         ":stat",

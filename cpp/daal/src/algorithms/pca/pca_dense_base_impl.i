@@ -76,9 +76,10 @@ services::Status PCADenseBase<algorithmFPType, cpu>::fillTable(NumericTable & ta
 template <typename algorithmFPType, CpuType cpu>
 void PCADenseBase<algorithmFPType, cpu>::signFlipArray(size_t size, algorithmFPType * source) const
 {
-#define FABS(X) ((X) > (algorithmFPType)0 ? (X) : -(X));
+#define FABS(X) ((X) > (algorithmFPType)0 ? (X) : -(X))
     algorithmFPType smax = source[0];
-    algorithmFPType max  = FABS(smax) for (size_t id = 1; id < size; ++id)
+    algorithmFPType max  = FABS(smax);
+    for (size_t id = 1; id < size; ++id)
     {
         algorithmFPType tmp = FABS(source[id]);
         if (tmp > max)

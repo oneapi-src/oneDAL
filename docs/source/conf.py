@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Intel(R) oneAPI Data Analytics Library Documentation'
+project = 'oneDAL'
 copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
 author = 'Intel'
 
@@ -44,7 +44,6 @@ author = 'Intel'
 release = '2021'
 
 rst_prolog = """
-.. |full_name| replace:: Intel\ |reg|\  oneAPI Data Analytics Library
 .. |short_name| replace:: oneDAL
 .. |product| replace:: oneDAL
 .. |namespace| replace:: daal
@@ -54,6 +53,12 @@ rst_prolog = """
 .. |base_tk| replace:: Intel\ |reg|\  oneAPI Base Toolkit
 .. |dpcpp| replace:: Intel\ |reg|\  oneAPI DPC++/C++ Compiler
 """
+
+if tags.has('use_intelname'):
+    # use supplied =t use_intelname
+    rst_prolog += ".. |full_name| replace:: Intel\ |reg|\  oneAPI Data Analytics Library"
+else:
+    rst_prolog += ".. |full_name| replace:: oneAPI Data Analytics Library"
 
 
 # for substitutions in code blocks and sphinx-prompts:
@@ -70,7 +75,7 @@ substitutions = [
 
 # sys.path.insert(0, path_relative_to_repo_root('source/elements/oneDAL'))
 
-extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi']
+extensions = ['sphinx-prompt', 'sphinx_substitution_extensions', 'sphinx.ext.extlinks', 'sphinx_tabs.tabs', 'dalapi', 'sphinx.ext.githubpages']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -111,27 +116,18 @@ html_static_path = ['_static']
 #     }
 
 
-# html_theme = 'otc_tcs_sphinx_theme'
+html_theme = 'sphinx_book_theme'
+html_logo = '_static/oneAPI-rgb-rev-100.png'
+html_favicon = '_static/favicons.png'
 # html_theme_path = ['_themes']
-
-# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-import sphinx_rtd_theme
-html_theme = 'sphinx_rtd_theme'
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-if on_rtd:
-    using_rtd_theme = True
 
 # Theme options
 html_theme_options = {
-    # 'typekit_id': 'hiw1hhg',
-    # 'analytics_id': '',
-    # 'sticky_navigation': True,  # Set to False to disable the sticky nav while scrolling.
-    'logo_only': True,  # if we have a html_logo below, this shows /only/ the logo with no title text
-    'collapse_navigation': False,  # Collapse navigation (False makes it tree-like)
-    # 'display_version': True,  # Display the docs version
-    'navigation_depth': 4  # Depth of the headers shown in the navigation bar
+    'repository_url': 'https://github.com/oneapi-src/oneDAL',
+    'path_to_docs': 'docs/source',
+    'use_issues_button': True,
+    'use_edit_page_button': True,
+    'repository_branch': 'master'
 }
 
 # oneDAL project directory is needed for `dalapi` extension

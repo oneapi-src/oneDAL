@@ -40,8 +40,10 @@
 #include "services/error_handling.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/services/service_data_utils.h"
+#include "src/services/service_allocators.h"
 #include "src/services/service_arrays.h"
 #include "src/externals/service_blas.h"
+#include "src/externals/service_lapack.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
 
@@ -656,6 +658,108 @@ double ChebychevDistances<double, avx512>::computeDistance(const double * x, con
 
 #endif
 
+template <typename FPType, CpuType cpu>
+bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+{
+    /* POTRF and POTRS parameters */
+    char uplo     = 'U';
+    DAAL_INT info = 0;
+
+    /* Perform L*L' factorization of A */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xpotrf(&uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, &info);
+    }
+    if (info != 0) return false;
+
+    /* Solve L*L' * x = b */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xpotrs(&uplo, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &info);
+    }
+    return (info == 0);
+}
+
+template <typename FPType, CpuType cpu>
+bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential, bool extendFromSymmetric)
+{
+    if (extendFromSymmetric)
+    {
+        /* Extend symmetric matrix to generic through filling of upper triangle */
+        for (size_t i = 0; i < n; ++i)
+        {
+            for (size_t j = 0; j < i; ++j)
+            {
+                a[j * n + i] = a[i * n + j];
+            }
+        }
+    }
+
+    /* GETRF and GETRS parameters */
+    char trans    = 'N';
+    DAAL_INT info = 0;
+
+    TArrayScalable<DAAL_INT, cpu> ipiv(n);
+    DAAL_CHECK_MALLOC(ipiv.get());
+
+    /* Perform P*L*U factorization of A */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
+    }
+    if (info != 0) return false;
+
+    /* Solve P*L*U * x = b */
+    if (sequential)
+    {
+        Lapack<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+    }
+    else
+    {
+        Lapack<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+    }
+    return (info == 0);
+}
+
+template <typename FPType, CpuType cpu>
+bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
+{
+    /* Copy data for fallback from Cholesky to PLU factorization */
+    TArrayScalable<FPType, cpu> aCopy(n * n);
+    TArrayScalable<FPType, cpu> bCopy(n);
+    DAAL_CHECK_MALLOC(aCopy.get());
+    DAAL_CHECK_MALLOC(bCopy.get());
+
+    int copy_status = services::internal::daal_memcpy_s(aCopy.get(), n * n * sizeof(FPType), a, n * n * sizeof(FPType));
+    copy_status |= services::internal::daal_memcpy_s(bCopy.get(), n * sizeof(FPType), b, n * sizeof(FPType));
+
+    if (copy_status != 0) return false;
+
+    /* Try to solve with Cholesky factorization */
+    if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
+    {
+        /* Fallback to PLU factorization */
+        bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential, true);
+        if (status)
+        {
+            status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType));
+        }
+        return status;
+    }
+    return true;
+}
 } // namespace internal
 } // namespace algorithms
 } // namespace daal
