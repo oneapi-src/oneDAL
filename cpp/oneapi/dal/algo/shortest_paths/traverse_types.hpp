@@ -63,11 +63,13 @@ public:
     traverse_result();
 
     /// Returns the table with computed distances from the source to each vertex
+    /// represented as the type of weights of the graph (std::int32_t or double)
     const table& get_distances() const {
         return get_distances_impl();
     }
 
     /// Returns the table with computed predecessors from the source to each vertex
+    // represented as std::int32_t
     const table& get_predecessors() const {
         return get_predecessors_impl();
     }
