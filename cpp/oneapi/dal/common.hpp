@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <bitset>
 #include <cstdint>
 #include <utility>
 
@@ -95,6 +96,53 @@ using v1::byte_t;
 using v1::base;
 using v1::data_type;
 using v1::range;
+
+
+template<typename NamespaceId>
+class optional_result_id {
+    static constexpr std::int64_t mask_size = 128;
+    using bitset_t = std::bitset<mask_size>;
+
+public:
+    optional_result_id() = default;
+    optional_result_id(const bitset_t& mask) : mask_(mask) {}
+    optional_result_id(bitset_t&& mask) : mask_(std::move(mask)) {}
+
+    explicit optional_result_id(std::int64_t result_index) {
+        mask_.set(result_index);
+    }
+
+    const bitset_t& get_mask() const {
+        return mask_;
+    }
+
+private:
+    bitset_t mask_;
+};
+
+template<typename NamespaceId>
+inline auto operator|(const optional_result_id<NamespaceId>& lhs, 
+                      const optional_result_id<NamespaceId>& rhs) {
+    return optional_result_id<NamespaceId>{ lhs.get_mask() | rhs.get_mask() };
+}
+
+template<typename NamespaceId>
+inline auto operator&(const optional_result_id<NamespaceId>& lhs, 
+                      const optional_result_id<NamespaceId>& rhs) {
+    return optional_result_id<NamespaceId>{ lhs.get_mask() & rhs.get_mask() };
+}
+
+template<typename NamespaceId>
+inline auto operator==(const optional_result_id<NamespaceId>& lhs, 
+                       const optional_result_id<NamespaceId>& rhs) {
+    return optional_result_id<NamespaceId>{ lhs.get_mask() == rhs.get_mask() };
+}
+
+template<typename NamespaceId>
+inline auto operator!=(const optional_result_id<NamespaceId>& lhs, 
+                       const optional_result_id<NamespaceId>& rhs) {
+    return optional_result_id<NamespaceId>{ lhs.get_mask() != rhs.get_mask() };
+}
 
 } // namespace oneapi::dal
 

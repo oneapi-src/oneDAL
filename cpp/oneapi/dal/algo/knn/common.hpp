@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include <bitset>
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::knn {
 
@@ -57,46 +57,11 @@ using v1::by_default;
 
 } // namespace method
 
-class optional_result_id {
-    static constexpr std::int64_t mask_size = 128;
-    using bitset_t = std::bitset<mask_size>;
-
-public:
-    optional_result_id() = default;
-    optional_result_id(const bitset_t& mask) : mask_(mask) {}
-    optional_result_id(bitset_t&& mask) : mask_(std::move(mask)) {}
-
-    explicit optional_result_id(std::int64_t result_index) {
-        mask_.set(result_index);
-    }
-
-    const bitset_t& get_mask() const {
-        return mask_;
-    }
-
-private:
-    bitset_t mask_;
-};
-
-inline optional_result_id operator|(const optional_result_id& lhs, const optional_result_id& rhs) {
-    return optional_result_id{ lhs.get_mask() | rhs.get_mask() };
-}
-
-inline optional_result_id operator&(const optional_result_id& lhs, const optional_result_id& rhs) {
-    return optional_result_id{ lhs.get_mask() & rhs.get_mask() };
-}
-
-inline optional_result_id operator==(const optional_result_id& lhs, const optional_result_id& rhs) {
-    return optional_result_id{ lhs.get_mask() == rhs.get_mask() };
-}
-
-inline optional_result_id operator!=(const optional_result_id& lhs, const optional_result_id& rhs) {
-    return optional_result_id{ lhs.get_mask() != rhs.get_mask() };
-}
-
 namespace optional_results {
-extern const optional_result_id indices;
-extern const optional_result_id distances;
+class namespace_id {};
+using result_id_t = optional_result_id<namespace_id>;
+extern const result_id_t indices;
+extern const result_id_t distances;
 } // namespace optional_results
 
 namespace detail {
@@ -132,12 +97,12 @@ public:
 
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
-    optional_result_id get_optional_results() const;
+    optional_results::result_id_t get_optional_results() const;
 
 protected:
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
-    void set_optional_results_impl(const optional_result_id& value);
+    void set_optional_results_impl(const optional_results::result_id_t& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -209,11 +174,11 @@ public:
         return *this;
     }
 
-    optional_result_id get_optional_results() const {
+    optional_results::result_id_t get_optional_results() const {
         return base_t::get_optional_results();
     }
 
-    auto& set_optional_results(const optional_result_id& value) {
+    auto& set_optional_results(const optional_results::result_id_t& value) {
         base_t::set_optional_results_impl(value);
         return *this;
     }

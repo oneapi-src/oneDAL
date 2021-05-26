@@ -33,7 +33,7 @@ class descriptor_impl : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
-    optional_result_id optional_results;
+    optional_results::result_id_t optional_results;
 };
 
 template <typename Task>
@@ -66,12 +66,12 @@ void descriptor_base<Task>::set_neighbor_count_impl(std::int64_t value) {
 }
 
 template <typename Task>
-optional_result_id descriptor_base<Task>::get_optional_results() const {
+optional_results::result_id_t descriptor_base<Task>::get_optional_results() const {
     return impl_->optional_results;
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_optional_results_impl(const optional_result_id& value) {
+void descriptor_base<Task>::set_optional_results_impl(const optional_results::result_id_t& value) {
     impl_->optional_results = value;
 }
 
