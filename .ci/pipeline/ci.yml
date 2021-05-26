@@ -184,6 +184,8 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
+  - script: sudo apt-get update && sudo apt-get install gcc g++
+    displayName: 'apt-get'
   - script: |
         .ci/env/oneapi.sh dpcpp
     displayName: 'Create dpcpp enviroment'
