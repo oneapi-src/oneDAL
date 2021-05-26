@@ -357,6 +357,19 @@ inline std::int64_t propose_wg_size(const sycl::queue& q) {
     return std::min<std::int64_t>(512, device_max_wg_size(q));
 }
 
+inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
+                                               std::int64_t column_count,
+                                               std::int64_t preffered_wg_size) {
+    const std::int64_t sg_max_size = device_max_sg_size(queue);
+    ONEDAL_ASSERT(sg_max_size > 0);
+    const std::int64_t row_adjusted_sg_num =
+        column_count / sg_max_size + std::int64_t(column_count % sg_max_size > 0);
+    std::int64_t expected_sg_num = std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_num);
+    if (expected_sg_num < 1)
+        expected_sg_num = 1;
+    return dal::detail::check_mul_overflow(expected_sg_num, sg_max_size);
+}
+
 inline std::int64_t device_local_mem_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::local_mem_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
