@@ -24,7 +24,6 @@
 #include "oneapi/dal/test/engine/metrics/classification.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/detail/csr.hpp"
 
 namespace oneapi::dal::svm::test {
 
@@ -198,14 +197,8 @@ public:
         const auto [support_vectors, support_indices, coeffs] = unpack_result(result);
 
         INFO("check if there is no NaN in support_vectors")
-        if (support_vectors.get_kind() == dal::detail::csr_table::kind()) {
-            const auto& csr = static_cast<const dal::detail::csr_table&>(support_vectors);
-            REQUIRE(te::has_no_nans(
-                array<double>::wrap(csr.get_data<double>(), csr.get_non_zero_count())));
-        }
-        else {
-            REQUIRE(te::has_no_nans(support_vectors));
-        }
+        REQUIRE(te::has_no_nans(support_vectors));
+
         INFO("check if there is no NaN in support_indices")
         REQUIRE(te::has_no_nans(support_indices));
 
@@ -340,68 +333,6 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
         -2.0, -1.0, -1.0, -1.0, -1.0, -2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0,
     };
     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
-
-    constexpr std::array<float_t, row_count_train> y_data = {
-        -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
-    };
-    const auto y = homogen_table::wrap(y_data.data(), row_count_train, 1);
-
-    const double scale = GENERATE_COPY(0.1, 1.0);
-    const double c = GENERATE_COPY(1.0, 10.0);
-
-    const auto kernel_desc = kernel_t{}.set_scale(scale);
-    const auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
-
-    constexpr std::int64_t support_vector_count = 2;
-
-    constexpr std::array<float_t, support_vector_count> support_indices_data = { 1, 3 };
-    const auto support_indices =
-        homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
-
-    constexpr std::array<float_t, row_count_train> decision_function_data = { -1.5, -1.0, -1.5,
-                                                                              1.0,  1.5,  1.5 };
-    const auto decision_function =
-        homogen_table::wrap(decision_function_data.data(), row_count_train, 1);
-
-    constexpr std::array<float_t, row_count_train> labels_data = {
-        -1.0, -1.0, -1.0, 1.0, 1.0, 1.0
-    };
-    const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
-
-    this->check_linear_kernel(x,
-                              y,
-                              svm_desc,
-                              support_vector_count,
-                              support_indices,
-                              decision_function,
-                              labels);
-}
-
-TEMPLATE_LIST_TEST_M(svm_batch_test,
-                     "svm can classify linear separable surface with sparse data",
-                     "[svm][integration][batch][linear]",
-                     svm_types) {
-    SKIP_IF(this->not_available_on_device());
-    SKIP_IF(this->not_float64_friendly());
-
-    using float_t = std::tuple_element_t<0, TestType>;
-    using method_t = std::tuple_element_t<1, TestType>;
-    using kernel_t = linear::descriptor<float_t, linear::method::dense>;
-
-    constexpr std::int64_t row_count_train = 6;
-    constexpr std::int64_t column_count = 2;
-    constexpr std::int64_t element_count_train = row_count_train * column_count;
-
-    float data[] = { -2.0, -1.0, -1.0, -1.0, -1.0, -2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 1.0 };
-    std::int64_t column_indices[] = { 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2 };
-    std::int64_t row_indices[] = { 1, 3, 5, 7, 9, 11, 13 };
-
-    dal::detail::csr_table x{ array<float>::wrap(data, element_count_train),
-                              array<std::int64_t>::wrap(column_indices, element_count_train),
-                              array<std::int64_t>::wrap(row_indices, row_count_train + 1),
-                              row_count_train,
-                              column_count };
 
     constexpr std::array<float_t, row_count_train> y_data = {
         -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
