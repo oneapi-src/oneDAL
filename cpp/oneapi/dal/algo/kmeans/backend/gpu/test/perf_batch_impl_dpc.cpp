@@ -46,7 +46,9 @@ public:
         auto obj_func =
             pr::ndarray<float_t, 1>::empty(this->get_queue(), 1, sycl::usm::alloc::device);
         BENCHMARK(name.c_str()) {
-            compute_objective_function(this->get_queue(), closest_distances, obj_func)
+            kernels_fp<float_t>::compute_objective_function(this->get_queue(),
+                                                            closest_distances,
+                                                            obj_func)
                 .wait_and_throw();
         };
     }
@@ -99,18 +101,19 @@ public:
         count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters, { event })
             .wait_and_throw();
         BENCHMARK(name.c_str()) {
-            auto partial_reduce_event = partial_reduce_centroids(this->get_queue(),
-                                                                 data,
-                                                                 labels,
-                                                                 cluster_count,
-                                                                 part_count,
-                                                                 partial_centroids);
-            merge_reduce_centroids(this->get_queue(),
-                                   counters,
-                                   partial_centroids,
-                                   part_count,
-                                   centroids,
-                                   { partial_reduce_event })
+            auto partial_reduce_event =
+                kernels_fp<float_t>::partial_reduce_centroids(this->get_queue(),
+                                                              data,
+                                                              labels,
+                                                              cluster_count,
+                                                              part_count,
+                                                              partial_centroids);
+            kernels_fp<float_t>::merge_reduce_centroids(this->get_queue(),
+                                                        counters,
+                                                        partial_centroids,
+                                                        part_count,
+                                                        centroids,
+                                                        { partial_reduce_event })
                 .wait_and_throw();
         };
     }

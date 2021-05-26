@@ -48,10 +48,12 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto arr_centroids =
             pr::ndarray<Float, 2>::wrap(centroids_ptr, { cluster_count, column_count });
 
-        std::int64_t rows_block_size = get_block_size_in_rows<Float>(queue, column_count);
-        auto arr_distance_block = pr::ndarray<Float, 2>::empty(queue,
-                                                               { rows_block_size, cluster_count },
-                                                               sycl::usm::alloc::device);
+        std::int64_t block_size_in_rows =
+            kernels_fp<Float>::get_block_size_in_rows(queue, column_count);
+        auto arr_distance_block =
+            pr::ndarray<Float, 2>::empty(queue,
+                                         { block_size_in_rows, cluster_count },
+                                         sycl::usm::alloc::device);
         auto arr_closest_distances =
             pr::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_labels =
@@ -60,17 +62,18 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
 
         auto assign_event =
-            assign_clusters<Float, pr::squared_l2_metric<Float>>(queue,
-                                                                 arr_data,
-                                                                 arr_centroids,
-                                                                 rows_block_size,
-                                                                 arr_labels,
-                                                                 arr_distance_block,
-                                                                 arr_closest_distances);
-        compute_objective_function<Float>(queue,
-                                          arr_closest_distances,
-                                          arr_objective_function,
-                                          { assign_event })
+            kernels_fp<Float>::template assign_clusters<pr::squared_l2_metric<Float>>(
+                queue,
+                arr_data,
+                arr_centroids,
+                block_size_in_rows,
+                arr_labels,
+                arr_distance_block,
+                arr_closest_distances);
+        kernels_fp<Float>::compute_objective_function(queue,
+                                                      arr_closest_distances,
+                                                      arr_objective_function,
+                                                      { assign_event })
             .wait_and_throw();
 
         return infer_result<task::clustering>()

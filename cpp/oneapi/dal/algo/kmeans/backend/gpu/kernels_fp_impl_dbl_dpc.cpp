@@ -14,12 +14,14 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp_impl.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp_defines.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
-INSTANTIATE(float)
+template struct kernels_fp<double>;
+INSTANTIATE_WITH_METRIC(double, pr::squared_l2_metric)
 #endif
 
 } // namespace oneapi::dal::kmeans::backend

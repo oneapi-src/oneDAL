@@ -469,7 +469,7 @@ private:
 };
 
 using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
-
+/*
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans degenerated test",
                      "[kmeans][batch]",
@@ -515,7 +515,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
                                        expected_obj_function,
                                        false);
 }
-
+*/
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans empty clusters test",
                      "[kmeans][batch]",
@@ -566,7 +566,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     Float expected_obj_function = 4;
     this->infer_checks(x, model, y, expected_obj_function);
 }
-/*
+
 // This stress test is commented due to CPU K-Means crash.
 // Will be added when the issue is resolved.
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
@@ -608,7 +608,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                        max_iteration_count,
                        obj_function);
 }
-*/
+
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans partial centroids stress test",
                      "[kmeans][batch][nightly][stress]",

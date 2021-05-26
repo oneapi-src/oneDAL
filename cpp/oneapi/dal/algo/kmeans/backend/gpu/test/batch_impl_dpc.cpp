@@ -52,7 +52,10 @@ public:
 
     void run_obj_func_check(const pr::ndview<float_t, 2>& closest_distances, float_t tol = 1.0e-5) {
         auto obj_func = pr::ndarray<float_t, 1>::empty(this->get_queue(), 1);
-        compute_objective_function(this->get_queue(), closest_distances, obj_func).wait_and_throw();
+        kernels_fp<float_t>::compute_objective_function(this->get_queue(),
+                                                        closest_distances,
+                                                        obj_func)
+            .wait_and_throw();
         check_objective_function(closest_distances, obj_func.get_data()[0], tol);
     }
 
@@ -102,12 +105,12 @@ public:
             .wait_and_throw();
         check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
 
-        partial_reduce_centroids(this->get_queue(),
-                                 data,
-                                 labels,
-                                 cluster_count,
-                                 part_count,
-                                 partial_centroids)
+        kernels_fp<float_t>::partial_reduce_centroids(this->get_queue(),
+                                                      data,
+                                                      labels,
+                                                      cluster_count,
+                                                      part_count,
+                                                      partial_centroids)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, part_count, tol);
     }
@@ -132,19 +135,19 @@ public:
         count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters)
             .wait_and_throw();
         check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
-        partial_reduce_centroids(this->get_queue(),
-                                 data,
-                                 labels,
-                                 cluster_count,
-                                 part_count,
-                                 partial_centroids)
+        kernels_fp<float_t>::partial_reduce_centroids(this->get_queue(),
+                                                      data,
+                                                      labels,
+                                                      cluster_count,
+                                                      part_count,
+                                                      partial_centroids)
             .wait_and_throw();
         check_partial_centroids(data, labels, partial_centroids, part_count, tol);
-        merge_reduce_centroids(this->get_queue(),
-                               counters,
-                               partial_centroids,
-                               part_count,
-                               centroids)
+        kernels_fp<float_t>::merge_reduce_centroids(this->get_queue(),
+                                                    counters,
+                                                    partial_centroids,
+                                                    part_count,
+                                                    centroids)
             .wait_and_throw();
         check_reduced_centroids(data, labels, centroids, counters, tol);
     }
@@ -161,14 +164,15 @@ public:
         auto distances =
             pr::ndarray<float_t, 2>::empty(this->get_queue(), { block_rows, cluster_count });
 
-        assign_clusters<float_t, pr::squared_l2_metric<float_t>>(this->get_queue(),
-                                                                 data,
-                                                                 centroids,
-                                                                 block_rows,
-                                                                 labels,
-                                                                 distances,
-                                                                 closest_distances,
-                                                                 {})
+        kernels_fp<float_t>::template assign_clusters<pr::squared_l2_metric<float_t>>(
+            this->get_queue(),
+            data,
+            centroids,
+            block_rows,
+            labels,
+            distances,
+            closest_distances,
+            {})
             .wait_and_throw();
         check_assignments(data, centroids, labels, closest_distances, tol);
     }
@@ -179,12 +183,12 @@ public:
         auto candidate_distances =
             pr::ndarray<float_t, 1>::empty(this->get_queue(), candidate_count);
 
-        find_candidates(this->get_queue(),
-                        closest_distances,
-                        candidate_count,
-                        candidate_indices,
-                        candidate_distances,
-                        {})
+        kernels_fp<float_t>::find_candidates(this->get_queue(),
+                                             closest_distances,
+                                             candidate_count,
+                                             candidate_indices,
+                                             candidate_distances,
+                                             {})
             .wait_and_throw();
         check_candidates(closest_distances,
                          candidate_count,
