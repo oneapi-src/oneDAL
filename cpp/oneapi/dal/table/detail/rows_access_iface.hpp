@@ -22,20 +22,22 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 #define PULL_ROWS_SIGNATURE_HOST(T) \
-    void pull_rows(const default_host_policy& policy, array<T>& block, const range& row_range)
+    void pull_rows(const default_host_policy& policy, dal::array<T>& block, const range& row_range)
 
 #define PULL_ROWS_SIGNATURE_DPC(T)                     \
     void pull_rows(const data_parallel_policy& policy, \
-                   array<T>& block,                    \
+                   dal::array<T>& block,               \
                    const range& row_range,             \
                    sycl::usm::alloc alloc)
 
-#define PUSH_ROWS_SIGNATURE_HOST(T) \
-    void push_rows(const default_host_policy& policy, const array<T>& block, const range& row_range)
+#define PUSH_ROWS_SIGNATURE_HOST(T)                   \
+    void push_rows(const default_host_policy& policy, \
+                   const dal::array<T>& block,        \
+                   const range& row_range)
 
 #define PUSH_ROWS_SIGNATURE_DPC(T)                     \
     void push_rows(const data_parallel_policy& policy, \
-                   const array<T>& block,              \
+                   const dal::array<T>& block,         \
                    const range& row_range)
 
 #define DECLARE_PULL_ROWS_HOST(T) virtual PULL_ROWS_SIGNATURE_HOST(T) = 0;

@@ -46,6 +46,8 @@ void homogen_table::init_impl(const Policy& policy,
         new backend::homogen_table_impl{ row_count, column_count, data, dtype, layout });
 }
 
+// This method is needed for compatibility with the oneDAL 2021.1.
+// This should be removed in 2022.1.
 template <typename Policy>
 void homogen_table::init_impl(const Policy& policy,
                               std::int64_t row_count,

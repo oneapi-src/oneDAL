@@ -23,26 +23,26 @@ namespace v1 {
 
 #define PULL_COLUMN_SIGNATURE_HOST(T)                   \
     void pull_column(const default_host_policy& policy, \
-                     array<T>& block,                   \
+                     dal::array<T>& block,              \
                      std::int64_t column_index,         \
                      const range& row_range)
 
 #define PULL_COLUMN_SIGNATURE_DPC(T)                     \
     void pull_column(const data_parallel_policy& policy, \
-                     array<T>& block,                    \
+                     dal::array<T>& block,               \
                      std::int64_t column_index,          \
                      const range& row_range,             \
                      sycl::usm::alloc alloc)
 
 #define PUSH_COLUMN_SIGNATURE_HOST(T)                   \
     void push_column(const default_host_policy& policy, \
-                     const array<T>& block,             \
+                     const dal::array<T>& block,        \
                      std::int64_t column_index,         \
                      const range& row_range)
 
 #define PUSH_COLUMN_SIGNATURE_DPC(T)                     \
     void push_column(const data_parallel_policy& policy, \
-                     const array<T>& block,              \
+                     const dal::array<T>& block,         \
                      std::int64_t column_index,          \
                      const range& row_range)
 

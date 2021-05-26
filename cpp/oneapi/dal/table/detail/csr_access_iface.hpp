@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/array.hpp"
 #include "oneapi/dal/table/detail/csr_block.hpp"
 
 namespace oneapi::dal::detail {

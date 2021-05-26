@@ -262,6 +262,16 @@ public:
         count_ = size_in_bytes / sizeof(data_t);
     }
 
+    shared get_shared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
+        return std::get<shared>(data_owned_);
+    }
+
+    cshared get_cshared() const {
+        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
+        return std::get<cshared>(data_owned_);
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     std::optional<sycl::queue> get_queue() const {
         if (dp_policy_) {
@@ -317,18 +327,8 @@ private:
         });
     }
 
-    shared get_shared() const {
-        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
-        return std::get<shared>(data_owned_);
-    }
-
     const shared* get_if_shared() const noexcept {
         return std::get_if<shared>(&data_owned_);
-    }
-
-    cshared get_cshared() const {
-        ONEDAL_ASSERT(!data_owned_.valueless_by_exception());
-        return std::get<cshared>(data_owned_);
     }
 
     std::variant<cshared, shared> data_owned_;

@@ -69,6 +69,22 @@ public:
         }
     }
 
+    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_host& get_access_iface_host() const override {
+        throw dal::domain_error{
+            detail::error_messages::object_does_not_provide_read_access_to_rows()
+        };
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_dpc& get_access_iface_dpc() const override {
+        throw dal::domain_error{
+            detail::error_messages::object_does_not_provide_read_access_to_rows()
+        };
+    }
+#endif
+
     std::int64_t get_column_count() const override {
         return col_count_;
     }

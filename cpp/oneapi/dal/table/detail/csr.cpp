@@ -43,9 +43,9 @@ const std::int64_t* csr_table::get_row_indices() const {
 
 void csr_table::init_impl(std::int64_t column_count,
                           std::int64_t row_count,
-                          const array<byte_t>& data,
-                          const array<std::int64_t>& column_indices,
-                          const array<std::int64_t>& row_indices,
+                          const dal::array<byte_t>& data,
+                          const dal::array<std::int64_t>& column_indices,
+                          const dal::array<std::int64_t>& row_indices,
                           const data_type& dtype,
                           csr_indexing indexing) {
     table::init_impl(new backend::csr_table_impl(column_count,

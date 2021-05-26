@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/backend/accessor_compat.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
@@ -25,6 +26,18 @@ class empty_table_impl : public detail::table_template<detail::table_iface, empt
                          public ONEDAL_SERIALIZABLE(empty_table_id) {
 public:
     static constexpr std::int64_t pure_empty_table_kind = 0;
+
+    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_host& get_access_iface_host() const override {
+        return compat_acc_.get_host_accessor();
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_dpc& get_access_iface_dpc() const override {
+        return compat_acc_.get_dpc_accessor();
+    }
+#endif
 
     std::int64_t get_column_count() const override {
         return 0;
@@ -82,6 +95,9 @@ public:
     void deserialize(detail::input_archive& ar) override {
         // Nothing to deserialize
     }
+
+private:
+    mutable compat_accessor compat_acc_;
 };
 
 } // namespace oneapi::dal::backend

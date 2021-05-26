@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/table/detail/access_iface_compat.hpp"
 #include "oneapi/dal/table/detail/rows_access_iface.hpp"
 #include "oneapi/dal/table/detail/columns_access_iface.hpp"
 #include "oneapi/dal/table/detail/csr_access_iface.hpp"
@@ -36,7 +37,9 @@ using v1::feature_type;
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class table_iface {
+// Inheritance from `access_provider_iface` is needed to support binary backward
+// compatibility with the oneDAL 2021.1. This should be removed in 2022.1.
+class table_iface : public access_provider_iface {
 public:
     virtual ~table_iface() = default;
     virtual std::int64_t get_column_count() const = 0;
@@ -51,14 +54,14 @@ public:
 
 class homogen_table_iface : public table_iface {
 public:
-    virtual array<byte_t> get_data() const = 0;
+    virtual dal::array<byte_t> get_data() const = 0;
 };
 
 class csr_table_iface : public table_iface {
 public:
-    virtual array<byte_t> get_data() const = 0;
-    virtual array<std::int64_t> get_column_indices() const = 0;
-    virtual array<std::int64_t> get_row_indices() const = 0;
+    virtual dal::array<byte_t> get_data() const = 0;
+    virtual dal::array<std::int64_t> get_column_indices() const = 0;
+    virtual dal::array<std::int64_t> get_row_indices() const = 0;
 };
 
 class table_builder_iface {
@@ -79,7 +82,7 @@ public:
     virtual void set_layout(data_layout layout) = 0;
     virtual void set_feature_type(feature_type ft) = 0;
 
-    virtual void reset(const array<byte_t>& data,
+    virtual void reset(const dal::array<byte_t>& data,
                        std::int64_t row_count,
                        std::int64_t column_count) = 0;
 

@@ -48,9 +48,9 @@ public:
     /// @param column_count   The number of columns in the corresponding dense table.
     /// @param indexing       The indexing scheme used to access data in the CSR layout. Support only :literal:`csr_indexing::one_based`.
     template <typename Data>
-    csr_table(const array<Data>& data,
-              const array<std::int64_t>& column_indices,
-              const array<std::int64_t>& row_indices,
+    csr_table(const dal::array<Data>& data,
+              const dal::array<std::int64_t>& column_indices,
+              const dal::array<std::int64_t>& row_indices,
               std::int64_t row_count,
               std::int64_t column_count,
               csr_indexing indexing = csr_indexing::one_based) {
@@ -130,9 +130,9 @@ private:
     }
 
     template <typename Data>
-    void init_impl(const array<Data>& data,
-                   const array<std::int64_t>& column_indices,
-                   const array<std::int64_t>& row_indices,
+    void init_impl(const dal::array<Data>& data,
+                   const dal::array<std::int64_t>& column_indices,
+                   const dal::array<std::int64_t>& row_indices,
                    std::int64_t row_count,
                    std::int64_t column_count,
                    csr_indexing indexing) {
@@ -153,9 +153,9 @@ private:
 
     void init_impl(std::int64_t column_count,
                    std::int64_t row_count,
-                   const array<byte_t>& data,
-                   const array<std::int64_t>& column_indices,
-                   const array<std::int64_t>& row_indices,
+                   const dal::array<byte_t>& data,
+                   const dal::array<std::int64_t>& column_indices,
+                   const dal::array<std::int64_t>& row_indices,
                    const data_type& dtype,
                    csr_indexing indexing);
 };

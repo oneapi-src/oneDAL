@@ -273,7 +273,8 @@ private:
                    const data_type& dtype,
                    data_layout layout);
 
-    /// Maintained for backward compatibility
+    // This method is needed for compatibility with the oneDAL 2021.1.
+    // This should be removed in 2022.1.
     template <typename Policy>
     void init_impl(const Policy& policy,
                    std::int64_t row_count,
