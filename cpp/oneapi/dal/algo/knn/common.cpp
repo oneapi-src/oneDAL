@@ -25,6 +25,8 @@ namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
+    explicit descriptor_impl(const detail::distance_ptr& distance) : distance(distance) {}
+
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
@@ -32,7 +34,8 @@ public:
 };
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
+descriptor_base<Task>::descriptor_base(const detail::distance_ptr& distance)
+        : impl_(new descriptor_impl<Task>{ distance }) {}
 
 template <typename Task>
 std::int64_t descriptor_base<Task>::get_class_count() const {

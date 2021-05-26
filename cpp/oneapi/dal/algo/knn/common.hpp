@@ -108,14 +108,15 @@ public:
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
-
-    descriptor_base();
+    using distance_t = minkowski_distance::descriptor<float_t>;
 
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
     voting_mode get_voting_mode() const;
 
 protected:
+    explicit descriptor_base(const detail::distance_ptr &distance);
+
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
     void set_voting_mode_impl(voting_mode value);
@@ -172,20 +173,22 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`class_count`
     /// and :literal:`neighbor_count` property values
-    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
+    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count)
+            : base_t(std::make_shared<detail::distance<distance_t>>(
+                  distance_t {})) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
-        const auto distance = oneapi::dal::minkowski_distance::descriptor{ 2.0 };
-        set_distance(distance);
     }
 
-    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
+    /// Creates a new instance of the class with the given :literal:`class_count`
+    /// and :literal:`neighbor_count` property values
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>> // if there are any BC problems in future?
     explicit descriptor(std::int64_t class_count,
                         std::int64_t neighbor_count,
-                        const distance_t& distance) {
+                        const distance_t& distance)
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
-        set_distance(distance);
     }
 
     /// The number of classes c

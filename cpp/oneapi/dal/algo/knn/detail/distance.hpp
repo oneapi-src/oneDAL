@@ -50,9 +50,10 @@ private:
     Distance distance_;
 };
 
-class distance<minkowski_distance::descriptor<>> : public base, public distance_iface {
+template <typename Float, typename Method>
+class distance<minkowski_distance::descriptor<Float, Method>> : public base, public distance_iface {
 public:
-    using distance_t = minkowski_distance::descriptor<>;
+    using distance_t = minkowski_distance::descriptor<Float, Method>;
     explicit distance(const distance_t& dist);
     distance_impl* get_impl() const override;
 
@@ -61,9 +62,10 @@ private:
     distance_t distance_;
 };
 
-class distance<chebychev_distance::descriptor<>> : public base, public distance_iface {
+template <typename Float, typename Method>
+class distance<chebychev_distance::descriptor<Float, Method>> : public base, public distance_iface {
 public:
-    using distance_t = chebychev_distance::descriptor<>;
+    using distance_t = chebychev_distance::descriptor<Float, Method>;
     explicit distance(const distance_t& dist);
     distance_impl* get_impl() const override;
 
