@@ -79,7 +79,7 @@ public:
 
 /*
   O
- / \ 
+ / \
 O---O
  \ /
   O
@@ -351,7 +351,7 @@ public:
 
 /*
     O
-    | 
+    |
 O-O-O-O-O-O
 */
 class paths_1_2_3_type : public graph_base_data {
