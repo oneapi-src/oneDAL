@@ -316,9 +316,9 @@ daaldep.lnx32e.threxport := export_lnx32e.def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
-daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread.$a
+daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_threadd.$a
 daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
-daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
+daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_cored.$a
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
