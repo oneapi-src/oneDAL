@@ -18,4 +18,14 @@
 
 namespace oneapi::dal::preview::shortest_paths::backend {
 
+template traverse_result<task::one_to_all> delta_stepping<__CPU_TAG__, std::int32_t>(
+    const detail::descriptor_base<task::one_to_all>& desc,
+    const dal::preview::detail::topology<std::int32_t>& t,
+    const std::int32_t* vals);
+
+template traverse_result<task::one_to_all> delta_stepping<__CPU_TAG__, double>(
+    const detail::descriptor_base<task::one_to_all>& desc,
+    const dal::preview::detail::topology<std::int32_t>& t,
+    const double* vals);
+
 } // namespace oneapi::dal::preview::shortest_paths::backend
