@@ -196,13 +196,8 @@ private:
 namespace detail {
 
 template <typename Graph>
-constexpr bool is_valid_graph =
-    dal::detail::is_one_of_v<Graph,
-                             directed_adjacency_vector_graph<vertex_user_value_type<Graph>,
-                                                             edge_user_value_type<Graph>,
-                                                             graph_user_value_type<Graph>,
-                                                             vertex_type<Graph>,
-                                                             graph_allocator<Graph>>>;
+constexpr bool is_valid_graph = is_directed<Graph> && 
+    dal::detail::is_one_of_v<edge_user_value_type<Graph>, std::int32_t, double>;
 
 } // namespace detail
 } // namespace oneapi::dal::preview::shortest_paths
