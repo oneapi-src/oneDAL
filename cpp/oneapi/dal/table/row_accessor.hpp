@@ -66,8 +66,8 @@ public:
     /// @param[in] row_range The range of rows that data is returned from the accessor.
     ///
     /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
-    array<data_t> pull(const range& row_range = { 0, -1 }) const {
-        array<data_t> block;
+    dal::array<data_t> pull(const range& row_range = { 0, -1 }) const {
+        dal::array<data_t> block;
         pull(block, row_range);
         return block;
     }
@@ -84,10 +84,10 @@ public:
     /// @param[in] alloc     The requested kind of USM in the returned block.
     ///
     /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
-    array<data_t> pull(sycl::queue& queue,
-                       const range& row_range = { 0, -1 },
-                       const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        array<data_t> block;
+    dal::array<data_t> pull(sycl::queue& queue,
+                            const range& row_range = { 0, -1 },
+                            const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
+        dal::array<data_t> block;
         pull(queue, block, row_range, alloc);
         return block;
     }
@@ -108,7 +108,7 @@ public:
     /// @param[in] row_range The range of rows that data is returned from the accessor.
     ///
     /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.
-    T* pull(array<data_t>& block, const range& row_range = { 0, -1 }) const {
+    T* pull(dal::array<data_t>& block, const range& row_range = { 0, -1 }) const {
         pull_iface_->pull_rows(detail::default_host_policy{}, block, row_range);
         return get_block_data(block);
     }
@@ -132,7 +132,7 @@ public:
     ///
     /// @pre ``rows`` are within the range of ``[0, obj.row_count)``.
     T* pull(sycl::queue& queue,
-            array<data_t>& block,
+            dal::array<data_t>& block,
             const range& row_range = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
         pull_iface_->pull_rows(detail::data_parallel_policy{ queue }, block, row_range, alloc);
@@ -141,19 +141,21 @@ public:
 #endif
 
     template <typename U = T, std::enable_if_t<!std::is_const_v<U>, int> = 0>
-    void push(const array<data_t>& block, const range& row_range = { 0, -1 }) {
+    void push(const dal::array<data_t>& block, const range& row_range = { 0, -1 }) {
         push_iface_->push_rows(detail::default_host_policy{}, block, row_range);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename U = T, std::enable_if_t<!std::is_const_v<U>, int> = 0>
-    void push(sycl::queue& queue, const array<data_t>& block, const range& row_range = { 0, -1 }) {
+    void push(sycl::queue& queue,
+              const dal::array<data_t>& block,
+              const range& row_range = { 0, -1 }) {
         push_iface_->push_rows(detail::data_parallel_policy{ queue }, block, row_range);
     }
 #endif
 
 private:
-    static T* get_block_data(const array<data_t>& block) {
+    static T* get_block_data(const dal::array<data_t>& block) {
         if constexpr (is_readonly) {
             return block.get_data();
         }
