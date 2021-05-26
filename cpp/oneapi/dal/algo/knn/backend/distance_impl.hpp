@@ -24,7 +24,8 @@
 namespace oneapi::dal::knn::detail {
 namespace v1 {
 
-using daal_distance_t = daal::algorithms::bf_knn_classification::prediction::internal::PairwiseDistanceType;
+using daal_distance_t =
+    daal::algorithms::bf_knn_classification::prediction::internal::PairwiseDistanceType;
 
 class distance_impl : public base {
 public:

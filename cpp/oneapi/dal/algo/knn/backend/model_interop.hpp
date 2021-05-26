@@ -25,16 +25,14 @@ namespace oneapi::dal::knn::backend {
 
 inline auto convert_to_daal_bf_voting_mode(voting_mode vm) {
     namespace daal_bf_knn = daal::algorithms::bf_knn_classification;
-    return voting_mode::uniform == vm ? daal_bf_knn::voteUniform
-                                       : daal_bf_knn::voteDistance;
+    return voting_mode::uniform == vm ? daal_bf_knn::voteUniform : daal_bf_knn::voteDistance;
 }
 
 inline auto convert_to_daal_kdtree_voting_mode(voting_mode vm) {
     namespace daal_kdtree_knn = daal::algorithms::kdtree_knn_classification;
     return voting_mode::uniform == vm ? daal_kdtree_knn::voteUniform
-                                       : daal_kdtree_knn::voteDistance;
+                                      : daal_kdtree_knn::voteDistance;
 }
-
 
 class model_interop : public base {
 public:

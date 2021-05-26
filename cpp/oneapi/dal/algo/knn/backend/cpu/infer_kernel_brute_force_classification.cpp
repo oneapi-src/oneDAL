@@ -64,7 +64,7 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
     daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
 
     auto distance_impl = detail::get_distance_impl(desc);
-    if (!distance_impl ) {
+    if (!distance_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
     }
 

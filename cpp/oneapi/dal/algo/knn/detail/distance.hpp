@@ -55,6 +55,7 @@ public:
     using distance_t = minkowski_distance::descriptor<>;
     explicit distance(const distance_t& dist);
     distance_impl* get_impl() const override;
+
 private:
     dal::detail::pimpl<distance_impl> impl_;
     distance_t distance_;
@@ -65,6 +66,7 @@ public:
     using distance_t = chebychev_distance::descriptor<>;
     explicit distance(const distance_t& dist);
     distance_impl* get_impl() const override;
+
 private:
     dal::detail::pimpl<distance_impl> impl_;
     distance_t distance_;

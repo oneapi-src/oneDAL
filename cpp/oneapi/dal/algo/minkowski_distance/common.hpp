@@ -77,6 +77,7 @@ public:
     descriptor_base();
 
     double get_degree() const;
+
 protected:
     void set_degree_impl(double value);
 

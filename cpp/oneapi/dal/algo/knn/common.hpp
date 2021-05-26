@@ -175,7 +175,7 @@ public:
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
-        const auto distance = oneapi::dal::minkowski_distance::descriptor{2.0};
+        const auto distance = oneapi::dal::minkowski_distance::descriptor{ 2.0 };
         set_distance(distance);
     }
 

@@ -67,12 +67,12 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
 
     internal::KernelParameter kernelPar;
 
-    kernelPar.nClasses = par->nClasses;
-    kernelPar.k = par->k;
-    kernelPar.dataUseInModel = par->dataUseInModel;
-    kernelPar.resultsToCompute = par->resultsToCompute;
-    kernelPar.voteWeights = par->voteWeights;
-    kernelPar.engine = par->engine->clone();
+    kernelPar.nClasses          = par->nClasses;
+    kernelPar.k                 = par->k;
+    kernelPar.dataUseInModel    = par->dataUseInModel;
+    kernelPar.resultsToCompute  = par->resultsToCompute;
+    kernelPar.voteWeights       = par->voteWeights;
+    kernelPar.engine            = par->engine->clone();
     kernelPar.resultsToEvaluate = par->resultsToEvaluate;
 
     if (deviceInfo.isCpu)

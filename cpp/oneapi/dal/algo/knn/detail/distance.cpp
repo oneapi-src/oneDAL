@@ -47,6 +47,7 @@ public:
     double get_degree() override {
         return degree_;
     }
+
 private:
     double degree_ = 2.0;
 };
