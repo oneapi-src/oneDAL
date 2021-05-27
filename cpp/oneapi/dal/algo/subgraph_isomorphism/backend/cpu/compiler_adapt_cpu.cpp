@@ -22,4 +22,4 @@ template std::int32_t ONEDAL_lzcnt_u32<__CPU_TAG__>(std::uint32_t a);
 template std::int32_t ONEDAL_lzcnt_u64<__CPU_TAG__>(std::uint64_t a);
 template std::int32_t ONEDAL_popcnt64<__CPU_TAG__>(std::uint64_t a);
 
-}
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

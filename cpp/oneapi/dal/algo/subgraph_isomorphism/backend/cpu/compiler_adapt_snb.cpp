@@ -22,4 +22,4 @@ template std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_avx>(std::uint
 template std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_avx>(std::uint64_t a);
 template std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_avx>(std::uint64_t a);
 
-}
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

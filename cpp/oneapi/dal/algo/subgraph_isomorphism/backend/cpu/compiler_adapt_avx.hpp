@@ -61,4 +61,4 @@ std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_avx>(std::uint64_t a) {
     }
     return bit_cnt;
 }
-}
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
