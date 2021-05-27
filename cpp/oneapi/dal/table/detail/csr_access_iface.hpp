@@ -55,16 +55,9 @@ public:
 #undef DECLARE_PULL_CSR_BLOCK_HOST
 #undef DEFINE_TEMPLATE_PULL_CSR_BLOCK_HOST
 
-template <typename Object>
-inline std::shared_ptr<pull_csr_block_iface> get_pull_csr_block_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<pull_csr_block_iface>{ pimpl, pimpl->get_pull_csr_block_iface() };
-}
-
 } // namespace v1
 
 using v1::pull_csr_block_iface;
 using v1::pull_csr_block_template;
-using v1::get_pull_csr_block_iface;
 
 } // namespace oneapi::dal::detail

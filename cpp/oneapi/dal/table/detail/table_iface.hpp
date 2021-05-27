@@ -191,13 +191,6 @@ public:
     }
 };
 
-template <typename Object>
-inline std::shared_ptr<homogen_table_iface> get_homogen_table_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    auto homogen_iface_ptr = dynamic_cast<homogen_table_iface*>(pimpl.get());
-    return std::shared_ptr<homogen_table_iface>{ pimpl, homogen_iface_ptr };
-}
-
 } // namespace v1
 
 using v1::table_iface;
@@ -209,6 +202,5 @@ using v1::csr_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
 using v1::homogen_table_builder_template;
-using v1::get_homogen_table_iface;
 
 } // namespace oneapi::dal::detail

@@ -136,25 +136,11 @@ public:
 #undef DEFINE_TEMPLATE_PUSH_ROWS_HOST
 #undef DEFINE_TEMPLATE_PUSH_ROWS_DPC
 
-template <typename Object>
-inline std::shared_ptr<pull_rows_iface> get_pull_rows_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<pull_rows_iface>{ pimpl, pimpl->get_pull_rows_iface() };
-}
-
-template <typename Object>
-inline std::shared_ptr<push_rows_iface> get_push_rows_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<push_rows_iface>{ pimpl, pimpl->get_push_rows_iface() };
-}
-
 } // namespace v1
 
 using v1::pull_rows_iface;
 using v1::pull_rows_template;
 using v1::push_rows_iface;
 using v1::push_rows_template;
-using v1::get_pull_rows_iface;
-using v1::get_push_rows_iface;
 
 } // namespace oneapi::dal::detail

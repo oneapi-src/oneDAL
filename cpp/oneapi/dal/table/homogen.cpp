@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
 namespace oneapi::dal {

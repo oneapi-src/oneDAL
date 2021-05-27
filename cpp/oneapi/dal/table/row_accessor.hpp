@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {

@@ -146,25 +146,11 @@ public:
 #undef DEFINE_TEMPLATE_PUSH_COLUMN_HOST
 #undef DEFINE_TEMPLATE_PUSH_COLUMN_DPC
 
-template <typename Object>
-inline std::shared_ptr<pull_column_iface> get_pull_column_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<pull_column_iface>{ pimpl, pimpl->get_pull_column_iface() };
-}
-
-template <typename Object>
-inline std::shared_ptr<push_column_iface> get_push_column_iface(Object&& obj) {
-    const auto pimpl = pimpl_accessor{}.get_pimpl(std::forward<Object>(obj));
-    return std::shared_ptr<push_column_iface>{ pimpl, pimpl->get_push_column_iface() };
-}
-
 } // namespace v1
 
 using v1::pull_column_iface;
 using v1::pull_column_template;
 using v1::push_column_iface;
 using v1::push_column_template;
-using v1::get_pull_column_iface;
-using v1::get_push_column_iface;
 
 } // namespace oneapi::dal::detail
