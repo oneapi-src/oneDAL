@@ -10,3 +10,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal:core",
     ]
 )
+
+dal_test_suite(
+    name = "tests",
+)

@@ -182,7 +182,7 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`class_count`,
     /// :literal:`neighbor_count` and :literal:`distance` property values
-    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>> // if there are any BC problems in future?
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
     explicit descriptor(std::int64_t class_count,
                         std::int64_t neighbor_count,
                         const distance_t& distance)

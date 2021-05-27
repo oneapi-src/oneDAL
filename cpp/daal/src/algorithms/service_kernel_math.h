@@ -25,27 +25,24 @@
 #define __SERVICE_KERNEL_MATH_H__
 
 #include "services/daal_defines.h"
-
 #include "services/env_detect.h"
-#include "src/externals/service_dispatch.h"
-#include "src/services/service_utils.h"
-#include "src/services/service_defines.h"
-#include "src/threading/threading.h"
-#include "data_management/features/defines.h"
 #include "src/algorithms/service_error_handling.h"
 #include "data_management/data/data_dictionary.h"
 #include "data_management/features/defines.h"
-#include "immintrin.h"
-
 #include "services/error_handling.h"
 #include "src/data_management/service_numeric_table.h"
 #include "src/services/service_data_utils.h"
 #include "src/services/service_allocators.h"
 #include "src/services/service_arrays.h"
+#include "src/services/service_utils.h"
+#include "src/services/service_defines.h"
+#include "src/threading/threading.h"
 #include "src/externals/service_blas.h"
+#include "src/externals/service_dispatch.h"
 #include "src/externals/service_lapack.h"
 #include "src/externals/service_memory.h"
 #include "src/externals/service_math.h"
+#include "immintrin.h"
 
 using namespace daal::internal;
 using namespace daal::services;
@@ -106,8 +103,6 @@ public:
 
     virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                           FPType * const res) = 0;
-    // virtual services::Status computeBatch(size_t aOffset, size_t aSize, size_t bOffset, size_t bSize, FPType * const res) = 0;
-    // virtual services::Status computeFull(FPType * const res)                                                              = 0;
 };
 
 // compute: sum(A^2, 2) + sum(B^2, 2) -2*A*B'
