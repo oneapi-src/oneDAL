@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <atomic>
-
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
@@ -26,6 +24,7 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
@@ -54,10 +53,7 @@ public:
                     inner_alloc allocator);
     virtual ~matching_engine();
 
-    // solution run(bool main_engine = false);
-    void run_and_wait(global_stack& gstack,
-                      std::atomic<std::uint64_t>& busy_engine_count,
-                      bool main_engine = false);
+    void run_and_wait(global_stack& gstack, int64_t& busy_engine_count, bool main_engine = false);
     solution get_solution();
 
     std::int64_t state_exploration_bit(state* current_state, bool check_solution = true);
@@ -527,7 +523,7 @@ solution matching_engine<Cpu>::get_solution() {
 
 template <typename Cpu>
 void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
-                                        std::atomic<std::uint64_t>& busy_engine_count,
+                                        std::int64_t& busy_engine_count,
                                         bool main_engine) {
     if (main_engine) {
         first_states_generator(hlocal_stack);
@@ -543,28 +539,25 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-            state_exploration_bit();
-        }
+                state_exploration_bit();
+            }
             else {
                 gstack.pop(hlocal_stack);
                 if (hlocal_stack.empty()) {
                     if (is_busy_engine) {
                         is_busy_engine = false;
-                        --busy_engine_count;
+                        atomic_decrement(busy_engine_count);
                     }
-                    if (busy_engine_count.load() == 0)
+                    if (atomic_load(busy_engine_count) == 0)
                         break;
                 }
                 else if (!is_busy_engine) {
                     is_busy_engine = true;
-                    ++busy_engine_count;
+                    atomic_increment(busy_engine_count);
                 }
-    }
+            }
         }
     }
-    // while (hlocal_stack.states_in_stack() > 0) {
-    //     state_exploration_bit();
-    // }
     else { /* sparse graph case */
         for (;;) {
             if (hlocal_stack.states_in_stack() > 0) {
@@ -574,36 +567,27 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-            state_exploration_list();
-        }
+                state_exploration_list();
+            }
             else {
                 gstack.pop(hlocal_stack);
                 if (hlocal_stack.empty()) {
                     if (is_busy_engine) {
                         is_busy_engine = false;
-                        --busy_engine_count;
+                        atomic_decrement(busy_engine_count);
                     }
-                    if (busy_engine_count.load() == 0)
+                    if (atomic_load(busy_engine_count) == 0)
                         break;
                 }
                 else if (!is_busy_engine) {
                     is_busy_engine = true;
-                    ++busy_engine_count;
+                    atomic_increment(busy_engine_count);
                 }
             }
         }
-        // while (hlocal_stack.states_in_stack() > 0) {
-        //     state_exploration_list();
-        // }
     }
     return;
 }
-
-//template <typename Cpu>
-//solution matching_engine<Cpu>::run(bool main_engine) {
-//    run_and_wait(main_engine);
-//    return std::move(engine_solutions);
-// }
 
 template <typename Cpu>
 engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
@@ -689,7 +673,7 @@ solution engine_bundle<Cpu>::run() {
     }
 
     global_stack gstack;
-    std::atomic<std::uint64_t> busy_engine_count(array_size);
+    std::int64_t busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
         engine_array[index].run_and_wait(gstack, busy_engine_count, false);
     });
