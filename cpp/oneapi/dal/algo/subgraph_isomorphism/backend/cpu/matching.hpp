@@ -545,14 +545,14 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
                 if (hlocal_stack.empty()) {
                     if (is_busy_engine) {
                         is_busy_engine = false;
-                        atomic_decrement(busy_engine_count);
+                        dal::detail::atomic_decrement(busy_engine_count);
                     }
-                    if (atomic_load(busy_engine_count) == 0)
+                    if (dal::detail::atomic_load(busy_engine_count) == 0)
                         break;
                 }
                 else if (!is_busy_engine) {
                     is_busy_engine = true;
-                    atomic_increment(busy_engine_count);
+                    dal::detail::atomic_increment(busy_engine_count);
                 }
             }
         }
@@ -573,14 +573,14 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
                 if (hlocal_stack.empty()) {
                     if (is_busy_engine) {
                         is_busy_engine = false;
-                        atomic_decrement(busy_engine_count);
+                        dal::detail::atomic_decrement(busy_engine_count);
                     }
-                    if (atomic_load(busy_engine_count) == 0)
+                    if (dal::detail::atomic_load(busy_engine_count) == 0)
                         break;
                 }
                 else if (!is_busy_engine) {
                     is_busy_engine = true;
-                    atomic_increment(busy_engine_count);
+                    dal::detail::atomic_increment(busy_engine_count);
                 }
             }
         }
