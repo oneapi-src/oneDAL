@@ -137,6 +137,8 @@ onedal_relative_sources_dir = '../../cpp/oneapi/dal'
 
 # ignore these missing references during a doc build
 nitpick_ignore = [
+    # top level namespace
+    ('cpp:identifier', 'dal'),
     # method
     ('cpp:identifier', 'method'),
     # task
