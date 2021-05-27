@@ -18,10 +18,6 @@
 #include <cstdint>
 #include "oneapi/dal/backend/dispatcher.hpp"
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <intrin.h>
-#endif
-
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 #if defined(__INTEL_COMPILER)
@@ -82,34 +78,6 @@ std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
         a = a >> 1;
     }
     return bit_cnt;
-#endif
-}
-
-inline void atomic_increment(std::int64_t& value, std::int64_t delta = 1) {
-#if defined(_WIN32) || defined(_WIN64)
-    _InterlockedExchangeAdd64(&value, delta);
-#else
-    __atomic_add_fetch(&value, delta, __ATOMIC_SEQ_CST);
-#endif
-}
-
-inline void atomic_decrement(std::int64_t& value, std::int64_t delta = 1) {
-#if defined(_WIN32) || defined(_WIN64)
-    _InterlockedExchangeAdd64(&value, -delta);
-#else
-    __atomic_sub_fetch(&value, delta, __ATOMIC_SEQ_CST);
-#endif
-}
-
-inline std::int64_t atomic_load(std::int64_t& value) {
-#if defined(_WIN32) || defined(_WIN64)
-    const std::int64_t result = value;
-    _ReadWriteBarrier();
-    return result;
-#else
-    const std::int64_t result = __atomic_load_n(&value, __ATOMIC_ACQUIRE);
-    __asm__ __volatile__("" : : : "memory");
-    return result;
 #endif
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

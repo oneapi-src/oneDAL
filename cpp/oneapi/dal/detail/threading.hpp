@@ -21,6 +21,10 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <intrin.h>
+#endif
+
 namespace oneapi::dal::preview {
 typedef void (*functype)(std::int32_t i, const void *a);
 typedef void (*functype_int64)(std::int64_t i, const void *a);
@@ -257,6 +261,34 @@ ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::uint64_t)
 ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(oneapi::dal::preview::pair_int32_t_size_t)
 
 #undef ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL
+
+inline void atomic_increment(std::int64_t &value, std::int64_t delta = 1) {
+#if defined(_WIN32) || defined(_WIN64)
+    _InterlockedExchangeAdd64(&value, delta);
+#else
+    __atomic_add_fetch(&value, delta, __ATOMIC_SEQ_CST);
+#endif
+}
+
+inline void atomic_decrement(std::int64_t &value, std::int64_t delta = 1) {
+#if defined(_WIN32) || defined(_WIN64)
+    _InterlockedExchangeAdd64(&value, -delta);
+#else
+    __atomic_sub_fetch(&value, delta, __ATOMIC_SEQ_CST);
+#endif
+}
+
+inline std::int64_t atomic_load(std::int64_t &value) {
+#if defined(_WIN32) || defined(_WIN64)
+    const std::int64_t result = value;
+    _ReadWriteBarrier();
+    return result;
+#else
+    const std::int64_t result = __atomic_load_n(&value, __ATOMIC_ACQUIRE);
+    __asm__ __volatile__("" : : : "memory");
+    return result;
+#endif
+}
 
 template <typename lambdaType>
 inline void *tls_func(const void *a) {
