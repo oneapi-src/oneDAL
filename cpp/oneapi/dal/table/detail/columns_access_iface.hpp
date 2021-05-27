@@ -51,24 +51,28 @@ namespace v1 {
 #define DECLARE_PUSH_COLUMN_HOST(T) virtual PUSH_COLUMN_SIGNATURE_HOST(T) = 0;
 #define DECLARE_PUSH_COLUMN_DPC(T)  virtual PUSH_COLUMN_SIGNATURE_DPC(T) = 0;
 
-#define DEFINE_TEMPLATE_PULL_COLUMN_HOST(Derived, T)                                      \
-    PULL_COLUMN_SIGNATURE_HOST(T) override {                                              \
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, row_range); \
+#define DEFINE_TEMPLATE_PULL_COLUMN_HOST(Derived, T)                                               \
+    PULL_COLUMN_SIGNATURE_HOST(T) override {                                                       \
+        static_cast<Derived*>(this)->pull_column_template(policy, block, column_index, row_range); \
     }
 
-#define DEFINE_TEMPLATE_PULL_COLUMN_DPC(Derived, T)                                              \
-    PULL_COLUMN_SIGNATURE_DPC(T) override {                                                      \
-        static_cast<Derived*>(this)->pull_column(policy, block, column_index, row_range, alloc); \
+#define DEFINE_TEMPLATE_PULL_COLUMN_DPC(Derived, T)                     \
+    PULL_COLUMN_SIGNATURE_DPC(T) override {                             \
+        static_cast<Derived*>(this)->pull_column_template(policy,       \
+                                                          block,        \
+                                                          column_index, \
+                                                          row_range,    \
+                                                          alloc);       \
     }
 
-#define DEFINE_TEMPLATE_PUSH_COLUMN_HOST(Derived, T)                                      \
-    PUSH_COLUMN_SIGNATURE_HOST(T) override {                                              \
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, row_range); \
+#define DEFINE_TEMPLATE_PUSH_COLUMN_HOST(Derived, T)                                               \
+    PUSH_COLUMN_SIGNATURE_HOST(T) override {                                                       \
+        static_cast<Derived*>(this)->push_column_template(policy, block, column_index, row_range); \
     }
 
-#define DEFINE_TEMPLATE_PUSH_COLUMN_DPC(Derived, T)                                       \
-    PUSH_COLUMN_SIGNATURE_DPC(T) override {                                               \
-        static_cast<Derived*>(this)->push_column(policy, block, column_index, row_range); \
+#define DEFINE_TEMPLATE_PUSH_COLUMN_DPC(Derived, T)                                                \
+    PUSH_COLUMN_SIGNATURE_DPC(T) override {                                                        \
+        static_cast<Derived*>(this)->push_column_template(policy, block, column_index, row_range); \
     }
 
 class pull_column_iface {

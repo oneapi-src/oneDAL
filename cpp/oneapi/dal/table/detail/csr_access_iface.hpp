@@ -29,9 +29,9 @@ namespace v1 {
 
 #define DECLARE_PULL_CSR_BLOCK_HOST(T) virtual PULL_CSR_BLOCK_SIGNATURE_HOST(T) = 0;
 
-#define DEFINE_TEMPLATE_PULL_CSR_BLOCK_HOST(Derived, T)                                  \
-    PULL_CSR_BLOCK_SIGNATURE_HOST(T) override {                                          \
-        static_cast<Derived*>(this)->pull_csr_block(policy, block, indexing, row_range); \
+#define DEFINE_TEMPLATE_PULL_CSR_BLOCK_HOST(Derived, T)                                           \
+    PULL_CSR_BLOCK_SIGNATURE_HOST(T) override {                                                   \
+        static_cast<Derived*>(this)->pull_csr_block_template(policy, block, indexing, row_range); \
     }
 
 class pull_csr_block_iface {

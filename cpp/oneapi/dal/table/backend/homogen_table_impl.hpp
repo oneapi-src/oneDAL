@@ -24,9 +24,8 @@
 
 namespace oneapi::dal::backend {
 
-class homogen_table_impl
-        : public detail::table_template<detail::homogen_table_iface, homogen_table_impl>,
-          public ONEDAL_SERIALIZABLE(homogen_table_id) {
+class homogen_table_impl : public detail::homogen_table_template<homogen_table_impl>,
+                           public ONEDAL_SERIALIZABLE(homogen_table_id) {
 public:
     homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 
@@ -101,37 +100,37 @@ public:
     }
 
     template <typename T>
-    void pull_rows(const detail::default_host_policy& policy,
-                   array<T>& block,
-                   const range& rows) const {
+    void pull_rows_template(const detail::default_host_policy& policy,
+                            array<T>& block,
+                            const range& rows) const {
         homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind::host);
     }
 
     template <typename T>
-    void pull_column(const detail::default_host_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) const {
+    void pull_column_template(const detail::default_host_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) const {
         homogen_pull_column(policy, get_info(), data_, block, column_index, rows, alloc_kind::host);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void pull_rows(const detail::data_parallel_policy& policy,
-                   array<T>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) const {
+    void pull_rows_template(const detail::data_parallel_policy& policy,
+                            array<T>& block,
+                            const range& rows,
+                            sycl::usm::alloc alloc) const {
         homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind_from_sycl(alloc));
     }
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void pull_column(const detail::data_parallel_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) const {
+    void pull_column_template(const detail::data_parallel_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows,
+                              sycl::usm::alloc alloc) const {
         homogen_pull_column(policy,
                             get_info(),
                             data_,

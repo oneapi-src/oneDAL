@@ -74,37 +74,37 @@ public:
     void push(const detail::default_host_policy&,
               const array_f32&,
               const detail::row_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_rows_is_not_supported() };
     }
 
     void push(const detail::default_host_policy&,
               const array_f64&,
               const detail::row_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_rows_is_not_supported() };
     }
 
     void push(const detail::default_host_policy&,
               const array_i32&,
               const detail::row_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_rows_is_not_supported() };
     }
 
     void push(const detail::default_host_policy&,
               const array_f32&,
               const detail::column_values_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_column_is_not_supported() };
     }
 
     void push(const detail::default_host_policy&,
               const array_f64&,
               const detail::column_values_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_column_is_not_supported() };
     }
 
     void push(const detail::default_host_policy&,
               const array_i32&,
               const detail::column_values_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_column_is_not_supported() };
     }
 
 private:
@@ -191,37 +191,37 @@ public:
     void push(const detail::data_parallel_policy&,
               const array_f32&,
               const detail::row_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_rows_is_not_supported_for_dpc() };
     }
 
     void push(const detail::data_parallel_policy&,
               const array_f64&,
               const detail::row_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_rows_is_not_supported_for_dpc() };
     }
 
     void push(const detail::data_parallel_policy&,
               const array_i32&,
               const detail::row_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_rows_is_not_supported_for_dpc() };
     }
 
     void push(const detail::data_parallel_policy&,
               const array_f32&,
               const detail::column_values_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_column_is_not_supported_for_dpc() };
     }
 
     void push(const detail::data_parallel_policy&,
               const array_f64&,
               const detail::column_values_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_column_is_not_supported_for_dpc() };
     }
 
     void push(const detail::data_parallel_policy&,
               const array_i32&,
               const detail::column_values_block&) override {
-        throw unimplemented{ "" };
+        throw internal_error{ detail::error_messages::pushing_column_is_not_supported_for_dpc() };
     }
 
 private:
@@ -259,6 +259,8 @@ private:
 };
 #endif
 
+/// This class is needed for compatibility with the oneDAL 2021.1.
+/// This should be removed in 2022.1.
 class compat_accessor : public base {
 public:
     compat_accessor() = default;

@@ -106,11 +106,13 @@ public:
 #endif
 };
 
-template <typename Iface, typename Derived>
-class table_template : public Iface,
-                       public pull_rows_template<Derived>,
-                       public pull_column_template<Derived>,
-                       public pull_csr_block_template<Derived> {
+/// Generic table template is expected to implement all access interfaces to the table.
+/// The example of the table that implements generic interface is the empty one.
+template <typename Derived>
+class generic_table_template : public table_iface,
+                               public pull_rows_template<Derived>,
+                               public pull_column_template<Derived>,
+                               public pull_csr_block_template<Derived> {
 public:
     pull_rows_iface* get_pull_rows_iface() override {
         return this;
@@ -125,12 +127,52 @@ public:
     }
 };
 
-template <typename Iface, typename Derived>
-class table_builder_template : public Iface,
+/// Homogen table template must implement row and column accessor, but not CSR.
+template <typename Derived>
+class homogen_table_template : public homogen_table_iface,
                                public pull_rows_template<Derived>,
-                               public pull_column_template<Derived>,
-                               public push_rows_template<Derived>,
-                               public push_column_template<Derived> {
+                               public pull_column_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return nullptr;
+    }
+};
+
+/// CSR table template must implement CSR acessors, however row and column accessor are
+/// optional and not assumed by default. At the same time the methods that returns
+/// corresponding access interfaces may be overloaded in particualar CSR table implementation.
+template <typename Derived>
+class csr_table_template : public csr_table_iface, public pull_csr_block_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return nullptr;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return nullptr;
+    }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return this;
+    }
+};
+
+/// Homogen builder template must implement the same set of accessor as homogen table
+/// template but also provide interfaces for write.
+template <typename Derived>
+class homogen_table_builder_template : public homogen_table_builder_iface,
+                                       public pull_rows_template<Derived>,
+                                       public pull_column_template<Derived>,
+                                       public push_rows_template<Derived>,
+                                       public push_column_template<Derived> {
 public:
     pull_rows_iface* get_pull_rows_iface() override {
         return this;
@@ -159,12 +201,14 @@ inline std::shared_ptr<homogen_table_iface> get_homogen_table_iface(Object&& obj
 } // namespace v1
 
 using v1::table_iface;
+using v1::generic_table_template;
 using v1::homogen_table_iface;
+using v1::homogen_table_template;
 using v1::csr_table_iface;
-using v1::table_template;
+using v1::csr_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
-using v1::table_builder_template;
+using v1::homogen_table_builder_template;
 using v1::get_homogen_table_iface;
 
 } // namespace oneapi::dal::detail

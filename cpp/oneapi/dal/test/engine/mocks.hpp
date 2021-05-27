@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::test::engine {
 
-class dummy_table_impl : public detail::table_template<detail::table_iface, dummy_table_impl> {
+class dummy_table_impl : public detail::generic_table_template<dummy_table_impl> {
 public:
     explicit dummy_table_impl(std::int64_t row_count, std::int64_t column_count)
             : row_count_(row_count),
@@ -59,33 +59,45 @@ public:
     }
 
     template <typename Data>
-    void pull_rows(const detail::default_host_policy&, array<Data>& block, const range&) const {
+    void pull_rows_template(const detail::default_host_policy&,
+                            array<Data>& block,
+                            const range& row_range) const {
         block.reset();
     }
 
     template <typename Data>
-    void pull_column(const detail::default_host_policy&,
-                     array<Data>& block,
-                     std::int64_t,
-                     const range&) const {
+    void pull_column_template(const detail::default_host_policy&,
+                              array<Data>& block,
+                              std::int64_t column_index,
+                              const range& row_range) const {
         block.reset();
+    }
+
+    template <typename Data>
+    void pull_csr_block_template(const detail::default_host_policy&,
+                                 detail::csr_block<Data>& block,
+                                 const detail::csr_indexing& indexing,
+                                 const range& row_range) const {
+        block.data.reset();
+        block.row_indices.reset();
+        block.column_indices.reset();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename Data>
-    void pull_rows(const detail::data_parallel_policy&,
-                   array<Data>& block,
-                   const range&,
-                   const sycl::usm::alloc&) const {
+    void pull_rows_template(const detail::data_parallel_policy&,
+                            array<Data>& block,
+                            const range& row_range,
+                            const sycl::usm::alloc&) const {
         block.reset();
     }
 
     template <typename Data>
-    void pull_column(const detail::data_parallel_policy&,
-                     array<Data>& block,
-                     std::int64_t,
-                     const range&,
-                     const sycl::usm::alloc&) const {
+    void pull_column_template(const detail::data_parallel_policy&,
+                              array<Data>& block,
+                              std::int64_t column_index,
+                              const range& row_range,
+                              const sycl::usm::alloc&) const {
         block.reset();
     }
 #endif

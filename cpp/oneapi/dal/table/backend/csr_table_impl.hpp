@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::backend {
 
-class csr_table_impl : public detail::table_template<detail::csr_table_iface, csr_table_impl> {
+class csr_table_impl : public detail::csr_table_template<csr_table_impl> {
 public:
     csr_table_impl()
             : col_count_(0),
@@ -69,19 +69,17 @@ public:
         }
     }
 
-    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
     detail::access_iface_host& get_access_iface_host() const override {
-        throw dal::domain_error{
-            detail::error_messages::object_does_not_provide_read_access_to_rows()
-        };
+        using msg = detail::error_messages;
+        throw dal::internal_error{ msg::object_does_not_provide_access_to_rows_or_columns() };
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
     detail::access_iface_dpc& get_access_iface_dpc() const override {
-        throw dal::domain_error{
-            detail::error_messages::object_does_not_provide_read_access_to_rows()
-        };
+        using msg = detail::error_messages;
+        throw dal::internal_error{ msg::object_does_not_provide_access_to_rows_or_columns() };
     }
 #endif
 
@@ -118,50 +116,10 @@ public:
     }
 
     template <typename T>
-    void pull_rows(const detail::default_host_policy& policy,
-                   array<T>& block,
-                   const range& rows) const {
-        throw dal::domain_error(
-            detail::error_messages::object_does_not_provide_read_access_to_rows());
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    template <typename T>
-    void pull_rows(const detail::data_parallel_policy& policy,
-                   array<T>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) const {
-        throw dal::domain_error(
-            detail::error_messages::object_does_not_provide_read_access_to_rows());
-    }
-#endif
-
-    template <typename T>
-    void pull_column(const detail::default_host_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) const {
-        throw dal::domain_error(
-            detail::error_messages::object_does_not_provide_read_access_to_columns());
-    }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    template <typename T>
-    void pull_column(const detail::data_parallel_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) const {
-        throw dal::domain_error(
-            detail::error_messages::object_does_not_provide_read_access_to_columns());
-    }
-#endif
-
-    template <typename T>
-    void pull_csr_block(const detail::default_host_policy& policy,
-                        detail::csr_block<T>& block,
-                        const detail::csr_indexing& indexing,
-                        const range& rows) const {
+    void pull_csr_block_template(const detail::default_host_policy& policy,
+                                 detail::csr_block<T>& block,
+                                 const detail::csr_indexing& indexing,
+                                 const range& rows) const {
         csr_info origin_info{ meta_.get_data_type(0),
                               layout_,
                               row_count_,
@@ -173,7 +131,8 @@ public:
         check_block_row_range(rows);
 
         if (indexing != detail::csr_indexing::one_based) {
-            throw dal::domain_error(detail::error_messages::zero_based_indexing_is_not_supported());
+            throw dal::unimplemented(
+                detail::error_messages::zero_based_indexing_is_not_supported());
         }
 
         block_info block_info{ rows.start_idx, rows.get_element_count(row_count_), indexing };
