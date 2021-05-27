@@ -180,8 +180,8 @@ public:
         set_neighbor_count(neighbor_count);
     }
 
-    /// Creates a new instance of the class with the given :literal:`class_count`
-    /// and :literal:`neighbor_count` property values
+    /// Creates a new instance of the class with the given :literal:`class_count`,
+    /// :literal:`neighbor_count` and :literal:`distance` property values
     template <typename M = Method, typename = detail::enable_if_brute_force_t<M>> // if there are any BC problems in future?
     explicit descriptor(std::int64_t class_count,
                         std::int64_t neighbor_count,

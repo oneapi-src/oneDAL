@@ -46,8 +46,8 @@ public:
     }
 
 private:
-    dal::detail::pimpl<distance_impl> impl_;
     Distance distance_;
+    dal::detail::pimpl<distance_impl> impl_;
 };
 
 template <typename Float, typename Method>
@@ -58,8 +58,8 @@ public:
     distance_impl* get_impl() const override;
 
 private:
-    dal::detail::pimpl<distance_impl> impl_;
     distance_t distance_;
+    dal::detail::pimpl<distance_impl> impl_;
 };
 
 template <typename Float, typename Method>
@@ -70,8 +70,8 @@ public:
     distance_impl* get_impl() const override;
 
 private:
-    dal::detail::pimpl<distance_impl> impl_;
     distance_t distance_;
+    dal::detail::pimpl<distance_impl> impl_;
 };
 
 struct distance_accessor {
