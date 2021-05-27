@@ -47,14 +47,13 @@ services::Status KNNClassificationPredictKernel<algorithmFPType, cpu>::compute(c
     NumericTableConstPtr trainDataTable  = convModel->impl()->getData();
     NumericTableConstPtr trainLabelTable = convModel->impl()->getLabels();
 
-    const KernelParameter * const parameter     = static_cast<const KernelParameter *>(par);
-    const uint32_t k                            = parameter->k;
-    const uint32_t nClasses                     = parameter->nClasses;
-    const VoteWeights voteWeights               = parameter->voteWeights;
-    const DAAL_UINT64 resultsToEvaluate         = parameter->resultsToEvaluate;
-    const DAAL_UINT64 resultsToCompute          = parameter->resultsToCompute;
-    const PairwiseDistanceType pairwiseDistance = parameter->pairwiseDistance;
-    const double minkowskiDegree                = parameter->minkowskiDegree;
+    const uint32_t k                            = par->k;
+    const uint32_t nClasses                     = par->nClasses;
+    const VoteWeights voteWeights               = par->voteWeights;
+    const DAAL_UINT64 resultsToEvaluate         = par->resultsToEvaluate;
+    const DAAL_UINT64 resultsToCompute          = par->resultsToCompute;
+    const PairwiseDistanceType pairwiseDistance = par->pairwiseDistance;
+    const double minkowskiDegree                = par->minkowskiDegree;
 
     daal::algorithms::bf_knn_classification::internal::BruteForceNearestNeighbors<algorithmFPType, cpu> bfnn;
     bfnn.kNeighbors(k, nClasses, voteWeights, resultsToCompute, resultsToEvaluate, trainDataTable.get(), data, trainLabelTable.get(), label, indices,
