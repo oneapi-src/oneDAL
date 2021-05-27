@@ -25,6 +25,10 @@ USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
 USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 
+CONFIGs = release debug
+CONFIG ?= debug
+$(if $(filter $(CONFIGs),$(CONFIG)),,$(error CONFIG must be one of $(CONFIGs)))
+
 req-features = order-only second-expansion
 ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
 $(error This makefile requires a decent make, supporting $(req-features))
@@ -54,6 +58,7 @@ COMPILER_is_$(COMPILER)  := yes
 OS_is_$(_OS)             := yes
 IA_is_$(_IA)             := yes
 PLAT_is_$(PLAT)          := yes
+CONFIG_is_$(CONFIG)      := yes
 
 #===============================================================================
 # Compiler specific part
@@ -91,6 +96,7 @@ OSList          := lnx win mac fbsd
 
 o      := $(if $(OS_is_win),obj,o)
 a      := $(if $(OS_is_win),lib,a)
+d      := $(if $(OS_is_win),$(if $(CONFIG_is_debug),d,),)
 plib   := $(if $(OS_is_win),,lib)
 scr    := $(if $(OS_is_win),bat,sh)
 y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
@@ -175,7 +181,7 @@ DIR:=.
 CPPDIR:=$(DIR)/cpp
 CPPDIR.daal:=$(CPPDIR)/daal
 CPPDIR.onedal:=$(CPPDIR)/oneapi/dal
-WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
+WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(CONFIG)/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
 RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
 RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
@@ -215,7 +221,7 @@ TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
 TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc14),$(TBBDIR.libia.prefix)/$(_IA)/vc14)))
 TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
-TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12_debug.dll)))
+TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/$(if $(CONFIG_is_release),tbb12.dll,tbb12_debug.dll))))
 
 TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
 
@@ -260,7 +266,7 @@ MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/m
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
 MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl.$(a)
+mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
 
 #===============================================================================
@@ -268,20 +274,23 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 #===============================================================================
 include makefile.ver
 
+dep_thr := $(if $(CONFIG_is_release),tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib, tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib)
+dep_seq := $(if $(CONFIG_is_release),msvcrt.lib msvcprt.lib, msvcrtd.lib msvcprtd.lib)
+
 y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MINORBINARY).$(y),.$(y).$(MAJORBINARY).$(MINORBINARY)))
 y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))
 
-core_a       := $(plib)onedal_core.$a
-core_y       := $(plib)onedal_core$(if $(OS_is_win),.$(MAJORBINARY),).$y
-oneapi_a     := $(plib)onedal.$a
-oneapi_y     := $(plib)onedal$(if $(OS_is_win),.$(MAJORBINARY),).$y
-oneapi_a.dpc := $(plib)onedal_dpc.$a
-oneapi_y.dpc := $(plib)onedal_dpc$(if $(OS_is_win),.$(MAJORBINARY),).$y
+core_a       := $(plib)onedal_core$d.$a
+core_y       := $(plib)onedal_core$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+oneapi_a     := $(plib)onedal$d.$a
+oneapi_y     := $(plib)onedal$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+oneapi_a.dpc := $(plib)onedal_dpc$d.$a
+oneapi_y.dpc := $(plib)onedal_dpc$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
-thr_tbb_a := $(plib)onedal_thread.$a
-thr_seq_a := $(plib)onedal_sequential.$a
-thr_tbb_y := $(plib)onedal_thread$(if $(OS_is_win),.$(MAJORBINARY),).$y
-thr_seq_y := $(plib)onedal_sequential$(if $(OS_is_win),.$(MAJORBINARY),).$y
+thr_tbb_a := $(plib)onedal_thread$d.$a
+thr_seq_a := $(plib)onedal_sequential$d.$a
+thr_tbb_y := $(plib)onedal_thread$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+thr_seq_y := $(plib)onedal_sequential$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 daal_jar  := onedal.jar
 
@@ -316,13 +325,13 @@ daaldep.lnx32e.threxport := export_lnx32e.def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
-daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_threadd.$a
+daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread$d.$a
 daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
-daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_cored.$a
+daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core$d.$a
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
-daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
-daaldep.win32e.rt.seq  := msvcrtd.lib msvcprtd.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
+daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) $(dep_thr) $(if $(CHECK_DLL_SIG),Wintrust.lib)
+daaldep.win32e.rt.seq  := $(dep_seq) $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export.def
 
 daaldep.win.threxport.create = grep -v -E '^(;|$$)' $< $(USECPUS.out.grep.filter)
@@ -1039,8 +1048,8 @@ ifneq ($(MKLGPUFPKDIR),)
 # $1: Path to the file to be copied
 # $2: Destination directory
 define .release.sycl.old
-_release_common: $2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1))
-$2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
+_release_common: $2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
+$2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
 $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
