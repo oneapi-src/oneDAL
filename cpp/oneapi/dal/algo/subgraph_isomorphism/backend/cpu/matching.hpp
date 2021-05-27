@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/stack.hpp"
