@@ -274,7 +274,7 @@ template <typename FPType, CpuType cpu>
 class MinkowskiDistances : public PairwiseDistances<FPType, cpu>
 {
 public:
-    MinkowskiDistances(const NumericTable & a, const NumericTable & b, const bool powered = true, const double p = 2.)
+    MinkowskiDistances(const NumericTable & a, const NumericTable & b, const bool powered = true, const double p = 2.0)
         : _a(a), _b(b), _powered(powered), _p(p)
     {}
 

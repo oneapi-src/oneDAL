@@ -52,7 +52,7 @@ public:
     }
 
 private:
-    double degree_ = 2.0;
+    double degree_;
 };
 
 template <typename F, typename M>

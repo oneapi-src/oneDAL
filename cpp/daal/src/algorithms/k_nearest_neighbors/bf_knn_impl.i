@@ -60,7 +60,7 @@ public:
                                 DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
                                 const NumericTable * trainLabelTable, NumericTable * testLabelTable, NumericTable * indicesTable,
                                 NumericTable * distancesTable, bf_knn_classification::prediction::internal::PairwiseDistanceType pairwiseDistance,
-                                double minkowskiDegree)
+                                const double minkowskiDegree)
     {
         const size_t nDims  = trainTable->getNumberOfColumns();
         const size_t nTrain = trainTable->getNumberOfRows();

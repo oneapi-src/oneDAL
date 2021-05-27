@@ -58,9 +58,7 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
     daal_knn::prediction::internal::KernelParameter daal_parameter;
     daal_parameter.nClasses = original_daal_parameter.nClasses;
     daal_parameter.k = original_daal_parameter.k;
-    daal_parameter.dataUseInModel = original_daal_parameter.dataUseInModel;
     daal_parameter.resultsToCompute = original_daal_parameter.resultsToCompute;
-    daal_parameter.engine = original_daal_parameter.engine->clone();
     daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
 
     auto distance_impl = detail::get_distance_impl(desc);
