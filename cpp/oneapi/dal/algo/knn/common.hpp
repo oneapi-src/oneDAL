@@ -115,7 +115,7 @@ public:
     voting_mode get_voting_mode() const;
 
 protected:
-    explicit descriptor_base(const detail::distance_ptr &distance);
+    explicit descriptor_base(const detail::distance_ptr& distance);
 
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
@@ -144,13 +144,17 @@ using v1::enable_if_brute_force_t;
 
 namespace v1 {
 
-/// @tparam Float  The floating-point type that the algorithm uses for
-///                intermediate computations. Can be :expr:`float` or
-///                :expr:`double`.
-/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::brute_force` or :expr:`method::kd_tree`.
-/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::classification`.
+/// @tparam Float       The floating-point type that the algorithm uses for
+///                     intermediate computations. Can be :expr:`float` or
+///                     :expr:`double`.
+/// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
+///                     be :expr:`method::brute_force` or :expr:`method::kd_tree`.
+/// @tparam Task        Tag-type that specifies type of the problem to solve. Can
+///                     be :expr:`task::classification`.
+/// @tparam Distance    The descriptor of the distance used for computations. Can be
+///                     :expr:`minkowski_distance::descriptor` or
+///                     :expr:`chebychev_distance::descriptor`
+
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -174,8 +178,7 @@ public:
     /// Creates a new instance of the class with the given :literal:`class_count`
     /// and :literal:`neighbor_count` property values
     explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count)
-            : base_t(std::make_shared<detail::distance<distance_t>>(
-                  distance_t {})) {
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance_t{})) {
         set_class_count(class_count);
         set_neighbor_count(neighbor_count);
     }
