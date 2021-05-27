@@ -23,7 +23,6 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector.hpp"
-#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
