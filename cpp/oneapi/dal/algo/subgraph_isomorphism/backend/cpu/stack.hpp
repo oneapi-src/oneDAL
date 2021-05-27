@@ -58,6 +58,7 @@ public:
                  const std::uint64_t* pdata,
                  inner_alloc allocator);
     virtual ~vertex_stack();
+    void clean();
 
     graph_status push(const std::uint64_t vertex_id);
     std::int64_t pop();
@@ -309,11 +310,16 @@ vertex_stack<Cpu>::vertex_stack(const std::uint64_t max_states_size,
 }
 
 template <typename Cpu>
-vertex_stack<Cpu>::~vertex_stack() {
+void vertex_stack<Cpu>::clean() {
     allocator_.deallocate<std::uint64_t>(stack_data, stack_size);
     stack_data = nullptr;
     ptop = nullptr;
     stack_size = 0;
+}
+
+template <typename Cpu>
+vertex_stack<Cpu>::~vertex_stack() {
+    this->clean();
 }
 
 template <typename Cpu>
@@ -431,7 +437,7 @@ void dfs_stack<Cpu>::init(const std::uint64_t levels,
 template <typename Cpu>
 void dfs_stack<Cpu>::delete_data() {
     for (std::uint64_t i = 0; i < max_level_size; i++) {
-        data_by_levels[i].template ~vertex_stack<Cpu>();
+        data_by_levels[i].clean();
     }
     operator delete[](data_by_levels);
     data_by_levels = nullptr;
