@@ -314,11 +314,11 @@ bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int6
             std::int64_t* solution_core = allocator_.allocate<std::int64_t>(solution_length);
             if (solution_core != nullptr) {
                 hlocal_stack.fill_solution(solution_core, candidate);
-                engine_solutions.add(&solution_core); /* add new state<Cpu>* into solution<Cpu> */
+                engine_solutions.add(&solution_core);
             }
         }
         else {
-            hlocal_stack.push_into_next_level(candidate); /* add new state<Cpu>* into local_stack */
+            hlocal_stack.push_into_next_level(candidate);
         }
         return true;
     }
@@ -481,7 +481,7 @@ bool matching_engine<Cpu>::check_vertex_candidate(const std::int64_t pattern_ver
         state<Cpu> null_state(allocator_);
         void* place = (void*)allocator_.allocate<state<Cpu>>(1);
         state<Cpu>* new_state = new (place) state<Cpu>(&null_state, target_vertex, allocator_);
-        local_stack.push(new_state); /* add new state<Cpu> into local_stack */
+        local_stack.push(new_state);
         return true;
     }
     return false;
@@ -496,10 +496,10 @@ bool matching_engine<Cpu>::check_vertex_candidate(state<Cpu>* current_state,
         state<Cpu>* new_state = new (place) state<Cpu>(current_state, candidate, allocator_);
 
         if (check_solution && new_state->core_length == solution_length) {
-            engine_solutions.add(new_state); /* add new state<Cpu>* into solution<Cpu> */
+            engine_solutions.add(new_state);
         }
         else {
-            local_stack.push(new_state); /* add new state<Cpu>* into local_stack */
+            local_stack.push(new_state);
         }
         return true;
     }
