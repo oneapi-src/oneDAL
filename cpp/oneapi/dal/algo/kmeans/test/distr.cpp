@@ -26,18 +26,13 @@ namespace oneapi::dal::kmeans::test {
 namespace te = dal::test::engine;
 
 TEST("distributed kmeans on host") {
-    const std::int64_t thread_count = 2;
+    const std::int64_t thread_count = GENERATE(1, 2, 4, 8, 16);
     auto thread_comm = te::thread_communicator{ thread_count };
     auto host_spmd_policy = dal::detail::spmd_policy{ dal::detail::host_policy{}, thread_comm };
 
-    const auto df = te::dataframe_builder{ thread_count * 1000, 10 }.fill_normal(-1.2, 5.1).build();
+    const auto df =
+        te::dataframe_builder{ thread_count * 1024, 128 }.fill_normal(-1.2, 5.1).build();
     const auto df_chunks = df.split(thread_count);
-
-    std::vector<table> chunks;
-    for (const auto& df_chunks : df_chunks) {
-        const auto data = df_chunks.get_table(te::table_id::homogen<float>());
-        chunks.push_back(data);
-    }
 
     thread_comm.execute([=](std::int64_t rank) {
         const std::int64_t cluster_count = 3;
@@ -46,14 +41,15 @@ TEST("distributed kmeans on host") {
                                      .set_max_iteration_count(10)
                                      .set_accuracy_threshold(0.001);
 
-        const float data[] = {
-            0.0, 5.0, 0.0, 0.0, 0.0, //
-            1.0, 1.0, 4.0, 0.0, 0.0, //
-            1.0, 0.0, 0.0, 5.0, 1.0, //
-        };
-        const auto x = homogen_table::wrap(data, 3, 5);
+        // const float data[] = {
+        //     0.0, 5.0, 0.0, 0.0, 0.0, //
+        //     1.0, 1.0, 4.0, 0.0, 0.0, //
+        //     1.0, 0.0, 0.0, 5.0, 1.0, //
+        // };
+        // const auto data = homogen_table::wrap(data, 3, 5);
 
-        const auto distributed_train_result = dal::train(kmeans_desc, x);
+        const auto data = df_chunks[rank].get_table(te::table_id::homogen<float>());
+        const auto distributed_train_result = dal::train(host_spmd_policy, kmeans_desc, data);
     });
 }
 

@@ -22,6 +22,7 @@
 */
 
 #include "services/daal_defines.h"
+#include "src/algorithms/service_threading.h"
 
 #if !(defined DAAL_CPU_TOPO_DISABLED)
 
@@ -56,6 +57,7 @@ namespace services
 namespace internal
 {
 static glktsn glbl_obj;
+static Mutex glbl_obj_mutex;
 
 static char scratch[BLOCKSIZE_4K]; // scratch space large enough for OS to write SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX
 
@@ -1714,6 +1716,7 @@ static void __internal_daal_buildSystemTopologyTables()
  */
 static void __internal_daal_initCpuTopology()
 {
+    AUTOLOCK(glbl_obj_mutex);
     if (!glbl_obj.isInit) __internal_daal_buildSystemTopologyTables();
 }
 
