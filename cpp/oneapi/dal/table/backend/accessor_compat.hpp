@@ -225,7 +225,6 @@ public:
     }
 
 private:
-private:
     template <typename T>
     void template_pull(const detail::data_parallel_policy& policy,
                        dal::v1::array<T>& block,
