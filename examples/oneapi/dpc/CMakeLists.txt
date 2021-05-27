@@ -66,7 +66,7 @@ function (change_md_to_mdd)
             c_flag
             cr_flag)
     foreach(flag ${flags})
-        string(REPLACE "/MD" "/MDd" ${flag} "${${flag}}")
+        string(REPLACE "/MD" "/MDd /debug:none" ${flag} "${${flag}}")
     endforeach()
 
     set(CMAKE_CXX_FLAGS ${cxx_flag} PARENT_SCOPE)
