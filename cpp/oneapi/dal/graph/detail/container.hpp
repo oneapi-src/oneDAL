@@ -17,6 +17,8 @@
 #pragma once
 
 #include <tuple>
+#include <iostream>
+#include <new>
 
 #include "oneapi/dal/array.hpp"
 
@@ -27,16 +29,41 @@
 #define PRAGMA_IVDEP
 #define PRAGMA_VECTOR_ALWAYS
 #endif
-
+using namespace std;
 namespace oneapi::dal::preview::detail {
 
+template <typename T, typename Allocator = std::allocator<char>>
+class vector_container;
+
 template <typename T>
-inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
+void copy(const T* old_begin, const T* old_end, T* new_begin) {
+    //std::cout << "copy started ";
     const int64_t count = std::distance(old_begin, old_end);
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
+    //std::cout << count  << std::endl;
+    //cout <<"T size " << sizeof(T) << endl;
+    //PRAGMA_IVDEP
+    //PRAGMA_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < count; i++) {
+        //T element(old_begin[i]);
+        //std::swap(element, new_begin[i]);
         new_begin[i] = old_begin[i];
+    }
+    //cout << "copy ends ";
+}
+
+/*
+template <>
+void copy(const vector_container<int>* old_begin, const vector_container<int>* old_end,vector_container<int>* new_begin);
+*/
+
+
+template <typename T>
+inline void fill(T* begin, T* end, const T& value) {
+    const int64_t count = std::distance(begin, end);
+    //PRAGMA_IVDEP
+    //PRAGMA_VECTOR_ALWAYS
+    for (std::int64_t i = 0; i < count; i++) {
+        begin[i] = value;
     }
 }
 
@@ -72,7 +99,29 @@ inline void copy(const std::tuple<First, Second, Third>& from,
 template <typename T>
 using container = dal::array<T>;
 
-template <typename T, typename Allocator = std::allocator<char>>
+
+template<typename T, typename Alloc>
+struct construct {
+    void operator()(T* data_ptr, std::int64_t capacity, const Alloc& a) {
+       data_ptr = new (data_ptr) T[capacity]();
+       /*for(int64_t i = 0; i < capacity; ++i) {
+                new (data_ptr + i) T(a); 
+        } */
+    }
+};
+
+template<typename T, typename InnerAlloc, typename OuterAlloc>
+struct construct<vector_container<T, InnerAlloc>, OuterAlloc> {
+    void operator()(vector_container<T, InnerAlloc>* data_ptr, std::int64_t capacity, const OuterAlloc& a) {
+       using data_t = vector_container<T, InnerAlloc>;
+       InnerAlloc inner_a(a);
+       for(int64_t i = 0; i < capacity; ++i) {
+                new (data_ptr + i) data_t(inner_a); 
+        } 
+    }
+};
+
+template <typename T, typename Allocator>
 class vector_container {
 public:
     using data_t = T;
@@ -81,17 +130,63 @@ public:
     using empty_delete = dal::detail::empty_delete<const T>;
 
     vector_container() : impl_(new impl_t()), allocator_(allocator_type()) {
+        //cout << "constr size 0 " << endl;
         T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
+        //cout << "allocated via default alloc" << endl;
+        
+        //data_ptr = new (data_ptr) T[capacity_]();
+        construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
         impl_->reset(data_ptr, capacity_, empty_delete{});
     }
 
-    vector_container(int64_t count) : vector_container() {
+    vector_container(int64_t count, const allocator_type& a) : vector_container(a) {
+        //cout << "constr: count+alloc " << endl;
         this->resize(count);
     }
 
+    vector_container(int64_t count) : vector_container(count, allocator_type()) {
+        //cout << "constr: only count" << endl;
+        this->resize(count);
+    }
+    /*
+    vector_container(int64_t count) : vector_container() {
+        this->resize(count);
+    }*/
+
     vector_container(const allocator_type& a) : impl_(new impl_t()), allocator_(a) {
+        //cout << "constr size 1 " << endl;
         T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
+        //cout << "before placement new" << endl;
+        //data_ptr = new (data_ptr) T[capacity_]();
+        construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
+        //cout << "after placement new" << endl;
         impl_->reset(data_ptr, capacity_, empty_delete{});
+    }
+
+    vector_container(int64_t count, const T& value, const allocator_type& a) : vector_container(count, a) {
+        //cout << "constr size 3 " << endl;
+        fill(impl_->get_mutable_data(), impl_->get_mutable_data() + capacity_, value);
+    }
+
+    vector_container(const vector_container<T, allocator_type>& other) : impl_(new impl_t()), allocator_(other.get_allocator()) {
+        //std::cout << std::endl << "copy constructor is started " << std::endl;
+        capacity_ = other.capacity();
+        //std::cout << "1" << std::endl;
+        count_ = other.size();
+        //std::cout << "2" << std::endl;
+        T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
+        //std::cout << "3" << std::endl;
+        //data_ptr = new (data_ptr) T[capacity_]();
+        construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
+        //std::cout << "4" << std::endl;
+        const T* other_data_ptr = other.get_data();
+        //std::cout << "5" << std::endl;
+        //std::cout << "before copy" << std::endl;
+        preview::detail::copy(other_data_ptr, other_data_ptr + count_, data_ptr);
+        //std::cout << "after copy" << std::endl;
+
+        impl_->reset(data_ptr, capacity_, empty_delete{});
+        //std::cout << "copy constructor is ended" << std::endl;
     }
 
     virtual ~vector_container() {
@@ -118,6 +213,10 @@ public:
 
     std::int64_t size() const noexcept {
         return count_;
+    }
+
+    std::int64_t capacity() const noexcept {
+        return capacity_;
     }
 
     bool empty() const noexcept {
@@ -152,12 +251,14 @@ public:
     constexpr void reserve(std::int64_t new_capacity) {
         if (new_capacity > capacity_) {
             T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, new_capacity);
-            data_ptr = new (data_ptr) T[new_capacity]();
+            construct<data_t, allocator_type>{}(data_ptr, new_capacity, allocator_);
             T* old_data_ptr = impl_->get_mutable_data();
             preview::detail::copy(old_data_ptr, old_data_ptr + count_, data_ptr);
             impl_->reset(data_ptr, new_capacity, empty_delete{});
             // TODO: move deallocation to dal array deleter.
+            std::cout << "deallocate.. "<< old_data_ptr <<" " << capacity_ << endl;
             oneapi::dal::preview::detail::deallocate(allocator_, old_data_ptr, capacity_);
+            std::cout << "deallocated.." << endl;
             capacity_ = new_capacity;
         }
     }
@@ -190,5 +291,6 @@ private:
 
     friend dal::detail::pimpl_accessor;
 };
+
 
 } // namespace oneapi::dal::preview::detail

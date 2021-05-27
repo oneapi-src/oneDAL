@@ -26,9 +26,10 @@ delta_stepping<Float, task::one_to_all, dal::preview::detail::topology<std::int3
 operator()(const dal::detail::host_policy& policy,
            const detail::descriptor_base<task::one_to_all>& desc,
            const dal::preview::detail::topology<std::int32_t>& t,
-           const EdgeValue* vals) const {
+           const EdgeValue* vals,
+           byte_alloc_iface* alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::delta_stepping<decltype(cpu)>(desc, t, vals);
+        return backend::delta_stepping<decltype(cpu)>(desc, t, vals, alloc_ptr);
     });
 }
 
