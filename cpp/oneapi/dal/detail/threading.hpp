@@ -107,6 +107,11 @@ ONEDAL_EXPORT void _onedal_parallel_reduce_tls(void *tlsPtr,
                                                void *a,
                                                oneapi::dal::preview::tls_reduce_functype func);
 ONEDAL_EXPORT void _onedal_del_tls_ptr(void *tlsPtr);
+
+ONEDAL_EXPORT void *_onedal_new_mutex();
+ONEDAL_EXPORT void _onedal_lock_mutex(void *mutex_ptr);
+ONEDAL_EXPORT void _onedal_unlock_mutex(void *mutex_ptr);
+ONEDAL_EXPORT void _onedal_del_mutex(void *mutex_ptr);
 }
 
 namespace oneapi::dal::detail {
@@ -411,6 +416,46 @@ public:
 private:
     Allocator _alloc;
     size_t _count;
+};
+
+class mutex {
+public:
+    mutex() : impl_(_onedal_new_mutex()) {}
+    mutex(const mutex &) = delete;
+    mutex &operator=(const mutex &) = delete;
+    ~mutex() {
+        if (impl_) {
+            _onedal_del_mutex(impl_);
+        }
+    }
+    void lock() {
+        if (impl_) {
+            _onedal_lock_mutex(impl_);
+        }
+    }
+    void unlock() {
+        if (impl_) {
+            _onedal_unlock_mutex(impl_);
+        }
+    }
+
+private:
+    void *impl_;
+};
+
+class scoped_lock {
+public:
+    explicit scoped_lock(mutex &m) : mutex_(m) {
+        mutex_.lock();
+    }
+    scoped_lock(const scoped_lock &) = delete;
+    scoped_lock(scoped_lock &&) = delete;
+    ~scoped_lock() {
+        mutex_.unlock();
+    }
+
+private:
+    mutex &mutex_;
 };
 
 } // namespace oneapi::dal::detail

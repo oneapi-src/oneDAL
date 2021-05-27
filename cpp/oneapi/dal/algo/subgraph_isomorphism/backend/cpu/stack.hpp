@@ -19,9 +19,9 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
+#include "oneapi/dal/detail/threading.hpp"
 #include <stack>
 #include <vector>
-#include <mutex>
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
@@ -97,9 +97,7 @@ private:
     void internal_push(dfs_stack& s, std::uint64_t level);
 
     std::stack<std::vector<std::uint64_t>> data_;
-    std::mutex mutex_;
-
-    using lock_type = std::scoped_lock<std::mutex>;
+    dal::detail::mutex mutex_;
 };
 
 class dfs_stack {
