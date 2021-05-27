@@ -41,6 +41,12 @@ const std::int64_t* csr_table::get_row_indices() const {
     return impl.get_row_indices().get_data();
 }
 
+std::int64_t csr_table::get_non_zero_count() const {
+    const std::int64_t non_zero_count = get_row_indices()[get_row_count()] - get_row_indices()[0];
+    ONEDAL_ASSERT(non_zero_count >= 0);
+    return non_zero_count;
+}
+
 void csr_table::init_impl(std::int64_t column_count,
                           std::int64_t row_count,
                           const dal::array<byte_t>& data,

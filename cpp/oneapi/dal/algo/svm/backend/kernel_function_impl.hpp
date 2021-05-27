@@ -29,7 +29,8 @@ class kernel_function_impl : public base {
 public:
     virtual ~kernel_function_impl() = default;
 
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function() = 0;
+    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function(
+        bool is_dense) = 0;
 };
 
 } // namespace v1

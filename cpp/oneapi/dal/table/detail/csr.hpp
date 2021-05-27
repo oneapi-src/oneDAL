@@ -62,6 +62,10 @@ public:
         return kind();
     }
 
+    /// The number of non-zero elements in the table.
+    /// @remark default = 0
+    std::int64_t get_non_zero_count() const;
+
     /// Returns the :literal:`data` pointer cast to the :literal:`Data` type. No checks are
     /// performed that this type is the actual type of the data within the table.
     template <typename Data>

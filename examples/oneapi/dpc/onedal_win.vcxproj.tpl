@@ -62,6 +62,7 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -79,6 +80,43 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <TreatWarningAsError />
+      <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>onedal_dpc_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source</AdditionalIncludeDirectories>
+      <EnableSyclOffload>true</EnableSyclOffload>
+      <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SYCLOptimization>Disabled</SYCLOptimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <TreatWarningAsError />
+      <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>onedal_dpc_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.sequential|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source</AdditionalIncludeDirectories>
+      <EnableSyclOffload>true</EnableSyclOffload>
+      <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SYCLOptimization>Disabled</SYCLOptimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <TreatWarningAsError />

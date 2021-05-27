@@ -50,31 +50,7 @@ function (set_link_and_threading_types)
     endif()
 endfunction()
 
-function (change_md_to_mt)
-    set(cxx_flag ${CMAKE_CXX_FLAGS})
-    set(cxxr_flag ${CMAKE_CXX_FLAGS_RELEASE})
-    set(c_flag ${CMAKE_C_FLAGS})
-    set(cr_flag ${CMAKE_C_FLAGS_RELEASE})
-
-    set(flags
-            cxx_flag
-            cxxr_flag
-            c_flag
-            cr_flag)
-    foreach(flag ${flags})
-        string(REPLACE "/MD" "/MT" ${flag} "${${flag}}")
-    endforeach()
-
-    set(CMAKE_CXX_FLAGS ${cxx_flag} PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS_RELEASE ${cxxr_flag} PARENT_SCOPE)
-    set(CMAKE_C_FLAGS ${c_flag} PARENT_SCOPE)
-    set(CMAKE_C_FLAGS_RELEASE ${cr_flag} PARENT_SCOPE)
-endfunction()
-
 set_link_and_threading_types()
-if (WIN32)
-    change_md_to_mt()
-endif()
 
 find_package(oneDAL REQUIRED)
 
