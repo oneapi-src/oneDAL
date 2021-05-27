@@ -55,7 +55,7 @@ public:
         for (std::int64_t j = 0; j < height_; j += lm) {
             const Float* from = input_ + col_idx + lstride_ * j;
             sycl::global_ptr<const Float> global(from);
-            const auto count = std::min<std::int32_t>(lm, height_ - j);
+            const auto count = sycl::min(static_cast<std::int32_t>(lm), static_cast<std::int32_t>(height_ - j));
             it.async_work_group_copy<const Float>(local, global, count, lstride_).wait();
             // Exclusive for EU
             for (std::int32_t i = loc_idx; i < count; i += range) {

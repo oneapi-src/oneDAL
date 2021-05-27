@@ -25,7 +25,6 @@ USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
 USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 
-#MDD
 CONFIGs = release debug
 CONFIG ?= release
 $(if $(filter $(CONFIGs),$(CONFIG)),,$(error CONFIG must be one of $(CONFIGs)))
@@ -59,7 +58,6 @@ COMPILER_is_$(COMPILER)  := yes
 OS_is_$(_OS)             := yes
 IA_is_$(_IA)             := yes
 PLAT_is_$(PLAT)          := yes
-#MDD
 CONFIG_is_$(CONFIG)      := yes
 
 #===============================================================================
@@ -183,7 +181,7 @@ DIR:=.
 CPPDIR:=$(DIR)/cpp
 CPPDIR.daal:=$(CPPDIR)/daal
 CPPDIR.onedal:=$(CPPDIR)/oneapi/dal
-WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
+WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(CONFIG)/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
 RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
 RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
@@ -223,8 +221,6 @@ TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
 TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc14),$(TBBDIR.libia.prefix)/$(_IA)/vc14)))
 TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
-#MDD
-#TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12.dll)))
 TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/$(if $(CONFIG_is_release),tbb12.dll,tbb12_debug.dll))))
 
 TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
@@ -278,14 +274,12 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 #===============================================================================
 include makefile.ver
 
-#MDD
-dep_thr := $(if $(CONFIG_is_release), tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib, tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib)
+dep_thr := $(if $(CONFIG_is_release),tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib, tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib)
 dep_seq := $(if $(CONFIG_is_release),msvcrt.lib msvcprt.lib, msvcrtd.lib msvcprtd.lib)
 
 y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MINORBINARY).$(y),.$(y).$(MAJORBINARY).$(MINORBINARY)))
 y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))
 
-#MDD TODO. condition on configuration. "d" for MDd.
 core_a       := $(plib)onedal_core$d.$a
 core_y       := $(plib)onedal_core$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 oneapi_a     := $(plib)onedal$d.$a
@@ -331,14 +325,11 @@ daaldep.lnx32e.threxport := export_lnx32e.def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
-#MDD
 daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread$d.$a
 daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
 daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core$d.$a
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
-#daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
-#daaldep.win32e.rt.seq  := msvcrt.lib msvcprt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) $(dep_thr) $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.rt.seq  := $(dep_seq) $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export.def
