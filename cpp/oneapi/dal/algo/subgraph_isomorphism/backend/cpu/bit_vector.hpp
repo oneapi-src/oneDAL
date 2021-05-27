@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt_avx.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector_popcount.hpp"
@@ -42,7 +43,7 @@ public:
     };
 
     static constexpr std::uint8_t power_of_two(const std::uint8_t bit_val) {
-        return 31 - ONEDAL_lzcnt_u32(bit_val);
+        return 31 - ONEDAL_lzcnt_u32<Cpu>(bit_val);
     };
 
     bit_vector(const inner_alloc allocator);

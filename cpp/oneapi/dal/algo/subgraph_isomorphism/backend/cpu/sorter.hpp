@@ -121,7 +121,6 @@ sorter<Cpu>::sorter(const graph<Cpu>* target, inner_alloc allocator) : sorter(al
         delta_probability /= static_cast<float>(vertex_count);
     }
 
-    // possible parallelization
     for (std::int64_t i = 0; i < vertex_count; i++) {
         p_degree_probability[target->get_vertex_degree(i)] += delta_probability;
 
@@ -236,7 +235,6 @@ std::int64_t sorter<Cpu>::find_minimum_probability_index_by_mask(
     float global_minimum = 1.1;
     std::int64_t result = -1;
     std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
-    // find minimum for all elements
     if (pbit_mask == nullptr || bit_vector<Cpu>::popcount(bit_array_size, pbit_mask) == 0) {
         for (std::int64_t i = 0; i < vertex_count; i++) {
             if (pbit_core_mask == nullptr ||

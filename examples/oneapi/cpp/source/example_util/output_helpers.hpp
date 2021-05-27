@@ -65,8 +65,6 @@ void print_table_int(const oneapi::dal::table &table) {
     for (std::int64_t i = 0; i < table.get_row_count(); i++) {
         for (std::int64_t j = 0; j < table.get_column_count(); j++) {
             std::cout << x[i * table.get_column_count() + j];
-            // if (j < (table.get_column_count() - 1))
-            //     std::cout << ",";
         }
         std::cout << std::endl;
     }

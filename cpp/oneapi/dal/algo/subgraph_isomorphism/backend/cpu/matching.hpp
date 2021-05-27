@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <memory>
 #include <atomic>
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
@@ -261,7 +260,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
         }
     }
 
-    ~vertex_candidates; // inversion ?
+    ~vertex_candidates;
 
     ONEDAL_IVDEP
     for (std::int64_t j = current_level_index; j >= divider; j--) { //j > divider - 1
@@ -287,10 +286,10 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
     std::int32_t popcnt;
     for (std::int64_t i = 0; i < size_in_dword; i++) {
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
-        popcnt = ONEDAL_popcnt64(*ptr);
+        popcnt = ONEDAL_popcnt64<Cpu>(*ptr);
         ONEDAL_ASSERT(popcnt <= 64);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
+            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64<Cpu>(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
             feasible_result_count += check_vertex_candidate(check_solution, candidate);
@@ -299,7 +298,6 @@ std::int64_t matching_engine<Cpu>::extract_candidates(bool check_solution) {
     for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
         while (pstart_byte[i] > 0) {
             std::int64_t candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
-            ONEDAL_ASSERT(candidate < 8);
             pstart_byte[i] ^= (1 << candidate);
             candidate += (i << 3);
             feasible_result_count += check_vertex_candidate(check_solution, candidate);
@@ -457,9 +455,9 @@ std::int64_t matching_engine<Cpu>::extract_candidates(state* current_state, bool
     std::int64_t popcnt;
     for (std::int64_t i = 0; i < size_in_dword; i++) {
         ptr = (std::uint64_t*)(pstart_byte + (i << 3));
-        popcnt = ONEDAL_popcnt64(*ptr);
+        popcnt = ONEDAL_popcnt64<Cpu>(*ptr);
         for (std::int64_t j = 0; j < popcnt; j++) {
-            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64(*ptr);
+            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64<Cpu>(*ptr);
             (*ptr) ^= (std::uint64_t)1 << candidate;
             candidate += (i << 6);
             feasible_result_count +=
@@ -545,8 +543,8 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-                state_exploration_bit();
-            }
+            state_exploration_bit();
+        }
             else {
                 gstack.pop(hlocal_stack);
                 if (hlocal_stack.empty()) {
@@ -561,7 +559,7 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
                     is_busy_engine = true;
                     ++busy_engine_count;
                 }
-            }
+    }
         }
     }
     // while (hlocal_stack.states_in_stack() > 0) {
@@ -576,8 +574,8 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-                state_exploration_list();
-            }
+            state_exploration_list();
+        }
             else {
                 gstack.pop(hlocal_stack);
                 if (hlocal_stack.empty()) {

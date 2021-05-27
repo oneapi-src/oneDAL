@@ -18,7 +18,6 @@
 #include <map>
 #include <set>
 
-#include "example_util/output_helpers_graph.hpp"
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism.hpp"
 #include "oneapi/dal/exceptions.hpp"
@@ -148,8 +147,7 @@ int main(int argc, char **argv) {
 
     // extract the result
     std::cout << "Number of matchings: " << result.get_match_count() << std::endl;
-    // std::cout << "Matchings:\n" << result.get_vertex_match() << std::endl;
-    // print_table_int_sorted(result.get_vertex_match());
+    // std::cout << "Matchings:" << std::endl << result.get_vertex_match() << std::endl;
 
     return 0;
 }
