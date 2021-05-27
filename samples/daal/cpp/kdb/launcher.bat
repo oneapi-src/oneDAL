@@ -48,7 +48,7 @@ if not exist %RESULT_DIR% md %RESULT_DIR%
 
 echo %RESULT_DIR%
 
-set CFLAGS=-nologo -w -DDAAL_CHECK_PARAMETER /I %KDB_HEADER_PATH%
+set CFLAGS=-MD -nologo -w -DDAAL_CHECK_PARAMETER /I %KDB_HEADER_PATH%
 set LFLAGS=-nologo
 set LIB_DAAL=onedal_core.lib onedal_thread.lib
 set LIB_DAAL_DLL=onedal_core_dll.lib

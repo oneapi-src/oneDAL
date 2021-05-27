@@ -28,7 +28,7 @@ public:
               column_count_(column_count) {}
 
     std::int64_t get_kind() const override {
-        return homogen_table::kind();
+        return -1;
     }
 
     std::int64_t get_column_count() const override {

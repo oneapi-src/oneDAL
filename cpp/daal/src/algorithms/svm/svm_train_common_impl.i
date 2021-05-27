@@ -64,18 +64,20 @@ namespace internal
  * \return The function returns m(alpha) = max(-y[i]*grad[i]): i belongs to I_UP (alpha)
  */
 template <typename algorithmFPType, CpuType cpu>
-algorithmFPType HelperTrainSVM<algorithmFPType, cpu>::WSSi(size_t nActiveVectors, const algorithmFPType * grad, const char * I, int & Bi)
+algorithmFPType HelperTrainSVM<algorithmFPType, cpu>::WSSi(size_t nActiveVectors, const algorithmFPType * grad, const char * I, int & Bi,
+                                                           SignNuType signNuType)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(findMaximumViolatingPair.WSSi);
 
     Bi                   = -1;
     algorithmFPType GMin = (MaxVal<algorithmFPType>::get()); // some big negative number
+    char sign            = getSign(signNuType);
 
     /* Find i index of the working set (Bi) */
     for (size_t i = 0; i < nActiveVectors; ++i)
     {
         const algorithmFPType objFunc = grad[i];
-        if ((I[i] & up) && objFunc < GMin)
+        if ((I[i] & sign) && (I[i] & up) && objFunc < GMin)
         {
             GMin = objFunc;
             Bi   = i;
@@ -88,7 +90,8 @@ template <typename algorithmFPType, CpuType cpu>
 void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
                                                              const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                                              const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau,
-                                                             int & Bj, algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta)
+                                                             int & Bj, algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta,
+                                                             SignNuType signNuType)
 {
     algorithmFPType fpMax = MaxVal<algorithmFPType>::get();
     GMax                  = -fpMax; // some big negative number
@@ -97,9 +100,15 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart
     const algorithmFPType zero(0.0);
     const algorithmFPType two(2.0);
 
+    char sign = getSign(signNuType);
+
     for (size_t j = jStart; j < jEnd; j++)
     {
         const algorithmFPType gradj = grad[j];
+        if (!(I[j] & sign))
+        {
+            continue;
+        }
         if ((I[j] & low) != low)
         {
             continue;
@@ -134,9 +143,9 @@ template <typename algorithmFPType, CpuType cpu>
 void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(const size_t jStart, const size_t jEnd, const algorithmFPType * KiBlock,
                                                      const algorithmFPType * kernelDiag, const algorithmFPType * grad, const char * I,
                                                      const algorithmFPType GMin, const algorithmFPType Kii, const algorithmFPType tau, int & Bj,
-                                                     algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta)
+                                                     algorithmFPType & GMax, algorithmFPType & GMax2, algorithmFPType & delta, SignNuType signNuType)
 {
-    WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta);
+    WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
 }
 
 template <CpuType cpu, typename TKey>

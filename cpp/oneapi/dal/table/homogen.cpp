@@ -20,11 +20,20 @@
 namespace oneapi::dal {
 namespace v1 {
 
+static std::shared_ptr<detail::homogen_table_iface> get_homogen_iface(const table& other) {
+    if (const auto homogen_iface = detail::get_homogen_table_iface(other)) {
+        return homogen_iface;
+    }
+    return std::make_shared<backend::homogen_table_impl>();
+}
+
 int64_t homogen_table::kind() {
     return 1;
 }
 
 homogen_table::homogen_table() : homogen_table(new backend::homogen_table_impl{}) {}
+
+homogen_table::homogen_table(const table& other) : homogen_table(get_homogen_iface(other)) {}
 
 template <typename Policy>
 void homogen_table::init_impl(const Policy& policy,
