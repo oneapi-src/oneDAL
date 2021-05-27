@@ -746,7 +746,7 @@ bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, 
     DAAL_CHECK_MALLOC(bCopy.get());
 
     int copy_status = services::internal::daal_memcpy_s(aCopy.get(), n * n * sizeof(FPType), a, n * n * sizeof(FPType));
-    copy_status |= services::internal::daal_memcpy_s(bCopy.get(), n * sizeof(FPType), b, n * sizeof(FPType));
+    copy_status += services::internal::daal_memcpy_s(bCopy.get(), n * sizeof(FPType), b, n * sizeof(FPType));
 
     if (copy_status != 0) return false;
 
@@ -757,7 +757,7 @@ bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, 
         bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential, true);
         if (status)
         {
-            status |= services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType));
+            status = status && (services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType)) == 0);
         }
         return status;
     }
