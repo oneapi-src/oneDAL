@@ -491,20 +491,22 @@ template <>
 float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)
 {
     daal::internal::mkl::MklMath<float, avx512> math;
-    float * tmp = new float[16];
-    float d     = 0.0;
 
-    __m512 * ptr512x = (__m512 *)x;
-    __m512 * ptr512y = (__m512 *)y;
+    const size_t vecSize = 16;
+    float d     = 0.0;
+    float * tmp = new float[vecSize];
+    const __m512 * ptr512x = (__m512 *)x;
+    const __m512 * ptr512y = (__m512 *)y;
 
     if (_p == 1.0)
     {
-        for (size_t i = 0; i < n / 16; ++i)
+        size_t i = 0;
+        for (; vecSize * i < n; ++i)
         {
             d += _mm512_reduce_add_ps(_mm512_abs_ps(_mm512_sub_ps(ptr512x[i], ptr512y[i])));
         }
 
-        for (size_t i = (n / 16) * 16; i < n; ++i)
+        for (i *= vecSize; i < n; ++i)
         {
             d += math.sFabs(x[i] - y[i]);
         }
@@ -513,7 +515,8 @@ float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const 
     }
     else
     {
-        for (size_t i = 0; i < n / 16; ++i)
+        size_t i = 0;
+        for (; vecSize * i < n; ++i)
         {
             _mm512_storeu_ps(tmp, _mm512_abs_ps(_mm512_sub_ps(ptr512x[i], ptr512y[i])));
             math.vPowx(4, tmp, _p, tmp);
@@ -522,7 +525,7 @@ float MinkowskiDistances<float, avx512>::computeDistance(const float * x, const 
 
         delete[] tmp;
 
-        for (size_t i = (n / 16) * 16; i < n; ++i)
+        for (i *= vecSize; i < n; ++i)
         {
             d += math.sPowx(math.sFabs(x[i] - y[i]), _p);
         }
@@ -538,19 +541,21 @@ double MinkowskiDistances<double, avx512>::computeDistance(const double * x, con
 {
     daal::internal::mkl::MklMath<double, avx512> math;
 
+    const size_t vecSize = 8;
     double d          = 0.0;
-    double * tmp      = new double[8];
-    __m512d * ptr512x = (__m512d *)x;
-    __m512d * ptr512y = (__m512d *)y;
+    double * tmp      = new double[vecSize];
+    const __m512d * ptr512x = (__m512d *)x;
+    const __m512d * ptr512y = (__m512d *)y;
 
     if (_p == 1.0)
     {
-        for (size_t i = 0; i < n / 8; ++i)
+        size_t i = 0;
+        for (; vecSize * i < n; ++i)
         {
             d += _mm512_reduce_add_pd(_mm512_abs_pd(_mm512_sub_pd(ptr512x[i], ptr512y[i])));
         }
 
-        for (size_t i = (n / 8) * 8; i < n; ++i)
+        for (i *= vecSize; i < n; ++i)
         {
             d += math.sFabs(x[i] - y[i]);
         }
@@ -559,7 +564,8 @@ double MinkowskiDistances<double, avx512>::computeDistance(const double * x, con
     }
     else
     {
-        for (size_t i = 0; i < n / 8; ++i)
+        size_t i = 0;
+        for (; vecSize * i < n; ++i)
         {
             _mm512_storeu_pd(tmp, _mm512_abs_pd(_mm512_sub_pd(ptr512x[i], ptr512y[i])));
             math.vPowx(8, tmp, _p, tmp);
@@ -568,7 +574,7 @@ double MinkowskiDistances<double, avx512>::computeDistance(const double * x, con
 
         delete[] tmp;
 
-        for (size_t i = (n / 8) * 8; i < n; ++i)
+        for (i *= vecSize; i < n; ++i)
         {
             d += math.sPowx(math.sFabs(x[i] - y[i]), _p);
         }
@@ -583,37 +589,34 @@ template <>
 float ChebychevDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)
 {
     daal::internal::mkl::MklMath<float, avx512> math;
-    float * tmp = new float[16];
+    
+    const size_t vecSize = 16;
     float d     = 0.0;
-
-    __m512 * ptr512x = (__m512 *)x;
-    __m512 * ptr512y = (__m512 *)y;
+    float * tmp = new float[vecSize];
+    const __m512 * ptr512x = (__m512 *)x;
+    const __m512 * ptr512y = (__m512 *)y;
 
     __m512 tmp512 = _mm512_abs_ps(_mm512_sub_ps(ptr512x[0], ptr512y[0]));
 
-    for (size_t i = 1; i < n / 16; ++i)
+    size_t i = 1;
+    for (; vecSize * i < n; ++i)
     {
         tmp512 = _mm512_max_ps(tmp512, _mm512_abs_ps(_mm512_sub_ps(ptr512x[i], ptr512y[i])));
     }
 
     _mm512_storeu_ps(tmp, tmp512);
+    size_t ii = i;
 
-    for (size_t i = 0; i < 16; ++i)
+    for (i = 0; i < vecSize; ++i)
     {
-        if (tmp[i] > d)
-        {
-            d = tmp[i];
-        }
+        d = (tmp[i] > d) ? tmp[i] : d;
     }
 
     delete[] tmp;
 
-    for (size_t i = (n / 16) * 16; i < n; ++i)
+    for (ii *= vecSize; ii < n; ++ii)
     {
-        if (math.sFabs(x[i] - y[i]) > d)
-        {
-            d = math.sFabs(x[i] - y[i]);
-        }
+        d = (math.sFabs(x[i] - y[i]) > d) ? math.sFabs(x[i] - y[i]) : d;
     }
 
     return d;
@@ -624,36 +627,33 @@ double ChebychevDistances<double, avx512>::computeDistance(const double * x, con
 {
     daal::internal::mkl::MklMath<double, avx512> math;
 
+    const size_t vecSize = 8;
     double d          = 0.0;
     double * tmp      = new double[8];
-    __m512d * ptr512x = (__m512d *)x;
-    __m512d * ptr512y = (__m512d *)y;
+    const __m512d * ptr512x = (__m512d *)x;
+    const __m512d * ptr512y = (__m512d *)y;
 
     __m512d tmp512 = _mm512_abs_pd(_mm512_sub_pd(ptr512x[0], ptr512y[0]));
 
-    for (size_t i = 1; i < n / 8; ++i)
+    size_t i = 1;
+    for (; vecSize * i < n; ++i)
     {
         tmp512 = _mm512_max_pd(tmp512, _mm512_abs_pd(_mm512_sub_pd(ptr512x[i], ptr512y[i])));
     }
 
     _mm512_storeu_pd(tmp, tmp512);
+    size_t ii = i;
 
-    for (size_t i = 0; i < 8; ++i)
+    for (i = 0; i < vecSize; ++i)
     {
-        if (tmp[i] > d)
-        {
-            d = tmp[i];
-        }
+        d = (tmp[i] > d) ? tmp[i] : d;
     }
 
     delete[] tmp;
 
-    for (size_t i = (n / 8) * 8; i < n; ++i)
+    for (ii *= vecSize; ii < n; ++ii)
     {
-        if (math.sFabs(x[i] - y[i]) > d)
-        {
-            d = math.sFabs(x[i] - y[i]);
-        }
+        d = (math.sFabs(x[i] - y[i]) > d) ? math.sFabs(x[i] - y[i]) : d;
     }
 
     return d;

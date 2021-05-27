@@ -154,7 +154,6 @@ namespace v1 {
 /// @tparam Distance    The descriptor of the distance used for computations. Can be
 ///                     :expr:`minkowski_distance::descriptor` or
 ///                     :expr:`chebychev_distance::descriptor`
-
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
