@@ -149,7 +149,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>onedal_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedald_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -172,7 +172,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>onedal_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedald_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

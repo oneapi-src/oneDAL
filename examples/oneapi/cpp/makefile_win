@@ -112,15 +112,15 @@ COPTS=$(COMMON_COPTS) -Qstd:c++17 $(ARCH_OPT)
 !ENDIF
 
 !IF ("$(threading)"=="sequential")
-DAAL_LIB_T = $(DAAL_PATH)\onedal_sequential.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_sequentiald.lib
 !ELSE
 threading = parallel
-DAAL_LIB_T = $(DAAL_PATH)\onedal_thread.lib
+DAAL_LIB_T = $(DAAL_PATH)\onedal_threadd.lib
 
 !IF ("$(compiler)"!="clang"&&"$(compiler)"!="icx")
-EXT_LIB = tbb12.lib tbbmalloc.lib
+EXT_LIB = tbb12_debug.lib tbbmalloc_debug.lib
 !ELSE
-EXT_LIB = /link /DEFAULTLIB:tbb12.lib /DEFAULTLIB:tbbmalloc.lib
+EXT_LIB = /link /DEFAULTLIB:tbb12_debug.lib /DEFAULTLIB:tbbmalloc_debug.lib
 !ENDIF
 !ENDIF
 
