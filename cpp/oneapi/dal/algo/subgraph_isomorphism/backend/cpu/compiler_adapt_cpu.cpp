@@ -14,14 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-template struct graph_input_data<__CPU_TAG__>;
-template struct graph_input_list_data<__CPU_TAG__>;
-template struct graph_input_bit_data<__CPU_TAG__>;
-template struct graph_data<__CPU_TAG__>;
-template class graph<__CPU_TAG__>;
+template std::int32_t ONEDAL_lzcnt_u32<__CPU_TAG__>(std::uint32_t a);
+template std::int32_t ONEDAL_lzcnt_u64<__CPU_TAG__>(std::uint64_t a);
+template std::int32_t ONEDAL_popcnt64<__CPU_TAG__>(std::uint64_t a);
 
-} // namespace oneapi::dal::preview::subgraph_isomorphism::backend
+}

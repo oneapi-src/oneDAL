@@ -17,22 +17,12 @@
 #pragma once
 #include <cstdint>
 #include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-#if defined(__INTEL_COMPILER)
-#define ONEDAL_IVDEP         _Pragma("ivdep")
-#define ONEDAL_VECTOR_ALWAYS _Pragma("vector always")
-#else
-#define ONEDAL_IVDEP
-#define ONEDAL_VECTOR_ALWAYS
-#endif
-
-template <typename Cpu>
-std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
-    #if defined(__INTEL_COMPILER)
-        return _lzcnt_u32(a);
-    #else
+template <>
+std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_avx>(std::uint32_t a) {
     if (a == 0)
         return 32;
     std::uint32_t one_bit = 0x80000000; // binary: 1000 0000 0000 0000 0000 0000 0000 0000
@@ -42,14 +32,10 @@ std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
         one_bit >>= 1;
     }
     return bit_pos;
-    #endif
 }
 
-template <typename Cpu>
-std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
-#if defined(__INTEL_COMPILER)
-    return _lzcnt_u64(a);
-#else
+template <>
+std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_avx>(std::uint64_t a) {
     if (a == 0)
         return 64;
     std::uint64_t one_bit = 0x8000000000000000; // binary: 1000 ... 0000
@@ -59,14 +45,10 @@ std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
         one_bit >>= 1;
     }
     return bit_pos;
-#endif
 }
 
-template <typename Cpu>
-std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
-#if defined(__INTEL_COMPILER)
-    return _popcnt64(a);
-#else
+template <>
+std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_avx>(std::uint64_t a) {
     if (a == 0)
         return 0;
     std::uint64_t last_bit = 1;
@@ -78,6 +60,5 @@ std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
         a = a >> 1;
     }
     return bit_cnt;
-#endif
 }
 }
