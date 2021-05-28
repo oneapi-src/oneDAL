@@ -44,17 +44,17 @@ template <typename SharedBinContainer, typename BinsVector>
 inline std::int64_t reduce_to_common_bin_seq(const std::int64_t& curr_bin_index,
                                              BinsVector& local_bins,
                                              SharedBinContainer& shared_bin) {
-    std::atomic<std::int64_t> curr_shared_bin_tail = 0;
+    std::int64_t curr_shared_bin_tail = 0;
 
     if (curr_bin_index < local_bins[0].size()) {
-        std::int64_t copy_start =
-            curr_shared_bin_tail.fetch_add(local_bins[0][curr_bin_index].size());
+        std::int64_t copy_start = curr_shared_bin_tail;
+        curr_shared_bin_tail += local_bins[0][curr_bin_index].size();
         copy(local_bins[0][curr_bin_index].begin(),
              local_bins[0][curr_bin_index].end(),
              shared_bin.get_mutable_data() + copy_start);
         local_bins[0][curr_bin_index].resize(0);
     }
-    return curr_shared_bin_tail.load();
+    return curr_shared_bin_tail;
 }
 
 template <typename EdgeValue>
@@ -66,11 +66,11 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
     byte_alloc_iface* alloc_ptr) {
     using value_type = EdgeValue;
     using vertex_type = std::int32_t;
-    using atomic_value_allocator_type = inner_alloc<std::atomic<value_type>>;
+    using value_allocator_type = inner_alloc<value_type>;
     using vertex_allocator_type = inner_alloc<vertex_type>;
 
     vertex_allocator_type vertex_allocator(alloc_ptr);
-    atomic_value_allocator_type atomic_value_allocator(alloc_ptr);
+    value_allocator_type value_allocator(alloc_ptr);
 
     const auto source = desc.get_source();
 
@@ -81,13 +81,12 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
     const auto vertex_count = t.get_vertex_count();
     const value_type max_dist = std::numeric_limits<value_type>::max();
 
-    std::atomic<value_type>* dist = allocate(atomic_value_allocator, vertex_count);
-    dist = new (dist) std::atomic<value_type>[vertex_count]();
+    value_type* dist = allocate(value_allocator, vertex_count);
     for (std::int64_t i = 0; i < vertex_count; ++i) {
         dist[i] = max_dist;
     }
 
-    dist[source].store(0);
+    dist[source] = 0;
 
     vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
                                                                     vertex_allocator);
@@ -115,7 +114,7 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
     while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
         for (std::int64_t i = 0; i < curr_shared_bin_tail; ++i) {
             vertex_type u = shared_bin[i];
-            if (dist[u].load() >= delta * static_cast<value_type>(curr_bin_index)) {
+            if (dist[u] >= delta * static_cast<value_type>(curr_bin_index)) {
                 relax_edges(t, vals, u, delta, dist, local_bins[0]);
             }
         }
@@ -143,10 +142,10 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
     auto dist_arr = array<value_type>::empty(vertex_count);
     value_type* dist_ = dist_arr.get_mutable_data();
     for (std::int64_t i = 0; i < vertex_count; ++i) {
-        dist_[i] = dist[i].load();
+        dist_[i] = dist[i];
     }
 
-    deallocate(atomic_value_allocator, dist, vertex_count);
+    deallocate(value_allocator, dist, vertex_count);
     return traverse_result<task::one_to_all>().set_distances(
         dal::detail::homogen_table_builder{}.reset(dist_arr, t.get_vertex_count(), 1).build());
 }
@@ -160,12 +159,12 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
     byte_alloc_iface* alloc_ptr) {
     using value_type = EdgeValue;
     using vertex_type = std::int32_t;
-    using atomic_vp_type = std::atomic<dist_pred<value_type, vertex_type>>;
-    using atomic_vp_allocator_type = inner_alloc<atomic_vp_type>;
+    using vp_type = dist_pred<value_type, vertex_type>;
+    using vp_allocator_type = inner_alloc<vp_type>;
     using vertex_allocator_type = inner_alloc<vertex_type>;
 
     vertex_allocator_type vertex_allocator(alloc_ptr);
-    atomic_vp_allocator_type atomic_vp(alloc_ptr);
+    vp_allocator_type vp_allocator(alloc_ptr);
 
     const auto source = desc.get_source();
 
@@ -176,12 +175,12 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
     const auto vertex_count = t.get_vertex_count();
     const value_type max_dist = std::numeric_limits<value_type>::max();
 
-    atomic_vp_type* dp = allocate(atomic_vp, vertex_count);
+    vp_type* dp = allocate(vp_allocator, vertex_count);
     for (std::int64_t i = 0; i < vertex_count; ++i) {
         new (dp + i) dist_pred<value_type, vertex_type>(max_dist, -1);
     }
 
-    dp[source].store(dist_pred<value_type, vertex_type>(0, -1));
+    dp[source] = dist_pred<value_type, vertex_type>(0, -1);
 
     vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
                                                                     vertex_allocator);
@@ -209,7 +208,7 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
     while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
         for (std::int64_t i = 0; i < curr_shared_bin_tail; ++i) {
             vertex_type u = shared_bin[i];
-            if (dp[u].load().dist >= delta * static_cast<value_type>(curr_bin_index)) {
+            if (dp[u].dist >= delta * static_cast<value_type>(curr_bin_index)) {
                 relax_edges_with_pred(t, vals, u, delta, dp, local_bins[0]);
             }
         }
@@ -240,12 +239,12 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
         value_type* dist_ = dist_arr.get_mutable_data();
         vertex_type* pred_ = pred_arr.get_mutable_data();
         for (std::int64_t i = 0; i < vertex_count; ++i) {
-            const auto dp_i = dp[i].load();
+            const auto dp_i = dp[i];
             dist_[i] = dp_i.dist;
             pred_[i] = dp_i.pred;
         }
 
-        deallocate(atomic_vp, dp, vertex_count);
+        deallocate(vp_allocator, dp, vertex_count);
         return traverse_result<task::one_to_all>()
             .set_distances(dal::detail::homogen_table_builder{}
                                .reset(dist_arr, t.get_vertex_count(), 1)
@@ -258,11 +257,11 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
         auto pred_arr = array<vertex_type>::empty(vertex_count);
         vertex_type* pred_ = pred_arr.get_mutable_data();
         for (std::int64_t i = 0; i < vertex_count; ++i) {
-            const auto dp_i = dp[i].load();
+            const auto dp_i = dp[i];
             pred_[i] = dp_i.pred;
         }
 
-        deallocate(atomic_vp, dp, vertex_count);
+        deallocate(vp_allocator, dp, vertex_count);
         return traverse_result<task::one_to_all>().set_predecessors(
             dal::detail::homogen_table_builder{}.reset(pred_arr, t.get_vertex_count(), 1).build());
     }

@@ -18,12 +18,4 @@
 
 namespace oneapi::dal::preview::shortest_paths::backend {
 
-template struct delta_stepping<__CPU_TAG__, std::int32_t>;
-
-template struct delta_stepping<__CPU_TAG__, double>;
-
-template struct delta_stepping_with_pred<__CPU_TAG__, std::int32_t>;
-
-template struct delta_stepping_with_pred<__CPU_TAG__, double>;
-
 } // namespace oneapi::dal::preview::shortest_paths::backend
