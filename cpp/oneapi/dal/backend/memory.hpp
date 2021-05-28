@@ -289,8 +289,8 @@ struct inner_alloc {
     }
 
     oneapi::dal::detail::shared<T> make_shared_memory(std::int64_t n) {
-        return oneapi::dal::detail::shared<T>(allocate<T>(n), [=](T* p) {
-            deallocate<T>(p, n);
+        return oneapi::dal::detail::shared<T>(this->allocate(n), [=](T* p) {
+            this->deallocate(p, n);
         });
     }
 
@@ -303,7 +303,7 @@ struct inner_alloc {
     }
 
 private:
-    inner_alloc() : byte_allocator_(new detail::byte_alloc_iface()) {}
+    inner_alloc() = default;
 
     detail::byte_alloc_iface* byte_allocator_;
 };
