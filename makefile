@@ -27,7 +27,7 @@ USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 
 MSVC_RUNTIME_VERSIONs = release debug
 MSVC_RUNTIME_VERSION ?= release
-$(if $(filter $(CONFIGs),$(CONFIG)),,$(error CONFIG must be one of $(CONFIGs)))
+$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error CONFIG must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 req-features = order-only second-expansion
 ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
