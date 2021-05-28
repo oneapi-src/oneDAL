@@ -338,40 +338,11 @@ protected:
         const FPType * y = b;
         DAAL_CHECK_MALLOC(y);
 
-        const size_t BlockSize        = 64;
-        const size_t THREADING_BORDER = 32768;
-        const size_t nBlocksX         = nX / BlockSize;
-        const size_t nBlocksY         = nY / BlockSize;
-        const size_t nThreads         = threader_get_threads_number();
-
-        if (nThreads > 1 && nX * nY > THREADING_BORDER)
+        for (size_t ix = 0; ix < nX; ++ix)
         {
-            daal::threader_for(nBlocksX, nBlocksX, [&](size_t iBlockX) {
-                const size_t startX = iBlockX * BlockSize;
-                const size_t endX   = (nBlocksX - iBlockX - 1) ? startX + BlockSize : nX;
-
-                daal::threader_for(nBlocksY, nBlocksY, [&](size_t iBlockY) {
-                    const size_t startY = iBlockY * BlockSize;
-                    const size_t endY   = (nBlocksY - iBlockY - 1) ? startY + BlockSize : nY;
-
-                    for (size_t ix = startX; ix < endX; ++ix)
-                    {
-                        for (size_t iy = startY; iy < endY; ++iy)
-                        {
-                            res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
-                        }
-                    }
-                });
-            });
-        }
-        else
-        {
-            for (size_t ix = 0; ix < nX; ++ix)
+            for (size_t iy = 0; iy < nY; ++iy)
             {
-                for (size_t iy = 0; iy < nY; ++iy)
-                {
-                    res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
-                }
+                res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
             }
         }
 
@@ -440,40 +411,11 @@ protected:
         const FPType * y = b;
         DAAL_CHECK_MALLOC(y);
 
-        const size_t BlockSize        = 64;
-        const size_t THREADING_BORDER = 32768;
-        const size_t nBlocksX         = nX / BlockSize;
-        const size_t nBlocksY         = nY / BlockSize;
-        const size_t nThreads         = threader_get_threads_number();
-
-        if (nThreads > 1 && nX * nY > THREADING_BORDER)
+        for (size_t ix = 0; ix < nX; ++ix)
         {
-            daal::threader_for(nBlocksX, nBlocksX, [&](size_t iBlockX) {
-                const size_t startX = iBlockX * BlockSize;
-                const size_t endX   = (nBlocksX - iBlockX - 1) ? startX + BlockSize : nX;
-
-                daal::threader_for(nBlocksY, nBlocksY, [&](size_t iBlockY) {
-                    const size_t startY = iBlockY * BlockSize;
-                    const size_t endY   = (nBlocksY - iBlockY - 1) ? startY + BlockSize : nY;
-
-                    for (size_t ix = startX; ix < endX; ++ix)
-                    {
-                        for (size_t iy = startY; iy < endY; ++iy)
-                        {
-                            res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
-                        }
-                    }
-                });
-            });
-        }
-        else
-        {
-            for (size_t ix = 0; ix < nX; ++ix)
+            for (size_t iy = 0; iy < nY; ++iy)
             {
-                for (size_t iy = 0; iy < nY; ++iy)
-                {
-                    res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
-                }
+                res[ix * nY + iy] = computeDistance(x + ix * nDims, y + iy * nDims, nDims);
             }
         }
 
