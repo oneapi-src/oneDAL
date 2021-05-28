@@ -20,8 +20,8 @@
 namespace oneapi::dal::preview::shortest_paths {
 
 namespace optional_results {
-const optional_result_id predecessors{ 0b01 };
-const optional_result_id distances{ 0b10 };
+ONEDAL_EXPORT const optional_result_id predecessors{ 0b01 };
+ONEDAL_EXPORT const optional_result_id distances{ 0b10 };
 } // namespace optional_results
 
 namespace detail {
