@@ -35,6 +35,9 @@ double descriptor_base<Task>::get_degree() const {
 
 template <typename Task>
 void descriptor_base<Task>::set_degree_impl(double value) {
+    if (value <= 0.0) {
+        throw internal_error{ dal::detail::error_messages::invalid_minkowski_degree() };
+    }
     impl_->degree = value;
 }
 

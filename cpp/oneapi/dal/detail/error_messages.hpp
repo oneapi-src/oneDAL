@@ -186,6 +186,9 @@ public:
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
 
+    /* Minkowski distance */
+    MSG(invalid_minkowski_degree);
+
     /* PCA */
     MSG(component_count_lt_zero);
     MSG(input_data_cc_lt_desc_component_count);
