@@ -16,12 +16,6 @@
 
 #pragma once
 
-#include <queue>
-#include <set>
-#include <tuple>
-#include <vector>
-#include <atomic>
-
 #include "oneapi/dal/algo/shortest_paths/common.hpp"
 #include "oneapi/dal/algo/shortest_paths/traverse_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -113,52 +107,6 @@ struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, 
                                                                                         vals,
                                                                                         &alloc_con);
         }
-    }
-};
-
-template <typename Allocator, typename Graph>
-struct traverse_kernel_cpu<method::dijkstra, task::one_to_all, Allocator, Graph> {
-    inline traverse_result<task::one_to_all> operator()(
-        const dal::detail::host_policy& ctx,
-        const detail::descriptor_base<task::one_to_all>& desc,
-        const Allocator& alloc,
-        const Graph& g) const {
-        const auto source = desc.get_source();
-        const auto& t = dal::preview::detail::csr_topology_builder<Graph>()(g);
-        const auto& vals = dal::detail::get_impl(g).get_edge_values();
-        using value_type = edge_user_value_type<Graph>;
-        using vertex_type = vertex_type<Graph>;
-        using value_allocator_type =
-            typename std::allocator_traits<Allocator>::template rebind_alloc<value_type>;
-
-        const auto vertex_count = t.get_vertex_count();
-        const value_type max_dist = std::numeric_limits<value_type>::max();
-        //std::vector<value_type, value_allocator_type> dist(t._vertex_count, max_dist);
-        auto dist_arr = array<value_type>::full(vertex_count, max_dist);
-        value_type* dist = dist_arr.get_mutable_data();
-        dist[source] = 0;
-
-        std::priority_queue<std::pair<value_type, vertex_type>,
-                            std::vector<std::pair<value_type, vertex_type>>,
-                            std::greater<std::pair<value_type, vertex_type>>>
-            pq;
-        pq.push(std::make_pair(0, source));
-        while (!pq.empty()) {
-            const auto curr_source = pq.top().second;
-            const auto tentative_distance = pq.top().first;
-            pq.pop();
-            for (auto u_ = t._rows[curr_source]; u_ < t._rows[curr_source + 1]; u_++) {
-                const auto u = t._cols[u_];
-                const auto u_w = vals[u_];
-                if (tentative_distance + u_w < dist[u]) {
-                    dist[u] = tentative_distance + u_w;
-                    pq.push(std::make_pair(dist[u], u));
-                }
-            }
-        }
-
-        return traverse_result<task::one_to_all>().set_distances(
-            dal::detail::homogen_table_builder{}.reset(dist_arr, t.get_vertex_count(), 1).build());
     }
 };
 
