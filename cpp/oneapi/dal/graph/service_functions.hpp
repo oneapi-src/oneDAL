@@ -113,7 +113,7 @@ constexpr auto get_edge_count(const Graph &g) noexcept -> edge_size_type<Graph> 
 template <typename Graph>
 constexpr auto get_vertex_degree(const Graph &g, vertex_type<Graph> u)
     -> vertex_edge_size_type<Graph> {
-    static_assert(is_undirected<Graph>, "get_vertex_degree requires graph undirectness");
+    static_assert(!is_directed<Graph>, "get_vertex_degree requires graph undirectness");
     if (u < 0 || (vertex_size_type<Graph>)u >= detail::get_vertex_count_impl(g)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());
@@ -135,7 +135,7 @@ constexpr auto get_vertex_outward_degree(const Graph &g, vertex_type<Graph> u)
 template <typename Graph>
 constexpr auto get_vertex_neighbors(const Graph &g, vertex_type<Graph> u)
     -> const_vertex_edge_range_type<Graph> {
-    static_assert(is_undirected<Graph>, "get_vertex_neighbors requires graph undirectness");
+    static_assert(!is_directed<Graph>, "get_vertex_neighbors requires graph undirectness");
     if (u < 0 || (vertex_size_type<Graph>)u >= detail::get_vertex_count_impl(g)) {
         throw out_of_range(dal::detail::error_messages::
                                vertex_index_out_of_range_expect_from_zero_to_vertex_count());

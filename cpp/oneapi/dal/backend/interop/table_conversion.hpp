@@ -181,13 +181,12 @@ inline daal::data_management::CSRNumericTablePtr copy_to_daal_csr_table(
 }
 
 template <typename T>
-inline detail::csr_table convert_from_daal_csr_table(
-    const daal::data_management::NumericTablePtr& nt) {
+inline table convert_from_daal_csr_table(const daal::data_management::NumericTablePtr& nt) {
     auto block_owner = std::make_shared<csr_block_owner<T>>(csr_block_owner<T>{ nt });
 
     ONEDAL_ASSERT(sizeof(std::size_t) == sizeof(std::int64_t));
 
-    detail::csr_table table{
+    return detail::csr_table{
         array<T>{ block_owner->get_data(),
                   block_owner->get_element_count(),
                   [block_owner](const T* p) {} },
@@ -200,7 +199,6 @@ inline detail::csr_table convert_from_daal_csr_table(
         block_owner->get_row_count(),
         block_owner->get_column_count()
     };
-    return table;
 }
 
 inline daal::data_management::CSRNumericTablePtr wrap_by_host_csr_adapter(
@@ -239,6 +237,16 @@ inline daal::data_management::NumericTablePtr convert_to_daal_table(const table&
     }
     else {
         return copy_to_daal_homogen_table<Data>(table);
+    }
+}
+
+template <typename Data>
+inline table convert_from_daal_table(const daal::data_management::NumericTablePtr& nt) {
+    if (nt->getDataLayout() == daal::data_management::NumericTableIface::StorageLayout::csrArray) {
+        return convert_from_daal_csr_table<Data>(nt);
+    }
+    else {
+        return convert_from_daal_homogen_table<Data>(nt);
     }
 }
 

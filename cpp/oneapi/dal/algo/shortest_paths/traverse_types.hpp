@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /// @file
-/// Contains the definition of the input and output for Shortest Paths
+/// Contains the definition of the input and output for the Shortest Paths
 /// algorithm
 
 #pragma once
@@ -63,11 +63,13 @@ public:
     traverse_result();
 
     /// Returns the table with computed distances from the source to each vertex
+    /// represented as the type of weights of the graph (std::int32_t or double)
     const table& get_distances() const {
         return get_distances_impl();
     }
 
     /// Returns the table with computed predecessors from the source to each vertex
+    // represented as std::int32_t
     const table& get_predecessors() const {
         return get_predecessors_impl();
     }

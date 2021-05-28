@@ -115,8 +115,9 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
 
     auto onSplitNodeFunc = [&splitFeatures, &splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::SplitNodeDescriptor descSplit;
-        descSplit.impurity         = imp[iRowInTable];
-        descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+
+        descSplit.impurity         = imp != nullptr ? imp[iRowInTable] : 0;
+        descSplit.nNodeSampleCount = nodeSamplesCount != nullptr ? (size_t)(nodeSamplesCount[iRowInTable]) : 0;
         descSplit.featureIndex     = splitFeatures[iRowInTable];
         descSplit.featureValue     = splitPoints[iRowInTable];
         descSplit.level            = level;
@@ -126,8 +127,8 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     auto onLeafNodeFunc = [&splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::regression::LeafNodeDescriptor descLeaf;
 
-        descLeaf.impurity         = imp[iRowInTable];
-        descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        descLeaf.impurity         = imp != nullptr ? imp[iRowInTable] : 0;
+        descLeaf.nNodeSampleCount = nodeSamplesCount != nullptr ? (size_t)(nodeSamplesCount[iRowInTable]) : 0;
         descLeaf.level            = level;
         descLeaf.response         = splitPoints[iRowInTable];
         return visitor.onLeafNode(descLeaf);
@@ -154,8 +155,9 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisito
 
     auto onSplitNodeFunc = [&splitFeatures, &splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::SplitNodeDescriptor descSplit;
-        descSplit.impurity         = imp[iRowInTable];
-        descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+
+        descSplit.impurity         = imp != nullptr ? imp[iRowInTable] : 0;
+        descSplit.nNodeSampleCount = nodeSamplesCount != nullptr ? (size_t)(nodeSamplesCount[iRowInTable]) : 0;
         descSplit.featureIndex     = splitFeatures[iRowInTable];
         descSplit.featureValue     = splitPoints[iRowInTable];
         descSplit.level            = level;
@@ -165,8 +167,8 @@ void ModelImpl::traverseDFS(size_t iTree, tree_utils::regression::TreeNodeVisito
     auto onLeafNodeFunc = [&splitPoints, &nodeSamplesCount, &imp, &visitor](size_t iRowInTable, size_t level) -> bool {
         tree_utils::regression::LeafNodeDescriptor descLeaf;
 
-        descLeaf.impurity         = imp[iRowInTable];
-        descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
+        descLeaf.impurity         = imp != nullptr ? imp[iRowInTable] : 0;
+        descLeaf.nNodeSampleCount = nodeSamplesCount != nullptr ? (size_t)(nodeSamplesCount[iRowInTable]) : 0;
         descLeaf.level            = level;
         descLeaf.response         = splitPoints[iRowInTable];
         return visitor.onLeafNode(descLeaf);

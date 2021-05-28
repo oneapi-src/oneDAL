@@ -68,7 +68,9 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+
+    const bool is_dense{ data.get_kind() == homogen_table::kind() };
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
 
     const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
     constexpr std::uint64_t megabyte = 1024 * 1024;
