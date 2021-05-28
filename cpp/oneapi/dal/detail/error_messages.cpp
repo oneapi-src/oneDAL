@@ -164,6 +164,14 @@ MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
 MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
 
+/* Subgraph Isomorphism */
+MSG(max_match_count_lt_zero, "Maximum number of match count less that zero")
+MSG(empty_target_graph, "Empty target graph")
+MSG(empty_pattern_graph, "Empty pattern graph")
+MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
+    "Subgraph isomorphism is not implemented for labeled edges")
+MSG(non_zero_max_match_count_is_not_supported, "Non-zero max_match_count is not supported")
+
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
 MSG(input_data_cc_lt_desc_component_count,

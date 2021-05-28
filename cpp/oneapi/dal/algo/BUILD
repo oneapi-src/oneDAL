@@ -15,6 +15,7 @@ ALGOS = [
     "pca",
     "polynomial_kernel",
     "rbf_kernel",
+    "subgraph_isomorphism",
     "svm",
     "triangle_counting",
 ]

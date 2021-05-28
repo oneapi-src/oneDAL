@@ -164,6 +164,14 @@ public:
     MSG(row_begin_gt_row_end);
     MSG(range_idx_gt_max_int32);
 
+    /* Subgraph Isomorphism */
+    MSG(unsupported_kind);
+    MSG(max_match_count_lt_zero);
+    MSG(empty_target_graph);
+    MSG(empty_pattern_graph);
+    MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
+    MSG(non_zero_max_match_count_is_not_supported);
+
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
     MSG(input_initial_centroids_are_empty);

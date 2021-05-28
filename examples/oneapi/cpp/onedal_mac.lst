@@ -36,6 +36,7 @@ ONEDAL = column_accessor_homogen             \
          svm_multi_class_thunder_dense_batch \
          svm_reg_thunder_dense_batch         \
          jaccard_batch                       \
+         subgraph_isomorphism_batch          \
          load_graph                          \
          graph_service_functions             \
          directed_graph                      \
