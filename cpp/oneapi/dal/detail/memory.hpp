@@ -44,8 +44,8 @@ private:
 };
 
 template <typename T>
-inline auto make_default_delete(const detail::default_host_policy& policy) 
-                        -> default_delete<T, detail::default_host_policy> {
+inline auto make_default_delete(const detail::default_host_policy& policy)
+    -> default_delete<T, detail::default_host_policy> {
     return default_delete<T, detail::default_host_policy>{ policy };
 }
 
