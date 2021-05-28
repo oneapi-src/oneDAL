@@ -26,7 +26,7 @@ USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQC
 USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 
 MSVC_RUNTIME_VERSIONs = release debug
-MSVC_RUNTIME_VERSION ?= release
+MSVC_RUNTIME_VERSION ?= debug
 $(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 req-features = order-only second-expansion
