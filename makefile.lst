@@ -23,7 +23,7 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 kernel_function sorting normalization optimization_solver objective_function decision_tree             \
                 dtrees/gbt dtrees/forest linear_regression ridge_regression naivebayes stump adaboost brownboost       \
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
-                coordinate_descent jaccard triangle_counting
+                coordinate_descent jaccard triangle_counting subgraph_isomorphism
 
 low_order_moments +=
 quantiles +=
@@ -234,21 +234,22 @@ ONEAPI.ALGOS.rbf_kernel    := CORE.kernel_function
 ONEAPI.ALGOS.svm           := CORE.svm
 
 # List of algorithms in oneAPI part
-ONEAPI.ALGOS :=        \
-    chebychev_distance \
-    decision_forest    \
-    decision_tree      \
-    kmeans             \
-    kmeans_init        \
-    knn                \
-    linear_kernel      \
-    minkowski_distance \
-    pca                \
-    polynomial_kernel  \
-    rbf_kernel         \
-    svm                \
-    jaccard            \
-    triangle_counting
+ONEAPI.ALGOS :=          \
+    chebychev_distance   \
+    decision_forest      \
+    decision_tree        \
+    kmeans               \
+    kmeans_init          \
+    knn                  \
+    linear_kernel        \
+    minkowski_distance   \
+    pca                  \
+    polynomial_kernel    \
+    rbf_kernel           \
+    svm                  \
+    jaccard              \
+    triangle_counting    \
+    subgraph_isomorphism
 
 
 ONEAPI.IO :=     \

@@ -39,4 +39,5 @@ ONEDAL = column_accessor_homogen             \
          load_graph                          \
          graph_service_functions             \
          directed_graph                      \
-         triangle_counting_batch
+         triangle_counting_batch             \
+         subgraph_isomorphism_batch
