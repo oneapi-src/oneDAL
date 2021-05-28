@@ -43,18 +43,18 @@ services::Status rocAucScoreImpl(const NumericTablePtr & truePrediction, const N
     const size_t blockSizeDefault = 256;
     const size_t nBlocks          = nElements / blockSizeDefault + !!(nElements % blockSizeDefault);
 
+    ReadColumns<double, cpu> testPredictionBlock(testPrediction.get(), 0, 0, nElements);
+    DAAL_CHECK_BLOCK_STATUS(testPredictionBlock);
+    const double * const testPredictionPtr = testPredictionBlock.get();
+
     daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
         const size_t blockBegin = iBlock * blockSizeDefault;
         const size_t blockSize  = (iBlock == nBlocks - 1) ? nElements - blockBegin : blockSizeDefault;
 
-        ReadColumns<double, cpu> testPredictionBlock(testPrediction.get(), 0, blockBegin, blockSize);
-        DAAL_CHECK_BLOCK_STATUS_THR(testPredictionBlock);
-        const double * const testPredictionPtr = testPredictionBlock.get();
-
         for (size_t i = 0; i < blockSize; ++i)
         {
             const size_t idx   = blockBegin + i;
-            predict[idx].value = testPredictionPtr[i];
+            predict[idx].value = testPredictionPtr[idx];
             predict[idx].index = idx;
         }
     });
