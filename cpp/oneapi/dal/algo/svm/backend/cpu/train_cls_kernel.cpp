@@ -128,7 +128,7 @@ static train_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
                                                                    daal_model.get(),
                                                                    daal_svm_model.get(),
                                                                    daal_multiclass_parameter));
-    const std::int64_t n_sv = daal_model->getSupportIndices()->getNumberOfRows();
+    const std::int64_t n_sv = daal_svm_model->getSupportIndices()->getNumberOfRows();
     if (n_sv == 0) {
         return train_result<Task>{};
     }
@@ -177,6 +177,11 @@ static train_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
                    Method>()
             .compute(daal_data, daal_weights, *daal_labels, daal_model.get(), daal_svm_parameter);
     }));
+
+    const std::int64_t n_sv = daal_model->getSupportIndices()->getNumberOfRows();
+    if (n_sv == 0) {
+        return train_result<Task>{};
+    }
 
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
