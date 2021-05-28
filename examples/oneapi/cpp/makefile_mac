@@ -116,7 +116,8 @@ LIBS := $(onedal) \
         $(onedal_threading) \
         -ltbb \
         -ltbbmalloc \
-        -ldl
+        -ldl \
+        -latomic
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
