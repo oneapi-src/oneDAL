@@ -97,7 +97,8 @@ struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, 
         const auto& t = dal::preview::detail::csr_topology_builder<Graph>()(g);
         const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
         alloc_connector<Allocator> alloc_con(alloc);
-        if (true) {
+        //(t & c1) && (t & c2)
+        if (desc.get_optional_results() & optional_results::predecessors) { 
             return delta_stepping_with_pred<float, task::one_to_all, topology_type, value_type>{}(
                 ctx,
                 desc,

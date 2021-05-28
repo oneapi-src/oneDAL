@@ -52,6 +52,10 @@ public:
         return mask_;
     }
 
+    operator bool() const {
+        return mask_.any();
+    }
+
 private:
     bitset_t mask_;
 };

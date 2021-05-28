@@ -194,6 +194,11 @@ public:
     MSG(input_model_eigenvectors_rc_neq_input_data_cc);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
 
+    /* Shortest Paths */
+    MSG(nothing_to_compute);
+    MSG(distances_are_uninitialized);
+    MSG(predecessors_are_uninitialized);
+
     /* SVM */
     MSG(c_leq_zero);
     MSG(cache_size_lt_zero);

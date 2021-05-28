@@ -1,3 +1,4 @@
+
 /*******************************************************************************
 * Copyright 2020-2021 Intel Corporation
 *
@@ -372,24 +373,40 @@ struct delta_stepping_with_pred {
             iter++;
         }
 
-        auto dist_arr = array<value_type>::empty(vertex_count);
-        auto pred_arr = array<vertex_type>::empty(vertex_count);
-        value_type* dist_ = dist_arr.get_mutable_data();
-        vertex_type* pred_ = pred_arr.get_mutable_data();
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
-            const auto dp_i = dp[i].load();
-            dist_[i] = dp_i.dist;
-            pred_[i] = dp_i.pred;
-        });
+        if(desc.get_optional_results()&optional_results::distances) {
+            auto dist_arr = array<value_type>::empty(vertex_count);
+            auto pred_arr = array<vertex_type>::empty(vertex_count);
+            value_type* dist_ = dist_arr.get_mutable_data();
+            vertex_type* pred_ = pred_arr.get_mutable_data();
+            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+                const auto dp_i = dp[i].load();
+                dist_[i] = dp_i.dist;
+                pred_[i] = dp_i.pred;
+            });
 
-        deallocate(atomic_vp, dp, vertex_count);
-        return traverse_result<task::one_to_all>()
-            .set_distances(dal::detail::homogen_table_builder{}
-                               .reset(dist_arr, t.get_vertex_count(), 1)
-                               .build())
-            .set_predecessors(dal::detail::homogen_table_builder{}
-                                  .reset(pred_arr, t.get_vertex_count(), 1)
-                                  .build());
+            deallocate(atomic_vp, dp, vertex_count);
+            return traverse_result<task::one_to_all>()
+                .set_distances(dal::detail::homogen_table_builder{}
+                                   .reset(dist_arr, t.get_vertex_count(), 1)
+                                   .build())
+                .set_predecessors(dal::detail::homogen_table_builder{}
+                                      .reset(pred_arr, t.get_vertex_count(), 1)
+                                      .build());
+        }
+        else {
+            auto pred_arr = array<vertex_type>::empty(vertex_count);
+            vertex_type* pred_ = pred_arr.get_mutable_data();
+            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+                const auto dp_i = dp[i].load();
+                pred_[i] = dp_i.pred;
+            });
+
+            deallocate(atomic_vp, dp, vertex_count);
+            return traverse_result<task::one_to_all>()
+                .set_predecessors(dal::detail::homogen_table_builder{}
+                                      .reset(pred_arr, t.get_vertex_count(), 1)
+                                      .build());
+        }
     }
 };
 

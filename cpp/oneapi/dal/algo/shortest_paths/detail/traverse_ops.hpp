@@ -47,6 +47,14 @@ struct traverse_ops {
     using result_t = traverse_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
+    void check_preconditions(const Descriptor &desc, input_t &input) const {
+        using msg = dal::detail::error_messages;
+
+        if (!(desc.get_optional_results() & (optional_results::predecessors | optional_results::distances))) {
+            throw invalid_argument(msg::nothing_to_compute());
+        }
+    }
+
     template <typename Policy>
     auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
         return traverse_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
