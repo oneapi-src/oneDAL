@@ -193,6 +193,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     {
         size_t nSV = 0;
         sumSVTls.reduceTo(&nSV, 1);
+        if (nSV == 0) return s;
 
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
         DAAL_CHECK_STATUS(s, supportIndicesTable->resize(nSV));
