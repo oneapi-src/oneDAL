@@ -141,7 +141,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
     if (svmType == SvmType::nu_classification || svmType == SvmType::nu_regression)
     {
-        DAAL_CHECK_STATUS(status, initGrad(xTable, kernel, nVectors, nTrainVectors, cacheSize, y, alpha, grad));
+        DAAL_CHECK_STATUS(status, initGrad(xTable, kernel, nVectors, nTrainVectors, y, alpha, grad));
     }
 
     size_t iter = 0;
@@ -582,9 +582,8 @@ bool SVMTrainImpl<thunder, algorithmFPType, cpu>::checkStopCondition(const algor
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
-                                                                       const size_t nVectors, const size_t nTrainVectors, const size_t cacheSize,
-                                                                       algorithmFPType * const y, algorithmFPType * const alpha,
-                                                                       algorithmFPType * grad)
+                                                                       const size_t nVectors, const size_t nTrainVectors, algorithmFPType * const y,
+                                                                       algorithmFPType * const alpha, algorithmFPType * grad)
 {
     services::Status status;
 
@@ -601,7 +600,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const Num
     {
         if (alpha[i] != algorithmFPType(0))
         {
-            indices[nNonZeroAlphas]    = i;
+            indices[nNonZeroAlphas]    = static_cast<uint32_t>(i);
             deltaAlpha[nNonZeroAlphas] = alpha[i] * y[i];
             ++nNonZeroAlphas;
         }

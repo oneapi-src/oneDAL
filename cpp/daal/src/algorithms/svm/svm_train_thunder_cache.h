@@ -262,7 +262,7 @@ protected:
         }
 
         DAAL_CHECK_MALLOC(task);
-        if (_blockTask.get() == nullptr)
+        if (_blockTask.get() != nullptr)
         {
             _blockTask.reset();
         }
