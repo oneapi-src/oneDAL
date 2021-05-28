@@ -35,7 +35,7 @@ template <typename T, typename Allocator = std::allocator<char>>
 class vector_container;
 
 template <typename T>
-void copy(const T* old_begin, const T* old_end, T* new_begin) {
+inline void copy(const T* old_begin, const T* old_end, T* new_begin) {
     const int64_t count = std::distance(old_begin, old_end);
     PRAGMA_IVDEP
     PRAGMA_VECTOR_ALWAYS
