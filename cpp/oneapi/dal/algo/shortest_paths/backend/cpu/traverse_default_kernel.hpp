@@ -31,69 +31,6 @@ namespace oneapi::dal::preview::shortest_paths::backend {
 using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
 
-template <typename Topology, typename EdgeValue, typename BinsVector>
-inline void relax_edges(const Topology& t,
-                        const EdgeValue* vals,
-                        typename Topology::vertex_type u,
-                        EdgeValue delta,
-                        EdgeValue* dist,
-                        BinsVector& local_bins) {
-    for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
-        const auto v = t._cols_ptr[v_];
-        const auto v_w = vals[v_];
-        EdgeValue old_dist = dist[v];
-        const EdgeValue new_dist = dist[u] + v_w;
-        if (new_dist < old_dist) {
-            dist[v] = new_dist;
-            std::int64_t dest_bin = new_dist / delta;
-            if (dest_bin >= local_bins.size()) {
-                local_bins.resize(dest_bin + 1);
-            }
-            local_bins[dest_bin].push_back(v);
-        }
-    }
-}
-
-template <typename EV, typename VT>
-struct dist_pred {
-    dist_pred(const EV& dist_, const VT& pred_) : dist(dist_), pred(pred_) {}
-    EV dist;
-    VT pred;
-};
-
-template <class T1, class T2>
-bool operator==(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
-    return lhs.first == rhs.first && lhs.second == rhs.second;
-}
-
-template <class T1, class T2>
-bool operator!=(const dist_pred<T1, T2>& lhs, const dist_pred<T1, T2>& rhs) {
-    return !(lhs == rhs);
-}
-
-template <typename Topology, typename EdgeValue, typename DP, typename BinsVector>
-inline void relax_edges_with_pred(const Topology& t,
-                                  const EdgeValue* vals,
-                                  typename Topology::vertex_type u,
-                                  EdgeValue delta,
-                                  DP* dp,
-                                  BinsVector& local_bins) {
-    for (std::int64_t v_ = t._rows_ptr[u]; v_ < t._rows_ptr[u + 1]; v_++) {
-        const auto v = t._cols_ptr[v_];
-        const auto v_w = vals[v_];
-        auto old_dp = dp[v];
-        const EdgeValue new_dist = dp[u].dist + v_w;
-        if (new_dist < old_dp.dist) {
-            dp[v] = dist_pred(new_dist, u);
-            std::int64_t dest_bin = new_dist / delta;
-            if (dest_bin >= local_bins.size()) {
-                local_bins.resize(dest_bin + 1);
-            }
-            local_bins[dest_bin].push_back(v);
-        }
-    }
-}
-
 template <typename Cpu, typename EdgeValue>
 struct delta_stepping {
     traverse_result<task::one_to_all> operator()(
@@ -136,8 +73,6 @@ bool nrh_disptcher() {
 }
 
 template <>
-bool nrh_disptcher<dal::backend::cpu_dispatch_sse2>() {
-    return true;
-}
+bool nrh_disptcher<dal::backend::cpu_dispatch_sse2>();
 
 } // namespace oneapi::dal::preview::shortest_paths::backend
