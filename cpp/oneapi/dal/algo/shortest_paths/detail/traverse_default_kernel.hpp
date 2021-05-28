@@ -31,7 +31,7 @@ namespace oneapi::dal::preview::shortest_paths::detail {
 
 using namespace dal::preview::detail;
 
-bool nrh_disptcher(const dal::detail::host_policy& ctx);
+ONEDAL_EXPORT bool nrh_dispatcher(const dal::detail::host_policy& ctx);
 
 template <typename Method, typename Task, typename Allocator, typename Graph>
 struct traverse_kernel_cpu {
