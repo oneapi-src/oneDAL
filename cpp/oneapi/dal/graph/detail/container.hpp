@@ -139,7 +139,7 @@ public:
         fill(impl_->get_mutable_data(), impl_->get_mutable_data() + capacity_, value);
     }
 
-    vector_container(const vector_container<T, allocator_type>& other)
+    vector_container(const vector_container<T, Allocator>& other)
             : impl_(new impl_t()),
               allocator_(other.get_allocator()) {
         capacity_ = other.capacity();
@@ -149,6 +149,21 @@ public:
         const T* other_data_ptr = other.get_data();
         preview::detail::copy(other_data_ptr, other_data_ptr + count_, data_ptr);
         impl_->reset(data_ptr, capacity_, empty_delete{});
+    }
+
+    vector_container<T, Allocator> operator=(const vector_container<T, Allocator>& other) {
+        pimpl tmp_impl(new impl_t());
+        std::swap(this->impl_, tmp_impl);
+        this->allocator_ = other.get_allocator();
+        capacity_ = other.capacity();
+        count_ = other.size();
+        T* data_ptr = oneapi::dal::preview::detail::allocate(allocator_, capacity_);
+        construct<data_t, allocator_type>{}(data_ptr, capacity_, allocator_);
+        const T* other_data_ptr = other.get_data();
+        preview::detail::copy(other_data_ptr, other_data_ptr + count_, data_ptr);
+        impl_->reset(data_ptr, capacity_, empty_delete{});
+
+        return *this;
     }
 
     virtual ~vector_container() {
