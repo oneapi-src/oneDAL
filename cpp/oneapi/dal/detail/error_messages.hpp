@@ -185,14 +185,17 @@ public:
     MSG(objective_function_value_lt_zero);
 
     /* k-NN */
-    MSG(knn_brute_force_method_is_not_implemented_for_cpu);
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
+    MSG(unknown_distance_type);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
+
+    /* Minkowski distance */
+    MSG(invalid_minkowski_degree);
 
     /* PCA */
     MSG(component_count_lt_zero);
