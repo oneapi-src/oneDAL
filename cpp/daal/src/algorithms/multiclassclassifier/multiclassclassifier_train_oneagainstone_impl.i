@@ -128,7 +128,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         }
     }
 
-    TArray<size_t, cpu> originalIndicesMap(nModels * nVectors);
+    TArrayScalable<size_t, cpu> originalIndicesMap(nModels * nVectors);
     DAAL_CHECK_MALLOC(originalIndicesMap.get());
     size_t * const originalIndicesMapData = originalIndicesMap.get();
 
@@ -176,8 +176,8 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
 
             for (size_t svId = 0; svId < nSV; ++svId)
             {
+                DAAL_ASSERT(twoClassSvIndData[svId] < nRowsInSubset);
                 const size_t originalIndex = originalIndicesMapLocal[twoClassSvIndData[svId]];
-
                 *sumSVLocal += static_cast<size_t>(!isSVData[originalIndex]);
                 isSVData[originalIndex] = true;
             }
@@ -206,26 +206,28 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         DAAL_CHECK_MALLOC(svIndMappingArray.get());
         size_t * const svIndMapping = svIndMappingArray.get();
 
-        WriteOnlyColumns<int, cpu> mtSupportIndices(supportIndicesTable.get(), 0, 0, nSV);
-        DAAL_CHECK_BLOCK_STATUS(mtSupportIndices);
-        int * supportIndices = mtSupportIndices.get();
-
-        size_t inxSV = 0;
-        for (size_t iClass = 0; iClass < nClasses; ++iClass)
         {
-            for (size_t j = 0; j < nVectors; ++j)
+            WriteOnlyColumns<int, cpu> mtSupportIndices(supportIndicesTable.get(), 0, 0, nSV);
+            DAAL_CHECK_BLOCK_STATUS(mtSupportIndices);
+            int * supportIndices = mtSupportIndices.get();
+
+            size_t inxSV = 0;
+            for (size_t iClass = 0; iClass < nClasses; ++iClass)
             {
-                const size_t label = static_cast<size_t>(y[j]);
-                if (isSVData[j] && (label == iClass))
+                for (size_t j = 0; j < nVectors; ++j)
                 {
-                    supportIndices[inxSV] = j;
-                    svIndMapping[j]       = inxSV;
-                    inxSV++;
-                    isSVData[j] = false;
+                    const size_t label = static_cast<size_t>(y[j]);
+                    if (isSVData[j] && (label == iClass))
+                    {
+                        supportIndices[inxSV] = j;
+                        svIndMapping[j]       = inxSV;
+                        inxSV++;
+                        isSVData[j] = false;
+                    }
                 }
             }
+            DAAL_ASSERT(inxSV == nSV);
         }
-        DAAL_ASSERT(inxSV == nSV);
         NumericTablePtr coeffOutTable = svmModel->getCoefficients();
         DAAL_CHECK_STATUS(s, coeffOutTable->resize(nSV));
 
