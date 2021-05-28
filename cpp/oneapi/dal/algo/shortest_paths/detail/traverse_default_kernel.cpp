@@ -20,6 +20,12 @@
 
 namespace oneapi::dal::preview::shortest_paths::detail {
 
+bool nrh_disptcher(const dal::detail::host_policy& policy) {
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+            return backend::nrh_disptcher<decltype(cpu)>();
+    });
+}
+
 template <typename Float, typename EdgeValue>
 traverse_result<task::one_to_all>
 delta_stepping<Float, task::one_to_all, dal::preview::detail::topology<std::int32_t>, EdgeValue>::
@@ -29,7 +35,10 @@ operator()(const dal::detail::host_policy& policy,
            const EdgeValue* vals,
            byte_alloc_iface* alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::delta_stepping<decltype(cpu), EdgeValue>{}(desc, t, vals, alloc_ptr);
+        return backend::delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>{}(desc,
+                                                                                     t,
+                                                                                     vals,
+                                                                                     alloc_ptr);
     });
 }
 
@@ -44,10 +53,11 @@ traverse_result<task::one_to_all> delta_stepping_with_pred<
                            const EdgeValue* vals,
                            byte_alloc_iface* alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::delta_stepping_with_pred<decltype(cpu), EdgeValue>{}(desc,
-                                                                             t,
-                                                                             vals,
-                                                                             alloc_ptr);
+        return backend::delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>{}(
+            desc,
+            t,
+            vals,
+            alloc_ptr);
     });
 }
 
