@@ -15,6 +15,7 @@ ALGOS = [
     "pca",
     "polynomial_kernel",
     "rbf_kernel",
+    "shortest_paths",
     "svm",
     "triangle_counting",
 ]

@@ -50,7 +50,8 @@ struct traverse_ops {
     void check_preconditions(const Descriptor &desc, input_t &input) const {
         using msg = dal::detail::error_messages;
 
-        if (!(desc.get_optional_results() & (optional_results::predecessors | optional_results::distances))) {
+        if (!(desc.get_optional_results() &
+              (optional_results::predecessors | optional_results::distances))) {
             throw invalid_argument(msg::nothing_to_compute());
         }
     }

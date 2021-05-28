@@ -37,8 +37,8 @@ class vector_container;
 template <typename T>
 void copy(const T* old_begin, const T* old_end, T* new_begin) {
     const int64_t count = std::distance(old_begin, old_end);
-    //PRAGMA_IVDEP
-    //PRAGMA_VECTOR_ALWAYS
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < count; i++) {
         new_begin[i] = old_begin[i];
     }
@@ -47,8 +47,8 @@ void copy(const T* old_begin, const T* old_end, T* new_begin) {
 template <typename T>
 inline void fill(T* begin, T* end, const T& value) {
     const int64_t count = std::distance(begin, end);
-    //PRAGMA_IVDEP
-    //PRAGMA_VECTOR_ALWAYS
+    PRAGMA_IVDEP
+    PRAGMA_VECTOR_ALWAYS
     for (std::int64_t i = 0; i < count; i++) {
         begin[i] = value;
     }

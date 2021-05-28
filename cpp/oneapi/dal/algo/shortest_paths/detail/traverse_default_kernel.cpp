@@ -44,11 +44,10 @@ traverse_result<task::one_to_all> delta_stepping_with_pred<
                            const EdgeValue* vals,
                            byte_alloc_iface* alloc_ptr) const {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>{}(
-            desc,
-            t,
-            vals,
-            alloc_ptr);
+        return backend::delta_stepping_with_pred<decltype(cpu), EdgeValue>{}(desc,
+                                                                             t,
+                                                                             vals,
+                                                                             alloc_ptr);
     });
 }
 

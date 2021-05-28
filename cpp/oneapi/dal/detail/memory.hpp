@@ -65,22 +65,14 @@ using v1::make_default_delete;
 
 } // namespace oneapi::dal::detail
 
-#include <iostream>
-
 namespace oneapi::dal::preview::detail {
 
 using namespace std;
 
 struct byte_alloc_iface {
     using byte_t = char;
-    virtual byte_t* allocate(std::int64_t n) {
-        cout << "I am base alloc. ^(" << endl;
-        std::allocator<char> a;
-        return a.allocate(n);
-    }
-    virtual void deallocate(byte_t* ptr, std::int64_t n) {
-        cout << "I am base dealloc. ^(" << endl;
-    }
+    virtual byte_t* allocate(std::int64_t n) = 0;
+    virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
 };
 
 template <typename Alloc>

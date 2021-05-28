@@ -33,17 +33,19 @@ traverse_result<Task>::traverse_result() : impl_(new traverse_result_impl()) {}
 
 template <typename Task>
 const table& traverse_result<Task>::get_distances_impl() const {
-	if(!(impl_->optional_result & optional_results::distances)) {
-		throw uninitialized_optional_result(dal::detail::error_messages::distances_are_uninitialized());
-	}
+    if (!(impl_->optional_result & optional_results::distances)) {
+        throw uninitialized_optional_result(
+            dal::detail::error_messages::distances_are_uninitialized());
+    }
     return impl_->distances;
 }
 
 template <typename Task>
 const table& traverse_result<Task>::get_predecessors_impl() const {
-	if(!(impl_->optional_result & optional_results::predecessors)) {
-		throw uninitialized_optional_result(dal::detail::error_messages::predecessors_are_uninitialized());
-	}
+    if (!(impl_->optional_result & optional_results::predecessors)) {
+        throw uninitialized_optional_result(
+            dal::detail::error_messages::predecessors_are_uninitialized());
+    }
     return impl_->predecessors;
 }
 
