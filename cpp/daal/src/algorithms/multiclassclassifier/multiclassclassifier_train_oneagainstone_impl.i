@@ -153,7 +153,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         classifier::ModelPtr pModel;
         if (nRowsInSubset)
         {
-            s = local->trainSimpleClassifier(nRowsInSubset);
+            s |= local->trainSimpleClassifier(nRowsInSubset);
             if (!s)
             {
                 safeStat |= s;
@@ -210,7 +210,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         DAAL_CHECK_BLOCK_STATUS(mtSupportIndices);
         int * supportIndices = mtSupportIndices.get();
 
-        services::internal::service_memset<int, cpu>(supportIndices, -1, nSV);
         size_t inxSV = 0;
         for (size_t iClass = 0; iClass < nClasses; ++iClass)
         {
@@ -226,6 +225,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
                 }
             }
         }
+        DAAL_ASSERT(inxSV == nSV);
         NumericTablePtr coeffOutTable = svmModel->getCoefficients();
         DAAL_CHECK_STATUS(s, coeffOutTable->resize(nSV));
 
