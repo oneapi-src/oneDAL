@@ -69,7 +69,6 @@ using v1::make_default_delete;
 
 namespace oneapi::dal::preview::detail {
 
-
 using namespace std;
 
 struct byte_alloc_iface {

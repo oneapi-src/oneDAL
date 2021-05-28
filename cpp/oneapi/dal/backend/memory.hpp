@@ -261,27 +261,25 @@ struct byte_alloc_iface;
 
 namespace oneapi::dal::preview::backend {
 
-template <typename T>   
+template <typename T>
 struct inner_alloc {
     using byte_t = char;
     using value_type = T;
     using pointer = T*;
 
-    
-
     inner_alloc(detail::byte_alloc_iface* byte_allocator) : byte_allocator_(byte_allocator) {}
-    
+
     inner_alloc(const detail::byte_alloc_iface* byte_allocator)
             : byte_allocator_(const_cast<detail::byte_alloc_iface*>(byte_allocator)) {}
 
-    template<typename V>
+    template <typename V>
     inner_alloc(inner_alloc<V>& other) : byte_allocator_(other.get_byte_allocator()) {}
 
-    template<typename V>
+    template <typename V>
     inner_alloc(const inner_alloc<V>& other) {
         byte_allocator_ = const_cast<detail::byte_alloc_iface*>(other.get_byte_allocator());
     }
-    
+
     T* allocate(std::int64_t n) {
         return reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
     }
@@ -305,9 +303,8 @@ struct inner_alloc {
     }
 
 private:
-    inner_alloc() : byte_allocator_(new detail::byte_alloc_iface()){}
-    
-    
+    inner_alloc() : byte_allocator_(new detail::byte_alloc_iface()) {}
+
     detail::byte_alloc_iface* byte_allocator_;
 };
 

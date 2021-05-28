@@ -63,6 +63,28 @@ struct delta_stepping<Float,
         byte_alloc_iface* alloc_ptr) const;
 };
 
+template <typename Float, typename Task, typename Topology, typename EdgeValue, typename... Param>
+struct delta_stepping_with_pred {
+    traverse_result<Task> operator()(const dal::detail::host_policy& ctx,
+                                     const detail::descriptor_base<Task>& desc,
+                                     const Topology& t,
+                                     const EdgeValue* vals,
+                                     byte_alloc_iface* alloc_ptr) const;
+};
+
+template <typename Float, typename EdgeValue>
+struct delta_stepping_with_pred<Float,
+                                task::one_to_all,
+                                dal::preview::detail::topology<std::int32_t>,
+                                EdgeValue> {
+    traverse_result<task::one_to_all> operator()(
+        const dal::detail::host_policy& ctx,
+        const detail::descriptor_base<task::one_to_all>& desc,
+        const dal::preview::detail::topology<std::int32_t>& t,
+        const EdgeValue* vals,
+        byte_alloc_iface* alloc_ptr) const;
+};
+
 template <typename Allocator, typename Graph>
 struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, Graph> {
     inline traverse_result<task::one_to_all> operator()(
@@ -75,11 +97,21 @@ struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, 
         const auto& t = dal::preview::detail::csr_topology_builder<Graph>()(g);
         const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
         alloc_connector<Allocator> alloc_con(alloc);
-        return delta_stepping<float, task::one_to_all, topology_type, value_type>{}(ctx,
-                                                                                    desc,
-                                                                                    t,
-                                                                                    vals,
-                                                                                    &alloc_con);
+        if (true) {
+            return delta_stepping_with_pred<float, task::one_to_all, topology_type, value_type>{}(
+                ctx,
+                desc,
+                t,
+                vals,
+                &alloc_con);
+        }
+        else {
+            return delta_stepping<float, task::one_to_all, topology_type, value_type>{}(ctx,
+                                                                                        desc,
+                                                                                        t,
+                                                                                        vals,
+                                                                                        &alloc_con);
+        }
     }
 };
 
