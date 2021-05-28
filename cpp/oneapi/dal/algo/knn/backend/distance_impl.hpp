@@ -1,6 +1,5 @@
-/* file: bf_knn_classification_train_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,26 +14,28 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_container.h"
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel_impl.i"
+#pragma once
 
-namespace daal
-{
-namespace algorithms
-{
-namespace bf_knn_classification
-{
-namespace training
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-namespace internal
-{
-template class DAAL_EXPORT KNNClassificationTrainKernel<DAAL_FPTYPE, DAAL_CPU>;
-}
-} // namespace training
-} // namespace bf_knn_classification
-} // namespace algorithms
-} // namespace daal
+#include "oneapi/dal/algo/knn/common.hpp"
+
+#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h>
+#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
+
+namespace oneapi::dal::knn::detail {
+namespace v1 {
+
+using daal_distance_t =
+    daal::algorithms::bf_knn_classification::prediction::internal::PairwiseDistanceType;
+
+class distance_impl : public base {
+public:
+    virtual ~distance_impl() = default;
+    virtual daal_distance_t get_daal_distance_type() = 0;
+    virtual double get_degree() = 0;
+};
+
+} // namespace v1
+
+using v1::distance_impl;
+
+} // namespace oneapi::dal::knn::detail

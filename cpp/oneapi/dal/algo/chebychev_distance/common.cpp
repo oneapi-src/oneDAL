@@ -1,6 +1,5 @@
-/* file: bf_knn_classification_train_dense_default_batch_fpt_cpu.cpp */
 /*******************************************************************************
-* Copyright 2014-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,26 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_container.h"
-#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel_impl.i"
+#include "oneapi/dal/algo/chebychev_distance/common.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace bf_knn_classification
-{
-namespace training
-{
-namespace interface1
-{
-template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-}
-namespace internal
-{
-template class DAAL_EXPORT KNNClassificationTrainKernel<DAAL_FPTYPE, DAAL_CPU>;
-}
-} // namespace training
-} // namespace bf_knn_classification
-} // namespace algorithms
-} // namespace daal
+namespace oneapi::dal::chebychev_distance::detail {
+namespace v1 {
+
+template <typename Task>
+class descriptor_impl : public base {};
+
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
+
+template class ONEDAL_EXPORT descriptor_base<task::compute>;
+
+} // namespace v1
+} // namespace oneapi::dal::chebychev_distance::detail

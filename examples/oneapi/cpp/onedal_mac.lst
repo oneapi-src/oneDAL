@@ -27,6 +27,7 @@ ONEDAL = column_accessor_homogen             \
          jaccard_batch                       \
          kmeans_lloyd_dense_batch            \
          kmeans_init_dense                   \
+         knn_cls_brute_force_dense_batch     \
          knn_cls_kd_tree_dense_batch         \
          linear_kernel_dense_batch           \
          load_graph                          \

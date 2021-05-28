@@ -235,20 +235,22 @@ ONEAPI.ALGOS.svm           := CORE.svm
 
 # List of algorithms in oneAPI part
 
-ONEAPI.ALGOS :=       \
-    decision_forest   \
-    decision_tree     \
-    kmeans            \
-    kmeans_init       \
-    knn               \
-    linear_kernel     \
-    pca               \
-    polynomial_kernel \
-    rbf_kernel        \
-    svm               \
-    jaccard           \
-    triangle_counting \
-    shortest_paths    \
+ONEAPI.ALGOS :=          \
+    chebychev_distance   \
+    decision_forest      \
+    decision_tree        \
+    kmeans               \
+    kmeans_init          \
+    knn                  \
+    linear_kernel        \
+    minkowski_distance   \
+    pca                  \
+    polynomial_kernel    \
+    rbf_kernel           \
+    svm                  \
+    jaccard              \
+    triangle_counting    \
+    shortest_paths       \
     subgraph_isomorphism
 
 
