@@ -588,72 +588,52 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const Num
 {
     services::Status status;
 
+    TArray<uint32_t, cpu> indicesTArray(nTrainVectors);
+    DAAL_CHECK_MALLOC(indicesTArray.get());
+    uint32_t * const indices = indicesTArray.get();
+
     TArray<algorithmFPType, cpu> deltaAlphaTArray(nTrainVectors);
     DAAL_CHECK_MALLOC(deltaAlphaTArray.get());
     algorithmFPType * const deltaAlpha = deltaAlphaTArray.get();
 
-    const size_t nBlocks = nTrainVectors / maxBlockSize + !!(nTrainVectors % maxBlockSize);
-
-    SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-        const size_t startRow     = iBlock * maxBlockSize;
-        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nTrainVectors - iBlock * maxBlockSize;
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nRowsInBlock; ++i)
+    size_t nNonZeroAlphas = 0;
+    for (size_t i = 0; i < nTrainVectors; ++i)
+    {
+        if (alpha[i] != algorithmFPType(0))
         {
-            deltaAlpha[i + startRow] = alpha[i + startRow] * y[i + startRow];
+            indices[nNonZeroAlphas]    = i;
+            deltaAlpha[nNonZeroAlphas] = alpha[i] * y[i];
+            ++nNonZeroAlphas;
         }
-    });
+    }
 
-    size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
+    const size_t nBlocks = nNonZeroAlphas / maxBlockSize + !!(nNonZeroAlphas % maxBlockSize);
 
-    StaticTlsMem<uint32_t, cpu> tlsIndices(maxBlockSize);
-    StaticTlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsGrad(nTrainVectors);
+    auto cachePtr = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(maxBlockSize, maxBlockSize, nVectors, xTable, kernel, status);
 
-    daal::static_threader_for(nBlocks, [&](const size_t iBlock, const size_t tid) {
+    for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
+    {
         const size_t startRow     = iBlock * maxBlockSize;
-        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nTrainVectors - iBlock * maxBlockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nNonZeroAlphas - iBlock * maxBlockSize;
 
-        uint32_t * const localIndices     = tlsIndices.local(tid);
-        algorithmFPType * const localGrad = tlsGrad.local(tid);
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nRowsInBlock; ++i)
+        if (nRowsInBlock != maxBlockSize)
         {
-            localIndices[i] = i + startRow;
+            status |= cachePtr->resize(nRowsInBlock);
         }
-
-        defaultCacheSize = services::internal::max<cpu, size_t>(nRowsInBlock, defaultCacheSize);
-        auto cachePtr = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nRowsInBlock, nVectors, xTable, kernel, status);
-        DAAL_CHECK_STATUS_THR(status);
 
         algorithmFPType ** kernelSOARes = nullptr;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(getRowsBlock);
 
-            DAAL_CHECK_STATUS_THR(cachePtr->getRowsBlock(localIndices, nRowsInBlock, kernelSOARes));
+            status |= cachePtr->getRowsBlock(indices + startRow, nRowsInBlock, kernelSOARes);
         }
 
-        DAAL_CHECK_STATUS_THR(updateGrad(kernelSOARes, deltaAlpha, localGrad, nVectors, nTrainVectors, nRowsInBlock));
+        status |= updateGrad(kernelSOARes, deltaAlpha + startRow, grad, nVectors, nTrainVectors, nRowsInBlock);
+    }
 
-        cachePtr->clear();
-    });
+    cachePtr->clear();
 
-    tlsGrad.reduce([grad, nTrainVectors](algorithmFPType * localGrad) -> void {
-        if (!localGrad) return;
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nTrainVectors; ++i)
-        {
-            grad[i] += localGrad[i];
-        }
-    });
-
-    return services::Status();
+    return status;
 }
 
 } // namespace internal
