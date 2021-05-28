@@ -137,7 +137,6 @@ template <typename SharedBinContainer, typename BinsVector>
 inline std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
                                          BinsVector& local_bins,
                                          SharedBinContainer& shared_bin) {
-    const std::int64_t max_elements_in_bin = 1000;
     std::atomic<std::int64_t> curr_shared_bin_tail = 0;
     dal::detail::threader_for(local_bins.size(), local_bins.size(), [&](std::int64_t i) {
         int thread_id = dal::detail::threader_get_current_thread_index();
@@ -301,8 +300,6 @@ struct delta_stepping_with_pred {
         std::int64_t curr_shared_bin_tail = 1;
         bool empty_queue = false;
         std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
-
-        using v0a_t = inner_alloc<vertex_type>;
 
         using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
         using v1a_t = inner_alloc<v1v_t>;

@@ -44,6 +44,7 @@
 /* Algos */
 #include "oneapi/dal/algo/decision_forest.hpp"
 #include "oneapi/dal/algo/jaccard.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism.hpp"
 #include "oneapi/dal/algo/kmeans.hpp"
 #include "oneapi/dal/algo/kmeans_init.hpp"
 #include "oneapi/dal/algo/knn.hpp"

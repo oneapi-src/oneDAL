@@ -39,7 +39,8 @@ dal_global_header_test(
     algo_preview = [
         "jaccard",
         "triangle_counting",
-        "shortest_paths"
+        "shortest_paths",
+        "subgraph_isomorphism"
     ],
     dal_deps = [
         ":dal_header",
