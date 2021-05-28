@@ -351,12 +351,8 @@ ONEDAL_FORCEINLINE void override_policy(const Policy& policy,
 template <typename... Args>
 ONEDAL_FORCEINLINE void pull_rows_impl(data_layout layout, Args&&... args) {
     switch (layout) {
-        case data_layout::row_major: 
-            pull_row_major_impl(std::forward<Args>(args)...); 
-            break;
-        case data_layout::column_major: 
-            pull_column_major_impl(std::forward<Args>(args)...);
-            break;
+        case data_layout::row_major: pull_row_major_impl(std::forward<Args>(args)...); break;
+        case data_layout::column_major: pull_column_major_impl(std::forward<Args>(args)...); break;
         default: throw domain_error{ detail::error_messages::unsupported_data_layout() };
     }
 }
@@ -364,12 +360,8 @@ ONEDAL_FORCEINLINE void pull_rows_impl(data_layout layout, Args&&... args) {
 template <typename... Args>
 ONEDAL_FORCEINLINE void pull_column_impl(data_layout layout, Args&&... args) {
     switch (layout) {
-        case data_layout::row_major: 
-            pull_column_major_impl(std::forward<Args>(args)...);
-            break;
-        case data_layout::column_major: 
-            pull_row_major_impl(std::forward<Args>(args)...);
-            break;
+        case data_layout::row_major: pull_column_major_impl(std::forward<Args>(args)...); break;
+        case data_layout::column_major: pull_row_major_impl(std::forward<Args>(args)...); break;
         default: throw domain_error{ detail::error_messages::unsupported_data_layout() };
     }
 }
@@ -377,12 +369,8 @@ ONEDAL_FORCEINLINE void pull_column_impl(data_layout layout, Args&&... args) {
 template <typename... Args>
 ONEDAL_FORCEINLINE void push_rows_impl(data_layout layout, Args&&... args) {
     switch (layout) {
-        case data_layout::row_major: 
-            push_row_major_impl(std::forward<Args>(args)...);
-            break;
-        case data_layout::column_major: 
-            push_column_major_impl(std::forward<Args>(args)...);
-            break;
+        case data_layout::row_major: push_row_major_impl(std::forward<Args>(args)...); break;
+        case data_layout::column_major: push_column_major_impl(std::forward<Args>(args)...); break;
         default: throw domain_error{ detail::error_messages::unsupported_data_layout() };
     }
 }
@@ -390,12 +378,8 @@ ONEDAL_FORCEINLINE void push_rows_impl(data_layout layout, Args&&... args) {
 template <typename... Args>
 ONEDAL_FORCEINLINE void push_column_impl(data_layout layout, Args&&... args) {
     switch (layout) {
-        case data_layout::row_major: 
-            push_column_major_impl(std::forward<Args>(args)...);
-            break;
-        case data_layout::column_major: 
-            push_row_major_impl(std::forward<Args>(args)...);
-            break;
+        case data_layout::row_major: push_column_major_impl(std::forward<Args>(args)...); break;
+        case data_layout::column_major: push_row_major_impl(std::forward<Args>(args)...); break;
         default: throw domain_error{ detail::error_messages::unsupported_data_layout() };
     }
 }
