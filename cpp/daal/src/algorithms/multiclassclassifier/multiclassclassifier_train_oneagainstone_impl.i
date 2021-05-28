@@ -128,7 +128,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         }
     }
 
-    TArray<size_t, cpu> originalIndicesMap(nModels * nSubsetVectors);
+    TArray<size_t, cpu> originalIndicesMap(nModels * nVectors);
     DAAL_CHECK_MALLOC(originalIndicesMap.get());
     size_t * const originalIndicesMapData = originalIndicesMap.get();
 
@@ -147,7 +147,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
 
         size_t nRowsInSubset                   = 0;
-        size_t * const originalIndicesMapLocal = originalIndicesMapData + imodel * nSubsetVectors;
+        size_t * const originalIndicesMapLocal = originalIndicesMapData + imodel * nVectors;
         s |= local->getDataSubset(nFeatures, nVectors, iClass, jClass, y, originalIndicesMapLocal, nRowsInSubset);
         DAAL_CHECK_STATUS_THR(s);
         classifier::ModelPtr pModel;
@@ -251,7 +251,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             ReadColumns<int, cpu> mtSvIndex(twoClassSvIndTable.get(), 0, 0, svCounts);
             DAAL_CHECK_BLOCK_STATUS_THR(mtSvIndex);
             const int * twoClassSvInd        = mtSvIndex.get();
-            size_t * originalIndicesMapLocal = originalIndicesMapData + imodel * nSubsetVectors;
+            size_t * originalIndicesMapLocal = originalIndicesMapData + imodel * nVectors;
 
             for (size_t sv = 0; sv < svCounts; ++sv)
             {
