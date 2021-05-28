@@ -18,4 +18,6 @@
 
 namespace oneapi::dal::preview::shortest_paths::backend {
 
+template bool nrh_disptcher<__CPU_TAG__>();
+
 } // namespace oneapi::dal::preview::shortest_paths::backend
