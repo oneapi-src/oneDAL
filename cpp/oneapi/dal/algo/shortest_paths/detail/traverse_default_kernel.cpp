@@ -22,8 +22,7 @@ namespace oneapi::dal::preview::shortest_paths::detail {
 
 bool nrh_disptcher(const dal::detail::host_policy& policy) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::nrh_disptcher<
-            dal::backend::cpu_dispatch_sse2>(); //return backend::nrh_disptcher<decltype(cpu)>();
+            return backend::nrh_disptcher<decltype(cpu)>();
     });
 }
 
