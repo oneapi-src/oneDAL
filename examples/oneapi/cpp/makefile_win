@@ -124,7 +124,7 @@ EXT_LIB = /link /DEFAULTLIB:tbb12_debug.lib /DEFAULTLIB:tbbmalloc_debug.lib
 !ENDIF
 !ENDIF
 
-DAAL_LIB = "$(DAAL_PATH)\onedal$(EXT)" "$(DAAL_PATH)\onedal_core$(EXT)" "$(DAAL_LIB_T)"
+DAAL_LIB = "$(DAAL_PATH)\onedald$(EXT)" "$(DAAL_PATH)\onedal_cored$(EXT)" "$(DAAL_LIB_T)"
 
 RES_DIR = _results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
 COPTS = -MDd /debug:none /Isource /I"$(DAALROOT)\include" $(COPTS) /Fe$(RES_DIR)\\
