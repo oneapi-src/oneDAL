@@ -68,11 +68,11 @@ struct delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue> {
 };
 
 template <typename Cpu>
-bool nrh_disptcher() {
+bool nrh_dispatcher() {
     return false;
 }
 
 template <>
-bool nrh_disptcher<dal::backend::cpu_dispatch_sse2>();
+bool nrh_dispatcher<dal::backend::cpu_dispatch_sse2>();
 
 } // namespace oneapi::dal::preview::shortest_paths::backend

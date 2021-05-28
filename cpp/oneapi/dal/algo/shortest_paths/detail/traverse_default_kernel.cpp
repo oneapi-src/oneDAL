@@ -20,9 +20,9 @@
 
 namespace oneapi::dal::preview::shortest_paths::detail {
 
-ONEDAL_EXPORT bool nrh_disptcher(const dal::detail::host_policy& policy) {
+bool nrh_dispatcher(const dal::detail::host_policy& policy) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
-        return backend::nrh_disptcher<decltype(cpu)>();
+        return backend::nrh_dispatcher<decltype(cpu)>();
     });
 }
 

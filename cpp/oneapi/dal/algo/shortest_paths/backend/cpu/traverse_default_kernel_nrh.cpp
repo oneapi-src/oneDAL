@@ -22,7 +22,7 @@ using namespace oneapi::dal::preview::detail;
 using namespace oneapi::dal::preview::backend;
 
 template <>
-bool nrh_disptcher<dal::backend::cpu_dispatch_sse2>() {
+bool nrh_dispatcher<dal::backend::cpu_dispatch_sse2>() {
     return true;
 }
 
