@@ -52,12 +52,12 @@ if not exist %RESULT_DIR% md %RESULT_DIR%
 
 echo %RESULT_DIR%
 
-set CFLAGS=-MD -nologo -w -DDAAL_CHECK_PARAMETER -std=c++14 /I %ARROWROOT%\cpp\src /I %ARROWROOT%\cpp\%ARROWCONFIG%\src /I %DAALROOT%\include
+set CFLAGS=-MDd /debug:none -nologo -w -DDAAL_CHECK_PARAMETER -std=c++14 /I %ARROWROOT%\cpp\src /I %ARROWROOT%\cpp\%ARROWCONFIG%\src /I %DAALROOT%\include
 set LFLAGS=-nologo
-set LIB_DAAL=onedal_core.lib onedal_thread.lib
-set LIB_DAAL_DLL=onedal_core_dll.lib
-set LFLAGS_DAAL=%LIB_DAAL% tbb12.lib tbbmalloc.lib
-set LFLAGS_DAAL_DLL=onedal_core_dll.lib
+set LIB_DAAL=onedal_cored.lib onedal_threadd.lib
+set LIB_DAAL_DLL=onedal_cored_dll.lib
+set LFLAGS_DAAL=%LIB_DAAL% tbb12_debug.lib tbbmalloc_debug.lib
+set LFLAGS_DAAL_DLL=onedal_cored_dll.lib
 set ARROW_LOGFILE=.\%RESULT_DIR%\build_arrow.log
 set LIB_DOUBLE_CONV=%ARROWROOT%\cpp\%ARROWCONFIG%\double-conversion_ep\src\double-conversion_ep\lib\double-conversion.lib
 set ARROW_LIBRARIES=%ARROWROOT%\cpp\%ARROWCONFIG%\%ARROWCONFIG%\Release\arrow.lib

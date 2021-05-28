@@ -25,9 +25,9 @@ USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
 USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 
-CONFIGs = release debug
-CONFIG ?= debug
-$(if $(filter $(CONFIGs),$(CONFIG)),,$(error CONFIG must be one of $(CONFIGs)))
+MSVC_RUNTIME_VERSIONs = release debug
+MSVC_RUNTIME_VERSION ?= release
+$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 req-features = order-only second-expansion
 ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
@@ -54,11 +54,11 @@ _OS := $(word 1,$(attr.$(PLAT)))
 _IA := $(word 2,$(attr.$(PLAT)))
 _OSc:= $(word 3,$(attr.$(PLAT)))
 
-COMPILER_is_$(COMPILER)  := yes
-OS_is_$(_OS)             := yes
-IA_is_$(_IA)             := yes
-PLAT_is_$(PLAT)          := yes
-CONFIG_is_$(CONFIG)      := yes
+COMPILER_is_$(COMPILER)            := yes
+OS_is_$(_OS)                       := yes
+IA_is_$(_IA)                       := yes
+PLAT_is_$(PLAT)                    := yes
+MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
 
 #===============================================================================
 # Compiler specific part
@@ -96,7 +96,7 @@ OSList          := lnx win mac fbsd
 
 o      := $(if $(OS_is_win),obj,o)
 a      := $(if $(OS_is_win),lib,a)
-d      := $(if $(OS_is_win),$(if $(CONFIG_is_debug),d,),)
+d      := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),d,),)
 plib   := $(if $(OS_is_win),,lib)
 scr    := $(if $(OS_is_win),bat,sh)
 y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
@@ -181,7 +181,7 @@ DIR:=.
 CPPDIR:=$(DIR)/cpp
 CPPDIR.daal:=$(CPPDIR)/daal
 CPPDIR.onedal:=$(CPPDIR)/oneapi/dal
-WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(CONFIG)/$(PLAT)
+WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(if $(MSVC_RT_is_release),md,mdd)/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
 RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
 RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
@@ -221,7 +221,7 @@ TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
 TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc14),$(TBBDIR.libia.prefix)/$(_IA)/vc14)))
 TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
-TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/$(if $(CONFIG_is_release),tbb12.dll,tbb12_debug.dll))))
+TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/$(if $(MSVC_RT_is_release),tbb12.dll,tbb12_debug.dll))))
 
 TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
 
@@ -274,8 +274,8 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 #===============================================================================
 include makefile.ver
 
-dep_thr := $(if $(CONFIG_is_release),tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib, tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib)
-dep_seq := $(if $(CONFIG_is_release),msvcrt.lib msvcprt.lib, msvcrtd.lib msvcprtd.lib)
+dep_thr := $(if $(MSVC_RT_is_release),tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib, tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib)
+dep_seq := $(if $(MSVC_RT_is_release),msvcrt.lib msvcprt.lib, msvcrtd.lib msvcprtd.lib)
 
 y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MINORBINARY).$(y),.$(y).$(MAJORBINARY).$(MINORBINARY)))
 y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))

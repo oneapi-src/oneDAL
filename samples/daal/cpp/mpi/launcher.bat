@@ -43,12 +43,12 @@ if not exist %RESULT_DIR% md %RESULT_DIR%
 
 echo %RESULT_DIR%
 
-set CFLAGS=-MD -nologo -w
+set CFLAGS=-MDd /debug:none -nologo -w
 set LFLAGS=-nologo
-set LIB_DAAL=onedal_core.lib onedal_thread.lib
-set LIB_DAAL_DLL=onedal_core_dll.lib
-set LFLAGS_DAAL=%LIB_DAAL% tbb12.lib tbbmalloc.lib impi.lib
-set LFLAGS_DAAL_DLL=onedal_core_dll.lib
+set LIB_DAAL=onedal_cored.lib onedal_threadd.lib
+set LIB_DAAL_DLL=onedal_cored_dll.lib
+set LFLAGS_DAAL=%LIB_DAAL% tbb12_debug.lib tbbmalloc_debug.lib impi.lib
+set LFLAGS_DAAL_DLL=onedal_cored_dll.lib
 set MPI_LOGFILE=.\%RESULT_DIR%\build_mpi.log
 if not "%RMODE%"=="run" (
     if exist %MPI_LOGFILE% del /Q /F %MPI_LOGFILE%

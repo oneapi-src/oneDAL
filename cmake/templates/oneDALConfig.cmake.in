@@ -69,18 +69,18 @@ elseif (@VERSIONS_SET@ STREQUAL "FALSE")
 endif()
 
 if (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "no")
-    list(APPEND DAL_LIBS onedal_sycl)
+    list(APPEND DAL_LIBS onedal_sycld)
 elseif (USE_DPCPP STREQUAL "no" AND USE_NEW_IFACES STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal)
+    list(APPEND DAL_LIBS onedald)
 elseif (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal_dpc onedal_sycl)
+    list(APPEND DAL_LIBS onedal_dpc onedal_sycld)
 endif()
 
-list(APPEND DAL_LIBS onedal_core)
+list(APPEND DAL_LIBS onedal_cored)
 
 if(USE_PARALLEL STREQUAL "yes")
-    set(DAL_THREAD_LIBRARY_NAME onedal_thread)
-    find_package(TBB REQUIRED tbb tbbmalloc)
+    set(DAL_THREAD_LIBRARY_NAME onedal_threadd)
+    find_package(TBB REQUIRED tbb_debug tbbmalloc_debug)
     list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
 
     if(UNIX)
@@ -91,7 +91,7 @@ if(USE_PARALLEL STREQUAL "yes")
         endif()
     endif()
 else()
-    set(DAL_THREAD_LIBRARY_NAME onedal_sequential)
+    set(DAL_THREAD_LIBRARY_NAME onedal_sequentiald)
 endif()
 
 if (UNIX OR TARGET_LINK STREQUAL "static")
@@ -136,7 +136,7 @@ foreach (_dal_component ${DAL_LIBS})
     set(oneDAL_${_dal_component}_FOUND 0)
 
     if (NOT TARGET oneDAL::${_dal_component})
-        if (${TARGET_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
+        if (${TARGET_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycld")
             add_library(oneDAL::${_dal_component} STATIC IMPORTED)
             find_library(
                 _dal_lib
@@ -158,7 +158,7 @@ foreach (_dal_component ${DAL_LIBS})
         unset(_dal_include_dir)
     endif()
 
-    if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
+    if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycld")
         find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
         set_target_properties(oneDAL::${_dal_component} PROPERTIES
                               IMPORTED_LOCATION "${${_dal_component}_dll}"
