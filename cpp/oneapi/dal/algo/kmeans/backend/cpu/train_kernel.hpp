@@ -22,6 +22,13 @@
 namespace oneapi::dal::kmeans::backend {
 
 template <typename Float, typename Method, typename Task>
+struct train_kernel_cpu_spmd {
+    train_result<Task> operator()(const dal::backend::context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& params,
+                                  const train_input<Task>& input) const;
+};
+
+template <typename Float, typename Method, typename Task>
 struct train_kernel_cpu {
     train_result<Task> operator()(const dal::backend::context_cpu& ctx,
                                   const detail::descriptor_base<Task>& params,

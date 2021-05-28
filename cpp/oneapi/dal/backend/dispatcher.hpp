@@ -72,12 +72,67 @@ private:
     detail::spmd_communicator comm_;
 };
 
-template <typename CpuKernel>
-struct kernel_dispatcher<CpuKernel> {
-    template <typename Policy, typename... Args>
-    auto operator()(const Policy& policy, Args&&... args) const {
-        static_assert(detail::is_host_policy_v<Policy>);
-        return CpuKernel()(context_cpu{ policy }, std::forward<Args>(args)...);
+template <typename Kernel>
+struct local_cpu_kernel {
+    using kernel_t = Kernel;
+};
+
+template <typename Kernel>
+struct spmd_cpu_kernel {
+    using kernel_t = Kernel;
+};
+
+/// Specialization of dispatcher needed for backward compatibility
+template <typename K>
+struct kernel_dispatcher<K> {
+    template <typename... Args>
+    auto operator()(const detail::host_policy& policy, Args&&... args) const {
+        return K{}(context_cpu{ policy }, std::forward<Args>(args)...);
+    }
+};
+
+/// Covers the case when there is only single-node CPU kernel.
+template <typename K>
+struct kernel_dispatcher<local_cpu_kernel<K>> {
+    template <typename... Args>
+    auto operator()(const detail::host_policy& policy, Args&&... args) const {
+        return K{}(context_cpu{ policy }, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const {
+        // TODO: Move error message to `error_messages`
+        throw unimplemented{ "Distributed version of algorithm is not implemented for CPU" };
+    }
+};
+
+/// Covers the case when there is an universal SPMD CPU kernel that
+/// can be used for both single-node and distributed computations.
+template <typename K>
+struct kernel_dispatcher<spmd_cpu_kernel<K>> {
+    template <typename... Args>
+    auto operator()(const detail::host_policy& policy, Args&&... args) const {
+        // TODO: Create `context_cpu` with "empty" communicator and call kernel
+    }
+
+    template <typename... Args>
+    auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const {
+        return K{}(context_cpu{ policy }, std::forward<Args>(args)...);
+    }
+};
+
+/// Covers the case when there are two distinct CPU kernels
+/// for single-node and distributed computations.
+template <typename K1, typename K2>
+struct kernel_dispatcher<local_cpu_kernel<K1>, spmd_cpu_kernel<K2>> {
+    template <typename... Args>
+    auto operator()(const detail::host_policy& policy, Args&&... args) const {
+        return K1{}(context_cpu{ policy }, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const {
+        return K2{}(context_cpu{ policy }, std::forward<Args>(args)...);
     }
 };
 

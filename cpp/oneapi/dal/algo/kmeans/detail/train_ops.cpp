@@ -29,9 +29,10 @@ struct train_ops_dispatcher<Policy, Float, Method, Task> {
     train_result<Task> operator()(const Policy& policy,
                                   const descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::train_kernel_cpu<Float, Method, Task>>;
-        return kernel_dispatcher_t()(policy, desc, input);
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
+            dal::backend::local_cpu_kernel<backend::train_kernel_cpu<Float, Method, Task>>,
+            dal::backend::spmd_cpu_kernel<backend::train_kernel_cpu_spmd<Float, Method, Task>>>;
+        return kernel_dispatcher_t{}(policy, desc, input);
     }
 };
 
