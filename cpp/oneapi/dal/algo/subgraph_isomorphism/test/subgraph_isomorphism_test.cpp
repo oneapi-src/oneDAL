@@ -1864,8 +1864,8 @@ public:
                 dal::preview::subgraph_isomorphism::method::by_default,
                 AllocatorType>(alloc)
                 .set_kind(kind)
-                .set_semantic_match(semantic_match)
-                .set_max_match_count(max_match_count);
+                .set_semantic_match(semantic_match);
+        // .set_max_match_count(max_match_count);
 
         const auto result =
             dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);

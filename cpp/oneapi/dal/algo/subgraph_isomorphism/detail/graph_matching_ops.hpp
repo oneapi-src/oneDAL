@@ -22,6 +22,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_topology_builder.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
 
@@ -68,11 +69,14 @@ struct graph_matching_ops {
     void check_preconditions(const Descriptor &param, graph_matching_input<Graph> &input) const {
         using msg = dal::detail::error_messages;
 
+        if (dal::preview::get_vertex_count(input.get_target_graph()) == 0) {
+            throw invalid_argument(msg::empty_target_graph());
+        }
+        if (dal::preview::get_vertex_count(input.get_pattern_graph()) == 0) {
+            throw invalid_argument(msg::empty_pattern_graph());
+        }
         if (param.get_max_match_count() < 0) {
             throw invalid_argument(msg::max_match_count_lt_zero());
-        }
-        if (param.get_semantic_match() != false) {
-            throw invalid_argument(msg::unsupported_semantic_match());
         }
     }
 

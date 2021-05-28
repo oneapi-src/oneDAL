@@ -51,7 +51,7 @@ void descriptor_base::set_semantic_match_impl(bool semantic_match) {
 }
 
 void descriptor_base::set_max_match_count_impl(std::int64_t max_match_count) {
-    if (max_match_count != 0) {
+    if (max_match_count > 0) {
         throw unimplemented(
             dal::detail::error_messages::non_zero_max_match_count_is_not_supported());
     }

@@ -167,7 +167,8 @@ public:
     /* Subgraph Isomorphism */
     MSG(unsupported_kind);
     MSG(max_match_count_lt_zero);
-    MSG(unsupported_semantic_match);
+    MSG(empty_target_graph);
+    MSG(empty_pattern_graph);
     MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
     MSG(non_zero_max_match_count_is_not_supported);
 
