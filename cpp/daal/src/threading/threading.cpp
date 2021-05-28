@@ -335,7 +335,7 @@ DAAL_EXPORT int _daal_threader_get_current_thread_index()
 #if defined(__DO_TBB_LAYER__)
     return tbb::this_task_arena::current_thread_index();
 #elif defined(__DO_SEQ_LAYER__)
-    return 1;
+    return 0;
 #endif
 }
 
