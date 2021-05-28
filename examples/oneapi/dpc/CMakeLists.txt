@@ -76,6 +76,9 @@ function (change_md_to_mdd)
 endfunction()
 
 set_link_and_threading_types()
+if (WIN32)
+    change_md_to_mdd()
+endif()
 
 find_package(oneDAL REQUIRED)
 
