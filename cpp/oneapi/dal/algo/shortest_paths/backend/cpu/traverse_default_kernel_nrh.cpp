@@ -23,15 +23,15 @@ using namespace oneapi::dal::preview::backend;
 
 template <typename BinsVector>
 inline bool find_next_bin_index_seq(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
-    const std::int64_t kMaxBin = std::numeric_limits<std::int64_t>::max() / 2;
+    const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
     bool is_queue_empty = true;
     for (size_t i = curr_bin_index; i < local_bins[0].size(); i++) {
         if (!local_bins[0][i].empty()) {
-            if (i < kMaxBin) {
+            if (i < max_bin_count) {
                 curr_bin_index = i;
             }
             else {
-                curr_bin_index = kMaxBin;
+                curr_bin_index = max_bin_count;
             }
             is_queue_empty = false;
             break;
@@ -44,7 +44,7 @@ template <typename SharedBinContainer, typename BinsVector>
 inline std::int64_t reduce_to_common_bin_seq(const std::int64_t& curr_bin_index,
                                              BinsVector& local_bins,
                                              SharedBinContainer& shared_bin) {
-    const std::int64_t kBinSizeThreshold = 1000;
+    const std::int64_t max_elements_in_bin = 1000;
     std::atomic<std::int64_t> curr_shared_bin_tail = 0;
 
     if (curr_bin_index < local_bins[0].size()) {
@@ -67,7 +67,6 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
     byte_alloc_iface* alloc_ptr) {
     using value_type = EdgeValue;
     using vertex_type = std::int32_t;
-    using value_allocator_type = inner_alloc<value_type>;
     using atomic_value_allocator_type = inner_alloc<std::atomic<value_type>>;
     using vertex_allocator_type = inner_alloc<vertex_type>;
 
@@ -78,9 +77,8 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
 
     const value_type delta = desc.get_delta();
 
-    const value_type kDistInf = std::numeric_limits<value_type>::max() / 2;
-    const std::int64_t kMaxBin = std::numeric_limits<std::int64_t>::max() / 2;
-    const std::int64_t kBinSizeThreshold = 1000;
+    const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
+    const std::int64_t max_elements_in_bin = 1000;
     const auto vertex_count = t.get_vertex_count();
     const value_type max_dist = std::numeric_limits<value_type>::max();
 
@@ -100,8 +98,6 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
     std::int64_t curr_shared_bin_tail = 1;
     bool empty_queue = false;
 
-    using v0a_t = inner_alloc<vertex_type>;
-
     using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
     using v1a_t = inner_alloc<v1v_t>;
 
@@ -117,7 +113,7 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
 
     std::int64_t iter = 0;
 
-    while (curr_bin_index != kMaxBin && iter != kMaxBin && !empty_queue) {
+    while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
         for (std::int64_t i = 0; i < curr_shared_bin_tail; ++i) {
             vertex_type u = shared_bin[i];
             if (dist[u].load() >= delta * static_cast<value_type>(curr_bin_index)) {
@@ -126,7 +122,7 @@ delta_stepping<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()(
         }
 
         while (curr_bin_index < local_bins[0].size() && !local_bins[0][curr_bin_index].empty() &&
-               local_bins[0][curr_bin_index].size() < kBinSizeThreshold) {
+               local_bins[0][curr_bin_index].size() < max_elements_in_bin) {
             vector_container<vertex_type> curr_bin_copy(local_bins[0][curr_bin_index].size());
             copy(local_bins[0][curr_bin_index].begin(),
                  local_bins[0][curr_bin_index].end(),
@@ -165,7 +161,6 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
     byte_alloc_iface* alloc_ptr) {
     using value_type = EdgeValue;
     using vertex_type = std::int32_t;
-    using value_allocator_type = inner_alloc<value_type>;
     using atomic_vp_type = std::atomic<dist_pred<value_type, vertex_type>>;
     using atomic_vp_allocator_type = inner_alloc<atomic_vp_type>;
     using vertex_allocator_type = inner_alloc<vertex_type>;
@@ -177,16 +172,14 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
 
     const value_type delta = desc.get_delta();
 
-    const value_type kDistInf = std::numeric_limits<value_type>::max() / 2;
-    const std::int64_t kMaxBin = std::numeric_limits<std::int64_t>::max() / 2;
-    const std::int64_t kBinSizeThreshold = 1000;
+    const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
+    const std::int64_t max_elements_in_bin = 1000;
     const auto vertex_count = t.get_vertex_count();
     const value_type max_dist = std::numeric_limits<value_type>::max();
 
     atomic_vp_type* dp = allocate(atomic_vp, vertex_count);
     for (std::int64_t i = 0; i < vertex_count; ++i) {
         new (dp + i) dist_pred<value_type, vertex_type>(max_dist, -1);
-        ;
     }
 
     dp[source].store(dist_pred<value_type, vertex_type>(0, -1));
@@ -198,8 +191,6 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
     std::int64_t curr_bin_index = 0;
     std::int64_t curr_shared_bin_tail = 1;
     bool empty_queue = false;
-
-    using v0a_t = inner_alloc<vertex_type>;
 
     using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
     using v1a_t = inner_alloc<v1v_t>;
@@ -216,7 +207,7 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
 
     std::int64_t iter = 0;
 
-    while (curr_bin_index != kMaxBin && iter != kMaxBin && !empty_queue) {
+    while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
         for (std::int64_t i = 0; i < curr_shared_bin_tail; ++i) {
             vertex_type u = shared_bin[i];
             if (dp[u].load().dist >= delta * static_cast<value_type>(curr_bin_index)) {
@@ -225,7 +216,7 @@ delta_stepping_with_pred<dal::backend::cpu_dispatch_sse2, EdgeValue>::operator()
         }
 
         while (curr_bin_index < local_bins[0].size() && !local_bins[0][curr_bin_index].empty() &&
-               local_bins[0][curr_bin_index].size() < kBinSizeThreshold) {
+               local_bins[0][curr_bin_index].size() < max_elements_in_bin) {
             vector_container<vertex_type> curr_bin_copy(local_bins[0][curr_bin_index].size());
             copy(local_bins[0][curr_bin_index].begin(),
                  local_bins[0][curr_bin_index].end(),
