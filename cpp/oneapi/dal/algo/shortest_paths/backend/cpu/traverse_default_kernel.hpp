@@ -301,8 +301,6 @@ struct delta_stepping_with_pred {
         bool empty_queue = false;
         std::int64_t thread_cnt = dal::detail::threader_get_max_threads();
 
-        using v0a_t = inner_alloc<vertex_type>;
-
         using v1v_t = vector_container<vertex_type, vertex_allocator_type>;
         using v1a_t = inner_alloc<v1v_t>;
 

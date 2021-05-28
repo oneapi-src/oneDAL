@@ -25,7 +25,7 @@ template <typename BinsVector>
 inline bool find_next_bin_index_seq(std::int64_t& curr_bin_index, const BinsVector& local_bins) {
     const std::int64_t max_bin_count = std::numeric_limits<std::int64_t>::max() / 2;
     bool is_queue_empty = true;
-    for (size_t i = curr_bin_index; i < local_bins[0].size(); i++) {
+    for (std::int64_t i = curr_bin_index; i < local_bins[0].size(); i++) {
         if (!local_bins[0][i].empty()) {
             if (i < max_bin_count) {
                 curr_bin_index = i;
@@ -44,7 +44,6 @@ template <typename SharedBinContainer, typename BinsVector>
 inline std::int64_t reduce_to_common_bin_seq(const std::int64_t& curr_bin_index,
                                              BinsVector& local_bins,
                                              SharedBinContainer& shared_bin) {
-    const std::int64_t max_elements_in_bin = 1000;
     std::atomic<std::int64_t> curr_shared_bin_tail = 0;
 
     if (curr_bin_index < local_bins[0].size()) {
