@@ -88,7 +88,7 @@ CLEAN=
 !ENDIF
 
 !IF ("$(RES_EXT)"=="lib")
-DAAL_LIB="$(DAAL_PATH)\onedal_cored.lib" "$(DAAL_PATH)\onedal_dpc.lib" "$(DAAL_PATH)\onedal_sycld.lib"
+DAAL_LIB="$(DAAL_PATH)\onedal_cored.lib" "$(DAAL_PATH)\onedal_dpcd.lib" "$(DAAL_PATH)\onedal_sycld.lib"
 RT_LIB=/link /ignore:4078 OpenCL.lib
 !IF ("$(threading)"=="sequential")
 DAAL_LIB_T = "$(DAAL_PATH)\onedal_sequentiald.lib"
@@ -99,7 +99,7 @@ EXT_LIB = tbb12_debug.lib tbbmalloc_debug.lib
 !ENDIF
 
 !ELSE
-DAAL_LIB="$(DAAL_PATH)\onedal_dpc_dll.lib"
+DAAL_LIB="$(DAAL_PATH)\onedal_dpcd_dll.lib"
 RT_LIB=/link /ignore:4078
 !ENDIF
 

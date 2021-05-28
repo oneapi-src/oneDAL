@@ -73,7 +73,7 @@ if (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "no")
 elseif (USE_DPCPP STREQUAL "no" AND USE_NEW_IFACES STREQUAL "yes")
     list(APPEND DAL_LIBS onedald)
 elseif (USE_DPCPP STREQUAL "yes" AND USE_NEW_IFACES STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal_dpc onedal_sycld)
+    list(APPEND DAL_LIBS onedal_dpcd onedal_sycld)
 endif()
 
 list(APPEND DAL_LIBS onedal_cored)
