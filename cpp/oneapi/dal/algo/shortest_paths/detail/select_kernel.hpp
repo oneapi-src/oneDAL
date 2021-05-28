@@ -23,7 +23,7 @@
 
 namespace oneapi::dal::preview::shortest_paths::detail {
 
-template <typename Policy, typename Descriptor, typename Topology>
+template <typename Policy, typename Descriptor, typename Graph>
 struct backend_base {
     using float_t = typename Descriptor::float_t;
     using task_t = typename Descriptor::task_t;
@@ -32,12 +32,12 @@ struct backend_base {
 
     virtual traverse_result<task_t> operator()(const Policy& ctx,
                                                const Descriptor& descriptor,
-                                               const Topology& t) = 0;
+                                               const Graph& t) = 0;
     virtual ~backend_base() = default;
 };
 
-template <typename Policy, typename Descriptor, typename Topology>
-struct backend_default : public backend_base<Policy, Descriptor, Topology> {
+template <typename Policy, typename Descriptor, typename Graph>
+struct backend_default : public backend_base<Policy, Descriptor, Graph> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
@@ -48,8 +48,8 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
 
     virtual traverse_result<task_t> operator()(const Policy& ctx,
                                                const Descriptor& descriptor,
-                                               const Topology& t) {
-        return traverse_kernel_cpu<method_t, task_t, allocator_t, Topology>()(
+                                               const Graph& t) {
+        return traverse_kernel_cpu<method_t, task_t, allocator_t, Graph>()(
             ctx,
             descriptor,
             descriptor.get_allocator(),
@@ -57,10 +57,10 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
     }
 };
 
-template <typename Policy, typename Descriptor, typename Topology>
-dal::detail::shared<backend_base<Policy, Descriptor, Topology>> get_backend(const Descriptor& desc,
-                                                                            const Topology& t) {
-    return std::make_shared<backend_default<Policy, Descriptor, Topology>>();
+template <typename Policy, typename Descriptor, typename Graph>
+dal::detail::shared<backend_base<Policy, Descriptor, Graph>> get_backend(const Descriptor& desc,
+                                                                         const Graph& t) {
+    return std::make_shared<backend_default<Policy, Descriptor, Graph>>();
 }
 
 } // namespace oneapi::dal::preview::shortest_paths::detail

@@ -22,7 +22,6 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/graph/detail/directed_adjacency_vector_graph_impl.hpp"
-#include "oneapi/dal/graph/detail/directed_adjacency_vector_graph_topology_builder.hpp"
 
 namespace oneapi::dal::preview::shortest_paths::detail {
 
@@ -32,10 +31,8 @@ struct traverse_ops_dispatcher {
     traverse_result<task_t> operator()(const Policy &policy,
                                        const Descriptor &descriptor,
                                        traverse_input<Graph, task_t> &input) const {
-        const auto &t = dal::preview::detail::csr_topology_builder<Graph>()(input.get_graph());
-
-        static auto impl = get_backend<Policy, Descriptor>(descriptor, t);
-        return (*impl)(policy, descriptor, t);
+        static auto impl = get_backend<Policy, Descriptor>(descriptor, input.get_graph());
+        return (*impl)(policy, descriptor, input.get_graph());
     }
 };
 
@@ -49,6 +46,15 @@ struct traverse_ops {
     using input_t = traverse_input<graph_t, task_t>;
     using result_t = traverse_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
+
+    void check_preconditions(const Descriptor &desc, input_t &input) const {
+        using msg = dal::detail::error_messages;
+
+        if (!(desc.get_optional_results() &
+              (optional_results::predecessors | optional_results::distances))) {
+            throw invalid_argument(msg::nothing_to_compute());
+        }
+    }
 
     template <typename Policy>
     auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {

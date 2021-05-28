@@ -14,16 +14,29 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/shortest_paths/backend/cpu/traverse_default_kernel.hpp"
+#pragma once
 
-namespace oneapi::dal::preview::shortest_paths::backend {
+#include "oneapi/dal/table/common.hpp"
 
-template struct delta_stepping<__CPU_TAG__, std::int32_t>;
+namespace oneapi::dal::detail {
+namespace v1 {
 
-template struct delta_stepping<__CPU_TAG__, double>;
+/// Type of csr indexing, currently it's implemented only `one_based` indexing.
+enum class csr_indexing { zero_based, one_based };
 
-template struct delta_stepping_with_pred<__CPU_TAG__, std::int32_t>;
+/// @tparam T The type of data values in block.
+///           CSR block supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
+template <typename T>
+struct csr_block {
+    array<T> data;
+    array<std::int64_t> column_indices;
+    array<std::int64_t> row_indices;
 
-template struct delta_stepping_with_pred<__CPU_TAG__, double>;
+    csr_block() : data(), column_indices(), row_indices() {}
+};
+} // namespace v1
 
-} // namespace oneapi::dal::preview::shortest_paths::backend
+using v1::csr_block;
+using v1::csr_indexing;
+
+} // namespace oneapi::dal::detail

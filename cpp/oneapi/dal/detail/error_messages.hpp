@@ -110,6 +110,12 @@ public:
     MSG(object_does_not_provide_read_access_to_columns);
     MSG(object_does_not_provide_write_access_to_columns);
     MSG(unsupported_conversion_types);
+    MSG(row_indices_lt_min_value);
+    MSG(row_indices_gt_max_value);
+    MSG(column_indices_lt_min_value);
+    MSG(column_indices_gt_max_value);
+    MSG(zero_based_indexing_is_not_supported);
+    MSG(object_does_not_provide_read_access_to_csr);
 
     /* Ranges */
     MSG(invalid_range_of_rows);
@@ -187,6 +193,11 @@ public:
     MSG(input_model_eigenvectors_rc_neq_desc_component_count);
     MSG(input_model_eigenvectors_rc_neq_input_data_cc);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
+
+    /* Shortest Paths */
+    MSG(nothing_to_compute);
+    MSG(distances_are_uninitialized);
+    MSG(predecessors_are_uninitialized);
 
     /* SVM */
     MSG(c_leq_zero);
