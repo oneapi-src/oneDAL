@@ -484,7 +484,7 @@ struct traverse_kernel_cpu<method::delta_stepping, task::one_to_all, Allocator, 
         const auto& t = dal::preview::detail::csr_topology_builder<Graph>()(g);
         const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
 
-        if (nrh_disptcher(ctx)) {
+        if (nrh_dispatcher(ctx)) {
             alloc_connector<Allocator> alloc_con(alloc);
             if (desc.get_optional_results() & optional_results::predecessors) {
                 return delta_stepping_with_pred<float,
