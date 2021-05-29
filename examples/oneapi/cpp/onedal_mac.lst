@@ -34,7 +34,6 @@ ONEDAL = column_accessor_homogen             \
          pca_dense_batch                     \
          polynomial_kernel_dense_batch       \
          rbf_kernel_dense_batch              \
-         shortest_paths_batch                \
          svm_nu_cls_thunder_dense_batch      \
          svm_nu_reg_thunder_dense_batch      \
          svm_two_class_thunder_dense_batch   \
