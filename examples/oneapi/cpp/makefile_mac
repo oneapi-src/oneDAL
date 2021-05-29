@@ -116,8 +116,7 @@ LIBS := $(onedal) \
         $(onedal_threading) \
         -ltbb \
         -ltbbmalloc \
-        -ldl \
-        -latomic
+        -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
@@ -145,7 +144,7 @@ dylib dylibintel64:
 _make_ex: $(RES)
 
 vpath
-vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca polynomial_kernel rbf_kernel svm table jaccard graph triangle_counting shortest_paths subgraph_isomorphism)
+vpath %.cpp $(addprefix ./source/,decision_forest kmeans kmeans_init knn linear_kernel pca polynomial_kernel rbf_kernel svm table jaccard graph triangle_counting subgraph_isomorphism)
 
 .SECONDARY:
 $(RES_DIR)/%.exe: %.cpp | $(RES_DIR)/.
