@@ -35,6 +35,7 @@
 #include "oneapi/dal/graph/graph_common.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_array_graph.hpp"
+#include "oneapi/dal/graph/directed_adjacency_array_graph.hpp"
 
 /* I/O */
 #include "oneapi/dal/io/csv.hpp"
@@ -51,5 +52,6 @@
 #include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/algo/polynomial_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
+#include "oneapi/dal/algo/shortest_paths.hpp"
 #include "oneapi/dal/algo/svm.hpp"
 #include "oneapi/dal/algo/triangle_counting.hpp"
