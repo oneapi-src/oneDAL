@@ -164,6 +164,9 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             pModel = local->getModel();
         }
         model->setTwoClassClassifierModel(imodel, pModel);
+        size_t * const sumSVLocal = sumSVTls.local();
+        *sumSVLocal               = 0;
+
         if (svmModel)
         {
             auto svmModelPtr   = daal::services::staticPointerCast<svm::Model>(pModel);
@@ -173,7 +176,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             ReadColumns<int, cpu> mtSvIndex(twoClassSvInd.get(), 0, 0, nSV);
             DAAL_CHECK_BLOCK_STATUS_THR(mtSvIndex);
             const int * twoClassSvIndData = mtSvIndex.get();
-            size_t * const sumSVLocal     = sumSVTls.local();
 
             for (size_t svId = 0; svId < nSV; ++svId)
             {
