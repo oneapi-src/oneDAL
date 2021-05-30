@@ -63,9 +63,10 @@ inline void load_edge_list(const std::string &name, weighted_edge_list<Vertex, W
     elist.reserve(1024);
     char source_vertex[32], destination_vertex[32], edge_value[64];
     while (file >> source_vertex >> destination_vertex >> edge_value) {
-        auto edge = std::tuple(daal_string_to<Vertex>(&source_vertex[0], 0),
-                               daal_string_to<Vertex>(&destination_vertex[0], 0),
-                               daal_string_to<Weight>(&edge_value[0], 0));
+        auto edge =
+            std::tuple<Vertex, Vertex, Weight>(daal_string_to<Vertex>(&source_vertex[0], 0),
+                                               daal_string_to<Vertex>(&destination_vertex[0], 0),
+                                               daal_string_to<Weight>(&edge_value[0], 0));
         elist.push_back(edge);
     }
     file.close();

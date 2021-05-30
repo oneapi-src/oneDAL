@@ -32,7 +32,7 @@ template class BatchContainer<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
 } // namespace interface1
 namespace internal
 {
-template class KNNClassificationPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
+template class DAAL_EXPORT KNNClassificationPredictKernel<DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
 } // namespace prediction
 } // namespace bf_knn_classification

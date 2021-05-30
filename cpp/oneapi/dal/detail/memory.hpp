@@ -64,3 +64,39 @@ using v1::default_delete;
 using v1::make_default_delete;
 
 } // namespace oneapi::dal::detail
+
+namespace oneapi::dal::preview::detail {
+
+using namespace std;
+
+struct byte_alloc_iface {
+    using byte_t = char;
+    virtual byte_t* allocate(std::int64_t n) = 0;
+    virtual void deallocate(byte_t* ptr, std::int64_t n) = 0;
+};
+
+template <typename Alloc>
+struct alloc_connector : public byte_alloc_iface {
+    using byte_t = char;
+    using t_allocator_traits =
+        typename std::allocator_traits<Alloc>::template rebind_traits<byte_t>;
+    alloc_connector(Alloc alloc) : _alloc(alloc) {}
+    byte_t* allocate(std::int64_t count) override {
+        typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(_alloc, count);
+        if (ptr == nullptr) {
+            throw host_bad_alloc();
+        }
+        return ptr;
+    };
+
+    void deallocate(byte_t* ptr, std::int64_t count) override {
+        if (ptr != nullptr) {
+            t_allocator_traits::deallocate(_alloc, ptr, count);
+        }
+    };
+
+private:
+    Alloc _alloc;
+};
+
+} // namespace oneapi::dal::preview::detail

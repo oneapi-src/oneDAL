@@ -174,8 +174,8 @@ template <typename VertexValue,
           typename GraphValue,
           typename IndexType,
           typename Allocator>
-constexpr bool is_undirected<
+constexpr bool is_directed<
     undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> =
-    true;
+    false;
 
 } // namespace oneapi::dal::preview
