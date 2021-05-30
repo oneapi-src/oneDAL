@@ -22,6 +22,10 @@ const char* invalid_argument::what() const noexcept {
     return std::invalid_argument::what();
 }
 
+const char* uninitialized_optional_result::what() const noexcept {
+    return std::logic_error::what();
+}
+
 const char* domain_error::what() const noexcept {
     return std::domain_error::what();
 }

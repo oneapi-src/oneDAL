@@ -17,9 +17,22 @@
 #pragma once
 
 #include <algorithms/classifier/classifier_model.h>
+#include <daal/include/algorithms/k_nearest_neighbors/bf_knn_classification_model.h>
+#include <daal/include/algorithms/k_nearest_neighbors/kdtree_knn_classification_model.h>
 #include "oneapi/dal/algo/knn/common.hpp"
 
 namespace oneapi::dal::knn::backend {
+
+inline auto convert_to_daal_bf_voting_mode(voting_mode vm) {
+    namespace daal_bf_knn = daal::algorithms::bf_knn_classification;
+    return voting_mode::uniform == vm ? daal_bf_knn::voteUniform : daal_bf_knn::voteDistance;
+}
+
+inline auto convert_to_daal_kdtree_voting_mode(voting_mode vm) {
+    namespace daal_kdtree_knn = daal::algorithms::kdtree_knn_classification;
+    return voting_mode::uniform == vm ? daal_kdtree_knn::voteUniform
+                                      : daal_kdtree_knn::voteDistance;
+}
 
 class model_interop : public base {
 public:

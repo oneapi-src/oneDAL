@@ -21,21 +21,24 @@
 ONEDAL = column_accessor_homogen             \
          df_cls_dense_batch                  \
          df_reg_dense_batch                  \
+         directed_graph                      \
+         graph_service_functions             \
+         jaccard_batch                       \
          kmeans_lloyd_dense_batch            \
          kmeans_init_dense                   \
+         knn_cls_brute_force_dense_batch     \
          knn_cls_kd_tree_dense_batch         \
          linear_kernel_dense_batch           \
+         load_graph                          \
          pca_dense_batch                     \
          polynomial_kernel_dense_batch       \
          rbf_kernel_dense_batch              \
+         shortest_paths_batch                \
          svm_nu_cls_thunder_dense_batch      \
          svm_nu_reg_thunder_dense_batch      \
          svm_two_class_thunder_dense_batch   \
          svm_two_class_smo_dense_batch       \
          svm_multi_class_thunder_dense_batch \
          svm_reg_thunder_dense_batch         \
-         jaccard_batch                       \
-         load_graph                          \
-         graph_service_functions             \
-         directed_graph                      \
-         triangle_counting_batch
+         subgraph_isomorphism_batch          \
+         triangle_counting_batch             
