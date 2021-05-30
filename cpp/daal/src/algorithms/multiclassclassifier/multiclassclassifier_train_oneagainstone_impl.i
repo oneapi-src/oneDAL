@@ -192,9 +192,27 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
 
     if (svmModel)
     {
-        size_t nSV = 0;
-        sumSVTls.reduceTo(&nSV, 1);
-        if (nSV == 0) return s;
+        TArray<size_t, cpu> svCounts(nClasses);
+        DAAL_CHECK_MALLOC(svCounts.get());
+        size_t * const svCountsData = svCounts.get();
+        size_t nSV                  = 0;
+        for (size_t iClass = 0; iClass < nClasses; ++iClass)
+        {
+            svCountsData[iClass] = 0;
+            for (size_t j = 0; j < nVectors; ++j)
+            {
+                const size_t label = size_t(y[j]);
+                if (isSVData[j] && (label == iClass))
+                {
+                    ++svCountsData[iClass];
+                }
+            }
+            nSV += svCountsData[iClass];
+        }
+
+        // size_t nSV = 0;
+        // sumSVTls.reduceTo(&nSV, 1);
+        // if (nSV == 0) return s;
 
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
         DAAL_CHECK_STATUS(s, supportIndicesTable->resize(nSV));
@@ -222,8 +240,8 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
                     {
                         supportIndices[inxSV] = j;
                         svIndMapping[j]       = inxSV;
-                        inxSV++;
-                        isSVData[j] = false;
+                        ++inxSV;
+                        // isSVData[j] = false;
                     }
                 }
             }
