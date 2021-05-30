@@ -96,7 +96,7 @@ public:
                 ++nSV;
             }
         }
-        if (nSV == 0) return s;
+        // if (nSV == 0) return s;
 
         model.setNFeatures(xTable->getNumberOfColumns());
         DAAL_CHECK_STATUS(s, setSVCoefficients(nSV, model));
@@ -183,9 +183,9 @@ protected:
     {
         services::Status s;
         const size_t nSV = svIndicesTable->getNumberOfRows();
-        if (nSV == 0) return s;
 
         DAAL_CHECK_STATUS(s, svTable->resize(nSV));
+        if (nSV == 0) return s;
         const size_t p = xTable->getNumberOfColumns();
 
         ReadRows<int, cpu> mtSvIndices(svIndicesTable.get(), 0, nSV);
@@ -214,7 +214,6 @@ protected:
     {
         services::Status s;
         const size_t nSV = svIndicesTable->getNumberOfRows();
-        if (nSV == 0) return s;
 
         TArray<size_t, cpu> aSvRowOffsets(nSV + 1);
         DAAL_CHECK_MALLOC(aSvRowOffsets.get());
@@ -242,6 +241,8 @@ protected:
         /* Allocate memory for storing support vectors and coefficients */
         CSRNumericTablePtr svCsrTable = services::staticPointerCast<CSRNumericTable, NumericTable>(svTable);
         DAAL_CHECK_STATUS(s, svCsrTable->resize(nSV));
+
+        if (nSV == 0) return s;
 
         const size_t svDataSize = svRowOffsetsBuffer[nSV] - svRowOffsetsBuffer[0];
         /* If matrix is zeroes -> svDataSize will be equal 0.
