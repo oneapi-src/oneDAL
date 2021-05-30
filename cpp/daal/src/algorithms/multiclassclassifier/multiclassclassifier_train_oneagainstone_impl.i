@@ -192,29 +192,29 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     });
     lsTask.reduce([=, &safeStat](TSubTask * local) { delete local; });
 
-    size_t nSV = 0;
-    sumSVTls.reduceTo(&nSV, 1);
-    if (nSV == 0) return s;
+    // size_t nSV = 0;
+    // sumSVTls.reduceTo(&nSV, 1);
+    // if (nSV == 0) return s;
 
     if (svmModel)
     {
-        // TArray<size_t, cpu> svCounts(nClasses);
-        // DAAL_CHECK_MALLOC(svCounts.get());
-        // size_t * const svCountsData = svCounts.get();
-        // size_t nSV                  = 0;
-        // for (size_t iClass = 0; iClass < nClasses; ++iClass)
-        // {
-        //     svCountsData[iClass] = 0;
-        //     for (size_t j = 0; j < nVectors; ++j)
-        //     {
-        //         const size_t label = size_t(y[j]);
-        //         if (isSVData[j] && (label == iClass))
-        //         {
-        //             ++svCountsData[iClass];
-        //         }
-        //     }
-        //     nSV += svCountsData[iClass];
-        // }
+        TArray<size_t, cpu> svCounts(nClasses);
+        DAAL_CHECK_MALLOC(svCounts.get());
+        size_t * const svCountsData = svCounts.get();
+        size_t nSV                  = 0;
+        for (size_t iClass = 0; iClass < nClasses; ++iClass)
+        {
+            svCountsData[iClass] = 0;
+            for (size_t j = 0; j < nVectors; ++j)
+            {
+                const size_t label = size_t(y[j]);
+                if (isSVData[j] && (label == iClass))
+                {
+                    ++svCountsData[iClass];
+                }
+            }
+            nSV += svCountsData[iClass];
+        }
 
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
         DAAL_CHECK_STATUS(s, supportIndicesTable->resize(nSV));
