@@ -38,6 +38,10 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
+        .ci/env/oneapi.sh dpcpp
+    displayName: 'Create dpcpp enviroment'
+  - script: |
+      source /opt/intel/oneapi/dpcpp/latest/env/vars.sh
       .ci/scripts/build.sh --platform $(platform.type) --target onedal
     displayName: 'make onedal'
   - script: |
