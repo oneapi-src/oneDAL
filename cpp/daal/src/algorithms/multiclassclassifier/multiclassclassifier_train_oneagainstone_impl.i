@@ -166,7 +166,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         model->setTwoClassClassifierModel(imodel, pModel);
         size_t * sumSVLocal = sumSVTls.local();
         DAAL_CHECK_MALLOC_THR(sumSVLocal);
-        *sumSVLocal = 0;
 
         if (svmModel)
         {
