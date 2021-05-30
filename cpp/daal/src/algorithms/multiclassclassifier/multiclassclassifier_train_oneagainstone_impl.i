@@ -164,8 +164,9 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             pModel = local->getModel();
         }
         model->setTwoClassClassifierModel(imodel, pModel);
-        size_t * const sumSVLocal = sumSVTls.local();
-        *sumSVLocal               = 0;
+        size_t * sumSVLocal = sumSVTls.local();
+        DAAL_CHECK_MALLOC_THR(sumSVLocal);
+        *sumSVLocal = 0;
 
         if (svmModel)
         {
@@ -192,6 +193,10 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     });
     lsTask.reduce([=, &safeStat](TSubTask * local) { delete local; });
 
+    size_t nSV = 0;
+    sumSVTls.reduceTo(&nSV, 1);
+    if (nSV == 0) return s;
+
     if (svmModel)
     {
         // TArray<size_t, cpu> svCounts(nClasses);
@@ -211,10 +216,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         //     }
         //     nSV += svCountsData[iClass];
         // }
-
-        size_t nSV = 0;
-        sumSVTls.reduceTo(&nSV, 1);
-        if (nSV == 0) return s;
 
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
         DAAL_CHECK_STATUS(s, supportIndicesTable->resize(nSV));
