@@ -38,11 +38,8 @@ jobs:
   - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target daal
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
-    displayName: 'make oneapi_c'
+      .ci/scripts/build.sh --platform $(platform.type) --target onedal
+    displayName: 'make onedal'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
