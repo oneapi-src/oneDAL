@@ -537,12 +537,13 @@ void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
             grow();
         }
 
+        ONEDAL_ASSERT(top_ + vertex_count_ <= bottom_ + capacity_ * vertex_count_);
         std::uint64_t j = 0;
         for (; j <= level; ++j) {
-            *(top++) = v[j];
+            *(top_++) = v[j];
         }
         for (; j < vertex_count_; ++j) {
-            *(top++) = null_vertex();
+            *(top_++) = null_vertex();
         }
     }
 
