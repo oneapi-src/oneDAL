@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/graph_matching.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
+#include "oneapi/dal/graph/service_functions.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
@@ -155,22 +156,26 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("Positive check") {
         this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_target_type>(
             false,
             isomorphism_kind::induced,
-            100));
+            0));
 }
 
-// SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty target graph") {
-//     REQUIRE_NOTHROW(this->check_subgraph_isomorphism<empty_graph_type, double_triangle_target_type>(
-//         false,
-//         isomorphism_kind::induced,
-//         100));
-// }
+SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty target graph") {
+    REQUIRE_THROWS_AS(
+        (this->check_subgraph_isomorphism<empty_graph_type, double_triangle_target_type>(
+            false,
+            isomorphism_kind::induced,
+            0)),
+        invalid_argument);
+}
 
-// SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty pattern graph") {
-//     REQUIRE_NOTHROW(this->check_subgraph_isomorphism<double_triangle_target_type, empty_graph_type>(
-//         false,
-//         isomorphism_kind::induced,
-//         100));
-// }
+SUBGRAPH_ISOMORPHISM_BADARG_TEST("Empty pattern graph") {
+    REQUIRE_THROWS_AS(
+        (this->check_subgraph_isomorphism<double_triangle_target_type, empty_graph_type>(
+            false,
+            isomorphism_kind::induced,
+            0)),
+        invalid_argument);
+}
 
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is negative") {
     REQUIRE_THROWS_AS(
@@ -181,13 +186,22 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is negative") {
         invalid_argument);
 }
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if semantic match is true") {
+SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is positive") {
     REQUIRE_THROWS_AS(
         (this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_target_type>(
-            true,
+            false,
             isomorphism_kind::induced,
-            0)),
-        invalid_argument);
+            1)),
+        unimplemented);
 }
+
+// SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if semantic match is true") {
+//     REQUIRE_THROWS_AS(
+//         (this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_target_type>(
+//             true,
+//             isomorphism_kind::induced,
+//             0)),
+//         invalid_argument);
+// }
 
 } // namespace oneapi::dal::algo::subgraph_isomorphism::test

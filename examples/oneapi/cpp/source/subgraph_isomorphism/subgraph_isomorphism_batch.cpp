@@ -25,7 +25,6 @@
 #include "oneapi/dal/io/graph_csv_data_source.hpp"
 #include "oneapi/dal/io/load_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/graph/service_functions.hpp"
 
 namespace dal = oneapi::dal;
 
@@ -139,8 +138,7 @@ int main(int argc, char **argv) {
     const auto subgraph_isomorphism_desc =
         dal::preview::subgraph_isomorphism::descriptor<>(alloc)
             .set_kind(dal::preview::subgraph_isomorphism::kind::non_induced)
-            .set_semantic_match(false)
-            .set_max_match_count(100);
+            .set_semantic_match(false);
 
     const auto result =
         dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);

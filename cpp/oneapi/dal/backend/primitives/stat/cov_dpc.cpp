@@ -121,10 +121,10 @@ inline sycl::event finalize_correlation(sycl::queue& q,
         const auto range = make_range_2d(p, p);
 
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](sycl::nd_item<2> id) {
-            const std::int64_t gi = id.get_global_linear_id();
-            const std::int64_t i = id.get_global_id(0);
-            const std::int64_t j = id.get_global_id(1);
+        cgh.parallel_for(range, [=](sycl::item<2> id) {
+            const std::int64_t gi = id.get_linear_id();
+            const std::int64_t i = id.get_id(0);
+            const std::int64_t j = id.get_id(1);
 
             if (i < p && j < p) {
                 const Float is_diag = Float(i == j);

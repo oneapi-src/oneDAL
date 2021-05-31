@@ -139,6 +139,7 @@ onedal_relative_sources_dir = '../../cpp/oneapi/dal'
 nitpick_ignore = [
     # method
     ('cpp:identifier', 'method'),
+    ('cpp:identifier', 'Method'),
     # task
     ('cpp:identifier', 'task'),
     ('cpp:identifier', 'task::by_default'),
@@ -159,6 +160,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'int64_t'),
     ('cpp:identifier', 'data_t'),
     ('cpp:identifier', 'kernel_t'),
+    ('cpp:identifier', 'distance_t'),
     # knn
     ('cpp:identifier', 'knn'),
     ('cpp:identifier', 'knn::descriptor'),
@@ -166,6 +168,15 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::train_input'),
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
+    ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
+    # chebychev_distance
+    ('cpp:identifier', 'minkowski_distance'),
+    ('cpp:identifier', 'minkowski_distance::descriptor'),
+    ('cpp:identifier', 'oneapi::dal::minkowski_distance'),
+    ('cpp:identifier', 'oneapi::dal::minkowski_distance::descriptor<Float>'),
+    # minkowski_distance
+    ('cpp:identifier', 'chebychev_distance'),
+    ('cpp:identifier', 'chebychev_distance::descriptor'),
     # kmeans
     ('cpp:identifier', 'kmeans'),
     ('cpp:identifier', 'kmeans::descriptor'),
