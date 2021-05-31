@@ -54,9 +54,6 @@ class vertex_stack {
 public:
     vertex_stack(inner_alloc allocator);
     vertex_stack(const std::uint64_t max_states_size, inner_alloc allocator);
-    vertex_stack(const std::uint64_t max_states_size,
-                 const std::uint64_t* pdata,
-                 inner_alloc allocator);
     virtual ~vertex_stack();
     void clean();
 
@@ -298,15 +295,6 @@ vertex_stack<Cpu>::vertex_stack(const std::uint64_t max_states_size, inner_alloc
     stack_size = max_states_size;
     stack_data = allocator_.allocate<std::uint64_t>(stack_size);
     ptop = stack_data;
-}
-
-template <typename Cpu>
-vertex_stack<Cpu>::vertex_stack(const std::uint64_t max_states_size,
-                                const std::uint64_t* pdata,
-                                inner_alloc allocator)
-        : allocator_(allocator) {
-    use_external_memory = true;
-    stack_size = max_states_size;
 }
 
 template <typename Cpu>

@@ -49,11 +49,10 @@ solution<Cpu> si(const graph<Cpu>& pattern,
     auto predecessor = local_allocator.make_shared_memory<std::int64_t>(pattern_vetrex_count);
     auto direction = local_allocator.make_shared_memory<edge_direction>(pattern_vetrex_count);
     auto cconditions =
-        local_allocator.make_shared_memory<sconsistent_conditions>(pattern_vetrex_count - 1);
-    auto cconditions_array = cconditions.get();
+        local_allocator.make_shared_memory<sconsistent_conditions<Cpu>>(pattern_vetrex_count - 1);
+    sconsistent_conditions<Cpu>* const cconditions_array = cconditions.get();
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
-        new (cconditions_array + i)
-            sconsistent_conditions(i + 1, local_allocator); // should be placement new
+        new (cconditions_array + i) sconsistent_conditions<Cpu>(i + 1, local_allocator);
     }
 
     sorter_graph.create_sorted_pattern_tree(pattern,
