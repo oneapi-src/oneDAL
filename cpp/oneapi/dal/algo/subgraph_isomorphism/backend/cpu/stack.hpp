@@ -483,6 +483,15 @@ bool global_stack<Cpu>::push(dfs_stack<Cpu>& s) {
 
 template <typename Cpu>
 void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
+    // if (!s.empty()) // Temporary
+    // {
+    //     std::cout << "[global_stack<Cpu>::pop] current_level = " << s.current_level << std::endl;
+    //     std::cout << "[global_stack<Cpu>::pop] max_level_size = " << s.max_level_size << std::endl;
+    //     std::cout << "[global_stack<Cpu>::pop] data_by_levels[0].size() = "
+    //               << s.data_by_levels[0].size() << std::endl;
+
+    //     // return (current_level == 0) && ((max_level_size == 0) || (data_by_levels[0].size() == 0));
+    // }
     ONEDAL_ASSERT(s.empty());
     const dal::detail::scoped_lock lock(mutex_);
     // if (!data_.empty()) {
@@ -496,7 +505,7 @@ void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
             ONEDAL_ASSERT(i <= s.max_level_size);
             s.push_into_current_level(v[i]);
             // if (i != v.size() - 1) {
-            if (i != vertex_count_ - 1) {
+            if (i != vertex_count_ - 1 && v[i + 1] != null_vertex()) {
                 s.increase_core_level();
             }
         }
