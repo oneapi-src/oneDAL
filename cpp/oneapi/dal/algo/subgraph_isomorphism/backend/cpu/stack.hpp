@@ -93,8 +93,8 @@ template <typename Cpu>
 class global_stack {
 public:
     global_stack(std::int64_t vertex_count, inner_alloc allocator)
-            : vertex_count_(vertex_count),
-              allocator_(allocator) {}
+            : allocator_(allocator),
+              vertex_count_(vertex_count) {}
 
     global_stack(const global_stack&) = delete;
     global_stack(global_stack&&) = delete;
@@ -392,7 +392,7 @@ template <typename Cpu>
 graph_status vertex_stack<Cpu>::push(const std::uint64_t vertex_id) {
     ONEDAL_ASSERT(ptop != nullptr);
     ONEDAL_ASSERT(stack_data != nullptr);
-    if (ptop - stack_data >= stack_size) {
+    if (static_cast<std::uint64_t>(ptop - stack_data) >= stack_size) {
         if (increase_stack_size() != ok) {
             throw dal::host_bad_alloc();
         }
@@ -499,6 +499,7 @@ void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
 
 template <typename Cpu>
 void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
+    ONEDAL_ASSERT(vertex_count_ >= 0);
     // Collect state and push back
     {
         const auto v = allocator_.allocate<std::uint64_t>(level + 1);
@@ -532,7 +533,7 @@ void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
         for (; j <= level; ++j) {
             *(top_++) = v[j];
         }
-        for (; j < vertex_count_; ++j) {
+        for (; j < static_cast<std::uint64_t>(vertex_count_); ++j) {
             *(top_++) = null_vertex();
         }
     }
