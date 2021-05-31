@@ -668,7 +668,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         }
     }
 
-    global_stack<Cpu> gstack;
+    global_stack<Cpu> gstack(pattern->n, allocator_);
     std::int64_t busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
         engine_array[index].run_and_wait(gstack, busy_engine_count, false);
