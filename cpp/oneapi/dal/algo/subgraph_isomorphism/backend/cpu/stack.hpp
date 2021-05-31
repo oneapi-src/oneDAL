@@ -96,7 +96,7 @@ class global_stack {
 public:
     global_stack(std::int64_t vertex_count, inner_alloc allocator)
             : vertex_count_(vertex_count),
-              inner_alloc allocator_(allocator) {}
+              allocator_(allocator) {}
 
     global_stack(const global_stack&) = delete;
     global_stack(global_stack&&) = delete;
