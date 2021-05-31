@@ -43,7 +43,7 @@ public:
                     const std::int64_t* psorted_pattern_vertex,
                     const std::int64_t* ppredecessor,
                     const edge_direction* pdirection,
-                    sconsistent_conditions const* pcconditions,
+                    sconsistent_conditions<Cpu> const* pcconditions,
                     kind isomorphism_kind,
                     inner_alloc allocator);
     matching_engine(const matching_engine& _matching_engine,
@@ -76,7 +76,7 @@ public:
     const std::int64_t* sorted_pattern_vertex;
     const std::int64_t* predecessor;
     const edge_direction* direction;
-    const sconsistent_conditions* pconsistent_conditions;
+    const sconsistent_conditions<Cpu>* pconsistent_conditions;
 
     std::int64_t solution_length;
     bit_vector<Cpu> vertex_candidates;
@@ -110,7 +110,7 @@ public:
                   const std::int64_t* psorted_pattern_vertex,
                   const std::int64_t* ppredecessor,
                   const edge_direction* pdirection,
-                  sconsistent_conditions const* pcconditions,
+                  sconsistent_conditions<Cpu> const* pcconditions,
                   float* ppattern_vertex_probability,
                   kind isomorphism_kind,
                   inner_alloc allocator);
@@ -123,7 +123,7 @@ public:
     const std::int64_t* sorted_pattern_vertex;
     const std::int64_t* predecessor;
     const edge_direction* direction;
-    const sconsistent_conditions* pconsistent_conditions;
+    const sconsistent_conditions<Cpu>* pconsistent_conditions;
     const float* pattern_vertex_probability;
     kind isomorphism_kind_;
 
@@ -154,7 +154,7 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
                                       const std::int64_t* psorted_pattern_vertex,
                                       const std::int64_t* ppredecessor,
                                       const edge_direction* pdirection,
-                                      sconsistent_conditions const* pcconditions,
+                                      sconsistent_conditions<Cpu> const* pcconditions,
                                       kind isomorphism_kind,
                                       inner_alloc allocator)
         : allocator_(allocator),
@@ -553,7 +553,7 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
                                   const std::int64_t* psorted_pattern_vertex,
                                   const std::int64_t* ppredecessor,
                                   const edge_direction* pdirection,
-                                  sconsistent_conditions const* pcconditions,
+                                  sconsistent_conditions<Cpu> const* pcconditions,
                                   float* ppattern_vertex_probability,
                                   kind isomorphism_kind,
                                   inner_alloc allocator)
