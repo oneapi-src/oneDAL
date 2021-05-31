@@ -39,6 +39,7 @@ void HelperTrainSVM<float, avx512>::WSSjLocal(const size_t jStart, const size_t 
     if (signNuType != SignNuType::none)
     {
         WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
+        return;
     }
 
     float fpMax      = MaxVal<float>::get();
@@ -187,6 +188,7 @@ void HelperTrainSVM<double, avx512>::WSSjLocal(const size_t jStart, const size_t
     if (signNuType != SignNuType::none)
     {
         WSSjLocalBaseline(jStart, jEnd, KiBlock, kernelDiag, grad, I, GMin, Kii, tau, Bj, GMax, GMax2, delta, signNuType);
+        return;
     }
 
     double fpMax      = MaxVal<double>::get();

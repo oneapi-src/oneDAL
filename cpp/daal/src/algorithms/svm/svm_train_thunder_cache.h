@@ -166,10 +166,10 @@ public:
 
     services::Status resize(const size_t nSize) override
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(cache.init);
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.resize);
 
         services::Status status;
-        status |= initKernel(nSize);
+        status |= initKernelIndex(nSize);
         status |= initBlockTask(nSize);
         return status;
     }
@@ -208,9 +208,9 @@ protected:
         return status;
     }
 
-    services::Status initKernel(const size_t nSize)
+    services::Status initKernelIndex(const size_t nSize)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(cache.initKernel);
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.initKernelIndex);
 
         services::Status status;
 
@@ -276,7 +276,7 @@ protected:
         DAAL_ITTNOTIFY_SCOPED_TASK(cache.init);
 
         services::Status status;
-        status |= initKernel(nSize);
+        status |= initKernelIndex(nSize);
         status |= initCache();
         status |= initBlockTask(nSize);
         return status;
