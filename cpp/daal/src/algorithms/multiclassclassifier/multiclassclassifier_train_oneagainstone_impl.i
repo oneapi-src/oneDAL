@@ -133,7 +133,10 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     DAAL_CHECK_MALLOC(originalIndicesMap.get());
     size_t * const originalIndicesMapData = originalIndicesMap.get();
 
-    TlsSum<size_t, cpu> sumSVTls(1);
+    TArrayScalableCalloc<size_t, cpu> sumSV(nModels);
+    DAAL_CHECK_MALLOC(sumSV.get());
+
+    // TlsSum<size_t, cpu> sumSVTls(1);
 
     daal::threader_for(nModels, nModels, [&](size_t imodel) {
         const size_t iClass = classIndicesData[imodel];
@@ -164,9 +167,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             pModel = local->getModel();
         }
         model->setTwoClassClassifierModel(imodel, pModel);
-        size_t * sumSVLocal = sumSVTls.local();
-        DAAL_CHECK_MALLOC_THR(sumSVLocal);
-
         if (svmModel)
         {
             auto svmModelPtr   = daal::services::staticPointerCast<svm::Model>(pModel);
@@ -177,13 +177,15 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             DAAL_CHECK_BLOCK_STATUS_THR(mtSvIndex);
             const int * twoClassSvIndData = mtSvIndex.get();
 
+            size_t nSVLocal = 0;
             for (size_t svId = 0; svId < nSV; ++svId)
             {
                 DAAL_ASSERT(twoClassSvIndData[svId] < nRowsInSubset);
                 const size_t originalIndex = originalIndicesMapLocal[twoClassSvIndData[svId]];
-                *sumSVLocal += static_cast<size_t>(!isSVData[originalIndex]);
+                nSVLocal += static_cast<size_t>(!isSVData[originalIndex]);
                 isSVData[originalIndex] = true;
             }
+            sumSV[imodel]    = nSVLocal;
             auto biasesTable = svmModel->getBiases();
             WriteOnlyColumns<algorithmFPType, cpu> mtBiases(biasesTable.get(), 0, imodel, 1);
             DAAL_CHECK_BLOCK_STATUS_THR(mtBiases);
@@ -192,29 +194,31 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     });
     lsTask.reduce([=, &safeStat](TSubTask * local) { delete local; });
 
-    // size_t nSV = 0;
-    // sumSVTls.reduceTo(&nSV, 1);
-    // if (nSV == 0) return s;
-
     if (svmModel)
     {
-        TArray<size_t, cpu> svCounts(nClasses);
-        DAAL_CHECK_MALLOC(svCounts.get());
-        size_t * const svCountsData = svCounts.get();
-        size_t nSV                  = 0;
-        for (size_t iClass = 0; iClass < nClasses; ++iClass)
+        size_t nSV = 0;
+        for (size_t i = 0; i < nModels; ++i)
         {
-            svCountsData[iClass] = 0;
-            for (size_t j = 0; j < nVectors; ++j)
-            {
-                const size_t label = size_t(y[j]);
-                if (isSVData[j] && (label == iClass))
-                {
-                    ++svCountsData[iClass];
-                }
-            }
-            nSV += svCountsData[iClass];
+            nSV += sumSV[i];
         }
+
+        // TArray<size_t, cpu> svCounts(nClasses);
+        // DAAL_CHECK_MALLOC(svCounts.get());
+        // size_t * const svCountsData = svCounts.get();
+        // size_t nSV                  = 0;
+        // for (size_t iClass = 0; iClass < nClasses; ++iClass)
+        // {
+        //     svCountsData[iClass] = 0;
+        //     for (size_t j = 0; j < nVectors; ++j)
+        //     {
+        //         const size_t label = size_t(y[j]);
+        //         if (isSVData[j] && (label == iClass))
+        //         {
+        //             ++svCountsData[iClass];
+        //         }
+        //     }
+        //     nSV += svCountsData[iClass];
+        // }
 
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
         DAAL_CHECK_STATUS(s, supportIndicesTable->resize(nSV));
