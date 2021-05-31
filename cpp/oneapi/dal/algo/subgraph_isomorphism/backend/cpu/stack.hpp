@@ -325,7 +325,8 @@ graph_status stack<Cpu>::increase_stack_size() {
 }
 
 template <typename Cpu>
-vertex_stack<Cpu>::vertex_stack(inner_alloc allocator) : allocator_(allocator) {
+vertex_stack<Cpu>::vertex_stack(inner_alloc allocator) : allocator_(allocator),
+                                                         bottom_(nullptr) {
     stack_size = 0;
     stack_data = nullptr;
     ptop = nullptr;
@@ -339,6 +340,7 @@ vertex_stack<Cpu>::vertex_stack(const std::uint64_t max_states_size, inner_alloc
     stack_size = max_states_size;
     stack_data = allocator_.allocate<std::uint64_t>(stack_size);
     ptop = stack_data;
+    bottom_ = stack_data;
 }
 
 template <typename Cpu>
@@ -365,11 +367,16 @@ vertex_stack<Cpu>::~vertex_stack() {
 
 template <typename Cpu>
 graph_status vertex_stack<Cpu>::push(const std::uint64_t vertex_id) {
-    if (size() >= stack_size) {
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(stack_data != nullptr);
+    if (ptop - stack_data >= stack_size) {
         if (increase_stack_size() != ok) {
             throw dal::host_bad_alloc();
         }
     }
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(ptop >= bottom_);
+    ONEDAL_ASSERT(ptop <= stack_data + stack_size);
     *ptop = vertex_id;
     ptop++;
     return ok;
@@ -377,7 +384,10 @@ graph_status vertex_stack<Cpu>::push(const std::uint64_t vertex_id) {
 
 template <typename Cpu>
 std::int64_t vertex_stack<Cpu>::pop() {
-    if (ptop != nullptr && ptop != stack_data) {
+    if (ptop != nullptr && ptop != bottom_) {
+        ONEDAL_ASSERT(ptop >= bottom_);
+        ONEDAL_ASSERT(ptop <= stack_data + stack_size);
+
         ptop--;
         return *ptop;
     }
@@ -386,13 +396,17 @@ std::int64_t vertex_stack<Cpu>::pop() {
 
 template <typename Cpu>
 bool vertex_stack<Cpu>::delete_vertex() {
-    ptop -= (ptop != nullptr) && (ptop != stack_data);
-    return !(ptop - stack_data);
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(ptop >= bottom_);
+    ONEDAL_ASSERT(ptop <= stack_data + stack_size);
+
+    ptop -= (ptop != nullptr) && (ptop != bottom_);
+    return !(ptop - bottom_);
 }
 
 template <typename Cpu>
 std::uint64_t vertex_stack<Cpu>::size() const {
-    return ptop - stack_data;
+    return ptop - bottom_;
 }
 
 template <typename Cpu>
@@ -406,14 +420,21 @@ graph_status vertex_stack<Cpu>::increase_stack_size() {
     if (tmp_data == nullptr) {
         return bad_allocation;
     }
-    for (std::uint64_t i = 0; i < stack_size; i++) {
-        tmp_data[i] = stack_data[i];
+    const auto skip_count = bottom_ - stack_data;
+    for (std::uint64_t i = 0; i < stack_size - skip_count; i++) {
+        tmp_data[i] = stack_data[i + skip_count];
     }
     allocator_.deallocate<std::uint64_t>(stack_data, stack_size);
     stack_size *= 2;
     ptop = size() + tmp_data;
+    bottom_ = tmp_data;
     stack_data = tmp_data;
     tmp_data = nullptr;
+
+    ONEDAL_ASSERT(ptop != nullptr);
+    ONEDAL_ASSERT(ptop >= bottom_);
+    ONEDAL_ASSERT(ptop <= stack_data + stack_size);
+
     return ok;
 }
 
