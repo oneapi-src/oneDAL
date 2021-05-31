@@ -170,7 +170,8 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
     bool has_edges_attribute = false;
     std::int64_t vertex_count = t._vertex_count;
     graph_data<Cpu> graph_data_storage;
-    graph_data_storage.pbit_data = new graph_input_bit_data<Cpu>(vertex_count, allocator_);
+    graph_input_bit_data<Cpu>* memory = allocator_.allocate<graph_input_bit_data<Cpu>>(1);
+    graph_data_storage.pbit_data = new (memory) graph_input_bit_data<Cpu>(vertex_count, allocator_);
     for (std::int64_t i = 0; i < vertex_count; i++) {
         auto degree = t._degrees[i];
         graph_data_storage.pbit_data->degree[i] = degree;
@@ -205,7 +206,9 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
     bool has_edges_attribute = false;
     std::int64_t vertex_count = t._vertex_count;
     graph_data<Cpu> graph_data_storage;
-    graph_data_storage.plist_data = new graph_input_list_data<Cpu>(vertex_count, allocator_);
+    graph_input_list_data<Cpu>* memory = allocator_.allocate<graph_input_list_data<Cpu>>(1);
+    graph_data_storage.plist_data =
+        new (memory) graph_input_list_data<Cpu>(vertex_count, allocator_);
 
     for (std::int64_t i = 0; i < vertex_count; i++) {
         auto degree = t._degrees[i];
