@@ -32,12 +32,17 @@ jobs:
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
+  pool:
+    vmImage: 'ubuntu-20.04'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib openjdk-8-jdk
+  - script: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
-      .ci/scripts/build.sh --platform $(platform.type) --target onedal_c
-    displayName: 'make onedal_c'
+      .ci/scripts/build.sh --platform $(platform.type) --target daal
+    displayName: 'make daal'
+  - script: |
+      .ci/scripts/build.sh --platform $(platform.type) --target oneapi_c
+    displayName: 'make oneapi_c'
   - script: |
       cp -R $(release.dir) $(Build.ArtifactStagingDirectory)/
     displayName: 'Copy build'
