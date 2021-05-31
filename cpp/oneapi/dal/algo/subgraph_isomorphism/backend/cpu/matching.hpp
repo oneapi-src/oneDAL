@@ -524,7 +524,7 @@ solution<Cpu> matching_engine<Cpu>::get_solution() {
 }
 
 template <typename Cpu>
-void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
+void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                                         std::int64_t& busy_engine_count,
                                         bool main_engine) {
     if (main_engine) {
@@ -535,14 +535,11 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
     if (target->bit_representation) { /* dense graph case */
         for (;;) {
             if (hlocal_stack.states_in_stack() > 0) {
-                // while ((hlocal_stack.states_in_stack() > pattern->get_vertex_count()) &&
-                //        gstack.push(hlocal_stack))
-                //     ;
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-            state_exploration_bit();
-        }
+                state_exploration_bit();
+            }
             else {
                 gstack.pop(hlocal_stack);
                 if (hlocal_stack.empty()) {
@@ -563,14 +560,11 @@ void matching_engine<Cpu>::run_and_wait(global_stack& gstack,
     else { /* sparse graph case */
         for (;;) {
             if (hlocal_stack.states_in_stack() > 0) {
-                // while ((hlocal_stack.states_in_stack() > pattern->get_vertex_count()) &&
-                //        gstack.push(hlocal_stack))
-                //     ;
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-            state_exploration_list();
-        }
+                state_exploration_list();
+            }
             else {
                 gstack.pop(hlocal_stack);
                 if (hlocal_stack.empty()) {
@@ -675,7 +669,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         }
     }
 
-    global_stack gstack;
+    global_stack<Cpu> gstack;
     std::int64_t busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
         engine_array[index].run_and_wait(gstack, busy_engine_count, false);

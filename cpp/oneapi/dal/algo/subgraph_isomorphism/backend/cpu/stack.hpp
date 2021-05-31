@@ -53,6 +53,12 @@ private:
 };
 
 template <typename Cpu>
+class dfs_stack;
+
+template <typename Cpu>
+class global_stack;
+
+template <typename Cpu>
 class vertex_stack {
 public:
     vertex_stack(inner_alloc allocator);
@@ -78,12 +84,14 @@ private:
     bool use_external_memory;
     std::uint64_t* bottom_;
 
-    friend class dfs_stack;
-    friend class global_stack;
+    friend class dfs_stack<Cpu>;
+    friend class global_stack<Cpu>;
 };
 
+template <typename Cpu>
 class dfs_stack;
 
+template <typename Cpu>
 class global_stack {
 public:
     global_stack() {}
@@ -93,11 +101,11 @@ public:
     global_stack& operator=(const global_stack&) = delete;
     global_stack& operator=(global_stack&&) = delete;
 
-    bool push(dfs_stack& s);
-    void pop(dfs_stack& s);
+    bool push(dfs_stack<Cpu>& s);
+    void pop(dfs_stack<Cpu>& s);
 
 private:
-    void internal_push(dfs_stack& s, std::uint64_t level);
+    void internal_push(dfs_stack<Cpu>& s, std::uint64_t level);
 
     std::stack<std::vector<std::uint64_t>> data_;
     dal::detail::mutex mutex_;
@@ -152,7 +160,7 @@ protected:
 private:
     void delete_data();
 
-    friend class global_stack;
+    friend class global_stack<Cpu>;
 };
 
 template <typename Cpu>
@@ -410,6 +418,73 @@ graph_status vertex_stack<Cpu>::increase_stack_size() {
 }
 
 template <typename Cpu>
+bool global_stack<Cpu>::push(dfs_stack<Cpu>& s) {
+    for (auto level = s.get_current_level_index(); level > 0; --level) {
+        if (s.data_by_levels[level].size() > 1) {
+            internal_push(s, level);
+            return true;
+        }
+    }
+
+    if (s.data_by_levels[0].size() > 1) {
+        internal_push(s, 0);
+        return true;
+    }
+
+    return false;
+}
+
+template <typename Cpu>
+void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
+    ONEDAL_ASSERT(s.empty());
+    const dal::detail::scoped_lock lock(mutex_);
+    if (!data_.empty()) {
+        const auto& v = data_.top();
+        ONEDAL_ASSERT(v.size() <= s.max_level_size);
+        for (std::uint64_t i = 0; i < v.size(); ++i) {
+            s.push_into_current_level(v[i]);
+            if (i != v.size() - 1) {
+                s.increase_core_level();
+            }
+        }
+        data_.pop();
+    }
+}
+
+template <typename Cpu>
+void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
+    // Collect state and push back
+    {
+        decltype(data_)::value_type v(level + 1);
+
+        for (std::uint64_t i = 0; i < level; ++i) {
+            ONEDAL_ASSERT(i < s.max_level_size);
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop != nullptr);
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop != s.data_by_levels[i].bottom_);
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop >= s.data_by_levels[i].bottom_);
+            ONEDAL_ASSERT(s.data_by_levels[i].ptop <=
+                          s.data_by_levels[i].stack_data + s.data_by_levels[i].stack_size);
+            v[i] = s.data_by_levels[i].ptop[-1];
+        }
+
+        ONEDAL_ASSERT(level < s.max_level_size);
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop != nullptr);
+        ONEDAL_ASSERT(s.data_by_levels[level].bottom_ != nullptr);
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop != s.data_by_levels[level].bottom_);
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop >= s.data_by_levels[level].bottom_);
+        ONEDAL_ASSERT(s.data_by_levels[level].ptop <=
+                      s.data_by_levels[level].stack_data + s.data_by_levels[level].stack_size);
+        v[level] = *(s.data_by_levels[level].bottom_);
+
+        const dal::detail::scoped_lock lock(mutex_);
+        data_.push(v);
+    }
+
+    // Remove state
+    ++(s.data_by_levels[level].bottom_);
+}
+
+template <typename Cpu>
 dfs_stack<Cpu>::dfs_stack(inner_alloc allocator) : allocator_(allocator) {
     max_level_size = 0;
     data_by_levels = nullptr;
@@ -577,6 +652,11 @@ std::uint64_t dfs_stack<Cpu>::size(const std::uint64_t level) const {
 template <typename Cpu>
 std::uint64_t dfs_stack<Cpu>::max_level_width(const std::uint64_t level) const {
     return data_by_levels[level].max_size();
+}
+
+template <typename Cpu>
+bool dfs_stack<Cpu>::empty() const {
+    return (current_level == 0) && ((max_level_size == 0) || (data_by_levels[0].size() == 0));
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
