@@ -210,6 +210,18 @@ public:
     std::array<std::int64_t, 11> local_triangles = { 36, 36, 36, 36, 36, 0, 36, 36, 36, 36, 36 };
 };
 
+class empty_graph_type : public graph_base_data {
+public:
+    empty_graph_type() {
+        vertex_count = 0;
+        edge_count = 0;
+        cols_count = edge_count * 2;
+        rows_count = vertex_count + 1;
+        global_triangle_count = 0;
+    }
+    std::array<std::int64_t, 11> local_triangles = { 36, 36, 36, 36, 36, 0, 36, 36, 36, 36, 36 };
+};
+
 class triangle_counting_test {
 public:
     using my_graph_type = dal::preview::undirected_adjacency_vector_graph<>;
@@ -267,7 +279,7 @@ public:
 
         const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
 
-        auto local_triangles_table = result_vertex_ranking.get_ranks();
+        const auto local_triangles_table = result_vertex_ranking.get_ranks();
         const auto &local_triangles =
             static_cast<const dal::homogen_table &>(local_triangles_table);
         const auto local_triangles_data = local_triangles.get_data<std::int64_t>();
@@ -299,7 +311,7 @@ public:
 
         const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
 
-        auto local_triangles_table = result_vertex_ranking.get_ranks();
+        const auto local_triangles_table = result_vertex_ranking.get_ranks();
         const auto &local_triangles =
             static_cast<const dal::homogen_table &>(local_triangles_table);
         const auto local_triangles_data = local_triangles.get_data<std::int64_t>();
@@ -323,12 +335,12 @@ public:
         std::int64_t global_triangle_count = graph_data.get_global_triangle_count();
 
         std::allocator<char> alloc;
-        auto tc_desc = dal::preview::triangle_counting::descriptor<
-                           float,
-                           dal::preview::triangle_counting::method::ordered_count,
-                           dal::preview::triangle_counting::task::global,
-                           std::allocator<char>>(alloc)
-                           .set_relabel(dal::preview::triangle_counting::relabel::yes);
+        const auto tc_desc = dal::preview::triangle_counting::descriptor<
+                                 float,
+                                 dal::preview::triangle_counting::method::ordered_count,
+                                 dal::preview::triangle_counting::task::global,
+                                 std::allocator<char>>(alloc)
+                                 .set_relabel(dal::preview::triangle_counting::relabel::yes);
 
         const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
         REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
@@ -341,21 +353,19 @@ public:
         std::int64_t global_triangle_count = graph_data.get_global_triangle_count();
 
         std::allocator<char> alloc;
-        auto tc_desc = dal::preview::triangle_counting::descriptor<
-                           float,
-                           dal::preview::triangle_counting::method::ordered_count,
-                           dal::preview::triangle_counting::task::global,
-                           std::allocator<char>>(alloc)
-                           .set_relabel(dal::preview::triangle_counting::relabel::no);
+        const auto tc_desc = dal::preview::triangle_counting::descriptor<
+                                 float,
+                                 dal::preview::triangle_counting::method::ordered_count,
+                                 dal::preview::triangle_counting::task::global,
+                                 std::allocator<char>>(alloc)
+                                 .set_relabel(dal::preview::triangle_counting::relabel::no);
 
         const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, graph);
         REQUIRE(result_vertex_ranking.get_global_rank() == global_triangle_count);
     }
 };
 
-//TODO: fix problem with local triangles for sequential version
-/*
-TEST_M(triangle_counting_test, "local task for graphs with average_degree < 4") {
+TEST_M(triangle_counting_test, "Local task: graph with average_degree < 4") {
     this->check_local_task<complete_graph_5_type>();
     this->check_local_task<acyclic_graph_8_type>();
     this->check_local_task<two_vertices_graph_type>();
@@ -365,12 +375,12 @@ TEST_M(triangle_counting_test, "local task for graphs with average_degree < 4") 
     this->check_local_task<graph_with_isolated_vertices_10_type>();
 }
 
-TEST_M(triangle_counting_test, "local task for graphs with average_degree >= 4") {
+TEST_M(triangle_counting_test, "Local task: graph with average_degree >= 4") {
     this->check_local_task<complete_graph_9_type>();
     this->check_local_task<graph_with_isolated_vertex_11_type>();
 }
 
-TEST_M(triangle_counting_test, "local_and_global task for graphs with average_degree < 4") {
+TEST_M(triangle_counting_test, "Local_and_global task: graph with average_degree < 4") {
     this->check_local_and_global_task<complete_graph_5_type>();
     this->check_local_and_global_task<acyclic_graph_8_type>();
     this->check_local_and_global_task<two_vertices_graph_type>();
@@ -380,13 +390,12 @@ TEST_M(triangle_counting_test, "local_and_global task for graphs with average_de
     this->check_local_and_global_task<graph_with_isolated_vertices_10_type>();
 }
 
-TEST_M(triangle_counting_test, "local_and_global task for graphs with average_degree >= 4") {
+TEST_M(triangle_counting_test, "Local_and_global task: graph with average_degree >= 4") {
     this->check_local_and_global_task<complete_graph_9_type>();
     this->check_local_and_global_task<graph_with_isolated_vertex_11_type>();
 }
-*/
 
-TEST_M(triangle_counting_test, "global task for graphs with average_degree < 4") {
+TEST_M(triangle_counting_test, "Global task: graph with average_degree < 4") {
     this->check_global_task_relabeled<complete_graph_5_type>();
     this->check_global_task_relabeled<acyclic_graph_8_type>();
     this->check_global_task_relabeled<two_vertices_graph_type>();
@@ -396,14 +405,72 @@ TEST_M(triangle_counting_test, "global task for graphs with average_degree < 4")
     this->check_global_task_relabeled<graph_with_isolated_vertices_10_type>();
 }
 
-TEST_M(triangle_counting_test, "global task for relabeled graph with average_degree >= 4") {
+TEST_M(triangle_counting_test, "Global task: relabeled graph with average_degree >= 4") {
     this->check_global_task_relabeled<complete_graph_9_type>();
     this->check_global_task_relabeled<graph_with_isolated_vertex_11_type>();
 }
 
-TEST_M(triangle_counting_test, "global task for not relabeled graph with average_degree >= 4") {
+TEST_M(triangle_counting_test, "Global task: not relabeled graph with average_degree >= 4") {
     this->check_global_task_not_relabeled<complete_graph_9_type>();
     this->check_global_task_not_relabeled<graph_with_isolated_vertex_11_type>();
 }
 
+TEST_M(triangle_counting_test, "Local task: empty graph") {
+    dal::preview::undirected_adjacency_vector_graph<> empty_graph;
+    std::allocator<char> alloc;
+    const auto tc_desc = dal::preview::triangle_counting::descriptor<
+        float,
+        dal::preview::triangle_counting::method::ordered_count,
+        dal::preview::triangle_counting::task::local,
+        std::allocator<char>>(alloc);
+
+    const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, empty_graph);
+    const auto &local_triangles =
+        static_cast<const dal::homogen_table &>(result_vertex_ranking.get_ranks());
+    REQUIRE(local_triangles.has_data() == false);
+}
+
+TEST_M(triangle_counting_test, "Local_and_global task: empty graph") {
+    dal::preview::undirected_adjacency_vector_graph<> empty_graph;
+    std::allocator<char> alloc;
+    const auto tc_desc = dal::preview::triangle_counting::descriptor<
+        float,
+        dal::preview::triangle_counting::method::ordered_count,
+        dal::preview::triangle_counting::task::local_and_global,
+        std::allocator<char>>(alloc);
+
+    const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, empty_graph);
+    const auto &local_triangles =
+        static_cast<const dal::homogen_table &>(result_vertex_ranking.get_ranks());
+    REQUIRE(local_triangles.has_data() == false);
+    REQUIRE(result_vertex_ranking.get_global_rank() == 0);
+}
+
+TEST_M(triangle_counting_test, "Global task: empty graph, relabeled)") {
+    dal::preview::undirected_adjacency_vector_graph<> empty_graph;
+    std::allocator<char> alloc;
+    auto tc_desc = dal::preview::triangle_counting::descriptor<
+                       float,
+                       dal::preview::triangle_counting::method::ordered_count,
+                       dal::preview::triangle_counting::task::global,
+                       std::allocator<char>>(alloc)
+                       .set_relabel(dal::preview::triangle_counting::relabel::yes);
+
+    const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, empty_graph);
+    REQUIRE(result_vertex_ranking.get_global_rank() == 0);
+}
+
+TEST_M(triangle_counting_test, "Global task: empty graph, not relabeled") {
+    dal::preview::undirected_adjacency_vector_graph<> empty_graph;
+    std::allocator<char> alloc;
+    auto tc_desc = dal::preview::triangle_counting::descriptor<
+                       float,
+                       dal::preview::triangle_counting::method::ordered_count,
+                       dal::preview::triangle_counting::task::global,
+                       std::allocator<char>>(alloc)
+                       .set_relabel(dal::preview::triangle_counting::relabel::no);
+
+    const auto result_vertex_ranking = dal::preview::vertex_ranking(tc_desc, empty_graph);
+    REQUIRE(result_vertex_ranking.get_global_rank() == 0);
+}
 } // namespace oneapi::dal::algo::triangle_counting::test
