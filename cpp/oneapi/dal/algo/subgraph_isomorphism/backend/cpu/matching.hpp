@@ -51,8 +51,7 @@ public:
                     inner_alloc allocator);
     virtual ~matching_engine();
 
-    solution<Cpu> run(bool main_engine = false);
-    void run_and_wait(bool main_engine = false);
+    void run_and_wait(global_stack<Cpu>& gstack, std::int64_t& busy_engine_count, bool main_engine);
     solution<Cpu> get_solution();
 
     std::int64_t state_exploration_bit(state<Cpu>* current_state, bool check_solution = true);
