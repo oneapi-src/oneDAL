@@ -136,8 +136,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     TArrayScalableCalloc<size_t, cpu> sumSV(nModels);
     DAAL_CHECK_MALLOC(sumSV.get());
 
-    // TlsSum<size_t, cpu> sumSVTls(1);
-
     daal::threader_for(nModels, nModels, [&](size_t imodel) {
         const size_t iClass = classIndicesData[imodel];
         const size_t jClass = classIndicesData[imodel + nModels];
@@ -202,24 +200,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             nSV += sumSV[i];
         }
 
-        // TArray<size_t, cpu> svCounts(nClasses);
-        // DAAL_CHECK_MALLOC(svCounts.get());
-        // size_t * const svCountsData = svCounts.get();
-        // size_t nSV                  = 0;
-        // for (size_t iClass = 0; iClass < nClasses; ++iClass)
-        // {
-        //     svCountsData[iClass] = 0;
-        //     for (size_t j = 0; j < nVectors; ++j)
-        //     {
-        //         const size_t label = size_t(y[j]);
-        //         if (isSVData[j] && (label == iClass))
-        //         {
-        //             ++svCountsData[iClass];
-        //         }
-        //     }
-        //     nSV += svCountsData[iClass];
-        // }
-
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
         DAAL_CHECK_STATUS(s, supportIndicesTable->resize(nSV));
 
@@ -247,7 +227,6 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
                         supportIndices[inxSV] = j;
                         svIndMapping[j]       = inxSV;
                         ++inxSV;
-                        // isSVData[j] = false;
                     }
                 }
             }
