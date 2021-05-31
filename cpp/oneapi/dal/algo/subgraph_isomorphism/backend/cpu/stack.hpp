@@ -455,7 +455,7 @@ template <typename Cpu>
 void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
     // Collect state and push back
     {
-        decltype(data_)::value_type v(level + 1);
+        std::vector<std::uint64_t> v(level + 1);
 
         for (std::uint64_t i = 0; i < level; ++i) {
             ONEDAL_ASSERT(i < s.max_level_size);
