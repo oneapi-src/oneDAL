@@ -159,7 +159,7 @@ foreach (_dal_component ${DAL_LIBS})
     endif()
 
     if (WIN32 AND ${TARGET_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycld")
-        find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
+        find_file(${_dal_component}_dll ${_dal_component}d.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
         set_target_properties(oneDAL::${_dal_component} PROPERTIES
                               IMPORTED_LOCATION "${${_dal_component}_dll}"
                               IMPORTED_IMPLIB "${_dal_lib}")
