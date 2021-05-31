@@ -101,6 +101,10 @@ public:
     global_stack(const global_stack&) = delete;
     global_stack(global_stack&&) = delete;
 
+    ~global_stack() {
+        clear();
+    }
+
     global_stack& operator=(const global_stack&) = delete;
     global_stack& operator=(global_stack&&) = delete;
 
@@ -109,11 +113,13 @@ public:
 
 private:
     void internal_push(dfs_stack<Cpu>& s, std::uint64_t level);
+    void clear();
 
     std::stack<std::vector<std::uint64_t>> data_;
     dal::detail::mutex mutex_;
     inner_alloc allocator_;
     std::int64_t vertex_count_;
+    std::int64_t count_{ 0 };
     std::uint64_t* bottom_{ nullptr };
     std::uint64_t* top_{ nullptr };
 };
@@ -510,6 +516,16 @@ void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
 
     // Remove state
     ++(s.data_by_levels[level].bottom_);
+}
+
+template <typename Cpu>
+void global_stack<Cpu>::clear() {
+    if (bottom_ != nullptr) {
+        ONEDAL_ASSERT(top_ != nullptr);
+        allocator_.deallocate(bottom_, (count_ * vertex_count_ > 0) ? count_ * vertex_count_ : 1);
+        bottom_ = nullptr;
+        top_ = nullptr;
+    }
 }
 
 template <typename Cpu>
