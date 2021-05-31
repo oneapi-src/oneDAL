@@ -16,76 +16,9 @@
 
 #pragma once
 
-#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/backend/common_kernels.hpp"
 
 namespace oneapi::dal::backend {
-
-enum class alloc_kind {
-    host, /// Non-USM pointer allocated on host
-    usm_host, /// USM pointer allocated by sycl::alloc_host
-    usm_device, /// USM pointer allocated by sycl::alloc_device
-    usm_shared /// USM pointer allocated by sycl::alloc_shared
-};
-
-#ifdef ONEDAL_DATA_PARALLEL
-inline alloc_kind alloc_kind_from_sycl(sycl::usm::alloc alloc) {
-    using error_msg = dal::detail::error_messages;
-    switch (alloc) {
-        case sycl::usm::alloc::host: return alloc_kind::usm_host;
-        case sycl::usm::alloc::device: return alloc_kind::usm_device;
-        case sycl::usm::alloc::shared: return alloc_kind::usm_shared;
-        default: throw invalid_argument{ error_msg::unsupported_usm_alloc() };
-    }
-}
-#endif
-
-#ifdef ONEDAL_DATA_PARALLEL
-inline sycl::usm::alloc alloc_kind_to_sycl(alloc_kind kind) {
-    using error_msg = dal::detail::error_messages;
-    switch (kind) {
-        case alloc_kind::usm_host: return sycl::usm::alloc::host;
-        case alloc_kind::usm_device: return sycl::usm::alloc::device;
-        case alloc_kind::usm_shared: return sycl::usm::alloc::shared;
-        default: throw invalid_argument{ error_msg::unsupported_usm_alloc() };
-    }
-}
-#endif
-
-inline bool alloc_kind_requires_copy(alloc_kind src_alloc_kind, alloc_kind dst_alloc_kind) {
-#ifdef ONEDAL_DATA_PARALLEL
-    switch (dst_alloc_kind) {
-        case alloc_kind::host: //
-            return (src_alloc_kind == alloc_kind::usm_device);
-        case alloc_kind::usm_host: //
-            return (src_alloc_kind == alloc_kind::host) || //
-                   (src_alloc_kind == alloc_kind::usm_device);
-        case alloc_kind::usm_device: //
-            return (src_alloc_kind == alloc_kind::host) || //
-                   (src_alloc_kind == alloc_kind::usm_host);
-        case alloc_kind::usm_shared: //
-            return (src_alloc_kind != alloc_kind::usm_shared);
-        default: //
-            ONEDAL_ASSERT(!"Unsupported alloc_kind");
-    }
-#else
-    ONEDAL_ASSERT(src_alloc_kind == alloc_kind::host);
-    ONEDAL_ASSERT(dst_alloc_kind == alloc_kind::host);
-    return false;
-#endif
-}
-
-template <typename T>
-inline alloc_kind get_alloc_kind(const array<T>& array) {
-#ifdef ONEDAL_DATA_PARALLEL
-    const auto opt_queue = array.get_queue();
-    if (opt_queue.has_value()) {
-        const auto queue = opt_queue.value();
-        const auto array_alloc = sycl::get_pointer_type(array.get_data(), queue.get_context());
-        return alloc_kind_from_sycl(array_alloc);
-    }
-#endif
-    return alloc_kind::host;
-}
 
 struct homogen_info {
     homogen_info(std::int64_t row_count,

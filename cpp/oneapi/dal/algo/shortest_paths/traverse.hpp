@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,10 +14,17 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#pragma once
+
+#include "oneapi/dal/algo/shortest_paths/common.hpp"
+#include "oneapi/dal/algo/shortest_paths/detail/traverse_ops.hpp"
+#include "oneapi/dal/algo/shortest_paths/traverse_types.hpp"
+#include "oneapi/dal/traverse.hpp"
 
 namespace oneapi::dal::preview::detail {
 
-template class ONEDAL_EXPORT topology<int32_t>;
+template <typename Descriptor, typename Graph>
+struct traverse_ops<Descriptor, Graph, shortest_paths::detail::descriptor_tag>
+        : shortest_paths::detail::traverse_ops<Descriptor, Graph> {};
 
 } // namespace oneapi::dal::preview::detail

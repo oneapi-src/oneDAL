@@ -32,7 +32,7 @@ struct train_ops_dispatcher {
 template <typename Descriptor>
 struct train_ops {
     using float_t = typename Descriptor::float_t;
-    using method_t = method::by_default;
+    using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
     using kernel_t = typename Descriptor::kernel_t;
     using input_t = train_input<task_t>;
@@ -63,8 +63,7 @@ struct train_ops {
         ONEDAL_ASSERT(result.get_support_vectors().has_data());
         ONEDAL_ASSERT(result.get_support_indices().has_data());
         ONEDAL_ASSERT(result.get_coeffs().has_data());
-        ONEDAL_ASSERT(result.get_support_vector_count() >= 0 &&
-                      result.get_support_vector_count() <= input.get_data().get_row_count());
+        ONEDAL_ASSERT(result.get_support_vector_count() <= input.get_data().get_row_count());
         ONEDAL_ASSERT(result.get_support_vectors().get_column_count() ==
                       input.get_data().get_column_count());
         ONEDAL_ASSERT(result.get_support_vectors().get_row_count() ==

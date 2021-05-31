@@ -52,6 +52,13 @@
                                              ONEDAL_SERIALIZATION_ID_MAP Map2, \
                                              ONEDAL_SERIALIZATION_ID_MAP Map3>
 
+#define ONEDAL_SERIALIZABLE_MAP4(Tag, Map1, Map2, Map3, Map4)                  \
+    ::oneapi::dal::backend::serializable_map<Tag,                              \
+                                             ONEDAL_SERIALIZATION_ID_MAP Map1, \
+                                             ONEDAL_SERIALIZATION_ID_MAP Map2, \
+                                             ONEDAL_SERIALIZATION_ID_MAP Map3, \
+                                             ONEDAL_SERIALIZATION_ID_MAP Map4>
+
 namespace oneapi::dal::backend {
 
 template <typename Tag, std::uint64_t SerializationId>
@@ -110,6 +117,36 @@ public:
     }
 };
 
+template <typename Tag, typename Map1, typename Map2, typename Map3, typename Map4>
+class serializable_map<Tag, Map1, Map2, Map3, Map4> : public base,
+                                                      public dal::detail::serializable_iface {
+public:
+    static std::uint64_t serialization_id() {
+        using tag1_t = typename Map1::tag_t;
+        using tag2_t = typename Map2::tag_t;
+        using tag3_t = typename Map3::tag_t;
+        using tag4_t = typename Map4::tag_t;
+        if constexpr (std::is_same_v<Tag, tag1_t>) {
+            return Map1::serialization_id_v;
+        }
+        else if constexpr (std::is_same_v<Tag, tag2_t>) {
+            return Map2::serialization_id_v;
+        }
+        else if constexpr (std::is_same_v<Tag, tag3_t>) {
+            return Map3::serialization_id_v;
+        }
+        else if constexpr (std::is_same_v<Tag, tag4_t>) {
+            return Map4::serialization_id_v;
+        }
+        ONEDAL_ASSERT(!"Unreachable");
+        return 0;
+    }
+
+    std::uint64_t get_serialization_id() const override {
+        return serialization_id();
+    }
+};
+
 #define ID(unique_id, name) static constexpr std::uint64_t name = unique_id
 
 class serialization_ids {
@@ -127,6 +164,8 @@ public:
     ID(3010000000, svm_classification_model_impl_id);
     ID(3010100000, svm_regression_model_impl_id);
     ID(3010200000, svm_model_interop_impl_multiclass_id);
+    ID(3010300000, svm_nu_classification_model_impl_id);
+    ID(3010400000, svm_nu_regression_model_impl_id);
 };
 
 #undef ID
