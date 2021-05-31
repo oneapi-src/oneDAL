@@ -129,7 +129,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     }
 
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nModels, nSubsetVectors);
-    TArrayScalableCalloc<size_t, cpu> originalIndicesMap(nModels * nSubsetVectors);
+    TArrayScalable<size_t, cpu> originalIndicesMap(nModels * nSubsetVectors);
     DAAL_CHECK_MALLOC(originalIndicesMap.get());
     size_t * const originalIndicesMapData = originalIndicesMap.get();
 
