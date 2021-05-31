@@ -1816,13 +1816,10 @@ public:
                         pattern_graph_data.labels[pattern_vertex]) {
                         return false;
                     }
-                    if (!check_isomorphism(permutation,
-                                           target_edgelist,
-                                           pattern_edgelist,
-                                           is_induced)) {
-                        return false;
-                    }
                 }
+            }
+            if (!check_isomorphism(permutation, target_edgelist, pattern_edgelist, is_induced)) {
+                return false;
             }
         }
         return true;
