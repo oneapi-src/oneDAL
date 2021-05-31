@@ -50,7 +50,7 @@ solution<Cpu> si(const graph<Cpu>& pattern,
     auto direction = local_allocator.make_shared_memory<edge_direction>(pattern_vetrex_count);
     auto cconditions =
         local_allocator.make_shared_memory<sconsistent_conditions<Cpu>>(pattern_vetrex_count - 1);
-    sconsistent_conditions<Cpu>* cconditions_array = cconditions.get();
+    sconsistent_conditions<Cpu>* const cconditions_array = cconditions.get();
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
         new (cconditions_array + i) sconsistent_conditions<Cpu>(i + 1, local_allocator);
     }

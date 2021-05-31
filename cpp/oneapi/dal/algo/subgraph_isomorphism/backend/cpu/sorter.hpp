@@ -33,18 +33,14 @@ struct sconsistent_conditions {
         array = allocator_.allocate<std::int64_t>(length);
         divider = length;
     }
-    sconsistent_conditions() = delete;
     sconsistent_conditions(std::int64_t size, inner_alloc allocator) : allocator_(allocator) {
         init(size);
     }
-    void clean() {
+    ~sconsistent_conditions() {
         if (array != nullptr) {
             allocator_.deallocate<std::int64_t>(array, length);
             array = nullptr;
         }
-    }
-    ~sconsistent_conditions() {
-        clean();
     }
 
 private:

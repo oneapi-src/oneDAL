@@ -32,11 +32,13 @@ template <typename Cpu>
 class bit_vector {
 public:
     static constexpr std::int64_t byte(std::int64_t x) {
+        ONEDAL_ASSERT(x >= 0);
         return x >> 3;
     };
 
     static constexpr std::uint8_t bit(std::int64_t x) {
-        return 1 << (x & 7);
+        ONEDAL_ASSERT(x >= 0);
+        return 1 << static_cast<std::uint8_t>(x & 7);
     };
 
     static constexpr std::int64_t bit_vector_size(std::int64_t vertex_count) {
