@@ -82,6 +82,8 @@ MSG(object_does_not_provide_read_access_to_columns,
     "Given object does not provide read access to columns")
 MSG(object_does_not_provide_write_access_to_columns,
     "Given object does not provide write access to columns")
+MSG(object_does_not_provide_access_to_rows_or_columns,
+    "Given object does not provide access to rows or columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
 MSG(row_indices_lt_min_value, "Row indices are less than the minimum acceptable value")
 MSG(row_indices_gt_max_value, "Row indices are larger than the maximum acceptable value")

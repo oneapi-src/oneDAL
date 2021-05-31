@@ -68,7 +68,8 @@ class simple_metadata_impl : public table_metadata_impl,
 public:
     simple_metadata_impl() = default;
 
-    simple_metadata_impl(const array<data_type>& dtypes, const array<feature_type>& ftypes)
+    simple_metadata_impl(const dal::array<data_type>& dtypes,
+                         const dal::array<feature_type>& ftypes)
             : dtypes_(dtypes),
               ftypes_(ftypes) {
         if (dtypes_.get_count() != ftypes_.get_count()) {
@@ -110,15 +111,22 @@ private:
         return i >= 0 && i < dtypes_.get_count();
     }
 
-    array<data_type> dtypes_;
-    array<feature_type> ftypes_;
+    dal::array<data_type> dtypes_;
+    dal::array<feature_type> ftypes_;
 };
 __ONEDAL_REGISTER_SERIALIZABLE__(simple_metadata_impl)
 
 table_metadata::table_metadata() : impl_(new empty_metadata_impl()) {}
 
-table_metadata::table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes)
+table_metadata::table_metadata(const dal::array<data_type>& dtypes,
+                               const dal::array<feature_type>& ftypes)
         : impl_(new simple_metadata_impl(dtypes, ftypes)) {}
+
+// This method is needed for compatibility with the oneDAL 2021.1.
+// This should be removed in 2022.1.
+table_metadata::table_metadata(const dal::v1::array<data_type>& dtypes,
+                               const dal::v1::array<feature_type>& ftypes)
+        : impl_(new simple_metadata_impl(dtypes.v2(), ftypes.v2())) {}
 
 int64_t table_metadata::get_feature_count() const {
     return impl_->get_feature_count();

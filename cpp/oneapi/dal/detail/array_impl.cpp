@@ -19,7 +19,7 @@
 #include "oneapi/dal/backend/transfer.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
-namespace oneapi::dal::detail::v1 {
+namespace oneapi::dal::detail::v2 {
 
 using deserialize_result_t = std::tuple<shared<byte_t>, std::int64_t>;
 
@@ -157,4 +157,4 @@ INSTANTIATE(default_host_policy)
 INSTANTIATE(data_parallel_policy)
 #endif
 
-} // namespace oneapi::dal::detail::v1
+} // namespace oneapi::dal::detail::v2
