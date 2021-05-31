@@ -109,6 +109,7 @@ public:
     MSG(object_does_not_provide_write_access_to_rows);
     MSG(object_does_not_provide_read_access_to_columns);
     MSG(object_does_not_provide_write_access_to_columns);
+    MSG(object_does_not_provide_access_to_rows_or_columns);
     MSG(unsupported_conversion_types);
     MSG(row_indices_lt_min_value);
     MSG(row_indices_gt_max_value);
