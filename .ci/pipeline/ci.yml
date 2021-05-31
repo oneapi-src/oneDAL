@@ -33,7 +33,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
   steps:
-  - script: sudo apt-get update && sudo apt-get install gcc-9-multilib g++-9-multilib openjdk-8-jdk
+  - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib openjdk-8-jdk
     displayName: 'apt-get'
   - script: |
       .ci/scripts/build.sh --platform $(platform.type) --target onedal_c
