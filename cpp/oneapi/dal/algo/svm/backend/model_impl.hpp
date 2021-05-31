@@ -60,7 +60,8 @@ public:
     void serialize(dal::detail::output_archive& ar) const override {
         ar(support_vectors, coeffs, bias, biases);
 
-        if constexpr (std::is_same_v<Task, task::classification>) {
+        if constexpr (std::is_same_v<Task, task::classification> ||
+                      std::is_same_v<Task, task::nu_classification>) {
             ar(first_class_label, second_class_label, class_count);
         }
 
@@ -70,7 +71,8 @@ public:
     void deserialize(dal::detail::input_archive& ar) override {
         ar(support_vectors, coeffs, bias, biases);
 
-        if constexpr (std::is_same_v<Task, task::classification>) {
+        if constexpr (std::is_same_v<Task, task::classification> ||
+                      std::is_same_v<Task, task::nu_classification>) {
             ar(first_class_label, second_class_label, class_count);
         }
 

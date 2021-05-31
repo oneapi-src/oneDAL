@@ -59,6 +59,8 @@ public:
 
     virtual services::Status clear() = 0;
 
+    virtual services::Status resize(const size_t nSize) = 0;
+
 protected:
     SVMCacheIface(const size_t cacheSize, const size_t lineSize, const kernel_function::KernelIfacePtr & kernel)
         : _lineSize(lineSize), _cacheSize(cacheSize), _kernel(kernel)
@@ -162,6 +164,16 @@ public:
         return status;
     }
 
+    services::Status resize(const size_t nSize) override
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.resize);
+
+        services::Status status;
+        status |= initKernelIndex(nSize);
+        status |= initBlockTask(nSize);
+        return status;
+    }
+
 protected:
     SVMCache(const size_t cacheSize, const size_t lineSize, const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel)
         : super(cacheSize, lineSize, kernel), _lruCache(cacheSize), _xTable(xTable)
@@ -196,14 +208,25 @@ protected:
         return status;
     }
 
-    services::Status init(const size_t nSize)
+    services::Status initKernelIndex(const size_t nSize)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(cache.init);
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.initKernelIndex);
+
         services::Status status;
+
         _kernelIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelIndex.get());
         _kernelOriginalIndex.reset(nSize);
         DAAL_CHECK_MALLOC(_kernelOriginalIndex.get());
+
+        return status;
+    }
+
+    services::Status initCache()
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.initCache);
+
+        services::Status status;
 
         const size_t bytes            = _lineSize * sizeof(algorithmFPType);
         const size_t alignedBytesSize = bytes & 63 ? (bytes & (~63)) + 64 : bytes;  // nearest number aligned on 64
@@ -219,6 +242,15 @@ protected:
             _cache[i] = &_cacheData[i * newLineSize]; // _cache[i] - always aligned on 64 bytes
         }
 
+        return status;
+    }
+
+    services::Status initBlockTask(const size_t nSize)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.initBlockTask);
+
+        services::Status status;
+
         SubDataTaskBase<algorithmFPType, cpu> * task = nullptr;
         if (_xTable->getDataLayout() == NumericTableIface::csrArray)
         {
@@ -230,7 +262,23 @@ protected:
         }
 
         DAAL_CHECK_MALLOC(task);
+        if (_blockTask.get() != nullptr)
+        {
+            _blockTask.reset();
+        }
         _blockTask = SubDataTaskBasePtr<algorithmFPType, cpu>(task);
+
+        return status;
+    }
+
+    services::Status init(const size_t nSize)
+    {
+        DAAL_ITTNOTIFY_SCOPED_TASK(cache.init);
+
+        services::Status status;
+        status |= initKernelIndex(nSize);
+        status |= initCache();
+        status |= initBlockTask(nSize);
         return status;
     }
 
