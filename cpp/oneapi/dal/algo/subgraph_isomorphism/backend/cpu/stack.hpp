@@ -114,14 +114,19 @@ public:
 private:
     void internal_push(dfs_stack<Cpu>& s, std::uint64_t level);
     void clear();
+    void grow();
+
+    std::int64_t size() const {
+        return (bottom_ != nullptr && vertex_count_ != 0) ? (top_ - bottom_) / vertex_count_ : 0;
+    }
 
     std::stack<std::vector<std::uint64_t>> data_;
     dal::detail::mutex mutex_;
     inner_alloc allocator_;
     std::int64_t vertex_count_;
-    std::int64_t count_{ 0 };
     std::uint64_t* bottom_{ nullptr };
     std::uint64_t* top_{ nullptr };
+    std::int64_t capacity_{ 0 };
 };
 
 template <typename Cpu>
@@ -522,10 +527,31 @@ template <typename Cpu>
 void global_stack<Cpu>::clear() {
     if (bottom_ != nullptr) {
         ONEDAL_ASSERT(top_ != nullptr);
-        allocator_.deallocate(bottom_, (count_ * vertex_count_ > 0) ? count_ * vertex_count_ : 1);
+        allocator_.deallocate(bottom_,
+                              (capacity_ * vertex_count_ > 0) ? capacity_ * vertex_count_ : 1);
         bottom_ = nullptr;
         top_ = nullptr;
+        capacity_ = 0;
     }
+}
+
+template <typename Cpu>
+void global_stack<Cpu>::grow() {
+    const std::int64_t new_capacity = (capacity_ > 0) ? capacity_ * 2 : 1;
+    const auto new_bottom = allocator_.allocate<uint64_t>(
+        (new_capacity * vertex_count_ > 0) ? new_capacity * vertex_count_ : 1);
+    const auto new_top = new_bottom + size() * vertex_count_;
+
+    ONEDAL_IVDEP
+    for (auto dest = new_bottom, src = bottom_; dest != new_top;) {
+        *(dest++) = *(src++);
+    }
+
+    clear();
+
+    bottom_ = new_bottom;
+    top_ = new_top;
+    capacity_ = new_capacity;
 }
 
 template <typename Cpu>
