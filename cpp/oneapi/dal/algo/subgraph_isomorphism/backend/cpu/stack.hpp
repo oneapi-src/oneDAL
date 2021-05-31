@@ -491,12 +491,6 @@ void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
         const auto v = top_ - vertex_count_;
         ONEDAL_ASSERT(v >= bottom_);
         // ONEDAL_ASSERT(v.size() <= s.max_level_size);
-        if (!(vertex_count_ <= s.max_level_size)) // Temporary
-        {
-            std::cout << "[global_stack<Cpu>::pop] vertex_count_ = " << vertex_count_ << std::endl;
-            std::cout << "[global_stack<Cpu>::pop] s.max_level_size = " << s.max_level_size
-                      << std::endl;
-        }
         // for (std::uint64_t i = 0; i < v.size(); ++i) {
         for (std::int64_t i = 0; i < vertex_count_ && v[i] != null_vertex(); ++i) {
             ONEDAL_ASSERT(i <= s.max_level_size);
