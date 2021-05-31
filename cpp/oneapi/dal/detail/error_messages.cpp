@@ -226,7 +226,7 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
-MSG(invalid_number_of_trees, "Invalid number of trees in model");
+MSG(invalid_number_of_trees, "Invalid number of trees in model")
 MSG(invalid_number_of_classes, "Invalid number of classes")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
 
