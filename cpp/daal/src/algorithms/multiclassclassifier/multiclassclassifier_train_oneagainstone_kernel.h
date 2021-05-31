@@ -56,13 +56,14 @@ public:
     virtual ~SubTask() {}
 
     services::Status getDataSubset(size_t nFeatures, size_t nVectors, int classIdxPositive, int classIdxNegative, const algorithmFPType * y,
-                                   size_t & nRows)
+                                   size_t * originalIndicesMap, size_t & nRows)
     {
         nRows = 0;
+
         /* Prepare "positive" observations of the training subset */
-        services::Status s = copyDataIntoSubtable(nFeatures, nVectors, classIdxPositive, 1, y, nRows);
+        services::Status s = copyDataIntoSubtable(nFeatures, nVectors, classIdxPositive, 1, y, originalIndicesMap, nRows);
         if (s) /* Prepare "negative" observations of the training subset */
-            s = copyDataIntoSubtable(nFeatures, nVectors, classIdxNegative, -1, y, nRows);
+            s = copyDataIntoSubtable(nFeatures, nVectors, classIdxNegative, -1, y, originalIndicesMap, nRows);
         return s;
     }
 
@@ -111,7 +112,7 @@ protected:
     bool isValid() const { return _subsetX.get() && _subsetYTable.get() && _simpleTraining.get(); }
 
     virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const algorithmFPType * y,
-                                                  size_t & nRows) = 0;
+                                                  size_t * originalIndicesMap, size_t & nRows) = 0;
 
 protected:
     TArray<algorithmFPType, cpu> _subsetX;
@@ -160,7 +161,7 @@ private:
     }
 
     virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const algorithmFPType * y,
-                                                  size_t & nRows) DAAL_C11_OVERRIDE;
+                                                  size_t * originalIndicesMap, size_t & nRows) DAAL_C11_OVERRIDE;
 
 private:
     TArray<size_t, cpu> _colIndicesX;
@@ -199,7 +200,7 @@ private:
     }
 
     virtual services::Status copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label, const algorithmFPType * y,
-                                                  size_t & nRows) DAAL_C11_OVERRIDE;
+                                                  size_t * originalIndicesMap, size_t & nRows) DAAL_C11_OVERRIDE;
 
 private:
     ReadRows<algorithmFPType, cpu> _mtX;
