@@ -20,8 +20,8 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/detail/threading.hpp"
-#include <stack>
-#include <vector>
+// #include <stack>
+// #include <vector>
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
@@ -116,11 +116,19 @@ private:
     void clear();
     void grow();
 
+    static constexpr std::uint64_t null_vertex() {
+        return static_cast<std::uint64_t>(-1);
+    }
+
     std::int64_t size() const {
         return (bottom_ != nullptr && vertex_count_ != 0) ? (top_ - bottom_) / vertex_count_ : 0;
     }
 
-    std::stack<std::vector<std::uint64_t>> data_;
+    bool empty() const {
+        return (size() == 0);
+    }
+
+    // std::stack<std::vector<std::uint64_t>> data_;
     dal::detail::mutex mutex_;
     inner_alloc allocator_;
     std::int64_t vertex_count_;
@@ -477,16 +485,23 @@ template <typename Cpu>
 void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
     ONEDAL_ASSERT(s.empty());
     const dal::detail::scoped_lock lock(mutex_);
-    if (!data_.empty()) {
-        const auto& v = data_.top();
-        ONEDAL_ASSERT(v.size() <= s.max_level_size);
-        for (std::uint64_t i = 0; i < v.size(); ++i) {
+    // if (!data_.empty()) {
+    if (!empty()) {
+        // const auto& v = data_.top();
+        const auto v = top_ - vertex_count_;
+        ONEDAL_ASSERT(v >= bottom_);
+        // ONEDAL_ASSERT(v.size() <= s.max_level_size);
+        ONEDAL_ASSERT(vertex_count_ <= s.max_level_size);
+        // for (std::uint64_t i = 0; i < v.size(); ++i) {
+        for (std::int64_t i = 0; i < vertex_count_ && v[i] != null_vertex(); ++i) {
             s.push_into_current_level(v[i]);
-            if (i != v.size() - 1) {
+            // if (i != v.size() - 1) {
+            if (i != vertex_count_ - 1) {
                 s.increase_core_level();
             }
         }
-        data_.pop();
+        // data_.pop();
+        top_ = v;
     }
 }
 
@@ -494,7 +509,8 @@ template <typename Cpu>
 void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
     // Collect state and push back
     {
-        std::vector<std::uint64_t> v(level + 1);
+        // std::vector<std::uint64_t> v(level + 1);
+        const auto v = allocator_.allocate<std::uint64_t>(level + 1);
 
         for (std::uint64_t i = 0; i < level; ++i) {
             ONEDAL_ASSERT(i < s.max_level_size);
@@ -516,7 +532,18 @@ void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
         v[level] = *(s.data_by_levels[level].bottom_);
 
         const dal::detail::scoped_lock lock(mutex_);
-        data_.push(v);
+        // data_.push(v);
+        if (size() >= capacity_) {
+            grow();
+        }
+
+        std::uint64_t j = 0;
+        for (; j <= level; ++j) {
+            *(top++) = v[j];
+        }
+        for (; j < vertex_count_; ++j) {
+            *(top++) = null_vertex();
+        }
     }
 
     // Remove state
