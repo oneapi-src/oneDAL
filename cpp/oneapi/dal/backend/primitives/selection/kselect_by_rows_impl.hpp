@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_simd.hpp"
 #include "oneapi/dal/backend/primitives/selection/kselect_by_rows_quick.hpp"
@@ -72,9 +74,6 @@ kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
 }
 
 #define INSTANTIATE(F) template class kselect_by_rows<F>;
-
-INSTANTIATE(float)
-INSTANTIATE(double)
 
 #endif // ONEDAL_DATA_PARALLEL
 
