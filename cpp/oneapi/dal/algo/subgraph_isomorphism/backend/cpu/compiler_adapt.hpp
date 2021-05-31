@@ -16,6 +16,8 @@
 
 #pragma once
 #include <cstdint>
+#include <immintrin.h>
+#include <daal/src/services/service_defines.h>
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
@@ -29,7 +31,7 @@ namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 #endif
 
 template <typename Cpu>
-std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
 #if defined(__INTEL_COMPILER)
     return _lzcnt_u32(a);
 #else
@@ -46,7 +48,7 @@ std::int32_t ONEDAL_lzcnt_u32(std::uint32_t a) {
 }
 
 template <typename Cpu>
-std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
 #if defined(__INTEL_COMPILER)
     return _lzcnt_u64(a);
 #else
@@ -63,7 +65,7 @@ std::int32_t ONEDAL_lzcnt_u64(std::uint64_t a) {
 }
 
 template <typename Cpu>
-std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
 #if defined(__INTEL_COMPILER)
     return _popcnt64(a);
 #else
@@ -80,4 +82,87 @@ std::int32_t ONEDAL_popcnt64(std::uint64_t a) {
     return bit_cnt;
 #endif
 }
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_sse2>(std::uint32_t a) {
+    if (a == 0)
+        return 32;
+    std::uint32_t one_bit = 0x80000000; // binary: 1000 0000 0000 0000 0000 0000 0000 0000
+    std::int32_t bit_pos = 0;
+    while ((a & one_bit) == 0) {
+        bit_pos++;
+        one_bit >>= 1;
+    }
+    return bit_pos;
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_sse2>(std::uint64_t a) {
+    if (a == 0)
+        return 64;
+    std::uint64_t one_bit = 0x8000000000000000; // binary: 1000 ... 0000
+    std::int32_t bit_pos = 0;
+    while ((a & one_bit) == 0) {
+        bit_pos++;
+        one_bit >>= 1;
+    }
+    return bit_pos;
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_sse2>(std::uint64_t a) {
+    if (a == 0)
+        return 0;
+    std::uint64_t last_bit = 1;
+    std::int32_t bit_cnt = 0;
+    for (std::int32_t i = 0; i < 64; i++) {
+        if (a & last_bit) {
+            bit_cnt++;
+        }
+        a = a >> 1;
+    }
+    return bit_cnt;
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u32<dal::backend::cpu_dispatch_avx>(std::uint32_t a) {
+    if (a == 0)
+        return 32;
+    std::uint32_t one_bit = 0x80000000; // binary: 1000 0000 0000 0000 0000 0000 0000 0000
+    std::int32_t bit_pos = 0;
+    while ((a & one_bit) == 0) {
+        bit_pos++;
+        one_bit >>= 1;
+    }
+    return bit_pos;
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_lzcnt_u64<dal::backend::cpu_dispatch_avx>(std::uint64_t a) {
+    if (a == 0)
+        return 64;
+    std::uint64_t one_bit = 0x8000000000000000; // binary: 1000 ... 0000
+    std::int32_t bit_pos = 0;
+    while ((a & one_bit) == 0) {
+        bit_pos++;
+        one_bit >>= 1;
+    }
+    return bit_pos;
+}
+
+template <>
+ONEDAL_FORCEINLINE std::int32_t ONEDAL_popcnt64<dal::backend::cpu_dispatch_avx>(std::uint64_t a) {
+    if (a == 0)
+        return 0;
+    std::uint64_t last_bit = 1;
+    std::int32_t bit_cnt = 0;
+    for (std::int32_t i = 0; i < 64; i++) {
+        if (a & last_bit) {
+            bit_cnt++;
+        }
+        a = a >> 1;
+    }
+    return bit_cnt;
+}
+
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
