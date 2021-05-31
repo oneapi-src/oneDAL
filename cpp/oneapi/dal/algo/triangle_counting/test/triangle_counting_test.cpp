@@ -210,18 +210,6 @@ public:
     std::array<std::int64_t, 11> local_triangles = { 36, 36, 36, 36, 36, 0, 36, 36, 36, 36, 36 };
 };
 
-class empty_graph_type : public graph_base_data {
-public:
-    empty_graph_type() {
-        vertex_count = 0;
-        edge_count = 0;
-        cols_count = edge_count * 2;
-        rows_count = vertex_count + 1;
-        global_triangle_count = 0;
-    }
-    std::array<std::int64_t, 11> local_triangles = { 36, 36, 36, 36, 36, 0, 36, 36, 36, 36, 36 };
-};
-
 class triangle_counting_test {
 public:
     using my_graph_type = dal::preview::undirected_adjacency_vector_graph<>;
