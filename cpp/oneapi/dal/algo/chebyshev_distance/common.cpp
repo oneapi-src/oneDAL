@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/chebychev_distance/common.hpp"
+#include "oneapi/dal/algo/chebyshev_distance/common.hpp"
 
-namespace oneapi::dal::chebychev_distance::detail {
+namespace oneapi::dal::chebyshev_distance::detail {
 namespace v1 {
 
 template <typename Task>
@@ -28,4 +28,4 @@ descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
 } // namespace v1
-} // namespace oneapi::dal::chebychev_distance::detail
+} // namespace oneapi::dal::chebyshev_distance::detail

@@ -92,7 +92,7 @@ template <typename Distance>
 constexpr bool is_valid_distance_v =
     dal::detail::is_tag_one_of_v<Distance,
                                  minkowski_distance::detail::descriptor_tag,
-                                 chebychev_distance::detail::descriptor_tag>;
+                                 chebyshev_distance::detail::descriptor_tag>;
 
 template <typename T>
 using enable_if_brute_force_t =
@@ -153,7 +153,7 @@ namespace v1 {
 ///                     be :expr:`task::classification`.
 /// @tparam Distance    The descriptor of the distance used for computations. Can be
 ///                     :expr:`minkowski_distance::descriptor` or
-///                     :expr:`chebychev_distance::descriptor`
+///                     :expr:`chebyshev_distance::descriptor`
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,

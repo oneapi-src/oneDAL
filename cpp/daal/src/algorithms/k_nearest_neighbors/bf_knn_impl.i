@@ -91,8 +91,8 @@ public:
                 dist.reset(new daal::algorithms::internal::MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
             }
             break;
-        case bf_knn_classification::prediction::internal::PairwiseDistanceType::chebychev:
-            dist.reset(new daal::algorithms::internal::ChebychevDistances<FPType, cpu>(*testTable, *trainTable));
+        case bf_knn_classification::prediction::internal::PairwiseDistanceType::chebyshev:
+            dist.reset(new daal::algorithms::internal::ChebyshevDistances<FPType, cpu>(*testTable, *trainTable));
             break;
         default: dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true)); break;
         }
