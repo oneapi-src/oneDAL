@@ -29,7 +29,20 @@ struct train_kernel_gpu<Float, Method, task::regression> {
     }
 };
 
+template <typename Float, typename Method>
+struct train_kernel_gpu<Float, Method, task::nu_regression> {
+    train_result<task::nu_regression> operator()(
+        const dal::backend::context_gpu& ctx,
+        const detail::descriptor_base<task::nu_regression>& desc,
+        const train_input<task::nu_regression>& input) const {
+        throw unimplemented(
+            dal::detail::error_messages::svm_nu_regression_task_is_not_implemented_for_gpu());
+    }
+};
+
 template struct train_kernel_gpu<float, method::thunder, task::regression>;
 template struct train_kernel_gpu<double, method::thunder, task::regression>;
+template struct train_kernel_gpu<float, method::thunder, task::nu_regression>;
+template struct train_kernel_gpu<double, method::thunder, task::nu_regression>;
 
 } // namespace oneapi::dal::svm::backend

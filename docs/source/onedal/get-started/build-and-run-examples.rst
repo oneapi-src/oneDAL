@@ -104,8 +104,8 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
         # Navigate to DPC++ examples directory and build examples
         cd /examples/oneapi/dpc
-        make example=cor_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
-        make mode=build			   # This will compile all DPC++ examples
+        make so example=svm_two_class_thunder_dense_batch # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
+        make so mode=build			   # This will compile all DPC++ examples
 
     .. group-tab:: Windows
 
@@ -113,8 +113,8 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 
         # Navigate to DPC++ examples directory and build examples
         cd /examples/oneapi/dpc
-        nmake libintel64 example=cor_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
-        nmake libintel64 mode=build			     # This will compile all DPC++ examples
+        nmake dll example=svm_two_class_thunder_dense_batch+ # This will compile and run Correlation example using Intel(R) oneAPI DPC++/C++ Compiler
+        nmake dll mode=build			     # This will compile all DPC++ examples
 
   To see all available parameters of the build procedure, type ``make`` on Linux\* or ``nmake`` on Windows\*.
 

@@ -97,7 +97,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         isSV.reset(nVectors);
         DAAL_CHECK_MALLOC(isSV.get());
         isSVData = isSV.get();
-        daal::services::internal::service_memset<bool, cpu>(isSVData, false, nVectors);
+        services::internal::service_memset<bool, cpu>(isSVData, false, nVectors);
     }
 
     const size_t nModels = (nClasses * (nClasses - 1)) >> 1;
@@ -128,6 +128,11 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         }
     }
 
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nModels, nSubsetVectors);
+    TArrayScalable<size_t, cpu> originalIndicesMap(nModels * nSubsetVectors);
+    DAAL_CHECK_MALLOC(originalIndicesMap.get());
+    size_t * const originalIndicesMapData = originalIndicesMap.get();
+
     daal::threader_for(nModels, nModels, [&](size_t imodel) {
         const size_t iClass = classIndicesData[imodel];
         const size_t jClass = classIndicesData[imodel + nModels];
@@ -140,13 +145,14 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         }
         DAAL_LS_RELEASE(TSubTask, lsTask, local); //releases local storage when leaving this scope
 
-        size_t nRowsInSubset = 0;
-        s |= local->getDataSubset(nFeatures, nVectors, iClass, jClass, y, nRowsInSubset);
+        size_t nRowsInSubset                   = 0;
+        size_t * const originalIndicesMapLocal = originalIndicesMapData + imodel * nSubsetVectors;
+        s |= local->getDataSubset(nFeatures, nVectors, iClass, jClass, y, originalIndicesMapLocal, nRowsInSubset);
         DAAL_CHECK_STATUS_THR(s);
         classifier::ModelPtr pModel;
         if (nRowsInSubset)
         {
-            s = local->trainSimpleClassifier(nRowsInSubset);
+            s |= local->trainSimpleClassifier(nRowsInSubset);
             if (!s)
             {
                 safeStat |= s;
@@ -168,7 +174,8 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
 
             for (size_t svId = 0; svId < nSV; ++svId)
             {
-                const size_t originalIndex = twoClassSvIndData[svId];
+                DAAL_ASSERT(twoClassSvIndData[svId] < nRowsInSubset);
+                const size_t originalIndex = originalIndicesMapLocal[twoClassSvIndData[svId]];
                 isSVData[originalIndex]    = true;
             }
             auto biasesTable = svmModel->getBiases();
@@ -185,20 +192,20 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         DAAL_CHECK_MALLOC(svCounts.get());
         size_t * const svCountsData = svCounts.get();
         size_t nSV                  = 0;
-
         for (size_t iClass = 0; iClass < nClasses; ++iClass)
         {
             svCountsData[iClass] = 0;
             for (size_t j = 0; j < nVectors; ++j)
             {
                 const size_t label = size_t(y[j]);
-                if (isSVData[j] && label == iClass)
+                if (isSVData[j] && (label == iClass))
                 {
                     ++svCountsData[iClass];
                 }
             }
             nSV += svCountsData[iClass];
         }
+
         NumericTablePtr supportIndicesTable = svmModel->getSupportIndices();
         DAAL_CHECK_STATUS(s, supportIndicesTable->resize(nSV));
 
@@ -209,6 +216,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         TArray<size_t, cpu> svIndMappingArray(nVectors);
         DAAL_CHECK_MALLOC(svIndMappingArray.get());
         size_t * const svIndMapping = svIndMappingArray.get();
+
         {
             WriteOnlyColumns<int, cpu> mtSupportIndices(supportIndicesTable.get(), 0, 0, nSV);
             DAAL_CHECK_BLOCK_STATUS(mtSupportIndices);
@@ -220,16 +228,16 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
                 for (size_t j = 0; j < nVectors; ++j)
                 {
                     const size_t label = static_cast<size_t>(y[j]);
-                    if (isSVData[j] && label == iClass)
+                    if (isSVData[j] && (label == iClass))
                     {
                         supportIndices[inxSV] = j;
                         svIndMapping[j]       = inxSV;
-                        inxSV++;
+                        ++inxSV;
                     }
                 }
             }
+            DAAL_ASSERT(inxSV == nSV);
         }
-
         NumericTablePtr coeffOutTable = svmModel->getCoefficients();
         DAAL_CHECK_STATUS(s, coeffOutTable->resize(nSV));
 
@@ -238,8 +246,8 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
         WriteOnlyRows<algorithmFPType, cpu> mtCoefficientsOut(coeffOutTable.get(), 0, coeffOutTable->getNumberOfRows());
         DAAL_CHECK_BLOCK_STATUS(mtCoefficientsOut);
         algorithmFPType * const coefficientsOut = mtCoefficientsOut.get();
-        daal::services::internal::service_memset<algorithmFPType, cpu>(coefficientsOut, algorithmFPType(0),
-                                                                       coeffOutTable->getNumberOfRows() * coeffOutTable->getNumberOfColumns());
+        services::internal::service_memset<algorithmFPType, cpu>(coefficientsOut, algorithmFPType(0),
+                                                                 coeffOutTable->getNumberOfRows() * coeffOutTable->getNumberOfColumns());
         daal::threader_for(nModels, nModels, [&](size_t imodel) {
             const size_t iClass = classIndicesData[imodel];
             const size_t jClass = classIndicesData[imodel + nModels];
@@ -254,25 +262,26 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             const size_t svCounts   = twoClassSvIndTable->getNumberOfRows();
             ReadColumns<int, cpu> mtSvIndex(twoClassSvIndTable.get(), 0, 0, svCounts);
             DAAL_CHECK_BLOCK_STATUS_THR(mtSvIndex);
-            const int * twoClassSvInd = mtSvIndex.get();
+            const int * twoClassSvInd        = mtSvIndex.get();
+            size_t * originalIndicesMapLocal = originalIndicesMapData + imodel * nSubsetVectors;
 
             for (size_t sv = 0; sv < svCounts; ++sv)
             {
-                const size_t originalInd = twoClassSvInd[sv];
+                const size_t originalInd = originalIndicesMapLocal[twoClassSvInd[sv]];
                 const size_t label       = static_cast<size_t>(y[originalInd]);
                 const size_t colInd      = svIndMapping[originalInd];
+
                 if (label == iClass)
                 {
-                    coefficientsOut[(jClass - 1) * nSV + colInd] = coeffIn[sv];
+                    coefficientsOut[colInd * (nClasses - 1) + (jClass - 1)] = coeffIn[sv];
                 }
                 else if (label == jClass)
                 {
-                    coefficientsOut[(iClass)*nSV + colInd] = coeffIn[sv];
+                    coefficientsOut[colInd * (nClasses - 1) + (iClass)] = coeffIn[sv];
                 }
             }
         });
     }
-
     return safeStat.detach();
 }
 
@@ -328,11 +337,12 @@ Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::com
 
 template <typename algorithmFPType, CpuType cpu>
 Status SubTaskDense<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label,
-                                                                const algorithmFPType * y, size_t & nRows)
+                                                                const algorithmFPType * y, size_t * originalIndicesMap, size_t & nRows)
 {
     for (size_t ix = 0; ix < nVectors; ix++)
     {
         if (size_t(y[ix]) != classIdx) continue;
+        originalIndicesMap[nRows] = ix;
         _mtX.next(ix, 1);
         DAAL_CHECK_BLOCK_STATUS(_mtX);
         PRAGMA_IVDEP
@@ -350,13 +360,14 @@ Status SubTaskDense<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures
 
 template <typename algorithmFPType, CpuType cpu>
 Status SubTaskCSR<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures, size_t nVectors, int classIdx, algorithmFPType label,
-                                                              const algorithmFPType * y, size_t & nRows)
+                                                              const algorithmFPType * y, size_t * originalIndicesMap, size_t & nRows)
 {
     _rowOffsetsX[0]  = 1;
     size_t dataIndex = (nRows ? _rowOffsetsX[nRows] - _rowOffsetsX[0] : 0);
     for (size_t ix = 0; ix < nVectors; ix++)
     {
         if (size_t(y[ix]) != classIdx) continue;
+        originalIndicesMap[nRows] = ix;
         _mtX.next(ix, 1);
         DAAL_CHECK_BLOCK_STATUS(_mtX);
         const size_t nNonZeroValuesInRow = _mtX.rows()[1] - _mtX.rows()[0];

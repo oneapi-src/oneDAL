@@ -32,7 +32,7 @@ struct backend_base {
 
     virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
-                                                     const Topology& data) = 0;
+                                                     const Topology& t) = 0;
     virtual ~backend_base() = default;
 };
 
@@ -41,19 +41,25 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
+    using float_t = typename Descriptor::float_t;
     using task_t = typename Descriptor::task_t;
+    using method_t = typename Descriptor::method_t;
     using allocator_t = typename Descriptor::allocator_t;
 
     virtual vertex_ranking_result<task_t> operator()(const Policy& ctx,
                                                      const Descriptor& descriptor,
-                                                     const Topology& data) {
-        return triangle_counting_default_kernel(ctx, descriptor, descriptor.get_allocator(), data);
+                                                     const Topology& t) {
+        return vertex_ranking_kernel_cpu<method_t, task_t, allocator_t, Topology>()(
+            ctx,
+            descriptor,
+            descriptor.get_allocator(),
+            t);
     }
 };
 
 template <typename Policy, typename Descriptor, typename Topology>
 dal::detail::shared<backend_base<Policy, Descriptor, Topology>> get_backend(const Descriptor& desc,
-                                                                            const Topology& data) {
+                                                                            const Topology& t) {
     return std::make_shared<backend_default<Policy, Descriptor, Topology>>();
 }
 

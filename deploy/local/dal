@@ -15,6 +15,9 @@
 # limitations under the License.
 #===============================================================================
 
+# This modulefile requires Environment Modules 4.1 or later.
+# Type `module --version` to determine the current installed version.
+
 set min_tcl_ver 8.4
 if { $tcl_version < $min_tcl_ver } {
     puts stderr " "
@@ -54,9 +57,9 @@ set componentname "[file tail "$componentroot"]"
 # get oneAPI top-level root folder
 set oneapiroot "[file dirname "$componentroot"]"
 
-# disallow loading multiple copies of 64-bit and 32-bit versions of modulefile
-# first assemble 64-bit and 32-bit name pairs for this modulefile
-# then specify conflict for each (assumes "name" and "name32" pattern)
+# disallow loading multiple versions of this modulefile
+# disallow loading multiple architectures of this modulefile
+# if only 64-bit architecture exists the test still works
 set mname32 $modulefilename
 set mname64 [string trimright $mname32 "32"]
 if { [string equal "$mname32" "$mname64"] } {
@@ -65,17 +68,21 @@ if { [string equal "$mname32" "$mname64"] } {
 conflict $mname32
 conflict $mname64
 
+
 # On load print component name and version being loaded
 if { [ module-info mode load ] } {
     puts stderr "Loading $modulefilename version $modulefilever"
 }
 
-# On remove print component name and version being removed
+# On `module unload` print component module name and version being removed
+# Include `module list` message only if this modulefile loads dependent modules
 if { [ module-info mode ] == "unload" || [ module-info mode ] == "remove" } {
     puts stderr "Removing $modulefilename version $modulefilever"
+    puts stderr "Use `module list` to view any remaining dependent modules."
 }
 
-# ###### Component Specific env vars setup ######
+
+# ###### Component Specific env vars setup ###################################
 
 # Set intermediate variables
 set daalroot "$componentroot/$modulefilever"

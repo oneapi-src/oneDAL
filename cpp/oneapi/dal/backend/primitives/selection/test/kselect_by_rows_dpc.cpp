@@ -180,6 +180,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == 1)",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(!this->get_policy().has_native_float64());
     using float_t = TestType;
     float_t data[] = { -2.0f, 5.0f, -3.0f, 3.0f, 4.0f, 1.0f, 1.0f, 4.0f,
                        4.0f,  1.0f, 1.0f,  0.0f, 0.0f, 5.0f, 1.0f };
@@ -195,6 +196,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection single row test (k == 2)",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(!this->get_policy().has_native_float64());
     using float_t = TestType;
     float_t data[] = { 0.0f, 5.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 4.0f,
                        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 5.0f, 1.0f };
@@ -210,6 +212,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection degenerated test (k == m)",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(!this->get_policy().has_native_float64());
     using float_t = TestType;
     float_t data[] = { 7.0f, 5.0f, 0.0f, 0.0f,  0.0f, 1.0f, 1.0f, 4.0f,
                        0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 5.0f, 1.0f };
@@ -226,6 +229,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection test (all zeroes)",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(!this->get_policy().has_native_float64());
     using float_t = TestType;
     auto [data_array, event] = ndarray<float_t, 2>::zeros(this->get_queue(), { 3, 5 });
     event.wait();
@@ -236,6 +240,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection test on random data",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(!this->get_policy().has_native_float64());
     using float_t = TestType;
     std::int64_t rows = 17;
     std::int64_t cols = 33;
@@ -250,6 +255,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection test on single random row (k > 32)",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(!this->get_policy().has_native_float64());
     using float_t = TestType;
     std::int64_t rows = 1;
     std::int64_t cols = 35;
@@ -265,6 +271,7 @@ TEMPLATE_LIST_TEST_M(selection_by_rows_test,
                      "selection test on random block (k > 32)",
                      "[block select][small]",
                      selection_types) {
+    SKIP_IF(!this->get_policy().has_native_float64());
     using float_t = TestType;
     std::int64_t rows = 17;
     std::int64_t cols = 35;

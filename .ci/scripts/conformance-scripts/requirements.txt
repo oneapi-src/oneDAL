@@ -1,6 +1,0 @@
-Cython==0.29.23
-Jinja2==2.11.3
-numpy==1.20.2
-pytest==6.2.3
-scikit-learn==0.24.1
-pandas==1.2.4

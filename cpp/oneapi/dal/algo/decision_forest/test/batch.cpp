@@ -173,6 +173,25 @@ public:
         return infer_result;
     }
 
+    template <typename Checker>
+    void model_traverse_check(const df::model<Task>& model, Checker&& check) {
+        INFO("run model check");
+        for (std::int64_t tree_idx = 0; tree_idx < model.get_tree_count(); ++tree_idx) {
+            CAPTURE(tree_idx);
+            model.traverse_depth_first(tree_idx, std::forward<Checker>(check));
+        }
+    }
+
+    void check_trees_node_min_sample_count(const df::model<Task>& model,
+                                           std::int64_t min_observations_in_leaf_node) {
+        INFO("run check trees' node min sample count");
+        model_traverse_check(model, [&](const node_info<Task>& node) {
+            CAPTURE(node.get_level());
+            REQUIRE(node.get_sample_count() >= min_observations_in_leaf_node);
+            return true;
+        });
+    }
+
     void check_train_shapes(const df::descriptor<Float, Method, Task>& desc,
                             const te::dataframe& data,
                             const df::train_result<Task>& result) {
@@ -559,19 +578,21 @@ DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls impurity flow") {
     const auto error_metric_mode_val = error_metric_mode::out_of_bag_error;
     const auto variable_importance_mode_val = variable_importance_mode::mdi;
     const double impurity_threshold_val = GENERATE_COPY(0.0, 0.1);
+    const std::int64_t min_observations_in_leaf_node = 30;
 
     auto desc = this->get_default_descriptor();
 
     desc.set_tree_count(500);
     desc.set_error_metric_mode(error_metric_mode_val);
     desc.set_variable_importance_mode(variable_importance_mode_val);
-    desc.set_min_observations_in_leaf_node(30);
+    desc.set_min_observations_in_leaf_node(min_observations_in_leaf_node);
     desc.set_impurity_threshold(impurity_threshold_val);
     desc.set_class_count(wl.ds_info.class_count);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+    this->check_trees_node_min_sample_count(model, min_observations_in_leaf_node);
 }
 
 DF_BATCH_CLS_TEST_NIGHTLY_EXT("df cls all features flow") {
@@ -782,15 +803,17 @@ DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg impurity flow") {
         this->get_reg_dataframe(wl.ds_info.name, wl.required_mse, wl.required_mae);
 
     const double impurity_threshold_val = GENERATE_COPY(0.0, 0.1);
+    const std::int64_t min_observations_in_leaf_node = 30;
 
     auto desc = this->get_default_descriptor();
     desc.set_tree_count(500);
-    desc.set_min_observations_in_leaf_node(30);
+    desc.set_min_observations_in_leaf_node(min_observations_in_leaf_node);
     desc.set_impurity_threshold(impurity_threshold_val);
 
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+    this->check_trees_node_min_sample_count(model, min_observations_in_leaf_node);
 }
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg bootstrap flow") {

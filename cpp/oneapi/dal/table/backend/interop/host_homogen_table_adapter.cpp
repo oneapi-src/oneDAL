@@ -31,7 +31,7 @@ auto host_homogen_table_adapter<Data>::create(const homogen_table& table) -> ptr
 
 // The following const_cast is safe only when this class is used for read-only
 // operations. Use on write leads to undefined behaviour.
-// TODO: change 'equal' flags across this constructor after implemeting the method
+// TODO: change 'equal' flags across this constructor after implementing the method
 // of features equality defining for table_metadata class.
 template <typename Data>
 host_homogen_table_adapter<Data>::host_homogen_table_adapter(const homogen_table& table,

@@ -26,8 +26,6 @@ namespace v1 {
 
 /* Common */
 MSG(array_does_not_contain_mutable_data, "Array does not contain mutable data")
-MSG(array_does_not_contain_ownership_structure,
-    "Array is empty or does not contain ownership structure for the data")
 MSG(feature_index_is_out_of_range, "Feature index is out of range")
 MSG(incompatible_array_reinterpret_cast_types,
     "Cannot reinterpret array to provided type, "
@@ -48,6 +46,9 @@ MSG(unknown_memcpy_error, "Unknown error during memory copying")
 MSG(unknown_usm_pointer_type, "USM pointer type is unknown in the current context")
 MSG(queues_in_different_contexts, "Provided queues are in different contexts")
 MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
+MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
+MSG(invalid_key, "Cannot find the given key")
+MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
@@ -59,7 +60,6 @@ MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
 MSG(cannot_get_feature_type_from_empty_metadata, "Cannot get feature type from empty metadata")
-MSG(cc_leq_zero, "Column count is lower than or equal to zero")
 MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match,
     "Element count in data type and feature type array does not match")
 MSG(pulling_column_is_not_supported_for_dpc, "Pulling column is not supported for DPC++")
@@ -73,7 +73,25 @@ MSG(pushing_rows_is_not_supported, "Pushing rows is not supported")
 MSG(rc_and_cc_do_not_match_element_count_in_array,
     "Row count and column count do not match element count in array")
 MSG(rc_leq_zero, "Row count is lower than or equal to zero")
+MSG(cc_leq_zero, "Column count is lower than or equal to zero")
+MSG(object_does_not_provide_read_access_to_rows,
+    "Given object does not provide read access to rows")
+MSG(object_does_not_provide_write_access_to_rows,
+    "Given object does not provide write access to rows")
+MSG(object_does_not_provide_read_access_to_columns,
+    "Given object does not provide read access to columns")
+MSG(object_does_not_provide_write_access_to_columns,
+    "Given object does not provide write access to columns")
+MSG(object_does_not_provide_access_to_rows_or_columns,
+    "Given object does not provide access to rows or columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
+MSG(row_indices_lt_min_value, "Row indices are less than the minimum acceptable value")
+MSG(row_indices_gt_max_value, "Row indices are larger than the maximum acceptable value")
+MSG(column_indices_lt_min_value, "Column indices are less than the minimum acceptable value")
+MSG(column_indices_gt_max_value, "Column indices are larger than the maximum acceptable value")
+MSG(zero_based_indexing_is_not_supported, "Zero-based indexing is not supported for csr table")
+MSG(object_does_not_provide_read_access_to_csr,
+    "Given object does not provide read access to the block of csr format")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
@@ -85,6 +103,16 @@ MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")
 MSG(negative_vertex_id, "Negative vertex ID")
 MSG(unimplemented_sorting_procedure, "Unimplemented sorting procedure")
+
+/* IO */
+MSG(file_not_found, "File not found")
+
+/* Serialization */
+MSG(object_is_not_serializable, "Object is not serializable")
+MSG(archive_content_does_not_match_type, "Archive content does not match requested type")
+MSG(archive_is_in_invalid_state,
+    "Archive state is invalid. It may indicate that "
+    "serialization or deserialization was interupted by an exception")
 
 /* General algorithms */
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
@@ -105,9 +133,6 @@ MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
 
-/* IO */
-MSG(file_not_found, "File not found")
-
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
 MSG(input_initial_centroids_are_empty, "Input initial centroids are empty")
@@ -127,11 +152,15 @@ MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu,
 MSG(objective_function_value_lt_zero, "Objective function value is lower than zero")
 
 /* k-NN */
-MSG(knn_brute_force_method_is_not_implemented_for_cpu,
-    "k-NN brute force method is not implemented for CPU")
 MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
     "k-NN k-d tree method is not implemented for GPU")
 MSG(neighbor_count_lt_one, "Neighbor count lower than one")
+MSG(unknown_distance_type,
+    "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
+MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
+
+/* Minkowski distance */
+MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
 
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")
@@ -140,6 +169,14 @@ MSG(interval_gt_vertex_count, "Interval is greater than vertex count")
 MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
 MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
+
+/* Subgraph Isomorphism */
+MSG(max_match_count_lt_zero, "Maximum number of match count less that zero")
+MSG(empty_target_graph, "Empty target graph")
+MSG(empty_pattern_graph, "Empty pattern graph")
+MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
+    "Subgraph isomorphism is not implemented for labeled edges")
+MSG(non_zero_max_match_count_is_not_supported, "Non-zero max_match_count is not supported")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
@@ -154,6 +191,11 @@ MSG(input_model_eigenvectors_rc_neq_input_data_cc,
 MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
 
+/* Shortest Paths */
+MSG(nothing_to_compute, "Invalid combination of optional results: nothing to compute")
+MSG(distances_are_uninitialized, "Distances are not set as an optional result")
+MSG(predecessors_are_uninitialized, "Predecessors are not set as an optional result")
+
 /* SVM */
 MSG(c_leq_zero, "C is lower than or equal to zero")
 MSG(cache_size_lt_zero, "Cache size is lower than zero")
@@ -167,12 +209,21 @@ MSG(input_model_support_vectors_cc_neq_input_data_cc,
     "Input model support vectors column count is not equal to input data column count")
 MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count,
     "Support vectors row count is not equal to support vector count in input model")
+MSG(nu_gt_one, "Nu is greater than one")
+MSG(nu_leq_zero, "Nu is lower than or equal to zero")
+MSG(nu_svm_smo_method_is_not_implemented_for_gpu, "nuSVM SMO method is not implemented for GPU")
+MSG(nu_svm_thunder_method_is_not_implemented_for_gpu,
+    "nuSVM Thunder method is not implemented for GPU")
 MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
-MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
-MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
 MSG(svm_multiclass_not_implemented_for_gpu,
     "SVM with multiclass support is not implemented for GPU")
+MSG(svm_nu_classification_task_is_not_implemented_for_gpu,
+    "Classification nuSVM is not implemented for GPU")
+MSG(svm_nu_regression_task_is_not_implemented_for_gpu,
+    "Regression nuSVM is not implemented for GPU")
+MSG(svm_regression_task_is_not_implemented_for_gpu, "Regression SVM is not implemented for GPU")
+MSG(svm_smo_method_is_not_implemented_for_gpu, "SVM SMO method is not implemented for GPU")
 MSG(tau_leq_zero, "Tau is lower than or equal to zero")
 MSG(epsilon_lt_zero, "Epsilon is lower than zero")
 MSG(unknown_kernel_function_type, "Unknown kernel function type")
@@ -193,6 +244,7 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
     "Decision forest train dense method is not implemented for GPU")
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
+MSG(input_model_is_not_initialized, "Input model is not initialized")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

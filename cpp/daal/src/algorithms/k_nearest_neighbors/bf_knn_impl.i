@@ -59,7 +59,8 @@ public:
     services::Status kNeighbors(const size_t k, const size_t nClasses, VoteWeights voteWeights, DAAL_UINT64 resultsToCompute,
                                 DAAL_UINT64 resultsToEvaluate, const NumericTable * trainTable, const NumericTable * testTable,
                                 const NumericTable * trainLabelTable, NumericTable * testLabelTable, NumericTable * indicesTable,
-                                NumericTable * distancesTable)
+                                NumericTable * distancesTable, bf_knn_classification::prediction::internal::PairwiseDistanceType pairwiseDistance,
+                                const double minkowskiDegree)
     {
         const size_t nDims  = trainTable->getNumberOfColumns();
         const size_t nTrain = trainTable->getNumberOfRows();
@@ -76,8 +77,27 @@ public:
             DAAL_CHECK_MALLOC(trainLabel);
         }
 
-        daal::algorithms::internal::EuclideanDistances<FPType, cpu> euclDist(*testTable, *trainTable, true);
-        euclDist.init();
+        services::SharedPtr<daal::algorithms::internal::PairwiseDistances<FPType, cpu> > dist;
+
+        switch (pairwiseDistance)
+        {
+        case bf_knn_classification::prediction::internal::PairwiseDistanceType::minkowski:
+            if (minkowskiDegree == 2.0)
+            {
+                dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
+            }
+            else
+            {
+                dist.reset(new daal::algorithms::internal::MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
+            }
+            break;
+        case bf_knn_classification::prediction::internal::PairwiseDistanceType::chebyshev:
+            dist.reset(new daal::algorithms::internal::ChebyshevDistances<FPType, cpu>(*testTable, *trainTable));
+            break;
+        default: dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true)); break;
+        }
+
+        dist->init();
 
         const size_t outBlockSize = 128;
         const size_t inBlockSize  = 128;
@@ -96,7 +116,7 @@ public:
             const size_t outerEnd   = outerBlock + 1 == nOuterBlocks ? nTest : outerStart + outBlockSize;
             const size_t outerSize  = outerEnd - outerStart;
 
-            DAAL_CHECK_STATUS_THR(computeKNearestBlock(&euclDist, outerSize, inBlockSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute,
+            DAAL_CHECK_STATUS_THR(computeKNearestBlock(dist.get(), outerSize, inBlockSize, outerStart, nTrain, resultsToEvaluate, resultsToCompute,
                                                        nClasses, k, voteWeights, trainLabel, trainTable, testTable, testLabelTable, indicesTable,
                                                        distancesTable, tlsDistances, tlsIdx, tlsKDistances, tlsKIndexes, tlsVoting, nOuterBlocks));
         });
@@ -147,7 +167,7 @@ protected:
         TArrayScalable<HeapType, cpu> _heaps;
     };
 
-    services::Status computeKNearestBlock(daal::algorithms::internal::EuclideanDistances<FPType, cpu> * distancesInstance, const size_t blockSize,
+    services::Status computeKNearestBlock(daal::algorithms::internal::PairwiseDistances<FPType, cpu> * distancesInstance, const size_t blockSize,
                                           const size_t trainBlockSize, const size_t startTestIdx, const size_t nTrain, DAAL_UINT64 resultsToEvaluate,
                                           DAAL_UINT64 resultsToCompute, const size_t nClasses, const size_t k, VoteWeights voteWeights,
                                           FPType * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
