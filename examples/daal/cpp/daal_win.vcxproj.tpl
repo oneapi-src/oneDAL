@@ -4,9 +4,11 @@
     <ProjectConfiguration Include="Debug.static.sequential|x64">
       <Configuration>Debug.static.sequential</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug.static.threaded|x64">
       <Configuration>Debug.static.threaded</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug.dynamic.sequential|x64">
       <Configuration>Debug.dynamic.sequential</Configuration>
       <Platform>x64</Platform>
