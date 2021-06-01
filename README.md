@@ -242,7 +242,7 @@ The preview features list:
 	- Jaccard Similarity Coefficients for all pairs of vertices, a batch algorithm that processes the graph by blocks
   - Local and Global Triangle Counting
   - Single Source Shortest Paths (SSSP)
-  - Subgraph isomorphism algorithm for induced and non-induced subgraph for undirected graphs. Supports integer vertex attributes. Current version does not support edge attributes and directed graphs.
+  - Subgraph isomorphism algorithm for induced and non-induced subgraphs in undirected graphs (integer vertex attributes are supported, edge attributes are not supported).
 
 ## oneDAL and Intel&reg; DAAL
 
