@@ -31,7 +31,7 @@ public:
         cluster_count_ = cluster_count;
         return *this;
     }
-    auto set_accuracy_threshold(double accuracy_threshold) {
+    auto& set_accuracy_threshold(double accuracy_threshold) {
         accuracy_threshold_ = accuracy_threshold;
         return *this;
     }
