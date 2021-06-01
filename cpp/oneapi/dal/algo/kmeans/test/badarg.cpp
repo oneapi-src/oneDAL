@@ -122,6 +122,12 @@ KMEANS_BADARG_TEST("throws if cluster_count is zero") {
     REQUIRE_THROWS_AS(this->get_descriptor().set_cluster_count(0), domain_error);
 }
 
+KMEANS_BADARG_TEST("throws if cluster_count overflow") {
+    constexpr std::int64_t huge_cluster_count =
+        dal::detail::limits<std::int32_t>::max() + std::int64_t(1);
+    REQUIRE_THROWS_AS(this->get_descriptor().set_cluster_count(huge_cluster_count), domain_error);
+}
+
 KMEANS_BADARG_TEST("accepts positive max iteration count") {
     REQUIRE_NOTHROW(this->get_descriptor().set_max_iteration_count(1));
 }

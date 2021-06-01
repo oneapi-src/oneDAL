@@ -176,6 +176,8 @@ public:
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
     MSG(cluster_count_exceeds_data_row_count);
+    MSG(cluster_count_gt_max_int32);
+    MSG(row_count_gt_max_int32);
     MSG(input_initial_centroids_are_empty);
     MSG(input_initial_centroids_cc_neq_input_data_cc);
     MSG(input_initial_centroids_rc_neq_desc_cluster_count);
