@@ -67,11 +67,11 @@ public:
         empty_cluster_count_ =
             pr::ndarray<std::int32_t, 1>::empty(queue_, 1, sycl::usm::alloc::device);
     }
-    auto update(pr::ndarray<Float, 2> centroids,
-                pr::ndarray<Float, 2> distance_block,
-                pr::ndarray<Float, 2> closest_distances,
-                pr::ndarray<Float, 1> objective_function,
-                pr::ndarray<std::int32_t, 2> labels,
+    auto update(pr::ndarray<Float, 2>& centroids,
+                pr::ndarray<Float, 2>& distance_block,
+                pr::ndarray<Float, 2>& closest_distances,
+                pr::ndarray<Float, 1>& objective_function,
+                pr::ndarray<std::int32_t, 2>& labels,
                 const bk::event_vector& deps = {}) {
         ONEDAL_ASSERT(data_.get_dimension(0) == row_count_);
         ONEDAL_ASSERT(data_.get_dimension(1) == column_count_);
@@ -99,7 +99,6 @@ public:
                 distance_block,
                 closest_distances,
                 deps);
-        assign_event.wait_and_throw();
         auto count_event =
             count_clusters(queue_, labels, cluster_count_, counters_, { assign_event });
         auto objective_function_event =
@@ -108,14 +107,14 @@ public:
                                                           objective_function,
                                                           { assign_event });
         auto reset_event = partial_centroids_.fill(queue_, 0.0);
-        reset_event.wait_and_throw();
-        auto centroids_event = kernels_fp<Float>::partial_reduce_centroids(queue_,
-                                                                           data_,
-                                                                           labels,
-                                                                           cluster_count_,
-                                                                           part_count_,
-                                                                           partial_centroids_,
-                                                                           { count_event });
+        auto centroids_event =
+            kernels_fp<Float>::partial_reduce_centroids(queue_,
+                                                        data_,
+                                                        labels,
+                                                        cluster_count_,
+                                                        part_count_,
+                                                        partial_centroids_,
+                                                        { reset_event, count_event });
         centroids_event =
             kernels_fp<Float>::merge_reduce_centroids(queue_,
                                                       counters_,
