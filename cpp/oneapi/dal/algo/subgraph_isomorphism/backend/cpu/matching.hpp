@@ -54,13 +54,9 @@ public:
     void run_and_wait(global_stack<Cpu>& gstack, std::int64_t& busy_engine_count, bool main_engine);
     solution<Cpu> get_solution();
 
-    std::int64_t state_exploration_bit(state<Cpu>* current_state, bool check_solution = true);
-    std::int64_t state_exploration_list(state<Cpu>* current_state, bool check_solution = true);
-
     std::int64_t state_exploration_bit(bool check_solution = true);
     std::int64_t state_exploration_list(bool check_solution = true);
 
-    std::int64_t first_states_generator(stack<Cpu>& stack);
     std::int64_t first_states_generator(dfs_stack<Cpu>& stack);
 
     void push_into_stack(state<Cpu>* _state);
@@ -130,7 +126,6 @@ public:
 
     typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
     bundle matching_bundle;
-    void first_states_generator(bool use_exploration_stack = true);
 };
 
 template <typename Cpu>
@@ -206,39 +201,6 @@ matching_engine<Cpu>::matching_engine(const matching_engine& _matching_engine,
                           _matching_engine.isomorphism_kind_,
                           allocator) {
     local_stack = std::move(_local_stack);
-}
-
-template <typename Cpu>
-std::int64_t matching_engine<Cpu>::state_exploration_bit(state<Cpu>* current_state,
-                                                         bool check_solution) {
-    const std::int64_t i_cc = current_state->core_length - 1;
-    const std::int64_t divider = pconsistent_conditions[i_cc].divider;
-
-    if (isomorphism_kind_ != kind::non_induced) {
-        ONEDAL_IVDEP
-        for (std::int64_t j = 0; j < divider; j++) {
-            or_equal<Cpu>(
-                vertex_candidates.get_vector_pointer(),
-                target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
-                vertex_candidates.size());
-        }
-    }
-
-    ~vertex_candidates; // inversion?
-
-    ONEDAL_IVDEP
-    for (std::int64_t j = i_cc; j >= divider; j--) { // > divider - 1
-        and_equal<Cpu>(
-            vertex_candidates.get_vector_pointer(),
-            target->p_edges_bit[current_state->core[pconsistent_conditions[i_cc].array[j]]],
-            vertex_candidates.size());
-    }
-
-    for (std::int64_t i = 0; i < current_state->core_length; i++) {
-        vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(current_state->core[i])] &=
-            ~bit_vector<Cpu>::bit(current_state->core[i]);
-    }
-    return extract_candidates(current_state, check_solution);
 }
 
 template <typename Cpu>
@@ -325,45 +287,6 @@ bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int6
 }
 
 template <typename Cpu>
-std::int64_t matching_engine<Cpu>::state_exploration_list(state<Cpu>* current_state,
-                                                          bool check_solution) {
-    std::int64_t divider = pconsistent_conditions[current_state->core_length - 1].divider;
-
-    ONEDAL_IVDEP
-    for (std::int64_t j = 0; j < divider; j++) {
-        or_equal<Cpu>(
-            vertex_candidates.get_vector_pointer(),
-            target->p_edges_list
-                [current_state
-                     ->core[pconsistent_conditions[current_state->core_length - 1].array[j]]],
-            target
-                ->p_degree[current_state->core
-                               [pconsistent_conditions[current_state->core_length - 1].array[j]]]);
-    }
-
-    ~vertex_candidates;
-
-    ONEDAL_IVDEP
-    for (std::int64_t j = current_state->core_length - 1; j >= divider; j--) { // j> divider - 1
-        and_equal<Cpu>(
-            vertex_candidates.get_vector_pointer(),
-            target->p_edges_list
-                [current_state
-                     ->core[pconsistent_conditions[current_state->core_length - 1].array[j]]],
-            vertex_candidates.size(),
-            target->p_degree[current_state->core
-                                 [pconsistent_conditions[current_state->core_length - 1].array[j]]],
-            temporary_list);
-    }
-
-    for (std::int64_t i = 0; i < current_state->core_length; i++) {
-        vertex_candidates.get_vector_pointer()[bit_vector<Cpu>::byte(current_state->core[i])] &=
-            ~bit_vector<Cpu>::bit(current_state->core[i]);
-    }
-    return extract_candidates(current_state, check_solution);
-}
-
-template <typename Cpu>
 std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
     std::uint64_t current_level_index = hlocal_stack.get_current_level_index();
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
@@ -407,25 +330,6 @@ void matching_engine<Cpu>::push_into_stack(state<Cpu>* _state) {
 template <typename Cpu>
 void matching_engine<Cpu>::push_into_stack(const std::int64_t vertex_id) {
     hlocal_stack.push_into_current_level(vertex_id);
-}
-
-template <typename Cpu>
-std::int64_t matching_engine<Cpu>::first_states_generator(stack<Cpu>& stack) {
-    state<Cpu> null_state(allocator_);
-    std::int64_t candidates_count = 0;
-    std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
-    for (std::int64_t i = 0; i < target->get_vertex_count(); i++) {
-        if (degree <= target->get_vertex_degree(i) &&
-            pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
-                target->get_vertex_attribute(i)) {
-            void* place = (void*)allocator_.allocate<state<Cpu>>(1);
-            state<Cpu>* new_state = new (place) state<Cpu>(&null_state, i, allocator_);
-            stack.push(new_state);
-            candidates_count++;
-        }
-    }
-
-    return candidates_count;
 }
 
 template <typename Cpu>
@@ -680,30 +584,5 @@ solution<Cpu> engine_bundle<Cpu>::run() {
     }
 
     return std::move(bundle_solutions);
-}
-
-template <typename Cpu>
-void engine_bundle<Cpu>::first_states_generator(bool use_exploration_stack) {
-    if (use_exploration_stack) {
-        typename bundle::ptr_t local_engine = matching_bundle.local();
-        local_engine->first_states_generator(exploration_stack);
-    }
-    else {
-        std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
-        dal::detail::threader_for(target->get_vertex_count(),
-                                  target->get_vertex_count(),
-                                  [=](const int i) {
-                                      typename bundle::ptr_t local_engine = matching_bundle.local();
-                                      state<Cpu> null_state(allocator_);
-                                      if (degree <= target->get_vertex_degree(i) &&
-                                          pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
-                                              target->get_vertex_attribute(i)) {
-                                          void* place = (void*)allocator_.allocate<state<Cpu>>(1);
-                                          state<Cpu>* new_state =
-                                              new (place) state<Cpu>(&null_state, i, allocator_);
-                                          local_engine->local_stack.push(new_state);
-                                      }
-                                  });
-    }
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
