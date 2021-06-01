@@ -596,9 +596,7 @@ template <typename Cpu>
 void dfs_stack<Cpu>::init(const std::uint64_t levels) {
     max_level_size = levels;
     current_level = 0;
-
-    data_by_levels =
-        static_cast<vertex_stack<Cpu>*>(operator new[](sizeof(vertex_stack<Cpu>) * max_level_size));
+    data_by_levels = allocator_.allocate<vertex_stack<Cpu>>(max_level_size);
 }
 
 template <typename Cpu>
@@ -625,7 +623,7 @@ void dfs_stack<Cpu>::delete_data() {
     for (std::uint64_t i = 0; i < max_level_size; i++) {
         data_by_levels[i].clean();
     }
-    operator delete[](data_by_levels);
+    allocator_.deallocate<vertex_stack<Cpu>>(data_by_levels, max_level_size);
     data_by_levels = nullptr;
 
     max_level_size = 0;
