@@ -38,7 +38,7 @@ using namespace daal::data_management;
 enum class PairwiseDistanceType
 {
     minkowski,
-    chebychev
+    chebyshev
 };
 
 struct KernelParameter : bf_knn_classification::Parameter
