@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -57,7 +57,8 @@ template <typename Task>
 void descriptor_base<Task>::set_epsilon_impl(double value) {
     if (value <= 0) {
         throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
-    }    impl_->epsilon = value;
+    }
+    impl_->epsilon = value;
 }
 
 template <typename Task>
@@ -69,7 +70,6 @@ template <typename Task>
 void descriptor_base<Task>::set_mem_save_mode_impl(bool value) {
     impl_->mem_save_mode = value;
 }
-
 
 template class ONEDAL_EXPORT descriptor_base<task::clustering>;
 

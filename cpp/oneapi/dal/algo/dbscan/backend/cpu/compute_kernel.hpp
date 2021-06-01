@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ namespace oneapi::dal::dbscan::backend {
 template <typename Float, typename Method, typename Task>
 struct compute_kernel_cpu {
     compute_result<Task> operator()(const dal::backend::context_cpu& ctx,
-                                  const detail::descriptor_base<Task>& params,
-                                  const compute_input<Task>& input) const;
+                                    const detail::descriptor_base<Task>& params,
+                                    const compute_input<Task>& input) const;
 };
 
 } // namespace oneapi::dal::dbscan::backend

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ public:
         return *this;
     }
 
-    /// An $m \\times 1$ table with the indices of core observations in 
+    /// An $m \\times 1$ table with the indices of core observations in
     /// the input data. $m is a number of core observations
     const table& get_core_observation_indices() const;
 
@@ -124,7 +124,7 @@ public:
         return *this;
     }
 
-    /// An $m \\times p$ table with the core observations in 
+    /// An $m \\times p$ table with the core observations in
     /// the input data. $m is a number of core observations
     const table& get_core_observations() const;
 

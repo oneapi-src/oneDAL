@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,9 +24,7 @@ template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
     compute_input_impl(const table& data) : data(data) {}
-    compute_input_impl(const table& data, const table& weights)
-            : data(data),
-              weights(weights) {}
+    compute_input_impl(const table& data, const table& weights) : data(data), weights(weights) {}
 
     table data;
     table weights;
@@ -71,7 +69,6 @@ void compute_input<Task>::set_weights_impl(const table& value) {
     impl_->weights = value;
 }
 
-
 template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
 
@@ -95,12 +92,10 @@ const table& compute_result<Task>::get_core_observations() const {
     return impl_->core_observations;
 }
 
-
 template <typename Task>
 std::int64_t compute_result<Task>::get_cluster_count() const {
     return impl_->cluster_count;
 }
-
 
 template <typename Task>
 void compute_result<Task>::set_responses_impl(const table& value) {
@@ -125,7 +120,7 @@ void compute_result<Task>::set_core_observations_impl(const table& value) {
 template <typename Task>
 void compute_result<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value < 0) {
-//        throw domain_error(dal::detail::error_messages::cluster_count_lt_zero());
+        //        throw domain_error(dal::detail::error_messages::cluster_count_lt_zero());
     }
     impl_->cluster_count = value;
 }
