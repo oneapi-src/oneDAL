@@ -16,7 +16,8 @@
 
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemm.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
+// #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::linear_kernel::backend {
 
@@ -43,25 +44,22 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     const Float scale = desc.get_scale();
     const Float shift = desc.get_shift();
 
-    const auto ndarray_x =
-        pr::flatten_table<Float, row_accessor>(queue, x, sycl::usm::alloc::device);
+    const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
 
-    const auto ndarray_y =
-        pr::flatten_table<Float, row_accessor>(queue, y, sycl::usm::alloc::device);
+    const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
 
-    auto ndarray_res =
+    auto res_nd =
         pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
     sycl::event fill_res_event;
     if (shift != 0.0) {
-        fill_res_event = ndarray_res.fill(queue, Float(1));
+        fill_res_event = res_nd.fill(queue, Float(1));
     }
 
-    auto gemm_event =
-        gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, scale, shift, { fill_res_event });
+    auto gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, scale, shift, { fill_res_event });
 
     auto table_res =
-        homogen_table::wrap(ndarray_res.flatten(queue), x_row_count, y_row_count, { gemm_event });
+        homogen_table::wrap(res_nd.flatten(queue), x_row_count, y_row_count, { gemm_event });
 
     return result_t{}.set_values(table_res);
 }
