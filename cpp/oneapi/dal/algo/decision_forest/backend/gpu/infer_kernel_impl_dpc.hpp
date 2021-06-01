@@ -21,8 +21,6 @@
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl.hpp"
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/dbg_helpers.hpp"
-
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;
