@@ -84,11 +84,6 @@ public:
 
     kind isomorphism_kind_;
 
-    std::int64_t extract_candidates(state<Cpu>* current_state, bool check_solution);
-    bool check_vertex_candidate(state<Cpu>* current_state,
-                                bool check_solution,
-                                std::int64_t candidate);
-
     std::int64_t extract_candidates(bool check_solution);
     bool check_vertex_candidate(bool check_solution, std::int64_t candidate);
 };
@@ -336,56 +331,6 @@ std::int64_t matching_engine<Cpu>::first_states_generator(dfs_stack<Cpu>& stack)
     }
 
     return stack.get_current_level_fill_size();
-}
-
-template <typename Cpu>
-std::int64_t matching_engine<Cpu>::extract_candidates(state<Cpu>* current_state,
-                                                      bool check_solution) {
-    std::int64_t feasible_result_count = 0;
-
-    std::int64_t size_in_dword = vertex_candidates.size() >> 3;
-    std::uint64_t* ptr;
-    std::int64_t popcnt;
-    for (std::int64_t i = 0; i < size_in_dword; i++) {
-        ptr = (std::uint64_t*)(pstart_byte + (i << 3));
-        popcnt = ONEDAL_popcnt64<Cpu>(*ptr);
-        for (std::int64_t j = 0; j < popcnt; j++) {
-            std::int64_t candidate = 63 - ONEDAL_lzcnt_u64<Cpu>(*ptr);
-            (*ptr) ^= (std::uint64_t)1 << candidate;
-            candidate += (i << 6);
-            feasible_result_count +=
-                check_vertex_candidate(current_state, check_solution, candidate);
-        }
-    }
-    for (std::int64_t i = (size_in_dword << 3); i < vertex_candidates.size(); i++) {
-        while (pstart_byte[i] > 0) {
-            std::int64_t candidate = bit_vector<Cpu>::power_of_two(pstart_byte[i]);
-            pstart_byte[i] ^= (1 << candidate);
-            candidate += (i << 3);
-            feasible_result_count +=
-                check_vertex_candidate(current_state, check_solution, candidate);
-        }
-    }
-    return feasible_result_count;
-}
-
-template <typename Cpu>
-bool matching_engine<Cpu>::check_vertex_candidate(state<Cpu>* current_state,
-                                                  bool check_solution,
-                                                  std::int64_t candidate) {
-    if (match_vertex(sorted_pattern_vertex[current_state->core_length], candidate)) {
-        void* place = (void*)allocator_.allocate<state<Cpu>>(1);
-        state<Cpu>* new_state = new (place) state<Cpu>(current_state, candidate, allocator_);
-
-        if (check_solution && new_state->core_length == solution_length) {
-            engine_solutions.add(new_state);
-        }
-        else {
-            local_stack.push(new_state);
-        }
-        return true;
-    }
-    return false;
 }
 
 template <typename Cpu>
