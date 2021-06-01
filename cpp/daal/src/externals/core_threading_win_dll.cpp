@@ -30,12 +30,12 @@
 static HMODULE daal_thr_dll_handle = NULL;
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
-#define __GLUE__(a, b)   a##b
+#define __GLUE__(a, b) a##b
 
 #ifdef _DEBUG
-    #define _DLL_SUFFIX(name) __GLUE__(name,"d.1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, "d.1.dll")
 #else
-    #define _DLL_SUFFIX(name) __GLUE__(name,".1.dll")
+    #define _DLL_SUFFIX(name) __GLUE__(name, ".1.dll")
 #endif
 
 #if !defined(DAAL_CHECK_DLL_SIG)
