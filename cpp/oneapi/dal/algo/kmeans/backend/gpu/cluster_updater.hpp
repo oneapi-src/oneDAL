@@ -39,7 +39,7 @@ public:
         part_count_ = part_count;
         return *this;
     }
-    auto set_queue(sycl::queue& queue) {
+    auto& set_queue(sycl::queue& queue) {
         queue_ = queue;
         return *this;
     }
