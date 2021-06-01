@@ -35,7 +35,7 @@ public:
         accuracy_threshold_ = accuracy_threshold;
         return *this;
     }
-    auto set_part_count(std::int64_t part_count) {
+    auto& set_part_count(std::int64_t part_count) {
         part_count_ = part_count;
         return *this;
     }
