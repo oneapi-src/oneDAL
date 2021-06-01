@@ -89,7 +89,7 @@ RES = $(example:+=.exe)
 RES = $(example:+=.res)
 !ENDIF
 
-COMMON_COPTS=/W3 /EHsc -D__ONEDAL_ENABLE_DLL_IMPORT__
+COMMON_COPTS=/W3 /EHsc
 
 !IF ("$(compiler)"=="msvs")
 CC=cl
