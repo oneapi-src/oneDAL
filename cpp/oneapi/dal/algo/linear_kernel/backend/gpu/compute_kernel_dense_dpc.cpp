@@ -17,7 +17,6 @@
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/primitives/blas/gemm.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
-// #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::linear_kernel::backend {
 
