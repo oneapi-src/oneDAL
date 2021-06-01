@@ -29,7 +29,20 @@ struct infer_kernel_gpu<Float, Method, task::regression> {
     }
 };
 
+template <typename Float, typename Method>
+struct infer_kernel_gpu<Float, Method, task::nu_regression> {
+    infer_result<task::nu_regression> operator()(
+        const dal::backend::context_gpu& ctx,
+        const detail::descriptor_base<task::nu_regression>& desc,
+        const infer_input<task::nu_regression>& input) const {
+        throw unimplemented(
+            dal::detail::error_messages::svm_nu_regression_task_is_not_implemented_for_gpu());
+    }
+};
+
 template struct infer_kernel_gpu<float, method::by_default, task::regression>;
 template struct infer_kernel_gpu<double, method::by_default, task::regression>;
+template struct infer_kernel_gpu<float, method::by_default, task::nu_regression>;
+template struct infer_kernel_gpu<double, method::by_default, task::nu_regression>;
 
 } // namespace oneapi::dal::svm::backend

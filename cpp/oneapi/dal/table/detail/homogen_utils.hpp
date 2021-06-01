@@ -29,7 +29,9 @@ namespace v1 {
 /// @return      Original array of bytes held in the table.
 ///              If the table was created from mutable data object,
 ///              this array contains mutable data.
-ONEDAL_EXPORT array<byte_t> get_original_data(const homogen_table& t);
+inline dal::array<byte_t> get_original_data(const homogen_table& t) {
+    return detail::cast_impl<detail::homogen_table_iface>(t).get_data();
+}
 
 } // namespace v1
 

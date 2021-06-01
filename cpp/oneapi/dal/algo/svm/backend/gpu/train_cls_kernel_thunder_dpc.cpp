@@ -57,23 +57,20 @@ static result_t call_daal_kernel(const context_gpu& ctx,
         throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
     }
 
-    const std::int64_t row_count = data.get_row_count();
     const std::int64_t column_count = data.get_column_count();
 
-    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
-
-    binary_label_t<Float> unique_label;
-    auto arr_new_label =
-        convert_labels(queue, arr_label, { Float(-1.0), Float(1.0) }, unique_label);
-
-    const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table(queue, arr_new_label, row_count, 1);
+    const binary_label_t<Float> old_unique_labels = get_unique_labels<Float>(queue, labels);
+    const auto new_labels =
+        convert_binary_labels(queue, labels, { Float(-1.0), Float(1.0) }, old_unique_labels);
+    const auto daal_labels = interop::convert_to_daal_table(queue, new_labels);
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+
+    const bool is_dense{ data.get_kind() == homogen_table::kind() };
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
 
     const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
     constexpr std::uint64_t megabyte = 1024 * 1024;
@@ -90,17 +87,22 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     daal_svm_parameter.doShrinking = desc.get_shrinking();
     daal_svm_parameter.cacheSize = cache_byte;
 
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,
                                                                             *daal_labels,
                                                                             daal_model.get(),
                                                                             daal_svm_parameter));
+    const std::int64_t n_sv = daal_model->getSupportIndices()->getNumberOfRows();
+    if (n_sv == 0) {
+        return result_t{};
+    }
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
-                             .set_first_class_label(unique_label.first)
-                             .set_second_class_label(unique_label.second);
+                             .set_first_class_label(old_unique_labels.first)
+                             .set_second_class_label(old_unique_labels.second);
 
     return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }
@@ -119,7 +121,20 @@ struct train_kernel_gpu<Float, method::thunder, task::classification> {
     }
 };
 
+template <typename Float>
+struct train_kernel_gpu<Float, method::thunder, task::nu_classification> {
+    train_result<task::nu_classification> operator()(
+        const dal::backend::context_gpu& ctx,
+        const detail::descriptor_base<task::nu_classification>& params,
+        const train_input<task::nu_classification>& input) const {
+        throw unimplemented(
+            dal::detail::error_messages::nu_svm_thunder_method_is_not_implemented_for_gpu());
+    }
+};
+
 template struct train_kernel_gpu<float, method::thunder, task::classification>;
 template struct train_kernel_gpu<double, method::thunder, task::classification>;
+template struct train_kernel_gpu<float, method::thunder, task::nu_classification>;
+template struct train_kernel_gpu<double, method::thunder, task::nu_classification>;
 
 } // namespace oneapi::dal::svm::backend

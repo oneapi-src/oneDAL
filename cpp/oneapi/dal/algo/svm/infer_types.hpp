@@ -98,6 +98,9 @@ public:
         return *this;
     }
 
+    // TODO: Enable this function only for classification problem.
+    // This will break binary compatibility, so the change should happen in 2022.1.
+    //
     /// The $n \\times 1$ table with the predicted class.
     /// Used with :expr:`oneapi::dal::svm::task::classification` only.
     /// decision function for each observation

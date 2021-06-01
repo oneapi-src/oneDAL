@@ -40,7 +40,7 @@ public:
 };
 
 template <typename T, typename Body>
-inline auto dispath_by_policy(const array<T>& data, Body&& body) {
+inline auto dispath_by_policy(const dal::array<T>& data, Body&& body) {
 #ifdef ONEDAL_DATA_PARALLEL
     const auto optional_queue = data.get_queue();
     if (optional_queue) {
@@ -51,7 +51,7 @@ inline auto dispath_by_policy(const array<T>& data, Body&& body) {
 }
 
 template <typename T, typename U>
-inline array<T> reinterpret_array_cast(const array<U>& ary) {
+inline dal::array<T> reinterpret_array_cast(const dal::array<U>& ary) {
     if (ary.get_size() % sizeof(T) > 0) {
         throw invalid_argument{ error_messages::incompatible_array_reinterpret_cast_types() };
     }
@@ -59,20 +59,20 @@ inline array<T> reinterpret_array_cast(const array<U>& ary) {
     const std::int64_t new_count = ary.get_size() / sizeof(T);
     if (ary.has_mutable_data()) {
         T* mutable_ptr = reinterpret_cast<T*>(ary.get_mutable_data());
-        return array<T>{ ary, mutable_ptr, new_count };
+        return dal::array<T>{ ary, mutable_ptr, new_count };
     }
     else {
         const T* immutable_ptr = reinterpret_cast<const T*>(ary.get_data());
-        return array<T>{ ary, immutable_ptr, new_count };
+        return dal::array<T>{ ary, immutable_ptr, new_count };
     }
 }
 
 template <typename T>
-inline array<T> discard_mutable_data(const array<T>& ary) {
+inline dal::array<T> discard_mutable_data(const dal::array<T>& ary) {
     if (!ary.has_mutable_data()) {
         return ary;
     }
-    return array<T>{ ary, ary.get_data(), ary.get_count() };
+    return dal::array<T>{ ary, ary.get_data(), ary.get_count() };
 }
 
 } // namespace v1

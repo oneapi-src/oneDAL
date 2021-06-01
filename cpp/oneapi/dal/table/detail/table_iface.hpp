@@ -16,8 +16,10 @@
 
 #pragma once
 
+#include "oneapi/dal/table/detail/access_iface_compat.hpp"
 #include "oneapi/dal/table/detail/rows_access_iface.hpp"
 #include "oneapi/dal/table/detail/columns_access_iface.hpp"
+#include "oneapi/dal/table/detail/csr_access_iface.hpp"
 
 namespace oneapi::dal {
 namespace v1 {
@@ -35,7 +37,9 @@ using v1::feature_type;
 namespace oneapi::dal::detail {
 namespace v1 {
 
-class table_iface {
+// Inheritance from `access_provider_iface` is needed to support binary backward
+// compatibility with the oneDAL 2021.1. This should be removed in 2022.1.
+class table_iface : public access_provider_iface {
 public:
     virtual ~table_iface() = default;
     virtual std::int64_t get_column_count() const = 0;
@@ -45,11 +49,19 @@ public:
     virtual const table_metadata& get_metadata() const = 0;
     virtual pull_rows_iface* get_pull_rows_iface() = 0;
     virtual pull_column_iface* get_pull_column_iface() = 0;
+    virtual pull_csr_block_iface* get_pull_csr_block_iface() = 0;
 };
 
 class homogen_table_iface : public table_iface {
 public:
-    virtual const void* get_data() const = 0;
+    virtual dal::array<byte_t> get_data() const = 0;
+};
+
+class csr_table_iface : public table_iface {
+public:
+    virtual dal::array<byte_t> get_data() const = 0;
+    virtual dal::array<std::int64_t> get_column_indices() const = 0;
+    virtual dal::array<std::int64_t> get_row_indices() const = 0;
 };
 
 class table_builder_iface {
@@ -70,8 +82,7 @@ public:
     virtual void set_layout(data_layout layout) = 0;
     virtual void set_feature_type(feature_type ft) = 0;
 
-    virtual void move(homogen_table_iface& t) = 0;
-    virtual void reset(const array<byte_t>& data,
+    virtual void reset(const dal::array<byte_t>& data,
                        std::int64_t row_count,
                        std::int64_t column_count) = 0;
 
@@ -95,10 +106,13 @@ public:
 #endif
 };
 
-template <typename Iface, typename Derived>
-class table_template : public Iface,
-                       public pull_rows_template<Derived>,
-                       public pull_column_template<Derived> {
+/// Generic table template is expected to implement all access interfaces to the table.
+/// The example of the table that implements generic interface is the empty one.
+template <typename Derived>
+class generic_table_template : public table_iface,
+                               public pull_rows_template<Derived>,
+                               public pull_column_template<Derived>,
+                               public pull_csr_block_template<Derived> {
 public:
     pull_rows_iface* get_pull_rows_iface() override {
         return this;
@@ -107,14 +121,58 @@ public:
     pull_column_iface* get_pull_column_iface() override {
         return this;
     }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return this;
+    }
 };
 
-template <typename Iface, typename Derived>
-class table_builder_template : public Iface,
+/// Homogen table template must implement row and column accessor, but not CSR.
+template <typename Derived>
+class homogen_table_template : public homogen_table_iface,
                                public pull_rows_template<Derived>,
-                               public pull_column_template<Derived>,
-                               public push_rows_template<Derived>,
-                               public push_column_template<Derived> {
+                               public pull_column_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return this;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return this;
+    }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return nullptr;
+    }
+};
+
+/// CSR table template must implement CSR acessors, however row and column accessor are
+/// optional and not assumed by default. At the same time the methods that returns
+/// corresponding access interfaces may be overloaded in particualar CSR table implementation.
+template <typename Derived>
+class csr_table_template : public csr_table_iface, public pull_csr_block_template<Derived> {
+public:
+    pull_rows_iface* get_pull_rows_iface() override {
+        return nullptr;
+    }
+
+    pull_column_iface* get_pull_column_iface() override {
+        return nullptr;
+    }
+
+    pull_csr_block_iface* get_pull_csr_block_iface() override {
+        return this;
+    }
+};
+
+/// Homogen builder template must implement the same set of accessor as homogen table
+/// template but also provide interfaces for write.
+template <typename Derived>
+class homogen_table_builder_template : public homogen_table_builder_iface,
+                                       public pull_rows_template<Derived>,
+                                       public pull_column_template<Derived>,
+                                       public push_rows_template<Derived>,
+                                       public push_column_template<Derived> {
 public:
     pull_rows_iface* get_pull_rows_iface() override {
         return this;
@@ -136,10 +194,13 @@ public:
 } // namespace v1
 
 using v1::table_iface;
+using v1::generic_table_template;
 using v1::homogen_table_iface;
-using v1::table_template;
+using v1::homogen_table_template;
+using v1::csr_table_iface;
+using v1::csr_table_template;
 using v1::table_builder_iface;
 using v1::homogen_table_builder_iface;
-using v1::table_builder_template;
+using v1::homogen_table_builder_template;
 
 } // namespace oneapi::dal::detail

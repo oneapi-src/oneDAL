@@ -108,7 +108,7 @@ public:
     /// @param layout       The layout of the data. Should be :literal:`data_layout::row_major` or
     ///                     :literal:`data_layout::column_major`.
     template <typename Data>
-    static homogen_table wrap(const array<Data>& data,
+    static homogen_table wrap(const dal::array<Data>& data,
                               std::int64_t row_count,
                               std::int64_t column_count,
                               data_layout layout = data_layout::row_major) {
@@ -144,6 +144,10 @@ public:
 
     /// Creates a new ``homogen_table`` instance with zero number of rows and columns.
     homogen_table();
+
+    /// Casts an object of the base table type to a homogen table. If cast is
+    /// not possible, the operation is equivalent to a default constructor call.
+    explicit homogen_table(const table& other);
 
     /// Creates a new ``homogen_table`` instance from externally-defined data block.
     /// Table object owns the data pointer.
@@ -233,7 +237,7 @@ public:
 
 private:
     template <typename Data>
-    homogen_table(const array<Data>& data,
+    homogen_table(const dal::array<Data>& data,
                   std::int64_t row_count,
                   std::int64_t column_count,
                   data_layout layout = data_layout::row_major) {
@@ -241,6 +245,7 @@ private:
     }
 
     explicit homogen_table(detail::homogen_table_iface* impl) : table(impl) {}
+    explicit homogen_table(const detail::shared<detail::homogen_table_iface>& impl) : table(impl) {}
 
     template <typename Policy, typename Data, typename ConstDeleter>
     void init_impl(const Policy& policy,
@@ -266,7 +271,7 @@ private:
     }
 
     template <typename Data>
-    void init_impl(const array<Data>& data,
+    void init_impl(const dal::array<Data>& data,
                    std::int64_t row_count,
                    std::int64_t column_count,
                    data_layout layout) {
@@ -291,7 +296,17 @@ private:
     void init_impl(const Policy& policy,
                    std::int64_t row_count,
                    std::int64_t column_count,
-                   const array<byte_t>& data,
+                   const dal::array<byte_t>& data,
+                   const data_type& dtype,
+                   data_layout layout);
+
+    // This method is needed for compatibility with the oneDAL 2021.1.
+    // This should be removed in 2022.1.
+    template <typename Policy>
+    void init_impl(const Policy& policy,
+                   std::int64_t row_count,
+                   std::int64_t column_count,
+                   const dal::v1::array<byte_t>& data,
                    const data_type& dtype,
                    data_layout layout);
 
