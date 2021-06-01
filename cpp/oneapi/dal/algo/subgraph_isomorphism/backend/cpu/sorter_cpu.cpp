@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
+#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/sorter.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace oneapi::dal::preview::detail {
+namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+template class sorter<__CPU_TAG__>;
+template struct sconsistent_conditions<__CPU_TAG__>;
 
-template class ONEDAL_EXPORT topology<int32_t>;
-
-} // namespace oneapi::dal::preview::detail
+} // namespace oneapi::dal::preview::subgraph_isomorphism::backend

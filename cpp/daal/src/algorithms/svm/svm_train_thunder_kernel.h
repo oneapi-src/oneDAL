@@ -50,22 +50,26 @@ struct SVMTrainImpl<thunder, algorithmFPType, cpu> : public Kernel
                              data_management::NumericTable & yTable, daal::algorithms::Model * r, const KernelParameter & par);
 
 private:
-    services::Status classificationInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, algorithmFPType * y,
-                                        algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw, size_t & nNonZeroWeights);
+    services::Status classificationInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType nu,
+                                        algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw,
+                                        size_t & nNonZeroWeights, const SvmType svmType);
 
-    services::Status regressionInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType epsilon,
-                                    algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha, algorithmFPType * cw,
-                                    size_t & nNonZeroWeights);
+    services::Status regressionInit(NumericTable & yTable, const NumericTablePtr & wTable, const algorithmFPType C, const algorithmFPType nu,
+                                    const algorithmFPType epsilon, algorithmFPType * y, algorithmFPType * grad, algorithmFPType * alpha,
+                                    algorithmFPType * cw, size_t & nNonZeroWeights, const SvmType svmType);
 
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS,
                                     const size_t nVectors, const size_t nWS, const algorithmFPType * cw, const double eps, const double tau,
                                     algorithmFPType * buffer, char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,
-                                    algorithmFPType & localDiff) const;
+                                    algorithmFPType & localDiff, SvmType svmType) const;
 
     services::Status updateGrad(algorithmFPType ** kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * grad, const size_t nVectors,
                                 const size_t nTrainVectors, const size_t nWS);
 
     bool checkStopCondition(const algorithmFPType diff, const algorithmFPType diffPrev, const algorithmFPType eps, size_t & sameLocalDiff);
+
+    services::Status initGrad(const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel, const size_t nVectors,
+                              const size_t nTrainVectors, algorithmFPType * const y, algorithmFPType * const alpha, algorithmFPType * grad);
 
     // One of the conditions for stopping is diff stays unchanged. nNoChanges - number of repetitions
     static const size_t nNoChanges = 5;

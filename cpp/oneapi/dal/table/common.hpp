@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include <type_traits>
-
 #include "oneapi/dal/table/detail/table_iface.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 
 namespace oneapi::dal {
 
@@ -38,6 +37,7 @@ enum class data_layout { unknown, row_major, column_major };
 
 class ONEDAL_EXPORT table_metadata {
     friend detail::pimpl_accessor;
+    friend detail::serialization_accessor;
 
 public:
     /// Creates the metadata instance without information about the features.
@@ -50,7 +50,7 @@ public:
     /// @param dtypes The data types of the features. Assigned into the :literal:`data_type` property.
     /// @param ftypes The feature types. Assigned into the :literal:`feature_type` property.
     /// @pre :expr:`dtypes.get_count() == ftypes.get_count()`
-    table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes);
+    table_metadata(const dal::array<data_type>& dtypes, const dal::array<feature_type>& ftypes);
 
     /// The number of features that metadata contains information about
     /// @invariant :literal:`feature_count >= 0`
@@ -63,11 +63,19 @@ public:
     const data_type& get_data_type(std::int64_t feature_index) const;
 
 private:
+    void serialize(detail::output_archive& ar) const;
+    void deserialize(detail::input_archive& ar);
+
+    /// Maintained for backward compatibility
+    table_metadata(const dal::v1::array<data_type>& dtypes,
+                   const dal::v1::array<feature_type>& ftypes);
+
     detail::pimpl<detail::table_metadata_impl> impl_;
 };
 
 class ONEDAL_EXPORT table {
     friend detail::pimpl_accessor;
+    friend detail::serialization_accessor;
 
 public:
     /// An empty table constructor: creates the table instance with zero number of rows and columns.
@@ -112,12 +120,16 @@ public:
 
 protected:
     explicit table(detail::table_iface* impl) : impl_(impl) {}
+    explicit table(const detail::shared<detail::table_iface>& impl) : impl_(impl) {}
 
     void init_impl(detail::table_iface* impl) {
         impl_.reset(impl);
     }
 
 private:
+    void serialize(detail::output_archive& ar) const;
+    void deserialize(detail::input_archive& ar);
+
     detail::pimpl<detail::table_iface> impl_;
 };
 

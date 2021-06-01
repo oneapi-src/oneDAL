@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "oneapi/dal/graph/directed_adjacency_vector_graph.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/common.hpp"
 

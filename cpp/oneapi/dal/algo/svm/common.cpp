@@ -38,6 +38,7 @@ public:
     bool shrinking = true;
     std::int64_t class_count = 2;
     double epsilon = 0.1;
+    double nu = 0.5;
 };
 
 template <typename Task>
@@ -151,12 +152,30 @@ double descriptor_base<Task>::get_epsilon_impl() const {
 }
 
 template <typename Task>
+void descriptor_base<Task>::set_nu_impl(double value) {
+    if (value <= 0.0) {
+        throw domain_error(dal::detail::error_messages::nu_leq_zero());
+    }
+    if (value > 1.0) {
+        throw domain_error(dal::detail::error_messages::nu_gt_one());
+    }
+    impl_->nu = value;
+}
+
+template <typename Task>
+double descriptor_base<Task>::get_nu_impl() const {
+    return impl_->nu;
+}
+
+template <typename Task>
 const detail::kernel_function_ptr& descriptor_base<Task>::get_kernel_impl() const {
     return impl_->kernel;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::nu_classification>;
 template class ONEDAL_EXPORT descriptor_base<task::regression>;
+template class ONEDAL_EXPORT descriptor_base<task::nu_regression>;
 
 } // namespace v1
 } // namespace detail
@@ -236,8 +255,26 @@ void model<Task>::set_second_class_label_impl(std::int64_t value) {
     impl_->second_class_label = value;
 }
 
+template <typename Task>
+void model<Task>::serialize(dal::detail::output_archive& ar) const {
+    dal::detail::serialize_polymorphic_shared(impl_, ar);
+}
+
+template <typename Task>
+void model<Task>::deserialize(dal::detail::input_archive& ar) {
+    dal::detail::deserialize_polymorphic_shared(impl_, ar);
+}
+
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::nu_classification>;
 template class ONEDAL_EXPORT model<task::regression>;
+template class ONEDAL_EXPORT model<task::nu_regression>;
+
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::regression>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::nu_classification>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::nu_regression>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
 
 } // namespace v1
 } // namespace oneapi::dal::svm

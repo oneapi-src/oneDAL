@@ -87,50 +87,6 @@ ONEDAL_FORCEINLINE void check_origin_data(const homogen_info& origin_info,
     ONEDAL_ASSERT(origin_data.get_count() >= origin_info.get_element_count() * origin_dtype_size);
 }
 
-template <typename DataSrc, typename DataDest>
-ONEDAL_FORCEINLINE void refer_origin_data(const array<DataSrc>& src,
-                                          std::int64_t src_start_index,
-                                          std::int64_t dst_count,
-                                          array<DataDest>& dst,
-                                          bool preserve_mutability) {
-    ONEDAL_ASSERT(src_start_index >= 0);
-    ONEDAL_ASSERT(src.get_count() > src_start_index);
-    ONEDAL_ASSERT((src.get_count() - src_start_index) * sizeof(DataSrc) >=
-                  dst_count * sizeof(DataDest));
-
-    if (src.has_mutable_data() && preserve_mutability) {
-        auto start_pointer = reinterpret_cast<DataDest*>(src.get_mutable_data() + src_start_index);
-        dst.reset(src, start_pointer, dst_count);
-    }
-    else {
-        auto start_pointer = reinterpret_cast<const DataDest*>(src.get_data() + src_start_index);
-        dst.reset(src, start_pointer, dst_count);
-    }
-}
-
-template <typename Policy, typename Data>
-ONEDAL_FORCEINLINE void reset_array(const Policy& policy,
-                                    array<Data>& array,
-                                    std::int64_t count,
-                                    const alloc_kind& kind) {
-    if constexpr (std::is_same_v<Policy, detail::default_host_policy>) {
-        ONEDAL_ASSERT(kind == alloc_kind::host, "Incompatible policy and type of allocation");
-    }
-#ifdef ONEDAL_DATA_PARALLEL
-    if (kind == alloc_kind::host) {
-        array.reset(count);
-    }
-    else {
-        if constexpr (std::is_same_v<Policy, detail::data_parallel_policy>) {
-            const auto alloc = alloc_kind_to_sycl(kind);
-            array.reset(policy.get_queue(), count, alloc);
-        }
-    }
-#else
-    array.reset(count);
-#endif
-}
-
 template <typename Policy, typename BlockData>
 static void pull_row_major_impl(const Policy& policy,
                                 const homogen_info& origin_info,

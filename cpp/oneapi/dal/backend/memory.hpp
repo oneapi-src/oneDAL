@@ -20,6 +20,14 @@
 
 namespace oneapi::dal::backend {
 
+void memcpy(void* dest, const void* src, std::int64_t size);
+
+template <typename T>
+inline void copy(T* dest, const T* src, std::int64_t count) {
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, sizeof(T), count);
+    return memcpy(dest, src, sizeof(T) * count);
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 inline bool is_device_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
@@ -246,3 +254,58 @@ inline bool is_known_usm(const array<T>& ary) {
 #endif
 
 } // namespace oneapi::dal::backend
+
+namespace oneapi::dal::preview::detail {
+struct byte_alloc_iface;
+} // namespace oneapi::dal::preview::detail
+
+namespace oneapi::dal::preview::backend {
+
+template <typename T>
+struct inner_alloc {
+    using byte_t = char;
+    using value_type = T;
+    using pointer = T*;
+
+    inner_alloc(detail::byte_alloc_iface* byte_allocator) : byte_allocator_(byte_allocator) {}
+
+    inner_alloc(const detail::byte_alloc_iface* byte_allocator)
+            : byte_allocator_(const_cast<detail::byte_alloc_iface*>(byte_allocator)) {}
+
+    template <typename V>
+    inner_alloc(inner_alloc<V>& other) : byte_allocator_(other.get_byte_allocator()) {}
+
+    template <typename V>
+    inner_alloc(const inner_alloc<V>& other) {
+        byte_allocator_ = const_cast<detail::byte_alloc_iface*>(other.get_byte_allocator());
+    }
+
+    T* allocate(std::int64_t n) {
+        return reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
+    }
+
+    void deallocate(T* ptr, std::int64_t n) {
+        return byte_allocator_->deallocate(reinterpret_cast<byte_t*>(ptr), n * sizeof(T));
+    }
+
+    oneapi::dal::detail::shared<T> make_shared_memory(std::int64_t n) {
+        return oneapi::dal::detail::shared<T>(this->allocate(n), [=](T* p) {
+            this->deallocate(p, n);
+        });
+    }
+
+    detail::byte_alloc_iface* get_byte_allocator() {
+        return byte_allocator_;
+    }
+
+    const detail::byte_alloc_iface* get_byte_allocator() const {
+        return byte_allocator_;
+    }
+
+private:
+    inner_alloc() = default;
+
+    detail::byte_alloc_iface* byte_allocator_;
+};
+
+} // namespace oneapi::dal::preview::backend
