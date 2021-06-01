@@ -27,7 +27,7 @@ template <typename Float>
 class cluster_updater {
 public:
     cluster_updater() {}
-    auto set_cluster_count(std::int64_t cluster_count) {
+    auto& set_cluster_count(std::int64_t cluster_count) {
         cluster_count_ = cluster_count;
         return *this;
     }
