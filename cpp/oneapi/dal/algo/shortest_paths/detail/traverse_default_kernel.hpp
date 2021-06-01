@@ -172,10 +172,10 @@ inline bool find_next_bin_index(std::int64_t& curr_bin_index, const BinsVector& 
     bool is_queue_empty = true;
 
     auto total = oneapi::dal::detail::parallel_reduce_int32_int64_t(
-        (std::int64_t)local_bins.size(),
+        (std::int32_t)local_bins.size(),
         (std::int64_t)max_bin_count,
-        [&](std::int64_t begin, std::int64_t end, std::int64_t thread_min_index) -> std::int64_t {
-            for (std::int64_t id = begin; id < end; ++id) {
+        [&](std::int32_t begin, std::int32_t end, std::int64_t thread_min_index) -> std::int64_t {
+            for (std::int32_t id = begin; id < end; ++id) {
                 for (std::int64_t i = curr_bin_index; i < local_bins[id].size(); i++) {
                     if (!local_bins[id][i].empty()) {
                         thread_min_index = std::min(max_bin_count, i);
@@ -202,7 +202,7 @@ inline std::int64_t reduce_to_common_bin(const std::int64_t& curr_bin_index,
                                          BinsVector& local_bins,
                                          SharedBinContainer& shared_bin) {
     std::atomic<std::int64_t> curr_shared_bin_tail = 0;
-    dal::detail::threader_for(local_bins.size(), local_bins.size(), [&](std::int64_t i) {
+    dal::detail::threader_for_int64(local_bins.size(), [&](std::int64_t i) {
         int thread_id = dal::detail::threader_get_current_thread_index();
         if (curr_bin_index < local_bins[thread_id].size()) {
             std::int64_t copy_start =
@@ -238,7 +238,7 @@ struct delta_stepping_cpu {
         vertex_allocator_type vertex_allocator(alloc);
         atomic_value_allocator_type atomic_value_allocator(alloc);
 
-        const auto source = desc.get_source();
+        const auto source = dal::detail::integral_cast<std::int32_t>(desc.get_source());
 
         const value_type delta = desc.get_delta();
 
@@ -251,7 +251,7 @@ struct delta_stepping_cpu {
 
         dist = new (dist) std::atomic<value_type>[vertex_count]();
 
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+        dal::detail::threader_for_int64(vertex_count, [&](std::int64_t i) {
             dist[i] = max_dist;
         });
         dist[source].store(0);
@@ -283,22 +283,19 @@ struct delta_stepping_cpu {
         std::int64_t iter = 0;
 
         while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
-            dal::detail::threader_for(
-                curr_shared_bin_tail,
-                curr_shared_bin_tail,
-                [&](std::int64_t i) {
-                    vertex_type u = shared_bin[i];
-                    if (dist[u].load() >= delta * static_cast<value_type>(curr_bin_index)) {
-                        relax_edges(t,
-                                    vals,
-                                    u,
-                                    delta,
-                                    dist,
-                                    local_bins[dal::detail::threader_get_current_thread_index()]);
-                    }
-                });
+            dal::detail::threader_for_int64(curr_shared_bin_tail, [&](std::int64_t i) {
+                vertex_type u = shared_bin[i];
+                if (dist[u].load() >= delta * static_cast<value_type>(curr_bin_index)) {
+                    relax_edges(t,
+                                vals,
+                                u,
+                                delta,
+                                dist,
+                                local_bins[dal::detail::threader_get_current_thread_index()]);
+                }
+            });
 
-            dal::detail::threader_for(thread_cnt, thread_cnt, [&](std::int64_t i) {
+            dal::detail::threader_for_int64(thread_cnt, [&](std::int64_t i) {
                 int thread_id = dal::detail::threader_get_current_thread_index();
                 while (curr_bin_index < local_bins[thread_id].size() &&
                        !local_bins[thread_id][curr_bin_index].empty() &&
@@ -324,7 +321,7 @@ struct delta_stepping_cpu {
 
         auto dist_arr = array<value_type>::empty(vertex_count);
         value_type* dist_ = dist_arr.get_mutable_data();
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+        dal::detail::threader_for_int64(vertex_count, [&](std::int64_t i) {
             dist_[i] = dist[i].load();
         });
 
@@ -354,7 +351,7 @@ struct delta_stepping_with_pred_cpu {
         vertex_allocator_type vertex_allocator(alloc);
         atomic_vp_allocator_type atomic_vp(alloc);
 
-        const auto source = desc.get_source();
+        const auto source = dal::detail::integral_cast<std::int32_t>(desc.get_source());
 
         const value_type delta = desc.get_delta();
 
@@ -365,7 +362,7 @@ struct delta_stepping_with_pred_cpu {
 
         atomic_vp_type* dp = allocate(atomic_vp, vertex_count);
 
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+        dal::detail::threader_for_int64(vertex_count, [&](std::int64_t i) {
             new (dp + i) dist_pred<value_type, vertex_type>(max_dist, -1);
         });
 
@@ -402,23 +399,20 @@ struct delta_stepping_with_pred_cpu {
         std::int64_t iter = 0;
 
         while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
-            dal::detail::threader_for(
-                curr_shared_bin_tail,
-                curr_shared_bin_tail,
-                [&](std::int64_t i) {
-                    vertex_type u = shared_bin[i];
-                    if (dp[u].load().dist >= delta * static_cast<value_type>(curr_bin_index)) {
-                        relax_edges_with_pred(
-                            t,
-                            vals,
-                            u,
-                            delta,
-                            dp,
-                            local_bins[dal::detail::threader_get_current_thread_index()]);
-                    }
-                });
+            dal::detail::threader_for_int64(curr_shared_bin_tail, [&](std::int64_t i) {
+                vertex_type u = shared_bin[i];
+                if (dp[u].load().dist >= delta * static_cast<value_type>(curr_bin_index)) {
+                    relax_edges_with_pred(
+                        t,
+                        vals,
+                        u,
+                        delta,
+                        dp,
+                        local_bins[dal::detail::threader_get_current_thread_index()]);
+                }
+            });
 
-            dal::detail::threader_for(thread_cnt, thread_cnt, [&](std::int64_t i) {
+            dal::detail::threader_for_int64(thread_cnt, [&](std::int64_t i) {
                 int thread_id = dal::detail::threader_get_current_thread_index();
                 while (curr_bin_index < local_bins[thread_id].size() &&
                        !local_bins[thread_id][curr_bin_index].empty() &&
@@ -452,7 +446,7 @@ struct delta_stepping_with_pred_cpu {
             auto pred_arr = array<vertex_type>::empty(vertex_count);
             value_type* dist_ = dist_arr.get_mutable_data();
             vertex_type* pred_ = pred_arr.get_mutable_data();
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+            dal::detail::threader_for_int64(vertex_count, [&](std::int64_t i) {
                 const auto dp_i = dp[i].load();
                 dist_[i] = dp_i.dist;
                 pred_[i] = dp_i.pred;
@@ -470,7 +464,7 @@ struct delta_stepping_with_pred_cpu {
         else {
             auto pred_arr = array<vertex_type>::empty(vertex_count);
             vertex_type* pred_ = pred_arr.get_mutable_data();
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
+            dal::detail::threader_for_int64(vertex_count, [&](std::int64_t i) {
                 const auto dp_i = dp[i].load();
                 pred_[i] = dp_i.pred;
             });
