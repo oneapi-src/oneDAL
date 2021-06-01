@@ -49,7 +49,7 @@ public:
         column_count_ = data.get_dimension(1);
         return *this;
     }
-    auto set_initial_centroids(const pr::ndarray<Float, 2> initial_centroids) {
+    auto& set_initial_centroids(const pr::ndarray<Float, 2> initial_centroids) {
         initial_centroids_ = initial_centroids;
         return *this;
     }
