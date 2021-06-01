@@ -136,13 +136,6 @@ template <typename Cpu>
 class dfs_stack {
 public:
     dfs_stack(inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels, inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels,
-              const std::uint64_t max_states_size,
-              inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels,
-              const std::uint64_t* max_states_size_per_level,
-              inner_alloc allocator);
     virtual ~dfs_stack();
     void init(const std::uint64_t levels);
     void init(const std::uint64_t levels, const std::uint64_t max_states_size);
@@ -568,28 +561,6 @@ dfs_stack<Cpu>::dfs_stack(inner_alloc allocator) : allocator_(allocator) {
     data_by_levels = nullptr;
 
     current_level = 0;
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels, inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels);
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels,
-                          const std::uint64_t max_states_size,
-                          inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels, max_states_size);
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels,
-                          const std::uint64_t* max_states_size_per_level,
-                          inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels, max_states_size_per_level);
 }
 
 template <typename Cpu>
