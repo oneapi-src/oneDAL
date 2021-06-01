@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release.static.threaded|x64">
+      <Configuration>Release.static.threaded</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release.dynamic.threaded|x64">
       <Configuration>Release.dynamic.threaded</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug.static.threaded|x64">
+      <Configuration>Debug.static.threaded</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug.dynamic.threaded|x64">
+      <Configuration>Debug.dynamic.threaded</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -33,6 +45,42 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.threaded|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source\utils</AdditionalIncludeDirectories>
+      <EnableSyclOffload>true</EnableSyclOffload>
+      <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <SYCLOptimization>MaxSpeed</SYCLOptimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <TreatWarningAsError />
+      <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>onedal_sycld.lib;onedal_cored_dll.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source\utils</AdditionalIncludeDirectories>
+      <EnableSyclOffload>true</EnableSyclOffload>
+      <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SYCLOptimization>MaxSpeed</SYCLOptimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <TreatWarningAsError />
+      <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>onedal_sycld.lib;onedal_cored.lib;OpenCL.lib</AdditionalDependencies>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source\utils</AdditionalIncludeDirectories>
@@ -42,7 +90,7 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
