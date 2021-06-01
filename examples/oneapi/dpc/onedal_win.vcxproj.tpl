@@ -182,12 +182,12 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_dpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_dpc.lib;onedal_core.lib;onedal_thread.lib;OpenCL.lib;onedal_sycl.lib;tbb12.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -200,12 +200,12 @@
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_dpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_dpc.lib;onedal_core.lib;onedal_sequential.lib;OpenCL.lib;onedal_sycl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -255,6 +255,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -273,6 +274,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -291,11 +293,12 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_dpcd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_dpcd.lib;onedal_cored.lib;onedal_sequentiald.lib;OpenCL.lib;onedal_sycld.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -309,11 +312,12 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_dpcd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>onedal_dpcd.lib;onedal_cored.lib;onedal_threadd.lib;OpenCL.lib;onedal_sycld.lib;tbb12_debug.lib;tbbmalloc_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
