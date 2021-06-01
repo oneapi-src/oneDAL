@@ -76,8 +76,8 @@ inline optional_result_id operator!=(const optional_result_id& lhs, const option
 }
 
 namespace optional_results {
-extern ONEDAL_EXPORT const optional_result_id predecessors;
-extern ONEDAL_EXPORT const optional_result_id distances;
+extern ONEDAL_IMPORT const optional_result_id predecessors;
+extern ONEDAL_IMPORT const optional_result_id distances;
 } // namespace optional_results
 
 namespace detail {
