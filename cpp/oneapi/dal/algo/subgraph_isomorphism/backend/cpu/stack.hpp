@@ -37,7 +37,6 @@ public:
     state<Cpu>* pop();
     std::int64_t size() const;
     void clear(bool direct = true);
-    void add(stack<Cpu>& _stack);
 
 private:
     inner_alloc allocator_;
@@ -210,15 +209,6 @@ void stack<Cpu>::clear(bool direct) {
         }
     }
     stack_size = 0;
-}
-
-template <typename Cpu>
-void stack<Cpu>::add(stack<Cpu>& _stack) {
-    std::int64_t current_size = _stack.size();
-    for (std::int64_t i = 0; i < current_size; i++) {
-        push(_stack.pop());
-    }
-    _stack.clear();
 }
 
 template <typename Cpu>
