@@ -85,11 +85,16 @@ services::Status SVMTrainOneAPI<algorithmFPType, thunder>::updateGrad(const serv
 
 template <typename algorithmFPType>
 services::Status SVMTrainOneAPI<algorithmFPType, thunder>::smoKernel(
-    const services::internal::Buffer<algorithmFPType> & y, const services::internal::Buffer<algorithmFPType> & kernelWsRows,
-    const services::internal::Buffer<uint32_t> & wsIndices, const size_t ldK, const services::internal::Buffer<algorithmFPType> & f,
-    const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, const size_t maxInnerIteration,
-    services::internal::Buffer<algorithmFPType> & alpha, services::internal::Buffer<algorithmFPType> & deltaalpha,
-    services::internal::Buffer<algorithmFPType> & resinfo, const size_t nWS)
+    const services::internal::Buffer<algorithmFPType> & y, 
+    const services::internal::Buffer<algorithmFPType> & kernelWsRows,
+    const services::internal::Buffer<uint32_t> & wsIndices, const size_t ldK, 
+    const services::internal::Buffer<algorithmFPType> & f,
+    const algorithmFPType C, const algorithmFPType eps, const algorithmFPType tau, 
+    const size_t maxInnerIteration,
+    services::internal::Buffer<algorithmFPType> & alpha, 
+    services::internal::Buffer<algorithmFPType> & deltaalpha,
+    services::internal::Buffer<algorithmFPType> & resinfo, 
+    const size_t nWS)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(smoKernel);
 
