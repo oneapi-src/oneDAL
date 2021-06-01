@@ -121,6 +121,22 @@ ONEDAL_EXPORT void _onedal_del_tls_ptr(void *tlsPtr) {
     _daal_del_tls_ptr(tlsPtr);
 }
 
+ONEDAL_EXPORT void *_onedal_new_mutex() {
+    return _daal_new_mutex();
+}
+
+ONEDAL_EXPORT void _onedal_lock_mutex(void *mutex_ptr) {
+    _daal_lock_mutex(mutex_ptr);
+}
+
+ONEDAL_EXPORT void _onedal_unlock_mutex(void *mutex_ptr) {
+    _daal_unlock_mutex(mutex_ptr);
+}
+
+ONEDAL_EXPORT void _onedal_del_mutex(void *mutex_ptr) {
+    _daal_del_mutex(mutex_ptr);
+}
+
 namespace oneapi::dal::detail {
 
 typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;

@@ -36,7 +36,7 @@ int main(int argc, char const *argv[]) {
     const auto svm_desc =
         svm::descriptor<float, svm::method::thunder, svm::task::nu_regression>{ kernel_desc }
             .set_nu(0.5)
-            .set_c(1.0)
+            .set_c(100.0)
             .set_accuracy_threshold(0.001)
             .set_cache_size(200.0)
             .set_tau(1e-6);

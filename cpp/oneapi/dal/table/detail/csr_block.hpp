@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -28,9 +28,9 @@ enum class csr_indexing { zero_based, one_based };
 ///           CSR block supports at least :expr:`float`, :expr:`double`, and :expr:`std::int32_t` types of :literal:`T`.
 template <typename T>
 struct csr_block {
-    array<T> data;
-    array<std::int64_t> column_indices;
-    array<std::int64_t> row_indices;
+    dal::array<T> data;
+    dal::array<std::int64_t> column_indices;
+    dal::array<std::int64_t> row_indices;
 
     csr_block() : data(), column_indices(), row_indices() {}
 };
