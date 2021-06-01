@@ -280,24 +280,8 @@
       <AdditionalDependencies>onedal_dpcd_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
-    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.sequential|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source</AdditionalIncludeDirectories>
-      <EnableSyclOffload>true</EnableSyclOffload>
-      <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
-      <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <SYCLOptimization>Disabled</SYCLOptimization>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-    </ClCompile>
-    <Link>
-      <TreatWarningAsError />
-      <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
-      <AdditionalDependencies>onedal_dpcd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
-    </Link>
-    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'">
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.sequential|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source</AdditionalIncludeDirectories>
       <EnableSyclOffload>true</EnableSyclOffload>
@@ -315,6 +299,23 @@
       <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\include;$(SolutionDir)source</AdditionalIncludeDirectories>
+      <EnableSyclOffload>true</EnableSyclOffload>
+      <SYCLWarningLevel>DisableAllWarnings</SYCLWarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SYCLOptimization>Disabled</SYCLOptimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <TreatWarningAsError />
+      <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
+      <AdditionalDependencies>onedal_dpcd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="$(ProjectDir)..\..\{example_relative_path}" />
