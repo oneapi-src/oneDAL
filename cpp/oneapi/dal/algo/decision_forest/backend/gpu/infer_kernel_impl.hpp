@@ -67,12 +67,12 @@ private:
         const dal::backend::event_vector& deps = {});
 
     std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event>
-    reduce_tree_group_response(const dal::backend::primitives::ndarray<Float, 1>& obs_response_list,
+    reduce_tree_group_response(const dal::backend::primitives::ndview<Float, 1>& obs_response_list,
                                const context_t& ctx,
                                const dal::backend::event_vector& deps = {});
 
     std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event> determine_winner(
-        const dal::backend::primitives::ndarray<Float, 1>& response_list,
+        const dal::backend::primitives::ndview<Float, 1>& response_list,
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 

@@ -60,8 +60,8 @@ class infer_model_manager {
         model_interop_impl<typename daal_types_map<Task>::daal_model_ptr_t>;
     using daal_model_impl_t = typename daal_types_map<Task>::daal_model_impl_t;
     using daal_model_ptr_t = typename daal_types_map<Task>::daal_model_ptr_t;
-    using TreeType = typename daal_types_map<Task>::daal_tree_impl_t;
-    using NodeType = typename TreeType::NodeType;
+    using daal_decision_tree_table_t = daal::algorithms::dtrees::internal::DecisionTreeTable;
+    using daal_decision_tree_node_t = daal::algorithms::dtrees::internal::DecisionTreeNode;
 
 public:
     explicit infer_model_manager(const cl::sycl::queue& q,
@@ -78,7 +78,7 @@ public:
 
         const auto tree_count = ctx_.tree_count_;
 
-        std::vector<const daal::algorithms::dtrees::internal::DecisionTreeTable*> tree_list;
+        std::vector<const daal_decision_tree_table_t*> tree_list;
         tree_list.resize(tree_count);
 
         size_t tree_size_max = 0;
@@ -114,8 +114,8 @@ public:
 
         for (Index tree_idx = 0; tree_idx < ctx.tree_count_; tree_idx++) {
             const Index tree_size = tree_list[tree_idx]->getNumberOfRows();
-            const DecisionTreeNode* const dt_node_list =
-                static_cast<const DecisionTreeNode*>((*tree_list[tree_idx]).getArray());
+            const daal_decision_tree_node_t* const dt_node_list =
+                static_cast<const daal_decision_tree_node_t*>((*tree_list[tree_idx]).getArray());
 
             Index* const fi = fi_list_host.get_mutable_data() + tree_idx * max_tree_size_;
             Index* const lc = lc_list_host.get_mutable_data() + tree_idx * max_tree_size_;

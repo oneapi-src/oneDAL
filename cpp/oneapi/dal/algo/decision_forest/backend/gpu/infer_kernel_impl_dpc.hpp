@@ -21,6 +21,8 @@
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl.hpp"
 
+#include "oneapi/dal/algo/decision_forest/backend/gpu/dbg_helpers.hpp"
+
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;
@@ -195,7 +197,6 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
         });
     }
 
-    //last_event.wait_and_throw();
     return std::make_tuple(obs_response_list, last_event);
 }
 
@@ -303,14 +304,13 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const pr::ndview<Fl
         });
     }
 
-    last_event.wait_and_throw();
     return std::make_tuple(obs_response_list, last_event);
 }
 
 template <typename Float, typename Index, typename Task>
 std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
 infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
-    const pr::ndarray<Float, 1>& obs_response_list,
+    const pr::ndview<Float, 1>& obs_response_list,
     const context_t& ctx,
     const be::event_vector& deps) {
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
@@ -365,8 +365,8 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
                 cl::sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
             // obs_response_list_ptr each row contains certain class values from each tree for this observation
-            // obs_response_list_ptr[0] = obs0_cls0_val_from_tree0, obs0_cls0_val_from_tree1 ...
-            // obs_response_list_ptr[1] = obs0_cls1_val_from_tree0, obs0_cls1_val_from_tree1 ...
+            // obs_response_list_ptr[0] = obs0_cls0_val_from_tree0, obs0_cls0_val_from_tree1 ... obs0_cls1_val_from_tree0, obs0_cls1_val_from_tree1 ...
+            // obs_response_list_ptr[1] = obs1_cls0_val_from_tree0, obs1_cls0_val_from_tree1 ... obs1_cls1_val_from_tree0, obs1_cls1_val_from_tree1 ...
 
             for (Index row_idx = ind_start; row_idx < ind_end; row_idx++) {
                 if (is_classification) {
@@ -406,13 +406,12 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
         });
     });
 
-    last_event.wait_and_throw();
     return std::make_tuple(response_list, last_event);
 }
 
 template <typename Float, typename Index, typename Task>
 std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
-infer_kernel_impl<Float, Index, Task>::determine_winner(const pr::ndarray<Float, 1>& response_list,
+infer_kernel_impl<Float, Index, Task>::determine_winner(const pr::ndview<Float, 1>& response_list,
                                                         const context_t& ctx,
                                                         const be::event_vector& deps) {
     ONEDAL_ASSERT(response_list.get_count() == ctx.row_count_ * ctx.class_count_);
@@ -456,8 +455,6 @@ infer_kernel_impl<Float, Index, Task>::determine_winner(const pr::ndarray<Float,
         });
     });
 
-    last_event.wait_and_throw();
-
     return std::make_tuple(winner_list, last_event);
 }
 
@@ -475,43 +472,33 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
 
     const auto data_nd = pr::flatten_table<Float, row_accessor>(queue_, data, alloc::device);
 
+    pr::ndarray<Float, 1> tree_group_response_list;
     pr::ndarray<Float, 1> response_list;
     cl::sycl::event predict_event;
 
     if constexpr (std::is_same_v<Task, task::classification>) {
         if (voting_mode::weighted == ctx.voting_mode_ && model_mng.is_weighted_available()) {
-            auto [tree_group_response, predict_by_tree_group_event] =
+            std::tie(tree_group_response_list, predict_event) =
                 predict_by_tree_group_weighted(data_nd, model_mng, ctx);
-            auto [res_list, res_event] =
-                reduce_tree_group_response(tree_group_response,
-                                           ctx,
-                                           { predict_by_tree_group_event });
-            response_list = res_list;
-            predict_event = res_event;
+            std::tie(response_list, predict_event) =
+                reduce_tree_group_response(tree_group_response_list, ctx, { predict_event });
         }
         else {
-            auto [tree_group_response, predict_by_tree_group_event] =
+            std::tie(tree_group_response_list, predict_event) =
                 predict_by_tree_group(data_nd, model_mng, ctx);
-            auto [res_list, res_event] =
-                reduce_tree_group_response(tree_group_response,
-                                           ctx,
-                                           { predict_by_tree_group_event });
-            response_list = res_list;
-            predict_event = res_event;
+            std::tie(response_list, predict_event) =
+                reduce_tree_group_response(tree_group_response_list, ctx, { predict_event });
         }
     }
     else {
-        auto [tree_group_response, predict_by_tree_group_event] =
+        std::tie(tree_group_response_list, predict_event) =
             predict_by_tree_group(data_nd, model_mng, ctx);
-        auto [res_list, res_event] =
-            reduce_tree_group_response(tree_group_response, ctx, { predict_by_tree_group_event });
-        response_list = res_list;
-        predict_event = res_event;
+        std::tie(response_list, predict_event) =
+            reduce_tree_group_response(tree_group_response_list, ctx, { predict_event });
     }
 
     if constexpr (std::is_same_v<Task, task::classification>) {
         auto [response, winner_event] = determine_winner(response_list, ctx, { predict_event });
-        winner_event.wait_and_throw();
 
         if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
             auto response_host = response.to_host(queue_, { winner_event });
