@@ -85,6 +85,24 @@ struct delta_stepping_with_pred<Float,
         byte_alloc_iface* alloc) const;
 };
 
+template <typename Vertex, typename EdgeValue, typename BinsVector>
+inline void update_bins(const Vertex& v,
+                        const EdgeValue& new_dist,
+                        const EdgeValue& delta,
+                        BinsVector& local_bins) {
+    ONEDAL_ASSERT(new_dist > 0);
+    ONEDAL_ASSERT(delta > 0);
+    ONEDAL_ASSERT(new_dist / delta <=
+                  static_cast<EdgeValue>(std::min(std::numeric_limits<std::int64_t>::max(),
+                                                  std::numeric_limits<EdgeValue>::max())));
+    const std::int64_t dest_bin = static_cast<std::int64_t>(new_dist / delta);
+    ONEDAL_ASSERT(dest_bin >= 0)
+    if (dest_bin >= local_bins.size()) {
+        local_bins.resize(dest_bin + 1);
+    }
+    local_bins[dest_bin].push_back(v);
+}
+
 template <typename Topology, typename EdgeValue, typename BinsVector>
 inline void relax_edges(const Topology& t,
                         const EdgeValue* vals,
@@ -99,17 +117,7 @@ inline void relax_edges(const Topology& t,
         const EdgeValue new_dist = dist[u].load() + v_w;
         while (new_dist < old_dist) {
             if (dist[v].compare_exchange_strong(old_dist, new_dist)) {
-                ONEDAL_ASSERT(new_dist > 0);
-                ONEDAL_ASSERT(delta > 0);
-                ONEDAL_ASSERT(new_dist / delta <= static_cast<EdgeValue>(std::min(
-                                                      std::numeric_limits<std::int64_t>::max(),
-                                                      std::numeric_limits<EdgeValue>::max())));
-                const std::int64_t dest_bin = static_cast<std::int64_t>(new_dist / delta);
-                ONEDAL_ASSERT(dest_bin >= 0)
-                if (dest_bin >= local_bins.size()) {
-                    local_bins.resize(dest_bin + 1);
-                }
-                local_bins[dest_bin].push_back(v);
+                update_bins(v, new_dist, delta, local_bins);
                 break;
             }
             old_dist = dist[v].load();
@@ -148,17 +156,7 @@ inline void relax_edges_with_pred(const Topology& t,
         const EdgeValue new_dist = dp[u].load().dist + v_w;
         while (new_dist < old_dp.dist) {
             if (dp[v].compare_exchange_strong(old_dp, dist_pred(new_dist, u))) {
-                ONEDAL_ASSERT(new_dist > 0);
-                ONEDAL_ASSERT(delta > 0);
-                ONEDAL_ASSERT(new_dist / delta <= static_cast<EdgeValue>(std::min(
-                                                      std::numeric_limits<std::int64_t>::max(),
-                                                      std::numeric_limits<EdgeValue>::max())));
-                const std::int64_t dest_bin = static_cast<std::int64_t>(new_dist / delta);
-                ONEDAL_ASSERT(dest_bin >= 0)
-                if (dest_bin >= local_bins.size()) {
-                    local_bins.resize(dest_bin + 1);
-                }
-                local_bins[dest_bin].push_back(v);
+                update_bins(v, new_dist, delta, local_bins);
                 break;
             }
             old_dp = dp[v].load();
