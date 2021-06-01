@@ -29,16 +29,6 @@
 #define ONEDAL_EXPORT
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
-#ifdef __ONEDAL_ENABLE_DLL_IMPORT__
-#define ONEDAL_IMPORT __declspec(dllimport)
-#else
-#define ONEDAL_IMPORT
-#endif
-#else
-#define ONEDAL_IMPORT
-#endif
-
 #ifndef ONEDAL_ENABLE_ASSERT
 #define ONEDAL_ASSERT(...)
 #else

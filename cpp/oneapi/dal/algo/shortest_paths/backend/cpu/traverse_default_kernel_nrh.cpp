@@ -40,7 +40,13 @@ inline void relax_edges(const Topology& t,
         const EdgeValue new_dist = dist[u] + v_w;
         if (new_dist < old_dist) {
             dist[v] = new_dist;
-            std::int64_t dest_bin = new_dist / delta;
+            ONEDAL_ASSERT(new_dist > 0);
+            ONEDAL_ASSERT(delta > 0);
+            ONEDAL_ASSERT(new_dist / delta <=
+                          static_cast<EdgeValue>(std::min(std::numeric_limits<std::int64_t>::max(),
+                                                          std::numeric_limits<EdgeValue>::max())));
+            const std::int64_t dest_bin = static_cast<std::int64_t>(new_dist / delta);
+            ONEDAL_ASSERT(dest_bin >= 0)
             if (dest_bin >= local_bins.size()) {
                 local_bins.resize(dest_bin + 1);
             }
@@ -80,7 +86,13 @@ inline void relax_edges_with_pred(const Topology& t,
         const EdgeValue new_dist = dp[u].dist + v_w;
         if (new_dist < old_dp.dist) {
             dp[v] = dist_pred(new_dist, u);
-            std::int64_t dest_bin = new_dist / delta;
+            ONEDAL_ASSERT(new_dist > 0);
+            ONEDAL_ASSERT(delta > 0);
+            ONEDAL_ASSERT(new_dist / delta <=
+                          static_cast<EdgeValue>(std::min(std::numeric_limits<std::int64_t>::max(),
+                                                          std::numeric_limits<EdgeValue>::max())));
+            const std::int64_t dest_bin = static_cast<std::int64_t>(new_dist / delta);
+            ONEDAL_ASSERT(dest_bin >= 0)
             if (dest_bin >= local_bins.size()) {
                 local_bins.resize(dest_bin + 1);
             }
