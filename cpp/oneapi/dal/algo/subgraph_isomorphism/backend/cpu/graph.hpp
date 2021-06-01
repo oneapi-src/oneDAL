@@ -34,13 +34,7 @@ struct graph_input_data {
     std::int64_t** edges_attribute;
     inner_alloc allocator_;
 
-    graph_input_data(inner_alloc allocator);
     graph_input_data(const std::int64_t vertex_size, inner_alloc allocator);
-    graph_input_data(std::int64_t vertex_count,
-                     std::int64_t* degree,
-                     std::int64_t* attr,
-                     std::int64_t** edges_attribute,
-                     inner_alloc allocator);
     ~graph_input_data();
 };
 
@@ -53,9 +47,7 @@ struct graph_input_list_data : public graph_input_data<Cpu> {
     using graph_input_data<Cpu>::attr;
     using graph_input_data<Cpu>::edges_attribute;
 
-    graph_input_list_data(inner_alloc allocator);
     graph_input_list_data(const std::int64_t vertex_size, inner_alloc allocator);
-    graph_input_list_data(graph_input_data<Cpu>* input_data, inner_alloc allocator);
     ~graph_input_list_data();
 };
 
@@ -68,9 +60,7 @@ struct graph_input_bit_data : public graph_input_data<Cpu> {
     using graph_input_data<Cpu>::attr;
     using graph_input_data<Cpu>::edges_attribute;
 
-    graph_input_bit_data(inner_alloc allocator);
     graph_input_bit_data(const std::int64_t vertex_size, inner_alloc allocator);
-    graph_input_bit_data(graph_input_data<Cpu>* input_data, inner_alloc allocator);
     ~graph_input_bit_data();
 };
 
@@ -80,7 +70,6 @@ struct graph_data {
     const graph_input_list_data<Cpu>* plist_data;
 
     graph_data();
-    graph_data(const graph_input_bit_data<Cpu>* pbit, const graph_input_list_data<Cpu>* plist);
     ~graph_data();
 };
 
@@ -267,12 +256,6 @@ void graph<Cpu>::init_from_bit(const graph_input_bit_data<Cpu>* input_bit_data) 
 template <typename Cpu>
 graph_data<Cpu>::graph_data() : pbit_data(nullptr),
                                 plist_data(nullptr) {}
-
-template <typename Cpu>
-graph_data<Cpu>::graph_data(const graph_input_bit_data<Cpu>* pbit,
-                            const graph_input_list_data<Cpu>* plist)
-        : pbit_data(pbit),
-          plist_data(plist) {}
 
 template <typename Cpu>
 graph_data<Cpu>::~graph_data() {}
@@ -491,26 +474,6 @@ std::int64_t graph<Cpu>::get_edge_attribute(const std::int64_t current_vertex,
 }
 
 template <typename Cpu>
-graph_input_data<Cpu>::graph_input_data(inner_alloc allocator)
-        : vertex_count(0),
-          degree(nullptr),
-          attr(nullptr),
-          edges_attribute(nullptr),
-          allocator_(allocator) {}
-
-template <typename Cpu>
-graph_input_data<Cpu>::graph_input_data(std::int64_t vertex_count,
-                                        std::int64_t* degree,
-                                        std::int64_t* attr,
-                                        std::int64_t** edges_attribute,
-                                        inner_alloc allocator)
-        : vertex_count(vertex_count),
-          degree(degree),
-          attr(attr),
-          edges_attribute(edges_attribute),
-          allocator_(allocator) {}
-
-template <typename Cpu>
 graph_input_data<Cpu>::graph_input_data(const std::int64_t vertex_size, inner_alloc allocator)
         : vertex_count(vertex_size),
           allocator_(allocator) {
@@ -542,29 +505,9 @@ graph_input_data<Cpu>::~graph_input_data() {
 }
 
 template <typename Cpu>
-graph_input_list_data<Cpu>::graph_input_list_data(inner_alloc allocator)
-        : graph_input_data<Cpu>(allocator) {
-    data = nullptr;
-}
-
-template <typename Cpu>
 graph_input_list_data<Cpu>::graph_input_list_data(const std::int64_t vertex_size,
                                                   inner_alloc allocator)
         : graph_input_data<Cpu>(vertex_size, allocator) {
-    data = allocator_.template allocate<std::int64_t*>(vertex_count);
-    for (int64_t i = 0; i < vertex_count; i++) {
-        data[i] = nullptr;
-    }
-}
-
-template <typename Cpu>
-graph_input_list_data<Cpu>::graph_input_list_data(graph_input_data<Cpu>* input_data,
-                                                  inner_alloc allocator)
-        : graph_input_data<Cpu>(input_data->vertex_count,
-                                input_data->degree,
-                                input_data->attr,
-                                input_data->edges_attribute,
-                                allocator) {
     data = allocator_.template allocate<std::int64_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
         data[i] = nullptr;
@@ -581,35 +524,11 @@ graph_input_list_data<Cpu>::~graph_input_list_data() {
     }
     allocator_.template deallocate<std::int64_t*>(data, vertex_count);
 }
-
-template <typename Cpu>
-graph_input_bit_data<Cpu>::graph_input_bit_data(inner_alloc allocator)
-        : graph_input_data<Cpu>(allocator) {
-    data = nullptr;
-}
-
 template <typename Cpu>
 graph_input_bit_data<Cpu>::graph_input_bit_data(const std::int64_t vertex_size,
                                                 inner_alloc allocator)
         : graph_input_data<Cpu>(vertex_size, allocator) {
     std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
-
-    data = allocator_.template allocate<std::uint8_t*>(vertex_count);
-    for (int64_t i = 0; i < vertex_count; i++) {
-        data[i] = allocator_.template allocate<std::uint8_t>(bit_array_size);
-        bit_vector<Cpu>::set(bit_array_size, data[i]);
-    }
-}
-
-template <typename Cpu>
-graph_input_bit_data<Cpu>::graph_input_bit_data(graph_input_data<Cpu>* input_data,
-                                                inner_alloc allocator)
-        : graph_input_data<Cpu>(input_data->vertex_count,
-                                input_data->degree,
-                                input_data->attr,
-                                input_data->edges_attribute,
-                                allocator) {
-    const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
 
     data = allocator_.template allocate<std::uint8_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
