@@ -34,10 +34,13 @@ public:
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t element_count = row_count * column_count;
     static constexpr std::int64_t cluster_count = 2;
-    static constexpr std::int64_t huge_cluster_count = 10;
+    static constexpr std::int64_t invalid_cluster_count = 5;
     static constexpr std::int64_t bad_cluster_count = 2;
+    static constexpr std::int64_t too_big_cluster_count = 10;
     static constexpr std::int64_t bad_column_count = 3;
     static constexpr std::int64_t cluster_element_count = cluster_count * column_count;
+    static constexpr std::int64_t too_big_cluster_element_count =
+        too_big_cluster_count * column_count;
     static constexpr std::int64_t bad_cluster_element_count = cluster_count * bad_column_count;
 
     auto get_descriptor() const {
@@ -60,6 +63,14 @@ public:
                                 std::int64_t override_column_count = column_count) const {
         ONEDAL_ASSERT(override_row_count * override_column_count <= element_count);
         return homogen_table::wrap(initial_centroids.data(),
+                                   override_row_count,
+                                   override_column_count);
+    }
+
+    table get_too_big_initial_centroids(std::int64_t override_row_count = too_big_cluster_count,
+                                        std::int64_t override_column_count = column_count) const {
+        ONEDAL_ASSERT(override_row_count * override_column_count <= element_count);
+        return homogen_table::wrap(too_big_initial_centroids.data(),
                                    override_row_count,
                                    override_column_count);
     }
@@ -89,6 +100,11 @@ private:
                                                                                     0.0,
                                                                                     0.0,
                                                                                     0.0 };
+
+    static constexpr std::array<float, too_big_cluster_element_count> too_big_initial_centroids = {
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    };
 };
 
 #define KMEANS_BADARG_TEST(name) \
@@ -137,7 +153,7 @@ KMEANS_BADARG_TEST("throws if train data is empty") {
 }
 
 KMEANS_BADARG_TEST("throws if initial centroids rows less than cluster count") {
-    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->huge_cluster_count);
+    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->invalid_cluster_count);
 
     REQUIRE_THROWS_AS(train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()),
                       invalid_argument);
@@ -148,6 +164,14 @@ KMEANS_BADARG_TEST("throws if train data columns neq initial centroid columns") 
 
     REQUIRE_THROWS_AS(train(kmeans_desc, this->get_train_data(), this->get_bad_initial_centroids()),
                       invalid_argument);
+}
+
+KMEANS_BADARG_TEST("throws if cluster count exceeds data row count") {
+    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->too_big_cluster_count);
+
+    REQUIRE_THROWS_AS(
+        train(kmeans_desc, this->get_train_data(), this->get_too_big_initial_centroids()),
+        invalid_argument);
 }
 
 KMEANS_BADARG_TEST("throws if infer data is empty") {

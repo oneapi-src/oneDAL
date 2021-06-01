@@ -44,6 +44,9 @@ struct train_ops {
         if (!(input.get_data().has_data())) {
             throw domain_error(msg::input_data_is_empty());
         }
+        if (params.get_cluster_count() > input.get_data().get_row_count()) {
+            throw invalid_argument(msg::cluster_count_exceeds_data_row_count());
+        }
         if (input.get_initial_centroids().has_data()) {
             if (input.get_initial_centroids().get_row_count() != params.get_cluster_count()) {
                 throw invalid_argument(msg::input_initial_centroids_rc_neq_desc_cluster_count());

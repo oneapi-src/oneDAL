@@ -126,6 +126,7 @@ MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
+MSG(cluster_count_exceeds_data_row_count, "Cluster count exceeds data row count")
 MSG(input_initial_centroids_are_empty, "Input initial centroids are empty")
 MSG(input_initial_centroids_cc_neq_input_data_cc,
     "Input initial centroids column count is not equal to input data column count")
