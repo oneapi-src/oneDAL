@@ -43,7 +43,7 @@ public:
         queue_ = queue;
         return *this;
     }
-    auto set_data(const pr::ndarray<Float, 2> data) {
+    auto& set_data(const pr::ndarray<Float, 2> data) {
         data_ = data;
         row_count_ = data.get_dimension(0);
         column_count_ = data.get_dimension(1);
