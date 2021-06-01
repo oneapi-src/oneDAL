@@ -106,14 +106,6 @@ void and_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
 }
 
 template <typename Cpu>
-void inversion(std::uint8_t* vec, std::int64_t size) {
-    ONEDAL_IVDEP
-    for (std::int64_t i = 0; i < size; i++) {
-        vec[i] = ~vec[i];
-    }
-}
-
-template <typename Cpu>
 void or_equal(std::uint8_t* vec, const std::int64_t* bit_index, const std::int64_t list_size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < list_size; i++) {
