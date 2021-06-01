@@ -59,11 +59,8 @@ public:
 
     std::int64_t first_states_generator(dfs_stack<Cpu>& stack);
 
-    void push_into_stack(state<Cpu>* _state);
     void push_into_stack(const std::int64_t vertex_id);
     bool match_vertex(const std::int64_t pattern_vertex, const std::int64_t target_vertex) const;
-    bool check_vertex_candidate(const std::int64_t pattern_vertex,
-                                const std::int64_t target_vertex);
 
     inner_alloc allocator_;
     const graph<Cpu>* pattern;
@@ -323,11 +320,6 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
 }
 
 template <typename Cpu>
-void matching_engine<Cpu>::push_into_stack(state<Cpu>* _state) {
-    local_stack.push(_state);
-}
-
-template <typename Cpu>
 void matching_engine<Cpu>::push_into_stack(const std::int64_t vertex_id) {
     hlocal_stack.push_into_current_level(vertex_id);
 }
@@ -375,19 +367,6 @@ std::int64_t matching_engine<Cpu>::extract_candidates(state<Cpu>* current_state,
         }
     }
     return feasible_result_count;
-}
-
-template <typename Cpu>
-bool matching_engine<Cpu>::check_vertex_candidate(const std::int64_t pattern_vertex,
-                                                  const std::int64_t target_vertex) {
-    if (match_vertex(pattern_vertex, target_vertex)) {
-        state<Cpu> null_state(allocator_);
-        void* place = (void*)allocator_.allocate<state<Cpu>>(1);
-        state<Cpu>* new_state = new (place) state<Cpu>(&null_state, target_vertex, allocator_);
-        local_stack.push(new_state);
-        return true;
-    }
-    return false;
 }
 
 template <typename Cpu>
