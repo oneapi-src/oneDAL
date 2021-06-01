@@ -17,14 +17,27 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/table/backend/accessor_compat.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
 
-class empty_table_impl : public detail::table_template<detail::table_iface, empty_table_impl>,
+class empty_table_impl : public detail::generic_table_template<empty_table_impl>,
                          public ONEDAL_SERIALIZABLE(empty_table_id) {
 public:
     static constexpr std::int64_t pure_empty_table_kind = 0;
+
+    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_host& get_access_iface_host() const override {
+        return compat_acc_.get_host_accessor();
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    // Needs to be overriden for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_dpc& get_access_iface_dpc() const override {
+        return compat_acc_.get_dpc_accessor();
+    }
+#endif
 
     std::int64_t get_column_count() const override {
         return 0;
@@ -48,32 +61,38 @@ public:
     }
 
     template <typename T>
-    void pull_rows(const detail::default_host_policy& policy,
-                   array<T>& block,
-                   const range& rows) const {}
-
-    template <typename T>
-    void pull_column(const detail::default_host_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) const {}
+    void pull_rows_template(const detail::default_host_policy& policy,
+                            array<T>& block,
+                            const range& rows) const {}
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void pull_rows(const detail::data_parallel_policy& policy,
-                   array<T>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) const {}
+    void pull_rows_template(const detail::data_parallel_policy& policy,
+                            array<T>& block,
+                            const range& rows,
+                            sycl::usm::alloc alloc) const {}
 #endif
+
+    template <typename T>
+    void pull_column_template(const detail::default_host_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) const {}
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void pull_column(const detail::data_parallel_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) const {}
+    void pull_column_template(const detail::data_parallel_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows,
+                              sycl::usm::alloc alloc) const {}
 #endif
+
+    template <typename T>
+    void pull_csr_block_template(const detail::default_host_policy& policy,
+                                 detail::csr_block<T>& block,
+                                 const detail::csr_indexing& indexing,
+                                 const range& row_range) const {}
 
     void serialize(detail::output_archive& ar) const override {
         // Nothing to serialize
@@ -82,6 +101,9 @@ public:
     void deserialize(detail::input_archive& ar) override {
         // Nothing to deserialize
     }
+
+private:
+    mutable compat_accessor compat_acc_;
 };
 
 } // namespace oneapi::dal::backend

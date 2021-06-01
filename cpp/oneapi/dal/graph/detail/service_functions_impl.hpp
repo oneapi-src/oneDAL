@@ -41,10 +41,31 @@ constexpr auto get_vertex_degree_impl(const Graph &g, const vertex_type<Graph> &
 }
 
 template <typename Graph>
+constexpr auto get_vertex_outward_degree_impl(const Graph &g, const vertex_type<Graph> &u) noexcept
+    -> vertex_outward_edge_size_type<Graph> {
+    const auto &t = dal::detail::get_impl(g).get_topology();
+    return t.get_vertex_degree(u);
+}
+
+template <typename Graph>
 constexpr auto get_vertex_neighbors_impl(const Graph &g, const vertex_type<Graph> &u) noexcept
     -> const_vertex_edge_range_type<Graph> {
     const auto &t = dal::detail::get_impl(g).get_topology();
     return t.get_vertex_neighbors(u);
+}
+
+template <typename Graph>
+constexpr auto get_vertex_outward_neighbors_impl(const Graph &g,
+                                                 const vertex_type<Graph> &u) noexcept
+    -> const_vertex_edge_range_type<Graph> {
+    const auto &t = dal::detail::get_impl(g).get_topology();
+    return t.get_vertex_neighbors(u);
+}
+
+template <typename Graph>
+constexpr auto get_edge_value_impl(const Graph &g, vertex_type<Graph> u, vertex_type<Graph> v)
+    -> const edge_user_value_type<Graph> & {
+    return dal::detail::get_impl(g).get_edge_value(u, v);
 }
 
 } // namespace oneapi::dal::preview::detail

@@ -45,3 +45,8 @@ To build oneDAL documentation locally:
 		make html
 
 	You can find documentation in `build/html` folder.
+
+	**Note:** By default, the documentation is generated with the Intel-branded library name.
+	To generate the output for GitHub pages, run the following instead:
+
+		make html-github

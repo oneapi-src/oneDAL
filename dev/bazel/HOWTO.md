@@ -211,6 +211,13 @@ The most used Bazel commands are `build`, `test` and `run`.
    bazel test --test_thread_mode=seq //cpp/oneapi/dal:tests
    ```
 
+- `--test_disable_fp64` A switch that disables tests for double precision (`fp64`).
+
+  Example:
+  ```sh
+  bazel test --test_disable_fp64 //cpp/oneapi/dal/algo/pca:tests
+  ```
+
 ## Build recipes for oneDAL
 ### Run oneAPI examples
 - To run all oneAPI C++ example use the following commands:
