@@ -51,8 +51,7 @@ public:
                     inner_alloc allocator);
     virtual ~matching_engine();
 
-    solution<Cpu> run(bool main_engine = false);
-    void run_and_wait(bool main_engine = false);
+    void run_and_wait(global_stack<Cpu>& gstack, std::int64_t& busy_engine_count, bool main_engine);
     solution<Cpu> get_solution();
 
     std::int64_t state_exploration_bit(state<Cpu>* current_state, bool check_solution = true);
@@ -524,27 +523,65 @@ solution<Cpu> matching_engine<Cpu>::get_solution() {
 }
 
 template <typename Cpu>
-void matching_engine<Cpu>::run_and_wait(bool main_engine) {
+void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
+                                        std::int64_t& busy_engine_count,
+                                        bool main_engine) {
     if (main_engine) {
         first_states_generator(hlocal_stack);
     }
+    bool is_busy_engine = true;
+    ONEDAL_ASSERT(pattern != nullptr);
     if (target->bit_representation) { /* dense graph case */
-        while (hlocal_stack.states_in_stack() > 0) {
-            state_exploration_bit();
+        for (;;) {
+            if (hlocal_stack.states_in_stack() > 0) {
+                while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
+                    ;
+                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+                state_exploration_bit();
+            }
+            else {
+                gstack.pop(hlocal_stack);
+                if (hlocal_stack.empty()) {
+                    if (is_busy_engine) {
+                        is_busy_engine = false;
+                        dal::detail::atomic_decrement(busy_engine_count);
+                    }
+                    if (dal::detail::atomic_load(busy_engine_count) == 0)
+                        break;
+                }
+                else if (!is_busy_engine) {
+                    is_busy_engine = true;
+                    dal::detail::atomic_increment(busy_engine_count);
+                }
+            }
         }
     }
     else { /* sparse graph case */
-        while (hlocal_stack.states_in_stack() > 0) {
-            state_exploration_list();
+        for (;;) {
+            if (hlocal_stack.states_in_stack() > 0) {
+                while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
+                    ;
+                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+                state_exploration_list();
+            }
+            else {
+                gstack.pop(hlocal_stack);
+                if (hlocal_stack.empty()) {
+                    if (is_busy_engine) {
+                        is_busy_engine = false;
+                        dal::detail::atomic_decrement(busy_engine_count);
+                    }
+                    if (dal::detail::atomic_load(busy_engine_count) == 0)
+                        break;
+                }
+                else if (!is_busy_engine) {
+                    is_busy_engine = true;
+                    dal::detail::atomic_increment(busy_engine_count);
+                }
+            }
         }
     }
     return;
-}
-
-template <typename Cpu>
-solution<Cpu> matching_engine<Cpu>::run(bool main_engine) {
-    run_and_wait(main_engine);
-    return std::move(engine_solutions);
 }
 
 template <typename Cpu>
@@ -600,7 +637,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
             static_cast<bool>(first_states_count % max_threads_count);
     }
 
-    const std::uint64_t array_size = max_threads_count * 2;
+    const std::uint64_t array_size = max_threads_count;
     auto engine_array_ptr = allocator_.make_shared_memory<matching_engine<Cpu>>(array_size);
     matching_engine<Cpu>* engine_array = engine_array_ptr.get();
 
@@ -631,8 +668,10 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         }
     }
 
+    global_stack<Cpu> gstack(pattern->n, allocator_);
+    std::int64_t busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
-        engine_array[index].run_and_wait(false);
+        engine_array[index].run_and_wait(gstack, busy_engine_count, false);
     });
 
     for (std::uint64_t i = 0; i < array_size; i++) {
