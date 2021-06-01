@@ -16,13 +16,10 @@
 
 #pragma once
 
-#include <algorithm>
-
 #include "oneapi/dal/detail/array_impl.hpp"
-#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal {
-namespace v1 {
+namespace v2 {
 
 /// @tparam T The type of the memory block elements within the array.
 ///              :literal:`T` can represent any type.
@@ -32,7 +29,8 @@ template <typename T>
 class array {
     static_assert(!std::is_const_v<T>, "array class cannot have const-qualified type of data");
 
-    friend struct detail::serialization_accessor;
+    friend detail::pimpl_accessor;
+    friend detail::serialization_accessor;
 
     template <typename U>
     friend class array;
@@ -710,8 +708,8 @@ private:
     std::int64_t count_;
 };
 
-} // namespace v1
+} // namespace v2
 
-using v1::array;
+using v2::array;
 
 } // namespace oneapi::dal

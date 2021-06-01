@@ -159,7 +159,6 @@ void pull_csr_block_impl(const Policy& policy,
     ONEDAL_ASSERT(block_size >= 0);
 
     const bool same_data_type(block_dtype == origin_info.dtype_);
-
     pull_data_impl<Policy, BlockData>(policy,
                                       origin_info,
                                       origin_data,
