@@ -68,12 +68,7 @@ public:
 
     virtual ~ModifierIface() {}
 
-    static void contFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
-    {
-        DAAL_DATA_TYPE f;
-        readNumeric<>(word, f);
-        arr[aux.idx] = f;
-    }
+    static void contFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr);
 
     static void catFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
     {
@@ -100,10 +95,7 @@ public:
 
 protected:
     template <class T>
-    static void readNumeric(const char * text, T & f)
-    {
-        f = daal::services::daal_string_to_float(text, 0);
-    }
+    static void readNumeric(const char * text, T & f);
 
     static void binFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
     {
@@ -134,6 +126,25 @@ protected:
         }
     }
 };
+
+template <class T>
+void ModifierIface::readNumeric(const char * text, T &f)
+{
+    f = daal::services::daal_string_to_float(text, 0);
+}
+
+template <>
+void ModifierIface::readNumeric(const char * text, double &f)
+{
+    f = daal::services::daal_string_to_double(text, 0);
+}
+
+void ModifierIface::contFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
+{
+    DAAL_DATA_TYPE f;
+    readNumeric<DAAL_DATA_TYPE>(word, f);
+    arr[aux.idx] = f;
+}
 
 /**
  *  <a name="DAAL-CLASS-DATA_MANAGEMENT__MAKECATEGORICAL"></a>
