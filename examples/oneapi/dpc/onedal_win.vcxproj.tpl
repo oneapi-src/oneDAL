@@ -255,7 +255,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -274,7 +273,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -293,7 +291,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -312,7 +309,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>/MDd</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
