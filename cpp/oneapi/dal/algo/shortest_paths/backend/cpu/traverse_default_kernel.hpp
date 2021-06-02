@@ -183,7 +183,7 @@ struct delta_stepping {
             using v2v_t = vector_container<v1v_t, v1a_t>;
             using v2a_t = inner_alloc<v2v_t>;
             using v3v_t = vector_container<v2v_t, v2a_t>;
-            v2a_t v2a(alloc_ptr);       
+            v2a_t v2a(alloc_ptr);
             v3v_t local_bins(1, v2a);
 
             std::int64_t iter = 0;
@@ -285,7 +285,7 @@ struct delta_stepping_with_pred {
         v3v_t local_bins(1, v2a);
 
         std::int64_t iter = 0;
-        
+
         while (curr_bin_index != max_bin_count && iter != max_bin_count && !empty_queue) {
             for (std::int64_t i = 0; i < curr_shared_bin_tail; ++i) {
                 vertex_type u = shared_bin[i];
