@@ -629,7 +629,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
     std::uint64_t max_threads_count = dal::detail::threader_get_max_threads();
     std::uint64_t possible_first_states_count_per_thread = first_states_count / max_threads_count;
     if (possible_first_states_count_per_thread < 1) {
-        max_threads_count = first_states_count;
+        // max_threads_count = first_states_count;
         possible_first_states_count_per_thread = 1;
     }
     else {
