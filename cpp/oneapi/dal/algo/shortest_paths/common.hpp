@@ -83,8 +83,8 @@ ONEDAL_EXPORT optional_result_id get_distances_id();
 } // namespace detail
 
 namespace optional_results {
-inline const optional_result_id predecessors = detail::get_predecessors_id();
-inline const optional_result_id distances = detail::get_distances_id();
+const optional_result_id predecessors = detail::get_predecessors_id();
+const optional_result_id distances = detail::get_distances_id();
 } // namespace optional_results
 
 namespace detail {
