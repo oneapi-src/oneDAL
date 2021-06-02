@@ -35,27 +35,31 @@ using by_default = delta_stepping;
 } // namespace method
 
 class optional_result_id {
-    static constexpr std::int64_t mask_size = 128;
-    using bitset_t = std::bitset<mask_size>;
+    using bitset_t = std::uint64_t;
 
 public:
-    optional_result_id() = default;
-    optional_result_id(const bitset_t& mask) : mask_(mask) {}
-    optional_result_id(bitset_t&& mask) : mask_(std::move(mask)) {}
+    optional_result_id() : mask_(0) {}
 
-    explicit optional_result_id(std::int64_t result_index) {
-        mask_.set(result_index);
-    }
+    optional_result_id(const bitset_t& mask) : mask_(mask) {}
 
     const bitset_t& get_mask() const {
         return mask_;
     }
 
     operator bool() const {
-        return mask_.any();
+        return (mask_ > 0);
+    }
+
+    static optional_result_id get_result_id_by_index(std::int64_t result_index) {
+        return optional_result_id{}.set_mask(std::uint64_t(1) << result_index);
     }
 
 private:
+    optional_result_id& set_mask(const bitset_t& mask) {
+        this->mask_ = mask;
+        return *this;
+    }
+
     bitset_t mask_;
 };
 

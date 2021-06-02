@@ -20,11 +20,11 @@
 namespace oneapi::dal::preview::shortest_paths::detail {
 
 optional_result_id get_predecessors_id() {
-    return optional_result_id(0b01);
+    return optional_result_id::get_result_id_by_index(0);
 }
 
 optional_result_id get_distances_id() {
-    return optional_result_id(0b10);
+    return optional_result_id::get_result_id_by_index(1);
 }
 
 template <typename Task>
