@@ -29,7 +29,6 @@ namespace te = dal::test::engine;
 template <typename Method>
 class dbscan_badarg_test : public te::algo_fixture {
 public:
-
     static constexpr std::int64_t row_count = 8;
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t element_count = row_count * column_count;
@@ -39,7 +38,7 @@ public:
     }
 
     table get_compute_data(std::int64_t override_row_count = row_count,
-                         std::int64_t override_column_count = column_count) const {
+                           std::int64_t override_column_count = column_count) const {
         ONEDAL_ASSERT(override_row_count * override_column_count <= element_count);
         return homogen_table::wrap(compute_data_.data(), override_row_count, override_column_count);
     }
@@ -54,9 +53,8 @@ private:
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<float, row_count> weights_ = {
-        1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0
-    };
+    static constexpr std::array<float, row_count> weights_ = { 1.0, 1.0, 2.0, 2.0,
+                                                               1.0, 2.0, 2.0, 1.0 };
 };
 
 #define DBSCAN_BADARG_TEST(name) \
@@ -78,4 +76,4 @@ DBSCAN_BADARG_TEST("throws if min_observatons is negative") {
     REQUIRE_THROWS_AS(this->get_descriptor().set_min_observations(-1), domain_error);
 }
 
-} // namespace oneapi::dal::kmeans::test
+} // namespace oneapi::dal::dbscan::test

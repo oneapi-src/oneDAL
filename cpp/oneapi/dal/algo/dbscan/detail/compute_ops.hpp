@@ -25,8 +25,8 @@ namespace v1 {
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct compute_ops_dispatcher {
     compute_result<Task> operator()(const Context&,
-                                  const descriptor_base<Task>&,
-                                  const compute_input<Task>&) const;
+                                    const descriptor_base<Task>&,
+                                    const compute_input<Task>&) const;
 };
 
 template <typename Descriptor>
@@ -47,10 +47,10 @@ struct compute_ops {
         if (input.get_weights().has_data()) {
             if (input.get_weights().get_row_count() != 0 &&
                 input.get_weights().get_row_count() != input.get_data().get_row_count()) {
-//                throw invalid_argument(msg::input_initial_centroids_rc_neq_desc_cluster_count());
+                //                throw invalid_argument(msg::input_initial_centroids_rc_neq_desc_cluster_count());
             }
             if (input.get_weights().get_column_count() != 1) {
-//                throw invalid_argument(msg::input_initial_centroids_cc_neq_input_data_cc());
+                //                throw invalid_argument(msg::input_initial_centroids_cc_neq_input_data_cc());
             }
         }
     }
@@ -58,7 +58,7 @@ struct compute_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-/*        ONEDAL_ASSERT(result.get_labels().has_data());
+        /*        ONEDAL_ASSERT(result.get_labels().has_data());
         ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
         ONEDAL_ASSERT(result.get_iteration_count() <= params.get_max_iteration_count());
         ONEDAL_ASSERT(result.get_model().get_centroids().has_data());
