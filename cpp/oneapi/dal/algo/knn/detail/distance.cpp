@@ -24,14 +24,14 @@ template <typename F, typename M>
 using minkowski_distance_t = minkowski_distance::descriptor<F, M>;
 
 template <typename F, typename M>
-using chebychev_distance_t = chebychev_distance::descriptor<F, M>;
+using chebyshev_distance_t = chebyshev_distance::descriptor<F, M>;
 
-class daal_interop_chebychev_distance_impl : public distance_impl {
+class daal_interop_chebyshev_distance_impl : public distance_impl {
 public:
-    daal_interop_chebychev_distance_impl() = default;
+    daal_interop_chebyshev_distance_impl() = default;
 
     daal_distance_t get_daal_distance_type() override {
-        return daal_distance_t::chebychev;
+        return daal_distance_t::chebyshev;
     }
 
     double get_degree() override {
@@ -66,26 +66,26 @@ distance_impl *distance<minkowski_distance_t<F, M>>::get_impl() const {
 }
 
 template <typename F, typename M>
-distance<chebychev_distance_t<F, M>>::distance(const chebychev_distance_t<F, M> &dist)
+distance<chebyshev_distance_t<F, M>>::distance(const chebyshev_distance_t<F, M> &dist)
         : distance_(dist),
-          impl_(new daal_interop_chebychev_distance_impl{}) {}
+          impl_(new daal_interop_chebyshev_distance_impl{}) {}
 
 template <typename F, typename M>
-distance_impl *distance<chebychev_distance_t<F, M>>::get_impl() const {
+distance_impl *distance<chebyshev_distance_t<F, M>>::get_impl() const {
     return impl_.get();
 }
 
 #define INSTANTIATE_MINKOWSKI(F, M) \
     template class ONEDAL_EXPORT distance<minkowski_distance_t<F, M>>;
 
-#define INSTANTIATE_CHEBYCHEV(F, M) \
-    template class ONEDAL_EXPORT distance<chebychev_distance_t<F, M>>;
+#define INSTANTIATE_CHEBYSHEV(F, M) \
+    template class ONEDAL_EXPORT distance<chebyshev_distance_t<F, M>>;
 
 INSTANTIATE_MINKOWSKI(float, minkowski_distance::method::dense)
 INSTANTIATE_MINKOWSKI(double, minkowski_distance::method::dense)
 
-INSTANTIATE_CHEBYCHEV(float, chebychev_distance::method::dense)
-INSTANTIATE_CHEBYCHEV(double, chebychev_distance::method::dense)
+INSTANTIATE_CHEBYSHEV(float, chebyshev_distance::method::dense)
+INSTANTIATE_CHEBYSHEV(double, chebyshev_distance::method::dense)
 
 } // namespace v1
 } // namespace oneapi::dal::knn::detail

@@ -30,7 +30,7 @@ CORE.SERV.COMPILER.dpcpp = generic
 
 COMPILER.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64) -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type
-COMPILER.win.dpcpp = dpcpp -MD -nologo -WX -Wno-deprecated-declarations
+COMPILER.win.dpcpp = dpcpp $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Wno-deprecated-declarations
 
 link.dynamic.lnx.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)
 link.dynamic.win.dpcpp = dpcpp $(if $(IA_is_ia32),-m32,-m64)

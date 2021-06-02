@@ -17,7 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/minkowski_distance/common.hpp"
-#include "oneapi/dal/algo/chebychev_distance/common.hpp"
+#include "oneapi/dal/algo/chebyshev_distance/common.hpp"
 
 namespace oneapi::dal::knn::detail {
 namespace v1 {
@@ -63,9 +63,9 @@ private:
 };
 
 template <typename Float, typename Method>
-class distance<chebychev_distance::descriptor<Float, Method>> : public base, public distance_iface {
+class distance<chebyshev_distance::descriptor<Float, Method>> : public base, public distance_iface {
 public:
-    using distance_t = chebychev_distance::descriptor<Float, Method>;
+    using distance_t = chebyshev_distance::descriptor<Float, Method>;
     explicit distance(const distance_t& dist);
     distance_impl* get_impl() const override;
 

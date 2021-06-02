@@ -19,7 +19,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::chebychev_distance {
+namespace oneapi::dal::chebyshev_distance {
 
 namespace task {
 namespace v1 {
@@ -124,4 +124,4 @@ public:
 
 using v1::descriptor;
 
-} // namespace oneapi::dal::chebychev_distance
+} // namespace oneapi::dal::chebyshev_distance
