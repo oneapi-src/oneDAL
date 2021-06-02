@@ -357,6 +357,14 @@ inline std::int64_t propose_wg_size(const sycl::queue& q) {
     return std::min<std::int64_t>(512, device_max_wg_size(q));
 }
 
+/// Finds the workgroup size for specified data set width
+/// {WG-per-row topology is expected)
+/// Number of subgroups is calculated as minimal value
+/// from subgroups in WG with preffered_wg_size
+/// and number of subgroups to completely cover the dataset row
+/// For, example if column_count = 350; preffered_wg_size = 512 and
+/// max supported subgroup size = 32 then
+/// final WG size will be 352
 inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
                                                std::int64_t column_count,
                                                std::int64_t preffered_wg_size) {

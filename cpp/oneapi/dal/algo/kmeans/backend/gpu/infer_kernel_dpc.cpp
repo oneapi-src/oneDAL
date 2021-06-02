@@ -41,15 +41,13 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         const std::int64_t cluster_count = params.get_cluster_count();
 
         auto arr_data = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
-
-        dal::detail::check_mul_overflow(cluster_count, column_count);
-        auto centroids_ptr =
-            row_accessor<const Float>{ input.get_model().get_centroids() }.pull(queue);
-        auto arr_centroids =
-            pr::ndarray<Float, 2>::wrap(centroids_ptr, { cluster_count, column_count });
+        auto arr_centroids = pr::table2ndarray<Float>(queue,
+                                                      input.get_model().get_centroids(),
+                                                      sycl::usm::alloc::device);
 
         std::int64_t block_size_in_rows =
             kernels_fp<Float>::get_block_size_in_rows(queue, column_count);
+        dal::detail::check_mul_overflow(block_size_in_rows, cluster_count);
         auto arr_distance_block =
             pr::ndarray<Float, 2>::empty(queue,
                                          { block_size_in_rows, cluster_count },
