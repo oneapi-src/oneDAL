@@ -128,18 +128,18 @@ protected:
 };
 
 template <class T>
-void ModifierIface::readNumeric(const char * text, T & f)
+inline void ModifierIface::readNumeric(const char * text, T & f)
 {
     f = daal::services::daal_string_to_float(text, 0);
 }
 
 template <>
-void ModifierIface::readNumeric(const char * text, double & f)
+inline void ModifierIface::readNumeric(const char * text, double & f)
 {
     f = daal::services::daal_string_to_double(text, 0);
 }
 
-void ModifierIface::contFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
+inline void ModifierIface::contFunc(const char * word, FeatureAuxData & aux, DAAL_DATA_TYPE * arr)
 {
     DAAL_DATA_TYPE f;
     readNumeric<DAAL_DATA_TYPE>(word, f);
