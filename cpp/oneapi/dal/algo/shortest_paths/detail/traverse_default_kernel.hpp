@@ -16,9 +16,6 @@
 
 #pragma once
 
-#include <atomic>
-#include <limits>
-
 #include "oneapi/dal/algo/shortest_paths/common.hpp"
 #include "oneapi/dal/algo/shortest_paths/traverse_types.hpp"
 #include "oneapi/dal/detail/common.hpp"

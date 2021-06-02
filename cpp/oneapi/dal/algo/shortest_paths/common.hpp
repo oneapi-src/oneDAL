@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <bitset>
-
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/graph/directed_adjacency_vector_graph.hpp"
 #include "oneapi/dal/table/common.hpp"
