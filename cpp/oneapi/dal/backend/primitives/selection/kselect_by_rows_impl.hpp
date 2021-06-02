@@ -73,8 +73,6 @@ kselect_by_rows<Float>::kselect_by_rows(sycl::queue& queue,
     }
 }
 
-#define INSTANTIATE(F) template class kselect_by_rows<F>;
-
 #endif // ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::backend::primitives

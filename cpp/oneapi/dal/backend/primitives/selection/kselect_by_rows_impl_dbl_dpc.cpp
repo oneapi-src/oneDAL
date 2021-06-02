@@ -18,10 +18,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
-
-INSTANTIATE(double)
-
-#endif // ONEDAL_DATA_PARALLEL
+template class kselect_by_rows<double>;
 
 } // namespace oneapi::dal::backend::primitives
