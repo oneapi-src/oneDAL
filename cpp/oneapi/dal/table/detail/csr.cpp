@@ -41,11 +41,17 @@ const std::int64_t* csr_table::get_row_indices() const {
     return impl.get_row_indices().get_data();
 }
 
+std::int64_t csr_table::get_non_zero_count() const {
+    const std::int64_t non_zero_count = get_row_indices()[get_row_count()] - get_row_indices()[0];
+    ONEDAL_ASSERT(non_zero_count >= 0);
+    return non_zero_count;
+}
+
 void csr_table::init_impl(std::int64_t column_count,
                           std::int64_t row_count,
-                          const array<byte_t>& data,
-                          const array<std::int64_t>& column_indices,
-                          const array<std::int64_t>& row_indices,
+                          const dal::array<byte_t>& data,
+                          const dal::array<std::int64_t>& column_indices,
+                          const dal::array<std::int64_t>& row_indices,
                           const data_type& dtype,
                           csr_indexing indexing) {
     table::init_impl(new backend::csr_table_impl(column_count,

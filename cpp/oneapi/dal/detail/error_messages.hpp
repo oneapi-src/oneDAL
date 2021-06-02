@@ -109,6 +109,7 @@ public:
     MSG(object_does_not_provide_write_access_to_rows);
     MSG(object_does_not_provide_read_access_to_columns);
     MSG(object_does_not_provide_write_access_to_columns);
+    MSG(object_does_not_provide_access_to_rows_or_columns);
     MSG(unsupported_conversion_types);
     MSG(row_indices_lt_min_value);
     MSG(row_indices_gt_max_value);
@@ -167,6 +168,14 @@ public:
     MSG(row_begin_gt_row_end);
     MSG(range_idx_gt_max_int32);
 
+    /* Subgraph Isomorphism */
+    MSG(unsupported_kind);
+    MSG(max_match_count_lt_zero);
+    MSG(empty_target_graph);
+    MSG(empty_pattern_graph);
+    MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
+    MSG(non_zero_max_match_count_is_not_supported);
+
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
     MSG(input_initial_centroids_are_empty);
@@ -180,14 +189,18 @@ public:
     MSG(objective_function_value_lt_zero);
 
     /* k-NN */
-    MSG(knn_brute_force_method_is_not_implemented_for_cpu);
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
+    MSG(unknown_distance_type);
+    MSG(distance_is_not_supported_for_gpu);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
+
+    /* Minkowski distance */
+    MSG(invalid_minkowski_degree);
 
     /* PCA */
     MSG(component_count_lt_zero);
@@ -196,6 +209,11 @@ public:
     MSG(input_model_eigenvectors_rc_neq_desc_component_count);
     MSG(input_model_eigenvectors_rc_neq_input_data_cc);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
+
+    /* Shortest Paths */
+    MSG(nothing_to_compute);
+    MSG(distances_are_uninitialized);
+    MSG(predecessors_are_uninitialized);
 
     /* SVM */
     MSG(c_leq_zero);

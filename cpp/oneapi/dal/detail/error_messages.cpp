@@ -82,6 +82,8 @@ MSG(object_does_not_provide_read_access_to_columns,
     "Given object does not provide read access to columns")
 MSG(object_does_not_provide_write_access_to_columns,
     "Given object does not provide write access to columns")
+MSG(object_does_not_provide_access_to_rows_or_columns,
+    "Given object does not provide access to rows or columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
 MSG(row_indices_lt_min_value, "Row indices are less than the minimum acceptable value")
 MSG(row_indices_gt_max_value, "Row indices are larger than the maximum acceptable value")
@@ -150,11 +152,15 @@ MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu,
 MSG(objective_function_value_lt_zero, "Objective function value is lower than zero")
 
 /* k-NN */
-MSG(knn_brute_force_method_is_not_implemented_for_cpu,
-    "k-NN brute force method is not implemented for CPU")
 MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
     "k-NN k-d tree method is not implemented for GPU")
 MSG(neighbor_count_lt_one, "Neighbor count lower than one")
+MSG(unknown_distance_type,
+    "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
+MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
+
+/* Minkowski distance */
+MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
 
 /* Jaccard */
 MSG(column_begin_gt_column_end, "Column begin is greater than column end")
@@ -163,6 +169,14 @@ MSG(interval_gt_vertex_count, "Interval is greater than vertex count")
 MSG(negative_interval, "Negative interval")
 MSG(row_begin_gt_row_end, "Row begin is greater than row end")
 MSG(range_idx_gt_max_int32, "Range indexes are greater than max of int32")
+
+/* Subgraph Isomorphism */
+MSG(max_match_count_lt_zero, "Maximum number of match count less that zero")
+MSG(empty_target_graph, "Empty target graph")
+MSG(empty_pattern_graph, "Empty pattern graph")
+MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
+    "Subgraph isomorphism is not implemented for labeled edges")
+MSG(non_zero_max_match_count_is_not_supported, "Non-zero max_match_count is not supported")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
@@ -176,6 +190,11 @@ MSG(input_model_eigenvectors_rc_neq_input_data_cc,
     "Eigenvectors' row count in input model is not equal to input data column count")
 MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
+
+/* Shortest Paths */
+MSG(nothing_to_compute, "Invalid combination of optional results: nothing to compute")
+MSG(distances_are_uninitialized, "Distances are not set as an optional result")
+MSG(predecessors_are_uninitialized, "Predecessors are not set as an optional result")
 
 /* SVM */
 MSG(c_leq_zero, "C is lower than or equal to zero")
