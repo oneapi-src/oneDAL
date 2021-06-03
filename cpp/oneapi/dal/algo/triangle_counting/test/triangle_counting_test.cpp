@@ -449,7 +449,7 @@ TEST_M(triangle_counting_test, "Local_and_global task: empty graph") {
 TEST_M(triangle_counting_test, "Global task: empty graph, relabeled)") {
     dal::preview::undirected_adjacency_vector_graph<> empty_graph;
     std::allocator<char> alloc;
-    auto tc_desc = dal::preview::triangle_counting::descriptor<
+    const auto tc_desc = dal::preview::triangle_counting::descriptor<
                        float,
                        dal::preview::triangle_counting::method::ordered_count,
                        dal::preview::triangle_counting::task::global,
@@ -463,7 +463,7 @@ TEST_M(triangle_counting_test, "Global task: empty graph, relabeled)") {
 TEST_M(triangle_counting_test, "Global task: empty graph, not relabeled") {
     dal::preview::undirected_adjacency_vector_graph<> empty_graph;
     std::allocator<char> alloc;
-    auto tc_desc = dal::preview::triangle_counting::descriptor<
+    const auto tc_desc = dal::preview::triangle_counting::descriptor<
                        float,
                        dal::preview::triangle_counting::method::ordered_count,
                        dal::preview::triangle_counting::task::global,
