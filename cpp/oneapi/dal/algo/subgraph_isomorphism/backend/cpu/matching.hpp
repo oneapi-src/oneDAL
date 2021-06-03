@@ -637,6 +637,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
             static_cast<bool>(first_states_count % max_threads_count);
     }
 
+    std::cout << "first_states_count = " << first_states_count << std::endl;
     std::cout << "max_threads_count = " << max_threads_count << std::endl;
     const std::uint64_t array_size = (max_threads_count >= 64)   ? max_threads_count * 2 / 10
                                      : (max_threads_count >= 24) ? max_threads_count * 8 / 10
