@@ -18,7 +18,7 @@
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
 #include "oneapi/dal/backend/math.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 
 namespace oneapi::dal::rbf_kernel::backend {
 
@@ -30,40 +30,61 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-sycl::event compute_rbf(sycl::queue& queue,
-                        const pr::ndview<Float, 1>& sqr_x,
-                        const pr::ndview<Float, 1>& sqr_y,
-                        pr::ndview<Float, 2> res_rbf,
-                        const Float coeff,
-                        const std::int64_t ld,
-                        const dal::backend::event_vector& deps) {
-    const Float* sqr_x_ptr = sqr_x.get_data();
-    const Float* sqr_y_ptr = sqr_y.get_data();
-    Float* res_rbf_ptr = res_rbf.get_mutable_data();
+auto compute_rbf(sycl::queue& queue,
+                 const pr::ndview<Float, 2>& x_nd,
+                 const pr::ndview<Float, 2>& y_nd,
+                 pr::ndview<Float, 2> res_nd,
+                 const double sigma,
+                 const dal::backend::event_vector& deps = {}) {
+    const std::int64_t x_row_count = x_nd.get_dimension(0);
+    const std::int64_t y_row_count = y_nd.get_dimension(0);
+
+    const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
+
+    auto sqr_x_nd = pr::ndarray<Float, 1>::empty(queue, { x_row_count }, sycl::usm::alloc::device);
+    auto sqr_y_nd = pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
+
+    sycl::event::wait_and_throw(deps);
+
+    auto reduce_x_event =
+        reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{});
+    auto reduce_y_event =
+        reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{});
+
+    constexpr Float alpha = -2.0;
+    constexpr Float beta = 0.0;
+    auto gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
+
+    const Float* sqr_x_ptr = sqr_x_nd.get_data();
+    const Float* sqr_y_ptr = sqr_y_nd.get_data();
+    Float* res_ptr = res_nd.get_mutable_data();
 
     const Float threshold = dal::backend::exp_treshold<Float>();
 
     const auto wg_size = dal::backend::propose_wg_size(queue);
     const auto range =
-        dal::backend::make_multiple_nd_range_2d({ sqr_x.get_dimension(0), sqr_y.get_dimension(0) },
-                                                { wg_size, 1 });
+        dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
+
+    const std::size_t ld = y_row_count;
 
     auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
+        cgh.depends_on({ reduce_x_event, reduce_y_event, gemm_event });
 
         cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
             const std::size_t i = item.get_global_id(0);
             const std::size_t j = item.get_global_id(1);
             const Float sqr_x_i = sqr_x_ptr[i];
             const Float sqr_y_j = sqr_y_ptr[j];
-            const Float res_rbf_ij = res_rbf_ptr[i * ld + j];
+            const Float res_rbf_ij = res_ptr[i * ld + j];
             const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
 
-            res_rbf_ptr[i * ld + j] = sycl::exp(arg);
+            res_ptr[i * ld + j] = sycl::exp(arg);
         });
     });
+    auto smart_event =
+        dal::backend::smart_event{ compute_rbf_event }.attach(sqr_x_nd).attach(sqr_y_nd);
 
-    return compute_rbf_event;
+    return smart_event;
 }
 
 template <typename Float>
@@ -79,44 +100,17 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
     dal::detail::check_mul_overflow(x_row_count, y_row_count);
 
-    const double sigma = desc.get_sigma();
-    const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
+    const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
 
-    const auto ndarray_x =
-        pr::flatten_table<Float, row_accessor>(queue, x, sycl::usm::alloc::device);
+    const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
 
-    const auto ndarray_y =
-        pr::flatten_table<Float, row_accessor>(queue, y, sycl::usm::alloc::device);
-
-    auto ndarray_res =
+    auto res_nd =
         pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
 
-    auto ndarray_sqr_x =
-        pr::ndarray<Float, 1>::empty(queue, { x_row_count }, sycl::usm::alloc::device);
-    auto ndarray_sqr_y =
-        pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
+    auto compute_rbf_event = compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
 
-    auto reduce_x_event =
-        reduce_by_rows(queue, ndarray_x, ndarray_sqr_x, pr::sum<Float>{}, pr::square<Float>{});
-    auto reduce_y_event =
-        reduce_by_rows(queue, ndarray_y, ndarray_sqr_y, pr::sum<Float>{}, pr::square<Float>{});
-
-    constexpr Float alpha = -2.0;
-    constexpr Float beta = 0.0;
-    auto gemm_event = gemm(queue, ndarray_x, ndarray_y.t(), ndarray_res, alpha, beta);
-
-    auto compute_rbf_event = compute_rbf(queue,
-                                         ndarray_sqr_x,
-                                         ndarray_sqr_y,
-                                         ndarray_res,
-                                         coeff,
-                                         y_row_count,
-                                         { reduce_x_event, reduce_y_event, gemm_event });
-
-    auto table_res = homogen_table::wrap(ndarray_res.flatten(queue),
-                                         x_row_count,
-                                         y_row_count,
-                                         { compute_rbf_event });
+    auto table_res =
+        homogen_table::wrap(res_nd.flatten(queue), x_row_count, y_row_count, { compute_rbf_event });
 
     return result_t{}.set_values(table_res);
 }

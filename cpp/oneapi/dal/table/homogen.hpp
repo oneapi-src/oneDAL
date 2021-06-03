@@ -132,7 +132,7 @@ public:
     /// @param layout       The layout of the data. Should be :literal:`data_layout::row_major` or
     ///                     :literal:`data_layout::column_major`.
     template <typename Data>
-    static homogen_table wrap(const array<Data>& data,
+    static homogen_table wrap(const dal::array<Data>& data,
                               std::int64_t row_count,
                               std::int64_t column_count,
                               const sycl::vector_class<sycl::event>& dependencies,
