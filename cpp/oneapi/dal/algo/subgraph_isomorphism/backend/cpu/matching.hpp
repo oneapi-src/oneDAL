@@ -641,7 +641,9 @@ solution<Cpu> engine_bundle<Cpu>::run() {
     std::cout << "max_threads_count = " << max_threads_count << std::endl;
     const std::uint64_t array_size = (max_threads_count >= 64)   ? max_threads_count * 2 / 10
                                      : (max_threads_count >= 24) ? max_threads_count * 8 / 10
-                                                                 : max_threads_count * 8 / 10;
+                                     : (max_threads_count >= 8)  ? 4
+                                     : (max_threads_count >= 4)  ? 2
+                                                                 : 1;
     std::cout << "array_size = " << array_size << std::endl;
     auto engine_array_ptr = allocator_.make_shared_memory<matching_engine<Cpu>>(array_size);
     matching_engine<Cpu>* engine_array = engine_array_ptr.get();
