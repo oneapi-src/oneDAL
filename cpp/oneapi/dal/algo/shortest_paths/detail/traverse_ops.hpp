@@ -47,6 +47,29 @@ struct traverse_ops {
     using result_t = traverse_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
+    template <typename T = task_t,
+              typename M = method_t,
+              typename = enable_if_delta_stepping_sssp_t<T, M>>
+    void check_preconditions(const Descriptor &desc, input_t &input) const {
+        using msg = dal::detail::error_messages;
+        if (desc.get_source() < 0) {
+            throw invalid_argument(msg::negative_source());
+        }
+        const std::int64_t vertex_count =
+            dal::detail::get_impl(input.get_graph()).get_topology()._vertex_count;
+        if (desc.get_source() >= vertex_count) {
+            throw invalid_argument(msg::source_gte_vertex_count());
+        }
+        if (desc.get_delta() < 0) {
+            throw invalid_argument(msg::negative_delta());
+        }
+        if (!(desc.get_optional_results() &
+              (optional_results::predecessors | optional_results::distances))) {
+            throw invalid_argument(msg::nothing_to_compute());
+        }
+    }
+    /*
+    template<typename =enable..dijkstra&&one_to_all >
     void check_preconditions(const Descriptor &desc, input_t &input) const {
         using msg = dal::detail::error_messages;
 
@@ -54,12 +77,36 @@ struct traverse_ops {
               (optional_results::predecessors | optional_results::distances))) {
             throw invalid_argument(msg::nothing_to_compute());
         }
-    }
+    }*/
 
     template <typename Policy>
     auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
+        check_preconditions(desc, input);
         return traverse_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
 };
+
+/*
+template <typename Float, typename Allocator, typename Graph>
+void traverse_ops<descriptor<Float, method::delta_stepping, task::one_to_all, Allocator>, Graph>::check_preconditions(
+    const descriptor<Float, method::delta_stepping, task::one_to_all, Allocator> &desc,
+     traverse_input<Graph, task::one_to_all> &input) const {
+        using msg = dal::detail::error_messages;
+        if (desc.get_source() < 0) {
+            throw invalid_argument(msg::negative_source());
+        }
+        const std::int64_t vertex_count =
+            dal::detail::get_impl(input.get_graph()).get_topology()._vertex_count;
+        if (desc.get_source() >= vertex_count) {
+            throw invalid_argument(msg::source_gte_vertex_count());
+        }
+        if (desc.get_delta() < 0) {
+            throw invalid_argument(msg::negative_delta());
+        }
+        if (!(desc.get_optional_results() &
+              (optional_results::predecessors | optional_results::distances))) {
+            throw invalid_argument(msg::nothing_to_compute());
+        }
+    }*/
 
 } // namespace oneapi::dal::preview::shortest_paths::detail

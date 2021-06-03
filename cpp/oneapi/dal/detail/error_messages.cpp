@@ -192,6 +192,9 @@ MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
 
 /* Shortest Paths */
+MSG(negative_source, "Source vertex is lower than zero")
+MSG(source_gte_vertex_count, "Source vertex is not lower than vertex count in input graph")
+MSG(negative_delta, "Delta parameter is lower than zero")
 MSG(nothing_to_compute, "Invalid combination of optional results: nothing to compute")
 MSG(distances_are_uninitialized, "Distances are not set as an optional result")
 MSG(predecessors_are_uninitialized, "Predecessors are not set as an optional result")
