@@ -637,7 +637,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
     }
 
     const std::uint64_t array_size = (max_threads_count >= 64)   ? max_threads_count * 2 / 10
-                                     : (max_threads_count >= 24) ? max_threads_count * 8 / 10
+                                     : (max_threads_count >= 24) ? max_threads_count * 4 / 10
                                      : (max_threads_count >= 8)  ? 4
                                      : (max_threads_count >= 4)  ? 2
                                                                  : 1;
