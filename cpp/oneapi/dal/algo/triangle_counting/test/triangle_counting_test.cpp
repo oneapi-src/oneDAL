@@ -353,11 +353,7 @@ public:
     }
 };
 
-<<<<<<< HEAD
 TEST_M(triangle_counting_test, "Local task: graph with average_degree < 4") {
-=======
-TEST_M(triangle_counting_test, "local task for graphs with average_degree < 4") {
->>>>>>> 9b4f2b2d60b3cea7e4adf1903e88e6105e71b684
     this->check_local_task<complete_graph_5_type>();
     this->check_local_task<acyclic_graph_8_type>();
     this->check_local_task<two_vertices_graph_type>();
