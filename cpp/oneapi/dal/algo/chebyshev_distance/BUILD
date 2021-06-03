@@ -5,7 +5,7 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "chebychev_distance",
+    name = "chebyshev_distance",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",

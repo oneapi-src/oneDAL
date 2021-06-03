@@ -21,6 +21,10 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <intrin.h>
+#endif
+
 namespace oneapi::dal::preview {
 typedef void (*functype)(std::int32_t i, const void *a);
 typedef void (*functype_int64)(std::int64_t i, const void *a);
@@ -103,6 +107,11 @@ ONEDAL_EXPORT void _onedal_parallel_reduce_tls(void *tlsPtr,
                                                void *a,
                                                oneapi::dal::preview::tls_reduce_functype func);
 ONEDAL_EXPORT void _onedal_del_tls_ptr(void *tlsPtr);
+
+ONEDAL_EXPORT void *_onedal_new_mutex();
+ONEDAL_EXPORT void _onedal_lock_mutex(void *mutex_ptr);
+ONEDAL_EXPORT void _onedal_unlock_mutex(void *mutex_ptr);
+ONEDAL_EXPORT void _onedal_del_mutex(void *mutex_ptr);
 }
 
 namespace oneapi::dal::detail {
@@ -258,6 +267,34 @@ ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(oneapi::dal::preview::pair_int32_t_size
 
 #undef ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL
 
+inline void atomic_increment(std::int64_t &value, std::int64_t delta = 1) {
+#if defined(_WIN32) || defined(_WIN64)
+    _InterlockedExchangeAdd64(&value, delta);
+#else
+    __atomic_add_fetch(&value, delta, __ATOMIC_SEQ_CST);
+#endif
+}
+
+inline void atomic_decrement(std::int64_t &value, std::int64_t delta = 1) {
+#if defined(_WIN32) || defined(_WIN64)
+    _InterlockedExchangeAdd64(&value, -delta);
+#else
+    __atomic_sub_fetch(&value, delta, __ATOMIC_SEQ_CST);
+#endif
+}
+
+inline std::int64_t atomic_load(std::int64_t &value) {
+#if defined(_WIN32) || defined(_WIN64)
+    const std::int64_t result = value;
+    _ReadWriteBarrier();
+    return result;
+#else
+    const std::int64_t result = __atomic_load_n(&value, __ATOMIC_ACQUIRE);
+    __asm__ __volatile__("" : : : "memory");
+    return result;
+#endif
+}
+
 template <typename lambdaType>
 inline void *tls_func(const void *a) {
     const lambdaType &lambda = *static_cast<const lambdaType *>(a);
@@ -379,6 +416,46 @@ public:
 private:
     Allocator _alloc;
     size_t _count;
+};
+
+class mutex {
+public:
+    mutex() : impl_(_onedal_new_mutex()) {}
+    mutex(const mutex &) = delete;
+    mutex &operator=(const mutex &) = delete;
+    ~mutex() {
+        if (impl_) {
+            _onedal_del_mutex(impl_);
+        }
+    }
+    void lock() {
+        if (impl_) {
+            _onedal_lock_mutex(impl_);
+        }
+    }
+    void unlock() {
+        if (impl_) {
+            _onedal_unlock_mutex(impl_);
+        }
+    }
+
+private:
+    void *impl_;
+};
+
+class scoped_lock {
+public:
+    explicit scoped_lock(mutex &m) : mutex_(m) {
+        mutex_.lock();
+    }
+    scoped_lock(const scoped_lock &) = delete;
+    scoped_lock(scoped_lock &&) = delete;
+    ~scoped_lock() {
+        mutex_.unlock();
+    }
+
+private:
+    mutex &mutex_;
 };
 
 } // namespace oneapi::dal::detail

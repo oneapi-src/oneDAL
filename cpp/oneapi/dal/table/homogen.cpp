@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 
 namespace oneapi::dal {
@@ -39,11 +40,24 @@ template <typename Policy>
 void homogen_table::init_impl(const Policy& policy,
                               std::int64_t row_count,
                               std::int64_t column_count,
-                              const array<byte_t>& data,
+                              const dal::array<byte_t>& data,
                               const data_type& dtype,
                               data_layout layout) {
     table::init_impl(
         new backend::homogen_table_impl{ row_count, column_count, data, dtype, layout });
+}
+
+// This method is needed for compatibility with the oneDAL 2021.1.
+// This should be removed in 2022.1.
+template <typename Policy>
+void homogen_table::init_impl(const Policy& policy,
+                              std::int64_t row_count,
+                              std::int64_t column_count,
+                              const dal::v1::array<byte_t>& data,
+                              const data_type& dtype,
+                              data_layout layout) {
+    table::init_impl(
+        new backend::homogen_table_impl{ row_count, column_count, data.v2(), dtype, layout });
 }
 
 const void* homogen_table::get_data() const {
@@ -51,20 +65,20 @@ const void* homogen_table::get_data() const {
     return impl.get_data().get_data();
 }
 
-template ONEDAL_EXPORT void homogen_table::init_impl(const detail::default_host_policy&,
-                                                     std::int64_t,
-                                                     std::int64_t,
-                                                     const array<byte_t>&,
-                                                     const data_type&,
-                                                     data_layout);
+#define INSTANTIATE(Policy, Array)                                             \
+    template ONEDAL_EXPORT void homogen_table::init_impl(const Policy&,        \
+                                                         std::int64_t,         \
+                                                         std::int64_t,         \
+                                                         const Array<byte_t>&, \
+                                                         const data_type&,     \
+                                                         data_layout);
+
+INSTANTIATE(detail::default_host_policy, dal::array)
+INSTANTIATE(detail::default_host_policy, dal::v1::array)
 
 #ifdef ONEDAL_DATA_PARALLEL
-template ONEDAL_EXPORT void homogen_table::init_impl(const detail::data_parallel_policy&,
-                                                     std::int64_t,
-                                                     std::int64_t,
-                                                     const array<byte_t>&,
-                                                     const data_type&,
-                                                     data_layout);
+INSTANTIATE(detail::data_parallel_policy, dal::array)
+INSTANTIATE(detail::data_parallel_policy, dal::v1::array)
 #endif
 
 } // namespace v1

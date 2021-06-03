@@ -23,6 +23,7 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
+template <typename Cpu>
 struct sconsistent_conditions {
     std::int64_t* array;
     std::int64_t divider;
@@ -30,14 +31,8 @@ struct sconsistent_conditions {
     void init(std::int64_t size) {
         length = size;
         array = allocator_.allocate<std::int64_t>(length);
-
         divider = length;
     }
-    sconsistent_conditions(inner_alloc allocator)
-            : array(nullptr),
-              divider(0),
-              length(0),
-              allocator_(allocator) {}
     sconsistent_conditions(std::int64_t size, inner_alloc allocator) : allocator_(allocator) {
         init(size);
     }
@@ -68,7 +63,7 @@ public:
                                             const std::int64_t* sorted_pattern_vertex,
                                             std::int64_t* predecessor,
                                             edge_direction* direction,
-                                            sconsistent_conditions* cconditions,
+                                            sconsistent_conditions<Cpu>* cconditions,
                                             bool predecessor_in_core_indexing = false) const;
 
     inner_alloc allocator_;
@@ -301,7 +296,7 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
                                                      const std::int64_t* sorted_pattern_vertex,
                                                      std::int64_t* predecessor,
                                                      edge_direction* direction,
-                                                     sconsistent_conditions* cconditions,
+                                                     sconsistent_conditions<Cpu>* cconditions,
                                                      bool predecessor_in_core_indexing) const {
     if (sorted_pattern_vertex == nullptr || predecessor == nullptr || direction == nullptr ||
         cconditions == nullptr) {

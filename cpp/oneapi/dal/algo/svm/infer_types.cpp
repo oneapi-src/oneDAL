@@ -74,7 +74,7 @@ const table& infer_result<Task>::get_labels() const {
 }
 
 template <typename Task>
-const table& infer_result<Task>::get_decision_function_impl() const {
+const table& infer_result<Task>::get_decision_function() const {
     return impl_->decision_function;
 }
 
