@@ -193,7 +193,7 @@ MSG(pca_svd_based_method_is_not_implemented_for_gpu,
 
 /* Shortest Paths */
 MSG(negative_source, "Source vertex is lower than zero")
-MSG(source_gte_vertex_count, "Source vertex is not lower than vertex count in input graph")
+MSG(source_gte_vertex_count, "Source vertex is out of range")
 MSG(negative_delta, "Delta parameter is lower than zero")
 MSG(nothing_to_compute, "Invalid combination of optional results: nothing to compute")
 MSG(distances_are_uninitialized, "Distances are not set as an optional result")
