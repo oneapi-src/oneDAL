@@ -23,6 +23,7 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
+#include <iostream> // Temporary
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
