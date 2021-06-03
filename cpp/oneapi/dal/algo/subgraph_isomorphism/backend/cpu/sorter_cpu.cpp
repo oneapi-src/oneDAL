@@ -19,5 +19,6 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 template class sorter<__CPU_TAG__>;
+template struct sconsistent_conditions<__CPU_TAG__>;
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

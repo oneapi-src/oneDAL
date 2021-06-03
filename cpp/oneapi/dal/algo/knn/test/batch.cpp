@@ -417,7 +417,7 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Minkowski distance
     REQUIRE(score >= target_score);
 }
 
-KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebychev distance") {
+KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebyshev distance") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
@@ -443,7 +443,7 @@ KNN_BF_EXTERNAL_TEST("knn classification hepmass 50kx10k with Chebychev distance
     const table y_infer_table = infer_dataframe.get_table(this->get_homogen_table_id(),
                                                           range(feature_count, feature_count + 1));
 
-    using distance_t = oneapi::dal::chebychev_distance::descriptor<>;
+    using distance_t = oneapi::dal::chebyshev_distance::descriptor<>;
     const auto score = this->classification(x_train_table,
                                             y_train_table,
                                             x_infer_table,

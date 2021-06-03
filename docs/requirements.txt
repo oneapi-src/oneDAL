@@ -1,14 +1,14 @@
 alabaster==0.7.12
 Babel==2.9.1
 beautifulsoup4==4.9.3
-certifi==2020.12.5
+certifi==2021.5.30
 chardet==4.0.0
 click==8.0.1
 colorama==0.4.4
 docutils==0.17.1
-idna==3.1
+idna==3.2
 imagesize==1.2.0
-importlib-metadata==4.3.0
+importlib-metadata==4.4.0
 importlib-resources==5.1.4
 Jinja2==3.0.1
 lxml==4.6.3

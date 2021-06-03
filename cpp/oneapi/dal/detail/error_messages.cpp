@@ -157,6 +157,7 @@ MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
 MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
     "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
+MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
 
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")

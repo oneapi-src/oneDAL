@@ -357,12 +357,12 @@ private:
 };
 
 template <typename FPType, CpuType cpu>
-class ChebychevDistances : public PairwiseDistances<FPType, cpu>
+class ChebyshevDistances : public PairwiseDistances<FPType, cpu>
 {
 public:
-    ChebychevDistances(const NumericTable & a, const NumericTable & b) : _a(a), _b(b) {}
+    ChebyshevDistances(const NumericTable & a, const NumericTable & b) : _a(a), _b(b) {}
 
-    virtual ~ChebychevDistances() {}
+    virtual ~ChebyshevDistances() {}
 
     virtual services::Status init()
     {
@@ -528,7 +528,7 @@ double MinkowskiDistances<double, avx512>::computeDistance(const double * x, con
 }
 
 template <>
-float ChebychevDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)
+float ChebyshevDistances<float, avx512>::computeDistance(const float * x, const float * y, const size_t n)
 {
     daal::internal::mkl::MklMath<float, avx512> math;
 
@@ -565,7 +565,7 @@ float ChebychevDistances<float, avx512>::computeDistance(const float * x, const 
 }
 
 template <>
-double ChebychevDistances<double, avx512>::computeDistance(const double * x, const double * y, const size_t n)
+double ChebyshevDistances<double, avx512>::computeDistance(const double * x, const double * y, const size_t n)
 {
     daal::internal::mkl::MklMath<double, avx512> math;
 
