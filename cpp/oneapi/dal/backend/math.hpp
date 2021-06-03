@@ -19,7 +19,7 @@
 namespace oneapi::dal::backend {
 
 template <typename float_t>
-inline constexpr float_t exp_treshold() {
+inline constexpr float_t exp_threshold() {
     return std::is_same_v<float_t, double> ? -650.0 : -75.0f;
 }
 

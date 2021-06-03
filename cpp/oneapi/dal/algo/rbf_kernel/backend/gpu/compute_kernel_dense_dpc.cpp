@@ -59,7 +59,7 @@ auto compute_rbf(sycl::queue& queue,
     const Float* sqr_y_ptr = sqr_y_nd.get_data();
     Float* res_ptr = res_nd.get_mutable_data();
 
-    const Float threshold = dal::backend::exp_treshold<Float>();
+    const Float threshold = dal::backend::exp_threshold<Float>();
 
     const auto wg_size = dal::backend::propose_wg_size(queue);
     const auto range =
