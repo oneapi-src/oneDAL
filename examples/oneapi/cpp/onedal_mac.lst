@@ -33,6 +33,7 @@ ONEDAL = column_accessor_homogen             \
          load_graph                          \
          pca_dense_batch                     \
          polynomial_kernel_dense_batch       \
+         sigmoid_kernel_dense_batch          \
          rbf_kernel_dense_batch              \
          shortest_paths_batch                \
          svm_nu_cls_thunder_dense_batch      \

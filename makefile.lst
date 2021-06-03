@@ -42,6 +42,7 @@ outlierdetection_bacon +=
 outlierdetection_multivariate +=
 outlierdetection_univariate +=
 kernel_function += kernel_function/polynomial
+kernel_function += kernel_function/sigmoid
 sorting +=
 normalization += normalization/minmax normalization/zscore normalization/zscore/inner low_order_moments
 optimization_solver += optimization_solver/adagrad optimization_solver/adagrad/inner optimization_solver/lbfgs optimization_solver/lbfgs/inner optimization_solver/sgd optimization_solver/sgd/inner optimization_solver/saga optimization_solver/saga/inner optimization_solver/inner optimization_solver/coordinate_descent objective_function engines distributions
@@ -105,6 +106,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     implicit_als                                                              \
     kernel_function                                                           \
     kernel_function/polynomial                                                \
+    kernel_function/sigmoid                                                   \
     kmeans/inner                                                              \
     kmeans                                                                    \
     k_nearest_neighbors                                                       \
@@ -230,6 +232,7 @@ ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
 ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
 ONEAPI.ALGOS.pca           := CORE.pca
 ONEAPI.ALGOS.polynomial_kernel := CORE.kernel_function
+ONEAPI.ALGOS.sigmoid_kernel := CORE.kernel_function
 ONEAPI.ALGOS.rbf_kernel    := CORE.kernel_function
 ONEAPI.ALGOS.svm           := CORE.svm
 
@@ -246,6 +249,7 @@ ONEAPI.ALGOS :=          \
     minkowski_distance   \
     pca                  \
     polynomial_kernel    \
+    sigmoid_kernel       \
     rbf_kernel           \
     svm                  \
     jaccard              \
