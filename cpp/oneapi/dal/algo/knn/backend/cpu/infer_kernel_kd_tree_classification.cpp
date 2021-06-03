@@ -56,6 +56,9 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
         dal::detail::integral_cast<int>(dummy_seed),
         data_use_in_model);
 
+    const auto daal_voting_mode = convert_to_daal_kdtree_voting_mode(desc.get_voting_mode());
+    daal_parameter.voteWeights = daal_voting_mode;
+
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         daal_data.get(),

@@ -17,87 +17,16 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/detail/array_utils.hpp"
+#include "oneapi/dal/table/backend/common_kernels.hpp"
+#include "oneapi/dal/table/backend/homogen_kernels.hpp"
+#include "oneapi/dal/table/backend/accessor_compat.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::backend {
 
-enum class alloc_kind {
-    host, /// Non-USM pointer allocated on host
-    usm_host, /// USM pointer allocated by sycl::alloc_host
-    usm_device, /// USM pointer allocated by sycl::alloc_device
-    usm_shared /// USM pointer allocated by sycl::alloc_shared
-};
-
-#ifdef ONEDAL_DATA_PARALLEL
-inline alloc_kind alloc_kind_from_sycl(sycl::usm::alloc alloc) {
-    using error_msg = dal::detail::error_messages;
-    switch (alloc) {
-        case sycl::usm::alloc::host: return alloc_kind::usm_host;
-        case sycl::usm::alloc::device: return alloc_kind::usm_device;
-        case sycl::usm::alloc::shared: return alloc_kind::usm_shared;
-        default: throw invalid_argument{ error_msg::unsupported_usm_alloc() };
-    }
-}
-#endif
-
-#ifdef ONEDAL_DATA_PARALLEL
-inline sycl::usm::alloc alloc_kind_to_sycl(alloc_kind kind) {
-    using error_msg = dal::detail::error_messages;
-    switch (kind) {
-        case alloc_kind::usm_host: return sycl::usm::alloc::host;
-        case alloc_kind::usm_device: return sycl::usm::alloc::device;
-        case alloc_kind::usm_shared: return sycl::usm::alloc::shared;
-        default: throw invalid_argument{ error_msg::unsupported_usm_alloc() };
-    }
-}
-#endif
-
-inline bool alloc_kind_requires_copy(alloc_kind src_alloc_kind, alloc_kind dst_alloc_kind) {
-#ifdef ONEDAL_DATA_PARALLEL
-    switch (dst_alloc_kind) {
-        case alloc_kind::host: //
-            return (src_alloc_kind == alloc_kind::usm_device);
-        case alloc_kind::usm_host: //
-            return (src_alloc_kind == alloc_kind::host) || //
-                   (src_alloc_kind == alloc_kind::usm_device);
-        case alloc_kind::usm_device: //
-            return (src_alloc_kind == alloc_kind::host) || //
-                   (src_alloc_kind == alloc_kind::usm_host);
-        case alloc_kind::usm_shared: //
-            return (src_alloc_kind != alloc_kind::usm_shared);
-        default: //
-            ONEDAL_ASSERT(!"Unsupported alloc_kind");
-    }
-#else
-    ONEDAL_ASSERT(src_alloc_kind == alloc_kind::host);
-    ONEDAL_ASSERT(dst_alloc_kind == alloc_kind::host);
-    return false;
-#endif
-}
-
-template <typename T>
-inline alloc_kind get_alloc_kind(const array<T>& array) {
-#ifdef ONEDAL_DATA_PARALLEL
-    const auto opt_queue = array.get_queue();
-    if (opt_queue.has_value()) {
-        const auto queue = opt_queue.value();
-        const auto array_alloc = sycl::get_pointer_type(array.get_data(), queue.get_context());
-        return alloc_kind_from_sycl(array_alloc);
-    }
-    else {
-        return alloc_kind::host;
-    }
-#else
-    return alloc_kind::host;
-#endif
-}
-
-table_metadata create_homogen_metadata(std::int64_t feature_count, data_type dtype);
-
-class homogen_table_impl {
+class homogen_table_impl : public detail::homogen_table_template<homogen_table_impl>,
+                           public ONEDAL_SERIALIZABLE(homogen_table_id) {
 public:
-    struct host_alloc_t {};
-
     homogen_table_impl() : row_count_(0), col_count_(0), layout_(data_layout::unknown) {}
 
     homogen_table_impl(std::int64_t row_count,
@@ -105,11 +34,12 @@ public:
                        const array<byte_t>& data,
                        data_type dtype,
                        data_layout layout)
-            : meta_(create_homogen_metadata(column_count, dtype)),
+            : meta_(create_metadata(column_count, dtype)),
               data_(data),
               row_count_(row_count),
               col_count_(column_count),
-              layout_(layout) {
+              layout_(layout),
+              compat_acc_(this, this) {
         using error_msg = dal::detail::error_messages;
 
         if (row_count <= 0) {
@@ -133,185 +63,105 @@ public:
         }
     }
 
-    std::int64_t get_column_count() const {
-        return col_count_;
-    }
-
-    std::int64_t get_row_count() const {
-        return row_count_;
-    }
-
-    const table_metadata& get_metadata() const {
-        return meta_;
-    }
-
-    const void* get_data() const {
-        return data_.get_data();
-    }
-
-    array<byte_t> get_data_array() const {
-        return data_;
-    }
-
-    data_layout get_data_layout() const {
-        return layout_;
-    }
-
-    template <typename Data>
-    void pull_rows(array<Data>& block, const range& rows) const {
-        pull_rows_impl(detail::default_host_policy{}, block, rows, alloc_kind::host);
-    }
-
-    // TODO: Remove once table and builder implementations are separated, now
-    //       method is needed only for homogen_table_builder
-    template <typename Data>
-    void pull_rows_mutable(array<Data>& block, const range& rows) const {
-        constexpr bool preserve_mutability = true;
-        pull_rows_impl(detail::default_host_policy{},
-                       block,
-                       rows,
-                       alloc_kind::host,
-                       preserve_mutability);
-    }
-
-    template <typename Data>
-    void push_rows(const array<Data>& block, const range& rows) {
-        push_rows_impl(detail::default_host_policy{}, block, rows);
-    }
-
-    template <typename Data>
-    void pull_column(array<Data>& block, std::int64_t column_index, const range& rows) const {
-        pull_column_impl(detail::default_host_policy{},
-                         block,
-                         column_index,
-                         rows,
-                         alloc_kind::host);
-    }
-
-    // TODO: Remove once table and builder implementations are separated, now
-    //       method is needed only for homogen_table_builder
-    template <typename Data>
-    void pull_column_mutable(array<Data>& block,
-                             std::int64_t column_index,
-                             const range& rows) const {
-        constexpr bool preserve_mutability = true;
-        pull_column_impl(detail::default_host_policy{},
-                         block,
-                         column_index,
-                         rows,
-                         alloc_kind::host,
-                         preserve_mutability);
-    }
-
-    template <typename Data>
-    void push_column(const array<Data>& block, std::int64_t column_index, const range& rows) {
-        push_column_impl(detail::default_host_policy{}, block, column_index, rows);
+    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_host& get_access_iface_host() const override {
+        return compat_acc_.get_host_accessor();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename Data>
-    void pull_rows(sycl::queue& queue,
-                   array<Data>& block,
-                   const range& rows,
-                   const sycl::usm::alloc& alloc) const {
-        pull_rows_impl(detail::data_parallel_policy{ queue },
-                       block,
-                       rows,
-                       alloc_kind_from_sycl(alloc));
-    }
-
-    // TODO: Remove once table and builder implementations are separated, now
-    //       method is needed only for homogen_table_builder
-    template <typename Data>
-    void pull_rows_mutable(sycl::queue& queue,
-                           array<Data>& block,
-                           const range& rows,
-                           const sycl::usm::alloc& alloc) const {
-        constexpr bool preserve_mutability = true;
-        pull_rows_impl(detail::data_parallel_policy{ queue },
-                       block,
-                       rows,
-                       alloc_kind_from_sycl(alloc),
-                       preserve_mutability);
-    }
-
-    template <typename Data>
-    void push_rows(sycl::queue& queue, const array<Data>& block, const range& rows) {
-        push_rows_impl(detail::data_parallel_policy{ queue }, block, rows);
-    }
-
-    template <typename Data>
-    void pull_column(sycl::queue& queue,
-                     array<Data>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     const sycl::usm::alloc& alloc) const {
-        pull_column_impl(detail::data_parallel_policy{ queue },
-                         block,
-                         column_index,
-                         rows,
-                         alloc_kind_from_sycl(alloc));
-    }
-
-    // TODO: Remove once table and builder implementations are separated, now
-    //       method is needed only for homogen_table_builder
-    template <typename Data>
-    void pull_column_mutable(sycl::queue& queue,
-                             array<Data>& block,
-                             std::int64_t column_index,
-                             const range& rows,
-                             const sycl::usm::alloc& alloc) const {
-        constexpr bool preserve_mutability = true;
-        pull_column_impl(detail::data_parallel_policy{ queue },
-                         block,
-                         column_index,
-                         rows,
-                         alloc_kind_from_sycl(alloc),
-                         preserve_mutability);
-    }
-
-    template <typename Data>
-    void push_column(sycl::queue& queue,
-                     const array<Data>& block,
-                     std::int64_t column_index,
-                     const range& rows) {
-        push_column_impl(detail::data_parallel_policy{ queue }, block, column_index, rows);
+    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    detail::access_iface_dpc& get_access_iface_dpc() const override {
+        return compat_acc_.get_dpc_accessor();
     }
 #endif
 
+    std::int64_t get_column_count() const override {
+        return col_count_;
+    }
+
+    std::int64_t get_row_count() const override {
+        return row_count_;
+    }
+
+    const table_metadata& get_metadata() const override {
+        return meta_;
+    }
+
+    array<byte_t> get_data() const override {
+        return data_;
+    }
+
+    data_layout get_data_layout() const override {
+        return layout_;
+    }
+
+    std::int64_t get_kind() const override {
+        return 1;
+    }
+
+    template <typename T>
+    void pull_rows_template(const detail::default_host_policy& policy,
+                            array<T>& block,
+                            const range& rows) const {
+        homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind::host);
+    }
+
+    template <typename T>
+    void pull_column_template(const detail::default_host_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) const {
+        homogen_pull_column(policy, get_info(), data_, block, column_index, rows, alloc_kind::host);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_rows_template(const detail::data_parallel_policy& policy,
+                            array<T>& block,
+                            const range& rows,
+                            sycl::usm::alloc alloc) const {
+        homogen_pull_rows(policy, get_info(), data_, block, rows, alloc_kind_from_sycl(alloc));
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    void pull_column_template(const detail::data_parallel_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows,
+                              sycl::usm::alloc alloc) const {
+        homogen_pull_column(policy,
+                            get_info(),
+                            data_,
+                            block,
+                            column_index,
+                            rows,
+                            alloc_kind_from_sycl(alloc));
+    }
+#endif
+
+    void serialize(detail::output_archive& ar) const override {
+        ar(meta_, data_, row_count_, col_count_, layout_);
+    }
+
+    void deserialize(detail::input_archive& ar) override {
+        ar(meta_, data_, row_count_, col_count_, layout_);
+    }
+
 private:
-    template <typename Policy, typename Data>
-    void pull_rows_impl(const Policy& policy,
-                        array<Data>& block,
-                        const range& rows,
-                        const alloc_kind& kind,
-                        bool preserve_mutability = false) const;
-
-    template <typename Policy, typename Data>
-    void pull_column_impl(const Policy& policy,
-                          array<Data>& block,
-                          std::int64_t column_index,
-                          const range& rows,
-                          const alloc_kind& kind,
-                          bool preserve_mutability = false) const;
-
-    template <typename Policy, typename Data>
-    void push_rows_impl(const Policy& policy, const array<Data>& block, const range& rows);
-
-    template <typename Policy, typename Data>
-    void push_column_impl(const Policy& policy,
-                          const array<Data>& block,
-                          std::int64_t column_index,
-                          const range& rows);
-
-    template <typename Policy, typename Data, typename Body>
-    void override_policy(const Policy& policy, const array<Data>& block, Body&& body) const;
+    homogen_info get_info() const {
+        return { row_count_, col_count_, meta_.get_data_type(0), layout_ };
+    }
 
     table_metadata meta_;
     array<byte_t> data_;
     int64_t row_count_;
     int64_t col_count_;
     data_layout layout_;
+
+    // Needed for backward compatibility. Should be remove in oneDAL 2022.1.
+    mutable compat_accessor compat_acc_;
 };
 
 } // namespace oneapi::dal::backend

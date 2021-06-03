@@ -21,14 +21,14 @@
 
 namespace oneapi::dal::test::engine::linalg {
 
-template <typename Float>
-inline matrix<Float> generate_uniform_matrix(const shape& s, Float a, Float b, int seed) {
+template <typename T>
+inline matrix<T> generate_uniform_matrix(const shape& s, T a, T b, int seed) {
     std::mt19937 rng(seed);
-    std::uniform_real_distribution<Float> uniform(a, b);
+    std::uniform_real_distribution<float> uniform(a, b);
 
-    auto m = matrix<Float>::empty(s);
-    enumerate_linear_mutable(m, [&](std::int64_t i, Float& x) {
-        x = uniform(rng);
+    auto m = matrix<T>::empty(s);
+    enumerate_linear_mutable(m, [&](std::int64_t i, T& x) {
+        x = T(uniform(rng));
     });
 
     return m;

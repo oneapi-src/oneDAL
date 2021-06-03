@@ -184,53 +184,51 @@ jobs:
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
+  - script: sudo apt-get update && sudo apt-get install gcc-7-multilib g++-7-multilib
+    displayName: 'apt-get'
   - script: |
-        .ci/env/oneapi.sh dpcpp
-    displayName: 'Create dpcpp enviroment'
+      conda update -y -q conda
+      conda create -q -y -n CB -c intel python=$(python.version) tbb
+    displayName: 'Conda create'
   - script: |
       sudo apt-get install git
-      git clone https://github.com/IntelPython/daal4py.git
+      git clone https://github.com/intel/scikit-learn-intelex.git daal4py
     displayName: Clone daal4py
   - script: |
-      .ci/env/clang.sh
-      python -m venv venv
-      source venv/bin/activate
-      pip install -r .ci/scripts/conformance-scripts/requirements.txt
+      source /usr/share/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      pip install -r daal4py/requirements-dev.txt
+      pip install -r daal4py/requirements-test.txt
     displayName: Create python environment
   - script: |
-      source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
+      source /usr/share/miniconda/etc/profile.d/conda.sh
+      conda activate CB
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
       cd daal4py
       export NO_DIST=1
-      export CC=clang++
-      export CXX=clang++
-      export LDFLAGS="-fPIC"
-      python setup.py install --single-version-externally-managed --record=record.txt
+      export PYTHON=python
+      ./conda-recipe/build.sh
     displayName: daal4py build
   - script: |
-      source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      export TBBROOT=/opt/intel/oneapi/tbb/latest
-      source ${TBBROOT}/env/vars.sh
+      . /usr/share/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      cd daal4py
+      python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
+    displayName: sklearnex build
+  - script: |
+      source /usr/share/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       export NO_DIST=1
       cd daal4py
       ./conda-recipe/run_test.sh
     timeoutInMinutes: 15
     displayName: daal4py test
   - script: |
-      source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      export TBBROOT=/opt/intel/oneapi/tbb/latest
-      source ${TBBROOT}/env/vars.sh
+      source /usr/share/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       cd daal4py
       ret_code=0
       python -m daal4py examples/run_examples.py
@@ -240,13 +238,9 @@ jobs:
       exit $ret_code
     displayName: daal4py examples
   - script: |
-      source venv/bin/activate
-      export DPCPPROOT=/opt/intel/oneapi/compiler/latest
-      source ${DPCPPROOT}/env/vars.sh
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      export TBBROOT=/opt/intel/oneapi/tbb/latest
-      source ${TBBROOT}/env/vars.sh
+      source /usr/share/miniconda/etc/profile.d/conda.sh
+      conda activate CB
+      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
     timeoutInMinutes: 15
     displayName: Conformance tests

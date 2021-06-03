@@ -102,6 +102,41 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32ptr_int64_simple(
         static_cast<daal::reduction_functype_int64>(reduction_func));
 }
 
+ONEDAL_EXPORT void *_onedal_get_tls_ptr(void *a, oneapi::dal::preview::tls_functype func) {
+    return _daal_get_tls_ptr(a, func);
+}
+ONEDAL_EXPORT void *_onedal_get_tls_local(void *tlsPtr) {
+    return _daal_get_tls_local(tlsPtr);
+}
+ONEDAL_EXPORT
+void _onedal_reduce_tls(void *tlsPtr, void *a, oneapi::dal::preview::tls_reduce_functype func) {
+    _daal_reduce_tls(tlsPtr, a, func);
+}
+ONEDAL_EXPORT void _onedal_parallel_reduce_tls(void *tlsPtr,
+                                               void *a,
+                                               oneapi::dal::preview::tls_reduce_functype func) {
+    _daal_parallel_reduce_tls(tlsPtr, a, func);
+}
+ONEDAL_EXPORT void _onedal_del_tls_ptr(void *tlsPtr) {
+    _daal_del_tls_ptr(tlsPtr);
+}
+
+ONEDAL_EXPORT void *_onedal_new_mutex() {
+    return _daal_new_mutex();
+}
+
+ONEDAL_EXPORT void _onedal_lock_mutex(void *mutex_ptr) {
+    _daal_lock_mutex(mutex_ptr);
+}
+
+ONEDAL_EXPORT void _onedal_unlock_mutex(void *mutex_ptr) {
+    _daal_unlock_mutex(mutex_ptr);
+}
+
+ONEDAL_EXPORT void _onedal_del_mutex(void *mutex_ptr) {
+    _daal_del_mutex(mutex_ptr);
+}
+
 namespace oneapi::dal::detail {
 
 typedef std::pair<std::int32_t, size_t> pair_int32_t_size_t;

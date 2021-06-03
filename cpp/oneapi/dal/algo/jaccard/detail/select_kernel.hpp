@@ -23,46 +23,43 @@
 
 namespace oneapi::dal::preview::jaccard::detail {
 
-template <typename Policy, typename Topology>
-struct ONEDAL_EXPORT backend_base {
-    virtual vertex_similarity_result operator()(const Policy &ctx,
-                                                const descriptor_base &descriptor,
-                                                const Topology &data,
-                                                void *result_ptr) = 0;
-    virtual ~backend_base() {}
+template <typename Policy, typename Descriptor, typename Topology>
+struct backend_base {
+    using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
+    using method_t = typename Descriptor::method_t;
+
+    virtual vertex_similarity_result<task_t> operator()(const Policy& ctx,
+                                                        const Descriptor& descriptor,
+                                                        const Topology& t,
+                                                        caching_builder& result_builder) = 0;
+    virtual ~backend_base() = default;
 };
 
-template <typename Policy, typename Float, typename Method, typename Topology>
-struct ONEDAL_EXPORT backend_default : public backend_base<Policy, Topology> {
-    virtual vertex_similarity_result operator()(const Policy &ctx,
-                                                const descriptor_base &descriptor,
-                                                const Topology &data,
-                                                void *result_ptr) {
-        return call_jaccard_default_kernel_general(descriptor, data, result_ptr);
+template <typename Policy, typename Descriptor, typename Topology>
+struct backend_default : public backend_base<Policy, Descriptor, Topology> {
+    static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
+                  "Host policy only is supported.");
+
+    using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
+    using method_t = typename Descriptor::method_t;
+
+    virtual vertex_similarity_result<task_t> operator()(const Policy& ctx,
+                                                        const Descriptor& descriptor,
+                                                        const Topology& t,
+                                                        caching_builder& result_builder) {
+        return vertex_similarity_kernel_cpu<float_t, method_t, task_t, Topology>()(ctx,
+                                                                                   descriptor,
+                                                                                   t,
+                                                                                   result_builder);
     }
-    virtual ~backend_default() {}
 };
 
-template <typename Float, typename Method>
-struct backend_default<dal::detail::host_policy,
-                       Float,
-                       Method,
-                       dal::preview::detail::topology<std::int32_t>>
-        : public backend_base<dal::detail::host_policy,
-                              dal::preview::detail::topology<std::int32_t>> {
-    virtual vertex_similarity_result operator()(
-        const dal::detail::host_policy &ctx,
-        const descriptor_base &descriptor,
-        const dal::preview::detail::topology<std::int32_t> &data,
-        void *result_ptr);
-    virtual ~backend_default() {}
-};
-
-template <typename Policy, typename Float, class Method, typename Topology>
-dal::detail::pimpl<backend_base<Policy, Topology>> get_backend(const descriptor_base &desc,
-                                                               const Topology &data) {
-    return dal::detail::pimpl<backend_base<Policy, Topology>>(
-        new backend_default<Policy, float, method::by_default, Topology>);
+template <typename Policy, typename Descriptor, typename Topology>
+dal::detail::shared<backend_base<Policy, Descriptor, Topology>> get_backend(const Descriptor& desc,
+                                                                            const Topology& t) {
+    return std::make_shared<backend_default<Policy, Descriptor, Topology>>();
 }
 
 } // namespace oneapi::dal::preview::jaccard::detail

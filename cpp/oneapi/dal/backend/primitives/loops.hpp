@@ -81,8 +81,8 @@ inline void for_each_block(const ndview<T, 2>& data,
     ONEDAL_ASSERT(data.has_data());
     ONEDAL_ASSERT(block_max_row_count > 0);
 
-    for_each_block(data.get_shape(0),
-                   data.get_shape(1),
+    for_each_block(data.get_dimension(0),
+                   data.get_dimension(1),
                    block_max_row_count,
                    std::forward<Body>(body));
 }

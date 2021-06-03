@@ -20,6 +20,7 @@
 #error "This header cannot be included outside of micromkl module"
 #endif
 
+#define STRINGIFY(x)                     #x
 #define EXPAND(...)                      __VA_ARGS__
 #define FUNC_NAME(prefix, name)          prefix##_##name
 #define FUNC_NAME_CPU(cpu, prefix, name) prefix##_##cpu##_##name
