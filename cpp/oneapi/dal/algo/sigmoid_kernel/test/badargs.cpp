@@ -72,21 +72,6 @@ private:
                     "[sigmoid_kernel][badarg]", \
                     sigmoid_kernel::method::dense)
 
-SIGMOID_KERNEL_BADARG_TEST("accepts positive degree") {
-    SKIP_IF(this->not_available_on_device());
-    REQUIRE_NOTHROW(this->get_descriptor().set_degree(3));
-}
-
-SIGMOID_KERNEL_BADARG_TEST("accepts zero degree") {
-    SKIP_IF(this->not_available_on_device());
-    REQUIRE_NOTHROW(this->get_descriptor().set_degree(0));
-}
-
-SIGMOID_KERNEL_BADARG_TEST("throws if degree is negative") {
-    SKIP_IF(this->not_available_on_device());
-    REQUIRE_THROWS_AS(this->get_descriptor().set_degree(-3), domain_error);
-}
-
 SIGMOID_KERNEL_BADARG_TEST("throws if x data is empty") {
     SKIP_IF(this->not_available_on_device());
     const auto sigmoid_kernel_desc = this->get_descriptor();
