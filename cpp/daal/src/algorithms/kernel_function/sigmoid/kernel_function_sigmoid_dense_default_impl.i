@@ -37,9 +37,8 @@ namespace sigmoid
 namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1,
-                                                                                                       const NumericTable * a2, NumericTable * r,
-                                                                                                       const KernelParameter * par)
+services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                    NumericTable * r, const KernelParameter * par)
 {
     if (par->kernelType != KernelType::sigmoid)
     {
@@ -75,9 +74,8 @@ services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeI
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1,
-                                                                                                       const NumericTable * a2, NumericTable * r,
-                                                                                                       const KernelParameter * par)
+services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
+                                                                                                    NumericTable * r, const KernelParameter * par)
 {
     if (par->kernelType != KernelType::sigmoid)
     {
@@ -120,9 +118,8 @@ services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeI
 }
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1,
-                                                                                                       const NumericTable * a2, NumericTable * r,
-                                                                                                       const KernelParameter * par)
+services::Status KernelImplSigmoid<defaultDense, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
+                                                                                                    NumericTable * r, const KernelParameter * par)
 {
     SafeStatus safeStat;
 

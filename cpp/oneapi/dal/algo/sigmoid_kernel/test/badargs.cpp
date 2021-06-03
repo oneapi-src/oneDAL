@@ -68,7 +68,7 @@ private:
 
 #define SIGMOID_KERNEL_BADARG_TEST(name)        \
     TEMPLATE_TEST_M(sigmoid_kernel_badarg_test, \
-                    name,                          \
+                    name,                       \
                     "[sigmoid_kernel][badarg]", \
                     sigmoid_kernel::method::dense)
 

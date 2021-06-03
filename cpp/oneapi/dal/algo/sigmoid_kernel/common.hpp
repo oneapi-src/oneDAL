@@ -158,4 +158,4 @@ public:
 
 using v1::descriptor;
 
-} // namespace oneapi::dal::polynomial_kernel
+} // namespace oneapi::dal::sigmoid_kernel

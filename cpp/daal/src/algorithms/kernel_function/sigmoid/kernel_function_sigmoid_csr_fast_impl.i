@@ -38,7 +38,7 @@ namespace internal
 {
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplSigmoid<fastCSR, algorithmFPType, cpu>::computeInternalVectorVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                                  NumericTable * r, const KernelParameter * par)
+                                                                                               NumericTable * r, const KernelParameter * par)
 {
     if (par->kernelType != KernelType::sigmoid)
     {
@@ -68,7 +68,7 @@ services::Status KernelImplSigmoid<fastCSR, algorithmFPType, cpu>::computeIntern
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplSigmoid<fastCSR, algorithmFPType, cpu>::computeInternalMatrixVector(const NumericTable * a1, const NumericTable * a2,
-                                                                                                  NumericTable * r, const KernelParameter * par)
+                                                                                               NumericTable * r, const KernelParameter * par)
 {
     if (par->kernelType != KernelType::sigmoid)
     {
@@ -106,7 +106,7 @@ services::Status KernelImplSigmoid<fastCSR, algorithmFPType, cpu>::computeIntern
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplSigmoid<fastCSR, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
-                                                                                                  NumericTable * r, const KernelParameter * par)
+                                                                                               NumericTable * r, const KernelParameter * par)
 {
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();

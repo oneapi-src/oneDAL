@@ -25,16 +25,13 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename TestType>
-class sigmoid_kernel_batch_test
-        : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+class sigmoid_kernel_batch_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor(double scale, double shift) const {
-        return sigmoid_kernel::descriptor<Float, Method>{}
-            .set_scale(scale)
-            .set_shift(shift);
+        return sigmoid_kernel::descriptor<Float, Method>{}.set_scale(scale).set_shift(shift);
     }
 
     bool not_available_on_device() {
@@ -44,7 +41,7 @@ public:
     void general_checks(const te::dataframe& x_data,
                         const te::dataframe& y_data,
                         double scale,
-                        double shift,                        
+                        double shift,
                         const te::table_id& x_data_table_id,
                         const te::table_id& y_data_table_id) {
         CAPTURE(scale);

@@ -51,7 +51,7 @@ public:
 
 #define SIGMOID_KERNEL_OVERFLOW_TEST(name)        \
     TEMPLATE_TEST_M(sigmoid_kernel_overflow_test, \
-                    name,                            \
+                    name,                         \
                     "[sigmoid_kernel][overflow]", \
                     sigmoid_kernel::method::dense)
 

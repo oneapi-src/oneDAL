@@ -39,8 +39,8 @@ enum Method
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
     Parameter(double scale = 1.0, double shift = 0.0);
-    double scale;  /*!< Polynomial kernel coefficient k in the tanh(k(X,Y) + b) model */
-    double shift;  /*!< Polynomial kernel coefficient b in the tanh(k(X,Y) + b) model */
+    double scale; /*!< Polynomial kernel coefficient k in the tanh(k(X,Y) + b) model */
+    double shift; /*!< Polynomial kernel coefficient b in the tanh(k(X,Y) + b) model */
 };
 
 class DAAL_EXPORT Input : public kernel_function::Input

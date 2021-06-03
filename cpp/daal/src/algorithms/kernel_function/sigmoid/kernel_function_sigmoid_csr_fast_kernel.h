@@ -34,8 +34,7 @@ namespace internal
 using namespace daal::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-struct KernelImplSigmoid<fastCSR, algorithmFPType, cpu>
-    : public daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>
+struct KernelImplSigmoid<fastCSR, algorithmFPType, cpu> : public daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>
 {
     using daal::algorithms::kernel_function::internal::KernelCSRImplBase<algorithmFPType, cpu>::computeDotProduct;
 

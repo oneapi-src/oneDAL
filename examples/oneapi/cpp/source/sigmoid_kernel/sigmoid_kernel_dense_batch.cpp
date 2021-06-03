@@ -26,8 +26,7 @@ int main(int argc, char const *argv[]) {
 
     const auto x = dal::read<dal::table>(dal::csv::data_source{ data_file_name });
     const auto y = dal::read<dal::table>(dal::csv::data_source{ data_file_name });
-    const auto kernel_desc =
-        dal::sigmoid_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
+    const auto kernel_desc = dal::sigmoid_kernel::descriptor{}.set_scale(1.0).set_shift(0.0);
 
     const auto result = dal::compute(kernel_desc, x, y);
 

@@ -61,10 +61,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     kernel_parameter.kernelType = daal_kernel_internal::KernelType::sigmoid;
 
     interop::call_daal_kernel<Float, daal_sigmoid_kernel_t>(ctx,
-                                                               daal_x.get(),
-                                                               daal_y.get(),
-                                                               daal_values.get(),
-                                                               &kernel_parameter);
+                                                            daal_x.get(),
+                                                            daal_y.get(),
+                                                            daal_values.get(),
+                                                            &kernel_parameter);
 
     return result_t{}.set_values(
         dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
