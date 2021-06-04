@@ -146,7 +146,8 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                         dataR[i * nVectors1 + j] *= factor;
                     }
                 }
-                if (par->kernelType == KernelType::sigmoid) {
+                if (par->kernelType == KernelType::sigmoid)
+                {
                     daal::internal::Math<algorithmFPType, cpu>::vTanh(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
                 }
             });
@@ -219,8 +220,10 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                                 dataR[i * ldc + j + startRow2] *= factor;
                             }
                         }
-                        if (par->kernelType == KernelType::sigmoid) {
-                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * ldc + startRow2, dataR + i * ldc + startRow2);
+                        if (par->kernelType == KernelType::sigmoid)
+                        {
+                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * ldc + startRow2,
+                                                                              dataR + i * ldc + startRow2);
                         }
                     }
                 }
@@ -246,7 +249,8 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                                 mklBuff[i * ldc + j] *= factor;
                             }
                         }
-                        if (par->kernelType == KernelType::sigmoid) {
+                        if (par->kernelType == KernelType::sigmoid)
+                        {
                             daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock1, mklBuff + i * ldc, mklBuff + i * ldc);
                         }
                     }
