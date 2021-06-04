@@ -199,6 +199,10 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                             dataR[i * nVectors2 + j] = one;
                         }
                     }
+                    if (par->kernelType == KernelType::sigmoid)
+                    {
+                        daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * nVectors2, dataR + i * nVectors2);
+                    }
                 }
             }
             else
@@ -227,6 +231,11 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                     {
                         mklBuff[i] = one;
                     }
+                }
+
+                if (par->kernelType == KernelType::sigmoid)
+                {
+                    daal::internal::Math<algorithmFPType, cpu>::vTanh(blockSize * blockSize, mklBuff, mklBuff);
                 }
 
                 for (size_t i = 0; i < nRowsInBlock2; ++i)

@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/kernel_function/sigmoid/kernel_function_sigmoid_dense_default_kernel.h>
+#include <daal/src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_kernel.h>
 
 #include "oneapi/dal/algo/sigmoid_kernel/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
@@ -29,14 +29,14 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_kenrel = daal::algorithms::kernel_function;
-namespace daal_sigmoid_kernel = daal::algorithms::kernel_function::sigmoid::internal;
+namespace daal_kernel = daal::algorithms::kernel_function;
+namespace daal_sigmoid_kernel = daal::algorithms::kernel_function::polynomial::internal;
 namespace daal_kernel_internal = daal::algorithms::kernel_function::internal;
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_sigmoid_kernel_t =
-    daal_sigmoid_kernel::KernelImplSigmoid<daal_sigmoid_kernel::defaultDense, Float, Cpu>;
+    daal_sigmoid_kernel::KernelImplPolynomial<daal_sigmoid_kernel::defaultDense, Float, Cpu>;
 
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -55,7 +55,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::convert_to_daal_homogen_table(arr_values, row_count_x, row_count_y);
 
     daal_kernel_internal::KernelParameter kernel_parameter;
-    kernel_parameter.computationMode = daal_kenrel::ComputationMode::matrixMatrix;
+    kernel_parameter.computationMode = daal_kernel::ComputationMode::matrixMatrix;
     kernel_parameter.scale = desc.get_scale();
     kernel_parameter.shift = desc.get_shift();
     kernel_parameter.kernelType = daal_kernel_internal::KernelType::sigmoid;
