@@ -42,9 +42,17 @@ and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`,
 
   .. group-tab:: Classification
 
-    - :math:`y_i \in \{0, \ldots, C-1\}`, where :math:`C` is the number of classes
+    - :math:`y_i \in \{l_0, \ldots, l_{M-1}\}`, where :math:`l_j` is a class label, :math:`0 \leq j < M`, :math:`M` is the number of classes
 
   .. group-tab:: Regression
+
+    - :math:`y_i \in \mathbb{R}`
+
+  .. group-tab:: Nu-classification
+
+    - :math:`y_i \in \{l_0, \ldots, l_{M-1}\}`, where :math:`l_j` is a class label, :math:`0 \leq j < M`, :math:`M` is the number of classes
+
+  .. group-tab:: Nu-regression
 
     - :math:`y_i \in \mathbb{R}`
 
@@ -84,6 +92,38 @@ for reduced to the solution of the quadratic optimization problem
       \end{cases}
 
     Where :math:`\epsilon` is the error tolerance parameter.
+
+  .. group-tab:: Nu-classification
+
+    .. math::
+          \underset{\alpha }{\mathrm{min}}\frac{1}{2}{\alpha }^{T}Q\alpha
+
+    with :math:`0 \leq \alpha_i \leq \frac{1}{n}`, :math:`i = 1, \ldots, n`,
+    :math:`e^T\alpha \geq \nu`, :math:`y^T\alpha = 0`,
+    where :math:`e` is the vector of ones, :math:`\nu` is an upper bound on the fraction
+    of training errors and a lower bound of the fraction of support vector,
+    :math:`Q` is a symmetric matrix of size :math:`n \times n` with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`,
+    and :math:`K(x,y)` is a kernel function.
+
+  .. group-tab:: Nu-regression
+
+    .. math::
+          \underset{\alpha }{\mathrm{min}}\frac{1}{2}{\alpha }^{T}Q\alpha
+
+    with :math:`0 \leq \alpha_i \leq \frac{C}{n}`, :math:`i = 1, \ldots, 2n`, :math:`s^T\alpha \geq \nu`,
+    :math:`z^T \alpha = 0`, where :math:`C` is the upper bound of the coordinates
+    of the vector :math:`\alpha`, :math:`\nu` is an upper bound on the fraction
+    of training errors and a lower bound of the fraction of support vector,
+    :math:`Q` is a symmetric matrix of size :math:`2n \times 2n`
+    with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`, and :math:`K(x,y)` is a kernel function.
+    Vectors :math:`s` and :math:`z` for the nu-regression problem are formulated according
+    to the following rule:
+
+    .. math::
+      \begin{cases}
+         z_i = +1, s_i = - y_i, & i \leq n \\
+         z_i = -1, s_i = + y_i, & n < i \leq 2n
+      \end{cases}
 
 Working subset of α updated on each iteration of the algorithm is
 based on the Working Set Selection (WSS) 3 scheme [Fan05]_.
