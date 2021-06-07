@@ -70,8 +70,8 @@ inline void relax_edges(const Topology& t,
 template <typename EV, typename VT>
 struct dist_pred {
     dist_pred(const EV& dist_, const VT& pred_) : dist(dist_), pred(pred_) {}
-    EV dist;
-    VT pred;
+    EV dist = 0;
+    VT pred = 0;
 };
 
 template <class T1, class T2>
