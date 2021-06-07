@@ -177,6 +177,7 @@ MSG(empty_pattern_graph, "Empty pattern graph")
 MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
     "Subgraph isomorphism is not implemented for labeled edges")
 MSG(non_zero_max_match_count_is_not_supported, "Non-zero max_match_count is not supported")
+MSG(incorrect_index_is_returned, "Internal error: incorrect index is returned")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")

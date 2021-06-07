@@ -20,11 +20,17 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector.hpp"
 #include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+
+enum graph_storage_scheme { auto_detect, bit, list };
+
+enum edge_direction {
+    none = 0, /*!< No edge*/
+    both = 1 /*!< Edge exist */
+};
 
 template <typename Cpu>
 struct graph_input_data {
@@ -83,10 +89,10 @@ public:
 
     static double graph_density(const std::int64_t vertex_count, const std::int64_t edge_count);
 
-    graph_status load_vertex_attribute(const std::int64_t vertex_count,
-                                       const std::int64_t* pvertices_attribute);
-    graph_status load_edge_attribute_lists(const std::int64_t vertex_count,
-                                           std::int64_t const* const* p_edges_attribute_list);
+    void set_vertex_attribute(const std::int64_t vertex_count,
+                              const std::int64_t* pvertices_attribute);
+    void set_edge_attribute_lists(const std::int64_t vertex_count,
+                                  std::int64_t const* const* p_edges_attribute_list);
 
     std::int64_t get_vertex_count() const;
 
@@ -147,6 +153,7 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
         graph_data_storage.pbit_data->degree[i] = degree;
     }
 
+    const std::int64_t size_in_bit = bit_vector<Cpu>::bit_vector_size(vertex_count);
     for (std::int64_t i = 0; i < vertex_count; i++) {
         auto degree = t._degrees[i];
 
@@ -155,8 +162,12 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
             std::int64_t vertex_1 = i;
             std::int64_t vertex_2 = t._cols[t._rows[i] + j];
 
-            bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_1], vertex_2);
-            bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_2], vertex_1);
+            bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_1],
+                                     vertex_2,
+                                     size_in_bit);
+            bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_2],
+                                     vertex_1,
+                                     size_in_bit);
             if (edge_attr >= 0 || has_edges_attribute) {
                 if (graph_data_storage.pbit_data->edges_attribute[i] == nullptr) {
                     graph_data_storage.pbit_data->edges_attribute[i] =
@@ -264,25 +275,19 @@ double graph<Cpu>::graph_density(const std::int64_t vertex_count, const std::int
 }
 
 template <typename Cpu>
-graph_status graph<Cpu>::load_vertex_attribute(const std::int64_t vertex_count,
-                                               const std::int64_t* pvertices_attribute) {
-    if (n != vertex_count || pvertices_attribute == nullptr) {
-        return bad_arguments;
-    }
+void graph<Cpu>::set_vertex_attribute(const std::int64_t vertex_count,
+                                      const std::int64_t* pvertices_attribute) {
+    ONEDAL_ASSERT(n == vertex_count);
+    ONEDAL_ASSERT(pvertices_attribute != nullptr);
     p_vertex_attribute = pvertices_attribute;
-    return ok;
 }
 
 template <typename Cpu>
-graph_status graph<Cpu>::load_edge_attribute_lists(
-    const std::int64_t vertex_count,
-    std::int64_t const* const* p_edges_attribute_list) {
-    if (n != vertex_count || p_edges_attribute_list == nullptr) {
-        return bad_arguments;
-    }
-
+void graph<Cpu>::set_edge_attribute_lists(const std::int64_t vertex_count,
+                                          std::int64_t const* const* p_edges_attribute_list) {
+    ONEDAL_ASSERT(n == vertex_count);
+    ONEDAL_ASSERT(p_edges_attribute_list != nullptr);
     p_edges_attribute = p_edges_attribute_list;
-    return ok;
 }
 
 template <typename Cpu>

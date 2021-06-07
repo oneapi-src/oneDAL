@@ -54,11 +54,11 @@ public:
     sorter(const graph<Cpu>* ptarget, inner_alloc allocator);
     virtual ~sorter();
 
-    graph_status get_pattern_vertex_probability(const graph<Cpu>& pattern,
-                                                float* pattern_vertex_probability) const;
-    graph_status sorting_pattern_vertices(const graph<Cpu>& pattern,
-                                          const float* pattern_vertex_probability,
-                                          std::int64_t* sorted_pattern_vertex) const;
+    void get_pattern_vertex_probability(const graph<Cpu>& pattern,
+                                        float* pattern_vertex_probability) const;
+    void sorting_pattern_vertices(const graph<Cpu>& pattern,
+                                  const float* pattern_vertex_probability,
+                                  std::int64_t* sorted_pattern_vertex) const;
     graph_status create_sorted_pattern_tree(const graph<Cpu>& pattern,
                                             const std::int64_t* sorted_pattern_vertex,
                                             std::int64_t* predecessor,
@@ -147,11 +147,9 @@ sorter<Cpu>::~sorter() {
 }
 
 template <typename Cpu>
-graph_status sorter<Cpu>::get_pattern_vertex_probability(const graph<Cpu>& pattern,
-                                                         float* pattern_vertex_probability) const {
-    if (pattern_vertex_probability == nullptr) {
-        return bad_arguments;
-    }
+void sorter<Cpu>::get_pattern_vertex_probability(const graph<Cpu>& pattern,
+                                                 float* pattern_vertex_probability) const {
+    ONEDAL_ASSERT(pattern_vertex_probability != nullptr);
     std::int64_t vertex_count = pattern.get_vertex_count();
 
     float current_probability = 0.0;
@@ -167,16 +165,14 @@ graph_status sorter<Cpu>::get_pattern_vertex_probability(const graph<Cpu>& patte
         current_probability = p_vertex_attribute_probability[pattern.get_vertex_attribute(i)];
         pattern_vertex_probability[i] *= current_probability;
     }
-    return ok;
 }
 
 template <typename Cpu>
-graph_status sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
-                                                   const float* pattern_vertex_probability,
-                                                   std::int64_t* sorted_pattern_vertex) const {
-    if (pattern_vertex_probability == nullptr || sorted_pattern_vertex == nullptr) {
-        return bad_arguments;
-    }
+void sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
+                                           const float* pattern_vertex_probability,
+                                           std::int64_t* sorted_pattern_vertex) const {
+    ONEDAL_ASSERT(pattern_vertex_probability != nullptr);
+    ONEDAL_ASSERT(sorted_pattern_vertex != nullptr);
 
     std::int64_t vertex_count = pattern.get_vertex_count();
     std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
@@ -193,7 +189,8 @@ graph_status sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
         sorted_vertex_iterator++;
     }
     else {
-        return static_cast<graph_status>(index);
+        throw oneapi::dal::internal_error(
+            dal::detail::error_messages::incorrect_index_is_returned());
     }
 
     for (; sorted_vertex_iterator < vertex_count; sorted_vertex_iterator++) {
@@ -209,11 +206,10 @@ graph_status sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
             filling_mask.set_bit(sorted_pattern_vertex[sorted_vertex_iterator]);
         }
         else {
-            return static_cast<graph_status>(index);
+            throw oneapi::dal::internal_error(
+                dal::detail::error_messages::incorrect_index_is_returned());
         }
     }
-    /* TODO add disconnected case handling by splitting into separate trees */
-    return ok;
 }
 
 template <typename Cpu>

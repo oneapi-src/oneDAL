@@ -172,6 +172,7 @@ public:
     MSG(empty_pattern_graph);
     MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
     MSG(non_zero_max_match_count_is_not_supported);
+    MSG(incorrect_index_is_returned);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);

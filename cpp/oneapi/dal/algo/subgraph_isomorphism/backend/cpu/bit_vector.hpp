@@ -19,7 +19,6 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector_popcount.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -51,7 +50,7 @@ public:
     bit_vector(bit_vector<Cpu>& bvec);
     bit_vector(const std::int64_t vector_size, inner_alloc allocator);
     ~bit_vector();
-    graph_status set_bit(std::int64_t vertex);
+    void set_bit(std::int64_t vertex);
     std::uint8_t* get_vector_pointer() const;
     std::int64_t size() const;
     std::int64_t popcount() const;
@@ -71,13 +70,15 @@ public:
     bit_vector<Cpu>& andn(bit_vector<Cpu>& a);
 
     void set(const std::uint8_t byte_val = 0x0);
-    static graph_status set(const std::int64_t vector_size,
-                            std::uint8_t* result_vector,
-                            const std::uint8_t byte_val = 0);
-    static graph_status set(const std::int64_t vector_size,
-                            std::uint8_t* result_vector,
-                            const std::uint8_t* vector);
-    static graph_status set_bit(std::uint8_t* result_vector, const std::int64_t vertex);
+    static void set(const std::int64_t vector_size,
+                    std::uint8_t* result_vector,
+                    const std::uint8_t byte_val = 0);
+    static void set(const std::int64_t vector_size,
+                    std::uint8_t* result_vector,
+                    const std::uint8_t* vector);
+    static void set_bit(std::uint8_t* result_vector,
+                        const std::int64_t vertex,
+                        const std::int64_t vector_size_in_bits);
     static std::int64_t popcount(const std::int64_t vector_size, const std::uint8_t* vector);
     static bool test_bit(const std::int64_t vector_size,
                          const std::uint8_t* vector,
@@ -145,41 +146,26 @@ void and_equal(std::uint8_t* vec,
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set(const std::int64_t vector_size,
-                                  std::uint8_t* result_vector,
-                                  const std::uint8_t* vector) {
-    if (result_vector == nullptr || vector == nullptr) {
-        return bad_allocation;
-    }
+void bit_vector<Cpu>::set(const std::int64_t vector_size,
+                          std::uint8_t* result_vector,
+                          const std::uint8_t* vector) {
+    ONEDAL_ASSERT(result_vector != nullptr);
+    ONEDAL_ASSERT(vector != nullptr);
+    ONEDAL_ASSERT(vector_size >= 0);
 
     for (std::int64_t i = 0; i < vector_size; i++) {
         result_vector[i] = vector[i];
     }
-
-    /*
-      TODO improvements  use register and sets functions
-    */
-
-    return ok;
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set(const std::int64_t vector_size,
-                                  std::uint8_t* result_vector,
-                                  const std::uint8_t byte_val) {
-    if (result_vector == nullptr) {
-        return bad_allocation;
-    }
-
+void bit_vector<Cpu>::set(const std::int64_t vector_size,
+                          std::uint8_t* result_vector,
+                          const std::uint8_t byte_val) {
+    ONEDAL_ASSERT(result_vector != nullptr);
     for (std::int64_t i = 0; i < vector_size; i++) {
         result_vector[i] = byte_val;
     }
-
-    /*
-        TODO improvements  use register and sets functions
-    */
-
-    return ok;
 }
 
 template <typename Cpu>
@@ -192,12 +178,17 @@ void bit_vector<Cpu>::set(const std::uint8_t byte_val) {
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set_bit(std::uint8_t* result_vector, const std::int64_t vertex) {
-    if (result_vector == nullptr) {
-        return bad_allocation;
+void bit_vector<Cpu>::set_bit(std::uint8_t* result_vector,
+                              const std::int64_t vertex,
+                              const std::int64_t vector_size_in_bits) {
+    ONEDAL_ASSERT(result_vector != nullptr);
+    if (vertex >= vector_size_in_bits) {
+        std::cout << "vertex: " << vertex << std::endl;
+        std::cout << "vector_size_in_bits: " << vector_size_in_bits << std::endl;
     }
+    ONEDAL_ASSERT(vertex < vector_size_in_bits);
+
     result_vector[byte(vertex)] |= bit(vertex);
-    return ok;
 }
 
 template <typename Cpu>
@@ -239,8 +230,8 @@ bit_vector<Cpu>::~bit_vector() {
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set_bit(std::int64_t vertex) {
-    return set_bit(vector, vertex);
+void bit_vector<Cpu>::set_bit(std::int64_t vertex) {
+    return set_bit(vector, vertex, bit_vector_size(n));
 }
 
 template <typename Cpu>
@@ -358,9 +349,7 @@ bool bit_vector<Cpu>::test_bit(const std::int64_t vector_size,
 
 template <typename Cpu>
 std::int64_t bit_vector<Cpu>::popcount(const std::int64_t vector_size, const std::uint8_t* vector) {
-    if (vector == nullptr) {
-        return bad_arguments;
-    }
+    ONEDAL_ASSERT(vector != nullptr);
 
     std::int64_t result = 0;
     for (std::int64_t i = 0; i < vector_size; i++) {
