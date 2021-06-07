@@ -88,7 +88,7 @@ public:
     /// Creates a new instance of the class with the default property values.
     compute_result();
 
-    /// A $n1 \\times n2$ table with the result kernel functions.
+    /// An $n1 \\times n2$ table with the result kernel functions.
     /// @remark default = table{}
     const table& get_values() const;
 
