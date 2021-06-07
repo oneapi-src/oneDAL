@@ -14,20 +14,15 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. api_algorithms:
+The Minkowski distances are the set of distance metrics with different :math:`p`
+which are widely used for distance computation in different algorithms.
+They include Euclidean distance - the most commonly used distance metric.
 
-Algorithms
-==========
+.. |c_math| replace::   :ref:`dense <minkowski_distance_c_math>`
+.. |c_dense| replace::  :ref:`dense <minkowski_distance_c_math_dense>`
 
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
-
-.. toctree::
-   :maxdepth: 2
-
-   clustering/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   svm/index.rst
+=============  ===============  =========
+**Operation**  **Computational  methods**
+-------------  --------------------------
+|c_math|       |c_dense|
+=============  ===============  =========

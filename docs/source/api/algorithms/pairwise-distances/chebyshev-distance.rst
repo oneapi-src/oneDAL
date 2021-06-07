@@ -14,20 +14,36 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. api_algorithms:
+.. default-domain:: cpp
 
-Algorithms
-==========
+.. _api_chebyshev_distance:
 
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
+==================
+Chebyshev distance
+==================
 
-.. toctree::
-   :maxdepth: 2
+.. include::  ../../../includes/pairwise-distances/chebyshev-distance-introduction.rst
 
-   clustering/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   svm/index.rst
+------------------------
+Mathematical formulation
+------------------------
+
+Refer to :ref:`Developer Guide: Linear kernel <alg_chebyshev_distance>`.
+
+---------------------
+Programming Interface
+---------------------
+All types and functions in this section are declared in the
+``oneapi::dal::chebyshev_distance`` namespace.
+
+Descriptor
+----------
+.. onedal_class:: oneapi::dal::chebyshev_distance::descriptor
+
+Method tags
+~~~~~~~~~~~
+.. onedal_tags_namespace:: oneapi::dal::chebyshev_distance::method
+
+Task tags
+~~~~~~~~~
+.. onedal_tags_namespace:: oneapi::dal::chebyshev_distance::task

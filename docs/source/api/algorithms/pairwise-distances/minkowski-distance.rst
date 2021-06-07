@@ -14,20 +14,36 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. api_algorithms:
+.. default-domain:: cpp
 
-Algorithms
-==========
+.. _api_minkowski_distance:
 
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
+==================
+Minkowski distance
+==================
 
-.. toctree::
-   :maxdepth: 2
+.. include::  ../../../includes/pairwise-distances/minkowski-distance-introduction.rst
 
-   clustering/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   svm/index.rst
+------------------------
+Mathematical formulation
+------------------------
+
+Refer to :ref:`Developer Guide: Linear kernel <alg_minkowski_distance>`.
+
+---------------------
+Programming Interface
+---------------------
+All types and functions in this section are declared in the
+``oneapi::dal::minkowski_distance`` namespace.
+
+Descriptor
+----------
+.. onedal_class:: oneapi::dal::minkowski_distance::descriptor
+
+Method tags
+~~~~~~~~~~~
+.. onedal_tags_namespace:: oneapi::dal::minkowski_distance::method
+
+Task tags
+~~~~~~~~~
+.. onedal_tags_namespace:: oneapi::dal::minkowski_distance::task

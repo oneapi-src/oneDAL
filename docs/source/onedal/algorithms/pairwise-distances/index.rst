@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,20 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. api_algorithms:
-
-Algorithms
-==========
-
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
+==================
+Pairwise Distances
+==================
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   svm/index.rst
+   minkowski-distance.rst
+   chebyshev-distance.rst
