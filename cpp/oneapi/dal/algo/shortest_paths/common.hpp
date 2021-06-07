@@ -96,6 +96,11 @@ class descriptor_impl;
 template <typename T>
 using enable_if_single_source_t = std::enable_if_t<dal::detail::is_one_of_v<T, task::one_to_all>>;
 
+template <typename T, typename M>
+using enable_if_delta_stepping_single_source_t =
+    std::enable_if_t<dal::detail::is_one_of_v<T, task::one_to_all> &
+                     dal::detail::is_one_of_v<M, method::delta_stepping>>;
+
 template <typename M>
 using enable_if_delta_stepping_t =
     std::enable_if_t<dal::detail::is_one_of_v<M, method::delta_stepping>>;
@@ -155,6 +160,9 @@ public:
     using task_t = Task;
     using allocator_t = Allocator;
 
+    template <typename T = Task,
+              typename M = Method,
+              typename = detail::enable_if_delta_stepping_single_source_t<T, M>>
     descriptor(std::int64_t source_vertex,
                double delta,
                optional_result_id optional_results = optional_results::distances,
