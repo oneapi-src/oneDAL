@@ -49,7 +49,7 @@ struct traverse_ops {
 
     template <typename T = task_t,
               typename M = method_t,
-              typename = enable_if_delta_stepping_sssp_t<T, M>>
+              typename = enable_if_delta_stepping_single_source_t<T, M>>
     void check_preconditions(const Descriptor &desc, input_t &input) const {
         using msg = dal::detail::error_messages;
         if (desc.get_source() < 0) {
