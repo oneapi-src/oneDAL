@@ -37,11 +37,11 @@ inline void update_bins(const Vertex& v,
                         BinsVector& local_bins) {
     ONEDAL_ASSERT(new_dist > 0);
     ONEDAL_ASSERT(delta > 0);
+    ONEDAL_ASSERT(new_dist / delta <= std::numeric_limits<EdgeValue>::max());
     ONEDAL_ASSERT(new_dist / delta <=
-                  static_cast<EdgeValue>(std::min(std::numeric_limits<std::int64_t>::max(),
-                                                  std::numeric_limits<EdgeValue>::max())));
+                  static_cast<EdgeValue>(std::numeric_limits<std::int64_t>::max()));
     const std::int64_t dest_bin = static_cast<std::int64_t>(new_dist / delta);
-    ONEDAL_ASSERT(dest_bin >= 0)
+    ONEDAL_ASSERT(dest_bin >= 0);
     if (dest_bin >= local_bins.size()) {
         local_bins.resize(dest_bin + 1);
     }
