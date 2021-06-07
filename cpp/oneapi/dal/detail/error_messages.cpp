@@ -246,5 +246,10 @@ MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
 
+/* DBSCAN */
+MSG(weight_dimension_doesnt_match_data_dimension,
+    "Weights row count does not match data row count");
+MSG(weights_column_count_ne_1, "Weights is not a single-column table");
+
 } // namespace v1
 } // namespace oneapi::dal::detail

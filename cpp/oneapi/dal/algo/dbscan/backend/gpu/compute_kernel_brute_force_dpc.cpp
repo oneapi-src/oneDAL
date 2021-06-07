@@ -19,11 +19,9 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/exceptions.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 
 #include <daal/src/algorithms/dbscan/oneapi/dbscan_kernel_ucapi.h>
-#include <algorithms/dbscan/dbscan_types.h>
-
-#include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::dbscan::backend {
 
@@ -53,20 +51,19 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     daal_dbscan::Parameter par(epsilon, dal::detail::integral_cast<std::size_t>(min_observations));
     par.memorySavingMode = desc.get_mem_save_mode();
+    par.resultsToCompute = daal_dbscan::computeCoreIndices | daal_dbscan::computeCoreObservations;
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
     array<int> arr_responses = array<int>::empty(row_count * 1);
-    array<int> arr_core_observation_indices = array<int>::empty(row_count * 1);
-    array<int> arr_core_observations = array<int>::empty(row_count * column_count);
     array<int> arr_cluster_count = array<int>::empty(1);
 
     const auto daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
     const auto daal_core_observation_indices =
-        interop::convert_to_daal_homogen_table(arr_core_observation_indices, row_count, 1);
+        interop::allocate_daal_homogen_table<int>(row_count, 1);
     const auto daal_core_observations =
-        interop::convert_to_daal_homogen_table(arr_core_observations, row_count, column_count);
+        interop::allocate_daal_homogen_table<Float>(row_count, column_count);
     const auto daal_cluster_count = interop::convert_to_daal_homogen_table(arr_cluster_count, 1, 1);
 
     interop::status_to_exception(daal_dbscan_t<Float>{}.compute(daal_data.get(),
@@ -76,9 +73,16 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                                 daal_core_observation_indices.get(),
                                                                 daal_core_observations.get(),
                                                                 &par));
+
+    auto core_observation_indices =
+        interop::convert_from_daal_homogen_table<int>(daal_core_observation_indices);
+    auto core_observations =
+        interop::convert_from_daal_homogen_table<Float>(daal_core_observation_indices);
+
     array<int> arr_core_flags = array<int>::full(row_count * 1, 0);
-    for (int index = 0; index < arr_core_observation_indices.get_count(); index++) {
-        arr_core_flags.get_mutable_data()[arr_core_observation_indices.get_data()[index]] = 1;
+    auto index_block = row_accessor<const int>(core_observation_indices).pull({ 0, -1 });
+    for (int index = 0; index < core_observation_indices.get_row_count(); index++) {
+        arr_core_flags.get_mutable_data()[index_block[index]] = 1;
     }
 
     return compute_result<Task>()
@@ -86,12 +90,8 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
             dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build())
         .set_core_flags(
             dal::detail::homogen_table_builder{}.reset(arr_core_flags, row_count, 1).build())
-        .set_core_observation_indices(dal::detail::homogen_table_builder{}
-                                          .reset(arr_core_observation_indices, row_count, 1)
-                                          .build())
-        .set_core_observations(dal::detail::homogen_table_builder{}
-                                   .reset(arr_core_observations, row_count, column_count)
-                                   .build())
+        .set_core_observation_indices(core_observation_indices)
+        .set_core_observations(core_observations)
         .set_cluster_count(static_cast<std::int64_t>(arr_cluster_count[0]));
 }
 

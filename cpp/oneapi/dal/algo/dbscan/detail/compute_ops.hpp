@@ -42,32 +42,22 @@ struct compute_ops {
         using msg = dal::detail::error_messages;
 
         if (!(input.get_data().has_data())) {
-            throw domain_error(msg::input_data_is_empty());
+            throw invalid_argument(msg::input_data_is_empty());
         }
         if (input.get_weights().has_data()) {
             if (input.get_weights().get_row_count() != 0 &&
                 input.get_weights().get_row_count() != input.get_data().get_row_count()) {
-                //                throw invalid_argument(msg::input_initial_centroids_rc_neq_desc_cluster_count());
+                throw invalid_argument(msg::weight_dimension_doesnt_match_data_dimension());
             }
             if (input.get_weights().get_column_count() != 1) {
-                //                throw invalid_argument(msg::input_initial_centroids_cc_neq_input_data_cc());
+                throw invalid_argument(msg::weights_column_count_ne_1());
             }
         }
     }
 
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
-                              const result_t& result) const {
-        /*        ONEDAL_ASSERT(result.get_labels().has_data());
-        ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
-        ONEDAL_ASSERT(result.get_iteration_count() <= params.get_max_iteration_count());
-        ONEDAL_ASSERT(result.get_model().get_centroids().has_data());
-        ONEDAL_ASSERT(result.get_model().get_centroids().get_row_count() ==
-                      params.get_cluster_count());
-        ONEDAL_ASSERT(result.get_model().get_centroids().get_column_count() ==
-                      input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_labels().get_row_count() == input.get_data().get_row_count());*/
-    }
+                              const result_t& result) const {}
 
     template <typename Context>
     auto operator()(const Context& ctx, const Descriptor& desc, const input_t& input) const {
