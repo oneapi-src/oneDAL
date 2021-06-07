@@ -289,21 +289,13 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
         {
             const double * probas = pModel->getProbas(iTree);
 
-            if (sizeof(algorithmFPType) == sizeof(double))
-            {
-                services::internal::tmemcpy<double, sse2>(reinterpret_cast<double *>(probasArrHost.get()) + iTree * maxTreeSize * _nClasses, probas,
-                                                          treeSize * _nClasses);
-            }
-            else
-            {
-                algorithmFPType * dst_ptr = probasArrHost.get() + iTree * maxTreeSize * _nClasses;
+            algorithmFPType * dst_ptr = probasArrHost.get() + iTree * maxTreeSize * _nClasses;
 
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < treeSize * _nClasses; i++)
-                {
-                    dst_ptr[i] = static_cast<algorithmFPType>(probas[i]);
-                }
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < treeSize * _nClasses; i++)
+            {
+                dst_ptr[i] = static_cast<algorithmFPType>(probas[i]);
             }
         }
     }
