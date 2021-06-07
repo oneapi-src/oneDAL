@@ -159,6 +159,17 @@ public:
     MSG(input_model_eigenvectors_rc_neq_desc_component_count);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
 
+<<<<<<< HEAD
+=======
+    /* Shortest Paths */
+    MSG(negative_source);
+    MSG(source_gte_vertex_count);
+    MSG(negative_delta);
+    MSG(nothing_to_compute);
+    MSG(distances_are_uninitialized);
+    MSG(predecessors_are_uninitialized);
+
+>>>>>>> b81a0043 (SSSP bad arg fix (#1675))
     /* SVM */
     MSG(c_leq_zero);
     MSG(cache_size_leq_zero);

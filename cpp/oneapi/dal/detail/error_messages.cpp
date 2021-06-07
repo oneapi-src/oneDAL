@@ -131,6 +131,17 @@ MSG(input_model_eigenvectors_rc_neq_desc_component_count,
 MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
 
+<<<<<<< HEAD
+=======
+/* Shortest Paths */
+MSG(negative_source, "Source vertex is lower than zero")
+MSG(source_gte_vertex_count, "Source vertex is out of range")
+MSG(negative_delta, "Delta parameter is lower than zero")
+MSG(nothing_to_compute, "Invalid combination of optional results: nothing to compute")
+MSG(distances_are_uninitialized, "Distances are not set as an optional result")
+MSG(predecessors_are_uninitialized, "Predecessors are not set as an optional result")
+
+>>>>>>> b81a0043 (SSSP bad arg fix (#1675))
 /* SVM */
 MSG(c_leq_zero, "C is lower than or equal to zero")
 MSG(cache_size_leq_zero, "Cache size lower that or equal to zero")
