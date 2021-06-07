@@ -137,7 +137,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     algorithmFPType beta  = 0.0;
     algorithmFPType one   = 1.0;
     algorithmFPType shift = (algorithmFPType)(par->shift);
-    const size_t degree        = (par->kernelType == KernelType::sigmoid) ? 1 : static_cast<size_t>(par->degree);
+    const size_t degree   = (par->kernelType == KernelType::sigmoid) ? 1 : static_cast<size_t>(par->degree);
 
     const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
 
