@@ -95,7 +95,8 @@ COPTS := -std=c++17 \
          -Werror \
          -Wno-unused-parameter \
          -I./source \
-         -I"$(DAALROOT)/include"
+         -I"$(DAALROOT)/include" \
+         -fsycl-device-code-split=per_kernel
 
 LIBS := $(ONEDAL_LIBS) \
         -ltbb \

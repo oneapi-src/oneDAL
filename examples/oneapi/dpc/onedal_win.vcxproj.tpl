@@ -188,7 +188,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpc.lib;onedal_core.lib;onedal_thread.lib;OpenCL.lib;onedal_sycl.lib;tbb12.lib;tbbmalloc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.static.sequential|x64'">
@@ -206,7 +206,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpc.lib;onedal_core.lib;onedal_sequential.lib;OpenCL.lib;onedal_sycl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'">
@@ -224,7 +224,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpc_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.sequential|x64'">
@@ -242,7 +242,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpc_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'">
@@ -260,7 +260,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpcd_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.sequential|x64'">
@@ -278,7 +278,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpcd_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.sequential|x64'">
@@ -296,7 +296,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpcd.lib;onedal_cored.lib;onedal_sequentiald.lib;OpenCL.lib;onedal_sycld.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'">
@@ -314,7 +314,7 @@
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_dpcd.lib;onedal_cored.lib;onedal_threadd.lib;OpenCL.lib;onedal_sycld.lib;tbb12_debug.lib;tbbmalloc_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
