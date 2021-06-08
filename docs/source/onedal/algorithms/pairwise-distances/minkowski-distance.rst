@@ -42,7 +42,7 @@ of dimension :math:`k`, the problem is to compute the Minkowski distance
 .. math::
     ||u_i, v_j||_{p} = \sum_{l=1}^{k} {({|u_{il} - v_{jl}|}^p)}^{1/p},
 
-where :math:`\quad 1 \leq i \leq n, \quad 1 \leq j \leq m and p > 0`.
+where :math:`\quad 1 \leq i \leq n, \quad 1 \leq j \leq m, \quad p > 0`.
 
 .. _minkowski_distance_c_math_dense:
 
