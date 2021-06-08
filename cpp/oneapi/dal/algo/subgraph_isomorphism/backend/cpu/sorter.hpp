@@ -17,11 +17,12 @@
 #pragma once
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+
+const std::int64_t null_node = 0xffffffffffffffff; /*!< Null node value*/
 
 template <typename Cpu>
 struct sconsistent_conditions {
@@ -59,12 +60,12 @@ public:
     void sorting_pattern_vertices(const graph<Cpu>& pattern,
                                   const float* pattern_vertex_probability,
                                   std::int64_t* sorted_pattern_vertex) const;
-    graph_status create_sorted_pattern_tree(const graph<Cpu>& pattern,
-                                            const std::int64_t* sorted_pattern_vertex,
-                                            std::int64_t* predecessor,
-                                            edge_direction* direction,
-                                            sconsistent_conditions<Cpu>* cconditions,
-                                            bool predecessor_in_core_indexing = false) const;
+    void create_sorted_pattern_tree(const graph<Cpu>& pattern,
+                                    const std::int64_t* sorted_pattern_vertex,
+                                    std::int64_t* predecessor,
+                                    edge_direction* direction,
+                                    sconsistent_conditions<Cpu>* cconditions,
+                                    bool predecessor_in_core_indexing = false) const;
 
     inner_alloc allocator_;
     float* p_degree_probability;
@@ -218,9 +219,7 @@ std::int64_t sorter<Cpu>::find_minimum_probability_index_by_mask(
     const float* pattern_vertex_probability,
     const std::uint8_t* pbit_mask,
     const std::uint8_t* pbit_core_mask) const {
-    if (pattern_vertex_probability == nullptr) {
-        return bad_allocation;
-    }
+    ONEDAL_ASSERT(pattern_vertex_probability != nullptr);
 
     std::int64_t vertex_count = pattern.get_vertex_count();
     float global_minimum = 1.1;
@@ -288,21 +287,19 @@ std::int64_t sorter<Cpu>::find_minimum_probability_index_by_mask(
 }
 
 template <typename Cpu>
-graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
-                                                     const std::int64_t* sorted_pattern_vertex,
-                                                     std::int64_t* predecessor,
-                                                     edge_direction* direction,
-                                                     sconsistent_conditions<Cpu>* cconditions,
-                                                     bool predecessor_in_core_indexing) const {
-    if (sorted_pattern_vertex == nullptr || predecessor == nullptr || direction == nullptr ||
-        cconditions == nullptr) {
-        return bad_allocation;
-    }
+void sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
+                                             const std::int64_t* sorted_pattern_vertex,
+                                             std::int64_t* predecessor,
+                                             edge_direction* direction,
+                                             sconsistent_conditions<Cpu>* cconditions,
+                                             bool predecessor_in_core_indexing) const {
+    ONEDAL_ASSERT(sorted_pattern_vertex != nullptr);
+    ONEDAL_ASSERT(predecessor != nullptr);
+    ONEDAL_ASSERT(direction != nullptr);
+    ONEDAL_ASSERT(cconditions != nullptr);
 
     std::int64_t vertex_count = pattern.get_vertex_count();
-    if (vertex_count == 0) {
-        return bad_arguments;
-    }
+    ONEDAL_ASSERT(vertex_count != 0);
 
     predecessor[sorted_pattern_vertex[0]] = null_node;
     direction[sorted_pattern_vertex[0]] = none;
@@ -347,7 +344,6 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
         }
         cconditions[i - 1].divider = _n;
     }
-    return ok;
 }
 
 template <typename Cpu>
