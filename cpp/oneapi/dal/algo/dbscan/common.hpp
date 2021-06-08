@@ -126,7 +126,7 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literals:`epsilon`, `min_observations`
-    explicit descriptor(std::int64_t min_observations, float_t epsilon) {
+    explicit descriptor(float_t epsilon, std::int64_t min_observations) {
         set_min_observations(min_observations);
         set_epsilon(epsilon);
     }

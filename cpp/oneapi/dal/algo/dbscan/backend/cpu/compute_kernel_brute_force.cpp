@@ -74,10 +74,8 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     array<int> arr_cluster_count = array<int>::empty(1);
 
     const auto daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
-    const auto daal_core_observation_indices =
-        interop::allocate_daal_homogen_table<int>(row_count, 1);
-    const auto daal_core_observations =
-        interop::allocate_daal_homogen_table<Float>(row_count, column_count);
+    const auto daal_core_observation_indices = interop::empty_daal_homogen_table<int>(1);
+    const auto daal_core_observations = interop::empty_daal_homogen_table<Float>(column_count);
     const auto daal_cluster_count = interop::convert_to_daal_homogen_table(arr_cluster_count, 1, 1);
 
     interop::status_to_exception(interop::call_daal_kernel<Float, dbscan_compute_wrapper>(
@@ -93,12 +91,13 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     auto core_observation_indices =
         interop::convert_from_daal_homogen_table<int>(daal_core_observation_indices);
     auto core_observations =
-        interop::convert_from_daal_homogen_table<Float>(daal_core_observation_indices);
-
+        interop::convert_from_daal_homogen_table<Float>(daal_core_observations);
     array<int> arr_core_flags = array<int>::full(row_count * 1, 0);
-    auto index_block = row_accessor<const int>(core_observation_indices).pull({ 0, -1 });
-    for (int index = 0; index < core_observation_indices.get_row_count(); index++) {
-        arr_core_flags.get_mutable_data()[index_block[index]] = 1;
+    if (core_observation_indices.get_row_count() > 0) {
+        auto index_block = row_accessor<const int>(core_observation_indices).pull({ 0, -1 });
+        for (int index = 0; index < core_observation_indices.get_row_count(); index++) {
+            arr_core_flags.get_mutable_data()[index_block[index]] = 1;
+        }
     }
 
     return compute_result<Task>()
