@@ -257,10 +257,12 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
     DAAL_CHECK_STATUS_VAR(status);
 
     UniversalBuffer probasArr;
+    TArray<algorithmFPType, sse2> probasArrHost(treeBlockSize * _nClasses);
+    DAAL_CHECK_MALLOC(probasArrHost.get());
 
     if (_votingMethod == VotingMethod::weighted && pModel->getProbas(0))
     {
-        probasArr = context.allocate(TypeIds::id<double>(), treeBlockSize * _nClasses, status);
+        probasArr = context.allocate(TypeIds::id<algorithmFPType>(), treeBlockSize * _nClasses, status);
         DAAL_CHECK_STATUS_VAR(status);
         weighted = true;
     }
@@ -286,9 +288,22 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByAllTrees
         if (weighted)
         {
             const double * probas = pModel->getProbas(iTree);
-            context.copy(probasArr, iTree * maxTreeSize * _nClasses, (void *)probas, treeSize * _nClasses, 0, treeSize * _nClasses, status);
-            DAAL_CHECK_STATUS_VAR(status);
+
+            algorithmFPType * dst_ptr = probasArrHost.get() + iTree * maxTreeSize * _nClasses;
+
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t i = 0; i < treeSize * _nClasses; i++)
+            {
+                dst_ptr[i] = static_cast<algorithmFPType>(probas[i]);
+            }
         }
+    }
+
+    if (weighted)
+    {
+        context.copy(probasArr, 0, (void *)probasArrHost.get(), treeBlockSize * _nClasses, 0, treeBlockSize * _nClasses, status);
+        DAAL_CHECK_STATUS_VAR(status);
     }
 
     algorithmFPType probasScale = (algorithmFPType)1 / nTrees;
