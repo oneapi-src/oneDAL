@@ -95,4 +95,34 @@ inline void check_if_tables_equal_approx(const table& actual,
     check_if_table_content_equal_approx<Float>(actual, reference, tolerance);
 }
 
+template <typename Float>
+inline table stack_tables_by_rows(const std::vector<table>& tables) {
+    if (tables.empty()) {
+        return table{};
+    }
+
+    std::int64_t total_row_count = 0;
+    std::int64_t total_column_count = tables[0].get_column_count();
+    for (const auto& t : tables) {
+        ONEDAL_ASSERT(t.get_column_count() == total_column_count);
+        total_row_count += t.get_row_count();
+    }
+
+    const auto stacked_table_memory = dal::array<Float>::empty(
+        dal::detail::check_mul_overflow(total_row_count, total_column_count));
+
+    std::int64_t offset = 0;
+    for (const auto& t : tables) {
+        const auto t_ary = row_accessor<const Float>{ t }.pull();
+        Float* dst_ptr = stacked_table_memory.get_mutable_data() + offset;
+        dal::detail::memcpy(dal::detail::default_host_policy{},
+                            dst_ptr,
+                            t_ary.get_data(),
+                            t_ary.get_size());
+        offset += t_ary.get_count();
+    }
+
+    return homogen_table::wrap(stacked_table_memory, total_row_count, total_column_count);
+}
+
 } // namespace oneapi::dal::test::engine

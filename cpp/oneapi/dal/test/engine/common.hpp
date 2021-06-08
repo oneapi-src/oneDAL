@@ -161,13 +161,37 @@ inline auto train(host_test_policy& policy, Args&&... args) {
 }
 
 template <typename... Args>
+inline auto train(host_test_policy& policy,
+                  const dal::detail::spmd_communicator& comm,
+                  Args&&... args) {
+    return dal::train(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
+                      std::forward<Args>(args)...);
+}
+
+template <typename... Args>
 inline auto infer(host_test_policy& policy, Args&&... args) {
     return dal::infer(std::forward<Args>(args)...);
 }
 
 template <typename... Args>
+inline auto infer(host_test_policy& policy,
+                  const dal::detail::spmd_communicator& comm,
+                  Args&&... args) {
+    return dal::infer(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
+                      std::forward<Args>(args)...);
+}
+
+template <typename... Args>
 inline auto compute(host_test_policy& policy, Args&&... args) {
     return dal::compute(std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+inline auto compute(host_test_policy& policy,
+                    const dal::detail::spmd_communicator& comm,
+                    Args&&... args) {
+    return dal::compute(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
+                        std::forward<Args>(args)...);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL

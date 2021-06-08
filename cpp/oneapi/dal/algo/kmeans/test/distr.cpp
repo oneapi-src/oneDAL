@@ -18,6 +18,7 @@
 #include "oneapi/dal/algo/kmeans/test/fixture.hpp"
 #include "oneapi/dal/test/engine/communicator.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
+#include "oneapi/dal/test/engine/io.hpp"
 
 namespace oneapi::dal::kmeans::test {
 
@@ -25,6 +26,7 @@ template <typename TestType>
 class kmeans_distr_test : public kmeans_test<TestType> {
 public:
     using base_t = kmeans_test<TestType>;
+    using float_t = typename base_t::float_t;
     using descriptor_t = typename base_t::descriptor_t;
     using train_input_t = typename base_t::train_input_t;
     using train_result_t = typename base_t::train_result_t;
@@ -49,9 +51,9 @@ protected:
 
 private:
     train_result_t merge_train_result(const dal::detail::spmd_communicator& comm,
-                                      const train_result_t& result) override {
-        const auto local_labels = result.get_labels();
-        const auto merged_labels = te::stack_tables_by_rows(comm.gather(local_labels));
+                                      const train_result_t& result) {
+        const auto root_labels = dal::detail::gather(comm, result.get_labels());
+        const auto merged_labels = te::stack_tables_by_rows<float_t>(root_labels);
         if (dal::detail::is_root_rank(comm)) {
             // Assuming model, iteration_count, objective_function_value
             // are the same for all ranks

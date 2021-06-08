@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/communicator_utils.hpp"
 #include "oneapi/dal/test/engine/tables.hpp"
-#include "oneapi/dal/test/engine/communicator_mock.hpp"
+#include "oneapi/dal/test/engine/communicator.hpp"
 
 namespace oneapi::dal::test {
 

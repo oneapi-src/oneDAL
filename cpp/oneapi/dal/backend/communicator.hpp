@@ -93,7 +93,7 @@ public:
 
     template <typename T>
     std::vector<T> gather(const T& send) const {
-        dal::detail::gather(comm_, send);
+        return dal::detail::gather(comm_, send);
     }
 
 private:
