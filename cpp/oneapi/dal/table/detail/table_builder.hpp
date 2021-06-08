@@ -60,7 +60,7 @@ public:
     }
 
     template <typename Data>
-    auto& reset(const array<Data>& data, std::int64_t row_count, std::int64_t column_count) {
+    auto& reset(const dal::array<Data>& data, std::int64_t row_count, std::int64_t column_count) {
         const auto byte_data = detail::reinterpret_array_cast<byte_t>(data);
         get_impl().set_data_type(detail::make_data_type<Data>());
         get_impl().reset(byte_data, row_count, column_count);

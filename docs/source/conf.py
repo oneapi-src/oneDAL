@@ -137,6 +137,8 @@ onedal_relative_sources_dir = '../../cpp/oneapi/dal'
 
 # ignore these missing references during a doc build
 nitpick_ignore = [
+    # top level namespace
+    ('cpp:identifier', 'dal'),
     # method
     ('cpp:identifier', 'method'),
     ('cpp:identifier', 'Method'),
@@ -169,14 +171,14 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
-    # chebychev_distance
+    # minkowski_distance
     ('cpp:identifier', 'minkowski_distance'),
     ('cpp:identifier', 'minkowski_distance::descriptor'),
     ('cpp:identifier', 'oneapi::dal::minkowski_distance'),
     ('cpp:identifier', 'oneapi::dal::minkowski_distance::descriptor<Float>'),
-    # minkowski_distance
-    ('cpp:identifier', 'chebychev_distance'),
-    ('cpp:identifier', 'chebychev_distance::descriptor'),
+    # chebyshev_distance
+    ('cpp:identifier', 'chebyshev_distance'),
+    ('cpp:identifier', 'chebyshev_distance::descriptor'),
     # kmeans
     ('cpp:identifier', 'kmeans'),
     ('cpp:identifier', 'kmeans::descriptor'),

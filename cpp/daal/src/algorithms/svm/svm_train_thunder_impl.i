@@ -141,7 +141,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
 
     if (svmType == SvmType::nu_classification || svmType == SvmType::nu_regression)
     {
-        DAAL_CHECK_STATUS(status, initGrad(xTable, kernel, nVectors, nTrainVectors, cacheSize, y, alpha, grad));
+        DAAL_CHECK_STATUS(status, initGrad(xTable, kernel, nVectors, nTrainVectors, y, alpha, grad));
     }
 
     size_t iter = 0;
@@ -186,7 +186,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
     /* The operation copy is lightweight, therefore a large size is chosen
-          so that the number of blocks is a reasonable number. */
+        so that the number of blocks is a reasonable number. */
     const size_t blockSize = 16384;
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
@@ -265,7 +265,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
     services::Status status;
     const size_t nVectors = yTable.getNumberOfRows();
     /* The operation copy is lightweight, therefore a large size is chosen
-          so that the number of blocks is a reasonable number. */
+        so that the number of blocks is a reasonable number. */
     const size_t blockSize = 16384;
     const size_t nBlocks   = nVectors / blockSize + !!(nVectors % blockSize);
 
@@ -301,8 +301,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
             cw[i + startRow + nVectors] = weights ? weights[i] * c : c;
             if (weights)
             {
-                *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
-                *cws += cw[i + startRow] + cw[i + startRow + nVectors];
+                *wc += 2 * static_cast<size_t>(weights[i] != algorithmFPType(0));
+                *cws += cw[i + startRow];
             }
         }
     });
@@ -582,78 +582,57 @@ bool SVMTrainImpl<thunder, algorithmFPType, cpu>::checkStopCondition(const algor
 
 template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::initGrad(const NumericTablePtr & xTable, const kernel_function::KernelIfacePtr & kernel,
-                                                                       const size_t nVectors, const size_t nTrainVectors, const size_t cacheSize,
-                                                                       algorithmFPType * const y, algorithmFPType * const alpha,
-                                                                       algorithmFPType * grad)
+                                                                       const size_t nVectors, const size_t nTrainVectors, algorithmFPType * const y,
+                                                                       algorithmFPType * const alpha, algorithmFPType * grad)
 {
     services::Status status;
+
+    TArray<uint32_t, cpu> indicesTArray(nTrainVectors);
+    DAAL_CHECK_MALLOC(indicesTArray.get());
+    uint32_t * const indices = indicesTArray.get();
 
     TArray<algorithmFPType, cpu> deltaAlphaTArray(nTrainVectors);
     DAAL_CHECK_MALLOC(deltaAlphaTArray.get());
     algorithmFPType * const deltaAlpha = deltaAlphaTArray.get();
 
-    const size_t nBlocks = nTrainVectors / maxBlockSize + !!(nTrainVectors % maxBlockSize);
-
-    SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
-        const size_t startRow     = iBlock * maxBlockSize;
-        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nTrainVectors - iBlock * maxBlockSize;
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nRowsInBlock; ++i)
+    size_t nNonZeroAlphas = 0;
+    for (size_t i = 0; i < nTrainVectors; ++i)
+    {
+        if (alpha[i] != algorithmFPType(0))
         {
-            deltaAlpha[i + startRow] = alpha[i + startRow] * y[i + startRow];
+            indices[nNonZeroAlphas]    = static_cast<uint32_t>(i);
+            deltaAlpha[nNonZeroAlphas] = alpha[i] * y[i];
+            ++nNonZeroAlphas;
         }
-    });
+    }
 
-    size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
+    const size_t nBlocks = nNonZeroAlphas / maxBlockSize + !!(nNonZeroAlphas % maxBlockSize);
 
-    StaticTlsMem<uint32_t, cpu> tlsIndices(maxBlockSize);
-    StaticTlsMem<algorithmFPType, cpu> tlsGrad(nTrainVectors);
+    auto cachePtr = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(maxBlockSize, maxBlockSize, nVectors, xTable, kernel, status);
 
-    daal::static_threader_for(nBlocks, [&](const size_t iBlock, const size_t tid) {
+    for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
+    {
         const size_t startRow     = iBlock * maxBlockSize;
-        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nTrainVectors - iBlock * maxBlockSize;
+        const size_t nRowsInBlock = (iBlock != nBlocks - 1) ? maxBlockSize : nNonZeroAlphas - iBlock * maxBlockSize;
 
-        uint32_t * const localIndices     = tlsIndices.local(tid);
-        algorithmFPType * const localGrad = tlsGrad.local(tid);
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nRowsInBlock; ++i)
+        if (nRowsInBlock != maxBlockSize)
         {
-            localIndices[i] = i + startRow;
+            status |= cachePtr->resize(nRowsInBlock);
         }
-
-        defaultCacheSize = services::internal::max<cpu, size_t>(nRowsInBlock, defaultCacheSize);
-        auto cachePtr = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nRowsInBlock, nVectors, xTable, kernel, status);
-        DAAL_CHECK_STATUS_THR(status);
 
         algorithmFPType ** kernelSOARes = nullptr;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(getRowsBlock);
 
-            DAAL_CHECK_STATUS_THR(cachePtr->getRowsBlock(localIndices, nRowsInBlock, kernelSOARes));
+            status |= cachePtr->getRowsBlock(indices + startRow, nRowsInBlock, kernelSOARes);
         }
 
-        DAAL_CHECK_STATUS_THR(updateGrad(kernelSOARes, deltaAlpha, localGrad, nVectors, nTrainVectors, nRowsInBlock));
+        status |= updateGrad(kernelSOARes, deltaAlpha + startRow, grad, nVectors, nTrainVectors, nRowsInBlock);
+    }
 
-        cachePtr->clear();
-    });
+    cachePtr->clear();
 
-    tlsGrad.reduce([grad, nTrainVectors](algorithmFPType * localGrad) -> void {
-        if (!localGrad) return;
-
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < nTrainVectors; ++i)
-        {
-            grad[i] += localGrad[i];
-        }
-    });
-
-    return services::Status();
+    return status;
 }
 
 } // namespace internal

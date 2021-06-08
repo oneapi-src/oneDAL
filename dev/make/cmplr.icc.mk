@@ -31,7 +31,7 @@ CORE.SERV.COMPILER.icc = generic
 COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc -i )icc -qopenmp-simd \
                     -Werror -Wreturn-type
 COMPILER.lnx.icc += $(if $(COVFILE), $(if $(IA_is_ia32), $(-Q)m32, $(-Q)m64))
-COMPILER.win.icc = icl -MD -nologo -WX -Qopenmp-simd
+COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd
 COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.14 \
 				   -Werror -Wreturn-type
 

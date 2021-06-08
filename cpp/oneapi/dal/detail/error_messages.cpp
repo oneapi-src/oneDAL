@@ -82,6 +82,8 @@ MSG(object_does_not_provide_read_access_to_columns,
     "Given object does not provide read access to columns")
 MSG(object_does_not_provide_write_access_to_columns,
     "Given object does not provide write access to columns")
+MSG(object_does_not_provide_access_to_rows_or_columns,
+    "Given object does not provide access to rows or columns")
 MSG(unsupported_conversion_types, "Unsupported conversion types")
 MSG(row_indices_lt_min_value, "Row indices are less than the minimum acceptable value")
 MSG(row_indices_gt_max_value, "Row indices are larger than the maximum acceptable value")
@@ -155,6 +157,7 @@ MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
 MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
     "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
+MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
 
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
@@ -189,6 +192,9 @@ MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
 
 /* Shortest Paths */
+MSG(negative_source, "Source vertex is lower than zero")
+MSG(source_gte_vertex_count, "Source vertex is out of range")
+MSG(negative_delta, "Delta parameter is lower than zero")
 MSG(nothing_to_compute, "Invalid combination of optional results: nothing to compute")
 MSG(distances_are_uninitialized, "Distances are not set as an optional result")
 MSG(predecessors_are_uninitialized, "Predecessors are not set as an optional result")
