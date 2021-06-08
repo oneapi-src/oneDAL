@@ -32,7 +32,7 @@ DECLARE_SOURCE(
     df_batch_predict_classification_kernels,
     __kernel void predictByTreesWeighted(const __global algorithmFPType * data, const __global int * ftrIdx,
                                          const __global int * classLabelsOrNextNodeIdx, const __global algorithmFPType * ftrValue,
-                                         const __global double * classProba, __global algorithmFPType * obsClassHist, algorithmFPType scale,
+                                         const __global algorithmFPType * classProba, __global algorithmFPType * obsClassHist, algorithmFPType scale,
                                          int nRows, int nCols, int nTrees, int maxTreeSize, int treeOffset) {
         const int nClasses      = NUM_OF_CLASSES;
         const int local_id      = get_local_id(0);
@@ -56,7 +56,7 @@ DECLARE_SOURCE(
             const __global int * ftrIdxForTree                   = ftrIdx + tree_id * maxTreeSize;
             const __global int * classLabelsOrNextNodeIdxForTree = classLabelsOrNextNodeIdx + tree_id * maxTreeSize;
             const __global algorithmFPType * ftrValueForTree     = ftrValue + tree_id * maxTreeSize;
-            const __global double * classProbaForTree            = classProba + tree_id * maxTreeSize * nClasses;
+            const __global algorithmFPType * classProbaForTree   = classProba + tree_id * maxTreeSize * nClasses;
 
             uint treeRootIsSplit = (uint)(leafMark != ftrIdxForTree[0]);
 
