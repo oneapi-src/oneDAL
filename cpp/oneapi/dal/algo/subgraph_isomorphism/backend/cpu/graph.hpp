@@ -25,6 +25,9 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
+// 1/64 for memory capacity and ~0.005 for cpu.
+constexpr double graph_storage_divider_by_density = 0.015625;
+
 enum graph_storage_scheme { auto_detect, bit, list };
 
 enum edge_direction {
