@@ -28,7 +28,6 @@ template <typename Cpu>
 class stack {
 public:
     stack(inner_alloc allocator);
-    stack(std::int64_t max_size, inner_alloc allocator);
     virtual ~stack();
     stack(stack<Cpu>&& _stack);
     stack<Cpu>& operator=(stack<Cpu>&& _stack);
@@ -38,8 +37,6 @@ public:
     state<Cpu>* pop();
     std::int64_t size() const;
     void clear(bool direct = true);
-    void clear_state(std::int64_t index);
-    void add(stack<Cpu>& _stack);
 
 private:
     inner_alloc allocator_;
@@ -136,13 +133,6 @@ template <typename Cpu>
 class dfs_stack {
 public:
     dfs_stack(inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels, inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels,
-              const std::uint64_t max_states_size,
-              inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels,
-              const std::uint64_t* max_states_size_per_level,
-              inner_alloc allocator);
     virtual ~dfs_stack();
     void init(const std::uint64_t levels);
     void init(const std::uint64_t levels, const std::uint64_t max_states_size);
@@ -195,16 +185,6 @@ stack<Cpu>::stack(inner_alloc allocator) : allocator_(allocator) {
 }
 
 template <typename Cpu>
-stack<Cpu>::stack(std::int64_t max_size, inner_alloc allocator) : allocator_(allocator) {
-    max_stack_size = max_size;
-    stack_size = 0;
-    data = allocator_.allocate<state<Cpu>*>(max_stack_size);
-    for (std::int64_t i = 0; i < max_stack_size; i++) {
-        data[i] = nullptr;
-    }
-}
-
-template <typename Cpu>
 void stack<Cpu>::delete_data() {
     if (data != nullptr) {
         for (std::int64_t i = 0; i < max_stack_size; i++) {
@@ -229,22 +209,6 @@ void stack<Cpu>::clear(bool direct) {
         }
     }
     stack_size = 0;
-}
-
-template <typename Cpu>
-void stack<Cpu>::clear_state(std::int64_t index) {
-    data[index]->clear();
-    allocator_.deallocate<state<Cpu>>(data[index], 0);
-    data[index] = nullptr;
-}
-
-template <typename Cpu>
-void stack<Cpu>::add(stack<Cpu>& _stack) {
-    std::int64_t current_size = _stack.size();
-    for (std::int64_t i = 0; i < current_size; i++) {
-        push(_stack.pop());
-    }
-    _stack.clear();
 }
 
 template <typename Cpu>
@@ -568,28 +532,6 @@ dfs_stack<Cpu>::dfs_stack(inner_alloc allocator) : allocator_(allocator) {
     data_by_levels = nullptr;
 
     current_level = 0;
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels, inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels);
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels,
-                          const std::uint64_t max_states_size,
-                          inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels, max_states_size);
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels,
-                          const std::uint64_t* max_states_size_per_level,
-                          inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels, max_states_size_per_level);
 }
 
 template <typename Cpu>

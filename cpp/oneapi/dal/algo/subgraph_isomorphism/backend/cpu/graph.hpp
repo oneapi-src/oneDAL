@@ -34,13 +34,7 @@ struct graph_input_data {
     std::int64_t** edges_attribute;
     inner_alloc allocator_;
 
-    graph_input_data(inner_alloc allocator);
     graph_input_data(const std::int64_t vertex_size, inner_alloc allocator);
-    graph_input_data(std::int64_t vertex_count,
-                     std::int64_t* degree,
-                     std::int64_t* attr,
-                     std::int64_t** edges_attribute,
-                     inner_alloc allocator);
     ~graph_input_data();
 };
 
@@ -53,9 +47,7 @@ struct graph_input_list_data : public graph_input_data<Cpu> {
     using graph_input_data<Cpu>::attr;
     using graph_input_data<Cpu>::edges_attribute;
 
-    graph_input_list_data(inner_alloc allocator);
     graph_input_list_data(const std::int64_t vertex_size, inner_alloc allocator);
-    graph_input_list_data(graph_input_data<Cpu>* input_data, inner_alloc allocator);
     ~graph_input_list_data();
 };
 
@@ -68,9 +60,7 @@ struct graph_input_bit_data : public graph_input_data<Cpu> {
     using graph_input_data<Cpu>::attr;
     using graph_input_data<Cpu>::edges_attribute;
 
-    graph_input_bit_data(inner_alloc allocator);
     graph_input_bit_data(const std::int64_t vertex_size, inner_alloc allocator);
-    graph_input_bit_data(graph_input_data<Cpu>* input_data, inner_alloc allocator);
     ~graph_input_bit_data();
 };
 
@@ -80,7 +70,6 @@ struct graph_data {
     const graph_input_list_data<Cpu>* plist_data;
 
     graph_data();
-    graph_data(const graph_input_bit_data<Cpu>* pbit, const graph_input_list_data<Cpu>* plist);
     ~graph_data();
 };
 
@@ -101,27 +90,13 @@ public:
 
     std::int64_t get_vertex_count() const;
 
-    void set_edge(const std::int64_t current_vertex, const std::int64_t vertex);
     edge_direction check_edge(const std::int64_t current_vertex, const std::int64_t vertex) const;
-    bool has_edge(const std::int64_t vertex_first, const std::int64_t vertex_second) const;
-
-    bit_vector<Cpu> get_vertex_neighbors(const std::int64_t vertex,
-                                         const edge_direction edge_type) const;
-
-    graph_status get_edge_vertices_ids(const std::int64_t current_vertex,
-                                       std::int64_t* vertices_ids) const;
 
     std::int64_t get_max_degree() const;
     std::int64_t get_max_vertex_attribute() const;
 
-    std::int64_t get_min_degree() const;
-    std::int64_t get_min_vertex_attribute() const;
-
     std::int64_t get_vertex_degree(const std::int64_t vertex) const;
     std::int64_t get_vertex_attribute(const std::int64_t vertex) const;
-
-    std::int64_t get_edge_attribute(const std::int64_t current_vertex,
-                                    const std::int64_t vertex) const;
 
     bool external_data;
     bool bit_representation;
@@ -140,9 +115,6 @@ public:
     void delete_list_arrays();
 
     std::int64_t max_element(const std::int64_t* parray) const;
-    std::int64_t min_element(const std::int64_t* parray) const;
-
-    std::int64_t get_edge_index(const std::int64_t current_vertex, const std::int64_t vertex) const;
 
     void init_bit_representation(const dal::preview::detail::topology<std::int32_t>& t);
     void init_list_representation(const dal::preview::detail::topology<std::int32_t>& t);
@@ -272,12 +244,6 @@ graph_data<Cpu>::graph_data() : pbit_data(nullptr),
                                 plist_data(nullptr) {}
 
 template <typename Cpu>
-graph_data<Cpu>::graph_data(const graph_input_bit_data<Cpu>* pbit,
-                            const graph_input_list_data<Cpu>* plist)
-        : pbit_data(pbit),
-          plist_data(plist) {}
-
-template <typename Cpu>
 graph_data<Cpu>::~graph_data() {}
 
 template <typename Cpu>
@@ -348,21 +314,11 @@ void graph<Cpu>::delete_list_arrays() {
 }
 
 template <typename Cpu>
-void graph<Cpu>::set_edge(const std::int64_t current_vertex, const std::int64_t vertex) {
-    p_edges_bit[current_vertex][bit_vector<Cpu>::byte(vertex)] |= bit_vector<Cpu>::bit(vertex);
-}
-
-template <typename Cpu>
 edge_direction graph<Cpu>::check_edge(const std::int64_t current_vertex,
                                       const std::int64_t vertex) const {
     return static_cast<edge_direction>(
         (bool)(p_edges_bit[current_vertex][bit_vector<Cpu>::byte(vertex)] &
                bit_vector<Cpu>::bit(vertex)));
-}
-
-template <typename Cpu>
-bool graph<Cpu>::has_edge(const std::int64_t vertex_first, const std::int64_t vertex_second) const {
-    return check_edge(vertex_first, vertex_second);
 }
 
 template <typename Cpu>
@@ -373,16 +329,6 @@ std::int64_t graph<Cpu>::get_max_degree() const {
 template <typename Cpu>
 std::int64_t graph<Cpu>::get_max_vertex_attribute() const {
     return max_element(p_vertex_attribute);
-}
-
-template <typename Cpu>
-std::int64_t graph<Cpu>::get_min_degree() const {
-    return min_element(p_degree);
-}
-
-template <typename Cpu>
-std::int64_t graph<Cpu>::get_min_vertex_attribute() const {
-    return min_element(p_vertex_attribute);
 }
 
 template <typename Cpu>
@@ -420,100 +366,6 @@ std::int64_t graph<Cpu>::max_element(const std::int64_t* parray) const {
 }
 
 template <typename Cpu>
-std::int64_t graph<Cpu>::min_element(const std::int64_t* parray) const {
-    std::int64_t result = 0;
-
-    if (parray != nullptr) {
-        for (std::int64_t i = 0; i < n; i++) {
-            if (parray[i] < result) {
-                result = parray[i];
-            }
-        }
-    }
-    return result;
-}
-
-template <typename Cpu>
-graph_status graph<Cpu>::get_edge_vertices_ids(const std::int64_t current_vertex,
-                                               std::int64_t* vertices_ids) const {
-    if (vertices_ids == nullptr) {
-        return bad_arguments;
-    }
-
-    std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(n);
-    std::uint8_t current_byte = 0;
-    std::uint8_t current_bit = 0;
-    std::int64_t vertex_iterator = 0;
-    for (std::int64_t i = 0; i < bit_array_size; i++) {
-        current_byte = p_edges_bit[current_vertex][i];
-        while (current_byte > 0) {
-            current_bit = current_byte & (-current_byte);
-            current_byte &= ~current_bit;
-            vertices_ids[vertex_iterator] = 8 * i + bit_vector<Cpu>::power_of_two(current_bit);
-            vertex_iterator++;
-        }
-    }
-    return ok;
-}
-
-template <typename Cpu>
-bit_vector<Cpu> graph<Cpu>::get_vertex_neighbors(const std::int64_t vertex,
-                                                 const edge_direction edge_type) const {
-    const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(n);
-    switch (edge_type) {
-        case both: {
-            bit_vector<Cpu> result(bit_array_size, allocator_.get_byte_allocator());
-            bit_vector<Cpu>::set(bit_array_size, result.get_vector_pointer(), p_edges_bit[vertex]);
-            return result;
-        }
-        default: {
-            return bit_vector<Cpu>(allocator_.get_byte_allocator());
-        }
-    }
-}
-
-template <typename Cpu>
-std::int64_t graph<Cpu>::get_edge_index(const std::int64_t current_vertex,
-                                        const std::int64_t vertex) const {
-    if (!check_edge(current_vertex, vertex)) {
-        return bad_arguments;
-    }
-
-    return bit_vector<Cpu>::get_bit_index((n / 8) + 1, p_edges_bit[current_vertex], vertex);
-}
-
-template <typename Cpu>
-std::int64_t graph<Cpu>::get_edge_attribute(const std::int64_t current_vertex,
-                                            const std::int64_t vertex) const {
-    std::int64_t attribute_index = get_edge_index(current_vertex, vertex);
-    if (attribute_index < 0) {
-        return attribute_index;
-    }
-
-    return p_edges_attribute[current_vertex][attribute_index];
-}
-
-template <typename Cpu>
-graph_input_data<Cpu>::graph_input_data(inner_alloc allocator)
-        : vertex_count(0),
-          degree(nullptr),
-          attr(nullptr),
-          edges_attribute(nullptr),
-          allocator_(allocator) {}
-
-template <typename Cpu>
-graph_input_data<Cpu>::graph_input_data(std::int64_t vertex_count,
-                                        std::int64_t* degree,
-                                        std::int64_t* attr,
-                                        std::int64_t** edges_attribute,
-                                        inner_alloc allocator)
-        : vertex_count(vertex_count),
-          degree(degree),
-          attr(attr),
-          edges_attribute(edges_attribute),
-          allocator_(allocator) {}
-
-template <typename Cpu>
 graph_input_data<Cpu>::graph_input_data(const std::int64_t vertex_size, inner_alloc allocator)
         : vertex_count(vertex_size),
           allocator_(allocator) {
@@ -545,29 +397,9 @@ graph_input_data<Cpu>::~graph_input_data() {
 }
 
 template <typename Cpu>
-graph_input_list_data<Cpu>::graph_input_list_data(inner_alloc allocator)
-        : graph_input_data<Cpu>(allocator) {
-    data = nullptr;
-}
-
-template <typename Cpu>
 graph_input_list_data<Cpu>::graph_input_list_data(const std::int64_t vertex_size,
                                                   inner_alloc allocator)
         : graph_input_data<Cpu>(vertex_size, allocator) {
-    data = allocator_.template allocate<std::int64_t*>(vertex_count);
-    for (int64_t i = 0; i < vertex_count; i++) {
-        data[i] = nullptr;
-    }
-}
-
-template <typename Cpu>
-graph_input_list_data<Cpu>::graph_input_list_data(graph_input_data<Cpu>* input_data,
-                                                  inner_alloc allocator)
-        : graph_input_data<Cpu>(input_data->vertex_count,
-                                input_data->degree,
-                                input_data->attr,
-                                input_data->edges_attribute,
-                                allocator) {
     data = allocator_.template allocate<std::int64_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
         data[i] = nullptr;
@@ -584,35 +416,11 @@ graph_input_list_data<Cpu>::~graph_input_list_data() {
     }
     allocator_.template deallocate<std::int64_t*>(data, vertex_count);
 }
-
-template <typename Cpu>
-graph_input_bit_data<Cpu>::graph_input_bit_data(inner_alloc allocator)
-        : graph_input_data<Cpu>(allocator) {
-    data = nullptr;
-}
-
 template <typename Cpu>
 graph_input_bit_data<Cpu>::graph_input_bit_data(const std::int64_t vertex_size,
                                                 inner_alloc allocator)
         : graph_input_data<Cpu>(vertex_size, allocator) {
     std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
-
-    data = allocator_.template allocate<std::uint8_t*>(vertex_count);
-    for (int64_t i = 0; i < vertex_count; i++) {
-        data[i] = allocator_.template allocate<std::uint8_t>(bit_array_size);
-        bit_vector<Cpu>::set(bit_array_size, data[i]);
-    }
-}
-
-template <typename Cpu>
-graph_input_bit_data<Cpu>::graph_input_bit_data(graph_input_data<Cpu>* input_data,
-                                                inner_alloc allocator)
-        : graph_input_data<Cpu>(input_data->vertex_count,
-                                input_data->degree,
-                                input_data->attr,
-                                input_data->edges_attribute,
-                                allocator) {
-    const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
 
     data = allocator_.template allocate<std::uint8_t*>(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {

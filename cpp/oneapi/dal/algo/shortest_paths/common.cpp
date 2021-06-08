@@ -17,14 +17,15 @@
 #include "oneapi/dal/algo/shortest_paths/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
-namespace oneapi::dal::preview::shortest_paths {
+namespace oneapi::dal::preview::shortest_paths::detail {
 
-namespace optional_results {
-const optional_result_id predecessors{ 0b01 };
-const optional_result_id distances{ 0b10 };
-} // namespace optional_results
+optional_result_id get_predecessors_id() {
+    return optional_result_id::get_result_id_by_index(0);
+}
 
-namespace detail {
+optional_result_id get_distances_id() {
+    return optional_result_id::get_result_id_by_index(1);
+}
 
 template <typename Task>
 class descriptor_impl : public base {
@@ -35,9 +36,9 @@ public:
         }
     }
 
-    std::int64_t _source;
-    double _delta;
-    optional_result_id optional_results;
+    std::int64_t _source = 0;
+    double _delta = 1;
+    optional_result_id optional_results = optional_results::distances;
 };
 
 template <typename Task>
@@ -75,5 +76,4 @@ void descriptor_base<Task>::set_optional_results(const optional_result_id& value
 
 template class ONEDAL_EXPORT descriptor_base<task::one_to_all>;
 
-} // namespace detail
-} // namespace oneapi::dal::preview::shortest_paths
+} // namespace oneapi::dal::preview::shortest_paths::detail
