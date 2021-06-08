@@ -76,12 +76,13 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release.dynamic.threaded|x64'">
@@ -94,12 +95,13 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycl.lib;onedal_core_dll.lib;OpenCL.lib</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.dynamic.threaded|x64'">
@@ -112,12 +114,13 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycld.lib;onedal_cored_dll.lib;OpenCL.lib</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug.static.threaded|x64'">
@@ -130,12 +133,13 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
       <SYCLShowVerboseInformation>false</SYCLShowVerboseInformation>
       <AdditionalDependencies>onedal_sycld.lib;onedal_cored.lib;OpenCL.lib</AdditionalDependencies>
-      <AdditionalOptions>/link /ignore:4078 -fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/link /ignore:4078 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
