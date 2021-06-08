@@ -47,9 +47,22 @@ struct traverse_ops {
     using result_t = traverse_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
+    template <typename T = task_t,
+              typename M = method_t,
+              typename = enable_if_delta_stepping_single_source_t<T, M>>
     void check_preconditions(const Descriptor &desc, input_t &input) const {
         using msg = dal::detail::error_messages;
-
+        if (desc.get_source() < 0) {
+            throw invalid_argument(msg::negative_source());
+        }
+        const std::int64_t vertex_count =
+            dal::detail::get_impl(input.get_graph()).get_topology()._vertex_count;
+        if (desc.get_source() >= vertex_count) {
+            throw invalid_argument(msg::source_gte_vertex_count());
+        }
+        if (desc.get_delta() < 0) {
+            throw invalid_argument(msg::negative_delta());
+        }
         if (!(desc.get_optional_results() &
               (optional_results::predecessors | optional_results::distances))) {
             throw invalid_argument(msg::nothing_to_compute());
@@ -58,6 +71,7 @@ struct traverse_ops {
 
     template <typename Policy>
     auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
+        check_preconditions(desc, input);
         return traverse_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
 };
