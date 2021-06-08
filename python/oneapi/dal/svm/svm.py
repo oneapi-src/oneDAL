@@ -22,7 +22,7 @@ from numbers import Number
 
 import numpy as np
 from scipy import sparse as sp
-from ..common import (
+from ..datatypes import (
     _validate_targets,
     _check_X_y,
     _check_array,

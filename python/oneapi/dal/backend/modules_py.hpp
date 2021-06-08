@@ -16,29 +16,22 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
-
-#include "oneapi/dal/detail/serialization.hpp"
-#include "oneapi/dal/detail/archives.hpp"
+#include "oneapi/dal/common/backend/pybind11_helpers_py.hpp"
 
 namespace oneapi::dal::backend {
 
-template <typename T>
-pybind11::bytes serialize(const T& original) {
-    detail::binary_output_archive archive;
-    detail::serialize(original, archive);
-    const auto data = archive.to_array();
-    return { reinterpret_cast<const char*>(data.get_data()), archive.get_size() };
-}
+/* common */
+ONEDAL_PY_INIT_MODULE(policy);
 
-template <typename T>
-T deserialize(const pybind11::bytes& bytes) {
-    T deserialized;
-    const std::string str = bytes;
+/* datatypes*/
+ONEDAL_PY_INIT_MODULE(table);
 
-    detail::binary_input_archive archive{ reinterpret_cast<const byte_t*>(str.c_str()), str.size() };
-    detail::deserialize(deserialized, archive);
-    return deserialized;
-}
+/* primitives */
+ONEDAL_PY_INIT_MODULE(linear_kernel);
+ONEDAL_PY_INIT_MODULE(rbf_kernel);
+ONEDAL_PY_INIT_MODULE(polynomial_kernel);
+
+/* svm */
+ONEDAL_PY_INIT_MODULE(svm);
 
 } // namespace oneapi::dal::backend

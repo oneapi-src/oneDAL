@@ -1,5 +1,5 @@
 import numpy as np
-from oneapi.dal.common import _check_array
+from oneapi.dal.datatypes import _check_array
 import _onedal_py_dpc as backend
 
 

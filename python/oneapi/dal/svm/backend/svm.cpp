@@ -1,46 +1,31 @@
-#include "oneapi/dal/common/backend/type_utils_py.hpp"
-#include "oneapi/dal/common/backend/serialization_py.hpp"
+/*******************************************************************************
+* Copyright 2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
 
 #include "oneapi/dal/algo/svm.hpp"
+#include "oneapi/dal/common/backend/common_py.hpp"
+#include "oneapi/dal/primitives/backend/kernel_functions_py.hpp"
 
 namespace py = pybind11;
 
-namespace oneapi::dal {
-
-ONEDAL_PARAM_DISPATCH_SECTION_START(std::string, fptype) {
-    ONEDAL_PARAM_DISPATCH_VALUE("float", float)
-    ONEDAL_PARAM_DISPATCH_VALUE("double", double)
-    ONEDAL_PARAM_DISPATCH_SECTION_END(fptype)
-}
-
-ONEDAL_PARAM_DISPATCH_SECTION_START(std::string, method) {
-    ONEDAL_PARAM_DISPATCH_VALUE("thunder", svm::method::thunder)
-    ONEDAL_PARAM_DISPATCH_VALUE("smo", svm::method::smo)
-    ONEDAL_PARAM_DISPATCH_SECTION_END(method)
-}
-
-template <typename Kernel>
-auto get_kernel_descriptor(const py::dict& params) {
-    using float_t = typename Kernel::float_t;
-    auto kernel = Kernel{};
-    if constexpr (std::is_same_v<Kernel, linear_kernel::descriptor<float_t>>) {
-        kernel.set_scale(params["scale"].cast<double>())
-              .set_shift(params["shift"].cast<double>());
-    }
-    if constexpr (std::is_same_v<Kernel, polynomial_kernel::descriptor<float_t>>) {
-        kernel.set_scale(params["scale"].cast<double>())
-              .set_shift(params["shift"].cast<double>())
-              .set_degree(params["degree"].cast<std::int64_t>());
-    }
-    if constexpr (std::is_same_v<Kernel, rbf_kernel::descriptor<float_t>>) {
-        kernel.set_sigma(params["sigma"].cast<double>());
-    }
-    return kernel;
-}
+namespace oneapi::dal::backend {
 
 template <typename Float, typename Method, typename Task, typename Kernel>
 auto get_descriptor(const py::dict& params) {
     using namespace svm;
+
     constexpr bool is_cls = std::is_same_v<Task, task::classification>;
     constexpr bool is_nu_cls = std::is_same_v<Task, task::nu_classification>;
     constexpr bool is_reg = std::is_same_v<Task, task::regression>;
@@ -69,85 +54,85 @@ auto get_descriptor(const py::dict& params) {
     return desc;
 }
 
-template <typename Caller>
-struct ops_dispatcher {
-    ops_dispatcher(Caller& caller)
-        : caller(caller) {}
+template <typename Policy, typename Input, typename Ops>
+struct params_dispatcher {
+    ONEDAL_DECLARE_PARAMS_DISPATCHER_CTOR()
+    ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH(dispatch_fptype)
+    ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH_FPTYPE(dispatch_method)
 
-    template <typename Float, typename Method>
-    auto dispatch(const py::dict& params) {
-        if constexpr (!svm::detail::is_valid_method_task_combination<Method, typename Caller::task_t> &&
-                      !svm::detail::is_valid_method_nu_task_combination<Method, typename Caller::task_t>) {
-            auto kernel = params["kernel"].cast<std::string>();
-            if (kernel == "linear") {
-                caller.template call<Float, Method, linear_kernel::descriptor<Float>>(params);
-            } else if (kernel == "rbf") {
-                caller.template call<Float, Method, rbf_kernel::descriptor<Float>>(params);
-            } else if (kernel == "poly") {
-                caller.template call<Float, Method, polynomial_kernel::descriptor<Float>>(params);
-            } else {
-                throw std::runtime_error("Invalid value for parameter <kernel>");
-            }
-        } /*else ONEDAL_ASSERT()*/
+    template <typename Float>
+    auto dispatch_method(const py::dict& params) {
+        using namespace svm;
+
+        auto method = params["method"].cast<std::string>();
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            ONEDAL_PARAM_DISPATCH_VALUE(method, "thunder", dispatch_kernel, Float, method::thunder)
+            ONEDAL_PARAM_DISPATCH_VALUE(method, "smo", dispatch_kernel, Float, method::smo)
+            ONEDAL_PARAM_DISPATCH_SECTION_END(method)
+        } else {
+            ONEDAL_PARAM_DISPATCH_VALUE(method, "thunder", dispatch_kernel, Float, method::thunder)
+            ONEDAL_PARAM_DISPATCH_SECTION_END(method)
+        }
     }
 
-    Caller& caller;
+    template <typename Float, typename Method>
+    auto dispatch_kernel(const py::dict& params) {
+        using namespace svm;
+
+        auto kernel = params["kernel"].cast<std::string>();
+        ONEDAL_PARAM_DISPATCH_VALUE(kernel, "linear", run, Float, Method, Task, linear_kernel::descriptor<Float>)
+        ONEDAL_PARAM_DISPATCH_VALUE(kernel, "rbf", run, Float, Method, Task, rbf_kernel::descriptor<Float>)
+        ONEDAL_PARAM_DISPATCH_VALUE(kernel, "poly", run, Float, Method, Task, polynomial_kernel::descriptor<Float>)
+        ONEDAL_PARAM_DISPATCH_SECTION_END(kernel)
+    }
+
+    template <typename Float, typename Method, typename Task, typename Kernel>
+    auto run(const py::dict& params) {
+        ONEDAL_DECLARE_PARAMS_DISPATCHER_RUN_BODY(Float, Method, Task, Kernel)
+    }
 };
 
-OP_CALLER(train);
-OP_CALLER(infer);
-
 template <typename Policy, typename Task>
-void init_train_ops(py::module_& m, const std::string& name_suffix) {
-    const std::string name = "train" + name_suffix;
-
-    m.def(name.c_str(), [](const Policy& policy,
+void init_train_ops(py::module_& m) {
+    m.def("train", [](const Policy& policy,
                       const py::dict& params,
                       const table& data,
                       const table& labels,
                       const table& weights) {
-        using input_t = svm::train_input<Task>;
-        using result_t = svm::train_result<Task>;
-
-        train_caller<Policy, input_t, result_t> caller {policy, {data, labels, weights}};
-        param_dispatcher_method { param_dispatcher_fptype { ops_dispatcher { caller } } }.dispatch(params);
-        return caller.result;
+        using namespace svm;
+        using input_t = train_input<Task>;
+        params_dispatcher d { policy, input_t{data, labels, weights}, train_ops{} };
+        return d.dispatch(params);
     });
 }
 
 template <typename Policy, typename Task>
-void init_infer_ops(py::module_& m, const std::string& name_suffix) {
-    const std::string name = "infer" + name_suffix;
-
-    m.def(name.c_str(), [](const Policy& policy,
+void init_infer_ops(py::module_& m) {
+    m.def("infer", [](const Policy& policy,
                       const py::dict& params,
                       const svm::model<Task>& model,
                       const table& data) {
-        using input_t = svm::infer_input<Task>;
-        using result_t = svm::infer_result<Task>;
-
-        infer_caller<Policy, input_t, result_t> caller {policy, {model, data}};
-        param_dispatcher_method { param_dispatcher_fptype { ops_dispatcher { caller } } }.dispatch(params);
-        return caller.result;
+        using namespace svm;
+        using input_t = infer_input<Task>;
+        params_dispatcher d { policy, input_t{model, data}, infer_ops{} };
+        return d.dispatch(params);
     });
 }
 
 template <typename Task>
-void init_model(py::module_& m, const std::string& name_suffix) {
+void init_model(py::module_& m) {
     using namespace svm;
     using model_t = model<Task>;
 
-    const std::string name = "model" + name_suffix;
-
-    auto cls = py::class_<model_t>(m, name.c_str())
+    auto cls = py::class_<model_t>(m, "model")
         .def(py::init())
         .def(py::pickle(
             [](const model_t& m) { return serialize(m); },
             [](const py::bytes& bytes) { return deserialize<model_t>(bytes); }))
         .def_property_readonly("support_vector_count", &model_t::get_support_vector_count)
-        .DEF_ONEDAL_PROPERTY(support_vectors, model_t)
-        .DEF_ONEDAL_PROPERTY(coeffs, model_t)
-        .DEF_ONEDAL_PROPERTY(biases, model_t);
+        .DEF_ONEDAL_PY_PROPERTY(support_vectors, model_t)
+        .DEF_ONEDAL_PY_PROPERTY(coeffs, model_t)
+        .DEF_ONEDAL_PY_PROPERTY(biases, model_t);
 
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
     constexpr bool is_nu_classification = std::is_same_v<Task, task::nu_classification>;
@@ -159,31 +144,27 @@ void init_model(py::module_& m, const std::string& name_suffix) {
 }
 
 template <typename Task>
-void init_train_result(py::module_& m, const std::string& name_suffix) {
+void init_train_result(py::module_& m) {
     using namespace svm;
     using result_t = train_result<Task>;
 
-    const std::string name = "train_result" + name_suffix;
-
-    py::class_<result_t>(m, name.c_str())
+    py::class_<result_t>(m, "train_result")
         .def(py::init())
-        .DEF_ONEDAL_PROPERTY(model, result_t)
-        .DEF_ONEDAL_PROPERTY(support_vectors, result_t)
-        .DEF_ONEDAL_PROPERTY(support_indices, result_t)
-        .DEF_ONEDAL_PROPERTY(coeffs, result_t)
-        .DEF_ONEDAL_PROPERTY(biases, result_t);
+        .DEF_ONEDAL_PY_PROPERTY(model, result_t)
+        .DEF_ONEDAL_PY_PROPERTY(support_vectors, result_t)
+        .DEF_ONEDAL_PY_PROPERTY(support_indices, result_t)
+        .DEF_ONEDAL_PY_PROPERTY(coeffs, result_t)
+        .DEF_ONEDAL_PY_PROPERTY(biases, result_t);
 }
 
 template <typename Task>
-void init_infer_result(py::module_& m, const std::string& name_suffix) {
+void init_infer_result(py::module_& m) {
     using namespace svm;
     using result_t = infer_result<Task>;
 
-    const std::string name = "infer_result" + name_suffix;
-
-    auto cls = py::class_<result_t>(m, name.c_str())
+    auto cls = py::class_<result_t>(m, "infer_result")
         .def(py::init())
-        .DEF_ONEDAL_PROPERTY(labels, result_t);
+        .DEF_ONEDAL_PY_PROPERTY(labels, result_t);
 
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
     constexpr bool is_nu_classification = std::is_same_v<Task, task::nu_classification>;
@@ -193,33 +174,31 @@ void init_infer_result(py::module_& m, const std::string& name_suffix) {
     }
 }
 
-INSTANTIATOR(init_model);
-INSTANTIATOR(init_train_result);
-INSTANTIATOR(init_infer_result);
-INSTANTIATOR(init_train_ops);
-INSTANTIATOR(init_infer_ops);
+ONEDAL_PY_TYPE2STR(svm::task::classification, "classification");
+ONEDAL_PY_TYPE2STR(svm::task::regression, "regression");
+ONEDAL_PY_TYPE2STR(svm::task::nu_classification, "nu_classification");
+ONEDAL_PY_TYPE2STR(svm::task::nu_regression, "nu_regression");
 
-TYPE2STR(svm::task::classification, "classification");
-TYPE2STR(svm::task::regression, "regression");
-TYPE2STR(svm::task::nu_classification, "nu_classification");
-TYPE2STR(svm::task::nu_regression, "nu_regression");
-TYPE2STR(dal::detail::host_policy, "");
-TYPE2STR(dal::detail::data_parallel_policy, "");
+ONEDAL_PY_DECLARE_INSTANTIATOR(init_model);
+ONEDAL_PY_DECLARE_INSTANTIATOR(init_train_result);
+ONEDAL_PY_DECLARE_INSTANTIATOR(init_infer_result);
+ONEDAL_PY_DECLARE_INSTANTIATOR(init_train_ops);
+ONEDAL_PY_DECLARE_INSTANTIATOR(init_infer_ops);
 
-void init_svm(py::module_& m) {
+ONEDAL_PY_INIT_MODULE(svm) {
     using namespace svm;
+    using namespace dal::detail;
+
     using task_list = types<task::classification, task::regression, task::nu_classification, task::nu_regression>;
+    using policy_list = types<host_policy, data_parallel_policy>;
     auto sub = m.def_submodule("svm");
 
-    ONEDAL_INSTANTIATE(init_train_ops, sub, dal::detail::host_policy, task_list);
-    ONEDAL_INSTANTIATE(init_train_ops, sub, dal::detail::data_parallel_policy, task_list);
+    ONEDAL_PY_INSTANTIATE(init_train_ops, sub, policy_list, task_list);
+    ONEDAL_PY_INSTANTIATE(init_infer_ops, sub, policy_list, task_list);
 
-    ONEDAL_INSTANTIATE(init_infer_ops, sub, dal::detail::host_policy, task_list);
-    ONEDAL_INSTANTIATE(init_infer_ops, sub, dal::detail::data_parallel_policy, task_list);
-
-    ONEDAL_INSTANTIATE(init_model, sub, task_list);
-    ONEDAL_INSTANTIATE(init_train_result, sub, task_list);
-    ONEDAL_INSTANTIATE(init_infer_result, sub, task_list);
+    ONEDAL_PY_INSTANTIATE(init_model, sub, task_list);
+    ONEDAL_PY_INSTANTIATE(init_train_result, sub, task_list);
+    ONEDAL_PY_INSTANTIATE(init_infer_result, sub, task_list);
 }
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::backend

@@ -18,27 +18,11 @@
 
 #include <pybind11/pybind11.h>
 
-#include "oneapi/dal/detail/serialization.hpp"
-#include "oneapi/dal/detail/archives.hpp"
+#define ONEDAL_PY_INIT_MODULE(name) \
+void init_##name(pybind11::module_& m)
 
-namespace oneapi::dal::backend {
+#define DEF_ONEDAL_PY_PROPERTY(name, parent) \
+def_property(#name, &parent::get_##name, &parent::set_##name)
 
-template <typename T>
-pybind11::bytes serialize(const T& original) {
-    detail::binary_output_archive archive;
-    detail::serialize(original, archive);
-    const auto data = archive.to_array();
-    return { reinterpret_cast<const char*>(data.get_data()), archive.get_size() };
-}
-
-template <typename T>
-T deserialize(const pybind11::bytes& bytes) {
-    T deserialized;
-    const std::string str = bytes;
-
-    detail::binary_input_archive archive{ reinterpret_cast<const byte_t*>(str.c_str()), str.size() };
-    detail::deserialize(deserialized, archive);
-    return deserialized;
-}
-
-} // namespace oneapi::dal::backend
+#define DEF_ONEDAL_PY_PROPERTY_T(name, parent, T) \
+def_property(#name, &parent::template get_##name<T>, &parent::template set_##name<T>)

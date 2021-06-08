@@ -1,73 +1,76 @@
-#include "oneapi/dal/algo/rbf_kernel.hpp"
-#include "oneapi/dal/table/homogen.hpp"
+/*******************************************************************************
+* Copyright 2021 Intel Corporation
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
+
 #include "oneapi/dal/primitives/backend/kernel_functions_py.hpp"
+#include "oneapi/dal/common/backend/common_py.hpp"
 
-namespace oneapi::dal {
+namespace py = pybind11;
 
-ONEDAL_PARAM_DISPATCH_SECTION_START(std::string, fptype) {
-    ONEDAL_PARAM_DISPATCH_VALUE("float", float)
-    ONEDAL_PARAM_DISPATCH_VALUE("double", double)
-    ONEDAL_PARAM_DISPATCH_SECTION_END(fptype)
-}
-
-ONEDAL_PARAM_DISPATCH_SECTION_START(std::string, method) {
-    ONEDAL_PARAM_DISPATCH_VALUE("dense", rbf_kernel::method::dense)
-    ONEDAL_PARAM_DISPATCH_SECTION_END(method)
-}
+namespace oneapi::dal::backend {
 
 template <typename Float, typename Method, typename Task>
 auto get_descriptor(const py::dict& params) {
     using namespace rbf_kernel;
-    return descriptor<Float, Method, Task>{}
-        .set_sigma(params["sigma"].cast<double>());
+    return get_kernel_descriptor<descriptor<Float, Method, Task>>(params);
 }
 
-template <typename Caller>
-struct ops_dispatcher {
-    ops_dispatcher(Caller& caller)
-        : caller(caller) {}
+template <typename Policy, typename Input, typename Ops>
+struct params_dispatcher {
+    ONEDAL_DECLARE_PARAMS_DISPATCHER_CTOR()
+    ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH(dispatch_fptype)
+    ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH_FPTYPE(dispatch_method)
 
-    template <typename Float, typename Method>
-    auto dispatch(const py::dict& params) {
-        caller.template call<Float, Method>(params);
+    template <typename Float>
+    auto dispatch_method(const py::dict& params) {
+        using namespace rbf_kernel;
+
+        auto method = params["method"].cast<std::string>();
+        ONEDAL_PARAM_DISPATCH_VALUE(method, "dense", run, Float, method::dense, Task)
+        ONEDAL_PARAM_DISPATCH_SECTION_END(method)
     }
 
-    Caller& caller;
+    template <typename Float, typename Method, typename Task>
+    auto run(const py::dict& params) {
+        ONEDAL_DECLARE_PARAMS_DISPATCHER_RUN_BODY(Float, Method, Task)
+    }
 };
 
-OP_CALLER(compute);
-
 template <typename Policy, typename Input, typename Result>
-void init_compute_ops(py::module_& m, const std::string& name_suffix) {
-    const std::string name = "compute" + name_suffix;
-
-    m.def(name.c_str(), [](const Policy& policy,
+void init_compute_ops(py::module_& m) {
+    m.def("compute", [](const Policy& policy,
                         const py::dict& params,
                         const table& x,
                         const table& y) {
-        compute_caller<Policy, Input, Result> caller {policy, {x, y}};
-        param_dispatcher_method { param_dispatcher_fptype { ops_dispatcher { caller } } }.dispatch(params);
-        return caller.result;
+        return params_dispatcher { policy, Input{x, y}, compute_ops{} }.dispatch(params);
     });
 }
 
-INSTANTIATOR(init_kernel_result);
-INSTANTIATOR(init_compute_ops);
+ONEDAL_PY_DECLARE_INSTANTIATOR(init_kernel_result);
+ONEDAL_PY_DECLARE_INSTANTIATOR(init_compute_ops);
 
-TYPE2STR(rbf_kernel::compute_result<rbf_kernel::task::compute>, "");
-TYPE2STR(rbf_kernel::compute_input<rbf_kernel::task::compute>, "");
-TYPE2STR(dal::detail::host_policy, "");
-TYPE2STR(dal::detail::data_parallel_policy, "");
-
-void init_rbf_kernel(py::module_& m) {
+ONEDAL_PY_INIT_MODULE(rbf_kernel) {
     using namespace dal::detail;
-    using namespace dal::rbf_kernel;
+    using namespace rbf_kernel;
     using input_t = compute_input<task::compute>;
     using result_t = compute_result<task::compute>;
+    using policy_list = types<host_policy, data_parallel_policy>;
 
     auto sub = m.def_submodule("rbf_kernel");
-    ONEDAL_INSTANTIATE(init_kernel_result, sub, result_t);
-    ONEDAL_INSTANTIATE(init_compute_ops, sub, types<host_policy, data_parallel_policy>, input_t, result_t);
+    ONEDAL_PY_INSTANTIATE(init_kernel_result, sub, result_t);
+    ONEDAL_PY_INSTANTIATE(init_compute_ops, sub, policy_list, input_t, result_t);
 }
 
-} // namespace oneapi::dal
+} // namespace oneapi::dal::backend

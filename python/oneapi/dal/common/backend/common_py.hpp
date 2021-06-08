@@ -14,27 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/detail/policy.hpp"
+#pragma once
+
+#include "oneapi/dal/common/backend/dispatch_utils_py.hpp"
+#include "oneapi/dal/common/backend/instantiate_utils_py.hpp"
 #include "oneapi/dal/common/backend/pybind11_helpers_py.hpp"
-
-namespace py = pybind11;
-
-namespace oneapi::dal::backend {
-
-ONEDAL_PY_INIT_MODULE(policy) {
-    py::class_<detail::host_policy>(m, "host_policy")
-        .def(py::init());
-
-#ifdef ONEDAL_DATA_PARALLEL
-    py::class_<detail::data_parallel_policy>(m, "data_parallel_policy")
-        .def(py::init([](const std::string& device_type) {
-            if (device_type == "gpu") {
-                return new detail::data_parallel_policy(sycl::gpu_selector());
-            }
-
-            return new detail::data_parallel_policy(sycl::cpu_selector());
-        }));
-#endif
-}
-
-} // namespace oneapi::dal::backend
+#include "oneapi/dal/common/backend/serialization_py.hpp"
