@@ -59,7 +59,7 @@ and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`,
 the problem is to build a Support Vector Machine (SVM) classification, regression,
 nu-classification, or nu-regression model.
 
-The SVM model is trained using the Sequential minimal optimization (SMO) method [Boser92]_}
+The SVM model is trained using the Sequential minimal optimization (SMO) method [Boser92]_
 for reduced to the solution of the quadratic optimization problem
 
 .. tabs::
