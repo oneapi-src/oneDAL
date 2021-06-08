@@ -34,7 +34,7 @@ Computing
 ---------
 
 Given a set :math:`U` of :math:`n` feature vectors :math:`u_1 = (u_{11}, \ldots, u_{1k}),
-\ldots, u_n = (u_{n1}, \ldots, u_{nk})` of dimension :math:`k` and :math:`V` of :math:`m`
+\ldots, u_n = (u_{n1}, \ldots, u_{nk})` of dimension :math:`k` and a set :math:`V` of :math:`m`
 feature vectors :math:`v_1 = (v_{11}, \ldots, v_{1k}), \ldots, v_m = (v_{m1}, \ldots, v_{mk})`
 of dimension :math:`k`, the problem is to compute the Minkowski distance
 :math:`||u_i, v_j||_{p}` for any pair of input vectors:
