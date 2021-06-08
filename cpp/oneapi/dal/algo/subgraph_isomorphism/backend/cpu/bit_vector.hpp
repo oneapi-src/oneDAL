@@ -87,7 +87,7 @@ public:
 private:
     inner_alloc allocator_;
     std::uint8_t* vector;
-    std::int64_t n;
+    std::int64_t n; // size in bytes
 };
 
 template <typename Cpu>
@@ -170,9 +170,8 @@ void bit_vector<Cpu>::set(const std::int64_t vector_size,
 
 template <typename Cpu>
 void bit_vector<Cpu>::set(const std::uint8_t byte_val) {
-    const std::int64_t nn = n;
     ONEDAL_VECTOR_ALWAYS
-    for (std::int64_t i = 0; i < nn; i++) {
+    for (std::int64_t i = 0; i < n; i++) {
         vector[i] = byte_val;
     }
 }
@@ -206,9 +205,9 @@ bit_vector<Cpu>::bit_vector(bit_vector<Cpu>& bvec)
 }
 
 template <typename Cpu>
-bit_vector<Cpu>::bit_vector(const std::int64_t vector_size, inner_alloc allocator)
+bit_vector<Cpu>::bit_vector(const std::int64_t vector_size_in_bytes, inner_alloc allocator)
         : allocator_(allocator),
-          n(vector_size) {
+          n(vector_size_in_bytes) {
     vector = allocator_.allocate<std::uint8_t>(n);
     this->set(n, vector);
 }
@@ -231,7 +230,7 @@ bit_vector<Cpu>::~bit_vector() {
 
 template <typename Cpu>
 void bit_vector<Cpu>::set_bit(std::int64_t vertex) {
-    return set_bit(vector, vertex, bit_vector_size(n));
+    return set_bit(vector, vertex, n * 8);
 }
 
 template <typename Cpu>

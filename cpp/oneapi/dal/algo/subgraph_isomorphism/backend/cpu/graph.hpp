@@ -153,7 +153,6 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
         graph_data_storage.pbit_data->degree[i] = degree;
     }
 
-    const std::int64_t size_in_bit = bit_vector<Cpu>::bit_vector_size(vertex_count);
     for (std::int64_t i = 0; i < vertex_count; i++) {
         auto degree = t._degrees[i];
 
@@ -164,10 +163,10 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
 
             bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_1],
                                      vertex_2,
-                                     size_in_bit);
+                                     vertex_count);
             bit_vector<Cpu>::set_bit(graph_data_storage.pbit_data->data[vertex_2],
                                      vertex_1,
-                                     size_in_bit);
+                                     vertex_count);
             if (edge_attr >= 0 || has_edges_attribute) {
                 if (graph_data_storage.pbit_data->edges_attribute[i] == nullptr) {
                     graph_data_storage.pbit_data->edges_attribute[i] =
