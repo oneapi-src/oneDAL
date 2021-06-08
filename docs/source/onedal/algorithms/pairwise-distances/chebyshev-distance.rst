@@ -48,7 +48,7 @@ where :math:`\quad 1 \leq i \leq n, \quad 1 \leq j \leq m, \quad 1 \leq l \leq k
 
 Computation method: *dense*
 ---------------------------
-The method defines Chebyshev distance metric which would be used inside other algorithms
+The method defines Chebyshev distance metric, which is used in other algorithms
 for the distance computation. There are no separate computation mode to compute distance
 manually.
 
