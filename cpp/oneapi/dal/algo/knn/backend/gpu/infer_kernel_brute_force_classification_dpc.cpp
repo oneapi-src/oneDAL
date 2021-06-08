@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -55,6 +56,15 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
+
+    auto distance_impl = detail::get_distance_impl(desc);
+    if (!distance_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
+    }
+    else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski ||
+             distance_impl->get_degree() != 2.0) {
+        throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
+    }
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),

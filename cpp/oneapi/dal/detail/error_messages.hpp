@@ -192,6 +192,7 @@ public:
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
+    MSG(distance_is_not_supported_for_gpu);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);
@@ -210,6 +211,9 @@ public:
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
 
     /* Shortest Paths */
+    MSG(negative_source);
+    MSG(source_gte_vertex_count);
+    MSG(negative_delta);
     MSG(nothing_to_compute);
     MSG(distances_are_uninitialized);
     MSG(predecessors_are_uninitialized);

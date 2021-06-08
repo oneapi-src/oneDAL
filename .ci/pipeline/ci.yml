@@ -231,9 +231,9 @@ jobs:
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       cd daal4py
       ret_code=0
-      python -m daal4py examples/run_examples.py
+      python -m daal4py examples/daal4py/run_examples.py
       ret_code=$(($ret_code + $?))
-      python -m daal4py examples/sycl/sklearn_sycl.py
+      python -m daal4py examples/daal4py/sycl/sklearn_sycl.py
       ret_code=$(($ret_code + $?))
       exit $ret_code
     displayName: daal4py examples

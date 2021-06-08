@@ -78,7 +78,8 @@ struct HelperTrainSVM
 
     DAAL_FORCEINLINE static bool checkLabel(const algorithmFPType y, SignNuType signNuType = SignNuType::none)
     {
-        return (signNuType == SignNuType::none) || (signNuType == SignNuType::positive) && (y > 0) || (signNuType == SignNuType::negative) && (y < 0);
+        return (signNuType == SignNuType::none) || ((signNuType == SignNuType::positive) && (y > 0))
+               || ((signNuType == SignNuType::negative) && (y < 0));
     }
 
 private:
