@@ -40,18 +40,48 @@ private:
 class algo_fixture : public policy_fixture {
 public:
     template <typename... Args>
-    auto train(Args&&... args) {
+    auto base_train(Args&&... args) {
         return oneapi::dal::test::engine::train(get_policy(), std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    auto infer(Args&&... args) {
+    auto base_infer(Args&&... args) {
         return oneapi::dal::test::engine::infer(get_policy(), std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    auto compute(Args&&... args) {
+    auto base_compute(Args&&... args) {
         return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto spmd_train(const dal::detail::spmd_communicator& comm, Args&&... args) {
+        return oneapi::dal::test::engine::train(get_policy(), comm, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto spmd_infer(const dal::detail::spmd_communicator& comm, Args&&... args) {
+        return oneapi::dal::test::engine::infer(get_policy(), comm, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto spmd_compute(const dal::detail::spmd_communicator& comm, Args&&... args) {
+        return oneapi::dal::test::engine::compute(get_policy(), comm, std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto train(Args&&... args) {
+        return base_train(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto infer(Args&&... args) {
+        return base_infer(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto compute(Args&&... args) {
+        return base_compute(std::forward<Args>(args)...);
     }
 };
 
@@ -60,9 +90,12 @@ class float_algo_fixture : public algo_fixture {
 public:
     using float_t = Float;
 
+    constexpr bool is_float64() const {
+        return std::is_same_v<float_t, double>;
+    }
+
     bool not_float64_friendly() {
-        constexpr bool is_double = std::is_same_v<Float, double>;
-        return is_double && !this->get_policy().has_native_float64();
+        return is_float64() && !this->get_policy().has_native_float64();
     }
 
     table_id get_homogen_table_id() const {

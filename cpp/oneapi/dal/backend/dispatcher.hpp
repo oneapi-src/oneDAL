@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/communicator.hpp"
 #include "oneapi/dal/backend/dispatcher_cpu.hpp"
 
 namespace oneapi::dal::backend {
@@ -61,7 +62,7 @@ public:
         return local_policy_.get_enabled_cpu_extensions();
     }
 
-    const detail::spmd_communicator& get_communicator() const {
+    const spmd_communicator& get_communicator() const {
         return comm_;
     }
 
@@ -69,7 +70,7 @@ private:
     void global_init();
 
     detail::host_policy local_policy_;
-    detail::spmd_communicator comm_;
+    spmd_communicator comm_;
 };
 
 template <typename Kernel>

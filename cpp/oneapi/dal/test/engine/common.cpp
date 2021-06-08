@@ -18,12 +18,7 @@
 
 namespace oneapi::dal::test::engine {
 
-test_queue_provider& test_queue_provider::get_instance() {
-    static test_queue_provider provider;
-    return provider;
-}
-
-static bool check_if_env_knob_is_enabled(const char* env_var) {
+[[maybe_unused]] static bool check_if_env_knob_is_enabled(const char* env_var) {
     const char* var = std::getenv(env_var);
     if (!var) {
         return false;
@@ -46,6 +41,14 @@ static bool check_if_env_knob_is_enabled(const char* env_var) {
            check_if_env_knob_is_enabled("IGC_ForceDPEmulation");
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
+test_queue_provider& test_queue_provider::get_instance() {
+    static test_queue_provider provider;
+    return provider;
+}
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
 bool device_test_policy::has_native_float64() const {
 #ifdef ONEDAL_DISABLE_FP64_TESTS
     return false;
@@ -58,16 +61,6 @@ bool device_test_policy::has_native_float64() const {
     return float64_support && !emulated;
 #endif
 }
-
-INSTANTIATE_TYPE_MAP(float)
-INSTANTIATE_TYPE_MAP(double)
-INSTANTIATE_TYPE_MAP(std::uint8_t)
-INSTANTIATE_TYPE_MAP(std::uint16_t)
-INSTANTIATE_TYPE_MAP(std::uint32_t)
-INSTANTIATE_TYPE_MAP(std::uint64_t)
-INSTANTIATE_TYPE_MAP(std::int8_t)
-INSTANTIATE_TYPE_MAP(std::int16_t)
-INSTANTIATE_TYPE_MAP(std::int32_t)
-INSTANTIATE_TYPE_MAP(std::int64_t)
+#endif
 
 } // namespace oneapi::dal::test::engine

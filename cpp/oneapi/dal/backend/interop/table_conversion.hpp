@@ -87,6 +87,25 @@ inline table convert_from_daal_homogen_table(const daal::data_management::Numeri
     return detail::homogen_table_builder{}.reset(arr, row_count, column_count).build();
 }
 
+template <typename Data>
+inline void copy_from_daal_table(array<Data>& destination,
+                                 const daal::data_management::NumericTablePtr& source) {
+    const std::int64_t row_count =
+        dal::detail::integral_cast<std::int64_t>(source->getNumberOfRows());
+    const std::int64_t column_count =
+        dal::detail::integral_cast<std::int64_t>(source->getNumberOfColumns());
+    const std::int64_t element_count = dal::detail::check_mul_overflow(row_count, column_count);
+
+    ONEDAL_ASSERT(destination.get_count() >= element_count);
+    ONEDAL_ASSERT(destination.has_mutable_data());
+
+    daal::data_management::BlockDescriptor<Data> block;
+    status_to_exception(
+        source->getBlockOfRows(0, row_count, daal::data_management::readOnly, block));
+    dal::backend::copy(destination.get_mutable_data(), block.getBlockPtr(), element_count);
+    status_to_exception(source->releaseBlockOfRows(block));
+}
+
 inline daal::data_management::NumericTablePtr wrap_by_host_homogen_adapter(
     const homogen_table& table) {
     const auto& dtype = table.get_metadata().get_data_type(0);

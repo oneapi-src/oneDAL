@@ -16,11 +16,14 @@
 
 #pragma once
 
+#include <mutex>
 #include <thread>
 #include <unordered_map>
 #include <condition_variable>
 
 #include "oneapi/dal/detail/communicator.hpp"
+#include "oneapi/dal/detail/communicator_utils.hpp"
+#include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -36,7 +39,7 @@ public:
         return 0;
     }
 
-    bool get_this_thread_rank() const {
+    std::int64_t get_this_thread_rank() const {
         return map_thread_id_to_rank(std::this_thread::get_id());
     }
 
@@ -216,6 +219,63 @@ private:
     byte_t* recv_buf_;
 };
 
+class thread_communicator_gatherv {
+public:
+    explicit thread_communicator_gatherv(thread_communicator_context& ctx)
+            : ctx_(ctx),
+              barrier_(ctx),
+              recv_count_(nullptr),
+              displs_(nullptr),
+              recv_buf_(nullptr) {}
+
+    void operator()(const byte_t* send_buf,
+                    std::int64_t send_count,
+                    byte_t* recv_buf,
+                    const std::int64_t* recv_count,
+                    const std::int64_t* displs,
+                    std::int64_t root) {
+        ONEDAL_ASSERT(root >= 0);
+
+        const std::int64_t rank = ctx_.get_this_thread_rank();
+        if (rank == root) {
+            ONEDAL_ASSERT(recv_buf);
+            ONEDAL_ASSERT(displs);
+            ONEDAL_ASSERT(recv_count);
+            recv_count_ = recv_count;
+            displs_ = displs;
+            recv_buf_ = recv_buf;
+        }
+        else {
+            ONEDAL_ASSERT(send_buf);
+            ONEDAL_ASSERT(send_count > 0);
+        }
+
+        barrier_();
+
+        ONEDAL_ASSERT(recv_count_);
+        ONEDAL_ASSERT(displs_);
+        ONEDAL_ASSERT(recv_buf_);
+        ONEDAL_ASSERT(send_count <= recv_count_[rank]);
+
+        for (std::int64_t i = 0; i < send_count; i++) {
+            recv_buf_[displs_[rank] + i] = send_buf[i];
+        }
+
+        barrier_([&]() {
+            recv_count_ = nullptr;
+            displs_ = nullptr;
+            recv_buf_ = nullptr;
+        });
+    }
+
+private:
+    thread_communicator_context& ctx_;
+    thread_communicator_barrier barrier_;
+    const std::int64_t* recv_count_;
+    const std::int64_t* displs_;
+    byte_t* recv_buf_;
+};
+
 class thread_communicator_request_impl : public dal::detail::spmd_request_iface {
 public:
     thread_communicator_request_impl() = default;
@@ -231,8 +291,10 @@ class thread_communicator_impl : public dal::detail::spmd_communicator_iface {
 public:
     explicit thread_communicator_impl(std::int64_t thread_count)
             : ctx_(thread_count),
+              barrier_(ctx_),
               bcast_(ctx_),
-              barrier_(ctx_) {}
+              gather_(ctx_),
+              gatherv_(ctx_) {}
 
     std::int64_t get_rank() override {
         return ctx_.map_thread_id_to_rank(std::this_thread::get_id());
@@ -262,6 +324,7 @@ public:
                                             byte_t* recv_buf,
                                             std::int64_t recv_count,
                                             std::int64_t root) override {
+        gather_(send_buf, send_count, recv_buf, recv_count, root);
         return new thread_communicator_request_impl{};
     }
 
@@ -271,6 +334,7 @@ public:
                                              const std::int64_t* recv_count,
                                              const std::int64_t* displs,
                                              std::int64_t root) override {
+        gatherv_(send_buf, send_count, recv_buf, recv_count, displs, root);
         return new thread_communicator_request_impl{};
     }
 
@@ -280,8 +344,10 @@ public:
 
 private:
     thread_communicator_context ctx_;
-    thread_communicator_bcast bcast_;
     thread_communicator_barrier barrier_;
+    thread_communicator_bcast bcast_;
+    thread_communicator_gather gather_;
+    thread_communicator_gatherv gatherv_;
 };
 
 class thread_communicator : public dal::detail::spmd_communicator {

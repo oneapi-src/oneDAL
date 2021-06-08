@@ -115,6 +115,17 @@ dal_test_suite(
     dal_deps = [ ":common" ],
 )
 
+# TODO: Consider backend as a separate module
+dal_test_suite(
+    name = "backend_tests",
+    framework = "catch2",
+    srcs = glob([
+        "backend/test/*.cpp",
+    ]),
+    dal_deps = [ ":common" ],
+    private = True,
+)
+
 dal_collect_test_suites(
     name = "tests",
     root = "@onedal//cpp/oneapi/dal",
@@ -130,6 +141,7 @@ dal_collect_test_suites(
     ],
     tests = [
         ":common_tests",
+        ":backend_tests",
         # TODO: Temporary disabled due to
         #       unexpectedly high build time
         # "@onedal//cpp/oneapi:dal_hpp_test",

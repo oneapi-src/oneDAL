@@ -42,6 +42,9 @@ dal_test_suite(
 dal_test_suite(
     name = "interface_tests",
     framework = "catch2",
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
     srcs = glob([
         "test/*.cpp",
     ]),

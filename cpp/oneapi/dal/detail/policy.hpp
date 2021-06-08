@@ -161,10 +161,19 @@ public:
         return local_policy_;
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
     template <typename T = LocalPolicy, std::enable_if<is_data_parallel_policy_v<T>>* = nullptr>
     spmd_policy<host_policy> to_host() const {
         return spmd_policy<host_policy>{ local_policy_.to_host(), get_communicator() };
     }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T = LocalPolicy, std::enable_if<is_data_parallel_policy_v<T>>* = nullptr>
+    sycl::queue get_queue() const {
+        return get_local().get_queue();
+    }
+#endif
 
 private:
     LocalPolicy local_policy_;
