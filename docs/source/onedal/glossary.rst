@@ -119,12 +119,12 @@ Machine learning terms
     Nu-classification
         An SVM-specific :capterm:`classification` problem where :math:`\nu` parameter is used
         instead of :math:`C`. :math:`\nu` is an upper bound on the fraction
-        of training errors and a lower bound of the fraction of support vector.
+        of training errors and a lower bound of the fraction of the support vector.
 
     Nu-regression
         An SVM-specific :capterm:`regression` problem where :math:`\nu` parameter is used
         instead of :math:`\epsilon`. :math:`\nu` is an upper bound on the fraction
-        of training errors and a lower bound of the fraction of support vector.
+        of training errors and a lower bound of the fraction of the support vector.
 
     Observation
         A :capterm:`feature vector` and zero or more :capterm:`responses<Response>`.

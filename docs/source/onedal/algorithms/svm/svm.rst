@@ -102,7 +102,7 @@ for reduced to the solution of the quadratic optimization problem
     with :math:`0 \leq \alpha_i \leq 1`, :math:`i = 1, \ldots, n`,
     :math:`e^T\alpha = n\nu`, :math:`y^T\alpha = 0`,
     where :math:`e` is the vector of ones, :math:`\nu` is an upper bound on the fraction
-    of training errors and a lower bound of the fraction of support vector,
+    of training errors and a lower bound of the fraction of the support vector,
     :math:`Q` is a symmetric matrix of size :math:`n \times n` with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`,
     and :math:`K(x,y)` is a kernel function.
 
@@ -115,7 +115,7 @@ for reduced to the solution of the quadratic optimization problem
     :math:`\sum_{i=1}^{n} \alpha_i - \sum_{i=n+1}^{2n} \alpha_i = 0`,
     :math:`\sum_{i=1}^{2n} \alpha_i = C\nu`, where :math:`C` is the upper bound of the coordinates
     of the vector :math:`\alpha`, :math:`\nu` is an upper bound on the fraction
-    of training errors and a lower bound of the fraction of support vector,
+    of training errors and a lower bound of the fraction of the support vector,
     :math:`Q` is a symmetric matrix of size :math:`2n \times 2n`
     with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`, and :math:`K(x,y)` is a kernel function.
 

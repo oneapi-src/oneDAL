@@ -268,7 +268,7 @@ public:
     /// The upper bound $C$ in constraints of the quadratic optimization
     /// problem.
     /// Used with :expr:`task::classification`, :expr:`task::regression`, and
-    /// :expr:`task::nu_regression` only.
+    /// :expr:`task::nu_regression`.
     /// @invariant :expr:`c > 0`
     /// @remark default = 1.0
     double get_c() const {
@@ -344,7 +344,7 @@ public:
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     /// The number of classes. Used with :expr:`task::classification`
-    /// and :expr:`task::nu_classification` only.
+    /// and :expr:`task::nu_classification`.
     /// @invariant :expr:`class_count >= 2`
     /// @remark default = 2
     std::int64_t get_class_count() const {
@@ -373,7 +373,7 @@ public:
 
     template <typename T = Task, typename = detail::enable_if_nu_task_t<T>>
     /// The nu. Used with :expr:`task::nu_classification` and
-    /// :expr:`task::nu_regression` only.
+    /// :expr:`task::nu_regression`.
     /// @invariant :expr:`0 < nu <= 1`
     /// @remark default = 0.5
     double get_nu() const {
@@ -420,7 +420,7 @@ public:
 
     /// A $nsv \\times class_count - 1$ table for :expr:`task::classification`
     /// and :expr:`task::nu_classification`
-    /// and $nsv \\times 1$ table for :expr:`task::regression`
+    /// and a $nsv \\times 1$ table for :expr:`task::regression`
     /// and :expr:`task::nu_regression`
     /// containing coefficients of Lagrange multiplier
     /// @remark default = table{}
@@ -453,7 +453,7 @@ public:
 
     /// The first unique value in class labels.
     /// Used with :expr:`task::classification` and
-    /// :expr:`task::nu_classification` only.
+    /// :expr:`task::nu_classification`.
     std::int64_t get_first_class_label() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
@@ -464,7 +464,7 @@ public:
 
     /// The second unique value in class labels.
     /// Used with :expr:`task::classification` and
-    /// :expr:`task::nu_classification` only.
+    /// :expr:`task::nu_classification`.
     std::int64_t get_second_class_label() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>

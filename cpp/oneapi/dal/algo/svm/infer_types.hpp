@@ -105,13 +105,13 @@ public:
     }
 
     // TODO: Enable this function only for classification and nu_classification
-    // problem.
+    // problems.
     // This will break binary compatibility, so the change should happen in
     // 2022.1.
     //
     /// The $n \\times 1$ table with the predicted class.
     /// Used with :expr:`oneapi::dal::svm::task::classification`
-    /// and :expr:`oneapi::dal::svm::task::nu_classification` only.
+    /// and :expr:`oneapi::dal::svm::task::nu_classification`.
     /// decision function for each observation
     /// @remark default = table{}
     const table &get_decision_function() const;
