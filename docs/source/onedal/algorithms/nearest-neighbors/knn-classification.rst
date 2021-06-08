@@ -69,9 +69,10 @@ m`, by performing the following steps:
 
 #. Identify the set :math:`N(x_j') \subseteq X` of the :math:`k` feature vectors
    in the training set that are nearest to :math:`x_j'` with respect to the
-   Euclidean distance chosen by default. Used distance can be customised with
-   predefined set of pairwise distances: Minkowski distances with fractional
-   degree(including Euclidean distance) and Chebyshev distance.
+   Euclidean distance, which is chosen by default. The distance can be customized
+   with the predefined set of pairwise distances: :ref:`Minkowski distances
+   <alg_minkowski_distance>` with fractional degree (including Euclidean distance)
+   and :ref:`Chebyshev distance <alg_chebyshev_distance>`.
 
 #. Estimate the conditional probability for the :math:`l`-th class as the
    fraction of vectors in :math:`N(x_j')` whose labels :math:`y_j` are equal to

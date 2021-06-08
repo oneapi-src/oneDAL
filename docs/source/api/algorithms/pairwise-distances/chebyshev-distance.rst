@@ -28,7 +28,7 @@ Chebyshev distance
 Mathematical formulation
 ------------------------
 
-Refer to :ref:`Developer Guide: Linear kernel <alg_chebyshev_distance>`.
+Refer to :ref:`Developer Guide: Chebyshev distance <alg_chebyshev_distance>`.
 
 ---------------------
 Programming Interface

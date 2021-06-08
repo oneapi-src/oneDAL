@@ -14,9 +14,10 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-The Minkowski distances are the set of distance metrics with different :math:`p`
-which are widely used for distance computation in different algorithms.
-They include Euclidean distance - the most commonly used distance metric.
+The Minkowski distances are the set of distance metrics with different degree
+:math:`(p > 0)` and are widely used for distance computation in different algorithms.
+The most commonly used distance metric, Euclidean distance, is also a Minkowski
+distance with :math:`p = 2.0`.
 
 .. |c_math| replace::   :ref:`dense <minkowski_distance_c_math>`
 .. |c_dense| replace::  :ref:`dense <minkowski_distance_c_math_dense>`

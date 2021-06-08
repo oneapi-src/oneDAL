@@ -28,7 +28,7 @@ Minkowski distance
 Mathematical formulation
 ------------------------
 
-Refer to :ref:`Developer Guide: Linear kernel <alg_minkowski_distance>`.
+Refer to :ref:`Developer Guide: Minkowski distance <alg_minkowski_distance>`.
 
 ---------------------
 Programming Interface
