@@ -51,7 +51,7 @@ public:
             degrees[u] = rows[u + 1] - rows[u];
         }
 
-        graph_impl.set_topology(vertex_count, edge_count, rows, cols, degrees);
+        graph_impl.set_topology(vertex_count, edge_count, rows, cols, edge_count, degrees);
         graph_impl.set_edge_values(vals, edge_count);
     }
 
