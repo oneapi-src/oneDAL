@@ -442,8 +442,8 @@ public:
 
     /// A $class_count*(class_count-1)/2 \\times 1$ table for
     /// :expr:`task::classification` and :expr:`task::nu_classification`
-    /// and $1 \\times 1$ table for :expr:`task::regression` and
-    /// :expr:`task::nu_regression` calastable constants in decision function
+    /// and a $1 \\times 1$ table for :expr:`task::regression` and
+    /// :expr:`task::nu_regression` containing constants in decision function
     const table &get_biases() const;
 
     auto &set_biases(const table &value) {

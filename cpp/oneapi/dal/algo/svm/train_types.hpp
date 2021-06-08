@@ -164,7 +164,7 @@ public:
     /// and :expr:`task::classification`
     /// and $1 \\times 1$ table for :expr:`task::regression`
     /// and :expr:`task::nu_regression`
-    /// calastable constants in decision function
+    /// containing constants in decision function
     const table &get_biases() const;
 
     auto &set_biases(const table &value) {
