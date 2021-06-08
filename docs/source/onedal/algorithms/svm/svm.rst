@@ -109,7 +109,7 @@ for reduced to the solution of the quadratic optimization problem
   .. group-tab:: Nu-regression
 
     .. math::
-          \underset{\alpha }{\mathrm{min}}\frac{1}{2}{\alpha }^{T}Q\alpha + y^T\alpha
+          \underset{\alpha }{\mathrm{min}}\frac{1}{2}{\alpha }^{T}Q\alpha + z^T\alpha
 
     with :math:`0 \leq \alpha_i \leq \frac{C}{n}`, :math:`i = 1, \ldots, 2n`,
     :math:`\sum_{i=1}^{n} \alpha_i - \sum_{i=n+1}^{2n} \alpha_i = 0`,
@@ -118,6 +118,14 @@ for reduced to the solution of the quadratic optimization problem
     of training errors and a lower bound of the fraction of the support vector,
     :math:`Q` is a symmetric matrix of size :math:`2n \times 2n`
     with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`, and :math:`K(x,y)` is a kernel function.
+    Vector :math:`z` for the regression problem are formulated according
+    to the following rule:
+
+    .. math::
+      \begin{cases}
+         z_i = y_i, & 0 < i \leq n \\
+         z_i = y_{i-n}, & n < i \leq 2n
+      \end{cases}
 
 Working subset of α updated on each iteration of the algorithm is
 based on the Working Set Selection (WSS) 3 scheme [Fan05]_.
