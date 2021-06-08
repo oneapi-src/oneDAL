@@ -14,20 +14,14 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. api_algorithms:
+==================
+Pairwise Distances
+==================
 
-Algorithms
-==========
-
-Refer to :ref:`Developer Guide <dg_algorithms>` for mathematical descriptions of the algorithms.
+This chapter describes programming interfaces of the pairwise distances implemented in |short_name|:
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
-   clustering/index.rst
-   decomposition/index.rst
-   ensembles/index.rst   
-   kernel-functions/index.rst
-   nearest-neighbors/index.rst
-   pairwise-distances/index.rst
-   svm/index.rst
+   minkowski-distance.rst
+   chebyshev-distance.rst
