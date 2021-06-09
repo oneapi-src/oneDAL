@@ -120,7 +120,6 @@ LIBS := $(onedal) \
         -ltbbmalloc \
         -lpthread \
         -ldl \
-        -latomic
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
