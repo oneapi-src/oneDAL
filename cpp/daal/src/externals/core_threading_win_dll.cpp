@@ -784,6 +784,14 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
     return _daal_tbb_task_scheduler_free_ptr(init);
 }
 
+DAAL_EXPORT void _daal_tbb_task_scheduler_free_safe(void *& init, bool inShutdownMode) 
+{
+    if (init != NULL || !inShutdownMode)
+    {
+        _daal_tbb_task_scheduler_free(init);
+    }
+}
+
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)
 {
     load_daal_thr_dll();
