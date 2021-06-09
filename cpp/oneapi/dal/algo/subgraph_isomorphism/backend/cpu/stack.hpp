@@ -478,6 +478,8 @@ void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
         for (; j < static_cast<std::uint64_t>(vertex_count_); ++j) {
             *(top_++) = null_vertex();
         }
+
+        allocator_.deallocate<std::uint64_t>(v, level + 1);
     }
 
     // Remove state

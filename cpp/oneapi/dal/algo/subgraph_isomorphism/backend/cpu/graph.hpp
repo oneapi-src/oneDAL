@@ -438,9 +438,10 @@ graph_input_bit_data<Cpu>::graph_input_bit_data(const std::int64_t vertex_size,
 
 template <typename Cpu>
 graph_input_bit_data<Cpu>::~graph_input_bit_data() {
+    std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
     for (int64_t i = 0; i < vertex_count; i++) {
         if (data[i] != nullptr) {
-            allocator_.template deallocate<std::uint8_t>(data[i], 0);
+            allocator_.template deallocate<std::uint8_t>(data[i], bit_array_size);
             data[i] = nullptr;
         }
     }
