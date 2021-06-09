@@ -181,10 +181,6 @@ void bit_vector<Cpu>::set_bit(std::uint8_t* result_vector,
                               const std::int64_t vertex,
                               const std::int64_t vector_size_in_bits) {
     ONEDAL_ASSERT(result_vector != nullptr);
-    if (vertex >= vector_size_in_bits) {
-        std::cout << "vertex: " << vertex << std::endl;
-        std::cout << "vector_size_in_bits: " << vector_size_in_bits << std::endl;
-    }
     ONEDAL_ASSERT(vertex < vector_size_in_bits);
 
     result_vector[byte(vertex)] |= bit(vertex);
