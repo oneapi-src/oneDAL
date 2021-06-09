@@ -18,28 +18,26 @@
 
 #include "oneapi/dal/common/backend/type_utils_py.hpp"
 
-#define ONEDAL_PY_DECLARE_INSTANTIATOR(func_name)          \
-struct instantiator_##func_name {                          \
-    instantiator_##func_name(pybind11::module_& m)         \
-        : m(m) {}                                          \
-                                                           \
-    template <typename... Args>                            \
-    constexpr void run() {                                 \
-        func_name<Args...>(m);                             \
-    }                                                      \
-                                                           \
-    pybind11::module_ m;                                   \
-}
+#define ONEDAL_PY_DECLARE_INSTANTIATOR(func_name)                \
+    struct instantiator_##func_name {                            \
+        instantiator_##func_name(pybind11::module_& m) : m(m) {} \
+                                                                 \
+        template <typename... Args>                              \
+        constexpr void run() {                                   \
+            func_name<Args...>(m);                               \
+        }                                                        \
+                                                                 \
+        pybind11::module_ m;                                     \
+    }
 
-#define ONEDAL_PY_INSTANTIATE(func_name, module, ...)      \
-dal::backend::instantiate<instantiator_##func_name, __VA_ARGS__>(module)
+#define ONEDAL_PY_INSTANTIATE(func_name, module, ...) \
+    dal::backend::instantiate<instantiator_##func_name, __VA_ARGS__>(module)
 
 namespace oneapi::dal::backend {
 
 template <typename Index, typename T>
 struct iterator {
-    iterator(pybind11::module_& m)
-        : m(m) {}
+    iterator(pybind11::module_& m) : m(m) {}
 
     template <typename... Args>
     void run() {
@@ -83,4 +81,3 @@ void instantiate(pybind11::module_& m) {
 }
 
 } // namespace oneapi::dal::backend
-

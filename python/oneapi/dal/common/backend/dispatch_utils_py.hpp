@@ -22,42 +22,43 @@
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
 
-#define ONEDAL_PARAM_DISPATCH_VALUE(value, value_case, next_dispatch, ...)    \
-if (value == value_case) {                                                    \
-    return next_dispatch<__VA_ARGS__>(params);                                \
-} else
+#define ONEDAL_PARAM_DISPATCH_VALUE(value, value_case, next_dispatch, ...) \
+    if (value == value_case) {                                             \
+        return next_dispatch<__VA_ARGS__>(params);                         \
+    }                                                                      \
+    else
 
-#define ONEDAL_PARAM_DISPATCH_SECTION_END(name)                               \
-{                                                                             \
-    throw std::runtime_error("Invalid value for parameter <"#name">");        \
-}
+#define ONEDAL_PARAM_DISPATCH_SECTION_END(name) \
+    { throw std::runtime_error("Invalid value for parameter <" #name ">"); }
 
-#define ONEDAL_DECLARE_PARAMS_DISPATCHER_CTOR()                               \
-using Task = typename Input::task_t;                                          \
-                                                                              \
-Policy policy;                                                                \
-Input input;                                                                  \
-                                                                              \
-params_dispatcher(const Policy& policy, const Input& input, const Ops&)       \
-    : policy(policy), input(input) {}
+#define ONEDAL_DECLARE_PARAMS_DISPATCHER_CTOR()                             \
+    using Task = typename Input::task_t;                                    \
+                                                                            \
+    Policy policy;                                                          \
+    Input input;                                                            \
+                                                                            \
+    params_dispatcher(const Policy& policy, const Input& input, const Ops&) \
+            : policy(policy),                                               \
+              input(input) {}
 
-#define ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH(next)                       \
-auto dispatch(const pybind11::dict& params) {                                 \
-    return next(params);                                                      \
-}
+#define ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH(next) \
+    auto dispatch(const pybind11::dict& params) {       \
+        return next(params);                            \
+    }
 
-#define ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH_FPTYPE(next)                \
-auto dispatch_fptype(const pybind11::dict& params) {                          \
-    auto fptype = params["fptype"].cast<std::string>();                       \
-    ONEDAL_PARAM_DISPATCH_VALUE(fptype, "float", next, float)                \
-    ONEDAL_PARAM_DISPATCH_VALUE(fptype, "double", next, double)              \
-    ONEDAL_PARAM_DISPATCH_SECTION_END(fptype)                                \
-}
+#define ONEDAL_DECLARE_PARAMS_DISPATCHER_DISPATCH_FPTYPE(next)      \
+    auto dispatch_fptype(const pybind11::dict& params) {            \
+        auto fptype = params["fptype"].cast<std::string>();         \
+        ONEDAL_PARAM_DISPATCH_VALUE(fptype, "float", next, float)   \
+        ONEDAL_PARAM_DISPATCH_VALUE(fptype, "double", next, double) \
+        ONEDAL_PARAM_DISPATCH_SECTION_END(fptype)                   \
+    }
 
-#define ONEDAL_DECLARE_PARAMS_DISPATCHER_RUN_BODY(...) {                      \
-    auto desc = get_descriptor<__VA_ARGS__>(params);                          \
-    return Ops{}.call(policy, desc, input);                                   \
-}
+#define ONEDAL_DECLARE_PARAMS_DISPATCHER_RUN_BODY(...)   \
+    {                                                    \
+        auto desc = get_descriptor<__VA_ARGS__>(params); \
+        return Ops{}.call(policy, desc, input);          \
+    }
 
 namespace oneapi::dal::backend {
 
@@ -83,4 +84,3 @@ struct compute_ops {
 };
 
 } // namespace oneapi::dal::backend
-

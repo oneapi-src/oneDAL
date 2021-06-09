@@ -22,8 +22,7 @@ namespace py = pybind11;
 namespace oneapi::dal::backend {
 
 ONEDAL_PY_INIT_MODULE(policy) {
-    py::class_<detail::host_policy>(m, "host_policy")
-        .def(py::init());
+    py::class_<detail::host_policy>(m, "host_policy").def(py::init());
 
 #ifdef ONEDAL_DATA_PARALLEL
     py::class_<detail::data_parallel_policy>(m, "data_parallel_policy")

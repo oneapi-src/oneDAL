@@ -50,12 +50,10 @@ struct params_dispatcher {
 
 template <typename Policy, typename Input, typename Result>
 void init_compute_ops(py::module_& m) {
-    m.def("compute", [](const Policy& policy,
-                        const py::dict& params,
-                        const table& x,
-                        const table& y) {
-        return params_dispatcher { policy, Input{x, y}, compute_ops{} }.dispatch(params);
-    });
+    m.def("compute",
+          [](const Policy& policy, const py::dict& params, const table& x, const table& y) {
+              return params_dispatcher{ policy, Input{ x, y }, compute_ops{} }.dispatch(params);
+          });
 }
 
 ONEDAL_PY_DECLARE_INSTANTIATOR(init_kernel_result);

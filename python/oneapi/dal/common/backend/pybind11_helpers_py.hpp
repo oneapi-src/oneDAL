@@ -18,11 +18,10 @@
 
 #include <pybind11/pybind11.h>
 
-#define ONEDAL_PY_INIT_MODULE(name) \
-void init_##name(pybind11::module_& m)
+#define ONEDAL_PY_INIT_MODULE(name) void init_##name(pybind11::module_& m)
 
 #define DEF_ONEDAL_PY_PROPERTY(name, parent) \
-def_property(#name, &parent::get_##name, &parent::set_##name)
+    def_property(#name, &parent::get_##name, &parent::set_##name)
 
 #define DEF_ONEDAL_PY_PROPERTY_T(name, parent, T) \
-def_property(#name, &parent::template get_##name<T>, &parent::template set_##name<T>)
+    def_property(#name, &parent::template get_##name<T>, &parent::template set_##name<T>)

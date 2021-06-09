@@ -326,7 +326,6 @@ static PyObject *convert_to_py_from_csr_impl(const detail::csr_table &table) {
     return result;
 }
 
-
 PyObject *convert_to_numpy(const dal::table &input) {
     PyObject *res = nullptr;
     if (!input.has_data()) {

@@ -35,13 +35,12 @@ auto get_kernel_descriptor(const pybind11::dict& params) {
 
     auto kernel = Kernel{};
     if constexpr (std::is_same_v<Kernel, linear_desc_t>) {
-        kernel.set_scale(params["scale"].cast<double>())
-              .set_shift(params["shift"].cast<double>());
+        kernel.set_scale(params["scale"].cast<double>()).set_shift(params["shift"].cast<double>());
     }
     if constexpr (std::is_same_v<Kernel, polynomial_desc_t>) {
         kernel.set_scale(params["scale"].cast<double>())
-              .set_shift(params["shift"].cast<double>())
-              .set_degree(params["degree"].cast<std::int64_t>());
+            .set_shift(params["shift"].cast<double>())
+            .set_degree(params["degree"].cast<std::int64_t>());
     }
     if constexpr (std::is_same_v<Kernel, rbf_desc_t>) {
         kernel.set_sigma(params["sigma"].cast<double>());

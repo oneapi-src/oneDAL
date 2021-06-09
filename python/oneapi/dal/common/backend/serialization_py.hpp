@@ -36,7 +36,8 @@ T deserialize(const pybind11::bytes& bytes) {
     T deserialized;
     const std::string str = bytes;
 
-    detail::binary_input_archive archive{ reinterpret_cast<const byte_t*>(str.c_str()), str.size() };
+    detail::binary_input_archive archive{ reinterpret_cast<const byte_t*>(str.c_str()),
+                                          str.size() };
     detail::deserialize(deserialized, archive);
     return deserialized;
 }

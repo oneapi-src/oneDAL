@@ -17,12 +17,12 @@
 #pragma once
 
 #define ONEDAL_PY_TYPE2STR(type, name) \
-template <>                            \
-struct type_to_str<type> {             \
-    std::string operator()() {         \
-        return name;                   \
-    }                                  \
-}
+    template <>                        \
+    struct type_to_str<type> {         \
+        std::string operator()() {     \
+            return name;               \
+        }                              \
+    }
 
 namespace oneapi::dal::backend {
 

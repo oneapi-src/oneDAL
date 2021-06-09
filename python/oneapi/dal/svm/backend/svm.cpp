@@ -32,22 +32,22 @@ auto get_descriptor(const py::dict& params) {
     constexpr bool is_nu_reg = std::is_same_v<Task, task::nu_regression>;
 
     auto desc = descriptor<Float, Method, Task, Kernel>{ get_kernel_descriptor<Kernel>(params) }
-        .set_max_iteration_count(params["max_iteration_count"].cast<std::int64_t>())
-        .set_accuracy_threshold(params["accuracy_threshold"].cast<double>())
-        .set_cache_size(params["cache_size"].cast<double>())
-        .set_tau(params["tau"].cast<double>())
-        .set_shrinking(params["shrinking"].cast<bool>());
+                    .set_max_iteration_count(params["max_iteration_count"].cast<std::int64_t>())
+                    .set_accuracy_threshold(params["accuracy_threshold"].cast<double>())
+                    .set_cache_size(params["cache_size"].cast<double>())
+                    .set_tau(params["tau"].cast<double>())
+                    .set_shrinking(params["shrinking"].cast<bool>());
 
-    if constexpr(is_cls || is_reg || is_nu_reg) {
+    if constexpr (is_cls || is_reg || is_nu_reg) {
         desc.set_c(params["c"].cast<double>());
     }
-    if constexpr(is_cls || is_nu_cls) {
+    if constexpr (is_cls || is_nu_cls) {
         desc.set_class_count(params["class_count"].cast<std::int64_t>());
     }
-    if constexpr(is_reg) {
+    if constexpr (is_reg) {
         desc.set_epsilon(params["epsilon"].cast<double>());
     }
-    if constexpr(is_nu_reg || is_nu_cls) {
+    if constexpr (is_nu_reg || is_nu_cls) {
         desc.set_nu(params["nu"].cast<double>());
     }
 
@@ -69,7 +69,8 @@ struct params_dispatcher {
             ONEDAL_PARAM_DISPATCH_VALUE(method, "thunder", dispatch_kernel, Float, method::thunder)
             ONEDAL_PARAM_DISPATCH_VALUE(method, "smo", dispatch_kernel, Float, method::smo)
             ONEDAL_PARAM_DISPATCH_SECTION_END(method)
-        } else {
+        }
+        else {
             ONEDAL_PARAM_DISPATCH_VALUE(method, "thunder", dispatch_kernel, Float, method::thunder)
             ONEDAL_PARAM_DISPATCH_SECTION_END(method)
         }
@@ -80,10 +81,13 @@ struct params_dispatcher {
         using namespace svm;
 
         auto kernel = params["kernel"].cast<std::string>();
+
+        // clang-format off
         ONEDAL_PARAM_DISPATCH_VALUE(kernel, "linear", run, Float, Method, Task, linear_kernel::descriptor<Float>)
         ONEDAL_PARAM_DISPATCH_VALUE(kernel, "rbf", run, Float, Method, Task, rbf_kernel::descriptor<Float>)
         ONEDAL_PARAM_DISPATCH_VALUE(kernel, "poly", run, Float, Method, Task, polynomial_kernel::descriptor<Float>)
         ONEDAL_PARAM_DISPATCH_SECTION_END(kernel)
+        // clang-format on
     }
 
     template <typename Float, typename Method, typename Task, typename Kernel>
@@ -94,29 +98,31 @@ struct params_dispatcher {
 
 template <typename Policy, typename Task>
 void init_train_ops(py::module_& m) {
-    m.def("train", [](const Policy& policy,
-                      const py::dict& params,
-                      const table& data,
-                      const table& labels,
-                      const table& weights) {
-        using namespace svm;
-        using input_t = train_input<Task>;
-        params_dispatcher d { policy, input_t{data, labels, weights}, train_ops{} };
-        return d.dispatch(params);
-    });
+    m.def("train",
+          [](const Policy& policy,
+             const py::dict& params,
+             const table& data,
+             const table& labels,
+             const table& weights) {
+              using namespace svm;
+              using input_t = train_input<Task>;
+              params_dispatcher d{ policy, input_t{ data, labels, weights }, train_ops{} };
+              return d.dispatch(params);
+          });
 }
 
 template <typename Policy, typename Task>
 void init_infer_ops(py::module_& m) {
-    m.def("infer", [](const Policy& policy,
-                      const py::dict& params,
-                      const svm::model<Task>& model,
-                      const table& data) {
-        using namespace svm;
-        using input_t = infer_input<Task>;
-        params_dispatcher d { policy, input_t{model, data}, infer_ops{} };
-        return d.dispatch(params);
-    });
+    m.def("infer",
+          [](const Policy& policy,
+             const py::dict& params,
+             const svm::model<Task>& model,
+             const table& data) {
+              using namespace svm;
+              using input_t = infer_input<Task>;
+              params_dispatcher d{ policy, input_t{ model, data }, infer_ops{} };
+              return d.dispatch(params);
+          });
 }
 
 template <typename Task>
@@ -124,22 +130,31 @@ void init_model(py::module_& m) {
     using namespace svm;
     using model_t = model<Task>;
 
-    auto cls = py::class_<model_t>(m, "model")
-        .def(py::init())
-        .def(py::pickle(
-            [](const model_t& m) { return serialize(m); },
-            [](const py::bytes& bytes) { return deserialize<model_t>(bytes); }))
-        .def_property_readonly("support_vector_count", &model_t::get_support_vector_count)
-        .DEF_ONEDAL_PY_PROPERTY(support_vectors, model_t)
-        .DEF_ONEDAL_PY_PROPERTY(coeffs, model_t)
-        .DEF_ONEDAL_PY_PROPERTY(biases, model_t);
+    auto cls =
+        py::class_<model_t>(m, "model")
+            .def(py::init())
+            .def(py::pickle(
+                [](const model_t& m) {
+                    return serialize(m);
+                },
+                [](const py::bytes& bytes) {
+                    return deserialize<model_t>(bytes);
+                }))
+            .def_property_readonly("support_vector_count", &model_t::get_support_vector_count)
+            .DEF_ONEDAL_PY_PROPERTY(support_vectors, model_t)
+            .DEF_ONEDAL_PY_PROPERTY(coeffs, model_t)
+            .DEF_ONEDAL_PY_PROPERTY(biases, model_t);
 
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
     constexpr bool is_nu_classification = std::is_same_v<Task, task::nu_classification>;
 
     if constexpr (is_classification || is_nu_classification) {
-        cls.def_property("first_class_label", &model_t::get_first_class_label, &model_t::template set_first_class_label<>);
-        cls.def_property("second_class_label", &model_t::get_second_class_label, &model_t::template set_second_class_label<>);
+        cls.def_property("first_class_label",
+                         &model_t::get_first_class_label,
+                         &model_t::template set_first_class_label<>);
+        cls.def_property("second_class_label",
+                         &model_t::get_second_class_label,
+                         &model_t::template set_second_class_label<>);
     }
 }
 
@@ -163,14 +178,16 @@ void init_infer_result(py::module_& m) {
     using result_t = infer_result<Task>;
 
     auto cls = py::class_<result_t>(m, "infer_result")
-        .def(py::init())
-        .DEF_ONEDAL_PY_PROPERTY(labels, result_t);
+                   .def(py::init())
+                   .DEF_ONEDAL_PY_PROPERTY(labels, result_t);
 
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
     constexpr bool is_nu_classification = std::is_same_v<Task, task::nu_classification>;
 
     if constexpr (is_classification || is_nu_classification) {
-        cls.def_property("decision_function", &result_t::get_decision_function, &result_t::template set_decision_function<>);
+        cls.def_property("decision_function",
+                         &result_t::get_decision_function,
+                         &result_t::template set_decision_function<>);
     }
 }
 
@@ -189,7 +206,8 @@ ONEDAL_PY_INIT_MODULE(svm) {
     using namespace svm;
     using namespace dal::detail;
 
-    using task_list = types<task::classification, task::regression, task::nu_classification, task::nu_regression>;
+    using task_list =
+        types<task::classification, task::regression, task::nu_classification, task::nu_regression>;
     using policy_list = types<host_policy, data_parallel_policy>;
     auto sub = m.def_submodule("svm");
 
