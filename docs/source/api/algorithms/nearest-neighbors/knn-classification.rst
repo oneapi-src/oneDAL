@@ -38,6 +38,10 @@ All types and functions in this section are declared in the
 ``oneapi::dal::knn`` namespace and be available via inclusion of the
 ``oneapi/dal/algo/knn.hpp`` header file.
 
+Enum classes
+------------
+.. onedal_enumclass:: oneapi::dal::knn::voting_mode
+
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::knn::descriptor
