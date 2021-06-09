@@ -212,14 +212,14 @@ public:
 
 class triangle_counting_test {
 public:
-    using my_graph_type = dal::preview::undirected_adjacency_vector_graph<>;
+    using graph_type = dal::preview::undirected_adjacency_vector_graph<>;
 
     template <typename GraphType>
     auto create_graph() {
         GraphType graph_data;
-        my_graph_type my_graph;
+        graph_type graph;
 
-        auto &graph_impl = oneapi::dal::detail::get_impl(my_graph);
+        auto &graph_impl = oneapi::dal::detail::get_impl(graph);
         auto &vertex_allocator = graph_impl._vertex_allocator;
         auto &edge_allocator = graph_impl._edge_allocator;
 
@@ -249,7 +249,7 @@ public:
         graph_impl.set_topology(vertex_count, edge_count, rows, cols, cols_count, degrees);
         graph_impl.get_topology()._rows_vertex =
             oneapi::dal::preview::detail::container<std::int32_t>::wrap(rows_vertex, rows_count);
-        return my_graph;
+        return graph;
     }
 
     template <typename GraphType>
@@ -354,6 +354,7 @@ public:
 };
 
 TEST_M(triangle_counting_test, "Local task: graph with average_degree < 4") {
+    std::cout <<"local <4"<<std::endl;
     this->check_local_task<complete_graph_5_type>();
     this->check_local_task<acyclic_graph_8_type>();
     this->check_local_task<two_vertices_graph_type>();
@@ -381,6 +382,7 @@ TEST_M(triangle_counting_test, "Local_and_global task: graph with average_degree
 TEST_M(triangle_counting_test, "Local_and_global task: graph with average_degree >= 4") {
     this->check_local_and_global_task<complete_graph_9_type>();
     this->check_local_and_global_task<graph_with_isolated_vertex_11_type>();
+    std::cout <<"ok"<<std::endl;
 }
 
 TEST_M(triangle_counting_test, "Global task: graph with average_degree < 4") {
