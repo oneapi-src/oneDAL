@@ -94,6 +94,7 @@ COPTS := -std=c++17 \
          -Wextra \
          -Werror \
          -Wno-unused-parameter \
+         -fsycl-device-code-split=per_kernel \
          -I./source \
          -I"$(DAALROOT)/include"
 
