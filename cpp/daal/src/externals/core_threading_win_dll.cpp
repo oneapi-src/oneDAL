@@ -778,15 +778,15 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 {
     if (init == NULL)
     {
-        // If threading library was not opened, there is nothing to free, 
+        // If threading library was not opened, there is nothing to free,
         // so we do not need to open threading library just to do nothing.
         // Moreover, opening threading library in the Enrironment destructor
         // results in a crush because of the use of winthrust library after it was unloaded.
-        // This happens because of undefined order to deinitialize global static objects 
-        // like Environment, and dependent libraries. 
+        // This happens because of undefined order to deinitialize global static objects
+        // like Environment, and dependent libraries.
         return;
     }
-    
+
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
     {
