@@ -440,7 +440,7 @@ void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
         const auto v = top_ - vertex_count_;
         ONEDAL_ASSERT(v >= bottom_);
         for (std::int64_t i = 0; i < vertex_count_ && v[i] != null_vertex(); ++i) {
-            ONEDAL_ASSERT(i <= s.max_level_size);
+            ONEDAL_ASSERT(i <= dal::detail::integral_cast<std::int64_t>(s.max_level_size));
             s.push_into_current_level(v[i]);
             if (i != vertex_count_ - 1 && v[i + 1] != null_vertex()) {
                 s.increase_core_level();
