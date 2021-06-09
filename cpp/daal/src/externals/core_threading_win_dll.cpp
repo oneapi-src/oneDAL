@@ -776,20 +776,23 @@ DAAL_EXPORT bool _daal_is_in_parallel()
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 {
+    if (init == NULL)
+    {
+        // If threading library was not opened, there is nothing to free, 
+        // so we do not need to open threading library just to do nothing.
+        // Moreover, opening threading library in the Enrironment destructor
+        // results in a crush because of the use of winthrust library after it was unloaded.
+        // This happens because of undefined order to deinitialize global static objects 
+        // like Environment, and dependent libraries. 
+        return;
+    }
+    
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
     {
         _daal_tbb_task_scheduler_free_ptr = (_daal_tbb_task_scheduler_free_t)load_daal_thr_func("_daal_tbb_task_scheduler_free");
     }
     return _daal_tbb_task_scheduler_free_ptr(init);
-}
-
-DAAL_EXPORT void _daal_tbb_task_scheduler_free_safe(void *& init, bool inShutdownMode) 
-{
-    if (init != NULL || !inShutdownMode)
-    {
-        _daal_tbb_task_scheduler_free(init);
-    }
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)
