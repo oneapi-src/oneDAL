@@ -285,7 +285,7 @@ struct inner_alloc {
     }
 
     void deallocate(T* ptr, std::int64_t n) {
-        return byte_allocator_->deallocate(reinterpret_cast<byte_t*>(ptr), n * sizeof(T));
+        byte_allocator_->deallocate(reinterpret_cast<byte_t*>(ptr), n * sizeof(T));
     }
 
     oneapi::dal::detail::shared<T> make_shared_memory(std::int64_t n) {
