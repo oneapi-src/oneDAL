@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/table/column_accessor.hpp"
 #include "oneapi/dal/detail/threading.hpp"
@@ -51,11 +50,9 @@ public:
     solution<Cpu>& operator=(solution<Cpu>&& sol);
 
     std::int64_t get_solution_count() const;
-    graph_status add(std::int64_t** state_core);
-    graph_status add(state<Cpu>& solution_state);
-    graph_status add(state<Cpu>* solution_state);
-    graph_status add(solution<Cpu>& _solution);
-    graph_status add(solution<Cpu>&& _solution);
+    void add(std::int64_t** state_core);
+    void add(solution<Cpu>& _solution);
+    void add(solution<Cpu>&& _solution);
     oneapi::dal::homogen_table export_as_table();
 
 private:
@@ -69,7 +66,7 @@ public:
     std::int64_t solution_count;
     std::int64_t max_solution_cout;
 
-    graph_status increase_solutions_size();
+    void increase_solutions_size();
     void delete_data();
 };
 
@@ -204,49 +201,21 @@ std::int64_t solution<Cpu>::get_solution_count() const {
 }
 
 template <typename Cpu>
-graph_status solution<Cpu>::add(std::int64_t** state_core) {
+void solution<Cpu>::add(std::int64_t** state_core) {
     if (state_core != nullptr && *state_core != nullptr) {
         if (solution_count >= max_solution_cout) {
-            graph_status increase_status = increase_solutions_size();
-            if (increase_status != ok) {
-                return increase_status;
-            }
+            increase_solutions_size();
         }
         data[solution_count] = *state_core;
         *state_core = nullptr;
         solution_count++;
     }
-    return ok;
 }
 
 template <typename Cpu>
-graph_status solution<Cpu>::add(state<Cpu>& solution_state) {
-    graph_status status = add(&solution_state.core);
-    solution_state.~state();
-    return status;
-}
-
-template <typename Cpu>
-graph_status solution<Cpu>::add(state<Cpu>* solution_state) {
-    if (solution_state != nullptr) {
-        graph_status status = add(&solution_state->core);
-        solution_state->~state();
-        if (solution_state != nullptr) {
-            allocator_.deallocate<state<Cpu>>(solution_state, 0);
-        }
-        solution_state = nullptr;
-        return status;
-    }
-    else {
-        return bad_arguments;
-    }
-}
-
-template <typename Cpu>
-graph_status solution<Cpu>::add(solution<Cpu>& _solution) {
-    graph_status status = ok;
+void solution<Cpu>::add(solution<Cpu>& _solution) {
     for (std::int64_t i = 0; i < _solution.get_solution_count(); i++) {
-        status = add(&_solution.data[i]);
+        add(&_solution.data[i]);
     }
 
     if (_solution.get_solution_count() > 0) {
@@ -262,20 +231,18 @@ graph_status solution<Cpu>::add(solution<Cpu>& _solution) {
     _solution.sorted_pattern_vertices = nullptr;
     _solution.solution_count = 0;
     _solution.solution_core_length = 0;
-
-    return status;
 }
 
 template <typename Cpu>
-graph_status solution<Cpu>::add(solution<Cpu>&& _solution) {
-    return add(_solution);
+void solution<Cpu>::add(solution<Cpu>&& _solution) {
+    add(_solution);
 }
 
 template <typename Cpu>
-graph_status solution<Cpu>::increase_solutions_size() {
+void solution<Cpu>::increase_solutions_size() {
     std::int64_t** tmp_data = allocator_.allocate<std::int64_t*>(2 * max_solution_cout);
     if (tmp_data == nullptr) {
-        return bad_allocation;
+        throw oneapi::dal::host_bad_alloc();
     }
     for (std::int64_t i = 0; i < max_solution_cout; i++) {
         tmp_data[i] = data[i];
@@ -290,7 +257,6 @@ graph_status solution<Cpu>::increase_solutions_size() {
     max_solution_cout *= 2;
     data = tmp_data;
     tmp_data = nullptr;
-    return ok;
 }
 
 template <typename T>
