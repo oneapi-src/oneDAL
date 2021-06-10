@@ -278,7 +278,7 @@ protected:
         }
 
         // Minkowski Distances are computed without root calculation, fixing it here
-        distancesInstance->getRootBatch(iSize * k, kDistances, kDistances);
+        distancesInstance->finalize(iSize * k, kDistances);
 
         // sort by distances
         for (size_t i = 0; i < iSize; ++i)

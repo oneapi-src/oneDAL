@@ -104,7 +104,7 @@ public:
     virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                           FPType * const res) = 0;
 
-    virtual services::Status getRootBatch(const size_t n, FPType * in, FPType * out) = 0;
+    virtual services::Status finalize(const size_t n, FPType * a) = 0;
 };
 
 // compute: sum(A^2, 2) + sum(B^2, 2) -2*A*B'
@@ -173,11 +173,11 @@ public:
         return services::Status();
     }
 
-    virtual services::Status getRootBatch(const size_t n, FPType * in, FPType * out)
+    virtual services::Status finalize(const size_t n, FPType * a)
     {
         daal::internal::mkl::MklMath<FPType, cpu> math;
 
-        math.vSqrt(n, in, out);
+        math.vSqrt(n, a, a);
         return services::Status();
     }
 
@@ -304,17 +304,12 @@ public:
         return services::Status();
     }
 
-    virtual services::Status getRootBatch(const size_t n, FPType * in, FPType * out)
+    virtual services::Status finalize(const size_t n, FPType * a)
     {
-        daal::internal::mkl::MklMath<FPType, cpu> math;
-
-        if (_p == 1.0)
+        if (_p != 1.0)
         {
-            out = in;
-        }
-        else
-        {
-            math.vPowx(n, in, 1.0 / _p, out);
+            daal::internal::mkl::MklMath<FPType, cpu> math;
+            math.vPowx(n, a, 1.0 / _p, a);
         }
         return services::Status();
     }
@@ -403,9 +398,8 @@ public:
         return services::Status();
     }
 
-    virtual services::Status getRootBatch(const size_t n, FPType * in, FPType * out)
+    virtual services::Status finalize(const size_t n, FPType * a)
     {
-        out = in;
         return services::Status();
     }
 
