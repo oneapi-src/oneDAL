@@ -32,12 +32,6 @@ class engine_bundle;
 template <typename Cpu>
 class matching_engine {
 public:
-    // matching_engine(inner_alloc allocator)
-    //         : allocator_(allocator),
-    //           vertex_candidates(allocator.get_byte_allocator()),
-    //           local_stack(allocator),
-    //           hlocal_stack(allocator),
-    //           engine_solutions(allocator){};
     matching_engine(const graph<Cpu>* ppattern,
                     const graph<Cpu>* ptarget,
                     const std::int64_t* psorted_pattern_vertex,
