@@ -28,38 +28,64 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
-using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
+namespace daal_classifier = daal::algorithms::classifier;
+
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
 using daal_knn_bf_kernel_t =
     daal_knn::prediction::internal::KNNClassificationPredictKernel<Float, Cpu>;
 
-template <typename Float>
-static infer_result<task::classification> call_daal_kernel(const context_cpu &ctx,
-                                                           const descriptor_t &desc,
-                                                           const table &data,
-                                                           model<task::classification> m) {
+template <typename Float, typename Task>
+static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
+                                           const detail::descriptor_base<Task> &desc,
+                                           const table &data,
+                                           model<Task> m) {
     const std::int64_t row_count = data.get_row_count();
-
-    auto arr_labels = array<Float>::empty(1 * row_count);
+    const std::int64_t neighbor_count = desc.get_neighbor_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
 
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter original_daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
-        dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
+        dal::detail::integral_cast<std::size_t>(neighbor_count),
         data_use_in_model);
 
     daal_knn::prediction::internal::KernelParameter daal_parameter;
     daal_parameter.nClasses = original_daal_parameter.nClasses;
     daal_parameter.k = original_daal_parameter.k;
-    daal_parameter.resultsToCompute = original_daal_parameter.resultsToCompute;
-    daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
+
+    auto arr_labels = array<Float>{};
+    auto arr_indices = array<std::int64_t>{};
+    auto arr_distance = array<Float>{};
+
+    auto daal_labels = daal::data_management::NumericTablePtr();
+    auto daal_indices = daal::data_management::NumericTablePtr();
+    auto daal_distance = daal::data_management::NumericTablePtr();
+
+    if constexpr (std::is_same_v<Task, task::search>) {
+        daal_parameter.resultsToEvaluate = daal_classifier::none;
+        daal_parameter.resultsToCompute =
+            daal_knn::computeDistances | daal_knn::computeIndicesOfNeighbors;
+
+        arr_indices.reset(neighbor_count * row_count);
+        daal_indices =
+            interop::convert_to_daal_homogen_table(arr_indices, row_count, neighbor_count);
+
+        arr_distance.reset(neighbor_count * row_count);
+        daal_distance =
+            interop::convert_to_daal_homogen_table(arr_distance, row_count, neighbor_count);
+    }
+    else {
+        arr_labels.reset(1 * row_count);
+        daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+
+        daal_parameter.resultsToCompute = original_daal_parameter.resultsToCompute;
+        daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
+    }
 
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
@@ -77,31 +103,44 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
         daal_data.get(),
         dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
-        nullptr,
-        nullptr,
+        daal_indices.get(),
+        daal_distance.get(),
         &daal_parameter));
-    return infer_result<task::classification>().set_labels(
-        dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+
+    if constexpr (std::is_same_v<Task, task::search>) {
+        return infer_result<Task>()
+            .set_indices(dal::detail::homogen_table_builder{}
+                             .reset(arr_indices, row_count, neighbor_count)
+                             .build())
+            .set_distances(dal::detail::homogen_table_builder{}
+                               .reset(arr_distance, row_count, neighbor_count)
+                               .build());
+    }
+    else {
+        return infer_result<Task>().set_labels(
+            dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+    }
 }
 
-template <typename Float>
-static infer_result<task::classification> infer(const context_cpu &ctx,
-                                                const descriptor_t &desc,
-                                                const infer_input<task::classification> &input) {
+template <typename Float, typename Task>
+static infer_result<Task> infer(const context_cpu &ctx,
+                                const detail::descriptor_base<Task> &desc,
+                                const infer_input<Task> &input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
-template <typename Float>
-struct infer_kernel_cpu<Float, method::brute_force, task::classification> {
-    infer_result<task::classification> operator()(
-        const context_cpu &ctx,
-        const descriptor_t &desc,
-        const infer_input<task::classification> &input) const {
+template <typename Float, typename Task>
+struct infer_kernel_cpu<Float, method::brute_force, Task> {
+    infer_result<Task> operator()(const context_cpu &ctx,
+                                  const detail::descriptor_base<Task> &desc,
+                                  const infer_input<Task> &input) const {
         return infer<Float>(ctx, desc, input);
     }
 };
 
 template struct infer_kernel_cpu<float, method::brute_force, task::classification>;
 template struct infer_kernel_cpu<double, method::brute_force, task::classification>;
+template struct infer_kernel_cpu<float, method::brute_force, task::search>;
+template struct infer_kernel_cpu<double, method::brute_force, task::search>;
 
 } // namespace oneapi::dal::knn::backend

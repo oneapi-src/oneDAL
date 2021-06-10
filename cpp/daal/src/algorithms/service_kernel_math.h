@@ -93,6 +93,14 @@ FPType distance(const FPType * a, const FPType * b, size_t dim, FPType p)
     return daal::internal::Math<FPType, cpu>::sPowx(sum, (FPType)1.0 / p);
 }
 
+enum class PairwiseDistanceType
+{
+    minkowski,
+    euclidean,
+    chebyshev,
+    cosine,
+};
+
 template <typename FPType, CpuType cpu>
 class PairwiseDistances
 {
@@ -100,6 +108,8 @@ public:
     virtual ~PairwiseDistances() {};
 
     virtual services::Status init() = 0;
+
+    virtual PairwiseDistanceType getType() = 0;
 
     virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                           FPType * const res) = 0;
@@ -113,6 +123,8 @@ public:
     EuclideanDistances(const NumericTable & a, const NumericTable & b, bool squared = true) : _a(a), _b(b), _squared(squared) {}
 
     virtual ~EuclideanDistances() {}
+
+    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::euclidean; }
 
     virtual services::Status init()
     {
@@ -270,6 +282,48 @@ protected:
     TArray<FPType, cpu> normBufferB;
 };
 
+// compute: A*B' / (sum(A^2, 2) * sum(B^2, 2))
+template <typename FPType, CpuType cpu>
+class CosineDistances : public EuclideanDistances<FPType, cpu>
+{
+public:
+    using super = EuclideanDistances<FPType, cpu>;
+
+    CosineDistances(const NumericTable & a, const NumericTable & b) : super(a, b, true) {}
+
+    virtual ~CosineDistances() {}
+
+    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::cosine; }
+
+    // output:  Row-major matrix of size { aSize x bSize }
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) override
+    {
+        const size_t nRowsA = aSize;
+        const size_t nColsA = super::_a.getNumberOfColumns();
+        const size_t nRowsB = bSize;
+
+        const size_t nRowsC = nRowsA;
+        const size_t nColsC = nRowsB;
+
+        super::computeABt(a, b, nRowsA, nColsA, nRowsB, res);
+
+        const FPType * const aa = super::normBufferA.get() + aOffset;
+        const FPType * const bb = (&(super::_a) == &(super::_b)) ? super::normBufferA.get() + bOffset : super::normBufferB.get() + bOffset;
+
+        PRAGMA_IVDEP
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t i = 0; i < nRowsC; i++)
+        {
+            for (size_t j = 0; j < nColsC; j++)
+            {
+                res[i * nColsC + j] = FPType(1) - (res[i * nColsC + j] / Math<FPType, cpu>::sSqrt(aa[i] * bb[j]));
+            }
+        }
+        return services::Status();
+    }
+};
+
 template <typename FPType, CpuType cpu>
 class MinkowskiDistances : public PairwiseDistances<FPType, cpu>
 {
@@ -279,6 +333,8 @@ public:
     {}
 
     virtual ~MinkowskiDistances() {}
+
+    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::minkowski; }
 
     virtual services::Status init()
     {
@@ -363,6 +419,8 @@ public:
     ChebyshevDistances(const NumericTable & a, const NumericTable & b) : _a(a), _b(b) {}
 
     virtual ~ChebyshevDistances() {}
+
+    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::chebyshev; }
 
     virtual services::Status init()
     {

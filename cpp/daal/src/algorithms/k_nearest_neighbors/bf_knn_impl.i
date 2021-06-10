@@ -32,7 +32,6 @@
 #include "src/services/service_defines.h"
 #include "src/threading/threading.h"
 #include "src/data_management/service_numeric_table.h"
-#include "src/algorithms/service_kernel_math.h"
 #include "src/algorithms/service_sort.h"
 #include "src/externals/service_math.h"
 #include "src/algorithms/k_nearest_neighbors/knn_heap.h"
@@ -45,6 +44,8 @@ namespace bf_knn_classification
 {
 namespace internal
 {
+using namespace algorithms::internal;
+
 template <typename FPType, CpuType cpu>
 class BruteForceNearestNeighbors
 {
@@ -62,6 +63,8 @@ public:
                                 NumericTable * distancesTable, bf_knn_classification::prediction::internal::PairwiseDistanceType pairwiseDistance,
                                 const double minkowskiDegree)
     {
+        using bf_knn_classification::prediction::internal::PairwiseDistanceType;
+
         const size_t nDims  = trainTable->getNumberOfColumns();
         const size_t nTrain = trainTable->getNumberOfRows();
         const size_t nTest  = testTable->getNumberOfRows();
@@ -77,24 +80,27 @@ public:
             DAAL_CHECK_MALLOC(trainLabel);
         }
 
-        services::SharedPtr<daal::algorithms::internal::PairwiseDistances<FPType, cpu> > dist;
+        services::SharedPtr<PairwiseDistances<FPType, cpu> > dist;
 
-        switch (pairwiseDistance)
+        if (pairwiseDistance == PairwiseDistanceType::minkowski && minkowskiDegree == 2.0)
         {
-        case bf_knn_classification::prediction::internal::PairwiseDistanceType::minkowski:
-            if (minkowskiDegree == 2.0)
-            {
-                dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
-            }
-            else
-            {
-                dist.reset(new daal::algorithms::internal::MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
-            }
-            break;
-        case bf_knn_classification::prediction::internal::PairwiseDistanceType::chebyshev:
-            dist.reset(new daal::algorithms::internal::ChebyshevDistances<FPType, cpu>(*testTable, *trainTable));
-            break;
-        default: dist.reset(new daal::algorithms::internal::EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true)); break;
+            dist.reset(new EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
+        }
+        else if (pairwiseDistance == PairwiseDistanceType::minkowski)
+        {
+            dist.reset(new MinkowskiDistances<FPType, cpu>(*testTable, *trainTable, true, minkowskiDegree));
+        }
+        else if (pairwiseDistance == PairwiseDistanceType::chebyshev)
+        {
+            dist.reset(new ChebyshevDistances<FPType, cpu>(*testTable, *trainTable));
+        }
+        else if (pairwiseDistance == PairwiseDistanceType::cosine)
+        {
+            dist.reset(new CosineDistances<FPType, cpu>(*testTable, *trainTable));
+        }
+        else
+        {
+            dist.reset(new EuclideanDistances<FPType, cpu>(*testTable, *trainTable, true));
         }
 
         dist->init();
@@ -167,13 +173,13 @@ protected:
         TArrayScalable<HeapType, cpu> _heaps;
     };
 
-    services::Status computeKNearestBlock(daal::algorithms::internal::PairwiseDistances<FPType, cpu> * distancesInstance, const size_t blockSize,
-                                          const size_t trainBlockSize, const size_t startTestIdx, const size_t nTrain, DAAL_UINT64 resultsToEvaluate,
-                                          DAAL_UINT64 resultsToCompute, const size_t nClasses, const size_t k, VoteWeights voteWeights,
-                                          FPType * trainLabel, const NumericTable * trainTable, const NumericTable * testTable,
-                                          NumericTable * testLabelTable, NumericTable * indicesTable, NumericTable * distancesTable,
-                                          TlsMem<FPType, cpu> & tlsDistances, TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsKDistances,
-                                          TlsMem<int, cpu> & tlsKIndexes, TlsMem<FPType, cpu> & tlsVoting, size_t nOuterBlocks)
+    services::Status computeKNearestBlock(PairwiseDistances<FPType, cpu> * distancesInstance, const size_t blockSize, const size_t trainBlockSize,
+                                          const size_t startTestIdx, const size_t nTrain, DAAL_UINT64 resultsToEvaluate, DAAL_UINT64 resultsToCompute,
+                                          const size_t nClasses, const size_t k, VoteWeights voteWeights, FPType * trainLabel,
+                                          const NumericTable * trainTable, const NumericTable * testTable, NumericTable * testLabelTable,
+                                          NumericTable * indicesTable, NumericTable * distancesTable, TlsMem<FPType, cpu> & tlsDistances,
+                                          TlsMem<int, cpu> & tlsIdx, TlsMem<FPType, cpu> & tlsKDistances, TlsMem<int, cpu> & tlsKIndexes,
+                                          TlsMem<FPType, cpu> & tlsVoting, size_t nOuterBlocks)
     {
         const size_t inBlockSize = trainBlockSize;
         const size_t inRows      = nTrain;
@@ -271,19 +277,29 @@ protected:
         {
             for (size_t kk = 0; kk < k; ++kk)
             {
-                // max(0, d) to remove negative distances before Sqrt
-                kDistances[i * k + kk] = services::internal::max<cpu, FPType>(FPType(0), heaps[i][kk].distance);
-                kIndexes[i * k + kk]   = heaps[i][kk].index;
+                if (distancesInstance->getType() == PairwiseDistanceType::euclidean)
+                {
+                    // max(0, d) to remove negative distances before Sqrt
+                    kDistances[i * k + kk] = services::internal::max<cpu, FPType>(FPType(0), heaps[i][kk].distance);
+                }
+                else
+                {
+                    kDistances[i * k + kk] = heaps[i][kk].distance;
+                }
+
+                kIndexes[i * k + kk] = heaps[i][kk].index;
             }
         }
 
-        // Euclidean Distances are computed without Sqrt, fixing it here
-        Math<FPType, cpu>::vSqrt(iSize * k, kDistances, kDistances);
-
+        if (distancesInstance->getType() == PairwiseDistanceType::euclidean)
+        {
+            // Euclidean Distances are computed without Sqrt, fixing it here
+            Math<FPType, cpu>::vSqrt(iSize * k, kDistances, kDistances);
+        }
         // sort by distances
         for (size_t i = 0; i < iSize; ++i)
         {
-            daal::algorithms::internal::qSort<FPType, int, cpu>(k, kDistances + i * k, kIndexes + i * k);
+            qSort<FPType, int, cpu>(k, kDistances + i * k, kIndexes + i * k);
         }
 
         if (resultsToCompute & computeIndicesOfNeighbors)
