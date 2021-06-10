@@ -82,7 +82,7 @@ RES = $(example:+=.res)
 
 !IF ("$(compiler)"=="dpcpp" || "$(compiler)"=="clang")
 CC=dpcpp
-COPTS=/W3 /EHsc /std:c++17
+COPTS=/W3 /EHsc /std:c++17 -fsycl-device-code-split=per_kernel
 OUT_OPTS=/Fe$(RES_DIR)
 CLEAN=
 !ENDIF

@@ -29,7 +29,7 @@ namespace oneapi::dal::backend::primitives::test {
 namespace te = dal::test::engine;
 
 template <typename TestType>
-class selection_test : public te::policy_fixture {
+class selection_test : public te::float_algo_fixture<TestType> {
 public:
     using float_t = TestType;
 
@@ -74,7 +74,7 @@ public:
                                       data.get_count());
 
         this->get_queue().wait_and_throw();
-        kselect_by_rows<float_t> sel(get_queue(), data.get_shape(), k);
+        kselect_by_rows<float_t> sel(this->get_queue(), data.get_shape(), k);
         BENCHMARK(name.c_str()) {
             sel(this->get_queue(), data, k, selection, indices).wait_and_throw();
         };
@@ -87,6 +87,7 @@ TEMPLATE_LIST_TEST_M(selection_test,
                      "[selection][perf]",
                      selection_types) {
     SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
     std::int64_t k = GENERATE_COPY(16);
     std::int64_t row_count = GENERATE_COPY(1024);
     std::int64_t col_count = GENERATE_COPY(16 * 1024);
@@ -100,6 +101,7 @@ TEMPLATE_LIST_TEST_M(selection_test,
                      "[selection][perf]",
                      selection_types) {
     SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
     std::int64_t k = GENERATE_COPY(1);
     std::int64_t row_count = GENERATE_COPY(1024);
     std::int64_t col_count = GENERATE_COPY(16 * 1024);
