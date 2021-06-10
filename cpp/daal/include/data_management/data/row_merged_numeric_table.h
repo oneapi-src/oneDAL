@@ -25,6 +25,7 @@
 #define __ROW_MERGED_NUMERIC_TABLE_H__
 
 #include "data_management/data/numeric_table.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "services/daal_memory.h"
 #include "services/daal_defines.h"
 #include "data_management/data/data_serialize.h"
@@ -115,6 +116,38 @@ public:
 
         size_t obs = table->getNumberOfRows();
         return setNumberOfRowsImpl(_obsnum + obs);
+    }
+
+    /**
+     * Converts the table to the single SyclHomogenNumericTable
+     * \param[out] stat  Status of the conversion
+     */
+    template <typename T>
+    NumericTablePtr toSyclHomogen(services::Status & stat)
+    {
+        size_t ncols             = getNumberOfColumns();
+        size_t nrows             = getNumberOfRows();
+        NumericTablePtr tablePtr = internal::SyclHomogenNumericTable<T>::create(ncols, nrows, NumericTable::doAllocate, stat);
+
+        size_t startRow = 0;
+        BlockDescriptor<T> mainBlock;
+        BlockDescriptor<T> innerBlock;
+        for (size_t k = 0; k < _tables->size(); k++)
+        {
+            NumericTable * nt = (NumericTable *)(_tables->operator[](k).get());
+            size_t lrows      = nt->getNumberOfRows();
+
+            stat |= tablePtr->getBlockOfRows(startRow, lrows, writeOnly, mainBlock);
+            stat |= nt->getBlockOfRows(0, lrows, readOnly, innerBlock);
+
+            internal_inner_repack<T>(0, lrows, ncols, innerBlock.getBlockPtr(), mainBlock.getBlockPtr());
+
+            stat |= tablePtr->releaseBlockOfRows(mainBlock);
+            stat |= nt->releaseBlockOfRows(innerBlock);
+
+            startRow += lrows;
+        }
+        return tablePtr;
     }
 
     services::Status resize(size_t /*nrows*/) DAAL_C11_OVERRIDE
