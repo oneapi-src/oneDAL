@@ -16,28 +16,6 @@ dal_module(
 )
 
 dal_test_suite(
-    name = "common_tests",
-    compile_as = [ "c++" ],
-    srcs = glob([
-        "common_*_test.cpp",
-    ]),
-    dal_deps = [
-        ":kmeans_init",
-    ],
-)
-
-dal_test_suite(
-    name = "cpu_tests",
-    compile_as = [ "c++" ],
-    srcs = glob([
-        "backend/cpu/*_test.cpp",
-    ]),
-    dal_deps = [
-        ":kmeans_init",
-    ],
-)
-
-dal_test_suite(
     name = "interface_tests",
     framework = "catch2",
     srcs = glob([
@@ -51,8 +29,6 @@ dal_test_suite(
 dal_test_suite(
     name = "tests",
     host_tests = [
-
-        ":common_tests",
-        ":cpu_tests",
+        ":interface_tests",
     ],
 )
