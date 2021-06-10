@@ -32,12 +32,12 @@ class engine_bundle;
 template <typename Cpu>
 class matching_engine {
 public:
-    matching_engine(inner_alloc allocator)
-            : allocator_(allocator),
-              vertex_candidates(allocator.get_byte_allocator()),
-              local_stack(allocator),
-              hlocal_stack(allocator),
-              engine_solutions(allocator){};
+    // matching_engine(inner_alloc allocator)
+    //         : allocator_(allocator),
+    //           vertex_candidates(allocator.get_byte_allocator()),
+    //           local_stack(allocator),
+    //           hlocal_stack(allocator),
+    //           engine_solutions(allocator){};
     matching_engine(const graph<Cpu>* ppattern,
                     const graph<Cpu>* ptarget,
                     const std::int64_t* psorted_pattern_vertex,
@@ -425,7 +425,7 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
         : exploration_stack(allocator),
           allocator_(allocator),
           isomorphism_kind_(isomorphism_kind),
-          bundle_solutions(allocator) {
+          bundle_solutions(ppattern->get_vertex_count(), psorted_pattern_vertex, allocator) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
@@ -433,9 +433,6 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
     direction = pdirection;
     pconsistent_conditions = pcconditions;
     pattern_vertex_probability = ppattern_vertex_probability;
-
-    bundle_solutions =
-        solution<Cpu>(pattern->get_vertex_count(), psorted_pattern_vertex, allocator_);
 }
 
 template <typename Cpu>

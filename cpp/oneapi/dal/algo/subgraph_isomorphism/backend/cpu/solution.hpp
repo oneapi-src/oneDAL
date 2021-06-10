@@ -43,7 +43,6 @@ private:
 template <typename Cpu>
 class solution {
 public:
-    solution(inner_alloc a);
     solution(const std::int64_t length, const std::int64_t* pattern_vertices, inner_alloc a);
     virtual ~solution();
 
@@ -118,23 +117,16 @@ state<Cpu>::~state() {
 }
 
 template <typename Cpu>
-solution<Cpu>::solution(inner_alloc a) : allocator_(a) {
-    solution_count = 0;
-    max_solution_cout = 100;
-    solution_core_length = 0;
+solution<Cpu>::solution(const std::int64_t length,
+                        const std::int64_t* pattern_vertices,
+                        inner_alloc a)
+        : allocator_(a),
+          solution_count(0),
+          max_solution_cout(100) {
     data = allocator_.allocate<std::int64_t*>(max_solution_cout);
     for (std::int64_t i = 0; i < max_solution_cout; i++) {
         data[i] = nullptr;
     }
-
-    sorted_pattern_vertices = nullptr;
-}
-
-template <typename Cpu>
-solution<Cpu>::solution(const std::int64_t length,
-                        const std::int64_t* pattern_vertices,
-                        inner_alloc a)
-        : solution<Cpu>(a) {
     solution_core_length = length;
     if (pattern_vertices != nullptr) {
         sorted_pattern_vertices = allocator_.allocate<std::int64_t>(solution_core_length);
@@ -168,11 +160,10 @@ void solution<Cpu>::delete_data() {
 }
 
 template <typename Cpu>
-solution<Cpu>::solution(solution<Cpu>&& sol)
-        : allocator_(sol.allocator_),
-          data(sol.data),
-          sorted_pattern_vertices(sol.sorted_pattern_vertices) {
+solution<Cpu>::solution(solution<Cpu>&& sol) : allocator_(sol.allocator_),
+                                               data(sol.data) {
     max_solution_cout = sol.max_solution_cout;
+    sorted_pattern_vertices = sol.sorted_pattern_vertices;
     solution_count = sol.solution_count;
     solution_core_length = sol.solution_core_length;
     sol.data = nullptr;

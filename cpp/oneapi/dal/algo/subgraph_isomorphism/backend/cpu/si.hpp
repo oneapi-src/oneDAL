@@ -33,7 +33,6 @@ solution<Cpu> si(const graph<Cpu>& pattern,
                  kind isomorphism_kind,
                  detail::byte_alloc_iface* alloc_ptr) {
     inner_alloc local_allocator(alloc_ptr);
-    solution<Cpu> sol(local_allocator);
     sorter<Cpu> sorter_graph(&target, local_allocator);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
     auto pattern_vertex_probability =
@@ -71,7 +70,7 @@ solution<Cpu> si(const graph<Cpu>& pattern,
                                pattern_vertex_probability.get(),
                                isomorphism_kind,
                                local_allocator);
-    sol = harness.run();
+    solution<Cpu> sol = harness.run();
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
         cconditions_array[i].~sconsistent_conditions();
