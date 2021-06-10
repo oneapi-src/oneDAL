@@ -25,7 +25,6 @@
 #define __ROW_MERGED_NUMERIC_TABLE_H__
 
 #include "data_management/data/numeric_table.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "services/daal_memory.h"
 #include "services/daal_defines.h"
 #include "data_management/data/data_serialize.h"
@@ -123,11 +122,19 @@ public:
      * \param[out] stat  Status of the conversion
      */
     template <typename T>
-    NumericTablePtr toSyclHomogen(services::Status & stat)
+    services::Status copyToNumericTable(NumericTablePtr & tablePtr)
     {
-        size_t ncols             = getNumberOfColumns();
-        size_t nrows             = getNumberOfRows();
-        NumericTablePtr tablePtr = internal::SyclHomogenNumericTable<T>::create(ncols, nrows, NumericTable::doAllocate, stat);
+        services::Status stat;
+        size_t ncols = getNumberOfColumns();
+        size_t nrows = getNumberOfRows();
+        if (tablePtr->getNumberOfColumns() != ncols)
+        {
+            return services::Status(services::ErrorIncorrectNumberOfFeatures);
+        }
+        if (tablePtr->getNumberOfRows() != nrows)
+        {
+            tablePtr->resize(nrows);
+        }
 
         size_t startRow = 0;
         BlockDescriptor<T> mainBlock;
@@ -147,7 +154,7 @@ public:
 
             startRow += lrows;
         }
-        return tablePtr;
+        return stat;
     }
 
     services::Status resize(size_t /*nrows*/) DAAL_C11_OVERRIDE

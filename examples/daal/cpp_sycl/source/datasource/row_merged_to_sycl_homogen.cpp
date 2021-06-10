@@ -127,10 +127,13 @@ int main(int argc, char *argv[]) {
     }
 
     Status st;
-    NumericTablePtr syclTable = mergedTable->toSyclHomogen<float>(st);
+    NumericTablePtr tablePtr = SyclHomogenNumericTable<float>::create(
+        mergedTable->getNumberOfColumns(), mergedTable->getNumberOfRows(),
+        NumericTable::doAllocate);
+    mergedTable->copyToNumericTable<float>(tablePtr);
 
     /* Compute correlation matrix of generated dataset */
-    NumericTablePtr covariance = computeCorrelationMatrix(syclTable);
+    NumericTablePtr covariance = computeCorrelationMatrix(tablePtr);
 
     /* Print the results */
     printNumericTable(covariance, "Covariance matrix:");
