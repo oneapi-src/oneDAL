@@ -81,7 +81,7 @@ public:
     DAAL_FORCEINLINE bool compare_exchange(dataType & expected, dataType desired)
     {
         DAAL_ASSERT(sizeof(my_storage) == sizeof(long))
-        auto res_val = _InterlockedCompareExchange((long volatile *)(&my_storage), (long *)(&desired), (long *)(&expected));
+        auto res_val = _InterlockedCompareExchange((long volatile *)(&my_storage), desired, expected);
         _ReadWriteBarrier();
         bool result = res_val == desired ? true : false;
         return result;
@@ -161,7 +161,7 @@ public:
     DAAL_FORCEINLINE bool compare_exchange(size_t & expected, size_t desired)
     {
         DAAL_ASSERT(sizeof(my_storage) == sizeof(size_t))
-        auto res_val = _InterlockedCompareExchange64((__int64 volatile *)(&my_storage), (__int64 *)(&desired), (__int64 *)(&expected));
+        auto res_val = _InterlockedCompareExchange64((__int64 volatile *)(&my_storage), desired, expected);
         _ReadWriteBarrier();
         bool result = res_val == desired ? true : false;
         return result;
