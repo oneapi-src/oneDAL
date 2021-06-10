@@ -95,10 +95,10 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
     const auto p_vertex_count = p_data._vertex_count;
 
     if (vv_t != nullptr) {
-        target.load_vertex_attribute(t_vertex_count, vv_t);
+        target.set_vertex_attribute(t_vertex_count, vv_t);
     }
     if (vv_p != nullptr) {
-        pattern.load_vertex_attribute(p_vertex_count, vv_p);
+        pattern.set_vertex_attribute(p_vertex_count, vv_p);
     }
 
     solution<Cpu> results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
