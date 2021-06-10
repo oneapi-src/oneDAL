@@ -107,19 +107,22 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         daal_distance.get(),
         &daal_parameter));
 
+    auto result = infer_result<Task>{};
+
     if constexpr (std::is_same_v<Task, task::search>) {
-        return infer_result<Task>()
-            .set_indices(dal::detail::homogen_table_builder{}
-                             .reset(arr_indices, row_count, neighbor_count)
-                             .build())
-            .set_distances(dal::detail::homogen_table_builder{}
-                               .reset(arr_distance, row_count, neighbor_count)
-                               .build());
+        result = result
+                     .set_indices(dal::detail::homogen_table_builder{}
+                                      .reset(arr_indices, row_count, neighbor_count)
+                                      .build())
+                     .set_distances(dal::detail::homogen_table_builder{}
+                                        .reset(arr_distance, row_count, neighbor_count)
+                                        .build());
     }
     else {
-        return infer_result<Task>().set_labels(
+        result = result.set_labels(
             dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
     }
+    return result;
 }
 
 template <typename Float, typename Task>
