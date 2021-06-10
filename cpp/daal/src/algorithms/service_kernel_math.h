@@ -398,10 +398,7 @@ public:
         return services::Status();
     }
 
-    virtual services::Status finalize(const size_t n, FPType * a)
-    {
-        return services::Status();
-    }
+    virtual services::Status finalize(const size_t n, FPType * a) { return services::Status(); }
 
 protected:
     FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
