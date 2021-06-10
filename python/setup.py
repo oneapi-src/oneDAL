@@ -21,7 +21,7 @@ __version__ = "0.0.1"
 
 ext_modules = [
     Pybind11Extension("_onedal_py_dpc",
-        sorted(glob("oneapi/dal/**/backend/*.cpp", recursive=True)),
+        sorted(glob("onedal/**/*.cpp", recursive=True)),
         define_macros = [('ONEDAL_DATA_PARALLEL', 1)],
         libraries = ["onedal_dpc", "onedal_core", "onedal_thread"],
         include_dirs = [np.get_include()],
