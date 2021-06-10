@@ -103,6 +103,8 @@ public:
 
     virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                           FPType * const res) = 0;
+
+    virtual services::Status finalize(const size_t n, FPType * a) = 0;
 };
 
 // compute: sum(A^2, 2) + sum(B^2, 2) -2*A*B'
@@ -168,6 +170,14 @@ public:
             services::internal::daal_memcpy_s(res, nRowsC * nColsC * sizeof(FPType), tmp, nRowsC * nColsC * sizeof(FPType));
         }
 
+        return services::Status();
+    }
+
+    virtual services::Status finalize(const size_t n, FPType * a)
+    {
+        daal::internal::mkl::MklMath<FPType, cpu> math;
+
+        math.vSqrt(n, a, a);
         return services::Status();
     }
 
@@ -294,6 +304,16 @@ public:
         return services::Status();
     }
 
+    virtual services::Status finalize(const size_t n, FPType * a)
+    {
+        if (_p != 1.0)
+        {
+            daal::internal::mkl::MklMath<FPType, cpu> math;
+            math.vPowx(n, a, 1.0 / _p, a);
+        }
+        return services::Status();
+    }
+
 protected:
     FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
     {
@@ -377,6 +397,8 @@ public:
 
         return services::Status();
     }
+
+    virtual services::Status finalize(const size_t n, FPType * a) { return services::Status(); }
 
 protected:
     FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
