@@ -21,7 +21,8 @@ namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 template solution<__CPU_TAG__> si<__CPU_TAG__>(const graph<__CPU_TAG__>& pattern,
                                                const graph<__CPU_TAG__>& target,
                                                kind isomorphism_kind,
-                                               detail::byte_alloc_iface* alloc_ptr);
+                                               detail::byte_alloc_iface* alloc_ptr,
+                                               std::int64_t* sorted_pattern_vertex_array);
 
 template subgraph_isomorphism::graph_matching_result si_call_kernel<__CPU_TAG__>(
     const kind& si_kind,

@@ -108,8 +108,6 @@ public:
     const float* pattern_vertex_probability;
     kind isomorphism_kind_;
 
-    solution<Cpu> bundle_solutions;
-
     typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
     bundle matching_bundle;
 };
@@ -142,7 +140,7 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
                             allocator),
           local_stack(allocator),
           hlocal_stack(allocator),
-          engine_solutions(ppattern->get_vertex_count(), psorted_pattern_vertex, allocator),
+          engine_solutions(ppattern->get_vertex_count(), allocator),
           isomorphism_kind_(isomorphism_kind) {
     pattern = ppattern;
     target = ptarget;
@@ -418,16 +416,14 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
                                   inner_alloc allocator)
         : exploration_stack(allocator),
           allocator_(allocator),
-          isomorphism_kind_(isomorphism_kind),
-          bundle_solutions(ppattern->get_vertex_count(), psorted_pattern_vertex, allocator) {
-    pattern = ppattern;
-    target = ptarget;
-    sorted_pattern_vertex = psorted_pattern_vertex;
-    predecessor = ppredecessor;
-    direction = pdirection;
-    pconsistent_conditions = pcconditions;
-    pattern_vertex_probability = ppattern_vertex_probability;
-}
+          pattern(ppattern),
+          target(ptarget),
+          sorted_pattern_vertex(psorted_pattern_vertex),
+          predecessor(ppredecessor),
+          direction(pdirection),
+          pconsistent_conditions(pcconditions),
+          pattern_vertex_probability(ppattern_vertex_probability),
+          isomorphism_kind_(isomorphism_kind) {}
 
 template <typename Cpu>
 engine_bundle<Cpu>::~engine_bundle() {
@@ -497,11 +493,12 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         engine_array[index].run_and_wait(gstack, busy_engine_count, false);
     });
 
+    solution<Cpu> aggregated_solution(pattern->get_vertex_count(), allocator_);
     for (std::uint64_t i = 0; i < array_size; i++) {
-        bundle_solutions.add(engine_array[i].get_solution());
+        aggregated_solution.append(engine_array[i].get_solution());
         engine_array[i].~matching_engine();
     }
 
-    return std::move(bundle_solutions);
+    return std::move(aggregated_solution);
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

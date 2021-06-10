@@ -31,7 +31,8 @@ template <typename Cpu>
 solution<Cpu> si(const graph<Cpu>& pattern,
                  const graph<Cpu>& target,
                  kind isomorphism_kind,
-                 detail::byte_alloc_iface* alloc_ptr) {
+                 detail::byte_alloc_iface* alloc_ptr,
+                 std::int64_t* sorted_pattern_vertex_array) {
     inner_alloc local_allocator(alloc_ptr);
     sorter<Cpu> sorter_graph(&target, local_allocator);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
@@ -39,11 +40,9 @@ solution<Cpu> si(const graph<Cpu>& pattern,
         local_allocator.make_shared_memory<float>(pattern_vetrex_count);
 
     sorter_graph.get_pattern_vertex_probability(pattern, pattern_vertex_probability.get());
-    auto sorted_pattern_vertex =
-        local_allocator.make_shared_memory<std::int64_t>(pattern_vetrex_count);
     sorter_graph.sorting_pattern_vertices(pattern,
                                           pattern_vertex_probability.get(),
-                                          sorted_pattern_vertex.get());
+                                          sorted_pattern_vertex_array);
 
     auto predecessor = local_allocator.make_shared_memory<std::int64_t>(pattern_vetrex_count);
     auto direction = local_allocator.make_shared_memory<edge_direction>(pattern_vetrex_count);
@@ -55,7 +54,7 @@ solution<Cpu> si(const graph<Cpu>& pattern,
     }
 
     sorter_graph.create_sorted_pattern_tree(pattern,
-                                            sorted_pattern_vertex.get(),
+                                            sorted_pattern_vertex_array,
                                             predecessor.get(),
                                             direction.get(),
                                             cconditions.get(),
@@ -63,21 +62,21 @@ solution<Cpu> si(const graph<Cpu>& pattern,
 
     engine_bundle<Cpu> harness(&pattern,
                                &target,
-                               sorted_pattern_vertex.get(),
+                               sorted_pattern_vertex_array,
                                predecessor.get(),
                                direction.get(),
                                cconditions.get(),
                                pattern_vertex_probability.get(),
                                isomorphism_kind,
                                local_allocator);
-    solution<Cpu> sol = harness.run();
+    solution<Cpu> results = harness.run();
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
         cconditions_array[i].~sconsistent_conditions();
     }
     cconditions = nullptr;
 
-    return sol;
+    return results;
 }
 
 template <typename Cpu>
@@ -101,9 +100,18 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
         pattern.set_vertex_attribute(p_vertex_count, vv_p);
     }
 
-    solution<Cpu> results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
+    inner_alloc local_allocator(alloc_ptr);
+    auto sorted_pattern_vertex = local_allocator.make_shared_memory<std::int64_t>(p_vertex_count);
+    std::int64_t* sorted_pattern_vertex_array = sorted_pattern_vertex.get();
+    if (sorted_pattern_vertex_array == nullptr) {
+        throw oneapi::dal::host_bad_alloc();
+    }
 
-    return graph_matching_result(results.export_as_table(), results.get_solution_count());
+    solution<Cpu> results =
+        si<Cpu>(pattern, target, si_kind, alloc_ptr, sorted_pattern_vertex_array);
+
+    return graph_matching_result(results.export_as_table(sorted_pattern_vertex_array),
+                                 results.get_solution_count());
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
