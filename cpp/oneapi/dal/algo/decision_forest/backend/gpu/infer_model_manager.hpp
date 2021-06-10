@@ -53,7 +53,7 @@ using namespace daal::services::internal;
 
 template <typename Float, typename Index, typename Task = task::by_default>
 class infer_model_manager {
-    using context_t = infer_context<Float, Index, Task>;
+    using infer_context_t = infer_context<Float, Index, Task>;
     using model_t = model<Task>;
     using model_impl_t = detail::model_impl<Task>;
     using model_interop_impl_t =
@@ -65,8 +65,8 @@ class infer_model_manager {
 
 public:
     explicit infer_model_manager(const cl::sycl::queue& q,
-                                 const model_t& model,
-                                 const context_t& ctx)
+                                 const infer_context_t& ctx,
+                                 const model_t& model)
             : queue_(q),
               ctx_(ctx) {
         using alloc = cl::sycl::usm::alloc;
@@ -179,7 +179,7 @@ private:
 
 private:
     cl::sycl::queue queue_;
-    const context_t& ctx_;
+    const infer_context_t& ctx_;
 
     Index max_tree_size_;
     bool weighted_available_ = false;

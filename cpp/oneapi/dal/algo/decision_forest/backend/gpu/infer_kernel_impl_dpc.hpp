@@ -59,7 +59,7 @@ void infer_kernel_impl<Float, Index, Task>::validate_input(const descriptor_t& d
 }
 
 template <typename Float, typename Index, typename Task>
-void infer_kernel_impl<Float, Index, Task>::init_params(context_t& ctx,
+void infer_kernel_impl<Float, Index, Task>::init_params(infer_context_t& ctx,
                                                         const descriptor_t& desc,
                                                         const model_t& model,
                                                         const table& data) const {
@@ -96,9 +96,9 @@ void infer_kernel_impl<Float, Index, Task>::init_params(context_t& ctx,
 template <typename Float, typename Index, typename Task>
 std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
 infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
+    const infer_context_t& ctx,
     const pr::ndview<Float, 2>& data,
     const model_manager_t& mng,
-    const context_t& ctx,
     const be::event_vector& deps) {
     const Index max_tree_size = mng.get_max_tree_size();
 
@@ -174,13 +174,12 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
                         std::uint32_t tree_curr_node = 0;
                         bool node_is_split = tree_root_is_split;
                         for (; node_is_split > 0;) {
-                            std::uint32_t idx = node_is_split * tree_ftr_idx[tree_curr_node];
+                            std::uint32_t idx =
+                                static_cast<std::uint32_t>(tree_ftr_idx[tree_curr_node]);
                             std::uint32_t sn = static_cast<std::uint32_t>(
                                 data_ptr[i * column_count + idx] > tree_ftr_val[tree_curr_node]);
-                            tree_curr_node -=
-                                node_is_split *
-                                (tree_curr_node -
-                                 static_cast<std::uint32_t>(tree_lch_cls[tree_curr_node]) - sn);
+                            tree_curr_node =
+                                static_cast<std::uint32_t>(tree_lch_cls[tree_curr_node]) + sn;
                             node_is_split = leaf_mark != tree_ftr_idx[tree_curr_node];
                         }
                         for (Index class_idx = 0; class_idx < class_count; class_idx++) {
@@ -200,9 +199,9 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
 
 template <typename Float, typename Index, typename Task>
 std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
-infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const pr::ndview<Float, 2>& data,
+infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context_t& ctx,
+                                                             const pr::ndview<Float, 2>& data,
                                                              const model_manager_t& mng,
-                                                             const context_t& ctx,
                                                              const be::event_vector& deps) {
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
     const Index max_tree_size = mng.get_max_tree_size();
@@ -308,8 +307,8 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const pr::ndview<Fl
 template <typename Float, typename Index, typename Task>
 std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
 infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
+    const infer_context_t& ctx,
     const pr::ndview<Float, 1>& obs_response_list,
-    const context_t& ctx,
     const be::event_vector& deps) {
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
 
@@ -409,8 +408,8 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
 
 template <typename Float, typename Index, typename Task>
 std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
-infer_kernel_impl<Float, Index, Task>::determine_winner(const pr::ndview<Float, 1>& response_list,
-                                                        const context_t& ctx,
+infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& ctx,
+                                                        const pr::ndview<Float, 1>& response_list,
                                                         const be::event_vector& deps) {
     ONEDAL_ASSERT(response_list.get_count() == ctx.row_count_ * ctx.class_count_);
     auto winner_list = pr::ndarray<Float, 1>::empty(queue_, { ctx.row_count_ }, alloc::device);
@@ -462,9 +461,9 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
                                                                      const table& data) {
     validate_input(desc, model, data);
 
-    context_t ctx;
+    infer_context_t ctx;
     init_params(ctx, desc, model, data);
-    model_manager_t model_mng(queue_, model, ctx);
+    model_manager_t model_mng(queue_, ctx, model);
 
     result_t res;
 
@@ -477,26 +476,26 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
     if constexpr (std::is_same_v<Task, task::classification>) {
         if (voting_mode::weighted == ctx.voting_mode_ && model_mng.is_weighted_available()) {
             std::tie(tree_group_response_list, predict_event) =
-                predict_by_tree_group_weighted(data_nd, model_mng, ctx);
+                predict_by_tree_group_weighted(ctx, data_nd, model_mng);
             std::tie(response_list, predict_event) =
-                reduce_tree_group_response(tree_group_response_list, ctx, { predict_event });
+                reduce_tree_group_response(ctx, tree_group_response_list, { predict_event });
         }
         else {
             std::tie(tree_group_response_list, predict_event) =
-                predict_by_tree_group(data_nd, model_mng, ctx);
+                predict_by_tree_group(ctx, data_nd, model_mng);
             std::tie(response_list, predict_event) =
-                reduce_tree_group_response(tree_group_response_list, ctx, { predict_event });
+                reduce_tree_group_response(ctx, tree_group_response_list, { predict_event });
         }
     }
     else {
         std::tie(tree_group_response_list, predict_event) =
-            predict_by_tree_group(data_nd, model_mng, ctx);
+            predict_by_tree_group(ctx, data_nd, model_mng);
         std::tie(response_list, predict_event) =
-            reduce_tree_group_response(tree_group_response_list, ctx, { predict_event });
+            reduce_tree_group_response(ctx, tree_group_response_list, { predict_event });
     }
 
     if constexpr (std::is_same_v<Task, task::classification>) {
-        auto [response, winner_event] = determine_winner(response_list, ctx, { predict_event });
+        auto [response, winner_event] = determine_winner(ctx, response_list, { predict_event });
 
         if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
             auto response_host = response.to_host(queue_, { winner_event });

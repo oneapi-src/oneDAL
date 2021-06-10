@@ -34,7 +34,7 @@ class infer_kernel_impl {
     using impl_const_t = infer_impl_const<Index, Task>;
     using descriptor_t = detail::descriptor_base<Task>;
     using model_manager_t = infer_model_manager<Float, Index, Task>;
-    using context_t = infer_context<Float, Index, Task>;
+    using infer_context_t = infer_context<Float, Index, Task>;
     using model_t = model<Task>;
     using msg = dal::detail::error_messages;
 
@@ -49,31 +49,31 @@ private:
                         const model_t& trained_model,
                         const table& data) const;
 
-    void init_params(context_t& ctx,
+    void init_params(infer_context_t& ctx,
                      const descriptor_t& desc,
                      const model_t& trained_model,
                      const table& data) const;
 
     std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event>
-    predict_by_tree_group_weighted(const dal::backend::primitives::ndview<Float, 2>& data,
+    predict_by_tree_group_weighted(const infer_context_t& ctx,
+                                   const dal::backend::primitives::ndview<Float, 2>& data,
                                    const model_manager_t& mng,
-                                   const context_t& ctx,
                                    const dal::backend::event_vector& deps = {});
 
     std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event> predict_by_tree_group(
+        const infer_context_t& ctx,
         const dal::backend::primitives::ndview<Float, 2>& data,
         const model_manager_t& mng,
-        const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
     std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event>
-    reduce_tree_group_response(const dal::backend::primitives::ndview<Float, 1>& obs_response_list,
-                               const context_t& ctx,
+    reduce_tree_group_response(const infer_context_t& ctx,
+                               const dal::backend::primitives::ndview<Float, 1>& obs_response_list,
                                const dal::backend::event_vector& deps = {});
 
     std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event> determine_winner(
+        const infer_context_t& ctx,
         const dal::backend::primitives::ndview<Float, 1>& response_list,
-        const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
 private:
