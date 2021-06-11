@@ -146,7 +146,7 @@ inline float Context::getTokenAs<float>(size_t index) const
 template <>
 inline double Context::getTokenAs<double>(size_t index) const
 {
-    return (double)services::daal_string_to_float(getToken(index).c_str(), 0);
+    return (double)services::daal_string_to_double(getToken(index).c_str(), 0);
 }
 
 template <>

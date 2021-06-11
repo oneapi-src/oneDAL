@@ -70,7 +70,10 @@ sycl::event compute_inner_product(sycl::queue& q,
                                   ndview<Float, 2>& out,
                                   const event_vector& deps) {
     check_inputs(inp1, inp2, out);
-    return gemm(q, inp1, inp2.t(), out, Float(-2.0), Float(+1.0), deps);
+    auto event = gemm(q, inp1, inp2.t(), out, Float(-2.0), Float(+1.0), deps);
+    // Workaround for abort in async mode. Should be removed later.
+    event.wait_and_throw();
+    return event;
 }
 
 #define INSTANTIATE(F)                                                           \
