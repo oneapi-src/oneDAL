@@ -69,8 +69,6 @@ public:
                                  const model_t& model)
             : queue_(q),
               ctx_(ctx) {
-        using alloc = cl::sycl::usm::alloc;
-
         const daal_model_impl_t* const daal_model_ptr = get_daal_model(model);
 
         ONEDAL_ASSERT(dal::detail::integral_cast<size_t>(ctx_.tree_count_) ==
@@ -104,11 +102,11 @@ public:
             ctx_.class_count_ * ctx.tree_in_group_count_;
         dal::detail::check_mul_overflow(ctx.row_count_, mul_class_count_and_tree_in_group_count);
 
+        dal::backend::primitives::ndarray<Float, 1> probas_list_host;
+
         if (ctx.voting_mode_ == voting_mode::weighted && daal_model_ptr->getProbas(0)) {
-            probas_list_ = dal::backend::primitives::ndarray<double, 1>::empty(
-                queue_,
-                tree_block_size * ctx.class_count_,
-                alloc::device);
+            probas_list_host = dal::backend::primitives::ndarray<Float, 1>::empty(
+                { tree_block_size * ctx.class_count_ });
             weighted_available_ = true;
         }
 
@@ -131,13 +129,18 @@ public:
 
             if (weighted_available_) {
                 const double* probas = daal_model_ptr->getProbas(tree_idx);
-                dal::backend::copy(
-                    queue_,
-                    probas_list_.get_mutable_data() + tree_idx * max_tree_size_ * ctx.class_count_,
-                    probas,
-                    tree_size * ctx.class_count_)
-                    .wait_and_throw();
+                Float* pv = probas_list_host.get_mutable_data() +
+                            tree_idx * max_tree_size_ * ctx.class_count_;
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (Index i = 0; i < tree_size * ctx.class_count_; i++) {
+                    pv[i] = static_cast<Float>(probas[i]);
+                }
             }
+        }
+
+        if (weighted_available_) {
+            probas_list_ = probas_list_host.to_device(queue_);
         }
 
         ftr_idx_list_ = fi_list_host.to_device(queue_);
@@ -159,7 +162,7 @@ public:
         return weighted_available_;
     }
 
-    dal::backend::primitives::ndarray<double, 1> get_class_probabilities_list() const {
+    dal::backend::primitives::ndarray<Float, 1> get_class_probabilities_list() const {
         return probas_list_;
     }
 
@@ -187,7 +190,7 @@ private:
     dal::backend::primitives::ndarray<Index, 1> ftr_idx_list_;
     dal::backend::primitives::ndarray<Index, 1> lch_or_class_id_list_;
     dal::backend::primitives::ndarray<Float, 1> ftr_val_or_resp_list_;
-    dal::backend::primitives::ndarray<double, 1> probas_list_;
+    dal::backend::primitives::ndarray<Float, 1> probas_list_;
 };
 
 } // namespace oneapi::dal::decision_forest::backend

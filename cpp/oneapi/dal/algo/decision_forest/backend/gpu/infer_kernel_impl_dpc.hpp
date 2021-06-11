@@ -122,7 +122,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
     const Index* ftr_idx_list_ptr = ftr_idx_list.get_data();
     const Index* lch_cls_list_ptr = lch_idx_or_class_id_list.get_data();
     const Float* ftr_val_list_ptr = ftr_value_list.get_data();
-    const double* cls_prb_list_ptr = class_proba_list.get_data();
+    const Float* cls_prb_list_ptr = class_proba_list.get_data();
 
     Index obs_tree_group_response_count = ctx.class_count_ * ctx.tree_in_group_count_;
     de::check_mul_overflow(ctx.row_count_, obs_tree_group_response_count);
@@ -165,7 +165,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
                     const Index* tree_ftr_idx = ftr_idx_list_ptr + tree_id * max_tree_size;
                     const Index* tree_lch_cls = lch_cls_list_ptr + tree_id * max_tree_size;
                     const Float* tree_ftr_val = ftr_val_list_ptr + tree_id * max_tree_size;
-                    const double* tree_cls_prb =
+                    const Float* tree_cls_prb =
                         cls_prb_list_ptr + tree_id * max_tree_size * class_count;
 
                     bool tree_root_is_split = leaf_mark != tree_ftr_idx[0];
