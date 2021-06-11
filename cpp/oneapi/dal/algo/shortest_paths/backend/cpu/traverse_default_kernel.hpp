@@ -242,7 +242,7 @@ struct delta_stepping {
         dal::detail::threader_for(vertex_count, vertex_count, [&](std::int64_t i) {
             dist[i] = max_dist;
         });
-        dist[source].store(0);
+        dist[source] = 0;
 
         vector_container<vertex_type, vertex_allocator_type> shared_bin(t.get_edge_count(),
                                                                         vertex_allocator);
