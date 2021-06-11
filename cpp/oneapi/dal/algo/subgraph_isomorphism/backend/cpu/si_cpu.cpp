@@ -29,7 +29,7 @@ template subgraph_isomorphism::graph_matching_result si_call_kernel<__CPU_TAG__>
     detail::byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
-    const std::int64_t* vv_t,
-    const std::int64_t* vv_p);
+    std::int64_t* vv_t,
+    std::int64_t* vv_p);
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

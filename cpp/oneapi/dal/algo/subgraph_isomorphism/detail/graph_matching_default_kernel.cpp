@@ -26,8 +26,8 @@ ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
     byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
-    const std::int64_t* vv_t,
-    const std::int64_t* vv_p) {
+    std::int64_t* vv_t,
+    std::int64_t* vv_p) {
     return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
         return backend::si_call_kernel<decltype(cpu)>(si_kind,
                                                       alloc_ptr,

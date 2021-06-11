@@ -85,8 +85,8 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
     detail::byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
-    const std::int64_t* vv_t,
-    const std::int64_t* vv_p) {
+    std::int64_t* vv_t,
+    std::int64_t* vv_p) {
     graph<Cpu> pattern(p_data, graph_storage_scheme::bit, alloc_ptr);
     graph<Cpu> target(t_data, graph_storage_scheme::auto_detect, alloc_ptr);
 

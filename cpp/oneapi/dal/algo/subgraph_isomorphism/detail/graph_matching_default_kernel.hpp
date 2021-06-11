@@ -34,8 +34,8 @@ ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
     byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
-    const std::int64_t* vv_t = nullptr,
-    const std::int64_t* vv_p = nullptr);
+    std::int64_t* vv_t = nullptr,
+    std::int64_t* vv_p = nullptr);
 
 template <typename Allocator, typename VertexValue, typename EdgeValue>
 struct call_subgraph_isomorphism_kernel_cpu {
