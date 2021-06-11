@@ -58,6 +58,9 @@ void descriptor_base<Task>::set_cluster_count_impl(std::int64_t value) {
     if (value <= 0) {
         throw domain_error(dal::detail::error_messages::cluster_count_leq_zero());
     }
+    if (value > dal::detail::limits<std::int32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::cluster_count_gt_max_int32());
+    }
     impl_->cluster_count = value;
 }
 

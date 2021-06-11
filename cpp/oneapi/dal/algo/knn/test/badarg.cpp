@@ -46,8 +46,7 @@ public:
     static constexpr bool is_brute_force = std::is_same_v<Method, knn::method::brute_force>;
 
     bool not_available_on_device() {
-        return (get_policy().is_gpu() && is_kd_tree) || //
-               (get_policy().is_cpu() && is_brute_force);
+        return (get_policy().is_gpu() && is_kd_tree);
     }
 
     auto get_descriptor(std::int64_t override_class_count = class_count,

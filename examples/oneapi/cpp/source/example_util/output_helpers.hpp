@@ -55,3 +55,40 @@ std::ostream &operator<<(std::ostream &stream, const oneapi::dal::table &table) 
     }
     return stream;
 }
+
+void print_table_int(const oneapi::dal::table &table) {
+    if (!table.has_data())
+        return;
+    auto arr = oneapi::dal::row_accessor<const int>(table).pull();
+    const auto x = arr.get_data();
+
+    for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+        for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+            std::cout << x[i * table.get_column_count() + j];
+        }
+        std::cout << std::endl;
+    }
+}
+
+void print_table_int_sorted(const oneapi::dal::table &table) {
+    if (!table.has_data())
+        return;
+    auto arr = oneapi::dal::row_accessor<const int>(table).pull();
+    const auto x = arr.get_data();
+
+    std::vector<std::vector<int>> v(table.get_row_count());
+    for (std::int64_t i = 0; i < table.get_row_count(); i++) {
+        for (std::int64_t j = 0; j < table.get_column_count(); j++) {
+            v[i].push_back(x[i * table.get_column_count() + j]);
+        }
+    }
+
+    std::sort(v.begin(), v.end());
+    for (auto vi : v) {
+        for (std::uint64_t j = 0; j < vi.size() - 1; j++) {
+            std::cout << vi[j] << ",";
+        }
+        std::cout << vi.back();
+        std::cout << std::endl;
+    }
+}

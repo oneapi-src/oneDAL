@@ -42,15 +42,24 @@ and :math:`n` responses :math:`Y=\{y_1,\ldots,y_n\}`,
 
   .. group-tab:: Classification
 
-    - :math:`y_i \in \{0, \ldots, C-1\}`, where :math:`C` is the number of classes
+    - :math:`y_i \in \{0, \ldots, M-1\}`, where :math:`M` is the number of classes
 
   .. group-tab:: Regression
 
     - :math:`y_i \in \mathbb{R}`
 
-the problem is to build a  Support Vector Machine (SVM) classification or regression model.
+  .. group-tab:: Nu-classification
 
-The SVM model is trained using the Sequential minimal optimization (SMO) method [Boser92]_}
+    - :math:`y_i \in \{0, \ldots, M-1\}`, where :math:`M` is the number of classes
+
+  .. group-tab:: Nu-regression
+
+    - :math:`y_i \in \mathbb{R}`
+
+the problem is to build a Support Vector Machine (SVM) classification, regression,
+nu-classification, or nu-regression model.
+
+The SVM model is trained using the Sequential minimal optimization (SMO) method [Boser92]_
 for reduced to the solution of the quadratic optimization problem
 
 .. tabs::
@@ -79,11 +88,44 @@ for reduced to the solution of the quadratic optimization problem
 
     .. math::
       \begin{cases}
-         z_i = +1, s_i = \epsilon - y_i, & i \leq n \\
+         z_i = +1, s_i = \epsilon - y_i, & 0 < i \leq n \\
          z_i = -1, s_i = \epsilon + y_i, & n < i \leq 2n
       \end{cases}
 
     Where :math:`\epsilon` is the error tolerance parameter.
+
+  .. group-tab:: Nu-classification
+
+    .. math::
+          \underset{\alpha }{\mathrm{min}}\frac{1}{2}{\alpha }^{T}Q\alpha
+
+    with :math:`0 \leq \alpha_i \leq 1`, :math:`i = 1, \ldots, n`,
+    :math:`e^T\alpha = n\nu`, :math:`y^T\alpha = 0`,
+    where :math:`e` is the vector of ones, :math:`\nu` is an upper bound on the fraction
+    of training errors and a lower bound of the fraction of the support vector,
+    :math:`Q` is a symmetric matrix of size :math:`n \times n` with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`,
+    and :math:`K(x,y)` is a kernel function.
+
+  .. group-tab:: Nu-regression
+
+    .. math::
+          \underset{\alpha }{\mathrm{min}}\frac{1}{2}{\alpha }^{T}Q\alpha + z^T\alpha
+
+    with :math:`0 \leq \alpha_i \leq \frac{C}{n}`, :math:`i = 1, \ldots, 2n`,
+    :math:`\sum_{i=1}^{n} \alpha_i - \sum_{i=n+1}^{2n} \alpha_i = 0`,
+    :math:`\sum_{i=1}^{2n} \alpha_i = C\nu`, where :math:`C` is the upper bound of the coordinates
+    of the vector :math:`\alpha`, :math:`\nu` is an upper bound on the fraction
+    of training errors and a lower bound of the fraction of the support vector,
+    :math:`Q` is a symmetric matrix of size :math:`2n \times 2n`
+    with :math:`Q_{ij} = y_i y_j K(x_i, x_j)`, and :math:`K(x,y)` is a kernel function.
+    Vector :math:`z` for the regression problem are formulated according
+    to the following rule:
+
+    .. math::
+      \begin{cases}
+         z_i = y_i, & 0 < i \leq n \\
+         z_i = y_{i-n}, & n < i \leq 2n
+      \end{cases}
 
 Working subset of α updated on each iteration of the algorithm is
 based on the Working Set Selection (WSS) 3 scheme [Fan05]_.
