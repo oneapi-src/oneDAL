@@ -183,6 +183,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -201,6 +202,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -219,6 +221,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -237,6 +240,7 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <SYCLOptimization>MaxSpeed</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -255,6 +259,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -273,6 +278,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -291,6 +297,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
@@ -309,6 +316,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SYCLOptimization>Disabled</SYCLOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>-fsycl-device-code-split=per_kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TreatWarningAsError />
