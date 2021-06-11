@@ -350,13 +350,7 @@ public:
     }
 };
 
-<<<<<<< HEAD
-//TODO: fix problem with local triangles for sequential version
-/*
-TEST_M(triangle_counting_test, "local task for graphs with average_degree < 4") {
-=======
 TEST_M(triangle_counting_test, "Local task: graph with average_degree < 4") {
->>>>>>> 5c680a531f03449c3b45e3a14c8519b38bbab0f7
     this->check_local_task<complete_graph_5_type>();
     this->check_local_task<acyclic_graph_8_type>();
     this->check_local_task<two_vertices_graph_type>();
@@ -385,7 +379,6 @@ TEST_M(triangle_counting_test, "Local_and_global task: graph with average_degree
     this->check_local_and_global_task<complete_graph_9_type>();
     this->check_local_and_global_task<graph_with_isolated_vertex_11_type>();
 }
-*/
 
 TEST_M(triangle_counting_test, "Global task: graph with average_degree < 4") {
     this->check_global_task_relabeled<complete_graph_5_type>();
