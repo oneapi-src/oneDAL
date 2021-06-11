@@ -571,9 +571,40 @@ private:
 };
 /** @} */
 
+/**
+ * Converts numeric table with arbitrary storage layout to SYCL homogen numeric table of the given type
+ * \param[in]  src               Pointer to numeric table
+ * \return                       Pointer to homogen numeric table
+ */
+template <typename T>
+daal::data_management::NumericTablePtr convertToSyclHomogen(NumericTable & src)
+{
+    using namespace daal::services;
+
+    size_t ncols = src.getNumberOfColumns();
+    size_t nrows = src.getNumberOfRows();
+
+    NumericTablePtr dst = SyclHomogenNumericTable<T>::create(ncols, nrows, NumericTableIface::doAllocate);
+
+    BlockDescriptor<T> srcBlock;
+    src.getBlockOfRows(0, nrows, readOnly, srcBlock);
+    BlockDescriptor<T> dstBlock;
+    dst->getBlockOfRows(0, nrows, readOnly, dstBlock);
+    T * srcData = srcBlock.getBlockPtr();
+    T * dstData = dstBlock.getBlockPtr();
+    for (size_t i = 0; i < ncols * nrows; i++)
+    {
+        dstData[i] = srcData[i];
+    }
+    src.releaseBlockOfRows(srcBlock);
+    dst->releaseBlockOfRows(dstBlock);
+    return dst;
+}
+
 } // namespace interface1
 
 using interface1::SyclHomogenNumericTable;
+using interface1::convertToSyclHomogen;
 
 } // namespace internal
 } // namespace data_management

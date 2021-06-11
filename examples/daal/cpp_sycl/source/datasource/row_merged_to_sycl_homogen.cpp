@@ -33,6 +33,7 @@ using namespace daal;
 using namespace daal::services;
 using namespace daal::data_management;
 
+using daal::data_management::internal::convertToSyclHomogen;
 using daal::data_management::internal::SyclHomogenNumericTable;
 using daal::services::internal::SyclExecutionContext;
 
@@ -123,14 +124,13 @@ int main(int argc, char *argv[]) {
       /* Create numeric table from shared memory */
       NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(
           dataDevice, nCols, nRows, queue);
+
+      /* Add to row merged table */
       mergedTable->addNumericTable(dataTable);
     }
 
-    Status st;
-    NumericTablePtr tablePtr = SyclHomogenNumericTable<float>::create(
-        mergedTable->getNumberOfColumns(), mergedTable->getNumberOfRows(),
-        NumericTable::doAllocate);
-    mergedTable->copyToNumericTable<float>(tablePtr);
+    /* Convert row merged table to sycl homogen one */
+    NumericTablePtr tablePtr = convertToSyclHomogen<float>(*mergedTable);
 
     /* Compute correlation matrix of generated dataset */
     NumericTablePtr covariance = computeCorrelationMatrix(tablePtr);
