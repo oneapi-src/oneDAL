@@ -45,7 +45,4 @@ INSTANTIATE(float, method::brute_force, task::search)
 INSTANTIATE(double, method::brute_force, task::search)
 
 } // namespace v1
-
-using v1::train_ops;
-
 } // namespace oneapi::dal::knn::detail

@@ -55,17 +55,13 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
     interop::status_to_exception(status);
 
-    // Data or labels should not be copied, copy is already happened when
-    // the tables are converted to NumericTables
-    const bool copy_data_labels = data_use_in_model == daal_knn::doNotUse;
-
-    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
-    model_ptr->impl()->setData<Float>(daal_data, copy_data_labels);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    model_ptr->impl()->setData<Float>(daal_data, false);
 
     auto daal_labels = daal::data_management::NumericTablePtr();
     if constexpr (!std::is_same_v<Task, task::search>) {
-        daal_labels = interop::copy_to_daal_homogen_table<Float>(labels);
-        model_ptr->impl()->setLabels<Float>(daal_labels, copy_data_labels);
+        daal_labels = interop::convert_to_daal_table<Float>(labels);
+        model_ptr->impl()->setLabels<Float>(daal_labels, false);
     }
 
     interop::status_to_exception(
@@ -81,13 +77,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     return train_result<Task>().set_model(
         dal::detail::make_private<model<Task>>(model_impl_interop));
 }
-
-// template <typename Float>
-// static train_result<task::search> train(const context_cpu& ctx,
-//                                         const detail::descriptor_base<task::search>& desc,
-//                                         const train_input<task::search>& input) {
-//     return call_daal_kernel<Float>(ctx, desc, input.get_data(), table{});
-// }
 
 template <typename Float, typename Task>
 static train_result<Task> train(const context_cpu& ctx,

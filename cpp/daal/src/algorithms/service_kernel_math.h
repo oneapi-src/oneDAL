@@ -221,7 +221,7 @@ public:
 
 protected:
     // compute (sum(A^2, 2))
-    services::Status computeNorm(const NumericTable & ntData, FPType * const res)
+    virtual services::Status computeNorm(const NumericTable & ntData, FPType * const res)
     {
         const size_t nRows = ntData.getNumberOfRows();
         const size_t nCols = ntData.getNumberOfColumns();
@@ -317,10 +317,48 @@ public:
         {
             for (size_t j = 0; j < nColsC; j++)
             {
-                res[i * nColsC + j] = FPType(1) - (res[i * nColsC + j] / Math<FPType, cpu>::sSqrt(aa[i] * bb[j]));
+                res[i * nColsC + j] = FPType(1) - (res[i * nColsC + j] / (aa[i] * bb[j]));
             }
         }
         return services::Status();
+    }
+
+protected:
+    services::Status computeNorm(const NumericTable & ntData, FPType * const res) override
+    {
+        const size_t nRows = ntData.getNumberOfRows();
+        const size_t nCols = ntData.getNumberOfColumns();
+
+        const size_t blockSize = 512;
+        const size_t nBlocks   = nRows / blockSize + !!(nRows % blockSize);
+
+        SafeStatus safeStat;
+        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+            const size_t begin         = iBlock * blockSize;
+            const size_t end           = services::internal::min<cpu, size_t>(begin + blockSize, nRows);
+            const size_t blockSizeReal = end - begin;
+
+            ReadRows<FPType, cpu> dataRows(const_cast<NumericTable &>(ntData), begin, blockSizeReal);
+            DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
+            const FPType * const data = dataRows.get();
+
+            FPType * r = res + begin;
+
+            for (size_t i = 0; i < blockSizeReal; i++)
+            {
+                FPType sum = FPType(0);
+                PRAGMA_IVDEP
+                PRAGMA_ICC_NO16(omp simd reduction(+ : sum))
+                for (size_t j = 0; j < nCols; j++)
+                {
+                    sum += data[i * nCols + j] * data[i * nCols + j];
+                }
+                r[i] = sum;
+            }
+            Math<FPType, cpu>::vSqrt(blockSizeReal, r, r);
+        });
+
+        return safeStat.detach();
     }
 };
 
