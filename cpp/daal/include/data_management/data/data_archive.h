@@ -511,6 +511,7 @@ public:
     CompressedDataArchive(daal::data_management::CompressorImpl * compressor) : minBlockSize(1024 * 64), _errors(new services::ErrorCollection())
     {
         compressionStream = new daal::data_management::CompressionStream(compressor, minBlockSize);
+        _errors = compressionStream->getErrors();
         serializedBuffer  = 0;
     }
 
@@ -630,6 +631,7 @@ public:
         : minBlockSize(1024 * 64), _errors(new services::ErrorCollection())
     {
         decompressionStream = new daal::data_management::DecompressionStream(decompressor, minBlockSize);
+        _errors = decompressionStream->getErrors();
         serializedBuffer    = 0;
     }
 
@@ -746,6 +748,7 @@ public:
     InputDataArchive() : _finalized(false), _errors(new services::ErrorCollection())
     {
         _arch = new DataArchive;
+        _errors = static_cast<DataArchive*>(_arch)->getErrors();
         archiveHeader();
     }
 
@@ -766,6 +769,7 @@ public:
     InputDataArchive(daal::data_management::CompressorImpl * compressor) : _finalized(false), _errors(new services::ErrorCollection())
     {
         _arch = new CompressedDataArchive(compressor);
+        _errors = static_cast<CompressedDataArchive*>(_arch)->getErrors();
         archiveHeader();
     }
 
@@ -1006,6 +1010,7 @@ public:
     OutputDataArchive(InputDataArchive & arch) : _errors(new services::ErrorCollection())
     {
         _arch = new DataArchive(arch.getDataArchive());
+        _errors = static_cast<DataArchive*>(_arch)->getErrors();
         archiveHeader();
     }
 
@@ -1026,6 +1031,7 @@ public:
     OutputDataArchive(byte * ptr, size_t size) : _errors(new services::ErrorCollection())
     {
         _arch = new DataArchive(ptr, size);
+        _errors = static_cast<DataArchive*>(_arch)->getErrors();
         archiveHeader();
     }
 
@@ -1035,6 +1041,7 @@ public:
     OutputDataArchive(daal::data_management::DecompressorImpl * decompressor, byte * ptr, size_t size) : _errors(new services::ErrorCollection())
     {
         _arch = new DecompressedDataArchive(decompressor);
+        _errors = static_cast<DecompressedDataArchive*>(_arch)->getErrors();
         _arch->write(ptr, size);
         archiveHeader();
     }
