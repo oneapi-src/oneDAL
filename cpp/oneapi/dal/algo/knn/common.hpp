@@ -98,11 +98,11 @@ constexpr bool is_valid_distance_v =
                                  cosine_distance::detail::descriptor_tag>;
 
 template <typename T>
-using enable_if_search_t = std::enable_if_t<dal::detail::is_one_of_v<T, task::search>>;
+using enable_if_search_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::search>>;
 
 template <typename T>
 using enable_if_classification_t =
-    std::enable_if_t<dal::detail::is_one_of_v<T, task::classification>>;
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
 
 template <typename T>
 using enable_if_brute_force_t =
