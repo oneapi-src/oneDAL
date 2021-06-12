@@ -24,9 +24,6 @@ namespace oneapi::dal::knn::backend {
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::search>;
 
-namespace daal_knn = daal::algorithms::bf_knn_classification;
-namespace interop = dal::backend::interop;
-
 template <typename Float>
 static infer_result<task::search> call_daal_kernel(const context_gpu& ctx,
                                                    const descriptor_t& desc,

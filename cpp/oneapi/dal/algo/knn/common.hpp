@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/algo/knn/detail/distance.hpp"
 
 namespace oneapi::dal::knn {

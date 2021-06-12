@@ -113,6 +113,8 @@ public:
 
     virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                           FPType * const res) = 0;
+
+    virtual services::Status finalize(const size_t n, FPType * a) = 0;
 };
 
 // compute: sum(A^2, 2) + sum(B^2, 2) -2*A*B'
@@ -124,9 +126,9 @@ public:
 
     virtual ~EuclideanDistances() {}
 
-    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::euclidean; }
+    PairwiseDistanceType getType() override { return PairwiseDistanceType::euclidean; }
 
-    virtual services::Status init()
+    services::Status init() override
     {
         services::Status s;
 
@@ -145,8 +147,8 @@ public:
     }
 
     // output:  Row-major matrix of size { aSize x bSize }
-    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                          FPType * const res)
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) override
     {
         const size_t nRowsA = aSize;
         const size_t nColsA = _a.getNumberOfColumns();
@@ -180,6 +182,12 @@ public:
             services::internal::daal_memcpy_s(res, nRowsC * nColsC * sizeof(FPType), tmp, nRowsC * nColsC * sizeof(FPType));
         }
 
+        return services::Status();
+    }
+
+    services::Status finalize(const size_t n, FPType * a) override
+    {
+        Math<FPType, cpu>::vSqrt(n, a, a);
         return services::Status();
     }
 
@@ -293,7 +301,9 @@ public:
 
     virtual ~CosineDistances() {}
 
-    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::cosine; }
+    PairwiseDistanceType getType() override { return PairwiseDistanceType::cosine; }
+
+    services::Status finalize(const size_t n, FPType * a) override { return services::Status(); }
 
     // output:  Row-major matrix of size { aSize x bSize }
     services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
@@ -372,19 +382,29 @@ public:
 
     virtual ~MinkowskiDistances() {}
 
-    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::minkowski; }
+    PairwiseDistanceType getType() override { return PairwiseDistanceType::minkowski; }
 
-    virtual services::Status init()
+    services::Status init() override
     {
         services::Status s;
         return s;
     }
 
-    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                          FPType * const res)
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) override
     {
         computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
 
+        return services::Status();
+    }
+
+    services::Status finalize(const size_t n, FPType * a) override
+    {
+        if (_p != 1.0)
+        {
+            daal::internal::mkl::MklMath<FPType, cpu> math;
+            math.vPowx(n, a, 1.0 / _p, a);
+        }
         return services::Status();
     }
 
@@ -458,21 +478,23 @@ public:
 
     virtual ~ChebyshevDistances() {}
 
-    virtual PairwiseDistanceType getType() { return PairwiseDistanceType::chebyshev; }
+    PairwiseDistanceType getType() override { return PairwiseDistanceType::chebyshev; }
 
-    virtual services::Status init()
+    services::Status init() override
     {
         services::Status s;
         return s;
     }
 
-    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                          FPType * const res)
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) override
     {
         computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
 
         return services::Status();
     }
+
+    services::Status finalize(const size_t n, FPType * a) override { return services::Status(); }
 
 protected:
     FPType computeDistance(const FPType * x, const FPType * y, const size_t n)

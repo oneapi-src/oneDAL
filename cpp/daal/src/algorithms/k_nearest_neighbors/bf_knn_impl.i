@@ -291,11 +291,9 @@ protected:
             }
         }
 
-        if (distancesInstance->getType() == PairwiseDistanceType::euclidean)
-        {
-            // Euclidean Distances are computed without Sqrt, fixing it here
-            Math<FPType, cpu>::vSqrt(iSize * k, kDistances, kDistances);
-        }
+        // Minkowski Distances are computed without root calculation, fixing it here
+        distancesInstance->finalize(iSize * k, kDistances);
+
         // sort by distances
         for (size_t i = 0; i < iSize; ++i)
         {

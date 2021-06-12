@@ -17,12 +17,13 @@
 #include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h>
 #include <algorithms/k_nearest_neighbors/bf_knn_classification_model.h>
 
-#include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+
+#include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
+#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 

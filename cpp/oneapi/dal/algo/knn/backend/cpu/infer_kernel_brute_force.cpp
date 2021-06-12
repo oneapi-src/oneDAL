@@ -14,16 +14,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
-
-#include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
+#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
+#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
 
 namespace oneapi::dal::knn::backend {
 

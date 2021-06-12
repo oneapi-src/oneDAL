@@ -16,10 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/knn/common.hpp"
-
-#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h>
-#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
+#include <daal/src/algorithms/service_kernel_math.h>
 
 namespace oneapi::dal::knn::detail {
 namespace v1 {
