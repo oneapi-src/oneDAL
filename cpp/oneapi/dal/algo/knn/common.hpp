@@ -211,7 +211,7 @@ public:
     /// Creates a new instance of the class with the given :literal:`neighbor_count`
     /// and :literal:`distance` property values.
     /// Used with :expr:`task::search` only.
-    template <typename T = Task, typename = detail::enable_if_search_t<Task>>
+    template <typename T = Task, typename = detail::enable_if_search_t<T>>
     explicit descriptor(std::int64_t neighbor_count, const distance_t& distance)
             : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
         set_neighbor_count(neighbor_count);

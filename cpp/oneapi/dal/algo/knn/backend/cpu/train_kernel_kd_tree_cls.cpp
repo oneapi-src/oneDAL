@@ -46,8 +46,8 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
-    const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
+    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
+    const auto daal_labels = interop::copy_to_daal_homogen_table<Float>(labels);
 
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doUse;
