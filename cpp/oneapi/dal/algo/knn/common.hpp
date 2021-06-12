@@ -208,6 +208,15 @@ public:
         set_neighbor_count(neighbor_count);
     }
 
+    /// Creates a new instance of the class with the given :literal:`neighbor_count`
+    /// and :literal:`distance` property values.
+    /// Used with :expr:`task::search` only.
+    template <typename T = Task, typename = detail::enable_if_search_t<Task>>
+    explicit descriptor(std::int64_t neighbor_count, const distance_t& distance)
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
+        set_neighbor_count(neighbor_count);
+    }
+
     /// The number of classes c
     /// @invariant :expr:`class_count > 1`
     std::int64_t get_class_count() const {
