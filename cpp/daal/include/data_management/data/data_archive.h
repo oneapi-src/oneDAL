@@ -139,8 +139,6 @@ public:
      * \return The update version of the archive
      */
     virtual int getUpdateVersion() = 0;
-
-    virtual services::SharedPtr<services::ErrorCollection> getErrors() = 0;
 };
 
 /**
@@ -166,6 +164,8 @@ public:
     int getMinorVersion() DAAL_C11_OVERRIDE { return _minorVersion; }
 
     int getUpdateVersion() DAAL_C11_OVERRIDE { return _updateVersion; }
+
+    virtual services::SharedPtr<services::ErrorCollection> getErrors() = 0;
 
 protected:
     int _majorVersion;
@@ -995,7 +995,7 @@ public:
     {
         if (_arch)
         {
-            services::SharedPtr<services::ErrorCollection> errors = _arch->getErrors();
+            services::SharedPtr<services::ErrorCollection> errors = static_cast<DataArchiveImpl *>(_arch)->getErrors();
             if (errors.get())
             {
                 _errors->add(*errors);
@@ -1252,7 +1252,7 @@ public:
     {
         if (_arch)
         {
-            services::SharedPtr<services::ErrorCollection> errors = _arch->getErrors();
+            services::SharedPtr<services::ErrorCollection> errors = static_cast<DataArchiveImpl *>(_arch)->getErrors();
             if (errors.get())
             {
                 _errors->add(*errors);
