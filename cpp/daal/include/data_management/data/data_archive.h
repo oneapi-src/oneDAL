@@ -1010,7 +1010,6 @@ public:
     OutputDataArchive(InputDataArchive & arch) : _errors(new services::ErrorCollection())
     {
         _arch   = new DataArchive(arch.getDataArchive());
-        _errors = static_cast<DataArchive *>(_arch)->getErrors();
         archiveHeader();
     }
 
@@ -1031,7 +1030,6 @@ public:
     OutputDataArchive(byte * ptr, size_t size) : _errors(new services::ErrorCollection())
     {
         _arch   = new DataArchive(ptr, size);
-        _errors = static_cast<DataArchive *>(_arch)->getErrors();
         archiveHeader();
     }
 
@@ -1041,7 +1039,6 @@ public:
     OutputDataArchive(daal::data_management::DecompressorImpl * decompressor, byte * ptr, size_t size) : _errors(new services::ErrorCollection())
     {
         _arch   = new DecompressedDataArchive(decompressor);
-        _errors = static_cast<DecompressedDataArchive *>(_arch)->getErrors();
         _arch->write(ptr, size);
         archiveHeader();
     }
