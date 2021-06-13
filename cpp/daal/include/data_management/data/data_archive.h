@@ -139,6 +139,8 @@ public:
      * \return The update version of the archive
      */
     virtual int getUpdateVersion() = 0;
+
+    virtual services::SharedPtr<services::ErrorCollection> getErrors() = 0;
 };
 
 /**
@@ -413,7 +415,7 @@ public:
      * Returns errors during the computation
      * \return Errors during the computation
      */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors() DAAL_C11_OVERRIDE { return _errors; }
 
 protected:
     void addBlock(size_t minNewSize)
@@ -511,7 +513,6 @@ public:
     CompressedDataArchive(daal::data_management::CompressorImpl * compressor) : minBlockSize(1024 * 64), _errors(new services::ErrorCollection())
     {
         compressionStream = new daal::data_management::CompressionStream(compressor, minBlockSize);
-        _errors           = compressionStream->getErrors();
         serializedBuffer  = 0;
     }
 
@@ -606,7 +607,11 @@ public:
     * Returns errors during the computation
     * \return Errors during the computation
     */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors() DAAL_C11_OVERRIDE
+    {
+        _errors->add(*(compressionStream->getErrors()));
+        return _errors;
+    }
 
 private:
     size_t minBlockSize;
@@ -631,7 +636,6 @@ public:
         : minBlockSize(1024 * 64), _errors(new services::ErrorCollection())
     {
         decompressionStream = new daal::data_management::DecompressionStream(decompressor, minBlockSize);
-        _errors             = decompressionStream->getErrors();
         serializedBuffer    = 0;
     }
 
@@ -726,7 +730,11 @@ public:
      * Returns errors during the computation
      * \return Errors during the computation
      */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors() DAAL_C11_OVERRIDE
+    {
+        _errors->add(*(decompressionStream->getErrors()));
+        return _errors;
+    }
 
 private:
     size_t minBlockSize;
@@ -747,8 +755,7 @@ public:
      */
     InputDataArchive() : _finalized(false), _errors(new services::ErrorCollection())
     {
-        _arch   = new DataArchive;
-        _errors = static_cast<DataArchive *>(_arch)->getErrors();
+        _arch = new DataArchive;
         archiveHeader();
     }
 
@@ -768,8 +775,7 @@ public:
      */
     InputDataArchive(daal::data_management::CompressorImpl * compressor) : _finalized(false), _errors(new services::ErrorCollection())
     {
-        _arch   = new CompressedDataArchive(compressor);
-        _errors = static_cast<CompressedDataArchive *>(_arch)->getErrors();
+        _arch = new CompressedDataArchive(compressor);
         archiveHeader();
     }
 
@@ -985,7 +991,18 @@ public:
     * Returns errors during the computation
     * \return Errors during the computation
     */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors()
+    {
+        if (_arch)
+        {
+            services::SharedPtr<services::ErrorCollection> errors = _arch->getErrors();
+            if (errors.get())
+            {
+                _errors->add(*errors);
+            }
+        }
+        return _errors;
+    }
 
 protected:
     DataArchiveIface * _arch;
@@ -1231,7 +1248,18 @@ public:
     * Returns errors during the computation
     * \return Errors during the computation
     */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors()
+    {
+        if (_arch)
+        {
+            services::SharedPtr<services::ErrorCollection> errors = _arch->getErrors();
+            if (errors.get())
+            {
+                _errors->add(*errors);
+            }
+        }
+        return _errors;
+    }
 
 protected:
     DataArchiveIface * _arch;
