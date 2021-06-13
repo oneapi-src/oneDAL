@@ -1009,7 +1009,7 @@ public:
      */
     OutputDataArchive(InputDataArchive & arch) : _errors(new services::ErrorCollection())
     {
-        _arch   = new DataArchive(arch.getDataArchive());
+        _arch = new DataArchive(arch.getDataArchive());
         archiveHeader();
     }
 
@@ -1029,7 +1029,7 @@ public:
      */
     OutputDataArchive(byte * ptr, size_t size) : _errors(new services::ErrorCollection())
     {
-        _arch   = new DataArchive(ptr, size);
+        _arch = new DataArchive(ptr, size);
         archiveHeader();
     }
 
@@ -1038,7 +1038,7 @@ public:
      */
     OutputDataArchive(daal::data_management::DecompressorImpl * decompressor, byte * ptr, size_t size) : _errors(new services::ErrorCollection())
     {
-        _arch   = new DecompressedDataArchive(decompressor);
+        _arch = new DecompressedDataArchive(decompressor);
         _arch->write(ptr, size);
         archiveHeader();
     }
