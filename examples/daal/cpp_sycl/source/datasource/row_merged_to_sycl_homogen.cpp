@@ -57,21 +57,17 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table) {
 }
 
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
-cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData,
-                             size_t nRows, size_t nCols) {
-  using namespace cl::sycl;
-  return q.submit([&](handler &cgh) {
-    cgh.parallel_for<class FillTable>(range<1>(nRows), [=](id<1> idx) {
-      constexpr float genMax = 2147483647.0f;
-      uint32_t genState = 7777 + idx[0] * idx[0];
+void generateData(float *dataBlock, size_t nRows, size_t nCols) {
+  for (size_t i = 0; i < nRows; i++) {
+    constexpr float genMax = 2147483647.0f;
+    uint32_t genState = 7777 + i * i;
+    genState = generateMinStd(genState);
+    genState = generateMinStd(genState);
+    for (size_t j = 0; j < nCols; j++) {
+      dataBlock[i * nCols + j] = (float)genState / genMax;
       genState = generateMinStd(genState);
-      genState = generateMinStd(genState);
-      for (size_t j = 0; j < nCols; j++) {
-        deviceData[idx[0] * nCols + j] = (float)genState / genMax;
-        genState = generateMinStd(genState);
-      }
-    });
-  });
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -80,11 +76,6 @@ int main(int argc, char *argv[]) {
 
   for (const auto &deviceDescriptor : getListOfDevices()) {
     const auto &device = deviceDescriptor.second;
-    if (device.is_host()) {
-      /* Shared memory allocations do not work on host by design */
-      continue;
-    }
-
     const auto &deviceName = deviceDescriptor.first;
     std::cout << "Running on " << deviceName << std::endl << std::endl;
 
@@ -99,27 +90,33 @@ int main(int argc, char *argv[]) {
         RowMergedNumericTable::create();
 
     std::vector<float *> memChunks;
+    bool allocatedAllBlocks = true;
 
     for (size_t i = 0; i < 3; i++) {
-      /* Allocate shared memory to store input data */
-      float *dataDevice = (float *)cl::sycl::malloc_shared(
-          sizeof(float) * nRows * nCols, queue.get_device(),
-          queue.get_context());
-      memChunks.push_back(dataDevice);
-      if (!dataDevice) {
-        std::cout << "USM allocation failed on " << deviceName << std::endl;
-        continue;
+      /* Allocate memory on host to store input data */
+      float *dataBlock = (float *)malloc(sizeof(float) * nRows * nCols);
+      if (!dataBlock) {
+        std::cout << "Allocation failed" << std::endl;
+        allocatedAllBlocks = false;
+        for (size_t i = 0; i < memChunks.size(); i++) {
+          free(memChunks[i]);
+        }
+        break;
       }
+      memChunks.push_back(dataBlock);
 
       /* Fill allocated memory block with generated numbers */
-      generateData(queue, dataDevice, nRows, nCols).wait();
+      generateData(dataBlock, nRows, nCols);
 
       /* Create numeric table from shared memory */
-      NumericTablePtr dataTable = SyclHomogenNumericTable<float>::create(
-          dataDevice, nCols, nRows, queue);
+      NumericTablePtr dataTable =
+          HomogenNumericTable<float>::create(dataBlock, nCols, nRows);
 
       /* Add to row merged table */
       mergedTable->addNumericTable(dataTable);
+    }
+    if (!allocatedAllBlocks) {
+      continue;
     }
 
     /* Convert row merged table to sycl homogen one */
@@ -137,9 +134,9 @@ int main(int argc, char *argv[]) {
     /* Print the results */
     printNumericTable(covariance, "Covariance matrix:");
 
-    /* Free USM data */
+    /* Free data blocks*/
     for (size_t i = 0; i < memChunks.size(); i++) {
-      cl::sycl::free(memChunks[i], queue.get_context());
+      free(memChunks[i]);
     }
   }
 
