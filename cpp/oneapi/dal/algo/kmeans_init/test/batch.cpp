@@ -61,8 +61,8 @@ public:
     }
 
     void check_results(std::int64_t cluster_count, const table& data, const table& centroids) {
-        std::int64_t row_count = data.get_row_count();
-        std::int64_t column_count = data.get_column_count();
+        const std::int64_t row_count = data.get_row_count();
+        const std::int64_t column_count = data.get_column_count();
         ONEDAL_ASSERT(centroids.get_row_count() == cluster_count);
         ONEDAL_ASSERT(centroids.get_column_count() == column_count);
         const auto data_ptr = row_accessor<const float>(data).pull().get_data();
