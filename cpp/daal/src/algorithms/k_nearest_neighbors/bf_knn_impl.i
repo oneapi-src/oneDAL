@@ -277,21 +277,10 @@ protected:
         {
             for (size_t kk = 0; kk < k; ++kk)
             {
-                if (distancesInstance->getType() == PairwiseDistanceType::euclidean)
-                {
-                    // max(0, d) to remove negative distances before Sqrt
-                    kDistances[i * k + kk] = services::internal::max<cpu, FPType>(FPType(0), heaps[i][kk].distance);
-                }
-                else
-                {
-                    kDistances[i * k + kk] = heaps[i][kk].distance;
-                }
-
-                kIndexes[i * k + kk] = heaps[i][kk].index;
+                kDistances[i * k + kk] = heaps[i][kk].distance;
+                kIndexes[i * k + kk]   = heaps[i][kk].index;
             }
         }
-
-        // Minkowski Distances are computed without root calculation, fixing it here
         distancesInstance->finalize(iSize * k, kDistances);
 
         // sort by distances

@@ -187,7 +187,24 @@ public:
 
     services::Status finalize(const size_t n, FPType * a) override
     {
-        Math<FPType, cpu>::vSqrt(n, a, a);
+        // max(0, d) to remove negative distances before Sqrt
+        const size_t blockSize = 512;
+        const size_t nBlocks   = n / blockSize + !!(n % blockSize);
+
+        SafeStatus safeStat;
+
+        for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
+        {
+            const size_t begin = iBlock * blockSize;
+            const size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, n);
+            const size_t count = end - begin;
+
+            for (size_t i = begin; i < end; ++i)
+            {
+                a[i] = services::internal::max<cpu, FPType>(FPType(0), a[i]);
+            }
+            Math<FPType, cpu>::vSqrt(count, a + begin, a + begin);
+        }
         return services::Status();
     }
 
