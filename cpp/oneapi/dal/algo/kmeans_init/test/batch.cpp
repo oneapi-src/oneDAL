@@ -64,11 +64,13 @@ public:
     void check_results(std::int64_t cluster_count, const table& data, const table& centroids) {
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
+
         ONEDAL_ASSERT(centroids.get_row_count() == cluster_count);
         ONEDAL_ASSERT(centroids.get_column_count() == column_count);
+
         const auto data_array = row_accessor<const float>(data).pull();
         const auto centroid_array = row_accessor<const float>(centroids).pull();
-        std::int64_t match_count = 0;
+
         std::unordered_set<std::int64_t> indices;
         for (std::int64_t i = 0; i < cluster_count; i++) {
             for (std::int64_t j = 0; j < row_count; j++) {
@@ -79,12 +81,12 @@ public:
                         break;
                     }
                 }
-                if (match) {
-                    indices.insert(j);
+                if (match && indices.insert(j).second) {
+                    break;
                 }
             }
         }
-        REQUIRE(indices.count() == cluster_count);
+        REQUIRE(dal::detail::integral_cast<std::int64_t>(indices.size()) == cluster_count);
     }
 };
 
