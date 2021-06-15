@@ -44,9 +44,9 @@ public:
 
     constexpr bool is_dense() const {
         return std::is_same_v<Method, method::dense> ||
-                   std::is_same_v<Method, method::random_dense> ||
-                   std::is_same_v<Method, method::plus_plus_dense> ||
-                   std::is_same_v<Method, method::parallel_plus_dense>;
+               std::is_same_v<Method, method::random_dense> ||
+               std::is_same_v<Method, method::plus_plus_dense> ||
+               std::is_same_v<Method, method::parallel_plus_dense>;
     }
 
     void dense_checks(std::int64_t cluster_count, const table& data) {
