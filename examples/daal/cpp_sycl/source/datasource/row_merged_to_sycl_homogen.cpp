@@ -37,10 +37,6 @@ using daal::data_management::internal::convertToSyclHomogen;
 using daal::data_management::internal::SyclHomogenNumericTable;
 using daal::services::internal::SyclExecutionContext;
 
-#if (defined(__SYCL_COMPILER_VERSION)) && (__SYCL_COMPILER_VERSION >= 20191001)
-#define IS_USM_SUPPORTED
-#endif
-
 uint32_t generateMinStd(uint32_t x) {
   constexpr uint32_t a = 16807;
   constexpr uint32_t c = 0;
