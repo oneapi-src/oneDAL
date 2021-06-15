@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <initializer_list>
+#include <array>
 
 #include "oneapi/dal/algo/jaccard/vertex_similarity.hpp"
 
