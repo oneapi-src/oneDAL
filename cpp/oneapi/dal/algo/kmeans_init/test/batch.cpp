@@ -14,8 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/kmeans_init/compute.hpp"
+#include <unordered_set>
 
+#include "oneapi/dal/algo/kmeans_init/compute.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
@@ -65,29 +66,25 @@ public:
         std::int64_t column_count = data.get_column_count();
         ONEDAL_ASSERT(centroids.get_row_count() == cluster_count);
         ONEDAL_ASSERT(centroids.get_column_count() == column_count);
-        const auto data_ptr = row_accessor<const float>(data).pull().get_data();
-        const auto centroid_ptr = row_accessor<const float>(centroids).pull().get_data();
+        const auto data_array = row_accessor<const float>(data).pull();
+        const auto centroid_array = row_accessor<const float>(centroids).pull();
         std::int64_t match_count = 0;
-        std::vector<std::int64_t> indices;
+        std::unordered_set<std::int64_t> indices;
         for (std::int64_t i = 0; i < cluster_count; i++) {
             for (std::int64_t j = 0; j < row_count; j++) {
                 bool match = true;
                 for (std::int64_t k = 0; k < column_count; k++) {
-                    if (data_ptr[j * column_count + k] != centroid_ptr[i * column_count + k]) {
+                    if (data_array[j * column_count + k] != centroid_array[i * column_count + k]) {
                         match = false;
                         break;
                     }
                 }
                 if (match) {
-                    if (std::count(std::begin(indices), std::end(indices), j) == 0) {
-                        indices.push_back(j);
-                        match_count++;
-                        break;
-                    }
+                    indices.insert(j);
                 }
             }
         }
-        REQUIRE(match_count == cluster_count);
+        REQUIRE(indices.count() == cluster_count);
     }
 };
 
