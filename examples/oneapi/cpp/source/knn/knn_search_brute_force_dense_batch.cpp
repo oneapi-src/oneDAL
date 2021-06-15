@@ -41,7 +41,7 @@ int main(int argc, char const *argv[]) {
     const auto train_result = dal::train(knn_desc, x_train);
     const auto test_result = dal::infer(knn_desc, x_query, train_result.get_model());
 
-    std::cout << "Indices results:\n" << test_result.get_indices() << std::endl;
-    std::cout << "Distance results:\n" << test_result.get_distances() << std::endl;
+    std::cout << "Indices result:\n" << test_result.get_indices() << std::endl;
+    std::cout << "Distance result:\n" << test_result.get_distances() << std::endl;
     return 0;
 }
