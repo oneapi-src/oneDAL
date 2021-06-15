@@ -577,27 +577,36 @@ private:
  * \return                       Pointer to homogen numeric table
  */
 template <typename T>
-daal::data_management::NumericTablePtr convertToSyclHomogen(NumericTable & src)
+inline daal::data_management::NumericTablePtr convertToSyclHomogen(NumericTable & src, services::Status & st)
 {
     using namespace daal::services;
 
     size_t ncols = src.getNumberOfColumns();
     size_t nrows = src.getNumberOfRows();
 
-    NumericTablePtr dst = SyclHomogenNumericTable<T>::create(ncols, nrows, NumericTableIface::doAllocate);
+    NumericTablePtr dst = SyclHomogenNumericTable<T>::create(ncols, nrows, NumericTableIface::doAllocate, &st);
+    if (!st.ok())
+    {
+        return daal::data_management::NumericTablePtr();
+    }
 
     BlockDescriptor<T> srcBlock;
-    src.getBlockOfRows(0, nrows, readOnly, srcBlock);
+    st |= src.getBlockOfRows(0, nrows, readOnly, srcBlock);
     BlockDescriptor<T> dstBlock;
-    dst->getBlockOfRows(0, nrows, readOnly, dstBlock);
-    T * srcData = srcBlock.getBlockPtr();
-    T * dstData = dstBlock.getBlockPtr();
+    st |= dst->getBlockOfRows(0, nrows, readOnly, dstBlock);
+    if (!st.ok())
+    {
+        return daal::data_management::NumericTablePtr();
+    }
+    T * srcData      = srcBlock.getBlockPtr();
+    auto hostDstData = dstBlock.getBuffer().toHost(writeOnly);
+    T * dstData      = hostDstData.get();
     for (size_t i = 0; i < ncols * nrows; i++)
     {
         dstData[i] = srcData[i];
     }
-    src.releaseBlockOfRows(srcBlock);
-    dst->releaseBlockOfRows(dstBlock);
+    st |= src.releaseBlockOfRows(srcBlock);
+    st |= dst->releaseBlockOfRows(dstBlock);
     return dst;
 }
 

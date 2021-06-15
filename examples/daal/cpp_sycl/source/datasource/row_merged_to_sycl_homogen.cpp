@@ -56,9 +56,6 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table) {
   return covAlg.getResult()->get(covariance::correlation);
 }
 
-/* Detect wether USM extensions are supported */
-#ifdef IS_USM_SUPPORTED
-
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
 cl::sycl::event generateData(cl::sycl::queue &q, float *deviceData,
                              size_t nRows, size_t nCols) {
@@ -126,7 +123,13 @@ int main(int argc, char *argv[]) {
     }
 
     /* Convert row merged table to sycl homogen one */
-    NumericTablePtr tablePtr = convertToSyclHomogen<float>(*mergedTable);
+    Status st;
+    NumericTablePtr tablePtr = convertToSyclHomogen<float>(*mergedTable, st);
+    if (!st.ok()) {
+      std::cout << "Failed to convert row merged table to SYCL homogen one"
+                << std::endl;
+      return -1;
+    }
 
     /* Compute correlation matrix of generated dataset */
     NumericTablePtr covariance = computeCorrelationMatrix(tablePtr);
@@ -142,13 +145,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
-#else /* USM is not supported */
-
-int main(int argc, char *argv[]) {
-  std::cout << "USM extensions are not available, make sure "
-            << "the compiler and runtime support USM" << std::endl;
-  return 0;
-}
-
-#endif // IS_USM_SUPPORTED
