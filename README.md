@@ -114,6 +114,8 @@ You can speed up Scikit-learn using [Intel(R) Extension for Scikit-learn*](https
 
 Intel(R) Extension for Scikit-learn* speeds up scikit-learn beyond  by providing drop-in patching. Acceleration is achieved through the use of the Intel(R) oneAPI Data Analytics Library that allows for fast usage of the framework suited for Data Scientists or Machine Learning users.
 
+|   |
+|---|
 | ![](docs/readme-charts/scikit-learn-acceleration-2021.2.3.png) |
 | *Technical details: HW: c5.24xlarge AWS EC2 Instance using an Intel Xeon Platinum 8275CL with 2 sockets and 24 cores per socket; SW: scikit-learn version 0.24.2, scikit-learn-intelex version 2021.2.3, Python 3.8 |
 
