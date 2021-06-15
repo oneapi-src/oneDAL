@@ -42,12 +42,11 @@ public:
         return this->get_policy().is_gpu() && (is_plus_plus_dense || is_parallel_plus_dense);
     }
 
-    bool is_dense() {
-        constexpr bool ret = std::is_same_v<Method, method::dense> ||
-                             std::is_same_v<Method, method::random_dense> ||
-                             std::is_same_v<Method, method::plus_plus_dense> ||
-                             std::is_same_v<Method, method::parallel_plus_dense>;
-        return ret;
+    constexpr bool is_dense() const {
+        return std::is_same_v<Method, method::dense> ||
+                   std::is_same_v<Method, method::random_dense> ||
+                   std::is_same_v<Method, method::plus_plus_dense> ||
+                   std::is_same_v<Method, method::parallel_plus_dense>;
     }
 
     void dense_checks(std::int64_t cluster_count, const table& data) {
