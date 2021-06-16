@@ -39,7 +39,7 @@ feature vectors :math:`y_1 = (y_{11}, \ldots, y_{1p}), \ldots, y_m = (y_{m1}, \l
 the problem is to compute the sigmoid kernel function :math:`K(x_i, y_j)` for any pair of input vectors:
 
 .. math::
-   K(x_i, y_j) = tanh(k {x_i}^T y_j + b),
+   K(x_i, y_j) = \tanh(k {x_i}^T y_j + b),
 
 where :math:`k\in\mathbb{R},\ b\in\mathbb{R}, \quad 1 \leq i \leq n, \quad 1 \leq j \leq m`.
 
