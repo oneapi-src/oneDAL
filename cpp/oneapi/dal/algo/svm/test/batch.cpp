@@ -456,8 +456,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_scale(scale);
     const auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
-            .set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{}.set_c(c);
 
     constexpr std::int64_t support_vector_count = 2;
 
