@@ -24,7 +24,6 @@
 #ifndef __LOGIT_BOOST_TRAINING_BATCH_H__
 #define __LOGIT_BOOST_TRAINING_BATCH_H__
 
-#include "algorithms/boosting/boosting_training_batch.h"
 #include "algorithms/boosting/logitboost_training_types.h"
 #include "algorithms/classifier/classifier_training_batch.h"
 

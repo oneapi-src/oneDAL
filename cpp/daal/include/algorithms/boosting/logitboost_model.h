@@ -26,7 +26,6 @@
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "algorithms/boosting/boosting_model.h"
 #include "algorithms/classifier/classifier_model.h"
 #include "algorithms/regression/regression_model.h"
 #include "algorithms/regression/regression_training_batch.h"

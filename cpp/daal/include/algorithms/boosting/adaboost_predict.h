@@ -25,7 +25,6 @@
 #define __ADA_BOOST_PREDICT_H__
 
 #include "algorithms/algorithm.h"
-#include "algorithms/boosting/boosting_predict.h"
 #include "algorithms/boosting/adaboost_model.h"
 #include "algorithms/boosting/adaboost_predict_types.h"
 

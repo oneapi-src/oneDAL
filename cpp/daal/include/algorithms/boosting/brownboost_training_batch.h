@@ -24,7 +24,6 @@
 #ifndef __BROWN_BOOST_TRAINING_BATCH_H__
 #define __BROWN_BOOST_TRAINING_BATCH_H__
 
-#include "algorithms/boosting/boosting_training_batch.h"
 #include "algorithms/boosting/brownboost_training_types.h"
 #include "algorithms/classifier/classifier_training_batch.h"
 

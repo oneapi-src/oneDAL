@@ -25,7 +25,6 @@
 #define __LOGIT_BOOST_PREDICT_H__
 
 #include "algorithms/algorithm.h"
-#include "algorithms/boosting/boosting_predict.h"
 #include "algorithms/boosting/logitboost_model.h"
 #include "algorithms/boosting/logitboost_predict_types.h"
 #include "algorithms/classifier/classifier_predict.h"

@@ -25,7 +25,6 @@
 #define __BROWN_BOOST_PREDICT_H__
 
 #include "algorithms/algorithm.h"
-#include "algorithms/boosting/boosting_predict.h"
 #include "algorithms/boosting/brownboost_model.h"
 #include "algorithms/boosting/brownboost_predict_types.h"
 
