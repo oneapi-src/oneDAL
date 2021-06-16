@@ -225,7 +225,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
     const Float* ftr_val_list_ptr = ftr_value_list.get_data();
 
     Index obs_tree_group_response_count = ctx.tree_in_group_count_;
-    if (is_classification) {
+    if constexpr (is_classification) {
         obs_tree_group_response_count = ctx.class_count_ * ctx.tree_in_group_count_;
         de::check_mul_overflow(ctx.row_count_, obs_tree_group_response_count);
     }
@@ -285,7 +285,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
                             node_is_split = leaf_mark != tree_ftr_idx[tree_curr_node];
                         }
 
-                        if (is_classification) {
+                        if constexpr (is_classification) {
                             Index class_idx = tree_lch_cls[tree_curr_node];
                             obs_cls_hist_list_ptr[i * n_tree_groups * class_count +
                                                   class_idx * n_tree_groups + tree_group_id] +=
@@ -314,7 +314,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
 
     Index response_count = ctx.row_count_;
 
-    if (is_classification) {
+    if constexpr (is_classification) {
         ONEDAL_ASSERT(obs_response_list.get_count() ==
                       ctx.row_count_ * ctx.class_count_ * ctx.tree_in_group_count_);
         de::check_mul_overflow(ctx.class_count_, ctx.row_count_);
@@ -366,7 +366,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
             // obs_response_list_ptr[1] = obs1_cls0_val_from_tree0, obs1_cls0_val_from_tree1 ... obs1_cls1_val_from_tree0, obs1_cls1_val_from_tree1 ...
 
             for (Index row_idx = ind_start; row_idx < ind_end; row_idx++) {
-                if (is_classification) {
+                if constexpr (is_classification) {
                     for (Index class_idx = 0; class_idx < class_count; class_idx++) {
                         Index resp_offset = row_idx * tree_in_group_count * class_count +
                                             class_idx * tree_in_group_count;

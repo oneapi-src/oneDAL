@@ -38,7 +38,7 @@ struct infer_impl_const<Index, task::regression> {
 };
 
 template <typename Float, typename Index = std::int32_t, typename Task = task::by_default>
-struct ONEDAL_EXPORT infer_context {
+struct infer_context {
     Index class_count_ = 0;
     Index row_count_ = 0;
     Index column_count_ = 0;
