@@ -132,7 +132,6 @@ serialization\SerializationExample ^
 stump\StumpClsGiniDenseBatch ^
 stump\StumpClsInfogainDenseBatch ^
 stump\StumpRegMseDenseBatch ^
-stump\StumpDenseBatch ^
 svd\SVDDenseBatch ^
 svd\SVDDenseDistr ^
 svd\SVDDenseOnline ^

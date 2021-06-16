@@ -27,8 +27,6 @@
 #include "algorithms/weak_learner/weak_learner_model.h"
 #include "algorithms/weak_learner/weak_learner_training_batch.h"
 #include "algorithms/weak_learner/weak_learner_predict.h"
-#include "algorithms/stump/stump_training_batch.h"
-#include "algorithms/stump/stump_predict.h"
 #include "algorithms/classifier/classifier_model.h"
 
 namespace daal

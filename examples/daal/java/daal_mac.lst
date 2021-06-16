@@ -132,7 +132,6 @@ Java_example_list=( association_rules/AssocRulesAprioriBatch         \
                     stump/StumpClsGiniDenseBatch                     \
                     stump/StumpClsInfogainDenseBatch                 \
                     stump/StumpRegMseDenseBatch                      \
-                    stump/StumpDenseBatch                            \
                     svd/SVDDenseBatch                                \
                     svd/SVDDenseDistr                                \
                     svd/SVDDenseOnline                               \
