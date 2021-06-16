@@ -122,13 +122,15 @@ template <typename FPType, CpuType cpu>
 class EuclideanDistances : public PairwiseDistances<FPType, cpu>
 {
 public:
-    EuclideanDistances(const NumericTable & a, const NumericTable & b, bool squared = true) : _a(a), _b(b), _squared(squared) {}
+    EuclideanDistances(const NumericTable & a, const NumericTable & b, bool squared = true, bool isSqrtNorm = false)
+        : _a(a), _b(b), _squared(squared), _isSqrtNorm(isSqrtNorm)
+    {}
 
-    virtual ~EuclideanDistances() {}
+    virtual ~EuclideanDistances() DAAL_C11_OVERRIDE {}
 
-    PairwiseDistanceType getType() override { return PairwiseDistanceType::euclidean; }
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::euclidean; }
 
-    services::Status init() override
+    services::Status init() DAAL_C11_OVERRIDE
     {
         services::Status s;
 
@@ -148,7 +150,7 @@ public:
 
     // output:  Row-major matrix of size { aSize x bSize }
     services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                  FPType * const res) override
+                                  FPType * const res) DAAL_C11_OVERRIDE
     {
         const size_t nRowsA = aSize;
         const size_t nColsA = _a.getNumberOfColumns();
@@ -185,9 +187,8 @@ public:
         return services::Status();
     }
 
-    services::Status finalize(const size_t n, FPType * a) override
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE
     {
-        // max(0, d) to remove negative distances before Sqrt
         const size_t blockSize = 512;
         const size_t nBlocks   = n / blockSize + !!(n % blockSize);
 
@@ -199,6 +200,7 @@ public:
             const size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, n);
             const size_t count = end - begin;
 
+            // max(0, d) to remove negative distances before Sqrt
             for (size_t i = begin; i < end; ++i)
             {
                 a[i] = services::internal::max<cpu, FPType>(FPType(0), a[i]);
@@ -246,7 +248,7 @@ public:
 
 protected:
     // compute (sum(A^2, 2))
-    virtual services::Status computeNorm(const NumericTable & ntData, FPType * const res)
+    services::Status computeNorm(const NumericTable & ntData, FPType * const res)
     {
         const size_t nRows = ntData.getNumberOfRows();
         const size_t nCols = ntData.getNumberOfColumns();
@@ -276,6 +278,10 @@ protected:
                     sum += data[i * nCols + j] * data[i * nCols + j];
                 }
                 r[i] = sum;
+                if (_isSqrtNorm)
+                {
+                    Math<FPType, cpu>::vSqrt(end - begin, r, r);
+                }
             }
         });
 
@@ -302,6 +308,7 @@ protected:
     const NumericTable & _a;
     const NumericTable & _b;
     const bool _squared;
+    const bool _isSqrtNorm;
 
     TArray<FPType, cpu> normBufferA;
     TArray<FPType, cpu> normBufferB;
@@ -311,20 +318,21 @@ protected:
 template <typename FPType, CpuType cpu>
 class CosineDistances : public EuclideanDistances<FPType, cpu>
 {
-public:
+private:
     using super = EuclideanDistances<FPType, cpu>;
 
-    CosineDistances(const NumericTable & a, const NumericTable & b) : super(a, b, true) {}
+public:
+    CosineDistances(const NumericTable & a, const NumericTable & b) : super(a, b, true, true) {}
 
-    virtual ~CosineDistances() {}
+    virtual ~CosineDistances() DAAL_C11_OVERRIDE {}
 
-    PairwiseDistanceType getType() override { return PairwiseDistanceType::cosine; }
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::cosine; }
 
-    services::Status finalize(const size_t n, FPType * a) override { return services::Status(); }
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE { return services::Status(); }
 
     // output:  Row-major matrix of size { aSize x bSize }
     services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                  FPType * const res) override
+                                  FPType * const res) DAAL_C11_OVERRIDE
     {
         const size_t nRowsA = aSize;
         const size_t nColsA = super::_a.getNumberOfColumns();
@@ -338,54 +346,16 @@ public:
         const FPType * const aa = super::normBufferA.get() + aOffset;
         const FPType * const bb = (&(super::_a) == &(super::_b)) ? super::normBufferA.get() + bOffset : super::normBufferB.get() + bOffset;
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nRowsC; i++)
         {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
             for (size_t j = 0; j < nColsC; j++)
             {
                 res[i * nColsC + j] = FPType(1) - (res[i * nColsC + j] / (aa[i] * bb[j]));
             }
         }
         return services::Status();
-    }
-
-protected:
-    services::Status computeNorm(const NumericTable & ntData, FPType * const res) override
-    {
-        const size_t nRows = ntData.getNumberOfRows();
-        const size_t nCols = ntData.getNumberOfColumns();
-
-        const size_t blockSize = 512;
-        const size_t nBlocks   = nRows / blockSize + !!(nRows % blockSize);
-
-        SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
-            const size_t begin         = iBlock * blockSize;
-            const size_t end           = services::internal::min<cpu, size_t>(begin + blockSize, nRows);
-            const size_t blockSizeReal = end - begin;
-
-            ReadRows<FPType, cpu> dataRows(const_cast<NumericTable &>(ntData), begin, blockSizeReal);
-            DAAL_CHECK_BLOCK_STATUS_THR(dataRows);
-            const FPType * const data = dataRows.get();
-
-            FPType * r = res + begin;
-
-            for (size_t i = 0; i < blockSizeReal; i++)
-            {
-                FPType sum = FPType(0);
-                PRAGMA_IVDEP
-                PRAGMA_ICC_NO16(omp simd reduction(+ : sum))
-                for (size_t j = 0; j < nCols; j++)
-                {
-                    sum += data[i * nCols + j] * data[i * nCols + j];
-                }
-                r[i] = sum;
-            }
-            Math<FPType, cpu>::vSqrt(blockSizeReal, r, r);
-        });
-
-        return safeStat.detach();
     }
 };
 
@@ -397,25 +367,25 @@ public:
         : _a(a), _b(b), _powered(powered), _p(p)
     {}
 
-    virtual ~MinkowskiDistances() {}
+    virtual ~MinkowskiDistances() DAAL_C11_OVERRIDE {}
 
-    PairwiseDistanceType getType() override { return PairwiseDistanceType::minkowski; }
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::minkowski; }
 
-    services::Status init() override
+    services::Status init() DAAL_C11_OVERRIDE
     {
         services::Status s;
         return s;
     }
 
     services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                  FPType * const res) override
+                                  FPType * const res) DAAL_C11_OVERRIDE
     {
         computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
 
         return services::Status();
     }
 
-    services::Status finalize(const size_t n, FPType * a) override
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE
     {
         if (_p != 1.0)
         {
@@ -493,25 +463,25 @@ class ChebyshevDistances : public PairwiseDistances<FPType, cpu>
 public:
     ChebyshevDistances(const NumericTable & a, const NumericTable & b) : _a(a), _b(b) {}
 
-    virtual ~ChebyshevDistances() {}
+    virtual ~ChebyshevDistances() DAAL_C11_OVERRIDE {}
 
-    PairwiseDistanceType getType() override { return PairwiseDistanceType::chebyshev; }
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::chebyshev; }
 
-    services::Status init() override
+    services::Status init() DAAL_C11_OVERRIDE
     {
         services::Status s;
         return s;
     }
 
     services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                  FPType * const res) override
+                                  FPType * const res) DAAL_C11_OVERRIDE
     {
         computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
 
         return services::Status();
     }
 
-    services::Status finalize(const size_t n, FPType * a) override { return services::Status(); }
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
     FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
