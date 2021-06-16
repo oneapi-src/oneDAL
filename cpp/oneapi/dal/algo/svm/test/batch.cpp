@@ -456,7 +456,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_scale(scale);
     const auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     constexpr std::int64_t support_vector_count = 2;
 
@@ -515,7 +516,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_scale(scale);
     const auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     constexpr std::int64_t support_vector_count = 6;
 
@@ -630,7 +632,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_sigma(sigma);
     const auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     constexpr std::int64_t support_vector_count = 12;
 
@@ -686,7 +689,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_scale(scale);
     const auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     constexpr std::int64_t support_vector_count = 6;
 
@@ -744,7 +748,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_scale(scale);
     const auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     constexpr std::int64_t support_vector_count = 6;
 
@@ -826,7 +831,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double c = 1.0e3;
     auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     const double ref_accuracy = 0.9878;
 
@@ -861,11 +867,17 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double c = 1.0e3;
     auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     const double ref_accuracy = 1;
 
-    this->check_polynomial_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_polynomial_kernel_accuracy(x_train,
+                                           y_train,
+                                           x_test,
+                                           y_test,
+                                           svm_desc,
+                                           ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -896,7 +908,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double c = 1.0e3;
     auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     const double ref_accuracy = 1;
 
@@ -1000,7 +1013,12 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 1;
 
-    this->check_polynomial_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_polynomial_kernel_accuracy(x_train,
+                                           y_train,
+                                           x_test,
+                                           y_test,
+                                           svm_desc,
+                                           ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,

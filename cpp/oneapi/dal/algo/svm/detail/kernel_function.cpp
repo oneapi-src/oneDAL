@@ -148,8 +148,7 @@ private:
 template <typename Float, typename Method>
 class daal_interop_sigmoid_kernel_impl : public kernel_function_impl {
 public:
-    daal_interop_sigmoid_kernel_impl(double scale, double shift)
-            : scale_(scale), shift_(shift) {}
+    daal_interop_sigmoid_kernel_impl(double scale, double shift) : scale_(scale), shift_(shift) {}
 
     daal_kf_t get_daal_kernel_function(bool is_dense) override {
         if (is_dense) {
@@ -218,7 +217,7 @@ template <typename F, typename M>
 kernel_function<sigmoid_kernel_t<F, M>>::kernel_function(const sigmoid_kernel_t<F, M> &kernel)
         : kernel_(kernel),
           impl_(new daal_interop_sigmoid_kernel_impl<F, M>{ kernel.get_scale(),
-                                                            kernel.get_shift()}) {}
+                                                            kernel.get_shift() }) {}
 
 template <typename F, typename M>
 kernel_function_impl *kernel_function<sigmoid_kernel_t<F, M>>::get_impl() const {
