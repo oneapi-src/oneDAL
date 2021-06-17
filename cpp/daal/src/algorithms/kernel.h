@@ -95,7 +95,7 @@
                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(daal::services::Environment::env * daalEnv)    \
         : BaseClassName(daalEnv), _cntr(nullptr)                                                                                                    \
     {                                                                                                                                               \
-        GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, cpuid))                                                                                                                     \
+        GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, cpuid))                                                        \
         {                                                                                                                                           \
             DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
             DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
@@ -124,16 +124,17 @@
                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(daal::services::Environment::env * daalEnv)    \
         : BaseClassName(daalEnv), _cntr(nullptr)                                                                                                    \
     {                                                                                                                                               \
-        switch switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, cpuid))                                                                                                                   \
-        {                                                                                                                                           \
-            DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
-            DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
-            DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                          \
-            DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                         \
-            DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                   \
-            DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                       \
-        default: _cntr = (new ContainerTemplate<__VA_ARGS__, sse2>(daalEnv)); break;                                                                \
-        }                                                                                                                                           \
+        switch                                                                                                                                      \
+            switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, cpuid))                                                             \
+            {                                                                                                                                       \
+                DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                    \
+                DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                    \
+                DAAL_KERNEL_AVX_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                      \
+                DAAL_KERNEL_AVX2_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                     \
+                DAAL_KERNEL_AVX512_MIC_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                               \
+                DAAL_KERNEL_AVX512_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                   \
+            default: _cntr = (new ContainerTemplate<__VA_ARGS__, sse2>(daalEnv)); break;                                                            \
+            }                                                                                                                                       \
     }                                                                                                                                               \
                                                                                                                                                     \
     template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, __VA_ARGS__)                 \
@@ -181,7 +182,7 @@
                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(daal::services::Environment::env * daalEnv)    \
         : BaseClassName(daalEnv), _cntr(NULL)                                                                                                       \
     {                                                                                                                                               \
-        GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, cpuid))                                                                                                                     \
+        GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, cpuid))                                                        \
         {                                                                                                                                           \
             DAAL_KERNEL_SSSE3_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                                   \
             DAAL_KERNEL_SSE42_CONTAINER_CASE_SYCL(ContainerTemplate, __VA_ARGS__)                                                                   \
