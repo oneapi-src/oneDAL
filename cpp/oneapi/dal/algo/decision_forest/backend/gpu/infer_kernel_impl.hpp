@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/decision_forest/infer_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 

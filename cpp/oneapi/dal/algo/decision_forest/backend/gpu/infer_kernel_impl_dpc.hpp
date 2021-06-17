@@ -23,6 +23,8 @@
 
 namespace oneapi::dal::decision_forest::backend {
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace de = dal::detail;
 namespace be = dal::backend;
 namespace pr = dal::backend::primitives;
@@ -467,7 +469,7 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
 
     result_t res;
 
-    const auto data_nd = pr::flatten_table<Float, row_accessor>(queue_, data, alloc::device);
+    const auto data_nd = pr::table2ndarray<Float>(queue_, data, alloc::device);
 
     pr::ndarray<Float, 1> tree_group_response_list;
     pr::ndarray<Float, 1> response_list;
@@ -519,7 +521,6 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
 
 #define INSTANTIATE(F, I, T) template class infer_kernel_impl<F, I, T>;
 
-//INSTANTIATE(ONEDAL_FLOAT, std::int32_t, task::classification);
-//INSTANTIATE(ONEDAL_FLOAT, std::int32_t, task::regression);
+#endif // #ifdef ONEDAL_DATA_PARALLEL
 
 } // namespace oneapi::dal::decision_forest::backend
