@@ -282,44 +282,23 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     constexpr std::int64_t element_count_train = row_count_train * column_count;
 
     constexpr std::array<float_t, element_count_train> x_data = {
-        -5, 2,
-        -4, 1,
-        -3, 0,
-        -2, -1,
-        -1, -2,
-        0, -3,
-        1, -2,
-        2, -1,
-        3, 0,
-        4, 1,
-        5, 2,
-        -1, 1,
-        0, 1,
-        1, 1,
-        -2, 2,
-        -1, 2,
-        0, 2,
-        1, 2,
-        2, 2,
+        -5, 2, -4, 1,  -3, 0, -2, -1, -1, -2, 0, -3, 1, -2, 2, -1, 3, 0, 4,
+        1,  5, 2,  -1, 1,  0, 1,  1,  1,  -2, 2, -1, 2, 0,  2, 1,  2, 2, 2,
     };
     const auto x_train = homogen_table::wrap(x_data.data(), row_count_train, column_count);
 
-    constexpr std::array<float_t, row_count_train> y_data = {
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1
-    };
+    constexpr std::array<float_t, row_count_train> y_data = { -1, -1, -1, -1, -1, -1, -1,
+                                                              -1, -1, -1, -1, 1,  1,  1,
+                                                              1,  1,  1,  1,  1 };
     const auto y_train = homogen_table::wrap(y_data.data(), row_count_train, 1);
-    
+
     constexpr std::int64_t row_count_test = 3;
     constexpr std::int64_t element_count_test = row_count_test * column_count;
 
-    constexpr std::array<float_t, element_count_test> x_data_train = {
-        0, 0, -1, -1, 1, -1
-    };
+    constexpr std::array<float_t, element_count_test> x_data_train = { 0, 0, -1, -1, 1, -1 };
     const auto x_test = homogen_table::wrap(x_data_train.data(), row_count_test, column_count);
-    
-    constexpr std::array<float_t, row_count_test> y_data_train = {
-        1, -1, -1
-    };
+
+    constexpr std::array<float_t, row_count_test> y_data_train = { 1, -1, -1 };
     const auto y_test = homogen_table::wrap(y_data_train.data(), row_count_test, 1);
 
     const double scale = 1;
@@ -329,8 +308,9 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_scale(scale).set_shift(shift).set_degree(degree);
     auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
-    
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
     const double ref_accuracy = 1;
 
     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
@@ -352,44 +332,23 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     constexpr std::int64_t element_count_train = row_count_train * column_count;
 
     constexpr std::array<float_t, element_count_train> x_data = {
-        -5, 2,
-        -4, 1,
-        -3, 0,
-        -2, -1,
-        -1, -2,
-        0, -3,
-        1, -2,
-        2, -1,
-        3, 0,
-        4, 1,
-        5, 2,
-        -1, 1,
-        0, 1,
-        1, 1,
-        -2, 2,
-        -1, 2,
-        0, 2,
-        1, 2,
-        2, 2,
+        -5, 2, -4, 1,  -3, 0, -2, -1, -1, -2, 0, -3, 1, -2, 2, -1, 3, 0, 4,
+        1,  5, 2,  -1, 1,  0, 1,  1,  1,  -2, 2, -1, 2, 0,  2, 1,  2, 2, 2,
     };
     const auto x_train = homogen_table::wrap(x_data.data(), row_count_train, column_count);
 
-    constexpr std::array<float_t, row_count_train> y_data = {
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1
-    };
+    constexpr std::array<float_t, row_count_train> y_data = { -1, -1, -1, -1, -1, -1, -1,
+                                                              -1, -1, -1, -1, 1,  1,  1,
+                                                              1,  1,  1,  1,  1 };
     const auto y_train = homogen_table::wrap(y_data.data(), row_count_train, 1);
-    
+
     constexpr std::int64_t row_count_test = 3;
     constexpr std::int64_t element_count_test = row_count_test * column_count;
 
-    constexpr std::array<float_t, element_count_test> x_data_train = {
-        0, 0, -1, -1, 1, -1
-    };
+    constexpr std::array<float_t, element_count_test> x_data_train = { 0, 0, -1, -1, 1, -1 };
     const auto x_test = homogen_table::wrap(x_data_train.data(), row_count_test, column_count);
-    
-    constexpr std::array<float_t, row_count_test> y_data_train = {
-        1, -1, -1
-    };
+
+    constexpr std::array<float_t, row_count_test> y_data_train = { 1, -1, -1 };
     const auto y_test = homogen_table::wrap(y_data_train.data(), row_count_test, 1);
 
     const double scale = 1;
@@ -398,8 +357,9 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const auto kernel_desc = kernel_t{}.set_scale(scale).set_shift(shift);
     auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
-    
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
+
     const double ref_accuracy = 0.66666;
 
     this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);

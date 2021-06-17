@@ -156,7 +156,8 @@ public:
             auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
-            alg->parameter.kernelType = daal::algorithms::kernel_function::internal::KernelType::sigmoid;
+            alg->parameter.kernelType =
+                daal::algorithms::kernel_function::internal::KernelType::sigmoid;
             return daal_kf_t(alg);
         }
         else {
@@ -164,7 +165,8 @@ public:
             auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
-            alg->parameter.kernelType = daal::algorithms::kernel_function::internal::KernelType::sigmoid;
+            alg->parameter.kernelType =
+                daal::algorithms::kernel_function::internal::KernelType::sigmoid;
             return daal_kf_t(alg);
         }
     }
