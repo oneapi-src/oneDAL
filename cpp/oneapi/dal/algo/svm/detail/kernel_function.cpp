@@ -24,7 +24,6 @@ using daal_kf_t = daal::algorithms::kernel_function::KernelIfacePtr;
 namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
 namespace daal_rbf_kernel = daal::algorithms::kernel_function::rbf;
 namespace daal_polynomial_kernel = daal::algorithms::kernel_function::polynomial::internal;
-namespace daal_sigmoid_kernel = daal::algorithms::kernel_function::polynomial::internal;
 
 template <typename F, typename M>
 using linear_kernel_t = linear_kernel::descriptor<F, M>;
@@ -152,15 +151,15 @@ public:
 
     daal_kf_t get_daal_kernel_function(bool is_dense) override {
         if (is_dense) {
-            constexpr daal_sigmoid_kernel::Method daal_method = get_daal_dense_method();
-            auto alg = new daal_sigmoid_kernel::Batch<Float, daal_method>;
+            constexpr daal_polynomial_kernel::Method daal_method = get_daal_dense_method();
+            auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
             return daal_kf_t(alg);
         }
         else {
-            constexpr daal_sigmoid_kernel::Method daal_method = get_daal_csr_method();
-            auto alg = new daal_sigmoid_kernel::Batch<Float, daal_method>;
+            constexpr daal_polynomial_kernel::Method daal_method = get_daal_csr_method();
+            auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
             return daal_kf_t(alg);
@@ -168,12 +167,12 @@ public:
     }
 
 private:
-    static constexpr daal_sigmoid_kernel::Method get_daal_dense_method() {
-        return daal_sigmoid_kernel::Method::defaultDense;
+    static constexpr daal_polynomial_kernel::Method get_daal_dense_method() {
+        return daal_polynomial_kernel::Method::defaultDense;
     }
 
-    static constexpr daal_sigmoid_kernel::Method get_daal_csr_method() {
-        return daal_sigmoid_kernel::Method::fastCSR;
+    static constexpr daal_polynomial_kernel::Method get_daal_csr_method() {
+        return daal_polynomial_kernel::Method::fastCSR;
     }
 
     double scale_;

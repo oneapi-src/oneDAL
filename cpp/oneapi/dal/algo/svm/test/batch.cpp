@@ -60,70 +60,11 @@ public:
         return te::table_id::homogen<Float>();
     }
 
-    void check_linear_kernel(
+    template<typename KernelType>
+    void check_kernel(
         const table& train_data,
         const table& train_labels,
-        const svm::descriptor<Float, Method, svm::task::classification, KernelTypeLinear>& desc,
-        const std::int64_t support_vector_count,
-        const table& support_indices,
-        const table& decision_function,
-        const table& labels) {
-        CAPTURE(support_vector_count);
-
-        INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
-        const auto model = train_result.get_model();
-        check_train_result(train_data, train_result, support_vector_count, support_indices);
-
-        INFO("run inference");
-        const auto infer_result = infer(desc, model, train_data);
-        check_infer_result(train_data, infer_result, decision_function, labels);
-    }
-
-    void check_rbf_kernel(
-        const table& train_data,
-        const table& train_labels,
-        const svm::descriptor<Float, Method, svm::task::classification, KernelTypeRBF>& desc,
-        const std::int64_t support_vector_count,
-        const table& support_indices,
-        const table& decision_function,
-        const table& labels) {
-        CAPTURE(support_vector_count);
-
-        INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
-        const auto model = train_result.get_model();
-        check_train_result(train_data, train_result, support_vector_count, support_indices);
-
-        INFO("run inference");
-        const auto infer_result = infer(desc, model, train_data);
-        check_infer_result(train_data, infer_result, decision_function, labels);
-    }
-
-    void check_polynomial_kernel(
-        const table& train_data,
-        const table& train_labels,
-        const svm::descriptor<Float, Method, svm::task::classification, KernelTypePolynomial>& desc,
-        const std::int64_t support_vector_count,
-        const table& support_indices,
-        const table& decision_function,
-        const table& labels) {
-        CAPTURE(support_vector_count);
-
-        INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
-        const auto model = train_result.get_model();
-        check_train_result(train_data, train_result, support_vector_count, support_indices);
-
-        INFO("run inference");
-        const auto infer_result = infer(desc, model, train_data);
-        check_infer_result(train_data, infer_result, decision_function, labels);
-    }
-
-    void check_sigmoid_kernel(
-        const table& train_data,
-        const table& train_labels,
-        const svm::descriptor<Float, Method, svm::task::classification, KernelTypeSigmoid>& desc,
+        const svm::descriptor<Float, Method, svm::task::classification, KernelType>& desc,
         const std::int64_t support_vector_count,
         const table& support_indices,
         const table& decision_function,
@@ -272,114 +213,13 @@ public:
         REQUIRE(te::has_no_nans(decision_function));
     }
 
-    void check_linear_kernel_accuracy(
+    template<typename KernelType>
+    void check_kernel_accuracy(
         const table& train_data,
         const table& train_labels,
         const table& test_data,
         const table& test_labels,
-        svm::descriptor<Float, Method, svm::task::classification, KernelTypeLinear>& desc,
-        const Float ref_accuracy) {
-        INFO("set desctiptor parameters");
-        desc.set_accuracy_threshold(0.001);
-        desc.set_max_iteration_count(10 * train_data.get_row_count());
-        desc.set_cache_size(2048.0);
-        desc.set_tau(1.0e-6);
-
-        INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
-        const auto model = train_result.get_model();
-        check_shapes(train_data, train_result, model.get_support_vector_count());
-        check_nans(train_result);
-
-        INFO("run inference");
-        const auto infer_result = infer(desc, model, test_data);
-        check_shapes(test_data, infer_result);
-        check_nans(infer_result);
-
-        const Float tolerance = 1e-5;
-
-        const auto score_table =
-            te::accuracy_score<Float>(infer_result.get_labels(), test_labels, tolerance);
-        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
-
-        CAPTURE(score);
-        REQUIRE(score >= ref_accuracy);
-    }
-
-    void check_rbf_kernel_accuracy(
-        const table& train_data,
-        const table& train_labels,
-        const table& test_data,
-        const table& test_labels,
-        svm::descriptor<Float, Method, svm::task::classification, KernelTypeRBF>& desc,
-        const Float ref_accuracy) {
-        INFO("set desctiptor parameters");
-        desc.set_accuracy_threshold(0.001);
-        desc.set_max_iteration_count(10 * train_data.get_row_count());
-        desc.set_cache_size(2048.0);
-        desc.set_tau(1.0e-6);
-
-        INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
-        const auto model = train_result.get_model();
-        check_shapes(train_data, train_result, model.get_support_vector_count());
-        check_nans(train_result);
-
-        INFO("run inference");
-        const auto infer_result = infer(desc, model, test_data);
-        check_shapes(test_data, infer_result);
-        check_nans(infer_result);
-
-        const Float tolerance = 1e-5;
-
-        const auto score_table =
-            te::accuracy_score<Float>(infer_result.get_labels(), test_labels, tolerance);
-        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
-
-        CAPTURE(score);
-        REQUIRE(score >= ref_accuracy);
-    }
-
-    void check_polynomial_kernel_accuracy(
-        const table& train_data,
-        const table& train_labels,
-        const table& test_data,
-        const table& test_labels,
-        svm::descriptor<Float, Method, svm::task::classification, KernelTypePolynomial>& desc,
-        const Float ref_accuracy) {
-        INFO("set desctiptor parameters");
-        desc.set_accuracy_threshold(0.001);
-        desc.set_max_iteration_count(10 * train_data.get_row_count());
-        desc.set_cache_size(2048.0);
-        desc.set_tau(1.0e-6);
-
-        INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
-        const auto model = train_result.get_model();
-        check_shapes(train_data, train_result, model.get_support_vector_count());
-        check_nans(train_result);
-
-        INFO("run inference");
-        const auto infer_result = infer(desc, model, test_data);
-        check_shapes(test_data, infer_result);
-        check_nans(infer_result);
-
-        const Float tolerance = 1e-5;
-
-        const auto score_table =
-            te::accuracy_score<Float>(infer_result.get_labels(), test_labels, tolerance);
-        const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
-
-        CAPTURE(score);
-        REQUIRE(score >= ref_accuracy);
-    }
-
-    void check_sigmoid_kernel_accuracy(
-        const table& train_data,
-        const table& train_labels,
-        const table& test_data,
-        const table& test_labels,
-        svm::descriptor<Float, Method, svm::task::classification, KernelTypeSigmoid>& desc,
+        svm::descriptor<Float, Method, svm::task::classification, KernelType>& desc,
         const Float ref_accuracy) {
         INFO("set desctiptor parameters");
         desc.set_accuracy_threshold(0.001);
@@ -474,7 +314,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     };
     const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
 
-    this->check_linear_kernel(x,
+    this->check_kernel(x,
                               y,
                               svm_desc,
                               support_vector_count,
@@ -535,7 +375,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     };
     const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
 
-    this->check_linear_kernel(x,
+    this->check_kernel(x,
                               y,
                               svm_desc,
                               support_vector_count,
@@ -592,7 +432,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                                                                    1.0,  1.0,  -1.0, 1.0 };
     const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
 
-    this->check_linear_kernel(x,
+    this->check_kernel(x,
                               y,
                               svm_desc,
                               support_vector_count,
@@ -642,7 +482,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto support_indices =
         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
 
-    this->check_rbf_kernel(x,
+    this->check_kernel(x,
                            y,
                            svm_desc,
                            support_vector_count,
@@ -799,7 +639,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.975;
 
-    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -835,7 +675,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.9878;
 
-    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -871,7 +711,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 1;
 
-    this->check_polynomial_kernel_accuracy(x_train,
+    this->check_kernel_accuracy(x_train,
                                            y_train,
                                            x_test,
                                            y_test,
@@ -912,7 +752,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 1;
 
-    this->check_sigmoid_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -946,7 +786,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.8538;
 
-    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -979,7 +819,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.6395;
 
-    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -1012,7 +852,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 1;
 
-    this->check_polynomial_kernel_accuracy(x_train,
+    this->check_kernel_accuracy(x_train,
                                            y_train,
                                            x_test,
                                            y_test,
@@ -1050,7 +890,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 1;
 
-    this->check_sigmoid_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -1083,7 +923,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.9;
 
-    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -1117,7 +957,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.6379;
 
-    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -1151,7 +991,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.8842;
 
-    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -1184,7 +1024,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.9025;
 
-    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -1218,7 +1058,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.8999;
 
-    this->check_rbf_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -1251,7 +1091,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 0.6379;
 
-    this->check_linear_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 } // namespace oneapi::dal::svm::test
