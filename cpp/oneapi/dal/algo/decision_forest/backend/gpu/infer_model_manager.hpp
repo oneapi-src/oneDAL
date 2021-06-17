@@ -68,10 +68,10 @@ public:
               ctx_(ctx) {
         const daal_model_impl_t* const daal_model_ptr = get_daal_model(model);
 
-        ONEDAL_ASSERT(dal::detail::integral_cast<size_t>(ctx_.tree_count_) ==
+        ONEDAL_ASSERT(dal::detail::integral_cast<size_t>(ctx_.tree_count) ==
                       daal_model_ptr->size());
 
-        const auto tree_count = ctx_.tree_count_;
+        const auto tree_count = ctx_.tree_count;
 
         std::vector<const daal_decision_tree_table_t*> tree_list;
         tree_list.resize(tree_count);
@@ -95,19 +95,19 @@ public:
         auto fv_list_host = dal::backend::primitives::ndarray<Float, 1>::empty({ tree_block_size });
 
         Index mul_class_count_and_tree_in_group_count =
-            dal::detail::check_mul_overflow(ctx_.class_count_, ctx_.tree_in_group_count_);
-        dal::detail::check_mul_overflow(ctx_.row_count_, mul_class_count_and_tree_in_group_count);
+            dal::detail::check_mul_overflow(ctx_.class_count, ctx_.tree_in_group_count);
+        dal::detail::check_mul_overflow(ctx_.row_count, mul_class_count_and_tree_in_group_count);
 
         dal::backend::primitives::ndarray<Float, 1> probas_list_host;
 
-        if (ctx_.voting_mode_ == voting_mode::weighted && daal_model_ptr->getProbas(0)) {
-            dal::detail::check_mul_overflow<std::int64_t>(tree_block_size, ctx_.class_count_);
+        if (ctx_.voting_mode == voting_mode::weighted && daal_model_ptr->getProbas(0)) {
+            dal::detail::check_mul_overflow<std::int64_t>(tree_block_size, ctx_.class_count);
             probas_list_host = dal::backend::primitives::ndarray<Float, 1>::empty(
-                { tree_block_size * ctx_.class_count_ });
+                { tree_block_size * ctx_.class_count });
             weighted_available_ = true;
         }
 
-        for (Index tree_idx = 0; tree_idx < ctx_.tree_count_; tree_idx++) {
+        for (Index tree_idx = 0; tree_idx < ctx_.tree_count; tree_idx++) {
             const Index tree_size = tree_list[tree_idx]->getNumberOfRows();
             const daal_decision_tree_node_t* const dt_node_list =
                 static_cast<const daal_decision_tree_node_t*>((*tree_list[tree_idx]).getArray());
@@ -127,10 +127,10 @@ public:
             if (weighted_available_) {
                 const double* probas = daal_model_ptr->getProbas(tree_idx);
                 Float* pv = probas_list_host.get_mutable_data() +
-                            tree_idx * max_tree_size_ * ctx_.class_count_;
+                            tree_idx * max_tree_size_ * ctx_.class_count;
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (Index i = 0; i < tree_size * ctx_.class_count_; i++) {
+                for (Index i = 0; i < tree_size * ctx_.class_count; i++) {
                     pv[i] = static_cast<Float>(probas[i]);
                 }
             }

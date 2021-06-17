@@ -27,47 +27,47 @@ struct infer_impl_const;
 
 template <typename Index>
 struct infer_impl_const<Index, task::classification> {
-    constexpr static Index bad_val_ = -1;
-    constexpr static Index leaf_mark_ = bad_val_;
+    constexpr static Index bad_val = -1;
+    constexpr static Index leaf_mark = bad_val;
 };
 
 template <typename Index>
 struct infer_impl_const<Index, task::regression> {
-    constexpr static Index bad_val_ = -1;
-    constexpr static Index leaf_mark_ = bad_val_;
+    constexpr static Index bad_val = -1;
+    constexpr static Index leaf_mark = bad_val;
 };
 
 template <typename Float, typename Index = std::int32_t, typename Task = task::by_default>
 struct infer_context {
-    Index class_count_ = 0;
-    Index row_count_ = 0;
-    Index column_count_ = 0;
-    Index tree_count_ = 0;
-    Index tree_in_group_count_ = 0;
-    Index row_block_count_ = 0;
-    voting_mode voting_mode_;
+    Index class_count = 0;
+    Index row_count = 0;
+    Index column_count = 0;
+    Index tree_count = 0;
+    Index tree_in_group_count = 0;
+    Index row_block_count = 0;
+    voting_mode voting_mode;
 
-    static constexpr inline Index max_local_size_ = 128;
-    static constexpr inline Index max_group_count_ = 256;
+    static constexpr inline Index max_local_size = 128;
+    static constexpr inline Index max_group_count = 256;
 
     // following constants showed best performance on benchmark's datasets
-    static constexpr inline Index row_count_large_ = 500000;
-    static constexpr inline Index row_count_medium_ = 100000;
+    static constexpr inline Index row_count_large = 500000;
+    static constexpr inline Index row_count_medium = 100000;
 
-    static constexpr inline Index row_block_count_for_large_ = 16;
-    static constexpr inline Index row_block_count_for_medium_ = 8;
+    static constexpr inline Index row_block_count_for_large = 16;
+    static constexpr inline Index row_block_count_for_medium = 8;
 
-    static constexpr inline Index tree_count_large_ = 192;
-    static constexpr inline Index tree_count_medium_ = 48;
-    static constexpr inline Index tree_count_small_ = 12;
+    static constexpr inline Index tree_count_large = 192;
+    static constexpr inline Index tree_count_medium = 48;
+    static constexpr inline Index tree_count_small = 12;
 
-    static constexpr inline Index tree_in_group_count_for_large_ = 128;
-    static constexpr inline Index tree_in_group_count_for_medium_ = 32;
-    static constexpr inline Index tree_in_group_count_for_small_ = 16;
-    static constexpr inline Index tree_in_group_count_min_ = 8;
+    static constexpr inline Index tree_in_group_count_for_large = 128;
+    static constexpr inline Index tree_in_group_count_for_medium = 32;
+    static constexpr inline Index tree_in_group_count_for_small = 16;
+    static constexpr inline Index tree_in_group_count_min = 8;
 
-    static constexpr inline Index preferable_group_size_ = 256;
-    static constexpr inline Index preferable_sbg_size_ = 16;
-    static constexpr inline Index max_local_block_count_ = 1024;
+    static constexpr inline Index preferable_group_size = 256;
+    static constexpr inline Index preferable_sbg_size = 16;
+    static constexpr inline Index max_local_block_count = 1024;
 };
 } // namespace oneapi::dal::decision_forest::backend

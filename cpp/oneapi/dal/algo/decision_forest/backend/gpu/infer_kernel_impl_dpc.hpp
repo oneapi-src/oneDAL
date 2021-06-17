@@ -66,32 +66,32 @@ void infer_kernel_impl<Float, Index, Task>::init_params(infer_context_t& ctx,
                                                         const model_t& model,
                                                         const table& data) const {
     if constexpr (std::is_same_v<Task, task::classification>) {
-        ctx.class_count_ = de::integral_cast<Index>(desc.get_class_count());
-        ctx.voting_mode_ = desc.get_voting_mode();
+        ctx.class_count = de::integral_cast<Index>(desc.get_class_count());
+        ctx.voting_mode = desc.get_voting_mode();
     }
-    ctx.row_count_ = de::integral_cast<Index>(data.get_row_count());
-    ctx.column_count_ = de::integral_cast<Index>(data.get_column_count());
+    ctx.row_count = de::integral_cast<Index>(data.get_row_count());
+    ctx.column_count = de::integral_cast<Index>(data.get_column_count());
 
-    ctx.tree_count_ = de::integral_cast<Index>(model.get_tree_count());
+    ctx.tree_count = de::integral_cast<Index>(model.get_tree_count());
 
-    ctx.tree_in_group_count_ = ctx.tree_in_group_count_min_;
+    ctx.tree_in_group_count = ctx.tree_in_group_count_min;
 
-    if (ctx.tree_count_ > ctx.tree_count_large_) {
-        ctx.tree_in_group_count_ = ctx.tree_in_group_count_for_large_;
+    if (ctx.tree_count > ctx.tree_count_large) {
+        ctx.tree_in_group_count = ctx.tree_in_group_count_for_large;
     }
-    else if (ctx.tree_count_ > ctx.tree_count_medium_) {
-        ctx.tree_in_group_count_ = ctx.tree_in_group_count_for_medium_;
+    else if (ctx.tree_count > ctx.tree_count_medium) {
+        ctx.tree_in_group_count = ctx.tree_in_group_count_for_medium;
     }
-    else if (ctx.tree_count_ > ctx.tree_count_small_) {
-        ctx.tree_in_group_count_ = ctx.tree_in_group_count_for_small_;
+    else if (ctx.tree_count > ctx.tree_count_small) {
+        ctx.tree_in_group_count = ctx.tree_in_group_count_for_small;
     }
 
-    ctx.row_block_count_ = 1;
-    if (ctx.row_count_ > ctx.row_count_large_) {
-        ctx.row_block_count_ = ctx.row_block_count_for_large_;
+    ctx.row_block_count = 1;
+    if (ctx.row_count > ctx.row_count_large) {
+        ctx.row_block_count = ctx.row_block_count_for_large;
     }
-    else if (ctx.row_count_ > ctx.row_count_medium_) {
-        ctx.row_block_count_ = ctx.row_block_count_for_medium_;
+    else if (ctx.row_count > ctx.row_count_medium) {
+        ctx.row_block_count = ctx.row_block_count_for_medium;
     }
 }
 
@@ -107,17 +107,16 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
     auto [ftr_idx_list, lch_idx_or_class_id_list, ftr_value_list] = mng.get_serialized_data();
     auto class_proba_list = mng.get_class_probabilities_list();
 
-    ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
-    ONEDAL_ASSERT(ftr_idx_list.get_count() == ctx.tree_count_ * max_tree_size);
-    ONEDAL_ASSERT(lch_idx_or_class_id_list.get_count() == ctx.tree_count_ * max_tree_size);
-    ONEDAL_ASSERT(ftr_value_list.get_count() == ctx.tree_count_ * max_tree_size);
-    ONEDAL_ASSERT(class_proba_list.get_count() ==
-                  ctx.tree_count_ * ctx.class_count_ * max_tree_size);
+    ONEDAL_ASSERT(data.get_count() == ctx.row_count * ctx.column_count);
+    ONEDAL_ASSERT(ftr_idx_list.get_count() == ctx.tree_count * max_tree_size);
+    ONEDAL_ASSERT(lch_idx_or_class_id_list.get_count() == ctx.tree_count * max_tree_size);
+    ONEDAL_ASSERT(ftr_value_list.get_count() == ctx.tree_count * max_tree_size);
+    ONEDAL_ASSERT(class_proba_list.get_count() == ctx.tree_count * ctx.class_count * max_tree_size);
 
-    const Index row_count = ctx.row_count_;
-    const Index column_count = ctx.column_count_;
-    const Index class_count = ctx.class_count_;
-    const Index tree_count = ctx.tree_count_;
+    const Index row_count = ctx.row_count;
+    const Index column_count = ctx.column_count;
+    const Index class_count = ctx.class_count;
+    const Index tree_count = ctx.tree_count;
     const Float scale = Float(1) / tree_count;
 
     const Float* data_ptr = data.get_data();
@@ -126,23 +125,23 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
     const Float* ftr_val_list_ptr = ftr_value_list.get_data();
     const Float* cls_prb_list_ptr = class_proba_list.get_data();
 
-    Index obs_tree_group_response_count = ctx.class_count_ * ctx.tree_in_group_count_;
-    de::check_mul_overflow(ctx.row_count_, obs_tree_group_response_count);
+    Index obs_tree_group_response_count = ctx.class_count * ctx.tree_in_group_count;
+    de::check_mul_overflow(ctx.row_count, obs_tree_group_response_count);
     auto [obs_response_list, zero_obs_response_event] =
         pr::ndarray<Float, 1>::zeros(queue_,
-                                     ctx.row_count_ * obs_tree_group_response_count,
+                                     ctx.row_count * obs_tree_group_response_count,
                                      alloc::device);
 
     Float* obs_cls_hist_list_ptr = obs_response_list.get_mutable_data();
 
-    auto local_size = ctx.max_local_size_;
-    const cl::sycl::nd_range<2> nd_range = be::make_multiple_nd_range_2d(
-        { ctx.row_block_count_ * local_size, ctx.tree_in_group_count_ },
-        { local_size, 1 });
+    auto local_size = ctx.max_local_size;
+    const cl::sycl::nd_range<2> nd_range =
+        be::make_multiple_nd_range_2d({ ctx.row_block_count * local_size, ctx.tree_in_group_count },
+                                      { local_size, 1 });
 
     cl::sycl::event last_event = zero_obs_response_event;
     for (Index proc_tree_count = 0; proc_tree_count < tree_count;
-         proc_tree_count += ctx.tree_in_group_count_) {
+         proc_tree_count += ctx.tree_in_group_count) {
         last_event = queue_.submit([&](cl::sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.depends_on(last_event);
@@ -155,7 +154,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
                 const Index n_tree_groups = item.get_group_range(1);
                 const Index tree_group_id = item.get_group().get_id(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
-                const Index leaf_mark = impl_const_t::leaf_mark_;
+                const Index leaf_mark = impl_const_t::leaf_mark;
 
                 const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 
@@ -210,15 +209,15 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
 
     auto [ftr_idx_list, lch_idx_or_class_id_list, ftr_value_list] = mng.get_serialized_data();
 
-    ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
-    ONEDAL_ASSERT(ftr_idx_list.get_count() == ctx.tree_count_ * max_tree_size);
-    ONEDAL_ASSERT(lch_idx_or_class_id_list.get_count() == ctx.tree_count_ * max_tree_size);
-    ONEDAL_ASSERT(ftr_value_list.get_count() == ctx.tree_count_ * max_tree_size);
+    ONEDAL_ASSERT(data.get_count() == ctx.row_count * ctx.column_count);
+    ONEDAL_ASSERT(ftr_idx_list.get_count() == ctx.tree_count * max_tree_size);
+    ONEDAL_ASSERT(lch_idx_or_class_id_list.get_count() == ctx.tree_count * max_tree_size);
+    ONEDAL_ASSERT(ftr_value_list.get_count() == ctx.tree_count * max_tree_size);
 
-    const Index row_count = ctx.row_count_;
-    const Index column_count = ctx.column_count_;
-    const Index class_count = ctx.class_count_;
-    const Index tree_count = ctx.tree_count_;
+    const Index row_count = ctx.row_count;
+    const Index column_count = ctx.column_count;
+    const Index class_count = ctx.class_count;
+    const Index tree_count = ctx.tree_count;
     const Float scale = Float(1) / tree_count;
 
     const Float* data_ptr = data.get_data();
@@ -226,26 +225,26 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
     const Index* lch_cls_list_ptr = lch_idx_or_class_id_list.get_data();
     const Float* ftr_val_list_ptr = ftr_value_list.get_data();
 
-    Index obs_tree_group_response_count = ctx.tree_in_group_count_;
+    Index obs_tree_group_response_count = ctx.tree_in_group_count;
     if constexpr (is_classification) {
-        obs_tree_group_response_count = ctx.class_count_ * ctx.tree_in_group_count_;
-        de::check_mul_overflow(ctx.row_count_, obs_tree_group_response_count);
+        obs_tree_group_response_count = ctx.class_count * ctx.tree_in_group_count;
+        de::check_mul_overflow(ctx.row_count, obs_tree_group_response_count);
     }
     auto [obs_response_list, zero_obs_response_event] =
         pr::ndarray<Float, 1>::zeros(queue_,
-                                     ctx.row_count_ * obs_tree_group_response_count,
+                                     ctx.row_count * obs_tree_group_response_count,
                                      alloc::device);
 
     Float* obs_cls_hist_list_ptr = obs_response_list.get_mutable_data();
 
-    auto local_size = ctx.max_local_size_;
-    const cl::sycl::nd_range<2> nd_range = be::make_multiple_nd_range_2d(
-        { ctx.row_block_count_ * local_size, ctx.tree_in_group_count_ },
-        { local_size, 1 });
+    auto local_size = ctx.max_local_size;
+    const cl::sycl::nd_range<2> nd_range =
+        be::make_multiple_nd_range_2d({ ctx.row_block_count * local_size, ctx.tree_in_group_count },
+                                      { local_size, 1 });
 
     cl::sycl::event last_event = zero_obs_response_event;
     for (Index proc_tree_count = 0; proc_tree_count < tree_count;
-         proc_tree_count += ctx.tree_in_group_count_) {
+         proc_tree_count += ctx.tree_in_group_count) {
         last_event = queue_.submit([&](cl::sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.depends_on(last_event);
@@ -258,7 +257,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
                 const Index n_tree_groups = item.get_group_range(1);
                 const Index tree_group_id = item.get_group().get_id(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
-                const Index leaf_mark = impl_const_t::leaf_mark_;
+                const Index leaf_mark = impl_const_t::leaf_mark;
 
                 const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 
@@ -314,25 +313,25 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
     const be::event_vector& deps) {
     constexpr bool is_classification = std::is_same_v<Task, task::classification>;
 
-    Index response_count = ctx.row_count_;
+    Index response_count = ctx.row_count;
 
     if constexpr (is_classification) {
         ONEDAL_ASSERT(obs_response_list.get_count() ==
-                      ctx.row_count_ * ctx.class_count_ * ctx.tree_in_group_count_);
-        de::check_mul_overflow(ctx.class_count_, ctx.row_count_);
-        response_count = ctx.row_count_ * ctx.class_count_;
+                      ctx.row_count * ctx.class_count * ctx.tree_in_group_count);
+        de::check_mul_overflow(ctx.class_count, ctx.row_count);
+        response_count = ctx.row_count * ctx.class_count;
     }
     else {
-        ONEDAL_ASSERT(obs_response_list.get_count() == ctx.row_count_ * ctx.tree_in_group_count_);
+        ONEDAL_ASSERT(obs_response_list.get_count() == ctx.row_count * ctx.tree_in_group_count);
     }
 
     auto [response_list, zero_response_event] =
         pr::ndarray<Float, 1>::zeros(queue_, response_count, alloc::device);
 
-    const Index class_count = ctx.class_count_;
-    const Index row_count = ctx.row_count_;
-    const Index tree_in_group_count = ctx.tree_in_group_count_;
-    const Index tree_count = ctx.tree_count_;
+    const Index class_count = ctx.class_count;
+    const Index row_count = ctx.row_count;
+    const Index tree_in_group_count = ctx.tree_in_group_count;
+    const Index tree_count = ctx.tree_count;
     const Float scale = Float(1) / tree_count;
 
     const Float* obs_response_list_ptr = obs_response_list.get_data();
@@ -341,7 +340,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
     const auto local_size = be::device_max_sg_size(queue_);
 
     const cl::sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d({ ctx.max_group_count_ * local_size }, { local_size });
+        be::make_multiple_nd_range_1d({ ctx.max_group_count * local_size }, { local_size });
 
     cl::sycl::event last_event = zero_response_event;
     last_event = queue_.submit([&](cl::sycl::handler& cgh) {
@@ -413,17 +412,17 @@ std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
 infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& ctx,
                                                         const pr::ndview<Float, 1>& response_list,
                                                         const be::event_vector& deps) {
-    ONEDAL_ASSERT(response_list.get_count() == ctx.row_count_ * ctx.class_count_);
-    auto winner_list = pr::ndarray<Float, 1>::empty(queue_, { ctx.row_count_ }, alloc::device);
+    ONEDAL_ASSERT(response_list.get_count() == ctx.row_count * ctx.class_count);
+    auto winner_list = pr::ndarray<Float, 1>::empty(queue_, { ctx.row_count }, alloc::device);
 
-    Index class_count = ctx.class_count_;
-    Index row_count = ctx.row_count_;
+    Index class_count = ctx.class_count;
+    Index row_count = ctx.row_count;
     const Float* response_list_ptr = response_list.get_data();
     Float* winner_list_ptr = winner_list.get_mutable_data();
 
     const cl::sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d({ ctx.max_group_count_ * ctx.max_local_size_ },
-                                      { ctx.max_local_size_ });
+        be::make_multiple_nd_range_1d({ ctx.max_group_count * ctx.max_local_size },
+                                      { ctx.max_local_size });
 
     cl::sycl::event last_event;
     last_event = queue_.submit([&](cl::sycl::handler& cgh) {
@@ -476,7 +475,7 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
     cl::sycl::event predict_event;
 
     if constexpr (std::is_same_v<Task, task::classification>) {
-        if (voting_mode::weighted == ctx.voting_mode_ && model_mng.is_weighted_available()) {
+        if (voting_mode::weighted == ctx.voting_mode && model_mng.is_weighted_available()) {
             std::tie(tree_group_response_list, predict_event) =
                 predict_by_tree_group_weighted(ctx, data_nd, model_mng);
             std::tie(response_list, predict_event) =
@@ -501,19 +500,18 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
 
         if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
             auto response_host = response.to_host(queue_, { winner_event });
-            res.set_labels(homogen_table::wrap(response_host.flatten(), ctx.row_count_, 1));
+            res.set_labels(homogen_table::wrap(response_host.flatten(), ctx.row_count, 1));
         }
 
         if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
             auto response_list_host = response_list.to_host(queue_, { predict_event });
-            res.set_probabilities(homogen_table::wrap(response_list_host.flatten(),
-                                                      ctx.row_count_,
-                                                      ctx.class_count_));
+            res.set_probabilities(
+                homogen_table::wrap(response_list_host.flatten(), ctx.row_count, ctx.class_count));
         }
     }
     else {
         auto response_list_host = response_list.to_host(queue_, { predict_event });
-        res.set_labels(homogen_table::wrap(response_list_host.flatten(), ctx.row_count_, 1));
+        res.set_labels(homogen_table::wrap(response_list_host.flatten(), ctx.row_count, 1));
     }
 
     return res;
