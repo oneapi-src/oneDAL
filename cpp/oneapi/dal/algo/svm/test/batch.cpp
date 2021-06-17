@@ -60,7 +60,7 @@ public:
         return te::table_id::homogen<Float>();
     }
 
-    template<typename KernelType>
+    template <typename KernelType>
     void check_kernel(
         const table& train_data,
         const table& train_labels,
@@ -213,7 +213,7 @@ public:
         REQUIRE(te::has_no_nans(decision_function));
     }
 
-    template<typename KernelType>
+    template <typename KernelType>
     void check_kernel_accuracy(
         const table& train_data,
         const table& train_labels,
@@ -315,12 +315,12 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
 
     this->check_kernel(x,
-                              y,
-                              svm_desc,
-                              support_vector_count,
-                              support_indices,
-                              decision_function,
-                              labels);
+                       y,
+                       svm_desc,
+                       support_vector_count,
+                       support_indices,
+                       decision_function,
+                       labels);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -376,12 +376,12 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
 
     this->check_kernel(x,
-                              y,
-                              svm_desc,
-                              support_vector_count,
-                              support_indices,
-                              decision_function,
-                              labels);
+                       y,
+                       svm_desc,
+                       support_vector_count,
+                       support_indices,
+                       decision_function,
+                       labels);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -433,12 +433,12 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
 
     this->check_kernel(x,
-                              y,
-                              svm_desc,
-                              support_vector_count,
-                              support_indices,
-                              decision_function,
-                              labels);
+                       y,
+                       svm_desc,
+                       support_vector_count,
+                       support_indices,
+                       decision_function,
+                       labels);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -482,13 +482,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto support_indices =
         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
 
-    this->check_kernel(x,
-                           y,
-                           svm_desc,
-                           support_vector_count,
-                           support_indices,
-                           homogen_table{},
-                           y);
+    this->check_kernel(x, y, svm_desc, support_vector_count, support_indices, homogen_table{}, y);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -711,12 +705,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 1;
 
-    this->check_kernel_accuracy(x_train,
-                                           y_train,
-                                           x_test,
-                                           y_test,
-                                           svm_desc,
-                                           ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -852,12 +841,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double ref_accuracy = 1;
 
-    this->check_kernel_accuracy(x_train,
-                                           y_train,
-                                           x_test,
-                                           y_test,
-                                           svm_desc,
-                                           ref_accuracy);
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
