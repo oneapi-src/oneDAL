@@ -153,7 +153,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
                 const Index n_tree_groups = item.get_group_range(1);
                 const Index tree_group_id = item.get_group().get_id(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
-                const Index leaf_mark = -1;
+                const Index leaf_mark = impl_const_t::leaf_mark_;
 
                 const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 
@@ -256,7 +256,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
                 const Index n_tree_groups = item.get_group_range(1);
                 const Index tree_group_id = item.get_group().get_id(1);
                 const Index tree_id = proc_tree_count + tree_group_id;
-                const Index leaf_mark = -1;
+                const Index leaf_mark = impl_const_t::leaf_mark_;
 
                 const Index elem_count = row_count / n_groups + bool(row_count % n_groups);
 
