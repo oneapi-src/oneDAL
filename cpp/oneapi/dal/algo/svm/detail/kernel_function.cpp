@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/svm/detail/kernel_function.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
+#include "daal/src/algorithms/kernel_function/kernel_function_dense_base.h"
 
 namespace oneapi::dal::svm::detail {
 namespace v1 {
@@ -155,6 +156,7 @@ public:
             auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
+            alg->parameter.kernelType = daal::algorithms::kernel_function::internal::KernelType::sigmoid;
             return daal_kf_t(alg);
         }
         else {
@@ -162,6 +164,7 @@ public:
             auto alg = new daal_polynomial_kernel::Batch<Float, daal_method>;
             alg->parameter.scale = scale_;
             alg->parameter.shift = shift_;
+            alg->parameter.kernelType = daal::algorithms::kernel_function::internal::KernelType::sigmoid;
             return daal_kf_t(alg);
         }
     }
