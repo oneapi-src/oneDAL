@@ -124,7 +124,7 @@
                             DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(daal::services::Environment::env * daalEnv)    \
         : BaseClassName(daalEnv), _cntr(nullptr)                                                                                                    \
     {                                                                                                                                               \
-        switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, cpuid))                                                                 \
+        switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRACTION_SET_ID, daalEnv->cpuid))                                                        \
         {                                                                                                                                           \
             DAAL_KERNEL_SSSE3_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
             DAAL_KERNEL_SSE42_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                                        \
