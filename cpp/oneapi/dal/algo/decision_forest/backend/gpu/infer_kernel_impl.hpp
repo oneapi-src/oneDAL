@@ -21,7 +21,6 @@
 #include "oneapi/dal/algo/decision_forest/infer_types.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_auxiliary_structs.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_model_manager.hpp"
 
 namespace oneapi::dal::decision_forest::backend {

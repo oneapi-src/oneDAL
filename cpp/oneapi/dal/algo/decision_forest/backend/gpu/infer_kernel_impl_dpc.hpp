@@ -94,7 +94,7 @@ void infer_kernel_impl<Float, Index, Task>::init_params(infer_context_t& ctx,
 }
 
 template <typename Float, typename Index, typename Task>
-std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
+std::tuple<pr::ndarray<Float, 1>, sycl::event>
 infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
     const infer_context_t& ctx,
     const pr::ndview<Float, 2>& data,

@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/algo/decision_forest/common.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/model_impl.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_auxiliary_structs.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/infer_misc_structs.hpp"
 
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_model_impl.h>
@@ -47,9 +47,6 @@ struct daal_types_map<task::regression> {
     using daal_model_impl_t = daal::algorithms::decision_forest::regression::internal::ModelImpl;
     using daal_model_ptr_t = daal::algorithms::decision_forest::regression::ModelPtr;
 };
-
-using namespace daal::algorithms::dtrees::internal;
-using namespace daal::services::internal;
 
 template <typename Float, typename Index, typename Task = task::by_default>
 class infer_model_manager {
@@ -91,26 +88,26 @@ public:
 
         max_tree_size_ = dal::detail::integral_cast<Index>(tree_size_max);
 
-        dal::detail::check_mul_overflow(max_tree_size_, tree_count);
-        const Index tree_block_size = max_tree_size_ * tree_count;
+        const Index tree_block_size = dal::detail::check_mul_overflow(max_tree_size_, tree_count);
 
         auto fi_list_host = dal::backend::primitives::ndarray<Index, 1>::empty({ tree_block_size });
         auto lc_list_host = dal::backend::primitives::ndarray<Index, 1>::empty({ tree_block_size });
         auto fv_list_host = dal::backend::primitives::ndarray<Float, 1>::empty({ tree_block_size });
 
         Index mul_class_count_and_tree_in_group_count =
-            ctx_.class_count_ * ctx.tree_in_group_count_;
-        dal::detail::check_mul_overflow(ctx.row_count_, mul_class_count_and_tree_in_group_count);
+            dal::detail::check_mul_overflow(ctx_.class_count_, ctx_.tree_in_group_count_);
+        dal::detail::check_mul_overflow(ctx_.row_count_, mul_class_count_and_tree_in_group_count);
 
         dal::backend::primitives::ndarray<Float, 1> probas_list_host;
 
-        if (ctx.voting_mode_ == voting_mode::weighted && daal_model_ptr->getProbas(0)) {
+        if (ctx_.voting_mode_ == voting_mode::weighted && daal_model_ptr->getProbas(0)) {
+            dal::detail::check_mul_overflow<std::int64_t>(tree_block_size, ctx_.class_count_);
             probas_list_host = dal::backend::primitives::ndarray<Float, 1>::empty(
-                { tree_block_size * ctx.class_count_ });
+                { tree_block_size * ctx_.class_count_ });
             weighted_available_ = true;
         }
 
-        for (Index tree_idx = 0; tree_idx < ctx.tree_count_; tree_idx++) {
+        for (Index tree_idx = 0; tree_idx < ctx_.tree_count_; tree_idx++) {
             const Index tree_size = tree_list[tree_idx]->getNumberOfRows();
             const daal_decision_tree_node_t* const dt_node_list =
                 static_cast<const daal_decision_tree_node_t*>((*tree_list[tree_idx]).getArray());
@@ -130,10 +127,10 @@ public:
             if (weighted_available_) {
                 const double* probas = daal_model_ptr->getProbas(tree_idx);
                 Float* pv = probas_list_host.get_mutable_data() +
-                            tree_idx * max_tree_size_ * ctx.class_count_;
+                            tree_idx * max_tree_size_ * ctx_.class_count_;
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (Index i = 0; i < tree_size * ctx.class_count_; i++) {
+                for (Index i = 0; i < tree_size * ctx_.class_count_; i++) {
                     pv[i] = static_cast<Float>(probas[i]);
                 }
             }
