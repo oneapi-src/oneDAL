@@ -227,18 +227,6 @@ public:
         UNSCOPED_INFO("The number of non-zero jaccard coefficients != 0");
         const std::int64_t nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
         REQUIRE(nonzero_coeff_count == 0);
-
-        /*
-        UNSCOPED_INFO("The non-empty table of vertex pairs was returned");
-        auto vertex_pairs_table = result_vertex_similarity.get_vertex_pairs();
-        homogen_table &vertex_pairs = static_cast<homogen_table &>(vertex_pairs_table);
-        const auto vertex_pairs_data = vertex_pairs.get_data<int>();
-        REQUIRE(vertex_pairs.has_data() == false);
-        UNSCOPED_INFO("The non-empty table of Jaccard coeffiсients was returned");
-        auto coeffs_table = result_vertex_similarity.get_coeffs();
-        homogen_table &coeffs = static_cast<homogen_table &>(coeffs_table);
-        REQUIRE(coeffs.has_data() == false);
-        */
     }
 };
 
@@ -435,7 +423,24 @@ TEST_M(jaccard_test, "Zero jaccard coeffs graph, row of 32 elements, right of th
 TEST_M(jaccard_test, "Null graph") {
     dal::preview::undirected_adjacency_vector_graph<> null_graph;
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 0 }, { 0, 0 });
-    this->check_jaccard_zero_coeffs_only<>(jaccard_desc, null_graph);
+    dal::preview::jaccard::caching_builder builder;
+    const auto result_vertex_similarity =
+        dal::preview::vertex_similarity(jaccard_desc, null_graph, builder);
+
+    UNSCOPED_INFO("The number of non-zero jaccard coefficients != 0");
+    const std::int64_t nonzero_coeff_count = result_vertex_similarity.get_nonzero_coeff_count();
+    REQUIRE(nonzero_coeff_count == 0);
+
+    UNSCOPED_INFO("The non-empty table of vertex pairs was returned");
+    auto vertex_pairs_table = result_vertex_similarity.get_vertex_pairs();
+    homogen_table &vertex_pairs = static_cast<homogen_table &>(vertex_pairs_table);
+    const auto vertex_pairs_data = vertex_pairs.get_data<int>();
+    REQUIRE(vertex_pairs.has_data() == false);
+
+    UNSCOPED_INFO("The non-empty table of Jaccard coeffiсients was returned");
+    auto coeffs_table = result_vertex_similarity.get_coeffs();
+    homogen_table &coeffs = static_cast<homogen_table &>(coeffs_table);
+    REQUIRE(coeffs.has_data() == false);
 }
 
 } // namespace oneapi::dal::algo::jaccard::test
