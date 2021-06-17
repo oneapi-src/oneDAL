@@ -34,13 +34,13 @@ ONEDAL_EXPORT void memcpy(const data_parallel_policy& policy,
                           const void* src,
                           std::int64_t size);
 ONEDAL_EXPORT void memcpy_usm2host(const data_parallel_policy& policy,
-                          void* dest_host,
-                          const void* src_usm,
-                          std::int64_t size);
+                                   void* dest_host,
+                                   const void* src_usm,
+                                   std::int64_t size);
 ONEDAL_EXPORT void memcpy_host2usm(const data_parallel_policy& policy,
-                          void* dest_usm,
-                          const void* src_host,
-                          std::int64_t size);
+                                   void* dest_usm,
+                                   const void* src_host,
+                                   std::int64_t size);
 ONEDAL_EXPORT bool is_known_usm_pointer_type(const data_parallel_policy& policy,
                                              const void* pointer);
 
