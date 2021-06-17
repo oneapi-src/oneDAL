@@ -44,7 +44,7 @@ void memcpy_usm2host(const data_parallel_policy& policy,
                      const void* src_usm,
                      std::int64_t size) {
     auto& queue = policy.get_queue();
-    backend::copy_usm2host(queue, (byte_t*)dest_host, (byte_t*)src_usm, size).wait_and_throw();
+    backend::memcpy_usm2host(queue, (byte_t*)dest_host, (byte_t*)src_usm, size).wait_and_throw();
 }
 
 void memcpy_host2usm(const data_parallel_policy& policy,
@@ -52,7 +52,7 @@ void memcpy_host2usm(const data_parallel_policy& policy,
                      const void* src_host,
                      std::int64_t size) {
     auto& queue = policy.get_queue();
-    backend::copy_host2usm(queue, (byte_t*)dest_usm, (byte_t*)src_host, size).wait_and_throw();
+    backend::memcpy_host2usm(queue, (byte_t*)dest_usm, (byte_t*)src_host, size).wait_and_throw();
 }
 
 bool is_known_usm_pointer_type(const data_parallel_policy& policy, const void* pointer) {

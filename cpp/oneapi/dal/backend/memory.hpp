@@ -116,7 +116,7 @@ inline sycl::event memcpy(sycl::queue& queue,
                           void* dest,
                           const void* src,
                           std::size_t size,
-                          const event_vector& deps) {
+                          const event_vector& deps = {}) {
     ONEDAL_ASSERT(size > 0);
     ONEDAL_ASSERT(is_known_usm(queue, dest));
     ONEDAL_ASSERT(is_known_usm(queue, src));
@@ -126,8 +126,36 @@ inline sycl::event memcpy(sycl::queue& queue,
     });
 }
 
-inline sycl::event memcpy(sycl::queue& queue, void* dest, const void* src, std::size_t size) {
-    return memcpy(queue, dest, src, size, {});
+inline sycl::event memcpy_host2usm(sycl::queue& queue,
+                                   void* dest_usm,
+                                   const void* src_host,
+                                   std::int64_t size,
+                                   const event_vector& deps = {}) {
+    ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
+
+    // TODO: Remove additional copy to host usm memory once
+    //       bug in `copy` with the host memory is fixed
+    void* tmp_usm_host = malloc_host(queue, size);
+    memcpy(tmp_usm_host, src_host, size);
+    memcpy(queue, dest_usm, tmp_usm_host, size, deps).wait_and_throw();
+    free(queue, tmp_usm_host);
+    return {};
+}
+
+inline sycl::event memcpy_usm2host(sycl::queue& queue,
+                                   void* dest_host,
+                                   const void* src_usm,
+                                   std::int64_t size,
+                                   const event_vector& deps = {}) {
+    ONEDAL_ASSERT(is_known_usm(queue, src_usm));
+
+    // TODO: Remove additional copy to host usm memory once
+    //       bug in `copy` with the host memory is fixed
+    void* tmp_usm_host = malloc_host(queue, size);
+    memcpy(queue, tmp_usm_host, src_usm, size, deps).wait_and_throw();
+    memcpy(dest_host, tmp_usm_host, size);
+    free(queue, tmp_usm_host);
+    return {};
 }
 
 template <typename T>
@@ -157,13 +185,9 @@ inline sycl::event copy_host2usm(sycl::queue& queue,
                                  std::int64_t count,
                                  const event_vector& deps = {}) {
     ONEDAL_ASSERT(count > 0);
-    ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    T* tmp_usm_host = malloc_host<T>(queue, count);
-    copy(tmp_usm_host, src_host, count);
-    return copy(queue, dest_usm, tmp_usm_host, count, deps);
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    return memcpy_host2usm(queue, dest_usm, src_host, sizeof(T) * n, deps);
 }
 
 template <typename T>
@@ -173,15 +197,9 @@ inline sycl::event copy_usm2host(sycl::queue& queue,
                                  std::int64_t count,
                                  const event_vector& deps = {}) {
     ONEDAL_ASSERT(count > 0);
-    ONEDAL_ASSERT(is_known_usm(queue, src_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    T* tmp_usm_host = malloc_host<T>(queue, count);
-    auto event = copy(queue, tmp_usm_host, src_usm, count, deps);
-    event.wait_and_throw();
-    copy(dest_host, tmp_usm_host, count);
-    return {};
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    return memcpy_usm2host(queue, dest_host, src_usm, sizeof(T) * n, deps);
 }
 
 template <typename T>
