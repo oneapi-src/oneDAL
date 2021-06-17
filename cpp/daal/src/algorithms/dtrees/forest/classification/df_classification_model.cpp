@@ -89,32 +89,6 @@ bool visitLeaf(const size_t iRowInTable, const size_t level, tree_utils::classif
     return visitor.onLeafNode(descLeaf);
 }
 
-template <>
-bool visitSplit(size_t iRowInTable, size_t level, tree_utils::interface1::SplitNodeDescriptor & descSplit, const DecisionTreeNode * aNode,
-                const double * imp, const int * nodeSamplesCount, tree_utils::classification::interface1::TreeNodeVisitor & visitor)
-{
-    const DecisionTreeNode & n = aNode[iRowInTable];
-    if (imp) descSplit.impurity = imp[iRowInTable];
-    if (nodeSamplesCount) descSplit.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descSplit.featureIndex = n.featureIndex;
-    descSplit.featureValue = n.featureValue();
-    descSplit.level        = level;
-    return visitor.onSplitNode(descSplit);
-}
-
-template <>
-bool visitLeaf(size_t iRowInTable, size_t level, tree_utils::classification::interface1::LeafNodeDescriptor & descLeaf,
-               const DecisionTreeNode * aNode, const double * imp, const int * nodeSamplesCount,
-               daal::algorithms::tree_utils::classification::interface1::TreeNodeVisitor & visitor)
-{
-    const DecisionTreeNode & n = aNode[iRowInTable];
-    if (imp) descLeaf.impurity = imp[iRowInTable];
-    if (nodeSamplesCount) descLeaf.nNodeSampleCount = (size_t)(nodeSamplesCount[iRowInTable]);
-    descLeaf.level = level;
-    descLeaf.label = n.leftIndexOrClass;
-    return visitor.onLeafNode(descLeaf);
-}
-
 } // namespace internal
 } // namespace dtrees
 
@@ -122,11 +96,6 @@ namespace decision_forest
 {
 namespace classification
 {
-namespace interface1
-{
-__DAAL_REGISTER_SERIALIZATION_CLASS2(Model, internal::ModelImpl, SERIALIZATION_DECISION_FOREST_CLASSIFICATION_MODEL_ID);
-}
-
 namespace internal
 {
 size_t ModelImpl::numberOfTrees() const
