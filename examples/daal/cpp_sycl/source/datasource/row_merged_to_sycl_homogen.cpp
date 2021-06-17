@@ -1,4 +1,4 @@
-/* file: datastructures_usm.cpp */
+/* file: row_merged_to_sycl_homogen.cpp */
 /*******************************************************************************
  * Copyright 2021 Intel Corporation
  *
