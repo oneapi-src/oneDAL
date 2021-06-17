@@ -100,48 +100,63 @@ using v1::range;
 
 template<typename NamespaceId>
 class optional_result_id {
-    static constexpr std::int64_t mask_size = 128;
+    using this_t = optional_result_id<namespace_id>;
     using bitset_t = std::bitset<mask_size>;
+
+    static constexpr std::int64_t mask_size = 128;
 
 public:
     optional_result_id() = default;
-    optional_result_id(const bitset_t& mask) : mask_(mask) {}
-    optional_result_id(bitset_t&& mask) : mask_(std::move(mask)) {}
+    optional_result_id(const bitset_t& mask) : mask_{mask} {}
+    optional_result_id(const oprional_result_id<NamespaceId>& prev) 
+                                        : mask_{prev.get_mask()} {}
 
-    explicit optional_result_id(std::int64_t result_index) {
-        mask_.set(result_index);
+    operator bool() const {
+        return mask_.any();
     }
 
     const bitset_t& get_mask() const {
         return mask_;
     }
 
+    static optional_result_id get_result_id_by_index(std::int64_t result_index) {
+        return this_t.set_mask(std::uint64_t(1) << result_index);
+    }
+
 private:
+    optional_result_id& set_mask(const bitset_t& mask) {
+        this->mask_ = mask;
+        return *this;
+    }
+
     bitset_t mask_;
 };
 
 template<typename NamespaceId>
 inline auto operator|(const optional_result_id<NamespaceId>& lhs, 
-                      const optional_result_id<NamespaceId>& rhs) {
+                      const optional_result_id<NamespaceId>& rhs) 
+                                            -> optional_result_id<NamespaceId> {
     return optional_result_id<NamespaceId>{ lhs.get_mask() | rhs.get_mask() };
 }
 
 template<typename NamespaceId>
 inline auto operator&(const optional_result_id<NamespaceId>& lhs, 
-                      const optional_result_id<NamespaceId>& rhs) {
+                      const optional_result_id<NamespaceId>& rhs) 
+                                            -> optional_result_id<NamespaceId> {
     return optional_result_id<NamespaceId>{ lhs.get_mask() & rhs.get_mask() };
 }
 
 template<typename NamespaceId>
-inline auto operator==(const optional_result_id<NamespaceId>& lhs, 
-                       const optional_result_id<NamespaceId>& rhs) {
-    return optional_result_id<NamespaceId>{ lhs.get_mask() == rhs.get_mask() };
+inline bool operator==(const optional_result_id<NamespaceId>& lhs, 
+                       const optional_result_id<NamespaceId>& rhs) 
+                                            -> optional_result_id<NamespaceId> {
+    return lhs.get_mask() == rhs.get_mask();
 }
 
 template<typename NamespaceId>
-inline auto operator!=(const optional_result_id<NamespaceId>& lhs, 
+inline bool operator!=(const optional_result_id<NamespaceId>& lhs, 
                        const optional_result_id<NamespaceId>& rhs) {
-    return optional_result_id<NamespaceId>{ lhs.get_mask() != rhs.get_mask() };
+    return lhs.get_mask() != rhs.get_mask();
 }
 
 } // namespace oneapi::dal

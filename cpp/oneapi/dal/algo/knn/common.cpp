@@ -20,10 +20,17 @@
 
 namespace oneapi::dal::knn {
 
-namespace optional_results {
-const optional_result_id indices{ 0 };
-const optional_result_id distances{ 1 };
-} // namespace optional_results
+namespace detail {
+
+optional_result_id_t get_indices_id() {
+    return optional_result_id_t::get_result_id_by_index(0);
+}
+
+optional_result_id_t get_distances_id() {
+    return optional_result_id_t::get_result_id_by_index(1);
+}
+
+} // namespace detail
 
 namespace detail {
 namespace v1 {
@@ -33,7 +40,7 @@ class descriptor_impl : public base {
 public:
     std::int64_t class_count = 2;
     std::int64_t neighbor_count = 1;
-    optional_results::result_id_t optional_results;
+    optional_results::optional_result_id_t optional_results;
 };
 
 template <typename Task>
@@ -66,12 +73,17 @@ void descriptor_base<Task>::set_neighbor_count_impl(std::int64_t value) {
 }
 
 template <typename Task>
-optional_results::result_id_t descriptor_base<Task>::get_optional_results() const {
+auto descriptor_base<Task>::get_optional_results() const 
+                                        -> optional_results::optional_result_id_t {
     return impl_->optional_results;
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_optional_results_impl(const optional_results::result_id_t& value) {
+void descriptor_base<Task>::set_optional_results_impl(
+                            const optional_results::optional_result_id_t& value) {
+    if(std::is_same_v<Task, task::search> && bool(value)) {
+        throw domain_error();
+    }
     impl_->optional_results = value;
 }
 

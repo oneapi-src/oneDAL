@@ -28,11 +28,22 @@ namespace v1 {
 /// :capterm:`classification problem <classification>`.
 struct classification {};
 
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`regression problem <regression>`.
+struct regression {};
+
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`search problem <search>`.
+struct search {};
+
 /// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
 using v1::classification;
+using v1::regression;
+using v1::search;
+
 using v1::by_default;
 
 } // namespace task
@@ -58,10 +69,25 @@ using v1::by_default;
 } // namespace method
 
 namespace optional_results {
+
 class namespace_id {};
-using result_id_t = optional_result_id<namespace_id>;
-extern const result_id_t indices;
-extern const result_id_t distances;
+using optional_result_id_t = optional_result_id<namespace_id>;
+
+} // namespace optional_results
+
+namespace detail {
+
+using optional_result_id_t = optional_results::optional_result_id_t;
+ONEDAL_EXPORT optional_result_id_t get_indices_id();
+ONEDAL_EXPORT optional_result_id_t get_distances_id();
+
+} // namespace detail
+
+namespace optional_results {
+
+const optional_result_id_t indices = detail::get_indices_id();
+const optional_result_id_t distances = detail::get_distances_id();
+
 } // namespace optional_results
 
 namespace detail {
@@ -81,7 +107,8 @@ constexpr bool is_valid_method_v =
     dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+constexpr bool is_valid_task_v = 
+    dal::detail::is_one_of_v<Method, task::search, task::regression, task::classification>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
