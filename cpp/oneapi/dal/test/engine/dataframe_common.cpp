@@ -257,10 +257,19 @@ static homogen_table wrap_to_homogen_table(device_test_policy& policy,
                                            std::int64_t column_count,
                                            Args&&... args) {
     if (!data.get_queue()) {
-        Float* device_data = dal::detail::malloc<Float>(policy.get_queue(), data.get_count(), std::forward<Args>(args)...);
-        dal::detail::memcpy_host2usm(policy.get_queue(), device_data, data.get_data(), data.get_size());
+        Float* device_data = dal::detail::malloc<Float>(policy.get_queue(),
+                                                        data.get_count(),
+                                                        std::forward<Args>(args)...);
+        dal::detail::memcpy_host2usm(policy.get_queue(),
+                                     device_data,
+                                     data.get_data(),
+                                     data.get_size());
         auto deleter = dal::detail::make_default_delete<const Float>(policy.get_queue());
-        return dal::homogen_table{ policy.get_queue(), device_data, row_count, column_count, deleter };
+        return dal::homogen_table{ policy.get_queue(),
+                                   device_data,
+                                   row_count,
+                                   column_count,
+                                   deleter };
     }
 
     return dal::detail::homogen_table_builder{}
