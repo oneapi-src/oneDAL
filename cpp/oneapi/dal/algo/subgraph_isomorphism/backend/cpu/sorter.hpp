@@ -17,11 +17,12 @@
 #pragma once
 
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph.hpp"
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
+
+const std::int64_t null_node = 0xffffffffffffffff; /*!< Null node value*/
 
 template <typename Cpu>
 struct sconsistent_conditions {
@@ -54,17 +55,17 @@ public:
     sorter(const graph<Cpu>* ptarget, inner_alloc allocator);
     virtual ~sorter();
 
-    graph_status get_pattern_vertex_probability(const graph<Cpu>& pattern,
-                                                float* pattern_vertex_probability) const;
-    graph_status sorting_pattern_vertices(const graph<Cpu>& pattern,
-                                          const float* pattern_vertex_probability,
-                                          std::int64_t* sorted_pattern_vertex) const;
-    graph_status create_sorted_pattern_tree(const graph<Cpu>& pattern,
-                                            const std::int64_t* sorted_pattern_vertex,
-                                            std::int64_t* predecessor,
-                                            edge_direction* direction,
-                                            sconsistent_conditions<Cpu>* cconditions,
-                                            bool predecessor_in_core_indexing = false) const;
+    void get_pattern_vertex_probability(const graph<Cpu>& pattern,
+                                        float* pattern_vertex_probability) const;
+    void sorting_pattern_vertices(const graph<Cpu>& pattern,
+                                  const float* pattern_vertex_probability,
+                                  std::int64_t* sorted_pattern_vertex) const;
+    void create_sorted_pattern_tree(const graph<Cpu>& pattern,
+                                    const std::int64_t* sorted_pattern_vertex,
+                                    std::int64_t* predecessor,
+                                    edge_direction* direction,
+                                    sconsistent_conditions<Cpu>* cconditions,
+                                    bool predecessor_in_core_indexing = false) const;
 
     inner_alloc allocator_;
     float* p_degree_probability;
@@ -147,11 +148,9 @@ sorter<Cpu>::~sorter() {
 }
 
 template <typename Cpu>
-graph_status sorter<Cpu>::get_pattern_vertex_probability(const graph<Cpu>& pattern,
-                                                         float* pattern_vertex_probability) const {
-    if (pattern_vertex_probability == nullptr) {
-        return bad_arguments;
-    }
+void sorter<Cpu>::get_pattern_vertex_probability(const graph<Cpu>& pattern,
+                                                 float* pattern_vertex_probability) const {
+    ONEDAL_ASSERT(pattern_vertex_probability != nullptr);
     std::int64_t vertex_count = pattern.get_vertex_count();
 
     float current_probability = 0.0;
@@ -167,16 +166,14 @@ graph_status sorter<Cpu>::get_pattern_vertex_probability(const graph<Cpu>& patte
         current_probability = p_vertex_attribute_probability[pattern.get_vertex_attribute(i)];
         pattern_vertex_probability[i] *= current_probability;
     }
-    return ok;
 }
 
 template <typename Cpu>
-graph_status sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
-                                                   const float* pattern_vertex_probability,
-                                                   std::int64_t* sorted_pattern_vertex) const {
-    if (pattern_vertex_probability == nullptr || sorted_pattern_vertex == nullptr) {
-        return bad_arguments;
-    }
+void sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
+                                           const float* pattern_vertex_probability,
+                                           std::int64_t* sorted_pattern_vertex) const {
+    ONEDAL_ASSERT(pattern_vertex_probability != nullptr);
+    ONEDAL_ASSERT(sorted_pattern_vertex != nullptr);
 
     std::int64_t vertex_count = pattern.get_vertex_count();
     std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
@@ -193,7 +190,8 @@ graph_status sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
         sorted_vertex_iterator++;
     }
     else {
-        return static_cast<graph_status>(index);
+        throw oneapi::dal::internal_error(
+            dal::detail::error_messages::incorrect_index_is_returned());
     }
 
     for (; sorted_vertex_iterator < vertex_count; sorted_vertex_iterator++) {
@@ -209,11 +207,10 @@ graph_status sorter<Cpu>::sorting_pattern_vertices(const graph<Cpu>& pattern,
             filling_mask.set_bit(sorted_pattern_vertex[sorted_vertex_iterator]);
         }
         else {
-            return static_cast<graph_status>(index);
+            throw oneapi::dal::internal_error(
+                dal::detail::error_messages::incorrect_index_is_returned());
         }
     }
-    /* TODO add disconnected case handling by splitting into separate trees */
-    return ok;
 }
 
 template <typename Cpu>
@@ -222,9 +219,7 @@ std::int64_t sorter<Cpu>::find_minimum_probability_index_by_mask(
     const float* pattern_vertex_probability,
     const std::uint8_t* pbit_mask,
     const std::uint8_t* pbit_core_mask) const {
-    if (pattern_vertex_probability == nullptr) {
-        return bad_allocation;
-    }
+    ONEDAL_ASSERT(pattern_vertex_probability != nullptr);
 
     std::int64_t vertex_count = pattern.get_vertex_count();
     float global_minimum = 1.1;
@@ -292,21 +287,19 @@ std::int64_t sorter<Cpu>::find_minimum_probability_index_by_mask(
 }
 
 template <typename Cpu>
-graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
-                                                     const std::int64_t* sorted_pattern_vertex,
-                                                     std::int64_t* predecessor,
-                                                     edge_direction* direction,
-                                                     sconsistent_conditions<Cpu>* cconditions,
-                                                     bool predecessor_in_core_indexing) const {
-    if (sorted_pattern_vertex == nullptr || predecessor == nullptr || direction == nullptr ||
-        cconditions == nullptr) {
-        return bad_allocation;
-    }
+void sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
+                                             const std::int64_t* sorted_pattern_vertex,
+                                             std::int64_t* predecessor,
+                                             edge_direction* direction,
+                                             sconsistent_conditions<Cpu>* cconditions,
+                                             bool predecessor_in_core_indexing) const {
+    ONEDAL_ASSERT(sorted_pattern_vertex != nullptr);
+    ONEDAL_ASSERT(predecessor != nullptr);
+    ONEDAL_ASSERT(direction != nullptr);
+    ONEDAL_ASSERT(cconditions != nullptr);
 
     std::int64_t vertex_count = pattern.get_vertex_count();
-    if (vertex_count == 0) {
-        return bad_arguments;
-    }
+    ONEDAL_ASSERT(vertex_count != 0);
 
     predecessor[sorted_pattern_vertex[0]] = null_node;
     direction[sorted_pattern_vertex[0]] = none;
@@ -351,7 +344,6 @@ graph_status sorter<Cpu>::create_sorted_pattern_tree(const graph<Cpu>& pattern,
         }
         cconditions[i - 1].divider = _n;
     }
-    return ok;
 }
 
 template <typename Cpu>

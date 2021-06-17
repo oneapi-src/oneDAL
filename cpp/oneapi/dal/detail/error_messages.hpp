@@ -175,9 +175,13 @@ public:
     MSG(empty_pattern_graph);
     MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
     MSG(non_zero_max_match_count_is_not_supported);
+    MSG(incorrect_index_is_returned);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
+    MSG(cluster_count_exceeds_data_row_count);
+    MSG(cluster_count_gt_max_int32);
+    MSG(row_count_gt_max_int32);
     MSG(input_initial_centroids_are_empty);
     MSG(input_initial_centroids_cc_neq_input_data_cc);
     MSG(input_initial_centroids_rc_neq_desc_cluster_count);
@@ -211,6 +215,9 @@ public:
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
 
     /* Shortest Paths */
+    MSG(negative_source);
+    MSG(source_gte_vertex_count);
+    MSG(negative_delta);
     MSG(nothing_to_compute);
     MSG(distances_are_uninitialized);
     MSG(predecessors_are_uninitialized);
