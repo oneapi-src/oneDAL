@@ -205,7 +205,7 @@ public:
         }
         REQUIRE(correct_pair_count == nonzero_coeff_count);
 
-        UNSCOPED_INFO("Jaccard coeffiсients are not correct");
+        UNSCOPED_INFO("Jaccard coefficients are not correct");
         auto coeffs_table = result_vertex_similarity.get_coeffs();
         homogen_table &coeffs = static_cast<homogen_table &>(coeffs_table);
         const auto jaccard_coeffs_data = coeffs.get_data<float>();
@@ -231,7 +231,7 @@ public:
 };
 
 TEST_M(jaccard_test,
-       "Complete graph, row of <16 elements, left of the diagonal, no vertex self-matching") {
+       "Complete graph, row of <16 elements, left of the diagonal, without diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 32, 33 }, { 0, 10 });
     std::array<std::int64_t, 20> vertex_pairs = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
                                                   0,  1,  2,  3,  4,  5,  6,  7,  8,  9 };
@@ -241,7 +241,7 @@ TEST_M(jaccard_test,
 }
 
 TEST_M(jaccard_test,
-       "Complete graph, row of <16 elements, left of the diagonal, with vertex self-matching") {
+       "Complete graph, row of <16 elements, left of the diagonal, contains diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 32, 33 }, { 23, 33 });
     std::array<std::int64_t, 20> vertex_pairs = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
                                                   23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
@@ -253,7 +253,7 @@ TEST_M(jaccard_test,
 
 TEST_M(
     jaccard_test,
-    "Complete graph, row of >16 and <32 elements, left of the diagonal, no vertex self-matching") {
+    "Complete graph, row of >16 and <32 elements, left of the diagonal, without diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 32, 33 }, { 0, 25 });
     std::array<std::int64_t, 50> vertex_pairs = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
                                                   32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
@@ -267,7 +267,7 @@ TEST_M(
 
 TEST_M(
     jaccard_test,
-    "Complete graph, row of >16 and <32 elements, left of the diagonal, with vertex self-matching") {
+    "Complete graph, row of >16 and <32 elements, left of the diagonal, contains diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 32, 33 }, { 8, 33 });
     std::array<std::int64_t, 50> vertex_pairs = { 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
                                                   32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
@@ -281,7 +281,7 @@ TEST_M(
 }
 
 TEST_M(jaccard_test,
-       "Complete graph, row of 32 elements, left of the diagonal, no vertex self-matching") {
+       "Complete graph, row of 32 elements, left of the diagonal, without diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 32, 33 }, { 0, 32 });
     std::array<std::int64_t, 64> vertex_pairs = {
         32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
@@ -294,7 +294,7 @@ TEST_M(jaccard_test,
 }
 
 TEST_M(jaccard_test,
-       "Complete graph, row of 32 elements, left of the diagonal, with vertex self-matching") {
+       "Complete graph, row of 32 elements, left of the diagonal, contains diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 32, 33 }, { 1, 33 });
     std::array<std::int64_t, 64> vertex_pairs = {
         32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
@@ -308,7 +308,7 @@ TEST_M(jaccard_test,
 }
 
 TEST_M(jaccard_test,
-       "Complete graph, row of <16 elements, right of the diagonal, no vertex self-matching") {
+       "Complete graph, row of <16 elements, right of the diagonal, without diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 1 }, { 1, 11 });
     std::array<std::int64_t, 20> vertex_pairs = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                   1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -318,7 +318,7 @@ TEST_M(jaccard_test,
 }
 
 TEST_M(jaccard_test,
-       "Complete graph, row of <16 elements, right of the diagonal, with vertex self-matching") {
+       "Complete graph, row of <16 elements, right of the diagonal, contains diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 1 }, { 0, 10 });
     std::array<std::int64_t, 20> vertex_pairs = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                   0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -330,7 +330,7 @@ TEST_M(jaccard_test,
 
 TEST_M(
     jaccard_test,
-    "Complete graph, row of >16 and <32 elements, right of the diagonal, no vertex self-matching") {
+    "Complete graph, row of >16 and <32 elements, right of the diagonal, without diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 1 }, { 1, 26 });
     std::array<std::int64_t, 50> vertex_pairs = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -343,7 +343,7 @@ TEST_M(
 
 TEST_M(
     jaccard_test,
-    "Complete graph, row of >16 and <32 elements, right of the diagonal, with vertex self-matching") {
+    "Complete graph, row of >16 and <32 elements, right of the diagonal, contains diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 1 }, { 0, 25 });
     std::array<std::int64_t, 50> vertex_pairs = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -356,7 +356,7 @@ TEST_M(
 }
 
 TEST_M(jaccard_test,
-       "Complete graph, row of 32 elements, right of the diagonal, no vertex self-matching") {
+       "Complete graph, row of 32 elements, right of the diagonal, without diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 1 }, { 1, 33 });
     std::array<std::int64_t, 64> vertex_pairs = {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -369,7 +369,7 @@ TEST_M(jaccard_test,
 }
 
 TEST_M(jaccard_test,
-       "Complete graph, row of 32 elements, right of the diagonal, with vertex self-matching") {
+       "Complete graph, row of 32 elements, right of the diagonal, contains diagonal element") {
     auto jaccard_desc = dal::preview::jaccard::descriptor<>().set_block({ 0, 1 }, { 0, 32 });
     std::array<std::int64_t, 64> vertex_pairs = {
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,  0,
@@ -437,7 +437,7 @@ TEST_M(jaccard_test, "Null graph") {
     const auto vertex_pairs_data = vertex_pairs.get_data<int>();
     REQUIRE(vertex_pairs.has_data() == false);
 
-    UNSCOPED_INFO("The non-empty table of Jaccard coeffiсients was returned");
+    UNSCOPED_INFO("The non-empty table of Jaccard coefficients was returned");
     auto coeffs_table = result_vertex_similarity.get_coeffs();
     homogen_table &coeffs = static_cast<homogen_table &>(coeffs_table);
     REQUIRE(coeffs.has_data() == false);
