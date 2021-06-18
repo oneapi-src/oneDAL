@@ -57,10 +57,10 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
 
     auto gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, scale, shift, { fill_res_event });
 
-    auto table_res =
-        homogen_table::wrap(res_nd.flatten(queue), x_row_count, y_row_count, { gemm_event });
+    const auto res_array = res_nd.flatten(queue, { gemm_event });
+    auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
 
-    return result_t{}.set_values(table_res);
+    return result_t{}.set_values(res_table);
 }
 
 template <typename Float>
