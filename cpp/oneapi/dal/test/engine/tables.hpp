@@ -96,6 +96,32 @@ inline void check_if_tables_equal_approx(const table& actual,
 }
 
 template <typename Float>
+inline std::vector<table> split_table_by_rows(const table& t, std::int64_t split_count) {
+    ONEDAL_ASSERT(split_count > 0);
+    ONEDAL_ASSERT(split_count <= t.get_row_count());
+
+    const std::int64_t row_count = t.get_row_count();
+    const std::int64_t column_count = t.get_column_count();
+    const std::int64_t block_size_regular = row_count / split_count;
+    const std::int64_t block_size_tail = row_count % split_count;
+
+    std::vector<table> result(split_count);
+
+    std::int64_t row_offset = 0;
+    for (std::int64_t i = 0; i < split_count; i++) {
+        const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+        const std::int64_t block_size = block_size_regular + tail;
+
+        const auto row_range = range{ row_offset, row_offset + block_size };
+        const auto block = row_accessor<const Float>{ t }.pull(row_range);
+        result[i] = homogen_table::wrap(block, block_size, column_count);
+        row_offset += block_size;
+    }
+
+    return result;
+}
+
+template <typename Float>
 inline table stack_tables_by_rows(const std::vector<table>& tables) {
     if (tables.empty()) {
         return table{};
@@ -104,6 +130,7 @@ inline table stack_tables_by_rows(const std::vector<table>& tables) {
     std::int64_t total_row_count = 0;
     std::int64_t total_column_count = tables[0].get_column_count();
     for (const auto& t : tables) {
+        ONEDAL_ASSERT(t.has_data());
         ONEDAL_ASSERT(t.get_column_count() == total_column_count);
         total_row_count += t.get_row_count();
     }

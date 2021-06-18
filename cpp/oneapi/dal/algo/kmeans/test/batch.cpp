@@ -19,7 +19,7 @@
 namespace oneapi::dal::kmeans::test {
 
 template <typename TestType>
-class kmeans_batch_test : public kmeans_test<TestType> {};
+class kmeans_batch_test : public kmeans_test<TestType, kmeans_batch_test<TestType>> {};
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans degenerated test",

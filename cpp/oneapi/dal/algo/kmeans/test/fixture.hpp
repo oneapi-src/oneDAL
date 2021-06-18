@@ -35,10 +35,10 @@ namespace la = dal::test::engine::linalg;
 
 using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
 
-template <typename TestType>
-class kmeans_test : public te::float_algo_fixture<std::tuple_element_t<0, TestType>> {
+template <typename TestType, typename Derived>
+class kmeans_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
-    using base_t = te::float_algo_fixture<std::tuple_element_t<0, TestType>>;
+    using base_t = te::crtp_algo_fixture<TestType, Derived>;
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
     using descriptor_t = kmeans::descriptor<float_t, method_t>;
@@ -443,25 +443,6 @@ public:
         const auto labels = result.get_labels();
         const auto objective_function = result.get_objective_function_value();
         return std::make_tuple(labels, objective_function);
-    }
-
-protected:
-    template <typename... Args>
-    auto train(const descriptor_t& desc, Args&&... args) {
-        return train_override(desc, train_input{ std::forward<Args>(args)... });
-    }
-
-    template <typename... Args>
-    auto infer(const descriptor_t& desc, Args&&... args) {
-        return infer_override(desc, infer_input{ std::forward<Args>(args)... });
-    }
-
-    virtual train_result_t train_override(const descriptor_t& desc, const train_input_t& input) {
-        return this->base_train(desc, input);
-    }
-
-    virtual infer_result_t infer_override(const descriptor_t& desc, const infer_input_t& input) {
-        return this->base_infer(desc, input);
     }
 };
 

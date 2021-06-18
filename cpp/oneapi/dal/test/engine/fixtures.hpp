@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/dataframe.hpp"
+#include "oneapi/dal/test/engine/communicator.hpp"
 
 namespace oneapi::dal::test::engine {
 
@@ -40,48 +41,33 @@ private:
 class algo_fixture : public policy_fixture {
 public:
     template <typename... Args>
-    auto base_train(Args&&... args) {
+    auto train_base(Args&&... args) {
         return oneapi::dal::test::engine::train(get_policy(), std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    auto base_infer(Args&&... args) {
+    auto infer_base(Args&&... args) {
         return oneapi::dal::test::engine::infer(get_policy(), std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    auto base_compute(Args&&... args) {
+    auto compute_base(Args&&... args) {
         return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    auto spmd_train(const dal::detail::spmd_communicator& comm, Args&&... args) {
-        return oneapi::dal::test::engine::train(get_policy(), comm, std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto spmd_infer(const dal::detail::spmd_communicator& comm, Args&&... args) {
-        return oneapi::dal::test::engine::infer(get_policy(), comm, std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto spmd_compute(const dal::detail::spmd_communicator& comm, Args&&... args) {
-        return oneapi::dal::test::engine::compute(get_policy(), comm, std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
     auto train(Args&&... args) {
-        return base_train(std::forward<Args>(args)...);
+        return train_base(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     auto infer(Args&&... args) {
-        return base_infer(std::forward<Args>(args)...);
+        return infer_base(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     auto compute(Args&&... args) {
-        return base_compute(std::forward<Args>(args)...);
+        return compute_base(std::forward<Args>(args)...);
     }
 };
 
@@ -102,5 +88,127 @@ public:
         return table_id::homogen<Float>();
     }
 };
+
+template <typename TestType, typename Derived>
+class crtp_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {
+public:
+    using float_t = std::tuple_element_t<0, TestType>;
+    using derived_t = Derived;
+
+    template <typename... Args>
+    auto train(Args&&... args) {
+        return derived().train_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto infer(Args&&... args) {
+        return derived().infer_override(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto compute(Args&&... args) {
+        return derived().compute_override(std::forward<Args>(args)...);
+    }
+
+    template <typename Descriptor, typename... Args>
+    auto train_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
+        ONEDAL_ASSERT(thread_count > 0);
+        thread_communicator comm{ thread_count };
+
+        const auto input_per_rank =
+            derived().split_train_input_override(thread_count, { std::forward<Args>(args)... });
+        ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
+
+        const auto results = comm.map([&](std::int64_t rank) {
+            return this->train_base(comm, desc, input_per_rank[rank]);
+        });
+        ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
+
+        return derived().merge_train_result_override(results);
+    }
+
+    template <typename... Args>
+    auto train_override(Args&&... args) {
+        return this->train_base(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto infer_override(Args&&... args) {
+        return this->infer_base(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto compute_override(Args&&... args) {
+        return this->compute_base(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto split_train_input_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+    template <typename... Args>
+    auto merge_train_result_override(Args&&... args) {
+        ONEDAL_ASSERT(!"This method must be overriden in the derived class");
+    }
+
+private:
+    Derived& derived() {
+        return *(static_cast<Derived*>(this));
+    }
+};
+
+// template <typename Derived>
+// class crtp_distr_algo_fixture {
+// public:
+//     Derived& derived() {
+//         return *(static_cast<Derived*>(this));
+//     }
+
+//     std::int64_t get_thread_count() {
+//         return derived().get_thread_count_override();
+//     }
+
+//     thread_communicator get_communicator() {
+//         return derived().get_communicator_override();
+//     }
+
+//     template <typename Result>
+//     Result merge_train_result(const thread_communicator& comm, const Result& result) {
+//         return derived().merge_train_result_override(comm, result);
+//     }
+
+//     std::int64_t get_thread_count_override() {
+//         return GENERATE(1);
+//         // return GENERATE(1, 2, 4, 8, 16);
+//     }
+
+//     thread_communicator get_communicator_override() {
+//         return thread_communicator{ get_thread_count() };
+//     }
+
+//     template <typename Result>
+//     Result merge_train_result_override(const thread_communicator& comm, const Result& result) {
+//         // static_assert(false, "This method must be overriden in the derived class");
+//     }
+
+//     template <typename... Args>
+//     auto train_override(Args&&... args) {
+//         using train_result_t =
+//             decltype(derived().train(std::declval<thread_communicator>(), std::declval<Args>()...));
+
+//         const auto comm = get_communicator();
+
+//         train_result_t result;
+//         comm.execute([&](std::int64_t rank) {
+//             const auto train_result = derived().train(std::forward<Args>(args)...);
+//             const auto merged_result = merge_train_result(comm, train_result);
+//             if (dal::detail::is_root_rank(comm)) {
+//                 result = merged_result;
+//             }
+//         });
+//         return result;
+//     }
+// };
 
 } // namespace oneapi::dal::test::engine

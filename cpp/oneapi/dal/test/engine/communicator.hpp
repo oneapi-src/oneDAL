@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <list>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
@@ -64,6 +65,12 @@ public:
         for (auto& thread : thread_pool_) {
             thread.join();
         }
+    }
+
+    template <typename Body>
+    void exclusive(const Body& body) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        body();
     }
 
 private:
@@ -362,6 +369,22 @@ public:
     template <typename Body>
     void execute(const Body& body) {
         get_impl<thread_communicator_impl>().get_context().execute(body);
+    }
+
+    template <typename Body>
+    void exclusive(const Body& body) {
+        get_impl<thread_communicator_impl>().get_context().exclusive(body);
+    }
+
+    template <typename Body>
+    auto map(const Body& body) {
+        using map_t = decltype(body(std::declval<std::int64_t>()));
+
+        std::vector<map_t> results(get_rank_count());
+        execute([&](std::int64_t rank) {
+            results[rank] = body(rank);
+        });
+        return results;
     }
 };
 
