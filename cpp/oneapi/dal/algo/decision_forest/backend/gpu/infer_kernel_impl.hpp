@@ -76,7 +76,6 @@ private:
         const dal::backend::primitives::ndview<Float, 1>& response_list,
         const dal::backend::event_vector& deps = {});
 
-private:
     sycl::queue queue_;
 };
 

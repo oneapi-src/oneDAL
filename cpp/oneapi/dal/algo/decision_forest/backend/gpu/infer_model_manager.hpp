@@ -177,7 +177,6 @@ private:
         return static_cast<const daal_model_impl_t* const>(daal_model_interface_ptr.get());
     }
 
-private:
     sycl::queue queue_;
     const infer_context_t& ctx_;
 
