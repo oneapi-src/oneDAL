@@ -34,7 +34,7 @@ To build oneDAL documentation locally:
 
 2. Go to `docs` folder:
 
-		cd daal/docs
+		cd oneDAL/docs
 
 3. Install requried Python packages using `pip`:
 

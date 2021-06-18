@@ -30,6 +30,14 @@
 static HMODULE daal_thr_dll_handle = NULL;
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
+#define __GLUE__(a, b) a##b
+
+#ifdef _DEBUG
+    #define _DLL_SUFFIX(name) __GLUE__(name, "d.1.dll")
+#else
+    #define _DLL_SUFFIX(name) __GLUE__(name, ".1.dll")
+#endif
+
 #if !defined(DAAL_CHECK_DLL_SIG)
     #define DAAL_LOAD_DLL(name) LoadLibrary(name)
 #else
@@ -162,12 +170,12 @@ static HMODULE WINAPI _daal_LoadLibrary(LPTSTR filename)
 
 DAAL_EXPORT HMODULE load_onedal_thread_dll()
 {
-    return DAAL_LOAD_DLL("onedal_thread.1.dll");
+    return DAAL_LOAD_DLL(_DLL_SUFFIX("onedal_thread"));
 }
 
 DAAL_EXPORT HMODULE load_onedal_sequential_dll()
 {
-    return DAAL_LOAD_DLL("onedal_sequential.1.dll");
+    return DAAL_LOAD_DLL(_DLL_SUFFIX("onedal_sequential"));
 }
 
 static void load_daal_thr_dll(void)
@@ -768,6 +776,17 @@ DAAL_EXPORT bool _daal_is_in_parallel()
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 {
+    if (init == NULL)
+    {
+        // If threading library was not opened, there is nothing to free,
+        // so we do not need to load threading library.
+        // Moreover, loading threading library in the Environment destructor
+        // results in a crush because of the use of Wintrust library after it was unloaded.
+        // This happens due to undefined order of static objects deinitialization
+        // like Environment, and dependent libraries.
+        return;
+    }
+
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
     {
