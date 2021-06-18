@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/solution.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
@@ -28,18 +27,15 @@ template <typename Cpu>
 class stack {
 public:
     stack(inner_alloc allocator);
-    stack(std::int64_t max_size, inner_alloc allocator);
     virtual ~stack();
     stack(stack<Cpu>&& _stack);
     stack<Cpu>& operator=(stack<Cpu>&& _stack);
     state<Cpu>* operator[](std::int64_t index);
 
-    graph_status push(state<Cpu>* new_state);
+    void push(state<Cpu>* new_state);
     state<Cpu>* pop();
     std::int64_t size() const;
     void clear(bool direct = true);
-    void clear_state(std::int64_t index);
-    void add(stack<Cpu>& _stack);
 
 private:
     inner_alloc allocator_;
@@ -47,7 +43,7 @@ private:
     std::int64_t stack_size;
     state<Cpu>** data;
 
-    graph_status increase_stack_size();
+    void increase_stack_size();
     void delete_data();
 };
 
@@ -65,7 +61,7 @@ public:
     virtual ~vertex_stack();
     void clean();
 
-    graph_status push(const std::uint64_t vertex_id);
+    void push(const std::uint64_t vertex_id);
     std::int64_t pop();
     bool delete_vertex();
     std::uint64_t size() const;
@@ -76,7 +72,7 @@ private:
     std::uint64_t stack_size;
     std::uint64_t* stack_data;
     std::uint64_t* ptop;
-    graph_status increase_stack_size();
+    void increase_stack_size();
     bool use_external_memory;
     std::uint64_t* bottom_;
 
@@ -136,13 +132,6 @@ template <typename Cpu>
 class dfs_stack {
 public:
     dfs_stack(inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels, inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels,
-              const std::uint64_t max_states_size,
-              inner_alloc allocator);
-    dfs_stack(const std::uint64_t levels,
-              const std::uint64_t* max_states_size_per_level,
-              inner_alloc allocator);
     virtual ~dfs_stack();
     void init(const std::uint64_t levels);
     void init(const std::uint64_t levels, const std::uint64_t max_states_size);
@@ -195,16 +184,6 @@ stack<Cpu>::stack(inner_alloc allocator) : allocator_(allocator) {
 }
 
 template <typename Cpu>
-stack<Cpu>::stack(std::int64_t max_size, inner_alloc allocator) : allocator_(allocator) {
-    max_stack_size = max_size;
-    stack_size = 0;
-    data = allocator_.allocate<state<Cpu>*>(max_stack_size);
-    for (std::int64_t i = 0; i < max_stack_size; i++) {
-        data[i] = nullptr;
-    }
-}
-
-template <typename Cpu>
 void stack<Cpu>::delete_data() {
     if (data != nullptr) {
         for (std::int64_t i = 0; i < max_stack_size; i++) {
@@ -229,22 +208,6 @@ void stack<Cpu>::clear(bool direct) {
         }
     }
     stack_size = 0;
-}
-
-template <typename Cpu>
-void stack<Cpu>::clear_state(std::int64_t index) {
-    data[index]->clear();
-    allocator_.deallocate<state<Cpu>>(data[index], 0);
-    data[index] = nullptr;
-}
-
-template <typename Cpu>
-void stack<Cpu>::add(stack<Cpu>& _stack) {
-    std::int64_t current_size = _stack.size();
-    for (std::int64_t i = 0; i < current_size; i++) {
-        push(_stack.pop());
-    }
-    _stack.clear();
 }
 
 template <typename Cpu>
@@ -289,18 +252,14 @@ stack<Cpu>::~stack() {
 }
 
 template <typename Cpu>
-graph_status stack<Cpu>::push(state<Cpu>* new_state) {
+void stack<Cpu>::push(state<Cpu>* new_state) {
     if (new_state != nullptr) {
         if (max_stack_size == 0 || stack_size >= max_stack_size) {
-            graph_status increase_status = increase_stack_size();
-            if (increase_status != ok) {
-                return increase_status;
-            }
+            increase_stack_size();
         }
         data[stack_size] = new_state;
         stack_size++;
     }
-    return ok;
 }
 
 template <typename Cpu>
@@ -325,7 +284,7 @@ std::int64_t stack<Cpu>::size() const {
 }
 
 template <typename Cpu>
-graph_status stack<Cpu>::increase_stack_size() {
+void stack<Cpu>::increase_stack_size() {
     const auto new_max_stack_size = (max_stack_size > 0) ? 2 * max_stack_size : 100;
     state<Cpu>** tmp_data = allocator_.allocate<state<Cpu>*>(new_max_stack_size);
     if (tmp_data == nullptr) {
@@ -342,7 +301,6 @@ graph_status stack<Cpu>::increase_stack_size() {
     max_stack_size = new_max_stack_size;
     data = tmp_data;
     tmp_data = nullptr;
-    return ok;
 }
 
 template <typename Cpu>
@@ -378,20 +336,17 @@ vertex_stack<Cpu>::~vertex_stack() {
 }
 
 template <typename Cpu>
-graph_status vertex_stack<Cpu>::push(const std::uint64_t vertex_id) {
+void vertex_stack<Cpu>::push(const std::uint64_t vertex_id) {
     ONEDAL_ASSERT(ptop != nullptr);
     ONEDAL_ASSERT(stack_data != nullptr);
     if (static_cast<std::uint64_t>(ptop - stack_data) >= stack_size) {
-        if (increase_stack_size() != ok) {
-            throw dal::host_bad_alloc();
-        }
+        increase_stack_size();
     }
     ONEDAL_ASSERT(ptop != nullptr);
     ONEDAL_ASSERT(ptop >= bottom_);
     ONEDAL_ASSERT(ptop <= stack_data + stack_size);
     *ptop = vertex_id;
     ptop++;
-    return ok;
 }
 
 template <typename Cpu>
@@ -427,10 +382,10 @@ std::uint64_t vertex_stack<Cpu>::max_size() const {
 }
 
 template <typename Cpu>
-graph_status vertex_stack<Cpu>::increase_stack_size() {
+void vertex_stack<Cpu>::increase_stack_size() {
     std::uint64_t* tmp_data = allocator_.allocate<std::uint64_t>(2 * stack_size);
     if (tmp_data == nullptr) {
-        return bad_allocation;
+        throw oneapi::dal::host_bad_alloc();
     }
     const auto skip_count = bottom_ - stack_data;
     for (std::uint64_t i = 0; i < stack_size - skip_count; i++) {
@@ -446,8 +401,6 @@ graph_status vertex_stack<Cpu>::increase_stack_size() {
     ONEDAL_ASSERT(ptop != nullptr);
     ONEDAL_ASSERT(ptop >= bottom_);
     ONEDAL_ASSERT(ptop <= stack_data + stack_size);
-
-    return ok;
 }
 
 template <typename Cpu>
@@ -476,7 +429,7 @@ void global_stack<Cpu>::pop(dfs_stack<Cpu>& s) {
         const auto v = top_ - vertex_count_;
         ONEDAL_ASSERT(v >= bottom_);
         for (std::int64_t i = 0; i < vertex_count_ && v[i] != null_vertex(); ++i) {
-            ONEDAL_ASSERT(i <= s.max_level_size);
+            ONEDAL_ASSERT(i <= dal::detail::integral_cast<std::int64_t>(s.max_level_size));
             s.push_into_current_level(v[i]);
             if (i != vertex_count_ - 1 && v[i + 1] != null_vertex()) {
                 s.increase_core_level();
@@ -525,6 +478,8 @@ void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
         for (; j < static_cast<std::uint64_t>(vertex_count_); ++j) {
             *(top_++) = null_vertex();
         }
+
+        allocator_.deallocate<std::uint64_t>(v, level + 1);
     }
 
     // Remove state
@@ -568,28 +523,6 @@ dfs_stack<Cpu>::dfs_stack(inner_alloc allocator) : allocator_(allocator) {
     data_by_levels = nullptr;
 
     current_level = 0;
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels, inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels);
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels,
-                          const std::uint64_t max_states_size,
-                          inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels, max_states_size);
-}
-
-template <typename Cpu>
-dfs_stack<Cpu>::dfs_stack(const std::uint64_t levels,
-                          const std::uint64_t* max_states_size_per_level,
-                          inner_alloc allocator)
-        : allocator_(allocator) {
-    init(levels, max_states_size_per_level);
 }
 
 template <typename Cpu>

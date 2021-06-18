@@ -301,8 +301,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
             cw[i + startRow + nVectors] = weights ? weights[i] * c : c;
             if (weights)
             {
-                *wc += static_cast<size_t>(weights[i] != algorithmFPType(0));
-                *cws += cw[i + startRow] + cw[i + startRow + nVectors];
+                *wc += 2 * static_cast<size_t>(weights[i] != algorithmFPType(0));
+                *cws += cw[i + startRow];
             }
         }
     });

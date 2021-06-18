@@ -34,6 +34,12 @@ public:
 };
 
 template <typename Task>
+descriptor_base<Task>::descriptor_base()
+        : impl_(new descriptor_impl<Task>{ std::make_shared<
+              detail::distance<oneapi::dal::minkowski_distance::descriptor<float_t>>>(
+              oneapi::dal::minkowski_distance::descriptor<float_t>(2.0)) }) {}
+
+template <typename Task>
 descriptor_base<Task>::descriptor_base(const detail::distance_ptr& distance)
         : impl_(new descriptor_impl<Task>{ distance }) {}
 

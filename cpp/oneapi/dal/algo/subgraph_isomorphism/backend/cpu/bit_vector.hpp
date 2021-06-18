@@ -19,7 +19,6 @@
 #include "oneapi/dal/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/compiler_adapt.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/inner_alloc.hpp"
-#include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/graph_status.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/backend/cpu/bit_vector_popcount.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
@@ -50,12 +49,8 @@ public:
     bit_vector(const inner_alloc allocator);
     bit_vector(bit_vector<Cpu>& bvec);
     bit_vector(const std::int64_t vector_size, inner_alloc allocator);
-    bit_vector(const std::int64_t vector_size, const std::uint8_t byte_val, inner_alloc allocator);
-    bit_vector(const std::int64_t vector_size, std::uint8_t* pvector, inner_alloc allocator);
     ~bit_vector();
-    graph_status unset_bit(std::int64_t vertex);
-    graph_status set_bit(std::int64_t vertex);
-    void set(const std::uint8_t byte_val = 0x0);
+    void set_bit(std::int64_t vertex);
     std::uint8_t* get_vector_pointer() const;
     std::int64_t size() const;
     std::int64_t popcount() const;
@@ -70,28 +65,20 @@ public:
     bit_vector<Cpu>& operator^=(const std::uint8_t* pa);
     bit_vector<Cpu>& operator=(const std::uint8_t* pa);
 
-    bit_vector<Cpu>& or_equal(const std::int64_t* bit_index, const std::int64_t list_size);
-    bit_vector<Cpu>& and_equal(const std::int64_t* bit_index,
-                               const std::int64_t list_size,
-                               std::int64_t* tmp_array = nullptr,
-                               const std::int64_t tmp_size = 0);
-
     bit_vector(bit_vector<Cpu>&& a);
 
-    bit_vector<Cpu>& andn(const std::uint8_t* pa);
     bit_vector<Cpu>& andn(bit_vector<Cpu>& a);
 
-    static graph_status set(const std::int64_t vector_size,
-                            std::uint8_t* result_vector,
-                            const std::uint8_t byte_val = 0);
-    static graph_status set(const std::int64_t vector_size,
-                            std::uint8_t* result_vector,
-                            const std::uint8_t* vector);
-    static graph_status unset_bit(std::uint8_t* result_vector, const std::int64_t vertex);
-    static graph_status set_bit(std::uint8_t* result_vector, const std::int64_t vertex);
-    static std::int64_t get_bit_index(const std::int64_t vector_size,
-                                      const std::uint8_t* vector,
-                                      const std::int64_t vertex);
+    void set(const std::uint8_t byte_val = 0x0);
+    static void set(const std::int64_t vector_size,
+                    std::uint8_t* result_vector,
+                    const std::uint8_t byte_val = 0);
+    static void set(const std::int64_t vector_size,
+                    std::uint8_t* result_vector,
+                    const std::uint8_t* vector);
+    static void set_bit(std::uint8_t* result_vector,
+                        const std::int64_t vertex,
+                        const std::int64_t vector_size_in_bits);
     static std::int64_t popcount(const std::int64_t vector_size, const std::uint8_t* vector);
     static bool test_bit(const std::int64_t vector_size,
                          const std::uint8_t* vector,
@@ -100,7 +87,7 @@ public:
 private:
     inner_alloc allocator_;
     std::uint8_t* vector;
-    std::int64_t n;
+    std::int64_t n; // size in bytes
 };
 
 template <typename Cpu>
@@ -116,14 +103,6 @@ void and_equal(std::uint8_t* vec, const std::uint8_t* pa, std::int64_t size) {
     ONEDAL_IVDEP
     for (std::int64_t i = 0; i < size; i++) {
         vec[i] &= pa[i];
-    }
-}
-
-template <typename Cpu>
-void inversion(std::uint8_t* vec, std::int64_t size) {
-    ONEDAL_IVDEP
-    for (std::int64_t i = 0; i < size; i++) {
-        vec[i] = ~vec[i];
     }
 }
 
@@ -167,68 +146,44 @@ void and_equal(std::uint8_t* vec,
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set(const std::int64_t vector_size,
-                                  std::uint8_t* result_vector,
-                                  const std::uint8_t* vector) {
-    if (result_vector == nullptr || vector == nullptr) {
-        return bad_allocation;
-    }
+void bit_vector<Cpu>::set(const std::int64_t vector_size,
+                          std::uint8_t* result_vector,
+                          const std::uint8_t* vector) {
+    ONEDAL_ASSERT(result_vector != nullptr);
+    ONEDAL_ASSERT(vector != nullptr);
+    ONEDAL_ASSERT(vector_size >= 0);
 
     for (std::int64_t i = 0; i < vector_size; i++) {
         result_vector[i] = vector[i];
     }
-
-    /*
-      TODO improvements  use register and sets functions
-    */
-
-    return ok;
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set(const std::int64_t vector_size,
-                                  std::uint8_t* result_vector,
-                                  const std::uint8_t byte_val) {
-    if (result_vector == nullptr) {
-        return bad_allocation;
-    }
-
+void bit_vector<Cpu>::set(const std::int64_t vector_size,
+                          std::uint8_t* result_vector,
+                          const std::uint8_t byte_val) {
+    ONEDAL_ASSERT(result_vector != nullptr);
     for (std::int64_t i = 0; i < vector_size; i++) {
         result_vector[i] = byte_val;
     }
-
-    /*
-        TODO improvements  use register and sets functions
-    */
-
-    return ok;
 }
 
 template <typename Cpu>
 void bit_vector<Cpu>::set(const std::uint8_t byte_val) {
-    const std::int64_t nn = n;
     ONEDAL_VECTOR_ALWAYS
-    for (std::int64_t i = 0; i < nn; i++) {
+    for (std::int64_t i = 0; i < n; i++) {
         vector[i] = byte_val;
     }
 }
 
 template <typename Cpu>
-graph_status bit_vector<Cpu>::set_bit(std::uint8_t* result_vector, const std::int64_t vertex) {
-    if (result_vector == nullptr) {
-        return bad_allocation;
-    }
-    result_vector[byte(vertex)] |= bit(vertex);
-    return ok;
-}
+void bit_vector<Cpu>::set_bit(std::uint8_t* result_vector,
+                              const std::int64_t vertex,
+                              const std::int64_t vector_size_in_bits) {
+    ONEDAL_ASSERT(result_vector != nullptr);
+    ONEDAL_ASSERT(vertex < vector_size_in_bits);
 
-template <typename Cpu>
-graph_status bit_vector<Cpu>::unset_bit(std::uint8_t* result_vector, const std::int64_t vertex) {
-    if (result_vector == nullptr) {
-        return bad_allocation;
-    }
-    result_vector[byte(vertex)] &= ~bit(vertex);
-    return ok;
+    result_vector[byte(vertex)] |= bit(vertex);
 }
 
 template <typename Cpu>
@@ -246,21 +201,11 @@ bit_vector<Cpu>::bit_vector(bit_vector<Cpu>& bvec)
 }
 
 template <typename Cpu>
-bit_vector<Cpu>::bit_vector(const std::int64_t vector_size, inner_alloc allocator)
+bit_vector<Cpu>::bit_vector(const std::int64_t vector_size_in_bytes, inner_alloc allocator)
         : allocator_(allocator),
-          n(vector_size) {
+          n(vector_size_in_bytes) {
     vector = allocator_.allocate<std::uint8_t>(n);
     this->set(n, vector);
-}
-
-template <typename Cpu>
-bit_vector<Cpu>::bit_vector(const std::int64_t vector_size,
-                            const std::uint8_t byte_val,
-                            inner_alloc allocator)
-        : allocator_(allocator) {
-    n = vector_size;
-    vector = allocator_.allocate<std::uint8_t>(n);
-    this->set(n, vector, byte_val);
 }
 
 template <typename Cpu>
@@ -280,21 +225,8 @@ bit_vector<Cpu>::~bit_vector() {
 }
 
 template <typename Cpu>
-bit_vector<Cpu>::bit_vector(const std::int64_t vector_size,
-                            std::uint8_t* pvector,
-                            inner_alloc allocator)
-        : allocator_(allocator),
-          vector(pvector),
-          n(vector_size) {}
-
-template <typename Cpu>
-graph_status bit_vector<Cpu>::unset_bit(std::int64_t vertex) {
-    return unset_bit(vector, vertex);
-}
-
-template <typename Cpu>
-graph_status bit_vector<Cpu>::set_bit(std::int64_t vertex) {
-    return set_bit(vector, vertex);
+void bit_vector<Cpu>::set_bit(std::int64_t vertex) {
+    return set_bit(vector, vertex, n * 8);
 }
 
 template <typename Cpu>
@@ -391,46 +323,11 @@ bit_vector<Cpu>& bit_vector<Cpu>::operator=(const std::uint8_t* pa) {
 }
 
 template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::andn(const std::uint8_t* pa) {
-    for (std::int64_t i = 0; i < n; i++) {
-        vector[i] &= ~pa[i];
-    }
-    return *this;
-}
-
-template <typename Cpu>
 bit_vector<Cpu>& bit_vector<Cpu>::andn(bit_vector<Cpu>& a) {
     ONEDAL_ASSERT(n == a.size());
     std::uint8_t* pa = a.get_vector_pointer();
     for (std::int64_t i = 0; i < n; i++) {
         vector[i] &= ~pa[i];
-    }
-    return *this;
-}
-
-template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::or_equal(const std::int64_t* bit_index,
-                                           const std::int64_t list_size) {
-    for (std::int64_t i = 0; i < list_size; i++) {
-        vector[byte(bit_index[i])] |= bit(bit_index[i]);
-    }
-    return *this;
-}
-
-template <typename Cpu>
-bit_vector<Cpu>& bit_vector<Cpu>::and_equal(const std::int64_t* bit_index,
-                                            const std::int64_t list_size,
-                                            std::int64_t* tmp_array,
-                                            const std::int64_t tmp_size) {
-    std::int64_t counter = 0;
-    for (std::int64_t i = 0; i < list_size; i++) {
-        tmp_array[counter] = bit_index[i];
-        counter += precomputed_popcount(vector[byte(bit_index[i])] & bit(bit_index[i]));
-    }
-
-    this->set(0x0);
-    for (std::int64_t i = 0; i < counter; i++) {
-        vector[byte(tmp_array[i])] |= bit(tmp_array[i]);
     }
     return *this;
 }
@@ -446,33 +343,8 @@ bool bit_vector<Cpu>::test_bit(const std::int64_t vector_size,
 }
 
 template <typename Cpu>
-std::int64_t bit_vector<Cpu>::get_bit_index(const std::int64_t vector_size,
-                                            const std::uint8_t* vector,
-                                            const std::int64_t vertex) {
-    if (vertex / 8 > vector_size) {
-        return bad_arguments;
-    }
-
-    std::int64_t nbyte = byte(vertex);
-    std::uint8_t bit = vertex & 7;
-    std::int64_t result = 0;
-
-    for (std::int64_t i = 0; i < nbyte; i++)
-        result += precomputed_popcount(vector[i]);
-
-    std::uint8_t checkbyte = vector[nbyte];
-    for (std::uint8_t i = 0; i < bit; i++) {
-        result += checkbyte & 1;
-        checkbyte >>= 1;
-    }
-    return result;
-}
-
-template <typename Cpu>
 std::int64_t bit_vector<Cpu>::popcount(const std::int64_t vector_size, const std::uint8_t* vector) {
-    if (vector == nullptr) {
-        return bad_arguments;
-    }
+    ONEDAL_ASSERT(vector != nullptr);
 
     std::int64_t result = 0;
     for (std::int64_t i = 0; i < vector_size; i++) {

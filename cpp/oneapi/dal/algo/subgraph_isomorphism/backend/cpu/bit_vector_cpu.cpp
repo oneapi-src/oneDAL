@@ -18,7 +18,6 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-template void inversion<__CPU_TAG__>(std::uint8_t* vec, const std::int64_t size);
 template void or_equal<__CPU_TAG__>(std::uint8_t* vec,
                                     const std::uint8_t* pa,
                                     const std::int64_t size);

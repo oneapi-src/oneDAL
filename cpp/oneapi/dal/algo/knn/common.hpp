@@ -110,6 +110,8 @@ public:
     using task_t = Task;
     using distance_t = minkowski_distance::descriptor<float_t>;
 
+    descriptor_base();
+
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
     voting_mode get_voting_mode() const;

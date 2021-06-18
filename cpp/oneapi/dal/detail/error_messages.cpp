@@ -135,6 +135,9 @@ MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
 
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
+MSG(cluster_count_exceeds_data_row_count, "Cluster count exceeds data row count")
+MSG(cluster_count_gt_max_int32, "Cluster count is greater than max int32 value")
+MSG(row_count_gt_max_int32, "Row count is greater than max int32 value")
 MSG(input_initial_centroids_are_empty, "Input initial centroids are empty")
 MSG(input_initial_centroids_cc_neq_input_data_cc,
     "Input initial centroids column count is not equal to input data column count")
@@ -177,6 +180,7 @@ MSG(empty_pattern_graph, "Empty pattern graph")
 MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
     "Subgraph isomorphism is not implemented for labeled edges")
 MSG(non_zero_max_match_count_is_not_supported, "Non-zero max_match_count is not supported")
+MSG(incorrect_index_is_returned, "Internal error: incorrect index is returned")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
@@ -192,6 +196,9 @@ MSG(pca_svd_based_method_is_not_implemented_for_gpu,
     "PCA SVD-based method is not implemented for GPU")
 
 /* Shortest Paths */
+MSG(negative_source, "Source vertex is lower than zero")
+MSG(source_gte_vertex_count, "Source vertex is out of range")
+MSG(negative_delta, "Delta parameter is lower than zero")
 MSG(nothing_to_compute, "Invalid combination of optional results: nothing to compute")
 MSG(distances_are_uninitialized, "Distances are not set as an optional result")
 MSG(predecessors_are_uninitialized, "Predecessors are not set as an optional result")
