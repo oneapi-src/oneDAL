@@ -434,7 +434,6 @@ TEST_M(jaccard_test, "Null graph") {
     UNSCOPED_INFO("The non-empty table of vertex pairs was returned");
     auto vertex_pairs_table = result_vertex_similarity.get_vertex_pairs();
     homogen_table &vertex_pairs = static_cast<homogen_table &>(vertex_pairs_table);
-    const auto vertex_pairs_data = vertex_pairs.get_data<int>();
     REQUIRE(vertex_pairs.has_data() == false);
 
     UNSCOPED_INFO("The non-empty table of Jaccard coefficients was returned");
