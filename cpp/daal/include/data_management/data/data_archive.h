@@ -165,6 +165,8 @@ public:
 
     int getUpdateVersion() DAAL_C11_OVERRIDE { return _updateVersion; }
 
+    virtual services::SharedPtr<services::ErrorCollection> getErrors() = 0;
+
 protected:
     int _majorVersion;
     int _minorVersion;
@@ -413,7 +415,7 @@ public:
      * Returns errors during the computation
      * \return Errors during the computation
      */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors() DAAL_C11_OVERRIDE { return _errors; }
 
 protected:
     void addBlock(size_t minNewSize)
@@ -605,7 +607,11 @@ public:
     * Returns errors during the computation
     * \return Errors during the computation
     */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors() DAAL_C11_OVERRIDE
+    {
+        _errors->add(*(compressionStream->getErrors()));
+        return _errors;
+    }
 
 private:
     size_t minBlockSize;
@@ -724,7 +730,11 @@ public:
      * Returns errors during the computation
      * \return Errors during the computation
      */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors() DAAL_C11_OVERRIDE
+    {
+        _errors->add(*(decompressionStream->getErrors()));
+        return _errors;
+    }
 
 private:
     size_t minBlockSize;
@@ -981,7 +991,18 @@ public:
     * Returns errors during the computation
     * \return Errors during the computation
     */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors()
+    {
+        if (_arch)
+        {
+            services::SharedPtr<services::ErrorCollection> errors = static_cast<DataArchiveImpl *>(_arch)->getErrors();
+            if (errors.get())
+            {
+                _errors->add(*errors);
+            }
+        }
+        return _errors;
+    }
 
 protected:
     DataArchiveIface * _arch;
@@ -1227,7 +1248,18 @@ public:
     * Returns errors during the computation
     * \return Errors during the computation
     */
-    services::SharedPtr<services::ErrorCollection> getErrors() { return _errors; }
+    services::SharedPtr<services::ErrorCollection> getErrors()
+    {
+        if (_arch)
+        {
+            services::SharedPtr<services::ErrorCollection> errors = static_cast<DataArchiveImpl *>(_arch)->getErrors();
+            if (errors.get())
+            {
+                _errors->add(*errors);
+            }
+        }
+        return _errors;
+    }
 
 protected:
     DataArchiveIface * _arch;
