@@ -29,15 +29,15 @@ namespace de = dal::detail;
 namespace be = dal::backend;
 namespace pr = dal::backend::primitives;
 
-using alloc = cl::sycl::usm::alloc;
-using address = cl::sycl::access::address_space;
+using alloc = sycl::usm::alloc;
+using address = sycl::access::address_space;
 
-using cl::sycl::ONEAPI::broadcast;
-using cl::sycl::ONEAPI::reduce;
-using cl::sycl::ONEAPI::plus;
-using cl::sycl::ONEAPI::minimum;
-using cl::sycl::ONEAPI::maximum;
-using cl::sycl::ONEAPI::exclusive_scan;
+using sycl::ONEAPI::broadcast;
+using sycl::ONEAPI::reduce;
+using sycl::ONEAPI::plus;
+using sycl::ONEAPI::minimum;
+using sycl::ONEAPI::maximum;
+using sycl::ONEAPI::exclusive_scan;
 
 template <typename Float, typename Index, typename Task>
 void infer_kernel_impl<Float, Index, Task>::validate_input(const descriptor_t& desc,
@@ -135,17 +135,17 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
     Float* obs_cls_hist_list_ptr = obs_response_list.get_mutable_data();
 
     auto local_size = ctx.max_local_size;
-    const cl::sycl::nd_range<2> nd_range =
+    const sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ ctx.row_block_count * local_size, ctx.tree_in_group_count },
                                       { local_size, 1 });
 
-    cl::sycl::event last_event = zero_obs_response_event;
+    sycl::event last_event = zero_obs_response_event;
     for (Index proc_tree_count = 0; proc_tree_count < tree_count;
          proc_tree_count += ctx.tree_in_group_count) {
-        last_event = queue_.submit([&](cl::sycl::handler& cgh) {
+        last_event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.depends_on(last_event);
-            cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+            cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
                 const Index local_id = item.get_local_id()[0];
                 const Index local_size = item.get_local_range()[0];
 
@@ -160,7 +160,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
 
                 const Index ind_start = group_id * elem_count;
                 const Index ind_end =
-                    cl::sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                    sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
                 if (tree_id < tree_count) {
                     const Index* tree_ftr_idx = ftr_idx_list_ptr + tree_id * max_tree_size;
@@ -199,7 +199,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group_weighted(
 }
 
 template <typename Float, typename Index, typename Task>
-std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
+std::tuple<pr::ndarray<Float, 1>, sycl::event>
 infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context_t& ctx,
                                                              const pr::ndview<Float, 2>& data,
                                                              const model_manager_t& mng,
@@ -238,17 +238,17 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
     Float* obs_cls_hist_list_ptr = obs_response_list.get_mutable_data();
 
     auto local_size = ctx.max_local_size;
-    const cl::sycl::nd_range<2> nd_range =
+    const sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ ctx.row_block_count * local_size, ctx.tree_in_group_count },
                                       { local_size, 1 });
 
-    cl::sycl::event last_event = zero_obs_response_event;
+    sycl::event last_event = zero_obs_response_event;
     for (Index proc_tree_count = 0; proc_tree_count < tree_count;
          proc_tree_count += ctx.tree_in_group_count) {
-        last_event = queue_.submit([&](cl::sycl::handler& cgh) {
+        last_event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
             cgh.depends_on(last_event);
-            cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+            cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
                 const Index local_id = item.get_local_id()[0];
                 const Index local_size = item.get_local_range()[0];
 
@@ -263,7 +263,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
 
                 const Index ind_start = group_id * elem_count;
                 const Index ind_end =
-                    cl::sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                    sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
                 if (tree_id < tree_count) {
                     const Index* tree_ftr_idx = ftr_idx_list_ptr + tree_id * max_tree_size;
@@ -306,7 +306,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
 }
 
 template <typename Float, typename Index, typename Task>
-std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
+std::tuple<pr::ndarray<Float, 1>, sycl::event>
 infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
     const infer_context_t& ctx,
     const pr::ndview<Float, 1>& obs_response_list,
@@ -339,14 +339,14 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
 
     const auto local_size = be::device_max_sg_size(queue_);
 
-    const cl::sycl::nd_range<1> nd_range =
+    const sycl::nd_range<1> nd_range =
         be::make_multiple_nd_range_1d({ ctx.max_group_count * local_size }, { local_size });
 
-    cl::sycl::event last_event = zero_response_event;
-    last_event = queue_.submit([&](cl::sycl::handler& cgh) {
+    sycl::event last_event = zero_response_event;
+    last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.depends_on(last_event);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<1> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
                 return;
@@ -360,7 +360,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
 
             const Index ind_start = group_id * elem_count;
             const Index ind_end =
-                cl::sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
             // obs_response_list_ptr each row contains certain class values from each tree for this observation
             // obs_response_list_ptr[0] = obs0_cls0_val_from_tree0, obs0_cls0_val_from_tree1 ... obs0_cls1_val_from_tree0, obs0_cls1_val_from_tree1 ...
@@ -408,7 +408,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
 }
 
 template <typename Float, typename Index, typename Task>
-std::tuple<pr::ndarray<Float, 1>, cl::sycl::event>
+std::tuple<pr::ndarray<Float, 1>, sycl::event>
 infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& ctx,
                                                         const pr::ndview<Float, 1>& response_list,
                                                         const be::event_vector& deps) {
@@ -420,14 +420,14 @@ infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& c
     const Float* response_list_ptr = response_list.get_data();
     Float* winner_list_ptr = winner_list.get_mutable_data();
 
-    const cl::sycl::nd_range<1> nd_range =
+    const sycl::nd_range<1> nd_range =
         be::make_multiple_nd_range_1d({ ctx.max_group_count * ctx.max_local_size },
                                       { ctx.max_local_size });
 
-    cl::sycl::event last_event;
-    last_event = queue_.submit([&](cl::sycl::handler& cgh) {
+    sycl::event last_event;
+    last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<1> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const Index local_id = item.get_local_id()[0];
             const Index local_size = item.get_local_range()[0];
             const Index n_groups = item.get_group_range(0);
@@ -437,7 +437,7 @@ infer_kernel_impl<Float, Index, Task>::determine_winner(const infer_context_t& c
 
             const Index ind_start = group_id * elem_count;
             const Index ind_end =
-                cl::sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
+                sycl::min(static_cast<Index>((group_id + 1) * elem_count), row_count);
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 Float class_count_max = (Float)0;
@@ -472,7 +472,7 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
 
     pr::ndarray<Float, 1> tree_group_response_list;
     pr::ndarray<Float, 1> response_list;
-    cl::sycl::event predict_event;
+    sycl::event predict_event;
 
     if constexpr (std::is_same_v<Task, task::classification>) {
         if (voting_mode::weighted == ctx.voting_mode && model_mng.is_weighted_available()) {

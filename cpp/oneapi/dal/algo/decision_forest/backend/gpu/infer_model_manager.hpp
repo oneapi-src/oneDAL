@@ -61,7 +61,7 @@ class infer_model_manager {
     using daal_decision_tree_node_t = daal::algorithms::dtrees::internal::DecisionTreeNode;
 
 public:
-    explicit infer_model_manager(const cl::sycl::queue& q,
+    explicit infer_model_manager(const sycl::queue& q,
                                  const infer_context_t& ctx,
                                  const model_t& model)
             : queue_(q),
@@ -178,7 +178,7 @@ private:
     }
 
 private:
-    cl::sycl::queue queue_;
+    sycl::queue queue_;
     const infer_context_t& ctx_;
 
     Index max_tree_size_;

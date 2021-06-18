@@ -39,7 +39,7 @@ class infer_kernel_impl {
     using msg = dal::detail::error_messages;
 
 public:
-    infer_kernel_impl(cl::sycl::queue& q) : queue_(q) {}
+    infer_kernel_impl(sycl::queue& q) : queue_(q) {}
     ~infer_kernel_impl() = default;
 
     result_t operator()(const descriptor_t& desc, const model_t& trained_model, const table& data);
@@ -54,30 +54,30 @@ private:
                      const model_t& trained_model,
                      const table& data) const;
 
-    std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event>
+    std::tuple<dal::backend::primitives::ndarray<Float, 1>, sycl::event>
     predict_by_tree_group_weighted(const infer_context_t& ctx,
                                    const dal::backend::primitives::ndview<Float, 2>& data,
                                    const model_manager_t& mng,
                                    const dal::backend::event_vector& deps = {});
 
-    std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event> predict_by_tree_group(
+    std::tuple<dal::backend::primitives::ndarray<Float, 1>, sycl::event> predict_by_tree_group(
         const infer_context_t& ctx,
         const dal::backend::primitives::ndview<Float, 2>& data,
         const model_manager_t& mng,
         const dal::backend::event_vector& deps = {});
 
-    std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event>
-    reduce_tree_group_response(const infer_context_t& ctx,
-                               const dal::backend::primitives::ndview<Float, 1>& obs_response_list,
-                               const dal::backend::event_vector& deps = {});
+    std::tuple<dal::backend::primitives::ndarray<Float, 1>, sycl::event> reduce_tree_group_response(
+        const infer_context_t& ctx,
+        const dal::backend::primitives::ndview<Float, 1>& obs_response_list,
+        const dal::backend::event_vector& deps = {});
 
-    std::tuple<dal::backend::primitives::ndarray<Float, 1>, cl::sycl::event> determine_winner(
+    std::tuple<dal::backend::primitives::ndarray<Float, 1>, sycl::event> determine_winner(
         const infer_context_t& ctx,
         const dal::backend::primitives::ndview<Float, 1>& response_list,
         const dal::backend::event_vector& deps = {});
 
 private:
-    cl::sycl::queue queue_;
+    sycl::queue queue_;
 };
 
 #endif
