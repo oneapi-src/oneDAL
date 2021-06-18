@@ -109,10 +109,10 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
 
     auto compute_rbf_event = compute_rbf(queue, x_nd, y_nd, res_nd, desc.get_sigma());
 
-    auto table_res =
-        homogen_table::wrap(res_nd.flatten(queue), x_row_count, y_row_count, { compute_rbf_event });
+    const auto res_array = res_nd.flatten(queue, { compute_rbf_event });
+    auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
 
-    return result_t{}.set_values(table_res);
+    return result_t{}.set_values(res_table);
 }
 
 template <typename Float>
