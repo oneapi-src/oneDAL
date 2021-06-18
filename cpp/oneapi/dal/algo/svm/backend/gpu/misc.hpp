@@ -34,17 +34,11 @@ inline sycl::event arrange(sycl::queue& queue,
 
     std::uint32_t* indices_sort_ptr = indices_sort.get_mutable_data();
 
-    const auto wg_size = std::min(dal::backend::propose_wg_size(queue), n);
-    const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
-
+    const auto range = dal::backend::make_range_1d(n);
     auto arrange_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-
-        cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
-            const std::uint32_t i = item.get_global_id(0);
-            if (i < n) {
-                indices_sort_ptr[i] = i;
-            }
+        cgh.parallel_for(range, [=](sycl::id<1> idx) {
+            indices_sort_ptr[idx] = idx;
         });
     });
 

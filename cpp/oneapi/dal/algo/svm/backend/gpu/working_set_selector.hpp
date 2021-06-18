@@ -34,21 +34,20 @@ template <typename Float>
 class working_set_selector {
 public:
     working_set_selector(const sycl::queue& queue,
-                         const pr::ndarray<Float, 1>& y,
+                         const pr::ndarray<Float, 1>& labels,
                          const Float C,
                          const std::int64_t n_vectors,
                          const std::int64_t n_ws = 0)
             : queue_(queue),
-              n_selected_(0),
               n_vectors_(n_vectors),
               n_ws_(n_ws),
               C_(C),
-              labels_(y) {
+              labels_(labels) {
         ONEDAL_ASSERT(n_vectors > 0);
         ONEDAL_ASSERT(n_vectors <= dal::detail::limits<std::uint32_t>::max());
         auto [indicator, indicator_event] =
             pr::ndarray<std::uint8_t, 1>::zeros(queue_, { n_vectors_ }, sycl::usm::alloc::device);
-        sorted_f_inices_ =
+        sorted_f_indices_ =
             pr::ndarray<std::uint32_t, 1>::empty(queue_, { n_vectors_ }, sycl::usm::alloc::device);
 
         if (!n_ws_) {
@@ -74,11 +73,17 @@ public:
         ONEDAL_ASSERT(ws_indices.get_dimension(0) == n_ws_);
         ONEDAL_ASSERT(ws_indices.has_mutable_data());
 
+        std::int64_t left_to_select = n_ws_;
+        std::int64_t selected_count = 0;
+        sycl::event event;
+
         if (iteration_count > 0) {
-            copy_last_to_first(ws_indices, deps);
+            std::tie(event, selected_count) = copy_last_to_first(ws_indices, deps);
+            left_to_select -= selected_count;
         }
 
-        auto arg_sort_event = arg_sort(queue_, f, values_sort_, sorted_f_inices_, n_vectors_, deps);
+        auto arg_sort_event =
+            arg_sort(queue_, f, values_sort_, sorted_f_indices_, n_vectors_, deps);
 
         std::int64_t n_need_select = (n_ws_ - n_selected_) / 2;
         auto select_ws_edge_event =
@@ -148,7 +153,7 @@ private:
         std::int64_t n_select = 0;
         auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ queue_ };
         select_ws_edge_event = select_flagged(indicator_,
-                                              sorted_f_inices_,
+                                              sorted_f_indices_,
                                               buff_indices_,
                                               n_select,
                                               { select_ws_edge_event });
@@ -160,8 +165,9 @@ private:
 
         if (n_copy > 0) {
             std::int64_t offset = 0;
-            if (edge == ws_edge::low)
+            if (edge == ws_edge::low) {
                 offset = n_select - n_copy;
+            }
             select_ws_edge_event = dal::backend::copy(queue_,
                                                       ws_indices_ptr + n_selected_,
                                                       buff_indices_ptr + offset,
@@ -193,14 +199,14 @@ private:
     std::int64_t n_ws_;
     Float C_;
 
-    pr::ndarray<std::uint32_t, 1> sorted_f_inices_;
+    pr::ndarray<std::uint32_t, 1> sorted_f_indices_;
     pr::ndarray<std::uint32_t, 1> buff_indices_;
     pr::ndarray<std::uint8_t, 1> indicator_;
     pr::ndarray<Float, 1> values_sort_;
     pr::ndarray<Float, 1> labels_;
-}; // namespace oneapi::dal::svm::backend
+};
 
-#define INSTANTIATE_WORKING_SET(F) template class ONEDAL_EXPORT working_set_selector<F>;
+#define INSTANTIATE_WORKING_SET(F) template class working_set_selector<F>;
 
 INSTANTIATE_WORKING_SET(float);
 INSTANTIATE_WORKING_SET(double);
