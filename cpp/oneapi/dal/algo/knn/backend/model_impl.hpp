@@ -18,11 +18,12 @@
 
 #include "oneapi/dal/algo/knn/common.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
+#include "oneapi/dal/backend/serialization.hpp"
 
 namespace oneapi::dal::knn {
 
 template <typename Task>
-class detail::v1::model_impl : public base {
+class detail::v1::model_impl : public ONEDAL_SERIALIZABLE(knn_classification_model_impl_id) {
 public:
     model_impl() : interop_(nullptr) {}
     model_impl(const model_impl&) = delete;
@@ -37,6 +38,14 @@ public:
 
     backend::model_interop* get_interop() {
         return interop_;
+    }
+
+    void serialize(dal::detail::output_archive& ar) const override {
+        dal::detail::serialize_polymorphic(interop_, ar);
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
     }
 
 private:

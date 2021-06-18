@@ -166,6 +166,10 @@ public:
     ID(3010200000, svm_model_interop_impl_multiclass_id);
     ID(3010300000, svm_nu_classification_model_impl_id);
     ID(3010400000, svm_nu_regression_model_impl_id);
+
+    // Algorithms - KNN
+    ID(4010000000, knn_classification_model_impl_id);
+    ID(4010100000, knn_model_interop_id);
 };
 
 #undef ID
