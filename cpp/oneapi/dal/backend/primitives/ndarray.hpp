@@ -443,7 +443,8 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    array_t flatten(sycl::queue& q, const sycl::vector_class<sycl::event>& dependencies = {}) const {
+    array_t flatten(sycl::queue& q,
+                    const sycl::vector_class<sycl::event>& dependencies = {}) const {
         sycl::event::wait_and_throw(dependencies);
         ONEDAL_ASSERT(is_known_usm(q, data_.get()));
         return array_t{ q, data_, this->get_count() };
