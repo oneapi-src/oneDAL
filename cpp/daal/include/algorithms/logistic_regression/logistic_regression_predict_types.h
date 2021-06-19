@@ -87,7 +87,6 @@ enum ResultNumericTableId
  */
 namespace interface1
 {
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__INPUT"></a>
  * \brief Input objects in the prediction stage of the LOGISTIC_REGRESSION algorithm
