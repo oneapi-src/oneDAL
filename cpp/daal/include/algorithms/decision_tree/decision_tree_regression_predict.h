@@ -81,8 +81,8 @@ public:
  *      - \ref Method  Computation methods for Decision tree model-based prediction
  *
  * \par References
- *      - \ref decision_tree::regression::interface2::Model "decision_tree::regression::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref decision_tree::regression::interface1::Model "decision_tree::regression::Model" class
+ *      - \ref training::interface2::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public algorithms::regression::prediction::Batch
