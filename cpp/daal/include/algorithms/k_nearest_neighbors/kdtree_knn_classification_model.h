@@ -140,8 +140,8 @@ namespace interface1
  *
  * \par References
  *      - Parameter class
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref training::interface3::Batch "training::Batch" class
+ *      - \ref prediction::interface3::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public daal::algorithms::classifier::Model
 {

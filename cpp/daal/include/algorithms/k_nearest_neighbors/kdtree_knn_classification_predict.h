@@ -82,7 +82,7 @@ public:
  *
  * \par References
  *      - \ref kdtree_knn_classification::interface1::Model "kdtree_knn_classification::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref training::interface3::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public classifier::prediction::Batch

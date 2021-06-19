@@ -54,7 +54,7 @@ namespace interface2
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__LOGISTIC_REGRESSION__PREDICTION__BATCHCONTAINER"></a>
  * \brief Provides methods to run implementations of the logistic regression algorithm.
- *        This class is associated with daal::algorithms::logistic_regression::prediction::interface1::Batch class
+ *        This class is associated with daal::algorithms::logistic_regression::prediction::interface2::Batch class
  *        and supports method to compute logistic regression prediction
  *
  * \tparam algorithmFPType  Data type to use in intermediate computations, double or float

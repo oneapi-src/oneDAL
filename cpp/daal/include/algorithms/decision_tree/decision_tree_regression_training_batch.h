@@ -83,7 +83,7 @@ public:
  *
  * \par References
  *      - \ref decision_tree::regression::interface1::Model "decision_tree::regression::Model" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref prediction::interface2::Batch "prediction::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class DAAL_EXPORT Batch : public algorithms::regression::training::Batch
