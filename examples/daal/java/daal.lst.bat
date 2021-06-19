@@ -25,7 +25,6 @@ boosting\adaboost\AdaBoostSammeMultiClassBatch ^
 boosting\adaboost\AdaBoostSammeRTwoClassBatch ^
 boosting\adaboost\AdaBoostSammeRMultiClassBatch ^
 boosting\brownboost\BrownBoostDenseBatch ^
-boosting\adaboost\AdaBoostDenseBatch ^
 boosting\logitboost\LogitBoostDenseBatch ^
 cholesky\CholeskyDenseBatch ^
 compression\CompressorExample ^
