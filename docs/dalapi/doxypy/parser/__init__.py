@@ -25,6 +25,8 @@ from typing import (
 )
 from .index import parse as parse_index
 from .compound import parse as parse_compound
+from .warning_log import parse as parse_warning
+
 
 class Parser(object):
     def __init__(self, xml_dir: Text):
@@ -34,6 +36,12 @@ class Parser(object):
         xml_filename = self._resolve_path(refid)
         parse = parse_index if refid == 'index' else parse_compound
         return parse(xml_filename, silence=True)
+
+    def parse_warning(self):
+        warning_log_path = os.path.join(os.path.dirname(self._dir), 'warning.log')
+        if not os.path.exists(warning_log_path):
+            return {}
+        return parse_warning(warning_log_path)
 
     def _resolve_path(self, refid):
         xml_name = os.path.join(self._dir, refid)

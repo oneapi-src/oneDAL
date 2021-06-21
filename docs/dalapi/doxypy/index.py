@@ -52,6 +52,7 @@ class Index(object):
         self._loader = loader
         self._name_transformer = name_transformer
         self._index = self._initialize()
+        self._warns = self._initialize_warns()
 
     def find(self, query: str):
         try:
@@ -74,6 +75,15 @@ class Index(object):
                 if self._name_transformer:
                     name = self._name_transformer.transform(entry.name)
                 yield name, model_object
+
+    @utils.return_dict
+    def _initialize_warns(self):
+        for kind, warns in self._parser.parse_warning().items():
+            yield kind, list(warns)
+
+    @property
+    def warns(self):
+        return self._warns
 
     def _find_inner(self, query):
         parent_name, name = utils.split_compound_name(query)

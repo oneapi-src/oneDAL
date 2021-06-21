@@ -18,6 +18,7 @@
 import os
 import time
 from typing import (Dict, Tuple, Text)
+import sphinx.util.logging
 from . import doxypy
 from . import utils
 from . import roles
@@ -110,15 +111,20 @@ class Context(object):
         self._listing = None
         self._path_resolver = None
         self._is_listing_enabled = False
+        self._is_warning_undocumented_enabled = False
+        self._ignored_undocumented_warnings = []
         self._read_env()
 
-    def configure(self, relative_doxyfile_dir, relative_sources_dir, is_listing_enabled):
+    def configure(self, relative_doxyfile_dir, relative_sources_dir, is_listing_enabled,
+                  is_warning_undocumented_enabled, ignored_undocumented_warnings):
         self._path_resolver = PathResolver(
             self.app,
             relative_doxyfile_dir,
             relative_sources_dir
         )
         self._is_listing_enabled = is_listing_enabled
+        self._is_warning_undocumented_enabled = is_warning_undocumented_enabled
+        self._ignored_undocumented_warnings = ignored_undocumented_warnings
 
     @property
     def current_docname(self):
@@ -134,6 +140,9 @@ class Context(object):
                     transformers.RstDescriptionTransformer(),
                 ]
             )
+            if self._is_warning_undocumented_enabled:
+                self._log_undocumented_warns()
+
         return self._index
 
     @property
@@ -169,6 +178,11 @@ class Context(object):
         self.debug = get_env_flag('DALAPI_DEBUG')
         self.always_rebuild = get_env_flag('DALAPI_ALWAYS_REBUILD')
 
+    def _log_undocumented_warns(self):
+        logger = sphinx.util.logging.getLogger('DoxygenWarns')
+        for warn in self._index.warns.get('Undocumented', []):
+            logger.warning(warn)
+
 
 class EventHandler(object):
     def __init__(self, ctx: Context):
@@ -181,7 +195,9 @@ class EventHandler(object):
         self.ctx.configure(
             relative_doxyfile_dir=app.config.onedal_relative_doxyfile_dir,
             relative_sources_dir=app.config.onedal_relative_sources_dir,
-            is_listing_enabled=app.config.onedal_enable_listing
+            is_listing_enabled=app.config.onedal_enable_listing,
+            is_warning_undocumented_enabled=app.config.onedal_enable_warning_undocumented,
+            ignored_undocumented_warnings=app.config.onedal_ignored_undocumented_warnings
         )
 
 def setup(app):
@@ -199,6 +215,8 @@ def setup(app):
     app.add_config_value('onedal_relative_doxyfile_dir', '.', 'env')
     app.add_config_value('onedal_relative_sources_dir', '.', 'env')
     app.add_config_value('onedal_enable_listing', True, 'env')
+    app.add_config_value('onedal_enable_warning_undocumented', False, 'env')
+    app.add_config_value('onedal_ignored_undocumented_warnings', [], 'env')
 
     handler = EventHandler(ctx)
     app.connect("builder-inited", handler.get_config_values)
