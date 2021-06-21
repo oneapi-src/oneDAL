@@ -49,11 +49,12 @@ using accuracy_types = std::tuple<float>;
 template <typename Float>
 class accuracy_test_random : public te::float_algo_fixture<Float> {
 public:
-    using target = pr::super_accumulators<Float, true>;
+    using target = pr::super_accumulators<Float, false>;
+    
     void generate() {
-        upper_bound_ = GENERATE(+1.e-5, +100.0, +201.0, +8192.0);
+        length_ = GENERATE(1, 5, 251, 1023, 1025, 32768, 262144);
+        upper_bound_ = GENERATE(+1.e-5, +100.0, +201.0, +1024.0);
         lower_bound_ = GENERATE(-1024.0, -5.0, -1.0, -1.0e-3);
-        length_ = GENERATE(1, 5, 251, 1023, 1025, 32768);
         CAPTURE(length_, lower_bound_, upper_bound_);
         generate_input();
     }
@@ -119,7 +120,7 @@ public:
         return *(res_buff.to_host(this->get_queue(), { fin_event }).get_data());
     }
 
-    void accuracy_test(const double tol = 1.e-7) {
+    void accuracy_test(const double tol = 1.e-6) {
         check_if_initialized();
         CAPTURE(length_, lower_bound_, upper_bound_);
         const Float gtd = compute_gt<double>();
