@@ -16,13 +16,10 @@
 
 #pragma once
 
+#include "oneapi/dal/algo/knn/detail/distance.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
-<<<<<<< HEAD
-#include "oneapi/dal/algo/knn/detail/distance.hpp"
-=======
 #include "oneapi/dal/common.hpp"
->>>>>>> fork/dev/knn/optional-results
 
 namespace oneapi::dal::knn {
 
@@ -43,7 +40,6 @@ namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
-struct search {};
 
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`regression problem <regression>`.
@@ -58,13 +54,7 @@ using by_default = classification;
 } // namespace v1
 
 using v1::classification;
-<<<<<<< HEAD
 using v1::search;
-=======
-using v1::regression;
-using v1::search;
-
->>>>>>> fork/dev/knn/optional-results
 using v1::by_default;
 
 } // namespace task
@@ -128,7 +118,6 @@ constexpr bool is_valid_method_v =
     dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
 
 template <typename Task>
-<<<<<<< HEAD
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification, task::search>;
 
 template <typename Distance>
@@ -148,10 +137,6 @@ using enable_if_classification_t =
 template <typename T>
 using enable_if_brute_force_t =
     std::enable_if_t<std::is_same_v<std::decay_t<T>, method::brute_force>>;
-=======
-constexpr bool is_valid_task_v = 
-    dal::detail::is_one_of_v<Method, task::search, task::regression, task::classification>;
->>>>>>> fork/dev/knn/optional-results
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -169,24 +154,18 @@ public:
 
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
-<<<<<<< HEAD
     voting_mode get_voting_mode() const;
-=======
-    optional_results::result_id_t get_optional_results() const;
->>>>>>> fork/dev/knn/optional-results
+    optional_results::optional_result_id_t get_optional_results() const;
 
 protected:
     explicit descriptor_base(const detail::distance_ptr& distance);
 
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
-<<<<<<< HEAD
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
-=======
-    void set_optional_results_impl(const optional_results::result_id_t& value);
->>>>>>> fork/dev/knn/optional-results
+    void set_optional_results_impl(const optional_results::optional_result_id_t& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -316,11 +295,11 @@ public:
         return base_t::get_optional_results();
     }
 
-    optional_results::result_id_t get_optional_results() const {
+    optional_results::optional_result_id_t get_optional_results() const {
         return base_t::get_optional_results();
     }
 
-    auto& set_optional_results(const optional_results::result_id_t& value) {
+    auto& set_optional_results(const optional_results::optional_result_id_t& value) {
         base_t::set_optional_results_impl(value);
         return *this;
     }

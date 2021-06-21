@@ -100,16 +100,14 @@ using v1::range;
 
 template<typename NamespaceId>
 class optional_result_id {
-    using this_t = optional_result_id<namespace_id>;
-    using bitset_t = std::bitset<mask_size>;
-
     static constexpr std::int64_t mask_size = 128;
+
+    using this_t = optional_result_id<NamespaceId>;
+    using bitset_t = std::bitset<mask_size>;
 
 public:
     optional_result_id() = default;
     optional_result_id(const bitset_t& mask) : mask_{mask} {}
-    optional_result_id(const oprional_result_id<NamespaceId>& prev) 
-                                        : mask_{prev.get_mask()} {}
 
     operator bool() const {
         return mask_.any();
@@ -120,7 +118,7 @@ public:
     }
 
     static optional_result_id get_result_id_by_index(std::int64_t result_index) {
-        return this_t.set_mask(std::uint64_t(1) << result_index);
+        return this_t{}.set_mask(std::uint64_t(1) << result_index);
     }
 
 private:
@@ -148,8 +146,7 @@ inline auto operator&(const optional_result_id<NamespaceId>& lhs,
 
 template<typename NamespaceId>
 inline bool operator==(const optional_result_id<NamespaceId>& lhs, 
-                       const optional_result_id<NamespaceId>& rhs) 
-                                            -> optional_result_id<NamespaceId> {
+                       const optional_result_id<NamespaceId>& rhs) {
     return lhs.get_mask() == rhs.get_mask();
 }
 

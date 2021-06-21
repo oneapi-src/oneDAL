@@ -121,7 +121,7 @@ template <typename Task>
 void descriptor_base<Task>::set_optional_results_impl(
                             const optional_results::optional_result_id_t& value) {
     if(std::is_same_v<Task, task::search> && bool(value)) {
-        throw domain_error();
+        throw domain_error("Invalid set of optional results");
     }
     impl_->optional_results = value;
 }
