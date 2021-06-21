@@ -18,7 +18,11 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+<<<<<<< HEAD
 #include "oneapi/dal/algo/knn/detail/distance.hpp"
+=======
+#include "oneapi/dal/common.hpp"
+>>>>>>> fork/dev/knn/optional-results
 
 namespace oneapi::dal::knn {
 
@@ -41,12 +45,26 @@ namespace v1 {
 struct classification {};
 struct search {};
 
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`regression problem <regression>`.
+struct regression {};
+
+/// Tag-type that parameterizes entities used for solving
+/// :capterm:`search problem <search>`.
+struct search {};
+
 /// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
 using v1::classification;
+<<<<<<< HEAD
 using v1::search;
+=======
+using v1::regression;
+using v1::search;
+
+>>>>>>> fork/dev/knn/optional-results
 using v1::by_default;
 
 } // namespace task
@@ -71,6 +89,28 @@ using v1::by_default;
 
 } // namespace method
 
+namespace optional_results {
+
+class namespace_id {};
+using optional_result_id_t = optional_result_id<namespace_id>;
+
+} // namespace optional_results
+
+namespace detail {
+
+using optional_result_id_t = optional_results::optional_result_id_t;
+ONEDAL_EXPORT optional_result_id_t get_indices_id();
+ONEDAL_EXPORT optional_result_id_t get_distances_id();
+
+} // namespace detail
+
+namespace optional_results {
+
+const optional_result_id_t indices = detail::get_indices_id();
+const optional_result_id_t distances = detail::get_distances_id();
+
+} // namespace optional_results
+
 namespace detail {
 namespace v1 {
 struct descriptor_tag {};
@@ -88,6 +128,7 @@ constexpr bool is_valid_method_v =
     dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
 
 template <typename Task>
+<<<<<<< HEAD
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification, task::search>;
 
 template <typename Distance>
@@ -107,6 +148,10 @@ using enable_if_classification_t =
 template <typename T>
 using enable_if_brute_force_t =
     std::enable_if_t<std::is_same_v<std::decay_t<T>, method::brute_force>>;
+=======
+constexpr bool is_valid_task_v = 
+    dal::detail::is_one_of_v<Method, task::search, task::regression, task::classification>;
+>>>>>>> fork/dev/knn/optional-results
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -124,16 +169,24 @@ public:
 
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
+<<<<<<< HEAD
     voting_mode get_voting_mode() const;
+=======
+    optional_results::result_id_t get_optional_results() const;
+>>>>>>> fork/dev/knn/optional-results
 
 protected:
     explicit descriptor_base(const detail::distance_ptr& distance);
 
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
+<<<<<<< HEAD
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
+=======
+    void set_optional_results_impl(const optional_results::result_id_t& value);
+>>>>>>> fork/dev/knn/optional-results
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -260,6 +313,15 @@ public:
     template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
     auto& set_distance(const distance_t& dist) {
         base_t::set_distance_impl(std::make_shared<detail::distance<distance_t>>(dist));
+        return base_t::get_optional_results();
+    }
+
+    optional_results::result_id_t get_optional_results() const {
+        return base_t::get_optional_results();
+    }
+
+    auto& set_optional_results(const optional_results::result_id_t& value) {
+        base_t::set_optional_results_impl(value);
         return *this;
     }
 };

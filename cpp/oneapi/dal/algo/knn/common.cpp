@@ -19,6 +19,19 @@
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::knn {
+
+namespace detail {
+
+optional_result_id_t get_indices_id() {
+    return optional_result_id_t::get_result_id_by_index(0);
+}
+
+optional_result_id_t get_distances_id() {
+    return optional_result_id_t::get_result_id_by_index(1);
+}
+
+} // namespace detail
+
 namespace detail {
 namespace v1 {
 
@@ -96,6 +109,21 @@ const detail::distance_ptr& descriptor_base<Task>::get_distance_impl() const {
 template <typename Task>
 void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distance) {
     impl_->distance = distance;
+}
+
+template <typename Task>
+auto descriptor_base<Task>::get_optional_results() const 
+                                        -> optional_results::optional_result_id_t {
+    return impl_->optional_results;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_optional_results_impl(
+                            const optional_results::optional_result_id_t& value) {
+    if(std::is_same_v<Task, task::search> && bool(value)) {
+        throw domain_error();
+    }
+    impl_->optional_results = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
