@@ -28,3 +28,29 @@ dal_test_suite(
     ],
 )
 
+dal_test_suite(
+    name = "dpc_tests",
+    framework = "catch2",
+    compile_as = [ "dpc++", ],
+    private = True,
+    srcs = glob([
+        "test/*_dpc.cpp",
+    ], exclude=[
+        "test/*perf*.cpp",
+    ]),
+    dal_deps = [
+        ":super_accumulator",
+    ],
+)
+
+dal_test_suite(
+    name = "tests",
+    test_deps = [
+        ":dpc_tests",
+        ":cpp_tests",
+    ],
+    dal_deps = [
+        ":super_accumulator",
+    ],
+)
+
