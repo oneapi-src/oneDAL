@@ -36,7 +36,7 @@ struct state {
     ~state();
 
 private:
-    inner_alloc allocator_;
+    inner_alloc allocator;
 };
 
 template <typename Cpu>
@@ -54,7 +54,7 @@ public:
     oneapi::dal::homogen_table export_as_table(std::int64_t* sorted_pattern_vertex_array);
 
 private:
-    inner_alloc allocator_;
+    inner_alloc allocator;
 
 public:
     std::int64_t** data;
@@ -68,15 +68,15 @@ public:
 };
 
 template <typename Cpu>
-state<Cpu>::state(inner_alloc a) : allocator_(a) {
+state<Cpu>::state(inner_alloc a) : allocator(a) {
     core = nullptr;
     core_length = 0;
 }
 
 template <typename Cpu>
-state<Cpu>::state(std::int64_t length, inner_alloc a) : allocator_(a) {
+state<Cpu>::state(std::int64_t length, inner_alloc a) : allocator(a) {
     core_length = length;
-    core = allocator_.allocate<std::int64_t>(core_length);
+    core = allocator.allocate<std::int64_t>(core_length);
     if (core == nullptr) {
         throw oneapi::dal::host_bad_alloc();
     }
@@ -104,7 +104,7 @@ state<Cpu>::state(state<Cpu>* parent_state, std::int64_t new_element, inner_allo
 
 template <typename Cpu>
 void state<Cpu>::clear() {
-    allocator_.deallocate<std::int64_t>(core, core_length);
+    allocator.deallocate<std::int64_t>(core, core_length);
     core = nullptr;
     core_length = 0;
 }
@@ -116,10 +116,10 @@ state<Cpu>::~state() {
 
 template <typename Cpu>
 solution<Cpu>::solution(const std::int64_t length, inner_alloc a)
-        : allocator_(a),
+        : allocator(a),
           solution_count(0),
           max_solution_count(100) {
-    data = allocator_.allocate<std::int64_t*>(max_solution_count);
+    data = allocator.allocate<std::int64_t*>(max_solution_count);
     if (data == nullptr) {
         throw oneapi::dal::host_bad_alloc();
     }
@@ -139,18 +139,18 @@ void solution<Cpu>::delete_data() {
     if (data != nullptr) {
         for (std::int64_t i = 0; i < max_solution_count; i++) {
             if (data[i] != nullptr) {
-                allocator_.deallocate<std::int64_t>(data[i], 0);
+                allocator.deallocate<std::int64_t>(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        allocator_.deallocate<std::int64_t*>(data, max_solution_count);
+        allocator.deallocate<std::int64_t*>(data, max_solution_count);
         data = nullptr;
     }
 }
 
 template <typename Cpu>
 solution<Cpu>::solution(solution<Cpu>&& sol)
-        : allocator_(sol.allocator_),
+        : allocator(sol.allocator),
           data(sol.data),
           solution_core_length(sol.solution_core_length),
           solution_count(sol.solution_count),
@@ -207,7 +207,7 @@ void solution<Cpu>::append(solution<Cpu>&& _solution) {
     }
 
     if (_solution.data != nullptr) {
-        allocator_.deallocate<std::int64_t*>(_solution.data, 0);
+        allocator.deallocate<std::int64_t*>(_solution.data, 0);
         _solution.data = nullptr;
     }
 
@@ -218,7 +218,7 @@ void solution<Cpu>::append(solution<Cpu>&& _solution) {
 template <typename Cpu>
 void solution<Cpu>::increase_solutions_size() {
     std::int64_t new_max_solution_count = 2 * max_solution_count;
-    std::int64_t** new_data = allocator_.allocate<std::int64_t*>(new_max_solution_count);
+    std::int64_t** new_data = allocator.allocate<std::int64_t*>(new_max_solution_count);
     if (new_data == nullptr) {
         throw oneapi::dal::host_bad_alloc();
     }
@@ -229,7 +229,7 @@ void solution<Cpu>::increase_solutions_size() {
         new_data[i] = nullptr;
     }
     if (data != nullptr) {
-        allocator_.deallocate<std::int64_t*>(data, max_solution_count);
+        allocator.deallocate<std::int64_t*>(data, max_solution_count);
     }
     max_solution_count = new_max_solution_count;
     data = new_data;

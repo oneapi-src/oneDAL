@@ -39,10 +39,10 @@ public:
                     const edge_direction* pdirection,
                     sconsistent_conditions<Cpu> const* pcconditions,
                     kind isomorphism_kind,
-                    inner_alloc allocator);
+                    inner_alloc alloc);
     matching_engine(const matching_engine& _matching_engine,
                     stack<Cpu>& _local_stack,
-                    inner_alloc allocator);
+                    inner_alloc alloc);
     virtual ~matching_engine();
 
     void run_and_wait(global_stack<Cpu>& gstack, std::int64_t& busy_engine_count, bool main_engine);
@@ -56,7 +56,7 @@ public:
     void push_into_stack(const std::int64_t vertex_id);
     bool match_vertex(const std::int64_t pattern_vertex, const std::int64_t target_vertex) const;
 
-    inner_alloc allocator_;
+    inner_alloc allocator;
     const graph<Cpu>* pattern;
     const graph<Cpu>* target;
     const std::int64_t* sorted_pattern_vertex;
@@ -94,11 +94,11 @@ public:
                   sconsistent_conditions<Cpu> const* pcconditions,
                   float* ppattern_vertex_probability,
                   kind isomorphism_kind,
-                  inner_alloc allocator);
+                  inner_alloc alloc);
     virtual ~engine_bundle();
     solution<Cpu> run();
 
-    inner_alloc allocator_;
+    inner_alloc allocator;
     const graph<Cpu>* pattern;
     const graph<Cpu>* target;
     const std::int64_t* sorted_pattern_vertex;
@@ -121,7 +121,7 @@ matching_engine<Cpu>::~matching_engine() {
     direction = nullptr;
     pconsistent_conditions = nullptr;
 
-    allocator_.deallocate<std::int64_t>(temporary_list, temporary_list_size);
+    allocator.deallocate<std::int64_t>(temporary_list, temporary_list_size);
     temporary_list = nullptr;
     temporary_list_size = 0;
 }
@@ -134,13 +134,12 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
                                       const edge_direction* pdirection,
                                       sconsistent_conditions<Cpu> const* pcconditions,
                                       kind isomor_kind,
-                                      inner_alloc allocator)
-        : allocator_(allocator),
-          vertex_candidates(bit_vector<Cpu>::bit_vector_size(ptarget->get_vertex_count()),
-                            allocator),
-          local_stack(allocator),
-          hlocal_stack(allocator),
-          engine_solutions(ppattern->get_vertex_count(), allocator),
+                                      inner_alloc alloc)
+        : allocator(alloc),
+          vertex_candidates(bit_vector<Cpu>::bit_vector_size(ptarget->get_vertex_count()), alloc),
+          local_stack(alloc),
+          hlocal_stack(alloc),
+          engine_solutions(ppattern->get_vertex_count(), alloc),
           isomorphism_kind(isomor_kind) {
     pattern = ppattern;
     target = ptarget;
@@ -168,14 +167,14 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
     }
     else {
         temporary_list_size = max_neighbours_size;
-        temporary_list = allocator_.allocate<std::int64_t>(temporary_list_size);
+        temporary_list = allocator.allocate<std::int64_t>(temporary_list_size);
     }
 }
 
 template <typename Cpu>
 matching_engine<Cpu>::matching_engine(const matching_engine& _matching_engine,
                                       stack<Cpu>& _local_stack,
-                                      inner_alloc allocator)
+                                      inner_alloc alloc)
         : matching_engine(_matching_engine.pattern,
                           _matching_engine.target,
                           _matching_engine.sorted_pattern_vertex,
@@ -183,7 +182,7 @@ matching_engine<Cpu>::matching_engine(const matching_engine& _matching_engine,
                           _matching_engine.direction,
                           _matching_engine.pconsistent_conditions,
                           _matching_engine.isomorphism_kind,
-                          allocator) {
+                          alloc) {
     local_stack = std::move(_local_stack);
 }
 
@@ -256,7 +255,7 @@ bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int6
     std::uint64_t solution_length_unsigned = solution_length;
     if (match_vertex(sorted_pattern_vertex[hlocal_stack.get_current_level()], candidate)) {
         if (check_solution && hlocal_stack.get_current_level() + 1 == solution_length_unsigned) {
-            std::int64_t* solution_core = allocator_.allocate<std::int64_t>(solution_length);
+            std::int64_t* solution_core = allocator.allocate<std::int64_t>(solution_length);
             if (solution_core != nullptr) {
                 hlocal_stack.fill_solution(solution_core, candidate);
                 engine_solutions.add(&solution_core);
@@ -413,9 +412,9 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
                                   sconsistent_conditions<Cpu> const* pcconditions,
                                   float* ppattern_vertex_probability,
                                   kind isomor_kind,
-                                  inner_alloc allocator)
-        : exploration_stack(allocator),
-          allocator_(allocator),
+                                  inner_alloc alloc)
+        : exploration_stack(alloc),
+          allocator(alloc),
           pattern(ppattern),
           target(ptarget),
           sorted_pattern_vertex(psorted_pattern_vertex),
@@ -457,7 +456,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
             : (max_threads_count >= 24)
                   ? max_threads_count * 4 / 10
                   : (max_threads_count >= 8) ? 4 : (max_threads_count >= 4) ? 2 : 1;
-    auto engine_array_ptr = allocator_.make_shared_memory<matching_engine<Cpu>>(array_size);
+    auto engine_array_ptr = allocator.make_shared_memory<matching_engine<Cpu>>(array_size);
     matching_engine<Cpu>* engine_array = engine_array_ptr.get();
 
     for (std::uint64_t i = 0; i < array_size; ++i) {
@@ -468,10 +467,10 @@ solution<Cpu> engine_bundle<Cpu>::run() {
                                                     direction,
                                                     pconsistent_conditions,
                                                     isomorphism_kind,
-                                                    allocator_);
+                                                    allocator);
     }
 
-    state<Cpu> null_state(allocator_);
+    state<Cpu> null_state(allocator);
     std::uint64_t task_counter = 0, index = 0;
     for (std::int64_t i = 0; i < target->vertex_count; ++i) {
         if (degree <= target->get_vertex_degree(i) &&
@@ -487,13 +486,13 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         }
     }
 
-    global_stack<Cpu> gstack(pattern->vertex_count, allocator_);
+    global_stack<Cpu> gstack(pattern->vertex_count, allocator);
     std::int64_t busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
         engine_array[index].run_and_wait(gstack, busy_engine_count, false);
     });
 
-    solution<Cpu> aggregated_solution(pattern->get_vertex_count(), allocator_);
+    solution<Cpu> aggregated_solution(pattern->get_vertex_count(), allocator);
     for (std::uint64_t i = 0; i < array_size; i++) {
         aggregated_solution.append(engine_array[i].get_solution());
         engine_array[i].~matching_engine();

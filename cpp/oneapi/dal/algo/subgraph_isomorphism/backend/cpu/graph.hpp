@@ -61,7 +61,7 @@ public:
 
     bool external_data;
     bool bit_representation;
-    inner_alloc allocator_;
+    inner_alloc allocator;
     std::int64_t vertex_count; /* number of graph vertices */
     std::int64_t* p_degree; /* vertex data dergee arrays */
     std::uint8_t** p_edges_bit; /* bit vectors of edges */
@@ -81,9 +81,9 @@ public:
 
 template <typename Cpu>
 void graph<Cpu>::allocate_arrays() {
-    p_degree = allocator_.allocate<std::int64_t>(vertex_count);
-    p_vertex_attribute = allocator_.allocate<std::int64_t>(vertex_count);
-    p_edges_attribute = allocator_.allocate<std::int64_t*>(vertex_count);
+    p_degree = allocator.allocate<std::int64_t>(vertex_count);
+    p_vertex_attribute = allocator.allocate<std::int64_t>(vertex_count);
+    p_edges_attribute = allocator.allocate<std::int64_t*>(vertex_count);
     if (!p_degree || !p_vertex_attribute || !p_edges_attribute) {
         throw oneapi::dal::host_bad_alloc();
     }
@@ -97,12 +97,12 @@ void graph<Cpu>::allocate_arrays() {
     if (bit_representation) {
         std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
 
-        p_edges_bit = allocator_.template allocate<std::uint8_t*>(vertex_count);
+        p_edges_bit = allocator.template allocate<std::uint8_t*>(vertex_count);
         if (!p_edges_bit) {
             throw oneapi::dal::host_bad_alloc();
         }
         for (int64_t i = 0; i < vertex_count; i++) {
-            p_edges_bit[i] = allocator_.template allocate<std::uint8_t>(bit_array_size);
+            p_edges_bit[i] = allocator.template allocate<std::uint8_t>(bit_array_size);
             if (!p_edges_bit[i]) {
                 throw oneapi::dal::host_bad_alloc();
             }
@@ -110,7 +110,7 @@ void graph<Cpu>::allocate_arrays() {
         }
     }
     else {
-        p_edges_list = allocator_.template allocate<std::int64_t*>(vertex_count);
+        p_edges_list = allocator.template allocate<std::int64_t*>(vertex_count);
         if (!p_edges_list) {
             throw oneapi::dal::host_bad_alloc();
         }
@@ -126,7 +126,7 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
                   detail::byte_alloc_iface* byte_alloc)
         : external_data(true),
           bit_representation(storage_scheme != list),
-          allocator_(byte_alloc),
+          allocator(byte_alloc),
           vertex_count(t.get_vertex_count()) {
     allocate_arrays();
     (bit_representation) ? init_bit_representation(t) : init_list_representation(t);
@@ -154,7 +154,7 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
             bit_vector<Cpu>::set_bit(p_edges_bit[vertex_2], vertex_1, vertex_count);
             if (edge_attr >= 0 || has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
-                    p_edges_attribute[i] = allocator_.allocate<std::int64_t>(degree);
+                    p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
                     if (!p_edges_attribute[i]) {
                         throw oneapi::dal::host_bad_alloc();
                     }
@@ -176,7 +176,7 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
         auto degree = t._degrees[i];
         p_degree[i] = degree;
         if (degree > 0) {
-            p_edges_list[i] = allocator_.allocate<std::int64_t>(degree);
+            p_edges_list[i] = allocator.allocate<std::int64_t>(degree);
             if (!p_edges_list[i]) {
                 throw oneapi::dal::host_bad_alloc();
             }
@@ -196,7 +196,7 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
             p_edges_list[i][j] = vertex_2;
             if (edge_attr >= 0 || has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
-                    p_edges_attribute[i] = allocator_.allocate<std::int64_t>(degree);
+                    p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
                     if (!p_edges_attribute[i]) {
                         throw oneapi::dal::host_bad_alloc();
                     }
@@ -214,11 +214,11 @@ void graph<Cpu>::delete_bit_arrays() {
     if (p_edges_bit != nullptr) {
         for (std::int64_t i = 0; i < vertex_count; i++) {
             if (p_edges_bit[i] != nullptr) {
-                allocator_.deallocate<std::uint8_t>(p_edges_bit[i], 0);
+                allocator.deallocate<std::uint8_t>(p_edges_bit[i], 0);
                 p_edges_bit[i] = nullptr;
             }
         }
-        allocator_.deallocate<std::uint8_t*>(p_edges_bit, vertex_count);
+        allocator.deallocate<std::uint8_t*>(p_edges_bit, vertex_count);
         p_edges_bit = nullptr;
     }
 }
@@ -228,27 +228,27 @@ void graph<Cpu>::delete_list_arrays() {
     if (p_edges_list != nullptr) {
         for (std::int64_t i = 0; i < vertex_count; i++) {
             if (p_edges_list[i] != nullptr) {
-                allocator_.deallocate<std::int64_t>(p_edges_list[i], 0);
+                allocator.deallocate<std::int64_t>(p_edges_list[i], 0);
                 p_edges_list[i] = nullptr;
             }
         }
-        allocator_.deallocate<std::int64_t*>(p_edges_list, vertex_count);
+        allocator.deallocate<std::int64_t*>(p_edges_list, vertex_count);
         p_edges_list = nullptr;
     }
 }
 
 template <typename Cpu>
 graph<Cpu>::~graph() {
-    allocator_.deallocate<std::int64_t>(p_degree, vertex_count);
-    allocator_.deallocate<std::int64_t>(p_vertex_attribute, vertex_count);
+    allocator.deallocate<std::int64_t>(p_degree, vertex_count);
+    allocator.deallocate<std::int64_t>(p_vertex_attribute, vertex_count);
 
     for (int64_t i = 0; i < vertex_count; i++) {
         if (p_edges_attribute[i] != nullptr) {
-            allocator_.deallocate<std::int64_t>(p_edges_attribute[i], 1);
+            allocator.deallocate<std::int64_t>(p_edges_attribute[i], 1);
             p_edges_attribute[i] = nullptr;
         }
     }
-    allocator_.deallocate<std::int64_t*>(p_edges_attribute, vertex_count);
+    allocator.deallocate<std::int64_t*>(p_edges_attribute, vertex_count);
 
     if (external_data) {
         if (bit_representation) {
