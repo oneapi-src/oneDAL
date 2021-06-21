@@ -114,10 +114,10 @@ You can speed up Scikit-learn using [Intel(R) Extension for Scikit-learn*](https
 
 Intel(R) Extension for Scikit-learn* speeds up scikit-learn beyond  by providing drop-in patching. Acceleration is achieved through the use of the Intel(R) oneAPI Data Analytics Library that allows for fast usage of the framework suited for Data Scientists or Machine Learning users.
 
-| *Speedup of Intel(R) Extension for Scikit-learn\* over the original scikit-learn, 28 cores, 1 thread/core* |
-|:--:|
-| ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
-| *Technical details: FPType: float32; HW: Intel(R) Xeon(R) Platinum 8276L CPU @ 2.20GHz, 2 sockets, 28 cores per socket; SW: scikit-learn 0.22.2, Intel® DAAL (2019.5), Intel® Distribution Of Python (IDP) 3.7.4; Details available in the article https://medium.com/intel-analytics-software/accelerate-your-scikit-learn-applications-a06cacf44912* |
+|   |
+|---|
+| ![](docs/readme-charts/scikit-learn-acceleration-2021.2.3.png) |
+| *Technical details: HW: c5.24xlarge AWS EC2 Instance using an Intel Xeon Platinum 8275CL with 2 sockets and 24 cores per socket; SW: scikit-learn version 0.24.2, scikit-learn-intelex version 2021.2.3, Python 3.8* |
 
 Intel(R) Extension for Scikit-learn* provides an option to replace some scikit-learn methods by oneDAL solvers, which makes it possible to get a performance gain **without any code changes**. You can patch the stock scikit-learn by using the following command-line flag:
 ```bash
@@ -182,7 +182,7 @@ Beside C++ and Python API, oneDAL also provides APIs for DPC++ and Java:
 - [oneAPI C++](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/cpp)
 - [oneAPI DPC++](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/dpc)
 - [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java)
-- [Python](https://github.com/IntelPython/daal4py/tree/master/examples)
+- [Python](https://github.com/intel/scikit-learn-intelex/tree/master/examples)
 
 ## Documentation
 - [System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)
