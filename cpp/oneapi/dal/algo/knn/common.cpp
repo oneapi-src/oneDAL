@@ -22,6 +22,14 @@ namespace oneapi::dal::knn {
 namespace detail {
 namespace v1 {
 
+optional_result_id_t get_indices_id() {
+    return optional_result_id_t::get_result_id_by_index(0);
+}
+
+optional_result_id_t get_distances_id() {
+    return optional_result_id_t::get_result_id_by_index(1);
+}
+
 template <typename Task>
 class descriptor_impl : public base {
 public:
@@ -31,6 +39,7 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
+    optional_results::optional_result_id_t optional_results;
 };
 
 template <typename Task>
