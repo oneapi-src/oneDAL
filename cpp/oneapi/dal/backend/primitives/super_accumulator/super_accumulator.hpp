@@ -121,7 +121,7 @@ public:
         else {
 #ifdef __SYCL_DEVICE_ONLY__
             atomic_global_add(bins + bin, mant);
-#else 
+#else
             bins[bin] += mant;
 #endif
         }

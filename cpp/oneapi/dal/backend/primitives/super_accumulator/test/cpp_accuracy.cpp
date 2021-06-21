@@ -70,7 +70,7 @@ public:
 
     template <typename AccFloat = Float>
     AccFloat compute_gt() {
-        const auto data = row_accessor<const Float>{ this->input_table_ }.pull({ 0ul, 1ul });
+        const auto data = row_accessor<const Float>{ this->input_table_ }.pull();
         AccFloat accumulator = 0.0;
         for (std::int64_t i = 0; i < length_; ++i) {
             accumulator += AccFloat(data[i]);
@@ -81,7 +81,7 @@ public:
     Float compute_res() {
         auto temp_buff = temp_buffer();
         const target accumulator(temp_buff.get_mutable_data());
-        const auto data = row_accessor<const Float>{ this->input_table_ }.pull({ 0ul, 1ul });
+        const auto data = row_accessor<const Float>{ this->input_table_ }.pull();
         for (std::int64_t i = 0; i < length_; ++i) {
             accumulator.add(data[i]);
         }
