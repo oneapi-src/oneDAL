@@ -9,6 +9,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/algo:decision_tree",
     ],
     extra_deps = [

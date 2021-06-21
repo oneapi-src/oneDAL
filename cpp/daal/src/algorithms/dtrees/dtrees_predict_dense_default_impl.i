@@ -30,9 +30,6 @@
 #include "src/algorithms/dtrees/dtrees_feature_type_helper.h"
 #include "src/services/service_environment.h"
 
-using namespace daal::internal;
-using namespace daal::services::internal;
-
 namespace daal
 {
 namespace algorithms
