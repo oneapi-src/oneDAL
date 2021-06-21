@@ -14,13 +14,36 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-==================
-Pairwise Distances
-==================
+.. default-domain:: cpp
 
-.. toctree::
-   :titlesonly:
+.. _api_cosine_distance:
 
-   minkowski-distance.rst
-   chebyshev-distance.rst
-   cosine-distance.rst
+===============
+Cosine distance
+===============
+
+.. include::  ../../../includes/pairwise-distances/cosine-distance-introduction.rst
+
+------------------------
+Mathematical formulation
+------------------------
+
+Refer to :ref:`Developer Guide: Minkowski distance <alg_cosine_distance>`.
+
+---------------------
+Programming Interface
+---------------------
+All types and functions in this section are declared in the
+``oneapi::dal::cosine_distance`` namespace.
+
+Descriptor
+----------
+.. onedal_class:: oneapi::dal::cosine_distance::descriptor
+
+Method tags
+~~~~~~~~~~~
+.. onedal_tags_namespace:: oneapi::dal::cosine_distance::method
+
+Task tags
+~~~~~~~~~
+.. onedal_tags_namespace:: oneapi::dal::cosine_distance::task

@@ -15,10 +15,10 @@
 .. *******************************************************************************/
 
 
-:math:`k`-NN :capterm:`classification` algorithm infers the class for the new
+:math:`k`-NN :capterm:`classification` and :capterm:`search` algorithm infers the class for the new
 feature vector by computing majority vote of the :math:`k` nearest observations
-from the training set.
-
+from the training set for :capterm:`classification` problem and search closest in
+distance for the new feature vector to the training set for :capterm:`search` problem.
 
 .. |t_math| replace:: :ref:`Training <knn_t_math>`
 .. |t_brute_f| replace:: :ref:`Brute-force <knn_t_math_brute_force>`

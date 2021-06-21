@@ -22,6 +22,7 @@ Nearest Neighbors (kNN)
    :titlesonly:
 
    knn-classification.rst
+   knn-search.rst
 
 .. rubric:: Examples: k-Nearest Neighbors Classification
 

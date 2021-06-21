@@ -17,7 +17,7 @@
 .. highlight:: cpp
 .. default-domain:: cpp
 
-.. _alg_knn:
+.. _alg_knn_classifiaction:
 
 =========================================
 k-Nearest Neighbors Classification (k-NN)
@@ -45,17 +45,19 @@ stage.
 
 Training method: *brute-force*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The training operation produces the model that stores all the feature vectors
-from the initial training set :math:`X`.
 
+.. include:: knn.rst
+   :start-after: brute_force_method_begin:
+   :end-before: brute_force_method_end:
 
 .. _knn_t_math_kd_tree:
 
 Training method: *k-d tree*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The training operation builds a :math:`k`-:math:`d` tree that partitions the
-training set :math:`X` (for more details, see :txtref:`k-d Tree <kd_tree>`).
 
+.. include:: knn.rst
+   :start-after: kdtree_method_begin:
+   :end-before: kdtree_method_end:
 
 .. _knn_i_math:
 
@@ -67,12 +69,9 @@ the training stage and the number of nearest neighbors :math:`k`, the problem is
 to predict the label :math:`y_j'` for each :math:`x_j'`, :math:`1 \leq j \leq
 m`, by performing the following steps:
 
-#. Identify the set :math:`N(x_j') \subseteq X` of the :math:`k` feature vectors
-   in the training set that are nearest to :math:`x_j'` with respect to the
-   Euclidean distance, which is chosen by default. The distance can be customized
-   with the predefined set of pairwise distances: :ref:`Minkowski distances
-   <alg_minkowski_distance>` with fractional degree (including Euclidean distance)
-   and :ref:`Chebyshev distance <alg_chebyshev_distance>`.
+.. include:: knn.rst
+   :start-after: inference_one_step_begin:
+   :end-before: inference_one_step_end:
 
 #. Estimate the conditional probability for the :math:`l`-th class as the
    fraction of vectors in :math:`N(x_j')` whose labels :math:`y_j` are equal to

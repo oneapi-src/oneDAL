@@ -14,13 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-==================
-Pairwise Distances
-==================
+The Cosine distance is a measure of distance between two non-zero vectors of an inner product space.
 
-.. toctree::
-   :titlesonly:
+.. |c_math| replace::   :ref:`dense <cosine_distance_c_math>`
+.. |c_dense| replace::  :ref:`dense <cosine_distance_c_math_dense>`
 
-   minkowski-distance.rst
-   chebyshev-distance.rst
-   cosine-distance.rst
+=============  ===============  =========
+**Operation**  **Computational  methods**
+-------------  --------------------------
+|c_math|       |c_dense|
+=============  ===============  =========
