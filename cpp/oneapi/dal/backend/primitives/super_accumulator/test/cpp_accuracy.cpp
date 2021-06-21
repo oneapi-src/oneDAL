@@ -34,10 +34,11 @@ template <typename Float>
 class accuracy_test_random : public te::float_algo_fixture<Float> {
 public:
     using target = pr::super_accumulators<Float, true>;
+    
     void generate() {
+        length_ = GENERATE(1, 5, 251, 1023, 1025, 32768, 262144);
         upper_bound_ = GENERATE(+1.e-5, +100.0, +201.0, +1024.0);
         lower_bound_ = GENERATE(-1024.0, -5.0, -1.0, -1.0e-3);
-        length_ = GENERATE(1, 5, 251, 1023, 1025, 32768);
         CAPTURE(length_, lower_bound_, upper_bound_);
         generate_input();
     }
