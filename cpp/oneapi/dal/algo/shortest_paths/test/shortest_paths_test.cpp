@@ -73,25 +73,25 @@ public:
         rows_count = 302;
         source = 0;
 
-        rows[0]=0;
-        rows[1]=300;
-        for(int64_t index=2; index<rows_count;++index){
+        rows[0] = 0;
+        rows[1] = 300;
+        for (int64_t index = 2; index < rows_count; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
-        for(int64_t index=0; index < vertex_count - 1; ++index){
-            cols[index]=index + 1;
+        for (int64_t index = 0; index < vertex_count - 1; ++index) {
+            cols[index] = index + 1;
         }
-        for(int index = 1; index < vertex_count - 1; ++index){
+        for (int index = 1; index < vertex_count - 1; ++index) {
             cols[vertex_count + index - 2] = index + 1;
         }
         cols.back() = 1;
-        for(int64_t index=0; index<vertex_count - 1;++index){
+        for (int64_t index = 0; index < vertex_count - 1; ++index) {
             edge_weights[index] = (index + 1) * 10;
         }
-        for(int64_t index = vertex_count - 1;index < cols_count;++index){
-            edge_weights[index]=10000;
+        for (int64_t index = vertex_count - 1; index < cols_count; ++index) {
+            edge_weights[index] = 10000;
         }
-        for(int index=0;index<vertex_count;++index){
+        for (int index = 0; index < vertex_count; ++index) {
             distances[index] = index * 10;
         }
     }
@@ -128,10 +128,10 @@ public:
         cols[vertex_count] = vertex_count - 1;
         int64_t current_index = vertex_count + 1;
         for (int index = 3; index <= 151; ++index, ++current_index) {
-            cols[current_index]=index;
+            cols[current_index] = index;
         }
         for (int index = 151; index <= 299; ++index, ++current_index) {
-            cols[current_index]=index;
+            cols[current_index] = index;
         }
         for (int64_t index = 0; index < 151; ++index) {
             edge_weights[index] = index * 2 + 1;
@@ -139,7 +139,7 @@ public:
         for (int index = 300; index >= 151; --index) {
             edge_weights[index] = (300 - index) * 2 + 1;
         }
-        for(int64_t index = vertex_count; index < cols_count; ++index){
+        for (int64_t index = vertex_count; index < cols_count; ++index) {
             edge_weights[index] = 1;
         }
         for (int index = 0; index <= 151; ++index) {
@@ -182,10 +182,10 @@ public:
         cols[vertex_count] = vertex_count - 1;
         int64_t current_index = vertex_count + 1;
         for (int index = 3; index <= 1501; ++index, ++current_index) {
-            cols[current_index]=index;
+            cols[current_index] = index;
         }
         for (int index = 1501; index <= 2999; ++index, ++current_index) {
-            cols[current_index]=index;
+            cols[current_index] = index;
         }
         for (int64_t index = 0; index < 1501; ++index) {
             edge_weights[index] = index * 2 + 1;
@@ -193,7 +193,7 @@ public:
         for (int index = 3000; index >= 1501; --index) {
             edge_weights[index] = (3000 - index) * 2 + 1;
         }
-        for(int64_t index = vertex_count; index < cols_count; ++index){
+        for (int64_t index = vertex_count; index < cols_count; ++index) {
             edge_weights[index] = 1;
         }
         for (int index = 0; index <= 1501; ++index) {
@@ -223,15 +223,15 @@ public:
     std::array<std::int32_t, 0> cols = {};
     std::array<double, 0> edge_weights = {};
     std::array<double, 10> distances = { 0,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance };
+                                         unreachable_double_distance,
+                                         unreachable_double_distance,
+                                         unreachable_double_distance,
+                                         unreachable_double_distance,
+                                         unreachable_double_distance,
+                                         unreachable_double_distance,
+                                         unreachable_double_distance,
+                                         unreachable_double_distance,
+                                         unreachable_double_distance };
 };
 
 class d_isolated_vertexes_int_graph_type : public graph_base_data {
@@ -247,15 +247,15 @@ public:
     std::array<std::int32_t, 0> cols = {};
     std::array<int32_t, 0> edge_weights = {};
     std::array<int32_t, 10> distances = { 0,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance,
-                                     unreachable_int32_t_distance };
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance,
+                                          unreachable_int32_t_distance };
 };
 
 class d_graph_3_graph_type : public graph_base_data {
@@ -268,17 +268,17 @@ public:
         source = 0;
     }
     std::array<std::int64_t, 22> rows = { 0,  3,  6,  8,  11, 14, 15, 18, 21, 22, 25,
-                                       27, 30, 32, 35, 37, 39, 42, 42, 45, 47, 49 };
+                                          27, 30, 32, 35, 37, 39, 42, 42, 45, 47, 49 };
     std::array<std::int32_t, 49> cols = { 1,  2,  3,  2,  5,  13, 5,  6,  2,  4,  7,  0,  7,
-                                       8,  6,  3,  7,  9,  6,  10, 11, 12, 5,  13, 14, 6,
-                                       9,  10, 14, 16, 7,  11, 14, 17, 18, 10, 15, 11, 19,
-                                       12, 15, 20, 14, 17, 19, 14, 20, 8,  15 };
+                                          8,  6,  3,  7,  9,  6,  10, 11, 12, 5,  13, 14, 6,
+                                          9,  10, 14, 16, 7,  11, 14, 17, 18, 10, 15, 11, 19,
+                                          12, 15, 20, 14, 17, 19, 14, 20, 8,  15 };
     std::array<double, 49> edge_weights = { 95, 89, 70, 19, 96, 73, 42, 19, 23, 40, 10, 70, 18,
-                                         64, 47, 94, 21, 22, 26, 40, 66, 91, 62, 80, 10, 57,
-                                         63, 99, 73, 17, 12, 14, 42, 92, 69, 39, 58, 38, 10,
-                                         87, 36, 71, 45, 93, 11, 21, 21, 66, 46 };
+                                            64, 47, 94, 21, 22, 26, 40, 66, 91, 62, 80, 10, 57,
+                                            63, 99, 73, 17, 12, 14, 42, 92, 69, 39, 58, 38, 10,
+                                            87, 36, 71, 45, 93, 11, 21, 21, 66, 46 };
     std::array<double, 21> distances = { 0,   95,  89,  70,  110, 131, 106, 80,  174, 128, 120,
-                                     146, 250, 168, 138, 196, 163, 260, 237, 206, 227 };
+                                         146, 250, 168, 138, 196, 163, 260, 237, 206, 227 };
 };
 
 class d_one_bucket_graph_type : public graph_base_data {
@@ -373,105 +373,105 @@ public:
         51.231, 19.98,  55.662, 72.256
     };
     std::array<double, 100> distances = { 0,
-                                     35.117,
-                                     75.435,
-                                     166.096,
-                                     198.948,
-                                     190.05,
-                                     146.26500000000001,
-                                     50.33200000000001,
-                                     33.578,
-                                     14.866,
-                                     40.275,
-                                     115.81899999999999,
-                                     122.721,
-                                     154.763,
-                                     230.01100000000002,
-                                     186.844,
-                                     135.132,
-                                     93.805,
-                                     51.852000000000004,
-                                     67.58699999999999,
-                                     103.18799999999999,
-                                     131.128,
-                                     146.13799999999998,
-                                     159.48099999999997,
-                                     240.27899999999997,
-                                     201.853,
-                                     157.33800000000002,
-                                     141.74200000000002,
-                                     111.411,
-                                     125.24399999999999,
-                                     115.02199999999999,
-                                     138.62699999999998,
-                                     154.71999999999997,
-                                     166.98599999999996,
-                                     253.60399999999996,
-                                     231.56300000000002,
-                                     193.116,
-                                     170.58700000000002,
-                                     137.603,
-                                     173.163,
-                                     204.19099999999997,
-                                     203.767,
-                                     173.30099999999996,
-                                     248.47399999999996,
-                                     298.49699999999996,
-                                     315.886,
-                                     238.62900000000002,
-                                     215.62300000000002,
-                                     217.175,
-                                     245.84599999999998,
-                                     227.80399999999997,
-                                     225.704,
-                                     230.168,
-                                     259.29,
-                                     282.221,
-                                     348.264,
-                                     295.826,
-                                     252.019,
-                                     239.687,
-                                     188.88199999999998,
-                                     189.28199999999998,
-                                     161.03199999999998,
-                                     194.666,
-                                     272.46,
-                                     315.584,
-                                     351.24299999999994,
-                                     300.294,
-                                     205.40599999999998,
-                                     185.55599999999998,
-                                     157.12699999999998,
-                                     89.82,
-                                     145.25799999999998,
-                                     171.913,
-                                     247.275,
-                                     284.99,
-                                     290.42499999999995,
-                                     267.71999999999997,
-                                     203.378,
-                                     153.10899999999998,
-                                     95.03899999999999,
-                                     66.43199999999999,
-                                     86.571,
-                                     123.22,
-                                     177.477,
-                                     268.5,
-                                     289.772,
-                                     213.687,
-                                     161.636,
-                                     103.479,
-                                     53.388999999999996,
-                                     33.14,
-                                     45.038,
-                                     68.79899999999999,
-                                     158.39499999999998,
-                                     228.77499999999998,
-                                     210.953,
-                                     176.03400000000002,
-                                     81.382,
-                                     51.051,
-                                     33.409 };
+                                          35.117,
+                                          75.435,
+                                          166.096,
+                                          198.948,
+                                          190.05,
+                                          146.26500000000001,
+                                          50.33200000000001,
+                                          33.578,
+                                          14.866,
+                                          40.275,
+                                          115.81899999999999,
+                                          122.721,
+                                          154.763,
+                                          230.01100000000002,
+                                          186.844,
+                                          135.132,
+                                          93.805,
+                                          51.852000000000004,
+                                          67.58699999999999,
+                                          103.18799999999999,
+                                          131.128,
+                                          146.13799999999998,
+                                          159.48099999999997,
+                                          240.27899999999997,
+                                          201.853,
+                                          157.33800000000002,
+                                          141.74200000000002,
+                                          111.411,
+                                          125.24399999999999,
+                                          115.02199999999999,
+                                          138.62699999999998,
+                                          154.71999999999997,
+                                          166.98599999999996,
+                                          253.60399999999996,
+                                          231.56300000000002,
+                                          193.116,
+                                          170.58700000000002,
+                                          137.603,
+                                          173.163,
+                                          204.19099999999997,
+                                          203.767,
+                                          173.30099999999996,
+                                          248.47399999999996,
+                                          298.49699999999996,
+                                          315.886,
+                                          238.62900000000002,
+                                          215.62300000000002,
+                                          217.175,
+                                          245.84599999999998,
+                                          227.80399999999997,
+                                          225.704,
+                                          230.168,
+                                          259.29,
+                                          282.221,
+                                          348.264,
+                                          295.826,
+                                          252.019,
+                                          239.687,
+                                          188.88199999999998,
+                                          189.28199999999998,
+                                          161.03199999999998,
+                                          194.666,
+                                          272.46,
+                                          315.584,
+                                          351.24299999999994,
+                                          300.294,
+                                          205.40599999999998,
+                                          185.55599999999998,
+                                          157.12699999999998,
+                                          89.82,
+                                          145.25799999999998,
+                                          171.913,
+                                          247.275,
+                                          284.99,
+                                          290.42499999999995,
+                                          267.71999999999997,
+                                          203.378,
+                                          153.10899999999998,
+                                          95.03899999999999,
+                                          66.43199999999999,
+                                          86.571,
+                                          123.22,
+                                          177.477,
+                                          268.5,
+                                          289.772,
+                                          213.687,
+                                          161.636,
+                                          103.479,
+                                          53.388999999999996,
+                                          33.14,
+                                          45.038,
+                                          68.79899999999999,
+                                          158.39499999999998,
+                                          228.77499999999998,
+                                          210.953,
+                                          176.03400000000002,
+                                          81.382,
+                                          51.051,
+                                          33.409 };
 };
 
 class d_net_10_10_int_edges_graph_type : public graph_base_data {
@@ -555,13 +555,13 @@ public:
     std::array<std::int32_t, 6> cols = { 1, 2, 3, 5, 6, 7 };
     std::array<double, 6> edge_weights = { 1, 2, 3, 1, 2, 3 };
     std::array<double, 8> distances = { 0,
-                                     1,
-                                     2,
-                                     3,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance };
+                                        1,
+                                        2,
+                                        3,
+                                        unreachable_double_distance,
+                                        unreachable_double_distance,
+                                        unreachable_double_distance,
+                                        unreachable_double_distance };
 };
 
 class d_source_isolated_vertex_graph_type : public graph_base_data {
@@ -577,10 +577,10 @@ public:
     std::array<std::int32_t, 4> cols = { 4, 3, 1, 2 };
     std::array<double, 4> edge_weights = { 1, 1, 1, 1 };
     std::array<double, 5> distances = { 0,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance,
-                                     unreachable_double_distance };
+                                        unreachable_double_distance,
+                                        unreachable_double_distance,
+                                        unreachable_double_distance,
+                                        unreachable_double_distance };
 };
 
 class d_k_15_double_edges_source_5_graph_type : public graph_base_data {
@@ -593,7 +593,7 @@ public:
         source = 5;
     }
     std::array<std::int64_t, 16> rows = { 0,   14,  28,  42,  56,  70,  84,  98,
-                                       112, 126, 140, 154, 168, 182, 196, 210 };
+                                          112, 126, 140, 154, 168, 182, 196, 210 };
     std::array<std::int32_t, 210> cols = {
         1, 2, 3,  4,  5,  6,  7,  8, 9, 10, 11, 12, 13, 14, 0, 2, 3,  4,  5,  6,  7,
         8, 9, 10, 11, 12, 13, 14, 0, 1, 3,  4,  5,  6,  7,  8, 9, 10, 11, 12, 13, 14,
@@ -618,7 +618,9 @@ public:
         35, 73, 94,  99, 34, 39, 11, 39, 47, 73, 54, 93,  54, 25, 75,  95, 51, 83,  76, 18, 79,
         24, 89, 76,  24, 73, 93, 13, 11, 51, 54, 49, 23,  28, 21, 16,  98, 40, 13,  26, 11, 23
     };
-    std::array<double, 15> distances = { 46, 47, 80, 27, 53, 0, 30, 55, 24, 58, 53, 43, 46, 50, 40 };
+    std::array<double, 15> distances = {
+        46, 47, 80, 27, 53, 0, 30, 55, 24, 58, 53, 43, 46, 50, 40
+    };
 };
 
 template <class T>
@@ -680,22 +682,22 @@ public:
         return optional_results::distances & optional_results::predecessors;
     }
 
-    inline bool compare_distances(int32_t lhs , int32_t rhs){
+    inline bool compare_distances(int32_t lhs, int32_t rhs) {
         return lhs == rhs;
     }
-    inline bool compare_distances(double lhs, double rhs){
+    inline bool compare_distances(double lhs, double rhs) {
         const double tol = te::get_tolerance<double>(1e-4, 1e-10);
         return std::abs(lhs - rhs) < tol;
     }
 
-    template<typename T, size_t Size>
+    template <typename T, size_t Size>
     bool check_distances(const std::array<T, Size>& true_distances,
                          const std::vector<T>& distances) {
         if (true_distances.size() != distances.size()) {
             return false;
         }
         for (size_t index = 0; index < true_distances.size(); ++index) {
-            if (!compare_distances(true_distances[index], distances[index])){
+            if (!compare_distances(true_distances[index], distances[index])) {
                 return false;
             }
         }
@@ -720,11 +722,13 @@ public:
                 oneapi::dal::preview::vertex_outward_edge_size_type<DirectedGraphType> from =
                     predecessor;
                 oneapi::dal::preview::vertex_outward_edge_size_type<DirectedGraphType> to = index;
-                if (!compare_distances(distances[predecessor] + oneapi::dal::preview::get_edge_value(graph, from, to), distances[index])) {
+                if (!compare_distances(distances[predecessor] +
+                                           oneapi::dal::preview::get_edge_value(graph, from, to),
+                                       distances[index])) {
                     return false;
                 }
             }
-            else if (index != source) {
+            else if (index != static_cast<size_t>(source)) {
                 if (!compare_distances(unreachable_distance, distances[index])) {
                     return false;
                 }
@@ -733,7 +737,7 @@ public:
         return true;
     }
 
-    template<typename T>
+    template <typename T>
     std::vector<T> get_data_from_table(const oneapi::dal::table& table) {
         auto arr = oneapi::dal::row_accessor<const T>(table).pull();
         const auto x = arr.get_data();
@@ -752,11 +756,11 @@ public:
             oneapi::dal::preview::empty_value,
             int,
             std::allocator<char>>& graph,
-            double delta,
-            int32_t source,
-            oneapi::dal::preview::shortest_paths::optional_result_id result_type,
-            const std::array<EdgeValueType, Size>& true_distances,
-            const Allocator& alloc) {
+        double delta,
+        int32_t source,
+        oneapi::dal::preview::shortest_paths::optional_result_id result_type,
+        const std::array<EdgeValueType, Size>& true_distances,
+        const Allocator& alloc) {
         using namespace dal::preview::shortest_paths;
         const auto shortest_paths_desc =
             descriptor<float, method::delta_stepping, task::one_to_all, Allocator>(
@@ -892,10 +896,11 @@ SHORTEST_PATHS_TEST("All vertexes inside 1 bucket, predecessors") {
 }
 
 SHORTEST_PATHS_TEST("Custom allocator case") {
-    this->shortest_paths_custom_allocator_check<d_graph_3_graph_type, double>(0.5,
-                                                                        true,
-                                                                        true,
-                                                                        LimitedAllocator<char>());
+    this->shortest_paths_custom_allocator_check<d_graph_3_graph_type, double>(
+        0.5,
+        true,
+        true,
+        LimitedAllocator<char>());
 }
 
 // SHORTEST_PATHS_TEST("Custom allocator with limited allocations (cannot allocate enough memory)"){
@@ -919,7 +924,9 @@ SHORTEST_PATHS_TEST("Calculate predecessors only)") {
 }
 
 SHORTEST_PATHS_TEST("Multiple connectivity components)") {
-    this->shortest_paths_check<d_multiple_connectivity_components_graph_type, double>(1.5, true, true);
+    this->shortest_paths_check<d_multiple_connectivity_components_graph_type, double>(1.5,
+                                                                                      true,
+                                                                                      true);
 }
 
 SHORTEST_PATHS_TEST("Isolated source vertex, distances + predecessors") {

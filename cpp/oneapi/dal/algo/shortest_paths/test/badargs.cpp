@@ -120,11 +120,7 @@ public:
                                : optional_results::distances | optional_results::predecessors;
         std::allocator<char> alloc;
 
-        const auto shortest_paths_desc =
-            descriptor<>(
-                source,
-                delta,
-                result_type);
+        const auto shortest_paths_desc = descriptor<>(source, delta, result_type);
 
         const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, graph);
     }
