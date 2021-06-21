@@ -97,22 +97,22 @@ public:
     Float compute_res() {
         auto [temp_buff, temp_event] = temp_buffer();
         sycl::event temp_buf_fill_event = std::move(temp_event);
-        std::int64_t* const temp_ptr = temp_buff.get_mutable_data(); 
+        std::int64_t* const temp_ptr = temp_buff.get_mutable_data();
         const auto data = row_accessor<const Float>{ this->input_table_ }.pull(this->get_queue());
         const Float* const data_ptr = data.get_data();
         auto red_event = this->get_queue().submit([&](sycl::handler& h) {
             h.depends_on({ temp_buf_fill_event });
-            h.parallel_for(this->length_, [=](sycl::id<1> idx){
+            h.parallel_for(this->length_, [=](sycl::id<1> idx) {
                 target(temp_ptr).add(data_ptr[idx]);
             });
         });
-        auto [res_buff, res_event] = 
+        auto [res_buff, res_event] =
             ndarray<Float, 1, ndorder::c>::zeros(this->get_queue(), { 1ul });
         sycl::event res_buf_fill_event = std::move(res_event);
         Float* const res_ptr = res_buff.get_mutable_data();
         auto fin_event = this->get_queue().submit([&](sycl::handler& h) {
             h.depends_on({ red_event, res_buf_fill_event });
-            h.parallel_for(1ul, [=](sycl::id<1> idx){
+            h.parallel_for(1ul, [=](sycl::id<1> idx) {
                 res_ptr[idx] = target(temp_ptr).finalize();
             });
         });
