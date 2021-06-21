@@ -14,24 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/cosine_distance/common.hpp"
 
-#include <daal/src/algorithms/service_kernel_math.h>
-
-namespace oneapi::dal::knn::detail {
+namespace oneapi::dal::cosine_distance::detail {
 namespace v1 {
 
-using daal_distance_t = daal::algorithms::internal::PairwiseDistanceType;
+template <typename Task>
+class descriptor_impl : public base {};
 
-class distance_impl : public base {
-public:
-    virtual ~distance_impl() = default;
-    virtual daal_distance_t get_daal_distance_type() = 0;
-    virtual double get_degree() = 0;
-};
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
+
+template class ONEDAL_EXPORT descriptor_base<task::compute>;
 
 } // namespace v1
-
-using v1::distance_impl;
-
-} // namespace oneapi::dal::knn::detail
+} // namespace oneapi::dal::cosine_distance::detail
