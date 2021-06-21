@@ -66,11 +66,6 @@ protected:
 
 class d_thread_buckets_graph_type : public graph_base_data {
 public:
-    std::vector<std::int64_t> rows;
-    std::vector<std::int32_t> cols;
-    std::vector<double> edge_weights;
-    std::vector<double> distances;
-
     d_thread_buckets_graph_type() {
         vertex_count = 301;
         edge_count = 600;
@@ -78,38 +73,37 @@ public:
         rows_count = 302;
         source = 0;
 
-        rows.resize(rows_count);
-        rows[0] = 0;
-        rows[1] = 300;
-        for (int64_t index = 2; index < rows_count; ++index) {
+        rows[0]=0;
+        rows[1]=300;
+        for(int64_t index=2; index<rows_count;++index){
             rows[index] = rows[index - 1] + 1;
         }
-        cols.reserve(cols_count);
-        for (int64_t index = 0; index < vertex_count - 1; ++index) {
-            cols.push_back(index + 1);
+        for(int64_t index=0; index < vertex_count - 1; ++index){
+            cols[index]=index + 1;
         }
-        for (int64_t index = 1; index < vertex_count - 1; ++index) {
-            cols.push_back(index + 1);
+        for(int index = 1; index < vertex_count - 1; ++index){
+            cols[vertex_count + index - 2] = index + 1;
         }
-        cols.push_back(1);
-        edge_weights.assign(cols_count, 10000);
-        for (int64_t index = 0; index < vertex_count - 1; ++index) {
+        cols.back() = 1;
+        for(int64_t index=0; index<vertex_count - 1;++index){
             edge_weights[index] = (index + 1) * 10;
         }
-        distances.resize(vertex_count);
-        for (int64_t index = 0; index < vertex_count; ++index) {
+        for(int64_t index = vertex_count - 1;index < cols_count;++index){
+            edge_weights[index]=10000;
+        }
+        for(int index=0;index<vertex_count;++index){
             distances[index] = index * 10;
         }
     }
+
+    std::array<std::int64_t, 302> rows;
+    std::array<std::int32_t, 600> cols;
+    std::array<double, 600> edge_weights;
+    std::array<double, 301> distances;
 };
 
 class d_thread_bucket_size_graph_type : public graph_base_data {
 public:
-    std::vector<std::int64_t> rows;
-    std::vector<std::int32_t> cols;
-    std::vector<double> edge_weights;
-    std::vector<double> distances;
-
     d_thread_bucket_size_graph_type() {
         vertex_count = 301;
         edge_count = 600;
@@ -117,10 +111,9 @@ public:
         rows_count = 302;
         source = 0;
 
-        rows.resize(rows_count);
         rows[0] = 0;
-        rows[1] = 300;
-        rows[2] = 302;
+        rows[1] = vertex_count - 1;
+        rows[2] = vertex_count + 1;
         for (int index = 3; index < 152; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
@@ -128,27 +121,27 @@ public:
         for (int64_t index = 153; index < rows_count; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
-        cols.reserve(cols_count);
-        for (int index = 0; index < 300; ++index) {
-            cols.push_back(index + 1);
+        for (int index = 1; index < vertex_count; ++index) {
+            cols[index - 1] = index;
         }
-        cols.push_back(2);
-        cols.push_back(300);
-        for (int index = 3; index <= 151; ++index) {
-            cols.push_back(index);
+        cols[vertex_count - 1] = 2;
+        cols[vertex_count] = vertex_count - 1;
+        int64_t current_index = vertex_count + 1;
+        for (int index = 3; index <= 151; ++index, ++current_index) {
+            cols[current_index]=index;
         }
-        for (int index = 151; index <= 299; ++index) {
-            cols.push_back(index);
+        for (int index = 151; index <= 299; ++index, ++current_index) {
+            cols[current_index]=index;
         }
-        edge_weights.assign(cols_count, 1);
         for (int64_t index = 0; index < 151; ++index) {
             edge_weights[index] = index * 2 + 1;
         }
         for (int index = 300; index >= 151; --index) {
             edge_weights[index] = (300 - index) * 2 + 1;
         }
-
-        distances.resize(vertex_count);
+        for(int64_t index = vertex_count; index < cols_count; ++index){
+            edge_weights[index] = 1;
+        }
         for (int index = 0; index <= 151; ++index) {
             distances[index] = index;
         }
@@ -156,15 +149,15 @@ public:
             distances[index] = distances[index - 1] - 1;
         }
     }
+
+    std::array<std::int64_t, 302> rows;
+    std::array<std::int32_t, 600> cols;
+    std::array<double, 600> edge_weights;
+    std::array<double, 301> distances;
 };
 
 class d_max_element_bin_graph_type : public graph_base_data {
 public:
-    std::vector<std::int64_t> rows;
-    std::vector<std::int32_t> cols;
-    std::vector<double> edge_weights;
-    std::vector<double> distances;
-
     d_max_element_bin_graph_type() {
         vertex_count = 3001;
         edge_count = 6000;
@@ -172,10 +165,9 @@ public:
         rows_count = 3002;
         source = 0;
 
-        rows.resize(rows_count);
         rows[0] = 0;
-        rows[1] = 3000;
-        rows[2] = 3002;
+        rows[1] = vertex_count - 1;
+        rows[2] = vertex_count + 1;
         for (int index = 3; index < 1502; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
@@ -183,27 +175,27 @@ public:
         for (int64_t index = 1503; index < rows_count; ++index) {
             rows[index] = rows[index - 1] + 1;
         }
-        cols.reserve(cols_count);
-        for (int index = 0; index < 3000; ++index) {
-            cols.push_back(index + 1);
+        for (int index = 1; index < vertex_count; ++index) {
+            cols[index - 1] = index;
         }
-        cols.push_back(2);
-        cols.push_back(3000);
-        for (int index = 3; index <= 1501; ++index) {
-            cols.push_back(index);
+        cols[vertex_count - 1] = 2;
+        cols[vertex_count] = vertex_count - 1;
+        int64_t current_index = vertex_count + 1;
+        for (int index = 3; index <= 1501; ++index, ++current_index) {
+            cols[current_index]=index;
         }
-        for (int index = 1501; index <= 2999; ++index) {
-            cols.push_back(index);
+        for (int index = 1501; index <= 2999; ++index, ++current_index) {
+            cols[current_index]=index;
         }
-        edge_weights.assign(cols_count, 1);
         for (int64_t index = 0; index < 1501; ++index) {
             edge_weights[index] = index * 2 + 1;
         }
         for (int index = 3000; index >= 1501; --index) {
             edge_weights[index] = (3000 - index) * 2 + 1;
         }
-
-        distances.resize(vertex_count);
+        for(int64_t index = vertex_count; index < cols_count; ++index){
+            edge_weights[index] = 1;
+        }
         for (int index = 0; index <= 1501; ++index) {
             distances[index] = index;
         }
@@ -211,6 +203,11 @@ public:
             distances[index] = distances[index - 1] - 1;
         }
     }
+
+    std::array<std::int64_t, 3002> rows;
+    std::array<std::int32_t, 6000> cols;
+    std::array<double, 6000> edge_weights;
+    std::array<double, 3001> distances;
 };
 
 class d_isolated_vertexes_graph_type : public graph_base_data {
@@ -222,10 +219,10 @@ public:
         rows_count = 11;
         source = 0;
     }
-    std::vector<std::int64_t> rows = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    std::vector<std::int32_t> cols = {};
-    std::vector<double> edge_weights = {};
-    std::vector<double> distances = { 0,
+    std::array<std::int64_t, 11> rows = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    std::array<std::int32_t, 0> cols = {};
+    std::array<double, 0> edge_weights = {};
+    std::array<double, 10> distances = { 0,
                                      unreachable_double_distance,
                                      unreachable_double_distance,
                                      unreachable_double_distance,
@@ -246,10 +243,10 @@ public:
         rows_count = 11;
         source = 0;
     }
-    std::vector<std::int64_t> rows = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    std::vector<std::int32_t> cols = {};
-    std::vector<int32_t> edge_weights = {};
-    std::vector<int32_t> distances = { 0,
+    std::array<std::int64_t, 11> rows = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    std::array<std::int32_t, 0> cols = {};
+    std::array<int32_t, 0> edge_weights = {};
+    std::array<int32_t, 10> distances = { 0,
                                      unreachable_int32_t_distance,
                                      unreachable_int32_t_distance,
                                      unreachable_int32_t_distance,
@@ -270,17 +267,17 @@ public:
         rows_count = 22;
         source = 0;
     }
-    std::vector<std::int64_t> rows = { 0,  3,  6,  8,  11, 14, 15, 18, 21, 22, 25,
+    std::array<std::int64_t, 22> rows = { 0,  3,  6,  8,  11, 14, 15, 18, 21, 22, 25,
                                        27, 30, 32, 35, 37, 39, 42, 42, 45, 47, 49 };
-    std::vector<std::int32_t> cols = { 1,  2,  3,  2,  5,  13, 5,  6,  2,  4,  7,  0,  7,
+    std::array<std::int32_t, 49> cols = { 1,  2,  3,  2,  5,  13, 5,  6,  2,  4,  7,  0,  7,
                                        8,  6,  3,  7,  9,  6,  10, 11, 12, 5,  13, 14, 6,
                                        9,  10, 14, 16, 7,  11, 14, 17, 18, 10, 15, 11, 19,
                                        12, 15, 20, 14, 17, 19, 14, 20, 8,  15 };
-    std::vector<double> edge_weights = { 95, 89, 70, 19, 96, 73, 42, 19, 23, 40, 10, 70, 18,
+    std::array<double, 49> edge_weights = { 95, 89, 70, 19, 96, 73, 42, 19, 23, 40, 10, 70, 18,
                                          64, 47, 94, 21, 22, 26, 40, 66, 91, 62, 80, 10, 57,
                                          63, 99, 73, 17, 12, 14, 42, 92, 69, 39, 58, 38, 10,
                                          87, 36, 71, 45, 93, 11, 21, 21, 66, 46 };
-    std::vector<double> distances = { 0,   95,  89,  70,  110, 131, 106, 80,  174, 128, 120,
+    std::array<double, 21> distances = { 0,   95,  89,  70,  110, 131, 106, 80,  174, 128, 120,
                                      146, 250, 168, 138, 196, 163, 260, 237, 206, 227 };
 };
 
@@ -293,10 +290,10 @@ public:
         rows_count = 7;
         source = 0;
     }
-    std::vector<std::int64_t> rows = { 0, 5, 6, 7, 8, 9, 9 };
-    std::vector<std::int32_t> cols = { 1, 2, 3, 4, 5, 2, 3, 4, 5 };
-    std::vector<double> edge_weights = { 1, 3, 4, 5, 6, 1, 1, 1, 1 };
-    std::vector<double> distances = { 0, 1, 2, 3, 4, 5 };
+    std::array<std::int64_t, 7> rows = { 0, 5, 6, 7, 8, 9, 9 };
+    std::array<std::int32_t, 9> cols = { 1, 2, 3, 4, 5, 2, 3, 4, 5 };
+    std::array<double, 9> edge_weights = { 1, 3, 4, 5, 6, 1, 1, 1, 1 };
+    std::array<double, 6> distances = { 0, 1, 2, 3, 4, 5 };
 };
 
 class d_net_10_10_double_edges_graph_type : public graph_base_data {
@@ -308,7 +305,7 @@ public:
         rows_count = 101;
         source = 0;
     }
-    std::vector<std::int64_t> rows = {
+    std::array<std::int64_t, 101> rows = {
         0,   4,   8,   12,  16,  20,  24,  28,  32,  36,  40,  44,  48,  52,  56,  60,  64,
         68,  72,  76,  80,  84,  88,  92,  96,  100, 104, 108, 112, 116, 120, 124, 128, 132,
         136, 140, 144, 148, 152, 156, 160, 164, 168, 172, 176, 180, 184, 188, 192, 196, 200,
@@ -316,7 +313,7 @@ public:
         272, 276, 280, 284, 288, 292, 296, 300, 304, 308, 312, 316, 320, 324, 328, 332, 336,
         340, 344, 348, 352, 356, 360, 364, 368, 372, 376, 380, 384, 388, 392, 396, 400
     };
-    std::vector<std::int32_t> cols = {
+    std::array<std::int32_t, 400> cols = {
         1,  9,  10, 90, 0,  2,  11, 91, 1,  3,  12, 92, 2,  4,  13, 93, 3,  5,  14, 94, 4,  6,  15,
         95, 5,  7,  16, 96, 6,  8,  17, 97, 7,  9,  18, 98, 0,  8,  19, 99, 0,  11, 19, 20, 1,  10,
         12, 21, 2,  11, 13, 22, 3,  12, 14, 23, 4,  13, 15, 24, 5,  14, 16, 25, 6,  15, 17, 26, 7,
@@ -336,7 +333,7 @@ public:
         2,  82, 91, 93, 3,  83, 92, 94, 4,  84, 93, 95, 5,  85, 94, 96, 6,  86, 95, 97, 7,  87, 96,
         98, 8,  88, 97, 99, 9,  89, 90, 98
     };
-    std::vector<double> edge_weights = {
+    std::array<double, 400> edge_weights = {
         35.117, 14.866, 40.275, 33.14,  94.686, 40.318, 80.702, 79.627, 96.623, 97.797, 47.286,
         64.155, 38.207, 32.852, 69.205, 12.414, 76.32,  30.598, 33.929, 68.586, 36.309, 26.018,
         27.375, 20.903, 43.785, 18.283, 69.937, 29.769, 95.933, 16.099, 92.866, 31.05,  16.754,
@@ -375,7 +372,7 @@ public:
         37.653, 83.659, 62.121, 51.397, 94.19,  99.911, 62.366, 53.571, 52.746, 43.035, 96.182,
         51.231, 19.98,  55.662, 72.256
     };
-    std::vector<double> distances = { 0,
+    std::array<double, 100> distances = { 0,
                                      35.117,
                                      75.435,
                                      166.096,
@@ -486,7 +483,7 @@ public:
         rows_count = 101;
         source = 0;
     }
-    std::vector<std::int64_t> rows = {
+    std::array<std::int64_t, 101> rows = {
         0,   4,   8,   12,  16,  20,  24,  28,  32,  36,  40,  44,  48,  52,  56,  60,  64,
         68,  72,  76,  80,  84,  88,  92,  96,  100, 104, 108, 112, 116, 120, 124, 128, 132,
         136, 140, 144, 148, 152, 156, 160, 164, 168, 172, 176, 180, 184, 188, 192, 196, 200,
@@ -494,7 +491,7 @@ public:
         272, 276, 280, 284, 288, 292, 296, 300, 304, 308, 312, 316, 320, 324, 328, 332, 336,
         340, 344, 348, 352, 356, 360, 364, 368, 372, 376, 380, 384, 388, 392, 396, 400
     };
-    std::vector<std::int32_t> cols = {
+    std::array<std::int32_t, 400> cols = {
         1,  9,  10, 90, 0,  2,  11, 91, 1,  3,  12, 92, 2,  4,  13, 93, 3,  5,  14, 94, 4,  6,  15,
         95, 5,  7,  16, 96, 6,  8,  17, 97, 7,  9,  18, 98, 0,  8,  19, 99, 0,  11, 19, 20, 1,  10,
         12, 21, 2,  11, 13, 22, 3,  12, 14, 23, 4,  13, 15, 24, 5,  14, 16, 25, 6,  15, 17, 26, 7,
@@ -514,7 +511,7 @@ public:
         2,  82, 91, 93, 3,  83, 92, 94, 4,  84, 93, 95, 5,  85, 94, 96, 6,  86, 95, 97, 7,  87, 96,
         98, 8,  88, 97, 99, 9,  89, 90, 98
     };
-    std::vector<int32_t> edge_weights = {
+    std::array<int32_t, 400> edge_weights = {
         84, 32,  13, 16, 13, 85, 78, 73, 73, 55, 56, 54, 36, 11, 62, 17, 25, 98, 89, 68, 22, 93,
         24, 91,  82, 27, 12, 76, 13, 41, 65, 77, 70, 60, 73, 99, 41, 31, 37, 13, 53, 63, 52, 30,
         65, 85,  80, 99, 26, 40, 23, 25, 87, 18, 94, 64, 10, 57, 13, 12, 97, 62, 41, 73, 45, 59,
@@ -535,7 +532,7 @@ public:
         76, 67,  21, 81, 81, 92, 29, 76, 64, 85, 26, 24, 21, 84, 24, 68, 78, 14, 95, 38, 67, 99,
         47, 66,  96, 29
     };
-    std::vector<int32_t> distances = {
+    std::array<int32_t, 100> distances = {
         0,   84,  163, 199, 210, 228, 146, 133, 63,  32,  13,  76,  156, 179, 273, 217, 158,
         132, 110, 65,  43,  128, 154, 220, 268, 211, 182, 194, 121, 86,  85,  101, 133, 160,
         227, 223, 249, 255, 169, 148, 140, 138, 204, 192, 203, 271, 307, 240, 215, 185, 168,
@@ -554,10 +551,10 @@ public:
         rows_count = 9;
         source = 0;
     }
-    std::vector<std::int64_t> rows = { 0, 3, 3, 3, 3, 6, 6, 6, 6 };
-    std::vector<std::int32_t> cols = { 1, 2, 3, 5, 6, 7 };
-    std::vector<double> edge_weights = { 1, 2, 3, 1, 2, 3 };
-    std::vector<double> distances = { 0,
+    std::array<std::int64_t, 9> rows = { 0, 3, 3, 3, 3, 6, 6, 6, 6 };
+    std::array<std::int32_t, 6> cols = { 1, 2, 3, 5, 6, 7 };
+    std::array<double, 6> edge_weights = { 1, 2, 3, 1, 2, 3 };
+    std::array<double, 8> distances = { 0,
                                      1,
                                      2,
                                      3,
@@ -576,10 +573,10 @@ public:
         rows_count = 6;
         source = 0;
     }
-    std::vector<std::int64_t> rows = { 0, 0, 1, 2, 3, 4 };
-    std::vector<std::int32_t> cols = { 4, 3, 1, 2 };
-    std::vector<double> edge_weights = { 1, 1, 1, 1 };
-    std::vector<double> distances = { 0,
+    std::array<std::int64_t, 6> rows = { 0, 0, 1, 2, 3, 4 };
+    std::array<std::int32_t, 4> cols = { 4, 3, 1, 2 };
+    std::array<double, 4> edge_weights = { 1, 1, 1, 1 };
+    std::array<double, 5> distances = { 0,
                                      unreachable_double_distance,
                                      unreachable_double_distance,
                                      unreachable_double_distance,
@@ -595,9 +592,9 @@ public:
         rows_count = 16;
         source = 5;
     }
-    std::vector<std::int64_t> rows = { 0,   14,  28,  42,  56,  70,  84,  98,
+    std::array<std::int64_t, 16> rows = { 0,   14,  28,  42,  56,  70,  84,  98,
                                        112, 126, 140, 154, 168, 182, 196, 210 };
-    std::vector<std::int32_t> cols = {
+    std::array<std::int32_t, 210> cols = {
         1, 2, 3,  4,  5,  6,  7,  8, 9, 10, 11, 12, 13, 14, 0, 2, 3,  4,  5,  6,  7,
         8, 9, 10, 11, 12, 13, 14, 0, 1, 3,  4,  5,  6,  7,  8, 9, 10, 11, 12, 13, 14,
         0, 1, 2,  4,  5,  6,  7,  8, 9, 10, 11, 12, 13, 14, 0, 1, 2,  3,  5,  6,  7,
@@ -609,7 +606,7 @@ public:
         0, 1, 2,  3,  4,  5,  6,  7, 8, 9,  10, 11, 13, 14, 0, 1, 2,  3,  4,  5,  6,
         7, 8, 9,  10, 11, 12, 14, 0, 1, 2,  3,  4,  5,  6,  7, 8, 9,  10, 11, 12, 13
     };
-    std::vector<double> edge_weights = {
+    std::array<double, 210> edge_weights = {
         69, 90, 91,  83, 35, 71, 67, 25, 78, 83, 90, 26,  47, 23, 92,  61, 33, 95,  44, 63, 22,
         51, 11, 41,  33, 25, 56, 83, 39, 26, 58, 63, 100, 67, 47, 45,  27, 19, 55,  35, 51, 10,
         66, 96, 95,  36, 21, 48, 32, 60, 51, 33, 22, 84,  34, 13, 94,  50, 32, 38,  75, 64, 98,
@@ -621,7 +618,7 @@ public:
         35, 73, 94,  99, 34, 39, 11, 39, 47, 73, 54, 93,  54, 25, 75,  95, 51, 83,  76, 18, 79,
         24, 89, 76,  24, 73, 93, 13, 11, 51, 54, 49, 23,  28, 21, 16,  98, 40, 13,  26, 11, 23
     };
-    std::vector<double> distances = { 46, 47, 80, 27, 53, 0, 30, 55, 24, 58, 53, 43, 46, 50, 40 };
+    std::array<double, 15> distances = { 46, 47, 80, 27, 53, 0, 30, 55, 24, 58, 53, 43, 46, 50, 40 };
 };
 
 template <class T>
@@ -691,8 +688,8 @@ public:
         return std::abs(lhs - rhs) < tol;
     }
 
-    template<typename T>
-    bool check_distances(const std::vector<T>& true_distances,
+    template<typename T, size_t Size>
+    bool check_distances(const std::array<T, Size>& true_distances,
                          const std::vector<T>& distances) {
         if (true_distances.size() != distances.size()) {
             return false;
@@ -705,10 +702,10 @@ public:
         return true;
     }
 
-    template <typename DirectedGraphType, typename EdgeValueType>
+    template <typename DirectedGraphType, typename EdgeValueType, size_t Size>
     bool check_predecessors(const DirectedGraphType& graph,
                             const std::vector<int32_t>& predecessors,
-                            const std::vector<EdgeValueType>& distances,
+                            const std::array<EdgeValueType, Size>& distances,
                             int32_t source) {
         EdgeValueType unreachable_distance = std::numeric_limits<EdgeValueType>::max();
         if (predecessors.size() != distances.size()) {
@@ -747,7 +744,7 @@ public:
         return result;
     }
 
-    template <typename EdgeValueType, typename Allocator>
+    template <typename EdgeValueType, typename Allocator, size_t Size>
     void general_shortest_paths_check(
         const oneapi::dal::preview::directed_adjacency_vector_graph<
             int32_t,
@@ -758,7 +755,7 @@ public:
             double delta,
             int32_t source,
             oneapi::dal::preview::shortest_paths::optional_result_id result_type,
-            const std::vector<EdgeValueType> true_distances,
+            const std::array<EdgeValueType, Size>& true_distances,
             const Allocator& alloc) {
         using namespace dal::preview::shortest_paths;
         const auto shortest_paths_desc =
