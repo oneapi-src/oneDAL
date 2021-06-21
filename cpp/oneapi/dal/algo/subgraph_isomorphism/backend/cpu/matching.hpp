@@ -76,7 +76,7 @@ public:
     dfs_stack<Cpu> hlocal_stack;
     solution<Cpu> engine_solutions;
 
-    kind isomorphism_kind_;
+    kind isomorphism_kind;
 
     std::int64_t extract_candidates(bool check_solution);
     bool check_vertex_candidate(bool check_solution, std::int64_t candidate);
@@ -106,7 +106,7 @@ public:
     const edge_direction* direction;
     const sconsistent_conditions<Cpu>* pconsistent_conditions;
     const float* pattern_vertex_probability;
-    kind isomorphism_kind_;
+    kind isomorphism_kind;
 
     typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
     bundle matching_bundle;
@@ -133,7 +133,7 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
                                       const std::int64_t* ppredecessor,
                                       const edge_direction* pdirection,
                                       sconsistent_conditions<Cpu> const* pcconditions,
-                                      kind isomorphism_kind,
+                                      kind isomor_kind,
                                       inner_alloc allocator)
         : allocator_(allocator),
           vertex_candidates(bit_vector<Cpu>::bit_vector_size(ptarget->get_vertex_count()),
@@ -141,7 +141,7 @@ matching_engine<Cpu>::matching_engine(const graph<Cpu>* ppattern,
           local_stack(allocator),
           hlocal_stack(allocator),
           engine_solutions(ppattern->get_vertex_count(), allocator),
-          isomorphism_kind_(isomorphism_kind) {
+          isomorphism_kind(isomor_kind) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
@@ -182,7 +182,7 @@ matching_engine<Cpu>::matching_engine(const matching_engine& _matching_engine,
                           _matching_engine.predecessor,
                           _matching_engine.direction,
                           _matching_engine.pconsistent_conditions,
-                          _matching_engine.isomorphism_kind_,
+                          _matching_engine.isomorphism_kind,
                           allocator) {
     local_stack = std::move(_local_stack);
 }
@@ -192,7 +192,7 @@ std::int64_t matching_engine<Cpu>::state_exploration_bit(bool check_solution) {
     std::uint64_t current_level_index = hlocal_stack.get_current_level_index();
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
-    if (isomorphism_kind_ != kind::non_induced) {
+    if (isomorphism_kind != kind::non_induced) {
         ONEDAL_IVDEP
         for (std::int64_t j = 0; j < divider; j++) {
             or_equal<Cpu>(vertex_candidates.get_vector_pointer(),
@@ -412,7 +412,7 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
                                   const edge_direction* pdirection,
                                   sconsistent_conditions<Cpu> const* pcconditions,
                                   float* ppattern_vertex_probability,
-                                  kind isomorphism_kind,
+                                  kind isomor_kind,
                                   inner_alloc allocator)
         : exploration_stack(allocator),
           allocator_(allocator),
@@ -423,7 +423,7 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
           direction(pdirection),
           pconsistent_conditions(pcconditions),
           pattern_vertex_probability(ppattern_vertex_probability),
-          isomorphism_kind_(isomorphism_kind) {}
+          isomorphism_kind(isomor_kind) {}
 
 template <typename Cpu>
 engine_bundle<Cpu>::~engine_bundle() {
@@ -467,7 +467,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
                                                     predecessor,
                                                     direction,
                                                     pconsistent_conditions,
-                                                    isomorphism_kind_,
+                                                    isomorphism_kind,
                                                     allocator_);
     }
 
@@ -499,6 +499,6 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         engine_array[i].~matching_engine();
     }
 
-    return std::move(aggregated_solution);
+    return aggregated_solution;
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

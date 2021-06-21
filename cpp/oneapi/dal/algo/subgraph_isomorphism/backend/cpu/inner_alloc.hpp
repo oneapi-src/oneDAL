@@ -44,9 +44,13 @@ struct inner_alloc {
 
     template <typename T>
     oneapi::dal::detail::shared<T> make_shared_memory(std::int64_t n) {
-        return oneapi::dal::detail::shared<T>(allocate<T>(n), [=](T* p) {
+        auto ptr = oneapi::dal::detail::shared<T>(allocate<T>(n), [=](T* p) {
             deallocate<T>(p, n);
         });
+        if (ptr.get() == nullptr) {
+            throw oneapi::dal::host_bad_alloc();
+        }
+        return ptr;
     }
 
     detail::byte_alloc_iface* get_byte_allocator() {

@@ -28,16 +28,19 @@ namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 using namespace oneapi::dal::preview::subgraph_isomorphism::backend;
 
 template <typename Cpu>
-solution<Cpu> si(const graph<Cpu>& pattern,
-                 const graph<Cpu>& target,
-                 kind isomorphism_kind,
-                 detail::byte_alloc_iface* alloc_ptr,
-                 std::int64_t* sorted_pattern_vertex_array) {
+oneapi::dal::homogen_table si(const graph<Cpu>& pattern,
+                              const graph<Cpu>& target,
+                              kind isomorphism_kind,
+                              detail::byte_alloc_iface* alloc_ptr) {
     inner_alloc local_allocator(alloc_ptr);
+
     sorter<Cpu> sorter_graph(&target, local_allocator);
     std::int64_t pattern_vetrex_count = pattern.get_vertex_count();
     auto pattern_vertex_probability =
         local_allocator.make_shared_memory<float>(pattern_vetrex_count);
+    auto sorted_pattern_vertex =
+        local_allocator.make_shared_memory<std::int64_t>(pattern_vetrex_count);
+    std::int64_t* sorted_pattern_vertex_array = sorted_pattern_vertex.get();
 
     sorter_graph.get_pattern_vertex_probability(pattern, pattern_vertex_probability.get());
     sorter_graph.sorting_pattern_vertices(pattern,
@@ -76,7 +79,7 @@ solution<Cpu> si(const graph<Cpu>& pattern,
     }
     cconditions = nullptr;
 
-    return results;
+    return results.export_as_table(sorted_pattern_vertex_array);
 }
 
 template <typename Cpu>
@@ -90,28 +93,16 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
     graph<Cpu> pattern(p_data, graph_storage_scheme::bit, alloc_ptr);
     graph<Cpu> target(t_data, graph_storage_scheme::auto_detect, alloc_ptr);
 
-    const auto t_vertex_count = t_data._vertex_count;
-    const auto p_vertex_count = p_data._vertex_count;
-
     if (vv_t != nullptr) {
-        target.set_vertex_attribute(t_vertex_count, vv_t);
+        target.set_vertex_attribute(t_data._vertex_count, vv_t);
     }
     if (vv_p != nullptr) {
-        pattern.set_vertex_attribute(p_vertex_count, vv_p);
+        pattern.set_vertex_attribute(p_data._vertex_count, vv_p);
     }
 
-    inner_alloc local_allocator(alloc_ptr);
-    auto sorted_pattern_vertex = local_allocator.make_shared_memory<std::int64_t>(p_vertex_count);
-    std::int64_t* sorted_pattern_vertex_array = sorted_pattern_vertex.get();
-    if (sorted_pattern_vertex_array == nullptr) {
-        throw oneapi::dal::host_bad_alloc();
-    }
+    oneapi::dal::homogen_table results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
 
-    solution<Cpu> results =
-        si<Cpu>(pattern, target, si_kind, alloc_ptr, sorted_pattern_vertex_array);
-
-    return graph_matching_result(results.export_as_table(sorted_pattern_vertex_array),
-                                 results.get_solution_count());
+    return graph_matching_result(results, results.get_row_count());
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
