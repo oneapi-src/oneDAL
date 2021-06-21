@@ -18,7 +18,6 @@
 
 #include "oneapi/dal/algo/shortest_paths/traverse.hpp"
 #include "oneapi/dal/graph/detail/directed_adjacency_vector_graph_builder.hpp"
-
 #include "oneapi/dal/test/engine/common.hpp"
 
 namespace oneapi::dal::algo::shortest_paths::test {
@@ -99,7 +98,7 @@ public:
 class shortest_paths_badargs_test {
 public:
     template <typename GraphType>
-    void check_shortest_paths(double delta, int source, bool nothing_to_calculate = false) {
+    void check_shortest_paths(double delta, int source, bool nothing_to_compute = false) {
         using namespace dal::preview::shortest_paths;
         GraphType graph_data;
 
@@ -116,17 +115,16 @@ public:
 
         const auto& graph = graph_builder.get_graph();
 
-        auto result_type = nothing_to_calculate
+        auto result_type = nothing_to_compute
                                ? optional_results::distances & optional_results::predecessors
                                : optional_results::distances | optional_results::predecessors;
         std::allocator<char> alloc;
 
         const auto shortest_paths_desc =
-            descriptor<float, method::delta_stepping, task::one_to_all, std::allocator<char>>(
+            descriptor<>(
                 source,
                 delta,
-                result_type,
-                alloc);
+                result_type);
 
         const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, graph);
     }

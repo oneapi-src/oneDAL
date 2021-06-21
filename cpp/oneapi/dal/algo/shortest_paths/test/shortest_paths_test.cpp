@@ -20,12 +20,17 @@
 #include "oneapi/dal/graph/detail/directed_adjacency_vector_graph_builder.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/graph/service_functions.hpp"
-
 #include "oneapi/dal/test/engine/common.hpp"
+#include "oneapi/dal/test/engine/math.hpp"
 
 namespace oneapi::dal::algo::shortest_paths::test {
 
 namespace dal = oneapi::dal;
+namespace te = dal::test::engine;
+namespace la = te::linalg;
+
+constexpr double unreachable_double_distance = std::numeric_limits<double>::max();
+constexpr int32_t unreachable_int32_t_distance = std::numeric_limits<int32_t>::max();
 
 class graph_base_data {
 public:
@@ -59,14 +64,14 @@ protected:
     int source;
 };
 
-class d_thread_buckets_type : public graph_base_data {
+class d_thread_buckets_graph_type : public graph_base_data {
 public:
     std::vector<std::int64_t> rows;
     std::vector<std::int32_t> cols;
     std::vector<double> edge_weights;
-    std::vector<float> distances;
+    std::vector<double> distances;
 
-    d_thread_buckets_type() {
+    d_thread_buckets_graph_type() {
         vertex_count = 301;
         edge_count = 600;
         cols_count = 600;
@@ -98,14 +103,14 @@ public:
     }
 };
 
-class d_thread_bucket_size_type : public graph_base_data {
+class d_thread_bucket_size_graph_type : public graph_base_data {
 public:
     std::vector<std::int64_t> rows;
     std::vector<std::int32_t> cols;
     std::vector<double> edge_weights;
-    std::vector<float> distances;
+    std::vector<double> distances;
 
-    d_thread_bucket_size_type() {
+    d_thread_bucket_size_graph_type() {
         vertex_count = 301;
         edge_count = 600;
         cols_count = 600;
@@ -153,14 +158,14 @@ public:
     }
 };
 
-class d_max_element_bin_type : public graph_base_data {
+class d_max_element_bin_graph_type : public graph_base_data {
 public:
     std::vector<std::int64_t> rows;
     std::vector<std::int32_t> cols;
     std::vector<double> edge_weights;
-    std::vector<float> distances;
+    std::vector<double> distances;
 
-    d_max_element_bin_type() {
+    d_max_element_bin_graph_type() {
         vertex_count = 3001;
         edge_count = 6000;
         cols_count = 6000;
@@ -208,9 +213,9 @@ public:
     }
 };
 
-class d_isolated_vertexes_type : public graph_base_data {
+class d_isolated_vertexes_graph_type : public graph_base_data {
 public:
-    d_isolated_vertexes_type() {
+    d_isolated_vertexes_graph_type() {
         vertex_count = 10;
         edge_count = 0;
         cols_count = 0;
@@ -220,21 +225,21 @@ public:
     std::vector<std::int64_t> rows = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     std::vector<std::int32_t> cols = {};
     std::vector<double> edge_weights = {};
-    std::vector<float> distances = { 0,
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity() };
+    std::vector<double> distances = { 0,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance };
 };
 
-class d_isolated_vertexes_int_type : public graph_base_data {
+class d_isolated_vertexes_int_graph_type : public graph_base_data {
 public:
-    d_isolated_vertexes_int_type() {
+    d_isolated_vertexes_int_graph_type() {
         vertex_count = 10;
         edge_count = 0;
         cols_count = 0;
@@ -244,21 +249,21 @@ public:
     std::vector<std::int64_t> rows = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     std::vector<std::int32_t> cols = {};
     std::vector<int32_t> edge_weights = {};
-    std::vector<float> distances = { 0,
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()),
-                                     static_cast<float>(std::numeric_limits<int32_t>::max()) };
+    std::vector<int32_t> distances = { 0,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance,
+                                     unreachable_int32_t_distance };
 };
 
-class d_graph_3_type : public graph_base_data {
+class d_graph_3_graph_type : public graph_base_data {
 public:
-    d_graph_3_type() {
+    d_graph_3_graph_type() {
         vertex_count = 21;
         edge_count = 49;
         cols_count = 49;
@@ -275,13 +280,13 @@ public:
                                          64, 47, 94, 21, 22, 26, 40, 66, 91, 62, 80, 10, 57,
                                          63, 99, 73, 17, 12, 14, 42, 92, 69, 39, 58, 38, 10,
                                          87, 36, 71, 45, 93, 11, 21, 21, 66, 46 };
-    std::vector<float> distances = { 0,   95,  89,  70,  110, 131, 106, 80,  174, 128, 120,
+    std::vector<double> distances = { 0,   95,  89,  70,  110, 131, 106, 80,  174, 128, 120,
                                      146, 250, 168, 138, 196, 163, 260, 237, 206, 227 };
 };
 
-class d_one_bucket_type : public graph_base_data {
+class d_one_bucket_graph_type : public graph_base_data {
 public:
-    d_one_bucket_type() {
+    d_one_bucket_graph_type() {
         vertex_count = 6;
         edge_count = 9;
         cols_count = 9;
@@ -291,12 +296,12 @@ public:
     std::vector<std::int64_t> rows = { 0, 5, 6, 7, 8, 9, 9 };
     std::vector<std::int32_t> cols = { 1, 2, 3, 4, 5, 2, 3, 4, 5 };
     std::vector<double> edge_weights = { 1, 3, 4, 5, 6, 1, 1, 1, 1 };
-    std::vector<float> distances = { 0, 1, 2, 3, 4, 5 };
+    std::vector<double> distances = { 0, 1, 2, 3, 4, 5 };
 };
 
-class d_net_10_10_double_edges_type : public graph_base_data {
+class d_net_10_10_double_edges_graph_type : public graph_base_data {
 public:
-    d_net_10_10_double_edges_type() {
+    d_net_10_10_double_edges_graph_type() {
         vertex_count = 100;
         edge_count = 400;
         cols_count = 400;
@@ -370,7 +375,7 @@ public:
         37.653, 83.659, 62.121, 51.397, 94.19,  99.911, 62.366, 53.571, 52.746, 43.035, 96.182,
         51.231, 19.98,  55.662, 72.256
     };
-    std::vector<float> distances = { 0,
+    std::vector<double> distances = { 0,
                                      35.117,
                                      75.435,
                                      166.096,
@@ -472,9 +477,9 @@ public:
                                      33.409 };
 };
 
-class d_net_10_10_int_edges_type : public graph_base_data {
+class d_net_10_10_int_edges_graph_type : public graph_base_data {
 public:
-    d_net_10_10_int_edges_type() {
+    d_net_10_10_int_edges_graph_type() {
         vertex_count = 100;
         edge_count = 400;
         cols_count = 400;
@@ -530,7 +535,7 @@ public:
         76, 67,  21, 81, 81, 92, 29, 76, 64, 85, 26, 24, 21, 84, 24, 68, 78, 14, 95, 38, 67, 99,
         47, 66,  96, 29
     };
-    std::vector<float> distances = {
+    std::vector<int32_t> distances = {
         0,   84,  163, 199, 210, 228, 146, 133, 63,  32,  13,  76,  156, 179, 273, 217, 158,
         132, 110, 65,  43,  128, 154, 220, 268, 211, 182, 194, 121, 86,  85,  101, 133, 160,
         227, 223, 249, 255, 169, 148, 140, 138, 204, 192, 203, 271, 307, 240, 215, 185, 168,
@@ -540,9 +545,9 @@ public:
     };
 };
 
-class d_multiple_connectivity_components_type : public graph_base_data {
+class d_multiple_connectivity_components_graph_type : public graph_base_data {
 public:
-    d_multiple_connectivity_components_type() {
+    d_multiple_connectivity_components_graph_type() {
         vertex_count = 8;
         edge_count = 6;
         cols_count = 6;
@@ -552,19 +557,19 @@ public:
     std::vector<std::int64_t> rows = { 0, 3, 3, 3, 3, 6, 6, 6, 6 };
     std::vector<std::int32_t> cols = { 1, 2, 3, 5, 6, 7 };
     std::vector<double> edge_weights = { 1, 2, 3, 1, 2, 3 };
-    std::vector<float> distances = { 0,
+    std::vector<double> distances = { 0,
                                      1,
                                      2,
                                      3,
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity() };
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance };
 };
 
-class d_source_isolated_vertex_type : public graph_base_data {
+class d_source_isolated_vertex_graph_type : public graph_base_data {
 public:
-    d_source_isolated_vertex_type() {
+    d_source_isolated_vertex_graph_type() {
         vertex_count = 5;
         edge_count = 4;
         cols_count = 4;
@@ -574,16 +579,16 @@ public:
     std::vector<std::int64_t> rows = { 0, 0, 1, 2, 3, 4 };
     std::vector<std::int32_t> cols = { 4, 3, 1, 2 };
     std::vector<double> edge_weights = { 1, 1, 1, 1 };
-    std::vector<float> distances = { 0,
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity(),
-                                     std::numeric_limits<float>::infinity() };
+    std::vector<double> distances = { 0,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance,
+                                     unreachable_double_distance };
 };
 
-class d_k_15_double_edges_source_5_type : public graph_base_data {
+class d_k_15_double_edges_source_5_graph_type : public graph_base_data {
 public:
-    d_k_15_double_edges_source_5_type() {
+    d_k_15_double_edges_source_5_graph_type() {
         vertex_count = 15;
         edge_count = 210;
         cols_count = 210;
@@ -616,16 +621,15 @@ public:
         35, 73, 94,  99, 34, 39, 11, 39, 47, 73, 54, 93,  54, 25, 75,  95, 51, 83,  76, 18, 79,
         24, 89, 76,  24, 73, 93, 13, 11, 51, 54, 49, 23,  28, 21, 16,  98, 40, 13,  26, 11, 23
     };
-    std::vector<float> distances = { 46, 47, 80, 27, 53, 0, 30, 55, 24, 58, 53, 43, 46, 50, 40 };
+    std::vector<double> distances = { 46, 47, 80, 27, 53, 0, 30, 55, 24, 58, 53, 43, 46, 50, 40 };
 };
 
 template <class T>
 struct LimitedAllocator {
     typedef T value_type;
-    typedef T* pointer;
 
-    bool is_limited;
-    size_t max_allocation_size;
+    bool is_limited = false;
+    size_t max_allocation_size = 0;
 
     LimitedAllocator(bool is_limited = false, size_t max_allocation_size = 0)
             : is_limited(is_limited),
@@ -635,16 +639,6 @@ struct LimitedAllocator {
     LimitedAllocator(const LimitedAllocator<U>& other) noexcept {
         is_limited = other.is_limited;
         max_allocation_size = other.max_allocation_size;
-    }
-
-    template <class U>
-    bool operator==(const LimitedAllocator<U>&) const noexcept {
-        return true;
-    }
-
-    template <class U>
-    bool operator!=(const LimitedAllocator<U>&) const noexcept {
-        return false;
     }
 
     T* allocate(const size_t n) const {
@@ -667,13 +661,8 @@ struct LimitedAllocator {
 };
 
 template <typename Type>
-float get_inf_value() {
+Type get_inf_value() {
     return std::numeric_limits<Type>::max();
-}
-
-template <>
-float get_inf_value<double>() {
-    return std::numeric_limits<double>::infinity();
 }
 
 class shortest_paths_test {
@@ -694,25 +683,34 @@ public:
         return optional_results::distances & optional_results::predecessors;
     }
 
-    bool check_distances(const std::vector<float>& true_distances,
-                         const std::vector<float>& distances) {
+    inline bool compare_distances(int32_t lhs , int32_t rhs){
+        return lhs == rhs;
+    }
+    inline bool compare_distances(double lhs, double rhs){
+        const double tol = te::get_tolerance<double>(1e-4, 1e-10);
+        return std::abs(lhs - rhs) < tol;
+    }
+
+    template<typename T>
+    bool check_distances(const std::vector<T>& true_distances,
+                         const std::vector<T>& distances) {
         if (true_distances.size() != distances.size()) {
             return false;
         }
         for (size_t index = 0; index < true_distances.size(); ++index) {
-            if (std::abs(true_distances[index] - distances[index]) > kEps) {
+            if (!compare_distances(true_distances[index], distances[index])){
                 return false;
             }
         }
         return true;
     }
 
-    template <typename DirectedGraphType>
+    template <typename DirectedGraphType, typename EdgeValueType>
     bool check_predecessors(const DirectedGraphType& graph,
-                            const std::vector<float>& predecessors,
-                            const std::vector<float>& distances,
-                            int32_t source,
-                            double inf_value) {
+                            const std::vector<int32_t>& predecessors,
+                            const std::vector<EdgeValueType>& distances,
+                            int32_t source) {
+        EdgeValueType unreachable_distance = std::numeric_limits<EdgeValueType>::max();
         if (predecessors.size() != distances.size()) {
             return false;
         }
@@ -725,14 +723,12 @@ public:
                 oneapi::dal::preview::vertex_outward_edge_size_type<DirectedGraphType> from =
                     predecessor;
                 oneapi::dal::preview::vertex_outward_edge_size_type<DirectedGraphType> to = index;
-                if (std::abs(distances[predecessor] +
-                             oneapi::dal::preview::get_edge_value(graph, from, to) -
-                             distances[index]) > kEps) {
+                if (!compare_distances(distances[predecessor] + oneapi::dal::preview::get_edge_value(graph, from, to), distances[index])) {
                     return false;
                 }
             }
             else if (index != source) {
-                if (std::abs(inf_value - distances[index]) > kEps) {
+                if (!compare_distances(unreachable_distance, distances[index])) {
                     return false;
                 }
             }
@@ -740,10 +736,11 @@ public:
         return true;
     }
 
-    std::vector<float> get_data_from_table(const oneapi::dal::table& table) {
-        auto arr = oneapi::dal::row_accessor<const float>(table).pull();
+    template<typename T>
+    std::vector<T> get_data_from_table(const oneapi::dal::table& table) {
+        auto arr = oneapi::dal::row_accessor<const T>(table).pull();
         const auto x = arr.get_data();
-        std::vector<float> result(table.get_row_count());
+        std::vector<T> result(table.get_row_count());
         for (std::int64_t i = 0; i < table.get_row_count(); i++) {
             result[i] = x[i * table.get_column_count()];
         }
@@ -758,11 +755,11 @@ public:
             oneapi::dal::preview::empty_value,
             int,
             std::allocator<char>>& graph,
-        double delta,
-        int32_t source,
-        oneapi::dal::preview::shortest_paths::optional_result_id result_type,
-        const std::vector<float> true_distances,
-        const Allocator& alloc) {
+            double delta,
+            int32_t source,
+            oneapi::dal::preview::shortest_paths::optional_result_id result_type,
+            const std::vector<EdgeValueType> true_distances,
+            const Allocator& alloc) {
         using namespace dal::preview::shortest_paths;
         const auto shortest_paths_desc =
             descriptor<float, method::delta_stepping, task::one_to_all, Allocator>(
@@ -772,18 +769,17 @@ public:
                 Allocator(alloc));
         const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, graph);
         if (result_type & optional_results::distances) {
-            const std::vector<float> distances =
-                get_data_from_table(result_shortest_paths.get_distances());
+            const std::vector<EdgeValueType> distances =
+                get_data_from_table<EdgeValueType>(result_shortest_paths.get_distances());
             REQUIRE(check_distances(true_distances, distances));
         }
         else {
             REQUIRE_THROWS_AS(result_shortest_paths.get_distances(), uninitialized_optional_result);
         }
         if (result_type & optional_results::predecessors) {
-            const std::vector<float> predecessors =
-                get_data_from_table(result_shortest_paths.get_predecessors());
-            double inf_value = get_inf_value<EdgeValueType>();
-            REQUIRE(check_predecessors(graph, predecessors, true_distances, source, inf_value));
+            const std::vector<int32_t> predecessors =
+                get_data_from_table<int32_t>(result_shortest_paths.get_predecessors());
+            REQUIRE(check_predecessors(graph, predecessors, true_distances, source));
         }
         else {
             REQUIRE_THROWS_AS(result_shortest_paths.get_predecessors(),
@@ -845,61 +841,61 @@ public:
 #define SHORTEST_PATHS_TEST(name) TEST_M(shortest_paths_test, name, "[shortest_paths]")
 
 SHORTEST_PATHS_TEST("Bucket count > number of threads, distances + predecessors") {
-    this->shortest_paths_check<d_thread_buckets_type, double>(10, true, true);
+    this->shortest_paths_check<d_thread_buckets_graph_type, double>(10, true, true);
 }
 
 SHORTEST_PATHS_TEST("Bucket count > number of threads, predecessors") {
-    this->shortest_paths_check<d_thread_buckets_type, double>(10, false, true);
+    this->shortest_paths_check<d_thread_buckets_graph_type, double>(10, false, true);
 }
 
 SHORTEST_PATHS_TEST(
     "Vertex count inside bucket > number of threads && < max_elements_in_bin, distances + predecessors") {
-    this->shortest_paths_check<d_thread_bucket_size_type, double>(100, true, true);
+    this->shortest_paths_check<d_thread_bucket_size_graph_type, double>(100, true, true);
 }
 
 SHORTEST_PATHS_TEST(
     "Vertex count inside bucket > number of threads && < max_elements_in_bin, predecessors") {
-    this->shortest_paths_check<d_thread_bucket_size_type, double>(100, false, true);
+    this->shortest_paths_check<d_thread_bucket_size_graph_type, double>(100, false, true);
 }
 
 SHORTEST_PATHS_TEST("Bucket size > max_elemnents_in_bin, distances + predecessors") {
-    this->shortest_paths_check<d_max_element_bin_type, double>(1000, true, true);
+    this->shortest_paths_check<d_max_element_bin_graph_type, double>(1000, true, true);
 }
 
 SHORTEST_PATHS_TEST("Bucket size > max_elemnents_in_bin, predecessors") {
-    this->shortest_paths_check<d_max_element_bin_type, double>(1000, false, true);
+    this->shortest_paths_check<d_max_element_bin_graph_type, double>(1000, false, true);
 }
 
 SHORTEST_PATHS_TEST("All vertexes are isolated, double edge weights, distances + predecessors") {
-    this->shortest_paths_check<d_isolated_vertexes_type, double>(15, true, true);
+    this->shortest_paths_check<d_isolated_vertexes_graph_type, double>(15, true, true);
 }
 
 SHORTEST_PATHS_TEST("All vertexes are isolated, double edge weights, predecessors") {
-    this->shortest_paths_check<d_isolated_vertexes_type, double>(15, false, true);
+    this->shortest_paths_check<d_isolated_vertexes_graph_type, double>(15, false, true);
 }
 
 SHORTEST_PATHS_TEST("All vertexes are isolated, int32_t edge weights, distances + predecessors") {
-    this->shortest_paths_check<d_isolated_vertexes_int_type, int32_t>(15, true, true);
+    this->shortest_paths_check<d_isolated_vertexes_int_graph_type, int32_t>(15, true, true);
 }
 
 SHORTEST_PATHS_TEST("All edge weights > delta, distances + predecessors") {
-    this->shortest_paths_check<d_graph_3_type, double>(9, true, true);
+    this->shortest_paths_check<d_graph_3_graph_type, double>(9, true, true);
 }
 
 SHORTEST_PATHS_TEST("All edge weights > delta, predecessors") {
-    this->shortest_paths_check<d_graph_3_type, double>(9, false, true);
+    this->shortest_paths_check<d_graph_3_graph_type, double>(9, false, true);
 }
 
 SHORTEST_PATHS_TEST("All vertexes inside 1 bucket, distances + predecessors") {
-    this->shortest_paths_check<d_one_bucket_type, double>(10, true, true);
+    this->shortest_paths_check<d_one_bucket_graph_type, double>(10, true, true);
 }
 
 SHORTEST_PATHS_TEST("All vertexes inside 1 bucket, predecessors") {
-    this->shortest_paths_check<d_one_bucket_type, double>(10, false, true);
+    this->shortest_paths_check<d_one_bucket_graph_type, double>(10, false, true);
 }
 
 SHORTEST_PATHS_TEST("Custom allocator case") {
-    this->shortest_paths_custom_allocator_check<d_graph_3_type, double>(0.5,
+    this->shortest_paths_custom_allocator_check<d_graph_3_graph_type, double>(0.5,
                                                                         true,
                                                                         true,
                                                                         LimitedAllocator<char>());
@@ -910,44 +906,39 @@ SHORTEST_PATHS_TEST("Custom allocator case") {
 // }
 
 SHORTEST_PATHS_TEST("Double edge weights)") {
-    this->shortest_paths_check<d_net_10_10_double_edges_type, double>(40, true, true);
+    this->shortest_paths_check<d_net_10_10_double_edges_graph_type, double>(40, true, true);
 }
 
 SHORTEST_PATHS_TEST("Int32_t edge weights)") {
-    this->shortest_paths_check<d_net_10_10_int_edges_type, int32_t>(40, true, true);
+    this->shortest_paths_check<d_net_10_10_int_edges_graph_type, int32_t>(40, true, true);
 }
 
 SHORTEST_PATHS_TEST("Calculate distances only)") {
-    this->shortest_paths_check<d_net_10_10_double_edges_type, double>(40, true, false);
+    this->shortest_paths_check<d_net_10_10_double_edges_graph_type, double>(40, true, false);
 }
 
 SHORTEST_PATHS_TEST("Calculate predecessors only)") {
-    this->shortest_paths_check<d_net_10_10_int_edges_type, int32_t>(40, false, true);
+    this->shortest_paths_check<d_net_10_10_int_edges_graph_type, int32_t>(40, false, true);
 }
 
 SHORTEST_PATHS_TEST("Multiple connectivity components)") {
-    this->shortest_paths_check<d_multiple_connectivity_components_type, double>(1.5, true, true);
+    this->shortest_paths_check<d_multiple_connectivity_components_graph_type, double>(1.5, true, true);
 }
 
 SHORTEST_PATHS_TEST("Isolated source vertex, distances + predecessors") {
-    this->shortest_paths_check<d_source_isolated_vertex_type, double>(3, true, true);
+    this->shortest_paths_check<d_source_isolated_vertex_graph_type, double>(3, true, true);
 }
 
 SHORTEST_PATHS_TEST("Isolated source vertex, predecessors") {
-    this->shortest_paths_check<d_source_isolated_vertex_type, double>(3, false, true);
+    this->shortest_paths_check<d_source_isolated_vertex_graph_type, double>(3, false, true);
 }
 
 SHORTEST_PATHS_TEST("Non-zero source vertex, distances + predecessors") {
-    this->shortest_paths_check<d_k_15_double_edges_source_5_type, double>(50, true, true);
+    this->shortest_paths_check<d_k_15_double_edges_source_5_graph_type, double>(50, true, true);
 }
 
 SHORTEST_PATHS_TEST("Non-zero source vertex, predecessors") {
-    this->shortest_paths_check<d_k_15_double_edges_source_5_type, double>(50, false, true);
+    this->shortest_paths_check<d_k_15_double_edges_source_5_graph_type, double>(50, false, true);
 }
-
-// SHORTEST_PATHS_TEST("Overflow test"){
-//     this->shortest_paths_check<, double>(, true, true);
-//     this->shortest_paths_check<, double>(, false, true);
-// }
 
 } // namespace oneapi::dal::algo::shortest_paths::test
