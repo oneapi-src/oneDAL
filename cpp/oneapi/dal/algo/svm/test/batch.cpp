@@ -51,7 +51,7 @@ public:
     bool kernel_not_available_on_device() {
         return this->get_policy().is_gpu();
     }
-    
+
     bool weights_not_available_on_device() {
         return this->get_policy().is_gpu();
     }
