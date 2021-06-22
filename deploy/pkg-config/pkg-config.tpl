@@ -15,7 +15,7 @@
 # prefix=<INSTALLDIR>/dal/[dal.version]
 prefix=$DALROOT
 exec_prefix=${{prefix}}
-libdir=${{exec_prefix}}{libdir}
+libdir=${{exec_prefix}}/{libdir}
 includedir=${{prefix}}/include
 
 #info
