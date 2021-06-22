@@ -29,7 +29,7 @@ int main(int argc, char const *argv[]) {
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
     const auto x_query = dal::read<dal::table>(dal::csv::data_source{ query_data_file_name });
 
-    using cosine_desc_t = typename dal::cosine_distance::descriptor<float>;
+    using cosine_desc_t = dal::cosine_distance::descriptor<float>;
     const auto cosine_desc = cosine_desc_t{};
 
     const std::size_t neighbors_count = 6;
