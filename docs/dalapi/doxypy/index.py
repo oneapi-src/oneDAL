@@ -52,7 +52,7 @@ class Index(object):
         self._loader = loader
         self._name_transformer = name_transformer
         self._index = self._initialize()
-        self._warns = self._initialize_warns()
+        self._warns = []
 
     def find(self, query: str):
         try:
@@ -83,6 +83,8 @@ class Index(object):
 
     @property
     def warns(self):
+        if len(self._warns) <= 0:
+            self._warns = self._initialize_warns()
         return self._warns
 
     def _find_inner(self, query):

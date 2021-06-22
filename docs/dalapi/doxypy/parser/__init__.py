@@ -42,7 +42,7 @@ class Parser(object):
         return parse(xml_filename, silence=True)
 
     def parse_warning(self):
-        warning_log_path = os.path.join(os.path.dirname(self._dir), 'warning.log')
+        warning_log_path = os.path.join(os.path.dirname(os.path.dirname(self._dir)), 'warning.log')
         if not os.path.exists(warning_log_path):
             return {}
         return parse_warning(warning_log_path)
