@@ -51,7 +51,7 @@ public:
     std::int64_t get_solution_count() const;
     void add(std::int64_t** state_core);
     void append(solution<Cpu>&& _solution);
-    oneapi::dal::homogen_table export_as_table(std::int64_t* sorted_pattern_vertex_array);
+    oneapi::dal::homogen_table export_as_table(std::int64_t* sorted_pattern_vertex_array) const;
 
 private:
     inner_alloc allocator;
@@ -233,7 +233,7 @@ inline T min(const T a, const T b) {
 
 template <typename Cpu>
 oneapi::dal::homogen_table solution<Cpu>::export_as_table(
-    std::int64_t* sorted_pattern_vertices_array) {
+    std::int64_t* sorted_pattern_vertices_array) const {
     if (solution_count == 0)
         return dal::homogen_table();
 

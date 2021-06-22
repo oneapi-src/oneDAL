@@ -205,7 +205,7 @@ void graph<Cpu>::delete_bit_arrays() {
 template <typename Cpu>
 void graph<Cpu>::delete_list_arrays() {
     if (p_edges_list != nullptr) {
-        for (std::int64_t i = 0; i < vertex_count; i++) {
+        for (std::int64_t i = 0; i < vertex_count; ++i) {
             if (p_edges_list[i] != nullptr) {
                 allocator.deallocate(p_edges_list[i], 0);
                 p_edges_list[i] = nullptr;
@@ -247,17 +247,23 @@ double graph<Cpu>::graph_density(const std::int64_t vertex_count, const std::int
 template <typename Cpu>
 void graph<Cpu>::set_vertex_attribute(const std::int64_t vertex_count_,
                                       std::int64_t* pvertices_attribute) {
-    ONEDAL_ASSERT(vertex_count == vertex_count_);
-    ONEDAL_ASSERT(pvertices_attribute != nullptr);
-    p_vertex_attribute = pvertices_attribute;
+    if (vertex_count == vertex_count_ && pvertices_attribute != nullptr) {
+        p_vertex_attribute = pvertices_attribute;
+    }
+    else {
+        throw oneapi::dal::internal_error(dal::detail::error_messages::invalid_attributes());
+    }
 }
 
 template <typename Cpu>
 void graph<Cpu>::set_edge_attribute_lists(const std::int64_t vertex_count_,
                                           std::int64_t** p_edges_attribute_list) {
-    ONEDAL_ASSERT(vertex_count == vertex_count_);
-    ONEDAL_ASSERT(p_edges_attribute_list != nullptr);
-    p_edges_attribute = p_edges_attribute_list;
+    if (vertex_count == vertex_count_ && p_edges_attribute_list != nullptr) {
+        p_edges_attribute = p_edges_attribute_list;
+    }
+    else {
+        throw oneapi::dal::internal_error(dal::detail::error_messages::invalid_attributes());
+    }
 }
 
 template <typename Cpu>

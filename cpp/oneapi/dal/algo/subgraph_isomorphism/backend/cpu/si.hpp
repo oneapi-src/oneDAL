@@ -72,7 +72,7 @@ oneapi::dal::homogen_table si(const graph<Cpu>& pattern,
                                pattern_vertex_probability.get(),
                                isomorphism_kind,
                                local_allocator);
-    solution<Cpu> results = harness.run();
+    const solution<Cpu> results = harness.run();
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
         cconditions_array[i].~sconsistent_conditions();
@@ -100,7 +100,7 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
         pattern.set_vertex_attribute(p_data._vertex_count, vv_p);
     }
 
-    oneapi::dal::homogen_table results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
+    const oneapi::dal::homogen_table results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
 
     return graph_matching_result(results, results.get_row_count());
 }
