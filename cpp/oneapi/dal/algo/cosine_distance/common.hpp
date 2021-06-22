@@ -19,7 +19,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 
-namespace oneapi::dal::minkowski_distance {
+namespace oneapi::dal::cosine_distance {
 
 namespace task {
 namespace v1 {
@@ -76,11 +76,6 @@ public:
 
     descriptor_base();
 
-    double get_degree() const;
-
-protected:
-    void set_degree_impl(double value);
-
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
 };
@@ -102,7 +97,7 @@ namespace v1 {
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or
 ///                :expr:`double`.
-/// @tparam Method Tag-type that specifies an the implementation of the algorithm. Can
+/// @tparam Method Tag-type that specifies the implementation of the algorithm. Can
 ///                be :expr:`method::dense`.
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
 ///                be :expr:`task::compute`.
@@ -123,26 +118,10 @@ public:
 
     /// Creates a new instance of the class with the default property values.
     descriptor() = default;
-
-    /// Creates a new instance of the class with the external property values.
-    explicit descriptor(double degree) {
-        set_degree(degree);
-    }
-
-    /// The coefficient $p$ of the Minkowski distance.
-    /// @remark default = 2.0
-    double get_degree() const {
-        return base_t::get_degree();
-    }
-
-    auto& set_degree(double value) {
-        base_t::set_degree_impl(value);
-        return *this;
-    }
 };
 
 } // namespace v1
 
 using v1::descriptor;
 
-} // namespace oneapi::dal::minkowski_distance
+} // namespace oneapi::dal::cosine_distance

@@ -194,6 +194,7 @@ public:
 
     /* k-NN */
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
+    MSG(knn_search_task_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
     MSG(distance_is_not_supported_for_gpu);

@@ -237,6 +237,7 @@ ONEAPI.ALGOS.svm           := CORE.svm
 
 ONEAPI.ALGOS :=          \
     chebyshev_distance   \
+    cosine_distance      \
     decision_forest      \
     decision_tree        \
     kmeans               \
