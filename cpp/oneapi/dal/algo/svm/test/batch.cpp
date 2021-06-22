@@ -243,7 +243,7 @@ public:
         const auto score_table =
             te::accuracy_score<Float>(infer_result.get_labels(), test_labels, tolerance);
         const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
-        std::cout << score << ' ' << ref_accuracy << '\n';
+
         CAPTURE(score);
         REQUIRE(score >= ref_accuracy);
     }
