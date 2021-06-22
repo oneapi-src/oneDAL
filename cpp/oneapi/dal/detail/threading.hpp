@@ -372,24 +372,41 @@ private:
     tls_deleter *d;
 };
 
-template <typename T, typename Allocator>
+template <typename T, typename Allocator = std::allocator<char>>
 class tls_mem : public oneapi::dal::detail::tls<T *> {
 public:
     typedef oneapi::dal::detail::tls<T *> super;
-    tls_mem(Allocator alloc, size_t count = 1)
+    // tls_mem(Allocator allocator, size_t count = 1)
+    tls_mem(size_t count = 1)
             : super([=]() -> T * {
-                  auto ptr = _alloc.template allocate<T>(count);
+                  using t_allocator_type =
+                      typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
+                  std::allocator<char> local_char_alloc; //WRONG
+                  t_allocator_type local_allocator(local_char_alloc);
+                  using t_allocator_traits =
+                      typename std::allocator_traits<Allocator>::template rebind_traits<T>;
+                  typename t_allocator_traits::pointer ptr =
+                      t_allocator_traits::allocate(local_allocator, count);
                   if (ptr == nullptr) {
                       throw host_bad_alloc();
                   }
                   return (T *)ptr;
               }),
-              _alloc(alloc),
-              _count(count) {}
+              _count(count) {
+        Allocator allocator;
+        _alloc = allocator;
+    }
 
     ~tls_mem() {
         super::reduce([&](T *ptr) -> void {
-            _alloc.template deallocate<T>(ptr, _count);
+            using t_allocator_type =
+                typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
+            t_allocator_type t_allocator(_alloc);
+            using t_allocator_traits =
+                typename std::allocator_traits<Allocator>::template rebind_traits<T>;
+            if (ptr != nullptr) {
+                t_allocator_traits::deallocate(t_allocator, ptr, _count);
+            }
         });
     }
 

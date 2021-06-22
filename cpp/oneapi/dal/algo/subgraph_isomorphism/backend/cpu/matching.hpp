@@ -108,7 +108,7 @@ public:
     const float* pattern_vertex_probability;
     kind isomorphism_kind;
 
-    typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, inner_alloc> bundle;
+    typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
     bundle matching_bundle;
 };
 
@@ -422,8 +422,7 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
           direction(pdirection),
           pconsistent_conditions(pcconditions),
           pattern_vertex_probability(ppattern_vertex_probability),
-          isomorphism_kind(isomor_kind),
-          matching_bundle(alloc) {}
+          isomorphism_kind(isomor_kind) {}
 
 template <typename Cpu>
 engine_bundle<Cpu>::~engine_bundle() {
