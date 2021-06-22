@@ -96,8 +96,14 @@ ONEDAL_EXPORT optional_result_id_t get_distances_id();
 
 namespace optional_results {
 
-const optional_result_id_t indices = detail::get_indices_id();
-const optional_result_id_t distances = detail::get_distances_id();
+const inline optional_result_id_t indices = detail::get_indices_id();
+const inline optional_result_id_t distances = detail::get_distances_id();
+
+template<typename Task>
+const inline optional_result_id_t default_optional_results = optional_result_id_t{};
+
+template<>
+const inline optional_result_id_t default_optional_results<task::search> = indices | distances;
 
 } // namespace optional_results
 

@@ -52,7 +52,7 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
-    optional_results::optional_result_id_t optional_results;
+    optional_results::optional_result_id_t optional_results = optional_results::default_optional_results<Task>;
 };
 
 template <typename Task>
