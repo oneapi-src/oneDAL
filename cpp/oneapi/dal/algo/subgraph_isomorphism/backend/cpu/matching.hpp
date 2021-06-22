@@ -121,7 +121,7 @@ matching_engine<Cpu>::~matching_engine() {
     direction = nullptr;
     pconsistent_conditions = nullptr;
 
-    allocator.deallocate<>(temporary_list, temporary_list_size);
+    allocator.deallocate(temporary_list, temporary_list_size);
     temporary_list = nullptr;
     temporary_list_size = 0;
 }

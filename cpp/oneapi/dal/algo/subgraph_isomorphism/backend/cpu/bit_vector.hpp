@@ -220,7 +220,7 @@ bit_vector<Cpu>::bit_vector(bit_vector<Cpu>&& a)
 template <typename Cpu>
 bit_vector<Cpu>::~bit_vector() {
     if (vector != nullptr) {
-        allocator.deallocate<>(vector, n);
+        allocator.deallocate(vector, n);
     }
 }
 

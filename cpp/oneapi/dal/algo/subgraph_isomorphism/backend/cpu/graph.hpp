@@ -193,11 +193,11 @@ void graph<Cpu>::delete_bit_arrays() {
     if (p_edges_bit != nullptr) {
         for (std::int64_t i = 0; i < vertex_count; i++) {
             if (p_edges_bit[i] != nullptr) {
-                allocator.deallocate<>(p_edges_bit[i], 0);
+                allocator.deallocate(p_edges_bit[i], 0);
                 p_edges_bit[i] = nullptr;
             }
         }
-        allocator.deallocate<>(p_edges_bit, vertex_count);
+        allocator.deallocate(p_edges_bit, vertex_count);
         p_edges_bit = nullptr;
     }
 }
@@ -207,27 +207,27 @@ void graph<Cpu>::delete_list_arrays() {
     if (p_edges_list != nullptr) {
         for (std::int64_t i = 0; i < vertex_count; i++) {
             if (p_edges_list[i] != nullptr) {
-                allocator.deallocate<>(p_edges_list[i], 0);
+                allocator.deallocate(p_edges_list[i], 0);
                 p_edges_list[i] = nullptr;
             }
         }
-        allocator.deallocate<>(p_edges_list, vertex_count);
+        allocator.deallocate(p_edges_list, vertex_count);
         p_edges_list = nullptr;
     }
 }
 
 template <typename Cpu>
 graph<Cpu>::~graph() {
-    allocator.deallocate<>(p_degree, vertex_count);
-    allocator.deallocate<>(p_vertex_attribute, vertex_count);
+    allocator.deallocate(p_degree, vertex_count);
+    allocator.deallocate(p_vertex_attribute, vertex_count);
 
     for (int64_t i = 0; i < vertex_count; i++) {
         if (p_edges_attribute[i] != nullptr) {
-            allocator.deallocate<>(p_edges_attribute[i], 1);
+            allocator.deallocate(p_edges_attribute[i], 1);
             p_edges_attribute[i] = nullptr;
         }
     }
-    allocator.deallocate<>(p_edges_attribute, vertex_count);
+    allocator.deallocate(p_edges_attribute, vertex_count);
 
     if (external_data) {
         if (bit_representation) {

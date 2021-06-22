@@ -39,7 +39,7 @@ struct sconsistent_conditions {
     }
     ~sconsistent_conditions() {
         if (array != nullptr) {
-            allocator.deallocate<>(array, length);
+            allocator.deallocate(array, length);
             array = nullptr;
         }
     }
@@ -137,12 +137,12 @@ sorter<Cpu>::sorter(inner_alloc alloc) : allocator(alloc) {
 template <typename Cpu>
 sorter<Cpu>::~sorter() {
     if (p_degree_probability != nullptr) {
-        allocator.deallocate<>(p_degree_probability, degree_max_size);
+        allocator.deallocate(p_degree_probability, degree_max_size);
         p_degree_probability = nullptr;
     }
 
     if (p_vertex_attribute_probability != nullptr) {
-        allocator.deallocate<>(p_vertex_attribute_probability, vertex_attribute_max_size);
+        allocator.deallocate(p_vertex_attribute_probability, vertex_attribute_max_size);
         p_vertex_attribute_probability = nullptr;
     }
 }

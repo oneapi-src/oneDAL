@@ -189,11 +189,11 @@ void stack<Cpu>::delete_data() {
         for (std::int64_t i = 0; i < max_stack_size; i++) {
             if (data[i] != nullptr) {
                 data[i]->clear();
-                allocator.deallocate<state<Cpu>>(data[i], 0);
+                allocator.deallocate(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        allocator.deallocate<state<Cpu>*>(data, max_stack_size);
+        allocator.deallocate(data, max_stack_size);
         data = nullptr;
     }
 }
@@ -203,7 +203,7 @@ void stack<Cpu>::clear(bool direct) {
     for (std::int64_t i = 0; i < stack_size * direct; i++) {
         if (data[i] != nullptr) {
             data[i]->clear();
-            allocator.deallocate<state<Cpu>>(data[i], 0);
+            allocator.deallocate(data[i], 0);
             data[i] = nullptr;
         }
     }
@@ -241,11 +241,11 @@ stack<Cpu>::~stack() {
         for (std::int64_t i = 0; i < max_stack_size; i++) {
             if (data[i] != nullptr) {
                 this->data[i]->clear();
-                allocator.deallocate<state<Cpu>>(data[i], 0);
+                allocator.deallocate(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        allocator.deallocate<state<Cpu>*>(data, max_stack_size);
+        allocator.deallocate(data, max_stack_size);
         data = nullptr;
     }
     stack_size = 0;
@@ -294,7 +294,7 @@ void stack<Cpu>::increase_stack_size() {
     for (std::int64_t i = max_stack_size; i < new_max_stack_size; i++) {
         tmp_data[i] = nullptr;
     }
-    allocator.deallocate<state<Cpu>*>(data, max_stack_size);
+    allocator.deallocate(data, max_stack_size);
     max_stack_size = new_max_stack_size;
     data = tmp_data;
     tmp_data = nullptr;
@@ -321,7 +321,7 @@ vertex_stack<Cpu>::vertex_stack(const std::uint64_t max_states_size, inner_alloc
 
 template <typename Cpu>
 void vertex_stack<Cpu>::clean() {
-    allocator.deallocate<std::uint64_t>(stack_data, stack_size);
+    allocator.deallocate(stack_data, stack_size);
     stack_data = nullptr;
     ptop = nullptr;
     stack_size = 0;
@@ -385,7 +385,7 @@ void vertex_stack<Cpu>::increase_stack_size() {
     for (std::uint64_t i = 0; i < stack_size - skip_count; i++) {
         tmp_data[i] = stack_data[i + skip_count];
     }
-    allocator.deallocate<std::uint64_t>(stack_data, stack_size);
+    allocator.deallocate(stack_data, stack_size);
     stack_size *= 2;
     ptop = size() + tmp_data;
     bottom_ = tmp_data;
@@ -473,7 +473,7 @@ void global_stack<Cpu>::internal_push(dfs_stack<Cpu>& s, std::uint64_t level) {
             *(top_++) = null_vertex();
         }
 
-        allocator.deallocate<std::uint64_t>(v, level + 1);
+        allocator.deallocate(v, level + 1);
     }
 
     // Remove state
@@ -550,7 +550,7 @@ void dfs_stack<Cpu>::delete_data() {
     for (std::uint64_t i = 0; i < max_level_size; i++) {
         data_by_levels[i].clean();
     }
-    allocator.deallocate<vertex_stack<Cpu>>(data_by_levels, max_level_size);
+    allocator.deallocate(data_by_levels, max_level_size);
     data_by_levels = nullptr;
 
     max_level_size = 0;

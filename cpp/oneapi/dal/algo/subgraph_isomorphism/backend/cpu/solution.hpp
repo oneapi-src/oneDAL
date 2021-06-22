@@ -101,7 +101,7 @@ state<Cpu>::state(state<Cpu>* parent_state, std::int64_t new_element, inner_allo
 
 template <typename Cpu>
 void state<Cpu>::clear() {
-    allocator.deallocate<>(core, core_length);
+    allocator.deallocate(core, core_length);
     core = nullptr;
     core_length = 0;
 }
@@ -133,11 +133,11 @@ void solution<Cpu>::delete_data() {
     if (data != nullptr) {
         for (std::int64_t i = 0; i < max_solution_count; i++) {
             if (data[i] != nullptr) {
-                allocator.deallocate<>(data[i], 0);
+                allocator.deallocate(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        allocator.deallocate<>(data, max_solution_count);
+        allocator.deallocate(data, max_solution_count);
         data = nullptr;
     }
 }
@@ -201,7 +201,7 @@ void solution<Cpu>::append(solution<Cpu>&& _solution) {
     }
 
     if (_solution.data != nullptr) {
-        allocator.deallocate<>(_solution.data, 0);
+        allocator.deallocate(_solution.data, 0);
         _solution.data = nullptr;
     }
 
@@ -220,7 +220,7 @@ void solution<Cpu>::increase_solutions_size() {
         new_data[i] = nullptr;
     }
     if (data != nullptr) {
-        allocator.deallocate<>(data, max_solution_count);
+        allocator.deallocate(data, max_solution_count);
     }
     max_solution_count = new_max_solution_count;
     data = new_data;
