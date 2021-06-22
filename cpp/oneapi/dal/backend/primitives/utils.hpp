@@ -29,6 +29,15 @@ inline ndarray<Float, 2> table2ndarray(sycl::queue& q, const table& table, sycl:
     const auto data = accessor.pull(q, { 0, -1 }, alloc);
     return ndarray<Float, 2>::wrap(data, { table.get_row_count(), table.get_column_count() });
 }
+
+template <typename Float>
+inline ndarray<Float, 1> table2ndarray_1d(sycl::queue& q,
+                                          const table& table,
+                                          sycl::usm::alloc alloc) {
+    row_accessor<const Float> accessor{ table };
+    const auto data = accessor.pull(q, { 0, -1 }, alloc);
+    return ndarray<Float, 1>::wrap(data, { data.get_count() });
+}
 #endif
 
 } // namespace oneapi::dal::backend::primitives

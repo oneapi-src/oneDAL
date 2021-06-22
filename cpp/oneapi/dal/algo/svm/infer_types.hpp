@@ -36,9 +36,12 @@ using v1::infer_result_impl;
 
 namespace v1 {
 
-/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`oneapi::dal::svm::task::classification` or
-///                :expr:`oneapi::dal::svm::task::regression`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve.
+/// Can be
+///                :expr:`oneapi::dal::svm::task::classification`,
+///                :expr:`oneapi::dal::svm::task::nu_classification`,
+///                :expr:`oneapi::dal::svm::task::regression`, or
+///                :expr:`oneapi::dal::svm::task::nu_regression`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -48,37 +51,40 @@ public:
 
     /// Creates a new instance of the class with the given :literal:`model`
     /// and :literal:`data` property values
-    infer_input(const model<Task>& trained_model, const table& data);
+    infer_input(const model<Task> &trained_model, const table &data);
 
     /// The trained SVM model
     /// @remark default = model<Task>{}
-    const model<Task>& get_model() const;
+    const model<Task> &get_model() const;
 
-    auto& set_model(const model<Task>& value) {
+    auto &set_model(const model<Task> &value) {
         set_model_impl(value);
         return *this;
     }
 
     /// The dataset for inference $X'$
     /// @remark default = table{}
-    const table& get_data() const;
+    const table &get_data() const;
 
-    auto& set_data(const table& value) {
+    auto &set_data(const table &value) {
         set_data_impl(value);
         return *this;
     }
 
 protected:
-    void set_model_impl(const model<Task>& value);
-    void set_data_impl(const table& value);
+    void set_model_impl(const model<Task> &value);
+    void set_data_impl(const table &value);
 
 private:
     dal::detail::pimpl<detail::infer_input_impl<Task>> impl_;
 };
 
-/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`oneapi::dal::svm::task::classification` or
-///                :expr:`oneapi::dal::svm::task::regression`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve.
+/// Can be
+///                :expr:`oneapi::dal::svm::task::classification`,
+///                :expr:`oneapi::dal::svm::task::nu_classification`,
+///                :expr:`oneapi::dal::svm::task::regression`, or
+///                :expr:`oneapi::dal::svm::task::nu_regression`.
 template <typename Task = task::by_default>
 class infer_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -91,31 +97,34 @@ public:
 
     /// The $n \\times 1$ table with the predicted labels
     /// @remark default = table{}
-    const table& get_labels() const;
+    const table &get_labels() const;
 
-    auto& set_labels(const table& value) {
+    auto &set_labels(const table &value) {
         set_labels_impl(value);
         return *this;
     }
 
-    // TODO: Enable this function only for classification problem.
-    // This will break binary compatibility, so the change should happen in 2022.1.
+    // TODO: Enable this function only for classification and nu_classification
+    // problems.
+    // This will break binary compatibility, so the change should happen in
+    // 2022.1.
     //
     /// The $n \\times 1$ table with the predicted class.
-    /// Used with :expr:`oneapi::dal::svm::task::classification` only.
+    /// Used with :expr:`oneapi::dal::svm::task::classification`
+    /// and :expr:`oneapi::dal::svm::task::nu_classification`.
     /// decision function for each observation
     /// @remark default = table{}
-    const table& get_decision_function() const;
+    const table &get_decision_function() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto& set_decision_function(const table& value) {
+    auto &set_decision_function(const table &value) {
         set_decision_function_impl(value);
         return *this;
     }
 
 protected:
-    void set_labels_impl(const table&);
-    void set_decision_function_impl(const table&);
+    void set_labels_impl(const table &);
+    void set_decision_function_impl(const table &);
 
 private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;
