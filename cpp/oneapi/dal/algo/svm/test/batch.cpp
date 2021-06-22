@@ -376,15 +376,15 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     using method_t = std::tuple_element_t<1, TestType>;
     using kernel_t = polynomial::descriptor<float_t, polynomial::method::dense>;
 
-    const te::dataframe train_data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "svm/mnist_train_38_binary.csv" });
+    const te::dataframe train_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "svm/mnist_train_38_binary.csv" });
     const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
     const auto y_train = train_data.get_table(
         this->get_homogen_table_id(),
         range(train_data.get_column_count() - 1, train_data.get_column_count()));
 
-    const te::dataframe test_data = GENERATE_DATAFRAME(
-        te::dataframe_builder{ "svm/mnist_test_38_binary.csv" });
+    const te::dataframe test_data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ "svm/mnist_test_38_binary.csv" });
     const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
     const table y_test = test_data.get_table(
         this->get_homogen_table_id(),
@@ -394,7 +394,8 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 
     const double c = 1.5e-3;
     auto svm_desc =
-        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{ kernel_desc }
+            .set_c(c);
 
     const double ref_accuracy = 0.992;
 
