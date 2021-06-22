@@ -665,8 +665,6 @@ Type get_inf_value() {
 }
 
 class shortest_paths_test {
-    const float kEps = 5e-5;
-
 public:
     inline auto get_result_type(bool calculate_distances, bool calculate_predecessors) {
         using namespace dal::preview::shortest_paths;
