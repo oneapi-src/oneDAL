@@ -59,6 +59,10 @@ class ParsedWarn:
     def is_instance(warn: RawWarn):
         raise NotImplementedError
 
+    @property
+    def filepath(self):
+        return self._filepath
+
 
 class UnknownWarn(ParsedWarn):
     def _parse(self, warn: RawWarn):

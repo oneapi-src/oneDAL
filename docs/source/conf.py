@@ -148,6 +148,7 @@ onedal_enable_warning_undocumented = True
 #               'General': 'parent'
 #       Dict[Text, Text]: regexes for matching multi prop. **&&** logic!
 #           Validated prop:
+#               Common: 'filepath'
 #               'Compound': 'identifier', the name of compound item
 #               'Param': 'function', the name of function
 #               'General':
@@ -158,11 +159,32 @@ onedal_enable_warning_undocumented = True
 #                   'parent_type': the name of parent's type
 #                       parent_type example: 'struct', 'class'
 onedal_ignored_undocumented_warnings = [
-    ('Compound', r'oneapi::dal::test::.*'), # ignore test
-    ('General', {'member_type': r'typedef'}), # ignore all typedef
+    # ignore test
+    ('Compound', r'oneapi::dal::test::.*'),
+    ('General', {'parent': r'oneapi::dal::test::.*'}),
 
-    # ignore all class descriptor_base
-    ('General', {'parent': r'oneapi::dal::\w+::detail::v1::descriptor_base', 'parent_type': 'class'}),
+    # ignore exceptions
+    ('Compound', {'filepath': r'.*/oneapi/dal/exceptions.hpp$'}),
+    ('General', {'filepath': r'.*/oneapi/dal/exceptions.hpp$'}),
+
+    # ignore all typedef
+    ('General', {'member_type': r'typedef'}),
+
+    # ignore all variables
+    ('General', {'member_type': r'variable'}),
+
+    # ignore all member warning of class descriptor_base
+    ('General', {'parent': r'oneapi::dal::(\w+::)+detail::v1::descriptor_base', 'parent_type': 'class'}),
+
+    # ignore all descriptor_base
+    ('Compound', r'oneapi::dal::(\w+::)+detail::v1::descriptor_base'),
+
+    # ignore all setter/getter
+    ('General', {'member': r'(set|get)_.+', 'member_type': 'function'}),
+
+    # ignore decision_forest
+    ('General', {'parent': r'oneapi::dal::decision_forest::.+', 'parent_type': 'class'}),
+    ('Compound', r'oneapi::dal::decision_forest::detail::v1::decision_tree_task_map<.+>'),
 ]
 
 # ignore these missing references during a doc build
