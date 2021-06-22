@@ -52,7 +52,8 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
-    optional_results::optional_result_id_t optional_results = optional_results::default_optional_results<Task>;
+    optional_results::optional_result_id_t optional_results =
+        optional_results::default_optional_results<Task>;
 };
 
 template <typename Task>
@@ -112,15 +113,14 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template <typename Task>
-auto descriptor_base<Task>::get_optional_results() const 
-                                        -> optional_results::optional_result_id_t {
+auto descriptor_base<Task>::get_optional_results() const -> optional_results::optional_result_id_t {
     return impl_->optional_results;
 }
 
 template <typename Task>
 void descriptor_base<Task>::set_optional_results_impl(
-                            const optional_results::optional_result_id_t& value) {
-    if(std::is_same_v<Task, task::search> && bool(value)) {
+    const optional_results::optional_result_id_t& value) {
+    if (std::is_same_v<Task, task::search> && bool(value)) {
         throw domain_error("Invalid set of optional results");
     }
     impl_->optional_results = value;
