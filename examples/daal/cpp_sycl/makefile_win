@@ -19,7 +19,7 @@
 ##******************************************************************************
 
 help:
-	@echo "Usage: nmake {{dll|help}}"
+	@echo "Usage: nmake {{lib|dll|help}}"
 	@echo "[example=name] [compiler=compiler_name] [mode=mode_name]"
 	@echo
 	@echo "name              - example name."
@@ -32,23 +32,27 @@ help:
 ##------------------------------------------------------------------------------
 ## examples of using:
 ##
-## nmake dll example=kmeans_dense_batch+ - build by Intel(R) oneAPI Compiler (as default)
-##                                         and run kmeans_dense_batch example for 64-bit
-##                                         applications, dynamic linking
+## nmake lib example=kmeans_dense_batch+         - build by Intel(R) C++ Compiler (as default)
+##                                                 and run kmeans_dense_batch example for 64-bit
+##                                                 applications, static linking
 ##
-## nmake dll compiler=clang              - build by Intel(R) oneAPI Compiler (as default)
-##                                         and run all examples of Intel(R) oneDAL for
-##                                         64-bit applications, dynamic linking
+## nmake dll example=kmeans_dense_batch+         - build by Intel(R) oneAPI Compiler (as default)
+##                                                 and run kmeans_dense_batch example for 64-bit
+##                                                 applications, dynamic linking
 ##
-## nmake dll                             - build by Intel(R) oneAPI Compiler (as default)
-##                                         and run all examples for Intel(R) 64 processor
-##                                         family applications, dynamic linking
+## nmake dll compiler=clang                      - build by Intel(R) oneAPI Compiler (as default)
+##                                                 and run all examples of Intel(R) oneDAL for
+##                                                 64-bit applications, dynamic linking
 ##
-## nmake dll mode=build                  - build only (not run) by Intel(R) oneAPI Compiler
-##                                         (as default) all examples for Intel(R) 64
-##                                         processor family applications, dynamic linking
+## nmake dll                                     - build by Intel(R) oneAPI Compiler (as default)
+##                                                 and run all examples for Intel(R) 64 processor
+##                                                 family applications, dynamic linking
 ##
-## nmake help                            - show help
+## nmake dll mode=build                          - build only (not run) by Intel(R) oneAPI Compiler
+##                                                 (as default) all examples for Intel(R) 64
+##                                                 processor family applications, dynamic linking
+##
+## nmake help                                    - show help
 ##
 ##------------------------------------------------------------------------------
 
@@ -86,7 +90,7 @@ RES = $(example:+=.res)
 
 !IF ("$(compiler)"=="clang")
 CC=dpcpp
-COPTS= /EHs
+COPTS= /EHs -fsycl-device-code-split=per_kernel
 OUT_OPTS=/Fe$(RES_DIR)
 RT_LIB=/link /ignore:4078 OpenCL.lib "$(DAAL_PATH)\onedal_sycl.lib"
 CLEAN=
@@ -110,9 +114,12 @@ EXT_LIB = tbb12.lib tbbmalloc.lib
 
 DAAL_LIB = "$(DAAL_PATH)\onedal_core$(EXT)" $(DAAL_LIB_T)
 
-COPTS = -Isource\utils $(COPTS) $(OUT_OPTS)
+COPTS = -MD -Isource\utils $(COPTS) $(OUT_OPTS)
 LOPTS = $(DAAL_LIB) $(EXT_LIB) $(RT_LIB)
 RES_DIR  =_results\$(compiler)_$(_IA)_$(threading)_$(RES_EXT)
+
+lib libintel64:
+	nmake comm_func $(RES) EXT=.lib _IA=intel64 RES_EXT=lib compiler=$(compiler) threading=$(threading)
 
 dll dllintel64:
 	nmake comm_func $(RES) EXT=_dll.lib _IA=intel64 RES_EXT=dll compiler=$(compiler) threading=$(threading)

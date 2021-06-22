@@ -144,9 +144,6 @@ template <typename Graph>
 using graph_allocator = typename graph_traits<Graph>::allocator_type;
 
 template <typename Graph>
-constexpr bool is_undirected = false;
-
-template <typename Graph>
 constexpr bool is_directed = false;
 
 } // namespace oneapi::dal::preview

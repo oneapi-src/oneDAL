@@ -53,8 +53,8 @@ enum class SvmType
 
 struct KernelParameter : svm::Parameter
 {
-    double epsilon;
-    double nu;
+    double epsilon  = 0.1;
+    double nu       = 0.5;
     SvmType svmType = SvmType::classification;
 };
 

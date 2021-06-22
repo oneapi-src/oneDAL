@@ -18,20 +18,35 @@
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/algo/knn/detail/distance.hpp"
 
 namespace oneapi::dal::knn {
+
+namespace v1 {
+/// Weight function used in prediction
+enum class voting_mode {
+    /// Uniform weights for neighbors for prediction voting.
+    uniform,
+    /// Weight neighbors by the inverse of their distance.
+    distance
+};
+} // namespace v1
+
+using v1::voting_mode;
 
 namespace task {
 namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
+struct search {};
 
 /// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
 using v1::classification;
+using v1::search;
 using v1::by_default;
 
 } // namespace task
@@ -73,26 +88,52 @@ constexpr bool is_valid_method_v =
     dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification, task::search>;
+
+template <typename Distance>
+constexpr bool is_valid_distance_v =
+    dal::detail::is_tag_one_of_v<Distance,
+                                 minkowski_distance::detail::descriptor_tag,
+                                 chebyshev_distance::detail::descriptor_tag,
+                                 cosine_distance::detail::descriptor_tag>;
+
+template <typename T>
+using enable_if_search_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::search>>;
+
+template <typename T>
+using enable_if_classification_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
+
+template <typename T>
+using enable_if_brute_force_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, method::brute_force>>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
+    friend detail::distance_accessor;
 
 public:
     using tag_t = descriptor_tag;
     using float_t = float;
     using method_t = method::by_default;
     using task_t = Task;
+    using distance_t = minkowski_distance::descriptor<float_t>;
 
     descriptor_base();
 
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
+    voting_mode get_voting_mode() const;
 
 protected:
+    explicit descriptor_base(const detail::distance_ptr& distance);
+
     void set_class_count_impl(std::int64_t value);
     void set_neighbor_count_impl(std::int64_t value);
+    void set_voting_mode_impl(voting_mode value);
+    void set_distance_impl(const detail::distance_ptr& distance);
+    const detail::distance_ptr& get_distance_impl() const;
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -108,25 +149,36 @@ using v1::descriptor_base;
 using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
+using v1::is_valid_distance_v;
+using v1::enable_if_search_t;
+using v1::enable_if_classification_t;
+using v1::enable_if_brute_force_t;
 
 } // namespace detail
 
 namespace v1 {
 
-/// @tparam Float  The floating-point type that the algorithm uses for
-///                intermediate computations. Can be :expr:`float` or
-///                :expr:`double`.
-/// @tparam Method Tag-type that specifies an implementation of algorithm. Can
-///                be :expr:`method::brute_force` or :expr:`method::kd_tree`.
-/// @tparam Task   Tag-type that specifies type of the problem to solve. Can
-///                be :expr:`task::classification`.
+/// @tparam Float       The floating-point type that the algorithm uses for
+///                     intermediate computations. Can be :expr:`float` or
+///                     :expr:`double`.
+/// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
+///                     be :expr:`method::brute_force` or :expr:`method::kd_tree`.
+/// @tparam Task        Tag-type that specifies type of the problem to solve. Can
+///                     be :expr:`task::classification`.
+/// @tparam Distance    The descriptor of the distance used for computations. Can be
+///                     :expr:`minkowski_distance::descriptor` or
+///                     :expr:`chebyshev_distance::descriptor`
 template <typename Float = float,
           typename Method = method::by_default,
-          typename Task = task::by_default>
+          typename Task = task::by_default,
+          typename Distance = oneapi::dal::minkowski_distance::descriptor<Float>>
 class descriptor : public detail::descriptor_base<Task> {
     static_assert(detail::is_valid_float_v<Float>);
     static_assert(detail::is_valid_method_v<Method>);
     static_assert(detail::is_valid_task_v<Task>);
+    static_assert(detail::is_valid_distance_v<Distance>,
+                  "Custom distances for kNN is not supported. "
+                  "Use one of the predefined distances.");
 
     using base_t = detail::descriptor_base<Task>;
 
@@ -134,11 +186,34 @@ public:
     using float_t = Float;
     using method_t = Method;
     using task_t = Task;
+    using distance_t = Distance;
 
     /// Creates a new instance of the class with the given :literal:`class_count`
     /// and :literal:`neighbor_count` property values
-    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count) {
+    explicit descriptor(std::int64_t class_count, std::int64_t neighbor_count)
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance_t{})) {
         set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
+    }
+
+    /// Creates a new instance of the class with the given :literal:`class_count`,
+    /// :literal:`neighbor_count` and :literal:`distance` property values.
+    /// Used with :expr:`method::brute_force` only.
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
+    explicit descriptor(std::int64_t class_count,
+                        std::int64_t neighbor_count,
+                        const distance_t& distance)
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
+        set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
+    }
+
+    /// Creates a new instance of the class with the given :literal:`neighbor_count`
+    /// and :literal:`distance` property values.
+    /// Used with :expr:`task::search` only.
+    template <typename T = Task, typename = detail::enable_if_search_t<T>>
+    explicit descriptor(std::int64_t neighbor_count, const distance_t& distance)
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
         set_neighbor_count(neighbor_count);
     }
 
@@ -161,6 +236,30 @@ public:
 
     auto& set_neighbor_count(std::int64_t value) {
         base_t::set_neighbor_count_impl(value);
+        return *this;
+    }
+
+    /// The voting mode.
+    voting_mode get_voting_mode() const {
+        return base_t::get_voting_mode();
+    }
+
+    auto& set_voting_mode(voting_mode value) {
+        base_t::set_voting_mode_impl(value);
+        return *this;
+    }
+
+    /// Choose distance type for calculations. Used with :expr:`method::brute_force` only.
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
+    const distance_t& get_distance() const {
+        using dist_t = detail::distance<distance_t>;
+        const auto dist = std::static_pointer_cast<dist_t>(base_t::get_distance_impl());
+        return dist;
+    }
+
+    template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
+    auto& set_distance(const distance_t& dist) {
+        base_t::set_distance_impl(std::make_shared<detail::distance<distance_t>>(dist));
         return *this;
     }
 };

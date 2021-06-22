@@ -63,6 +63,7 @@ public:
     vertex_ranking_result();
 
     /// Returns the table with computed number of local triangles for each vertex
+    /// represented as std::int64_t values
     template <typename T = Task, typename = detail::enable_if_local_t<T>>
     const table& get_ranks() const {
         return get_ranks_impl();
