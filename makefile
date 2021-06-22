@@ -194,6 +194,7 @@ RELEASEDIR.samples     := $(RELEASEDIR.daal)/samples
 RELEASEDIR.jardir      := $(RELEASEDIR.daal)/lib
 RELEASEDIR.libia       := $(RELEASEDIR.daal)/lib$(if $(OS_is_mac),,/$(_IA))
 RELEASEDIR.include     := $(RELEASEDIR.daal)/include
+RELEASEDIR.pkgconfig   := $(RELEASEDIR.daal)/lib/pkgconfig
 RELEASEDIR.soia        := $(if $(OS_is_win),$(RELEASEDIR.daal)/redist/$(_IA),$(RELEASEDIR.libia))
 WORKDIR.lib := $(WORKDIR)/daal/lib
 
@@ -1056,6 +1057,9 @@ endef
 $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
 $(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
 endif
+
+_release_c: $(RELEASEDIR.pkgconfig)
+	python ./deploy/pkg-config/generate_pkgconfig.py --output_dir $(RELEASEDIR.pkgconfig) --template_name ./deploy/pkg-config/pkg-config.tpl
 
 #----- releasing jar files
 _release_jj: $(addprefix $(RELEASEDIR.jardir)/,$(release.JARS))
