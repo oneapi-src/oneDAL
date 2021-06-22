@@ -112,7 +112,7 @@ class Context(object):
         self._path_resolver = None
         self._is_listing_enabled = False
         self._is_warning_undocumented_enabled = False
-        self._ignored_undocumented_warnings = []
+        self._undocumented_warn_filter = doxypy.UndocumentedWarnFilter([])
         self._read_env()
 
     def configure(self, relative_doxyfile_dir, relative_sources_dir, is_listing_enabled,
@@ -124,7 +124,7 @@ class Context(object):
         )
         self._is_listing_enabled = is_listing_enabled
         self._is_warning_undocumented_enabled = is_warning_undocumented_enabled
-        self._ignored_undocumented_warnings = ignored_undocumented_warnings
+        self._undocumented_warn_filter = doxypy.UndocumentedWarnFilter(ignored_undocumented_warnings)
 
     @property
     def current_docname(self):
@@ -181,6 +181,8 @@ class Context(object):
     def _log_undocumented_warns(self):
         logger = sphinx.util.logging.getLogger('DoxygenWarns')
         for warn in self._index.warns.get('Undocumented', []):
+            if self._undocumented_warn_filter.ignored(warn):
+                continue
             logger.warning(warn)
 
 

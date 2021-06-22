@@ -18,7 +18,10 @@
 
 # -*- coding: utf-8 -*-
 
-from typing import List, Dict
+from typing import (
+    List,
+    Dict,
+)
 import re
 
 
@@ -68,17 +71,23 @@ class UnknownWarn(ParsedWarn):
 
 class UndocumentedWarn(ParsedWarn):
 
-    TYPE_NORMAL = 0
+    TYPE_GENERAL = 0
     TYPE_PARAM = 1
     TYPE_COMPOUND = 2
+
+    TYPE_NAMES = ['General', 'Param', 'Compound']
 
     normal_regex = re.compile(r'^ warning: Member (?P<member>.+?) \((?P<member_type>\w+)\) of (?P<parent_type>\w+) (?P<parent>.+?) is not documented\.$')
     compound_regex = re.compile(r'^ warning: Compound (?P<member>.+?) is not documented\.$')
     param_regex = re.compile(r'^ warning: The following parameter of (?P<parent>.+?) is not documented:$')
     parameter_regex = re.compile(r"^parameter '(?P<parameter>[^']+')$")
 
+    @property
+    def type_name(self):
+        return self.TYPE_NAMES[self.type]
+
     def _parse(self, warn: RawWarn):
-        self.type = self.TYPE_NORMAL
+        self.type = self.TYPE_GENERAL
         self.member = None
         self.member_type = None
         self.parent = None

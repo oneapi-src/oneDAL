@@ -135,7 +135,35 @@ onedal_enable_listing = False
 onedal_relative_doxyfile_dir = '../doxygen/oneapi'
 onedal_relative_sources_dir = '../../cpp/oneapi/dal'
 onedal_enable_warning_undocumented = True
-onedal_ignored_undocumented_warnings = []
+
+# ignore some unnecessary warn
+# config format:
+# (kind: Text, config: Union[Text, Dict[Text, Text]])
+#   kind: 'Compound', 'General', 'Param'
+#   config:
+#       Text: regex for matching main prop
+#           Main prop:
+#               'Compound': 'identifier'
+#               'Param': 'function'
+#               'General': 'parent'
+#       Dict[Text, Text]: regexes for matching multi prop. **&&** logic!
+#           Validated prop:
+#               'Compound': 'identifier', the name of compound item
+#               'Param': 'function', the name of function
+#               'General':
+#                   'member': the name of member
+#                   'member_type': the name of member's type
+#                       member_type example: 'typedef', 'function'
+#                   'parent': the name of parent
+#                   'parent_type': the name of parent's type
+#                       parent_type example: 'struct', 'class'
+onedal_ignored_undocumented_warnings = [
+    ('Compound', r'oneapi::dal::test::.*'), # ignore test
+    ('General', {'member_type': r'typedef'}), # ignore all typedef
+
+    # ignore all class descriptor_base
+    ('General', {'parent': r'oneapi::dal::\w+::detail::v1::descriptor_base', 'parent_type': 'class'}),
+]
 
 # ignore these missing references during a doc build
 nitpick_ignore = [

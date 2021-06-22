@@ -26,6 +26,10 @@ from typing import (
 from .index import parse as parse_index
 from .compound import parse as parse_compound
 from .warning_log import parse as parse_warning
+from .warning_log import (
+    ParsedWarn,
+    UndocumentedWarn,
+)
 
 
 class Parser(object):
