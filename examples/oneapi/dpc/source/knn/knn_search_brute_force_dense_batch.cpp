@@ -27,17 +27,16 @@ void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("k_nearest_neighbors_train_data.csv");
     const auto query_data_file_name = get_data_path("k_nearest_neighbors_test_data.csv");
 
-    const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
-    const auto x_query = dal::read<dal::table>(dal::csv::data_source{ query_data_file_name });
+    const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
+    const auto x_query = dal::read<dal::table>(q, dal::csv::data_source{ query_data_file_name });
 
     const std::size_t neighbors_count = 6;
 
     const auto knn_desc =
-        knn::descriptor<float, knn::method::brute_force, knn::task::search, cosine_desc_t>(
-            neighbors_count);
+        knn::descriptor<float, knn::method::brute_force, knn::task::search>(neighbors_count);
 
-    const auto train_result = dal::train(knn_desc, x_train);
-    const auto test_result = dal::infer(knn_desc, x_query, train_result.get_model());
+    const auto train_result = dal::train(q, knn_desc, x_train);
+    const auto test_result = dal::infer(q, knn_desc, x_query, train_result.get_model());
 
     std::cout << "Indices result:\n" << test_result.get_indices() << std::endl;
     std::cout << "Distance result:\n" << test_result.get_distances() << std::endl;
