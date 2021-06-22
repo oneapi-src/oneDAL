@@ -366,6 +366,42 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
+                     "svm polynomial mnist 2k",
+                     "[svm][integration][batch][polynomial][external-dataset]",
+                     svm_types) {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
+    using kernel_t = polynomial::descriptor<float_t, polynomial::method::dense>;
+
+    const te::dataframe train_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "svm/mnist_train_38_binary.csv" });
+    const auto x_train = train_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const auto y_train = train_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const te::dataframe test_data = GENERATE_DATAFRAME(
+        te::dataframe_builder{ "svm/mnist_test_38_binary.csv" });
+    const table x_test = test_data.get_table(this->get_homogen_table_id(), range(0, -1));
+    const table y_test = test_data.get_table(
+        this->get_homogen_table_id(),
+        range(train_data.get_column_count() - 1, train_data.get_column_count()));
+
+    const auto kernel_desc = kernel_t{}.set_scale(3).set_shift(4).set_degree(3);
+
+    const double c = 1.5e-3;
+    auto svm_desc =
+        svm::descriptor<float_t, method_t, svm::task::classification, kernel_t>{kernel_desc}.set_c(c);
+
+    const double ref_accuracy = 0.992;
+
+    this->check_kernel_accuracy(x_train, y_train, x_test, y_test, svm_desc, ref_accuracy);
+}
+
+TEMPLATE_LIST_TEST_M(svm_batch_test,
                      "svm can classify linear separable surface with big margin",
                      "[svm][integration][batch][linear]",
                      svm_types) {
