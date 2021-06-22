@@ -82,13 +82,9 @@ public:
 template <typename Cpu>
 void graph<Cpu>::allocate_arrays() {
     p_degree = allocator.allocate<std::int64_t>(vertex_count);
-    p_vertex_attribute = allocator.allocate<std::int64_t>(vertex_count);
-    p_edges_attribute = allocator.allocate<std::int64_t*>(vertex_count);
 
     for (int64_t i = 0; i < vertex_count; i++) {
-        p_edges_attribute[i] = nullptr;
         p_degree[i] = 0;
-        p_vertex_attribute[i] = 1;
     }
 
     if (bit_representation) {
@@ -115,7 +111,9 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
         : external_data(true),
           bit_representation(storage_scheme != list),
           allocator(byte_alloc),
-          vertex_count(t.get_vertex_count()) {
+          vertex_count(t.get_vertex_count()),
+          p_vertex_attribute(nullptr),
+          p_edges_attribute(nullptr) {
     allocate_arrays();
     (bit_representation) ? init_bit_representation(t) : init_list_representation(t);
     return;
@@ -140,7 +138,7 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
 
             bit_vector<Cpu>::set_bit(p_edges_bit[vertex_1], vertex_2, vertex_count);
             bit_vector<Cpu>::set_bit(p_edges_bit[vertex_2], vertex_1, vertex_count);
-            if (edge_attr >= 0 || has_edges_attribute) {
+            if (edge_attr >= 0 && has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
                     p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
                     has_edges_attribute = true;
@@ -176,7 +174,7 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
             std::int64_t vertex_2 = t._cols[t._rows[i] + j];
 
             p_edges_list[i][j] = vertex_2;
-            if (edge_attr >= 0 || has_edges_attribute) {
+            if (edge_attr >= 0 && has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
                     p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
                     has_edges_attribute = true;
@@ -219,15 +217,15 @@ void graph<Cpu>::delete_list_arrays() {
 template <typename Cpu>
 graph<Cpu>::~graph() {
     allocator.deallocate(p_degree, vertex_count);
-    allocator.deallocate(p_vertex_attribute, vertex_count);
 
-    for (int64_t i = 0; i < vertex_count; i++) {
-        if (p_edges_attribute[i] != nullptr) {
-            allocator.deallocate(p_edges_attribute[i], 1);
-            p_edges_attribute[i] = nullptr;
+    if (p_edges_attribute) {
+        for (int64_t i = 0; i < vertex_count; i++) {
+            if (p_edges_attribute[i] != nullptr) {
+                allocator.deallocate(p_edges_attribute[i], 1);
+                p_edges_attribute[i] = nullptr;
+            }
         }
     }
-    allocator.deallocate(p_edges_attribute, vertex_count);
 
     if (external_data) {
         if (bit_representation) {
