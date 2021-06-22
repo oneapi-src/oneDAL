@@ -113,7 +113,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         result = result.set_labels(
             dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
     }
-    
+
     if (desc.get_optional_results() & optional_results::indices) {
         result = result.set_indices(dal::detail::homogen_table_builder{}
                                         .reset(arr_indices, row_count, neighbor_count)
