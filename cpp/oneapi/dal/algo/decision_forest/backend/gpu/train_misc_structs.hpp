@@ -52,7 +52,7 @@ struct impl_const<Index, task::regression> {
 };
 
 template <typename Float, typename Index = std::int32_t, typename Task = task::by_default>
-struct ONEDAL_EXPORT train_context {
+struct train_context {
     Index class_count_ = 0;
     Index row_count_ = 0;
     Index column_count_ = 0;

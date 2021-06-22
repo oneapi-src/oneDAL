@@ -18,7 +18,11 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+
+#endif
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel_hist_impl.hpp"
 
@@ -28,22 +32,22 @@ namespace de = dal::detail;
 namespace be = dal::backend;
 namespace pr = dal::backend::primitives;
 
-using alloc = cl::sycl::usm::alloc;
-using address = cl::sycl::access::address_space;
+using alloc = sycl::usm::alloc;
+using address = sycl::access::address_space;
 
-using cl::sycl::ONEAPI::broadcast;
-using cl::sycl::ONEAPI::reduce;
-using cl::sycl::ONEAPI::plus;
-using cl::sycl::ONEAPI::minimum;
-using cl::sycl::ONEAPI::maximum;
-using cl::sycl::ONEAPI::exclusive_scan;
+using sycl::ONEAPI::broadcast;
+using sycl::ONEAPI::reduce;
+using sycl::ONEAPI::plus;
+using sycl::ONEAPI::minimum;
+using sycl::ONEAPI::maximum;
+using sycl::ONEAPI::exclusive_scan;
 
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
 
 template <typename Data>
-using local_accessor_rw_t = cl::sycl::
-    accessor<Data, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>;
+using local_accessor_rw_t =
+    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
 
 template <typename F>
 struct float_accuracy;
@@ -60,8 +64,8 @@ struct float_accuracy<double> {
 
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
-    return cl::sycl::atomic_fetch_add<T, address::global_space>(
-        { cl::sycl::multi_ptr<T, address::global_space>{ ptr } },
+    return sycl::atomic_fetch_add<T, address::global_space>(
+        { sycl::multi_ptr<T, address::global_space>{ ptr } },
         operand);
 }
 
@@ -185,10 +189,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(context_t& ctx
         bin_borders_host_[i] = ind_ftrs.get_bin_borders(i).to_host(queue_);
     }
 
-    data_host_ =
-        pr::flatten_table_1d<Float, row_accessor>(queue_, data, alloc::device).to_host(queue_);
+    data_host_ = pr::table2ndarray_1d<Float>(queue_, data, alloc::device).to_host(queue_);
 
-    response_nd_ = pr::flatten_table_1d<Float, row_accessor>(queue_, responses, alloc::device);
+    response_nd_ = pr::table2ndarray_1d<Float>(queue_, responses, alloc::device);
 
     response_host_ = response_nd_.to_host(queue_);
 
@@ -204,9 +207,9 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(context_t& ctx
 
     // define number of trees which can be built in parallel
     const std::uint64_t device_global_mem_size =
-        queue_.get_device().get_info<cl::sycl::info::device::global_mem_size>();
+        queue_.get_device().get_info<sycl::info::device::global_mem_size>();
     const std::uint64_t device_max_mem_alloc_size =
-        queue_.get_device().get_info<cl::sycl::info::device::max_mem_alloc_size>();
+        queue_.get_device().get_info<sycl::info::device::max_mem_alloc_size>();
 
     const auto part_hist_size = get_part_hist_required_mem_size(ctx.selected_ftr_count_,
                                                                 ctx.max_bin_count_among_ftrs_,
@@ -301,7 +304,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::allocate_buffers(const con
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-std::tuple<pr::ndarray<Index, 1>, cl::sycl::event>
+std::tuple<pr::ndarray<Index, 1>, sycl::event>
 train_kernel_hist_impl<Float, Bin, Index, Task>::gen_features(
     Index node_count,
     const pr::ndarray<Index, 1>& node_vs_tree_map_list,
@@ -436,7 +439,7 @@ inline void sub_stat(Float* dst, const Float* src, const Float* mrg, Index elem_
 // classification compute_hist_for_node
 template <typename Float, typename Index>
 inline void compute_hist_for_node(
-    cl::sycl::nd_item<2> item,
+    sycl::nd_item<2> item,
     Index ind_start,
     Index ind_end,
     const Float* response_ptr,
@@ -466,7 +469,7 @@ inline void compute_hist_for_node(
         atomic_global_add(node_histogram_ptr + cls_idx, private_histogram[cls_idx]);
     }
 
-    item.barrier(cl::sycl::access::fence_space::local_space);
+    item.barrier(sycl::access::fence_space::local_space);
 
     Float imp = Float(1);
     Float div = Float(1) / (Float(row_count) * row_count);
@@ -485,13 +488,13 @@ inline void compute_hist_for_node(
     }
 
     node_ptr[5] = win_cls;
-    node_imp_ptr[0] = cl::sycl::max(imp, Float(0));
+    node_imp_ptr[0] = sycl::max(imp, Float(0));
 }
 
 // regression compute_hist_for_node
 template <typename Float, typename Index>
 inline void compute_hist_for_node(
-    cl::sycl::nd_item<2> item,
+    sycl::nd_item<2> item,
     Index ind_start,
     Index ind_end,
     const Float* response_ptr,
@@ -524,7 +527,7 @@ inline void compute_hist_for_node(
     local_h_ptr[2] = private_histogram[2];
 
     for (Index offset = local_size / 2; offset > 0; offset >>= 1) {
-        item.barrier(cl::sycl::access::fence_space::local_space);
+        item.barrier(sycl::access::fence_space::local_space);
         if (local_id < offset) {
             hist_type_t* h_ptr = local_buf_ptr + (local_id + offset) * hist_prop_count;
             merge_stat(local_h_ptr, h_ptr, hist_prop_count);
@@ -538,7 +541,7 @@ inline void compute_hist_for_node(
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_histogram(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_histogram(
     const pr::ndarray<Float, 1>& response,
     const pr::ndarray<Index, 1>& treeOrder,
     const pr::ndarray<Index, 1>& node_list,
@@ -562,7 +565,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial
     // num of impurity attributes for node
     const Index node_imp_prop_count = impl_const_t::node_imp_prop_count_;
 
-    cl::sycl::event fill_event = {};
+    sycl::event fill_event = {};
     if constexpr (std::is_same_v<Task, task::classification>) {
         fill_event = imp_data_list.class_hist_list_.fill(queue_, 0, deps);
     }
@@ -571,15 +574,15 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial
     const kernel_context<Float, Index, Task> krn_ctx(ctx);
 
     auto local_size = ctx.preferable_group_size_;
-    const cl::sycl::nd_range<2> nd_range =
+    const sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
-    auto event = queue_.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.depends_on(fill_event);
         // local_buf is used for regression only, but need to be present for classification also
         local_accessor_rw_t<hist_type_t> local_buf(local_size * (node_imp_prop_count + 1), cgh);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index node_id = item.get_global_id()[1];
             const Index local_id = item.get_local_id()[0];
             const Index local_size = item.get_local_range()[0];
@@ -593,7 +596,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial
 
             const Index ind_start = local_id * elem_count;
             const Index ind_end =
-                cl::sycl::min(static_cast<Index>((local_id + 1) * elem_count), row_count);
+                sycl::min(static_cast<Index>((local_id + 1) * elem_count), row_count);
 
             const Index* node_tree_order_ptr = &tree_order_ptr[rows_offset];
 
@@ -619,7 +622,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     const pr::ndarray<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
     const pr::ndarray<Index, 1>& treeOrder,
@@ -640,7 +643,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_sp
                                      alloc::device);
     auto nodeIndices = pr::ndarray<Index, 1>::empty(queue_, { node_count }, alloc::device);
 
-    cl::sycl::event last_event;
+    sycl::event last_event;
     last_event =
         train_service_kernels_.split_node_list_on_groups_by_size(node_list,
                                                                  nodesGroups,
@@ -822,11 +825,11 @@ inline void get_block_borders(Index total_elem_count,
     const Index elem_count = total_elem_count / block_count + bool(total_elem_count % block_count);
 
     ind_start = block_id * elem_count;
-    ind_end = cl::sycl::min(static_cast<Index>(block_id + 1) * elem_count, total_elem_count);
+    ind_end = sycl::min(static_cast<Index>(block_id + 1) * elem_count, total_elem_count);
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_histograms(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_histograms(
     const pr::ndarray<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
     const pr::ndarray<Index, 1>& treeOrder,
@@ -866,13 +869,13 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial
     hist_type_t* partial_histogram_ptr = partialHistograms.get_mutable_data();
 
     auto local_size = ctx.preferable_local_size_for_part_hist_kernel_;
-    const cl::sycl::nd_range<2> nd_range =
+    const sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ nPartialHistograms * local_size, node_count },
                                       { local_size, 1 });
 
-    auto event = queue_.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_event);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index nodeIdx = item.get_global_id()[1];
             const Index nodeId = node_indices_ptr[nodeIndicesOffset + nodeIdx];
             const Index ftrGrpIdx = item.get_local_id()[0];
@@ -911,7 +914,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_histograms(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_histograms(
     const pr::ndarray<hist_type_t, 1>& partialHistograms,
     pr::ndarray<hist_type_t, 1>& histograms,
     Index nPartialHistograms,
@@ -932,18 +935,18 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_
     hist_type_t* histogram_ptr = histograms.get_mutable_data();
 
     // overflow for nMaxBinsAmongFtrs * nSelectedFeatures should be checked in compute
-    const cl::sycl::nd_range<3> nd_range =
+    const sycl::nd_range<3> nd_range =
         be::make_multiple_nd_range_3d({ max_bin_count_among_ftrs * selected_ftr_count,
                                         ctx.reduce_local_size_part_hist_,
                                         node_count },
                                       { 1, ctx.reduce_local_size_part_hist_, 1 });
 
-    auto event = queue_.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<hist_type_t> buf(ctx.reduce_local_size_part_hist_ * hist_prop_count,
                                              cgh);
 
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<3> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<3> item) {
             const Index nodeIdx = item.get_global_id()[2];
             const Index binId = item.get_global_id()[0];
             const Index local_id = item.get_local_id()[1];
@@ -971,7 +974,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_
             }
 
             for (Index offset = local_size / 2; offset > 0; offset >>= 1) {
-                item.barrier(cl::sycl::access::fence_space::local_space);
+                item.barrier(sycl::access::fence_space::local_space);
                 if (local_id < offset) {
                     merge_stat(buf_ptr + local_id * hist_prop_count,
                                buf_ptr + (local_id + offset) * hist_prop_count,
@@ -991,7 +994,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_
 //////////////////////////////////////////// Best split kernels
 template <typename Float>
 inline bool float_eq(Float a, Float b) {
-    return cl::sycl::fabs(a - b) <= float_accuracy<Float>::val;
+    return sycl::fabs(a - b) <= float_accuracy<Float>::val;
 }
 
 template <typename Float>
@@ -1072,8 +1075,8 @@ public:
                           Float(node_class_hist_ptr[class_id] - left_class_hist_[class_id]) * divR;
         }
 
-        left_imp_ = cl::sycl::max(left_imp_, Float(0));
-        right_imp_ = cl::sycl::max(right_imp_, Float(0));
+        left_imp_ = sycl::max(left_imp_, Float(0));
+        right_imp_ = sycl::max(right_imp_, Float(0));
 
         imp_dec_ = node_imp - (Float(left_count_) * left_imp_ + Float(right_count_) * right_imp_) /
                                   Float(node_row_count);
@@ -1239,7 +1242,7 @@ void update_left_child_imp(const imp_data_list_ptr_mutable<Float, Index, Task>& 
 
 template <typename Float, typename Index, typename Task>
 void choose_best_split_for_sbg(
-    cl::sycl::nd_item<2>& item,
+    sycl::nd_item<2>& item,
     const split<Float, Index, Task>& bs,
     Index* node_ptr,
     Float* node_imp_decr_ptr,
@@ -1291,7 +1294,7 @@ void choose_best_split_for_sbg(
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split_by_histogram(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split_by_histogram(
     const pr::ndarray<hist_type_t, 1>& nodesHistograms,
     const pr::ndarray<Index, 1>& selectedFeatures,
     const pr::ndarray<Index, 1>& binOffsets,
@@ -1336,12 +1339,12 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_sp
 
     auto local_size = be::device_max_sg_size(queue_);
 
-    const cl::sycl::nd_range<2> nd_range =
+    const sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
-    auto event = queue_.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
                 return;
@@ -1394,7 +1397,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_sp
 }
 /// kernel
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split_single_pass(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split_single_pass(
     const pr::ndarray<Bin, 2>& data,
     const pr::ndview<Float, 1>& response,
     const pr::ndarray<Index, 1>& treeOrder,
@@ -1435,12 +1438,12 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_sp
 
     auto local_size = be::device_max_sg_size(queue_);
 
-    const cl::sycl::nd_range<2> nd_range =
+    const sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
-    auto event = queue_.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<2> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
                 return;
@@ -1564,7 +1567,7 @@ static void do_node_imp_split(const imp_data_list_ptr<Float, Index, Task>& imp_l
         Float* node_rch_imp = imp_list_ptr_new.imp_list_ptr_ +
                               (new_left_node_pos + 1) * impl_const_t::node_imp_prop_count_;
         node_lch_imp[0] = left_child_imp[0];
-        node_rch_imp[0] = cl::sycl::max(imp_right, Float(0));
+        node_rch_imp[0] = sycl::max(imp_right, Float(0));
     }
     else {
         constexpr Index buff_size = impl_const_t::node_imp_prop_count_ + 1;
@@ -1594,7 +1597,7 @@ static void do_node_imp_split(const imp_data_list_ptr<Float, Index, Task>& imp_l
 }
 //////////////////////////// DO NODE SPLIT
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
     const pr::ndarray<Index, 1>& node_list,
     const pr::ndarray<Index, 1>& node_vs_tree_map_list,
     const imp_data_t& imp_data_list,
@@ -1626,11 +1629,11 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
     const kernel_context<Float, Index, Task> krn_ctx(ctx);
 
     auto local_size = be::device_max_sg_size(queue_);
-    const cl::sycl::nd_range<1> nd_range = be::make_multiple_nd_range_1d(local_size, local_size);
+    const sycl::nd_range<1> nd_range = be::make_multiple_nd_range_1d(local_size, local_size);
 
-    auto event = queue_.submit([&](cl::sycl::handler& cgh) {
+    auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(nd_range, [=](cl::sycl::nd_item<1> item) {
+        cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
                 return;
@@ -1800,7 +1803,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error_perm(
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
     const model_manager_t& model_manager,
     const pr::ndarray<Float, 1>& data_host,
     const pr::ndarray<Float, 1>& response_host,
@@ -1889,11 +1892,11 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results
         }
     }
 
-    return cl::sycl::event{};
+    return sycl::event{};
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
     const pr::ndarray<Float, 1>& response_host,
     pr::ndarray<hist_type_t, 1>& oob_per_obs_list,
     pr::ndarray<Float, 1>& res_oob_err,
@@ -1970,11 +1973,11 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_er
         res_oob_err_obs = res_oob_err_obs_host.to_device(queue_);
     }
 
-    return cl::sycl::event{};
+    return sycl::event{};
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
-cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_var_imp(
+sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_var_imp(
     pr::ndarray<Float, 1>& var_imp,
     pr::ndarray<Float, 1>& var_imp_variance,
     const context_t& ctx,
@@ -2010,7 +2013,7 @@ cl::sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_var_im
         var_imp = var_imp_host.to_device(queue_);
     }
 
-    return cl::sycl::event{};
+    return sycl::event{};
 }
 
 /////////////////////////////////////////////////////////
@@ -2044,7 +2047,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     model_manager_t model_manager(ctx.tree_count_, ctx.column_count_, ctx);
 
-    cl::sycl::event last_event;
+    sycl::event last_event;
 
     for (Index iter = 0; iter < ctx.tree_count_; iter += ctx.tree_in_block_) {
         Index iter_tree_count = std::min(ctx.tree_count_ - iter, ctx.tree_in_block_);
@@ -2094,12 +2097,12 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                ctx.row_count_);
             }
 
-            cl::sycl::event event =
+            sycl::event event =
                 tree_order_lev_.assign(queue_, selected_rows_ptr, selected_rows_host_.get_count());
             event.wait_and_throw();
         }
         else {
-            cl::sycl::event event =
+            sycl::event event =
                 train_service_kernels_.initialize_tree_order(tree_order_lev_,
                                                              iter_tree_count,
                                                              ctx.selected_row_count_);
@@ -2116,7 +2119,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
         last_event.wait_and_throw();
 
         if (ctx.oob_required_) {
-            cl::sycl::event event = train_service_kernels_.get_oob_row_list(
+            sycl::event event = train_service_kernels_.get_oob_row_list(
                 tree_order_lev_,
                 oob_rows_num_list,
                 oob_rows_list,

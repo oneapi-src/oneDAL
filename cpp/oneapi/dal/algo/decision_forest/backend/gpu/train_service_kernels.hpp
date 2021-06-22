@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_auxiliary_structs.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 

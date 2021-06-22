@@ -263,8 +263,6 @@ MSG(invalid_value_for_min_bin_size, "Invalid value for min bin size")
 MSG(invalid_number_of_classes, "Invalid number of classes")
 MSG(invalid_value_for_observations_per_tree_fraction,
     "Invalid value for observations per tree fraction")
-MSG(invalid_number_of_trees, "Invalid number of trees in model")
-MSG(invalid_number_of_classes, "Invalid number of classes")
 MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
 
 } // namespace v1

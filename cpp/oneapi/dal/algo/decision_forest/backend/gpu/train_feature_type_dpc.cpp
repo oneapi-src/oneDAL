@@ -18,7 +18,11 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+
+#endif
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -255,8 +259,7 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
     const dal::backend::event_vector& deps) {
     sycl::event::wait_and_throw(deps);
 
-    const auto data_nd_ =
-        pr::flatten_table<Float, row_accessor>(queue_, tbl, sycl::usm::alloc::device);
+    const auto data_nd_ = pr::table2ndarray<Float>(queue_, tbl, sycl::usm::alloc::device);
 
     if (tbl.get_row_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_rows());

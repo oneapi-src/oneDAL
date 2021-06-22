@@ -18,7 +18,11 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
+
+#endif
 
 namespace oneapi::dal::decision_forest::backend {
 
@@ -393,7 +397,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
     const Float* node_imp_decrease_list_ptr = node_imp_decrease_list.get_data();
     Float* res_var_imp_ptr = res_var_imp.get_mutable_data();
 
-    const cl::sycl::nd_range<2> nd_range =
+    const sycl::nd_range<2> nd_range =
         be::make_multiple_nd_range_2d({ local_size, column_count }, { local_size, 1 });
 
     const Index nNodeProp = impl_const_t::node_prop_count_; // num of split attributes for node
@@ -402,9 +406,9 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cl::sycl::
-            accessor<Float, 1, cl::sycl::access::mode::read_write, cl::sycl::access::target::local>
-                bufI(max_sub_groups_num, cgh);
+        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> bufI(
+            max_sub_groups_num,
+            cgh);
 
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             auto sbg = item.get_sub_group();
@@ -449,7 +453,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
                 }
             }
 
-            item.barrier(cl::sycl::access::fence_space::local_space);
+            item.barrier(sycl::access::fence_space::local_space);
             if (1 < n_sub_groups && 0 == sub_group_id) {
                 // first sub group for current node reduces over local buffer if required
                 Float ftrImp = (sub_group_local_id < n_sub_groups)

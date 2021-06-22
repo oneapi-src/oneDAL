@@ -19,7 +19,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/algo/decision_forest/common.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/model_impl.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_auxiliary_structs.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_impurity_data.hpp"
 
 #include <daal/src/algorithms/dtrees/forest/classification/df_classification_model_impl.h>
@@ -47,9 +47,6 @@ struct daal_types_map<task::regression> {
     using daal_model_impl_t = daal::algorithms::decision_forest::regression::internal::ModelImpl;
     using daal_model_ptr_t = daal::algorithms::decision_forest::regression::ModelPtr;
 };
-
-using namespace daal::algorithms::dtrees::internal;
-using namespace daal::services::internal;
 
 template <typename Float, typename Index, typename Task = task::by_default>
 struct tree_level_record {
@@ -296,6 +293,6 @@ private:
     const context_t& ctx_;
 };
 
-} // namespace oneapi::dal::decision_forest::backend
-
 #endif
+
+} // namespace oneapi::dal::decision_forest::backend

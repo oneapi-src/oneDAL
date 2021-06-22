@@ -21,7 +21,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_auxiliary_structs.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
 
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 

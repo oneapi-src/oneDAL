@@ -18,10 +18,11 @@
 
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/helper_rng_engine.hpp"
-#include "oneapi/dal/algo/decision_forest/backend/gpu/train_auxiliary_structs.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_impurity_data.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
@@ -61,7 +62,7 @@ class train_kernel_hist_impl {
     using msg = dal::detail::error_messages;
 
 public:
-    train_kernel_hist_impl(cl::sycl::queue& q) : queue_(q), train_service_kernels_(q) {}
+    train_kernel_hist_impl(sycl::queue& q) : queue_(q), train_service_kernels_(q) {}
     ~train_kernel_hist_impl() = default;
 
     result_t operator()(const descriptor_t& desc, const table& data, const table& labels);
@@ -79,13 +80,13 @@ private:
                      const table& labels);
     void allocate_buffers(const context_t& ctx_);
 
-    std::tuple<pr::ndarray<Index, 1>, cl::sycl::event> gen_features(
+    std::tuple<pr::ndarray<Index, 1>, sycl::event> gen_features(
         Index node_count,
         const dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map,
         dal::array<engine_impl>& engines,
         const context_t& ctx_);
 
-    cl::sycl::event compute_initial_histogram(
+    sycl::event compute_initial_histogram(
         const dal::backend::primitives::ndarray<Float, 1>& response,
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
         const dal::backend::primitives::ndarray<Index, 1>& nodeList,
@@ -94,20 +95,19 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps);
 
-    cl::sycl::event do_node_split(
-        const dal::backend::primitives::ndarray<Index, 1>& node_list,
-        const dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map,
-        const imp_data_t& imp_data_list,
-        const imp_data_t& left_child_imp_data_list,
-        dal::backend::primitives::ndarray<Index, 1>& node_list_new,
-        dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map_new,
-        imp_data_t& imp_data_list_new,
-        Index node_count,
-        Index node_count_new,
-        const context_t& ctx,
-        const dal::backend::event_vector& deps);
+    sycl::event do_node_split(const dal::backend::primitives::ndarray<Index, 1>& node_list,
+                              const dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map,
+                              const imp_data_t& imp_data_list,
+                              const imp_data_t& left_child_imp_data_list,
+                              dal::backend::primitives::ndarray<Index, 1>& node_list_new,
+                              dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map_new,
+                              imp_data_t& imp_data_list_new,
+                              Index node_count,
+                              Index node_count_new,
+                              const context_t& ctx,
+                              const dal::backend::event_vector& deps);
 
-    cl::sycl::event compute_best_split(
+    sycl::event compute_best_split(
         const dal::backend::primitives::ndarray<Bin, 2>& data,
         const dal::backend::primitives::ndview<Float, 1>& response,
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
@@ -122,7 +122,7 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
-    cl::sycl::event compute_partial_histograms(
+    sycl::event compute_partial_histograms(
         const dal::backend::primitives::ndarray<Bin, 2>& data,
         const dal::backend::primitives::ndview<Float, 1>& response,
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
@@ -137,7 +137,7 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
-    cl::sycl::event reduce_partial_histograms(
+    sycl::event reduce_partial_histograms(
         const dal::backend::primitives::ndarray<hist_type_t, 1>& partialHistograms,
         dal::backend::primitives::ndarray<hist_type_t, 1>& histograms,
         Index nPartialHistograms,
@@ -145,7 +145,7 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
-    cl::sycl::event compute_best_split_by_histogram(
+    sycl::event compute_best_split_by_histogram(
         const dal::backend::primitives::ndarray<hist_type_t, 1>& nodesHistograms,
         const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
         const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
@@ -160,7 +160,7 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
-    cl::sycl::event compute_best_split_single_pass(
+    sycl::event compute_best_split_single_pass(
         const dal::backend::primitives::ndarray<Bin, 2>& data,
         const dal::backend::primitives::ndview<Float, 1>& response,
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
@@ -200,23 +200,22 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
-    cl::sycl::event compute_results(
-        const model_manager_t& model_manager,
-        const dal::backend::primitives::ndarray<Float, 1>& data_host,
-        const dal::backend::primitives::ndarray<Float, 1>& response_host,
-        const dal::backend::primitives::ndarray<Index, 1>& oob_row_list,
-        const dal::backend::primitives::ndarray<Index, 1>& oobRowsNumList,
-        dal::backend::primitives::ndarray<hist_type_t, 1>& oob_per_obs_list,
-        dal::backend::primitives::ndarray<Float, 1>& var_imp,
-        dal::backend::primitives::ndarray<Float, 1>& var_imp_variance,
-        const dal::array<engine_impl>& engine_arr,
-        Index tree_idx,
-        Index tree_in_block,
-        Index built_tree_count,
-        const context_t& ctx,
-        const dal::backend::event_vector& deps = {});
+    sycl::event compute_results(const model_manager_t& model_manager,
+                                const dal::backend::primitives::ndarray<Float, 1>& data_host,
+                                const dal::backend::primitives::ndarray<Float, 1>& response_host,
+                                const dal::backend::primitives::ndarray<Index, 1>& oob_row_list,
+                                const dal::backend::primitives::ndarray<Index, 1>& oobRowsNumList,
+                                dal::backend::primitives::ndarray<hist_type_t, 1>& oob_per_obs_list,
+                                dal::backend::primitives::ndarray<Float, 1>& var_imp,
+                                dal::backend::primitives::ndarray<Float, 1>& var_imp_variance,
+                                const dal::array<engine_impl>& engine_arr,
+                                Index tree_idx,
+                                Index tree_in_block,
+                                Index built_tree_count,
+                                const context_t& ctx,
+                                const dal::backend::event_vector& deps = {});
 
-    cl::sycl::event finalize_oob_error(
+    sycl::event finalize_oob_error(
         const dal::backend::primitives::ndarray<Float, 1>& response_host,
         dal::backend::primitives::ndarray<hist_type_t, 1>& oob_per_obs_list,
         dal::backend::primitives::ndarray<Float, 1>& res_oob_err,
@@ -224,13 +223,13 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
-    cl::sycl::event finalize_var_imp(dal::backend::primitives::ndarray<Float, 1>& var_imp,
-                                     dal::backend::primitives::ndarray<Float, 1>& var_imp_variance,
-                                     const context_t& ctx,
-                                     const dal::backend::event_vector& deps = {});
+    sycl::event finalize_var_imp(dal::backend::primitives::ndarray<Float, 1>& var_imp,
+                                 dal::backend::primitives::ndarray<Float, 1>& var_imp_variance,
+                                 const context_t& ctx,
+                                 const dal::backend::event_vector& deps = {});
 
 private:
-    cl::sycl::queue queue_;
+    sycl::queue queue_;
 
     train_service_kernels_t train_service_kernels_;
 
