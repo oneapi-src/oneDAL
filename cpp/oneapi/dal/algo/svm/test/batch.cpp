@@ -48,6 +48,10 @@ public:
         return this->get_policy().is_gpu() && is_smo;
     }
 
+    bool kernel_not_available_on_device() {
+        return this->get_policy().is_gpu();
+    }
+    
     bool weights_not_available_on_device() {
         return this->get_policy().is_gpu();
     }
@@ -272,6 +276,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      svm_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->kernel_not_available_on_device());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -322,6 +327,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      svm_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->kernel_not_available_on_device());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
@@ -371,6 +377,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                      svm_types) {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->kernel_not_available_on_device());
 
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
