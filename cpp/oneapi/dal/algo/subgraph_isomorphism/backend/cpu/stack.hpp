@@ -287,9 +287,6 @@ template <typename Cpu>
 void stack<Cpu>::increase_stack_size() {
     const auto new_max_stack_size = (max_stack_size > 0) ? 2 * max_stack_size : 100;
     state<Cpu>** tmp_data = allocator.allocate<state<Cpu>*>(new_max_stack_size);
-    if (tmp_data == nullptr) {
-        throw oneapi::dal::host_bad_alloc();
-    }
     for (std::int64_t i = 0; i < max_stack_size; i++) {
         tmp_data[i] = data[i];
         data[i] = nullptr;
@@ -384,9 +381,6 @@ std::uint64_t vertex_stack<Cpu>::max_size() const {
 template <typename Cpu>
 void vertex_stack<Cpu>::increase_stack_size() {
     std::uint64_t* tmp_data = allocator.allocate<std::uint64_t>(2 * stack_size);
-    if (tmp_data == nullptr) {
-        throw oneapi::dal::host_bad_alloc();
-    }
     const auto skip_count = bottom_ - stack_data;
     for (std::uint64_t i = 0; i < stack_size - skip_count; i++) {
         tmp_data[i] = stack_data[i + skip_count];

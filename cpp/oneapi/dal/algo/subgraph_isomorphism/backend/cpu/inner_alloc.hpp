@@ -34,7 +34,11 @@ struct inner_alloc {
 
     template <typename T>
     T* allocate(std::int64_t n) {
-        return reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
+        T* ptr = reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
+        if (!ptr) {
+            throw oneapi::dal::host_bad_alloc();
+        }
+        return ptr;
     }
 
     template <typename T>
@@ -47,9 +51,6 @@ struct inner_alloc {
         auto ptr = oneapi::dal::detail::shared<T>(allocate<T>(n), [=](T* p) {
             deallocate<T>(p, n);
         });
-        if (ptr.get() == nullptr) {
-            throw oneapi::dal::host_bad_alloc();
-        }
         return ptr;
     }
 

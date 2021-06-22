@@ -84,9 +84,6 @@ void graph<Cpu>::allocate_arrays() {
     p_degree = allocator.allocate<std::int64_t>(vertex_count);
     p_vertex_attribute = allocator.allocate<std::int64_t>(vertex_count);
     p_edges_attribute = allocator.allocate<std::int64_t*>(vertex_count);
-    if (!p_degree || !p_vertex_attribute || !p_edges_attribute) {
-        throw oneapi::dal::host_bad_alloc();
-    }
 
     for (int64_t i = 0; i < vertex_count; i++) {
         p_edges_attribute[i] = nullptr;
@@ -95,25 +92,16 @@ void graph<Cpu>::allocate_arrays() {
     }
 
     if (bit_representation) {
-        std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
+        const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
 
         p_edges_bit = allocator.template allocate<std::uint8_t*>(vertex_count);
-        if (!p_edges_bit) {
-            throw oneapi::dal::host_bad_alloc();
-        }
-        for (int64_t i = 0; i < vertex_count; i++) {
+        for (int64_t i = 0; i < vertex_count; ++i) {
             p_edges_bit[i] = allocator.template allocate<std::uint8_t>(bit_array_size);
-            if (!p_edges_bit[i]) {
-                throw oneapi::dal::host_bad_alloc();
-            }
             bit_vector<Cpu>::set(bit_array_size, p_edges_bit[i]);
         }
     }
     else {
         p_edges_list = allocator.template allocate<std::int64_t*>(vertex_count);
-        if (!p_edges_list) {
-            throw oneapi::dal::host_bad_alloc();
-        }
         for (int64_t i = 0; i < vertex_count; i++) {
             p_edges_list[i] = nullptr;
         }
@@ -155,9 +143,6 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
             if (edge_attr >= 0 || has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
                     p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
-                    if (!p_edges_attribute[i]) {
-                        throw oneapi::dal::host_bad_alloc();
-                    }
                     has_edges_attribute = true;
                 }
                 p_edges_attribute[i][j] = edge_attr;
@@ -177,9 +162,6 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
         p_degree[i] = degree;
         if (degree > 0) {
             p_edges_list[i] = allocator.allocate<std::int64_t>(degree);
-            if (!p_edges_list[i]) {
-                throw oneapi::dal::host_bad_alloc();
-            }
         }
         else {
             p_edges_list[i] = nullptr;
@@ -197,9 +179,6 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
             if (edge_attr >= 0 || has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
                     p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
-                    if (!p_edges_attribute[i]) {
-                        throw oneapi::dal::host_bad_alloc();
-                    }
                     has_edges_attribute = true;
                 }
                 p_edges_attribute[i][j] = edge_attr;
