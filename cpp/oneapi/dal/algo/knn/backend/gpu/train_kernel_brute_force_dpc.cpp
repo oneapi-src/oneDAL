@@ -52,7 +52,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     const std::int64_t column_count = data.get_column_count();
     const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table(queue, labels);
+    auto daal_labels = daal::data_management::NumericTablePtr();
 
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(
@@ -79,7 +79,10 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     // are not modified by the algorithm.
     const bool copy_data_labels = false;
     knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
-    knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
+    if constexpr (!std::is_same_v<Task, task::search>) {
+        daal_labels = interop::convert_to_daal_table<Float>(labels);
+        knn_model->impl()->setLabels<Float>(daal_labels, false);
+    }
 
     interop::status_to_exception(
         daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
