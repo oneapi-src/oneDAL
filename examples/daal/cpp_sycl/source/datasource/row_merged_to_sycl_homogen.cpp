@@ -45,7 +45,8 @@ uint32_t generateMinStd(uint32_t x) {
 }
 
 /* Compute correlation matrix */
-NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table) {
+NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table) 
+{
   using namespace daal::algorithms;
 
   covariance::Batch<> covAlg;
@@ -57,29 +58,60 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table) {
 }
 
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
-void generateData(float *dataBlock, size_t nRows, size_t nCols) {
-  for (size_t i = 0; i < nRows; i++) {
+void generateData(float *dataBlock, size_t nRows, size_t nCols) 
+{
+  for (size_t i = 0; i < nRows; i++) 
+  {
     constexpr float genMax = 2147483647.0f;
     uint32_t genState = 7777 + i * i;
     genState = generateMinStd(genState);
     genState = generateMinStd(genState);
-    for (size_t j = 0; j < nCols; j++) {
+    for (size_t j = 0; j < nCols; j++) 
+    {
       dataBlock[i * nCols + j] = (float)genState / genMax;
       genState = generateMinStd(genState);
     }
   }
 }
 
-int main(int argc, char *argv[]) {
-  constexpr size_t nCols = 10;
-  constexpr size_t nRows = 10000;
+void deallocateDataBlocks(const std::vector<float*>& memChunks)
+{
+  for (size_t i = 0; i < memChunks.size(); i++) 
+  {
+    free(memChunks[i]);
+  }
+}
 
-  for (const auto &deviceDescriptor : getListOfDevices()) {
+std::vector<float*> allocateDataBlocks(size_t nCols, size_t nRows, size_t nBlocks) 
+{
+  std::vector<float *> memChunks;
+  for (size_t i = 0; i < nBlocks; i++) 
+  {
+    /* Allocate memory on host to store input data */
+    float *dataBlock = (float *)malloc(sizeof(float) * nRows * nCols);
+    if (!dataBlock) 
+    {
+      deallocateDataBlocks(memChunks);
+      throw std::bad_alloc();
+    }
+    memChunks.push_back(dataBlock);
+  }
+  return memChunks;
+}
+
+int main(int argc, char *argv[]) 
+{
+  constexpr size_t nCols   = 10;
+  constexpr size_t nRows   = 10000;
+  constexpr size_t nBlocks = 3;
+
+  for (const auto &deviceDescriptor : getListOfDevices()) 
+  {
     const auto &device = deviceDescriptor.second;
     const auto &deviceName = deviceDescriptor.first;
     std::cout << "Running on " << deviceName << std::endl << std::endl;
 
-    /* Crate SYCL* queue with desired device */
+    /* Create SYCL* queue with desired device */
     cl::sycl::queue queue{device};
 
     /* Set the queue to default execution context */
@@ -90,39 +122,36 @@ int main(int argc, char *argv[]) {
         RowMergedNumericTable::create();
 
     std::vector<float *> memChunks;
-    bool allocatedAllBlocks = true;
 
-    for (size_t i = 0; i < 3; i++) {
-      /* Allocate memory on host to store input data */
-      float *dataBlock = (float *)malloc(sizeof(float) * nRows * nCols);
-      if (!dataBlock) {
-        std::cout << "Allocation failed" << std::endl;
-        allocatedAllBlocks = false;
-        for (size_t i = 0; i < memChunks.size(); i++) {
-          free(memChunks[i]);
-        }
-        break;
-      }
-      memChunks.push_back(dataBlock);
+    /* Allocate data blocks */
+    try
+    {
+      memChunks = allocateDataBlocks(nCols, nRows, nBlocks);
+    } 
+    catch (const std::bad_alloc& e) 
+    {
+        std::cout << "Allocation failed: " << '\n';
+        return -1;
+    }
 
+    for(size_t i = 0; i < memChunks.size(); i++) 
+    {
       /* Fill allocated memory block with generated numbers */
-      generateData(dataBlock, nRows, nCols);
+      generateData(memChunks[i], nRows, nCols);
 
       /* Create numeric table from shared memory */
       NumericTablePtr dataTable =
-          HomogenNumericTable<float>::create(dataBlock, nCols, nRows);
+          HomogenNumericTable<float>::create(memChunks[i], nCols, nRows);
 
       /* Add to row merged table */
       mergedTable->addNumericTable(dataTable);
-    }
-    if (!allocatedAllBlocks) {
-      continue;
     }
 
     /* Convert row merged table to sycl homogen one */
     Status st;
     NumericTablePtr tablePtr = convertToSyclHomogen<float>(*mergedTable, st);
-    if (!st.ok()) {
+    if (!st.ok()) 
+    {
       std::cout << "Failed to convert row merged table to SYCL homogen one"
                 << std::endl;
       return -1;
@@ -135,9 +164,7 @@ int main(int argc, char *argv[]) {
     printNumericTable(covariance, "Covariance matrix:");
 
     /* Free data blocks*/
-    for (size_t i = 0; i < memChunks.size(); i++) {
-      free(memChunks[i]);
-    }
+    deallocateDataBlocks(memChunks);
   }
 
   return 0;
