@@ -2229,6 +2229,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                                                             node_list,
                                                                             tree_order_lev_,
                                                                             tree_order_lev_buf_,
+                                                                            ctx.row_count_,
                                                                             ctx.column_count_,
                                                                             node_count,
                                                                             { last_event });

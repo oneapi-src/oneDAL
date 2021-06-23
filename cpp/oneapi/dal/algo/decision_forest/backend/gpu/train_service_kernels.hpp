@@ -58,6 +58,7 @@ public:
         const dal::backend::primitives::ndarray<Index, 1>& node_list,
         dal::backend::primitives::ndarray<Index, 1>& tree_order,
         dal::backend::primitives::ndarray<Index, 1>& tree_order_buf,
+        Index row_count,
         Index column_count,
         Index node_count,
         const dal::backend::event_vector& deps = {});
@@ -143,6 +144,7 @@ private:
     static constexpr inline Index aux_node_buffer_prop_count_ = 2;
 
     static constexpr inline Index preferable_sbg_size_ = 16;
+    static constexpr inline Index max_sbg_count_per_group_ = 16;
 };
 
 #endif

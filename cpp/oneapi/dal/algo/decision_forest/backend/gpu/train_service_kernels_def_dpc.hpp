@@ -65,8 +65,6 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     Index tree_count,
     Index row_count,
     const be::event_vector& deps) {
-    //DAAL_ITTNOTIFY_SCOPED_TASK(compute.doLevelPartition);
-
     ONEDAL_ASSERT(tree_order.get_count() == tree_count * row_count);
 
     Index* tree_order_ptr = tree_order.get_mutable_data();
@@ -93,22 +91,18 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
     Index group_count,
     Index group_prop_count,
     const be::event_vector& deps) {
-    //DAAL_ASSERT(nNodes <= _int32max);
-    //DAAL_ASSERT(_minRowsBlock <= _int32max);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
-    ONEDAL_ASSERT(node_indices.get_count() == node_count);
     ONEDAL_ASSERT(node_groups.get_count() == group_count * group_prop_count);
+    ONEDAL_ASSERT(node_indices.get_count() == node_count);
 
-    //_P("split node lists on groups");
-    [[maybe_unused]] const Index bigNodeLowBorderBlocksNum = big_node_low_border_blocks_num_;
-    const Index blockSize = min_rows_block_;
-    [[maybe_unused]] const Index nNodeProp =
+    const Index big_node_low_border_blocks_num = big_node_low_border_blocks_num_;
+    const Index block_size = min_rows_block_;
+    const Index node_prop_count =
         impl_const_t::node_prop_count_; // num of split attributes for node
 
-    //_P("node_prop count %d", nNodeProp);
-    [[maybe_unused]] const Index* node_list_ptr = node_list.get_data();
-    [[maybe_unused]] Index* node_groups_ptr = node_groups.get_mutable_data();
-    [[maybe_unused]] Index* node_indices_ptr = node_indices.get_mutable_data();
+    const Index* node_list_ptr = node_list.get_data();
+    Index* node_groups_ptr = node_groups.get_mutable_data();
+    Index* node_indices_ptr = node_indices.get_mutable_data();
 
     auto local_size = preferable_sbg_size_;
     const sycl::nd_range<1> nd_range = be::make_multiple_nd_range_1d(local_size, local_size);
@@ -125,60 +119,62 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
             const Index local_id = sbg.get_local_id();
             const Index local_size = sbg.get_local_range()[0];
 
-            Index nBigNodes = 0;
-            Index maxBigBlocksNum = 1;
-            Index nMidNodes = 0;
-            Index maxMidBlocksNum = 1;
+            Index big_node_count = 0;
+            Index max_big_block_count = 1;
+            Index mid_node_count = 0;
+            Index max_mid_block_count = 1;
 
             // calculate num of big and mid nodes
             for (Index i = local_id; i < node_count; i += local_size) {
-                Index nRows = node_list_ptr[i * nNodeProp + 1];
-                Index nBlocks = nRows / blockSize + bool(nRows % blockSize);
+                Index row_count = node_list_ptr[i * node_prop_count + 1];
+                Index block_count = row_count / block_size + bool(row_count % block_size);
 
-                Index bigNode = (Index)(nBlocks > bigNodeLowBorderBlocksNum);
-                Index midNode = (Index)(nBlocks <= bigNodeLowBorderBlocksNum && nBlocks > 1);
+                Index big_node = (Index)(block_count > big_node_low_border_blocks_num);
+                Index mid_node =
+                    (Index)(block_count <= big_node_low_border_blocks_num && block_count > 1);
 
-                nBigNodes += reduce(sbg, bigNode, plus<Index>());
-                nMidNodes += reduce(sbg, midNode, plus<Index>());
-                maxBigBlocksNum =
-                    sycl::max(maxBigBlocksNum, static_cast<Index>(bigNode ? nBlocks : 0));
-                maxBigBlocksNum = reduce(sbg, maxBigBlocksNum, maximum<Index>());
-                maxMidBlocksNum =
-                    sycl::max(maxMidBlocksNum, static_cast<Index>(midNode ? nBlocks : 0));
-                maxMidBlocksNum = reduce(sbg, maxMidBlocksNum, maximum<Index>());
+                big_node_count += reduce(sbg, big_node, plus<Index>());
+                mid_node_count += reduce(sbg, mid_node, plus<Index>());
+                max_big_block_count =
+                    sycl::max(max_big_block_count, static_cast<Index>(big_node ? block_count : 0));
+                max_big_block_count = reduce(sbg, max_big_block_count, maximum<Index>());
+                max_mid_block_count =
+                    sycl::max(max_mid_block_count, static_cast<Index>(mid_node ? block_count : 0));
+                max_mid_block_count = reduce(sbg, max_mid_block_count, maximum<Index>());
             }
 
-            nBigNodes = broadcast(sbg, nBigNodes, 0);
-            nMidNodes = broadcast(sbg, nMidNodes, 0);
+            big_node_count = broadcast(sbg, big_node_count, 0);
+            mid_node_count = broadcast(sbg, mid_node_count, 0);
 
             if (0 == local_id) {
-                node_groups_ptr[0] = nBigNodes;
-                node_groups_ptr[1] = maxBigBlocksNum;
-                node_groups_ptr[2] = nMidNodes;
-                node_groups_ptr[3] = maxMidBlocksNum;
-                node_groups_ptr[4] = node_count - nBigNodes - nMidNodes;
+                node_groups_ptr[0] = big_node_count;
+                node_groups_ptr[1] = max_big_block_count;
+                node_groups_ptr[2] = mid_node_count;
+                node_groups_ptr[3] = max_mid_block_count;
+                node_groups_ptr[4] = node_count - big_node_count - mid_node_count;
                 node_groups_ptr[5] = 1;
             }
 
-            Index sumBig = 0;
-            Index sumMid = 0;
+            Index sum_big = 0;
+            Index sum_mid = 0;
 
             //split nodes on groups
             for (Index i = local_id; i < node_count; i += local_size) {
-                Index nRows = node_list_ptr[i * nNodeProp + 1];
-                Index nBlocks = nRows / blockSize + bool(nRows % blockSize);
-                Index bigNode = (Index)(nBlocks > bigNodeLowBorderBlocksNum);
-                Index midNode = (Index)(nBlocks <= bigNodeLowBorderBlocksNum && nBlocks > 1);
+                Index row_count = node_list_ptr[i * node_prop_count + 1];
+                Index block_count = row_count / block_size + bool(row_count % block_size);
+                Index big_node = (Index)(block_count > big_node_low_border_blocks_num);
+                Index mid_node =
+                    (Index)(block_count <= big_node_low_border_blocks_num && block_count > 1);
 
-                Index boundaryBig = sumBig + exclusive_scan(sbg, bigNode, plus<Index>());
-                Index boundaryMid = sumMid + exclusive_scan(sbg, midNode, plus<Index>());
-                Index posNew =
-                    (bigNode ? boundaryBig
-                             : (midNode ? nBigNodes + boundaryMid
-                                        : nBigNodes + nMidNodes + i - boundaryBig - boundaryMid));
-                node_indices_ptr[posNew] = i;
-                sumBig += reduce(sbg, bigNode, plus<Index>());
-                sumMid += reduce(sbg, midNode, plus<Index>());
+                Index boundary_big = sum_big + exclusive_scan(sbg, big_node, plus<Index>());
+                Index boundary_mid = sum_mid + exclusive_scan(sbg, mid_node, plus<Index>());
+                Index pos_new = (big_node ? boundary_big
+                                          : (mid_node ? big_node_count + boundary_mid
+                                                      : big_node_count + mid_node_count + i -
+                                                            boundary_big - boundary_mid));
+                node_indices_ptr[pos_new] = i;
+                sum_big += reduce(sbg, big_node, plus<Index>());
+                sum_mid += reduce(sbg, mid_node, plus<Index>());
             }
         });
     });
@@ -186,7 +182,6 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
     return event;
 }
 
-// todo migrate to tuple
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count(
     const dal::backend::primitives::ndarray<Index, 1>& node_list,
@@ -195,7 +190,8 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
     const be::event_vector& deps) {
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
 
-    const Index nNodeProp = impl_const_t::node_prop_count_; // num of split attributes for node
+    const Index node_prop_count =
+        impl_const_t::node_prop_count_; // num of split attributes for node
     const Index bad_val = impl_const_t::bad_val_;
 
     const Index* node_list_ptr = node_list.get_data();
@@ -218,7 +214,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
 
             Index sum = 0;
             for (Index i = local_id; i < node_count; i += local_size) {
-                sum += Index(node_list_ptr[i * nNodeProp + 2] != bad_val);
+                sum += Index(node_list_ptr[i * node_prop_count + 2] != bad_val);
             }
 
             sum = reduce(sbg, sum, plus<Index>());
@@ -241,40 +237,40 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
     const pr::ndarray<Index, 1>& node_list,
     pr::ndarray<Index, 1>& tree_order,
     pr::ndarray<Index, 1>& tree_order_buf,
-    Index column_count,
+    Index data_row_count,
+    Index data_column_count,
     Index node_count,
     const be::event_vector& deps) {
-    //DAAL_ITTNOTIFY_SCOPED_TASK(compute.doLevelPartition);
+    ONEDAL_ASSERT(data.get_count() == data_row_count * data_column_count);
+    ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
+    ONEDAL_ASSERT(tree_order.get_count() == data_row_count);
+    ONEDAL_ASSERT(tree_order_buf.get_count() == data_row_count);
 
-    //DAAL_ASSERT_UNIVERSAL_BUFFER(data, uint32_t, nRows * nFeatures);
-    //DAAL_ASSERT_UNIVERSAL_BUFFER(nodeList, int32_t, nNodes * _nNodeProps);
-    //DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrder, int32_t, nRows);
-    //DAAL_ASSERT_UNIVERSAL_BUFFER(treeOrderBuf, int32_t, nRows);
+    // node_count * partition_max_block_count_ is used inside kernel
+    de::check_mul_overflow(node_count, partition_max_block_count_);
 
-    // nNodes * _partitionMaxBlocksNum is used inside kernel
-    //DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(int32_t, nNodes, _partitionMaxBlocksNum);
-
-    // nodeAuxList is auxilliary buffer for synchronization of left and right boundaries of blocks (nElemsToLeft, nElemsToRight)
+    // node_aux_list is auxilliary buffer for synchronization of left and right boundaries of blocks (elems_to_left_count, elems_to_right_count)
     // processed by subgroups in the same node
-    // no mul overflow check is required due to there is already buffer of size nNodes * _nNodeProps
+    // no mul overflow check is required due to there is already buffer of size node_count * impl_const_t::node_prop_count_
     ONEDAL_ASSERT(aux_node_buffer_prop_count_ <= impl_const_t::node_prop_count_);
 
-    auto [nodeAuxList, last_event] =
+    auto [node_aux_list, last_event] =
         pr::ndarray<Index, 1>::zeros(queue_,
                                      { node_count * aux_node_buffer_prop_count_ },
                                      alloc::device);
     last_event.wait_and_throw();
 
-    const Index nNodeProp = impl_const_t::node_prop_count_; // num of split attributes for node
-    const Index leafMark = impl_const_t::bad_val_;
+    const Index node_prop_count =
+        impl_const_t::node_prop_count_; // num of split attributes for node
+    const Index leaf_mark = impl_const_t::leaf_mark_;
     const Index aux_node_buffer_prop_count =
         aux_node_buffer_prop_count_; // num of auxilliary attributes for node
-    const Index maxBlocksNum = partition_max_block_count_;
-    const Index minBlockSize = partition_min_block_size_;
+    const Index max_block_count = partition_max_block_count_;
+    const Index min_block_size = partition_min_block_size_;
 
     const Bin* data_ptr = data.get_data();
     const Index* node_list_ptr = node_list.get_data();
-    Index* node_aux_list_ptr = nodeAuxList.get_mutable_data();
+    Index* node_aux_list_ptr = node_aux_list.get_mutable_data();
     Index* tree_order_ptr = tree_order.get_mutable_data();
     Index* tree_order_buf_ptr = tree_order_buf.get_mutable_data();
 
@@ -300,68 +296,78 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
                 item.get_group_range(0) *
                 sub_groups_in_work_group_num; // num of subgroups for current node processing
 
-            const Index totalBlocksNum = node_count * maxBlocksNum;
+            const Index total_block_count = node_count * max_block_count;
 
-            for (Index blockIndGlob = sub_group_id; blockIndGlob < totalBlocksNum;
-                 blockIndGlob += sub_groups_num) {
-                const Index nodeId = blockIndGlob / maxBlocksNum;
-                const Index blockInd = blockIndGlob % maxBlocksNum;
+            for (Index block_ind_glob = sub_group_id; block_ind_glob < total_block_count;
+                 block_ind_glob += sub_groups_num) {
+                const Index node_id = block_ind_glob / max_block_count;
+                const Index block_ind = block_ind_glob % max_block_count;
 
-                const Index* node = node_list_ptr + nodeId * nNodeProp;
+                const Index* node = node_list_ptr + node_id * node_prop_count;
                 const Index offset = node[0];
-                const Index nRows = node[1];
-                const Index featId = node[2];
-                const Index splitVal = node[3];
-                const Index nRowsLeft = node[4]; // num of items in the Left part of node
+                const Index row_count = node[1];
+                const Index feat_id = node[2];
+                const Index feat_bin = node[3];
+                const Index left_ch_row_count = node[4]; // num of items in the Left part of node
 
-                Index nodeBlocks =
-                    nRows / minBlockSize ? sycl::min(nRows / minBlockSize, maxBlocksNum) : 1;
+                Index node_block_count =
+                    row_count / min_block_size
+                        ? sycl::min(row_count / min_block_size, max_block_count)
+                        : 1;
 
-                // if blockInd assigned for this sbg less than current node's block count -> sbg will just go to the next node
-                if (featId != leafMark && blockInd < nodeBlocks) // split node
+                // if block_ind assigned for this sbg less than current node's block count -> sbg will just go to the next node
+                if (feat_id != leaf_mark && block_ind < node_block_count) // split node
                 {
-                    Index* nodeAux = node_aux_list_ptr + nodeId * aux_node_buffer_prop_count;
+                    Index* node_aux = node_aux_list_ptr + node_id * aux_node_buffer_prop_count;
 
-                    const Index blockSize =
-                        nodeBlocks > 1 ? nRows / nodeBlocks + bool(nRows % nodeBlocks) : nRows;
+                    const Index block_size =
+                        node_block_count > 1
+                            ? row_count / node_block_count + bool(row_count % node_block_count)
+                            : row_count;
 
-                    const Index iEnd = sycl::min((blockInd + 1) * blockSize, nRows);
-                    const Index iStart = sycl::min(blockInd * blockSize, iEnd);
-                    const Index rowsForGroup = iEnd - iStart;
+                    const Index ind_end = sycl::min((block_ind + 1) * block_size, row_count);
+                    const Index ind_start = sycl::min(block_ind * block_size, ind_end);
+                    const Index group_row_count = ind_end - ind_start;
 
-                    Index groupLeftBoundary = 0;
-                    Index groupRightBoundary = 0;
+                    Index group_left_boundary = 0;
+                    Index group_right_boundary = 0;
 
-                    if (nodeBlocks > 1 && rowsForGroup > 0) {
-                        Index groupRowsToRight = 0;
-                        for (Index i = iStart + sub_group_local_id; i < iEnd; i += sub_group_size) {
+                    if (node_block_count > 1 && group_row_count > 0) {
+                        Index group_row_to_right_count = 0;
+                        for (Index i = ind_start + sub_group_local_id; i < ind_end;
+                             i += sub_group_size) {
                             const Index id = tree_order_ptr[offset + i];
-                            const Index toRight =
-                                Index(static_cast<Index>(data_ptr[id * column_count + featId]) >
-                                      splitVal);
-                            groupRowsToRight += reduce(sbg, toRight, plus<Index>());
+                            const Index to_right =
+                                Index(static_cast<Index>(
+                                          data_ptr[id * data_column_count + feat_id]) > feat_bin);
+                            group_row_to_right_count += reduce(sbg, to_right, plus<Index>());
                         }
 
                         if (0 == sub_group_local_id) {
-                            groupLeftBoundary =
-                                atomic_global_add(nodeAux + 0, rowsForGroup - groupRowsToRight);
-                            groupRightBoundary = atomic_global_add(nodeAux + 1, groupRowsToRight);
+                            group_left_boundary =
+                                atomic_global_add(node_aux + 0,
+                                                  group_row_count - group_row_to_right_count);
+                            group_right_boundary =
+                                atomic_global_add(node_aux + 1, group_row_to_right_count);
                         }
-                        groupLeftBoundary = broadcast(sbg, groupLeftBoundary, 0);
-                        groupRightBoundary = broadcast(sbg, groupRightBoundary, 0);
+                        group_left_boundary = broadcast(sbg, group_left_boundary, 0);
+                        group_right_boundary = broadcast(sbg, group_right_boundary, 0);
                     }
 
-                    Index groupRowsToRight = 0;
-                    for (Index i = iStart + sub_group_local_id; i < iEnd; i += sub_group_size) {
+                    Index group_row_to_right_count = 0;
+                    for (Index i = ind_start + sub_group_local_id; i < ind_end;
+                         i += sub_group_size) {
                         const Index id = tree_order_ptr[offset + i];
-                        const Index toRight = Index(
-                            static_cast<Index>(data_ptr[id * column_count + featId]) > splitVal);
+                        const Index to_right =
+                            Index(static_cast<Index>(data_ptr[id * data_column_count + feat_id]) >
+                                  feat_bin);
                         const Index boundary =
-                            groupRowsToRight + exclusive_scan(sbg, toRight, plus<Index>());
-                        const Index posNew = (toRight ? nRowsLeft + groupRightBoundary + boundary
-                                                      : groupLeftBoundary + i - iStart - boundary);
-                        tree_order_buf_ptr[offset + posNew] = id;
-                        groupRowsToRight += reduce(sbg, toRight, plus<Index>());
+                            group_row_to_right_count + exclusive_scan(sbg, to_right, plus<Index>());
+                        const Index pos_new =
+                            (to_right ? left_ch_row_count + group_right_boundary + boundary
+                                      : group_left_boundary + i - ind_start - boundary);
+                        tree_order_buf_ptr[offset + pos_new] = id;
+                        group_row_to_right_count += reduce(sbg, to_right, plus<Index>());
                     }
                 }
             }
@@ -379,17 +385,16 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
     const pr::ndarray<Index, 1>& node_list,
     const pr::ndarray<Float, 1>& node_imp_decrease_list,
     pr::ndarray<Float, 1>& res_var_imp,
-    Index column_count,
+    Index data_column_count,
     Index node_count,
     const be::event_vector& deps) {
-    //DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateMDIVarImportance);
-    ONEDAL_ASSERT(res_var_imp.get_count() == column_count);
-    //ONEDAL_ASSERT(node_list.get_count() == );
-    //ONEDAL_ASSERT(node_imp_decrease_list.get_count() == );
+    ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
+    ONEDAL_ASSERT(node_imp_decrease_list.get_count() == node_count);
+    ONEDAL_ASSERT(res_var_imp.get_count() == data_column_count);
 
     Index local_size = preferable_group_size_;
     //calculating local size in way to have all subgroups for node in one group to use local buffer
-    while (local_size > node_count && local_size > preferable_group_size_) {
+    while (local_size > node_count && local_size > preferable_sbg_size_) {
         local_size >>= 1;
     }
 
@@ -398,15 +403,17 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
     Float* res_var_imp_ptr = res_var_imp.get_mutable_data();
 
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ local_size, column_count }, { local_size, 1 });
+        be::make_multiple_nd_range_2d({ local_size, data_column_count }, { local_size, 1 });
 
-    const Index nNodeProp = impl_const_t::node_prop_count_; // num of split attributes for node
-    const Index leafMark = impl_const_t::bad_val_;
-    const Index max_sub_groups_num = 16; //replace with define
+    const Index node_prop_count =
+        impl_const_t::node_prop_count_; // num of split attributes for node
+    const Index leaf_mark = impl_const_t::leaf_mark_;
+    const Index max_sub_groups_num =
+        max_sbg_count_per_group_; //need to calculate it via device info
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> bufI(
+        sycl::accessor<Float, 1, sycl::access::mode::read_write, sycl::access::target::local> buf(
             max_sub_groups_num,
             cgh);
 
@@ -421,48 +428,48 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
                 local_size / sub_group_size; // num of subgroups for current node processing
             const Index sub_group_id = local_id / sub_group_size;
 
-            const Index bufIdx =
+            const Index buf_idx =
                 item.get_global_id()[1] %
                 (max_sub_groups_num / n_sub_groups); // local buffer is shared between 16 sub groups
-            const Index ftrId = item.get_global_id()[1];
+            const Index ftr_id = item.get_global_id()[1];
 
-            const Index nElementsForSubgroup =
+            const Index sbg_elem_count =
                 node_count / n_sub_groups + bool(node_count % n_sub_groups);
 
-            const Index iStart = sub_group_id * nElementsForSubgroup;
-            const Index iEnd = sycl::min((sub_group_id + 1) * nElementsForSubgroup, node_count);
+            const Index ind_start = sub_group_id * sbg_elem_count;
+            const Index ind_end = sycl::min((sub_group_id + 1) * sbg_elem_count, node_count);
 
-            Float ftrImp = Float(0);
+            Float ftr_imp = Float(0);
 
-            for (Index nodeIdx = iStart + sub_group_local_id; nodeIdx < iEnd;
-                 nodeIdx += sub_group_size) {
-                Index splitFtrId = node_list_ptr[nodeIdx * nNodeProp + 2];
-                ftrImp += reduce(sbg,
-                                 ((splitFtrId != leafMark && ftrId == splitFtrId)
-                                      ? node_imp_decrease_list_ptr[nodeIdx]
-                                      : Float(0)),
-                                 plus<Float>());
+            for (Index node_idx = ind_start + sub_group_local_id; node_idx < ind_end;
+                 node_idx += sub_group_size) {
+                Index split_ftr_id = node_list_ptr[node_idx * node_prop_count + 2];
+                ftr_imp += reduce(sbg,
+                                  ((split_ftr_id != leaf_mark && ftr_id == split_ftr_id)
+                                       ? node_imp_decrease_list_ptr[node_idx]
+                                       : Float(0)),
+                                  plus<Float>());
             }
 
             if (0 == sub_group_local_id) {
                 if (1 == n_sub_groups) {
-                    res_var_imp_ptr[ftrId] += ftrImp;
+                    res_var_imp_ptr[ftr_id] += ftr_imp;
                 }
                 else {
-                    bufI[bufIdx + sub_group_id] = ftrImp;
+                    buf[buf_idx + sub_group_id] = ftr_imp;
                 }
             }
 
             item.barrier(sycl::access::fence_space::local_space);
             if (1 < n_sub_groups && 0 == sub_group_id) {
                 // first sub group for current node reduces over local buffer if required
-                Float ftrImp = (sub_group_local_id < n_sub_groups)
-                                   ? bufI[bufIdx + sub_group_local_id]
-                                   : (Float)0;
-                Float totalFtrImp = reduce(sbg, ftrImp, plus<Float>());
+                Float ftr_imp = (sub_group_local_id < n_sub_groups)
+                                    ? buf[buf_idx + sub_group_local_id]
+                                    : (Float)0;
+                Float total_ftr_imp = reduce(sbg, ftr_imp, plus<Float>());
 
                 if (0 == local_id) {
-                    res_var_imp_ptr[ftrId] += totalFtrImp;
+                    res_var_imp_ptr[ftr_id] += total_ftr_imp;
                 }
             }
         });
@@ -510,10 +517,10 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
             const Index sub_group_id = sbg.get_group_id();
             const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
-            const Index iStart = group_id * elems_for_sbg;
-            const Index iEnd = sycl::min((group_id + 1) * elems_for_sbg, nRows);
+            const Index ind_start = group_id * elems_for_sbg;
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, nRows);
 
-            for (Index i = iStart + local_id; i < iEnd; i += local_size) {
+            for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 rows_buffer_ptr[nRows * tree_idx + rows_list_ptr[nRows * tree_idx + i]] =
                     itemPresentMark;
             }
@@ -562,12 +569,12 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
             const Index sub_group_id = sbg.get_group_id();
             const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
-            const Index iStart = group_id * elems_for_sbg;
-            const Index iEnd = sycl::min((group_id + 1) * elems_for_sbg, nRows);
+            const Index ind_start = group_id * elems_for_sbg;
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, nRows);
 
             Index subSum = 0;
 
-            for (Index i = iStart + local_id; i < iEnd; i += local_size) {
+            for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 subSum += Index(itemAbsentMark == rows_buffer_ptr[nRows * tree_idx + i]);
             }
 
@@ -680,15 +687,15 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
             const Index sub_group_id = sbg.get_group_id();
             const Index group_id = item.get_group().get_id(0) * n_sub_groups + sub_group_id;
 
-            const Index iStart = group_id * elems_for_sbg;
-            const Index iEnd = sycl::min((group_id + 1) * elems_for_sbg, nRows);
+            const Index ind_start = group_id * elems_for_sbg;
+            const Index ind_end = sycl::min((group_id + 1) * elems_for_sbg, nRows);
 
             const int oobRowsListOffset = oob_row_num_list_ptr[tree_idx];
 
             int groupOffset = partial_prefix_sum_ptr[n_groups * tree_idx + group_id];
             int sum = 0;
 
-            for (int i = iStart + local_id; i < iEnd; i += local_size) {
+            for (int i = ind_start + local_id; i < ind_end; i += local_size) {
                 int oobRow = int(itemAbsentMark == rows_buffer_ptr[nRows * tree_idx + i]);
                 int pos = groupOffset + sum + exclusive_scan(sbg, oobRow, plus<Index>());
                 if (oobRow) {
