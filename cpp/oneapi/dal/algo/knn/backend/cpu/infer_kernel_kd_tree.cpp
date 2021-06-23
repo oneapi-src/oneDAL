@@ -42,7 +42,7 @@ template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
                                            const descriptor_t &desc,
                                            const table &data,
-                                           const model<Task>& m) {
+                                           const model<Task> &m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
@@ -103,7 +103,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         result = result.set_labels(
             dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
     }
-    
+
     if (desc.get_optional_results() & optional_results::indices) {
         result = result.set_indices(dal::detail::homogen_table_builder{}
                                         .reset(arr_indices, row_count, neighbor_count)
