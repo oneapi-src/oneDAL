@@ -113,7 +113,7 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template <typename Task>
-auto descriptor_base<Task>::get_optional_results() const -> optional_results::optional_result_id_t {
+optional_results::optional_result_id_t descriptor_base<Task>::get_optional_results() const {
     return impl_->optional_results;
 }
 

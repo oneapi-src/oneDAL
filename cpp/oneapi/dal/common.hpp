@@ -98,11 +98,10 @@ using v1::data_type;
 using v1::range;
 
 
-template<typename NamespaceId>
 class optional_result_id {
     static constexpr std::int64_t mask_size = 128;
 
-    using this_t = optional_result_id<NamespaceId>;
+    using this_t = optional_result_id;
     using bitset_t = std::bitset<mask_size>;
 
 public:
@@ -130,11 +129,15 @@ private:
     bitset_t mask_;
 };
 
-template<typename NamespaceId>
-inline auto operator|(const optional_result_id<NamespaceId>& lhs, 
-                      const optional_result_id<NamespaceId>& rhs) 
-                                            -> optional_result_id<NamespaceId> {
-    return optional_result_id<NamespaceId>{ lhs.get_mask() | rhs.get_mask() };
+template<typename OptionalResultIdType>
+constexpr inline bool is_optional_result_id_v = std::is_base_of_v<optional_result_id, OptionalResultIdType>;
+template<typename OptionalResultIdType>
+constexpr inline bool enable_if_optional_result_id_t = std::enable_if_t<is_optional_result_id_v<OptionalResultIdType>>;
+
+template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline OptionalResultIdType operator|(const OptionalResultIdType& lhs, 
+                                      const OptionalResultIdType& rhs) {
+    return OptionalResultIdType{ lhs.get_mask() | rhs.get_mask() };
 }
 
 template<typename NamespaceId>

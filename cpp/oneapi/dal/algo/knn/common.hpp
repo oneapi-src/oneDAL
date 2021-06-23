@@ -81,8 +81,7 @@ using v1::by_default;
 
 namespace optional_results {
 
-class namespace_id {};
-using optional_result_id_t = optional_result_id<namespace_id>;
+struct optional_result_id_t : public optional_result_id {};
 
 } // namespace optional_results
 
