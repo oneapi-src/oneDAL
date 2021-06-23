@@ -250,7 +250,6 @@ public:
     }
 
     /// Creates a new instance of the class with the given :literal:`neighbor_count`
-<<<<<<< HEAD
     /// property value.
     /// Used with :expr:`task::search` only.
     template <typename T = Task, typename = detail::enable_if_search_t<T>>
@@ -259,8 +258,6 @@ public:
     }
 
     /// Creates a new instance of the class with the given :literal:`neighbor_count`
-=======
->>>>>>> origin/master
     /// and :literal:`distance` property values.
     /// Used with :expr:`task::search` only.
     template <typename T = Task, typename = detail::enable_if_search_t<T>>
