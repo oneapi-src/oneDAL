@@ -31,7 +31,9 @@ template <typename Cpu>
 solution<Cpu> si(const graph<Cpu>& pattern,
                  const graph<Cpu>& target,
                  kind isomorphism_kind,
+                 std::int64_t max_match_count,
                  detail::byte_alloc_iface* alloc_ptr) {
+    std::cout << "max_match_count = " << max_match_count << std::endl;
     inner_alloc local_allocator(alloc_ptr);
     solution<Cpu> sol(local_allocator);
     sorter<Cpu> sorter_graph(&target, local_allocator);
@@ -84,6 +86,7 @@ solution<Cpu> si(const graph<Cpu>& pattern,
 template <typename Cpu>
 subgraph_isomorphism::graph_matching_result si_call_kernel(
     const kind& si_kind,
+    std::int64_t max_match_count,
     detail::byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
@@ -102,7 +105,7 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
         pattern.set_vertex_attribute(p_vertex_count, vv_p);
     }
 
-    solution<Cpu> results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
+    solution<Cpu> results = si<Cpu>(pattern, target, si_kind, max_match_count, alloc_ptr);
 
     return graph_matching_result(results.export_as_table(), results.get_solution_count());
 }
