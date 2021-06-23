@@ -83,8 +83,7 @@ namespace optional_results {
 
 struct optional_result_id_t : public optional_result_id {
     optional_result_id_t() : optional_result_id{} {}
-    optional_result_id_t(const optional_result_id& base) 
-        : optional_result_id{base} {}
+    optional_result_id_t(const optional_result_id& base) : optional_result_id{ base } {}
 };
 
 } // namespace optional_results

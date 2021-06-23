@@ -97,7 +97,6 @@ using v1::base;
 using v1::data_type;
 using v1::range;
 
-
 class optional_result_id {
     static constexpr std::int64_t mask_size = 128;
 
@@ -106,7 +105,7 @@ class optional_result_id {
 
 public:
     optional_result_id() = default;
-    optional_result_id(const bitset_t& mask) : mask_{mask} {}
+    optional_result_id(const bitset_t& mask) : mask_{ mask } {}
 
     operator bool() const {
         return mask_.any();
@@ -129,32 +128,36 @@ private:
     bitset_t mask_;
 };
 
-template<typename OptionalResultIdType>
-constexpr inline bool is_optional_result_id_v = std::is_base_of_v<optional_result_id, OptionalResultIdType>;
-template<typename OptionalResultIdType>
-using enable_if_optional_result_id_t = std::enable_if_t<is_optional_result_id_v<OptionalResultIdType>>;
+template <typename OptionalResultIdType>
+constexpr inline bool is_optional_result_id_v =
+    std::is_base_of_v<optional_result_id, OptionalResultIdType>;
+template <typename OptionalResultIdType>
+using enable_if_optional_result_id_t =
+    std::enable_if_t<is_optional_result_id_v<OptionalResultIdType>>;
 
-template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
-inline OptionalResultIdType operator|(const OptionalResultIdType& lhs, 
+template <typename OptionalResultIdType,
+          typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline OptionalResultIdType operator|(const OptionalResultIdType& lhs,
                                       const OptionalResultIdType& rhs) {
     return OptionalResultIdType{ lhs.get_mask() | rhs.get_mask() };
 }
 
-template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
-inline OptionalResultIdType operator&(const OptionalResultIdType& lhs, 
+template <typename OptionalResultIdType,
+          typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline OptionalResultIdType operator&(const OptionalResultIdType& lhs,
                                       const OptionalResultIdType& rhs) {
     return OptionalResultIdType{ lhs.get_mask() & rhs.get_mask() };
 }
 
-template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
-inline bool operator==(const OptionalResultIdType& lhs, 
-                       const OptionalResultIdType& rhs) {
+template <typename OptionalResultIdType,
+          typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline bool operator==(const OptionalResultIdType& lhs, const OptionalResultIdType& rhs) {
     return lhs.get_mask() == rhs.get_mask();
 }
 
-template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
-inline bool operator!=(const OptionalResultIdType& lhs, 
-                       const OptionalResultIdType& rhs) {
+template <typename OptionalResultIdType,
+          typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline bool operator!=(const OptionalResultIdType& lhs, const OptionalResultIdType& rhs) {
     return lhs.get_mask() != rhs.get_mask();
 }
 
