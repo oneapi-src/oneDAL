@@ -40,11 +40,6 @@ namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
-struct search {};
-
-/// Tag-type that parameterizes entities used for solving
-/// :capterm:`regression problem <regression>`.
-struct regression {};
 
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`search problem <search>`.

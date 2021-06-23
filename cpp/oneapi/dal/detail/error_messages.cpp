@@ -162,6 +162,7 @@ MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
     "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
 MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
+MSG(invalid_set_of_optional_results_to_search, "Invalid set of optional results to search")
 
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
