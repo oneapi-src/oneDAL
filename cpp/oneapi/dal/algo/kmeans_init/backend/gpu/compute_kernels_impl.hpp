@@ -28,9 +28,6 @@ namespace oneapi::dal::kmeans_init::backend {
 
 namespace pr = dal::backend::primitives;
 
-template <typename T>
-struct copy_first_observations {};
-
 template <typename Float, typename Method>
 struct kmeans_init_kernel {
     static sycl::event compute_initial_centroids(sycl::queue& queue,
@@ -59,16 +56,10 @@ struct kmeans_init_kernel<Float, kmeans_init::method::dense> {
         ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
         const std::int64_t cluster_count = centroids.get_dimension(0);
         const std::int64_t column_count = centroids.get_dimension(1);
+        dal::detail::check_mul_overflow(cluster_count, column_count);
         const auto data_ptr = data.get_data();
         auto centroids_ptr = centroids.get_mutable_data();
-        auto copy_event = queue.submit([&](sycl::handler& cgh) {
-            cgh.parallel_for<copy_first_observations<Float>>(
-                sycl::range<1>(column_count * cluster_count),
-                [=](sycl::id<1> idx) {
-                    centroids_ptr[idx] = data_ptr[idx];
-                });
-        });
-        return copy_event;
+        return dal::backend::copy(queue, centroids_ptr, data_ptr, cluster_count * column_count);
     }
 };
 
