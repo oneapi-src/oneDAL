@@ -92,15 +92,9 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                        *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
-<<<<<<< HEAD:cpp/oneapi/dal/algo/knn/backend/gpu/train_kernel_brute_force_dpc.cpp
     const auto model_impl_interop = std::make_shared<model_impl<Task>>(interop);
     return train_result<Task>().set_model(
         dal::detail::make_private<model<Task>>(model_impl_interop));
-=======
-    const auto model_impl_interop = std::make_shared<model_impl<task::classification>>(interop);
-    return train_result<task::classification>().set_model(
-        dal::detail::make_private<model<task::classification>>(model_impl_interop));
->>>>>>> origin/master:cpp/oneapi/dal/algo/knn/backend/gpu/train_kernel_brute_force_cls_dpc.cpp
 }
 
 template <typename Float, typename Task>
