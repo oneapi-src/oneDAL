@@ -45,7 +45,8 @@ private:
 
 namespace backend {
 
-using model_impl_cls = detail::model_impl<task::classification>;
+template <typename Task>
+using model_impl = detail::model_impl<Task>;
 
 } // namespace backend
 } // namespace oneapi::dal::knn

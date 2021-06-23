@@ -230,6 +230,7 @@ ONEAPI.ALGOS.knn := CORE.k_nearest_neighbors
 ONEAPI.ALGOS.linear_kernel := CORE.kernel_function
 ONEAPI.ALGOS.pca           := CORE.pca
 ONEAPI.ALGOS.polynomial_kernel := CORE.kernel_function
+ONEAPI.ALGOS.sigmoid_kernel := CORE.kernel_function
 ONEAPI.ALGOS.rbf_kernel    := CORE.kernel_function
 ONEAPI.ALGOS.svm           := CORE.svm
 
@@ -237,6 +238,7 @@ ONEAPI.ALGOS.svm           := CORE.svm
 
 ONEAPI.ALGOS :=          \
     chebyshev_distance   \
+    cosine_distance      \
     decision_forest      \
     decision_tree        \
     kmeans               \
@@ -246,6 +248,7 @@ ONEAPI.ALGOS :=          \
     minkowski_distance   \
     pca                  \
     polynomial_kernel    \
+    sigmoid_kernel       \
     rbf_kernel           \
     svm                  \
     jaccard              \

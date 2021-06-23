@@ -29,7 +29,6 @@ namespace oneapi::dal::knn::backend {
 
 using daal::services::Status;
 using dal::backend::context_cpu;
-using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace interop = dal::backend::interop;
@@ -38,17 +37,15 @@ template <typename Float, daal::CpuType Cpu>
 using daal_knn_kd_tree_kernel_t = daal_knn::training::internal::
     KNNClassificationTrainBatchKernel<Float, daal_knn::training::defaultDense, Cpu>;
 
-template <typename Float>
-static train_result<task::classification> call_daal_kernel(const context_cpu& ctx,
-                                                           const descriptor_t& desc,
-                                                           const table& data,
-                                                           const table& labels) {
+template <typename Float, typename Task>
+static train_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const table& data,
+                                           const table& labels) {
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
-    const auto daal_labels = interop::copy_to_daal_homogen_table<Float>(labels);
-
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doUse;
     daal_knn::Parameter daal_parameter(
@@ -58,8 +55,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
         data_use_in_model);
 
     Status status;
-    const daal::algorithms::classifier::ModelPtr model_ptr =
-        daal_knn::Model::create(column_count, &status);
+    const auto model_ptr = daal_knn::Model::create(column_count, &status);
     interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
@@ -67,7 +63,12 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
     // the tables are converted to NumericTables
     const bool copy_data_labels = data_use_in_model == daal_knn::doNotUse;
     knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
-    knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
+
+    auto daal_labels = daal::data_management::NumericTablePtr();
+    if constexpr (!std::is_same_v<Task, task::search>) {
+        daal_labels = interop::copy_to_daal_homogen_table<Float>(labels);
+        knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
+    }
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(ctx,
@@ -77,29 +78,30 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
                                                                     *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl = std::make_shared<model_impl_cls>(interop);
-    return train_result<task::classification>().set_model(
-        dal::detail::make_private<model<task::classification>>(model_impl));
+    const auto model_impl_interop = std::make_shared<model_impl<Task>>(interop);
+    return train_result<Task>().set_model(
+        dal::detail::make_private<model<Task>>(model_impl_interop));
 }
 
-template <typename Float>
-static train_result<task::classification> train(const context_cpu& ctx,
-                                                const descriptor_t& desc,
-                                                const train_input<task::classification>& input) {
+template <typename Float, typename Task>
+static train_result<Task> train(const context_cpu& ctx,
+                                const detail::descriptor_base<Task>& desc,
+                                const train_input<Task>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
 }
 
-template <typename Float>
-struct train_kernel_cpu<Float, method::kd_tree, task::classification> {
-    train_result<task::classification> operator()(
-        const context_cpu& ctx,
-        const descriptor_t& desc,
-        const train_input<task::classification>& input) const {
+template <typename Float, typename Task>
+struct train_kernel_cpu<Float, method::kd_tree, Task> {
+    train_result<Task> operator()(const context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const train_input<Task>& input) const {
         return train<Float>(ctx, desc, input);
     }
 };
 
 template struct train_kernel_cpu<float, method::kd_tree, task::classification>;
 template struct train_kernel_cpu<double, method::kd_tree, task::classification>;
+template struct train_kernel_cpu<float, method::kd_tree, task::search>;
+template struct train_kernel_cpu<double, method::kd_tree, task::search>;
 
 } // namespace oneapi::dal::knn::backend
