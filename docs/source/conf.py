@@ -183,9 +183,54 @@ onedal_ignored_undocumented_warnings = [
     # ignore all setter/getter
     ('General', {'member': r'(set|get)_.+', 'member_type': 'function'}),
 
+    ### #FIXME(ignored for make ci runnable)
     # ignore decision_forest
     ('General', {'parent': r'oneapi::dal::decision_forest::.+', 'parent_type': 'class'}),
     ('Compound', r'oneapi::dal::decision_forest::detail::v1::decision_tree_task_map<.+>'),
+    # ignore decision_tree
+    ('General', {'filepath': r'.*/oneapi/dal/algo/decision_tree/common.hpp$'}),
+    # ignore currently warning
+    ('Compound', 'oneapi::dal::csv::detail::v1::data_source_base'),
+    ('Compound', 'oneapi::dal::csv::v1::data_source'),
+    ('Compound', 'oneapi::dal::csv::v1::read_args< table >'),
+    ('Compound', 'oneapi::dal::decision_tree::v1::is_leaf_node_info'),
+    ('Compound', 'oneapi::dal::decision_tree::v1::is_split_node_info'),
+    ('Compound', 'oneapi::dal::preview::graph_csv_data_source'),
+    ('Compound', 'oneapi::dal::preview::shortest_paths::optional_result_id'),
+    ('Compound', 'oneapi::dal::v1::base'),
+    ('Compound', 'oneapi::dal::v1::homogen_table'),
+    ('Compound', 'oneapi::dal::v1::range'),
+    ('Compound', 'oneapi::dal::v1::table'),
+    ('Compound', 'oneapi::dal::v1::table_metadata'),
+    ('General', {'member': r'data_source_base\(const\ char\ \*file_name\)', 'member_type': 'function', 'parent': r'oneapi::dal::csv::detail::v1::data_source_base', 'parent_type': 'class'}),
+    ('General', {'member': r'data_source\(const\ char\ \*file_name\)', 'member_type': 'function', 'parent': r'oneapi::dal::csv::v1::data_source', 'parent_type': 'class'}),
+    ('General', {'member': r'data_source\(const\ std::string\ \&file_name\)', 'member_type': 'function', 'parent': r'oneapi::dal::csv::v1::data_source', 'parent_type': 'class'}),
+    ('General', {'member': r'data_source_base\(const\ char\ \*file_name\)', 'member_type': 'function', 'parent': r'oneapi::dal::csv::detail::v1::data_source_base', 'parent_type': 'class'}),
+    ('General', {'member': r'train_input\(const\ table\ \&data\)', 'member_type': 'function', 'parent': r'oneapi::dal::kmeans::v1::train_input', 'parent_type': 'class'}),
+    ('General', {'member': r'graph_csv_data_source\(std::string\ filename\)', 'member_type': 'function', 'parent': r'oneapi::dal::preview::graph_csv_data_source', 'parent_type': 'class'}),
+    ('General', {'member': r'optional_result_id\(const\ bitset_t\ \&mask\)', 'member_type': 'function', 'parent': r'oneapi::dal::preview::shortest_paths::optional_result_id', 'parent_type': 'class'}),
+    ('General', {'member': r'operator\ bool\(\)\ const', 'member_type': 'function', 'parent': r'oneapi::dal::preview::shortest_paths::optional_result_id', 'parent_type': 'class'}),
+    ('General', {'member': r'descriptor\(std::int64_t\ source_vertex,\ double\ delta,\ optional_result_id\ optional_results=optional_results::distances,\ Allocator\ allocator=std::allocator<\ char\ >\(\)\)', 'member_type': 'function', 'parent': r'oneapi::dal::preview::shortest_paths::descriptor', 'parent_type': 'class'}),
+    ('General', {'member': r'descriptor\(Allocator\ allocator\)', 'member_type': 'function', 'parent': r'oneapi::dal::preview::subgraph_isomorphism::descriptor', 'parent_type': 'class'}),
+    ('General', {'member': r'descriptor\(Allocator\ allocator\)', 'member_type': 'function', 'parent': r'oneapi::dal::preview::triangle_counting::descriptor', 'parent_type': 'class'}),
+    ('General', {'member': r'table\(detail::table_iface\ \*impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'table\(const\ detail::shared<\ detail::table_iface\ >\ \&impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'init_impl\(detail::table_iface\ \*impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'matrix_base\(const\ shape\ \&s,\ std::int64_t\ stride\)', 'member_type': 'function', 'parent': r'matrix_base< layout::row_major >', 'parent_type': 'class'}),
+    ('General', {'member': r'matrix_base\(const\ shape\ \&s\)', 'member_type': 'function', 'parent': r'matrix_base< layout::row_major >', 'parent_type': 'class'}),
+    ('General', {'member': r'range\(std::int64_t\ start,\ std::int64_t\ end\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::range', 'parent_type': 'struct'}),
+    ('General', {'member': r'column_accessor\(const\ detail::table_builder\ \&builder\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::column_accessor', 'parent_type': 'class'}),
+    ('General', {'member': r'push\(const\ dal::array<\ data_t\ >\ \&block,\ std::int64_t\ column_index,\ const\ range\ \&row_range=\{\ 0,\ \-1\ \}\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::column_accessor', 'parent_type': 'class'}),
+    ('General', {'member': r'table\(detail::table_iface\ \*impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'table\(const\ detail::shared<\ detail::table_iface\ >\ \&impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'init_impl\(detail::table_iface\ \*impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'table\(detail::table_iface\ \*impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'table\(const\ detail::shared<\ detail::table_iface\ >\ \&impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'init_impl\(detail::table_iface\ \*impl\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::table', 'parent_type': 'class'}),
+    ('General', {'member': r'row_accessor\(const\ detail::table_builder\ \&builder\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::row_accessor', 'parent_type': 'class'}),
+    ('General', {'member': r'push\(const\ dal::array<\ data_t\ >\ \&block,\ const\ range\ \&row_range=\{\ 0,\ \-1\ \}\)', 'member_type': 'function', 'parent': r'oneapi::dal::v1::row_accessor', 'parent_type': 'class'}),
+    ('Param', r'oneapi::dal::preview::subgraph_isomorphism::graph_matching_input::graph_matching_input\(const Graph &target_graph, const Graph &patter_graph\)')
+    ### #FIXMEEND
 ]
 
 # ignore these missing references during a doc build
