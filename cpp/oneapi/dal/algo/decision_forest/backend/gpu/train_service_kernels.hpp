@@ -58,9 +58,11 @@ public:
         const dal::backend::primitives::ndarray<Index, 1>& node_list,
         dal::backend::primitives::ndarray<Index, 1>& tree_order,
         dal::backend::primitives::ndarray<Index, 1>& tree_order_buf,
-        Index row_count,
-        Index column_count,
+        Index data_row_count,
+        Index data_selected_row_count,
+        Index data_column_count,
         Index node_count,
+        Index tree_count,
         const dal::backend::event_vector& deps = {});
 
     sycl::event initialize_tree_order(dal::backend::primitives::ndarray<Index, 1>& tree_order,

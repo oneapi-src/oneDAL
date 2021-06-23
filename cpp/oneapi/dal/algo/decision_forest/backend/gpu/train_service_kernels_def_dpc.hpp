@@ -238,13 +238,15 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
     pr::ndarray<Index, 1>& tree_order,
     pr::ndarray<Index, 1>& tree_order_buf,
     Index data_row_count,
+    Index data_selected_row_count,
     Index data_column_count,
     Index node_count,
+    Index tree_count,
     const be::event_vector& deps) {
     ONEDAL_ASSERT(data.get_count() == data_row_count * data_column_count);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
-    ONEDAL_ASSERT(tree_order.get_count() == data_row_count);
-    ONEDAL_ASSERT(tree_order_buf.get_count() == data_row_count);
+    ONEDAL_ASSERT(tree_order.get_count() == data_selected_row_count * tree_count);
+    ONEDAL_ASSERT(tree_order_buf.get_count() == data_selected_row_count * tree_count);
 
     // node_count * partition_max_block_count_ is used inside kernel
     de::check_mul_overflow(node_count, partition_max_block_count_);
@@ -599,10 +601,9 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_to
     Index localSize,
     Index nSubgroupSums,
     const be::event_vector& deps) {
-    //DAAL_ITTNOTIFY_SCOPED_TASK(compute.countAbsentRowsTotal);
     //ONEDAL_ASSERT(rowsBuffer.get_count() == nRows * nTrees);
     ONEDAL_ASSERT(partial_sum.get_count() == nSubgroupSums);
-    ONEDAL_ASSERT(partial_prefix_sum.get_count() == nSubgroupSums);
+    ONEDAL_ASSERT(partial_prefix_sum.get_count() == nSubgroupSums * nTrees);
     ONEDAL_ASSERT(oob_rows_num_list.get_count() == nTrees + 1);
 
     const Index* partial_sum_ptr = partial_sum.get_data();
@@ -656,7 +657,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
     //DAAL_ITTNOTIFY_SCOPED_TASK(compute.fillOOBRowsListByBlocks);
 
     ONEDAL_ASSERT(rowsBuffer.get_count() == nRows * nTrees);
-    ONEDAL_ASSERT(partial_prefix_sum.get_count() == nSubgroupSums);
+    ONEDAL_ASSERT(partial_prefix_sum.get_count() == nSubgroupSums * nTrees);
     ONEDAL_ASSERT(oob_row_num_list.get_count() == nTrees + 1);
     ONEDAL_ASSERT(oob_row_list.get_count() == total_oob_row_num);
 

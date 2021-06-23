@@ -57,7 +57,6 @@ sycl::event indexed_features<Float, Bin, Index>::extract_column(
         });
     });
 
-    event.wait_and_throw();
     return event;
 }
 
@@ -146,6 +145,7 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
 }
 
 template <typename Float, typename Bin, typename Index>
+//std::tuple<pr::ndarray<Index, 1>, sycl::event> indexed_features<Float, Bin, Index>::compute_bins(
 sycl::event indexed_features<Float, Bin, Index>::compute_bins(
     const pr::ndarray<Float, 1>& values_nd,
     const pr::ndarray<Index, 1>& indices_nd,
@@ -176,12 +176,12 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
         bin_offsets[i] = offset - 1;
     }
 
-    auto bin_offsets_nd_device = bin_offsets_nd_host.to_device(queue_);
-    collect_bin_borders(values_nd, bin_offsets_nd_device, bin_borders_nd_device, { deps })
-        .wait_and_throw();
+    bin_offsets_nd_ = bin_offsets_nd_host.to_device(queue_);
+    auto last_event =
+        collect_bin_borders(values_nd, bin_offsets_nd_, bin_borders_nd_device, { deps });
 
     Index bin_count = 0;
-    auto bin_borders_nd_host = bin_borders_nd_device.to_host(queue_);
+    auto bin_borders_nd_host = bin_borders_nd_device.to_host(queue_, { last_event });
     auto bin_borders = bin_borders_nd_host.get_mutable_data();
     for (Index i = 0; i < max_bins; i++) {
         if (0 == bin_count || (bin_count > 0 && bin_borders[i] != bin_borders[bin_count - 1])) {
@@ -189,20 +189,21 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
             bin_count++;
         }
     }
-    bin_borders_nd_device.assign(queue_, bin_borders_nd_host).wait_and_throw();
+    last_event = bin_borders_nd_device.assign(queue_, bin_borders_nd_host);
 
-    auto event = compute_bins(values_nd,
+    last_event = compute_bins(values_nd,
                               indices_nd,
                               bin_borders_nd_device,
                               bins_nd,
                               bin_count,
                               local_size,
-                              local_block_count);
+                              local_block_count,
+                              { last_event });
 
     entry.bin_count_ = bin_count;
     entry.bin_borders_nd_ = bin_borders_nd_device;
 
-    return event;
+    return last_event;
 }
 
 template <typename Float, typename Bin, typename Index>
@@ -275,8 +276,6 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
     //allocating buffers
     full_data_nd_ =
         pr::ndarray<Bin, 2>::empty(queue_, { row_count_, column_count_ }, sycl::usm::alloc::device);
-    bin_offsets_nd_ =
-        pr::ndarray<Index, 1>::empty(queue_, { column_count_ + 1 }, sycl::usm::alloc::device);
 
     entries_.resize(column_count_);
 
@@ -293,24 +292,24 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
 
     pr::radix_sort_indices_inplace<Float, Index> sort{ queue_ };
 
-    sycl::event cross_event;
+    sycl::event last_event;
 
     for (Index i = 0; i < column_count_; i++) {
-        auto extract_event = extract_column(data_nd_, values_nd, indices_nd, i, { cross_event });
-        auto sort_event = sort(values_nd, indices_nd, { extract_event });
-        auto cross_event =
-            compute_bins(values_nd, indices_nd, column_bin_vec_[i], entries_[i], { sort_event });
+        last_event = extract_column(data_nd_, values_nd, indices_nd, i, { last_event });
+        last_event = sort(values_nd, indices_nd, { last_event });
+        last_event =
+            compute_bins(values_nd, indices_nd, column_bin_vec_[i], entries_[i], { last_event });
     }
 
-    cross_event.wait_and_throw();
+    last_event.wait_and_throw();
 
-    auto bin_offsets_nd_host = bin_offsets_nd_.to_host(queue_);
+    auto bin_offsets_nd_host = pr::ndarray<Index, 1>::empty({ column_count_ + 1 });
     auto bin_offsets = bin_offsets_nd_host.get_mutable_data();
 
     Index total = 0;
     for (Index i = 0; i < column_count_; i++) {
-        cross_event =
-            store_column(column_bin_vec_[i], full_data_nd_, i, column_count_, { cross_event });
+        last_event =
+            store_column(column_bin_vec_[i], full_data_nd_, i, column_count_, { last_event });
         bin_offsets[i] = total;
         entries_[i].offset_ = total;
         total += entries_[i].bin_count_;
@@ -321,7 +320,7 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
 
     bin_offsets_nd_ = bin_offsets_nd_host.to_device(queue_);
 
-    return cross_event;
+    return last_event;
 }
 
 #define INSTANTIATE(F, B) template class indexed_features<F, B>;

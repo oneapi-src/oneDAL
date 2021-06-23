@@ -1705,7 +1705,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error(
     const context_t& ctx,
     const be::event_vector& deps) {
     ONEDAL_ASSERT(data_host.get_count() == ctx.row_count_ * ctx.column_count_);
-    ONEDAL_ASSERT(response_host.get_count() == ctx.column_count_);
+    ONEDAL_ASSERT(response_host.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(oob_per_obs_list.get_count() == ctx.row_count_ * ctx.oob_prop_count_);
     // input asserts is going to be added
 
@@ -1819,7 +1819,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
     const context_t& ctx,
     const be::event_vector& deps) {
     ONEDAL_ASSERT(oob_rows_num_list.get_count() == tree_in_block_count + 1);
-    ONEDAL_ASSERT(var_imp.get_count() == ctx.column_count_);
+    ONEDAL_ASSERT(
+        (ctx.mdi_required_ || ctx.mda_required_) ? var_imp.get_count() == ctx.column_count_ : true);
     ONEDAL_ASSERT(ctx.mda_scaled_required_ ? var_imp_variance.get_count() == ctx.column_count_
                                            : true);
 
@@ -2230,8 +2231,10 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                                                                             tree_order_lev_,
                                                                             tree_order_lev_buf_,
                                                                             ctx.row_count_,
+                                                                            ctx.selected_row_count_,
                                                                             ctx.column_count_,
                                                                             node_count,
+                                                                            ctx.tree_in_block_,
                                                                             { last_event });
                 }
             }
