@@ -33,7 +33,6 @@ solution<Cpu> si(const graph<Cpu>& pattern,
                  kind isomorphism_kind,
                  std::int64_t max_match_count,
                  detail::byte_alloc_iface* alloc_ptr) {
-    std::cout << "max_match_count = " << max_match_count << std::endl;
     inner_alloc local_allocator(alloc_ptr);
     solution<Cpu> sol(local_allocator);
     sorter<Cpu> sorter_graph(&target, local_allocator);
@@ -73,7 +72,7 @@ solution<Cpu> si(const graph<Cpu>& pattern,
                                pattern_vertex_probability.get(),
                                isomorphism_kind,
                                local_allocator);
-    sol = harness.run();
+    sol = harness.run(max_match_count);
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
         cconditions_array[i].~sconsistent_conditions();
@@ -107,7 +106,7 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
 
     solution<Cpu> results = si<Cpu>(pattern, target, si_kind, max_match_count, alloc_ptr);
 
-    return graph_matching_result(results.export_as_table(), results.get_solution_count());
+    return graph_matching_result(results.export_as_table(max_match_count));
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

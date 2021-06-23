@@ -29,10 +29,10 @@ using detail::graph_matching_result_impl;
 
 graph_matching_result::graph_matching_result() : impl_(new graph_matching_result_impl()) {}
 
-graph_matching_result::graph_matching_result(const table& vertex_match, std::int64_t match_count)
+graph_matching_result::graph_matching_result(const table& vertex_match)
         : impl_(new graph_matching_result_impl()) {
     impl_->vertex_match = vertex_match;
-    impl_->match_count = match_count;
+    impl_->match_count = vertex_match.get_row_count();
 }
 
 table graph_matching_result::get_vertex_match() const {

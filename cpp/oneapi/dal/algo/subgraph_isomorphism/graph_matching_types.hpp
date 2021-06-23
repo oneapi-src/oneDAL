@@ -65,8 +65,7 @@ public:
     ///                                   contain ids of vertices in target graph sorted by pattern vertex ids.
     ///                                   I.e. j-th element of i-th row contain id of target graph vertex which
     ///                                   was matched with j-th vertex of pattern graph in i-th match.
-    /// @param [in]   match_count         The number pattern matches in the target graph.
-    graph_matching_result(const table& vertex_match, std::int64_t match_count);
+    graph_matching_result(const table& vertex_match);
 
     /// Returns the table of size [match_count x pattern_vertex_count] with matchings of pattern graph
     /// in target graph.

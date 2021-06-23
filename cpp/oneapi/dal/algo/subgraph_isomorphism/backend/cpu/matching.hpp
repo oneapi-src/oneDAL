@@ -51,8 +51,13 @@ public:
                     inner_alloc allocator);
     virtual ~matching_engine();
 
-    void run_and_wait(global_stack<Cpu>& gstack, std::int64_t& busy_engine_count, bool main_engine);
+    void run_and_wait(global_stack<Cpu>& gstack,
+                      std::int64_t& busy_engine_count,
+                      std::int64_t& current_match_count,
+                      std::int64_t target_match_count,
+                      bool main_engine);
     solution<Cpu> get_solution();
+    std::int64_t get_match_count() const;
 
     std::int64_t state_exploration_bit(bool check_solution = true);
     std::int64_t state_exploration_list(bool check_solution = true);
@@ -102,7 +107,7 @@ public:
                   kind isomorphism_kind,
                   inner_alloc allocator);
     virtual ~engine_bundle();
-    solution<Cpu> run();
+    solution<Cpu> run(std::int64_t max_match_count);
 
     inner_alloc allocator_;
     const graph<Cpu>* pattern;
@@ -351,8 +356,15 @@ solution<Cpu> matching_engine<Cpu>::get_solution() {
 }
 
 template <typename Cpu>
+std::int64_t matching_engine<Cpu>::get_match_count() const {
+    return engine_solutions.get_solution_count();
+}
+
+template <typename Cpu>
 void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                                         std::int64_t& busy_engine_count,
+                                        std::int64_t& current_match_count,
+                                        std::int64_t target_match_count,
                                         bool main_engine) {
     if (main_engine) {
         first_states_generator(hlocal_stack);
@@ -365,7 +377,18 @@ void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+                const std::int64_t prev_match_cout = get_match_count();
                 state_exploration_bit();
+                if (target_match_count > 0) {
+                    const std::int64_t new_match_cout = get_match_count();
+                    if (prev_match_cout != new_match_cout) {
+                        auto delta = new_match_cout - prev_match_cout;
+                        dal::detail::atomic_increment(current_match_count, delta);
+                    }
+                    if (dal::detail::atomic_load(current_match_count) >= target_match_count) {
+                        return;
+                    }
+                }
             }
             else {
                 gstack.pop(hlocal_stack);
@@ -390,7 +413,18 @@ void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                 while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
                     ;
                 ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+                const std::int64_t prev_match_cout = get_match_count();
                 state_exploration_list();
+                if (target_match_count > 0) {
+                    const std::int64_t new_match_cout = get_match_count();
+                    if (prev_match_cout != new_match_cout) {
+                        auto delta = new_match_cout - prev_match_cout;
+                        dal::detail::atomic_increment(current_match_count, delta);
+                    }
+                    if (dal::detail::atomic_load(current_match_count) >= target_match_count) {
+                        return;
+                    }
+                }
             }
             else {
                 gstack.pop(hlocal_stack);
@@ -449,7 +483,7 @@ engine_bundle<Cpu>::~engine_bundle() {
 }
 
 template <typename Cpu>
-solution<Cpu> engine_bundle<Cpu>::run() {
+solution<Cpu> engine_bundle<Cpu>::run(std::int64_t max_match_count) {
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
     std::uint64_t first_states_count =
@@ -502,8 +536,13 @@ solution<Cpu> engine_bundle<Cpu>::run() {
 
     global_stack<Cpu> gstack(pattern->n, allocator_);
     std::int64_t busy_engine_count(array_size);
+    std::int64_t current_match_count(0);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
-        engine_array[index].run_and_wait(gstack, busy_engine_count, false);
+        engine_array[index].run_and_wait(gstack,
+                                         busy_engine_count,
+                                         current_match_count,
+                                         max_match_count,
+                                         false);
     });
 
     for (std::uint64_t i = 0; i < array_size; i++) {
