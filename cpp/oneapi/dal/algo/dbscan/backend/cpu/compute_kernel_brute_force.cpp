@@ -94,7 +94,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_core_observations);
     array<int> arr_core_flags = array<int>::full(row_count * 1, 0);
     if (core_observation_indices.get_row_count() > 0) {
-        auto index_block = row_accessor<const int>(core_observation_indices).pull({ 0, -1 });
+        auto index_block = row_accessor<const int>(core_observation_indices).pull();
         for (int index = 0; index < core_observation_indices.get_row_count(); index++) {
             arr_core_flags.get_mutable_data()[index_block[index]] = 1;
         }
