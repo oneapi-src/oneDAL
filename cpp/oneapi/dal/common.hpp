@@ -140,22 +140,21 @@ inline OptionalResultIdType operator|(const OptionalResultIdType& lhs,
     return OptionalResultIdType{ lhs.get_mask() | rhs.get_mask() };
 }
 
-template<typename NamespaceId>
-inline auto operator&(const optional_result_id<NamespaceId>& lhs, 
-                      const optional_result_id<NamespaceId>& rhs) 
-                                            -> optional_result_id<NamespaceId> {
+template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline OptionalResultIdType operator&(const OptionalResultIdType& lhs, 
+                                      const OptionalResultIdType& rhs) {
     return optional_result_id<NamespaceId>{ lhs.get_mask() & rhs.get_mask() };
 }
 
-template<typename NamespaceId>
-inline bool operator==(const optional_result_id<NamespaceId>& lhs, 
-                       const optional_result_id<NamespaceId>& rhs) {
+template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline bool operator==(const OptionalResultIdType& lhs, 
+                       const OptionalResultIdType& rhs) {
     return lhs.get_mask() == rhs.get_mask();
 }
 
-template<typename NamespaceId>
-inline bool operator!=(const optional_result_id<NamespaceId>& lhs, 
-                       const optional_result_id<NamespaceId>& rhs) {
+template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
+inline bool operator!=(const OptionalResultIdType& lhs, 
+                       const OptionalResultIdType& rhs) {
     return lhs.get_mask() != rhs.get_mask();
 }
 
