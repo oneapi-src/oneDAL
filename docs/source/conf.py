@@ -135,6 +135,7 @@ onedal_enable_listing = False
 onedal_relative_doxyfile_dir = '../doxygen/oneapi'
 onedal_relative_sources_dir = '../../cpp/oneapi/dal'
 onedal_enable_warning_undocumented = True
+onedal_info_ignored_undocumented = False
 
 # ignore some unnecessary warn
 # config format:
