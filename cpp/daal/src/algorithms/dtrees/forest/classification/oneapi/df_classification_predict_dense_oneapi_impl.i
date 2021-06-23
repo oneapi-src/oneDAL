@@ -376,7 +376,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::predictByTreesWei
         DAAL_ASSERT_UNIVERSAL_BUFFER(featureIndexList, int32_t, maxTreeSize * nTrees);
         DAAL_ASSERT_UNIVERSAL_BUFFER(leftOrClassTypeList, int32_t, maxTreeSize * nTrees);
         DAAL_ASSERT_UNIVERSAL_BUFFER(featureValueList, algorithmFPType, maxTreeSize * nTrees);
-        DAAL_ASSERT_UNIVERSAL_BUFFER(classProba, double, maxTreeSize * nTrees * _nClasses);
+        DAAL_ASSERT_UNIVERSAL_BUFFER(classProba, algorithmFPType, maxTreeSize * nTrees * _nClasses);
         DAAL_ASSERT_UNIVERSAL_BUFFER(obsClassHist, algorithmFPType, nRows * _nClasses * _nTreeGroups);
 
         for (size_t procTrees = 0; procTrees < nTrees; procTrees += _nTreeGroups)
