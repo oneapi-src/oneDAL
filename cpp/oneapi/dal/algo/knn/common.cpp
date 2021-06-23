@@ -30,19 +30,7 @@ optional_result_id_t get_distances_id() {
     return optional_result_id_t::get_result_id_by_index(1);
 }
 
-} // namespace detail
-
-namespace detail {
 namespace v1 {
-
-optional_result_id_t get_indices_id() {
-    return optional_result_id_t::get_result_id_by_index(0);
-}
-
-optional_result_id_t get_distances_id() {
-    return optional_result_id_t::get_result_id_by_index(1);
-}
-
 template <typename Task>
 class descriptor_impl : public base {
 public:

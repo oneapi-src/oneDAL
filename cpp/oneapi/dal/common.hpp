@@ -132,7 +132,7 @@ private:
 template<typename OptionalResultIdType>
 constexpr inline bool is_optional_result_id_v = std::is_base_of_v<optional_result_id, OptionalResultIdType>;
 template<typename OptionalResultIdType>
-constexpr inline bool enable_if_optional_result_id_t = std::enable_if_t<is_optional_result_id_v<OptionalResultIdType>>;
+using enable_if_optional_result_id_t = std::enable_if_t<is_optional_result_id_v<OptionalResultIdType>>;
 
 template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
 inline OptionalResultIdType operator|(const OptionalResultIdType& lhs, 
@@ -143,7 +143,7 @@ inline OptionalResultIdType operator|(const OptionalResultIdType& lhs,
 template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
 inline OptionalResultIdType operator&(const OptionalResultIdType& lhs, 
                                       const OptionalResultIdType& rhs) {
-    return optional_result_id<NamespaceId>{ lhs.get_mask() & rhs.get_mask() };
+    return OptionalResultIdType{ lhs.get_mask() & rhs.get_mask() };
 }
 
 template<typename OptionalResultIdType, typename = enable_if_optional_result_id_t<OptionalResultIdType>>
