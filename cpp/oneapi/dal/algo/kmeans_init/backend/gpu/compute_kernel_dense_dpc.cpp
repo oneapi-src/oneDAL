@@ -43,15 +43,15 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
     auto data_ptr =
         row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
     auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
-    
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
-    auto arr_centroids =
-        pr::ndarray<Float, 2>::empty(queue, {cluster_count, column_count}, sycl::usm::alloc::device);
+    auto arr_centroids = pr::ndarray<Float, 2>::empty(queue,
+                                                      { cluster_count, column_count },
+                                                      sycl::usm::alloc::device);
 
     kmeans_init_kernel<Float, Method>::compute_initial_centroids(queue, arr_data, arr_centroids);
     return compute_result<Task>().set_centroids(
-         dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
+        dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
 }
 
 template <typename Float, typename Method, typename Task>
