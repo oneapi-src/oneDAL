@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,30 +14,10 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-================
-Kernel Functions
-================
+.. tabs::
 
-.. toctree::
-   :titlesonly:
+  .. group-tab:: oneAPI C++
 
-   linear-kernel.rst
-   polynomial-kernel.rst
-   rbf-kernel.rst
-   sigmoid-kernel.rst
+    Batch Processing:
 
-.. rubric:: Examples: Linear Kernel
-
-.. include::  ../../../includes/kernel-functions/linear-kernel-examples.rst
-
-.. rubric:: Examples: Polynomial Kernel
-
-.. include::  ../../../includes/kernel-functions/polynomial-kernel-examples.rst
-
-.. rubric:: Examples: RBF Kernel
-
-.. include:: ../../../includes/kernel-functions/rbf-kernel-examples.rst
-
-.. rubric:: Examples: Sigmoid Kernel
-
-.. include:: ../../../includes/kernel-functions/sigmoid-kernel-examples.rst
+    - :ref:`cpp_sigmoid_kernel_dense_batch.cpp`

@@ -5,19 +5,26 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "svm",
+    name = "sigmoid_kernel",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/algo:linear_kernel",
-        "@onedal//cpp/oneapi/dal/algo:polynomial_kernel",
-        "@onedal//cpp/oneapi/dal/algo:rbf_kernel",
-        "@onedal//cpp/oneapi/dal/algo:sigmoid_kernel",
     ],
     extra_deps = [
-        "@onedal//cpp/daal/src/algorithms/svm:kernel",
-        "@onedal//cpp/daal/src/algorithms/multiclassclassifier:kernel",
+        "@onedal//cpp/daal/src/algorithms/kernel_function:kernel",
     ]
+)
+
+dal_test_suite(
+    name = "cpu_tests",
+    private = True,
+    compile_as = [ "c++" ],
+    srcs = glob([
+        "backend/cpu/test/*.cpp",
+    ]),
+    dal_deps = [
+        ":sigmoid_kernel",
+    ],
 )
 
 dal_test_suite(
@@ -27,13 +34,14 @@ dal_test_suite(
         "test/*.cpp",
     ]),
     dal_deps = [
-        ":svm",
+        ":sigmoid_kernel",
     ],
 )
 
 dal_test_suite(
     name = "tests",
     tests = [
+        ":cpu_tests",
         ":interface_tests",
     ],
 )

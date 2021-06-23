@@ -236,6 +236,11 @@ nitpick_ignore = [
     ('cpp:identifier', 'rbf_kernel::descriptor'),
     ('cpp:identifier', 'rbf_kernel::compute_result'),
     ('cpp:identifier', 'rbf_kernel::compute_input'),
+    # sigmoid kernel
+    ('cpp:identifier', 'sigmoid_kernel'),
+    ('cpp:identifier', 'sigmoid_kernel::descriptor'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_result'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_input'),
     # decision forest
     ('cpp:identifier', 'decision_forest'),
     ('cpp:identifier', 'decision_forest::infer_result'),
