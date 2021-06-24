@@ -44,13 +44,14 @@ struct train_ops {
         if (!input.get_data().has_data()) {
             throw domain_error(msg::input_data_is_empty());
         }
-        if (!input.get_labels().has_data()) {
+        if (!input.get_labels().has_data() && !std::is_same_v<task_t, task::search>) {
             throw domain_error(msg::input_labels_are_empty());
         }
-        if (input.get_labels().get_column_count() != 1) {
+        if (input.get_labels().get_column_count() != 1 && !std::is_same_v<task_t, task::search>) {
             throw domain_error(msg::input_labels_table_has_wrong_cc_expect_one());
         }
-        if (input.get_data().get_row_count() != input.get_labels().get_row_count()) {
+        if (input.get_data().get_row_count() != input.get_labels().get_row_count() &&
+            !std::is_same_v<task_t, task::search>) {
             throw domain_error(msg::input_data_rc_neq_input_labels_rc());
         }
     }

@@ -91,13 +91,30 @@ public:
     /// @remark default = table{}
     const table& get_labels() const;
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_labels(const table& value) {
         set_labels_impl(value);
         return *this;
     }
 
+    const table& get_indices() const;
+
+    auto& set_indices(const table& value) {
+        set_indices_impl(value);
+        return *this;
+    }
+
+    const table& get_distances() const;
+
+    auto& set_distances(const table& value) {
+        set_distances_impl(value);
+        return *this;
+    }
+
 protected:
     void set_labels_impl(const table&);
+    void set_indices_impl(const table&);
+    void set_distances_impl(const table&);
     const table& get_labels_impl() const;
 
 private:
