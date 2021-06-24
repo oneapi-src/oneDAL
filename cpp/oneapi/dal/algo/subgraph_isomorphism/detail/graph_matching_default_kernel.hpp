@@ -56,6 +56,10 @@ struct call_subgraph_isomorphism_kernel_cpu {
         if (vv_t.get_count() != 0) {
             t_vertex_attribute = reinterpret_cast<std::int64_t*>(
                 alloc_ptr->allocate(t_vertex_count * sizeof(std::int64_t)));
+            if(t_vertex_attribute == nullptr)
+            {
+                throw oneapi::dal::host_bad_alloc();
+            }
             for (std::int32_t i = 0; i < t_vertex_count; i++) {
                 t_vertex_attribute[i] = vv_t[i];
             }
@@ -63,6 +67,10 @@ struct call_subgraph_isomorphism_kernel_cpu {
         if (vv_p.get_count() != 0) {
             p_vertex_attribute = reinterpret_cast<std::int64_t*>(
                 alloc_ptr->allocate(p_vertex_count * sizeof(std::int64_t)));
+            if(p_vertex_attribute == nullptr)
+            {
+                throw oneapi::dal::host_bad_alloc();
+            }
             for (std::int32_t i = 0; i < p_vertex_count; i++) {
                 p_vertex_attribute[i] = vv_p[i];
             }
