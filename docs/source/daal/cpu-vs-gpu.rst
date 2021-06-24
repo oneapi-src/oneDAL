@@ -32,7 +32,7 @@ For the following algorithms, only listed computation modes are supported on GPU
    :widths: 10 10
    :align: left
 
-   * - Algortihm
+   * - Algorithm
      - Supported on GPU
    * - :ref:`dbscan`
      - :ref:`batch <batch_mode>`

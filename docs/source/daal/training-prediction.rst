@@ -63,6 +63,7 @@ The following schema illustrates the use of Model Builder class:
 
 .. figure:: images/model_builders.png
    :width: 600
+   :alt: 
 
 The Model Builder class is implemented for the following algorithms:
 

@@ -34,6 +34,30 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
 
+# Check alt text
+
+from sphinx.util import logging
+from docutils import nodes
+
+def image_alt_warning(app, doctree, docname):
+  logger = logging.getLogger(__name__)
+  for node in doctree.traverse(nodes.image):
+    altText = node.get('alt')
+    if not altText:
+      if node.parent.tagname == 'figure':
+        if node.line == 0 and node.parent.line:
+          logger.warning('Missing alt text for figure.',location=(docname,node.parent.line))
+        else:
+          logger.warning('Missing alt text for figure.',location=node.parent)
+      else:
+        logger.warning('Missing alt text for image.', location=node)
+
+def setup(app):
+   app.connect('doctree-resolved',image_alt_warning)
+
+def setup(app):
+   app.connect('doctree-resolved',image_alt_warning)
+
 # -- Project information -----------------------------------------------------
 
 project = 'oneDAL'
