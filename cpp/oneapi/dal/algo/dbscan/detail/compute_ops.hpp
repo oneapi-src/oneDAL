@@ -47,7 +47,7 @@ struct compute_ops {
         if (input.get_weights().has_data()) {
             if (input.get_weights().get_row_count() != 0 &&
                 input.get_weights().get_row_count() != input.get_data().get_row_count()) {
-                throw invalid_argument(msg::weight_dimension_doesnt_match_data_dimension());
+                throw invalid_argument(msg::input_data_rc_neq_input_weights_rc());
             }
             if (input.get_weights().get_column_count() != 1) {
                 throw invalid_argument(msg::weights_column_count_ne_1());
