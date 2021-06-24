@@ -14,9 +14,10 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/dbscan/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
+#include "oneapi/dal/algo/dbscan/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/dbscan/backend/fill_core_flags.hpp"
 
 #include <daal/src/algorithms/dbscan/oneapi/dbscan_kernel_ucapi.h>
@@ -24,6 +25,7 @@
 namespace oneapi::dal::dbscan::backend {
 
 using dal::backend::context_gpu;
+using dal::backend::to_host_sync;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
 namespace daal_dbscan = daal::algorithms::dbscan;
@@ -53,13 +55,13 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
-    array<int> arr_responses = array<int>::empty(queue, row_count * 1);
-    array<int> arr_cluster_count = array<int>::empty(queue, 1);
+    array<int> arr_responses = array<int>::empty(queue, row_count * 1, sycl::usm::alloc::device);
+    array<int> arr_cluster_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
 
-    const auto daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
+    const auto daal_responses = interop::convert_to_daal_table(queue, arr_responses, row_count, 1);
     const auto daal_core_observation_indices = interop::empty_daal_homogen_table<int>(1);
     const auto daal_core_observations = interop::empty_daal_homogen_table<Float>(column_count);
-    const auto daal_cluster_count = interop::convert_to_daal_homogen_table(arr_cluster_count, 1, 1);
+    const auto daal_cluster_count = interop::convert_to_daal_table(queue, arr_cluster_count, 1, 1);
 
     interop::status_to_exception(daal_dbscan_t<Float>{}.compute(daal_data.get(),
                                                                 daal_weights.get(),
@@ -79,7 +81,7 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
         .set_core_flags(dal::homogen_table::wrap(arr_core_flags, row_count, 1))
         .set_core_observation_indices(core_observation_indices)
         .set_core_observations(core_observations)
-        .set_cluster_count(static_cast<std::int64_t>(arr_cluster_count[0]));
+        .set_cluster_count(static_cast<std::int64_t>(to_host_sync(arr_cluster_count)[0]));
 }
 
 template <typename Float, typename Task>

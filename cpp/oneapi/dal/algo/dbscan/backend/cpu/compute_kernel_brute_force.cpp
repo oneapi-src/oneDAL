@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/dbscan/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include "oneapi/dal/algo/dbscan/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/dbscan/backend/fill_core_flags.hpp"
 
 #include <daal/src/algorithms/dbscan/dbscan_kernel.h>
