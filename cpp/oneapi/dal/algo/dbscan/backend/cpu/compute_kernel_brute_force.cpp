@@ -37,7 +37,7 @@ template <typename Float, daal::CpuType Cpu>
 class dbscan_compute_wrapper {
 public:
     template <typename... Args>
-    auto compute(Args... args) {
+    auto compute(Args&&... args) {
         const daal_dbscan::Parameter* par =
             std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...));
         if (par->memorySavingMode == false) {

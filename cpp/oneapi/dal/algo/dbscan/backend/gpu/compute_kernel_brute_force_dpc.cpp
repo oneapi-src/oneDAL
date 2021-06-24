@@ -53,8 +53,8 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
-    array<int> arr_responses = array<int>::empty(row_count * 1);
-    array<int> arr_cluster_count = array<int>::empty(1);
+    array<int> arr_responses = array<int>::empty(queue, row_count * 1);
+    array<int> arr_cluster_count = array<int>::empty(queue, 1);
 
     const auto daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
     const auto daal_core_observation_indices = interop::empty_daal_homogen_table<int>(1);
