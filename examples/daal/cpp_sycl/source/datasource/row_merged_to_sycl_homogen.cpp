@@ -45,7 +45,7 @@ uint32_t generateMinStd(uint32_t x) {
 }
 
 /* Compute correlation matrix */
-NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table) 
+NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
 {
   using namespace daal::algorithms;
 
@@ -58,15 +58,15 @@ NumericTablePtr computeCorrelationMatrix(const NumericTablePtr &table)
 }
 
 /* Fill the buffer with pseudo random numbers generated with MinStd engine */
-void generateData(float *dataBlock, size_t nRows, size_t nCols) 
+void generateData(float *dataBlock, size_t nRows, size_t nCols)
 {
-  for (size_t i = 0; i < nRows; i++) 
+  for (size_t i = 0; i < nRows; i++)
   {
     constexpr float genMax = 2147483647.0f;
     uint32_t genState = 7777 + i * i;
     genState = generateMinStd(genState);
     genState = generateMinStd(genState);
-    for (size_t j = 0; j < nCols; j++) 
+    for (size_t j = 0; j < nCols; j++)
     {
       dataBlock[i * nCols + j] = (float)genState / genMax;
       genState = generateMinStd(genState);
@@ -76,20 +76,20 @@ void generateData(float *dataBlock, size_t nRows, size_t nCols)
 
 void deallocateDataBlocks(const std::vector<float*>& memChunks)
 {
-  for (size_t i = 0; i < memChunks.size(); i++) 
+  for (size_t i = 0; i < memChunks.size(); i++)
   {
     free(memChunks[i]);
   }
 }
 
-std::vector<float*> allocateDataBlocks(size_t nCols, size_t nRows, size_t nBlocks) 
+std::vector<float*> allocateDataBlocks(size_t nCols, size_t nRows, size_t nBlocks)
 {
   std::vector<float *> memChunks;
-  for (size_t i = 0; i < nBlocks; i++) 
+  for (size_t i = 0; i < nBlocks; i++)
   {
     /* Allocate memory on host to store input data */
     float *dataBlock = (float *)malloc(sizeof(float) * nRows * nCols);
-    if (!dataBlock) 
+    if (!dataBlock)
     {
       deallocateDataBlocks(memChunks);
       throw std::bad_alloc();
@@ -99,13 +99,13 @@ std::vector<float*> allocateDataBlocks(size_t nCols, size_t nRows, size_t nBlock
   return memChunks;
 }
 
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   constexpr size_t nCols   = 10;
   constexpr size_t nRows   = 10000;
   constexpr size_t nBlocks = 3;
 
-  for (const auto &deviceDescriptor : getListOfDevices()) 
+  for (const auto &deviceDescriptor : getListOfDevices())
   {
     const auto &device = deviceDescriptor.second;
     const auto &deviceName = deviceDescriptor.first;
@@ -127,14 +127,14 @@ int main(int argc, char *argv[])
     try
     {
       memChunks = allocateDataBlocks(nCols, nRows, nBlocks);
-    } 
-    catch (const std::bad_alloc& e) 
+    }
+    catch (const std::bad_alloc& e)
     {
         std::cout << "Allocation failed: " << '\n';
         return -1;
     }
 
-    for(size_t i = 0; i < memChunks.size(); i++) 
+    for(size_t i = 0; i < memChunks.size(); i++)
     {
       /* Fill allocated memory block with generated numbers */
       generateData(memChunks[i], nRows, nCols);
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     /* Convert row merged table to sycl homogen one */
     Status st;
     NumericTablePtr tablePtr = convertToSyclHomogen<float>(*mergedTable, st);
-    if (!st.ok()) 
+    if (!st.ok())
     {
       std::cout << "Failed to convert row merged table to SYCL homogen one"
                 << std::endl;
