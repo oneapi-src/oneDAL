@@ -1924,18 +1924,18 @@ SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
                                                                    20);
 }
 
-// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
-//        "Induced: Bit target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<difficult_graph_type, triangles_edge_link_type>(
-//         false,
-//         isomorphism_kind::induced,
-//         50,
-//         50);
-//     this->check_subgraph_isomorphism<wheel_5_type, triangle_type>(false,
-//                                                                   isomorphism_kind::induced,
-//                                                                   10,
-//                                                                   10);
-// }
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced: Bit target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<difficult_graph_type, triangles_edge_link_type>(
+        false,
+        isomorphism_kind::induced,
+        50,
+        50);
+    this->check_subgraph_isomorphism<wheel_5_type, triangle_type>(false,
+                                                                  isomorphism_kind::induced,
+                                                                  10,
+                                                                  10);
+}
 
 SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: Bit target representation, single match") {
     this->check_subgraph_isomorphism<paths_1_2_3_single_target_type, paths_1_2_3_type>(
@@ -1980,18 +1980,18 @@ SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
                                                                     1200);
 }
 
-// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
-//        "Induced: List target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<path_100_type, path_5_type>(false,
-//                                                                  isomorphism_kind::induced,
-//                                                                  100,
-//                                                                  100);
-//     this->check_subgraph_isomorphism<lolipop_5_100_type, k_5_labeled_type>(
-//         false,
-//         isomorphism_kind::induced,
-//         10,
-//         10);
-// }
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced: List target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<path_100_type, path_5_type>(false,
+                                                                 isomorphism_kind::induced,
+                                                                 100,
+                                                                 100);
+    this->check_subgraph_isomorphism<lolipop_5_100_type, k_5_labeled_type>(
+        false,
+        isomorphism_kind::induced,
+        10,
+        10);
+}
 
 SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: List target representation, single match") {
     this->check_subgraph_isomorphism<paths_1_2_100_type, paths_1_2_3_type>(
@@ -2054,19 +2054,19 @@ SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
         true);
 }
 
-// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
-//     "Induced + Labeled vertexes: Bit target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<wheel_5_type, triangle_type>(false,
-//                                                                   isomorphism_kind::induced,
-//                                                                   3,
-//                                                                   3,
-//                                                                   true);
-//     this->check_subgraph_isomorphism<lolipop_10_15_type, path_16_type>(false,
-//                                                                        isomorphism_kind::induced,
-//                                                                        1,
-//                                                                        1,
-//                                                                        true);
-// }
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: Bit target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<wheel_5_type, triangle_type>(false,
+                                                                  isomorphism_kind::induced,
+                                                                  3,
+                                                                  3,
+                                                                  true);
+    this->check_subgraph_isomorphism<lolipop_10_15_type, path_16_type>(false,
+                                                                       isomorphism_kind::induced,
+                                                                       1,
+                                                                       1,
+                                                                       true);
+}
 
 SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced + Labeled vertexes: Bit target representation, single match") {
@@ -2139,23 +2139,23 @@ SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
                                                                  true);
 }
 
-// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
-//     "Induced + Labeled vertexes: List target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<star_99_type, star_3_type>(false,
-//                                                                 isomorphism_kind::induced,
-//                                                                 128,
-//                                                                 128,
-//                                                                 true);
-// }
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: List target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<star_99_type, star_3_type>(false,
+                                                                isomorphism_kind::induced,
+                                                                128,
+                                                                128,
+                                                                true);
+}
 
-// SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
-//        "Induced + Labeled vertexes: List target representation, single match") {
-//     this->check_subgraph_isomorphism<wheel_201_type, triangle_type>(false,
-//                                                                     isomorphism_kind::induced,
-//                                                                     1,
-//                                                                     1,
-//                                                                     true);
-// }
+SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
+    "Induced + Labeled vertexes: List target representation, single match") {
+    this->check_subgraph_isomorphism<wheel_201_type, triangle_type>(false,
+                                                                    isomorphism_kind::induced,
+                                                                    1,
+                                                                    1,
+                                                                    true);
+}
 
 SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
     "Induced + Labeled vertexes: List target representation, no matches") {
@@ -2222,15 +2222,15 @@ SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
         false);
 }
 
-// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
-//        "Non-induced: Bit target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<k_6_labeled_type, k_5_without_edge_labeled_type>(
-//         false,
-//         isomorphism_kind::non_induced,
-//         50,
-//         50,
-//         false);
-// }
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced: Bit target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<k_6_labeled_type, k_5_without_edge_labeled_type>(
+        false,
+        isomorphism_kind::non_induced,
+        50,
+        50,
+        false);
+}
 
 SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST("Non-induced: Bit target representation, single match") {
     this->check_subgraph_isomorphism<triangle_path_target_type, triangle_path_pattern_type>(
@@ -2284,14 +2284,14 @@ SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
         false);
 }
 
-// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
-//        "Non-induced: List target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<wheel_201_type, star_3_type>(false,
-//                                                                   isomorphism_kind::non_induced,
-//                                                                   100,
-//                                                                   100,
-//                                                                   false);
-// }
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced: List target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<wheel_201_type, star_3_type>(false,
+                                                                  isomorphism_kind::non_induced,
+                                                                  100,
+                                                                  100,
+                                                                  false);
+}
 
 SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST("Non-induced: List target representation, no matches") {
     this->check_subgraph_isomorphism<wheel_201_type, tree_pattern_type>(
@@ -2359,21 +2359,21 @@ SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
                                                                       true);
 }
 
-// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
-//     "Non-induced + labels on vertexes: Bit target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<wheel_11_labeled_type, cycle_4_type>(
-//         false,
-//         isomorphism_kind::non_induced,
-//         19,
-//         19,
-//         true);
-//     this->check_subgraph_isomorphism<k_6_labeled_type, k_5_without_edge_labeled_type>(
-//         false,
-//         isomorphism_kind::non_induced,
-//         30,
-//         30,
-//         true);
-// }
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced + labels on vertexes: Bit target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<wheel_11_labeled_type, cycle_4_type>(
+        false,
+        isomorphism_kind::non_induced,
+        19,
+        19,
+        true);
+    this->check_subgraph_isomorphism<k_6_labeled_type, k_5_without_edge_labeled_type>(
+        false,
+        isomorphism_kind::non_induced,
+        30,
+        30,
+        true);
+}
 
 SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: Bit target representation, no matches") {
@@ -2429,14 +2429,14 @@ SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
         true);
 }
 
-// SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
-//     "Non-induced + labels on vertexes: List target representation, max_match_count <= total number of SI") {
-//     this->check_subgraph_isomorphism<wheel_201_type, k_4_type>(false,
-//                                                                isomorphism_kind::non_induced,
-//                                                                1,
-//                                                                1,
-//                                                                true);
-// }
+SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
+    "Non-induced + labels on vertexes: List target representation, max_match_count <= total number of SI") {
+    this->check_subgraph_isomorphism<wheel_201_type, k_4_type>(false,
+                                                               isomorphism_kind::non_induced,
+                                                               1,
+                                                               1,
+                                                               true);
+}
 
 SUBGRAPH_ISOMORPHISM_NON_INDUCED_TEST(
     "Non-induced + labels on vertexes: LList target representation, no matches") {
