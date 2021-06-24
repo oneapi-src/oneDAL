@@ -26,6 +26,7 @@ namespace oneapi::dal::kmeans_init::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 template <typename Float, typename Method>
@@ -85,6 +86,7 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
         auto indices_ptr = indices.get_mutable_data();
 
         pr::rnd_uniform<std::uint64_t> rng;
+        bk::event_vector events;
 
         std::int64_t k = 0;
         for (std::uint64_t i = 0; i < cluster_count; i++) {
@@ -99,12 +101,14 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
             }
             if (value >= row_count)
                 continue;
-            for (std::int64_t j = 0; j < column_count; j++) {
-                centroids_ptr[k * column_count + j] = data_ptr[value * column_count + j];
-            }
+            events.push_back(dal::backend::copy(queue,
+                                                centroids_ptr + k * column_count,
+                                                data_ptr + value * column_count,
+                                                column_count));
             k++;
         }
         ONEDAL_ASSERT(k == cluster_count);
+        sycl::event::wait(events);
         return sycl::event();
     }
 };
