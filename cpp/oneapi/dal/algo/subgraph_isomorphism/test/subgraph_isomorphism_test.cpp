@@ -1861,8 +1861,8 @@ public:
                 dal::preview::subgraph_isomorphism::method::by_default,
                 AllocatorType>(alloc)
                 .set_kind(kind)
+                .set_max_match_count(max_match_count)
                 .set_semantic_match(semantic_match);
-        // .set_max_match_count(max_match_count);
 
         const auto result =
             dal::preview::graph_matching(subgraph_isomorphism_desc, target_graph, pattern_graph);
@@ -1896,7 +1896,7 @@ SUBGRAPH_ISOMORPHISM_INDUCED_TEST("Induced: Bit target representation, all match
 }
 
 // SUBGRAPH_ISOMORPHISM_INDUCED_TEST(
-//        "Induced: Bit target representation, single vertex pattern check") {
+//     "Induced: Bit target representation, single vertex pattern check") {
 //     this->check_subgraph_isomorphism<k_6_type, single_vertex_type>(false,
 //                                                                    isomorphism_kind::induced,
 //                                                                    0,

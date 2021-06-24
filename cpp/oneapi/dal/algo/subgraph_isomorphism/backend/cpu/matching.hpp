@@ -59,6 +59,7 @@ public:
     solution<Cpu> get_solution();
     std::int64_t get_match_count() const;
 
+    std::int64_t state_exploration();
     std::int64_t state_exploration_bit(bool check_solution = true);
     std::int64_t state_exploration_list(bool check_solution = true);
 
@@ -361,6 +362,16 @@ std::int64_t matching_engine<Cpu>::get_match_count() const {
 }
 
 template <typename Cpu>
+std::int64_t matching_engine<Cpu>::state_exploration() {
+    if (target->bit_representation) {
+        return state_exploration_bit();
+    }
+    else {
+        return state_exploration_list();
+    }
+}
+
+template <typename Cpu>
 void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                                         std::int64_t& busy_engine_count,
                                         std::int64_t& current_match_count,
@@ -371,78 +382,44 @@ void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
     }
     bool is_busy_engine = true;
     ONEDAL_ASSERT(pattern != nullptr);
-    if (target->bit_representation) { /* dense graph case */
-        for (;;) {
-            if (hlocal_stack.states_in_stack() > 0) {
-                while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
-                    ;
-                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-                const std::int64_t prev_match_cout = get_match_count();
-                state_exploration_bit();
-                if (target_match_count > 0) {
-                    const std::int64_t new_match_cout = get_match_count();
-                    if (prev_match_cout != new_match_cout) {
-                        auto delta = new_match_cout - prev_match_cout;
-                        dal::detail::atomic_increment(current_match_count, delta);
-                    }
-                    if (dal::detail::atomic_load(current_match_count) >= target_match_count) {
-                        return;
-                    }
+    for (;;) {
+        if (target_match_count > 0 &&
+            dal::detail::atomic_load(current_match_count) >= target_match_count) {
+            return;
+        }
+        if (hlocal_stack.states_in_stack() > 0) {
+            while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
+                ;
+            ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+            const std::int64_t prev_match_cout = get_match_count();
+            state_exploration();
+            if (target_match_count > 0) {
+                auto delta = get_match_count() - prev_match_cout;
+                if (delta > 0) {
+                    dal::detail::atomic_increment(current_match_count, delta);
                 }
-            }
-            else {
-                gstack.pop(hlocal_stack);
-                if (hlocal_stack.empty()) {
-                    if (is_busy_engine) {
-                        is_busy_engine = false;
-                        dal::detail::atomic_decrement(busy_engine_count);
-                    }
-                    if (dal::detail::atomic_load(busy_engine_count) == 0)
-                        break;
-                }
-                else if (!is_busy_engine) {
-                    is_busy_engine = true;
-                    dal::detail::atomic_increment(busy_engine_count);
+                if (dal::detail::atomic_load(current_match_count) >= target_match_count) {
+                    return;
                 }
             }
         }
-    }
-    else { /* sparse graph case */
-        for (;;) {
-            if (hlocal_stack.states_in_stack() > 0) {
-                while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
-                    ;
-                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-                const std::int64_t prev_match_cout = get_match_count();
-                state_exploration_list();
-                if (target_match_count > 0) {
-                    const std::int64_t new_match_cout = get_match_count();
-                    if (prev_match_cout != new_match_cout) {
-                        auto delta = new_match_cout - prev_match_cout;
-                        dal::detail::atomic_increment(current_match_count, delta);
-                    }
-                    if (dal::detail::atomic_load(current_match_count) >= target_match_count) {
-                        return;
-                    }
+        else {
+            gstack.pop(hlocal_stack);
+            if (hlocal_stack.empty()) {
+                if (is_busy_engine) {
+                    is_busy_engine = false;
+                    dal::detail::atomic_decrement(busy_engine_count);
                 }
+                if (dal::detail::atomic_load(busy_engine_count) == 0)
+                    break;
             }
-            else {
-                gstack.pop(hlocal_stack);
-                if (hlocal_stack.empty()) {
-                    if (is_busy_engine) {
-                        is_busy_engine = false;
-                        dal::detail::atomic_decrement(busy_engine_count);
-                    }
-                    if (dal::detail::atomic_load(busy_engine_count) == 0)
-                        break;
-                }
-                else if (!is_busy_engine) {
-                    is_busy_engine = true;
-                    dal::detail::atomic_increment(busy_engine_count);
-                }
+            else if (!is_busy_engine) {
+                is_busy_engine = true;
+                dal::detail::atomic_increment(busy_engine_count);
             }
         }
     }
+
     return;
 }
 
