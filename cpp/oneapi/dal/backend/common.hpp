@@ -357,6 +357,28 @@ inline std::int64_t propose_wg_size(const sycl::queue& q) {
     return std::min<std::int64_t>(512, device_max_wg_size(q));
 }
 
+/// Finds the workgroup size for specified data set width
+/// {WG-per-row topology is expected)
+/// Number of subgroups is calculated as minimal value
+/// from subgroups in WG with preffered_wg_size
+/// and number of subgroups to completely cover the dataset row
+/// For, example if column_count = 350; preffered_wg_size = 512 and
+/// max supported subgroup size = 32 then
+/// final WG size will be 352
+inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
+                                               std::int64_t column_count,
+                                               std::int64_t preffered_wg_size) {
+    const std::int64_t sg_max_size = device_max_sg_size(queue);
+    ONEDAL_ASSERT(sg_max_size > 0);
+    const std::int64_t row_adjusted_sg_count =
+        column_count / sg_max_size + std::int64_t(column_count % sg_max_size > 0);
+    std::int64_t expected_sg_count =
+        std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_count);
+    if (expected_sg_count < 1)
+        expected_sg_count = 1;
+    return dal::detail::check_mul_overflow(expected_sg_count, sg_max_size);
+}
+
 inline std::int64_t device_local_mem_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::local_mem_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
@@ -379,6 +401,21 @@ template <>
 inline std::int64_t device_native_vector_size<double>(const sycl::queue& q) {
     const auto res =
         q.get_device().template get_info<sycl::info::device::native_vector_width_double>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_max_mem_alloc_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::max_mem_alloc_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_global_mem_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::global_mem_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_global_mem_cache_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::global_mem_cache_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 

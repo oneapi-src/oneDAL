@@ -171,6 +171,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
+    ('cpp:identifier', 'detail::enable_if_search_t<T>'),
     # minkowski_distance
     ('cpp:identifier', 'minkowski_distance'),
     ('cpp:identifier', 'minkowski_distance::descriptor'),
@@ -235,6 +236,11 @@ nitpick_ignore = [
     ('cpp:identifier', 'rbf_kernel::descriptor'),
     ('cpp:identifier', 'rbf_kernel::compute_result'),
     ('cpp:identifier', 'rbf_kernel::compute_input'),
+    # sigmoid kernel
+    ('cpp:identifier', 'sigmoid_kernel'),
+    ('cpp:identifier', 'sigmoid_kernel::descriptor'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_result'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_input'),
     # decision forest
     ('cpp:identifier', 'decision_forest'),
     ('cpp:identifier', 'decision_forest::infer_result'),

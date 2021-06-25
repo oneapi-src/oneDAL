@@ -50,6 +50,8 @@
 
 using namespace daal::algorithms::decision_forest::internal;
 using namespace daal::algorithms::decision_forest::classification::internal;
+using namespace daal::internal;
+using namespace daal::services::internal;
 
 namespace daal
 {
