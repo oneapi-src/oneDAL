@@ -25,18 +25,68 @@ namespace oneapi::dal::knn {
 template <typename Task>
 class detail::v1::model_impl : public ONEDAL_SERIALIZABLE(knn_classification_model_impl_id) {
 public:
-    model_impl() : interop_(nullptr) {}
+    model_impl() {}
     model_impl(const model_impl&) = delete;
     model_impl& operator=(const model_impl&) = delete;
 
-    model_impl(backend::model_interop* interop) : interop_(interop) {}
+    virtual backend::model_interop* get_interop() = 0;
+};
 
-    ~model_impl() {
+namespace detail {
+namespace v1 {
+
+template <typename Task>
+class brute_force_model_impl : public model_impl<Task> {
+public:
+    brute_force_model_impl() : interop_(nullptr) {}
+    brute_force_model_impl(const brute_force_model_impl&) = delete;
+    brute_force_model_impl& operator=(const brute_force_model_impl&) = delete;
+
+    brute_force_model_impl(const table& data, const table& labels)
+            : data_(data),
+              labels_(labels),
+              interop_(nullptr) {}
+
+    ~brute_force_model_impl() {
         delete interop_;
         interop_ = nullptr;
     }
 
-    backend::model_interop* get_interop() {
+    backend::model_interop* get_interop() override {
+        return interop_;
+    }
+
+    void serialize(dal::detail::output_archive& ar) const override {
+        ar(data_, labels_);
+        dal::detail::serialize_polymorphic(interop_, ar);
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        ar(data_, labels_);
+        interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
+    }
+
+    table data_;
+    table labels_;
+private:
+    backend::model_interop* interop_;
+};
+
+template <typename Task>
+class kdtree_model_impl : public model_impl<Task> {
+public:
+    kdtree_model_impl() : interop_(nullptr) {}
+    kdtree_model_impl(const kdtree_model_impl&) = delete;
+    kdtree_model_impl& operator=(const kdtree_model_impl&) = delete;
+
+    kdtree_model_impl(backend::model_interop* interop) : interop_(interop) {}
+
+    ~kdtree_model_impl() {
+        delete interop_;
+        interop_ = nullptr;
+    }
+
+    backend::model_interop* get_interop() override {
         return interop_;
     }
 
@@ -51,10 +101,18 @@ public:
 private:
     backend::model_interop* interop_;
 };
+} // namespace v1
+
+using v1::brute_force_model_impl;
+using v1::kdtree_model_impl;
+
+} // namespace detail
 
 namespace backend {
 
 using model_impl_cls = detail::model_impl<task::classification>;
+using brute_force_model_impl_cls = detail::brute_force_model_impl<task::classification>;
+using kdtree_model_impl_cls = detail::kdtree_model_impl<task::classification>;
 
 } // namespace backend
 } // namespace oneapi::dal::knn
