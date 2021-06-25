@@ -39,7 +39,7 @@
     <link rel="shortcut icon" href="../../../_static/favicons.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Support Vector Machines" href="../svm/index.html" />
+    <link rel="next" title="Pairwise Distances" href="../pairwise-distances/index.html" />
     <link rel="prev" title="Nearest Neighbors (kNN)" href="index.html" />
     <link href="../../../_static/style.css" rel="stylesheet" type="text/css">
 
@@ -305,6 +305,11 @@
          Radial Basis Function (RBF) kernel
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/algorithms/kernel-functions/sigmoid-kernel.html">
+         Sigmoid kernel
+        </a>
+       </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
@@ -325,11 +330,33 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../onedal/algorithms/svm/index.html">
-       Support Vector Machines
+      <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/index.html">
+       Pairwise Distances
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
       <label for="toctree-checkbox-14">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/minkowski-distance.html">
+         Minkowski distance
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/chebyshev-distance.html">
+         Chebyshev distance
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../onedal/algorithms/svm/index.html">
+       Support Vector Machines
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+      <label for="toctree-checkbox-15">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -347,8 +374,8 @@
     <a class="reference internal" href="../../../examples.html">
      oneAPI Examples
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-    <label for="toctree-checkbox-15">
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -357,8 +384,8 @@
       <a class="reference internal" href="../../../examples/dpc.html">
        DPC++
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-      <label for="toctree-checkbox-16">
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -429,8 +456,8 @@
       <a class="reference internal" href="../../../examples/cpp.html">
        C++
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
-      <label for="toctree-checkbox-17">
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -448,6 +475,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../../examples/cpp/df_reg_dense_batch.html">
          df_reg_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/directed_graph.html">
+         directed_graph.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -476,8 +508,18 @@
         </a>
        </li>
        <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/knn_cls_brute_force_dense_batch.html">
+         knn_cls_brute_force_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html">
          knn_cls_kd_tree_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/knn_search_brute_force_dense_batch.html">
+         knn_search_brute_force_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -506,8 +548,33 @@
         </a>
        </li>
        <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/shortest_paths_batch.html">
+         shortest_paths_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/sigmoid_kernel_dense_batch.html">
+         sigmoid_kernel_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/subgraph_isomorphism_batch.html">
+         subgraph_isomorphism_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
         <a class="reference internal" href="../../../examples/cpp/svm_multi_class_thunder_dense_batch.html">
          svm_multi_class_thunder_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/svm_nu_cls_thunder_dense_batch.html">
+         svm_nu_cls_thunder_dense_batch.cpp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../examples/cpp/svm_nu_reg_thunder_dense_batch.html">
+         svm_nu_reg_thunder_dense_batch.cpp
         </a>
        </li>
        <li class="toctree-l4">
@@ -538,8 +605,8 @@
     <a class="reference internal" href="../../../onedal/appendix/index.html">
      Appendix
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
-    <label for="toctree-checkbox-18">
+    <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+    <label for="toctree-checkbox-19">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -562,8 +629,8 @@
   <a class="reference internal" href="../../../daal-interfaces.html">
    DAAL Interfaces
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
-  <label for="toctree-checkbox-19">
+  <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+  <label for="toctree-checkbox-20">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -577,8 +644,8 @@
     <a class="reference internal" href="../../../daal/usage/index.html">
      Library Usage
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
-    <label for="toctree-checkbox-20">
+    <input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/>
+    <label for="toctree-checkbox-21">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -597,8 +664,8 @@
       <a class="reference internal" href="../../../daal/usage/training-and-prediction/index.html">
        Training and Prediction
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/>
-      <label for="toctree-checkbox-21">
+      <input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/>
+      <label for="toctree-checkbox-22">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -626,8 +693,8 @@
     <a class="reference internal" href="../../../daal/data-management/data-management.html">
      Data Management
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/>
-    <label for="toctree-checkbox-22">
+    <input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/>
+    <label for="toctree-checkbox-23">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -636,8 +703,8 @@
       <a class="reference internal" href="../../../daal/data-management/numeric-tables.html">
        Numeric Tables
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/>
-      <label for="toctree-checkbox-23">
+      <input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/>
+      <label for="toctree-checkbox-24">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -690,8 +757,8 @@
     <a class="reference internal" href="../../../daal/analysis.html">
      Analysis
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/>
-    <label for="toctree-checkbox-24">
+    <input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/>
+    <label for="toctree-checkbox-25">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -700,8 +767,8 @@
       <a class="reference internal" href="../../../daal/algorithms/kmeans/k-means-clustering.html">
        K-Means Clustering
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/>
-      <label for="toctree-checkbox-25">
+      <input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/>
+      <label for="toctree-checkbox-26">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -732,8 +799,8 @@
       <a class="reference internal" href="../../../daal/algorithms/dbscan/index.html">
        Density-Based Spatial Clustering of Applications with Noise
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/>
-      <label for="toctree-checkbox-26">
+      <input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/>
+      <label for="toctree-checkbox-27">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -754,8 +821,8 @@
       <a class="reference internal" href="../../../daal/algorithms/covariance/correlation-and-variance-covariance-matrices.html">
        Correlation and Variance-Covariance Matrices
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/>
-      <label for="toctree-checkbox-27">
+      <input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/>
+      <label for="toctree-checkbox-28">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -781,8 +848,8 @@
       <a class="reference internal" href="../../../daal/algorithms/pca/principal-component-analysis.html">
        Principal Component Analysis
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/>
-      <label for="toctree-checkbox-28">
+      <input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/>
+      <label for="toctree-checkbox-29">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -813,8 +880,8 @@
       <a class="reference internal" href="../../../daal/algorithms/svd/singular-value-decomposition.html">
        Singular Value Decomposition
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/>
-      <label for="toctree-checkbox-29">
+      <input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/>
+      <label for="toctree-checkbox-30">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -835,8 +902,8 @@
       <a class="reference internal" href="../../../daal/algorithms/association_rules/association-rules.html">
        Association Rules
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/>
-      <label for="toctree-checkbox-30">
+      <input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/>
+      <label for="toctree-checkbox-31">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -847,8 +914,8 @@
       <a class="reference internal" href="../../../daal/algorithms/kernel_function/kernel-functions.html">
        Kernel Functions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/>
-      <label for="toctree-checkbox-31">
+      <input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/>
+      <label for="toctree-checkbox-32">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -859,8 +926,8 @@
       <a class="reference internal" href="../../../daal/algorithms/em/expectation-maximization.html">
        Expectation-Maximization
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/>
-      <label for="toctree-checkbox-32">
+      <input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/>
+      <label for="toctree-checkbox-33">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -876,8 +943,8 @@
       <a class="reference internal" href="../../../daal/algorithms/qr/qr-decomposition.html">
        QR Decomposition
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/>
-      <label for="toctree-checkbox-33">
+      <input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/>
+      <label for="toctree-checkbox-34">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -898,8 +965,8 @@
       <a class="reference internal" href="../../../daal/algorithms/outlier_detection/index.html">
        Outlier Detection
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/>
-      <label for="toctree-checkbox-34">
+      <input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/>
+      <label for="toctree-checkbox-35">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -925,8 +992,8 @@
       <a class="reference internal" href="../../../daal/algorithms/distance/index.html">
        Distance Matrix
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/>
-      <label for="toctree-checkbox-35">
+      <input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/>
+      <label for="toctree-checkbox-36">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -947,8 +1014,8 @@
       <a class="reference internal" href="../../../daal/algorithms/distributions/index.html">
        Distributions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/>
-      <label for="toctree-checkbox-36">
+      <input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/>
+      <label for="toctree-checkbox-37">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -974,8 +1041,8 @@
       <a class="reference internal" href="../../../daal/algorithms/engines/index.html">
        Engines
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/>
-      <label for="toctree-checkbox-37">
+      <input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/>
+      <label for="toctree-checkbox-38">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1001,8 +1068,8 @@
       <a class="reference internal" href="../../../daal/algorithms/moments/moments-of-low-order.html">
        Moments of Low Order
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/>
-      <label for="toctree-checkbox-38">
+      <input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/>
+      <label for="toctree-checkbox-39">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1033,8 +1100,8 @@
       <a class="reference internal" href="../../../daal/algorithms/quality_metrics/index.html">
        Quality Metrics
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-39" name="toctree-checkbox-39" type="checkbox"/>
-      <label for="toctree-checkbox-39">
+      <input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/>
+      <label for="toctree-checkbox-40">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1060,8 +1127,8 @@
       <a class="reference internal" href="../../../daal/algorithms/normalization/index.html">
        Normalization
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-40" name="toctree-checkbox-40" type="checkbox"/>
-      <label for="toctree-checkbox-40">
+      <input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/>
+      <label for="toctree-checkbox-41">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1082,8 +1149,8 @@
       <a class="reference internal" href="../../../daal/algorithms/optimization-solvers/optimization-solvers.html">
        Optimization Solvers
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-41" name="toctree-checkbox-41" type="checkbox"/>
-      <label for="toctree-checkbox-41">
+      <input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/>
+      <label for="toctree-checkbox-42">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1106,8 +1173,8 @@
     <a class="reference internal" href="../../../daal/training-prediction.html">
      Training and Prediction
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-42" name="toctree-checkbox-42" type="checkbox"/>
-    <label for="toctree-checkbox-42">
+    <input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/>
+    <label for="toctree-checkbox-43">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1116,8 +1183,8 @@
       <a class="reference internal" href="../../../daal/algorithms/decision_forest/index.html">
        Decision Forest
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-43" name="toctree-checkbox-43" type="checkbox"/>
-      <label for="toctree-checkbox-43">
+      <input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/>
+      <label for="toctree-checkbox-44">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1143,8 +1210,8 @@
       <a class="reference internal" href="../../../daal/algorithms/decision_tree/index.html">
        Decision Trees
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" type="checkbox"/>
-      <label for="toctree-checkbox-44">
+      <input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/>
+      <label for="toctree-checkbox-45">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1170,8 +1237,8 @@
       <a class="reference internal" href="../../../daal/algorithms/gradient_boosted_trees/index.html">
        Gradient Boosted Trees
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-45" name="toctree-checkbox-45" type="checkbox"/>
-      <label for="toctree-checkbox-45">
+      <input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/>
+      <label for="toctree-checkbox-46">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1197,8 +1264,8 @@
       <a class="reference internal" href="../../../daal/algorithms/stump/index.html">
        Stump
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-46" name="toctree-checkbox-46" type="checkbox"/>
-      <label for="toctree-checkbox-46">
+      <input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/>
+      <label for="toctree-checkbox-47">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1219,8 +1286,8 @@
       <a class="reference internal" href="../../../daal/algorithms/linear_ridge_regression/index.html">
        Linear and Ridge Regressions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-47" name="toctree-checkbox-47" type="checkbox"/>
-      <label for="toctree-checkbox-47">
+      <input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/>
+      <label for="toctree-checkbox-48">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1246,8 +1313,8 @@
       <a class="reference internal" href="../../../daal/algorithms/lasso_elastic_net/index.html">
        LASSO and Elastic Net Regressions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-48" name="toctree-checkbox-48" type="checkbox"/>
-      <label for="toctree-checkbox-48">
+      <input class="toctree-checkbox" id="toctree-checkbox-49" name="toctree-checkbox-49" type="checkbox"/>
+      <label for="toctree-checkbox-49">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1273,8 +1340,8 @@
       <a class="reference internal" href="../../../daal/algorithms/k_nearest_neighbors/k-nearest-neighbors-knn-classifier.html">
        k-Nearest Neighbors (kNN) Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-49" name="toctree-checkbox-49" type="checkbox"/>
-      <label for="toctree-checkbox-49">
+      <input class="toctree-checkbox" id="toctree-checkbox-50" name="toctree-checkbox-50" type="checkbox"/>
+      <label for="toctree-checkbox-50">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1285,8 +1352,8 @@
       <a class="reference internal" href="../../../daal/algorithms/implicit_als/implicit-alternating-least-squares.html">
        Implicit Alternating Least Squares
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-50" name="toctree-checkbox-50" type="checkbox"/>
-      <label for="toctree-checkbox-50">
+      <input class="toctree-checkbox" id="toctree-checkbox-51" name="toctree-checkbox-51" type="checkbox"/>
+      <label for="toctree-checkbox-51">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1322,8 +1389,8 @@
       <a class="reference internal" href="../../../daal/algorithms/logistic_regression/logistic-regression.html">
        Logistic Regression
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-51" name="toctree-checkbox-51" type="checkbox"/>
-      <label for="toctree-checkbox-51">
+      <input class="toctree-checkbox" id="toctree-checkbox-52" name="toctree-checkbox-52" type="checkbox"/>
+      <label for="toctree-checkbox-52">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1334,8 +1401,8 @@
       <a class="reference internal" href="../../../daal/algorithms/naive_bayes/naive-bayes-classifier.html">
        Naïve Bayes Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-52" name="toctree-checkbox-52" type="checkbox"/>
-      <label for="toctree-checkbox-52">
+      <input class="toctree-checkbox" id="toctree-checkbox-53" name="toctree-checkbox-53" type="checkbox"/>
+      <label for="toctree-checkbox-53">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1361,8 +1428,8 @@
       <a class="reference internal" href="../../../daal/algorithms/svm/support-vector-machine-classifier.html">
        Support Vector Machine Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-53" name="toctree-checkbox-53" type="checkbox"/>
-      <label for="toctree-checkbox-53">
+      <input class="toctree-checkbox" id="toctree-checkbox-54" name="toctree-checkbox-54" type="checkbox"/>
+      <label for="toctree-checkbox-54">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1373,8 +1440,8 @@
       <a class="reference internal" href="../../../daal/algorithms/svm_multi_class/multi-class-classifier.html">
        Multi-class Classifier
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-54" name="toctree-checkbox-54" type="checkbox"/>
-      <label for="toctree-checkbox-54">
+      <input class="toctree-checkbox" id="toctree-checkbox-55" name="toctree-checkbox-55" type="checkbox"/>
+      <label for="toctree-checkbox-55">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1385,8 +1452,8 @@
       <a class="reference internal" href="../../../daal/algorithms/boosting/index.html">
        Boosting
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-55" name="toctree-checkbox-55" type="checkbox"/>
-      <label for="toctree-checkbox-55">
+      <input class="toctree-checkbox" id="toctree-checkbox-56" name="toctree-checkbox-56" type="checkbox"/>
+      <label for="toctree-checkbox-56">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1419,8 +1486,8 @@
     <a class="reference internal" href="../../../daal/services/services.html">
      Services
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-56" name="toctree-checkbox-56" type="checkbox"/>
-    <label for="toctree-checkbox-56">
+    <input class="toctree-checkbox" id="toctree-checkbox-57" name="toctree-checkbox-57" type="checkbox"/>
+    <label for="toctree-checkbox-57">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1470,8 +1537,8 @@
   <a class="reference internal" href="../../index.html">
    C++ API
   </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-57" name="toctree-checkbox-57" type="checkbox"/>
-  <label for="toctree-checkbox-57">
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-58" name="toctree-checkbox-58" type="checkbox"/>
+  <label for="toctree-checkbox-58">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -1480,8 +1547,8 @@
     <a class="reference internal" href="../../data-management/index.html">
      Data Management
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-58" name="toctree-checkbox-58" type="checkbox"/>
-    <label for="toctree-checkbox-58">
+    <input class="toctree-checkbox" id="toctree-checkbox-59" name="toctree-checkbox-59" type="checkbox"/>
+    <label for="toctree-checkbox-59">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1495,8 +1562,8 @@
       <a class="reference internal" href="../../data-management/accessors.html">
        Accessors
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-59" name="toctree-checkbox-59" type="checkbox"/>
-      <label for="toctree-checkbox-59">
+      <input class="toctree-checkbox" id="toctree-checkbox-60" name="toctree-checkbox-60" type="checkbox"/>
+      <label for="toctree-checkbox-60">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1517,8 +1584,8 @@
       <a class="reference internal" href="../../data-management/data-sources.html">
        Data Sources
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-60" name="toctree-checkbox-60" type="checkbox"/>
-      <label for="toctree-checkbox-60">
+      <input class="toctree-checkbox" id="toctree-checkbox-61" name="toctree-checkbox-61" type="checkbox"/>
+      <label for="toctree-checkbox-61">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1534,8 +1601,8 @@
       <a class="reference internal" href="../../data-management/tables.html">
        Tables
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-61" name="toctree-checkbox-61" type="checkbox"/>
-      <label for="toctree-checkbox-61">
+      <input class="toctree-checkbox" id="toctree-checkbox-62" name="toctree-checkbox-62" type="checkbox"/>
+      <label for="toctree-checkbox-62">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1553,8 +1620,8 @@
     <a class="reference internal" href="../index.html">
      Algorithms
     </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-62" name="toctree-checkbox-62" type="checkbox"/>
-    <label for="toctree-checkbox-62">
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-63" name="toctree-checkbox-63" type="checkbox"/>
+    <label for="toctree-checkbox-63">
      <i class="fas fa-chevron-down">
      </i>
     </label>
@@ -1563,8 +1630,8 @@
       <a class="reference internal" href="../clustering/index.html">
        Clustering
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-63" name="toctree-checkbox-63" type="checkbox"/>
-      <label for="toctree-checkbox-63">
+      <input class="toctree-checkbox" id="toctree-checkbox-64" name="toctree-checkbox-64" type="checkbox"/>
+      <label for="toctree-checkbox-64">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1585,8 +1652,8 @@
       <a class="reference internal" href="../decomposition/index.html">
        Decomposition
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-64" name="toctree-checkbox-64" type="checkbox"/>
-      <label for="toctree-checkbox-64">
+      <input class="toctree-checkbox" id="toctree-checkbox-65" name="toctree-checkbox-65" type="checkbox"/>
+      <label for="toctree-checkbox-65">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1602,8 +1669,8 @@
       <a class="reference internal" href="../ensembles/index.html">
        Ensembles
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-65" name="toctree-checkbox-65" type="checkbox"/>
-      <label for="toctree-checkbox-65">
+      <input class="toctree-checkbox" id="toctree-checkbox-66" name="toctree-checkbox-66" type="checkbox"/>
+      <label for="toctree-checkbox-66">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1619,8 +1686,8 @@
       <a class="reference internal" href="../kernel-functions/index.html">
        Kernel Functions
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-66" name="toctree-checkbox-66" type="checkbox"/>
-      <label for="toctree-checkbox-66">
+      <input class="toctree-checkbox" id="toctree-checkbox-67" name="toctree-checkbox-67" type="checkbox"/>
+      <label for="toctree-checkbox-67">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1640,14 +1707,19 @@
          Radial Basis Function (RBF) kernel
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../kernel-functions/sigmoid-kernel.html">
+         Sigmoid kernel
+        </a>
+       </li>
       </ul>
      </li>
      <li class="toctree-l3 current active has-children">
       <a class="reference internal" href="index.html">
        Nearest Neighbors (kNN)
       </a>
-      <input checked="" class="toctree-checkbox" id="toctree-checkbox-67" name="toctree-checkbox-67" type="checkbox"/>
-      <label for="toctree-checkbox-67">
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-68" name="toctree-checkbox-68" type="checkbox"/>
+      <label for="toctree-checkbox-68">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1660,11 +1732,33 @@
       </ul>
      </li>
      <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../pairwise-distances/index.html">
+       Pairwise Distances
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-69" name="toctree-checkbox-69" type="checkbox"/>
+      <label for="toctree-checkbox-69">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../pairwise-distances/minkowski-distance.html">
+         Minkowski distance
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../pairwise-distances/chebyshev-distance.html">
+         Chebyshev distance
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="../svm/index.html">
        Support Vector Machines
       </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-68" name="toctree-checkbox-68" type="checkbox"/>
-      <label for="toctree-checkbox-68">
+      <input class="toctree-checkbox" id="toctree-checkbox-70" name="toctree-checkbox-70" type="checkbox"/>
+      <label for="toctree-checkbox-70">
        <i class="fas fa-chevron-down">
        </i>
       </label>
@@ -1691,8 +1785,8 @@
   <a class="reference internal" href="../../../notes/known_issues.html">
    Known Issues
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-69" name="toctree-checkbox-69" type="checkbox"/>
-  <label for="toctree-checkbox-69">
+  <input class="toctree-checkbox" id="toctree-checkbox-71" name="toctree-checkbox-71" type="checkbox"/>
+  <label for="toctree-checkbox-71">
    <i class="fas fa-chevron-down">
    </i>
   </label>
@@ -1862,6 +1956,11 @@
    Programming Interface
   </a>
   <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#enum-classes">
+     Enum classes
+    </a>
+   </li>
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#descriptor">
      Descriptor
@@ -2035,17 +2134,32 @@ from the training set.</p>
 <p>All types and functions in this section are declared in the
 <code class="docutils literal notranslate"><span class="pre">oneapi::dal::knn</span></code> namespace and be available via inclusion of the
 <code class="docutils literal notranslate"><span class="pre">oneapi/dal/algo/knn.hpp</span></code> header file.</p>
+<section id="enum-classes">
+<h3>Enum classes<a class="headerlink" href="#enum-classes" title="Permalink to this headline">¶</a></h3>
+<dl class="cpp enum-class">
+<dt id="_CPPv4N6oneapi3dal3knn11voting_modeE">
+<span id="_CPPv3N6oneapi3dal3knn11voting_modeE"></span><span id="_CPPv2N6oneapi3dal3knn11voting_modeE"></span><em class="property"><span class="pre">enum</span> <span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">voting_mode</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11voting_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl class="simple">
+<dt>voting_mode::uniform</dt><dd><p>Uniform weights for neighbors for prediction voting.</p>
+</dd>
+<dt>voting_mode::distance</dt><dd><p>Weight neighbors by the inverse of their distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="descriptor">
 <h3>Descriptor<a class="headerlink" href="#descriptor" title="Permalink to this headline">¶</a></h3>
 <dl class="cpp class">
-<dt id="_CPPv4I000EN6oneapi3dal3knn10descriptorE">
-<span id="_CPPv3I000EN6oneapi3dal3knn10descriptorE"></span><span id="_CPPv2I000EN6oneapi3dal3knn10descriptorE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Float</span></code> <span class="pre">=</span> <span class="pre">float</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Method</span></code> <span class="pre">=</span> <span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method10by_defaultE" title="oneapi::dal::knn::method::by_default"><span class="pre">by_default</span></a><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">descriptor</span></code><a class="headerlink" href="#_CPPv4I000EN6oneapi3dal3knn10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4I0000EN6oneapi3dal3knn10descriptorE">
+<span id="_CPPv3I0000EN6oneapi3dal3knn10descriptorE"></span><span id="_CPPv2I0000EN6oneapi3dal3knn10descriptorE"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Float</span></code> <span class="pre">=</span> <span class="pre">float</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Method</span></code> <span class="pre">=</span> <span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method10by_defaultE" title="oneapi::dal::knn::method::by_default"><span class="pre">by_default</span></a><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Task</span></code> <span class="pre">=</span> <span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task10by_defaultE" title="oneapi::dal::knn::task::by_default"><span class="pre">by_default</span></a><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">Distance</span></code> <span class="pre">=</span> <span class="pre">oneapi</span><span class="pre">::</span><span class="pre">dal</span><span class="pre">::</span><span class="pre">minkowski_distance</span><span class="pre">::</span><a class="reference internal" href="../pairwise-distances/minkowski-distance.html#_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE" title="oneapi::dal::minkowski_distance::descriptor"><span class="pre">descriptor</span></a><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor::Float"><span class="pre">Float</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span><br /><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">descriptor</span></code><a class="headerlink" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Template Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>Float</strong> – The floating-point type that the algorithm uses for intermediate computations. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">double</span></code>.</p></li>
 <li><p><strong>Method</strong> – Tag-type that specifies an implementation of algorithm. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method7kd_treeE" title="oneapi::dal::knn::method::kd_tree"><span class="pre">kd_tree</span></a></code>.</p></li>
 <li><p><strong>Task</strong> – Tag-type that specifies type of the problem to solve. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="oneapi::dal::knn::task::classification"><span class="pre">classification</span></a></code>.</p></li>
+<li><p><strong>Distance</strong> – The descriptor of the distance used for computations. Can be <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">minkowski_distance</span><span class="pre">::</span><a class="reference internal" href="../pairwise-distances/minkowski-distance.html#_CPPv4I000EN6oneapi3dal18minkowski_distance10descriptorE" title="oneapi::dal::minkowski_distance::descriptor"><span class="pre">descriptor</span></a></code> or <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">chebyshev_distance</span><span class="pre">::</span><a class="reference internal" href="../pairwise-distances/chebyshev-distance.html#_CPPv4I000EN6oneapi3dal18chebyshev_distance10descriptorE" title="oneapi::dal::chebyshev_distance::descriptor"><span class="pre">descriptor</span></a></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -2056,19 +2170,27 @@ from the training set.</p>
 <dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">class_count</span></code> and <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> property values.</p>
 </dd></dl>
 
+<dl class="cpp function">
+<dt id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t">
+<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">M</span></code> <span class="pre">=</span> <span class="pre">Method</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">None</span></code> <span class="pre">=</span> <span class="pre">detail</span><span class="pre">::</span><span class="pre">enable_if_brute_force_t</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t" title="oneapi::dal::knn::descriptor::descriptor::M"><span class="pre">M</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span><br /><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">class_count</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">neighbor_count</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><em><span class="pre">distance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tENSt7int64_tERK10distance_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">class_count</span></code>, <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> and <code class="docutils literal notranslate"><span class="pre">distance</span></code> property values. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> only.</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t">
+<span id="_CPPv3I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t"></span><span id="_CPPv2I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t"></span><span class="pre">template&lt;</span><span class="pre">typename</span> <code class="sig-name descname"><span class="pre">T</span></code> <span class="pre">=</span> <span class="pre">Task</span><span class="pre">,</span> <span class="pre">typename</span> <code class="sig-name descname"><span class="pre">None</span></code> <span class="pre">=</span> <span class="pre">detail</span><span class="pre">::</span><span class="pre">enable_if_search_t</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t" title="oneapi::dal::knn::descriptor::descriptor::T"><span class="pre">T</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span><br /><code class="sig-name descname"><span class="pre">descriptor</span></code><span class="sig-paren">(</span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <em><span class="pre">neighbor_count</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><em><span class="pre">distance</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I00EN6oneapi3dal3knn10descriptor10descriptorENSt7int64_tERK10distance_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">neighbor_count</span></code> and <code class="docutils literal notranslate"><span class="pre">distance</span></code> property values. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">task</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="oneapi::dal::knn::task::search"><span class="pre">search</span></a></code> only.</p>
+</dd></dl>
+
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor11class_countE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor11class_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11class_countE"></span><span id="oneapi::dal::knn::descriptor::class_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">class_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of classes c.</p>
+<dt id="_CPPv4N6oneapi3dal3knn10descriptor8distanceE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor8distanceE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor8distanceE"></span><span id="oneapi::dal::knn::descriptor::distance__distance_tCR"></span><em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">distance</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor8distanceE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Choose distance type for calculations. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> only.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_class_count()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_class_count(std::int64_t</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="oneapi::dal::knn::descriptor::class_count"><span class="pre">class_count</span></a> <span class="pre">&gt;</span> <span class="pre">1</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">const</span> <span class="pre">distance_t</span> <span class="pre">&amp;</span> <span class="pre">get_distance()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_distance(const</span> <span class="pre">distance_t</span> <span class="pre">&amp;dist)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2086,6 +2208,36 @@ from the training set.</p>
 </dd>
 <dt>Invariants</dt><dd><div class="line-block">
 <div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor14neighbor_countE" title="oneapi::dal::knn::descriptor::neighbor_count"><span class="pre">neighbor_count</span></a> <span class="pre">&gt;</span> <span class="pre">0</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor11voting_modeE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11voting_modeE"></span><span id="oneapi::dal::knn::descriptor::voting_mode__voting_mode"></span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE" title="oneapi::dal::knn::descriptor::voting_mode"><span class="pre">voting_mode</span></a> <code class="sig-name descname"><span class="pre">voting_mode</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11voting_modeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The voting mode.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">voting_mode</span> <span class="pre">get_voting_mode()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_voting_mode(voting_mode</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn10descriptor11class_countE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor11class_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11class_countE"></span><span id="oneapi::dal::knn::descriptor::class_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">class_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of classes c.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_class_count()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_class_count(std::int64_t</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="oneapi::dal::knn::descriptor::class_count"><span class="pre">class_count</span></a> <span class="pre">&gt;</span> <span class="pre">1</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2121,6 +2273,11 @@ from the training set.</p>
 <span id="_CPPv3N6oneapi3dal3knn4task14classificationE"></span><span id="_CPPv2N6oneapi3dal3knn4task14classificationE"></span><span id="oneapi::dal::knn::task::classification"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">classification</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task14classificationE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Tag-type that parameterizes entities used for solving <a class="reference internal" href="../../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification problem</span></a>.</p>
 </dd></dl>
+
+<dl class="cpp struct">
+<dt id="_CPPv4N6oneapi3dal3knn4task6searchE">
+<span id="_CPPv3N6oneapi3dal3knn4task6searchE"></span><span id="_CPPv2N6oneapi3dal3knn4task6searchE"></span><span id="oneapi::dal::knn::task::search"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">search</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn4task6searchE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
 
 <dl class="cpp type">
 <dt id="_CPPv4N6oneapi3dal3knn4task10by_defaultE">
@@ -2169,20 +2326,12 @@ from the training set.</p>
 <dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">labels</span></code> property values.</p>
 </dd></dl>
 
-<p><strong>Properties</strong></p>
-<dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn11train_input6labelsE">
-<span id="_CPPv3N6oneapi3dal3knn11train_input6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input6labelsE"></span><span id="oneapi::dal::knn::train_input::labels__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input6labelsE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Vector of labels y for the training set X. <strong>Default value</strong>: table{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;labels)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
+<dl class="cpp function">
+<dt id="_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5table">
+<span id="_CPPv3N6oneapi3dal3knn11train_input11train_inputERK5table"></span><span id="_CPPv2N6oneapi3dal3knn11train_input11train_inputERK5table"></span><span id="oneapi::dal::knn::train_input::train_input__tableCR"></span><code class="sig-name descname"><span class="pre">train_input</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
 
+<p><strong>Properties</strong></p>
 <dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3knn11train_input4dataE">
 <span id="_CPPv3N6oneapi3dal3knn11train_input4dataE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input4dataE"></span><span id="oneapi::dal::knn::train_input::data__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
@@ -2191,6 +2340,19 @@ from the training set.</p>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn11train_input6labelsE">
+<span id="_CPPv3N6oneapi3dal3knn11train_input6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input6labelsE"></span><span id="oneapi::dal::knn::train_input::labels__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input6labelsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Vector of labels y for the training set X. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;labels)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2241,7 +2403,7 @@ from the training set.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>desc</strong> – k-NN algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="pre">descriptor</span></a></code></p></li>
+<li><p><strong>desc</strong> – k-NN algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="pre">descriptor</span></a></code></p></li>
 <li><p><strong>input</strong> – Input data for the training operation</p></li>
 </ul>
 </dd>
@@ -2282,19 +2444,6 @@ from the training set.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn11infer_input5modelE">
-<span id="_CPPv3N6oneapi3dal3knn11infer_input5modelE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input5modelE"></span><span id="oneapi::dal::knn::infer_input::model__model:Task:CR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="oneapi::dal::knn::infer_input::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The trained k-NN model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;m)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3knn11infer_input4dataE">
 <span id="_CPPv3N6oneapi3dal3knn11infer_input4dataE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input4dataE"></span><span id="oneapi::dal::knn::infer_input::data__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input4dataE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The dataset for inference <span class="math notranslate nohighlight">\(X'\)</span>. <strong>Default value</strong>: table{}.</p>
@@ -2302,6 +2451,19 @@ from the training set.</p>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_data()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_data(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn11infer_input5modelE">
+<span id="_CPPv3N6oneapi3dal3knn11infer_input5modelE"></span><span id="_CPPv2N6oneapi3dal3knn11infer_input5modelE"></span><span id="oneapi::dal::knn::infer_input::model__model:Task:CR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="oneapi::dal::knn::infer_input::model"><span class="pre">model</span></a><span class="pre">&lt;</span><span class="pre">Task</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11infer_input5modelE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The trained k-NN model. <strong>Default value</strong>: model&lt;Task&gt;{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;</span> <span class="pre">get_model()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_model(const</span> <span class="pre">model&lt;</span> <span class="pre">Task</span> <span class="pre">&gt;</span> <span class="pre">&amp;m)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2329,13 +2491,37 @@ from the training set.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn12infer_result7indicesE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result7indicesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result7indicesE"></span><span id="oneapi::dal::knn::infer_result::indices__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">indices</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result7indicesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_indices()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_indices(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3knn12infer_result6labelsE">
 <span id="_CPPv3N6oneapi3dal3knn12infer_result6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result6labelsE"></span><span id="oneapi::dal::knn::infer_result::labels__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result6labelsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The predicted labels. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn12infer_result9distancesE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result9distancesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result9distancesE"></span><span id="oneapi::dal::knn::infer_result::distances__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">distances</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result9distancesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_distances()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_distances(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2352,7 +2538,7 @@ from the training set.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>desc</strong> – k-NN algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="pre">descriptor</span></a></code></p></li>
+<li><p><strong>desc</strong> – k-NN algorithm descriptor <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">knn</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4I0000EN6oneapi3dal3knn10descriptorE" title="oneapi::dal::knn::descriptor"><span class="pre">descriptor</span></a></code></p></li>
 <li><p><strong>input</strong> – Input data for the inference operation</p></li>
 </ul>
 </dd>
@@ -2417,6 +2603,7 @@ from the training set.</p>
 </ul>
 </div><div aria-labelledby="tab-0-b25lQVBJIEMrKw==" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-b25lQVBJIEMrKw==" name="b25lQVBJIEMrKw==" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
 <ul class="simple">
+<li><p><a class="reference internal" href="../../../examples/cpp/knn_cls_brute_force_dense_batch.html#cpp-knn-cls-brute-force-dense-batch-cpp"><span class="std std-ref">knn_cls_brute_force_dense_batch.cpp</span></a></p></li>
 <li><p><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html#cpp-knn-cls-kd-tree-dense-batch-cpp"><span class="std std-ref">knn_cls_kd_tree_dense_batch.cpp</span></a></p></li>
 </ul>
 </div><div aria-labelledby="tab-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" name="UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
@@ -2434,7 +2621,7 @@ from the training set.</p>
         <div class='prev-next-bottom'>
             
     <a class='left-prev' id="prev-link" href="index.html" title="previous page">Nearest Neighbors (kNN)</a>
-    <a class='right-next' id="next-link" href="../svm/index.html" title="next page">Support Vector Machines</a>
+    <a class='right-next' id="next-link" href="../pairwise-distances/index.html" title="next page">Pairwise Distances</a>
 
         </div>
         
