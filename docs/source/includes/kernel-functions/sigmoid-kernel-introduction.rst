@@ -14,16 +14,18 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-================
-Kernel Functions
-================
 
-This chapter describes programming interfaces of the kernel functions implemented in |short_name|:
+The Sigmoid kernel is a popular kernel function
+used in kernelized learning algorithms.
 
-.. toctree::
-   :titlesonly:
+.. |c_math| replace::   :ref:`dense <sigmoid_kernel_c_math>`
+.. |c_dense| replace::  :ref:`dense <sigmoid_kernel_c_math_dense>`
+.. |c_input| replace::  :ref:`compute_input <sigmoid_kernel_c_api_input>`
+.. |c_result| replace:: :ref:`compute_result <sigmoid_kernel_c_api_result>`
+.. |c_op| replace::     :ref:`compute(...) <sigmoid_kernel_c_api>`
 
-   linear-kernel.rst
-   polynomial-kernel.rst
-   rbf-kernel.rst
-   sigmoid-kernel.rst
+=============  ===============  =========  =============  ===========
+**Operation**  **Computational  methods**  **Programming  Interface**
+-------------  --------------------------  --------------------------
+|c_math|       |c_dense|        |c_op|     |c_input|      |c_result|
+=============  ===============  =========  =============  ===========
