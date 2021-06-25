@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
+ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result<task::compute> call_kernel(
     const dal::detail::host_policy& policy,
     const kind& si_kind,
     byte_alloc_iface* alloc_ptr,

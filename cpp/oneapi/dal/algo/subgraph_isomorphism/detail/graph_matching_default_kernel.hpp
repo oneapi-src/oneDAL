@@ -28,7 +28,7 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
+subgraph_isomorphism::graph_matching_result<task::compute> call_kernel(
     const dal::detail::host_policy& ctx,
     const kind& desc,
     byte_alloc_iface* alloc_ptr,
@@ -39,16 +39,17 @@ ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
 
 template <typename Allocator, typename VertexValue, typename EdgeValue>
 struct call_subgraph_isomorphism_kernel_cpu {
-    graph_matching_result operator()(const dal::detail::host_policy& ctx,
-                                     const descriptor_base& desc,
-                                     const Allocator& alloc,
-                                     byte_alloc_iface* alloc_ptr,
-                                     const dal::preview::detail::topology<std::int32_t>& t_data,
-                                     const dal::preview::detail::topology<std::int32_t>& p_data,
-                                     const dal::preview::detail::vertex_values<VertexValue>& vv_t,
-                                     const dal::preview::detail::edge_values<EdgeValue>& ev_t,
-                                     const dal::preview::detail::vertex_values<VertexValue>& vv_p,
-                                     const dal::preview::detail::edge_values<EdgeValue>& ev_p) {
+    graph_matching_result<task::compute> operator()(
+        const dal::detail::host_policy& ctx,
+        const descriptor_base<task::compute>& desc,
+        const Allocator& alloc,
+        byte_alloc_iface* alloc_ptr,
+        const dal::preview::detail::topology<std::int32_t>& t_data,
+        const dal::preview::detail::topology<std::int32_t>& p_data,
+        const dal::preview::detail::vertex_values<VertexValue>& vv_t,
+        const dal::preview::detail::edge_values<EdgeValue>& ev_t,
+        const dal::preview::detail::vertex_values<VertexValue>& vv_p,
+        const dal::preview::detail::edge_values<EdgeValue>& ev_p) {
         int64_t *t_vertex_attribute = nullptr, *p_vertex_attribute = nullptr;
 
         const auto t_vertex_count = t_data._vertex_count;
@@ -92,9 +93,9 @@ template <typename Allocator>
 struct call_subgraph_isomorphism_kernel_cpu<Allocator,
                                             oneapi::dal::preview::empty_value,
                                             oneapi::dal::preview::empty_value> {
-    graph_matching_result operator()(
+    graph_matching_result<task::compute> operator()(
         const dal::detail::host_policy& ctx,
-        const descriptor_base& desc,
+        const descriptor_base<task::compute>& desc,
         const Allocator& alloc,
         byte_alloc_iface* alloc_ptr,
         const dal::preview::detail::topology<std::int32_t>& t_data,
