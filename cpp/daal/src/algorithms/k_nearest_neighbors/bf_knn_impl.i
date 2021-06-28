@@ -72,7 +72,7 @@ public:
         NumericTable * newTrainLabelTable = const_cast<NumericTable *>(trainLabelTable);
         if (resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
         {
-            newTrainLabelTable->getBlockOfRows(0, nTrain, readWrite, trainLabelBlock);
+            newTrainLabelTable->getBlockOfRows(0, nTrain, readOnly, trainLabelBlock);
             trainLabel = trainLabelBlock.getBlockPtr();
             DAAL_CHECK_MALLOC(trainLabel);
         }

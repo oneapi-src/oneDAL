@@ -99,7 +99,7 @@ namespace v1 {
 using detail::v1::model_impl;
 
 template <typename Task>
-model<Task>::model() : impl_(/* new model_impl<Task>{} */nullptr) {}
+model<Task>::model() : impl_(nullptr) {}
 
 template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}

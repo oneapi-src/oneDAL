@@ -81,10 +81,9 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
     interop::status_to_exception(status);
 
-    // Data or labels should not be copied, copy is already happened when
-    // the tables are converted to NumericTables
-    model_ptr->impl()->setData<Float>(daal_train_data, true);
-    model_ptr->impl()->setLabels<Float>(daal_train_labels, true);
+    // Data or labels should not be copied
+    model_ptr->impl()->setData<Float>(daal_train_data, false);
+    model_ptr->impl()->setLabels<Float>(daal_train_labels, false);
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
