@@ -34,7 +34,7 @@ struct inner_alloc {
 
     template <typename T>
     T* allocate(std::int64_t n) {
-        T* ptr = reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
+        T* const ptr = reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
         if (!ptr) {
             throw oneapi::dal::host_bad_alloc();
         }
