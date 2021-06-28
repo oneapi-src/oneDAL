@@ -88,6 +88,7 @@ struct result_option_id_t : public result_option_id {
 
 namespace detail {
 
+/// Alias for
 using result_option_id_t = result_options::result_option_id_t;
 ONEDAL_EXPORT result_option_id_t get_labels_id();
 ONEDAL_EXPORT result_option_id_t get_indices_id();
