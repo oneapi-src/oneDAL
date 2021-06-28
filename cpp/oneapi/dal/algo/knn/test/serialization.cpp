@@ -113,7 +113,7 @@ public:
 
     descriptor_t get_descriptor() {
         ONEDAL_ASSERT(class_count_ > 0);
-        ONEDAL_ASSERT(set_neighbor_count_ > 0);
+        ONEDAL_ASSERT(neighbor_count_ > 0);
         return descriptor_t(class_count_, neighbor_count_);
     }
 
