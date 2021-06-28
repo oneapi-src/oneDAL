@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/rng/rnd_uniform.hpp"
+#include "oneapi/dal/backend/primitives/rng/rnd_partial_shuffle.hpp"
 
 #include "oneapi/dal/algo/kmeans_init/common.hpp"
 
@@ -60,7 +60,7 @@ struct kmeans_init_kernel<Float, kmeans_init::method::dense> {
         dal::detail::check_mul_overflow(cluster_count, column_count);
         const auto data_ptr = data.get_data();
         auto centroids_ptr = centroids.get_mutable_data();
-        return dal::backend::copy(queue, centroids_ptr, data_ptr, cluster_count * column_count);
+        return bk::copy(queue, centroids_ptr, data_ptr, cluster_count * column_count);
     }
 };
 
@@ -82,34 +82,31 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
             cluster_count,
             dal::detail::integral_cast<std::uint64_t>(sizeof(std::int32_t)));
 
-        auto indices = pr::ndarray<std::uint64_t, 1>::empty(queue, cluster_count);
-        auto indices_ptr = indices.get_mutable_data();
+        auto indices_size_t = pr::ndarray<size_t, 1>::empty(queue, cluster_count);
+        pr::partial_shuffle{}.generate(indices_size_t, row_count);
+        auto indices_ptr = indices_size_t.get_data();
 
-        pr::rnd_uniform<std::uint64_t> rng;
-        bk::event_vector events;
+        const std::int64_t required_local_size = bk::device_max_wg_size(queue);
+        const std::int64_t local_size = std::min(bk::down_pow2(column_count), required_local_size);
 
-        std::int64_t k = 0;
-        for (std::uint64_t i = 0; i < cluster_count; i++) {
-            auto cur_elements = pr::ndarray<std::uint64_t, 1>::wrap(indices_ptr + i, 1);
-            rng.generate(queue, cur_elements, i, row_count);
-            ONEDAL_ASSERT(indices_ptr[i] >= 0)
-            std::uint64_t& value = indices_ptr[i];
-            for (std::uint64_t j = i; j > 0; j--) {
-                if (value == indices_ptr[j - 1]) {
-                    value = j - 1;
+        auto gather_event = queue.submit([&](sycl::handler& cgh) {
+            const auto range = bk::make_multiple_nd_range_2d(
+                { local_size, dal::detail::integral_cast<std::int64_t>(cluster_count) },
+                { local_size, 1 });
+            sycl::stream out(1024, 256, cgh);
+            cgh.parallel_for(range, [=](sycl::nd_item<2> id) {
+                const auto cluster = id.get_global_id(1);
+                const std::int64_t local_id = id.get_local_id(0);
+                const std::int64_t local_size = id.get_local_range()[0];
+                const std::uint64_t index = indices_ptr[cluster];
+                for (std::int64_t k = local_id; k < column_count; k += local_size) {
+                    centroids_ptr[cluster * column_count + k] = data_ptr[index * column_count + k];
                 }
-            }
-            if (value >= row_count)
-                continue;
-            events.push_back(dal::backend::copy(queue,
-                                                centroids_ptr + k * column_count,
-                                                data_ptr + value * column_count,
-                                                column_count));
-            k++;
-        }
-        ONEDAL_ASSERT(k == cluster_count);
-        sycl::event::wait(events);
-        return sycl::event();
+            });
+        });
+        bk::smart_event event(gather_event);
+        event.attach(indices_ptr);
+        return event;
     }
 };
 
