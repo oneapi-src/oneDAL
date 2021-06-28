@@ -155,10 +155,10 @@ public:
     }
 };
 
-// template <typename... Args>
-// inline auto train(host_test_policy& policy, Args&&... args) {
-//     return dal::train(std::forward<Args>(args)...);
-// }
+template <typename... Args>
+inline auto train(host_test_policy& policy, Args&&... args) {
+    return dal::train(std::forward<Args>(args)...);
+}
 
 template <typename... Args>
 inline auto train(host_test_policy& policy,

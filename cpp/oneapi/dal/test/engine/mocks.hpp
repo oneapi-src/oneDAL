@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/table/common.hpp"
-#include "oneapi/dal/test/engine/communicator_mock.hpp"
 
 namespace oneapi::dal::test::engine {
 

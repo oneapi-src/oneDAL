@@ -52,8 +52,7 @@ public:
 
         for (std::int64_t i = 0; i < split_count; i++) {
             split_input.push_back( //
-                train_input_t{} //
-                    .set_data(split_data[i]) //
+                train_input_t{ split_data[i] } //
                     .set_initial_centroids(common_centroids) //
             );
         }
