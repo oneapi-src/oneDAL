@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::classification`.
+///              be :expr:`task::classification` or :expr:`task::search`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -76,7 +76,7 @@ private:
 };
 
 /// @tparam Task Tag-type that specifies type of the problem to solve. Can
-///              be :expr:`task::classification`.
+///              be :expr:`task::classification` or :expr:`task::search`.
 template <typename Task = task::by_default>
 class infer_result {
     static_assert(detail::is_valid_task_v<Task>);
@@ -97,6 +97,8 @@ public:
         return *this;
     }
 
+    /// Indices of nearest neighbors
+    /// @remark default = table{}
     const table& get_indices() const;
 
     auto& set_indices(const table& value) {
@@ -104,6 +106,8 @@ public:
         return *this;
     }
 
+    /// Distances to nearest neighbors
+    /// @remark default = table{}
     const table& get_distances() const;
 
     auto& set_distances(const table& value) {

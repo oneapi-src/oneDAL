@@ -77,6 +77,8 @@ using v1::by_default;
 
 namespace result_options {
 
+/// Represents result option flag
+/// Behaves like a regular :expr`enum`.
 struct result_option_id_t : public result_option_id {
     result_option_id_t() : result_option_id{} {}
     result_option_id_t(const result_option_id& base) : result_option_id{ base } {}
@@ -93,6 +95,8 @@ ONEDAL_EXPORT result_option_id_t get_distances_id();
 
 } // namespace detail
 
+/// Result options are used to define 
+/// what should algorithm return
 namespace result_options {
 
 const inline result_option_id_t labels = detail::get_labels_id();
@@ -309,6 +313,7 @@ public:
         return base_t::get_result_options();
     }
 
+    /// Choose which results should be computed and returned.
     result_options::result_option_id_t get_result_options() const {
         return base_t::get_result_options();
     }
