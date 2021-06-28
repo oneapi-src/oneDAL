@@ -99,7 +99,7 @@ namespace v1 {
 using detail::v1::model_impl;
 
 template <typename Task>
-model<Task>::model() : impl_(new model_impl<Task>{}) {}
+model<Task>::model() : impl_(/* new model_impl<Task>{} */nullptr) {}
 
 template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
@@ -116,7 +116,8 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 
 template class ONEDAL_EXPORT model<task::classification>;
 
-ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(detail::v1::brute_force_model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(detail::v1::kdtree_model_impl<task::classification>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
 
 } // namespace v1

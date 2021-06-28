@@ -199,9 +199,7 @@ public:
 
         INFO("inference");
         const auto expected = run_inference(model);
-        const auto actual = run_inference(model);
-        // const auto expected = run_inference(deserialized_model);
-        // const auto actual = run_inference(deserialized_model);
+        const auto actual = run_inference(deserialized_model);
         compare_infer_results(actual, expected);
     }
 

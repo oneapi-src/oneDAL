@@ -43,7 +43,6 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
                                                            const descriptor_t& desc,
                                                            const table& data,
                                                            const table& labels) {
-    using daal_model_interop_t = backend::model_interop;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -85,8 +84,7 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
                                                        daal_parameter,
                                                        *daal_parameter.engine.get()));
 
-    auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl = std::make_shared<model_impl_cls>(interop);
+    const auto model_impl = std::make_shared<brute_force_model_impl_cls>(data, labels);
     return train_result<task::classification>().set_model(
         dal::detail::make_private<model<task::classification>>(model_impl));
 }

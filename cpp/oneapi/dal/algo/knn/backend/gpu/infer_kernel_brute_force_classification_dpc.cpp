@@ -24,6 +24,7 @@
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
+#include <iostream>
 
 namespace oneapi::dal::knn::backend {
 
@@ -66,9 +67,28 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
         throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
     }
 
+    if(!dynamic_cast<brute_force_model_impl_cls*>(&dal::detail::get_impl(m))) {
+        throw internal_error{ dal::detail::error_messages::unsupported_knn_model() };
+    }
+
+    const auto deserialized_model = dynamic_cast<brute_force_model_impl_cls*>(&dal::detail::get_impl(m));
+
+    const auto daal_train_data = interop::convert_to_daal_table<Float>(deserialized_model->data_);
+    const auto daal_train_labels = interop::convert_to_daal_table<Float>(deserialized_model->labels_);
+    const std::int64_t column_count = daal_train_data.get_column_count();
+
+    Status status;
+    const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
+    interop::status_to_exception(status);
+
+    // Data or labels should not be copied, copy is already happened when
+    // the tables are converted to NumericTables
+    model_ptr->impl()->setData<Float>(daal_train_data, false);
+    model_ptr->impl()->setLabels<Float>(daal_train_labels, false);
+
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
-        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
+        model_ptr.get(),
         daal_labels.get(),
         &daal_parameter));
 

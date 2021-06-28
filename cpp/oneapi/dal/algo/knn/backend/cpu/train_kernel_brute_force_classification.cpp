@@ -43,11 +43,10 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
                                                            const descriptor_t& desc,
                                                            const table& data,
                                                            const table& labels) {
-    using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
-    const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
-    const auto daal_labels = interop::copy_to_daal_homogen_table<Float>(labels);
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
+    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
 
     const auto data_use_in_model = daal_knn::doUse;
     daal_knn::Parameter daal_parameter(
@@ -61,9 +60,8 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
 
     // Data or labels should not be copied, copy is already happened when
     // the tables are converted to NumericTables
-    const bool copy_data_labels = data_use_in_model == daal_knn::doNotUse;
-    model_ptr->impl()->setData<Float>(daal_data, copy_data_labels);
-    model_ptr->impl()->setLabels<Float>(daal_labels, copy_data_labels);
+    model_ptr->impl()->setData<Float>(daal_data, false);
+    model_ptr->impl()->setLabels<Float>(daal_labels, false);
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(ctx,
@@ -73,8 +71,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
                                                                daal_parameter,
                                                                *daal_parameter.engine));
 
-    auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl = std::make_shared<model_impl_cls>(interop);
+    const auto model_impl = std::make_shared<brute_force_model_impl_cls>(data, labels);
     return train_result<task::classification>().set_model(
         dal::detail::make_private<model<task::classification>>(model_impl));
 }

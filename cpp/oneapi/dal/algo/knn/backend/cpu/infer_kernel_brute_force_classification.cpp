@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
+#include <algorithms/k_nearest_neighbors/bf_knn_classification_model.h>
 
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
@@ -27,6 +28,7 @@
 
 namespace oneapi::dal::knn::backend {
 
+using daal::services::Status;
 using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
@@ -72,10 +74,29 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
     const auto daal_voting_mode = convert_to_daal_bf_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
 
+    if(!dynamic_cast<brute_force_model_impl_cls*>(&dal::detail::get_impl(m))) {
+        throw internal_error{ dal::detail::error_messages::unsupported_knn_model() };
+    }
+
+    const auto deserialized_model = dynamic_cast<brute_force_model_impl_cls*>(&dal::detail::get_impl(m));
+
+    const auto daal_train_data = interop::convert_to_daal_table<Float>(deserialized_model->data_);
+    const auto daal_train_labels = interop::convert_to_daal_table<Float>(deserialized_model->labels_);
+    const std::int64_t column_count = daal_train_data.get_column_count();
+
+    Status status;
+    const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
+    interop::status_to_exception(status);
+
+    // Data or labels should not be copied, copy is already happened when
+    // the tables are converted to NumericTables
+    model_ptr->impl()->setData<Float>(daal_train_data, false);
+    model_ptr->impl()->setLabels<Float>(daal_train_labels, false);
+
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(
         ctx,
         daal_data.get(),
-        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
+        model_ptr.get(),
         daal_labels.get(),
         nullptr,
         nullptr,

@@ -77,7 +77,7 @@ static train_result<task::classification> call_daal_kernel(const context_cpu& ct
                                                                     *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl = std::make_shared<model_impl_cls>(interop);
+    const auto model_impl = std::make_shared<kdtree_model_impl_cls>(interop);
     return train_result<task::classification>().set_model(
         dal::detail::make_private<model<task::classification>>(model_impl));
 }
