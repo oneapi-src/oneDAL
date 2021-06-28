@@ -56,6 +56,10 @@ void descriptor_base<Task>::set_semantic_match(bool semantic_match) {
 
 template <typename Task>
 void descriptor_base<Task>::set_max_match_count(std::int64_t max_match_count) {
+    if (max_match_count > 0) {
+        throw unimplemented(
+            dal::detail::error_messages::non_zero_max_match_count_is_not_supported());
+    }
     impl_->max_match_count = max_match_count;
 }
 
