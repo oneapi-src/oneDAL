@@ -95,7 +95,7 @@ ONEDAL_EXPORT result_option_id_t get_distances_id();
 
 } // namespace detail
 
-/// Result options are used to define 
+/// Result options are used to define
 /// what should algorithm return
 namespace result_options {
 
