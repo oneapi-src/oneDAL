@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/primitives/rng/rnd_partial_shuffle.hpp"
+#include "oneapi/dal/backend/primitives/rng/partial_shuffle.hpp"
 
 #include <daal/src/externals/service_rng.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
@@ -38,17 +38,17 @@ inline void uniform_by_cpu(Args&&... args) {
 void partial_shuffle::generate(ndview<size_t, 1>& result_array, size_t top) {
     daal::algorithms::engines::EnginePtr engine =
         daal::algorithms::engines::mt19937::Batch<>::create(777);
-    ONEDAL_ASSERT(*engine_ != nullptr);
+    ONEDAL_ASSERT(engine.get() != nullptr);
     auto engine_impl =
         dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*engine));
     ONEDAL_ASSERT(engine_impl != nullptr);
     const std::uint64_t count = result_array.get_count();
-    const auto count_as_size_t = dal::detail::integral_cast<size_t>(count);
-    ONEDAL_ASSERT(count_as_unsigned < top);
+    const auto casted_count = dal::detail::integral_cast<size_t>(count);
+    ONEDAL_ASSERT(casted_count < top);
     auto indices_ptr = result_array.get_mutable_data();
 
-    std::int64_t k = 0;
-    for (size_t i = 0; i < count_as_size_t; i++) {
+    std::uint64_t k = 0;
+    for (size_t i = 0; i < casted_count; i++) {
         uniform_by_cpu(1, indices_ptr + i, engine_impl->getState(), i, top);
         ONEDAL_ASSERT(indices_ptr[i] >= 0);
         size_t& value = indices_ptr[i];

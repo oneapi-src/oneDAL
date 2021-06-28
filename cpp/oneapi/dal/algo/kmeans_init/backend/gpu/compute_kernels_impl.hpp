@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/rng/rnd_partial_shuffle.hpp"
+#include "oneapi/dal/backend/primitives/rng/partial_shuffle.hpp"
 
 #include "oneapi/dal/algo/kmeans_init/common.hpp"
 
@@ -82,14 +82,15 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
             cluster_count,
             dal::detail::integral_cast<std::uint64_t>(sizeof(std::int32_t)));
 
-        auto indices_size_t = pr::ndarray<size_t, 1>::empty(queue, cluster_count);
-        pr::partial_shuffle{}.generate(indices_size_t, row_count);
-        auto indices_ptr = indices_size_t.get_data();
+        auto indices = pr::ndarray<size_t, 1>::empty(queue, cluster_count);
+        pr::partial_shuffle{}.generate(indices, row_count);
+        auto indices_ptr = indices.get_data();
 
         const std::int64_t required_local_size = bk::device_max_wg_size(queue);
         const std::int64_t local_size = std::min(bk::down_pow2(column_count), required_local_size);
 
         auto gather_event = queue.submit([&](sycl::handler& cgh) {
+            sycl::stream out(1024, 256, cgh);
             const auto range = bk::make_multiple_nd_range_2d(
                 { local_size, dal::detail::integral_cast<std::int64_t>(cluster_count) },
                 { local_size, 1 });
