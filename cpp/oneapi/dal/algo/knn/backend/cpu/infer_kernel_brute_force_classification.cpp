@@ -82,7 +82,7 @@ static infer_result<task::classification> call_daal_kernel(const context_cpu &ct
 
     const auto daal_train_data = interop::convert_to_daal_table<Float>(deserialized_model->data_);
     const auto daal_train_labels = interop::convert_to_daal_table<Float>(deserialized_model->labels_);
-    const std::int64_t column_count = daal_train_data.get_column_count();
+    const std::int64_t column_count = daal_train_data->getNumberOfColumns();
 
     Status status;
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
