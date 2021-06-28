@@ -42,7 +42,7 @@ namespace v1 {
 struct classification {};
 
 /// Tag-type that parameterizes entities used for solving
-/// :capterm:`search problem <search>`.
+/// the :capterm:`search problem <search>`.
 struct search {};
 
 /// Alias tag-type for classification task.
