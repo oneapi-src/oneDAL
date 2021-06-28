@@ -59,7 +59,7 @@ static result_t<Task> call_daal_kernel(const context_gpu& ctx,
 
     kmeans_init_kernel<Float, Method>::compute_initial_centroids(queue, arr_data, arr_centroids)
         .wait_and_throw();
-    return compute_result<Task>().set_centroids(
+    return result_t<Task>().set_centroids(
         dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
 }
 
