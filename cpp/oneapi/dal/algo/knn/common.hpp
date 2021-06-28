@@ -171,7 +171,7 @@ protected:
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
-    void set_results_options_impl(const optional_results::optional_result_id_t& value);
+    void set_result_options_impl(const optional_results::optional_result_id_t& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -306,7 +306,7 @@ public:
     template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
     auto& set_distance(const distance_t& dist) {
         base_t::set_distance_impl(std::make_shared<detail::distance<distance_t>>(dist));
-        return base_t::get_optional_results();
+        return base_t::get_result_options();
     }
 
     optional_results::optional_result_id_t get_result_options() const {

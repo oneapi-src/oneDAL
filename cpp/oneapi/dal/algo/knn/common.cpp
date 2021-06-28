@@ -105,18 +105,18 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template <typename Task>
-optional_results::optional_result_id_t descriptor_base<Task>::get_result_options_impl() const {
+optional_results::optional_result_id_t descriptor_base<Task>::get_result_options() const {
     return impl_->optional_results;
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_result_optionsl(
+void descriptor_base<Task>::set_result_options_impl(
     const optional_results::optional_result_id_t& value) {
     using msg = dal::detail::error_messages;
     if (!bool(value)) {
         throw domain_error(msg::empty_set_of_optional_results());
     }
-    else if (std::is_same_v<Task, task::search> && bool(value | labels)) {
+    else if (std::is_same_v<Task, task::search> && bool(value | optional_results::labels)) {
         throw domain_error(msg::invalid_set_of_optional_results_to_search());
     }
     impl_->optional_results = value;

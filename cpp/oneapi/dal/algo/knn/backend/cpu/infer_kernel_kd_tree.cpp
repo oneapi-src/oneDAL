@@ -66,8 +66,10 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     daal_parameter.voteWeights = daal_voting_mode;
 
     if (desc.get_result_options() & optional_results::labels) {
-        arr_labels.reset(1 * row_count);
-        daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            arr_labels.reset(1 * row_count);
+            daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+        }
     }
     else {
         daal_parameter.resultsToEvaluate = daal_classifier::none;
@@ -100,8 +102,10 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
 
     auto result = infer_result<Task>{};
     if (desc.get_result_options() & optional_results::labels) {
-        result = result.set_labels(
-            dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+        if constexpr (std::is_same_v<Task, task::classification>) {
+            result = result.set_labels(
+                dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+        }
     }
 
     if (desc.get_result_options() & optional_results::indices) {
