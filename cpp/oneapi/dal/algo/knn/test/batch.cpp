@@ -46,8 +46,7 @@ public:
                         std::int64_t override_neighbor_count) const {
         return knn::descriptor<Float, Method, knn::task::classification>(override_class_count,
                                                                          override_neighbor_count)
-            .set_result_options(knn::result_options::labels |
-                                knn::result_options::indices |
+            .set_result_options(knn::result_options::labels | knn::result_options::indices |
                                 knn::result_options::distances);
     }
 
