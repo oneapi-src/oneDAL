@@ -83,6 +83,7 @@ public:
     MSG(page_size_leq_zero);
     MSG(invalid_key);
     MSG(capacity_leq_zero);
+    MSG(empty_set_of_optional_results);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);

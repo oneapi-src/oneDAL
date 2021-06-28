@@ -49,6 +49,7 @@ MSG(unsupported_usm_alloc, "Requested USM alloc type is not supported")
 MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
 MSG(invalid_key, "Cannot find the given key")
 MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
+MSG(empty_set_of_optional_results, "Empty set of optional results")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")

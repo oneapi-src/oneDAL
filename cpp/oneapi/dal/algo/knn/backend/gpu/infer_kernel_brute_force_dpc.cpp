@@ -67,15 +67,15 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
 
-    if constexpr (std::is_same_v<Task, task::search>) {
-        daal_parameter.resultsToEvaluate = daal_classifier::none;
-    }
-    else {
+    if (desc.get_result_options() & optional_results::labels) {
         arr_labels = array<Float>::empty(queue, 1 * row_count, sycl::usm::alloc::device);
         daal_labels = interop::convert_to_daal_table(queue, arr_labels, row_count, 1);
     }
+    else {
+        daal_parameter.resultsToEvaluate = daal_classifier::none;
+    }
 
-    if (desc.get_optional_results() & optional_results::indices) {
+    if (desc.get_result_options() & optional_results::indices) {
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
         arr_indices =
             array<std::int64_t>::empty(queue, neighbor_count * row_count, sycl::usm::alloc::device);
@@ -83,7 +83,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
             interop::convert_to_daal_table(queue, arr_indices, row_count, neighbor_count);
     }
 
-    if (desc.get_optional_results() & optional_results::distances) {
+    if (desc.get_result_options() & optional_results::distances) {
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
         arr_distance =
             array<Float>::empty(queue, neighbor_count * row_count, sycl::usm::alloc::device);
@@ -109,18 +109,18 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         &daal_parameter));
 
     auto result = infer_result<Task>{};
-    if constexpr (std::is_same_v<Task, task::classification>) {
+    if (desc.get_result_options() & optional_results::labels) {
         result = result.set_labels(
             dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
     }
 
-    if (desc.get_optional_results() & optional_results::indices) {
+    if (desc.get_result_options() & optional_results::indices) {
         result = result.set_indices(dal::detail::homogen_table_builder{}
                                         .reset(arr_indices, row_count, neighbor_count)
                                         .build());
     }
 
-    if (desc.get_optional_results() & optional_results::indices) {
+    if (desc.get_result_options() & optional_results::indices) {
         result = result.set_distances(dal::detail::homogen_table_builder{}
                                           .reset(arr_distance, row_count, neighbor_count)
                                           .build());

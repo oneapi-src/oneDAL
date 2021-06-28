@@ -87,6 +87,7 @@ struct optional_result_id_t : public optional_result_id {
 namespace detail {
 
 using optional_result_id_t = optional_results::optional_result_id_t;
+ONEDAL_EXPORT optional_result_id_t get_labels_id();
 ONEDAL_EXPORT optional_result_id_t get_indices_id();
 ONEDAL_EXPORT optional_result_id_t get_distances_id();
 
@@ -94,11 +95,12 @@ ONEDAL_EXPORT optional_result_id_t get_distances_id();
 
 namespace optional_results {
 
+const inline optional_result_id_t labels = detail::get_labels_id();
 const inline optional_result_id_t indices = detail::get_indices_id();
 const inline optional_result_id_t distances = detail::get_distances_id();
 
 template <typename Task>
-const inline optional_result_id_t default_optional_results = optional_result_id_t{};
+const inline optional_result_id_t default_optional_results = labels;
 
 template <>
 const inline optional_result_id_t default_optional_results<task::search> = indices | distances;
@@ -159,7 +161,7 @@ public:
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
     voting_mode get_voting_mode() const;
-    optional_results::optional_result_id_t get_optional_results() const;
+    optional_results::optional_result_id_t get_result_options() const;
 
 protected:
     explicit descriptor_base(const detail::distance_ptr& distance);
@@ -169,7 +171,7 @@ protected:
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
-    void set_optional_results_impl(const optional_results::optional_result_id_t& value);
+    void set_results_options_impl(const optional_results::optional_result_id_t& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -307,12 +309,12 @@ public:
         return base_t::get_optional_results();
     }
 
-    optional_results::optional_result_id_t get_optional_results() const {
-        return base_t::get_optional_results();
+    optional_results::optional_result_id_t get_result_options() const {
+        return base_t::get_result_options();
     }
 
-    auto& set_optional_results(const optional_results::optional_result_id_t& value) {
-        base_t::set_optional_results_impl(value);
+    auto& set_result_options(const optional_results::optional_result_id_t& value) {
+        base_t::set_result_options_impl(value);
         return *this;
     }
 };
