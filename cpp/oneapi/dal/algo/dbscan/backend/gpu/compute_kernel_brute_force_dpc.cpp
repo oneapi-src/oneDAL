@@ -59,9 +59,11 @@ static compute_result<Task> call_daal_kernel(const context_gpu& ctx,
     array<int> arr_cluster_count = array<int>::empty(queue, 1, sycl::usm::alloc::device);
 
     const auto daal_responses = interop::convert_to_daal_table(queue, arr_responses, row_count, 1);
+    const auto daal_cluster_count = interop::convert_to_daal_table(queue, arr_cluster_count, 1, 1);
+
+    /* Tables for core observation indices and core observations are allocated inside the kernel */
     const auto daal_core_observation_indices = interop::empty_daal_homogen_table<int>(1);
     const auto daal_core_observations = interop::empty_daal_homogen_table<Float>(column_count);
-    const auto daal_cluster_count = interop::convert_to_daal_table(queue, arr_cluster_count, 1, 1);
 
     interop::status_to_exception(daal_dbscan_t<Float>{}.compute(daal_data.get(),
                                                                 daal_weights.get(),
