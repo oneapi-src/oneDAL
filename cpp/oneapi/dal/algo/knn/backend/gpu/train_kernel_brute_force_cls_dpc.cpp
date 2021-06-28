@@ -17,12 +17,13 @@
 #include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h>
 #include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_train_kernel_ucapi.h>
 
-#include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
+
+#include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
+#include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -86,9 +87,9 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
                                                        *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl = std::make_shared<model_impl_cls>(interop);
+    const auto model_impl_interop = std::make_shared<model_impl<task::classification>>(interop);
     return train_result<task::classification>().set_model(
-        dal::detail::make_private<model<task::classification>>(model_impl));
+        dal::detail::make_private<model<task::classification>>(model_impl_interop));
 }
 
 template <typename Float>

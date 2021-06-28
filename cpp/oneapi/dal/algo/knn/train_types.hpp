@@ -49,6 +49,8 @@ public:
     /// and :literal:`labels` property values
     train_input(const table& data, const table& labels);
 
+    train_input(const table& data);
+
     /// The training set X
     /// @remark default = table{}
     const table& get_data() const;
@@ -62,6 +64,7 @@ public:
     /// @remark default = table{}
     const table& get_labels() const;
 
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
     auto& set_labels(const table& labels) {
         set_data_impl(labels);
         return *this;
