@@ -93,7 +93,6 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
             const auto range = bk::make_multiple_nd_range_2d(
                 { local_size, dal::detail::integral_cast<std::int64_t>(cluster_count) },
                 { local_size, 1 });
-            sycl::stream out(1024, 256, cgh);
             cgh.parallel_for(range, [=](sycl::nd_item<2> id) {
                 const auto cluster = id.get_global_id(1);
                 const std::int64_t local_id = id.get_local_id(0);
