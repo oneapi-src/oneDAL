@@ -99,13 +99,72 @@ private:
 };
 
 template <typename Float, typename BinaryOp, typename UnaryOp>
+class reduction_rm_cw_super_accum_wide {
+    static_assert(std::is_same_v<Float, float>);
+    static_assert(std::is_same_v<BinaryOp, sum<float>>);
+public:
+    reduction_rm_cw_super_accum_wide(sycl::queue& q, std::int64_t wg);
+    reduction_rm_cw_super_accum_wide(sycl::queue& q);
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t stride,
+                           std::int64_t height,
+                           std::int64_t* bins,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {}) const;
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t stride,
+                           std::int64_t height,
+                           std::int64_t* bins,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {}) const;
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t stride,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {}) const;
+    sycl::event operator()(const Float* input,
+                           Float* output,
+                           std::int64_t width,
+                           std::int64_t height,
+                           const BinaryOp& binary = BinaryOp{},
+                           const UnaryOp& unary = UnaryOp{},
+                           const event_vector& deps = {}) const;
+    static std::int64_t max_width(const sycl::queue& q);
+    static std::int64_t min_effective_width(const sycl::queue& q);
+
+private:
+    sycl::nd_range<2> get_range(std::int64_t width,
+                                std::int64_t height) const;
+    static kernel_t get_kernel(sycl::handler& h,
+                               const Float* input,
+                               Float* output,
+                               std::int64_t width,
+                               std::int64_t height,
+                               std::int64_t stride,
+                               std::int64_t* bins,
+                               const BinaryOp& binary,
+                               const UnaryOp& unary);
+    sycl::queue& q_;
+    const std::int64_t wg_;
+};
+
+template <typename Float, typename BinaryOp, typename UnaryOp>
 class reduction_rm_cw {
 public:
     using naive_t = reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>;
     using naive_local_t = reduction_rm_cw_naive_local<Float, BinaryOp, UnaryOp>;
 
     reduction_rm_cw(sycl::queue& q);
-    enum reduction_method { naive, naive_local };
+    enum reduction_method { naive, naive_local, super_accum_wide };
     reduction_method propose_method(std::int64_t width, std::int64_t height) const;
     sycl::event operator()(reduction_method method,
                            const Float* input,
