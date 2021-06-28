@@ -48,7 +48,7 @@ struct inner_alloc {
 
     template <typename T>
     oneapi::dal::detail::shared<T> make_shared_memory(std::int64_t n) {
-        auto ptr = oneapi::dal::detail::shared<T>(allocate<T>(n), [=](T* p) {
+        const auto ptr = oneapi::dal::detail::shared<T>(allocate<T>(n), [=](T* p) {
             deallocate<T>(p, n);
         });
         return ptr;

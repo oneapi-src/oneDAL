@@ -211,8 +211,8 @@ void solution<Cpu>::append(solution<Cpu>&& _solution) {
 
 template <typename Cpu>
 void solution<Cpu>::increase_solutions_size() {
-    std::int64_t new_max_solution_count = 2 * max_solution_count;
-    std::int64_t** new_data = allocator.allocate<std::int64_t*>(new_max_solution_count);
+    const std::int64_t new_max_solution_count = 2 * max_solution_count;
+    std::int64_t** const new_data = allocator.allocate<std::int64_t*>(new_max_solution_count);
     for (std::int64_t i = 0; i < max_solution_count; i++) {
         new_data[i] = data[i];
     }
