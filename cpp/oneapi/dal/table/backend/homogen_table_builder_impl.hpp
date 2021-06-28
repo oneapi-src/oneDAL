@@ -23,8 +23,7 @@
 namespace oneapi::dal::backend {
 
 class homogen_table_builder_impl
-        : public detail::table_builder_template<detail::homogen_table_builder_iface,
-                                                homogen_table_builder_impl> {
+        : public detail::homogen_table_builder_template<homogen_table_builder_impl> {
 public:
     homogen_table_builder_impl() {
         reset();
@@ -131,9 +130,9 @@ public:
 #endif
 
     template <typename T>
-    void pull_rows(const detail::default_host_policy& policy,
-                   array<T>& block,
-                   const range& rows) const {
+    void pull_rows_template(const detail::default_host_policy& policy,
+                            array<T>& block,
+                            const range& rows) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_rows(policy,
                           get_info(),
@@ -145,10 +144,10 @@ public:
     }
 
     template <typename T>
-    void pull_column(const detail::default_host_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) const {
+    void pull_column_template(const detail::default_host_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_column(policy,
                             get_info(),
@@ -161,26 +160,26 @@ public:
     }
 
     template <typename T>
-    void push_rows(const detail::default_host_policy& policy,
-                   const array<T>& block,
-                   const range& rows) {
+    void push_rows_template(const detail::default_host_policy& policy,
+                            const array<T>& block,
+                            const range& rows) {
         homogen_push_rows(policy, get_info(), data_, block, rows);
     }
 
     template <typename T>
-    void push_column(const detail::default_host_policy& policy,
-                     const array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) {
+    void push_column_template(const detail::default_host_policy& policy,
+                              const array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) {
         homogen_push_column(policy, get_info(), data_, block, column_index, rows);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void pull_rows(const detail::data_parallel_policy& policy,
-                   array<T>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) const {
+    void pull_rows_template(const detail::data_parallel_policy& policy,
+                            array<T>& block,
+                            const range& rows,
+                            sycl::usm::alloc alloc) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_rows(policy,
                           get_info(),
@@ -192,11 +191,11 @@ public:
     }
 
     template <typename T>
-    void pull_column(const detail::data_parallel_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) const {
+    void pull_column_template(const detail::data_parallel_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows,
+                              sycl::usm::alloc alloc) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_column(policy,
                             get_info(),
@@ -209,17 +208,17 @@ public:
     }
 
     template <typename T>
-    void push_rows(const detail::data_parallel_policy& policy,
-                   const array<T>& block,
-                   const range& rows) {
+    void push_rows_template(const detail::data_parallel_policy& policy,
+                            const array<T>& block,
+                            const range& rows) {
         homogen_push_rows(policy, get_info(), data_, block, rows);
     }
 
     template <typename T>
-    void push_column(const detail::data_parallel_policy& policy,
-                     const array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) {
+    void push_column_template(const detail::data_parallel_policy& policy,
+                              const array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) {
         homogen_push_column(policy, get_info(), data_, block, column_index, rows);
     }
 #endif

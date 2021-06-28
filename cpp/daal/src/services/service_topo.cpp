@@ -1926,29 +1926,21 @@ unsigned _internal_daal_GetStatus()
 
 unsigned getL1CacheSize()
 {
-    _internal_daal_GetSysProcessorCoreCount();
-
-    if (glbl_obj.error || !glbl_obj.maxCacheSubleaf) return 0;
-
-    return glbl_obj.cacheDetail[0].sizeKB * 1024;
+    // TODO: add L1 cache computation
+    return 32 * 1024;
 }
 
 unsigned getL2CacheSize()
 {
-    _internal_daal_GetSysProcessorCoreCount();
-
-    if (glbl_obj.error || !glbl_obj.maxCacheSubleaf) return 0;
-
-    return glbl_obj.cacheDetail[2].sizeKB * 1024;
+    // TODO: add L2 cache computation
+    return 256 * 1024;
 }
 
 unsigned getLLCacheSize()
 {
-    _internal_daal_GetSysProcessorCoreCount();
-
-    if (glbl_obj.error || !glbl_obj.maxCacheSubleaf) return 0;
-
-    return glbl_obj.cacheDetail[glbl_obj.maxCacheSubleaf].sizeKB * 1024;
+    // TODO: add LL cache computation
+    size_t nThreads = daal::threader_get_threads_number();
+    return 1.375 * 1024 * 1024 * nThreads;
 }
 
 void glktsn::FreeArrays()

@@ -96,7 +96,8 @@ DAAL_LIB := -L$(DAAL_PATH),$(DAAL_LIB_EXT),-lonedal_core,-Bdynamic -Wl,$(DAAL_LI
 COPTS := -pedantic -Wall -Wextra -Werror \
          -Wno-deprecated-declarations \
          -Wno-unused-parameter \
-         -I./source/utils
+         -fsycl-device-code-split=per_kernel \
+         -I./source/utils 
 
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group
 

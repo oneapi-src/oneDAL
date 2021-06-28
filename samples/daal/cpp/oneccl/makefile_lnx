@@ -101,7 +101,7 @@ COPTS := -Wall -w -I./source/utils
 
 ifeq ($(compiler),clang)
     CC = clang++
-    COPTS += -fsycl
+    COPTS += -fsycl -fsycl-device-code-split=per_kernel
 endif
 
 LOPTS := -Wl,--start-group -Wl,$(DAAL_LIB),$(EXT_LIB) $(DAAL_PATH)/libonedal_sycl.a -Wl,--end-group

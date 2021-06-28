@@ -63,8 +63,7 @@ struct train_ops {
         ONEDAL_ASSERT(result.get_support_vectors().has_data());
         ONEDAL_ASSERT(result.get_support_indices().has_data());
         ONEDAL_ASSERT(result.get_coeffs().has_data());
-        ONEDAL_ASSERT(result.get_support_vector_count() >= 0 &&
-                      result.get_support_vector_count() <= input.get_data().get_row_count());
+        ONEDAL_ASSERT(result.get_support_vector_count() <= input.get_data().get_row_count());
         ONEDAL_ASSERT(result.get_support_vectors().get_column_count() ==
                       input.get_data().get_column_count());
         ONEDAL_ASSERT(result.get_support_vectors().get_row_count() ==

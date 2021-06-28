@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/table/detail/table_utils.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 
 namespace oneapi::dal {
@@ -71,8 +72,8 @@ public:
     ///
     /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
     /// @pre ``column_index`` is within the range of ``[0, obj.column_count)``.
-    array<data_t> pull(std::int64_t column_index, const range& row_range = { 0, -1 }) const {
-        array<data_t> block;
+    dal::array<data_t> pull(std::int64_t column_index, const range& row_range = { 0, -1 }) const {
+        dal::array<data_t> block;
         pull(block, column_index, row_range);
         return block;
     }
@@ -94,7 +95,7 @@ public:
     ///
     /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
     /// @pre ``column_index`` is within the range of ``[0, obj.column_count)``.
-    T* pull(array<data_t>& block,
+    T* pull(dal::array<data_t>& block,
             std::int64_t column_index,
             const range& row_range = { 0, -1 }) const {
         pull_iface_->pull_column(detail::default_host_policy{}, block, column_index, row_range);
@@ -115,11 +116,11 @@ public:
     ///
     /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
     /// @pre ``column_index`` is within the range of ``[0, obj.column_count)``.
-    array<data_t> pull(sycl::queue& queue,
-                       std::int64_t column_index,
-                       const range& row_range = { 0, -1 },
-                       const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
-        array<data_t> block;
+    dal::array<data_t> pull(sycl::queue& queue,
+                            std::int64_t column_index,
+                            const range& row_range = { 0, -1 },
+                            const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
+        dal::array<data_t> block;
         pull(queue, block, column_index, row_range, alloc);
         return block;
     }
@@ -146,7 +147,7 @@ public:
     /// @pre ``row_range`` are within the range of ``[0, obj.row_count)``.
     /// @pre ``column_index`` is within the range of ``[0, obj.column_count)``.
     T* pull(sycl::queue& queue,
-            array<data_t>& block,
+            dal::array<data_t>& block,
             std::int64_t column_index,
             const range& row_range = { 0, -1 },
             const sycl::usm::alloc& alloc = sycl::usm::alloc::shared) const {
@@ -160,7 +161,7 @@ public:
 #endif
 
     template <typename U = T, std::enable_if_t<!std::is_const_v<U>, int> = 0>
-    void push(const array<data_t>& block,
+    void push(const dal::array<data_t>& block,
               std::int64_t column_index,
               const range& row_range = { 0, -1 }) {
         push_iface_->push_column(detail::default_host_policy{}, block, column_index, row_range);
@@ -169,7 +170,7 @@ public:
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename U = T, std::enable_if_t<!std::is_const_v<U>, int> = 0>
     void push(sycl::queue& queue,
-              const array<data_t>& block,
+              const dal::array<data_t>& block,
               std::int64_t column_index,
               const range& row_range = { 0, -1 }) {
         push_iface_->push_column(detail::data_parallel_policy{ queue },
@@ -180,7 +181,7 @@ public:
 #endif
 
 private:
-    static T* get_block_data(const array<data_t>& block) {
+    static T* get_block_data(const dal::array<data_t>& block) {
         if constexpr (is_readonly) {
             return block.get_data();
         }

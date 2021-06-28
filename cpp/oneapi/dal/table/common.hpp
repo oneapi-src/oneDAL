@@ -50,7 +50,7 @@ public:
     /// @param dtypes The data types of the features. Assigned into the :literal:`data_type` property.
     /// @param ftypes The feature types. Assigned into the :literal:`feature_type` property.
     /// @pre :expr:`dtypes.get_count() == ftypes.get_count()`
-    table_metadata(const array<data_type>& dtypes, const array<feature_type>& ftypes);
+    table_metadata(const dal::array<data_type>& dtypes, const dal::array<feature_type>& ftypes);
 
     /// The number of features that metadata contains information about
     /// @invariant :literal:`feature_count >= 0`
@@ -65,6 +65,10 @@ public:
 private:
     void serialize(detail::output_archive& ar) const;
     void deserialize(detail::input_archive& ar);
+
+    /// Maintained for backward compatibility
+    table_metadata(const dal::v1::array<data_type>& dtypes,
+                   const dal::v1::array<feature_type>& ftypes);
 
     detail::pimpl<detail::table_metadata_impl> impl_;
 };

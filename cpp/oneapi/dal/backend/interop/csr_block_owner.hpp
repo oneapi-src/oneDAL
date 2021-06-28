@@ -20,7 +20,8 @@ namespace oneapi::dal::backend::interop {
 
 template <typename T>
 struct csr_block_owner {
-    csr_block_owner(const daal::data_management::NumericTablePtr& nt) {
+    csr_block_owner(const daal::data_management::NumericTablePtr nt) {
+        _is_empty = false;
         daal::services::Status status;
         _csr_nt = daal::services::dynamicPointerCast<daal::data_management::CSRNumericTable,
                                                      daal::data_management::NumericTable>(nt);

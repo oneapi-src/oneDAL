@@ -1,6 +1,6 @@
 /* file: directed_adjacency_vector_graph_builder.hpp */
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ public:
             degrees[u] = rows[u + 1] - rows[u];
         }
 
-        graph_impl.set_topology(vertex_count, edge_count, rows, cols, degrees);
+        graph_impl.set_topology(vertex_count, edge_count, rows, cols, edge_count, degrees);
         graph_impl.set_edge_values(vals, edge_count);
     }
 

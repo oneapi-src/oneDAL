@@ -109,6 +109,7 @@ public:
     MSG(object_does_not_provide_write_access_to_rows);
     MSG(object_does_not_provide_read_access_to_columns);
     MSG(object_does_not_provide_write_access_to_columns);
+    MSG(object_does_not_provide_access_to_rows_or_columns);
     MSG(unsupported_conversion_types);
     MSG(row_indices_lt_min_value);
     MSG(row_indices_gt_max_value);
@@ -154,7 +155,10 @@ public:
     MSG(bootstrap_is_incompatible_with_variable_importance_mode);
     MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu);
     MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
+    MSG(invalid_number_of_trees);
+    MSG(invalid_number_of_classes);
     MSG(input_model_is_not_initialized);
+    MSG(input_model_tree_has_invalid_size);
 
     /* Jaccard */
     MSG(column_begin_gt_column_end);
@@ -164,8 +168,20 @@ public:
     MSG(row_begin_gt_row_end);
     MSG(range_idx_gt_max_int32);
 
+    /* Subgraph Isomorphism */
+    MSG(unsupported_kind);
+    MSG(max_match_count_lt_zero);
+    MSG(empty_target_graph);
+    MSG(empty_pattern_graph);
+    MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
+    MSG(non_zero_max_match_count_is_not_supported);
+    MSG(incorrect_index_is_returned);
+
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
+    MSG(cluster_count_exceeds_data_row_count);
+    MSG(cluster_count_gt_max_int32);
+    MSG(row_count_gt_max_int32);
     MSG(input_initial_centroids_are_empty);
     MSG(input_initial_centroids_cc_neq_input_data_cc);
     MSG(input_initial_centroids_rc_neq_desc_cluster_count);
@@ -177,14 +193,19 @@ public:
     MSG(objective_function_value_lt_zero);
 
     /* k-NN */
-    MSG(knn_brute_force_method_is_not_implemented_for_cpu);
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
+    MSG(knn_search_task_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
+    MSG(unknown_distance_type);
+    MSG(distance_is_not_supported_for_gpu);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
+
+    /* Minkowski distance */
+    MSG(invalid_minkowski_degree);
 
     /* PCA */
     MSG(component_count_lt_zero);
@@ -193,6 +214,14 @@ public:
     MSG(input_model_eigenvectors_rc_neq_desc_component_count);
     MSG(input_model_eigenvectors_rc_neq_input_data_cc);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
+
+    /* Shortest Paths */
+    MSG(negative_source);
+    MSG(source_gte_vertex_count);
+    MSG(negative_delta);
+    MSG(nothing_to_compute);
+    MSG(distances_are_uninitialized);
+    MSG(predecessors_are_uninitialized);
 
     /* SVM */
     MSG(c_leq_zero);
@@ -208,7 +237,8 @@ public:
     MSG(nu_leq_zero);
     MSG(nu_svm_smo_method_is_not_implemented_for_gpu);
     MSG(nu_svm_thunder_method_is_not_implemented_for_gpu);
-    MSG(polynomial_kenrel_is_not_implemented_for_gpu);
+    MSG(polynomial_kernel_is_not_implemented_for_gpu);
+    MSG(sigmoid_kernel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
     MSG(svm_multiclass_not_implemented_for_gpu);
     MSG(svm_nu_classification_task_is_not_implemented_for_gpu);

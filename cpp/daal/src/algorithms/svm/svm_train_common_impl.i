@@ -100,7 +100,7 @@ void HelperTrainSVM<algorithmFPType, cpu>::WSSjLocalBaseline(const size_t jStart
     const algorithmFPType zero(0.0);
     const algorithmFPType two(2.0);
 
-    char sign = getSign(signNuType);
+    const char sign = getSign(signNuType);
 
     for (size_t j = jStart; j < jEnd; j++)
     {

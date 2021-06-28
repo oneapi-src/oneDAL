@@ -63,9 +63,10 @@ inline void load_edge_list(const std::string &name, weighted_edge_list<Vertex, W
     elist.reserve(1024);
     char source_vertex[32], destination_vertex[32], edge_value[64];
     while (file >> source_vertex >> destination_vertex >> edge_value) {
-        auto edge = std::tuple(daal_string_to<Vertex>(&source_vertex[0], 0),
-                               daal_string_to<Vertex>(&destination_vertex[0], 0),
-                               daal_string_to<Weight>(&edge_value[0], 0));
+        auto edge =
+            std::tuple<Vertex, Vertex, Weight>(daal_string_to<Vertex>(&source_vertex[0], 0),
+                                               daal_string_to<Vertex>(&destination_vertex[0], 0),
+                                               daal_string_to<Weight>(&edge_value[0], 0));
         elist.push_back(edge);
     }
     file.close();
@@ -391,10 +392,10 @@ void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_ty
                                              total_sum_degrees);
     oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
     graph_impl.set_topology(vertex_count,
-                            get_edges_count<Graph>{}(total_sum_degrees),
+                            get_edges_count<Graph>{}(filtered_total_sum_degrees),
                             edge_offsets_data,
                             vertex_neighbors,
-                            total_sum_degrees,
+                            filtered_total_sum_degrees,
                             degrees_data);
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
@@ -531,12 +532,12 @@ void convert_to_csr_impl(
     oneapi::dal::preview::detail::deallocate(edge_allocator, unfiltered_offsets, rows_vec_count);
 
     graph_impl.set_topology(vertex_count,
-                            get_edges_count<Graph>{}(total_sum_degrees),
+                            get_edges_count<Graph>{}(filtered_total_sum_degrees),
                             edge_offsets_data,
                             vertex_neighbors,
-                            total_sum_degrees,
+                            filtered_total_sum_degrees,
                             degrees_data);
-    graph_impl.set_edge_values(vals, get_edges_count<Graph>{}(total_sum_degrees));
+    graph_impl.set_edge_values(vals, get_edges_count<Graph>{}(filtered_total_sum_degrees));
 
     if (filtered_total_sum_degrees < oneapi::dal::detail::limits<std::int32_t>::max()) {
         using vertex_edge_t = typename graph_traits<Graph>::impl_type::vertex_edge_type;

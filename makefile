@@ -25,6 +25,10 @@ USERREQCPU := $(filter-out $(filter $(CPUs),$(REQCPU)),$(REQCPU))
 USECPUS := $(if $(REQCPU),$(if $(USERREQCPU),$(error Unsupported value/s in REQCPU: $(USERREQCPU). List of supported CPUs: $(CPUs)),$(REQCPU)),$(CPUs))
 USECPUS := $(if $(filter sse2,$(USECPUS)),$(USECPUS),sse2 $(USECPUS))
 
+MSVC_RUNTIME_VERSIONs = release debug
+MSVC_RUNTIME_VERSION ?= release
+$(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
+
 req-features = order-only second-expansion
 ifneq ($(words $(req-features)),$(words $(filter $(req-features),$(.FEATURES))))
 $(error This makefile requires a decent make, supporting $(req-features))
@@ -50,10 +54,11 @@ _OS := $(word 1,$(attr.$(PLAT)))
 _IA := $(word 2,$(attr.$(PLAT)))
 _OSc:= $(word 3,$(attr.$(PLAT)))
 
-COMPILER_is_$(COMPILER)  := yes
-OS_is_$(_OS)             := yes
-IA_is_$(_IA)             := yes
-PLAT_is_$(PLAT)          := yes
+COMPILER_is_$(COMPILER)            := yes
+OS_is_$(_OS)                       := yes
+IA_is_$(_IA)                       := yes
+PLAT_is_$(PLAT)                    := yes
+MSVC_RT_is_$(MSVC_RUNTIME_VERSION) := yes
 
 #===============================================================================
 # Compiler specific part
@@ -91,6 +96,8 @@ OSList          := lnx win mac fbsd
 
 o      := $(if $(OS_is_win),obj,o)
 a      := $(if $(OS_is_win),lib,a)
+d      := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),d,),)
+dtbb   := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),_debug,),)
 plib   := $(if $(OS_is_win),,lib)
 scr    := $(if $(OS_is_win),bat,sh)
 y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib fbsd/so))
@@ -175,7 +182,7 @@ DIR:=.
 CPPDIR:=$(DIR)/cpp
 CPPDIR.daal:=$(CPPDIR)/daal
 CPPDIR.onedal:=$(CPPDIR)/oneapi/dal
-WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(PLAT)
+WORKDIR    ?= $(DIR)/__work$(CMPLRDIRSUFF.$(COMPILER))/$(if $(MSVC_RT_is_release),md,mdd)/$(PLAT)
 RELEASEDIR ?= $(DIR)/__release_$(_OS)$(CMPLRDIRSUFF.$(COMPILER))
 RELEASEDIR.daal        := $(RELEASEDIR)/daal/latest
 RELEASEDIR.lib         := $(RELEASEDIR.daal)/lib
@@ -215,7 +222,7 @@ TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
 TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc14),$(TBBDIR.libia.prefix)/$(_IA)/vc14)))
 TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
-TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12.dll)))
+TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12$(dtbb).dll)))
 
 TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
 
@@ -244,8 +251,8 @@ TBBDIR.soia := $(TBBDIR.soia.$(_OS))
 RELEASEDIR.tbb       := $(RELEASEDIR)/tbb/latest
 RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,/$(_IA)$(if $(OS_is_win),/vc_mt,/$(TBBDIR.libia.lnx.gcc)))
 RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/redist/$(_IA)/vc_mt,$(RELEASEDIR.tbb.libia))
-releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb12.$(a) $(TBBDIR.libia)/tbbmalloc.$(a))
-releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12,).$(y) $(TBBDIR.soia)/$(plib)tbbmalloc.$(y)                                                           \
+releasetbb.LIBS_A := $(if $(OS_is_win),$(TBBDIR.libia)/tbb12$(dtbb).$(a) $(TBBDIR.libia)/tbbmalloc$(dtbb).$(a))
+releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y) $(TBBDIR.soia)/$(plib)tbbmalloc$(dtbb).$(y)                                                           \
                      $(if $(or $(OS_is_lnx),$(OS_is_fbsd)), $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.2))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12),$(wildcard $(TBBDIR.soia)/libtbbmalloc.so.12))\
                                                             $(if $(wildcard $(TBBDIR.soia)/libtbb.so.2),$(wildcard $(TBBDIR.soia)/libtbb.so.2))\
@@ -260,7 +267,7 @@ MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/m
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
 MKLGPUFPKDIR.libia   := $(MKLGPUFPKDIR)/lib/$(_IA)
 
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl.$(a)
+mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.libia)/$(plib)daal_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
 
 #===============================================================================
@@ -268,20 +275,23 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 #===============================================================================
 include makefile.ver
 
+dep_thr := $(if $(MSVC_RT_is_release),tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib, tbb12_debug.lib tbbmalloc_debug.lib msvcrtd.lib msvcprtd.lib /nodefaultlib:libucrtd.lib ucrtd.lib)
+dep_seq := $(if $(MSVC_RT_is_release),msvcrt.lib msvcprt.lib, msvcrtd.lib msvcprtd.lib)
+
 y_full_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(MINORBINARY).$(y),.$(y).$(MAJORBINARY).$(MINORBINARY)))
 y_major_name_postfix := $(if $(OS_is_win),,$(if $(OS_is_mac),.$(MAJORBINARY).$(y),.$(y).$(MAJORBINARY)))
 
-core_a       := $(plib)onedal_core.$a
-core_y       := $(plib)onedal_core$(if $(OS_is_win),.$(MAJORBINARY),).$y
-oneapi_a     := $(plib)onedal.$a
-oneapi_y     := $(plib)onedal$(if $(OS_is_win),.$(MAJORBINARY),).$y
-oneapi_a.dpc := $(plib)onedal_dpc.$a
-oneapi_y.dpc := $(plib)onedal_dpc$(if $(OS_is_win),.$(MAJORBINARY),).$y
+core_a       := $(plib)onedal_core$d.$a
+core_y       := $(plib)onedal_core$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+oneapi_a     := $(plib)onedal$d.$a
+oneapi_y     := $(plib)onedal$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+oneapi_a.dpc := $(plib)onedal_dpc$d.$a
+oneapi_y.dpc := $(plib)onedal_dpc$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
-thr_tbb_a := $(plib)onedal_thread.$a
-thr_seq_a := $(plib)onedal_sequential.$a
-thr_tbb_y := $(plib)onedal_thread$(if $(OS_is_win),.$(MAJORBINARY),).$y
-thr_seq_y := $(plib)onedal_sequential$(if $(OS_is_win),.$(MAJORBINARY),).$y
+thr_tbb_a := $(plib)onedal_thread$d.$a
+thr_seq_a := $(plib)onedal_sequential$d.$a
+thr_tbb_y := $(plib)onedal_thread$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
+thr_seq_y := $(plib)onedal_sequential$d$(if $(OS_is_win),.$(MAJORBINARY),).$y
 
 daal_jar  := onedal.jar
 
@@ -316,13 +326,13 @@ daaldep.lnx32e.threxport := export_lnx32e.def
 
 daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$)' $< $(USECPUS.out.grep.filter) | sed -e 's/^/-u /'
 
-daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread.$a
+daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/daal_mkl_thread$d.$a
 daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/daal_mkl_sequential.$a
-daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
+daaldep.win32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core$d.$a
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
-daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) tbb12.lib tbbmalloc.lib msvcrt.lib msvcprt.lib /nodefaultlib:libucrt.lib ucrt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
-daaldep.win32e.rt.seq  := msvcrt.lib msvcprt.lib $(if $(CHECK_DLL_SIG),Wintrust.lib)
+daaldep.win32e.rt.thr  := -LIBPATH:$(RELEASEDIR.tbb.libia) $(dep_thr) $(if $(CHECK_DLL_SIG),Wintrust.lib)
+daaldep.win32e.rt.seq  := $(dep_seq) $(if $(CHECK_DLL_SIG),Wintrust.lib)
 daaldep.win32e.threxport := export.def
 
 daaldep.win.threxport.create = grep -v -E '^(;|$$)' $< $(USECPUS.out.grep.filter)
@@ -501,7 +511,7 @@ $(WORKDIR.lib)/$(core_y):                   $(daaldep.ipp) $(daaldep.vml) $(daal
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
 $(CORE.objs_a): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
 $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
-                        -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0
+                        -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
 $(filter %threading.$o, $(CORE.objs_a)): COPT += -D__DO_TBB_LAYER__
 $(call containing,_nrh, $(CORE.objs_a)): COPT += $(p4_OPT)   -DDAAL_CPU=sse2
@@ -518,7 +528,7 @@ $(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
 $(CORE.objs_y): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
 $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
                         -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
-                        -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 \
+                        -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
 $(filter %threading.$o, $(CORE.objs_y)): COPT += -D__DO_TBB_LAYER__
@@ -699,6 +709,7 @@ $(ONEAPI.objs_a): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
 $(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
+                          -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
                           -DTBB_USE_ASSERT=0 \
                            @$(ONEAPI.tmpdir_a)/inc_a_folders.txt
@@ -717,6 +728,7 @@ $(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_SYCL_INTERFACE \
                               -DONEDAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
+                              -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                               -DTBB_USE_ASSERT=0 \
                                @$(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
 $(call containing,_nrh, $(ONEAPI.objs_a.dpc)): COPT += $(p4_OPT.dpcpp)   $(ONEAPI.dispatcher_tag.nrh)
@@ -732,6 +744,7 @@ $(ONEAPI.objs_y): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
 $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
+                          -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                           $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
                           -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                           -D__TBB_NO_IMPLICIT_LINKAGE \
@@ -751,6 +764,7 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
                               -DDAAL_HIDE_DEPRECATED \
                               -DDAAL_SYCL_INTERFACE \
                               -DONEDAL_DATA_PARALLEL \
+                              -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
                               -D__ONEDAL_ENABLE_DLL_EXPORT__ \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
@@ -795,7 +809,7 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl.lib OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
@@ -845,7 +859,7 @@ THR_TBB.objs := $(THR_TBB.objs_a) $(THR_TBB.objs_y)
 THR_SEQ.objs := $(THR_SEQ.objs_a) $(THR_SEQ.objs_y)
 THR.objs := $(THR.objs_a) $(THR.objs_y)
 
-$(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0
+$(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
 $(THR_TBB.objs): COPT += -D__DO_TBB_LAYER__
 $(THR_SEQ.objs): COPT += -D__DO_SEQ_LAYER__
 
@@ -921,7 +935,7 @@ $(WORKDIR.lib)/$(jni_so):                $(JNI.tmpdir)/$(jni_so:%.$y=%_link.txt)
 
 $(JNI.objs): $(JNI.tmpdir)/inc_j_folders.txt
 $(JNI.objs): $(WORKDIR.lib)/$(daal_jar)
-$(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0
+$(JNI.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_NOTHROW_EXCEPTIONS -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
 $(JNI.objs): COPT += @$(JNI.tmpdir)/inc_j_folders.txt
 
 $(JNI.tmpdir)/inc_j_folders.txt: makefile.lst | $(JNI.tmpdir)/. ; $(call WRITE.PREREQS,$(addprefix -I,$(JNI.tmpdir) $(CORE.incdirs.common) $(CORE.incdirs.thirdp) $(JNI.srcdir)),$(space))
@@ -1035,8 +1049,8 @@ ifneq ($(MKLGPUFPKDIR),)
 # $1: Path to the file to be copied
 # $2: Destination directory
 define .release.sycl.old
-_release_common: $2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1))
-$2/$(subst daal_sycl.$a,onedal_sycl.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
+_release_common: $2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
+$2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
 $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
