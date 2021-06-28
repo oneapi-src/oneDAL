@@ -22,16 +22,16 @@ namespace oneapi::dal::knn {
 
 namespace detail {
 
-optional_result_id_t get_labels_id() {
-    return optional_result_id_t::get_result_id_by_index(0);
+result_option_id_t get_labels_id() {
+    return result_option_id_t::get_result_id_by_index(0);
 }
 
-optional_result_id_t get_indices_id() {
-    return optional_result_id_t::get_result_id_by_index(1);
+result_option_id_t get_indices_id() {
+    return result_option_id_t::get_result_id_by_index(1);
 }
 
-optional_result_id_t get_distances_id() {
-    return optional_result_id_t::get_result_id_by_index(2);
+result_option_id_t get_distances_id() {
+    return result_option_id_t::get_result_id_by_index(2);
 }
 
 namespace v1 {
@@ -44,8 +44,8 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
-    optional_results::optional_result_id_t optional_results =
-        optional_results::default_optional_results<Task>;
+    result_options::result_option_id_t result_options =
+        result_options::default_result_options<Task>;
 };
 
 template <typename Task>
@@ -105,21 +105,21 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template <typename Task>
-optional_results::optional_result_id_t descriptor_base<Task>::get_result_options() const {
-    return impl_->optional_results;
+result_options::result_option_id_t descriptor_base<Task>::get_result_options() const {
+    return impl_->result_options;
 }
 
 template <typename Task>
 void descriptor_base<Task>::set_result_options_impl(
-    const optional_results::optional_result_id_t& value) {
+    const result_options::result_option_id_t& value) {
     using msg = dal::detail::error_messages;
     if (!bool(value)) {
-        throw domain_error(msg::empty_set_of_optional_results());
+        throw domain_error(msg::empty_set_of_result_options());
     }
-    else if (std::is_same_v<Task, task::search> && bool(value | optional_results::labels)) {
-        throw domain_error(msg::invalid_set_of_optional_results_to_search());
+    else if (std::is_same_v<Task, task::search> && bool(value | result_options::labels)) {
+        throw domain_error(msg::invalid_set_of_result_options_to_search());
     }
-    impl_->optional_results = value;
+    impl_->result_options = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;

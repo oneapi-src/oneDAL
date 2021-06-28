@@ -75,37 +75,37 @@ using v1::by_default;
 
 } // namespace method
 
-namespace optional_results {
+namespace result_options {
 
-struct optional_result_id_t : public optional_result_id {
-    optional_result_id_t() : optional_result_id{} {}
-    optional_result_id_t(const optional_result_id& base) : optional_result_id{ base } {}
+struct result_option_id_t : public result_option_id {
+    result_option_id_t() : result_option_id{} {}
+    result_option_id_t(const result_option_id& base) : result_option_id{ base } {}
 };
 
-} // namespace optional_results
+} // namespace result_options
 
 namespace detail {
 
-using optional_result_id_t = optional_results::optional_result_id_t;
-ONEDAL_EXPORT optional_result_id_t get_labels_id();
-ONEDAL_EXPORT optional_result_id_t get_indices_id();
-ONEDAL_EXPORT optional_result_id_t get_distances_id();
+using result_option_id_t = result_options::result_option_id_t;
+ONEDAL_EXPORT result_option_id_t get_labels_id();
+ONEDAL_EXPORT result_option_id_t get_indices_id();
+ONEDAL_EXPORT result_option_id_t get_distances_id();
 
 } // namespace detail
 
-namespace optional_results {
+namespace result_options {
 
-const inline optional_result_id_t labels = detail::get_labels_id();
-const inline optional_result_id_t indices = detail::get_indices_id();
-const inline optional_result_id_t distances = detail::get_distances_id();
+const inline result_option_id_t labels = detail::get_labels_id();
+const inline result_option_id_t indices = detail::get_indices_id();
+const inline result_option_id_t distances = detail::get_distances_id();
 
 template <typename Task>
-const inline optional_result_id_t default_optional_results = labels;
+const inline result_option_id_t default_result_options = labels;
 
 template <>
-const inline optional_result_id_t default_optional_results<task::search> = indices | distances;
+const inline result_option_id_t default_result_options<task::search> = indices | distances;
 
-} // namespace optional_results
+} // namespace result_options
 
 namespace detail {
 namespace v1 {
@@ -161,7 +161,7 @@ public:
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
     voting_mode get_voting_mode() const;
-    optional_results::optional_result_id_t get_result_options() const;
+    result_options::result_option_id_t get_result_options() const;
 
 protected:
     explicit descriptor_base(const detail::distance_ptr& distance);
@@ -171,7 +171,7 @@ protected:
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
-    void set_result_options_impl(const optional_results::optional_result_id_t& value);
+    void set_result_options_impl(const result_options::result_option_id_t& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -309,11 +309,11 @@ public:
         return base_t::get_result_options();
     }
 
-    optional_results::optional_result_id_t get_result_options() const {
+    result_options::result_option_id_t get_result_options() const {
         return base_t::get_result_options();
     }
 
-    auto& set_result_options(const optional_results::optional_result_id_t& value) {
+    auto& set_result_options(const result_options::result_option_id_t& value) {
         base_t::set_result_options_impl(value);
         return *this;
     }

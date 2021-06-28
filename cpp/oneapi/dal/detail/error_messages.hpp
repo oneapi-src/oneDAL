@@ -83,7 +83,7 @@ public:
     MSG(page_size_leq_zero);
     MSG(invalid_key);
     MSG(capacity_leq_zero);
-    MSG(empty_set_of_optional_results);
+    MSG(empty_set_of_result_options);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
@@ -199,7 +199,7 @@ public:
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
     MSG(distance_is_not_supported_for_gpu);
-    MSG(invalid_set_of_optional_results_to_search);
+    MSG(invalid_set_of_result_options_to_search);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);

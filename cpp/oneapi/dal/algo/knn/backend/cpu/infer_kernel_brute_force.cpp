@@ -66,7 +66,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     auto daal_indices = daal::data_management::NumericTablePtr();
     auto daal_distance = daal::data_management::NumericTablePtr();
 
-    if (desc.get_result_options() & optional_results::labels) {
+    if (desc.get_result_options() & result_options::labels) {
         if constexpr (std::is_same_v<Task, task::classification>) {
             arr_labels.reset(1 * row_count);
             daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
@@ -76,14 +76,14 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         daal_parameter.resultsToEvaluate = daal_classifier::none;
     }
 
-    if (desc.get_result_options() & optional_results::indices) {
+    if (desc.get_result_options() & result_options::indices) {
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
         arr_indices.reset(neighbor_count * row_count);
         daal_indices =
             interop::convert_to_daal_homogen_table(arr_indices, row_count, neighbor_count);
     }
 
-    if (desc.get_result_options() & optional_results::distances) {
+    if (desc.get_result_options() & result_options::distances) {
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
         arr_distance.reset(neighbor_count * row_count);
         daal_distance =
@@ -111,20 +111,20 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         &daal_parameter));
 
     auto result = infer_result<Task>{};
-    if (desc.get_result_options() & optional_results::labels) {
+    if (desc.get_result_options() & result_options::labels) {
         if constexpr (std::is_same_v<Task, task::classification>) {
             result = result.set_labels(
                 dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
         }
     }
 
-    if (desc.get_result_options() & optional_results::indices) {
+    if (desc.get_result_options() & result_options::indices) {
         result = result.set_indices(dal::detail::homogen_table_builder{}
                                         .reset(arr_indices, row_count, neighbor_count)
                                         .build());
     }
 
-    if (desc.get_result_options() & optional_results::indices) {
+    if (desc.get_result_options() & result_options::indices) {
         result = result.set_distances(dal::detail::homogen_table_builder{}
                                           .reset(arr_distance, row_count, neighbor_count)
                                           .build());
