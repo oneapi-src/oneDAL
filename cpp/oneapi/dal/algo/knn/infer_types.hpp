@@ -115,10 +115,18 @@ public:
         return *this;
     }
 
+    const result_options::result_option_id_t& get_result_options() const;
+
+    auto& set_result_options(const result_options::result_option_id_t& value) {
+        set_result_options_impl(value);
+        return *this;
+    }
+
 protected:
     void set_labels_impl(const table&);
     void set_indices_impl(const table&);
     void set_distances_impl(const table&);
+    void set_result_options_impl(const result_options::result_option_id_t&);
     const table& get_labels_impl() const;
 
 private:

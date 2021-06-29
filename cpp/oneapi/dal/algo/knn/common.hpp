@@ -338,6 +338,8 @@ public:
 
 private:
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
+    explicit model(const result_options::result_option_id_t& options, 
+                   const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 

@@ -50,6 +50,7 @@ MSG(page_size_leq_zero, "Page size is lower than or equal to zero")
 MSG(invalid_key, "Cannot find the given key")
 MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
 MSG(empty_set_of_result_options, "Empty set of optional results")
+MSG(result_option_have_not_been_computed, "Result option have not been computed")
 
 /* Primitives */
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
