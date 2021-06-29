@@ -50,8 +50,8 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`data`,
-    /// :literal:`labels` and :literal:`weights`
-    train_input(const table &data, const table &labels, const table &weights = table{});
+    /// :literal:`responses` and :literal:`weights`
+    train_input(const table &data, const table &responses, const table &weights = table{});
 
     /// The training set $X$
     /// @remark default = table{}
@@ -62,12 +62,12 @@ public:
         return *this;
     }
 
-    /// The vector of labels $y$ for the training set $X$
+    /// The vector of responses $y$ for the training set $X$
     /// @remark default = table{}
-    const table &get_labels() const;
+    const table &get_responses() const;
 
-    auto &set_labels(const table &value) {
-        set_labels_impl(value);
+    auto &set_responses(const table &value) {
+        set_responses_impl(value);
         return *this;
     }
 
@@ -82,7 +82,7 @@ public:
 
 protected:
     void set_data_impl(const table &value);
-    void set_labels_impl(const table &value);
+    void set_responses_impl(const table &value);
     void set_weights_impl(const table &value);
 
 private:

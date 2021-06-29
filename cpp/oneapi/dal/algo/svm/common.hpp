@@ -454,25 +454,25 @@ public:
         return *this;
     }
 
-    /// The first unique value in class labels.
+    /// The first unique value in class responses.
     /// Used with :expr:`task::classification` and
     /// :expr:`task::nu_classification`.
-    std::int64_t get_first_class_label() const;
+    std::int64_t get_first_class_response() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto &set_first_class_label(std::int64_t value) {
-        set_first_class_label_impl(value);
+    auto &set_first_class_response(std::int64_t value) {
+        set_first_class_response_impl(value);
         return *this;
     }
 
-    /// The second unique value in class labels.
+    /// The second unique value in class responses.
     /// Used with :expr:`task::classification` and
     /// :expr:`task::nu_classification`.
-    std::int64_t get_second_class_label() const;
+    std::int64_t get_second_class_response() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto &set_second_class_label(std::int64_t value) {
-        set_second_class_label_impl(value);
+    auto &set_second_class_response(std::int64_t value) {
+        set_second_class_response_impl(value);
         return *this;
     }
 
@@ -481,8 +481,8 @@ protected:
     void set_coeffs_impl(const table &);
     void set_bias_impl(double);
     void set_biases_impl(const table &);
-    void set_first_class_label_impl(std::int64_t);
-    void set_second_class_label_impl(std::int64_t);
+    void set_first_class_response_impl(std::int64_t);
+    void set_second_class_response_impl(std::int64_t);
 
 private:
     void serialize(dal::detail::output_archive &ar) const;
