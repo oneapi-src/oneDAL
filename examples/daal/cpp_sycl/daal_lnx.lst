@@ -21,6 +21,7 @@
 DAAL  = datastructures_soa                    \
         datastructures_usm                    \
         datastructures_csr                    \
+        row_merged_to_sycl_homogen            \
         dbscan_dense_batch                    \
         cor_dense_batch                       \
         cor_dense_distr                       \

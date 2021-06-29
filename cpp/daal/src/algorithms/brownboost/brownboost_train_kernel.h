@@ -64,7 +64,6 @@ private:
 template <Method method, typename algorithmFPType, CpuType cpu>
 struct NewtonRaphsonKernel
 {
-    NewtonRaphsonKernel(size_t nVectors, brownboost::interface1::Parameter * parameter);
     NewtonRaphsonKernel(size_t nVectors, double parAccuracyThreshold, double parNewtonRaphsonAccuracyThreshold, double parNewtonRaphsonMaxIterations,
                         double parDegenerateCasesThreshold);
     bool isValid() const { return (aNrd.get() && aNrw.get() && aNra.get() && aNrb.get() && aNre1.get() && aNre2.get()); }
