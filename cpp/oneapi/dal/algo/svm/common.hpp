@@ -131,7 +131,8 @@ constexpr bool is_valid_kernel_v =
     dal::detail::is_tag_one_of_v<Kernel,
                                  linear_kernel::detail::descriptor_tag,
                                  polynomial_kernel::detail::descriptor_tag,
-                                 rbf_kernel::detail::descriptor_tag>;
+                                 rbf_kernel::detail::descriptor_tag,
+                                 sigmoid_kernel::detail::descriptor_tag>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -251,7 +252,9 @@ public:
 
     /// The descriptor of kernel function $K(x, y)$. Can be
     /// :expr:`linear_kernel::descriptor` or
-    /// :expr:`polynomial_kernel::descriptor` or :expr:`rbf_kernel::descriptor`.
+    /// :expr:`polynomial_kernel::descriptor` or
+    /// :expr:`rbf_kernel::descriptor` or
+    /// :expr:`sigmoid_kernel::descriptor`.
     /// @remark default = :literal:`kernel`
     const Kernel &get_kernel() const {
         using kf_t = detail::kernel_function<Kernel>;

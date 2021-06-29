@@ -66,7 +66,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     kernelPar.scale           = static_cast<const Parameter *>(par)->scale;
     kernelPar.shift           = static_cast<const Parameter *>(par)->shift;
     kernelPar.degree          = static_cast<const Parameter *>(par)->degree;
-    kernelPar.kernelType      = KernelType::polynomial;
+    kernelPar.kernelType      = static_cast<const Parameter *>(par)->kernelType;
 
     __DAAL_CALL_KERNEL(env, internal::KernelImplPolynomial, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], &kernelPar);
 }

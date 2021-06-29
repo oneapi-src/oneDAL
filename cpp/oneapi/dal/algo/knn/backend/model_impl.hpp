@@ -110,9 +110,14 @@ using v1::kdtree_model_impl;
 
 namespace backend {
 
-using model_impl_cls = detail::model_impl<task::classification>;
-using brute_force_model_impl_cls = detail::brute_force_model_impl<task::classification>;
-using kdtree_model_impl_cls = detail::kdtree_model_impl<task::classification>;
+template <typename Task>
+using model_impl = detail::model_impl<Task>;
+
+template <typename Task>
+using brute_force_model_impl = detail::brute_force_model_impl<Task>;
+
+template <typename Task>
+using kdtree_model_impl = detail::kdtree_model_impl<Task>;
 
 } // namespace backend
 } // namespace oneapi::dal::knn

@@ -90,6 +90,7 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::search>;
 
 } // namespace v1
 } // namespace detail
@@ -115,6 +116,7 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 }
 
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::search>;
 
 ONEDAL_REGISTER_SERIALIZABLE(detail::v1::brute_force_model_impl<task::classification>)
 ONEDAL_REGISTER_SERIALIZABLE(detail::v1::kdtree_model_impl<task::classification>)
