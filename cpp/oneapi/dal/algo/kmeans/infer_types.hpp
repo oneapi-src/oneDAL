@@ -88,6 +88,16 @@ public:
     /// Creates a new instance of the class with the default property values.
     infer_result();
 
+    /// An $n \\times 1$ table with assignments labels to feature
+    /// vectors in the input data.
+    /// @remark default = table{}
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
     /// An $n \\times 1$ table with assignments responses to feature
     /// vectors in the input data.
     /// @remark default = table{}

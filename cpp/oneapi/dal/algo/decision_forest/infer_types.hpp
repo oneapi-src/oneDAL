@@ -86,6 +86,15 @@ public:
     /// Creates a new instance of the class with the default property values.
     infer_result();
 
+    /// The $n \\times 1$ table with the predicted labels
+    /// @remark default = table{}
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
     /// The $n \\times 1$ table with the predicted responses
     /// @remark default = table{}
     const table& get_responses() const;

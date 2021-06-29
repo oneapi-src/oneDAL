@@ -98,6 +98,16 @@ public:
         return *this;
     }
 
+    /// An $n \\times 1$ table with the labels $y_i$ assigned to the
+    /// samples $x_i$ in the input data, $1 \\leq 1 \\leq n$.
+    /// @remark default = table{}
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
     /// An $n \\times 1$ table with the responses $y_i$ assigned to the
     /// samples $x_i$ in the input data, $1 \\leq 1 \\leq n$.
     /// @remark default = table{}

@@ -58,6 +58,15 @@ public:
         return *this;
     }
 
+    /// Vector of labels $y$ for the training set $X$
+    /// @remark default = table{}
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
     /// Vector of responses $y$ for the training set $X$
     /// @remark default = table{}
     const table& get_responses() const;

@@ -87,6 +87,17 @@ public:
     /// Creates a new instance of the class with the default property values.
     infer_result();
 
+    /// The predicted labels
+    /// @remark default = table{}
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
+
     /// The predicted responses
     /// @remark default = table{}
     const table& get_responses() const;
