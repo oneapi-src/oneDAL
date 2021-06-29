@@ -99,8 +99,8 @@ enum class error_metric_mode : std::uint64_t {
 
 /// Available identifiers to specify the infer mode
 enum class infer_mode : std::uint64_t {
-    /// Infer produces a $n \\times 1$  table with the predicted labels
-    class_labels = 0x00000001ULL,
+    /// Infer produces a $n \\times 1$  table with the predicted responses
+    class_responses = 0x00000001ULL,
     /// Infer produces $n \\times c$ table with the predicted class probabilities for each observation
     class_probabilities = 0x00000002ULL
 };

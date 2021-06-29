@@ -46,8 +46,8 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`data`
-    /// and :literal:`labels` property values
-    train_input(const table& data, const table& labels);
+    /// and :literal:`responses` property values
+    train_input(const table& data, const table& responses);
 
     /// The training set $X$
     /// @remark default = table{}
@@ -58,18 +58,18 @@ public:
         return *this;
     }
 
-    /// Vector of labels $y$ for the training set $X$
+    /// Vector of responses $y$ for the training set $X$
     /// @remark default = table{}
-    const table& get_labels() const;
+    const table& get_responses() const;
 
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
         return *this;
     }
 
 private:
     void set_data_impl(const table& value);
-    void set_labels_impl(const table& value);
+    void set_responses_impl(const table& value);
 
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
