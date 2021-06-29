@@ -155,7 +155,10 @@ public:
     MSG(bootstrap_is_incompatible_with_variable_importance_mode);
     MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu);
     MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
+    MSG(invalid_number_of_trees);
+    MSG(invalid_number_of_classes);
     MSG(input_model_is_not_initialized);
+    MSG(input_model_tree_has_invalid_size);
 
     /* Jaccard */
     MSG(column_begin_gt_column_end);
@@ -191,6 +194,7 @@ public:
 
     /* k-NN */
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
+    MSG(knn_search_task_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
     MSG(distance_is_not_supported_for_gpu);
@@ -233,7 +237,8 @@ public:
     MSG(nu_leq_zero);
     MSG(nu_svm_smo_method_is_not_implemented_for_gpu);
     MSG(nu_svm_thunder_method_is_not_implemented_for_gpu);
-    MSG(polynomial_kenrel_is_not_implemented_for_gpu);
+    MSG(polynomial_kernel_is_not_implemented_for_gpu);
+    MSG(sigmoid_kernel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
     MSG(svm_multiclass_not_implemented_for_gpu);
     MSG(svm_nu_classification_task_is_not_implemented_for_gpu);

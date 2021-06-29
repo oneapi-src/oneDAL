@@ -16,8 +16,7 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/graph_matching_types.hpp"
 
-namespace oneapi::dal::preview {
-namespace subgraph_isomorphism {
+namespace oneapi::dal::preview::subgraph_isomorphism {
 
 class detail::graph_matching_result_impl : public base {
 public:
@@ -27,20 +26,28 @@ public:
 
 using detail::graph_matching_result_impl;
 
-graph_matching_result::graph_matching_result() : impl_(new graph_matching_result_impl()) {}
+template <typename Task>
+graph_matching_result<Task>::graph_matching_result() : impl_(new graph_matching_result_impl()) {}
 
-graph_matching_result::graph_matching_result(const table& vertex_match, std::int64_t match_count)
-        : impl_(new graph_matching_result_impl()) {
-    impl_->vertex_match = vertex_match;
-    impl_->match_count = match_count;
-}
-
-table graph_matching_result::get_vertex_match() const {
+template <typename Task>
+const table& graph_matching_result<Task>::get_vertex_match_impl() const {
     return impl_->vertex_match;
 }
 
-int64_t graph_matching_result::get_match_count() const {
+template <typename Task>
+void graph_matching_result<Task>::set_vertex_match_impl(const table& vertex_match_table) {
+    impl_->vertex_match = vertex_match_table;
+}
+
+template <typename Task>
+std::int64_t graph_matching_result<Task>::get_match_count_impl() const {
     return impl_->match_count;
 }
-} // namespace subgraph_isomorphism
-} // namespace oneapi::dal::preview
+
+template <typename Task>
+void graph_matching_result<Task>::set_match_count_impl(std::int64_t match_count_value) {
+    impl_->match_count = match_count_value;
+}
+
+template class ONEDAL_EXPORT graph_matching_result<task::compute>;
+} // namespace oneapi::dal::preview::subgraph_isomorphism

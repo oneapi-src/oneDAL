@@ -25,7 +25,6 @@
 #define __ZSCORE_RESULT_H__
 
 #include "algorithms/normalization/zscore_types.h"
-#include "src/algorithms/normalization/zscore/inner/zscore_result_v1.h"
 
 using namespace daal::data_management;
 using namespace daal::services;
@@ -40,13 +39,13 @@ namespace zscore
 {
 namespace interface2
 {
-class ResultImpl : public interface1::ResultImpl
+class ResultImpl : public DataCollection
 {
 public:
     DAAL_CAST_OPERATOR(ResultImpl);
 
-    ResultImpl(const size_t n) : interface1::ResultImpl(n) {}
-    ResultImpl(const ResultImpl & o) : interface1::ResultImpl(o) {}
+    ResultImpl(const size_t n) : DataCollection(n) {}
+    ResultImpl(const ResultImpl & o) : DataCollection(o) {}
 
     using DataCollection::operator[];
     virtual ~ResultImpl() {};

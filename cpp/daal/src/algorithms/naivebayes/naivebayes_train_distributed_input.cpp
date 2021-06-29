@@ -100,15 +100,9 @@ Status DistributedInput::check(const daal::algorithms::Parameter * parameter, in
     DAAL_CHECK_EX(size > 0, ErrorEmptyInputCollection, ArgumentName, numberOfModelsStr());
 
     size_t nClasses = 0;
-    {
-        const multinomial_naive_bayes::interface1::Parameter * algPar1 =
-            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if (algPar1) nClasses = algPar1->nClasses;
-    }
-    {
-        const multinomial_naive_bayes::Parameter * algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if (algPar2) nClasses = algPar2->nClasses;
-    }
+
+    const multinomial_naive_bayes::Parameter * algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+    if (algPar2) nClasses = algPar2->nClasses;
     DAAL_CHECK_EX(nClasses > 0, ErrorNullParameterNotSupported, ArgumentName, nClassesStr());
 
     size_t nFeatures = 0;
@@ -158,15 +152,9 @@ Status Input::check(const daal::algorithms::Parameter * parameter, int method) c
 
     if (parameter != NULL)
     {
-        const daal::algorithms::classifier::interface1::Parameter * algParameter1 =
-            dynamic_cast<const daal::algorithms::classifier::interface1::Parameter *>(parameter);
         const daal::algorithms::classifier::interface2::Parameter * algParameter2 =
             dynamic_cast<const daal::algorithms::classifier::interface2::Parameter *>(parameter);
-        if (algParameter1 != NULL)
-        {
-            DAAL_CHECK_EX(algParameter1->nClasses > 1, services::ErrorIncorrectParameter, services::ParameterName, nClassesStr());
-        }
-        else if (algParameter2 != NULL)
+        if (algParameter2 != NULL)
         {
             DAAL_CHECK_EX((algParameter2->nClasses > 1) && (algParameter2->nClasses < INT_MAX), services::ErrorIncorrectParameter,
                           services::ParameterName, nClassesStr());

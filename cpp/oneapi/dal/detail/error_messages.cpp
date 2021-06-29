@@ -157,6 +157,7 @@ MSG(objective_function_value_lt_zero, "Objective function value is lower than ze
 /* k-NN */
 MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
     "k-NN k-d tree method is not implemented for GPU")
+MSG(knn_search_task_is_not_implemented_for_gpu, "k-NN search task is not implemented for GPU")
 MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
     "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
@@ -221,7 +222,8 @@ MSG(nu_leq_zero, "Nu is lower than or equal to zero")
 MSG(nu_svm_smo_method_is_not_implemented_for_gpu, "nuSVM SMO method is not implemented for GPU")
 MSG(nu_svm_thunder_method_is_not_implemented_for_gpu,
     "nuSVM Thunder method is not implemented for GPU")
-MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
+MSG(polynomial_kernel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
+MSG(sigmoid_kernel_is_not_implemented_for_gpu, "Sigmoid kernel is not implemented for GPU")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_multiclass_not_implemented_for_gpu,
     "SVM with multiclass support is not implemented for GPU")
@@ -252,6 +254,9 @@ MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu,
 MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
+MSG(invalid_number_of_trees, "Invalid number of trees in model")
+MSG(invalid_number_of_classes, "Invalid number of classes")
+MSG(input_model_tree_has_invalid_size, "Input model tree size is invalid")
 
 } // namespace v1
 } // namespace oneapi::dal::detail

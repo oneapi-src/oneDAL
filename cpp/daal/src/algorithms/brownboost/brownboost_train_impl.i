@@ -317,29 +317,6 @@ NewtonRaphsonKernel<method, algorithmFPType, cpu>::NewtonRaphsonKernel(size_t nV
 }
 
 template <Method method, typename algorithmFPType, CpuType cpu>
-NewtonRaphsonKernel<method, algorithmFPType, cpu>::NewtonRaphsonKernel(size_t nVect, brownboost::interface1::Parameter * parameter)
-    : nVectors(nVect),
-      aNra(nVectors),
-      aNrb(nVectors),
-      aNrd(nVectors),
-      aNrw(nVectors),
-      aNre1(nVectors),
-      aNre2(nVectors),
-      error(parameter->accuracyThreshold),
-      nrAccuracy(parameter->newtonRaphsonAccuracyThreshold),
-      nrMaxIter(parameter->newtonRaphsonMaxIterations),
-      nu(parameter->degenerateCasesThreshold)
-{
-    const algorithmFPType one = (algorithmFPType)1.0;
-    const algorithmFPType pi  = (algorithmFPType)3.1415926535897932384626433832795;
-    sqrtC                     = daal::internal::Math<algorithmFPType, cpu>::sErfInv(one - error);
-    c                         = sqrtC * sqrtC;
-    invC                      = one / c;
-    invSqrtC                  = one / sqrtC;
-    sqrtPiC                   = daal::internal::Math<algorithmFPType, cpu>::sSqrt(pi * c);
-}
-
-template <Method method, typename algorithmFPType, CpuType cpu>
 void NewtonRaphsonKernel<method, algorithmFPType, cpu>::compute(algorithmFPType gamma, algorithmFPType s, const algorithmFPType * h,
                                                                 const algorithmFPType * y)
 {

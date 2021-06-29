@@ -137,7 +137,7 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
     algorithmFPType beta  = 0.0;
     algorithmFPType one   = 1.0;
     algorithmFPType shift = (algorithmFPType)(par->shift);
-    const size_t degree   = (size_t)(par->degree);
+    const size_t degree   = (par->kernelType == KernelType::sigmoid) ? 1 : static_cast<size_t>(par->degree);
 
     const bool isSOARes = r->getDataLayout() & NumericTableIface::soa;
 
@@ -199,6 +199,10 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                             dataR[i * nVectors2 + j] = one;
                         }
                     }
+                    if (par->kernelType == KernelType::sigmoid)
+                    {
+                        daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * nVectors2, dataR + i * nVectors2);
+                    }
                 }
             }
             else
@@ -227,6 +231,11 @@ services::Status KernelImplPolynomial<defaultDense, algorithmFPType, cpu>::compu
                     {
                         mklBuff[i] = one;
                     }
+                }
+
+                if (par->kernelType == KernelType::sigmoid)
+                {
+                    daal::internal::Math<algorithmFPType, cpu>::vTanh(blockSize * blockSize, mklBuff, mklBuff);
                 }
 
                 for (size_t i = 0; i < nRowsInBlock2; ++i)

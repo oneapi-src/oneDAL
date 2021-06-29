@@ -44,16 +44,16 @@
 #include "src/externals/service_math.h"
 #include "immintrin.h"
 
-using namespace daal::internal;
-using namespace daal::services;
-using namespace daal::services::internal;
-
 namespace daal
 {
 namespace algorithms
 {
 namespace internal
 {
+using namespace daal::internal;
+using namespace daal::services;
+using namespace daal::services::internal;
+
 template <typename FPType, CpuType cpu>
 FPType distancePow2(const FPType * a, const FPType * b, size_t dim)
 {
@@ -93,6 +93,14 @@ FPType distance(const FPType * a, const FPType * b, size_t dim, FPType p)
     return daal::internal::Math<FPType, cpu>::sPowx(sum, (FPType)1.0 / p);
 }
 
+enum class PairwiseDistanceType
+{
+    minkowski,
+    euclidean,
+    chebyshev,
+    cosine,
+};
+
 template <typename FPType, CpuType cpu>
 class PairwiseDistances
 {
@@ -100,6 +108,8 @@ public:
     virtual ~PairwiseDistances() {};
 
     virtual services::Status init() = 0;
+
+    virtual PairwiseDistanceType getType() = 0;
 
     virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
                                           FPType * const res) = 0;
@@ -112,11 +122,15 @@ template <typename FPType, CpuType cpu>
 class EuclideanDistances : public PairwiseDistances<FPType, cpu>
 {
 public:
-    EuclideanDistances(const NumericTable & a, const NumericTable & b, bool squared = true) : _a(a), _b(b), _squared(squared) {}
+    EuclideanDistances(const NumericTable & a, const NumericTable & b, bool squared = true, bool isSqrtNorm = false)
+        : _a(a), _b(b), _squared(squared), _isSqrtNorm(isSqrtNorm)
+    {}
 
-    virtual ~EuclideanDistances() {}
+    virtual ~EuclideanDistances() DAAL_C11_OVERRIDE {}
 
-    virtual services::Status init()
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::euclidean; }
+
+    services::Status init() DAAL_C11_OVERRIDE
     {
         services::Status s;
 
@@ -135,8 +149,8 @@ public:
     }
 
     // output:  Row-major matrix of size { aSize x bSize }
-    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                          FPType * const res)
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) DAAL_C11_OVERRIDE
     {
         const size_t nRowsA = aSize;
         const size_t nColsA = _a.getNumberOfColumns();
@@ -173,11 +187,26 @@ public:
         return services::Status();
     }
 
-    virtual services::Status finalize(const size_t n, FPType * a)
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE
     {
-        daal::internal::mkl::MklMath<FPType, cpu> math;
+        const size_t blockSize = 512;
+        const size_t nBlocks   = n / blockSize + !!(n % blockSize);
 
-        math.vSqrt(n, a, a);
+        SafeStatus safeStat;
+
+        for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
+        {
+            const size_t begin = iBlock * blockSize;
+            const size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, n);
+            const size_t count = end - begin;
+
+            // max(0, d) to remove negative distances before Sqrt
+            for (size_t i = begin; i < end; ++i)
+            {
+                a[i] = services::internal::max<cpu, FPType>(FPType(0), a[i]);
+            }
+            Math<FPType, cpu>::vSqrt(count, a + begin, a + begin);
+        }
         return services::Status();
     }
 
@@ -249,6 +278,10 @@ protected:
                     sum += data[i * nCols + j] * data[i * nCols + j];
                 }
                 r[i] = sum;
+                if (_isSqrtNorm)
+                {
+                    Math<FPType, cpu>::vSqrt(end - begin, r, r);
+                }
             }
         });
 
@@ -275,9 +308,55 @@ protected:
     const NumericTable & _a;
     const NumericTable & _b;
     const bool _squared;
+    const bool _isSqrtNorm;
 
     TArray<FPType, cpu> normBufferA;
     TArray<FPType, cpu> normBufferB;
+};
+
+// compute: A*B' / (sum(A^2, 2) * sum(B^2, 2))
+template <typename FPType, CpuType cpu>
+class CosineDistances : public EuclideanDistances<FPType, cpu>
+{
+private:
+    using super = EuclideanDistances<FPType, cpu>;
+
+public:
+    CosineDistances(const NumericTable & a, const NumericTable & b) : super(a, b, true, true) {}
+
+    virtual ~CosineDistances() DAAL_C11_OVERRIDE {}
+
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::cosine; }
+
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE { return services::Status(); }
+
+    // output:  Row-major matrix of size { aSize x bSize }
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) DAAL_C11_OVERRIDE
+    {
+        const size_t nRowsA = aSize;
+        const size_t nColsA = super::_a.getNumberOfColumns();
+        const size_t nRowsB = bSize;
+
+        const size_t nRowsC = nRowsA;
+        const size_t nColsC = nRowsB;
+
+        super::computeABt(a, b, nRowsA, nColsA, nRowsB, res);
+
+        const FPType * const aa = super::normBufferA.get() + aOffset;
+        const FPType * const bb = (&(super::_a) == &(super::_b)) ? super::normBufferA.get() + bOffset : super::normBufferB.get() + bOffset;
+
+        for (size_t i = 0; i < nRowsC; i++)
+        {
+            PRAGMA_IVDEP
+            PRAGMA_VECTOR_ALWAYS
+            for (size_t j = 0; j < nColsC; j++)
+            {
+                res[i * nColsC + j] = FPType(1) - (res[i * nColsC + j] / (aa[i] * bb[j]));
+            }
+        }
+        return services::Status();
+    }
 };
 
 template <typename FPType, CpuType cpu>
@@ -288,23 +367,25 @@ public:
         : _a(a), _b(b), _powered(powered), _p(p)
     {}
 
-    virtual ~MinkowskiDistances() {}
+    virtual ~MinkowskiDistances() DAAL_C11_OVERRIDE {}
 
-    virtual services::Status init()
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::minkowski; }
+
+    services::Status init() DAAL_C11_OVERRIDE
     {
         services::Status s;
         return s;
     }
 
-    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                          FPType * const res)
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) DAAL_C11_OVERRIDE
     {
         computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
 
         return services::Status();
     }
 
-    virtual services::Status finalize(const size_t n, FPType * a)
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE
     {
         if (_p != 1.0)
         {
@@ -382,23 +463,25 @@ class ChebyshevDistances : public PairwiseDistances<FPType, cpu>
 public:
     ChebyshevDistances(const NumericTable & a, const NumericTable & b) : _a(a), _b(b) {}
 
-    virtual ~ChebyshevDistances() {}
+    virtual ~ChebyshevDistances() DAAL_C11_OVERRIDE {}
 
-    virtual services::Status init()
+    PairwiseDistanceType getType() DAAL_C11_OVERRIDE { return PairwiseDistanceType::chebyshev; }
+
+    services::Status init() DAAL_C11_OVERRIDE
     {
         services::Status s;
         return s;
     }
 
-    virtual services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
-                                          FPType * const res)
+    services::Status computeBatch(const FPType * const a, const FPType * const b, size_t aOffset, size_t aSize, size_t bOffset, size_t bSize,
+                                  FPType * const res) DAAL_C11_OVERRIDE
     {
         computeBatchImpl(a, b, aOffset, aSize, bOffset, bSize, res);
 
         return services::Status();
     }
 
-    virtual services::Status finalize(const size_t n, FPType * a) { return services::Status(); }
+    services::Status finalize(const size_t n, FPType * a) DAAL_C11_OVERRIDE { return services::Status(); }
 
 protected:
     FPType computeDistance(const FPType * x, const FPType * y, const size_t n)
