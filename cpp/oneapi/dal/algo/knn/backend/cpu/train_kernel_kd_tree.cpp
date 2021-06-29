@@ -27,6 +27,7 @@
 
 namespace oneapi::dal::knn::backend {
 
+using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
@@ -53,7 +54,9 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<int>(dummy_seed),
         data_use_in_model);
 
+    Status status;
     const auto model_ptr = daal_knn::Model::create(column_count, &status);
+    interop::status_to_exception(status);
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
     // Data or labels should not be copied, copy is already happened when
