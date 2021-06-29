@@ -88,12 +88,12 @@ public:
     /// Creates a new instance of the class with the default property values.
     infer_result();
 
-    /// An $n \\times 1$ table with assignments labels to feature
+    /// An $n \\times 1$ table with assignments responses to feature
     /// vectors in the input data.
     /// @remark default = table{}
-    const table& get_labels() const;
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    const table& get_responses() const;
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
         return *this;
     }
 
@@ -109,7 +109,7 @@ public:
     }
 
 protected:
-    void set_labels_impl(const table&);
+    void set_responses_impl(const table&);
     void set_objective_function_value_impl(double);
 
 private:
