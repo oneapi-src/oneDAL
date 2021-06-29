@@ -12,7 +12,7 @@
 # License.
 #===============================================================================
 
-prefix=prefix=${{pcfiledir}}/../../
+prefix=${{pcfiledir}}/../../
 exec_prefix=${{prefix}}
 libdir=${{exec_prefix}}/{libdir}
 includedir=${{prefix}}/include

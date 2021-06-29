@@ -85,7 +85,6 @@ def generate(config):
             libdir = 'lib' + os.sep + 'intel64'
             opts = '-I${includedir}' + os.sep + 'include'
             result_content = pkg_template.format(libdir=libdir, libs=libs, opts=opts)
-            print(result_content)
             if not os.path.exists(config.output_dir):
                 os.makedirs(config.output_dir)
             result_pkg_config_file = config.output_dir + os.sep + pkg_config + '.pc'
