@@ -145,7 +145,7 @@ public:
     MSG(input_responses_are_empty);
     MSG(input_responses_contain_only_one_unique_value_expect_two);
     MSG(input_responses_contain_wrong_unique_values_count_expect_two);
-    MSG(input_labels_table_has_wrong_cc_expect_one);
+    MSG(input_responses_table_has_wrong_cc_expect_one);
     MSG(iteration_count_lt_zero);
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);

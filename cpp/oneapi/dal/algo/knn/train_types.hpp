@@ -46,8 +46,8 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`data`
-    /// and :literal:`labels` property values
-    train_input(const table& data, const table& labels);
+    /// and :literal:`responses` property values
+    train_input(const table& data, const table& responses);
 
     train_input(const table& data);
 
@@ -60,19 +60,19 @@ public:
         return *this;
     }
 
-    /// Vector of labels y for the training set X
+    /// Vector of responses y for the training set X
     /// @remark default = table{}
-    const table& get_labels() const;
+    const table& get_responses() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto& set_labels(const table& labels) {
-        set_data_impl(labels);
+    auto& set_responses(const table& responses) {
+        set_data_impl(responses);
         return *this;
     }
 
 protected:
     void set_data_impl(const table& data);
-    void set_labels_impl(const table& labels);
+    void set_responses_impl(const table& responses);
 
 private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;

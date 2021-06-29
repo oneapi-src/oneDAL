@@ -87,13 +87,13 @@ public:
     /// Creates a new instance of the class with the default property values.
     infer_result();
 
-    /// The predicted labels
+    /// The predicted responses
     /// @remark default = table{}
-    const table& get_labels() const;
+    const table& get_responses() const;
 
     template <typename T = Task, typename = detail::enable_if_classification_t<T>>
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
         return *this;
     }
 
@@ -112,10 +112,10 @@ public:
     }
 
 protected:
-    void set_labels_impl(const table&);
+    void set_responses_impl(const table&);
     void set_indices_impl(const table&);
     void set_distances_impl(const table&);
-    const table& get_labels_impl() const;
+    const table& get_responses_impl() const;
 
 private:
     dal::detail::pimpl<detail::infer_result_impl<Task>> impl_;
