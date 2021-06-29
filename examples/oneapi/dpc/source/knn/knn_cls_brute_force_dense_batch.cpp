@@ -25,23 +25,24 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue& q) {
     const auto train_data_file_name = get_data_path("k_nearest_neighbors_train_data.csv");
-    const auto train_label_file_name = get_data_path("k_nearest_neighbors_train_label.csv");
+    const auto train_response_file_name = get_data_path("k_nearest_neighbors_train_label.csv");
     const auto test_data_file_name = get_data_path("k_nearest_neighbors_test_data.csv");
-    const auto test_label_file_name = get_data_path("k_nearest_neighbors_test_label.csv");
+    const auto test_response_file_name = get_data_path("k_nearest_neighbors_test_label.csv");
 
     const auto x_train = dal::read<dal::table>(q, dal::csv::data_source{ train_data_file_name });
-    const auto y_train = dal::read<dal::table>(q, dal::csv::data_source{ train_label_file_name });
+    const auto y_train =
+        dal::read<dal::table>(q, dal::csv::data_source{ train_response_file_name });
 
     const auto knn_desc = dal::knn::descriptor(5, 1);
 
     const auto x_test = dal::read<dal::table>(q, dal::csv::data_source{ test_data_file_name });
-    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_label_file_name });
+    const auto y_test = dal::read<dal::table>(q, dal::csv::data_source{ test_response_file_name });
 
     const auto train_result = dal::train(q, knn_desc, x_train, y_train);
     const auto test_result = dal::infer(q, knn_desc, x_test, train_result.get_model());
 
-    std::cout << "Test results:\n" << test_result.get_labels() << std::endl;
-    std::cout << "True labels:\n" << y_test << std::endl;
+    std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
+    std::cout << "True responses:\n" << y_test << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
