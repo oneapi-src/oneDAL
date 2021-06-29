@@ -39,24 +39,24 @@ inline auto convert_to_daal_kdtree_voting_mode(voting_mode vm) {
 }
 
 class model_interop : public ONEDAL_SERIALIZABLE(knn_model_interop_id) {
-    using DaalModel = daal::algorithms::classifier::ModelPtr;
+    using daal_model_ptr_t = daal::algorithms::classifier::ModelPtr;
 
 public:
     model_interop() = default;
 
-    model_interop(const DaalModel& daal_model) : daal_model_(daal_model) {}
+    model_interop(const daal_model_ptr_t& daal_model) : daal_model_(daal_model) {}
 
-    void set_daal_model(const DaalModel& model) {
+    void set_daal_model(const daal_model_ptr_t& model) {
         daal_model_ = model;
     }
 
-    const DaalModel& get_daal_model() const {
+    const daal_model_ptr_t& get_daal_model() const {
         return daal_model_;
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
         dal::backend::interop::daal_output_data_archive daal_ar(ar);
-        daal_ar.setSharedPtrObj(const_cast<DaalModel&>(daal_model_));
+        daal_ar.setSharedPtrObj(const_cast<daal_model_ptr_t&>(daal_model_));
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
@@ -65,7 +65,7 @@ public:
     }
 
 private:
-    DaalModel daal_model_;
+    daal_model_ptr_t daal_model_;
 };
 
 using model_interop_cls = model_interop;

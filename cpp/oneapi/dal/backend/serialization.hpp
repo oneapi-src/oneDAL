@@ -169,10 +169,10 @@ public:
 
     // Algorithms - KNN
     ID(4010000000, knn_brute_force_classification_model_impl_id);
-    ID(4010100000, knn_kdtree_classification_model_impl_id);
+    ID(4010100000, knn_kd_tree_classification_model_impl_id);
     ID(4010200000, knn_model_interop_id);
     ID(4010300000, knn_brute_force_search_model_impl_id);
-    ID(4010400000, knn_kdtree_search_model_impl_id);
+    ID(4010400000, knn_kd_tree_search_model_impl_id);
 };
 
 #undef ID

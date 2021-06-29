@@ -99,14 +99,16 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     const auto daal_voting_mode = convert_to_daal_bf_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
 
-    if(!dynamic_cast<brute_force_model_impl<Task>*>(&dal::detail::get_impl(m))) {
+    if (!dynamic_cast<brute_force_model_impl<Task> *>(&dal::detail::get_impl(m))) {
         throw internal_error{ dal::detail::error_messages::unsupported_knn_model() };
     }
 
-    const auto deserialized_model = dynamic_cast<brute_force_model_impl<Task>*>(&dal::detail::get_impl(m));
+    const auto deserialized_model =
+        dynamic_cast<brute_force_model_impl<Task> *>(&dal::detail::get_impl(m));
 
     const auto daal_train_data = interop::convert_to_daal_table<Float>(deserialized_model->data_);
-    const auto daal_train_labels = interop::convert_to_daal_table<Float>(deserialized_model->labels_);
+    const auto daal_train_labels =
+        interop::convert_to_daal_table<Float>(deserialized_model->labels_);
     const std::int64_t column_count = daal_train_data->getNumberOfColumns();
 
     Status status;
@@ -117,14 +119,14 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     model_ptr->impl()->setData<Float>(daal_train_data, false);
     model_ptr->impl()->setLabels<Float>(daal_train_labels, false);
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(
-        ctx,
-        daal_data.get(),
-        model_ptr.get(),
-        daal_labels.get(),
-        daal_indices.get(),
-        daal_distance.get(),
-        &daal_parameter));
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(ctx,
+                                                               daal_data.get(),
+                                                               model_ptr.get(),
+                                                               daal_labels.get(),
+                                                               daal_indices.get(),
+                                                               daal_distance.get(),
+                                                               &daal_parameter));
 
     auto result = infer_result<Task>{};
     if constexpr (std::is_same_v<Task, task::search>) {

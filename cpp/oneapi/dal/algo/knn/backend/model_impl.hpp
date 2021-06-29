@@ -82,18 +82,18 @@ private:
 };
 
 template <typename Task>
-class kdtree_model_impl : public model_impl<Task>,
+class kd_tree_model_impl : public model_impl<Task>,
                           public KNN_SERIALIZABLE(Task,
-                                                  knn_kdtree_classification_model_impl_id,
-                                                  knn_kdtree_search_model_impl_id) {
+                                                  knn_kd_tree_classification_model_impl_id,
+                                                  knn_kd_tree_search_model_impl_id) {
 public:
-    kdtree_model_impl() : interop_(nullptr) {}
-    kdtree_model_impl(const kdtree_model_impl&) = delete;
-    kdtree_model_impl& operator=(const kdtree_model_impl&) = delete;
+    kd_tree_model_impl() : interop_(nullptr) {}
+    kd_tree_model_impl(const kd_tree_model_impl&) = delete;
+    kd_tree_model_impl& operator=(const kd_tree_model_impl&) = delete;
 
-    kdtree_model_impl(backend::model_interop* interop) : interop_(interop) {}
+    kd_tree_model_impl(backend::model_interop* interop) : interop_(interop) {}
 
-    ~kdtree_model_impl() {
+    ~kd_tree_model_impl() {
         delete interop_;
         interop_ = nullptr;
     }
@@ -116,7 +116,7 @@ private:
 } // namespace v1
 
 using v1::brute_force_model_impl;
-using v1::kdtree_model_impl;
+using v1::kd_tree_model_impl;
 
 } // namespace detail
 
@@ -129,7 +129,7 @@ template <typename Task>
 using brute_force_model_impl = detail::brute_force_model_impl<Task>;
 
 template <typename Task>
-using kdtree_model_impl = detail::kdtree_model_impl<Task>;
+using kd_tree_model_impl = detail::kd_tree_model_impl<Task>;
 
 } // namespace backend
 } // namespace oneapi::dal::knn

@@ -27,7 +27,6 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
-using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace daal_classifier = daal::algorithms::classifier;
@@ -40,7 +39,7 @@ using daal_knn_kd_tree_kernel_t = daal_knn::prediction::internal::
 
 template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
-                                           const descriptor_t &desc,
+                                           const detail::descriptor_base<Task> &desc,
                                            const table &data,
                                            model<Task> m) {
     const std::int64_t row_count = data.get_row_count();
@@ -88,7 +87,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         daal_data.get(),
-        dal::detail::cast_impl<kdtree_model_impl<Task>>(m).get_interop()->get_daal_model().get(),
+        dal::detail::cast_impl<kd_tree_model_impl<Task>>(m).get_interop()->get_daal_model().get(),
         daal_labels.get(),
         daal_indices.get(),
         daal_distance.get(),
@@ -114,7 +113,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
 
 template <typename Float, typename Task>
 static infer_result<Task> infer(const context_cpu &ctx,
-                                const descriptor_t &desc,
+                                const detail::descriptor_base<Task> &desc,
                                 const infer_input<Task> &input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
@@ -122,7 +121,7 @@ static infer_result<Task> infer(const context_cpu &ctx,
 template <typename Float, typename Task>
 struct infer_kernel_cpu<Float, method::kd_tree, Task> {
     infer_result<Task> operator()(const context_cpu &ctx,
-                                  const descriptor_t &desc,
+                                  const detail::descriptor_base<Task> &desc,
                                   const infer_input<Task> &input) const {
         return infer<Float>(ctx, desc, input);
     }

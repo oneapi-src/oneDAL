@@ -153,12 +153,31 @@ private:
 
 using knn_cls_types = COMBINE_TYPES((float, double),
                                     (knn::method::kd_tree, knn::method::brute_force),
-                                    (knn::task::classification/* , knn::task::search */));
+                                    (knn::task::classification));
 
 TEMPLATE_LIST_TEST_M(knn_serialization_test,
                      "serialize/deserialize classification knn model",
                      "[cls]",
                      knn_cls_types) {
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->not_available_on_device());
+
+    const std::int64_t class_count = GENERATE(2, 3);
+    const std::int64_t neighbor_count = GENERATE(2, 3, 15);
+
+    this->set_class_count(class_count);
+    this->set_neighbor_count(neighbor_count);
+    this->run_test();
+}
+
+using knn_search_types = COMBINE_TYPES((float, double),
+                                    (knn::method::kd_tree, knn::method::brute_force),
+                                    (knn::task::search));
+
+TEMPLATE_LIST_TEST_M(knn_serialization_test,
+                     "serialize/deserialize search knn model",
+                     "[cls]",
+                     knn_search_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->not_available_on_device());
 

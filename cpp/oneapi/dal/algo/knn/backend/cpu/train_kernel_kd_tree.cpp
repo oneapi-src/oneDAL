@@ -78,9 +78,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                     *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl = std::make_shared<kdtree_model_impl<Task>>(interop);
-    return train_result<Task>().set_model(
-        dal::detail::make_private<model<Task>>(model_impl));
+    const auto model_impl = std::make_shared<kd_tree_model_impl<Task>>(interop);
+    return train_result<Task>().set_model(dal::detail::make_private<model<Task>>(model_impl));
 }
 
 template <typename Float, typename Task>
