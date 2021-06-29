@@ -454,6 +454,18 @@ public:
         return *this;
     }
 
+    /// The first unique value in class labels.
+    /// Used with :expr:`task::classification` and
+    /// :expr:`task::nu_classification`.
+    [[deprecated]] std::int64_t get_first_class_label() const {
+        return get_first_class_response();
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    [[deprecated]] auto &set_first_class_label(std::int64_t value) {
+        return set_first_class_response(value);
+    }
+
     /// The first unique value in class responses.
     /// Used with :expr:`task::classification` and
     /// :expr:`task::nu_classification`.
@@ -463,6 +475,18 @@ public:
     auto &set_first_class_response(std::int64_t value) {
         set_first_class_response_impl(value);
         return *this;
+    }
+
+    /// The second unique value in class labels.
+    /// Used with :expr:`task::classification` and
+    /// :expr:`task::nu_classification`.
+    [[deprecated]] std::int64_t get_second_class_label() const {
+        return get_second_class_response();
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    [[deprecated]] auto &set_second_class_label(std::int64_t value) {
+        return set_second_class_response(value);
     }
 
     /// The second unique value in class responses.
