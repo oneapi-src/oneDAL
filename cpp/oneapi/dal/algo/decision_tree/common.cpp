@@ -163,8 +163,8 @@ leaf_node_info<task::classification>& leaf_node_info<task::classification>::oper
     return *this;
 }
 
-std::int64_t leaf_node_info<task::classification>::get_label() const {
-    return de::cast_impl<impl_t>(*this).label;
+std::int64_t leaf_node_info<task::classification>::get_response() const {
+    return de::cast_impl<impl_t>(*this).response;
 }
 
 double leaf_node_info<task::classification>::get_probability(std::int64_t class_idx) const {
@@ -206,8 +206,8 @@ leaf_node_info<task::regression>& leaf_node_info<task::regression>::operator=(
     return *this;
 }
 
-double leaf_node_info<task::regression>::get_label() const {
-    return de::cast_impl<impl_t>(*this).label;
+double leaf_node_info<task::regression>::get_response() const {
+    return de::cast_impl<impl_t>(*this).response;
 }
 
 template class ONEDAL_EXPORT node_info<task::classification>;
