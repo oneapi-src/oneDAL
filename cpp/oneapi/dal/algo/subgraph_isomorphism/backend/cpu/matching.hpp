@@ -487,7 +487,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
 
     state<Cpu> null_state(allocator_);
     std::uint64_t task_counter = 0, index = 0;
-    for (std::int64_t i = 0; i < target->n; ++i) {
+    for (std::int64_t i = 0; i < target->get_vertex_count(); ++i) {
         if (degree <= target->get_vertex_degree(i) &&
             pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                 target->get_vertex_attribute(i)) {
@@ -501,7 +501,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         }
     }
 
-    global_stack<Cpu> gstack(pattern->n, allocator_);
+    global_stack<Cpu> gstack(pattern->get_vertex_count(), allocator_);
     std::int64_t busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
         engine_array[index].run_and_wait(gstack, busy_engine_count, false);
