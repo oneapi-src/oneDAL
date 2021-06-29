@@ -20,7 +20,8 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result call_kernel(
+template <>
+ONEDAL_EXPORT subgraph_isomorphism::graph_matching_result<task::compute> call_kernel(
     const dal::detail::host_policy& policy,
     const kind& si_kind,
     std::int64_t max_match_count,

@@ -24,7 +24,7 @@ template solution<__CPU_TAG__> si<__CPU_TAG__>(const graph<__CPU_TAG__>& pattern
                                                std::int64_t max_match_count,
                                                detail::byte_alloc_iface* alloc_ptr);
 
-template subgraph_isomorphism::graph_matching_result si_call_kernel<__CPU_TAG__>(
+template subgraph_isomorphism::graph_matching_result<task::compute> si_call_kernel<__CPU_TAG__>(
     const kind& si_kind,
     std::int64_t max_match_count,
     detail::byte_alloc_iface* alloc_ptr,

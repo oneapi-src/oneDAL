@@ -1859,6 +1859,7 @@ public:
             dal::preview::subgraph_isomorphism::descriptor<
                 float,
                 dal::preview::subgraph_isomorphism::method::by_default,
+                dal::preview::subgraph_isomorphism::task::by_default,
                 AllocatorType>(alloc)
                 .set_kind(kind)
                 .set_max_match_count(max_match_count)

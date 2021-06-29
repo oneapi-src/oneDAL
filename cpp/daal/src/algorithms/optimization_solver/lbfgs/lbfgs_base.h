@@ -92,19 +92,12 @@ public:
     typedef daal::internal::RNGs<int, cpu> RNGs;
 
     LBFGSTask(const Parameter * parameter, NumericTable * minimum);
-    LBFGSTask(const interface1::Parameter * parameter, NumericTable * minimum);
 
     ~LBFGSTask();
 
     Status init(NumericTable * inputArgument, NumericTable * correctionPairsInput, NumericTable * averageArgLIterInput,
                 OptionalArgument * optionalArgumentInput, const Parameter * parameter, NumericTable * minimum, NumericTable * averageArgLIterResult,
                 NumericTable * correctionPairsResult, size_t nTerms, size_t batchSize, size_t correctionPairBatchSize);
-
-    Status init(NumericTable * inputArgument, NumericTable * correctionPairsInput, NumericTable * averageArgLIterInput,
-                OptionalArgument * optionalArgumentInput, const interface1::Parameter * parameter, NumericTable * minimum,
-                NumericTable * averageArgLIterResult, NumericTable * correctionPairsResult, size_t nTerms, size_t batchSize,
-                size_t correctionPairBatchSize);
-
     /*
      * Returns array of batch indices provided by user or the memory allcated for sampled batch indices
      */
@@ -120,8 +113,6 @@ public:
 
     algorithmFPType lineSearch(algorithmFPType * x, NumericTablePtr & ntValue, NumericTablePtr & ntGradient, algorithmFPType * dx,
                                sum_of_functions::BatchPtr & gradientFunction, bool & continueSearch);
-    algorithmFPType lineSearch1(algorithmFPType * x, NumericTablePtr & ntValue, NumericTablePtr & ntGradient, algorithmFPType * dx,
-                                sum_of_functions::interface1::BatchPtr & gradientFunction, bool & continueSearch);
     /*
     * Updates argument of the objective function
     */
@@ -129,10 +120,6 @@ public:
                           algorithmFPType accuracyThreshold, sum_of_functions::BatchPtr & gradientFunction, NumericTablePtr & ntGradient,
                           NumericTablePtr & ntValue, algorithmFPType * argument, bool & bContinue,
                           daal::algorithms::engines::internal::BatchBaseImpl * engine, bool useWolfeConditions);
-    Status updateArgument1(size_t iIteration, size_t t, size_t epoch, size_t m, size_t correctionIndex, size_t nTerms, size_t batchSize,
-                           algorithmFPType accuracyThreshold, sum_of_functions::interface1::BatchPtr & gradientFunction, NumericTablePtr & ntGradient,
-                           NumericTablePtr & ntValue, algorithmFPType * argument, bool & bContinue,
-                           daal::algorithms::engines::internal::BatchBaseImpl * engine, bool useWolfeConditions);
 
     /*
     * Updates the array of objective function terms indices that are used in stochastic gradient
@@ -161,13 +148,11 @@ private:
     * Initializes argumentLCur, argumentLPrev
     */
     Status initArgumentL(NumericTable * averageArgLIterInput, NumericTable * averageArgLIterResult, const Parameter * parameter);
-    Status initArgumentL(NumericTable * averageArgLIterInput, NumericTable * averageArgLIterResult, const interface1::Parameter * parameter);
 
     /*
     * Initializes correction pairs data if passed in an optional input data
     */
     Status initCorrectionPairs(NumericTable * correctionPairsInput, const Parameter * parameter, NumericTable * correctionPairsResult);
-    Status initCorrectionPairs(NumericTable * correctionPairsInput, const interface1::Parameter * parameter, NumericTable * correctionPairsResult);
 
     /*
     * Updates the array of objective function terms indices that are used in stochastic gradient

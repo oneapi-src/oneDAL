@@ -83,7 +83,7 @@ solution<Cpu> si(const graph<Cpu>& pattern,
 }
 
 template <typename Cpu>
-subgraph_isomorphism::graph_matching_result si_call_kernel(
+subgraph_isomorphism::graph_matching_result<task::compute> si_call_kernel(
     const kind& si_kind,
     std::int64_t max_match_count,
     detail::byte_alloc_iface* alloc_ptr,
@@ -106,7 +106,11 @@ subgraph_isomorphism::graph_matching_result si_call_kernel(
 
     solution<Cpu> results = si<Cpu>(pattern, target, si_kind, max_match_count, alloc_ptr);
 
-    return graph_matching_result(results.export_as_table(max_match_count));
+    const auto solution_count = results.get_solution_count();
+    return graph_matching_result<task::compute>()
+        .set_vertex_match(results.export_as_table(max_match_count))
+        .set_match_count((max_match_count == 0) ? solution_count
+                                                : std::min(solution_count, max_match_count));
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

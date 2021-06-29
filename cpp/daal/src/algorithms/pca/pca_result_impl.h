@@ -24,7 +24,9 @@
 #ifndef __PCA_RESULT_IMPL_H__
 #define __PCA_RESULT_IMPL_H__
 
-#include "src/algorithms/pca/inner/pca_result_v2.h"
+#include "data_management/data/data_collection.h"
+#include "data_management/data/numeric_table.h"
+#include "algorithms/pca/pca_types.h"
 
 namespace daal
 {
@@ -34,14 +36,14 @@ namespace pca
 {
 namespace interface3
 {
-class ResultImpl : public interface1::ResultImpl
+class ResultImpl : public data_management::DataCollection
 {
 public:
     DAAL_CAST_OPERATOR(ResultImpl);
 
     bool isWhitening;
-    ResultImpl(const size_t n) : interface1::ResultImpl(n), isWhitening(false) {}
-    ResultImpl(const ResultImpl & o) : interface1::ResultImpl(o), isWhitening(o.isWhitening) {}
+    ResultImpl(const size_t n) : DataCollection(n), isWhitening(false) {}
+    ResultImpl(const ResultImpl & o) : DataCollection(o), isWhitening(o.isWhitening) {}
     virtual ~ResultImpl() {};
 
     /**
@@ -73,6 +75,17 @@ public:
     * \return Status
     */
     virtual services::Status check(size_t nFeatures, size_t nComponents, size_t nTables) const;
+
+    /**
+    * Checks the results of the PCA algorithm implementation
+    * \param[in] nFeatures      Number of features
+    * \param[in] nTables        Number of tables
+    *
+    * \return Status
+    */
+    virtual services::Status check(size_t nFeatures, size_t nTables) const;
+
+    void setTable(size_t key, data_management::NumericTablePtr table);
 
 protected:
     /**

@@ -110,15 +110,9 @@ services::Status PartialResult::checkImpl(size_t nFeatures, const daal::algorith
     const size_t trainingDataFeatures = resModel->getNFeatures();
     DAAL_CHECK(trainingDataFeatures, services::ErrorModelNotFullInitialized);
     size_t nClasses = 0;
-    {
-        const multinomial_naive_bayes::interface1::Parameter * algPar1 =
-            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if (algPar1) nClasses = algPar1->nClasses;
-    }
-    {
-        const multinomial_naive_bayes::Parameter * algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if (algPar2) nClasses = algPar2->nClasses;
-    }
+
+    const multinomial_naive_bayes::Parameter * algPar2 = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+    if (algPar2) nClasses = algPar2->nClasses;
     DAAL_CHECK_EX(nClasses > 0, ErrorNullParameterNotSupported, ArgumentName, nClassesStr());
 
     s |= checkNumericTable(resModel->getClassSize().get(), classSizeStr(), 0, 0, 1, nClasses);

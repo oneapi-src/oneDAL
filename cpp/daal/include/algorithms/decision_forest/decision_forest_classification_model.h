@@ -59,8 +59,8 @@ namespace interface1
  * \brief %Model of the classifier trained by the decision_forest::training::Batch algorithm.
  *
  * \par References
- *      - \ref classification::training::interface1::Batch "training::Batch" class
- *      - \ref classification::prediction::interface1::Batch "prediction::Batch" class
+ *      - \ref classification::training::interface3::Batch "training::Batch" class
+ *      - \ref classification::prediction::interface3::Batch "prediction::Batch" class
  */
 class DAAL_EXPORT Model : public classifier::Model
 {
@@ -94,20 +94,6 @@ public:
      *  Removes all trees from the model
      */
     virtual void clear() = 0;
-
-    /**
-    *  Perform Depth First Traversal of i-th tree
-    *  \param[in] iTree    Index of the tree to traverse
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
-    virtual void traverseDFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const = 0;
-
-    /**
-    *  Perform Breadth First Traversal of i-th tree
-    *  \param[in] iTree    Index of the tree to traverse
-    *  \param[in] visitor  This object gets notified when tree nodes are visited
-    */
-    virtual void traverseBFS(size_t iTree, tree_utils::classification::interface1::TreeNodeVisitor & visitor) const = 0;
 
     /**
     *  Get number of trees in the decision forest model

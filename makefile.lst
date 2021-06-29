@@ -25,14 +25,15 @@ CORE.ALGORITHMS.CUSTOM.AVAILABLE := low_order_moments quantiles covariance cosdi
                 logitboost svm multiclassclassifier k_nearest_neighbors logistic_regression implicit_als               \
                 coordinate_descent jaccard triangle_counting shortest_paths subgraph_isomorphism
 
+classifier += classifier/inner
 low_order_moments +=
 quantiles +=
 covariance +=
 cosdistance +=
 cordistance += covariance
 elastic_net += linear_model regression optimization_solver objective_function engines
-kmeans += kmeans/inner engines distributions
-pca += pca/inner pca/metrics pca/transform svd covariance low_order_moments normalization
+kmeans += engines distributions
+pca += pca/metrics pca/transform svd covariance low_order_moments normalization
 cholesky +=
 svd +=
 assocrules +=
@@ -43,44 +44,39 @@ outlierdetection_multivariate +=
 outlierdetection_univariate +=
 kernel_function += kernel_function/polynomial
 sorting +=
-normalization += normalization/minmax normalization/zscore normalization/zscore/inner low_order_moments
-optimization_solver += optimization_solver/adagrad optimization_solver/adagrad/inner optimization_solver/lbfgs optimization_solver/lbfgs/inner optimization_solver/sgd optimization_solver/sgd/inner optimization_solver/saga optimization_solver/saga/inner optimization_solver/inner optimization_solver/coordinate_descent objective_function engines distributions
+normalization += normalization/minmax normalization/zscore low_order_moments
+optimization_solver += optimization_solver/adagrad optimization_solver/lbfgs optimization_solver/sgd optimization_solver/saga optimization_solver/coordinate_descent objective_function engines distributions
 coordinate_descent += optimization_solver/coordinate_descent objective_function engines distributions
-objective_function += objective_function/inner objective_function/cross_entropy_loss objective_function/cross_entropy_loss/inner objective_function/logistic_loss objective_function/logistic_loss/inner objective_function/mse objective_function/mse/inner
-decision_tree += decision_tree/inner regression classifier classifier/inner
-dtrees/gbt += dtrees dtrees/gbt/classification dtrees/gbt/classification/inner dtrees/gbt/regression engines classifier classifier/inner regression objective_function
-dtrees/forest += dtrees dtrees/regression dtrees/forest/classification dtrees/forest/classification/inner dtrees/forest/regression dtrees/forest/regression/inner engines classifier classifier/inner regression distributions
+objective_function += objective_function/cross_entropy_loss objective_function/logistic_loss objective_function/mse
+decision_tree += regression classifier
+dtrees/gbt += dtrees dtrees/gbt/classification dtrees/gbt/regression engines classifier regression objective_function
+dtrees/forest += dtrees dtrees/regression dtrees/forest/classification dtrees/forest/regression engines classifier regression distributions
 linear_regression += linear_model regression
 lasso_regression += linear_model regression optimization_solver objective_function engines
 ridge_regression += linear_model regression
-naivebayes += classifier classifier/inner
-stump += stump/inner classifier classifier/inner weak_learner/inner
-adaboost += adaboost/inner classifier classifier/inner decision_tree decision_tree/inner stump stump/inner boosting/inner weak_learner/inner
-brownboost += brownboost/inner boosting/inner weak_learner/inner classifier classifier/inner decision_tree decision_tree/inner stump stump/inner
-logitboost += logitboost/inner boosting/inner weak_learner/inner classifier classifier/inner regression decision_tree decision_tree/inner stump stump/inner
+naivebayes += classifier
+stump += classifier
+adaboost += classifier decision_tree stump
+brownboost += classifier decision_tree stump
+logitboost += classifier regression decision_tree stump
 svm += classifier kernel_function multiclassclassifier
-multiclassclassifier += classifier classifier/inner
-k_nearest_neighbors += k_nearest_neighbors/inner engines classifier classifier/inner
-logistic_regression += logistic_regression/inner classifier classifier/inner optimization_solver objective_function engines
+multiclassclassifier += classifier
+k_nearest_neighbors += engines classifier
+logistic_regression += classifier optimization_solver objective_function engines
 implicit_als += engines distributions
 engines += engines/mt19937 engines/mcg59 engines/mt2203
 distributions += distributions/bernoulli distributions/normal distributions/uniform
 
 CORE.ALGORITHMS.FULL :=                                                       \
     adaboost                                                                  \
-    adaboost/inner                                                            \
     assocrules                                                                \
-    boosting/inner                                                            \
     brownboost                                                                \
-    brownboost/inner                                                          \
     cholesky                                                                  \
     classifier                                                                \
-    classifier/inner                                                          \
     cordistance                                                               \
     cosdistance                                                               \
     covariance                                                                \
     decision_tree                                                             \
-    decision_tree/inner                                                       \
     distributions                                                             \
     distributions/bernoulli                                                   \
     distributions/normal                                                      \
@@ -88,9 +84,7 @@ CORE.ALGORITHMS.FULL :=                                                       \
     dtrees                                                                    \
     dtrees/forest                                                             \
     dtrees/forest/classification                                              \
-    dtrees/forest/classification/inner                                        \
     dtrees/forest/regression                                                  \
-    dtrees/forest/regression/inner                                            \
     dtrees/gbt                                                                \
     dtrees/gbt/regression                                                     \
     dtrees/gbt/classification                                                 \
@@ -105,48 +99,33 @@ CORE.ALGORITHMS.FULL :=                                                       \
     implicit_als                                                              \
     kernel_function                                                           \
     kernel_function/polynomial                                                \
-    kmeans/inner                                                              \
     kmeans                                                                    \
     k_nearest_neighbors                                                       \
-    k_nearest_neighbors/inner                                                 \
     lbfgs                                                                     \
     linear_model                                                              \
     lasso_regression                                                          \
     linear_regression                                                         \
     logistic_regression                                                       \
-    logistic_regression/inner                                                 \
     logitboost                                                                \
-    logitboos/inner                                                           \
     low_order_moments                                                         \
     multiclassclassifier                                                      \
     naivebayes                                                                \
     normalization/minmax                                                      \
     normalization/zscore                                                      \
-    normalization/zscore/inner                                                \
     objective_function                                                        \
-    objective_function/inner                                                  \
     objective_function/cross_entropy_loss                                     \
-    objective_function/cross_entropy_loss/inner                               \
     objective_function/logistic_loss                                          \
-    objective_function/logistic_loss/inner                                    \
     objective_function/mse                                                    \
-    objective_function/mse/inner                                              \
     optimization_solver                                                       \
-    optimization_solver/inner                                                 \
     optimization_solver/sgd                                                   \
-    optimization_solver/sgd/inner                                             \
     optimization_solver/lbfgs                                                 \
-    optimization_solver/lbfgs/inner                                           \
     optimization_solver/adagrad                                               \
-    optimization_solver/adagrad/inner                                         \
     optimization_solver/saga                                                  \
-    optimization_solver/saga/inner                                            \
     optimization_solver/coordinate_descent                                    \
     outlierdetection_multivariate                                             \
     outlierdetection_bacon                                                    \
     outlierdetection_univariate                                               \
     pca                                                                       \
-    pca/inner                                                                 \
     pca/metrics                                                               \
     pca/transform                                                             \
     pivoted_qr                                                                \
@@ -157,11 +136,9 @@ CORE.ALGORITHMS.FULL :=                                                       \
     sgd                                                                       \
     sorting                                                                   \
     stump                                                                     \
-    stump/inner                                                               \
     svd                                                                       \
     svm                                                                       \
     weak_learner/inner
-
 
 CORE.ALGORITHMS := $(if $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.CUSTOM), $(CORE.ALGORITHMS.FULL))
 CORE.ALGORITHMS := $(sort $(foreach alg,$(CORE.ALGORITHMS),$(foreach alg1,$($(alg)),$(foreach alg2,$($(alg1)),$($(alg2)) $(alg2)) $(alg1)) $(alg)))
