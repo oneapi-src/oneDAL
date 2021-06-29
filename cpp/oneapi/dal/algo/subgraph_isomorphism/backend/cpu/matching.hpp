@@ -283,14 +283,15 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
     std::uint64_t current_level_index = hlocal_stack.get_current_level_index();
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
-    ONEDAL_IVDEP
-    for (std::int64_t j = 0; j < divider; j++) {
-        or_equal<Cpu>(
-            vertex_candidates.get_vector_pointer(),
-            target->p_edges_list[hlocal_stack.top(
-                pconsistent_conditions[current_level_index].array[j])],
-            target
-                ->p_degree[hlocal_stack.top(pconsistent_conditions[current_level_index].array[j])]);
+    if (isomorphism_kind_ != kind::non_induced) {
+        ONEDAL_IVDEP
+        for (std::int64_t j = 0; j < divider; j++) {
+            or_equal<Cpu>(vertex_candidates.get_vector_pointer(),
+                          target->p_edges_list[hlocal_stack.top(
+                              pconsistent_conditions[current_level_index].array[j])],
+                          target->p_degree[hlocal_stack.top(
+                              pconsistent_conditions[current_level_index].array[j])]);
+        }
     }
 
     ~vertex_candidates;
