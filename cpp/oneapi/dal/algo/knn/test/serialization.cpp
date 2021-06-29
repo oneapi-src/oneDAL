@@ -153,7 +153,7 @@ private:
 
 using knn_cls_types = COMBINE_TYPES((float, double),
                                     (knn::method::kd_tree, knn::method::brute_force),
-                                    (knn::task::classification));
+                                    (knn::task::classification/* , knn::task::search */));
 
 TEMPLATE_LIST_TEST_M(knn_serialization_test,
                      "serialize/deserialize classification knn model",

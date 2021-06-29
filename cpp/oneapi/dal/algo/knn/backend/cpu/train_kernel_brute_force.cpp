@@ -42,7 +42,6 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const table& labels) {
-    using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
     const auto data_use_in_model = daal_knn::doUse;
