@@ -38,7 +38,6 @@
 #ifndef __LOGITBOOST_TRAIN_FRIEDMAN_AUX_I__
 #define __LOGITBOOST_TRAIN_FRIEDMAN_AUX_I__
 
-#include "src/algorithms/stump/inner/stump_train_impl.i"
 #include "src/services/service_data_utils.h"
 
 using namespace daal::algorithms::logitboost::internal;
