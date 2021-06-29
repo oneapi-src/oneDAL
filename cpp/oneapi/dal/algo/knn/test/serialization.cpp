@@ -38,9 +38,10 @@ public:
 
     static constexpr bool is_kd_tree = std::is_same_v<method_t, knn::method::kd_tree>;
     static constexpr bool is_brute_force = std::is_same_v<method_t, knn::method::brute_force>;
+    static constexpr bool is_search = std::is_same_v<task_t, knn::task::search>;
 
     bool not_available_on_device() {
-        return (this->get_policy().is_gpu() && is_kd_tree);
+        return (this->get_policy().is_gpu() && (is_kd_tree || is_search));
     }
 
     void set_class_count(std::int64_t class_count) {
@@ -156,7 +157,7 @@ using knn_types = COMBINE_TYPES((float, double),
                                 (knn::task::classification, knn::task::search));
 
 TEMPLATE_LIST_TEST_M(knn_serialization_test,
-                     "serialize/deserialize different knn models",
+                     "serialize/deserialize knn models",
                      "[cls]",
                      knn_types) {
     SKIP_IF(this->not_float64_friendly());

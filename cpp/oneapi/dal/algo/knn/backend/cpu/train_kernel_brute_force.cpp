@@ -28,7 +28,6 @@
 
 namespace oneapi::dal::knn::backend {
 
-using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
@@ -50,9 +49,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
 
-    Status status;
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
-    interop::status_to_exception(status);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     model_ptr->impl()->setData<Float>(daal_data, false);

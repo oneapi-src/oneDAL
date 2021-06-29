@@ -50,9 +50,9 @@ public:
     brute_force_model_impl(const brute_force_model_impl&) = delete;
     brute_force_model_impl& operator=(const brute_force_model_impl&) = delete;
 
-    brute_force_model_impl(const table& data, const table& labels)
-            : data_(data),
-              labels_(labels),
+    brute_force_model_impl(const table& input_data, const table& input_labels)
+            : data(input_data),
+              labels(input_labels),
               interop_(nullptr) {}
 
     ~brute_force_model_impl() {
@@ -65,17 +65,17 @@ public:
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
-        ar(data_, labels_);
+        ar(data, labels);
         dal::detail::serialize_polymorphic(interop_, ar);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
-        ar(data_, labels_);
+        ar(data, labels);
         interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
     }
 
-    table data_;
-    table labels_;
+    table data;
+    table labels;
 
 private:
     backend::model_interop* interop_;

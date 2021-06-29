@@ -27,7 +27,6 @@
 
 namespace oneapi::dal::knn::backend {
 
-using daal::services::Status;
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::classification>;
 
@@ -78,9 +77,7 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
     const auto daal_train_labels = interop::convert_to_daal_table<Float>(trained_model->labels_);
     const std::int64_t column_count = daal_train_data->getNumberOfColumns();
 
-    Status status;
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
-    interop::status_to_exception(status);
 
     // Data or labels should not be copied
     model_ptr->impl()->setData<Float>(daal_train_data, false);
