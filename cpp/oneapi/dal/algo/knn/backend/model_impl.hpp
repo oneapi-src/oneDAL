@@ -83,9 +83,9 @@ private:
 
 template <typename Task>
 class kd_tree_model_impl : public model_impl<Task>,
-                          public KNN_SERIALIZABLE(Task,
-                                                  knn_kd_tree_classification_model_impl_id,
-                                                  knn_kd_tree_search_model_impl_id) {
+                           public KNN_SERIALIZABLE(Task,
+                                                   knn_kd_tree_classification_model_impl_id,
+                                                   knn_kd_tree_search_model_impl_id) {
 public:
     kd_tree_model_impl() : interop_(nullptr) {}
     kd_tree_model_impl(const kd_tree_model_impl&) = delete;

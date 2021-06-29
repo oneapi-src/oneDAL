@@ -171,8 +171,8 @@ TEMPLATE_LIST_TEST_M(knn_serialization_test,
 }
 
 using knn_search_types = COMBINE_TYPES((float, double),
-                                    (knn::method::kd_tree, knn::method::brute_force),
-                                    (knn::task::search));
+                                       (knn::method::kd_tree, knn::method::brute_force),
+                                       (knn::task::search));
 
 TEMPLATE_LIST_TEST_M(knn_serialization_test,
                      "serialize/deserialize search knn model",
