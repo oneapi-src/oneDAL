@@ -68,6 +68,4 @@ private:
     daal_model_ptr_t daal_model_;
 };
 
-using model_interop_cls = model_interop;
-
 } // namespace oneapi::dal::knn::backend

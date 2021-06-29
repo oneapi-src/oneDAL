@@ -122,7 +122,7 @@ ONEDAL_REGISTER_SERIALIZABLE(detail::v1::brute_force_model_impl<task::classifica
 ONEDAL_REGISTER_SERIALIZABLE(detail::v1::kd_tree_model_impl<task::classification>)
 ONEDAL_REGISTER_SERIALIZABLE(detail::v1::brute_force_model_impl<task::search>)
 ONEDAL_REGISTER_SERIALIZABLE(detail::v1::kd_tree_model_impl<task::search>)
-ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop)
 
 } // namespace v1
 } // namespace oneapi::dal::knn
