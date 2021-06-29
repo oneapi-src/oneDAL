@@ -12,8 +12,7 @@
 # License.
 #===============================================================================
 
-# prefix=<INSTALLDIR>/dal/[dal.version]
-prefix=$DALROOT
+prefix=prefix=${{pcfiledir}}/../../
 exec_prefix=${{prefix}}
 libdir=${{exec_prefix}}/{libdir}
 includedir=${{prefix}}/include
