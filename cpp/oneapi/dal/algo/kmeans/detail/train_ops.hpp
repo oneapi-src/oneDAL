@@ -50,9 +50,10 @@ struct train_ops {
         if (input.get_data().get_row_count() > dal::detail::limits<std::int32_t>::max()) {
             throw domain_error(dal::detail::error_messages::row_count_gt_max_int32());
         }
-        if (params.get_cluster_count() > input.get_data().get_row_count()) {
-            throw invalid_argument(msg::cluster_count_exceeds_data_row_count());
-        }
+        // Need to count all the rows distributed across ranks
+        // if (desc.get_cluster_count() > input.get_data().get_row_count()) {
+        //     throw invalid_argument(msg::cluster_count_exceeds_data_row_count());
+        // }
         if (input.get_initial_centroids().has_data()) {
             if (input.get_initial_centroids().get_row_count() != desc.get_cluster_count()) {
                 throw invalid_argument(msg::input_initial_centroids_rc_neq_desc_cluster_count());

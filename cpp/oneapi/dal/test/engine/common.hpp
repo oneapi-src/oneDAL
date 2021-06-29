@@ -155,17 +155,19 @@ public:
     }
 };
 
-template <typename... Args>
-inline auto train(host_test_policy& policy, Args&&... args) {
-    return dal::train(std::forward<Args>(args)...);
-}
+template <typename T>
+inline constexpr bool is_communicator_v = std::is_base_of_v<dal::detail::spmd_communicator, T>;
 
-template <typename... Args>
-inline auto train(host_test_policy& policy,
-                  const dal::detail::spmd_communicator& comm,
-                  Args&&... args) {
-    return dal::train(dal::detail::spmd_policy{ dal::detail::host_policy{}, comm },
-                      std::forward<Args>(args)...);
+template <typename Head, typename... Args>
+inline auto train(host_test_policy& policy, Head&& head, Args&&... args) {
+    if constexpr (is_communicator_v<std::decay_t<Head>>) {
+        return dal::train(
+            dal::detail::spmd_policy{ dal::detail::host_policy{}, std::forward<Head>(head) },
+            std::forward<Args>(args)...);
+    }
+    else {
+        return dal::train(std::forward<Head>(head), std::forward<Args>(args)...);
+    }
 }
 
 template <typename... Args>
@@ -248,9 +250,18 @@ private:
     sycl::queue queue_;
 };
 
-template <typename... Args>
-inline auto train(device_test_policy& policy, Args&&... args) {
-    return dal::train(policy.get_queue(), std::forward<Args>(args)...);
+template <typename Head, typename... Args>
+inline auto train(device_test_policy& policy, Head&& head, Args&&... args) {
+    if constexpr (is_communicator_v<std::decay_t<Head>>) {
+        dal::detail::data_parallel_policy local_policy{ policy.get_queue() };
+        return dal::train(dal::detail::spmd_policy{ local_policy, std::forward<Head>(head) },
+                          std::forward<Args>(args)...);
+    }
+    else {
+        return dal::train(policy.get_queue(),
+                          std::forward<Head>(head),
+                          std::forward<Args>(args)...);
+    }
 }
 
 template <typename... Args>

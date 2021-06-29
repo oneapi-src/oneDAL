@@ -36,7 +36,7 @@ public:
 
     template <typename... Args>
     train_result_t train_override(Args&&... args) {
-        return this->train_via_spmd_threads(rank_count_, std::forward<Args>(args)...);
+        return this->spmd_train_via_threads(rank_count_, std::forward<Args>(args)...);
     }
 
     std::vector<train_input_t> split_train_input_override(std::int64_t split_count,

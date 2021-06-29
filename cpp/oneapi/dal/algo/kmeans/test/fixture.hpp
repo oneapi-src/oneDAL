@@ -41,12 +41,13 @@ public:
     using base_t = te::crtp_algo_fixture<TestType, Derived>;
     using float_t = std::tuple_element_t<0, TestType>;
     using method_t = std::tuple_element_t<1, TestType>;
-    using descriptor_t = kmeans::descriptor<float_t, method_t>;
-    using train_input_t = kmeans::train_input<>;
-    using train_result_t = kmeans::train_result<>;
-    using infer_input_t = kmeans::infer_input<>;
-    using infer_result_t = kmeans::infer_result<>;
-    using model_t = kmeans::model<>;
+    using task_t = kmeans::task::clustering;
+    using descriptor_t = kmeans::descriptor<float_t, method_t, task_t>;
+    using train_input_t = kmeans::train_input<task_t>;
+    using train_result_t = kmeans::train_result<task_t>;
+    using infer_input_t = kmeans::infer_input<task_t>;
+    using infer_result_t = kmeans::infer_result<task_t>;
+    using model_t = kmeans::model<task_t>;
 
     descriptor_t get_descriptor(std::int64_t cluster_count,
                                 std::int64_t max_iteration_count,
@@ -116,7 +117,6 @@ public:
                            ref_centroids,
                            ref_labels,
                            test_convergence);
-
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
         check_infer_result(kmeans_desc,
@@ -131,7 +131,9 @@ public:
                                   std::int64_t max_iteration_count,
                                   float_t accuracy_threshold,
                                   float_t ref_dbi,
-                                  float_t ref_obj_func) {
+                                  float_t ref_obj_func,
+                                  float_t obj_ref_tol = 1.0e-4,
+                                  float_t dbi_ref_tol = 1.0e-4) {
         CAPTURE(cluster_count);
 
         INFO("create descriptor")
@@ -151,8 +153,6 @@ public:
         const auto infer_result = this->infer(kmeans_desc, model, data);
         REQUIRE(te::has_no_nans(infer_result.get_labels()));
 
-        float_t obj_ref_tol = 1.0e-4;
-        float_t dbi_ref_tol = 1.0e-4;
         auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
         CAPTURE(dbi, ref_dbi);
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
@@ -162,13 +162,45 @@ public:
                                          obj_ref_tol));
     }
 
-    void train_with_initialization_checks(const table& data,
-                                          const table& ref_centroids,
-                                          const table& ref_labels,
-                                          std::int64_t cluster_count,
-                                          std::int64_t max_iteration_count,
-                                          float_t accuracy_threshold,
-                                          model_t& model) {
+    void dbi_deterministic_checks_with_centroids(const table& data,
+                                                 const table& initial_centroids,
+                                                 std::int64_t cluster_count,
+                                                 std::int64_t max_iteration_count,
+                                                 float_t accuracy_threshold,
+                                                 float_t ref_dbi,
+                                                 float_t ref_obj_func,
+                                                 float_t obj_ref_tol = 1.0e-4,
+                                                 float_t dbi_ref_tol = 1.0e-4) {
+        CAPTURE(cluster_count);
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        INFO("run training");
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
+        const auto model = train_result.get_model();
+        REQUIRE(te::has_no_nans(model.get_centroids()));
+
+        INFO("run inference");
+        const auto infer_result = this->infer(kmeans_desc, model, data);
+        REQUIRE(te::has_no_nans(infer_result.get_labels()));
+
+        auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        CAPTURE(dbi, ref_dbi);
+        CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
+        REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
+        REQUIRE(check_value_with_ref_tol(infer_result.get_objective_function_value(),
+                                         ref_obj_func,
+                                         obj_ref_tol));
+    }
+
+    model_t train_with_initialization_checks(const table& data,
+                                             const table& ref_centroids,
+                                             const table& ref_labels,
+                                             std::int64_t cluster_count,
+                                             std::int64_t max_iteration_count,
+                                             float_t accuracy_threshold) {
         CAPTURE(cluster_count);
 
         INFO("create descriptor")
@@ -178,11 +210,11 @@ public:
         INFO("run training");
         const auto train_result = this->train(kmeans_desc, data);
         check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, false);
-        model = train_result.get_model();
+        return train_result.get_model();
     }
 
     void infer_checks(const table& data,
-                      model_t& model,
+                      const model_t& model,
                       const table& ref_labels,
                       float_t ref_objective_function = -1.0) {
         CAPTURE(model.get_cluster_count());
@@ -214,7 +246,7 @@ public:
     }
 
     void check_train_result(const descriptor_t& desc,
-                            const train_result_t& result,
+                            const infer_result_t& result,
                             const array<float_t>& match_map,
                             const table& ref_centroids,
                             const table& ref_labels,
@@ -235,9 +267,9 @@ public:
 
     bool check_value_with_ref_tol(float_t val, float_t ref_val, float_t ref_tol) {
         float_t max_abs = std::max(fabs(val), fabs(ref_val));
-        if (max_abs == 0.0) {
+        if (max_abs == 0.0)
             return true;
-        }
+        CAPTURE(val, ref_val, fabs(val - ref_val) / max_abs, ref_tol);
         return fabs(val - ref_val) / max_abs < ref_tol;
     }
 
@@ -290,9 +322,8 @@ public:
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
             const float_t l = left_rows[i];
             const float_t r = right_rows[i];
-            if (fabs(l - r) < alpha) {
+            if (fabs(l - r) < alpha)
                 continue;
-            }
             const float_t denom = fabs(l) + fabs(r) + alpha;
             if (fabs(l - r) / denom > rel_tol) {
                 CAPTURE(l, r, l - r, rel_tol, (l - r) / denom / rel_tol);
@@ -319,9 +350,8 @@ public:
             for (std::int64_t j = 0; j < feature_count; j++) {
                 const float_t l = left_rows[match_map[i] * feature_count + j];
                 const float_t r = right_rows[i * feature_count + j];
-                if (fabs(l - r) < alpha) {
+                if (fabs(l - r) < alpha)
                     continue;
-                }
                 const float_t denom = fabs(l) + fabs(r) + alpha;
                 if (fabs(l - r) / denom > rel_tol) {
                     CAPTURE(l, r);

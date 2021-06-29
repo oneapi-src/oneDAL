@@ -111,7 +111,7 @@ public:
     }
 
     template <typename Descriptor, typename... Args>
-    auto train_via_spmd_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
+    auto spmd_train_via_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
         ONEDAL_ASSERT(thread_count > 0);
         thread_communicator comm{ thread_count };
 
@@ -157,58 +157,5 @@ private:
         return *(static_cast<Derived*>(this));
     }
 };
-
-// template <typename Derived>
-// class crtp_distr_algo_fixture {
-// public:
-//     Derived& derived() {
-//         return *(static_cast<Derived*>(this));
-//     }
-
-//     std::int64_t get_thread_count() {
-//         return derived().get_thread_count_override();
-//     }
-
-//     thread_communicator get_communicator() {
-//         return derived().get_communicator_override();
-//     }
-
-//     template <typename Result>
-//     Result merge_train_result(const thread_communicator& comm, const Result& result) {
-//         return derived().merge_train_result_override(comm, result);
-//     }
-
-//     std::int64_t get_thread_count_override() {
-//         return GENERATE(1);
-//         // return GENERATE(1, 2, 4, 8, 16);
-//     }
-
-//     thread_communicator get_communicator_override() {
-//         return thread_communicator{ get_thread_count() };
-//     }
-
-//     template <typename Result>
-//     Result merge_train_result_override(const thread_communicator& comm, const Result& result) {
-//         // static_assert(false, "This method must be overriden in the derived class");
-//     }
-
-//     template <typename... Args>
-//     auto train_override(Args&&... args) {
-//         using train_result_t =
-//             decltype(derived().train(std::declval<thread_communicator>(), std::declval<Args>()...));
-
-//         const auto comm = get_communicator();
-
-//         train_result_t result;
-//         comm.execute([&](std::int64_t rank) {
-//             const auto train_result = derived().train(std::forward<Args>(args)...);
-//             const auto merged_result = merge_train_result(comm, train_result);
-//             if (dal::detail::is_root_rank(comm)) {
-//                 result = merged_result;
-//             }
-//         });
-//         return result;
-//     }
-// };
 
 } // namespace oneapi::dal::test::engine
