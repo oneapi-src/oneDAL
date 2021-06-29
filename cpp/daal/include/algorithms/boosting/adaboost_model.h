@@ -26,7 +26,6 @@
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "algorithms/boosting/boosting_model.h"
 #include "algorithms/classifier/classifier_model.h"
 #include "algorithms/classifier/classifier_training_batch.h"
 #include "algorithms/classifier/classifier_predict.h"
@@ -40,112 +39,6 @@ namespace algorithms
  */
 namespace adaboost
 {
-/**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * @ingroup adaboost
- * @{
- */
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__ADABOOST__PARAMETER"></a>
- * \brief AdaBoost algorithm parameters   \DAAL_DEPRECATED
- *
- * \snippet boosting/adaboost_model.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public boosting::Parameter
-{
-    /** Default constructor */
-    DAAL_DEPRECATED Parameter();
-
-    /**
-     * Constructs the AdaBoost parameter structure
-     * \param[in] wlTrainForParameter       Pointer to the training algorithm of the weak learner
-     * \param[in] wlPredictForParameter     Pointer to the prediction algorithm of the weak learner
-     * \param[in] acc                       Accuracy of the AdaBoost training algorithm
-     * \param[in] maxIter                   Maximal number of iterations of the AdaBoost training algorithm
-     */
-    DAAL_DEPRECATED Parameter(services::SharedPtr<weak_learner::training::Batch> wlTrainForParameter,
-                              services::SharedPtr<weak_learner::prediction::Batch> wlPredictForParameter, double acc = 0.0, size_t maxIter = 10);
-
-    double accuracyThreshold; /*!< Accuracy of the AdaBoost training algorithm */
-    size_t maxIterations;     /*!< Maximal number of iterations of the AdaBoost training algorithm */
-
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface1::Parameter source code] */
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__ADABOOST__MODEL"></a>
- * \brief %Model of the classifier trained by the adaboost::training::Batch algorithm.   \DAAL_DEPRECATED
- *
- * \par References
- *      - \ref training::interface1::Batch "training::Batch" class
- *      - \ref prediction::interface1::Batch "prediction::Batch" class
- */
-class DAAL_EXPORT Model : public boosting::Model
-{
-public:
-    DECLARE_MODEL(Model, classifier::Model)
-
-    /**
-     * Constructs the AdaBoost model
-     * \tparam modelFPType  Data type to store AdaBoost model data, double or float
-     * \param[in] nFeatures Number of features in the dataset
-     * \param[in] dummy     Dummy variable for the templated constructor
-     * \DAAL_DEPRECATED_USE{ Model::create }
-     */
-    template <typename modelFPType>
-    DAAL_EXPORT DAAL_DEPRECATED Model(size_t nFeatures, modelFPType dummy);
-
-    /**
-     * Empty constructor for deserialization
-     * \DAAL_DEPRECATED_USE{ Model::create }
-     */
-    DAAL_DEPRECATED Model() : boosting::Model(), _alpha() {}
-
-    /**
-     * Constructs the AdaBoost model
-     * \tparam modelFPType   Data type to store AdaBoost model data, double or float
-     * \param[in]  nFeatures Number of features in the dataset
-     * \param[out] stat      Status of the model construction
-     */
-    template <typename modelFPType>
-    DAAL_EXPORT DAAL_DEPRECATED static services::SharedPtr<Model> create(size_t nFeatures, services::Status * stat = NULL);
-
-    virtual ~Model() {}
-
-    /**
-     *  Returns a pointer to the array of weights of weak learners constructed
-     *  during training of the AdaBoost algorithm.
-     *  The size of the array equals the number of weak learners
-     *  \return Array of weights of weak learners.
-     */
-    DAAL_DEPRECATED data_management::NumericTablePtr getAlpha() const;
-
-protected:
-    data_management::NumericTablePtr _alpha; /* Boosting coefficients table */
-
-    template <typename Archive, bool onDeserialize>
-    services::Status serialImpl(Archive * arch)
-    {
-        services::Status st = boosting::Model::serialImpl<Archive, onDeserialize>(arch);
-        if (!st) return st;
-        arch->setSharedPtrObj(_alpha);
-
-        return st;
-    }
-
-    template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, modelFPType dummy, services::Status & st);
-}; // class Model
-typedef services::SharedPtr<Model> ModelPtr;
-/** @} */
-} // namespace interface1
-
 /**
  * <a name="DAAL-ENUM-ALGORITHMS__ADABOOST__RESULTTOCOMPUTEID"></a>
  * Available identifiers to specify the result to compute

@@ -111,24 +111,6 @@ enum ResultEngineId
     lastResultEngineId = updatedEngine
 };
 
-namespace interface1
-{
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__DECISION_FOREST__REGRESSION__PARAMETER"></a>
- * \brief Parameters for the decision forest algorithm   \DAAL_DEPRECATED
- *
- * \snippet decision_forest/decision_forest_regression_training_types.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-class DAAL_EXPORT Parameter : public daal::algorithms::Parameter, public daal::algorithms::decision_forest::training::interface1::Parameter
-{
-public:
-    DAAL_DEPRECATED Parameter();
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
-
 /**
  * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
  */
@@ -204,18 +186,6 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result)
     Result();
     virtual ~Result();
-
-    /**
-     * Allocates memory to store the result of decision forest model-based training
-     * \param[in] input     %Input object for the algorithm
-     * \param[in] method    Computation method for the algorithm
-     * \param[in] parameter %Parameter of decision forest model-based training
-     * \return Status of allocation
-     */
-    template <typename algorithmFPType>
-    DAAL_DEPRECATED DAAL_EXPORT services::Status allocate(
-        const daal::algorithms::Input * input, const daal::algorithms::decision_forest::regression::training::interface1::Parameter * parameter,
-        const int method);
 
     /**
      * Allocates memory to store the result of decision forest model-based training

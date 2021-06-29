@@ -32,6 +32,8 @@ template <typename Task>
 class detail::v1::infer_result_impl : public base {
 public:
     table labels;
+    table indices;
+    table distances;
 };
 
 using detail::v1::infer_input_impl;
@@ -76,8 +78,30 @@ void infer_result<Task>::set_labels_impl(const table& value) {
     impl_->labels = value;
 }
 
+template <typename Task>
+const table& infer_result<Task>::get_indices() const {
+    return impl_->indices;
+}
+
+template <typename Task>
+void infer_result<Task>::set_indices_impl(const table& value) {
+    impl_->indices = value;
+}
+
+template <typename Task>
+const table& infer_result<Task>::get_distances() const {
+    return impl_->distances;
+}
+
+template <typename Task>
+void infer_result<Task>::set_distances_impl(const table& value) {
+    impl_->distances = value;
+}
+
 template class ONEDAL_EXPORT infer_input<task::classification>;
 template class ONEDAL_EXPORT infer_result<task::classification>;
+template class ONEDAL_EXPORT infer_input<task::search>;
+template class ONEDAL_EXPORT infer_result<task::search>;
 
 } // namespace v1
 } // namespace oneapi::dal::knn

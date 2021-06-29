@@ -26,6 +26,7 @@
 #define __WEAK_LEARNER_TRAINING_TYPES_H__
 
 #include "algorithms/algorithm.h"
+#include "algorithms/classifier/classifier_training_types.h"
 #include "algorithms/weak_learner/weak_learner_model.h"
 
 namespace daal
