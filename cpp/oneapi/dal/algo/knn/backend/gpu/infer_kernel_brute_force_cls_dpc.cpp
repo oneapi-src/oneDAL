@@ -73,8 +73,8 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
         throw internal_error{ dal::detail::error_messages::unsupported_knn_model() };
     }
 
-    const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->data_);
-    const auto daal_train_labels = interop::convert_to_daal_table<Float>(trained_model->labels_);
+    const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->data);
+    const auto daal_train_labels = interop::convert_to_daal_table<Float>(trained_model->labels);
     const std::int64_t column_count = daal_train_data->getNumberOfColumns();
 
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
