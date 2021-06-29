@@ -41,33 +41,18 @@ private:
 class algo_fixture : public policy_fixture {
 public:
     template <typename... Args>
-    auto train_base(Args&&... args) {
+    auto train(Args&&... args) {
         return oneapi::dal::test::engine::train(get_policy(), std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    auto infer_base(Args&&... args) {
+    auto infer(Args&&... args) {
         return oneapi::dal::test::engine::infer(get_policy(), std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    auto compute_base(Args&&... args) {
-        return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto train(Args&&... args) {
-        return train_base(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto infer(Args&&... args) {
-        return infer_base(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
     auto compute(Args&&... args) {
-        return compute_base(std::forward<Args>(args)...);
+        return oneapi::dal::test::engine::compute(get_policy(), std::forward<Args>(args)...);
     }
 };
 
@@ -92,6 +77,7 @@ public:
 template <typename TestType, typename Derived>
 class crtp_algo_fixture : public float_algo_fixture<std::tuple_element_t<0, TestType>> {
 public:
+    using base_t = float_algo_fixture<std::tuple_element_t<0, TestType>>;
     using float_t = std::tuple_element_t<0, TestType>;
     using derived_t = Derived;
 
@@ -110,6 +96,21 @@ public:
         return derived().compute_override(std::forward<Args>(args)...);
     }
 
+    template <typename... Args>
+    auto train_override(Args&&... args) {
+        return base_t::train(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto infer_override(Args&&... args) {
+        return base_t::infer(std::forward<Args>(args)...);
+    }
+
+    template <typename... Args>
+    auto compute_override(Args&&... args) {
+        return base_t::compute(std::forward<Args>(args)...);
+    }
+
     template <typename Descriptor, typename... Args>
     auto spmd_train_via_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
         ONEDAL_ASSERT(thread_count > 0);
@@ -120,26 +121,14 @@ public:
         ONEDAL_ASSERT(input_per_rank.size() == std::size_t(thread_count));
 
         const auto results = comm.map([&](std::int64_t rank) {
-            return this->train_base(comm, desc, input_per_rank[rank]);
+            return dal::test::engine::spmd_train(this->get_policy(),
+                                                 comm,
+                                                 desc,
+                                                 input_per_rank[rank]);
         });
         ONEDAL_ASSERT(results.size() == std::size_t(thread_count));
 
         return derived().merge_train_result_override(results);
-    }
-
-    template <typename... Args>
-    auto train_override(Args&&... args) {
-        return this->train_base(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto infer_override(Args&&... args) {
-        return this->infer_base(std::forward<Args>(args)...);
-    }
-
-    template <typename... Args>
-    auto compute_override(Args&&... args) {
-        return this->compute_base(std::forward<Args>(args)...);
     }
 
     template <typename... Args>
