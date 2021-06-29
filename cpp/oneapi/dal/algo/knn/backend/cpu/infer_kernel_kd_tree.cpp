@@ -101,7 +101,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         &daal_parameter));
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
-    
+
     if (desc.get_result_options() & result_options::labels) {
         if constexpr (std::is_same_v<Task, task::classification>) {
             result = result.set_labels(

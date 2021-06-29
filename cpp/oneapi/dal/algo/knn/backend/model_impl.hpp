@@ -28,13 +28,12 @@ public:
     model_impl(const model_impl&) = delete;
     model_impl& operator=(const model_impl&) = delete;
 
-    model_impl(backend::model_interop* interop) 
-        : options_(result_options::default_result_options<Task>), 
-          interop_(interop) {}
-    model_impl(const result_options::result_option_id_t& options, 
-               backend::model_interop* interop) 
-        : options_(options), 
-          interop_(interop) {}
+    model_impl(backend::model_interop* interop)
+            : options_(result_options::default_result_options<Task>),
+              interop_(interop) {}
+    model_impl(const result_options::result_option_id_t& options, backend::model_interop* interop)
+            : options_(options),
+              interop_(interop) {}
 
     ~model_impl() {
         delete interop_;

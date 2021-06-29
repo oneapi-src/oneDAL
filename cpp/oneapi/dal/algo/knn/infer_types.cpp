@@ -73,9 +73,9 @@ infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
 template <typename Task>
 const table& infer_result<Task>::get_labels() const {
     using msg = dal::detail::error_messages;
-    if(!bool(get_result_options() & result_options::labels)) {
+    if (!bool(get_result_options() & result_options::labels)) {
         throw domain_error(msg::result_option_have_not_been_computed());
-    } 
+    }
     return impl_->labels;
 }
 
@@ -87,9 +87,9 @@ void infer_result<Task>::set_labels_impl(const table& value) {
 template <typename Task>
 const table& infer_result<Task>::get_indices() const {
     using msg = dal::detail::error_messages;
-    if(!bool(get_result_options() & result_options::indices)) {
+    if (!bool(get_result_options() & result_options::indices)) {
         throw domain_error(msg::result_option_have_not_been_computed());
-    } 
+    }
     return impl_->indices;
 }
 
@@ -101,9 +101,9 @@ void infer_result<Task>::set_indices_impl(const table& value) {
 template <typename Task>
 const table& infer_result<Task>::get_distances() const {
     using msg = dal::detail::error_messages;
-    if(!bool(get_result_options() & result_options::distances)) {
+    if (!bool(get_result_options() & result_options::distances)) {
         throw domain_error(msg::result_option_have_not_been_computed());
-    } 
+    }
     return impl_->distances;
 }
 
@@ -112,16 +112,13 @@ void infer_result<Task>::set_distances_impl(const table& value) {
     impl_->distances = value;
 }
 
-
 template <typename Task>
-const result_options::result_option_id_t& 
-    infer_result<Task>::get_result_options() const {
+const result_options::result_option_id_t& infer_result<Task>::get_result_options() const {
     return impl_->options;
 }
 
 template <typename Task>
-void infer_result<Task>::set_result_options_impl(
-    const result_options::result_option_id_t& value) {
+void infer_result<Task>::set_result_options_impl(const result_options::result_option_id_t& value) {
     impl_->options = value;
 }
 
