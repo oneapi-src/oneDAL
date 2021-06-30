@@ -14,10 +14,6 @@
 # limitations under the License.
 #===============================================================================
 
-##  Content:
-##     Intel(R) oneDAL examples makefiles for windows generator
-##******************************************************************************
-
 import os
 import sys
 import glob
@@ -37,7 +33,7 @@ RESULT_PKG_CONFIGS = {
     },
     'dal-dynamic-sequential-host': {
         'is_static': False,
-        'is_threading': True,
+        'is_threading': False,
         'dal_libs': ['onedal', 'onedal_core', 'onedal_sequential']
     },
     'dal-dynamic-threading-host': {
@@ -49,28 +45,34 @@ RESULT_PKG_CONFIGS = {
 
 if platform in ["linux2", "linux"]:
     PREF_LIB = "lib"
+    LIBDIR = 'lib/intel64'
     SUFF_DYN_LIB = ".so"
     SUFF_STAT_LIB = ".a"
     TBB_LIBS = "-ltbb -ltbbmalloc"
     OTHER_LIBS = "-lpthread -ldl"
+    OTHER_OPTS = "-std=c++17"
 elif platform == "darwin":
     PREF_LIB = "lib"
+    LIBDIR = 'lib'
     SUFF_DYN_LIB = ".dylib"
     SUFF_STAT_LIB = ".a"
     TBB_LIBS = "-ltbb -ltbbmalloc"
     OTHER_LIBS = "-ldl"
+    OTHER_OPTS = "-std=c++17"
 elif platform in ["win32", "win64"]:
     PREF_LIB = ""
+    LIBDIR = 'lib/intel64'
     SUFF_DYN_LIB = "_dll.lib"
     SUFF_STAT_LIB = ".lib"
     TBB_LIBS = "tbb12.lib tbbmalloc.lib"
     OTHER_LIBS = " "
+    OTHER_OPTS = "/std:c++17 /MD"
 else:
     raise RuntimeError("Not support OS {}".format(platform))
 
 def get_result_libs(is_static, is_threading, dal_libs):
     suffix = SUFF_STAT_LIB if is_static else SUFF_DYN_LIB
-    out_lib = ["${{libdir}}{}{}{}{}".format(os.sep, PREF_LIB, lib, suffix) for lib in dal_libs]
+    out_lib = ["${{libdir}}{}{}{}{}".format('/', PREF_LIB, lib, suffix) for lib in dal_libs]
     res_dal_libs = " ".join(out_lib)
     res_thread_libs = TBB_LIBS if is_threading else ''
     return res_dal_libs + ' ' + res_thread_libs + ' ' + OTHER_LIBS
@@ -82,8 +84,8 @@ def generate(config):
         for pkg_config in RESULT_PKG_CONFIGS:
             pack_pkg_config = RESULT_PKG_CONFIGS[pkg_config]
             libs = get_result_libs(**pack_pkg_config)
-            libdir = 'lib' + os.sep + 'intel64'
-            opts = '-I${includedir}' + os.sep + 'include'
+            libdir = LIBDIR
+            opts = OTHER_OPTS + ' ' + '-I${includedir}'
             result_content = pkg_template.format(libdir=libdir, libs=libs, opts=opts)
             if not os.path.exists(config.output_dir):
                 os.makedirs(config.output_dir)
