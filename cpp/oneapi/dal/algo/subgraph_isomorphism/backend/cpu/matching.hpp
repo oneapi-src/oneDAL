@@ -283,14 +283,15 @@ std::int64_t matching_engine<Cpu>::state_exploration_list(bool check_solution) {
     std::uint64_t current_level_index = hlocal_stack.get_current_level_index();
     std::int64_t divider = pconsistent_conditions[current_level_index].divider;
 
-    ONEDAL_IVDEP
-    for (std::int64_t j = 0; j < divider; j++) {
-        or_equal<Cpu>(
-            vertex_candidates.get_vector_pointer(),
-            target->p_edges_list[hlocal_stack.top(
-                pconsistent_conditions[current_level_index].array[j])],
-            target
-                ->p_degree[hlocal_stack.top(pconsistent_conditions[current_level_index].array[j])]);
+    if (isomorphism_kind_ != kind::non_induced) {
+        ONEDAL_IVDEP
+        for (std::int64_t j = 0; j < divider; j++) {
+            or_equal<Cpu>(vertex_candidates.get_vector_pointer(),
+                          target->p_edges_list[hlocal_stack.top(
+                              pconsistent_conditions[current_level_index].array[j])],
+                          target->p_degree[hlocal_stack.top(
+                              pconsistent_conditions[current_level_index].array[j])]);
+        }
     }
 
     ~vertex_candidates;
@@ -486,7 +487,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
 
     state<Cpu> null_state(allocator_);
     std::uint64_t task_counter = 0, index = 0;
-    for (std::int64_t i = 0; i < target->n; ++i) {
+    for (std::int64_t i = 0; i < target->get_vertex_count(); ++i) {
         if (degree <= target->get_vertex_degree(i) &&
             pattern->get_vertex_attribute(sorted_pattern_vertex[0]) ==
                 target->get_vertex_attribute(i)) {
@@ -500,7 +501,7 @@ solution<Cpu> engine_bundle<Cpu>::run() {
         }
     }
 
-    global_stack<Cpu> gstack(pattern->n, allocator_);
+    global_stack<Cpu> gstack(pattern->get_vertex_count(), allocator_);
     std::int64_t busy_engine_count(array_size);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
         engine_array[index].run_and_wait(gstack, busy_engine_count, false);
