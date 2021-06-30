@@ -46,39 +46,30 @@ class brute_force_model_impl : public model_impl<Task>,
                                                        knn_brute_force_classification_model_impl_id,
                                                        knn_brute_force_search_model_impl_id) {
 public:
-    brute_force_model_impl() : interop_(nullptr) {}
+    brute_force_model_impl() {}
     brute_force_model_impl(const brute_force_model_impl&) = delete;
     brute_force_model_impl& operator=(const brute_force_model_impl&) = delete;
 
-    brute_force_model_impl(const table& input_data, const table& input_labels)
-            : data(input_data),
-              labels(input_labels),
-              interop_(nullptr) {}
+    brute_force_model_impl(const table& data, const table& labels)
+            : data(data),
+              labels(labels) {}
 
-    ~brute_force_model_impl() {
-        delete interop_;
-        interop_ = nullptr;
-    }
+    ~brute_force_model_impl() {}
 
     backend::model_interop* get_interop() override {
-        return interop_;
+        return nullptr;
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
         ar(data, labels);
-        dal::detail::serialize_polymorphic(interop_, ar);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         ar(data, labels);
-        interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
     }
 
     table data;
     table labels;
-
-private:
-    backend::model_interop* interop_;
 };
 
 template <typename Task>
