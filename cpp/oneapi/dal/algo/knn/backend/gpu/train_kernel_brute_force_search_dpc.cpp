@@ -27,7 +27,7 @@ template <typename Float>
 static train_result<task::search> call_daal_kernel(const context_gpu& ctx,
                                                    const descriptor_t& desc,
                                                    const table& data,
-                                                   const table& labels) {
+                                                   const table& responses) {
     throw unimplemented(dal::detail::error_messages::knn_search_task_is_not_implemented_for_gpu());
 }
 
@@ -35,7 +35,7 @@ template <typename Float>
 static train_result<task::search> train(const context_gpu& ctx,
                                         const descriptor_t& desc,
                                         const train_input<task::search>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float>

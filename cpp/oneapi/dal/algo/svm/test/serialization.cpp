@@ -173,8 +173,8 @@ public:
 
     void compare_infer_results(const infer_result<task_t>& actual,
                                const infer_result<task_t>& reference) {
-        INFO("compare labels") {
-            te::check_if_tables_equal<float_t>(actual.get_labels(), reference.get_labels());
+        INFO("compare responses") {
+            te::check_if_tables_equal<float_t>(actual.get_responses(), reference.get_responses());
         }
 
         if constexpr (std::is_same_v<task_t, task::classification>) {

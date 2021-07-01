@@ -69,27 +69,27 @@ public:
     }
 
     Float classification(const table& train_data,
-                         const table& train_labels,
+                         const table& train_responses,
                          const table& infer_data,
-                         const table& infer_labels,
+                         const table& infer_responses,
                          const std::int64_t n_classes,
                          const std::int64_t n_neighbors = 1,
                          const Float tolerance = Float(1.e-5)) {
         INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
-        REQUIRE(train_labels.get_column_count() == 1);
-        REQUIRE(infer_labels.get_column_count() == 1);
-        REQUIRE(infer_data.get_row_count() == infer_labels.get_row_count());
-        REQUIRE(train_data.get_row_count() == train_labels.get_row_count());
+        REQUIRE(train_responses.get_column_count() == 1);
+        REQUIRE(infer_responses.get_column_count() == 1);
+        REQUIRE(infer_data.get_row_count() == infer_responses.get_row_count());
+        REQUIRE(train_data.get_row_count() == train_responses.get_row_count());
 
         const auto knn_desc = this->get_descriptor(n_classes, n_neighbors);
 
-        auto train_result = this->train(knn_desc, train_data, train_labels);
+        auto train_result = this->train(knn_desc, train_data, train_responses);
         auto train_model = train_result.get_model();
         auto infer_result = this->infer(knn_desc, infer_data, train_model);
         auto [prediction] = this->unpack_result(infer_result);
 
-        const auto score_table = te::accuracy_score<Float>(infer_labels, prediction, tolerance);
+        const auto score_table = te::accuracy_score<Float>(infer_responses, prediction, tolerance);
         const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
         return score;
     }
@@ -98,28 +98,28 @@ public:
               typename M = Method,
               typename = oneapi::dal::knn::detail::enable_if_brute_force_t<M>>
     Float classification(const table& train_data,
-                         const table& train_labels,
+                         const table& train_responses,
                          const table& infer_data,
-                         const table& infer_labels,
+                         const table& infer_responses,
                          const std::int64_t n_classes,
                          const std::int64_t n_neighbors,
                          const Distance& distance,
                          const Float tolerance = Float(1.e-5)) {
         INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
-        REQUIRE(train_labels.get_column_count() == 1);
-        REQUIRE(infer_labels.get_column_count() == 1);
-        REQUIRE(infer_data.get_row_count() == infer_labels.get_row_count());
-        REQUIRE(train_data.get_row_count() == train_labels.get_row_count());
+        REQUIRE(train_responses.get_column_count() == 1);
+        REQUIRE(infer_responses.get_column_count() == 1);
+        REQUIRE(infer_data.get_row_count() == infer_responses.get_row_count());
+        REQUIRE(train_data.get_row_count() == train_responses.get_row_count());
 
         const auto knn_desc = this->get_descriptor(n_classes, n_neighbors, distance);
 
-        auto train_result = this->train(knn_desc, train_data, train_labels);
+        auto train_result = this->train(knn_desc, train_data, train_responses);
         auto train_model = train_result.get_model();
         auto infer_result = this->infer(knn_desc, infer_data, train_model);
         auto [prediction] = this->unpack_result(infer_result);
 
-        const auto score_table = te::accuracy_score<Float>(infer_labels, prediction, tolerance);
+        const auto score_table = te::accuracy_score<Float>(infer_responses, prediction, tolerance);
         const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
         return score;
     }
@@ -129,14 +129,14 @@ public:
                                      const knn::infer_result<>& result) {
         check_nans(result);
 
-        const auto [labels] = unpack_result(result);
+        const auto [responses] = unpack_result(result);
 
         const auto gtruth = naive_knn_search(train_data, infer_data);
 
         INFO("check if data shape is expected")
         REQUIRE(train_data.get_column_count() == infer_data.get_column_count());
-        REQUIRE(infer_data.get_row_count() == labels.get_row_count());
-        REQUIRE(labels.get_column_count() == 1);
+        REQUIRE(infer_data.get_row_count() == responses.get_row_count());
+        REQUIRE(responses.get_column_count() == 1);
         REQUIRE(infer_data.get_row_count() == gtruth.get_row_count());
         REQUIRE(train_data.get_row_count() == gtruth.get_column_count());
 
@@ -146,7 +146,7 @@ public:
 
         for (std::int64_t j = 0; j < m; ++j) {
             const auto gt_indices_row = row_accessor<const Float>(indices).pull({ j, j + 1 });
-            const auto te_indices_row = row_accessor<const Float>(labels).pull({ j, j + 1 });
+            const auto te_indices_row = row_accessor<const Float>(responses).pull({ j, j + 1 });
             const auto l = gt_indices_row[0];
             const auto r = te_indices_row[0];
             if (l != r) {
@@ -214,15 +214,15 @@ public:
     }
 
     void check_nans(const knn::infer_result<>& result) {
-        const auto [labels] = unpack_result(result);
+        const auto [responses] = unpack_result(result);
 
-        INFO("check if there is no NaN in labels")
-        REQUIRE(te::has_no_nans(labels));
+        INFO("check if there is no NaN in responses")
+        REQUIRE(te::has_no_nans(responses));
     }
 
     static auto unpack_result(const knn::infer_result<>& result) {
-        const auto labels = result.get_labels();
-        return std::make_tuple(labels);
+        const auto responses = result.get_responses();
+        return std::make_tuple(responses);
     }
 };
 

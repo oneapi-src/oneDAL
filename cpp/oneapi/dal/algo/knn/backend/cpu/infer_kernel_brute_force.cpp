@@ -58,11 +58,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     daal_parameter.nClasses = original_daal_parameter.nClasses;
     daal_parameter.k = original_daal_parameter.k;
 
-    auto arr_labels = array<Float>{};
+    auto arr_responses = array<Float>{};
     auto arr_indices = array<std::int64_t>{};
     auto arr_distance = array<Float>{};
 
-    auto daal_labels = daal::data_management::NumericTablePtr();
+    auto daal_responses = daal::data_management::NumericTablePtr();
     auto daal_indices = daal::data_management::NumericTablePtr();
     auto daal_distance = daal::data_management::NumericTablePtr();
 
@@ -80,8 +80,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
             interop::convert_to_daal_homogen_table(arr_distance, row_count, neighbor_count);
     }
     else {
-        arr_labels.reset(1 * row_count);
-        daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+        arr_responses.reset(1 * row_count);
+        daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
 
         daal_parameter.resultsToCompute = original_daal_parameter.resultsToCompute;
         daal_parameter.resultsToEvaluate = original_daal_parameter.resultsToEvaluate;
@@ -102,7 +102,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         ctx,
         daal_data.get(),
         dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
-        daal_labels.get(),
+        daal_responses.get(),
         daal_indices.get(),
         daal_distance.get(),
         &daal_parameter));
@@ -118,8 +118,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
                                         .build());
     }
     else {
-        result = result.set_labels(
-            dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+        result = result.set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
     }
     return result;
 }
