@@ -64,7 +64,7 @@ public:
 
     std::int64_t solution_core_length;
     std::int64_t solution_count;
-    std::int64_t max_solution_cout;
+    std::int64_t max_solution_count;
 
     void increase_solutions_size();
     void delete_data();
@@ -117,10 +117,10 @@ state<Cpu>::~state() {
 template <typename Cpu>
 solution<Cpu>::solution(inner_alloc a) : allocator_(a) {
     solution_count = 0;
-    max_solution_cout = 100;
+    max_solution_count = 100;
     solution_core_length = 0;
-    data = allocator_.allocate<std::int64_t*>(max_solution_cout);
-    for (std::int64_t i = 0; i < max_solution_cout; i++) {
+    data = allocator_.allocate<std::int64_t*>(max_solution_count);
+    for (std::int64_t i = 0; i < max_solution_count; i++) {
         data[i] = nullptr;
     }
 
@@ -149,13 +149,13 @@ solution<Cpu>::~solution() {
 template <typename Cpu>
 void solution<Cpu>::delete_data() {
     if (data != nullptr) {
-        for (std::int64_t i = 0; i < max_solution_cout; i++) {
+        for (std::int64_t i = 0; i < max_solution_count; i++) {
             if (data[i] != nullptr) {
                 allocator_.deallocate<std::int64_t>(data[i], 0);
                 data[i] = nullptr;
             }
         }
-        allocator_.deallocate<std::int64_t*>(data, max_solution_cout);
+        allocator_.deallocate<std::int64_t*>(data, max_solution_count);
         data = nullptr;
     }
     if (sorted_pattern_vertices != nullptr) {
@@ -169,7 +169,7 @@ solution<Cpu>::solution(solution<Cpu>&& sol)
         : allocator_(sol.allocator_),
           data(sol.data),
           sorted_pattern_vertices(sol.sorted_pattern_vertices) {
-    max_solution_cout = sol.max_solution_cout;
+    max_solution_count = sol.max_solution_count;
     solution_count = sol.solution_count;
     solution_core_length = sol.solution_core_length;
     sol.data = nullptr;
@@ -185,7 +185,7 @@ solution<Cpu>& solution<Cpu>::operator=(solution<Cpu>&& sol) {
     }
     delete_data();
     solution_count = sol.solution_count;
-    max_solution_cout = sol.max_solution_cout;
+    max_solution_count = sol.max_solution_count;
     solution_core_length = sol.solution_core_length;
     data = sol.data;
     sol.data = nullptr;
@@ -203,7 +203,7 @@ std::int64_t solution<Cpu>::get_solution_count() const {
 template <typename Cpu>
 void solution<Cpu>::add(std::int64_t** state_core) {
     if (state_core != nullptr && *state_core != nullptr) {
-        if (solution_count >= max_solution_cout) {
+        if (solution_count >= max_solution_count) {
             increase_solutions_size();
         }
         data[solution_count] = *state_core;
@@ -240,21 +240,21 @@ void solution<Cpu>::add(solution<Cpu>&& _solution) {
 
 template <typename Cpu>
 void solution<Cpu>::increase_solutions_size() {
-    std::int64_t** tmp_data = allocator_.allocate<std::int64_t*>(2 * max_solution_cout);
+    std::int64_t** tmp_data = allocator_.allocate<std::int64_t*>(2 * max_solution_count);
     if (tmp_data == nullptr) {
         throw oneapi::dal::host_bad_alloc();
     }
-    for (std::int64_t i = 0; i < max_solution_cout; i++) {
+    for (std::int64_t i = 0; i < max_solution_count; i++) {
         tmp_data[i] = data[i];
         data[i] = nullptr;
     }
-    for (std::int64_t i = max_solution_cout; i < 2 * max_solution_cout; i++) {
+    for (std::int64_t i = max_solution_count; i < 2 * max_solution_count; i++) {
         tmp_data[i] = nullptr;
     }
     if (data != nullptr) {
-        allocator_.deallocate<std::int64_t*>(data, max_solution_cout);
+        allocator_.deallocate<std::int64_t*>(data, max_solution_count);
     }
-    max_solution_cout *= 2;
+    max_solution_count *= 2;
     data = tmp_data;
     tmp_data = nullptr;
 }
