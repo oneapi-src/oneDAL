@@ -30,12 +30,52 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-auto compute_rbf(sycl::queue& queue,
-                 const pr::ndview<Float, 2>& x_nd,
-                 const pr::ndview<Float, 2>& y_nd,
-                 pr::ndview<Float, 2> res_nd,
-                 const double sigma,
-                 const dal::backend::event_vector& deps = {}) {
+inline auto compute_rbf_values(sycl::queue& queue,
+                               const pr::ndview<Float, 1>& sqr_x_nd,
+                               const pr::ndview<Float, 1>& sqr_y_nd,
+                               pr::ndview<Float, 2> res_nd,
+                               const Float coeff,
+                               const dal::backend::event_vector& deps = {}) {
+    const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
+    const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
+
+    const Float* sqr_x_ptr = sqr_x_nd.get_data();
+    const Float* sqr_y_ptr = sqr_y_nd.get_data();
+    Float* res_ptr = res_nd.get_mutable_data();
+
+    const Float threshold = dal::backend::exp_threshold<Float>();
+
+    const auto wg_size = dal::backend::propose_wg_size(queue);
+    const auto range =
+        dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
+
+    const std::size_t ld = y_row_count;
+
+    auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+
+        cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
+            const std::size_t i = item.get_global_id(0);
+            const std::size_t j = item.get_global_id(1);
+            const Float sqr_x_i = sqr_x_ptr[i];
+            const Float sqr_y_j = sqr_y_ptr[j];
+            const Float res_rbf_ij = res_ptr[i * ld + j];
+            const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
+
+            res_ptr[i * ld + j] = sycl::exp(arg);
+        });
+    });
+
+    return compute_rbf_event;
+}
+
+template <typename Float>
+inline auto compute_rbf(sycl::queue& queue,
+                        const pr::ndview<Float, 2>& x_nd,
+                        const pr::ndview<Float, 2>& y_nd,
+                        pr::ndview<Float, 2> res_nd,
+                        const double sigma,
+                        const dal::backend::event_vector& deps = {}) {
     const std::int64_t x_row_count = x_nd.get_dimension(0);
     const std::int64_t y_row_count = y_nd.get_dimension(0);
 
@@ -55,34 +95,16 @@ auto compute_rbf(sycl::queue& queue,
     constexpr Float beta = 0.0;
     auto gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
 
-    const Float* sqr_x_ptr = sqr_x_nd.get_data();
-    const Float* sqr_y_ptr = sqr_y_nd.get_data();
-    Float* res_ptr = res_nd.get_mutable_data();
+    auto compute_rbf_values_event =
+        compute_rbf_values(queue,
+                           sqr_x_nd,
+                           sqr_y_nd,
+                           res_nd,
+                           coeff,
+                           { reduce_x_event, reduce_y_event, gemm_event });
 
-    const Float threshold = dal::backend::exp_threshold<Float>();
-
-    const auto wg_size = dal::backend::propose_wg_size(queue);
-    const auto range =
-        dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
-
-    const std::size_t ld = y_row_count;
-
-    auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on({ reduce_x_event, reduce_y_event, gemm_event });
-
-        cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
-            const std::size_t i = item.get_global_id(0);
-            const std::size_t j = item.get_global_id(1);
-            const Float sqr_x_i = sqr_x_ptr[i];
-            const Float sqr_y_j = sqr_y_ptr[j];
-            const Float res_rbf_ij = res_ptr[i * ld + j];
-            const Float arg = sycl::fmax((sqr_x_i + sqr_y_j + res_rbf_ij) * coeff, threshold);
-
-            res_ptr[i * ld + j] = sycl::exp(arg);
-        });
-    });
     auto smart_event =
-        dal::backend::smart_event{ compute_rbf_event }.attach(sqr_x_nd).attach(sqr_y_nd);
+        dal::backend::smart_event{ compute_rbf_values_event }.attach(sqr_x_nd).attach(sqr_y_nd);
 
     return smart_event;
 }
@@ -101,7 +123,6 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     dal::detail::check_mul_overflow(x_row_count, y_row_count);
 
     const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
-
     const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
 
     auto res_nd =
