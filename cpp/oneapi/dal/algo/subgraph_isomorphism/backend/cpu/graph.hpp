@@ -176,6 +176,8 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
             p_edges_list[i][j] = vertex_2;
             if (edge_attr >= 0 && has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
+                    // in case of subsequent calls of this function,
+                    // p_edges_attribute can have not enough memory to store data
                     p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
                     has_edges_attribute = true;
                 }
@@ -249,7 +251,8 @@ void graph<Cpu>::set_vertex_attribute(const std::int64_t vertex_count_,
         p_vertex_attribute = pvertices_attribute;
     }
     else {
-        throw oneapi::dal::internal_error(dal::detail::error_messages::invalid_attributes());
+        throw oneapi::dal::internal_error(
+            dal::detail::error_messages::invalid_vertex_edge_attributes());
     }
 }
 
@@ -260,7 +263,8 @@ void graph<Cpu>::set_edge_attribute_lists(const std::int64_t vertex_count_,
         p_edges_attribute = p_edges_attribute_list;
     }
     else {
-        throw oneapi::dal::internal_error(dal::detail::error_messages::invalid_attributes());
+        throw oneapi::dal::internal_error(
+            dal::detail::error_messages::invalid_vertex_edge_attributes());
     }
 }
 
