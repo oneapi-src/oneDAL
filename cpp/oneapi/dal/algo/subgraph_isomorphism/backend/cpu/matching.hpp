@@ -549,11 +549,26 @@ solution<Cpu> engine_bundle<Cpu>::run(std::int64_t max_match_count) {
                                          false);
     });
 
+    for (std::uint64_t k = 0; k < array_size; k++) {
+        std::uint64_t max_index = 0;
+        std::uint64_t max_match_count = 0;
+        for (std::uint64_t i = 0; i < array_size; i++) {
+            std::uint64_t match_count = engine_array[i].get_match_count();
+            if (match_count > max_match_count) {
+                max_match_count = match_count;
+                max_index = i;
+            }
+        }
+        if (max_match_count != 0) {
+            bundle_solutions.add(engine_array[max_index].get_solution());
+        }
+        else {
+            break;
+        }
+    }
     for (std::uint64_t i = 0; i < array_size; i++) {
-        bundle_solutions.add(engine_array[i].get_solution());
         engine_array[i].~matching_engine();
     }
-
     return std::move(bundle_solutions);
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
