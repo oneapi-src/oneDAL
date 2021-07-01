@@ -96,6 +96,7 @@ public:
 
     std::int64_t extract_candidates(bool check_solution);
     bool check_vertex_candidate(bool check_solution, std::int64_t candidate);
+    void set_not_busy(bool& is_busy_engine, std::int64_t& busy_engine_count);
 };
 
 template <typename Cpu>
@@ -391,6 +392,14 @@ bool matching_engine<Cpu>::check_if_max_match_count_reached(std::int64_t& cumula
 }
 
 template <typename Cpu>
+void matching_engine<Cpu>::set_not_busy(bool& is_busy_engine, std::int64_t& busy_engine_count) {
+    if (is_busy_engine) {
+        is_busy_engine = false;
+        dal::detail::atomic_decrement(busy_engine_count);
+    }
+}
+
+template <typename Cpu>
 void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                                         std::int64_t& busy_engine_count,
                                         std::int64_t& cumulative_match_count,
@@ -405,6 +414,7 @@ void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
     for (;;) {
         if (target_match_count > 0 &&
             dal::detail::atomic_load(cumulative_match_count) >= target_match_count) {
+            set_not_busy(is_busy_engine, busy_engine_count);
             break;
         }
         if (hlocal_stack.states_in_stack() > 0) {
@@ -412,21 +422,21 @@ void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                 ;
             ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
             const auto delta = state_exploration();
-            if (target_match_count > 0 &&
-                check_if_max_match_count_reached(cumulative_match_count, delta, target_match_count))
-                break;
             current_match_count += delta;
+            if (target_match_count > 0 && check_if_max_match_count_reached(cumulative_match_count,
+                                                                           delta,
+                                                                           target_match_count)) {
+                set_not_busy(is_busy_engine, busy_engine_count);
+                break;
+            }
         }
         else {
             gstack.pop(hlocal_stack);
             if (hlocal_stack.empty()) {
+                set_not_busy(is_busy_engine, busy_engine_count);
                 if (target_match_count > 0 &&
                     dal::detail::atomic_load(cumulative_match_count) >= target_match_count) {
                     break;
-                }
-                if (is_busy_engine) {
-                    is_busy_engine = false;
-                    dal::detail::atomic_decrement(busy_engine_count);
                 }
                 if (dal::detail::atomic_load(busy_engine_count) == 0)
                     break;
@@ -437,7 +447,6 @@ void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
             }
         }
     }
-    // !!! busy_engine_count update
     return;
 }
 
