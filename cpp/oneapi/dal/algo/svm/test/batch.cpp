@@ -67,46 +67,46 @@ public:
     template <class KernelType>
     void check_kernel(
         const table& train_data,
-        const table& train_labels,
+        const table& train_responses,
         const svm::descriptor<Float, Method, svm::task::classification, KernelType>& desc,
         const std::int64_t support_vector_count,
         const table& support_indices,
         const table& decision_function,
-        const table& labels) {
+        const table& responses) {
         CAPTURE(support_vector_count);
 
         INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
+        auto train_result = this->train(desc, train_data, train_responses);
         const auto model = train_result.get_model();
         check_train_result(train_data, train_result, support_vector_count, support_indices);
 
         INFO("run inference");
         const auto infer_result = infer(desc, model, train_data);
-        check_infer_result(train_data, infer_result, decision_function, labels);
+        check_infer_result(train_data, infer_result, decision_function, responses);
     }
 
-    void check_different_labels(
+    void check_different_responses(
         const table& train_data,
-        const table& train_labels,
+        const table& train_responses,
         const svm::descriptor<Float, Method, svm::task::classification, KernelTypeLinear>& desc,
         const std::int64_t support_vector_count,
         const table& support_indices,
-        const Float* expected_labels) {
+        const Float* expected_responses) {
         CAPTURE(support_vector_count);
 
         INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
+        auto train_result = this->train(desc, train_data, train_responses);
         const auto model = train_result.get_model();
         check_train_result(train_data, train_result, support_vector_count, support_indices);
 
-        INFO("check if first and second class label is expected")
-        REQUIRE(model.get_first_class_label() == expected_labels[0]);
-        REQUIRE(model.get_second_class_label() == expected_labels[1]);
+        INFO("check if first and second class response is expected")
+        REQUIRE(model.get_first_class_response() == expected_responses[0]);
+        REQUIRE(model.get_second_class_response() == expected_responses[1]);
     }
 
     void check_weights(
         const table& train_data,
-        const table& train_labels,
+        const table& train_responses,
         const table& train_weights,
         const svm::descriptor<Float, Method, svm::task::classification, KernelTypeLinear>& desc,
         const std::int64_t support_vector_count,
@@ -116,7 +116,7 @@ public:
         CAPTURE(support_vector_count);
 
         INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels, train_weights);
+        auto train_result = this->train(desc, train_data, train_responses, train_weights);
         const auto model = train_result.get_model();
         check_train_result(train_data, train_result, support_vector_count, support_indices);
 
@@ -142,7 +142,7 @@ public:
     void check_infer_result(const table& infer_data,
                             const svm::infer_result<>& result,
                             const table& decision_function,
-                            const table& labels) {
+                            const table& responses) {
         check_shapes(infer_data, result);
         check_nans(result);
 
@@ -151,8 +151,8 @@ public:
             check_table_match(decision_function, result.get_decision_function());
         }
 
-        INFO("check if labels values is expected")
-        check_table_match(labels, result.get_labels());
+        INFO("check if responses values is expected")
+        check_table_match(responses, result.get_responses());
     }
 
     void check_table_match(const table& reference, const table& actual_value) {
@@ -196,11 +196,11 @@ public:
     }
 
     void check_shapes(const table& infer_data, const svm::infer_result<>& result) {
-        const auto [labels, decision_function] = unpack_result(result);
+        const auto [responses, decision_function] = unpack_result(result);
 
-        INFO("check if labels shape is expected")
-        REQUIRE(labels.get_row_count() == infer_data.get_row_count());
-        REQUIRE(labels.get_column_count() == 1);
+        INFO("check if responses shape is expected")
+        REQUIRE(responses.get_row_count() == infer_data.get_row_count());
+        REQUIRE(responses.get_column_count() == 1);
 
         INFO("check if decision_function shape is expected")
         REQUIRE(decision_function.get_row_count() == infer_data.get_row_count());
@@ -208,10 +208,10 @@ public:
     }
 
     void check_nans(const svm::infer_result<>& result) {
-        const auto [labels, decision_function] = unpack_result(result);
+        const auto [responses, decision_function] = unpack_result(result);
 
-        INFO("check if there is no NaN in labels")
-        REQUIRE(te::has_no_nans(labels));
+        INFO("check if there is no NaN in responses")
+        REQUIRE(te::has_no_nans(responses));
 
         INFO("check if there is no NaN in decision_function")
         REQUIRE(te::has_no_nans(decision_function));
@@ -220,9 +220,9 @@ public:
     template <class KernelType>
     void check_kernel_accuracy(
         const table& train_data,
-        const table& train_labels,
+        const table& train_responses,
         const table& test_data,
-        const table& test_labels,
+        const table& test_responses,
         svm::descriptor<Float, Method, svm::task::classification, KernelType>& desc,
         const Float ref_accuracy) {
         INFO("set desctiptor parameters");
@@ -232,7 +232,7 @@ public:
         desc.set_tau(1.0e-6);
 
         INFO("run training");
-        auto train_result = this->train(desc, train_data, train_labels);
+        auto train_result = this->train(desc, train_data, train_responses);
         const auto model = train_result.get_model();
         check_shapes(train_data, train_result, model.get_support_vector_count());
         check_nans(train_result);
@@ -245,7 +245,7 @@ public:
         const Float tolerance = 1e-5;
 
         const auto score_table =
-            te::accuracy_score<Float>(infer_result.get_labels(), test_labels, tolerance);
+            te::accuracy_score<Float>(infer_result.get_responses(), test_responses, tolerance);
         const auto score = row_accessor<const Float>(score_table).pull({ 0, -1 })[0];
 
         CAPTURE(score);
@@ -261,9 +261,9 @@ private:
     }
 
     static auto unpack_result(const svm::infer_result<>& result) {
-        const auto labels = result.get_labels();
+        const auto responses = result.get_responses();
         const auto decision_function = result.get_decision_function();
-        return std::make_tuple(labels, decision_function);
+        return std::make_tuple(responses, decision_function);
     }
 };
 
@@ -456,10 +456,10 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto decision_function =
         homogen_table::wrap(decision_function_data.data(), row_count_train, 1);
 
-    constexpr std::array<float_t, row_count_train> labels_data = {
+    constexpr std::array<float_t, row_count_train> responses_data = {
         -1.0, -1.0, -1.0, 1.0, 1.0, 1.0,
     };
-    const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
+    const auto responses = homogen_table::wrap(responses_data.data(), row_count_train, 1);
 
     this->check_kernel(x,
                        y,
@@ -467,7 +467,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                        support_vector_count,
                        support_indices,
                        decision_function,
-                       labels);
+                       responses);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -514,9 +514,9 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto decision_function =
         homogen_table::wrap(decision_function_data.data(), row_count_train, 1);
 
-    constexpr std::array<float_t, row_count_train> labels_data = { -1.0, -1.0, -1.0, 1.0,
-                                                                   1.0,  1.0,  -1.0, 1.0 };
-    const auto labels = homogen_table::wrap(labels_data.data(), row_count_train, 1);
+    constexpr std::array<float_t, row_count_train> responses_data = { -1.0, -1.0, -1.0, 1.0,
+                                                                      1.0,  1.0,  -1.0, 1.0 };
+    const auto responses = homogen_table::wrap(responses_data.data(), row_count_train, 1);
 
     this->check_kernel(x,
                        y,
@@ -524,7 +524,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
                        support_vector_count,
                        support_indices,
                        decision_function,
-                       labels);
+                       responses);
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
@@ -572,7 +572,7 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
-                     "svm can classify any two labels",
+                     "svm can classify any two responses",
                      "[svm][integration][batch][linear]",
                      svm_types) {
     // TODO: Fix problem with incorrect number of support vectors on CPU
@@ -588,20 +588,21 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     constexpr std::int64_t column_count = 2;
     constexpr std::int64_t element_count_train = row_count_train * column_count;
 
-    using labels_pair_t = std::pair<std::array<float_t, row_count_train>, std::array<float_t, 2>>;
+    using responses_pair_t =
+        std::pair<std::array<float_t, row_count_train>, std::array<float_t, 2>>;
 
     constexpr std::array<float_t, element_count_train> x_data = { -2.0, -1.0, -1.0, -1.0,
                                                                   -1.0, -2.0, 1.0,  1.0,
                                                                   1.0,  2.0,  2.0,  1.0 };
     const auto x = homogen_table::wrap(x_data.data(), row_count_train, column_count);
 
-    labels_pair_t labels =
-        GENERATE_COPY(labels_pair_t({ -1.0, -1.0, -1.0, 1.0, 1.0, 1.0 }, { -1.0, 1.0 }),
-                      labels_pair_t({ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 }, { 0.0, 1.0 }),
-                      labels_pair_t({ 0.0, 0.0, 0.0, 2.0, 2.0, 2.0 }, { 0.0, 2.0 }),
-                      labels_pair_t({ -1.0, -1.0, -1.0, 0.0, 0.0, 0.0 }, { -1.0, 0.0 }));
+    responses_pair_t responses =
+        GENERATE_COPY(responses_pair_t({ -1.0, -1.0, -1.0, 1.0, 1.0, 1.0 }, { -1.0, 1.0 }),
+                      responses_pair_t({ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 }, { 0.0, 1.0 }),
+                      responses_pair_t({ 0.0, 0.0, 0.0, 2.0, 2.0, 2.0 }, { 0.0, 2.0 }),
+                      responses_pair_t({ -1.0, -1.0, -1.0, 0.0, 0.0, 0.0 }, { -1.0, 0.0 }));
 
-    const auto y = homogen_table::wrap(labels.first.data(), row_count_train, 1);
+    const auto y = homogen_table::wrap(responses.first.data(), row_count_train, 1);
 
     const double scale = 1.0;
     const double c = 1e-1;
@@ -617,12 +618,12 @@ TEMPLATE_LIST_TEST_M(svm_batch_test,
     const auto support_indices =
         homogen_table::wrap(support_indices_data.data(), support_vector_count, 1);
 
-    this->check_different_labels(x,
-                                 y,
-                                 svm_desc,
-                                 support_vector_count,
-                                 support_indices,
-                                 labels.second.data());
+    this->check_different_responses(x,
+                                    y,
+                                    svm_desc,
+                                    support_vector_count,
+                                    support_indices,
+                                    responses.second.data());
 }
 
 TEMPLATE_LIST_TEST_M(svm_batch_test,
