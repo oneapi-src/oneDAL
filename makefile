@@ -1058,7 +1058,7 @@ $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR
 $(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
 endif
 
-_release_c:
+_release_c: ./deploy/pkg-config/pkg-config.tpl
 	python ./deploy/pkg-config/generate_pkgconfig.py --output_dir $(RELEASEDIR.pkgconfig) --template_name ./deploy/pkg-config/pkg-config.tpl
 
 #----- releasing jar files
