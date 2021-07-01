@@ -174,14 +174,14 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                                const pr::ndview<Float, 2>& data,
                                                const pr::ndview<Float, 2>& centroids,
                                                std::int64_t block_size_in_rows,
-                                               pr::ndview<std::int32_t, 2>& labels,
+                                               pr::ndview<std::int32_t, 2>& responses,
                                                pr::ndview<Float, 2>& distances,
                                                pr::ndview<Float, 2>& closest_distances,
                                                const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
     ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
-    ONEDAL_ASSERT(labels.get_dimension(0) >= data.get_dimension(0));
-    ONEDAL_ASSERT(labels.get_dimension(1) == 1);
+    ONEDAL_ASSERT(responses.get_dimension(0) >= data.get_dimension(0));
+    ONEDAL_ASSERT(responses.get_dimension(1) == 1);
     ONEDAL_ASSERT(closest_distances.get_dimension(0) >= data.get_dimension(0));
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(distances.get_dimension(0) >= block_size_in_rows);
@@ -202,13 +202,17 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
                                                      { cur_rows, column_count });
         auto distance_event =
             block_distances(data_block, centroids, distance_block, { selection_event });
-        auto label_block =
-            pr::ndview<int32_t, 2>::wrap(labels.get_mutable_data() + row_offset, { cur_rows, 1 });
+        auto response_block =
+            pr::ndview<int32_t, 2>::wrap(responses.get_mutable_data() + row_offset,
+                                         { cur_rows, 1 });
         auto closest_distance_block =
             pr::ndview<Float, 2>::wrap(closest_distances.get_mutable_data() + row_offset,
                                        { cur_rows, 1 });
-        selection_event =
-            select(queue, distance_block, closest_distance_block, label_block, { distance_event });
+        selection_event = select(queue,
+                                 distance_block,
+                                 closest_distance_block,
+                                 response_block,
+                                 { distance_event });
     }
     return selection_event;
 }
@@ -221,7 +225,7 @@ std::tuple<Float, bk::event_vector> kernels_fp<Float>::fill_empty_clusters(
     const pr::ndarray<std::int32_t, 1>& candidate_indices,
     const pr::ndarray<Float, 1>& candidate_distances,
     pr::ndview<Float, 2>& centroids,
-    pr::ndarray<std::int32_t, 2>& labels,
+    pr::ndarray<std::int32_t, 2>& responses,
     Float objective_function,
     const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
@@ -229,8 +233,8 @@ std::tuple<Float, bk::event_vector> kernels_fp<Float>::fill_empty_clusters(
     ONEDAL_ASSERT(counters.get_dimension(0) == centroids.get_dimension(0));
     ONEDAL_ASSERT(candidate_indices.get_dimension(0) <= centroids.get_dimension(0));
     ONEDAL_ASSERT(candidate_distances.get_dimension(0) <= centroids.get_dimension(0));
-    ONEDAL_ASSERT(labels.get_dimension(0) >= data.get_dimension(0));
-    ONEDAL_ASSERT(labels.get_dimension(1) == 1);
+    ONEDAL_ASSERT(responses.get_dimension(0) >= data.get_dimension(0));
+    ONEDAL_ASSERT(responses.get_dimension(1) == 1);
 
     const auto cluster_count = centroids.get_dimension(0);
 
@@ -241,8 +245,8 @@ std::tuple<Float, bk::event_vector> kernels_fp<Float>::fill_empty_clusters(
     auto host_counters = counters.to_host(queue);
     auto counters_ptr = host_counters.get_data();
 
-    auto host_labels = labels.to_host(queue);
-    auto labels_ptr = host_labels.get_mutable_data();
+    auto host_responses = responses.to_host(queue);
+    auto responses_ptr = host_responses.get_mutable_data();
 
     auto centroids_ptr = centroids.get_mutable_data();
     auto data_ptr = data.get_data();
@@ -260,7 +264,7 @@ std::tuple<Float, bk::event_vector> kernels_fp<Float>::fill_empty_clusters(
         ONEDAL_ASSERT(cpos < candidate_count);
         auto index = candidate_indices_ptr[cpos];
         auto value = candidate_distances_ptr[cpos];
-        labels_ptr[index] = ic;
+        responses_ptr[index] = ic;
         objective_function -= value;
         auto copy_event = queue.submit([&](sycl::handler& cgh) {
             cgh.parallel_for<fill_empty_cluster_kernel<Float>>(
@@ -365,19 +369,20 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
 }
 
 template <typename Float>
-sycl::event kernels_fp<Float>::partial_reduce_centroids(sycl::queue& queue,
-                                                        const pr::ndview<Float, 2>& data,
-                                                        const pr::ndview<std::int32_t, 2>& labels,
-                                                        std::int64_t cluster_count,
-                                                        std::int64_t part_count,
-                                                        pr::ndview<Float, 2>& partial_centroids,
-                                                        const bk::event_vector& deps) {
+sycl::event kernels_fp<Float>::partial_reduce_centroids(
+    sycl::queue& queue,
+    const pr::ndview<Float, 2>& data,
+    const pr::ndview<std::int32_t, 2>& responses,
+    std::int64_t cluster_count,
+    std::int64_t part_count,
+    pr::ndview<Float, 2>& partial_centroids,
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_dimension(1) == partial_centroids.get_dimension(1));
     ONEDAL_ASSERT(partial_centroids.get_dimension(0) == cluster_count * part_count);
-    ONEDAL_ASSERT(labels.get_dimension(0) == data.get_dimension(0));
-    ONEDAL_ASSERT(labels.get_dimension(1) == 1);
+    ONEDAL_ASSERT(responses.get_dimension(0) == data.get_dimension(0));
+    ONEDAL_ASSERT(responses.get_dimension(1) == 1);
     const Float* data_ptr = data.get_data();
-    const std::int32_t* label_ptr = labels.get_data();
+    const std::int32_t* response_ptr = responses.get_data();
     Float* partial_centroids_ptr = partial_centroids.get_mutable_data();
     const auto row_count = data.get_dimension(0);
     const auto column_count = data.get_dimension(1);
@@ -399,7 +404,7 @@ sycl::event kernels_fp<Float>::partial_reduce_centroids(sycl::queue& queue,
                 for (std::int64_t i = sg_global_id; i < row_count; i += part_count) {
                     std::int32_t cl = -1;
                     if (local_id == 0) {
-                        cl = label_ptr[i];
+                        cl = response_ptr[i];
                     }
                     cl = reduce(sg, cl, sycl::ONEAPI::maximum<std::int32_t>());
                     for (std::int64_t j = local_id; j < column_count; j += local_range) {
