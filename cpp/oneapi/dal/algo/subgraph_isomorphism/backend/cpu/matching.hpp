@@ -125,10 +125,7 @@ public:
     const float* pattern_vertex_probability;
     kind isomorphism_kind_;
 
-    solution<Cpu> bundle_solutions;
-
-    typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
-    bundle matching_bundle;
+    solution<Cpu> combine_solutions(matching_engine<Cpu>* engine_array, std::uint64_t array_size);
 };
 
 template <typename Cpu>
@@ -462,8 +459,7 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
                                   inner_alloc allocator)
         : exploration_stack(allocator),
           allocator_(allocator),
-          isomorphism_kind_(isomorphism_kind),
-          bundle_solutions(allocator) {
+          isomorphism_kind_(isomorphism_kind) {
     pattern = ppattern;
     target = ptarget;
     sorted_pattern_vertex = psorted_pattern_vertex;
@@ -471,9 +467,6 @@ engine_bundle<Cpu>::engine_bundle(const graph<Cpu>* ppattern,
     direction = pdirection;
     pconsistent_conditions = pcconditions;
     pattern_vertex_probability = ppattern_vertex_probability;
-
-    bundle_solutions =
-        solution<Cpu>(pattern->get_vertex_count(), psorted_pattern_vertex, allocator_);
 }
 
 template <typename Cpu>
@@ -484,6 +477,31 @@ engine_bundle<Cpu>::~engine_bundle() {
     predecessor = nullptr;
     direction = nullptr;
     pconsistent_conditions = nullptr;
+}
+
+template <typename Cpu>
+solution<Cpu> engine_bundle<Cpu>::combine_solutions(matching_engine<Cpu>* engine_array,
+                                                    std::uint64_t array_size) {
+    ONEDAL_ASSERT(engine_array != nullptr);
+    solution<Cpu> bundle_solutions(pattern->get_vertex_count(), sorted_pattern_vertex, allocator_);
+    for (std::uint64_t k = 0; k < array_size; k++) {
+        std::uint64_t max_index = 0;
+        std::uint64_t max_match_count = 0;
+        for (std::uint64_t i = 0; i < array_size; i++) {
+            std::uint64_t match_count = engine_array[i].get_match_count();
+            if (match_count > max_match_count) {
+                max_match_count = match_count;
+                max_index = i;
+            }
+        }
+        if (max_match_count != 0) {
+            bundle_solutions.add(engine_array[max_index].get_solution());
+        }
+        else {
+            break;
+        }
+    }
+    return bundle_solutions;
 }
 
 template <typename Cpu>
@@ -549,26 +567,11 @@ solution<Cpu> engine_bundle<Cpu>::run(std::int64_t max_match_count) {
                                          false);
     });
 
-    for (std::uint64_t k = 0; k < array_size; k++) {
-        std::uint64_t max_index = 0;
-        std::uint64_t max_match_count = 0;
-        for (std::uint64_t i = 0; i < array_size; i++) {
-            std::uint64_t match_count = engine_array[i].get_match_count();
-            if (match_count > max_match_count) {
-                max_match_count = match_count;
-                max_index = i;
-            }
-        }
-        if (max_match_count != 0) {
-            bundle_solutions.add(engine_array[max_index].get_solution());
-        }
-        else {
-            break;
-        }
-    }
+    auto bundle_solutions = combine_solutions(engine_array, array_size);
+
     for (std::uint64_t i = 0; i < array_size; i++) {
         engine_array[i].~matching_engine();
     }
-    return std::move(bundle_solutions);
+    return bundle_solutions;
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend
