@@ -112,21 +112,23 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
                   graph_storage_scheme storage_scheme,
                   detail::byte_alloc_iface* byte_alloc)
         : external_data(true),
-          bit_representation(storage_scheme != list),
+          bit_representation(false),
           allocator(byte_alloc),
           p_vertex_attribute(nullptr),
           p_edges_attribute(nullptr),
           vertex_count_(t.get_vertex_count()),
           edge_count_(t.get_edge_count()) {
-    allocate_arrays();
-    bool use_bit = false;
     switch (storage_scheme) {
-        case auto_detect: use_bit = !(this->get_graph_density() < density_threshold); break;
-        case bit: use_bit = true; break;
-        case list: use_bit = false; break;
+        case auto_detect:
+            bit_representation = !(this->get_graph_density() < density_threshold);
+            break;
+        case bit: bit_representation = true; break;
+        case list: bit_representation = false; break;
     };
 
-    (use_bit) ? init_bit_representation(t) : init_list_representation(t);
+    allocate_arrays();
+
+    (bit_representation) ? init_bit_representation(t) : init_list_representation(t);
 
     return;
 }
