@@ -21,6 +21,7 @@
 
 #include "oneapi/dal/algo/kmeans/train.hpp"
 #include "oneapi/dal/algo/kmeans/infer.hpp"
+#include "oneapi/dal/algo/kmeans/test/data.hpp"
 
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -124,6 +125,55 @@ public:
                            match_map,
                            ref_labels,
                            ref_objective_function);
+    }
+
+    void checks_on_gold_data() {
+        const auto table_id = te::table_id::homogen<float_t>();
+        const auto data = gold_dataset::get_data().get_table(table_id);
+        const auto initial_centroids = gold_dataset::get_initial_centroids().get_table(table_id);
+        const auto expected_centroids = gold_dataset::get_expected_centroids().get_table(table_id);
+        const auto expected_labels = gold_dataset::get_expected_labels().get_table(table_id);
+
+        const std::int64_t cluster_count = gold_dataset::get_cluster_count();
+        const std::int64_t max_iteration_count = 100;
+        const float_t accuracy_threshold = 0.0;
+
+        INFO("create descriptor")
+        const auto kmeans_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
+
+        INFO("run training");
+        const auto train_result = this->train(kmeans_desc, data, initial_centroids);
+        const auto model = train_result.get_model();
+        const auto centroids = model.get_centroids();
+
+        auto match_map = array<float_t>::zeros(cluster_count);
+        find_match_centroids(expected_centroids,
+                             centroids,
+                             expected_centroids.get_column_count(),
+                             match_map);
+
+        INFO("check if centroids close to gold") {
+            const double rel_tol = 1e-7;
+            check_centroid_match_with_rel_tol(match_map, rel_tol, expected_centroids, centroids);
+        }
+
+        INFO("run inference");
+        const auto infer_result = this->infer(kmeans_desc, model, data);
+        const auto labels = infer_result.get_labels();
+
+        INFO("check if labels are expected") {
+            check_label_match(match_map, expected_labels, labels);
+        }
+
+        INFO("check if objective function value is expected") {
+            const double objective = train_result.get_objective_function_value();
+            const double expected_objective = gold_dataset::get_expected_objective();
+            CAPTURE(objective, expected_objective);
+
+            const double rel_tol = 1e-7;
+            check_value_with_ref_tol(objective, expected_objective, rel_tol);
+        }
     }
 
     void dbi_deterministic_checks(const table& data,
@@ -246,7 +296,7 @@ public:
     }
 
     void check_train_result(const descriptor_t& desc,
-                            const infer_result_t& result,
+                            const train_result_t& result,
                             const array<float_t>& match_map,
                             const table& ref_centroids,
                             const table& ref_labels,
@@ -316,8 +366,8 @@ public:
         REQUIRE(left.get_column_count() == right.get_column_count());
 
         INFO("check if centroid match is expected")
-        const auto left_rows = row_accessor<const float_t>(left).pull({ 0, -1 });
-        const auto right_rows = row_accessor<const float_t>(right).pull({ 0, -1 });
+        const auto left_rows = row_accessor<const float_t>(left).pull();
+        const auto right_rows = row_accessor<const float_t>(right).pull();
         const float_t alpha = std::numeric_limits<float_t>::min();
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
             const float_t l = left_rows[i];
@@ -341,8 +391,8 @@ public:
         REQUIRE(left.get_column_count() == right.get_column_count());
 
         INFO("check if centroid match is expected")
-        const auto left_rows = row_accessor<const float_t>(left).pull({ 0, -1 });
-        const auto right_rows = row_accessor<const float_t>(right).pull({ 0, -1 });
+        const auto left_rows = row_accessor<const float_t>(left).pull();
+        const auto right_rows = row_accessor<const float_t>(right).pull();
         const float_t alpha = std::numeric_limits<float_t>::min();
         std::int64_t cluster_count = left.get_row_count();
         std::int64_t feature_count = left.get_column_count();
@@ -354,7 +404,7 @@ public:
                     continue;
                 const float_t denom = fabs(l) + fabs(r) + alpha;
                 if (fabs(l - r) / denom > rel_tol) {
-                    CAPTURE(l, r);
+                    CAPTURE(l, r, l - r, rel_tol, (l - r) / denom / rel_tol);
                     FAIL("Centroid feature mismatch for mapped centroids");
                 }
             }

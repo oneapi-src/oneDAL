@@ -37,6 +37,10 @@ public:
     virtual bool test() = 0;
 };
 
+enum class spmd_reduce_op {
+    sum,
+};
+
 class spmd_communicator_iface {
 public:
     virtual ~spmd_communicator_iface() = default;
@@ -49,11 +53,28 @@ public:
 
     virtual spmd_request_iface* bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) = 0;
 
+#ifdef ONEDAL_DATA_PARALLEL
+    virtual spmd_request_iface* bcast(sycl::queue& q,
+                                      byte_t* send_buf,
+                                      std::int64_t count,
+                                      std::int64_t root) = 0;
+#endif
+
     virtual spmd_request_iface* gather(const byte_t* send_buf,
                                        std::int64_t send_count,
                                        byte_t* recv_buf,
                                        std::int64_t recv_count,
                                        std::int64_t root) = 0;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    virtual spmd_request_iface* gather(sycl::queue& q,
+                                       const byte_t* send_buf,
+                                       std::int64_t send_count,
+                                       byte_t* recv_buf,
+                                       std::int64_t recv_count,
+                                       std::int64_t root) = 0;
+
+#endif
 
     virtual spmd_request_iface* gatherv(const byte_t* send_buf,
                                         std::int64_t send_count,
@@ -61,6 +82,31 @@ public:
                                         const std::int64_t* recv_count,
                                         const std::int64_t* displs,
                                         std::int64_t root) = 0;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    virtual spmd_request_iface* gatherv(sycl::queue& q,
+                                        const byte_t* send_buf,
+                                        std::int64_t send_count,
+                                        byte_t* recv_buf,
+                                        const std::int64_t* recv_count,
+                                        const std::int64_t* displs,
+                                        std::int64_t root) = 0;
+#endif
+
+    virtual spmd_request_iface* allreduce(const byte_t* send_buf,
+                                          byte_t* recv_buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          const spmd_reduce_op& op) = 0;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    virtual spmd_request_iface* allreduce(sycl::queue& q,
+                                          const byte_t* send_buf,
+                                          byte_t* recv_buf,
+                                          std::int64_t count,
+                                          const data_type& dtype,
+                                          const spmd_reduce_op& op) = 0;
+#endif
 };
 
 class spmd_request : public base {
@@ -122,6 +168,16 @@ public:
         return dal::detail::make_private<spmd_request>(impl_->bcast(send_buf, count, root));
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request bcast(sycl::queue& q,
+                       byte_t* send_buf,
+                       std::int64_t count,
+                       std::int64_t root) const {
+        // TODO: Handle null impl_
+        return dal::detail::make_private<spmd_request>(impl_->bcast(q, send_buf, count, root));
+    }
+#endif
+
     /// Collects data from all the ranks within a communicator into a single buffer
     ///
     /// @param send_buff  The send buffer
@@ -141,6 +197,19 @@ public:
             impl_->gather(send_buf, send_count, recv_buf, recv_count, root));
     }
 
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request gather(sycl::queue& q,
+                        const byte_t* send_buf,
+                        std::int64_t send_count,
+                        byte_t* recv_buf,
+                        std::int64_t recv_count,
+                        std::int64_t root) const {
+        // TODO: Handle null impl_
+        return dal::detail::make_private<spmd_request>(
+            impl_->gather(q, send_buf, send_count, recv_buf, recv_count, root));
+    }
+#endif
+
     spmd_request gatherv(const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
@@ -151,6 +220,43 @@ public:
         return dal::detail::make_private<spmd_request>(
             impl_->gatherv(send_buf, send_count, recv_buf, recv_count, displs, root));
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request gatherv(sycl::queue& q,
+                         const byte_t* send_buf,
+                         std::int64_t send_count,
+                         byte_t* recv_buf,
+                         const std::int64_t* recv_count,
+                         const std::int64_t* displs,
+                         std::int64_t root) const {
+        // TODO: Handle null impl_
+        return dal::detail::make_private<spmd_request>(
+            impl_->gatherv(q, send_buf, send_count, recv_buf, recv_count, displs, root));
+    }
+#endif
+
+    spmd_request allreduce(const byte_t* send_buf,
+                           byte_t* recv_buf,
+                           std::int64_t count,
+                           const data_type& dtype,
+                           const spmd_reduce_op& op) const {
+        // TODO: Handle null impl_
+        return dal::detail::make_private<spmd_request>(
+            impl_->allreduce(send_buf, recv_buf, count, dtype, op));
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request allreduce(sycl::queue& q,
+                           const byte_t* send_buf,
+                           byte_t* recv_buf,
+                           std::int64_t count,
+                           const data_type& dtype,
+                           const spmd_reduce_op& op) const {
+        // TODO: Handle null impl_
+        return dal::detail::make_private<spmd_request>(
+            impl_->allreduce(q, send_buf, recv_buf, count, dtype, op));
+    }
+#endif
 
 protected:
     explicit spmd_communicator(spmd_communicator_iface* impl) : impl_(impl) {}
@@ -168,6 +274,7 @@ private:
 } // namespace v1
 
 using v1::communication_error;
+using v1::spmd_reduce_op;
 using v1::spmd_request_iface;
 using v1::spmd_communicator_iface;
 using v1::spmd_request;

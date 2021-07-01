@@ -29,6 +29,8 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include <mutex>
+
 namespace oneapi::dal::kmeans::backend {
 
 using dal::backend::context_gpu;
@@ -45,7 +47,7 @@ using daal_kmeans_init_plus_plus_dense_kernel_t =
     daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
 
 template <typename Float>
-static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_gpu& ctx,
+static pr::ndarray<Float, 2> get_initial_centroids(const context_gpu& ctx,
                                                    const descriptor_t& params,
                                                    const train_input<task::clustering>& input) {
     auto& queue = ctx.get_queue();
@@ -101,7 +103,7 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
 
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
-    train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
+    train_result<task::clustering> operator()(const context_gpu& ctx,
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
@@ -144,10 +146,9 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         std::int64_t iter;
         sycl::event centroids_event;
 
-        auto updater = cluster_updater<Float>{}
+        auto updater = cluster_updater<Float>{ queue, ctx.get_communicator() }
                            .set_cluster_count(cluster_count)
                            .set_part_count(part_count)
-                           .set_queue(queue)
                            .set_data(arr_data);
         updater.allocate_buffers();
 
@@ -185,6 +186,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         model<task::clustering> model;
         model.set_centroids(
             dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
+
         return train_result<task::clustering>()
             .set_labels(dal::homogen_table::wrap(arr_labels.flatten(queue), row_count, 1))
             .set_iteration_count(iter)

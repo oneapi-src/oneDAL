@@ -154,6 +154,29 @@ public:
         return te::dataframe{ data.data(), cluster_count, column_count };
     }
 
+    static te::dataframe get_expected_centroids() {
+        static std::array<float, cluster_count* column_count> data = {
+            1.25549348,  1.35247195,  1.58509995, //
+            -1.08670276, -0.66384991, 1.67101285, //
+            0.70017013,  -0.92290187, -0.75447395, //
+        };
+        return te::dataframe{ data.data(), cluster_count, column_count };
+    }
+
+    static te::dataframe get_expected_labels() {
+        static std::array<float, row_count> data = {
+            1, 0, 2, 2, 1, 2, 0, 0, 1, 0, 1, 1, 2, 2, 2, 2, 2, 1, 1, 0, 2, 2, 2, 2, 0,
+            2, 1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 1, 2, 1, 1, 0, 2, 2, 1, 2, 2, 0, 1, 2, 1,
+            0, 2, 2, 1, 2, 2, 0, 1, 0, 0, 1, 1, 2, 1, 2, 1, 2, 1, 2, 0, 0, 1, 2, 1, 0,
+            2, 1, 1, 2, 2, 2, 0, 1, 1, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 2, 0,
+        };
+        return te::dataframe{ data.data(), row_count, 1 };
+    }
+
+    static double get_expected_objective() {
+        return 241.3593613;
+    }
+
 private:
     static constexpr std::int64_t row_count = 100;
     static constexpr std::int64_t column_count = 3;

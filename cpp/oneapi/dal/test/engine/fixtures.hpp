@@ -114,6 +114,8 @@ public:
     template <typename Descriptor, typename... Args>
     auto spmd_train_via_threads(std::int64_t thread_count, const Descriptor& desc, Args&&... args) {
         ONEDAL_ASSERT(thread_count > 0);
+
+        CAPTURE(thread_count);
         thread_communicator comm{ thread_count };
 
         const auto input_per_rank =

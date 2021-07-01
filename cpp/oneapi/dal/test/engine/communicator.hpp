@@ -58,7 +58,11 @@ public:
         for (std::int64_t i = 0; i < thread_count_; i++) {
             thread_pool_.emplace_back([=]() {
                 init(i);
-                body(i);
+
+                {
+                    std::unique_lock lock(serializing_lock_);
+                    body(i);
+                }
             });
         }
 
@@ -69,14 +73,22 @@ public:
 
     template <typename Body>
     void exclusive(const Body& body) {
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::unique_lock<std::mutex> lock(internal_lock_);
         body();
+    }
+
+    void enter_communication() {
+        serializing_lock_.unlock();
+    }
+
+    void exit_communication() {
+        serializing_lock_.lock();
     }
 
 private:
     /// Blocks until all threads are mapped to ranks
     void init(std::int64_t rank) {
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::unique_lock<std::mutex> lock(internal_lock_);
 
         thread_id_map_[std::this_thread::get_id()] = rank;
         if (thread_id_map_.size() == std::size_t(thread_count_)) {
@@ -92,7 +104,8 @@ private:
     std::int64_t thread_count_;
     std::vector<std::thread> thread_pool_;
     std::unordered_map<std::thread::id, std::int64_t> thread_id_map_;
-    std::mutex mutex_;
+    std::mutex internal_lock_;
+    std::mutex serializing_lock_;
     std::condition_variable cv_;
 };
 
@@ -283,6 +296,75 @@ private:
     byte_t* recv_buf_;
 };
 
+class thread_communicator_allreduce {
+public:
+    struct buffer_info {
+        const byte_t* send_buf = nullptr;
+        std::int64_t count = 0;
+    };
+
+    explicit thread_communicator_allreduce(thread_communicator_context& ctx)
+            : ctx_(ctx),
+              barrier_(ctx),
+              send_buffers_(ctx_.get_thread_count()) {}
+
+    void operator()(const byte_t* send_buf,
+                    byte_t* recv_buf,
+                    std::int64_t count,
+                    const data_type& dtype,
+                    const dal::detail::spmd_reduce_op& op) {
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(recv_buf);
+        ONEDAL_ASSERT(count > 0);
+
+        const std::int64_t rank = ctx_.get_this_thread_rank();
+        send_buffers_[rank] = buffer_info{ send_buf, count };
+
+        barrier_();
+
+#ifdef ONEDAL_ENABLE_ASSERT
+        if (rank == ctx_.get_root_rank()) {
+            for (const auto& info : send_buffers_) {
+                ONEDAL_ASSERT(info.count == count);
+                ONEDAL_ASSERT(info.send_buf != nullptr);
+            }
+        }
+#endif
+
+        fill_with_zeros(recv_buf, count, dtype);
+        for (const auto& info : send_buffers_) {
+            reduce(info.send_buf, recv_buf, count, dtype, op);
+        }
+
+        barrier_([&]() {
+            send_buffers_.clear();
+            send_buffers_.resize(ctx_.get_thread_count());
+        });
+    }
+
+private:
+    thread_communicator_context& ctx_;
+    thread_communicator_barrier barrier_;
+    std::vector<buffer_info> send_buffers_;
+
+    static void reduce(const byte_t* src,
+                       byte_t* dst,
+                       std::int64_t count,
+                       const data_type& dtype,
+                       const dal::detail::spmd_reduce_op& op);
+
+    static void fill_with_zeros(byte_t* dst, std::int64_t count, const data_type& dtype);
+
+    template <typename T>
+    static void reduce_impl(const byte_t* src,
+                            byte_t* dst,
+                            std::int64_t count,
+                            const dal::detail::spmd_reduce_op& op);
+
+    template <typename T>
+    static void fill_with_zeros_impl(byte_t* dst, std::int64_t count);
+};
+
 class thread_communicator_request_impl : public dal::detail::spmd_request_iface {
 public:
     thread_communicator_request_impl() = default;
@@ -296,12 +378,16 @@ public:
 
 class thread_communicator_impl : public dal::detail::spmd_communicator_iface {
 public:
+    using base_t = dal::detail::spmd_communicator_iface;
+    using request_t = dal::detail::spmd_request_iface;
+
     explicit thread_communicator_impl(std::int64_t thread_count)
             : ctx_(thread_count),
               barrier_(ctx_),
               bcast_(ctx_),
               gather_(ctx_),
-              gatherv_(ctx_) {}
+              gatherv_(ctx_),
+              allreduce_(ctx_) {}
 
     std::int64_t get_rank() override {
         return ctx_.map_thread_id_to_rank(std::this_thread::get_id());
@@ -319,31 +405,122 @@ public:
         barrier_();
     }
 
-    dal::detail::spmd_request_iface* bcast(byte_t* send_buf,
-                                           std::int64_t count,
-                                           std::int64_t root) override {
+    request_t* bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) override {
+        ctx_.enter_communication();
         bcast_(send_buf, count, root);
+        ctx_.exit_communication();
         return new thread_communicator_request_impl{};
     }
 
-    dal::detail::spmd_request_iface* gather(const byte_t* send_buf,
-                                            std::int64_t send_count,
-                                            byte_t* recv_buf,
-                                            std::int64_t recv_count,
-                                            std::int64_t root) override {
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* bcast(sycl::queue& q,
+                     byte_t* send_buf,
+                     std::int64_t count,
+                     std::int64_t root) override {
+        check_if_pointer_matches_queue(q, send_buf);
+
+        const auto send_buff_host = array<byte_t>::empty(q, count, sycl::usm::alloc::host);
+        if (get_rank() == root) {
+            q.memcpy(send_buff_host.get_mutable_data(), send_buf, count).wait_and_throw();
+        }
+
+        auto request = bcast(send_buff_host.get_mutable_data(), count, root);
+
+        if (get_rank() != root) {
+            q.memcpy(send_buf, send_buff_host.get_mutable_data(), count).wait_and_throw();
+        }
+        return request;
+    }
+#endif
+
+    request_t* gather(const byte_t* send_buf,
+                      std::int64_t send_count,
+                      byte_t* recv_buf,
+                      std::int64_t recv_count,
+                      std::int64_t root) override {
+        ctx_.enter_communication();
         gather_(send_buf, send_count, recv_buf, recv_count, root);
+        ctx_.exit_communication();
         return new thread_communicator_request_impl{};
     }
 
-    dal::detail::spmd_request_iface* gatherv(const byte_t* send_buf,
-                                             std::int64_t send_count,
-                                             byte_t* recv_buf,
-                                             const std::int64_t* recv_count,
-                                             const std::int64_t* displs,
-                                             std::int64_t root) override {
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* gather(sycl::queue& q,
+                      const byte_t* send_buf,
+                      std::int64_t send_count,
+                      byte_t* recv_buf,
+                      std::int64_t recv_count,
+                      std::int64_t root) override {
+        check_if_pointer_matches_queue(q, send_buf);
+        check_if_pointer_matches_queue(q, recv_buf);
+        // TODO: copy to host
+        return gather(send_buf, send_count, recv_buf, recv_count, root);
+    }
+#endif
+
+    request_t* gatherv(const byte_t* send_buf,
+                       std::int64_t send_count,
+                       byte_t* recv_buf,
+                       const std::int64_t* recv_count,
+                       const std::int64_t* displs,
+                       std::int64_t root) override {
+        ctx_.enter_communication();
         gatherv_(send_buf, send_count, recv_buf, recv_count, displs, root);
+        ctx_.exit_communication();
         return new thread_communicator_request_impl{};
     }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* gatherv(sycl::queue& q,
+                       const byte_t* send_buf,
+                       std::int64_t send_count,
+                       byte_t* recv_buf,
+                       const std::int64_t* recv_count_host,
+                       const std::int64_t* displs_host,
+                       std::int64_t root) override {
+        check_if_pointer_matches_queue(q, send_buf);
+        check_if_pointer_matches_queue(q, recv_buf);
+        // TODO: copy to host
+        return gatherv(send_buf, send_count, recv_buf, recv_count_host, displs_host, root);
+    }
+#endif
+
+    request_t* allreduce(const byte_t* send_buf,
+                         byte_t* recv_buf,
+                         std::int64_t count,
+                         const data_type& dtype,
+                         const dal::detail::spmd_reduce_op& op) override {
+        ctx_.enter_communication();
+        allreduce_(send_buf, recv_buf, count, dtype, op);
+        ctx_.exit_communication();
+        return new thread_communicator_request_impl{};
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* allreduce(sycl::queue& q,
+                         const byte_t* send_buf,
+                         byte_t* recv_buf,
+                         std::int64_t count,
+                         const data_type& dtype,
+                         const dal::detail::spmd_reduce_op& op) override {
+        check_if_pointer_matches_queue(q, send_buf);
+        check_if_pointer_matches_queue(q, recv_buf);
+
+        const auto send_buff_host = array<byte_t>::empty(q, count, sycl::usm::alloc::host);
+        const auto recv_buf_host = array<byte_t>::empty(q, count, sycl::usm::alloc::host);
+        q.memcpy(send_buff_host.get_mutable_data(), send_buf, count).wait_and_throw();
+
+        auto request = allreduce(send_buff_host.get_data(),
+                                 recv_buf_host.get_mutable_data(),
+                                 count,
+                                 dtype,
+                                 op);
+
+        q.memcpy(recv_buf, recv_buf_host.get_data(), count).wait_and_throw();
+        return request;
+        // return new thread_communicator_request_impl{};
+    }
+#endif
 
     thread_communicator_context& get_context() {
         return ctx_;
@@ -355,6 +532,17 @@ private:
     thread_communicator_bcast bcast_;
     thread_communicator_gather gather_;
     thread_communicator_gatherv gatherv_;
+    thread_communicator_allreduce allreduce_;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    void check_if_pointer_matches_queue(const sycl::queue& q, const void* pointer) {
+        const auto pointer_type = sycl::get_pointer_type(pointer, q.get_context());
+        if (pointer && pointer_type == sycl::usm::alloc::unknown) {
+            throw std::runtime_error{ "Pointer passed to thread communicator "
+                                      "is inaccessible in the given DPC++ context" };
+        }
+    }
+#endif
 };
 
 class thread_communicator : public dal::detail::spmd_communicator {

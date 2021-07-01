@@ -33,13 +33,13 @@ public:
         return local_policy_.get_queue();
     }
 
-    const detail::spmd_communicator& get_communicator() const {
+    const spmd_communicator& get_communicator() const {
         return comm_;
     }
 
 private:
     detail::data_parallel_policy local_policy_;
-    detail::spmd_communicator comm_;
+    spmd_communicator comm_;
 };
 #endif
 

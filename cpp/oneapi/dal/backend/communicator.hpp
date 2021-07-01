@@ -96,6 +96,11 @@ public:
         return dal::detail::gather(comm_, send);
     }
 
+    template <typename T>
+    void allreduce(T&& value) const {
+        dal::detail::allreduce(comm_, std::forward<T>(value));
+    }
+
 private:
     dal::detail::spmd_communicator comm_;
 };

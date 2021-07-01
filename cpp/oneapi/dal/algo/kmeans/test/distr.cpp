@@ -81,23 +81,14 @@ private:
     std::int64_t rank_count_ = 1;
 };
 
-TEMPLATE_LIST_TEST_M(kmeans_distr_test, "distributed kmeans smoke", "[distr]", kmeans_types) {
+TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+                     "distributed kmeans on gold data",
+                     "[distr]",
+                     kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
 
-    using float_t = std::tuple_element_t<0, TestType>;
-
-    float_t data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, //
-                       1.0, 1.0, 4.0, 0.0, 0.0, //
-                       1.0, 0.0, 0.0, 5.0, 1.0 };
-    float_t labels[] = { 0, //
-                         1, //
-                         2 };
-
-    const auto x = homogen_table::wrap(data, 3, 5);
-    const auto y = homogen_table::wrap(labels, 3, 1);
-
-    this->set_rank_count(GENERATE(1, 2, 3));
-    this->exact_checks(x, x, x, y, 3, 2, 0.0, 0.0, false);
+    this->set_rank_count(GENERATE(1, 2, 4, 8));
+    this->checks_on_gold_data();
 }
 
 // const std::int64_t thread_count = GENERATE(1, 2, 4, 8, 16);

@@ -240,6 +240,44 @@ inline std::vector<T> gather(const dal::detail::spmd_communicator& comm, const T
     return gathered;
 }
 
+// TODO: Support other reduction operations, now only SUM available
+template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+inline void allreduce(const dal::detail::spmd_communicator& comm, const dal::array<T>& ary) {
+    ONEDAL_ASSERT(ary.has_mutable_data());
+
+#ifdef ONEDAL_ENABLE_ASSERT
+    const auto counts = gather(comm, ary.get_count());
+    if (is_root_rank(comm)) {
+        ONEDAL_ASSERT(counts.size() > 0);
+        for (const auto& count : counts) {
+            ONEDAL_ASSERT(count == counts.front());
+        }
+    }
+#endif
+
+    spmd_request request;
+
+    __ONEDAL_IF_QUEUE__(ary.get_queue(), {
+        auto q = ary.get_queue().value();
+        request = comm.allreduce(q,
+                                 reinterpret_cast<const byte_t*>(ary.get_data()),
+                                 reinterpret_cast<byte_t*>(ary.get_mutable_data()),
+                                 ary.get_size(),
+                                 dal::detail::make_data_type<T>(),
+                                 spmd_reduce_op::sum);
+    });
+
+    __ONEDAL_IF_NO_QUEUE__(ary.get_queue(), {
+        request = comm.allreduce(reinterpret_cast<const byte_t*>(ary.get_data()),
+                                 reinterpret_cast<byte_t*>(ary.get_mutable_data()),
+                                 ary.get_size(),
+                                 dal::detail::make_data_type<T>(),
+                                 spmd_reduce_op::sum);
+    });
+
+    request.wait();
+}
+
 } // namespace v1
 
 using v1::is_root_rank;
@@ -247,5 +285,6 @@ using v1::if_root_rank;
 using v1::if_root_rank_else;
 using v1::bcast;
 using v1::gather;
+using v1::allreduce;
 
 } // namespace oneapi::dal::detail

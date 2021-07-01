@@ -26,33 +26,37 @@ namespace bk = dal::backend;
 template <typename Float>
 class cluster_updater {
 public:
-    cluster_updater() {}
+    cluster_updater(const sycl::queue& q, const dal::backend::spmd_communicator& comm)
+            : queue_(q),
+              comm_(comm) {}
+
     auto& set_cluster_count(std::int64_t cluster_count) {
         cluster_count_ = cluster_count;
         return *this;
     }
+
     auto& set_accuracy_threshold(double accuracy_threshold) {
         accuracy_threshold_ = accuracy_threshold;
         return *this;
     }
+
     auto& set_part_count(std::int64_t part_count) {
         part_count_ = part_count;
         return *this;
     }
-    auto& set_queue(sycl::queue& queue) {
-        queue_ = queue;
-        return *this;
-    }
+
     auto& set_data(const pr::ndarray<Float, 2> data) {
         data_ = data;
         row_count_ = data.get_dimension(0);
         column_count_ = data.get_dimension(1);
         return *this;
     }
+
     auto& set_initial_centroids(const pr::ndarray<Float, 2> initial_centroids) {
         initial_centroids_ = initial_centroids;
         return *this;
     }
+
     void allocate_buffers() {
         partial_centroids_ =
             pr::ndarray<Float, 2>::empty(queue_,
@@ -88,6 +92,7 @@ public:
         ONEDAL_ASSERT(objective_function.get_dimension(0) == 1);
         ONEDAL_ASSERT(centroids.get_dimension(0) == cluster_count_);
         ONEDAL_ASSERT(centroids.get_dimension(1) == column_count_);
+
         const auto block_size_in_rows = distance_block.get_dimension(0);
         auto assign_event =
             kernels_fp<Float>::template assign_clusters<pr::squared_l2_metric<Float>>(
@@ -122,15 +127,45 @@ public:
                                                       part_count_,
                                                       centroids,
                                                       { count_event, centroids_event });
+
+        {
+            // TODO: Replace with events
+            queue_.wait_and_throw();
+
+            comm_.allreduce(centroids.flatten(queue_));
+            comm_.allreduce(counters_.flatten(queue_));
+        }
+
+        auto divide_event = queue_.submit([&](sycl::handler& cgh) {
+            const auto range =
+                bk::make_range_2d(centroids.get_dimension(0), centroids.get_dimension(1));
+
+            const std::int64_t n = centroids.get_dimension(1);
+            Float* centroids_ptr = centroids.get_mutable_data();
+            const std::int32_t* counters_ptr = counters_.get_data();
+
+            cgh.parallel_for(range, [=](sycl::id<2> id) {
+                const std::int64_t i = id[0];
+                const std::int64_t j = id[1];
+                if (counters_ptr[i] > 0) {
+                    centroids_ptr[i * n + j] /= counters_ptr[i];
+                }
+            });
+        });
+
         count_empty_clusters(queue_,
                              cluster_count_,
                              counters_,
                              empty_cluster_count_,
-                             { count_event });
+                             { count_event, divide_event });
 
         std::int64_t candidate_count = empty_cluster_count_.to_host(queue_).get_data()[0];
+        // std::cerr << "candidate_count = " << candidate_count << std::endl;
+
         sycl::event find_candidates_event;
         if (candidate_count > 0) {
+            std::cerr << "candidate_count > 0" << std::endl;
+
             find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
                                                                        closest_distances,
                                                                        candidate_count,
@@ -153,11 +188,15 @@ public:
             sycl::event::wait(copy_events);
             objective_function_value = updated_objective_function_value;
         }
+
         return std::make_tuple(objective_function_value, centroids_event);
     }
 
 private:
+    void reduce_centroids() {}
+
     sycl::queue queue_;
+    dal::backend::spmd_communicator comm_;
     std::int64_t row_count_ = 0;
     std::int64_t column_count_ = 0;
     std::int64_t cluster_count_ = 0;
