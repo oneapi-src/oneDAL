@@ -33,7 +33,7 @@ template <typename Float>
 inline auto compute_rbf_values(sycl::queue& queue,
                                const pr::ndview<Float, 1>& sqr_x_nd,
                                const pr::ndview<Float, 1>& sqr_y_nd,
-                               pr::ndview<Float, 2> res_nd,
+                               pr::ndview<Float, 2>& res_nd,
                                const Float coeff,
                                const dal::backend::event_vector& deps = {}) {
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
@@ -43,7 +43,7 @@ inline auto compute_rbf_values(sycl::queue& queue,
     const Float* sqr_y_ptr = sqr_y_nd.get_data();
     Float* res_ptr = res_nd.get_mutable_data();
 
-    const Float threshold = dal::backend::exp_threshold<Float>();
+    const Float threshold = dal::backend::exp_low_threshold<Float>();
 
     const auto wg_size = dal::backend::propose_wg_size(queue);
     const auto range =
@@ -73,8 +73,8 @@ template <typename Float>
 inline auto compute_rbf(sycl::queue& queue,
                         const pr::ndview<Float, 2>& x_nd,
                         const pr::ndview<Float, 2>& y_nd,
-                        pr::ndview<Float, 2> res_nd,
-                        const double sigma,
+                        pr::ndview<Float, 2>& res_nd,
+                        double sigma,
                         const dal::backend::event_vector& deps = {}) {
     const std::int64_t x_row_count = x_nd.get_dimension(0);
     const std::int64_t y_row_count = y_nd.get_dimension(0);
@@ -93,7 +93,7 @@ inline auto compute_rbf(sycl::queue& queue,
 
     constexpr Float alpha = -2.0;
     constexpr Float beta = 0.0;
-    auto gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
+    auto gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
 
     auto compute_rbf_values_event =
         compute_rbf_values(queue,

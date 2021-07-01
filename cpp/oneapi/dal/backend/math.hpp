@@ -19,7 +19,7 @@
 namespace oneapi::dal::backend {
 
 template <typename float_t>
-inline constexpr float_t exp_threshold() {
+inline constexpr float_t exp_low_threshold() {
     // minimal double value ~ 2.3e-308, exp(-650.0) ~ 5.1e-283
     constexpr double exp_low_double_threshlod = -650.0;
     // minimal float value ~ 1.2e-38, exp(-75.0) ~ 2.6e-33
