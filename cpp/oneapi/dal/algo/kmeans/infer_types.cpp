@@ -33,7 +33,7 @@ public:
 template <typename Task>
 class detail::v1::infer_result_impl : public base {
 public:
-    table labels;
+    table responses;
     double objective_function_value = 0.0;
 };
 
@@ -70,8 +70,8 @@ template <typename Task>
 infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
 
 template <typename Task>
-const table& infer_result<Task>::get_labels() const {
-    return impl_->labels;
+const table& infer_result<Task>::get_responses() const {
+    return impl_->responses;
 }
 
 template <typename Task>
@@ -80,8 +80,8 @@ double infer_result<Task>::get_objective_function_value() const {
 }
 
 template <typename Task>
-void infer_result<Task>::set_labels_impl(const table& value) {
-    impl_->labels = value;
+void infer_result<Task>::set_responses_impl(const table& value) {
+    impl_->responses = value;
 }
 
 template <typename Task>

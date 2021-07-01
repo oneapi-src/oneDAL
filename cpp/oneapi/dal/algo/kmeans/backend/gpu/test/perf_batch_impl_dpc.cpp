@@ -53,18 +53,18 @@ public:
         };
     }
 
-    void run_cluster_counters(const pr::ndview<int32_t, 2>& labels, std::int64_t cluster_count) {
+    void run_cluster_counters(const pr::ndview<int32_t, 2>& responses, std::int64_t cluster_count) {
         INFO("benchmark cluster counters");
         const auto name =
             fmt::format("Cluster counters: val_type {}, cluster_count {}, elem_count {}",
                         te::type2str<float_t>::name(),
                         cluster_count,
-                        labels.get_count());
+                        responses.get_count());
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         BENCHMARK(name.c_str()) {
-            auto event = count_clusters(this->get_queue(), labels, cluster_count, counters);
+            auto event = count_clusters(this->get_queue(), responses, cluster_count, counters);
             count_empty_clusters(this->get_queue(),
                                  cluster_count,
                                  counters,
@@ -75,7 +75,7 @@ public:
     }
 
     void run_reduce_centroids(const pr::ndview<float_t, 2>& data,
-                              const pr::ndview<int32_t, 2>& labels,
+                              const pr::ndview<int32_t, 2>& responses,
                               std::int64_t cluster_count,
                               std::int64_t part_count) {
         INFO("benchmark centroid reduction");
@@ -84,7 +84,7 @@ public:
             te::type2str<float_t>::name(),
             cluster_count,
             part_count,
-            labels.get_count());
+            responses.get_count());
 
         auto column_count = data.get_shape()[1];
         auto centroids =
@@ -97,14 +97,14 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
-        auto event = count_clusters(this->get_queue(), labels, cluster_count, counters);
+        auto event = count_clusters(this->get_queue(), responses, cluster_count, counters);
         count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters, { event })
             .wait_and_throw();
         BENCHMARK(name.c_str()) {
             auto partial_reduce_event =
                 kernels_fp<float_t>::partial_reduce_centroids(this->get_queue(),
                                                               data,
-                                                              labels,
+                                                              responses,
                                                               cluster_count,
                                                               part_count,
                                                               partial_centroids);
@@ -149,8 +149,8 @@ TEMPLATE_LIST_TEST_M(kmeans_perf_test,
     const table dfl_table = dfl.get_table(this->get_homogen_table_id());
     const auto dfl_rows =
         row_accessor<const std::int32_t>(dfl_table).pull(this->get_queue(), { 0, -1 });
-    auto labels = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
-    this->run_cluster_counters(labels, cluster_count);
+    auto responses = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
+    this->run_cluster_counters(responses, cluster_count);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_perf_test,
@@ -165,8 +165,8 @@ TEMPLATE_LIST_TEST_M(kmeans_perf_test,
     const table dfl_table = dfl.get_table(this->get_homogen_table_id());
     const auto dfl_rows =
         row_accessor<const std::int32_t>(dfl_table).pull(this->get_queue(), { 0, -1 });
-    auto labels = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
-    this->run_cluster_counters(labels, cluster_count);
+    auto responses = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
+    this->run_cluster_counters(responses, cluster_count);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_perf_test,
@@ -185,7 +185,7 @@ TEMPLATE_LIST_TEST_M(kmeans_perf_test,
     const table dfl_table = dfl.get_table(this->get_homogen_table_id());
     const auto dfl_rows =
         row_accessor<const std::int32_t>(dfl_table).pull(this->get_queue(), { 0, -1 });
-    auto labels = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
+    auto responses = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
 
     const auto dfd = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.9, 1.7));
@@ -193,7 +193,7 @@ TEMPLATE_LIST_TEST_M(kmeans_perf_test,
     const auto dfd_rows = row_accessor<const float_t>(dfd_table).pull(this->get_queue(), { 0, -1 });
     auto data = pr::ndarray<float_t, 2>::wrap(dfd_rows.get_data(), { row_count, column_count });
 
-    this->run_reduce_centroids(data, labels, cluster_count, part_count);
+    this->run_reduce_centroids(data, responses, cluster_count, part_count);
 }
 
 } // namespace oneapi::dal::kmeans::backend::test

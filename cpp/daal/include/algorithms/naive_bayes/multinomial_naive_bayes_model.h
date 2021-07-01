@@ -45,39 +45,6 @@ namespace algorithms
 namespace multinomial_naive_bayes
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__MULTINOMIAL_NAIVE_BAYES__PARAMETER"></a>
- * \brief Naive Bayes algorithm parameters    \DAAL_DEPRECATED
- *
- * \snippet naive_bayes/multinomial_naive_bayes_model.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter
-{
-    /**
-     *  Main constructor
-     *  \param[in] nClasses             Number of classes
-     *  \param[in] priorClassEstimates_ Prior class estimates, numeric table of size [nClasses x 1]
-     *  \param[in] alpha_               Imagined occurrences of the each feature, numeric table of size [1 x nFeatures]
-     */
-    DAAL_DEPRECATED Parameter(size_t nClasses, const data_management::NumericTablePtr & priorClassEstimates_ = data_management::NumericTablePtr(),
-                              const data_management::NumericTablePtr & alpha_ = data_management::NumericTablePtr())
-        : classifier::interface1::Parameter(nClasses), priorClassEstimates(priorClassEstimates_), alpha(alpha_)
-    {}
-
-    data_management::NumericTablePtr priorClassEstimates; /*!< Prior class estimates */
-    data_management::NumericTablePtr alpha;               /*!< Imagined occurrences of the each word */
-
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
-
-/**
  * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface2
@@ -135,26 +102,7 @@ public:
      * \DAAL_DEPRECATED_USE{ Model::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy);
-
-    /**
-     * Constructs multinomial naive Bayes model
-     * \param[in] nFeatures  The number of features
-     * \param[in] parameter  The multinomial naive Bayes parameter
-     * \param[in] dummy      Dummy variable for the templated constructor
-     * \DAAL_DEPRECATED_USE{ Model::create }
-     */
-    template <typename modelFPType>
     DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy);
-
-    /**
-     * Constructs multinomial naive Bayes model
-     * \param[in] nFeatures  The number of features
-     * \param[in] parameter  The multinomial naive Bayes parameter
-     * \param[out] stat      Status of the model construction
-     */
-    template <typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<Model> create(size_t nFeatures, const interface1::Parameter & parameter, services::Status * stat = NULL);
 
     /**
      * Constructs multinomial naive Bayes model
@@ -197,9 +145,6 @@ protected:
     data_management::NumericTablePtr _auxTable;
 
     template <typename modelFPType>
-    DAAL_EXPORT Model(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy, services::Status & st);
-
-    template <typename modelFPType>
     DAAL_EXPORT Model(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st);
 
     template <typename Archive, bool onDeserialize>
@@ -239,28 +184,7 @@ public:
      * \DAAL_DEPRECATED_USE{ PartialModel::create }
      */
     template <typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy);
-
-    /**
-     * Constructs multinomial naive Bayes partial model
-     * \param[in] nFeatures  The number of features
-     * \param[in] parameter  Multinomial naive Bayes parameter
-     * \param[in] dummy      Dummy variable for the templated constructor
-     * \DAAL_DEPRECATED_USE{ PartialModel::create }
-     */
-    template <typename modelFPType>
     DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy);
-
-    /**
-     * Constructs multinomial naive Bayes partial model
-     * \param[in] nFeatures  The number of features
-     * \param[in] parameter  The multinomial naive Bayes parameter
-     * \param[out] stat      Status of the model construction
-     * \return Multinomial naive Bayes partial model
-     */
-    template <typename modelFPType>
-    DAAL_EXPORT static services::SharedPtr<PartialModel> create(size_t nFeatures, const interface1::Parameter & parameter,
-                                                                services::Status * stat = NULL);
 
     /**
      * Constructs multinomial naive Bayes partial model
@@ -313,9 +237,6 @@ protected:
     data_management::NumericTablePtr _classSize;
     data_management::NumericTablePtr _classGroupSum;
     size_t _nObservations;
-
-    template <typename modelFPType>
-    DAAL_EXPORT PartialModel(size_t nFeatures, const interface1::Parameter & parameter, modelFPType dummy, services::Status & st);
 
     template <typename modelFPType>
     DAAL_EXPORT PartialModel(size_t nFeatures, const interface2::Parameter & parameter, modelFPType dummy, services::Status & st);

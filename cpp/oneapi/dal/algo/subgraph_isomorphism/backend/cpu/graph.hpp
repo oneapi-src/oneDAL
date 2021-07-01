@@ -26,7 +26,7 @@
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
 // 1/64 for memory capacity and ~0.005 for cpu.
-constexpr double graph_storage_divider_by_density = 0.015625;
+constexpr double density_threshold = 0.015625;
 
 enum graph_storage_scheme { auto_detect, bit, list };
 
@@ -43,7 +43,7 @@ public:
           detail::byte_alloc_iface* byte_alloc);
     ~graph();
 
-    static double graph_density(const std::int64_t vertex_count, const std::int64_t edge_count);
+    double get_graph_density();
 
     void set_vertex_attribute(const std::int64_t vertex_count, std::int64_t* pvertices_attribute);
     void set_edge_attribute_lists(const std::int64_t vertex_count,
@@ -62,7 +62,6 @@ public:
     bool external_data;
     bool bit_representation;
     inner_alloc allocator;
-    std::int64_t vertex_count; /* number of graph vertices */
     std::int64_t* p_degree; /* vertex data dergee arrays */
     std::uint8_t** p_edges_bit; /* bit vectors of edges */
     std::int64_t** p_edges_list; /* adj list of edges */
@@ -77,28 +76,32 @@ public:
     void init_bit_representation(const dal::preview::detail::topology<std::int32_t>& t);
     void init_list_representation(const dal::preview::detail::topology<std::int32_t>& t);
     void allocate_arrays();
+
+private:
+    std::int64_t vertex_count_; /* number of graph vertices */
+    std::int64_t edge_count_; /* number of graph edges */
 };
 
 template <typename Cpu>
 void graph<Cpu>::allocate_arrays() {
-    p_degree = allocator.allocate<std::int64_t>(vertex_count);
+    p_degree = allocator.allocate<std::int64_t>(vertex_count_);
 
-    for (int64_t i = 0; i < vertex_count; i++) {
+    for (int64_t i = 0; i < vertex_count_; i++) {
         p_degree[i] = 0;
     }
 
     if (bit_representation) {
-        const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count);
+        const std::int64_t bit_array_size = bit_vector<Cpu>::bit_vector_size(vertex_count_);
 
-        p_edges_bit = allocator.template allocate<std::uint8_t*>(vertex_count);
-        for (int64_t i = 0; i < vertex_count; ++i) {
+        p_edges_bit = allocator.template allocate<std::uint8_t*>(vertex_count_);
+        for (int64_t i = 0; i < vertex_count_; ++i) {
             p_edges_bit[i] = allocator.template allocate<std::uint8_t>(bit_array_size);
             bit_vector<Cpu>::set(bit_array_size, p_edges_bit[i]);
         }
     }
     else {
-        p_edges_list = allocator.template allocate<std::int64_t*>(vertex_count);
-        for (int64_t i = 0; i < vertex_count; i++) {
+        p_edges_list = allocator.template allocate<std::int64_t*>(vertex_count_);
+        for (int64_t i = 0; i < vertex_count_; i++) {
             p_edges_list[i] = nullptr;
         }
     }
@@ -111,24 +114,32 @@ graph<Cpu>::graph(const dal::preview::detail::topology<std::int32_t>& t,
         : external_data(true),
           bit_representation(storage_scheme != list),
           allocator(byte_alloc),
-          vertex_count(t.get_vertex_count()),
           p_vertex_attribute(nullptr),
-          p_edges_attribute(nullptr) {
+          p_edges_attribute(nullptr),
+          vertex_count_(t.get_vertex_count()),
+          edge_count_(t.get_edge_count()) {
     allocate_arrays();
-    (bit_representation) ? init_bit_representation(t) : init_list_representation(t);
+    bool use_bit = false;
+    switch (storage_scheme) {
+        case auto_detect: use_bit = !(this->get_graph_density() < density_threshold); break;
+        case bit: use_bit = true; break;
+        case list: use_bit = false; break;
+    };
+
+    (use_bit) ? init_bit_representation(t) : init_list_representation(t);
+
     return;
 }
 
 template <typename Cpu>
 void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<std::int32_t>& t) {
     bool has_edges_attribute = false;
-    std::int64_t vertex_count = t._vertex_count;
-    for (std::int64_t i = 0; i < vertex_count; i++) {
+    for (std::int64_t i = 0; i < vertex_count_; i++) {
         auto degree = t._degrees[i];
         p_degree[i] = degree;
     }
 
-    for (std::int64_t i = 0; i < vertex_count; i++) {
+    for (std::int64_t i = 0; i < vertex_count_; i++) {
         auto degree = t._degrees[i];
 
         for (std::int64_t j = 0; j < degree; j++) {
@@ -136,8 +147,8 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
             std::int64_t vertex_1 = i;
             std::int64_t vertex_2 = t._cols[t._rows[i] + j];
 
-            bit_vector<Cpu>::set_bit(p_edges_bit[vertex_1], vertex_2, vertex_count);
-            bit_vector<Cpu>::set_bit(p_edges_bit[vertex_2], vertex_1, vertex_count);
+            bit_vector<Cpu>::set_bit(p_edges_bit[vertex_1], vertex_2, vertex_count_);
+            bit_vector<Cpu>::set_bit(p_edges_bit[vertex_2], vertex_1, vertex_count_);
             if (edge_attr >= 0 && has_edges_attribute) {
                 if (p_edges_attribute[i] == nullptr) {
                     p_edges_attribute[i] = allocator.allocate<std::int64_t>(degree);
@@ -153,9 +164,7 @@ void graph<Cpu>::init_bit_representation(const dal::preview::detail::topology<st
 template <typename Cpu>
 void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<std::int32_t>& t) {
     bool has_edges_attribute = false;
-    std::int64_t vertex_count = t._vertex_count;
-
-    for (std::int64_t i = 0; i < vertex_count; i++) {
+    for (std::int64_t i = 0; i < vertex_count_; i++) {
         auto degree = t._degrees[i];
         p_degree[i] = degree;
         if (degree > 0) {
@@ -166,7 +175,7 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
         }
     }
 
-    for (std::int64_t i = 0; i < vertex_count; i++) {
+    for (std::int64_t i = 0; i < vertex_count_; i++) {
         auto degree = t._degrees[i];
 
         for (std::int64_t j = 0; j < degree; j++) {
@@ -191,13 +200,13 @@ void graph<Cpu>::init_list_representation(const dal::preview::detail::topology<s
 template <typename Cpu>
 void graph<Cpu>::delete_bit_arrays() {
     if (p_edges_bit != nullptr) {
-        for (std::int64_t i = 0; i < vertex_count; i++) {
+        for (std::int64_t i = 0; i < vertex_count_; i++) {
             if (p_edges_bit[i] != nullptr) {
                 allocator.deallocate(p_edges_bit[i], 0);
                 p_edges_bit[i] = nullptr;
             }
         }
-        allocator.deallocate(p_edges_bit, vertex_count);
+        allocator.deallocate(p_edges_bit, vertex_count_);
         p_edges_bit = nullptr;
     }
 }
@@ -205,23 +214,23 @@ void graph<Cpu>::delete_bit_arrays() {
 template <typename Cpu>
 void graph<Cpu>::delete_list_arrays() {
     if (p_edges_list != nullptr) {
-        for (std::int64_t i = 0; i < vertex_count; ++i) {
+        for (std::int64_t i = 0; i < vertex_count_; ++i) {
             if (p_edges_list[i] != nullptr) {
                 allocator.deallocate(p_edges_list[i], 0);
                 p_edges_list[i] = nullptr;
             }
         }
-        allocator.deallocate(p_edges_list, vertex_count);
+        allocator.deallocate(p_edges_list, vertex_count_);
         p_edges_list = nullptr;
     }
 }
 
 template <typename Cpu>
 graph<Cpu>::~graph() {
-    allocator.deallocate(p_degree, vertex_count);
+    allocator.deallocate(p_degree, vertex_count_);
 
     if (p_edges_attribute) {
-        for (int64_t i = 0; i < vertex_count; i++) {
+        for (int64_t i = 0; i < vertex_count_; i++) {
             if (p_edges_attribute[i] != nullptr) {
                 allocator.deallocate(p_edges_attribute[i], 1);
                 p_edges_attribute[i] = nullptr;
@@ -240,12 +249,12 @@ graph<Cpu>::~graph() {
 }
 
 template <typename Cpu>
-double graph<Cpu>::graph_density(const std::int64_t vertex_count, const std::int64_t edge_count) {
-    return (double)(edge_count) / (double)(vertex_count * (vertex_count - 1));
+double graph<Cpu>::get_graph_density() {
+    return (double)(edge_count_) / (double)(vertex_count_ * (vertex_count_ - 1));
 }
 
 template <typename Cpu>
-void graph<Cpu>::set_vertex_attribute(const std::int64_t vertex_count_,
+void graph<Cpu>::set_vertex_attribute(const std::int64_t vertex_count,
                                       std::int64_t* pvertices_attribute) {
     if (vertex_count == vertex_count_ && pvertices_attribute != nullptr) {
         p_vertex_attribute = pvertices_attribute;
@@ -257,7 +266,7 @@ void graph<Cpu>::set_vertex_attribute(const std::int64_t vertex_count_,
 }
 
 template <typename Cpu>
-void graph<Cpu>::set_edge_attribute_lists(const std::int64_t vertex_count_,
+void graph<Cpu>::set_edge_attribute_lists(const std::int64_t vertex_count,
                                           std::int64_t** p_edges_attribute_list) {
     if (vertex_count == vertex_count_ && p_edges_attribute_list != nullptr) {
         p_edges_attribute = p_edges_attribute_list;
@@ -288,12 +297,12 @@ std::int64_t graph<Cpu>::get_max_vertex_attribute() const {
 
 template <typename Cpu>
 std::int64_t graph<Cpu>::get_vertex_count() const {
-    return vertex_count;
+    return vertex_count_;
 }
 
 template <typename Cpu>
 std::int64_t graph<Cpu>::get_vertex_degree(std::int64_t vertex) const {
-    ONEDAL_ASSERT(vertex < vertex_count);
+    ONEDAL_ASSERT(vertex < vertex_count_);
     return p_degree[vertex];
 }
 
@@ -311,7 +320,7 @@ std::int64_t graph<Cpu>::max_element(const std::int64_t* parray) const {
     std::int64_t result = 0;
 
     if (parray != nullptr) {
-        for (std::int64_t i = 0; i < vertex_count; i++) {
+        for (std::int64_t i = 0; i < vertex_count_; i++) {
             if (parray[i] > result) {
                 result = parray[i];
             }

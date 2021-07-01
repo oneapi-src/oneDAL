@@ -68,6 +68,35 @@ services::Status ResultImpl::check(size_t nFeatures, size_t nComponents, size_t 
     return status;
 }
 
+/**
+* Checks the results of the PCA algorithm implementation
+* \param[in] nFeatures      Number of features
+* \param[in] nTables        Number of tables
+*
+* \return Status
+*/
+services::Status ResultImpl::check(size_t nFeatures, size_t nTables) const
+{
+    DAAL_CHECK(size() == nTables, ErrorIncorrectNumberOfOutputNumericTables);
+    const int packedLayouts = packed_mask;
+    Status s;
+    DAAL_CHECK_STATUS(s, checkNumericTable(NumericTable::cast(get(eigenvalues)).get(), eigenvaluesStr(), packedLayouts, 0, nFeatures, 1));
+
+    auto pEigenvalues = NumericTable::cast(get(eigenvalues));
+    DAAL_CHECK(pEigenvalues, ErrorNullNumericTable);
+
+    auto pEigenvectors = NumericTable::cast(get(eigenvectors));
+    DAAL_CHECK(pEigenvectors, ErrorNullNumericTable);
+
+    nFeatures = pEigenvalues->getNumberOfColumns();
+    return checkNumericTable(pEigenvectors.get(), eigenvectorsStr(), packedLayouts, 0, nFeatures, nFeatures);
+}
+
+void ResultImpl::setTable(size_t key, data_management::NumericTablePtr table)
+{
+    (*this)[key] = table;
+}
+
 } // namespace interface3
 } // namespace pca
 } // namespace algorithms

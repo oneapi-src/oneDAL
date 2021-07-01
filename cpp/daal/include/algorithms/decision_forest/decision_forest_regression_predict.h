@@ -80,7 +80,7 @@ public:
  *
  * \par References
  *      - \ref decision_forest::regression::interface1::Model "decision_forest::regression::Model" class
- *      - \ref training::interface1::Batch "training::Batch" class
+ *      - \ref training::interface2::Batch "training::Batch" class
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class Batch : public algorithms::regression::prediction::Batch

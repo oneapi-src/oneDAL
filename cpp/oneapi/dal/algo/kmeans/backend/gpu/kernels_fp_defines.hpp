@@ -22,15 +22,16 @@ namespace oneapi::dal::kmeans::backend {
 
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
-#define INSTANTIATE_WITH_METRIC(F, M)                                                              \
-    template sycl::event kernels_fp<F>::assign_clusters<M<F>>(sycl::queue & queue,                 \
-                                                              const pr::ndview<F, 2>& data,        \
-                                                              const pr::ndview<F, 2>& centroids,   \
-                                                              std::int64_t block_rows,             \
-                                                              pr::ndview<std::int32_t, 2>& labels, \
-                                                              pr::ndview<F, 2>& distances,         \
-                                                              pr::ndview<F, 2>& closest_distances, \
-                                                              const bk::event_vector& deps);
+#define INSTANTIATE_WITH_METRIC(F, M)                          \
+    template sycl::event kernels_fp<F>::assign_clusters<M<F>>( \
+        sycl::queue & queue,                                   \
+        const pr::ndview<F, 2>& data,                          \
+        const pr::ndview<F, 2>& centroids,                     \
+        std::int64_t block_rows,                               \
+        pr::ndview<std::int32_t, 2>& responses,                \
+        pr::ndview<F, 2>& distances,                           \
+        pr::ndview<F, 2>& closest_distances,                   \
+        const bk::event_vector& deps);
 #endif
 
 } // namespace oneapi::dal::kmeans::backend

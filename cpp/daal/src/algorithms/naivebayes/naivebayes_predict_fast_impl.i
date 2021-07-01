@@ -92,16 +92,6 @@ struct methodSpecific<fastCSR, algorithmFPType, cpu>
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status NaiveBayesPredictKernel<algorithmFPType, method, cpu>::compute(const NumericTable * a, const Model * m, NumericTable * r,
-                                                                                const multinomial_naive_bayes::interface1::Parameter * parameter)
-{
-    Parameter tmpPar(parameter->nClasses);
-    tmpPar.priorClassEstimates = parameter->priorClassEstimates;
-    tmpPar.alpha               = parameter->alpha;
-    return compute(a, m, r, &tmpPar);
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status NaiveBayesPredictKernel<algorithmFPType, method, cpu>::compute(const NumericTable * a, const Model * m, NumericTable * r,
                                                                                 const Parameter * parameter)
 {
     NumericTable * ntData  = const_cast<NumericTable *>(a);
