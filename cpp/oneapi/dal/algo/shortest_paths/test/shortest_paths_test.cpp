@@ -113,7 +113,7 @@ public:
     bool check_predecessors(const DirectedGraphType& graph,
                             const std::vector<int32_t>& predecessors,
                             const std::array<EdgeValueType, Size>& distances,
-                            int32_t source) {
+                            int64_t source) {
         EdgeValueType unreachable_distance = std::numeric_limits<EdgeValueType>::max();
         if (predecessors.size() != distances.size()) {
             return false;
@@ -162,7 +162,7 @@ public:
             int,
             std::allocator<char>>& graph,
         double delta,
-        int32_t source,
+        int64_t source,
         oneapi::dal::preview::shortest_paths::optional_result_id result_type,
         const std::array<EdgeValueType, Size>& true_distances,
         const Allocator& alloc) {

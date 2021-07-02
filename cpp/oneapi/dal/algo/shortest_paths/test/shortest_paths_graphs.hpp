@@ -41,7 +41,7 @@ public:
         return rows_count;
     }
 
-    int get_source() const {
+    std::int64_t get_source() const {
         return source;
     }
 
@@ -50,7 +50,7 @@ protected:
     std::int64_t edge_count;
     std::int64_t cols_count;
     std::int64_t rows_count;
-    int source;
+    std::int64_t source;
 };
 
 class d_thread_buckets_graph_type : public graph_base_data {

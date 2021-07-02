@@ -44,16 +44,11 @@ public:
         return rows_count;
     }
 
-    int get_source() const {
-        return source;
-    }
-
 protected:
     std::int64_t vertex_count;
     std::int64_t edge_count;
     std::int64_t cols_count;
     std::int64_t rows_count;
-    int source;
 };
 
 class example_graph_type : public graph_base_data {
@@ -98,7 +93,7 @@ public:
 class shortest_paths_badargs_test {
 public:
     template <typename GraphType>
-    void check_shortest_paths(double delta, int source, bool nothing_to_compute = false) {
+    void check_shortest_paths(double delta, std::int64_t source, bool nothing_to_compute = false) {
         using namespace dal::preview::shortest_paths;
         GraphType graph_data;
 
@@ -130,7 +125,6 @@ public:
     TEST_M(shortest_paths_badargs_test, name, "[shortest_paths][badarg]")
 
 SHORTEST_PATHS_BADARG_TEST("Check delta is > 0") {
-    // REQUIRE_THROWS_AS((this->check_shortest_paths<example_graph_type>(0, 0)), invalid_argument);
     REQUIRE_THROWS_AS((this->check_shortest_paths<example_graph_type>(-0.001, 1)),
                       invalid_argument);
     REQUIRE_THROWS_AS((this->check_shortest_paths<example_graph_type>(-10000, 2)),
