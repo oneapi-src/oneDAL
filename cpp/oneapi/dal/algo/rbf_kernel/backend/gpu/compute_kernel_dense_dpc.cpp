@@ -34,10 +34,12 @@ inline auto compute_rbf_values(sycl::queue& queue,
                                const pr::ndview<Float, 1>& sqr_x_nd,
                                const pr::ndview<Float, 1>& sqr_y_nd,
                                pr::ndview<Float, 2>& res_nd,
-                               const Float coeff,
+                               double sigma,
                                const dal::backend::event_vector& deps = {}) {
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
     const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
+
+    const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
 
     const Float* sqr_x_ptr = sqr_x_nd.get_data();
     const Float* sqr_y_ptr = sqr_y_nd.get_data();
@@ -79,8 +81,6 @@ inline auto compute_rbf(sycl::queue& queue,
     const std::int64_t x_row_count = x_nd.get_dimension(0);
     const std::int64_t y_row_count = y_nd.get_dimension(0);
 
-    const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
-
     auto sqr_x_nd = pr::ndarray<Float, 1>::empty(queue, { x_row_count }, sycl::usm::alloc::device);
     auto sqr_y_nd = pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
 
@@ -100,7 +100,7 @@ inline auto compute_rbf(sycl::queue& queue,
                            sqr_x_nd,
                            sqr_y_nd,
                            res_nd,
-                           coeff,
+                           sigma,
                            { reduce_x_event, reduce_y_event, gemm_event });
 
     auto smart_event =
