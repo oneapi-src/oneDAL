@@ -119,7 +119,9 @@ public:
     const float* pattern_vertex_probability;
     kind isomorphism_kind;
 
-    solution<Cpu> combine_solutions(matching_engine<Cpu>* engine_array, std::uint64_t array_size);
+    solution<Cpu> combine_solutions(matching_engine<Cpu>* engine_array,
+                                    std::uint64_t array_size,
+                                    std::int64_t max_match_count);
 };
 
 template <typename Cpu>
@@ -473,25 +475,31 @@ engine_bundle<Cpu>::~engine_bundle() {
 
 template <typename Cpu>
 solution<Cpu> engine_bundle<Cpu>::combine_solutions(matching_engine<Cpu>* engine_array,
-                                                    std::uint64_t array_size) {
+                                                    std::uint64_t array_size,
+                                                    std::int64_t max_match_count) {
     ONEDAL_ASSERT(engine_array != nullptr);
     solution<Cpu> bundle_solutions(pattern->get_vertex_count(), allocator);
     for (std::uint64_t k = 0; k < array_size; k++) {
-        std::uint64_t max_index = 0;
-        std::uint64_t max_match_count = 0;
+        std::uint64_t engine_max_index = 0;
+        std::uint64_t engine_max_match_count = 0;
+        std::uint64_t total_combined_count = 0;
         for (std::uint64_t i = 0; i < array_size; i++) {
             std::uint64_t match_count = engine_array[i].get_match_count();
-            if (match_count > max_match_count) {
-                max_match_count = match_count;
-                max_index = i;
+            if (match_count > engine_max_match_count) {
+                engine_max_match_count = match_count;
+                engine_max_index = i;
             }
         }
-        if (max_match_count != 0) {
-            bundle_solutions.append(engine_array[max_index].get_solution());
+        if (engine_max_match_count != 0) {
+            total_combined_count += engine_array[engine_max_index].get_match_count();
+            bundle_solutions.append(engine_array[engine_max_index].get_solution());
         }
-        else {
+        else
             break;
-        }
+
+        if (max_match_count != 0 &&
+            total_combined_count >= static_cast<std::uint64_t>(max_match_count))
+            break;
     }
     return bundle_solutions;
 }
@@ -559,7 +567,7 @@ solution<Cpu> engine_bundle<Cpu>::run(std::int64_t max_match_count) {
                                          false);
     });
 
-    auto aggregated_solution = combine_solutions(engine_array, array_size);
+    auto aggregated_solution = combine_solutions(engine_array, array_size, max_match_count);
 
     for (std::uint64_t i = 0; i < array_size; i++) {
         engine_array[i].~matching_engine();
