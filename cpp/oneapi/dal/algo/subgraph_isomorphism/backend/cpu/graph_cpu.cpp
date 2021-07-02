@@ -19,10 +19,6 @@
 
 namespace oneapi::dal::preview::subgraph_isomorphism::backend {
 
-template struct graph_input_data<__CPU_TAG__>;
-template struct graph_input_list_data<__CPU_TAG__>;
-template struct graph_input_bit_data<__CPU_TAG__>;
-template struct graph_data<__CPU_TAG__>;
 template class graph<__CPU_TAG__>;
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

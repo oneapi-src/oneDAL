@@ -54,7 +54,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                          sycl::usm::alloc::device);
         auto arr_closest_distances =
             pr::ndarray<Float, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
-        auto arr_labels =
+        auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_objective_function =
             pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
@@ -65,7 +65,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 arr_data,
                 arr_centroids,
                 block_size_in_rows,
-                arr_labels,
+                arr_responses,
                 arr_distance_block,
                 arr_closest_distances);
         kernels_fp<Float>::compute_objective_function(queue,
@@ -75,7 +75,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             .wait_and_throw();
 
         return infer_result<task::clustering>()
-            .set_labels(dal::homogen_table::wrap(arr_labels.flatten(queue), row_count, 1))
+            .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
             .set_objective_function_value(
                 static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
     }
