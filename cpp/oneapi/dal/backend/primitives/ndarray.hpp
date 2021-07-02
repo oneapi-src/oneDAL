@@ -446,7 +446,7 @@ public:
     array_t flatten(sycl::queue& q,
                     const sycl::vector_class<sycl::event>& dependencies = {}) const {
         ONEDAL_ASSERT(is_known_usm(q, data_.get()));
-        return array_t{ q, data_, this->get_count(), { dependencies } };
+        return array_t{ q, data_, this->get_count(), dependencies };
     }
 #endif
 
