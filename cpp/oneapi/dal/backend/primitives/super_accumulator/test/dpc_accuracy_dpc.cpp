@@ -50,7 +50,7 @@ template <typename Float>
 class accuracy_test_random : public te::float_algo_fixture<Float> {
 public:
     using target = pr::super_accumulators<Float, false>;
-    
+
     void generate() {
         length_ = GENERATE(1, 5, 251, 1023, 1025, 32768, 262144);
         upper_bound_ = GENERATE(+1.e-5, +100.0, +201.0, +1024.0);
