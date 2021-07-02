@@ -41,7 +41,7 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
-                                           const table& labels) {
+                                           const table& responses) {
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
@@ -58,16 +58,16 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     model_ptr->impl()->setData<Float>(daal_data, false);
 
-    auto daal_labels = daal::data_management::NumericTablePtr();
+    auto daal_responses = daal::data_management::NumericTablePtr();
     if constexpr (!std::is_same_v<Task, task::search>) {
-        daal_labels = interop::convert_to_daal_table<Float>(labels);
-        model_ptr->impl()->setLabels<Float>(daal_labels, false);
+        daal_responses = interop::convert_to_daal_table<Float>(responses);
+        model_ptr->impl()->setLabels<Float>(daal_responses, false);
     }
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(ctx,
                                                                daal_data.get(),
-                                                               daal_labels.get(),
+                                                               daal_responses.get(),
                                                                model_ptr.get(),
                                                                daal_parameter,
                                                                *daal_parameter.engine));
@@ -82,7 +82,7 @@ template <typename Float, typename Task>
 static train_result<Task> train(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>

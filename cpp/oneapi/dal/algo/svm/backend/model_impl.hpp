@@ -40,8 +40,8 @@ public:
     table coeffs;
     double bias;
     table biases;
-    double first_class_label;
-    double second_class_label;
+    double first_class_response;
+    double second_class_response;
     std::int64_t class_count = 2;
 
     model_impl() = default;
@@ -62,7 +62,7 @@ public:
 
         if constexpr (std::is_same_v<Task, task::classification> ||
                       std::is_same_v<Task, task::nu_classification>) {
-            ar(first_class_label, second_class_label, class_count);
+            ar(first_class_response, second_class_response, class_count);
         }
 
         dal::detail::serialize_polymorphic(interop_, ar);
@@ -73,7 +73,7 @@ public:
 
         if constexpr (std::is_same_v<Task, task::classification> ||
                       std::is_same_v<Task, task::nu_classification>) {
-            ar(first_class_label, second_class_label, class_count);
+            ar(first_class_response, second_class_response, class_count);
         }
 
         interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);

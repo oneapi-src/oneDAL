@@ -500,9 +500,9 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
     if constexpr (std::is_same_v<Task, task::classification>) {
         auto [response, winner_event] = determine_winner(ctx, response_list, { predict_event });
 
-        if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
+        if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_responses)) {
             auto response_host = response.to_host(queue_, { winner_event });
-            res.set_labels(homogen_table::wrap(response_host.flatten(), ctx.row_count, 1));
+            res.set_responses(homogen_table::wrap(response_host.flatten(), ctx.row_count, 1));
         }
 
         if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
@@ -513,7 +513,7 @@ infer_result<Task> infer_kernel_impl<Float, Index, Task>::operator()(const descr
     }
     else {
         auto response_list_host = response_list.to_host(queue_, { predict_event });
-        res.set_labels(homogen_table::wrap(response_list_host.flatten(), ctx.row_count, 1));
+        res.set_responses(homogen_table::wrap(response_list_host.flatten(), ctx.row_count, 1));
     }
 
     return res;
