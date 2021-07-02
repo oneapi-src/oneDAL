@@ -135,8 +135,6 @@ private:
 
 class spmd_communicator : public base {
 public:
-    spmd_communicator() = default;
-
     std::int64_t get_rank() const {
         // TODO: Handle null impl_
         return impl_->get_rank();

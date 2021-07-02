@@ -83,13 +83,21 @@ private:
 
 TEMPLATE_LIST_TEST_M(kmeans_distr_test,
                      "distributed kmeans on gold data",
-                     "[distr]",
+                     "[kmeans][distr]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
-
     this->set_rank_count(GENERATE(1, 2, 4, 8));
     this->checks_on_gold_data();
 }
+
+// TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+//                      "distributed kmeans empty clusters test",
+//                      "[kmeans][distr]",
+//                      kmeans_types) {
+//     SKIP_IF(this->not_float64_friendly());
+//     this->set_rank_count(GENERATE(1, 2));
+//     this->check_empty_clusters();
+// }
 
 // const std::int64_t thread_count = GENERATE(1, 2, 4, 8, 16);
 // auto thread_comm = te::thread_communicator{ thread_count };

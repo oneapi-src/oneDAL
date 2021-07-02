@@ -327,7 +327,7 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
     ONEDAL_ASSERT(counters.get_dimension(0) == centroids.get_dimension(0));
     const Float* partial_centroids_ptr = partial_centroids.get_data();
     Float* centroids_ptr = centroids.get_mutable_data();
-    // const std::int32_t* counters_ptr = counters.get_data();
+    const std::int32_t* counters_ptr = counters.get_data();
     const auto column_count = centroids.get_dimension(1);
     const auto cluster_count = centroids.get_dimension(0);
     const auto sg_size_to_set = get_gpu_sg_size(queue);
@@ -345,7 +345,7 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
                 const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
                 if (sg_global_id >= column_count * cluster_count)
                     return;
-                // const std::int64_t sg_cluster_id = sg_global_id / column_count;
+                const std::int64_t sg_cluster_id = sg_global_id / column_count;
                 const std::int64_t local_id = sg.get_local_id()[0];
                 const std::int64_t local_range = sg.get_local_range()[0];
                 Float sum = 0.0;
@@ -355,11 +355,10 @@ sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
                 sum = reduce(sg, sum, sycl::ONEAPI::plus<Float>());
 
                 if (local_id == 0) {
-                    // auto count = counters_ptr[sg_cluster_id];
-                    // if (count > 0) {
-                    // centroids_ptr[sg_global_id] = sum / count;
-                    centroids_ptr[sg_global_id] = sum;
-                    // }
+                    auto count = counters_ptr[sg_cluster_id];
+                    if (count > 0) {
+                        centroids_ptr[sg_global_id] = sum / count;
+                    }
                 }
             });
     });

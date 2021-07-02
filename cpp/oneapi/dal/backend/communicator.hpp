@@ -21,10 +21,141 @@
 
 namespace oneapi::dal::backend {
 
+class fake_spmd_communicator_impl : public dal::detail::spmd_communicator_iface {
+public:
+    using base_t = dal::detail::spmd_communicator_iface;
+    using request_t = dal::detail::spmd_request_iface;
+
+    static constexpr std::int64_t root_rank = 0;
+    static constexpr std::int64_t rank_count = 1;
+
+    std::int64_t get_rank() override {
+        return root_rank;
+    }
+
+    std::int64_t get_root_rank() override {
+        return root_rank;
+    }
+
+    std::int64_t get_rank_count() override {
+        return rank_count;
+    }
+
+    void barrier() override {}
+
+    request_t* bcast(byte_t* send_buf, std::int64_t count, std::int64_t root) override {
+        return nullptr;
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* bcast(sycl::queue& q,
+                     byte_t* send_buf,
+                     std::int64_t count,
+                     std::int64_t root) override {
+        return nullptr;
+    }
+#endif
+
+    request_t* gather(const byte_t* send_buf,
+                      std::int64_t send_count,
+                      byte_t* recv_buf,
+                      std::int64_t recv_count,
+                      std::int64_t root) override {
+        ONEDAL_ASSERT(root == root_rank);
+        return nullptr;
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* gather(sycl::queue& q,
+                      const byte_t* send_buf,
+                      std::int64_t send_count,
+                      byte_t* recv_buf,
+                      std::int64_t recv_count,
+                      std::int64_t root) override {
+        ONEDAL_ASSERT(root == root_rank);
+        return nullptr;
+    }
+
+#endif
+
+    request_t* gatherv(const byte_t* send_buf,
+                       std::int64_t send_count,
+                       byte_t* recv_buf,
+                       const std::int64_t* recv_count,
+                       const std::int64_t* displs,
+                       std::int64_t root) override {
+        ONEDAL_ASSERT(root == root_rank);
+        return nullptr;
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* gatherv(sycl::queue& q,
+                       const byte_t* send_buf,
+                       std::int64_t send_count,
+                       byte_t* recv_buf,
+                       const std::int64_t* recv_count,
+                       const std::int64_t* displs,
+                       std::int64_t root) override {
+        ONEDAL_ASSERT(root == root_rank);
+        return nullptr;
+    }
+#endif
+
+    request_t* allreduce(const byte_t* send_buf,
+                         byte_t* recv_buf,
+                         std::int64_t count,
+                         const data_type& dtype,
+                         const dal::detail::spmd_reduce_op& op) override {
+        return nullptr;
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* allreduce(sycl::queue& q,
+                         const byte_t* send_buf,
+                         byte_t* recv_buf,
+                         std::int64_t count,
+                         const data_type& dtype,
+                         const dal::detail::spmd_reduce_op& op) override {
+        return nullptr;
+    }
+#endif
+};
+
+class fake_spmd_communicator : public dal::detail::spmd_communicator {
+public:
+    using base_t = dal::detail::spmd_communicator;
+    fake_spmd_communicator() : base_t(new fake_spmd_communicator_impl{}) {}
+};
+
+class spmd_request {
+public:
+    spmd_request() = default;
+    explicit spmd_request(const dal::detail::spmd_request& req) : req_(req) {}
+    explicit spmd_request(dal::detail::spmd_request&& req) : req_(std::move(req)) {}
+
+    void wait() {
+        req_.wait();
+    }
+
+    bool test() {
+        return req_.test();
+    }
+
+private:
+    dal::detail::spmd_request req_;
+};
+
 class spmd_communicator {
 public:
-    spmd_communicator() = default;
-    explicit spmd_communicator(const dal::detail::spmd_communicator& comm) : comm_(comm) {}
+    spmd_communicator() : comm_(fake_spmd_communicator{}), is_distributed_(false) {}
+
+    explicit spmd_communicator(const dal::detail::spmd_communicator& comm)
+            : comm_(comm),
+              is_distributed_(true) {}
+
+    bool is_distributed() const {
+        return is_distributed_;
+    }
 
     std::int64_t get_rank() const {
         return comm_.get_rank();
@@ -96,13 +227,30 @@ public:
         return dal::detail::gather(comm_, send);
     }
 
-    template <typename T>
-    void allreduce(T&& value) const {
-        dal::detail::allreduce(comm_, std::forward<T>(value));
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+    spmd_request allreduce(T& scalar) const {
+        return spmd_request{ dal::detail::allreduce(comm_, scalar) };
     }
+
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+    spmd_request allreduce(const array<T>& ary) const {
+        return spmd_request{ dal::detail::allreduce(comm_, ary) };
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    spmd_request allreduce(const array<T>& ary, const event_vector& deps) const {
+        // TODO: Pass `deps` to allreduce free function
+        if (is_distributed_) {
+            sycl::event::wait_and_throw(deps);
+        }
+        return spmd_request{ dal::detail::allreduce(comm_, ary) };
+    }
+#endif
 
 private:
     dal::detail::spmd_communicator comm_;
+    bool is_distributed_;
 };
 
 } // namespace oneapi::dal::backend

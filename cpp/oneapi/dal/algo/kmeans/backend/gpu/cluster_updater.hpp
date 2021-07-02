@@ -71,6 +71,7 @@ public:
         empty_cluster_count_ =
             pr::ndarray<std::int32_t, 1>::empty(queue_, 1, sycl::usm::alloc::device);
     }
+
     auto update(pr::ndarray<Float, 2>& centroids,
                 pr::ndarray<Float, 2>& distance_block,
                 pr::ndarray<Float, 2>& closest_distances,
@@ -104,13 +105,19 @@ public:
                 distance_block,
                 closest_distances,
                 deps);
+
         auto count_event =
             count_clusters(queue_, labels, cluster_count_, counters_, { assign_event });
+        auto count_reduce_request = comm_.allreduce(counters_.flatten(queue_), { count_event });
+
         auto objective_function_event =
             kernels_fp<Float>::compute_objective_function(queue_,
                                                           closest_distances,
                                                           objective_function,
                                                           { assign_event });
+        Float objective_function_value = objective_function.to_host(queue_).get_data()[0];
+        auto objective_function_request = comm_.allreduce(objective_function_value);
+
         auto reset_event = partial_centroids_.fill(queue_, 0.0);
         auto centroids_event =
             kernels_fp<Float>::partial_reduce_centroids(queue_,
@@ -120,6 +127,10 @@ public:
                                                         part_count_,
                                                         partial_centroids_,
                                                         { reset_event, count_event });
+
+        // Counters are needed in the `merge_reduce_centroids` function,
+        // we wait until cross-rank reduction is finished
+        count_reduce_request.wait();
         centroids_event =
             kernels_fp<Float>::merge_reduce_centroids(queue_,
                                                       counters_,
@@ -128,52 +139,33 @@ public:
                                                       centroids,
                                                       { count_event, centroids_event });
 
-        {
-            // TODO: Replace with events
-            queue_.wait_and_throw();
-
-            comm_.allreduce(centroids.flatten(queue_));
-            comm_.allreduce(counters_.flatten(queue_));
-        }
-
-        auto divide_event = queue_.submit([&](sycl::handler& cgh) {
-            const auto range =
-                bk::make_range_2d(centroids.get_dimension(0), centroids.get_dimension(1));
-
-            const std::int64_t n = centroids.get_dimension(1);
-            Float* centroids_ptr = centroids.get_mutable_data();
-            const std::int32_t* counters_ptr = counters_.get_data();
-
-            cgh.parallel_for(range, [=](sycl::id<2> id) {
-                const std::int64_t i = id[0];
-                const std::int64_t j = id[1];
-                if (counters_ptr[i] > 0) {
-                    centroids_ptr[i * n + j] /= counters_ptr[i];
-                }
-            });
-        });
+        auto centroids_reduce_request =
+            comm_.allreduce(centroids.flatten(queue_), { centroids_event });
 
         count_empty_clusters(queue_,
                              cluster_count_,
                              counters_,
                              empty_cluster_count_,
-                             { count_event, divide_event });
-
-        std::int64_t candidate_count = empty_cluster_count_.to_host(queue_).get_data()[0];
-        // std::cerr << "candidate_count = " << candidate_count << std::endl;
+                             { count_event });
+        const std::int64_t candidate_count = empty_cluster_count_.to_host(queue_).get_data()[0];
 
         sycl::event find_candidates_event;
         if (candidate_count > 0) {
-            std::cerr << "candidate_count > 0" << std::endl;
-
             find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
                                                                        closest_distances,
                                                                        candidate_count,
                                                                        candidate_indices_,
                                                                        candidate_distances_);
+            if (comm_.is_distributed()) {
+                comm_.gather();
+            }
         }
-        Float objective_function_value = objective_function.to_host(queue_).get_data()[0];
-        bk::event_vector candidate_events;
+
+        // Centroids and objective function are needed in the `fill_empty_clusters`,
+        // we wait until cross-rank reduction is finished
+        centroids_reduce_request.wait();
+        objective_function_request.wait();
+
         if (candidate_count > 0) {
             auto [updated_objective_function_value, copy_events] =
                 kernels_fp<Float>::fill_empty_clusters(queue_,
@@ -194,6 +186,35 @@ public:
 
 private:
     void reduce_centroids() {}
+
+    void reduce_distributed_candidates(std::int64_t candidate_count) {
+        ONEDAL_ASSERT(candidate_count);
+        ONEDAL_ASSERT(candidate_distances_.get_count() >= candidate_count);
+        ONEDAL_ASSERT(candidate_indices_.get_count() >= candidate_count);
+
+        const auto local_candidate_distances =
+            array<Float>::wrap(queue_, candidate_distances_.get_data(), candidate_count);
+        const auto local_candidate_indices =
+            array<std::int32_t>::wrap(queue_, candidate_indices_.get_data(), candidate_count);
+
+        const auto all_candidate_distances =
+            array<Float>::empty(queue_, candidate_count * comm_.get_rank_count());
+        const auto all_candidate_indices =
+            array<std::int32_t>::empty(queue_, candidate_count * comm_.get_rank_count());
+
+        auto distances_request = comm_.gather(all_candidate_distances, local_candidate_distances);
+        auto indices_request = comm_.gather(all_candidate_indices, local_candidate_indices);
+
+        distances_request.wait();
+        indices_request.wait();
+        if (comm_.is_root()) {
+            auto find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
+                                                                            all_candidate_distances,
+                                                                            candidate_count,
+                                                                            candidate_indices_,
+                                                                            candidate_distances_);
+        }
+    }
 
     sycl::queue queue_;
     dal::backend::spmd_communicator comm_;

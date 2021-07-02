@@ -242,7 +242,19 @@ inline std::vector<T> gather(const dal::detail::spmd_communicator& comm, const T
 
 // TODO: Support other reduction operations, now only SUM available
 template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
-inline void allreduce(const dal::detail::spmd_communicator& comm, const dal::array<T>& ary) {
+inline spmd_request allreduce(const dal::detail::spmd_communicator& comm, T& scalar) {
+    return comm.allreduce(reinterpret_cast<const byte_t*>(&scalar),
+                          reinterpret_cast<byte_t*>(&scalar),
+                          sizeof(T),
+                          dal::detail::make_data_type<T>(),
+                          spmd_reduce_op::sum);
+}
+
+// TODO: Support other reduction operations, now only SUM available
+template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+inline spmd_request allreduce(const dal::detail::spmd_communicator& comm,
+                              const dal::array<T>& ary) {
+    ONEDAL_ASSERT(ary.get_count() > 0);
     ONEDAL_ASSERT(ary.has_mutable_data());
 
 #ifdef ONEDAL_ENABLE_ASSERT
@@ -275,7 +287,7 @@ inline void allreduce(const dal::detail::spmd_communicator& comm, const dal::arr
                                  spmd_reduce_op::sum);
     });
 
-    request.wait();
+    return request;
 }
 
 } // namespace v1

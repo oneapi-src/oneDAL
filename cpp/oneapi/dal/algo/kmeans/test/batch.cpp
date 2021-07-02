@@ -69,27 +69,17 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
 }
 */
 
+TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans on gold data", "[kmeans][batch]", kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->checks_on_gold_data();
+}
+
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans empty clusters test",
                      "[kmeans][batch]",
                      kmeans_types) {
-    // proper relocation order for multiple empty clusters
     SKIP_IF(this->not_float64_friendly());
-
-    using Float = std::tuple_element_t<0, TestType>;
-    Float data[] = { -10, -9.5, -9, -8.5, -8, -1, 1, 9, 9.5, 10 };
-    const auto x = homogen_table::wrap(data, 10, 1);
-
-    Float initial_centroids[] = { -10, -10, -10 };
-    const auto c_init = homogen_table::wrap(initial_centroids, 3, 1);
-
-    Float final_centroids[] = { -1.65, 10, 9.5 };
-    const auto c_final = homogen_table::wrap(final_centroids, 3, 1);
-
-    Float labels[] = { 0, 0, 0, 0, 0, 0, 0, 2, 2, 1 };
-    const auto y = homogen_table::wrap(labels, 10, 1);
-
-    this->exact_checks(x, c_init, c_final, y, 3, 1, 0.0);
+    this->check_empty_clusters();
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,

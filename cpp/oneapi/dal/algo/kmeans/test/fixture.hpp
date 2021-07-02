@@ -176,6 +176,22 @@ public:
         }
     }
 
+    void check_empty_clusters() {
+        float_t data[] = { -10, -9.5, -9, -8.5, -8, -1, 1, 9, 9.5, 10 };
+        const auto x = homogen_table::wrap(data, 10, 1);
+
+        float_t initial_centroids[] = { -10, -10, -10 };
+        const auto c_init = homogen_table::wrap(initial_centroids, 3, 1);
+
+        float_t final_centroids[] = { -1.65, 10, 9.5 };
+        const auto c_final = homogen_table::wrap(final_centroids, 3, 1);
+
+        float_t labels[] = { 0, 0, 0, 0, 0, 0, 0, 2, 2, 1 };
+        const auto y = homogen_table::wrap(labels, 10, 1);
+
+        this->exact_checks(x, c_init, c_final, y, 3, 1, 0.0);
+    }
+
     void dbi_deterministic_checks(const table& data,
                                   std::int64_t cluster_count,
                                   std::int64_t max_iteration_count,
