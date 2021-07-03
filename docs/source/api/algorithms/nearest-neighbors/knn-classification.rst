@@ -42,6 +42,10 @@ Enum classes
 ------------
 .. onedal_enumclass:: oneapi::dal::knn::voting_mode
 
+Result options
+--------------
+.. onedal_class:: oneapi::dal::knn::result_options::result_option_id_t
+
 Descriptor
 ----------
 .. onedal_class:: oneapi::dal::knn::descriptor
