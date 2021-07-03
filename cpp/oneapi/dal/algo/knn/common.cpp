@@ -22,7 +22,7 @@ namespace oneapi::dal::knn {
 
 namespace detail {
 
-result_option_id_t get_labels_id() {
+result_option_id_t get_responses_id() {
     return result_option_id_t::get_result_id_by_index(0);
 }
 
@@ -116,7 +116,7 @@ void descriptor_base<Task>::set_result_options_impl(
     if (!bool(value)) {
         throw domain_error(msg::empty_set_of_result_options());
     }
-    else if (std::is_same_v<Task, task::search> && bool(value | result_options::labels)) {
+    else if (std::is_same_v<Task, task::search> && bool(value | result_options::responses)) {
         throw domain_error(msg::invalid_set_of_result_options_to_search());
     }
     impl_->result_options = value;

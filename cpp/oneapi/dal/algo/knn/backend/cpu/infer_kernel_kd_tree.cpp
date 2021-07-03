@@ -46,11 +46,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
-    auto arr_labels = array<Float>{};
+    auto arr_responses = array<Float>{};
     auto arr_indices = array<std::int64_t>{};
     auto arr_distance = array<Float>{};
 
-    auto daal_labels = daal::data_management::NumericTablePtr();
+    auto daal_responses = daal::data_management::NumericTablePtr();
     auto daal_indices = daal::data_management::NumericTablePtr();
     auto daal_distance = daal::data_management::NumericTablePtr();
 
@@ -65,10 +65,10 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     const auto daal_voting_mode = convert_to_daal_kdtree_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
 
-    if (desc.get_result_options() & result_options::labels) {
+    if (desc.get_result_options() & result_options::responses) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            arr_labels.reset(1 * row_count);
-            daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+            arr_responses.reset(1 * row_count);
+            daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
         }
     }
     else {
@@ -95,17 +95,17 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         ctx,
         daal_data.get(),
         dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
-        daal_labels.get(),
+        daal_responses.get(),
         daal_indices.get(),
         daal_distance.get(),
         &daal_parameter));
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
-    if (desc.get_result_options() & result_options::labels) {
+    if (desc.get_result_options() & result_options::responses) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            result = result.set_labels(
-                dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+            result = result.set_responses(
+                dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
         }
     }
 
@@ -115,7 +115,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
                                         .build());
     }
 
-    if (desc.get_result_options() & result_options::indices) {
+    if (desc.get_result_options() & result_options::distances) {
         result = result.set_distances(dal::detail::homogen_table_builder{}
                                           .reset(arr_distance, row_count, neighbor_count)
                                           .build());

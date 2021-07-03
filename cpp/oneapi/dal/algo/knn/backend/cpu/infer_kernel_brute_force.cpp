@@ -58,18 +58,18 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     daal_parameter.nClasses = original_daal_parameter.nClasses;
     daal_parameter.k = original_daal_parameter.k;
 
-    auto arr_labels = array<Float>{};
+    auto arr_responses = array<Float>{};
     auto arr_indices = array<std::int64_t>{};
-    auto arr_distance = array<Float>{};
+    auto arr_distances = array<Float>{};
 
-    auto daal_labels = daal::data_management::NumericTablePtr();
+    auto daal_responses = daal::data_management::NumericTablePtr();
     auto daal_indices = daal::data_management::NumericTablePtr();
-    auto daal_distance = daal::data_management::NumericTablePtr();
+    auto daal_distances = daal::data_management::NumericTablePtr();
 
-    if (desc.get_result_options() & result_options::labels) {
+    if (desc.get_result_options() & result_options::responses) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            arr_labels.reset(1 * row_count);
-            daal_labels = interop::convert_to_daal_homogen_table(arr_labels, row_count, 1);
+            arr_responses.reset(1 * row_count);
+            daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
         }
     }
     else {
@@ -85,9 +85,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
 
     if (desc.get_result_options() & result_options::distances) {
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
-        arr_distance.reset(neighbor_count * row_count);
-        daal_distance =
-            interop::convert_to_daal_homogen_table(arr_distance, row_count, neighbor_count);
+        arr_distances.reset(neighbor_count * row_count);
+        daal_distances =
+            interop::convert_to_daal_homogen_table(arr_distances, row_count, neighbor_count);
     }
 
     auto distance_impl = detail::get_distance_impl(desc);
@@ -105,17 +105,17 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         ctx,
         daal_data.get(),
         dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
-        daal_labels.get(),
+        daal_responses.get(),
         daal_indices.get(),
-        daal_distance.get(),
+        daal_distances.get(),
         &daal_parameter));
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
-    if (desc.get_result_options() & result_options::labels) {
+    if (desc.get_result_options() & result_options::responses) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            result = result.set_labels(
-                dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+            result = result.set_responses(
+                dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
         }
     }
 
@@ -125,9 +125,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
                                         .build());
     }
 
-    if (desc.get_result_options() & result_options::indices) {
+    if (desc.get_result_options() & result_options::distances) {
         result = result.set_distances(dal::detail::homogen_table_builder{}
-                                          .reset(arr_distance, row_count, neighbor_count)
+                                          .reset(arr_distances, row_count, neighbor_count)
                                           .build());
     }
     return result;

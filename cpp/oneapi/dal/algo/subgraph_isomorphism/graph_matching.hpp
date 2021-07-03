@@ -24,7 +24,7 @@
 namespace oneapi::dal::preview::detail {
 
 template <typename Descriptor, typename Graph>
-struct graph_matching_ops<Descriptor, Graph, subgraph_isomorphism::detail::tag>
+struct graph_matching_ops<Descriptor, Graph, subgraph_isomorphism::detail::descriptor_tag>
         : subgraph_isomorphism::detail::graph_matching_ops<Descriptor, Graph> {};
 
 } // namespace oneapi::dal::preview::detail

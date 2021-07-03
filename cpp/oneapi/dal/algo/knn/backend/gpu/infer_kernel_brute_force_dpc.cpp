@@ -51,13 +51,13 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
-    auto arr_labels = array<Float>{};
+    auto arr_responses = array<Float>{};
     auto arr_indices = array<std::int64_t>{};
     auto arr_distance = array<Float>{};
 
     const auto daal_data = interop::convert_to_daal_table(queue, data);
 
-    auto daal_labels = daal::data_management::NumericTablePtr();
+    auto daal_responses = daal::data_management::NumericTablePtr();
     auto daal_indices = daal::data_management::NumericTablePtr();
     auto daal_distance = daal::data_management::NumericTablePtr();
 
@@ -67,10 +67,10 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
 
-    if (desc.get_result_options() & result_options::labels) {
+    if (desc.get_result_options() & result_options::responses) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            arr_labels = array<Float>::empty(queue, 1 * row_count, sycl::usm::alloc::device);
-            daal_labels = interop::convert_to_daal_table(queue, arr_labels, row_count, 1);
+            arr_responses = array<Float>::empty(queue, 1 * row_count, sycl::usm::alloc::device);
+            daal_responses = interop::convert_to_daal_table(queue, arr_responses, row_count, 1);
         }
     }
     else {
@@ -105,17 +105,17 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
         dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
-        daal_labels.get(),
+        daal_responses.get(),
         daal_indices.get(),
         daal_distance.get(),
         &daal_parameter));
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
-    if (desc.get_result_options() & result_options::labels) {
+    if (desc.get_result_options() & result_options::responses) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            result = result.set_labels(
-                dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+            result = result.set_responses(
+                dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
         }
     }
 

@@ -90,9 +90,9 @@ namespace detail {
 
 /// Alias for :expr`result_options::result_option_id_t`
 using result_option_id_t = result_options::result_option_id_t;
-ONEDAL_EXPORT result_option_id_t get_labels_id();
 ONEDAL_EXPORT result_option_id_t get_indices_id();
 ONEDAL_EXPORT result_option_id_t get_distances_id();
+ONEDAL_EXPORT result_option_id_t get_responses_id();
 
 } // namespace detail
 
@@ -100,12 +100,12 @@ ONEDAL_EXPORT result_option_id_t get_distances_id();
 /// what should algorithm return
 namespace result_options {
 
-const inline result_option_id_t labels = detail::get_labels_id();
 const inline result_option_id_t indices = detail::get_indices_id();
 const inline result_option_id_t distances = detail::get_distances_id();
+const inline result_option_id_t responses = detail::get_responses_id();
 
 template <typename Task>
-const inline result_option_id_t default_result_options = labels;
+const inline result_option_id_t default_result_options = responses;
 
 template <>
 const inline result_option_id_t default_result_options<task::search> = indices | distances;
