@@ -98,17 +98,15 @@ using v1::data_type;
 using v1::range;
 
 class result_option_id {
-    static constexpr std::int64_t mask_size = 128;
-
     using this_t = result_option_id;
-    using bitset_t = std::bitset<mask_size>;
+    using bitset_t = std::uint64_t;
 
 public:
     result_option_id() = default;
     result_option_id(const bitset_t& mask) : mask_{ mask } {}
 
     operator bool() const {
-        return mask_.any();
+        return mask_ > 0ul;
     }
 
     const bitset_t& get_mask() const {

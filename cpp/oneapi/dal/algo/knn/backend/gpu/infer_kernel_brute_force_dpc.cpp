@@ -45,6 +45,15 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
                                            const descriptor_t<Task>& desc,
                                            const table& data,
                                            const model<Task>& m) {
+    auto distance_impl = detail::get_distance_impl(desc);
+    if (!distance_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
+    }
+    else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski ||
+             distance_impl->get_degree() != 2.0) {
+        throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
+    }
+
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -78,6 +87,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
 
     if (desc.get_result_options() & result_options::indices) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
         arr_indices =
             array<std::int64_t>::empty(queue, neighbor_count * row_count, sycl::usm::alloc::device);
@@ -86,20 +96,12 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
     }
 
     if (desc.get_result_options() & result_options::distances) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
         arr_distance =
             array<Float>::empty(queue, neighbor_count * row_count, sycl::usm::alloc::device);
         daal_distance =
             interop::convert_to_daal_table(queue, arr_distance, row_count, neighbor_count);
-    }
-
-    auto distance_impl = detail::get_distance_impl(desc);
-    if (!distance_impl) {
-        throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
-    }
-    else if (distance_impl->get_daal_distance_type() != detail::v1::daal_distance_t::minkowski ||
-             distance_impl->get_degree() != 2.0) {
-        throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
     }
 
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(

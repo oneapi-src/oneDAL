@@ -76,6 +76,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     }
 
     if (desc.get_result_options() & result_options::indices) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
         arr_indices.reset(neighbor_count * row_count);
         daal_indices =
@@ -83,6 +84,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     }
 
     if (desc.get_result_options() & result_options::distances) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
         arr_distance.reset(neighbor_count * row_count);
         daal_distance =

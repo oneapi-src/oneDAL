@@ -43,6 +43,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
                                            const detail::descriptor_base<Task> &desc,
                                            const table &data,
                                            const model<Task> &m) {
+    auto distance_impl = detail::get_distance_impl(desc);
+    if (!distance_impl) {
+        throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
+    }
+
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
@@ -77,6 +82,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     }
 
     if (desc.get_result_options() & result_options::indices) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
         arr_indices.reset(neighbor_count * row_count);
         daal_indices =
@@ -84,15 +90,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     }
 
     if (desc.get_result_options() & result_options::distances) {
+        dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
         arr_distances.reset(neighbor_count * row_count);
         daal_distances =
             interop::convert_to_daal_homogen_table(arr_distances, row_count, neighbor_count);
-    }
-
-    auto distance_impl = detail::get_distance_impl(desc);
-    if (!distance_impl) {
-        throw internal_error{ dal::detail::error_messages::unknown_distance_type() };
     }
 
     daal_parameter.pairwiseDistance = distance_impl->get_daal_distance_type();
