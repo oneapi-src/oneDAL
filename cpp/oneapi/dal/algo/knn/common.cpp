@@ -90,6 +90,7 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::search>;
 
 } // namespace v1
 } // namespace detail
@@ -105,6 +106,7 @@ template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
 
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::search>;
 
 } // namespace v1
 } // namespace oneapi::dal::knn

@@ -105,22 +105,11 @@ services::Status Result::checkImpl(size_t nFeatures, const daal::algorithms::Par
 
     size_t nClasses = 0;
     NumericTablePtr alphaTable;
+    const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+    if (algPar)
     {
-        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if (algPar)
-        {
-            nClasses   = algPar->nClasses;
-            alphaTable = algPar->alpha;
-        }
-    }
-    {
-        const multinomial_naive_bayes::interface1::Parameter * algPar =
-            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if (algPar)
-        {
-            nClasses   = algPar->nClasses;
-            alphaTable = algPar->alpha;
-        }
+        nClasses   = algPar->nClasses;
+        alphaTable = algPar->alpha;
     }
 
     s |= checkNumericTable(resModel->getLogP().get(), logPStr(), 0, 0, 1, nClasses);

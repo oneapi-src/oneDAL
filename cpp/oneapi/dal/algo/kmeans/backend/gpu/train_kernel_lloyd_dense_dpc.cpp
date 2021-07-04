@@ -135,7 +135,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         auto arr_centroids = pr::ndarray<Float, 2>::empty(queue,
                                                           { cluster_count, column_count },
                                                           sycl::usm::alloc::device);
-        auto arr_labels =
+        auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto arr_objective_function =
             pr::ndarray<Float, 1>::empty(queue, 1, sycl::usm::alloc::device);
@@ -158,7 +158,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                arr_distance_block,
                                arr_closest_distances,
                                arr_objective_function,
-                               arr_labels,
+                               arr_responses,
                                { centroids_event });
             centroids_event = update_clusters_event;
             if (accuracy_threshold > 0 &&
@@ -174,7 +174,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                 arr_data,
                 arr_centroids,
                 block_size_in_rows,
-                arr_labels,
+                arr_responses,
                 arr_distance_block,
                 arr_closest_distances,
                 { centroids_event });
@@ -186,7 +186,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         model.set_centroids(
             dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
         return train_result<task::clustering>()
-            .set_labels(dal::homogen_table::wrap(arr_labels.flatten(queue), row_count, 1))
+            .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
             .set_iteration_count(iter)
             .set_objective_function_value(arr_objective_function.to_host(queue).get_data()[0])
             .set_model(model);

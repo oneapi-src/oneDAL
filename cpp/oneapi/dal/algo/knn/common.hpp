@@ -39,12 +39,14 @@ namespace v1 {
 /// Tag-type that parameterizes entities used for solving
 /// :capterm:`classification problem <classification>`.
 struct classification {};
+struct search {};
 
 /// Alias tag-type for classification task.
 using by_default = classification;
 } // namespace v1
 
 using v1::classification;
+using v1::search;
 using v1::by_default;
 
 } // namespace task
@@ -86,13 +88,21 @@ constexpr bool is_valid_method_v =
     dal::detail::is_one_of_v<Method, method::kd_tree, method::brute_force>;
 
 template <typename Task>
-constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
+constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification, task::search>;
 
 template <typename Distance>
 constexpr bool is_valid_distance_v =
     dal::detail::is_tag_one_of_v<Distance,
                                  minkowski_distance::detail::descriptor_tag,
-                                 chebyshev_distance::detail::descriptor_tag>;
+                                 chebyshev_distance::detail::descriptor_tag,
+                                 cosine_distance::detail::descriptor_tag>;
+
+template <typename T>
+using enable_if_search_t = std::enable_if_t<std::is_same_v<std::decay_t<T>, task::search>>;
+
+template <typename T>
+using enable_if_classification_t =
+    std::enable_if_t<std::is_same_v<std::decay_t<T>, task::classification>>;
 
 template <typename T>
 using enable_if_brute_force_t =
@@ -140,6 +150,8 @@ using v1::is_valid_float_v;
 using v1::is_valid_method_v;
 using v1::is_valid_task_v;
 using v1::is_valid_distance_v;
+using v1::enable_if_search_t;
+using v1::enable_if_classification_t;
 using v1::enable_if_brute_force_t;
 
 } // namespace detail
@@ -193,6 +205,15 @@ public:
                         const distance_t& distance)
             : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
         set_class_count(class_count);
+        set_neighbor_count(neighbor_count);
+    }
+
+    /// Creates a new instance of the class with the given :literal:`neighbor_count`
+    /// and :literal:`distance` property values.
+    /// Used with :expr:`task::search` only.
+    template <typename T = Task, typename = detail::enable_if_search_t<T>>
+    explicit descriptor(std::int64_t neighbor_count, const distance_t& distance)
+            : base_t(std::make_shared<detail::distance<distance_t>>(distance)) {
         set_neighbor_count(neighbor_count);
     }
 

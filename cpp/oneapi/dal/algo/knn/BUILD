@@ -11,6 +11,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal:core",
         "@onedal//cpp/oneapi/dal/algo:minkowski_distance",
         "@onedal//cpp/oneapi/dal/algo:chebyshev_distance",
+        "@onedal//cpp/oneapi/dal/algo:cosine_distance",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/k_nearest_neighbors:kernel",
