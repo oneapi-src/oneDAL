@@ -126,9 +126,9 @@ public:
         return *this;
     }
 
-    /// Set of results that will 
+    /// Set of results that will
     /// be computed and returned
-    /// @remark default = table{}
+    /// @remark default = default_result_options<Task>
     const result_options::result_option_id_t& get_result_options() const;
 
     auto& set_result_options(const result_options::result_option_id_t& value) {
