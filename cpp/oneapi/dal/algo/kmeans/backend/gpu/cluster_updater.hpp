@@ -70,6 +70,8 @@ public:
             pr::ndarray<Float, 1>::empty(queue_, cluster_count_, sycl::usm::alloc::device);
         empty_cluster_count_ =
             pr::ndarray<std::int32_t, 1>::empty(queue_, 1, sycl::usm::alloc::device);
+        empty_cluster_indices_ =
+            pr::ndarray<std::int32_t, 1>::empty(queue_, cluster_count_, sycl::usm::alloc::device);
     }
 
     auto update(pr::ndarray<Float, 2>& centroids,
@@ -142,78 +144,212 @@ public:
         auto centroids_reduce_request =
             comm_.allreduce(centroids.flatten(queue_), { centroids_event });
 
-        count_empty_clusters(queue_,
-                             cluster_count_,
-                             counters_,
-                             empty_cluster_count_,
-                             { count_event });
-        const std::int64_t candidate_count = empty_cluster_count_.to_host(queue_).get_data()[0];
+        const std::int64_t empty_cluster_count =
+            count_empty_clusters(queue_, cluster_count_, counters_, { count_event });
 
-        sycl::event find_candidates_event;
-        if (candidate_count > 0) {
-            find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
-                                                                       closest_distances,
-                                                                       candidate_count,
-                                                                       candidate_indices_,
-                                                                       candidate_distances_);
-            if (comm_.is_distributed()) {
-                comm_.gather();
-            }
-        }
-
-        // Centroids and objective function are needed in the `fill_empty_clusters`,
+        // Centroids and objective function are needed in the `handle_empty_clusters`,
         // we wait until cross-rank reduction is finished
         centroids_reduce_request.wait();
         objective_function_request.wait();
 
-        if (candidate_count > 0) {
-            auto [updated_objective_function_value, copy_events] =
-                kernels_fp<Float>::fill_empty_clusters(queue_,
-                                                       data_,
-                                                       counters_,
-                                                       candidate_indices_,
-                                                       candidate_distances_,
-                                                       centroids,
-                                                       labels,
-                                                       objective_function_value,
-                                                       { find_candidates_event });
-            sycl::event::wait(copy_events);
-            objective_function_value = updated_objective_function_value;
+        if (empty_cluster_count > 0) {
+            objective_function_value +=
+                handle_empty_clusters(empty_cluster_count, centroids, closest_distances);
         }
 
         return std::make_tuple(objective_function_value, centroids_event);
     }
 
 private:
-    void reduce_centroids() {}
+    Float handle_empty_clusters(std::int64_t candidate_count,
+                                pr::ndarray<Float, 2>& centroids,
+                                pr::ndarray<Float, 2>& closest_distances,
+                                const bk::event_vector& deps = {}) {
+        auto find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
+                                                                        candidate_count,
+                                                                        closest_distances,
+                                                                        candidate_indices_,
+                                                                        candidate_distances_,
+                                                                        deps);
 
-    void reduce_distributed_candidates(std::int64_t candidate_count) {
-        ONEDAL_ASSERT(candidate_count);
-        ONEDAL_ASSERT(candidate_distances_.get_count() >= candidate_count);
-        ONEDAL_ASSERT(candidate_indices_.get_count() >= candidate_count);
+        auto fill_indices_event = fill_empty_cluster_indices(candidate_count,
+                                                             counters_,
+                                                             empty_cluster_indices_,
+                                                             { find_candidates_event });
 
-        const auto local_candidate_distances =
-            array<Float>::wrap(queue_, candidate_distances_.get_data(), candidate_count);
-        const auto local_candidate_indices =
-            array<std::int32_t>::wrap(queue_, candidate_indices_.get_data(), candidate_count);
+        if (comm_.is_distributed()) {
+            auto candidates = try_allocate_candidates(candidate_count);
 
-        const auto all_candidate_distances =
-            array<Float>::empty(queue_, candidate_count * comm_.get_rank_count());
-        const auto all_candidate_indices =
-            array<std::int32_t>::empty(queue_, candidate_count * comm_.get_rank_count());
+            auto gather_event = kernels_fp<Float>::gather_candidates(queue_,
+                                                                     candidate_count,
+                                                                     data_,
+                                                                     candidate_indices_,
+                                                                     candidates,
+                                                                     { fill_indices_event });
+            reduce_candidates(candidate_count, candidate_distances_, candidates, { gather_event });
 
-        auto distances_request = comm_.gather(all_candidate_distances, local_candidate_distances);
-        auto indices_request = comm_.gather(all_candidate_indices, local_candidate_indices);
-
-        distances_request.wait();
-        indices_request.wait();
-        if (comm_.is_root()) {
-            auto find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
-                                                                            all_candidate_distances,
-                                                                            candidate_count,
-                                                                            candidate_indices_,
-                                                                            candidate_distances_);
+            auto scatter_event = kernels_fp<Float>::scatter_candidates(queue_,
+                                                                       empty_cluster_indices_,
+                                                                       candidates,
+                                                                       centroids);
+            scatter_event.wait_and_throw();
         }
+        else {
+            auto fill_event = kernels_fp<Float>::fill_empty_clusters(queue_,
+                                                                     data_,
+                                                                     candidate_indices_,
+                                                                     empty_cluster_indices_,
+                                                                     centroids,
+                                                                     { fill_indices_event });
+            fill_event.wait_and_throw();
+        }
+
+        return correct_objective_function(candidate_distances_);
+    }
+
+    void reduce_candidates(std::int64_t candidate_count,
+                           pr::ndarray<Float, 1>& distances,
+                           pr::ndarray<Float, 2>& candidates,
+                           const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(candidate_count > 0);
+        ONEDAL_ASSERT(column_count_ > 0);
+        ONEDAL_ASSERT(candidates.get_dimension(0) == candidate_count);
+        ONEDAL_ASSERT(candidates.get_dimension(1) == column_count_);
+        ONEDAL_ASSERT(distances.get_dimension(0) == candidate_count);
+
+        const std::int64_t all_candidate_count =
+            dal::detail::check_mul_overflow(comm_.get_rank_count(), candidate_count);
+
+        // Allgather candidates
+        const auto host_candidates = candidates.to_host(queue_);
+        auto host_all_candidates = pr::ndarray<Float, 3>::empty({ comm_.get_rank_count(), //
+                                                                  candidate_count,
+                                                                  column_count_ });
+        auto candidates_request = comm_.allgather(host_candidates.flatten(), //
+                                                  host_all_candidates.flatten());
+
+        // Allgather distances
+        const auto host_distances = distances.to_host(queue_);
+        auto host_all_distances = pr::ndarray<Float, 2>::empty({ comm_.get_rank_count(), //
+                                                                 candidate_count });
+        auto distances_request = comm_.allgather(host_distances.flatten(), //
+                                                 host_all_distances.flatten());
+
+        auto host_all_indices = bk::make_unique_host<std::int32_t>(all_candidate_count);
+        {
+            std::int32_t* host_all_indices_ptr = host_all_indices.get();
+            for (std::int64_t i = 0; i < all_candidate_count; i++) {
+                host_all_indices_ptr[i] = i;
+            }
+        }
+
+        candidates_request.wait();
+        distances_request.wait();
+
+        {
+            ONEDAL_ASSERT(candidate_count <= all_candidate_count);
+            std::int32_t* host_all_indices_ptr = host_all_indices.get();
+            const Float* host_all_distances_ptr = host_all_distances.get_data();
+
+            std::partial_sort(host_all_indices_ptr,
+                              host_all_indices_ptr + candidate_count,
+                              host_all_indices_ptr + all_candidate_count,
+                              [=](std::int32_t i, std::int32_t j) {
+                                  return host_all_distances_ptr[i] > host_all_distances_ptr[j];
+                              });
+
+            if (candidate_count >= 2) {
+                ONEDAL_ASSERT(host_all_distances_ptr[host_all_indices_ptr[0]] >
+                              host_all_distances_ptr[host_all_indices_ptr[1]]);
+            }
+        }
+
+        {
+            const Float* host_all_candidates_ptr = host_all_candidates.get_data();
+            const Float* host_all_distances_ptr = host_all_distances.get_data();
+            const std::int32_t* host_all_indices_ptr = host_all_indices.get();
+            Float* host_distances_ptr = host_distances.get_mutable_data();
+            Float* host_candidates_ptr = host_candidates.get_mutable_data();
+
+            for (std::int64_t i = 0; i < candidate_count; i++) {
+                const std::int64_t src_i = host_all_indices_ptr[i];
+                host_distances_ptr[i] = host_all_distances_ptr[src_i];
+                bk::copy(host_candidates_ptr + i * column_count_,
+                         host_all_candidates_ptr + src_i * column_count_,
+                         column_count_);
+            }
+        }
+
+        {
+            const Float* host_distances_ptr = host_distances.get_data();
+            const Float* host_candidates_ptr = host_candidates.get_data();
+            auto distances_assign_event =
+                distances.assign(queue_, host_distances_ptr, candidate_count);
+            auto candidates_assign_event =
+                candidates.assign(queue_, host_candidates_ptr, candidate_count * column_count_);
+            sycl::event::wait({ distances_assign_event, candidates_assign_event });
+        }
+    }
+
+    sycl::event fill_empty_cluster_indices(std::int64_t candidate_count,
+                                           const pr::ndarray<std::int32_t, 1>& counters,
+                                           pr::ndarray<std::int32_t, 1>& empty_cluster_indices,
+                                           const bk::event_vector& deps) {
+        ONEDAL_ASSERT(cluster_count_ > 0);
+        ONEDAL_ASSERT(candidate_count > 0);
+        ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count_);
+        ONEDAL_ASSERT(empty_cluster_indices.get_dimension(0) == candidate_count);
+
+        const auto host_counters = counters.to_host(queue_);
+        const auto host_empty_cluster_indices = bk::make_unique_host<std::int32_t>(candidate_count);
+
+        const std::int32_t* host_counters_ptr = host_counters.get_data();
+        std::int32_t* host_empty_cluster_indices_ptr = host_empty_cluster_indices.get();
+
+        std::int64_t counter = 0;
+        for (std::int64_t i = 0; i < cluster_count_; i++) {
+            if (host_counters_ptr[i] > 0) {
+                continue;
+            }
+
+            host_empty_cluster_indices_ptr[counter] = i;
+            counter++;
+        }
+
+        // We have to wait as `host_counters` will be deleted once we leave scope of the function
+        empty_cluster_indices.assign(queue_, host_empty_cluster_indices_ptr, candidate_count)
+            .wait_and_throw();
+
+        return sycl::event{};
+    }
+
+    Float correct_objective_function(const pr::ndarray<Float, 1>& candidate_distances,
+                                     const bk::event_vector& deps = {}) {
+        ONEDAL_ASSERT(candidate_distances.get_dimension(0) > 0);
+
+        const std::int64_t candidate_count = candidate_distances.get_dimension(0);
+        const auto host_candidate_distances = candidate_distances.to_host(queue_);
+        const Float* host_candidate_distances_ptr = host_candidate_distances.get_data();
+
+        Float objective_function_correction = 0;
+        for (std::int64_t i = 0; i < candidate_count; i++) {
+            objective_function_correction -= host_candidate_distances_ptr[i];
+        }
+
+        return objective_function_correction;
+    }
+
+    pr::ndarray<Float, 2>& try_allocate_candidates(std::int64_t candidate_count) {
+        ONEDAL_ASSERT(candidate_count > 0);
+        ONEDAL_ASSERT(cluster_count_ > 0);
+        ONEDAL_ASSERT(column_count_ > 0);
+
+        if (candidates_.get_dimension(0) < candidate_count) {
+            candidates_ = pr::ndarray<Float, 2>::empty(queue_,
+                                                       { candidate_count, column_count_ },
+                                                       sycl::usm::alloc::device);
+        }
+        return candidates_;
     }
 
     sycl::queue queue_;
@@ -230,5 +366,7 @@ private:
     pr::ndarray<std::int32_t, 1> candidate_indices_;
     pr::ndarray<Float, 1> candidate_distances_;
     pr::ndarray<std::int32_t, 1> empty_cluster_count_;
+    pr::ndarray<std::int32_t, 1> empty_cluster_indices_;
+    pr::ndarray<Float, 2> candidates_;
 };
 } // namespace oneapi::dal::kmeans::backend

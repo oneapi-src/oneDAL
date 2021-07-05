@@ -107,6 +107,19 @@ public:
                                           const data_type& dtype,
                                           const spmd_reduce_op& op) = 0;
 #endif
+
+    virtual spmd_request_iface* allgather(const byte_t* send_buf,
+                                          std::int64_t send_count,
+                                          byte_t* recv_buf,
+                                          std::int64_t recv_count) = 0;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    virtual spmd_request_iface* allgather(sycl::queue& q,
+                                          const byte_t* send_buf,
+                                          std::int64_t send_count,
+                                          byte_t* recv_buf,
+                                          std::int64_t recv_count) = 0;
+#endif
 };
 
 class spmd_request : public base {
@@ -253,6 +266,27 @@ public:
         // TODO: Handle null impl_
         return dal::detail::make_private<spmd_request>(
             impl_->allreduce(q, send_buf, recv_buf, count, dtype, op));
+    }
+#endif
+
+    spmd_request allgather(const byte_t* send_buf,
+                           std::int64_t send_count,
+                           byte_t* recv_buf,
+                           std::int64_t recv_count) const {
+        // TODO: Handle null impl_
+        return dal::detail::make_private<spmd_request>(
+            impl_->allgather(send_buf, send_count, recv_buf, recv_count));
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    spmd_request allgather(sycl::queue& q,
+                           const byte_t* send_buf,
+                           std::int64_t send_count,
+                           byte_t* recv_buf,
+                           std::int64_t recv_count) const {
+        // TODO: Handle null impl_
+        return dal::detail::make_private<spmd_request>(
+            impl_->allgather(q, send_buf, send_count, recv_buf, recv_count));
     }
 #endif
 

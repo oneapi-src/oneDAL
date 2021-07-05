@@ -30,6 +30,7 @@ namespace pr = dal::backend::primitives;
 template <typename Float>
 struct kernels_fp {
     static std::int64_t get_block_size_in_rows(sycl::queue& queue, std::int64_t column_count);
+
     static std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
                                                              std::int64_t column_count,
                                                              std::int64_t cluster_count);
@@ -38,6 +39,7 @@ struct kernels_fp {
                               pr::ndview<Float, 2>& selection,
                               pr::ndview<std::int32_t, 2>& indices,
                               const bk::event_vector& deps = {});
+
     template <typename Metric>
     static sycl::event assign_clusters(sycl::queue& queue,
                                        const pr::ndview<Float, 2>& data,
@@ -47,28 +49,29 @@ struct kernels_fp {
                                        pr::ndview<Float, 2>& distances,
                                        pr::ndview<Float, 2>& closest_distances,
                                        const bk::event_vector& deps = {});
-    static std::tuple<Float, bk::event_vector> fill_empty_clusters(
+
+    static sycl::event fill_empty_clusters(
         sycl::queue& queue,
         const pr::ndview<Float, 2>& data,
-        const pr::ndarray<std::int32_t, 1>& counters,
         const pr::ndarray<std::int32_t, 1>& candidate_indices,
-        const pr::ndarray<Float, 1>& candidate_distances,
+        const pr::ndarray<std::int32_t, 1>& empty_cluster_indices,
         pr::ndview<Float, 2>& centroids,
-        pr::ndarray<std::int32_t, 2>& labels,
-        Float objective_function,
         const bk::event_vector& deps = {});
+
     static sycl::event find_candidates(sycl::queue& queue,
-                                       pr::ndview<Float, 2>& closest_distances,
                                        std::int64_t candidate_count,
+                                       const pr::ndview<Float, 2>& closest_distances,
                                        pr::ndview<std::int32_t, 1>& candidate_indices,
                                        pr::ndview<Float, 1>& candidate_distances,
                                        const bk::event_vector& deps = {});
+
     static sycl::event merge_reduce_centroids(sycl::queue& queue,
                                               const pr::ndview<std::int32_t, 1>& counters,
                                               const pr::ndview<Float, 2>& partial_centroids,
                                               std::int64_t part_count,
                                               pr::ndview<Float, 2>& centroids,
                                               const bk::event_vector& deps = {});
+
     static sycl::event partial_reduce_centroids(sycl::queue& queue,
                                                 const pr::ndview<Float, 2>& data,
                                                 const pr::ndview<std::int32_t, 2>& labels,
@@ -76,10 +79,24 @@ struct kernels_fp {
                                                 std::int64_t part_count,
                                                 pr::ndview<Float, 2>& partial_centroids,
                                                 const bk::event_vector& deps = {});
+
     static sycl::event compute_objective_function(sycl::queue& queue,
                                                   const pr::ndview<Float, 2>& closest_distances,
                                                   pr::ndview<Float, 1>& objective_function,
                                                   const bk::event_vector& deps = {});
+
+    static sycl::event gather_candidates(sycl::queue& queue,
+                                         std::int64_t candidate_count,
+                                         const pr::ndview<Float, 2>& data,
+                                         const pr::ndview<std::int32_t, 1>& candidate_indices,
+                                         pr::ndview<Float, 2>& candidates,
+                                         const bk::event_vector& deps = {});
+
+    static sycl::event scatter_candidates(sycl::queue& queue,
+                                          const pr::ndview<std::int32_t, 1>& empty_cluster_indices,
+                                          const pr::ndview<Float, 2>& candidates,
+                                          pr::ndview<Float, 2>& centroids,
+                                          const bk::event_vector& deps = {});
 };
 #endif
 

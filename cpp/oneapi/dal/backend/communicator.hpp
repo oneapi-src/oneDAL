@@ -62,6 +62,7 @@ public:
                       std::int64_t recv_count,
                       std::int64_t root) override {
         ONEDAL_ASSERT(root == root_rank);
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
         return nullptr;
     }
 
@@ -73,6 +74,7 @@ public:
                       std::int64_t recv_count,
                       std::int64_t root) override {
         ONEDAL_ASSERT(root == root_rank);
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
         return nullptr;
     }
 
@@ -85,6 +87,7 @@ public:
                        const std::int64_t* displs,
                        std::int64_t root) override {
         ONEDAL_ASSERT(root == root_rank);
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
         return nullptr;
     }
 
@@ -97,6 +100,7 @@ public:
                        const std::int64_t* displs,
                        std::int64_t root) override {
         ONEDAL_ASSERT(root == root_rank);
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
         return nullptr;
     }
 #endif
@@ -106,6 +110,7 @@ public:
                          std::int64_t count,
                          const data_type& dtype,
                          const dal::detail::spmd_reduce_op& op) override {
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
         return nullptr;
     }
 
@@ -116,6 +121,26 @@ public:
                          std::int64_t count,
                          const data_type& dtype,
                          const dal::detail::spmd_reduce_op& op) override {
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
+        return nullptr;
+    }
+#endif
+
+    request_t* allgather(const byte_t* send_buf,
+                         std::int64_t send_count,
+                         byte_t* recv_buf,
+                         std::int64_t recv_count) override {
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
+        return nullptr;
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    request_t* allgather(sycl::queue& q,
+                         const byte_t* send_buf,
+                         std::int64_t send_count,
+                         byte_t* recv_buf,
+                         std::int64_t recv_count) override {
+        // TODO: Copy from `send_buf` to `recv_buf` if `recv_buf != send_buf`
         return nullptr;
     }
 #endif
@@ -241,10 +266,24 @@ public:
     template <typename T>
     spmd_request allreduce(const array<T>& ary, const event_vector& deps) const {
         // TODO: Pass `deps` to allreduce free function
-        if (is_distributed_) {
-            sycl::event::wait_and_throw(deps);
-        }
+        sycl::event::wait_and_throw(deps);
         return spmd_request{ dal::detail::allreduce(comm_, ary) };
+    }
+#endif
+
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+    spmd_request allgather(const array<T>& send_ary, const array<T>& recv_ary) const {
+        return spmd_request{ dal::detail::allgather(comm_, send_ary, recv_ary) };
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+    spmd_request allgather(const array<T>& send_ary,
+                           const array<T>& recv_ary,
+                           const event_vector& deps) const {
+        // TODO: Pass `deps` to allreduce free function
+        sycl::event::wait_and_throw(deps);
+        return spmd_request{ dal::detail::allgather(comm_, send_ary, recv_ary) };
     }
 #endif
 

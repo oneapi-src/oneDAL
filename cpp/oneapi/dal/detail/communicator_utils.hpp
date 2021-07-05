@@ -290,6 +290,49 @@ inline spmd_request allreduce(const dal::detail::spmd_communicator& comm,
     return request;
 }
 
+template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+inline spmd_request allgather(const dal::detail::spmd_communicator& comm,
+                              const dal::array<T>& send_ary,
+                              const dal::array<T>& recv_ary) {
+    ONEDAL_ASSERT(send_ary.get_count() > 0);
+    ONEDAL_ASSERT(recv_ary.has_mutable_data());
+
+#ifdef ONEDAL_ENABLE_ASSERT
+    const auto counts = gather(comm, send_ary.get_count());
+    if (is_root_rank(comm)) {
+        ONEDAL_ASSERT(counts.size() > 0);
+        for (const auto& count : counts) {
+            ONEDAL_ASSERT(count == counts.front());
+        }
+    }
+
+    std::int64_t minimal_recv_allocation_count = send_ary.get_count();
+    allreduce(comm, minimal_recv_allocation_count);
+    ONEDAL_ASSERT(recv_ary.get_count() >= minimal_recv_allocation_count);
+#endif
+
+    spmd_request request;
+
+    // TODO: Check if `send_ary` and `recv_ary` are in the same context
+    __ONEDAL_IF_QUEUE__(send_ary.get_queue(), {
+        auto q = send_ary.get_queue().value();
+        request = comm.allgather(q,
+                                 reinterpret_cast<const byte_t*>(send_ary.get_data()),
+                                 send_ary.get_size(),
+                                 reinterpret_cast<byte_t*>(recv_ary.get_mutable_data()),
+                                 send_ary.get_size());
+    });
+
+    __ONEDAL_IF_NO_QUEUE__(send_ary.get_queue(), {
+        request = comm.allgather(reinterpret_cast<const byte_t*>(send_ary.get_data()),
+                                 send_ary.get_size(),
+                                 reinterpret_cast<byte_t*>(recv_ary.get_mutable_data()),
+                                 send_ary.get_size());
+    });
+
+    return request;
+}
+
 } // namespace v1
 
 using v1::is_root_rank;
@@ -298,5 +341,6 @@ using v1::if_root_rank_else;
 using v1::bcast;
 using v1::gather;
 using v1::allreduce;
+using v1::allgather;
 
 } // namespace oneapi::dal::detail

@@ -98,20 +98,24 @@ sycl::event count_clusters(sycl::queue& queue,
     });
 }
 
-sycl::event count_empty_clusters(sycl::queue& queue,
-                                 std::int64_t cluster_count,
-                                 pr::ndview<std::int32_t, 1>& counters,
-                                 pr::ndarray<std::int32_t, 1>& empty_cluster_count,
-                                 const bk::event_vector& deps) {
+std::int64_t count_empty_clusters(sycl::queue& queue,
+                                  std::int64_t cluster_count,
+                                  pr::ndview<std::int32_t, 1>& counters,
+                                  const bk::event_vector& deps) {
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
-    ONEDAL_ASSERT(empty_cluster_count.get_dimension(0) == 1);
     ONEDAL_ASSERT(cluster_count <= dal::detail::limits<std::int32_t>::max());
     ONEDAL_ASSERT(cluster_count > 0);
+
+    auto empty_cluster_count =
+        pr::ndarray<std::int32_t, 1>::empty(queue, { 1 }, sycl::usm::alloc::device);
+
     const std::int32_t* counter_ptr = counters.get_data();
-    const auto sg_size_to_set = get_recommended_sg_size2(queue);
     std::int32_t* value_ptr = empty_cluster_count.get_mutable_data();
-    return queue.submit([&](sycl::handler& cgh) {
+
+    auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
+
+        const auto sg_size_to_set = get_recommended_sg_size2(queue);
         cgh.parallel_for<merge_counters>(
             bk::make_multiple_nd_range_2d({ sg_size_to_set, 1 }, { sg_size_to_set, 1 }),
             [=](sycl::nd_item<2> item) {
@@ -131,6 +135,8 @@ sycl::event count_empty_clusters(sycl::queue& queue,
                 }
             });
     });
+
+    return empty_cluster_count.to_host(queue, { event }).get_data()[0];
 }
 #endif
 
