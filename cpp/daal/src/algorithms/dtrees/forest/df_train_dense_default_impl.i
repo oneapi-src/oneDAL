@@ -670,13 +670,7 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, c
         _aConstFeatureIdx.reset(maxFeatures * 2); // first maxFeatures elements are used for saving indices of constant features,
                                                   // the other part are used for saving levels of this features
         DAAL_CHECK_MALLOC(_aConstFeatureIdx.get());
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < maxFeatures; ++i)
-        {
-            _aConstFeatureIdx[i]               = 0;
-            _aConstFeatureIdx[maxFeatures + i] = 0;
-        }
+        services::internal::service_memset_seq<IndexType, cpu>(_aConstFeatureIdx.get(), IndexType(0), maxFeatures * 2);
     }
     else
         _aFeatureIdx.reset(_nFeaturesPerNode * 2); // _nFeaturesPerNode elements are used by algorithm, others are used internally by generator
