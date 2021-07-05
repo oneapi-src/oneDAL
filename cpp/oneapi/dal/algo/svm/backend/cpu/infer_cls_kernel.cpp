@@ -61,7 +61,7 @@ static infer_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
                                                       const std::uint64_t class_count) {
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t row_count = data.get_row_count();
-    auto arr_label = array<Float>::empty(row_count * 1);
+    auto arr_response = array<Float>::empty(row_count * 1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const model_interop* interop_model = dal::detail::get_impl(trained_model).get_interop();
@@ -79,7 +79,7 @@ static infer_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
     daal_multiclass_parameter.prediction =
         daal::services::staticPointerCast<daal_classifier::prediction::Batch>(svm_batch);
 
-    const auto daal_label = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
+    const auto daal_response = interop::convert_to_daal_homogen_table(arr_response, row_count, 1);
 
     auto arr_decision_function = array<Float>::empty(row_count * model_count);
     const auto daal_decision_function =
@@ -92,7 +92,7 @@ static infer_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
                                                                    daal_data.get(),
                                                                    daal_model.get(),
                                                                    daal_svm_model.get(),
-                                                                   daal_label.get(),
+                                                                   daal_response.get(),
                                                                    daal_decision_function.get(),
                                                                    &daal_multiclass_parameter));
 
@@ -100,7 +100,8 @@ static infer_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
         .set_decision_function(dal::detail::homogen_table_builder{}
                                    .reset(arr_decision_function, row_count, model_count)
                                    .build())
-        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+        .set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
 }
 
 template <typename Float, typename Task>
@@ -110,7 +111,7 @@ static infer_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
                                                   const table& data,
                                                   const daal_svm::Parameter daal_parameter) {
     const std::int64_t row_count = data.get_row_count();
-    auto arr_label = array<Float>::empty(row_count * 1);
+    auto arr_response = array<Float>::empty(row_count * 1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_support_vectors =
@@ -136,16 +137,17 @@ static infer_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
                                                                     *daal_decision_function,
                                                                     &daal_parameter));
 
-    auto label_data = arr_label.get_mutable_data();
+    auto response_data = arr_response.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
-        label_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
-                                                      : trained_model.get_first_class_label();
+        response_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_response()
+                                                         : trained_model.get_first_class_response();
     }
 
     return infer_result<Task>()
         .set_decision_function(
             dal::detail::homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build())
-        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+        .set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
 }
 
 template <typename Float, typename Task>

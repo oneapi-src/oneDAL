@@ -79,7 +79,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                     *daal_decision_function,
                                                                     &daal_parameter));
 
-    return infer_result<Task>().set_labels(
+    return infer_result<Task>().set_responses(
         dal::detail::homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build());
 }
 
