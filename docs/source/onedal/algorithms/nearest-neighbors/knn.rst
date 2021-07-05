@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright 2020-2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -17,42 +17,127 @@
 .. highlight:: cpp
 .. default-domain:: cpp
 
-.. _brute_force_method_begin:
+.. _alg_knn:
+
+===================================================
+k-Nearest Neighbors Classification and Search(k-NN)
+===================================================
+
+.. include:: ../../../includes/nearest-neighbors/knn-introduction.rst
+
+------------------------
+Mathematical formulation
+------------------------
+
+.. _knn_t_math:
+
+Training
+--------
+.. tabs::
+
+  .. group-tab:: Classification
+
+   Let :math:`X = \{ x_1, \ldots, x_n \}` be the training set of
+   :math:`p`-dimensional feature vectors, let :math:`Y = \{ y_1, \ldots, y_n \}` be
+   the set of class labels, where :math:`y_i \in \{ 0, \ldots, c-1 \}`, :math:`1
+   \leq i \leq n`. Given :math:`X`, :math:`Y` and the number of nearest neighbors
+   :math:`k`, the problem is to build a model that allows distance computation
+   between the feature vectors in training and inference sets at the inference
+   stage.
+
+  .. group-tab:: Search
+
+   Let :math:`X = \{ x_1, \ldots, x_n \}` be the training set of
+   :math:`p`-dimensional feature vectors. Given :math:`X` and the number of nearest neighbors
+   :math:`k`, the problem is to build a model that allows distance computation
+   between the feature vectors in training and inference sets at the inference
+   stage.
+
+.. _knn_t_math_brute_force:
+
+Training method: *brute-force*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The training operation produces the model that stores all the feature vectors
 from the initial training set :math:`X`.
 
-.. _brute_force_method_end:
+.. _knn_t_math_kd_tree:
 
-.. _kdtree_method_begin:
+Training method: *k-d tree*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The training operation builds a :math:`k`-:math:`d` tree that partitions the
 training set :math:`X` (for more details, see :txtref:`k-d Tree <kd_tree>`).
 
-.. _kdtree_method_end:
+.. _knn_i_math:
 
-.. _inference_one_step_begin:
+Inference
+---------
+.. tabs::
 
-#. Identify the set :math:`N(x_j') \subseteq X` of the :math:`k` feature vectors
-   in the training set that are nearest to :math:`x_j'` with respect to the
-   Euclidean distance, which is chosen by default. The distance can be customized
-   with the predefined set of pairwise distances: :ref:`Minkowski distances
-   <alg_minkowski_distance>` with fractional degree (including Euclidean distance),
-   :ref:`Chebyshev distance <alg_chebyshev_distance>` and
-   :ref:`Cosine distance <alg_cosine_distance>`.
+  .. group-tab:: Classification
 
-.. _inference_one_step_end:
+   Let :math:`X' = \{ x_1', \ldots, x_m' \}` be the inference set of
+   :math:`p`-dimensional feature vectors. Given :math:`X'`, the model produced at
+   the training stage and the number of nearest neighbors :math:`k`, the problem is
+   to predict the label :math:`y_j'` for each :math:`x_j'`, :math:`1 \leq j \leq
+   m`, by performing the following steps:
 
-.. _inference_brute_force_begin:
+   #. Identify the set :math:`N(x_j') \subseteq X` of :math:`k` feature vectors
+      in the training set that are nearest to :math:`x_j'` with respect to the
+      Euclidean distance, which is chosen by default. The distance can be customized
+      with the predefined set of pairwise distances: :ref:`Minkowski distances
+      <alg_minkowski_distance>` with fractional degree (including Euclidean distance),
+      :ref:`Chebyshev distance <alg_chebyshev_distance>`, and
+      :ref:`Cosine distance <alg_cosine_distance>`.
 
+   #. Estimate the conditional probability for the :math:`l`-th class as the
+      fraction of vectors in :math:`N(x_j')` whose labels :math:`y_j` are equal to
+      :math:`l`:
+
+      .. math::
+         :label: p_predict
+
+         P_{jl} = \frac{1}{| N(x_j') |} \Big| \big\{ x_r \in N(x_j') : y_r = l
+         \big\} \Big|, \quad 1 \leq j \leq m, \; 0 \leq l < c.
+
+
+   #. Predict the class that has the highest probability for the feature vector
+      :math:`x_j'`:
+
+      .. math::
+         :label: y_predict
+
+         y_j' = \mathrm{arg}\max_{0 \leq l < c} P_{jl},
+         \quad 1 \leq j \leq m.
+
+  .. group-tab:: Search
+
+   Let :math:`X' = \{ x_1', \ldots, x_m' \}` be the inference set of
+   :math:`p`-dimensional feature vectors. Given :math:`X'`, the model produced at
+   the training stage, and the number of nearest neighbors :math:`k`:
+
+   #. Identify the set :math:`N(x_j') \subseteq X` of :math:`k` feature vectors
+      in the training set that are nearest to :math:`x_j'` with respect to the
+      Euclidean distance, which is chosen by default. The distance can be customized
+      with the predefined set of pairwise distances: :ref:`Minkowski distances
+      <alg_minkowski_distance>` with fractional degree (including Euclidean distance),
+      :ref:`Chebyshev distance <alg_chebyshev_distance>`, and
+      :ref:`Cosine distance <alg_cosine_distance>`.
+
+.. _knn_i_math_brute_force:
+
+Inference method: *brute-force*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Brute-force inference method determines the set :math:`N(x_j')` of the
 nearest feature vectors by iterating over all the pairs :math:`(x_j', x_i)` in
 the implementation defined order, :math:`1 \leq i \leq n`, :math:`1 \leq j \leq
 m`.
-.. _inference_brute_force_end:
 
-.. _inference_kdtree_begin:
+.. _knn_i_math_kd_tree:
 
+Inference method: *k-d tree*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 K-d tree inference method traverses the :math:`k`-:math:`d` tree to find feature
 vectors associated with a leaf node that are closest to :math:`x_j'`, :math:`1
 \leq j \leq m`. The set :math:`\tilde{n}(x_j')` of the currently-known nearest
@@ -63,4 +148,20 @@ distance between :math:`x_j'` and the most distant feature vector from
 :math:`\tilde{n}(x_j')`. Once tree traversal is finished, :math:`\tilde{n}(x_j')
 \equiv N(x_j')`.
 
-.. _inference_kdtree_end:
+---------------------
+Programming Interface
+---------------------
+
+Refer to :ref:`API Reference: k-Nearest Neighbors Classification and Search <api_knn>`.
+
+-------------
+Usage example
+-------------
+
+.. include:: ../../../includes/nearest-neighbors/knn-usage-examples.rst
+
+--------
+Examples
+--------
+
+.. include:: ../../../includes/nearest-neighbors/knn-examples.rst

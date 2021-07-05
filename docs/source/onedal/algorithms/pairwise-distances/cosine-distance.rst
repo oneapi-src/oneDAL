@@ -49,7 +49,7 @@ where :math:`\quad 1 \leq i \leq n, \quad 1 \leq j \leq m`.
 Computation method: *dense*
 ---------------------------
 The method defines Cosine distance metric, which is used in other algorithms
-for the distance computation. There are no separate computation mode to compute distance
+for the distance computation. There is no separate computation mode to compute the distance
 manually.
 
 ---------------------
