@@ -61,11 +61,11 @@ public:
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
-        ar(data, labels);
+        ar(data, responses);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
-        ar(data, labels);
+        ar(data, responses);
     }
 
     table data;
