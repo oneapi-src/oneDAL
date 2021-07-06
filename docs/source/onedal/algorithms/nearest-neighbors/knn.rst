@@ -142,7 +142,7 @@ Inference method: *k-d tree*
 K-d tree inference method traverses the :math:`k`-:math:`d` tree to find feature
 vectors associated with a leaf node that are closest to :math:`x_j'`, :math:`1
 \leq j \leq m`. The set :math:`\tilde{n}(x_j')` of the currently known nearest
-:math:`k`-th neighbors is progressively updated during tree traversal. The
+:math:`k`-th neighbors is progressively updated during the tree traversal. The
 search algorithm limits exploration of the nodes for which the distance between
 the :math:`x_j'` and respective part of the feature space is not less than the
 distance between :math:`x_j'` and the most distant feature vector from
