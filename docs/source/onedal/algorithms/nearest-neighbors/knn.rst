@@ -40,7 +40,7 @@ Training
    Let :math:`X = \{ x_1, \ldots, x_n \}` be the training set of
    :math:`p`-dimensional feature vectors, let :math:`Y = \{ y_1, \ldots, y_n \}` be
    the set of class labels, where :math:`y_i \in \{ 0, \ldots, C-1 \}`, :math:`1
-   \leq i \leq n`, where :math:`C` is the number of classes. Given :math:`X`,
+   \leq i \leq n`, and :math:`C` is the number of classes. Given :math:`X`,
    :math:`Y`, and the number of nearest neighbors :math:`k`,
    the problem is to build a model that allows distance computation
    between the feature vectors in training and inference sets at the inference
@@ -100,7 +100,7 @@ Inference
          :label: p_predict
 
          P_{jl} = \frac{1}{| N(x_j') |} \Big| \big\{ x_r \in N(x_j') : y_r = l
-         \big\} \Big|, \quad 1 \leq j \leq m, \; 0 \leq l < c.
+         \big\} \Big|, \quad 1 \leq j \leq m, \; 0 \leq l < C.
 
 
    #. Predict the class that has the highest probability for the feature vector
@@ -109,7 +109,7 @@ Inference
       .. math::
          :label: y_predict
 
-         y_j' = \mathrm{arg}\max_{0 \leq l < c} P_{jl},
+         y_j' = \mathrm{arg}\max_{0 \leq l < C} P_{jl},
          \quad 1 \leq j \leq m.
 
   .. group-tab:: Search
@@ -142,7 +142,7 @@ Inference method: *k-d tree*
 K-d tree inference method traverses the :math:`k`-:math:`d` tree to find feature
 vectors associated with a leaf node that are closest to :math:`x_j'`, :math:`1
 \leq j \leq m`. The set :math:`\tilde{n}(x_j')` of the currently known nearest
-:math:`k`-th neighbors is progressively updated during the tree traversal. The
+:math:`k` neighbors is progressively updated during the tree traversal. The
 search algorithm limits exploration of the nodes for which the distance between
 the :math:`x_j'` and respective part of the feature space is not less than the
 distance between :math:`x_j'` and the most distant feature vector from
