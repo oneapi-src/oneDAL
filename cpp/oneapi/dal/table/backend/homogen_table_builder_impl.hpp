@@ -160,7 +160,7 @@ public:
             return detail::memcpy(*this_q, data_.get_mutable_data(), data, data_.get_size());
         }
 
-        return detail::memcpy_usm2host(*this_q, data_.get_mutable_data(), data, data_.get_size());
+        return detail::memcpy_usm2host(input_q, data_.get_mutable_data(), data, data_.get_size());
     }
 #endif
 
