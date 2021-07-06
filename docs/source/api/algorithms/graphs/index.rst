@@ -23,4 +23,4 @@ This chapter describes programming interfaces of the graph algorithms implemente
 .. toctree::
    :titlesonly:
 
-   graph-algorihm.rst
+   graph-algorithm.rst
