@@ -86,7 +86,7 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
                                                        *daal_parameter.engine.get()));
 
     const auto model_impl =
-        std::make_shared<brute_force_model_impl<task::classification>>(data, labels);
+        std::make_shared<brute_force_model_impl<task::classification>>(data, responses);
     return train_result<task::classification>().set_model(
         dal::detail::make_private<model<task::classification>>(model_impl));
 }
