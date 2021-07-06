@@ -16,48 +16,49 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
+#include <daal/include/algorithms/multi_class_classifier/multi_class_classifier_model.h>
 
-#include <daal/include/algorithms/svm/svm_model.h>
+#include "oneapi/dal/backend/serialization.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/backend/interop/archive.hpp"
 
 namespace oneapi::dal::svm::backend {
 
-namespace interop = dal::backend::interop;
-namespace daal_svm = daal::algorithms::svm;
+namespace daal_multiclass = daal::algorithms::multi_class_classifier;
 
-struct daal_model_builder : public daal::algorithms::svm::Model {
-    daal_model_builder() = default;
-    virtual ~daal_model_builder() {}
-
-    auto& set_support_vectors(daal::data_management::NumericTablePtr support_vectors) {
-        _SV = support_vectors;
-        return *this;
-    }
-
-    auto& set_coeffs(daal::data_management::NumericTablePtr coeffs) {
-        _SVCoeff = coeffs;
-        return *this;
-    }
-
-    auto& set_bias(double bias) {
-        _bias = bias;
-        return *this;
-    }
+class model_interop : public base {
+public:
+    virtual ~model_interop() = default;
 };
 
-template <typename Task, typename Float>
-inline auto convert_from_daal_model(daal_svm::Model& model) {
-    auto table_support_vectors =
-        interop::convert_from_daal_homogen_table<Float>(model.getSupportVectors());
-    auto table_classification_coeffs =
-        interop::convert_from_daal_homogen_table<Float>(model.getClassificationCoefficients());
-    const double bias = model.getBias();
+template <typename DaalModel>
+class model_interop_impl : public model_interop,
+                           public ONEDAL_SERIALIZABLE(svm_model_interop_impl_multiclass_id) {
+    using model_ptr_t = daal::services::SharedPtr<DaalModel>;
 
-    return dal::svm::model<Task>()
-        .set_support_vectors(table_support_vectors)
-        .set_coeffs(table_classification_coeffs)
-        .set_bias(bias);
-}
+public:
+    model_interop_impl() = default;
+
+    model_interop_impl(const model_ptr_t& model) : daal_model_(model) {}
+
+    const model_ptr_t get_model() const {
+        return daal_model_;
+    }
+
+    void serialize(dal::detail::output_archive& ar) const override {
+        dal::backend::interop::daal_output_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(const_cast<model_ptr_t&>(daal_model_));
+    }
+
+    void deserialize(dal::detail::input_archive& ar) override {
+        dal::backend::interop::daal_input_data_archive daal_ar(ar);
+        daal_ar.setSharedPtrObj(daal_model_);
+    }
+
+private:
+    model_ptr_t daal_model_;
+};
+
+using model_interop_cls = model_interop_impl<daal_multiclass::Model>;
 
 } // namespace oneapi::dal::svm::backend

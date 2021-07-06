@@ -23,4 +23,51 @@ test_queue_provider& test_queue_provider::get_instance() {
     return provider;
 }
 
+static bool check_if_env_knob_is_enabled(const char* env_var) {
+    const char* var = std::getenv(env_var);
+    if (!var) {
+        return false;
+    }
+
+    try {
+        return std::stoi(var) > 0;
+    }
+    catch (std::invalid_argument&) {
+        return false;
+    }
+}
+
+[[maybe_unused]] static bool check_if_env_overrides_fp64_settings() {
+    return check_if_env_knob_is_enabled("OverrideDefaultFP64Settings");
+}
+
+[[maybe_unused]] static bool check_if_env_forces_dp_emulation() {
+    return check_if_env_knob_is_enabled("IGC_EnableDPEmulation") ||
+           check_if_env_knob_is_enabled("IGC_ForceDPEmulation");
+}
+
+bool device_test_policy::has_native_float64() const {
+#ifdef ONEDAL_DISABLE_FP64_TESTS
+    return false;
+#else
+    const auto device = queue_.get_device();
+    const auto fp_config = device.get_info<sycl::info::device::double_fp_config>();
+    const bool float64_support = !fp_config.empty();
+    const bool emulated = check_if_env_overrides_fp64_settings() && //
+                          check_if_env_forces_dp_emulation();
+    return float64_support && !emulated;
+#endif
+}
+
+INSTANTIATE_TYPE_MAP(float)
+INSTANTIATE_TYPE_MAP(double)
+INSTANTIATE_TYPE_MAP(std::uint8_t)
+INSTANTIATE_TYPE_MAP(std::uint16_t)
+INSTANTIATE_TYPE_MAP(std::uint32_t)
+INSTANTIATE_TYPE_MAP(std::uint64_t)
+INSTANTIATE_TYPE_MAP(std::int8_t)
+INSTANTIATE_TYPE_MAP(std::int16_t)
+INSTANTIATE_TYPE_MAP(std::int32_t)
+INSTANTIATE_TYPE_MAP(std::int64_t)
+
 } // namespace oneapi::dal::test::engine

@@ -27,21 +27,23 @@ using namespace dal;
 int main(int argc, char **argv) {
     const auto filename = get_data_path("graph.csv");
 
+    const dal::preview::graph_csv_data_source ds(filename);
     using graph_t = preview::undirected_adjacency_vector_graph<>;
     auto graph = read<graph_t>(csv::data_source{ filename });
+    std::cout << "Number of vertices: " << dal::preview::get_vertex_count(my_graph) << std::endl;
+    std::cout << "Number of edges: " << dal::preview::get_edge_count(my_graph) << std::endl;
 
-    std::cout << "Number of vertices: " << preview::get_vertex_count(graph) << std::endl;
-    std::cout << "Number of edges: " << preview::get_edge_count(graph) << std::endl;
+    dal::preview::vertex_edge_size_type<graph_t> vertex_id = 0;
+    std::cout << "Degree of " << vertex_id << ": "
+              << dal::preview::get_vertex_degree(my_graph, vertex_id) << std::endl;
 
-    preview::vertex_type<graph_t> vertex_id = 0;
-    std::cout << "Degree of " << vertex_id << ": " << preview::get_vertex_degree(graph, vertex_id)
-              << std::endl;
-
-    for (preview::vertex_size_type<graph_t> i = 0; i < preview::get_vertex_count(graph); ++i) {
-        std::cout << "Neighbors of " << i << ": ";
-        const auto neigh = preview::get_vertex_neighbors(graph, i);
-        for (auto u = neigh.first; u != neigh.second; ++u) {
-            std::cout << *u << " ";
+    for (dal::preview::vertex_edge_size_type<graph_t> j = 0;
+         j < dal::preview::get_vertex_count(my_graph);
+         ++j) {
+        std::cout << "Neighbors of " << j << ": ";
+        const auto neigh = dal::preview::get_vertex_neighbors(my_graph, j);
+        for (auto i = neigh.first; i != neigh.second; ++i) {
+            std::cout << *i << " ";
         }
         std::cout << std::endl;
     }

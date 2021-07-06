@@ -39,8 +39,15 @@ struct train_ops_dispatcher<host_policy, Float, Method, Task> {
 
 INSTANTIATE(float, method::smo, task::classification)
 INSTANTIATE(float, method::thunder, task::classification)
+INSTANTIATE(float, method::thunder, task::nu_classification)
 INSTANTIATE(double, method::smo, task::classification)
 INSTANTIATE(double, method::thunder, task::classification)
+INSTANTIATE(double, method::thunder, task::nu_classification)
+
+INSTANTIATE(float, method::thunder, task::regression)
+INSTANTIATE(float, method::thunder, task::nu_regression)
+INSTANTIATE(double, method::thunder, task::regression)
+INSTANTIATE(double, method::thunder, task::nu_regression)
 
 } // namespace v1
 } // namespace oneapi::dal::svm::detail

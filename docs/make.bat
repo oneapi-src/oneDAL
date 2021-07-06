@@ -16,11 +16,17 @@ rem limitations under the License.
 rem ============================================================================
 
 if /I %1 == html goto :html
+if /I %1 == html-github goto :html-github
 if /I %1 == doxygen goto :doxygen
 if /I %1 == parse-doxygen goto :parse-doxygen
 if /I %1 == clean goto :clean
 
 :html
+python3 rst_examples.py
+sphinx-build -W --keep-going -w docbuild-log.txt -n -t use_intelname -b html source build
+goto :eof
+
+:html-github
 python3 rst_examples.py
 sphinx-build -W --keep-going -w docbuild-log.txt -n -b html source build
 goto :eof
@@ -33,6 +39,7 @@ goto :eof
 
 :parse-doxygen
 if not exist build mkdir build
+python -m dalapi.doxypy.cli doxygen/oneapi/doxygen/xml --compact > build/tree.yaml
 goto :eof
 
 :clean

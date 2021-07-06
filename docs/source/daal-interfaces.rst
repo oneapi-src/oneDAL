@@ -40,4 +40,4 @@ You can find examples on Github*:
 
 - `C++ <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source>`_ (CPU)
 - `Java* <https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples>`_ (not supported on GPU)
-- `Python* <https://github.com/IntelPython/daal4py/tree/master/examples>`_
+- `Python* <https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py>`_

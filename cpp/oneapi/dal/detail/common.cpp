@@ -21,20 +21,40 @@ namespace v1 {
 
 template <typename Data>
 void integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Data& second) {
-    Data op_result;
-    if (!is_safe_sum(first, second, op_result)) {
-        throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
-    }
+    v2::integer_overflow_ops<Data>{}.check_sum_overflow(first, second);
 }
 
 template <typename Data>
 void integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Data& second) {
-    Data op_result;
-    if (!is_safe_mul(first, second, op_result)) {
-        throw range_error(
-            dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
-    }
+    v2::integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
 }
+
+template <typename Data>
+bool integer_overflow_ops<Data>::is_safe_sum(const Data& first,
+                                             const Data& second,
+                                             Data& sum_result) {
+    return v2::integer_overflow_ops<Data>{}.is_safe_sum(first, second, sum_result);
+}
+
+template <typename Data>
+bool integer_overflow_ops<Data>::is_safe_mul(const Data& first,
+                                             const Data& second,
+                                             Data& mul_result) {
+    return v2::integer_overflow_ops<Data>{}.is_safe_mul(first, second, mul_result);
+}
+
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int8_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int16_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int32_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::int64_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint8_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint16_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint32_t>;
+template struct ONEDAL_EXPORT integer_overflow_ops<std::uint64_t>;
+
+} // namespace v1
+
+namespace v2 {
 
 template <typename Data>
 bool integer_overflow_ops<Data>::is_safe_sum(const Data& first,
@@ -59,6 +79,25 @@ bool integer_overflow_ops<Data>::is_safe_mul(const Data& first,
     return true;
 }
 
+template <typename Data>
+Data integer_overflow_ops<Data>::check_sum_overflow(const Data& first, const Data& second) {
+    Data op_result;
+    if (!is_safe_sum(first, second, op_result)) {
+        throw range_error(dal::detail::error_messages::overflow_found_in_sum_of_two_values());
+    }
+    return op_result;
+}
+
+template <typename Data>
+Data integer_overflow_ops<Data>::check_mul_overflow(const Data& first, const Data& second) {
+    Data op_result;
+    if (!is_safe_mul(first, second, op_result)) {
+        throw range_error(
+            dal::detail::error_messages::overflow_found_in_multiplication_of_two_values());
+    }
+    return op_result;
+}
+
 template struct ONEDAL_EXPORT integer_overflow_ops<std::int8_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::int16_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::int32_t>;
@@ -68,5 +107,10 @@ template struct ONEDAL_EXPORT integer_overflow_ops<std::uint16_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint32_t>;
 template struct ONEDAL_EXPORT integer_overflow_ops<std::uint64_t>;
 
-} // namespace v1
+#if defined(__APPLE__)
+template struct ONEDAL_EXPORT integer_overflow_ops<std::size_t>;
+#endif
+
+} // namespace v2
+
 } // namespace oneapi::dal::detail

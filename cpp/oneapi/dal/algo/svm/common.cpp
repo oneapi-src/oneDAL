@@ -15,10 +15,12 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/svm/common.hpp"
+#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
 #include "oneapi/dal/algo/svm/backend/kernel_function_impl.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
 namespace oneapi::dal::svm {
+
 namespace detail {
 namespace v1 {
 
@@ -34,16 +36,9 @@ public:
     double cache_size = 200.0;
     double tau = 1e-6;
     bool shrinking = true;
-};
-
-template <typename Task>
-class model_impl : public base {
-public:
-    table support_vectors;
-    table coeffs;
-    double bias;
-    double first_class_label;
-    double second_class_label;
+    std::int64_t class_count = 2;
+    double epsilon = 0.1;
+    double nu = 0.5;
 };
 
 template <typename Task>
@@ -131,11 +126,56 @@ void descriptor_base<Task>::set_kernel_impl(const detail::kernel_function_ptr& k
 }
 
 template <typename Task>
+void descriptor_base<Task>::set_class_count_impl(std::int64_t value) {
+    if (value <= 1) {
+        throw domain_error(dal::detail::error_messages::class_count_leq_one());
+    }
+    impl_->class_count = value;
+}
+
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_class_count_impl() const {
+    return impl_->class_count;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_epsilon_impl(double value) {
+    if (value < 0.0) {
+        throw domain_error(dal::detail::error_messages::epsilon_lt_zero());
+    }
+    impl_->epsilon = value;
+}
+
+template <typename Task>
+double descriptor_base<Task>::get_epsilon_impl() const {
+    return impl_->epsilon;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_nu_impl(double value) {
+    if (value <= 0.0) {
+        throw domain_error(dal::detail::error_messages::nu_leq_zero());
+    }
+    if (value > 1.0) {
+        throw domain_error(dal::detail::error_messages::nu_gt_one());
+    }
+    impl_->nu = value;
+}
+
+template <typename Task>
+double descriptor_base<Task>::get_nu_impl() const {
+    return impl_->nu;
+}
+
+template <typename Task>
 const detail::kernel_function_ptr& descriptor_base<Task>::get_kernel_impl() const {
     return impl_->kernel;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::nu_classification>;
+template class ONEDAL_EXPORT descriptor_base<task::regression>;
+template class ONEDAL_EXPORT descriptor_base<task::nu_regression>;
 
 } // namespace v1
 } // namespace detail
@@ -146,6 +186,9 @@ using detail::v1::model_impl;
 
 template <typename Task>
 model<Task>::model() : impl_(new model_impl<Task>{}) {}
+
+template <typename Task>
+model<Task>::model(const std::shared_ptr<model_impl<Task>>& impl) : impl_(impl) {}
 
 template <typename Task>
 const table& model<Task>::get_support_vectors() const {
@@ -163,18 +206,23 @@ double model<Task>::get_bias() const {
 }
 
 template <typename Task>
+const table& model<Task>::get_biases() const {
+    return impl_->biases;
+}
+
+template <typename Task>
 std::int64_t model<Task>::get_support_vector_count() const {
     return impl_->support_vectors.get_row_count();
 }
 
 template <typename Task>
-std::int64_t model<Task>::get_first_class_label() const {
-    return impl_->first_class_label;
+std::int64_t model<Task>::get_first_class_response() const {
+    return impl_->first_class_response;
 }
 
 template <typename Task>
-std::int64_t model<Task>::get_second_class_label() const {
-    return impl_->second_class_label;
+std::int64_t model<Task>::get_second_class_response() const {
+    return impl_->second_class_response;
 }
 
 template <typename Task>
@@ -193,16 +241,40 @@ void model<Task>::set_bias_impl(double value) {
 }
 
 template <typename Task>
-void model<Task>::set_first_class_label_impl(std::int64_t value) {
-    impl_->first_class_label = value;
+void model<Task>::set_biases_impl(const table& value) {
+    impl_->biases = value;
 }
 
 template <typename Task>
-void model<Task>::set_second_class_label_impl(std::int64_t value) {
-    impl_->second_class_label = value;
+void model<Task>::set_first_class_response_impl(std::int64_t value) {
+    impl_->first_class_response = value;
+}
+
+template <typename Task>
+void model<Task>::set_second_class_response_impl(std::int64_t value) {
+    impl_->second_class_response = value;
+}
+
+template <typename Task>
+void model<Task>::serialize(dal::detail::output_archive& ar) const {
+    dal::detail::serialize_polymorphic_shared(impl_, ar);
+}
+
+template <typename Task>
+void model<Task>::deserialize(dal::detail::input_archive& ar) {
+    dal::detail::deserialize_polymorphic_shared(impl_, ar);
 }
 
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::nu_classification>;
+template class ONEDAL_EXPORT model<task::regression>;
+template class ONEDAL_EXPORT model<task::nu_regression>;
+
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::regression>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::nu_classification>)
+ONEDAL_REGISTER_SERIALIZABLE(model_impl<task::nu_regression>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop_cls)
 
 } // namespace v1
 } // namespace oneapi::dal::svm

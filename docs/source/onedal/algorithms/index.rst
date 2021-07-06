@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. _dg_algorithms:
+
 Algorithms
 ==========
 
@@ -31,4 +33,5 @@ and regression algorithms, as well as association rules discovery.
    ensembles/index.rst   
    kernel-functions/index.rst
    nearest-neighbors/index.rst
+   pairwise-distances/index.rst
    svm/index.rst

@@ -37,7 +37,7 @@ using v1::infer_result_impl;
 namespace v1 {
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class infer_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -75,7 +75,7 @@ private:
 };
 
 /// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification` or :expr:`task::v1::regression`.
+///                be :expr:`task::classification` or :expr:`task::regression`.
 template <typename Task = task::by_default>
 class infer_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -88,10 +88,19 @@ public:
 
     /// The $n \\times 1$ table with the predicted labels
     /// @remark default = table{}
-    const table& get_labels() const;
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
 
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    /// The $n \\times 1$ table with the predicted responses
+    /// @remark default = table{}
+    const table& get_responses() const;
+
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
         return *this;
     }
 
@@ -108,7 +117,7 @@ public:
     }
 
 private:
-    void set_labels_impl(const table& value);
+    void set_responses_impl(const table& value);
     const table& get_probabilities_impl() const;
     void set_probabilities_impl(const table& value);
 

@@ -59,7 +59,7 @@ Refer to our [examples](#examples) and [documentation](#documentation) for more 
 
 ## Python API
 
-oneDAL has a Python API that is provided as a standalone Python library called [daal4py](https://github.com/IntelPython/daal4py).
+oneDAL has a Python API that is provided as a standalone Python library called [daal4py](https://github.com/intel/scikit-learn-intelex/tree/master/daal4py).
 
 The example below shows how daal4py can be used to calculate K-Means clusters:
 
@@ -78,63 +78,6 @@ centroids = init_alg.compute(data).centroids
 alg = d4p.kmeans(nClusters = 10, maxIterations = 50, fptype = "float",
                  accuracyThreshold = 0, assignFlag = False)
 result = alg.compute(data, centroids)
-```
-
-### Scikit-learn patching
-
-With a Python API provided by daal4py, you can create scikit-learn compatible estimators, transformers, or clusterers that are powered by oneDAL and are nearly as efficient as native programs.
-
-| *Speedup of oneDAL-powered scikit-learn over the original scikit-learn, 28 cores, 1 thread/core* |
-|:--:|
-| ![](docs/readme-charts/IDP%20scikit-learn%20accelearation%20compared%20with%20stock%20scikit-learn.png) |
-| *Technical details: FPType: float32; HW: Intel(R) Xeon(R) Platinum 8276L CPU @ 2.20GHz, 2 sockets, 28 cores per socket; SW: scikit-learn 0.22.2, Intel® DAAL (2019.5), Intel® Distribution Of Python (IDP) 3.7.4; Details available in the article https://medium.com/intel-analytics-software/accelerate-your-scikit-learn-applications-a06cacf44912* |
-
-daal4py have an API that matches scikit-learn API.
-This framework allows you to speed up your existing projects by changing one line of code.
-
-```python
-from daal4py.sklearn.svm import SVC
-from sklearn.datasets import load_digits
-
-digits = load_digits()
-X, y = digits.data, digits.target
-
-svm = SVC(kernel='rbf', gamma='scale', C = 0.5).fit(X, y)
-print(svm.score(X, y))
-```
-
-In addition, daal4py provides an option to replace some scikit-learn methods by oneDAL solvers, which makes it possible to get a performance gain **without any code changes**. This approach is the basis of Intel distribution for Python scikit-learn. You can patch the stock scikit-learn by using the following command-line flag:
-```bash
-python -m daal4py my_application.py
-```
-Patches can also be enabled programmatically:
-```python
-from sklearn.svm import SVC
-from sklearn.datasets import load_digits
-from time import time
-
-svm_sklearn = SVC(kernel="rbf", gamma="scale", C=0.5)
-
-digits = load_digits()
-X, y = digits.data, digits.target
-
-start = time()
-svm_sklearn = svm_sklearn.fit(X, y)
-end = time()
-print(end - start) # output: 0.141261...
-print(svm_sklearn.score(X, y)) # output: 0.9905397885364496
-
-from daal4py.sklearn import patch_sklearn
-patch_sklearn() # <-- apply patch
-from sklearn.svm import SVC
-
-svm_d4p = SVC(kernel="rbf", gamma="scale", C=0.5)
-
-start = time()
-svm_d4p = svm_d4p.fit(X, y)
-end = time()
-print(end - start) # output: 0.032536...
-print(svm_d4p.score(X, y)) # output: 0.9905397885364496
 ```
 
 ### Distributed multi-node mode
@@ -165,6 +108,53 @@ result = alg.compute(data, centroids)
 
 For more details browse [daal4py documentation](https://intelpython.github.io/daal4py/).
 
+## Scikit-learn patching
+
+You can speed up Scikit-learn using [Intel(R) Extension for Scikit-learn*](https://intel.github.io/scikit-learn-intelex/).
+
+Intel(R) Extension for Scikit-learn* speeds up scikit-learn beyond  by providing drop-in patching. Acceleration is achieved through the use of the Intel(R) oneAPI Data Analytics Library that allows for fast usage of the framework suited for Data Scientists or Machine Learning users.
+
+|   |
+|---|
+| ![](docs/readme-charts/scikit-learn-acceleration-2021.2.3.png) |
+| *Technical details: HW: c5.24xlarge AWS EC2 Instance using an Intel Xeon Platinum 8275CL with 2 sockets and 24 cores per socket; SW: scikit-learn version 0.24.2, scikit-learn-intelex version 2021.2.3, Python 3.8* |
+
+Intel(R) Extension for Scikit-learn* provides an option to replace some scikit-learn methods by oneDAL solvers, which makes it possible to get a performance gain **without any code changes**. You can patch the stock scikit-learn by using the following command-line flag:
+```bash
+python -m sklearnex my_application.py
+```
+Patches can also be enabled programmatically:
+```python
+from sklearn.svm import SVC
+from sklearn.datasets import load_digits
+from time import time
+
+svm_sklearn = SVC(kernel="rbf", gamma="scale", C=0.5)
+
+digits = load_digits()
+X, y = digits.data, digits.target
+
+start = time()
+svm_sklearn = svm_sklearn.fit(X, y)
+end = time()
+print(end - start) # output: 0.141261...
+print(svm_sklearn.score(X, y)) # output: 0.9905397885364496
+
+from sklearnex import patch_sklearn
+patch_sklearn() # <-- apply patch
+from sklearn.svm import SVC
+
+svm_sklearnex = SVC(kernel="rbf", gamma="scale", C=0.5)
+
+start = time()
+svm_sklearnex = svm_sklearnex.fit(X, y)
+end = time()
+print(end - start) # output: 0.032536...
+print(svm_sklearnex.score(X, y)) # output: 0.9905397885364496
+```
+
+For more details browse [Intel(R) Extension for Scikit-learn* documentation](https://intel.github.io/scikit-learn-intelex/).
+
 ## oneDAL Apache Spark MLlib samples
 
 <img align="right" style="display:inline;" height=300 width=550 src="docs/readme-charts/intel%20oneDAL%20Spark%20samples%20vs%20Apache%20Spark%20MLlib.png"></a>
@@ -192,13 +182,14 @@ Beside C++ and Python API, oneDAL also provides APIs for DPC++ and Java:
 - [oneAPI C++](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/cpp)
 - [oneAPI DPC++](https://github.com/oneapi-src/oneDAL/tree/master/examples/oneapi/dpc)
 - [Java](https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java)
-- [Python](https://github.com/IntelPython/daal4py/tree/master/examples)
+- [Python](https://github.com/intel/scikit-learn-intelex/tree/master/examples)
 
 ## Documentation
 - [System Requirements](https://software.intel.com/content/www/us/en/develop/articles/system-requirements-for-oneapi-data-analytics-library.html)
 - [Get Started Guide](http://oneapi-src.github.io/oneDAL/onedal/get-started.html#onedal-get-started)
 - [Developer Guide and Reference](http://oneapi-src.github.io/oneDAL/)
 - [daal4py documentation](https://intelpython.github.io/daal4py/)
+- [Intel(R) Extension for Scikit-learn* documentation](https://intel.github.io/scikit-learn-intelex/)
 - [Specification](https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html)
 - [Release Notes](https://software.intel.com/content/www/us/en/develop/articles/oneapi-dal-release-notes.html)
 - [Known Issues](https://oneapi-src.github.io/oneDAL/notes/known_issues.html)
@@ -247,8 +238,11 @@ In C++ APIs, technical preview features are located in `daal::preview` and `onea
 The preview features list:
 - Graph Analytics:
 	- Undirected graph without edge and vertex weights (`undirected_adjacency_vector_graph`), where vertex indices can only be of type int32
+  - Directed graph with and without edge weights (`directed_adjacency_vector_graph`), where vertex indices can only be of type int32, edge weights can be of type int32 or double
 	- Jaccard Similarity Coefficients for all pairs of vertices, a batch algorithm that processes the graph by blocks
   - Local and Global Triangle Counting
+  - Single Source Shortest Paths (SSSP)
+  - Subgraph isomorphism algorithm for induced and non-induced subgraphs in undirected graphs (integer vertex attributes are supported, edge attributes are not supported).
 
 ## oneDAL and Intel&reg; DAAL
 
@@ -258,11 +252,15 @@ This repository contains branches corresponding to both oneAPI and classical ver
 
 |Product|Latest release|Branch|
 |-------|--------------|------|
-|oneDAL       |2021.1|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021-gold-mnt](https://github.com/oneapi-src/oneDAL/tree/rls/2021-gold-mnt)|
+|oneDAL       |2021.3|[master](https://github.com/oneapi-src/oneDAL)</br>[rls/2021.3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/2021.3-rls)|
 |Intel&reg; DAAL|2020 Update 3|[rls/daal-2020-u3-rls](https://github.com/oneapi-src/oneDAL/tree/rls/daal-2020-u3-rls)|
 
 
 ## License <!-- omit in toc -->
 
-Distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
+oneDAL is distributed under the Apache License 2.0 license. See [LICENSE](LICENSE) for more
 information.
+
+[oneMKL FPK microlibs](https://github.com/oneapi-src/oneDAL/releases/tag/Dependencies)
+are distributed under Intel Simplified Software License.
+Refer to [third-party-programs-mkl.txt](third-party-programs-mkl.txt) for details.

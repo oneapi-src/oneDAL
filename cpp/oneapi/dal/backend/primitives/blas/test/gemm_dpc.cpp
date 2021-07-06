@@ -33,7 +33,7 @@ using c_order = order_tag<ndorder::c>;
 using f_order = order_tag<ndorder::f>;
 
 template <typename Param>
-class gemm_test : public te::policy_fixture {
+class gemm_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
     using float_t = std::tuple_element_t<0, Param>;
     static constexpr ndorder ao = std::tuple_element_t<1, Param>::value;
@@ -62,27 +62,27 @@ public:
 
     auto A() {
         check_if_initialized();
-        return ndarray<float_t, 2, ao>::ones(get_queue(), { m_, k_ });
+        return ndarray<float_t, 2, ao>::ones(this->get_queue(), { m_, k_ });
     }
 
     auto At() {
         check_if_initialized();
-        return ndarray<float_t, 2, ao>::ones(get_queue(), { k_, m_ });
+        return ndarray<float_t, 2, ao>::ones(this->get_queue(), { k_, m_ });
     }
 
     auto B() {
         check_if_initialized();
-        return ndarray<float_t, 2, bo>::ones(get_queue(), { k_, n_ });
+        return ndarray<float_t, 2, bo>::ones(this->get_queue(), { k_, n_ });
     }
 
     auto Bt() {
         check_if_initialized();
-        return ndarray<float_t, 2, bo>::ones(get_queue(), { n_, k_ });
+        return ndarray<float_t, 2, bo>::ones(this->get_queue(), { n_, k_ });
     }
 
     auto C() {
         check_if_initialized();
-        return ndarray<float_t, 2, co>::empty(get_queue(), { m_, n_ });
+        return ndarray<float_t, 2, co>::empty(this->get_queue(), { m_, n_ });
     }
 
     void test_gemm() {
@@ -93,22 +93,22 @@ public:
         auto [bt, bt_e] = Bt();
 
         SECTION("A x B") {
-            gemm(get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
+            gemm(this->get_queue(), a, b, c, { a_e, b_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("A x Bt") {
-            gemm(get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
+            gemm(this->get_queue(), a, bt.t(), c, { a_e, bt_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x B") {
-            gemm(get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
+            gemm(this->get_queue(), at.t(), b, c, { at_e, b_e }).wait_and_throw();
             check_ones_matrix(c);
         }
 
         SECTION("At x Bt") {
-            gemm(get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
+            gemm(this->get_queue(), at.t(), bt.t(), c, { at_e, bt_e }).wait_and_throw();
             check_ones_matrix(c);
         }
     }
@@ -151,6 +151,10 @@ using gemm_types = COMBINE_TYPES((float, double),
 TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on small sizes", "[gemm][small]", gemm_types) {
     // DPC++ GEMM from micro MKL libs is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
+
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
+
     this->generate_small_dimensions();
     this->test_gemm();
 }
@@ -158,6 +162,10 @@ TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on small sizes", "[gemm][small
 TEMPLATE_LIST_TEST_M(gemm_test, "ones matrix gemm on medium sizes", "[gemm][medium]", gemm_types) {
     // DPC++ GEMM from micro MKL libs is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
+
+    // Test takes too long time if HW emulates float64
+    SKIP_IF(this->not_float64_friendly());
+
     this->generate_medium_dimensions();
     this->test_gemm();
 }

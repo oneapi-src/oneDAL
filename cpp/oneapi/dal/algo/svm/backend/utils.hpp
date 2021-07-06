@@ -18,6 +18,8 @@
 
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/backend/transfer.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 
 namespace oneapi::dal::svm::backend {
 
@@ -36,108 +38,130 @@ template <>
 struct to_daal_method<method::thunder> : daal_method_constant<daal_svm::training::thunder> {};
 
 template <typename Float>
-struct binary_label_t {
+struct binary_response_t {
     Float first;
     Float second;
+
+    bool operator==(const binary_response_t&& binary_response) const {
+        return (first == binary_response.first && second == binary_response.second) ||
+               (first == binary_response.second && second == binary_response.first);
+    }
 };
 
 template <typename Float>
-static array<Float> convert_labels(const array<Float>& arr_label,
-                                   const binary_label_t<Float>& in_binary_labels,
-                                   binary_label_t<Float>& out_binary_labels) {
-    const std::int64_t count = arr_label.get_count();
-    auto new_label_arr = array<Float>::empty(count);
-    auto new_label_data = new_label_arr.get_mutable_data();
+inline binary_response_t<Float> get_unique_responses_impl(const array<Float>& arr_response) {
+    const std::int64_t count = arr_response.get_count();
 
-    Float value_first_class_label = arr_label[0];
-    Float value_second_class_label = arr_label[1];
+    Float first_response = arr_response[0];
+    Float second_response = arr_response[1];
 
-    new_label_data[0] = in_binary_labels.first;
-    std::int64_t i = 1;
-    for (; i < count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
-        }
-        else {
-            value_second_class_label = arr_label[i];
-            new_label_data[i] = in_binary_labels.second;
+    for (std::int64_t i = 1; i < count; ++i) {
+        if (arr_response[i] != first_response) {
+            second_response = arr_response[i];
             break;
         }
     }
-    if (value_first_class_label == value_second_class_label) {
-        throw invalid_argument(
-            dal::detail::error_messages::input_labels_contain_only_one_unique_value_expect_two());
+
+    if (first_response == second_response) {
+        throw invalid_argument(dal::detail::error_messages::
+                                   input_responses_contain_only_one_unique_value_expect_two());
     }
 
-    for (; i < count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
+    // need to sort class responses to be consistent with Scikit-learn*
+    if (first_response > second_response) {
+        std::swap(first_response, second_response);
+    }
+
+    return { first_response, second_response };
+}
+
+template <typename Float>
+inline void convert_binary_responses_impl(
+    const binary_response_t<Float>& requested_unique_responses,
+    const binary_response_t<Float>& old_unique_responses,
+    const array<Float>& arr_response,
+    array<Float>& new_response_arr) {
+    const std::int64_t count = arr_response.get_count();
+    auto new_response_data = new_response_arr.get_mutable_data();
+
+    for (std::int64_t i = 0; i < count; ++i) {
+        if (arr_response[i] == old_unique_responses.first) {
+            new_response_data[i] = requested_unique_responses.first;
         }
-        else if (arr_label[i] == value_second_class_label) {
-            new_label_data[i] = in_binary_labels.second;
+        else if (arr_response[i] == old_unique_responses.second) {
+            new_response_data[i] = requested_unique_responses.second;
         }
         else {
-            throw invalid_argument(dal::detail::error_messages::
-                                       input_labels_contain_wrong_unique_values_count_expect_two());
+            throw invalid_argument(
+                dal::detail::error_messages::
+                    input_responses_contain_wrong_unique_values_count_expect_two());
         }
     }
+}
 
-    out_binary_labels.first = value_first_class_label;
-    out_binary_labels.second = value_second_class_label;
-    return new_label_arr;
+template <typename Float>
+inline binary_response_t<Float> get_unique_responses(const table& responses) {
+    auto arr_response = row_accessor<const Float>{ responses }.pull();
+    return get_unique_responses_impl<Float>(arr_response);
+}
+
+template <typename Float>
+inline table convert_binary_responses(const table& responses,
+                                      const binary_response_t<Float>& requested_unique_responses,
+                                      const binary_response_t<Float>& old_unique_responses) {
+    if (old_unique_responses == binary_response_t<Float>{ 0, 1 } ||
+        old_unique_responses == binary_response_t<Float>{ -1, 1 }) {
+        return responses;
+    }
+    else {
+        ONEDAL_ASSERT(responses.get_column_count() == 1);
+
+        auto arr_response = row_accessor<const Float>{ responses }.pull();
+        const std::int64_t count = arr_response.get_count();
+
+        auto new_response_arr = array<Float>::empty(count);
+        convert_binary_responses_impl<Float>(requested_unique_responses,
+                                             old_unique_responses,
+                                             arr_response,
+                                             new_response_arr);
+
+        return homogen_table::wrap(new_response_arr, count, 1);
+    }
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-
 template <typename Float>
-static array<Float> convert_labels(const sycl::queue& queue,
-                                   const array<Float>& arr_label,
-                                   const binary_label_t<Float>& in_binary_labels,
-                                   binary_label_t<Float>& out_binary_labels) {
-    // TODO: make for dpcpp kernel
-    const std::int64_t count = arr_label.get_count();
-    auto new_label_arr = array<Float>::empty(queue, count);
-    auto new_label_data = new_label_arr.get_mutable_data();
-
-    Float value_first_class_label = arr_label[0];
-    Float value_second_class_label = arr_label[1];
-
-    new_label_data[0] = in_binary_labels.first;
-    std::int64_t i = 1;
-    for (; i < count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
-        }
-        else {
-            value_second_class_label = arr_label[i];
-            new_label_data[i] = in_binary_labels.second;
-            break;
-        }
-    }
-    if (value_first_class_label == value_second_class_label) {
-        throw invalid_argument(
-            dal::detail::error_messages::input_labels_contain_only_one_unique_value_expect_two());
-    }
-
-    for (; i < count; ++i) {
-        if (arr_label[i] == value_first_class_label) {
-            new_label_data[i] = in_binary_labels.first;
-        }
-        else if (arr_label[i] == value_second_class_label) {
-            new_label_data[i] = in_binary_labels.second;
-        }
-        else {
-            throw invalid_argument(dal::detail::error_messages::
-                                       input_labels_contain_wrong_unique_values_count_expect_two());
-        }
-    }
-
-    out_binary_labels.first = value_first_class_label;
-    out_binary_labels.second = value_second_class_label;
-
-    return new_label_arr;
+inline binary_response_t<Float> get_unique_responses(sycl::queue& queue, const table& responses) {
+    auto arr_response = row_accessor<const Float>{ responses }.pull(queue);
+    const auto arr_response_host = dal::backend::to_host_sync(arr_response);
+    return get_unique_responses_impl<Float>(arr_response_host);
 }
 
+template <typename Float>
+inline table convert_binary_responses(sycl::queue& queue,
+                                      const table& responses,
+                                      const binary_response_t<Float>& requested_unique_responses,
+                                      const binary_response_t<Float>& old_unique_responses) {
+    if (old_unique_responses == binary_response_t<Float>{ -1, 1 }) {
+        return responses;
+    }
+    else {
+        ONEDAL_ASSERT(responses.get_column_count() == 1);
+
+        auto arr_response = row_accessor<const Float>{ responses }.pull(queue);
+        const std::int64_t count = arr_response.get_count();
+
+        const auto arr_response_host = dal::backend::to_host_sync(arr_response);
+        auto new_response_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
+        convert_binary_responses_impl<Float>(requested_unique_responses,
+                                             old_unique_responses,
+                                             arr_response_host,
+                                             new_response_arr);
+
+        auto device_arr_data = dal::backend::to_device_sync(queue, new_response_arr);
+        return homogen_table::wrap(device_arr_data, count, 1);
+    }
+}
 #endif
 
 } // namespace oneapi::dal::svm::backend

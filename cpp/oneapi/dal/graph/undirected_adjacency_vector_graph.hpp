@@ -172,4 +172,13 @@ undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType,
     return *this;
 }
 
+template <typename VertexValue,
+          typename EdgeValue,
+          typename GraphValue,
+          typename IndexType,
+          typename Allocator>
+constexpr bool is_directed<
+    undirected_adjacency_vector_graph<VertexValue, EdgeValue, GraphValue, IndexType, Allocator>> =
+    false;
+
 } // namespace oneapi::dal::preview

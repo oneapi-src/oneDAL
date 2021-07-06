@@ -19,6 +19,7 @@
 #include "oneapi/dal/algo/svm/common.hpp"
 
 #include <daal/include/algorithms/kernel_function/kernel_function_linear.h>
+#include "daal/src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
 #include <daal/include/algorithms/kernel_function/kernel_function_rbf.h>
 
 namespace oneapi::dal::svm::detail {
@@ -28,7 +29,8 @@ class kernel_function_impl : public base {
 public:
     virtual ~kernel_function_impl() = default;
 
-    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function() = 0;
+    virtual daal::algorithms::kernel_function::KernelIfacePtr get_daal_kernel_function(
+        bool is_dense) = 0;
 };
 
 } // namespace v1

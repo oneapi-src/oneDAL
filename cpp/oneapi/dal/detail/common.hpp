@@ -34,24 +34,40 @@
 #define ONEDAL_ASSERT_SUM_OVERFLOW(...)
 #define ONEDAL_ASSERT_MUL_OVERFLOW(...)
 #else
-#define ONEDAL_ASSERT_SUM_OVERFLOW(Data, first, second)                                       \
-    do {                                                                                      \
-        static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
-        Data result;                                                                          \
-        ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_sum((first),  \
-                                                                                    (second), \
-                                                                                    result),  \
-                      "Sum overflow assertion failed with operands" #first " and " #second);  \
+#define ONEDAL_ASSERT_SUM_OVERFLOW(Data, first, second)                                      \
+    do {                                                                                     \
+        Data result;                                                                         \
+        ONEDAL_ASSERT(oneapi::dal::detail::is_safe_sum<Data>((first), (second), result),     \
+                      "Sum overflow assertion failed with operands" #first " and " #second); \
     } while (0)
 
-#define ONEDAL_ASSERT_MUL_OVERFLOW(Data, first, second)                                       \
-    do {                                                                                      \
-        static_assert(std::is_integral_v<Data>, "The check requires integral operands");      \
-        Data result;                                                                          \
-        ONEDAL_ASSERT(oneapi::dal::detail::integer_overflow_ops<Data>{}.is_safe_mul((first),  \
-                                                                                    (second), \
-                                                                                    result),  \
-                      "Mul overflow assertion failed with operands" #first " and " #second);  \
+#define ONEDAL_ASSERT_MUL_OVERFLOW(Data, first, second)                                      \
+    do {                                                                                     \
+        Data result;                                                                         \
+        ONEDAL_ASSERT(oneapi::dal::detail::is_safe_mul<Data>((first), (second), result),     \
+                      "Mul overflow assertion failed with operands" #first " and " #second); \
+    } while (0)
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+#define __ONEDAL_IF_QUEUE__(optional_queue, ...) \
+    do {                                         \
+        if (optional_queue) {                    \
+            __VA_ARGS__                          \
+        }                                        \
+    } while (0)
+
+#define __ONEDAL_IF_NO_QUEUE__(optional_queue, ...) \
+    do {                                            \
+        if (!(optional_queue)) {                    \
+            __VA_ARGS__                             \
+        }                                           \
+    } while (0)
+#else
+#define __ONEDAL_IF_QUEUE__(optional_queue, ...)
+#define __ONEDAL_IF_NO_QUEUE__(optional_queue, ...) \
+    do {                                            \
+        __VA_ARGS__                                 \
     } while (0)
 #endif
 
@@ -141,23 +157,35 @@ inline Object make_private(Args&&... args) {
 }
 
 inline constexpr std::int64_t get_data_type_size(data_type t) {
-    if (t == data_type::float32) {
+    if (t == data_type::int8) {
+        return sizeof(std::int8_t);
+    }
+    else if (t == data_type::int16) {
+        return sizeof(std::int16_t);
+    }
+    else if (t == data_type::int32) {
+        return sizeof(std::int32_t);
+    }
+    else if (t == data_type::int64) {
+        return sizeof(std::int64_t);
+    }
+    else if (t == data_type::uint8) {
+        return sizeof(std::uint8_t);
+    }
+    else if (t == data_type::uint16) {
+        return sizeof(std::uint16_t);
+    }
+    else if (t == data_type::uint32) {
+        return sizeof(std::uint32_t);
+    }
+    else if (t == data_type::uint64) {
+        return sizeof(std::uint64_t);
+    }
+    else if (t == data_type::float32) {
         return sizeof(float);
     }
     else if (t == data_type::float64) {
         return sizeof(double);
-    }
-    else if (t == data_type::int32) {
-        return sizeof(int32_t);
-    }
-    else if (t == data_type::int64) {
-        return sizeof(int64_t);
-    }
-    else if (t == data_type::uint32) {
-        return sizeof(uint32_t);
-    }
-    else if (t == data_type::uint64) {
-        return sizeof(uint64_t);
     }
     else {
         throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
@@ -166,11 +194,36 @@ inline constexpr std::int64_t get_data_type_size(data_type t) {
 
 template <typename T>
 inline constexpr data_type make_data_type_impl() {
-    if constexpr (std::is_same_v<std::int32_t, T>) {
+    static_assert(is_one_of_v<T,
+                              std::int8_t,
+                              std::int16_t,
+                              std::int32_t,
+                              std::int64_t,
+                              std::uint8_t,
+                              std::uint16_t,
+                              std::uint32_t,
+                              std::uint64_t,
+                              float,
+                              double>,
+                  "unsupported data type");
+
+    if constexpr (std::is_same_v<std::int8_t, T>) {
+        return data_type::int8;
+    }
+    else if constexpr (std::is_same_v<std::int16_t, T>) {
+        return data_type::int16;
+    }
+    else if constexpr (std::is_same_v<std::int32_t, T>) {
         return data_type::int32;
     }
     else if constexpr (std::is_same_v<std::int64_t, T>) {
         return data_type::int64;
+    }
+    else if constexpr (std::is_same_v<std::uint8_t, T>) {
+        return data_type::uint8;
+    }
+    else if constexpr (std::is_same_v<std::uint16_t, T>) {
+        return data_type::uint16;
     }
     else if constexpr (std::is_same_v<std::uint32_t, T>) {
         return data_type::uint32;
@@ -184,10 +237,6 @@ inline constexpr data_type make_data_type_impl() {
     else if constexpr (std::is_same_v<double, T>) {
         return data_type::float64;
     }
-
-    static_assert(
-        is_one_of_v<T, std::int32_t, std::int64_t, std::uint32_t, std::uint64_t, float, double>,
-        "unsupported data type");
     return data_type::float32; // shall never come here
 }
 
@@ -218,18 +267,6 @@ struct integer_overflow_ops {
     bool is_safe_sum(const Data& first, const Data& second, Data& sum_result);
     bool is_safe_mul(const Data& first, const Data& second, Data& mul_result);
 };
-
-template <typename Data>
-inline void check_sum_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
-    integer_overflow_ops<Data>{}.check_sum_overflow(first, second);
-}
-
-template <typename Data>
-inline void check_mul_overflow(const Data& first, const Data& second) {
-    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
-    integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
-}
 
 template <typename Data>
 struct limits {
@@ -266,6 +303,43 @@ inline Out integral_cast(const In& value) {
 
 } // namespace v1
 
+namespace v2 {
+
+template <typename Data>
+struct integer_overflow_ops {
+    Data check_mul_overflow(const Data& first, const Data& second);
+    Data check_sum_overflow(const Data& first, const Data& second);
+
+    bool is_safe_sum(const Data& first, const Data& second, Data& sum_result);
+    bool is_safe_mul(const Data& first, const Data& second, Data& mul_result);
+};
+
+template <typename Data>
+inline Data check_sum_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.check_sum_overflow(first, second);
+}
+
+template <typename Data>
+inline Data check_mul_overflow(const Data& first, const Data& second) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.check_mul_overflow(first, second);
+}
+
+template <typename Data>
+inline bool is_safe_sum(const Data& first, const Data& second, Data& sum_result) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.is_safe_sum(first, second, sum_result);
+}
+
+template <typename Data>
+inline bool is_safe_mul(const Data& first, const Data& second, Data& mul_result) {
+    static_assert(std::is_integral_v<Data>, "The check requires integral operands");
+    return integer_overflow_ops<Data>{}.is_safe_mul(first, second, mul_result);
+}
+
+} // namespace v2
+
 using v1::is_one_of;
 using v1::is_one_of_v;
 using v1::is_tagged;
@@ -285,9 +359,10 @@ using v1::make_private;
 using v1::make_data_type;
 using v1::get_data_type_size;
 using v1::is_floating_point;
-using v1::integer_overflow_ops;
-using v1::check_sum_overflow;
-using v1::check_mul_overflow;
+using v2::check_sum_overflow;
+using v2::check_mul_overflow;
+using v2::is_safe_sum;
+using v2::is_safe_mul;
 using v1::integral_cast;
 
 } // namespace oneapi::dal::detail

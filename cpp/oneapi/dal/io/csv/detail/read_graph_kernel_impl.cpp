@@ -21,18 +21,9 @@
 namespace oneapi::dal::preview::read_graph::detail {
 
 template <>
-ONEDAL_EXPORT std::int64_t get_vertex_count_from_edge_list(const edge_list<std::int32_t> &edges) {
-    return dal::backend::dispatch_by_cpu(
-        dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
-        [&](auto cpu) {
-            return backend::get_vertex_count_from_edge_list<decltype(cpu)>(edges);
-        });
-}
-
-template <>
-std::int64_t compute_prefix_sum(const std::int32_t *degrees,
-                                std::int64_t degrees_count,
-                                std::int64_t *edge_offsets) {
+ONEDAL_EXPORT std::int64_t compute_prefix_sum(const std::int32_t *degrees,
+                                              std::int64_t degrees_count,
+                                              std::int64_t *edge_offsets) {
     return dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
@@ -41,12 +32,12 @@ std::int64_t compute_prefix_sum(const std::int32_t *degrees,
 }
 
 template <>
-void fill_filtered_neighs(const std::int64_t *unfiltered_offsets,
-                          const std::int32_t *unfiltered_neighs,
-                          const std::int32_t *filtered_degrees,
-                          const std::int64_t *filtered_offsets,
-                          std::int32_t *filtered_neighs,
-                          std::int64_t vertex_count) {
+ONEDAL_EXPORT void fill_filtered_neighs(const std::int64_t *unfiltered_offsets,
+                                        const std::int32_t *unfiltered_neighs,
+                                        const std::int32_t *filtered_degrees,
+                                        const std::int64_t *filtered_offsets,
+                                        std::int32_t *filtered_neighs,
+                                        std::int64_t vertex_count) {
     dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {
@@ -60,10 +51,10 @@ void fill_filtered_neighs(const std::int64_t *unfiltered_offsets,
 }
 
 template <>
-void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
-                                           std::int64_t *unfiltered_offsets,
-                                           std::int32_t *new_degrees,
-                                           std::int64_t vertex_count) {
+ONEDAL_EXPORT void filter_neighbors_and_fill_new_degrees(std::int32_t *unfiltered_neighs,
+                                                         std::int64_t *unfiltered_offsets,
+                                                         std::int32_t *new_degrees,
+                                                         std::int64_t vertex_count) {
     dal::backend::dispatch_by_cpu(
         dal::backend::context_cpu{ dal::detail::host_policy::get_default() },
         [&](auto cpu) {

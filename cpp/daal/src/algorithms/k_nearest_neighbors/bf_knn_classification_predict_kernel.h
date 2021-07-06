@@ -20,6 +20,7 @@
 
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
+#include "src/algorithms/service_kernel_math.h"
 #include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
 
@@ -34,13 +35,21 @@ namespace prediction
 namespace internal
 {
 using namespace daal::data_management;
+using namespace algorithms::internal;
+
+struct KernelParameter : bf_knn_classification::Parameter
+{
+    bf_knn_classification::VoteWeights voteWeights = bf_knn_classification::VoteWeights::voteUniform;
+    PairwiseDistanceType pairwiseDistance          = PairwiseDistanceType::minkowski;
+    double minkowskiDegree                         = 2.0;
+};
 
 template <typename algorithmFpType, CpuType cpu>
 class KNNClassificationPredictKernel : public daal::algorithms::Kernel
 {
 public:
     services::Status compute(const NumericTable * data, const classifier::Model * m, NumericTable * label, NumericTable * indices,
-                             NumericTable * distances, const daal::algorithms::Parameter * par);
+                             NumericTable * distances, const KernelParameter * par);
 };
 
 } // namespace internal

@@ -65,6 +65,42 @@ config_setting(
 )
 
 config_bool_flag(
+    name = "test_nightly",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "test_nightly_enabled",
+    flag_values  = {
+        ":test_nightly": "True",
+    },
+)
+
+config_bool_flag(
+    name = "test_weekly",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "test_weekly_enabled",
+    flag_values  = {
+        ":test_weekly": "True",
+    },
+)
+
+config_bool_flag(
+    name = "test_disable_fp64",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "test_fp64_disabled",
+    flag_values  = {
+        ":test_disable_fp64": "True",
+    },
+)
+
+config_bool_flag(
     name = "release_dpc",
     build_setting_default = False,
 )

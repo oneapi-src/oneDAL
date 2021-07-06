@@ -49,25 +49,20 @@ template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
-                                 const table& labels) {
+                                 const table& responses) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
-    auto arr_data = row_accessor<const Float>{ data }.pull(queue);
-    auto arr_label = row_accessor<const Float>{ labels }.pull(queue);
-
-    const auto daal_data =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_data, row_count, column_count);
-    const auto daal_labels =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_label, row_count, 1);
+    const auto daal_data = interop::convert_to_daal_table(queue, data);
+    const auto daal_responses = interop::convert_to_daal_table(queue, responses);
 
     /* init param for daal kernel */
     auto daal_input = daal::algorithms::classifier::training::Input();
     daal_input.set(daal::algorithms::classifier::training::data, daal_data);
-    daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
+    daal_input.set(daal::algorithms::classifier::training::labels, daal_responses);
 
     auto daal_parameter = daal_df_cls_train::Parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
@@ -106,29 +101,28 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     /* init daal result's objects */
     array<Float> arr_oob_err;
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-        arr_oob_err = array<Float>::empty(queue, 1 * 1);
+        arr_oob_err = array<Float>::empty(queue, 1 * 1, sycl::usm::alloc::device);
 
-        const auto res_oob_err =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_err, 1, 1);
+        const auto res_oob_err = interop::convert_to_daal_table(queue, arr_oob_err, 1, 1);
         daal_result.set(daal_df_cls_train::outOfBagError, res_oob_err);
     }
 
     array<Float> arr_oob_per_obs_err;
     if (check_mask_flag(desc.get_error_metric_mode(),
                         error_metric_mode::out_of_bag_error_per_observation)) {
-        arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1);
+        arr_oob_per_obs_err = array<Float>::empty(queue, row_count * 1, sycl::usm::alloc::device);
 
         const auto res_oob_per_obs_err =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_oob_per_obs_err, row_count, 1);
+            interop::convert_to_daal_table(queue, arr_oob_per_obs_err, row_count, 1);
         daal_result.set(daal_df_cls_train::outOfBagErrorPerObservation, res_oob_per_obs_err);
     }
 
     array<Float> arr_var_imp;
     if (variable_importance_mode::none != vimp) {
-        arr_var_imp = array<Float>::empty(queue, 1 * column_count);
+        arr_var_imp = array<Float>::empty(queue, 1 * column_count, sycl::usm::alloc::device);
 
         const auto res_var_imp =
-            interop::convert_to_daal_sycl_homogen_table(queue, arr_var_imp, 1, column_count);
+            interop::convert_to_daal_table(queue, arr_var_imp, 1, column_count);
         daal_result.set(daal_df_cls_train::variableImportance, res_var_imp);
     }
 
@@ -138,7 +132,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     interop::status_to_exception(
         cls_hist_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
                                            daal_data.get(),
-                                           daal_labels.get(),
+                                           daal_responses.get(),
                                            *mptr,
                                            daal_result,
                                            daal_parameter));
@@ -167,7 +161,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>

@@ -28,10 +28,8 @@
 #include "algorithms/boosting/brownboost_predict.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-#include "src/algorithms/boosting/inner/boosting_predict_kernel.h"
 
 using namespace daal::data_management;
-using namespace daal::algorithms::boosting::prediction::internal;
 
 namespace daal
 {

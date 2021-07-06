@@ -22,4 +22,9 @@ namespace oneapi::dal::preview::read_graph::detail {
 ONEDAL_EXPORT std::int32_t daal_string_to_int(const char* nptr, char** endptr) {
     return daal::internal::Service<>::serv_string_to_int(nptr, endptr);
 }
+
+ONEDAL_EXPORT double daal_string_to_double(const char* nptr, char** endptr) {
+    return daal::internal::Service<>::serv_string_to_double(nptr, endptr);
+}
+
 } // namespace oneapi::dal::preview::read_graph::detail

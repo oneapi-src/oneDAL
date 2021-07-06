@@ -64,24 +64,36 @@ public:
     /* Common */
     MSG(array_does_not_contain_mutable_data);
     MSG(feature_index_is_out_of_range);
+    MSG(incompatible_array_reinterpret_cast_types);
+    MSG(invalid_data_block_size);
+    MSG(method_not_implemented);
     MSG(only_homogen_table_is_supported);
     MSG(overflow_found_in_multiplication_of_two_values);
     MSG(overflow_found_in_sum_of_two_values);
+    MSG(queues_in_different_contexts);
+    MSG(small_data_block);
+    MSG(unknown_memcpy_error);
     MSG(unknown_status_code);
+    MSG(unknown_usm_pointer_type);
     MSG(unsupported_data_layout);
     MSG(unsupported_data_type);
     MSG(unsupported_device_type);
-    MSG(small_data_block);
-    MSG(invalid_data_block_size);
-    MSG(method_not_implemented);
     MSG(unsupported_feature_type);
-    MSG(unknown_memcpy_error);
-    MSG(unknown_usm_pointer_type);
+    MSG(unsupported_usm_alloc);
+    MSG(page_size_leq_zero);
+    MSG(invalid_key);
+    MSG(capacity_leq_zero);
+
+    /* Primitives */
+    MSG(invalid_number_of_elements_to_process);
+    MSG(invalid_number_of_elements_to_sort);
+    MSG(failed_to_compute_eigenvectors);
 
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
     MSG(cannot_get_data_type_from_empty_metadata);
     MSG(cannot_get_feature_type_from_empty_metadata);
+    MSG(cc_leq_zero);
     MSG(element_count_in_data_type_and_feature_type_arrays_does_not_match);
     MSG(pulling_column_is_not_supported_for_dpc);
     MSG(pulling_column_is_not_supported);
@@ -91,12 +103,24 @@ public:
     MSG(pushing_column_is_not_supported);
     MSG(pushing_rows_is_not_supported_for_dpc);
     MSG(pushing_rows_is_not_supported);
-    MSG(unsupported_conversion_types);
+    MSG(rc_and_cc_do_not_match_element_count_in_array);
     MSG(rc_leq_zero);
-    MSG(cc_leq_zero);
+    MSG(object_does_not_provide_read_access_to_rows);
+    MSG(object_does_not_provide_write_access_to_rows);
+    MSG(object_does_not_provide_read_access_to_columns);
+    MSG(object_does_not_provide_write_access_to_columns);
+    MSG(object_does_not_provide_access_to_rows_or_columns);
+    MSG(unsupported_conversion_types);
+    MSG(row_indices_lt_min_value);
+    MSG(row_indices_gt_max_value);
+    MSG(column_indices_lt_min_value);
+    MSG(column_indices_gt_max_value);
+    MSG(zero_based_indexing_is_not_supported);
+    MSG(object_does_not_provide_read_access_to_csr);
 
     /* Ranges */
     MSG(invalid_range_of_rows);
+    MSG(invalid_range_of_columns);
     MSG(column_index_out_of_range);
 
     /* Graphs */
@@ -104,16 +128,24 @@ public:
     MSG(negative_vertex_id);
     MSG(unimplemented_sorting_procedure);
 
+    /* I/O */
+    MSG(file_not_found);
+
+    /* Serialization */
+    MSG(object_is_not_serializable);
+    MSG(archive_content_does_not_match_type);
+    MSG(archive_is_in_invalid_state);
+
     /* General Algorithms */
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
     MSG(input_data_is_empty);
-    MSG(input_data_rc_neq_input_labels_rc);
+    MSG(input_data_rc_neq_input_responses_rc);
     MSG(input_data_rc_neq_input_weights_rc);
-    MSG(input_labels_are_empty);
-    MSG(input_labels_contain_only_one_unique_value_expect_two);
-    MSG(input_labels_contain_wrong_unique_values_count_expect_two);
-    MSG(input_labels_table_has_wrong_cc_expect_one);
+    MSG(input_responses_are_empty);
+    MSG(input_responses_contain_only_one_unique_value_expect_two);
+    MSG(input_responses_contain_wrong_unique_values_count_expect_two);
+    MSG(input_responses_table_has_wrong_cc_expect_one);
     MSG(iteration_count_lt_zero);
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
@@ -127,6 +159,10 @@ public:
     MSG(bootstrap_is_incompatible_with_variable_importance_mode);
     MSG(decision_forest_train_dense_method_is_not_implemented_for_gpu);
     MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu);
+    MSG(invalid_number_of_trees);
+    MSG(invalid_number_of_classes);
+    MSG(input_model_is_not_initialized);
+    MSG(input_model_tree_has_invalid_size);
 
     /* Jaccard */
     MSG(column_begin_gt_column_end);
@@ -136,8 +172,21 @@ public:
     MSG(row_begin_gt_row_end);
     MSG(range_idx_gt_max_int32);
 
+    /* Subgraph Isomorphism */
+    MSG(unsupported_kind);
+    MSG(max_match_count_lt_zero);
+    MSG(empty_target_graph);
+    MSG(empty_pattern_graph);
+    MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
+    MSG(non_zero_max_match_count_is_not_supported);
+    MSG(incorrect_index_is_returned);
+    MSG(invalid_vertex_edge_attributes);
+
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
+    MSG(cluster_count_exceeds_data_row_count);
+    MSG(cluster_count_gt_max_int32);
+    MSG(row_count_gt_max_int32);
     MSG(input_initial_centroids_are_empty);
     MSG(input_initial_centroids_cc_neq_input_data_cc);
     MSG(input_initial_centroids_rc_neq_desc_cluster_count);
@@ -149,14 +198,19 @@ public:
     MSG(objective_function_value_lt_zero);
 
     /* k-NN */
-    MSG(knn_brute_force_method_is_not_implemented_for_cpu);
     MSG(knn_kd_tree_method_is_not_implemented_for_gpu);
+    MSG(knn_search_task_is_not_implemented_for_gpu);
     MSG(neighbor_count_lt_one);
+    MSG(unknown_distance_type);
+    MSG(distance_is_not_supported_for_gpu);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);
     MSG(input_x_is_empty);
     MSG(input_y_is_empty);
+
+    /* Minkowski distance */
+    MSG(invalid_minkowski_degree);
 
     /* PCA */
     MSG(component_count_lt_zero);
@@ -166,18 +220,38 @@ public:
     MSG(input_model_eigenvectors_rc_neq_input_data_cc);
     MSG(pca_svd_based_method_is_not_implemented_for_gpu);
 
+    /* Shortest Paths */
+    MSG(negative_source);
+    MSG(source_gte_vertex_count);
+    MSG(negative_delta);
+    MSG(nothing_to_compute);
+    MSG(distances_are_uninitialized);
+    MSG(predecessors_are_uninitialized);
+
     /* SVM */
     MSG(c_leq_zero);
     MSG(cache_size_lt_zero);
+    MSG(degree_lt_zero);
     MSG(input_model_coeffs_are_empty);
     MSG(input_model_coeffs_rc_neq_input_model_support_vector_count);
     MSG(input_model_does_not_match_kernel_function);
     MSG(input_model_support_vectors_are_empty);
     MSG(input_model_support_vectors_cc_neq_input_data_cc);
     MSG(input_model_support_vectors_rc_neq_input_model_support_vector_count);
+    MSG(nu_gt_one);
+    MSG(nu_leq_zero);
+    MSG(nu_svm_smo_method_is_not_implemented_for_gpu);
+    MSG(nu_svm_thunder_method_is_not_implemented_for_gpu);
+    MSG(polynomial_kernel_is_not_implemented_for_gpu);
+    MSG(sigmoid_kernel_is_not_implemented_for_gpu);
     MSG(sigma_leq_zero);
+    MSG(svm_multiclass_not_implemented_for_gpu);
+    MSG(svm_nu_classification_task_is_not_implemented_for_gpu);
+    MSG(svm_nu_regression_task_is_not_implemented_for_gpu);
+    MSG(svm_regression_task_is_not_implemented_for_gpu);
     MSG(svm_smo_method_is_not_implemented_for_gpu);
     MSG(tau_leq_zero);
+    MSG(epsilon_lt_zero);
     MSG(unknown_kernel_function_type);
 };
 

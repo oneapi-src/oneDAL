@@ -27,7 +27,11 @@ function (add_examples examples)
     foreach(example ${examples})
         add_executable(${example} "${example}.cpp")
         target_include_directories(${example} PRIVATE ${oneDAL_INCLUDE_DIRS})
-        target_link_libraries(${example} PRIVATE ${oneDAL_IMPORTED_TARGETS})
+        if (UNIX)
+            target_link_libraries(${example} PRIVATE -Wl,--start-group ${oneDAL_IMPORTED_TARGETS} -Wl,--end-group)
+        else()
+            target_link_libraries(${example} PRIVATE ${oneDAL_IMPORTED_TARGETS})
+        endif()
         set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${THREADING_TYPE}_${LINK_TYPE}")
     endforeach()
 endfunction()
@@ -46,19 +50,18 @@ function (set_link_and_threading_types)
     endif()
 endfunction()
 
-function (change_md_to_mt)
+function (change_md_to_mdd)
     set(cxx_flag ${CMAKE_CXX_FLAGS})
     set(cxxr_flag ${CMAKE_CXX_FLAGS_RELEASE})
     set(c_flag ${CMAKE_C_FLAGS})
     set(cr_flag ${CMAKE_C_FLAGS_RELEASE})
-
     set(flags
             cxx_flag
             cxxr_flag
             c_flag
             cr_flag)
     foreach(flag ${flags})
-        string(REPLACE "/MD" "/MT" ${flag} "${${flag}}")
+        string(REPLACE "/MD" "/MDd /debug:none" ${flag} "${${flag}}")
     endforeach()
 
     set(CMAKE_CXX_FLAGS ${cxx_flag} PARENT_SCOPE)
@@ -68,9 +71,6 @@ function (change_md_to_mt)
 endfunction()
 
 set_link_and_threading_types()
-if (WIN32)
-    change_md_to_mt()
-endif()
 
 find_package(oneDAL REQUIRED)
 

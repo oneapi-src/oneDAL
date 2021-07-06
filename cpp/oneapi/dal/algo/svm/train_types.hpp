@@ -36,8 +36,12 @@ using v1::train_result_impl;
 
 namespace v1 {
 
-/// @tparam Task   Tag-type that specifies the type of the problem to solve. Can
-///                be :expr:`task::v1::classification`.
+/// @tparam Task   Tag-type that specifies the type of the problem to solve.
+/// Can be
+///                :expr:`oneapi::dal::svm::task::classification`,
+///                :expr:`oneapi::dal::svm::task::nu_classification`,
+///                :expr:`oneapi::dal::svm::task::regression`, or
+///                :expr:`oneapi::dal::svm::task::nu_regression`.
 template <typename Task = task::by_default>
 class train_input : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -46,47 +50,61 @@ public:
     using task_t = Task;
 
     /// Creates a new instance of the class with the given :literal:`data`,
-    /// :literal:`labels` and :literal:`weights`
-    train_input(const table& data, const table& labels, const table& weights = table{});
+    /// :literal:`responses` and :literal:`weights`
+    train_input(const table &data, const table &responses, const table &weights = table{});
 
     /// The training set $X$
     /// @remark default = table{}
-    const table& get_data() const;
+    const table &get_data() const;
 
-    auto& set_data(const table& value) {
+    auto &set_data(const table &value) {
         set_data_impl(value);
         return *this;
     }
 
     /// The vector of labels $y$ for the training set $X$
     /// @remark default = table{}
-    const table& get_labels() const;
+    [[deprecated]] const table &get_labels() const {
+        return get_responses();
+    }
 
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    [[deprecated]] auto &set_labels(const table &value) {
+        return set_responses(value);
+    }
+
+    /// The vector of responses $y$ for the training set $X$
+    /// @remark default = table{}
+    const table &get_responses() const;
+
+    auto &set_responses(const table &value) {
+        set_responses_impl(value);
         return *this;
     }
 
     /// The vector of weights $w$ for the training set $X$
     /// @remark default = table{}
-    const table& get_weights() const;
+    const table &get_weights() const;
 
-    auto& set_weights(const table& value) {
+    auto &set_weights(const table &value) {
         set_weights_impl(value);
         return *this;
     }
 
 protected:
-    void set_data_impl(const table& value);
-    void set_labels_impl(const table& value);
-    void set_weights_impl(const table& value);
+    void set_data_impl(const table &value);
+    void set_responses_impl(const table &value);
+    void set_weights_impl(const table &value);
 
 private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
 };
 
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
-///              be :expr:`task::v1::classification`.
+/// be
+///                :expr:`oneapi::dal::svm::task::classification`,
+///                :expr:`oneapi::dal::svm::task::nu_classification`,
+///                :expr:`oneapi::dal::svm::task::regression`, or
+///                :expr:`oneapi::dal::svm::task::nu_regression`.
 template <typename Task = task::by_default>
 class train_result : public base {
     static_assert(detail::is_valid_task_v<Task>);
@@ -103,9 +121,9 @@ public:
 
     /// The trained SVM model
     /// @remark default = model<Task>{}
-    const model<Task>& get_model() const;
+    const model<Task> &get_model() const;
 
-    auto& set_model(const model<Task>& value) {
+    auto &set_model(const model<Task> &value) {
         set_model_impl(value);
         return *this;
     }
@@ -113,46 +131,64 @@ public:
     /// A $nsv \\times p$ table containing support vectors,
     /// where $nsv$ is the number of support vectors.
     /// @remark default = table{}
-    const table& get_support_vectors() const;
+    const table &get_support_vectors() const;
 
-    auto& set_support_vectors(const table& value) {
+    auto &set_support_vectors(const table &value) {
         set_support_vectors_impl(value);
         return *this;
     }
 
     /// A $nsv \\times 1$ table containing support indices
     /// @remark default = table{}
-    const table& get_support_indices() const;
+    const table &get_support_indices() const;
 
-    auto& set_support_indices(const table& value) {
+    auto &set_support_indices(const table &value) {
         set_support_indices_impl(value);
         return *this;
     }
 
-    /// A $nsv \\times 1$ table containing coefficients of Lagrange multiplier
+    /// A $nsv \\times class_count - 1$ table for :expr:`task::classification`
+    /// and :expr:`task::classification`
+    /// and $nsv \\times 1$ table for :expr:`task::regression`
+    /// and :expr:`task::nu_regression`
+    /// containing coefficients of Lagrange multiplier
     /// @remark default = table{}
-    const table& get_coeffs() const;
+    const table &get_coeffs() const;
 
-    auto& set_coeffs(const table& value) {
+    auto &set_coeffs(const table &value) {
         set_coeffs_impl(value);
         return *this;
     }
 
     /// The bias
     /// @remark default = 0.0
-    double get_bias() const;
+    [[deprecated("Use get_biases() instead.")]] double get_bias() const;
 
-    auto& set_bias(double value) {
+    [[deprecated("Use set_biases() instead.")]] auto &set_bias(double value) {
         set_bias_impl(value);
         return *this;
     }
 
+    /// A $class_count*(class_count-1)/2 \\times 1$ table for
+    /// :expr:`task::classification`
+    /// and :expr:`task::classification`
+    /// and $1 \\times 1$ table for :expr:`task::regression`
+    /// and :expr:`task::nu_regression`
+    /// containing constants in decision function
+    const table &get_biases() const;
+
+    auto &set_biases(const table &value) {
+        set_biases_impl(value);
+        return *this;
+    }
+
 protected:
-    void set_model_impl(const model<Task>&);
-    void set_support_vectors_impl(const table&);
-    void set_support_indices_impl(const table&);
-    void set_coeffs_impl(const table&);
+    void set_model_impl(const model<Task> &);
+    void set_support_vectors_impl(const table &);
+    void set_support_indices_impl(const table &);
+    void set_coeffs_impl(const table &);
     void set_bias_impl(double);
+    void set_biases_impl(const table &);
 
 private:
     dal::detail::pimpl<detail::train_result_impl<Task>> impl_;

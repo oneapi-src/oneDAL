@@ -16,18 +16,19 @@
 
 #include "oneapi/dal/algo/svm/train_types.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/algo/svm/backend/model_impl.hpp"
 
 namespace oneapi::dal::svm {
 
 template <typename Task>
 class detail::v1::train_input_impl : public base {
 public:
-    train_input_impl(const table& data, const table& labels, const table& weights)
+    train_input_impl(const table& data, const table& responses, const table& weights)
             : data(data),
-              labels(labels),
+              responses(responses),
               weights(weights) {}
     table data;
-    table labels;
+    table responses;
     table weights;
 };
 
@@ -44,8 +45,8 @@ using detail::v1::train_result_impl;
 namespace v1 {
 
 template <typename Task>
-train_input<Task>::train_input(const table& data, const table& labels, const table& weights)
-        : impl_(new train_input_impl<Task>(data, labels, weights)) {}
+train_input<Task>::train_input(const table& data, const table& responses, const table& weights)
+        : impl_(new train_input_impl<Task>(data, responses, weights)) {}
 
 template <typename Task>
 const table& train_input<Task>::get_data() const {
@@ -53,8 +54,8 @@ const table& train_input<Task>::get_data() const {
 }
 
 template <typename Task>
-const table& train_input<Task>::get_labels() const {
-    return impl_->labels;
+const table& train_input<Task>::get_responses() const {
+    return impl_->responses;
 }
 
 template <typename Task>
@@ -68,8 +69,8 @@ void train_input<Task>::set_data_impl(const table& value) {
 }
 
 template <typename Task>
-void train_input<Task>::set_labels_impl(const table& value) {
-    impl_->labels = value;
+void train_input<Task>::set_responses_impl(const table& value) {
+    impl_->responses = value;
 }
 
 template <typename Task>
@@ -102,7 +103,12 @@ const table& train_result<Task>::get_coeffs() const {
 
 template <typename Task>
 double train_result<Task>::get_bias() const {
-    return impl_->trained_model.get_bias();
+    return dal::detail::get_impl(impl_->trained_model).bias;
+}
+
+template <typename Task>
+const table& train_result<Task>::get_biases() const {
+    return impl_->trained_model.get_biases();
 }
 
 template <typename Task>
@@ -132,11 +138,22 @@ void train_result<Task>::set_coeffs_impl(const table& value) {
 
 template <typename Task>
 void train_result<Task>::set_bias_impl(double value) {
-    impl_->trained_model.set_bias(value);
+    dal::detail::get_impl(impl_->trained_model).bias = value;
+}
+
+template <typename Task>
+void train_result<Task>::set_biases_impl(const table& value) {
+    impl_->trained_model.set_biases(value);
 }
 
 template class ONEDAL_EXPORT train_input<task::classification>;
 template class ONEDAL_EXPORT train_result<task::classification>;
+template class ONEDAL_EXPORT train_input<task::nu_classification>;
+template class ONEDAL_EXPORT train_result<task::nu_classification>;
+template class ONEDAL_EXPORT train_input<task::regression>;
+template class ONEDAL_EXPORT train_result<task::regression>;
+template class ONEDAL_EXPORT train_input<task::nu_regression>;
+template class ONEDAL_EXPORT train_result<task::nu_regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::svm

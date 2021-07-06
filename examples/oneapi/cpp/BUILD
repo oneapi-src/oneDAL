@@ -65,6 +65,19 @@ dal_example_suite(
     ],
 )
 
+dal_example_suite(
+    name = "subgraph_isomorphism",
+    compile_as = [ "c++" ],
+    srcs = glob(["source/subgraph_isomorphism/*.cpp"]),
+    dal_deps = [
+        "@onedal//cpp/oneapi/dal/algo:subgraph_isomorphism",
+    ],
+    data = _DATA_DEPS,
+    extra_deps = _TEST_DEPS + [
+        "@tbb//:tbb",
+    ],
+)
+
 dal_algo_example_suite(
     algos = [
         "decision_forest",
@@ -72,7 +85,10 @@ dal_algo_example_suite(
         "knn",
         "linear_kernel",
         "pca",
+        "polynomial_kernel",
         "rbf_kernel",
+        "sigmoid_kernel",
+        "shortest_paths",
         "svm",
         "triangle_counting",
     ],

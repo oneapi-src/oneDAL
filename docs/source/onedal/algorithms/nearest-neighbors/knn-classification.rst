@@ -22,31 +22,8 @@
 =========================================
 k-Nearest Neighbors Classification (k-NN)
 =========================================
-:math:`k`-NN :capterm:`classification` algorithm infers the class for the new
-feature vector by computing majority vote of the :math:`k` nearest observations
-from the training set.
 
-
-.. |t_math| replace:: `Training <knn_t_math_>`_
-.. |t_brute_f| replace:: `Brute-force <knn_t_math_brute_force_>`_
-.. |t_kd_tree| replace:: `k-d tree <knn_t_math_kd_tree_>`_
-.. |t_input| replace:: `train_input <knn_t_api_input_>`_
-.. |t_result| replace:: `train_result <knn_t_api_result_>`_
-.. |t_op| replace:: `train(...) <knn_t_api_>`_
-
-.. |i_math| replace:: `Inference <knn_i_math_>`_
-.. |i_brute_f| replace:: `Brute-force <knn_i_math_brute_force_>`_
-.. |i_kd_tree| replace:: `k-d tree <knn_i_math_kd_tree_>`_
-.. |i_input| replace:: `infer_input <knn_i_api_input_>`_
-.. |i_result| replace:: `infer_result <knn_i_api_result_>`_
-.. |i_op| replace:: `infer(...) <knn_i_api_>`_
-
-=============== ============= ============= ======== =========== ============
- **Operation**  **Computational methods**     **Programming Interface**
---------------- --------------------------- ---------------------------------
-   |t_math|      |t_brute_f|   |t_kd_tree|   |t_op|   |t_input|   |t_result|
-   |i_math|      |i_brute_f|   |i_kd_tree|   |i_op|   |i_input|   |i_result|
-=============== ============= ============= ======== =========== ============
+.. include:: ../../../includes/nearest-neighbors/knn-introduction.rst
 
 ------------------------
 Mathematical formulation
@@ -92,7 +69,10 @@ m`, by performing the following steps:
 
 #. Identify the set :math:`N(x_j') \subseteq X` of the :math:`k` feature vectors
    in the training set that are nearest to :math:`x_j'` with respect to the
-   Euclidean distance.
+   Euclidean distance, which is chosen by default. The distance can be customized
+   with the predefined set of pairwise distances: :ref:`Minkowski distances
+   <alg_minkowski_distance>` with fractional degree (including Euclidean distance)
+   and :ref:`Chebyshev distance <alg_chebyshev_distance>`.
 
 #. Estimate the conditional probability for the :math:`l`-th class as the
    fraction of vectors in :math:`N(x_j')` whose labels :math:`y_j` are equal to
@@ -141,138 +121,20 @@ distance between :math:`x_j'` and the most distant feature vector from
 \equiv N(x_j')`. The final prediction is computed according to the equations
 :eq:`p_predict` and :eq:`y_predict`.
 
+---------------------
+Programming Interface
+---------------------
+
+Refer to :ref:`API Reference: k-Nearest Neighbors Classification <api_knn>`.
+
 -------------
 Usage example
 -------------
 
-Training
---------
-
-::
-
-   knn::model<> run_training(const table& data,
-                           const table& labels) {
-      const std::int64_t class_count = 10;
-      const std::int64_t neighbor_count = 5;
-      const auto knn_desc = knn::descriptor<float>{class_count, neighbor_count};
-
-      const auto result = train(knn_desc, data, labels);
-
-      return result.get_model();
-   }
-
-Inference
----------
-
-::
-
-   table run_inference(const knn::model<>& model,
-                     const table& new_data) {
-      const std::int64_t class_count = 10;
-      const std::int64_t neighbor_count = 5;
-      const auto knn_desc = knn::descriptor<float>{class_count, neighbor_count};
-
-      const auto result = infer(knn_desc, model, new_data);
-
-      print_table("labels", result.get_labels());
-   }
+.. include:: ../../../includes/nearest-neighbors/knn-usage-examples.rst
 
 --------
 Examples
 --------
 
-.. include:: ./includes/knn-examples.rst
-
----------------------
-Programming Interface
----------------------
-All types and functions in this section are declared in the
-``oneapi::dal::knn`` namespace and be available via inclusion of the
-``oneapi/dal/algo/knn.hpp`` header file.
-
-Descriptor
-----------
-.. onedal_class:: oneapi::dal::knn::v1::descriptor
-
-Method tags
-~~~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::knn::method::v1
-
-Task tags
-~~~~~~~~~
-.. onedal_tags_namespace:: oneapi::dal::knn::task::v1
-
-Model
------
-.. onedal_class:: oneapi::dal::knn::v1::model
-
-
-.. _knn_t_api:
-
-Training :cpp:expr:`train(...)`
---------------------------------
-.. _knn_t_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::train_input
-
-
-.. _knn_t_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::train_result
-
-Operation
-~~~~~~~~~
-
-.. function:: template <typename Descriptor> \
-              knn::train_result train(const Descriptor& desc, \
-                                         const knn::train_input& input)
-
-   :tparam desc: k-NN algorithm descriptor :expr:`knn::desc`
-   :tparam input: Input data for the training operation
-
-   Preconditions
-      | :expr:`input.data.has_data == true`
-      | :expr:`input.labels.has_data == true`
-      | :expr:`input.data.row_count == input.labels.row_count`
-      | :expr:`input.labels.column_count == 1`
-      | :expr:`input.labels[i] >= 0`
-      | :expr:`input.labels[i] < desc.class_count`
-
-.. _knn_i_api:
-
-Inference :cpp:expr:`infer(...)`
----------------------------------
-.. _knn_i_api_input:
-
-Input
-~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::infer_input
-
-
-.. _knn_i_api_result:
-
-Result
-~~~~~~
-.. onedal_class:: oneapi::dal::knn::v1::infer_result
-
-Operation
-~~~~~~~~~
-
-.. function:: template <typename Descriptor> \
-              knn::infer_result infer(const Descriptor& desc, \
-                                         const knn::infer_input& input)
-
-   :tparam desc: k-NN algorithm descriptor :expr:`knn::desc`
-   :tparam input: Input data for the inference operation
-
-   Preconditions
-      | :expr:`input.data.has_data == true`
-   Postconditions
-     | :expr:`result.labels.row_count == input.data.row_count`
-     | :expr:`result.labels.column_count == 1`
-     | :expr:`result.labels[i] >= 0`
-     | :expr:`result.labels[i] < desc.class_count`
+.. include:: ../../../includes/nearest-neighbors/knn-examples.rst

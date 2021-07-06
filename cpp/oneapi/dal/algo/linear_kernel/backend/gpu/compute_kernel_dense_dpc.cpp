@@ -15,13 +15,8 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/linear_kernel/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
-
-#include "oneapi/dal/table/row_accessor.hpp"
-
-#include <daal/src/algorithms/kernel_function/oneapi/kernel_function_linear_kernel_oneapi.h>
+#include "oneapi/dal/backend/primitives/blas/gemm.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 
 namespace oneapi::dal::linear_kernel::backend {
 
@@ -30,51 +25,42 @@ using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
-namespace daal_linear_kernel = daal::algorithms::kernel_function::linear;
-namespace interop = dal::backend::interop;
-
-template <typename Float>
-using daal_linear_kernel_t =
-    daal_linear_kernel::internal::KernelImplLinearOneAPI<daal_linear_kernel::defaultDense, Float>;
-
-template <typename Float>
-static result_t call_daal_kernel(const context_gpu& ctx,
-                                 const descriptor_t& desc,
-                                 const table& x,
-                                 const table& y) {
-    auto& queue = ctx.get_queue();
-    interop::execution_context_guard guard(queue);
-
-    const int64_t row_count_x = x.get_row_count();
-    const int64_t row_count_y = y.get_row_count();
-    const int64_t column_count = x.get_column_count();
-
-    auto arr_x = row_accessor<const Float>{ x }.pull(queue);
-    auto arr_y = row_accessor<const Float>{ y }.pull(queue);
-
-    dal::detail::check_mul_overflow(row_count_x, row_count_y);
-    auto arr_values = array<Float>::empty(queue, row_count_x * row_count_y);
-
-    const auto daal_x =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_x, row_count_x, column_count);
-    const auto daal_y =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_y, row_count_y, column_count);
-    const auto daal_values =
-        interop::convert_to_daal_sycl_homogen_table(queue, arr_values, row_count_x, row_count_y);
-
-    daal_linear_kernel::Parameter daal_parameter(desc.get_scale(), desc.get_shift());
-    daal_linear_kernel_t<Float>().compute(daal_x.get(),
-                                          daal_y.get(),
-                                          daal_values.get(),
-                                          &daal_parameter);
-
-    return result_t{}.set_values(
-        dal::detail::homogen_table_builder{}.reset(arr_values, row_count_x, row_count_y).build());
-}
+namespace pr = dal::backend::primitives;
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_x(), input.get_y());
+    const auto x = input.get_x();
+    const auto y = input.get_y();
+
+    auto& queue = ctx.get_queue();
+
+    const std::int64_t x_row_count = x.get_row_count();
+    const std::int64_t y_row_count = y.get_row_count();
+
+    ONEDAL_ASSERT(x.get_column_count() == y.get_column_count());
+    dal::detail::check_mul_overflow(x_row_count, y_row_count);
+
+    const Float scale = desc.get_scale();
+    const Float shift = desc.get_shift();
+
+    const auto x_nd = pr::table2ndarray<Float>(queue, x, sycl::usm::alloc::device);
+
+    const auto y_nd = pr::table2ndarray<Float>(queue, y, sycl::usm::alloc::device);
+
+    auto res_nd =
+        pr::ndarray<Float, 2>::empty(queue, { x_row_count, y_row_count }, sycl::usm::alloc::device);
+
+    sycl::event fill_res_event;
+    if (shift != 0.0) {
+        fill_res_event = res_nd.fill(queue, Float(1));
+    }
+
+    auto gemm_event = gemm(queue, x_nd, y_nd.t(), res_nd, scale, shift, { fill_res_event });
+
+    const auto res_array = res_nd.flatten(queue, { gemm_event });
+    auto res_table = homogen_table::wrap(res_array, x_row_count, y_row_count);
+
+    return result_t{}.set_values(res_table);
 }
 
 template <typename Float>
