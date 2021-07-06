@@ -196,8 +196,8 @@ protected:
     void set_eigenvectors_impl(const table&);
 
 private:
-    void serialize(dal::detail::output_archive &ar) const;
-    void deserialize(dal::detail::input_archive &ar);
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
 
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
