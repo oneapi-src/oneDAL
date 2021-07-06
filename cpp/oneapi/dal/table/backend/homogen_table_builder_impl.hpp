@@ -86,17 +86,14 @@ public:
         __ONEDAL_IF_QUEUE__(data_.get_queue(), {
             auto this_q = data_.get_queue().value();
             ONEDAL_ASSERT(is_known_usm(data_));
-            detail::memcpy_host2usm(this_q,
-                                           data_.get_mutable_data(),
-                                           data,
-                                           data_.get_size());
+            detail::memcpy_host2usm(this_q, data_.get_mutable_data(), data, data_.get_size());
         });
 
         __ONEDAL_IF_NO_QUEUE__(data_.get_queue(), {
             detail::memcpy(detail::default_host_policy{},
-                       data_.get_mutable_data(),
-                       data,
-                       data_.get_size());
+                           data_.get_mutable_data(),
+                           data,
+                           data_.get_size());
         });
     }
 
@@ -110,7 +107,7 @@ public:
             copy_data(input_q, data.get_data(), input_element_count, 1);
         });
 
-        __ONEDAL_IF_NO_QUEUE__(data.get_queue(), {
+        __ONEDAL_IF_NO_QUEUE__(data.get_queue(), { //
             copy_data(data.get_data(), input_element_count, 1);
         });
     }
