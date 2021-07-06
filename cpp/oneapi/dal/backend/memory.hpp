@@ -193,7 +193,7 @@ inline sycl::event memcpy(sycl::queue& queue,
 inline sycl::event memcpy_host2usm(sycl::queue& queue,
                                    void* dest_usm,
                                    const void* src_host,
-                                   std::int64_t size,
+                                   std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
 
@@ -208,7 +208,7 @@ inline sycl::event memcpy_host2usm(sycl::queue& queue,
 inline sycl::event memcpy_usm2host(sycl::queue& queue,
                                    void* dest_host,
                                    const void* src_usm,
-                                   std::int64_t size,
+                                   std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, src_usm));
 
@@ -221,19 +221,11 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
 }
 
 template <typename T>
-inline sycl::event copy(sycl::queue& queue, T* dest, const T* src, std::int64_t count) {
-    ONEDAL_ASSERT(count > 0);
-    const std::size_t n = detail::integral_cast<std::size_t>(count);
-    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
-    return memcpy(queue, dest, src, sizeof(T) * n);
-}
-
-template <typename T>
 inline sycl::event copy(sycl::queue& queue,
                         T* dest,
                         const T* src,
                         std::int64_t count,
-                        const event_vector& deps) {
+                        const event_vector& deps = {}) {
     ONEDAL_ASSERT(count > 0);
     const std::size_t n = detail::integral_cast<std::size_t>(count);
     ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
