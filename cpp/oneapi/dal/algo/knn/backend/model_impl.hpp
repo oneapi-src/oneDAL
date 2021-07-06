@@ -50,7 +50,9 @@ public:
     brute_force_model_impl(const brute_force_model_impl&) = delete;
     brute_force_model_impl& operator=(const brute_force_model_impl&) = delete;
 
-    brute_force_model_impl(const table& data, const table& labels) : data(data), labels(labels) {}
+    brute_force_model_impl(const table& data, const table& responses)
+            : data(data),
+              responses(responses) {}
 
     ~brute_force_model_impl() {}
 
@@ -67,7 +69,7 @@ public:
     }
 
     table data;
-    table labels;
+    table responses;
 };
 
 template <typename Task>

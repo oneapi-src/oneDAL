@@ -74,7 +74,8 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
     }
 
     const auto daal_train_data = interop::convert_to_daal_table(queue, trained_model->data);
-    const auto daal_train_responses = interop::convert_to_daal_table(queue, trained_model->labels);
+    const auto daal_train_responses =
+        interop::convert_to_daal_table(queue, trained_model->responses);
     const std::int64_t column_count = daal_train_data->getNumberOfColumns();
 
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
@@ -83,10 +84,11 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
     model_ptr->impl()->setData<Float>(daal_train_data, false);
     model_ptr->impl()->setLabels<Float>(daal_train_responses, false);
 
-    interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
-                                                                                model_ptr.get(),
-                                                                                daal_responses.get(),
-                                                                                &daal_parameter));
+    interop::status_to_exception(
+        daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
+                                                       model_ptr.get(),
+                                                       daal_responses.get(),
+                                                       &daal_parameter));
 
     return infer_result<task::classification>().set_responses(
         dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
