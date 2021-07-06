@@ -84,12 +84,12 @@ template <typename Float, typename Method, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
-                                           const table& labels,
+                                           const table& responses,
                                            const table& weights) {
     const std::int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
+    const auto daal_responses = interop::convert_to_daal_table<Float>(responses);
     const auto daal_weights = interop::convert_to_daal_table<Float>(weights);
 
     const bool is_dense{ data.get_kind() != dal::detail::csr_table::kind() };
@@ -103,7 +103,11 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                    Float,
                    oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
                    Method>()
-            .compute(daal_data, daal_weights, *daal_labels, daal_model.get(), daal_svm_parameter);
+            .compute(daal_data,
+                     daal_weights,
+                     *daal_responses,
+                     daal_model.get(),
+                     daal_svm_parameter);
     }));
     const std::int64_t n_sv = daal_model->getSupportIndices()->getNumberOfRows();
     if (n_sv == 0) {
@@ -123,7 +127,7 @@ static train_result<Task> train(const context_cpu& ctx,
     return call_daal_kernel<Float, Method, Task>(ctx,
                                                  desc,
                                                  input.get_data(),
-                                                 input.get_labels(),
+                                                 input.get_responses(),
                                                  input.get_weights());
 }
 

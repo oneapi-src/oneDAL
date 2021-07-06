@@ -50,8 +50,9 @@ struct infer_ops {
                               const input_t& input,
                               const result_t& result) const {
         if constexpr (!std::is_same_v<task_t, task::search>) {
-            ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
-            ONEDAL_ASSERT(result.get_labels().get_row_count() == input.get_data().get_row_count());
+            ONEDAL_ASSERT(result.get_responses().get_column_count() == 1);
+            ONEDAL_ASSERT(result.get_responses().get_row_count() ==
+                          input.get_data().get_row_count());
         }
     }
 

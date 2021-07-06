@@ -101,10 +101,20 @@ public:
     /// An $n \\times 1$ table with the labels $y_i$ assigned to the
     /// samples $x_i$ in the input data, $1 \\leq 1 \\leq n$.
     /// @remark default = table{}
-    const table& get_labels() const;
+    [[deprecated]] const table& get_labels() const {
+        return get_responses();
+    }
+    [[deprecated]] auto& set_labels(const table& value) {
+        return set_responses(value);
+    }
 
-    auto& set_labels(const table& value) {
-        set_labels_impl(value);
+    /// An $n \\times 1$ table with the responses $y_i$ assigned to the
+    /// samples $x_i$ in the input data, $1 \\leq 1 \\leq n$.
+    /// @remark default = table{}
+    const table& get_responses() const;
+
+    auto& set_responses(const table& value) {
+        set_responses_impl(value);
         return *this;
     }
 
@@ -130,7 +140,7 @@ public:
 
 protected:
     void set_model_impl(const model<Task>&);
-    void set_labels_impl(const table&);
+    void set_responses_impl(const table&);
     void set_iteration_count_impl(std::int64_t);
     void set_objective_function_value_impl(double);
 

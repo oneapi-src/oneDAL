@@ -443,9 +443,9 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    array_t flatten(sycl::queue& q) const {
+    array_t flatten(sycl::queue& q, const event_vector& deps = {}) const {
         ONEDAL_ASSERT(is_known_usm(q, data_.get()));
-        return array_t{ q, data_, this->get_count() };
+        return array_t{ q, data_, this->get_count(), deps };
     }
 #endif
 

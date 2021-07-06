@@ -42,19 +42,19 @@ struct partial_counters {};
 struct merge_counters {};
 
 sycl::event count_clusters(sycl::queue& queue,
-                           const pr::ndview<std::int32_t, 2>& labels,
+                           const pr::ndview<std::int32_t, 2>& responses,
                            std::int64_t cluster_count,
                            pr::ndview<std::int32_t, 1>& counters,
                            const bk::event_vector& deps) {
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
-    ONEDAL_ASSERT(labels.get_dimension(1) == 1);
+    ONEDAL_ASSERT(responses.get_dimension(1) == 1);
     ONEDAL_ASSERT(cluster_count <= dal::detail::limits<std::int32_t>::max());
     ONEDAL_ASSERT(cluster_count > 0);
-    const std::int32_t* label_ptr = labels.get_data();
+    const std::int32_t* response_ptr = responses.get_data();
     std::int32_t* counter_ptr = counters.get_mutable_data();
     const auto sg_size_to_set = get_recommended_sg_size2(queue);
     const auto wg_count_to_set = get_recommended_wg_count2(queue);
-    const auto row_count = labels.get_dimension(0);
+    const auto row_count = responses.get_dimension(0);
     ONEDAL_ASSERT(row_count <= dal::detail::limits<std::int32_t>::max());
     queue
         .submit([&](sycl::handler& cgh) {
@@ -86,7 +86,7 @@ sycl::event count_clusters(sycl::queue& queue,
                 const std::int64_t end =
                     (offset + block_size) > row_count ? row_count : (offset + block_size);
                 for (std::int64_t i = offset + local_id; i < end; i += local_range) {
-                    const std::int32_t cl = label_ptr[i];
+                    const std::int32_t cl = response_ptr[i];
                     sycl::ONEAPI::atomic_ref<std::int32_t,
                                              cl::sycl::ONEAPI::memory_order::relaxed,
                                              cl::sycl::ONEAPI::memory_scope::device,
