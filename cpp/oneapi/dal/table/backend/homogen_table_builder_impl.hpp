@@ -88,9 +88,9 @@ public:
         if (this_q) {
             ONEDAL_ASSERT(is_known_usm(data_));
             return detail::memcpy_host2usm(*this_q,
-                                    data_.get_mutable_data(),
-                                    data,
-                                    data_.get_size());
+                                           data_.get_mutable_data(),
+                                           data,
+                                           data_.get_size());
         }
 #endif
         detail::memcpy(detail::default_host_policy{},
@@ -160,10 +160,7 @@ public:
             return detail::memcpy(*this_q, data_.get_mutable_data(), data, data_.get_size());
         }
 
-        return detail::memcpy_usm2host(*this_q,
-                                       data_.get_mutable_data(),
-                                       data,
-                                       data_.get_size());
+        return detail::memcpy_usm2host(*this_q, data_.get_mutable_data(), data, data_.get_size());
     }
 #endif
 
