@@ -77,6 +77,10 @@ struct graph_matching_ops {
         if (dal::preview::get_vertex_count(input.get_pattern_graph()) == 0) {
             throw invalid_argument(msg::empty_pattern_graph());
         }
+        if (dal::preview::get_vertex_count(input.get_target_graph()) <
+            dal::preview::get_vertex_count(input.get_pattern_graph())) {
+            throw invalid_argument(msg::target_graph_is_smaller_than_pattern_graph());
+        }
         if (desc.get_max_match_count() < 0) {
             throw invalid_argument(msg::max_match_count_lt_zero());
         }
