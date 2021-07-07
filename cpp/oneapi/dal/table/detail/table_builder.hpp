@@ -93,6 +93,12 @@ public:
         return *this;
     }
 
+    template <typename Data>
+    auto& copy_data(const array<Data>& data) {
+        get_impl().copy_data(reinterpret_array_cast<dal::byte_t>(data));
+        return *this;
+    }
+
 #ifdef ONEDAL_DATA_PARALLEL
     auto& allocate(const sycl::queue& queue,
                    std::int64_t row_count,
