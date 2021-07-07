@@ -222,7 +222,7 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if target graph is smaller than pattern
                           false,
                           isomorphism_kind::induced,
                           1)),
-                      target_graph_is_smaller_than_pattern_graph);
+                      invalid_argument);
 }
 
 // SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if semantic match is true") {
