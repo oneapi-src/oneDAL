@@ -208,15 +208,6 @@ SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is negative") {
         invalid_argument);
 }
 
-SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if match count is positive") {
-    REQUIRE_THROWS_AS(
-        (this->check_subgraph_isomorphism<double_triangle_target_type, double_triangle_target_type>(
-            false,
-            isomorphism_kind::induced,
-            1)),
-        unimplemented);
-}
-
 SUBGRAPH_ISOMORPHISM_BADARG_TEST("Throws if target graph is smaller than pattern graph") {
     REQUIRE_THROWS_AS((this->check_subgraph_isomorphism<k_6_type, double_triangle_target_type>(
                           false,
