@@ -102,7 +102,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
         dynamic_cast<brute_force_model_impl<Task> *>(&dal::detail::get_impl(m));
 
     if (!trained_model) {
-        throw internal_error{ dal::detail::error_messages::unsupported_knn_model() };
+        throw internal_error{ dal::detail::error_messages::incompatible_knn_model() };
     }
 
     const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->data);

@@ -198,7 +198,7 @@ public:
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
     MSG(distance_is_not_supported_for_gpu);
-    MSG(unsupported_knn_model);
+    MSG(incompatible_knn_model);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);
