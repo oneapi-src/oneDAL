@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "oneapi/dal/detail/common.hpp"
+
 namespace oneapi::dal::backend {
 
 template <typename Float>
