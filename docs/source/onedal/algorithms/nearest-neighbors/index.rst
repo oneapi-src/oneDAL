@@ -21,8 +21,8 @@ Nearest Neighbors (kNN)
 .. toctree::
    :titlesonly:
 
-   knn-classification.rst
+   knn.rst
 
-.. rubric:: Examples: k-Nearest Neighbors Classification
+.. rubric:: Examples: k-Nearest Neighbors
 
 .. include:: ../../../includes/nearest-neighbors/knn-examples.rst

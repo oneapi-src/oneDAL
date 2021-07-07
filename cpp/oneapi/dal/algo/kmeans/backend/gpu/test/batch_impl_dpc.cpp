@@ -74,18 +74,18 @@ public:
                 tol);
     }
 
-    void run_counting(const pr::ndview<int32_t, 2>& labels, std::int64_t cluster_count) {
+    void run_counting(const pr::ndview<int32_t, 2>& responses, std::int64_t cluster_count) {
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
-        count_clusters(this->get_queue(), labels, cluster_count, counters).wait_and_throw();
+        count_clusters(this->get_queue(), responses, cluster_count, counters).wait_and_throw();
         count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters)
             .wait_and_throw();
-        check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
+        check_counters(responses, counters, cluster_count, empty_clusters.get_data()[0]);
     }
 
     void run_partial_reduce(const pr::ndview<float_t, 2>& data,
-                            const pr::ndview<int32_t, 2>& labels,
+                            const pr::ndview<int32_t, 2>& responses,
                             std::int64_t cluster_count,
                             std::int64_t part_count,
                             float_t tol = 1.0e-5) {
@@ -100,23 +100,23 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
         counters.fill(this->get_queue(), 0).wait_and_throw();
-        count_clusters(this->get_queue(), labels, cluster_count, counters).wait_and_throw();
+        count_clusters(this->get_queue(), responses, cluster_count, counters).wait_and_throw();
         count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters)
             .wait_and_throw();
-        check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
+        check_counters(responses, counters, cluster_count, empty_clusters.get_data()[0]);
 
         kernels_fp<float_t>::partial_reduce_centroids(this->get_queue(),
                                                       data,
-                                                      labels,
+                                                      responses,
                                                       cluster_count,
                                                       part_count,
                                                       partial_centroids)
             .wait_and_throw();
-        check_partial_centroids(data, labels, partial_centroids, part_count, tol);
+        check_partial_centroids(data, responses, partial_centroids, part_count, tol);
     }
 
     void run_reduce_centroids(const pr::ndview<float_t, 2>& data,
-                              const pr::ndview<int32_t, 2>& labels,
+                              const pr::ndview<int32_t, 2>& responses,
                               std::int64_t cluster_count,
                               std::int64_t part_count,
                               float_t tol = 1.0e-5) {
@@ -131,25 +131,25 @@ public:
         auto counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         counters.fill(this->get_queue(), 0).wait_and_throw();
         auto empty_clusters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), 1);
-        count_clusters(this->get_queue(), labels, cluster_count, counters).wait_and_throw();
+        count_clusters(this->get_queue(), responses, cluster_count, counters).wait_and_throw();
         count_empty_clusters(this->get_queue(), cluster_count, counters, empty_clusters)
             .wait_and_throw();
-        check_counters(labels, counters, cluster_count, empty_clusters.get_data()[0]);
+        check_counters(responses, counters, cluster_count, empty_clusters.get_data()[0]);
         kernels_fp<float_t>::partial_reduce_centroids(this->get_queue(),
                                                       data,
-                                                      labels,
+                                                      responses,
                                                       cluster_count,
                                                       part_count,
                                                       partial_centroids)
             .wait_and_throw();
-        check_partial_centroids(data, labels, partial_centroids, part_count, tol);
+        check_partial_centroids(data, responses, partial_centroids, part_count, tol);
         kernels_fp<float_t>::merge_reduce_centroids(this->get_queue(),
                                                     counters,
                                                     partial_centroids,
                                                     part_count,
                                                     centroids)
             .wait_and_throw();
-        check_reduced_centroids(data, labels, centroids, counters, tol);
+        check_reduced_centroids(data, responses, centroids, counters, tol);
     }
 
     void run_selection(const pr::ndview<float_t, 2>& data,
@@ -158,7 +158,7 @@ public:
                        float_t tol = 1.0e-5) {
         auto row_count = data.get_shape()[0];
         auto cluster_count = centroids.get_shape()[0];
-        auto labels = pr::ndarray<std::int32_t, 2>::empty(this->get_queue(), { row_count, 1 });
+        auto responses = pr::ndarray<std::int32_t, 2>::empty(this->get_queue(), { row_count, 1 });
         auto closest_distances =
             pr::ndarray<float_t, 2>::empty(this->get_queue(), { row_count, 1 });
         auto distances =
@@ -169,12 +169,12 @@ public:
             data,
             centroids,
             block_rows,
-            labels,
+            responses,
             distances,
             closest_distances,
             {})
             .wait_and_throw();
-        check_assignments(data, centroids, labels, closest_distances, tol);
+        check_assignments(data, centroids, responses, closest_distances, tol);
     }
 
     void run_candidates(pr::ndview<float_t, 2>& closest_distances, std::int64_t candidate_count) {
@@ -222,7 +222,7 @@ public:
 
     void check_assignments(const pr::ndview<float_t, 2>& data,
                            const pr::ndview<float_t, 2>& centroids,
-                           const pr::ndview<std::int32_t, 2>& labels,
+                           const pr::ndview<std::int32_t, 2>& responses,
                            const pr::ndview<float_t, 2>& closest_distances,
                            float_t tol) {
         auto row_count = data.get_shape()[0];
@@ -231,7 +231,7 @@ public:
         auto data_ptr = data.get_data();
         auto centroids_ptr = centroids.get_data();
         auto closest_distances_ptr = closest_distances.get_data();
-        auto labels_ptr = labels.get_data();
+        auto responses_ptr = responses.get_data();
         for (std::int64_t i = 0; i < row_count; i++) {
             float_t min_distance = dal::detail::limits<float_t>::max();
             std::int32_t min_index = -1;
@@ -248,8 +248,8 @@ public:
                     min_index = j;
                 }
             }
-            CAPTURE(i, labels_ptr[i]);
-            REQUIRE(labels_ptr[i] == min_index);
+            CAPTURE(i, responses_ptr[i]);
+            REQUIRE(responses_ptr[i] == min_index);
             auto v1 = closest_distances_ptr[i];
             auto v2 = min_distance;
             CAPTURE(v1, v2);
@@ -260,18 +260,18 @@ public:
         }
     }
 
-    void check_counters(const pr::ndview<int32_t, 2>& labels,
+    void check_counters(const pr::ndview<int32_t, 2>& responses,
                         const pr::ndview<int32_t, 1>& counters,
                         std::int32_t cluster_count,
                         std::int32_t empty_cluster_count) {
-        auto row_count = labels.get_shape()[0];
+        auto row_count = responses.get_shape()[0];
         auto temp_counters = pr::ndarray<std::int32_t, 1>::empty(this->get_queue(), cluster_count);
         temp_counters.fill(this->get_queue(), 0).wait_and_throw();
         auto temp_counters_ptr = temp_counters.get_mutable_data();
         auto counters_ptr = counters.get_data();
-        auto labels_ptr = labels.get_data();
+        auto responses_ptr = responses.get_data();
         for (std::int64_t i = 0; i < row_count; i++) {
-            const auto cl = labels_ptr[i];
+            const auto cl = responses_ptr[i];
             REQUIRE(cl >= 0);
             REQUIRE(cl < cluster_count);
             temp_counters_ptr[cl] += 1;
@@ -289,7 +289,7 @@ public:
     }
 
     void check_partial_centroids(const pr::ndview<float_t, 2>& data,
-                                 const pr::ndview<std::int32_t, 2>& labels,
+                                 const pr::ndview<std::int32_t, 2>& responses,
                                  const pr::ndview<float_t, 2>& partial_centroids,
                                  std::int64_t part_count,
                                  float_t tol) {
@@ -302,9 +302,9 @@ public:
         temp_partial_centroids.fill(this->get_queue(), 0.0).wait_and_throw();
         auto temp_partial_centroids_ptr = temp_partial_centroids.get_mutable_data();
         auto data_ptr = data.get_data();
-        auto labels_ptr = labels.get_data();
+        auto responses_ptr = responses.get_data();
         for (std::int64_t i = 0; i < row_count; i++) {
-            const auto cl = labels_ptr[i];
+            const auto cl = responses_ptr[i];
             const auto part = i % part_count;
             REQUIRE(cl >= 0);
             REQUIRE(cl < cluster_count);
@@ -331,7 +331,7 @@ public:
     }
 
     void check_reduced_centroids(const pr::ndview<float_t, 2>& data,
-                                 const pr::ndview<std::int32_t, 2>& labels,
+                                 const pr::ndview<std::int32_t, 2>& responses,
                                  const pr::ndview<float_t, 2>& centroids,
                                  const pr::ndview<std::int32_t, 1>& counters,
                                  float_t tol) {
@@ -343,9 +343,9 @@ public:
         temp_centroids.fill(this->get_queue(), 0.0).wait_and_throw();
         auto temp_centroids_ptr = temp_centroids.get_mutable_data();
         auto data_ptr = data.get_data();
-        auto labels_ptr = labels.get_data();
+        auto responses_ptr = responses.get_data();
         for (std::int64_t i = 0; i < row_count; i++) {
-            const auto cl = labels_ptr[i];
+            const auto cl = responses_ptr[i];
             REQUIRE(cl >= 0);
             REQUIRE(cl < cluster_count);
             for (std::int64_t j = 0; j < column_count; j++) {
@@ -390,7 +390,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_impl_test,
-                     "label counting unit test",
+                     "response counting unit test",
                      "[kmeans][weekly][unit]",
                      kmeans_types) {
     std::int64_t row_count = 100001;
@@ -401,8 +401,8 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     const table dfl_table = dfl.get_table(this->get_homogen_table_id());
     const auto dfl_rows =
         row_accessor<const std::int32_t>(dfl_table).pull(this->get_queue(), { 0, -1 });
-    auto labels = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
-    this->run_counting(labels, cluster_count);
+    auto responses = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
+    this->run_counting(responses, cluster_count);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_impl_test,
@@ -421,7 +421,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     const table dfl_table = dfl.get_table(this->get_homogen_table_id());
     const auto dfl_rows =
         row_accessor<const std::int32_t>(dfl_table).pull(this->get_queue(), { 0, -1 });
-    auto labels = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
+    auto responses = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
 
     const auto dfd = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.9, 1.7));
@@ -429,7 +429,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     const auto dfd_rows = row_accessor<const float_t>(dfd_table).pull(this->get_queue(), { 0, -1 });
     auto data = pr::ndarray<float_t, 2>::wrap(dfd_rows.get_data(), { row_count, column_count });
 
-    this->run_partial_reduce(data, labels, cluster_count, part_count);
+    this->run_partial_reduce(data, responses, cluster_count, part_count);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_impl_test,
@@ -448,7 +448,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     const table dfl_table = dfl.get_table(this->get_homogen_table_id());
     const auto dfl_rows =
         row_accessor<const std::int32_t>(dfl_table).pull(this->get_queue(), { 0, -1 });
-    auto labels = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
+    auto responses = pr::ndarray<std::int32_t, 2>::wrap(dfl_rows.get_data(), { row_count, 1 });
 
     const auto dfd = GENERATE_DATAFRAME(
         te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.9, 1.7));
@@ -456,7 +456,7 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
     const auto dfd_rows = row_accessor<const float_t>(dfd_table).pull(this->get_queue(), { 0, -1 });
     auto data = pr::ndarray<float_t, 2>::wrap(dfd_rows.get_data(), { row_count, column_count });
 
-    this->run_reduce_centroids(data, labels, cluster_count, part_count);
+    this->run_reduce_centroids(data, responses, cluster_count, part_count);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_impl_test,
