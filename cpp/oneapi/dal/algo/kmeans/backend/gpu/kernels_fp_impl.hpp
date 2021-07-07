@@ -48,12 +48,6 @@ template <typename T>
 struct set_indices {};
 
 template <typename T>
-struct find_candidates_kernel {};
-
-template <typename T>
-struct fill_empty_cluster_kernel {};
-
-template <typename T>
 struct centroid_reduction {};
 
 template <typename T>
@@ -214,95 +208,6 @@ sycl::event kernels_fp<Float>::assign_clusters(sycl::queue& queue,
 }
 
 template <typename Float>
-sycl::event kernels_fp<Float>::fill_empty_clusters(
-    sycl::queue& queue,
-    const pr::ndview<Float, 2>& data,
-    const pr::ndarray<std::int32_t, 1>& candidate_indices,
-    const pr::ndarray<std::int32_t, 1>& empty_cluster_indices,
-    pr::ndview<Float, 2>& centroids,
-    const bk::event_vector& deps) {
-    ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
-    ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
-    ONEDAL_ASSERT(candidate_indices.get_dimension(0) <= centroids.get_dimension(0));
-    ONEDAL_ASSERT(empty_cluster_indices.get_dimension(0) <= centroids.get_dimension(0));
-
-    const std::int64_t candidate_count = candidate_indices.get_dimension(0);
-    const std::int64_t column_count = centroids.get_dimension(1);
-
-    const Float* data_ptr = data.get_data();
-    const std::int32_t* candidate_indices_ptr = candidate_indices.get_data();
-    const std::int32_t* empty_cluster_indices_ptr = empty_cluster_indices.get_data();
-    Float* centroids_ptr = centroids.get_mutable_data();
-
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-
-        const auto range = bk::make_range_2d(candidate_count, column_count);
-        cgh.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            const std::int64_t dst_i = empty_cluster_indices_ptr[i];
-            const std::int64_t src_i = candidate_indices_ptr[i];
-            centroids_ptr[dst_i * column_count + j] = data_ptr[src_i * column_count + j];
-        });
-    });
-
-    return event;
-}
-
-template <typename Float>
-sycl::event kernels_fp<Float>::find_candidates(sycl::queue& queue,
-                                               std::int64_t candidate_count,
-                                               const pr::ndview<Float, 2>& closest_distances,
-                                               pr::ndview<std::int32_t, 1>& candidate_indices,
-                                               pr::ndview<Float, 1>& candidate_distances,
-                                               const bk::event_vector& deps) {
-    ONEDAL_ASSERT(candidate_count > 0);
-    ONEDAL_ASSERT(closest_distances.get_dimension(0) > candidate_count);
-    ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
-    ONEDAL_ASSERT(candidate_indices.get_dimension(0) == candidate_indices.get_dimension(0));
-    ONEDAL_ASSERT(candidate_indices.get_dimension(0) >= candidate_count);
-    const auto elem_count = closest_distances.get_dimension(0);
-
-    auto indices =
-        pr::ndarray<std::int32_t, 1>::empty(queue, { elem_count }, sycl::usm::alloc::device);
-    auto values = pr::ndarray<Float, 1>::empty(queue, { elem_count }, sycl::usm::alloc::device);
-
-    const Float* closest_distances_ptr = closest_distances.get_data();
-    std::int32_t* indices_ptr = indices.get_mutable_data();
-    std::int32_t* candidate_indices_ptr = candidate_indices.get_mutable_data();
-    Float* values_ptr = values.get_mutable_data();
-    Float* candidate_distances_ptr = candidate_distances.get_mutable_data();
-
-    auto fill_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.parallel_for<set_indices<Float>>(bk::make_range_1d(elem_count), [=](sycl::id<1> idx) {
-            indices_ptr[idx] = idx;
-            values_ptr[idx] = -closest_distances_ptr[idx];
-        });
-    });
-
-    pr::radix_sort_indices_inplace<Float, std::int32_t> radix_sort{ queue };
-    auto sort_event = radix_sort(values, indices, { fill_event });
-
-    auto copy_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(sort_event);
-        cgh.parallel_for<find_candidates_kernel<Float>>(
-            bk::make_range_1d(candidate_count),
-            [=](sycl::id<1> idx) {
-                candidate_distances_ptr[idx] = -values_ptr[idx];
-                candidate_indices_ptr[idx] = indices_ptr[idx];
-            });
-    });
-
-    // We need to wait as `indices` and `values` will be deallocated
-    // as we leave scope of the function
-    copy_event.wait_and_throw();
-
-    return copy_event;
-}
-
-template <typename Float>
 sycl::event kernels_fp<Float>::merge_reduce_centroids(sycl::queue& queue,
                                                       const pr::ndview<std::int32_t, 1>& counters,
                                                       const pr::ndview<Float, 2>& partial_centroids,
@@ -432,72 +337,6 @@ sycl::event kernels_fp<Float>::compute_objective_function(
                 }
             });
     });
-}
-
-template <typename Float>
-sycl::event kernels_fp<Float>::gather_candidates(
-    sycl::queue& queue,
-    std::int64_t candidate_count,
-    const pr::ndview<Float, 2>& data,
-    const pr::ndview<std::int32_t, 1>& candidate_indices,
-    pr::ndview<Float, 2>& candidates,
-    const bk::event_vector& deps) {
-    ONEDAL_ASSERT(candidate_count > 0);
-    ONEDAL_ASSERT(candidates.get_dimension(0) == candidate_count);
-    ONEDAL_ASSERT(candidates.get_dimension(1) == data.get_dimension(1));
-    ONEDAL_ASSERT(candidate_indices.get_dimension(0) == candidate_count);
-
-    const std::int64_t column_count = candidates.get_dimension(1);
-
-    const Float* data_ptr = data.get_data();
-    const std::int32_t* candidate_indices_ptr = candidate_indices.get_data();
-    Float* candidates_ptr = candidates.get_mutable_data();
-
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-
-        const auto range = bk::make_range_2d(candidate_count, column_count);
-        cgh.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            const std::int64_t src_i = candidate_indices_ptr[i];
-            candidates_ptr[i * column_count + j] = data_ptr[src_i * column_count + j];
-        });
-    });
-
-    return event;
-}
-
-template <typename Float>
-sycl::event kernels_fp<Float>::scatter_candidates(
-    sycl::queue& queue,
-    const pr::ndview<std::int32_t, 1>& empty_cluster_indices,
-    const pr::ndview<Float, 2>& candidates,
-    pr::ndview<Float, 2>& centroids,
-    const bk::event_vector& deps) {
-    ONEDAL_ASSERT(empty_cluster_indices.get_dimension(0) == candidates.get_dimension(0));
-    ONEDAL_ASSERT(candidates.get_dimension(1) == centroids.get_dimension(1));
-
-    const std::int64_t candidate_count = candidates.get_dimension(0);
-    const std::int64_t column_count = candidates.get_dimension(1);
-
-    const std::int32_t* empty_cluster_indices_ptr = empty_cluster_indices.get_data();
-    const Float* candidates_ptr = candidates.get_data();
-    Float* centroids_ptr = centroids.get_mutable_data();
-
-    auto event = queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-
-        const auto range = bk::make_range_2d(candidate_count, column_count);
-        cgh.parallel_for(range, [=](sycl::id<2> id) {
-            const std::int64_t i = id[0];
-            const std::int64_t j = id[1];
-            const std::int64_t dst_i = empty_cluster_indices_ptr[i];
-            centroids_ptr[dst_i * column_count + j] = candidates_ptr[i * column_count + j];
-        });
-    });
-
-    return event;
 }
 
 #endif

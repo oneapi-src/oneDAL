@@ -167,6 +167,9 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
     bin_search_flag_cc = _get_bin_search_flag(repo_ctx, tools.cc)
     bin_search_flag_dpcc = _get_bin_search_flag(repo_ctx, tools.dpcc)
 
+    # DPC++ kernel code split option
+    dpcc_code_split = "per_kernel"
+
     repo_ctx.template(
         "BUILD",
         Label("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.tpl.BUILD"),
@@ -236,6 +239,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     repo_ctx,
                     tools.cc,
                     "-fdiagnostics-color=always",
+                ) +
+                add_compiler_option_if_supported(
+                    repo_ctx,
+                    tools.dpcc,
+                    "-fsycl-device-code-split={}".format(dpcc_code_split),
                 ),
             ) if tools.is_dpc_found else "",
             "%{compile_flags_pedantic_cc}": get_starlark_list(
@@ -301,6 +309,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     repo_ctx,
                     tools.dpcc,
                     "-pass-exit-codes",
+                ) +
+                add_compiler_option_if_supported(
+                    repo_ctx,
+                    tools.dpcc,
+                    "-fsycl-device-code-split={}".format(dpcc_code_split),
                 ) +
                 bin_search_flag_dpcc + link_opts,
             ) if tools.is_dpc_found else "",

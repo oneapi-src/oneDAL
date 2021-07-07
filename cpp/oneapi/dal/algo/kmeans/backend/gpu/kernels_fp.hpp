@@ -50,21 +50,6 @@ struct kernels_fp {
                                        pr::ndview<Float, 2>& closest_distances,
                                        const bk::event_vector& deps = {});
 
-    static sycl::event fill_empty_clusters(
-        sycl::queue& queue,
-        const pr::ndview<Float, 2>& data,
-        const pr::ndarray<std::int32_t, 1>& candidate_indices,
-        const pr::ndarray<std::int32_t, 1>& empty_cluster_indices,
-        pr::ndview<Float, 2>& centroids,
-        const bk::event_vector& deps = {});
-
-    static sycl::event find_candidates(sycl::queue& queue,
-                                       std::int64_t candidate_count,
-                                       const pr::ndview<Float, 2>& closest_distances,
-                                       pr::ndview<std::int32_t, 1>& candidate_indices,
-                                       pr::ndview<Float, 1>& candidate_distances,
-                                       const bk::event_vector& deps = {});
-
     static sycl::event merge_reduce_centroids(sycl::queue& queue,
                                               const pr::ndview<std::int32_t, 1>& counters,
                                               const pr::ndview<Float, 2>& partial_centroids,
@@ -84,19 +69,6 @@ struct kernels_fp {
                                                   const pr::ndview<Float, 2>& closest_distances,
                                                   pr::ndview<Float, 1>& objective_function,
                                                   const bk::event_vector& deps = {});
-
-    static sycl::event gather_candidates(sycl::queue& queue,
-                                         std::int64_t candidate_count,
-                                         const pr::ndview<Float, 2>& data,
-                                         const pr::ndview<std::int32_t, 1>& candidate_indices,
-                                         pr::ndview<Float, 2>& candidates,
-                                         const bk::event_vector& deps = {});
-
-    static sycl::event scatter_candidates(sycl::queue& queue,
-                                          const pr::ndview<std::int32_t, 1>& empty_cluster_indices,
-                                          const pr::ndview<Float, 2>& candidates,
-                                          pr::ndview<Float, 2>& centroids,
-                                          const bk::event_vector& deps = {});
 };
 #endif
 

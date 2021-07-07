@@ -101,6 +101,18 @@ config_setting(
 )
 
 config_bool_flag(
+    name = "enable_assert",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "assert_enabled",
+    flag_values  = {
+        ":enable_assert": "True",
+    },
+)
+
+config_bool_flag(
     name = "release_dpc",
     build_setting_default = False,
 )

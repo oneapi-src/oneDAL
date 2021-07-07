@@ -30,7 +30,7 @@ load("@onedal//dev/bazel/config:config.bzl",
 
 def daal_module(name, features=[], lib_tag="daal",
                 hdrs=[], srcs=[], auto=False,
-                opencl=False, **kwargs):
+                opencl=False, local_defines=[], **kwargs):
     if auto:
         auto_hdrs = native.glob(["**/*.h", "**/*.i"])
         auto_srcs = native.glob(["**/*.cpp"])
@@ -56,6 +56,12 @@ def daal_module(name, features=[], lib_tag="daal",
             "f32": [ "DAAL_FPTYPE=float"  ],
             "f64": [ "DAAL_FPTYPE=double" ],
         },
+        local_defines = local_defines + select({
+            "@config//:assert_enabled": [
+                "DEBUG_ASSERT=1",
+            ],
+            "//conditions:default": [],
+        }),
         hdrs = auto_hdrs + hdrs,
         srcs = auto_srcs + srcs,
         **kwargs,

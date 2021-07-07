@@ -67,12 +67,10 @@ public:
                                    override_column_count);
     }
 
-    table get_too_big_initial_centroids(std::int64_t override_row_count = too_big_cluster_count,
-                                        std::int64_t override_column_count = column_count) const {
-        ONEDAL_ASSERT(override_row_count * override_column_count <= element_count);
+    table get_too_big_initial_centroids() const {
         return homogen_table::wrap(too_big_initial_centroids.data(),
-                                   override_row_count,
-                                   override_column_count);
+                                   too_big_cluster_count,
+                                   column_count);
     }
 
     table get_bad_initial_centroids(std::int64_t override_row_count = cluster_count,
