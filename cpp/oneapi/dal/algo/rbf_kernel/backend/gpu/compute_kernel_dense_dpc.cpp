@@ -38,6 +38,7 @@ inline auto compute_rbf_values(sycl::queue& queue,
                                const dal::backend::event_vector& deps = {}) {
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
     const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
+    ONEDAL_ASSERT(res_nd.get_count() == x_row_count * y_row_count);
 
     const Float coeff = static_cast<Float>(-0.5 / (sigma * sigma));
 
@@ -84,12 +85,10 @@ inline auto compute_rbf(sycl::queue& queue,
     auto sqr_x_nd = pr::ndarray<Float, 1>::empty(queue, { x_row_count }, sycl::usm::alloc::device);
     auto sqr_y_nd = pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
 
-    sycl::event::wait_and_throw(deps);
-
     auto reduce_x_event =
-        reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{});
+        reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
     auto reduce_y_event =
-        reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{});
+        reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
 
     constexpr Float alpha = -2.0;
     constexpr Float beta = 0.0;

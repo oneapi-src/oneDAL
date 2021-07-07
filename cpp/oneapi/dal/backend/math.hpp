@@ -19,18 +19,15 @@
 namespace oneapi::dal::backend {
 
 template <typename Float>
-constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
-
-template <typename Float>
 inline constexpr Float exp_low_threshold() {
-    static_assert(is_valid_float_v<Float>);
+    static_assert(detail::is_floating_point<Float>());
 
     // minimal double value ~ 2.3e-308, exp(-650.0) ~ 5.1e-283
-    constexpr double exp_low_double_threshlod = -650.0;
+    constexpr double exp_low_double_threshold = -650.0;
     // minimal float value ~ 1.2e-38, exp(-75.0) ~ 2.6e-33
-    constexpr float exp_low_float_threshlod = -75.0;
+    constexpr float exp_low_float_threshold = -75.0;
 
-    return std::is_same_v<Float, double> ? exp_low_double_threshlod : exp_low_float_threshlod;
+    return std::is_same_v<Float, double> ? exp_low_double_threshold : exp_low_float_threshold;
 }
 
 } // namespace oneapi::dal::backend
