@@ -89,7 +89,7 @@ template <typename Float, typename Method, typename Task, typename ModelImpl>
 static train_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
                                                       const detail::descriptor_base<Task>& desc,
                                                       const table& data,
-                                                      const table& labels,
+                                                      const table& responses,
                                                       const table& weights,
                                                       const std::uint64_t class_count) {
     const std::int64_t column_count = data.get_column_count();
@@ -101,7 +101,7 @@ static train_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
     daal_svm::training::internal::KernelParameter daal_svm_parameter =
         create_daal_parameter<Task>(desc, is_dense);
 
-    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
+    const auto daal_responses = interop::convert_to_daal_table<Float>(responses);
 
     daal_multiclass::training::internal::KernelParameter daal_multiclass_parameter;
     daal_multiclass_parameter.nClasses = class_count;
@@ -123,7 +123,7 @@ static train_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_multiclass_kernel_t>(ctx,
                                                                    daal_data.get(),
-                                                                   daal_labels.get(),
+                                                                   daal_responses.get(),
                                                                    daal_weights.get(),
                                                                    daal_model.get(),
                                                                    daal_svm_model.get(),
@@ -152,7 +152,7 @@ template <typename Float, typename Method, typename Task>
 static train_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
                                                   const detail::descriptor_base<Task>& desc,
                                                   const table& data,
-                                                  const table& labels,
+                                                  const table& responses,
                                                   const table& weights) {
     const std::int64_t column_count = data.get_column_count();
 
@@ -163,10 +163,10 @@ static train_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
     daal_svm::training::internal::KernelParameter daal_svm_parameter =
         create_daal_parameter<Task>(desc, is_dense);
 
-    const binary_label_t<Float> old_unique_labels = get_unique_labels<Float>(labels);
-    const auto new_labels =
-        convert_binary_labels(labels, { Float(-1.0), Float(1.0) }, old_unique_labels);
-    const auto daal_labels = interop::convert_to_daal_table<Float>(new_labels);
+    const binary_response_t<Float> old_unique_responses = get_unique_responses<Float>(responses);
+    const auto new_responses =
+        convert_binary_responses(responses, { Float(-1.0), Float(1.0) }, old_unique_responses);
+    const auto daal_responses = interop::convert_to_daal_table<Float>(new_responses);
 
     const auto daal_layout = daal_data->getDataLayout();
     auto daal_model = daal_svm::Model::create<Float>(column_count, daal_layout);
@@ -175,7 +175,11 @@ static train_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
                    Float,
                    oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value,
                    Method>()
-            .compute(daal_data, daal_weights, *daal_labels, daal_model.get(), daal_svm_parameter);
+            .compute(daal_data,
+                     daal_weights,
+                     *daal_responses,
+                     daal_model.get(),
+                     daal_svm_parameter);
     }));
 
     const std::int64_t n_sv = daal_model->getSupportIndices()->getNumberOfRows();
@@ -187,8 +191,8 @@ static train_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     auto trained_model = convert_from_daal_model<Task, Float>(*daal_model)
-                             .set_first_class_label(old_unique_labels.first)
-                             .set_second_class_label(old_unique_labels.second);
+                             .set_first_class_response(old_unique_responses.first)
+                             .set_second_class_response(old_unique_responses.second);
 
     return train_result<Task>().set_model(trained_model).set_support_indices(table_support_indices);
 }
@@ -197,7 +201,7 @@ template <typename Float, typename Method, typename Task, typename ModelImpl>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
-                                           const table& labels,
+                                           const table& responses,
                                            const table& weights) {
     const std::uint64_t class_count = desc.get_class_count();
 
@@ -205,12 +209,12 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         return call_multiclass_daal_kernel<Float, Method, Task, ModelImpl>(ctx,
                                                                            desc,
                                                                            data,
-                                                                           labels,
+                                                                           responses,
                                                                            weights,
                                                                            class_count);
     }
     else {
-        return call_binary_daal_kernel<Float, Method, Task>(ctx, desc, data, labels, weights);
+        return call_binary_daal_kernel<Float, Method, Task>(ctx, desc, data, responses, weights);
     }
 }
 
@@ -221,7 +225,7 @@ static train_result<Task> train(const context_cpu& ctx,
     return call_daal_kernel<Float, Method, Task, ModelImpl>(ctx,
                                                             desc,
                                                             input.get_data(),
-                                                            input.get_labels(),
+                                                            input.get_responses(),
                                                             input.get_weights());
 }
 

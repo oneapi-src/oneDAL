@@ -118,17 +118,17 @@ MSG(archive_is_in_invalid_state,
 MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
 MSG(input_data_is_empty, "Input data is empty")
-MSG(input_data_rc_neq_input_labels_rc,
-    "Input data row count is not equal to input labels row count")
+MSG(input_data_rc_neq_input_responses_rc,
+    "Input data row count is not equal to input responses row count")
 MSG(input_data_rc_neq_input_weights_rc,
     "Input data row count is not equal to input weights row count")
-MSG(input_labels_are_empty, "Labels are empty")
-MSG(input_labels_contain_only_one_unique_value_expect_two,
-    "Input labels contain only one unique value, two unique values are expected")
-MSG(input_labels_contain_wrong_unique_values_count_expect_two,
+MSG(input_responses_are_empty, "Responses are empty")
+MSG(input_responses_contain_only_one_unique_value_expect_two,
+    "Input responses contain only one unique value, two unique values are expected")
+MSG(input_responses_contain_wrong_unique_values_count_expect_two,
     "Input labels contain wrong number of unique values, two unique values are expected")
-MSG(input_labels_table_has_wrong_cc_expect_one,
-    "Input labels table has wrong column count, one column is expected")
+MSG(input_responses_table_has_wrong_cc_expect_one,
+    "Input responses table has wrong column count, one column is expected")
 MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
@@ -157,6 +157,7 @@ MSG(objective_function_value_lt_zero, "Objective function value is lower than ze
 /* k-NN */
 MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
     "k-NN k-d tree method is not implemented for GPU")
+MSG(knn_search_task_is_not_implemented_for_gpu, "k-NN search task is not implemented for GPU")
 MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
     "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
@@ -179,8 +180,8 @@ MSG(empty_target_graph, "Empty target graph")
 MSG(empty_pattern_graph, "Empty pattern graph")
 MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
     "Subgraph isomorphism is not implemented for labeled edges")
-MSG(non_zero_max_match_count_is_not_supported, "Non-zero max_match_count is not supported")
 MSG(incorrect_index_is_returned, "Internal error: incorrect index is returned")
+MSG(invalid_vertex_edge_attributes, "Internal error: invalid vertex/edge attributes")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")
@@ -221,7 +222,8 @@ MSG(nu_leq_zero, "Nu is lower than or equal to zero")
 MSG(nu_svm_smo_method_is_not_implemented_for_gpu, "nuSVM SMO method is not implemented for GPU")
 MSG(nu_svm_thunder_method_is_not_implemented_for_gpu,
     "nuSVM Thunder method is not implemented for GPU")
-MSG(polynomial_kenrel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
+MSG(polynomial_kernel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
+MSG(sigmoid_kernel_is_not_implemented_for_gpu, "Sigmoid kernel is not implemented for GPU")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
 MSG(svm_multiclass_not_implemented_for_gpu,
     "SVM with multiclass support is not implemented for GPU")

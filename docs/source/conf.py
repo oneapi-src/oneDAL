@@ -92,8 +92,8 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/cpp/source/%s', ''),
     'java_example': ('https://github.com/oneapi-src/oneDAL/tree/master/examples/daal/java/com/intel/daal/examples/%s', ''),
-    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/%s', ''),
-    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/sycl/%s', ''),
+    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/%s', ''),
+    'daal4py_sycl_example': ('https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/%s', ''),
     'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/master/samples/daal/cpp/%s', '')
 }
 
@@ -171,6 +171,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'knn::infer_result'),
     ('cpp:identifier', 'knn::infer_input'),
     ('cpp:identifier', 'detail::enable_if_brute_force_t<M>'),
+    ('cpp:identifier', 'detail::enable_if_search_t<T>'),
     # minkowski_distance
     ('cpp:identifier', 'minkowski_distance'),
     ('cpp:identifier', 'minkowski_distance::descriptor'),
@@ -235,6 +236,11 @@ nitpick_ignore = [
     ('cpp:identifier', 'rbf_kernel::descriptor'),
     ('cpp:identifier', 'rbf_kernel::compute_result'),
     ('cpp:identifier', 'rbf_kernel::compute_input'),
+    # sigmoid kernel
+    ('cpp:identifier', 'sigmoid_kernel'),
+    ('cpp:identifier', 'sigmoid_kernel::descriptor'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_result'),
+    ('cpp:identifier', 'sigmoid_kernel::compute_input'),
     # decision forest
     ('cpp:identifier', 'decision_forest'),
     ('cpp:identifier', 'decision_forest::infer_result'),

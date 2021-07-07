@@ -65,7 +65,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_input.set(daal_df_reg_pred::data, daal_data);
     daal_input.set(daal_df_reg_pred::model, daal_model);
 
-    daal::data_management::NumericTablePtr daal_labels_res =
+    daal::data_management::NumericTablePtr daal_responses_res =
         interop::allocate_daal_homogen_table<Float>(row_count, 1);
 
     const daal_df::regression::Model* const daal_model_ptr =
@@ -75,9 +75,10 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_model_ptr,
-        daal_labels_res.get()));
+        daal_responses_res.get()));
 
-    return result_t{}.set_labels(interop::convert_from_daal_homogen_table<Float>(daal_labels_res));
+    return result_t{}.set_responses(
+        interop::convert_from_daal_homogen_table<Float>(daal_responses_res));
 }
 
 template <typename Float>

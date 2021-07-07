@@ -53,17 +53,17 @@ template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
-                                 const table& labels) {
+                                 const table& responses) {
     const int64_t row_count = data.get_row_count();
     const int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    const auto daal_labels = interop::convert_to_daal_table<Float>(labels);
+    const auto daal_responses = interop::convert_to_daal_table<Float>(responses);
 
     /* init param for daal kernel */
     auto daal_input = daal::algorithms::classifier::training::Input();
     daal_input.set(daal::algorithms::classifier::training::data, daal_data);
-    daal_input.set(daal::algorithms::classifier::training::labels, daal_labels);
+    daal_input.set(daal::algorithms::classifier::training::labels, daal_responses);
 
     auto daal_parameter = daal_df_cls_train::Parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()));
@@ -135,7 +135,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         interop::call_daal_kernel<Float, CpuKernel>(ctx,
                                                     daal::services::internal::hostApp(daal_input),
                                                     daal_data.get(),
-                                                    daal_labels.get(),
+                                                    daal_responses.get(),
                                                     nullptr, // no weights
                                                     *mptr,
                                                     daal_result,
@@ -170,7 +170,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
 template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float, CpuKernel>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float, CpuKernel>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>

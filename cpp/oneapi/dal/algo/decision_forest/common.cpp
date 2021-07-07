@@ -59,7 +59,7 @@ public:
     std::int64_t min_bin_size = 5;
 
     error_metric_mode error_metric_mode_value = error_metric_mode::none;
-    infer_mode infer_mode_value = infer_mode::class_labels;
+    infer_mode infer_mode_value = infer_mode::class_responses;
 
     bool memory_saving_mode = false;
     bool bootstrap = true;
