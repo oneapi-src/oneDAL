@@ -5,18 +5,10 @@ load("@onedal//dev/bazel:dal.bzl",
 )
 
 dal_module(
-    name = "shortest_paths_graphs_headers",
-    hdrs = [
-        "test/shortest_paths_graphs.hpp",
-    ]
-)
-
-dal_module(
     name = "shortest_paths",
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
-        "@onedal//cpp/oneapi/dal/algo/shortest_paths:shortest_paths_graphs_headers",
     ]
 )
 
