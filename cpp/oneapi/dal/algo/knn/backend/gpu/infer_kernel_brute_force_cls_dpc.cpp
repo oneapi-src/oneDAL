@@ -22,7 +22,7 @@
 
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::knn::backend {

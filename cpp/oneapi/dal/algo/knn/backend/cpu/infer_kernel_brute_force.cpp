@@ -20,7 +20,7 @@
 
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 #include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
