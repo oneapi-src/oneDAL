@@ -24,10 +24,9 @@
 
 namespace oneapi::dal::knn::backend {
 
-template <typename Task>
-inline auto dynamic_cast_to_bf_knn_model(const model<Task>& m) {
-    const auto trained_model =
-        dynamic_cast<brute_force_model_impl<Task>*>(&dal::detail::get_impl(m));
+template <typename Task, typename ModelImpl>
+inline auto dynamic_cast_to_knn_model(const model<Task>& m) {
+    const auto trained_model = dynamic_cast<ModelImpl*>(&dal::detail::get_impl(m));
 
     if (!trained_model) {
         throw invalid_argument{ dal::detail::error_messages::incompatible_knn_model() };
@@ -56,7 +55,7 @@ template <typename Float, typename Task>
 inline auto convert_onedal_to_daal_knn_model(const model<Task>& m) {
     namespace interop = dal::backend::interop;
 
-    const auto trained_model = dynamic_cast_to_bf_knn_model(m);
+    const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
 
     const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->get_data());
     const auto daal_train_responses =
@@ -73,7 +72,7 @@ template <typename Float, typename Task>
 inline auto convert_onedal_to_daal_knn_model(const sycl::queue& queue, const model<Task>& m) {
     namespace interop = dal::backend::interop;
 
-    const auto trained_model = dynamic_cast_to_bf_knn_model<Task>(m);
+    const auto trained_model = dynamic_cast_to_knn_model<Task, brute_force_model_impl<Task>>(m);
 
     const auto daal_train_data = interop::convert_to_daal_table(queue, trained_model->get_data());
     const auto daal_train_responses =
