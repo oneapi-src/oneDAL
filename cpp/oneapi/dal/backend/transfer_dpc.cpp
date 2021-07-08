@@ -60,11 +60,11 @@ sycl::event gather_device2host(sycl::queue& q,
         });
     });
 
-    auto copy_event = memcpy(q,
-                             dst_host,
-                             gathered_device_unique.get(),
-                             block_count * block_size_in_bytes,
-                             { gather_event });
+    auto copy_event = memcpy_usm2host(q,
+                                      dst_host,
+                                      gathered_device_unique.get(),
+                                      block_count * block_size_in_bytes,
+                                      { gather_event });
 
     // We need to wait until gather kernel is completed to deallocate
     // `gathered_device_unique`
@@ -92,8 +92,11 @@ sycl::event scatter_host2device(sycl::queue& q,
     const auto gathered_device_unique =
         make_unique_usm_device(q, block_count * block_size_in_bytes);
 
-    auto copy_event =
-        memcpy(q, gathered_device_unique.get(), src_host, block_count * block_size_in_bytes, deps);
+    auto copy_event = memcpy_host2usm(q,
+                                      gathered_device_unique.get(),
+                                      src_host,
+                                      block_count * block_size_in_bytes,
+                                      deps);
 
     auto scatter_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(copy_event);
