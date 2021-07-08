@@ -129,10 +129,8 @@ using brute_force_model_impl = detail::brute_force_model_impl<Task>;
 template <typename Task>
 using kd_tree_model_impl = detail::kd_tree_model_impl<Task>;
 
-namespace interop = dal::backend::interop;
-
 template <typename Task>
-auto dynamic_cast_to_bf_knn_model(const model<Task>& m) {
+inline auto dynamic_cast_to_bf_knn_model(const model<Task>& m) {
     const auto trained_model =
         dynamic_cast<oneapi::dal::knn::backend::brute_force_model_impl<Task>*>(
             &dal::detail::get_impl(m));
@@ -145,7 +143,7 @@ auto dynamic_cast_to_bf_knn_model(const model<Task>& m) {
 }
 
 template <typename Float>
-auto create_daal_model_for_bf_knn(
+inline auto create_daal_model_for_bf_knn(
     const daal::data_management::NumericTablePtr daal_train_data,
     const daal::data_management::NumericTablePtr daal_train_responses) {
     namespace daal_bf_knn = daal::algorithms::bf_knn_classification;
@@ -161,7 +159,9 @@ auto create_daal_model_for_bf_knn(
 }
 
 template <typename Float, typename Task>
-auto convert_onedal_to_daal_knn_model(const model<Task>& m) {
+inline auto convert_onedal_to_daal_knn_model(const model<Task>& m) {
+    namespace interop = dal::backend::interop;
+
     const auto trained_model = dynamic_cast_to_bf_knn_model(m);
 
     const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->data);
@@ -176,7 +176,9 @@ auto convert_onedal_to_daal_knn_model(const model<Task>& m) {
 
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float, typename Task>
-auto convert_onedal_to_daal_knn_model(const sycl::queue& queue, const model<Task>& m) {
+inline auto convert_onedal_to_daal_knn_model(const sycl::queue& queue, const model<Task>& m) {
+    namespace interop = dal::backend::interop;
+
     const auto trained_model = dynamic_cast_to_bf_knn_model<Task>(m);
 
     const auto daal_train_data = interop::convert_to_daal_table(queue, trained_model->data);

@@ -41,7 +41,7 @@ template <typename Float>
 static infer_result<task::classification> call_daal_kernel(const context_gpu& ctx,
                                                            const descriptor_t& desc,
                                                            const table& data,
-                                                           const model<task::classification> m) {
+                                                           const model<task::classification>& m) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 

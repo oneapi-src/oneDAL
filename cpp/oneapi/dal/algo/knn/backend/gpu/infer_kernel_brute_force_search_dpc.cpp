@@ -28,7 +28,7 @@ template <typename Float>
 static infer_result<task::search> call_daal_kernel(const context_gpu& ctx,
                                                    const descriptor_t& desc,
                                                    const table& data,
-                                                   const model<task::search> m) {
+                                                   const model<task::search>& m) {
     throw unimplemented(dal::detail::error_messages::knn_search_task_is_not_implemented_for_gpu());
 }
 

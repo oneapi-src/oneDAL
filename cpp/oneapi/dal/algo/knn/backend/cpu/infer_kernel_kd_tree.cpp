@@ -41,7 +41,7 @@ template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
                                            const detail::descriptor_base<Task> &desc,
                                            const table &data,
-                                           const model<Task> m) {
+                                           const model<Task> &m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
