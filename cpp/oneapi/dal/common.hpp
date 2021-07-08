@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include <bitset>
 #include <cstdint>
 #include <utility>
 
