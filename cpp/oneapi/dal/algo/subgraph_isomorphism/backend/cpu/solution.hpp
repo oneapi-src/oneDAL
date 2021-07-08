@@ -202,7 +202,7 @@ void solution<Cpu>::append(solution<Cpu>&& _solution) {
     }
 
     if (_solution.data != nullptr) {
-        allocator.deallocate(_solution.data, 0);
+        allocator.deallocate(_solution.data, _solution.max_solution_count);
         _solution.data = nullptr;
     }
 
