@@ -258,6 +258,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
     # common for algorithms
     ('cpp:identifier', 'result'),
+    # common for result options
+    ('cpp:identifier', 'result_option_id'),
+    ('cpp:identifier', 'result_options::result_option_id_t'),
     # tables
     ('cpp:identifier', 'table'),
     ('cpp:identifier', 'row_count'),
