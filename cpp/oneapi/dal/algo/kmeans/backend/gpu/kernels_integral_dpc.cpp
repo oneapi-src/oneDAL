@@ -49,53 +49,59 @@ sycl::event count_clusters(sycl::queue& queue,
     ONEDAL_ASSERT(counters.get_dimension(0) == cluster_count);
     ONEDAL_ASSERT(labels.get_dimension(1) == 1);
     ONEDAL_ASSERT(cluster_count <= dal::detail::limits<std::int32_t>::max());
+    ONEDAL_ASSERT(labels.get_dimension(0) <= dal::detail::limits<std::int32_t>::max());
     ONEDAL_ASSERT(cluster_count > 0);
+
+    const auto row_count = labels.get_dimension(0);
+
     const std::int32_t* label_ptr = labels.get_data();
     std::int32_t* counter_ptr = counters.get_mutable_data();
-    const auto sg_size_to_set = get_recommended_sg_size2(queue);
-    const auto wg_count_to_set = get_recommended_wg_count2(queue);
-    const auto row_count = labels.get_dimension(0);
-    ONEDAL_ASSERT(row_count <= dal::detail::limits<std::int32_t>::max());
-    queue
-        .submit([&](sycl::handler& cgh) {
-            cgh.parallel_for(sycl::range<1>(cluster_count), [=](sycl::id<1> idx) {
-                counter_ptr[idx] = 0;
-            });
-        })
-        .wait_and_throw();
-    return queue.submit([&](sycl::handler& cgh) {
+
+    auto fill_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for<partial_counters>(
-            bk::make_multiple_nd_range_2d({ sg_size_to_set, wg_count_to_set },
-                                          { sg_size_to_set, 1 }),
-            [=](sycl::nd_item<2> item) {
-                auto sg = item.get_sub_group();
-                const std::int64_t sg_id = sg.get_group_id()[0];
-                const std::int64_t wg_id = item.get_global_id(1);
-                const std::int64_t wg_count = item.get_global_range(1);
-                const std::int64_t sg_count = sg.get_group_range()[0];
-                const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
-                const std::int64_t total_sg_count = wg_count * sg_count;
-
-                const std::int64_t local_id = sg.get_local_id()[0];
-                const std::int64_t local_range = sg.get_local_range()[0];
-
-                const std::int64_t block_size =
-                    row_count / total_sg_count + bool(row_count % total_sg_count);
-                const std::int64_t offset = block_size * sg_global_id;
-                const std::int64_t end =
-                    (offset + block_size) > row_count ? row_count : (offset + block_size);
-                for (std::int64_t i = offset + local_id; i < end; i += local_range) {
-                    const std::int32_t cl = label_ptr[i];
-                    sycl::ONEAPI::atomic_ref<std::int32_t,
-                                             cl::sycl::ONEAPI::memory_order::relaxed,
-                                             cl::sycl::ONEAPI::memory_scope::device,
-                                             cl::sycl::access::address_space::global_device_space>
-                        counter_atomic(counter_ptr[cl]);
-                    counter_atomic.fetch_add(1);
-                }
-            });
+        cgh.parallel_for(sycl::range<1>(cluster_count), [=](sycl::id<1> idx) {
+            counter_ptr[idx] = 0;
+        });
     });
+
+    auto reduce_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(fill_event);
+
+        const auto wg_count_to_set = get_recommended_wg_count2(queue);
+        const auto sg_size_to_set = get_recommended_sg_size2(queue);
+        const auto range = bk::make_multiple_nd_range_2d({ sg_size_to_set, wg_count_to_set },
+                                                         { sg_size_to_set, 1 });
+
+        cgh.parallel_for<partial_counters>(range, [=](sycl::nd_item<2> item) {
+            auto sg = item.get_sub_group();
+            const std::int64_t sg_id = sg.get_group_id()[0];
+            const std::int64_t wg_id = item.get_global_id(1);
+            const std::int64_t wg_count = item.get_global_range(1);
+            const std::int64_t sg_count = sg.get_group_range()[0];
+            const std::int64_t sg_global_id = wg_id * sg_count + sg_id;
+            const std::int64_t total_sg_count = wg_count * sg_count;
+
+            const std::int64_t local_id = sg.get_local_id()[0];
+            const std::int64_t local_range = sg.get_local_range()[0];
+
+            const std::int64_t block_size =
+                row_count / total_sg_count + bool(row_count % total_sg_count);
+            const std::int64_t offset = block_size * sg_global_id;
+            const std::int64_t end =
+                (offset + block_size) > row_count ? row_count : (offset + block_size);
+            for (std::int64_t i = offset + local_id; i < end; i += local_range) {
+                const std::int32_t cl = label_ptr[i];
+                sycl::ONEAPI::atomic_ref<std::int32_t,
+                                         cl::sycl::ONEAPI::memory_order::relaxed,
+                                         cl::sycl::ONEAPI::memory_scope::device,
+                                         cl::sycl::access::address_space::global_device_space>
+                    counter_atomic(counter_ptr[cl]);
+                counter_atomic.fetch_add(1);
+            }
+        });
+    });
+
+    return reduce_event;
 }
 
 std::int64_t count_empty_clusters(sycl::queue& queue,

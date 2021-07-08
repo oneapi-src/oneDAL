@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/algo/kmeans/backend/gpu/empty_cluster_handler.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/empty_cluster_handling.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 
 namespace oneapi::dal::kmeans::backend {

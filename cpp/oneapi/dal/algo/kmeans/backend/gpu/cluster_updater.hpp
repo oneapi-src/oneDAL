@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
-#include "oneapi/dal/algo/kmeans/backend/gpu/empty_cluster_handler.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/empty_cluster_handling.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
