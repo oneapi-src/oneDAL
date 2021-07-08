@@ -38,10 +38,10 @@ using daal_knn_kd_tree_kernel_t = daal_knn::prediction::internal::
     KNNClassificationPredictKernel<Float, daal_knn::prediction::defaultDense, Cpu>;
 
 template <typename Float, typename Task>
-static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
-                                           const detail::descriptor_base<Task> &desc,
-                                           const table &data,
-                                           const model<Task> &m) {
+static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const table& data,
+                                           const model<Task>& m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
@@ -112,17 +112,17 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
 }
 
 template <typename Float, typename Task>
-static infer_result<Task> infer(const context_cpu &ctx,
-                                const detail::descriptor_base<Task> &desc,
-                                const infer_input<Task> &input) {
+static infer_result<Task> infer(const context_cpu& ctx,
+                                const detail::descriptor_base<Task>& desc,
+                                const infer_input<Task>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float, typename Task>
 struct infer_kernel_cpu<Float, method::kd_tree, Task> {
-    infer_result<Task> operator()(const context_cpu &ctx,
-                                  const detail::descriptor_base<Task> &desc,
-                                  const infer_input<Task> &input) const {
+    infer_result<Task> operator()(const context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         return infer<Float>(ctx, desc, input);
     }
 };
