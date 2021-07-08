@@ -48,7 +48,7 @@ public:
     /// Creates a new instance of the class with the given :literal:`x` and :literal:`y`.
     compute_input(const table& x, const table& y);
 
-    /// An $n1 \\times p$ table with the data x, where each row
+    /// An $n \\times p$ table with the data x, where each row
     /// stores one feature vector.
     /// @remark default = table{}
     const table& get_x() const;
@@ -58,7 +58,7 @@ public:
         return *this;
     }
 
-    /// An $n1 \\times p$ table with the data x, where each row
+    /// An $m \\times p$ table with the data y, where each row
     /// stores one feature vector.
     /// @remark default = table{}
     const table& get_y() const;
@@ -88,7 +88,7 @@ public:
     /// Creates a new instance of the class with the default property values.
     compute_result();
 
-    /// A $n1 \\times n2$ table with the result kernel functions.
+    /// A $n \\times m$ table with the result kernel functions.
     /// @remark default = table{}
     const table& get_values() const;
 

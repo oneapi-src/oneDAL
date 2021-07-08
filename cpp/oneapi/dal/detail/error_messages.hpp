@@ -176,7 +176,6 @@ public:
     MSG(empty_target_graph);
     MSG(empty_pattern_graph);
     MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
-    MSG(non_zero_max_match_count_is_not_supported);
     MSG(incorrect_index_is_returned);
     MSG(invalid_vertex_edge_attributes);
 

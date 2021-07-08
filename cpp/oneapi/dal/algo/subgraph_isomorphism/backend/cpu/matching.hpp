@@ -45,11 +45,21 @@ public:
                     inner_alloc alloc);
     virtual ~matching_engine();
 
-    void run_and_wait(global_stack<Cpu>& gstack, std::int64_t& busy_engine_count, bool main_engine);
+    void run_and_wait(global_stack<Cpu>& gstack,
+                      std::int64_t& busy_engine_count,
+                      std::int64_t& current_match_count,
+                      std::int64_t target_match_count,
+                      bool main_engine);
     solution<Cpu> get_solution();
+    std::int64_t get_match_count() const;
 
+    std::int64_t state_exploration();
     std::int64_t state_exploration_bit(bool check_solution = true);
     std::int64_t state_exploration_list(bool check_solution = true);
+
+    bool check_if_max_match_count_reached(std::int64_t& cumulative_match_count,
+                                          std::int64_t delta,
+                                          std::int64_t target_match_count);
 
     std::int64_t first_states_generator(dfs_stack<Cpu>& stack);
 
@@ -80,6 +90,7 @@ public:
 
     std::int64_t extract_candidates(bool check_solution);
     bool check_vertex_candidate(bool check_solution, std::int64_t candidate);
+    void set_not_busy(bool& is_busy_engine, std::int64_t& busy_engine_count);
 };
 
 template <typename Cpu>
@@ -96,7 +107,7 @@ public:
                   kind isomorphism_kind,
                   inner_alloc alloc);
     virtual ~engine_bundle();
-    solution<Cpu> run();
+    solution<Cpu> run(std::int64_t max_match_count);
 
     inner_alloc allocator;
     const graph<Cpu>* pattern;
@@ -108,8 +119,9 @@ public:
     const float* pattern_vertex_probability;
     kind isomorphism_kind;
 
-    typedef oneapi::dal::detail::tls_mem<matching_engine<Cpu>, std::allocator<double>> bundle;
-    bundle matching_bundle;
+    solution<Cpu> combine_solutions(matching_engine<Cpu>* engine_array,
+                                    std::uint64_t array_size,
+                                    std::int64_t max_match_count);
 };
 
 template <typename Cpu>
@@ -259,12 +271,12 @@ bool matching_engine<Cpu>::check_vertex_candidate(bool check_solution, std::int6
             if (solution_core != nullptr) {
                 hlocal_stack.fill_solution(solution_core, candidate);
                 engine_solutions.add(&solution_core);
+                return true;
             }
         }
         else {
             hlocal_stack.push_into_next_level(candidate);
         }
-        return true;
     }
     return false;
 }
@@ -343,61 +355,87 @@ solution<Cpu> matching_engine<Cpu>::get_solution() {
 }
 
 template <typename Cpu>
+std::int64_t matching_engine<Cpu>::get_match_count() const {
+    return engine_solutions.get_solution_count();
+}
+
+template <typename Cpu>
+std::int64_t matching_engine<Cpu>::state_exploration() {
+    if (target->bit_representation) {
+        return state_exploration_bit();
+    }
+    else {
+        return state_exploration_list();
+    }
+}
+
+template <typename Cpu>
+bool matching_engine<Cpu>::check_if_max_match_count_reached(std::int64_t& cumulative_match_count,
+                                                            std::int64_t delta,
+                                                            std::int64_t target_match_count) {
+    bool is_reached = false;
+    if (delta > 0) {
+        dal::detail::atomic_increment(cumulative_match_count, delta);
+    }
+    if (dal::detail::atomic_load(cumulative_match_count) >= target_match_count) {
+        is_reached = true;
+    }
+    return is_reached;
+}
+
+template <typename Cpu>
+void matching_engine<Cpu>::set_not_busy(bool& is_busy_engine, std::int64_t& busy_engine_count) {
+    if (is_busy_engine) {
+        is_busy_engine = false;
+        dal::detail::atomic_decrement(busy_engine_count);
+    }
+}
+
+template <typename Cpu>
 void matching_engine<Cpu>::run_and_wait(global_stack<Cpu>& gstack,
                                         std::int64_t& busy_engine_count,
+                                        std::int64_t& cumulative_match_count,
+                                        std::int64_t target_match_count,
                                         bool main_engine) {
     if (main_engine) {
         first_states_generator(hlocal_stack);
     }
     bool is_busy_engine = true;
+    std::int64_t current_match_count = 0;
     ONEDAL_ASSERT(pattern != nullptr);
-    if (target->bit_representation) { /* dense graph case */
-        for (;;) {
-            if (hlocal_stack.states_in_stack() > 0) {
-                while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
-                    ;
-                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-                state_exploration_bit();
-            }
-            else {
-                gstack.pop(hlocal_stack);
-                if (hlocal_stack.empty()) {
-                    if (is_busy_engine) {
-                        is_busy_engine = false;
-                        dal::detail::atomic_decrement(busy_engine_count);
-                    }
-                    if (dal::detail::atomic_load(busy_engine_count) == 0)
-                        break;
-                }
-                else if (!is_busy_engine) {
-                    is_busy_engine = true;
-                    dal::detail::atomic_increment(busy_engine_count);
-                }
+    for (;;) {
+        if (target_match_count > 0 &&
+            dal::detail::atomic_load(cumulative_match_count) >= target_match_count) {
+            set_not_busy(is_busy_engine, busy_engine_count);
+            break;
+        }
+        if (hlocal_stack.states_in_stack() > 0) {
+            while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
+                ;
+            ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
+            const auto delta = state_exploration();
+            current_match_count += delta;
+            if (target_match_count > 0 && check_if_max_match_count_reached(cumulative_match_count,
+                                                                           delta,
+                                                                           target_match_count)) {
+                set_not_busy(is_busy_engine, busy_engine_count);
+                break;
             }
         }
-    }
-    else { /* sparse graph case */
-        for (;;) {
-            if (hlocal_stack.states_in_stack() > 0) {
-                while ((hlocal_stack.states_in_stack() > 5) && gstack.push(hlocal_stack))
-                    ;
-                ONEDAL_ASSERT(hlocal_stack.states_in_stack() > 0);
-                state_exploration_list();
+        else {
+            gstack.pop(hlocal_stack);
+            if (hlocal_stack.empty()) {
+                set_not_busy(is_busy_engine, busy_engine_count);
+                if (target_match_count > 0 &&
+                    dal::detail::atomic_load(cumulative_match_count) >= target_match_count) {
+                    break;
+                }
+                if (dal::detail::atomic_load(busy_engine_count) == 0)
+                    break;
             }
-            else {
-                gstack.pop(hlocal_stack);
-                if (hlocal_stack.empty()) {
-                    if (is_busy_engine) {
-                        is_busy_engine = false;
-                        dal::detail::atomic_decrement(busy_engine_count);
-                    }
-                    if (dal::detail::atomic_load(busy_engine_count) == 0)
-                        break;
-                }
-                else if (!is_busy_engine) {
-                    is_busy_engine = true;
-                    dal::detail::atomic_increment(busy_engine_count);
-                }
+            else if (!is_busy_engine) {
+                is_busy_engine = true;
+                dal::detail::atomic_increment(busy_engine_count);
             }
         }
     }
@@ -436,7 +474,38 @@ engine_bundle<Cpu>::~engine_bundle() {
 }
 
 template <typename Cpu>
-solution<Cpu> engine_bundle<Cpu>::run() {
+solution<Cpu> engine_bundle<Cpu>::combine_solutions(matching_engine<Cpu>* engine_array,
+                                                    std::uint64_t array_size,
+                                                    std::int64_t max_match_count) {
+    ONEDAL_ASSERT(engine_array != nullptr);
+    solution<Cpu> bundle_solutions(pattern->get_vertex_count(), allocator);
+    for (std::uint64_t k = 0; k < array_size; k++) {
+        std::uint64_t engine_max_index = 0;
+        std::uint64_t engine_max_match_count = 0;
+        std::uint64_t total_combined_count = 0;
+        for (std::uint64_t i = 0; i < array_size; i++) {
+            std::uint64_t match_count = engine_array[i].get_match_count();
+            if (match_count > engine_max_match_count) {
+                engine_max_match_count = match_count;
+                engine_max_index = i;
+            }
+        }
+        if (engine_max_match_count != 0) {
+            total_combined_count += engine_array[engine_max_index].get_match_count();
+            bundle_solutions.append(engine_array[engine_max_index].get_solution());
+        }
+        else
+            break;
+
+        if (max_match_count != 0 &&
+            total_combined_count >= static_cast<std::uint64_t>(max_match_count))
+            break;
+    }
+    return bundle_solutions;
+}
+
+template <typename Cpu>
+solution<Cpu> engine_bundle<Cpu>::run(std::int64_t max_match_count) {
     std::int64_t degree = pattern->get_vertex_degree(sorted_pattern_vertex[0]);
 
     std::uint64_t first_states_count =
@@ -489,16 +558,20 @@ solution<Cpu> engine_bundle<Cpu>::run() {
 
     global_stack<Cpu> gstack(pattern->get_vertex_count(), allocator);
     std::int64_t busy_engine_count(array_size);
+    std::int64_t cumulative_match_count(0);
     dal::detail::threader_for(array_size, array_size, [&](const int index) {
-        engine_array[index].run_and_wait(gstack, busy_engine_count, false);
+        engine_array[index].run_and_wait(gstack,
+                                         busy_engine_count,
+                                         cumulative_match_count,
+                                         max_match_count,
+                                         false);
     });
 
-    solution<Cpu> aggregated_solution(pattern->get_vertex_count(), allocator);
+    auto aggregated_solution = combine_solutions(engine_array, array_size, max_match_count);
+
     for (std::uint64_t i = 0; i < array_size; i++) {
-        aggregated_solution.append(engine_array[i].get_solution());
         engine_array[i].~matching_engine();
     }
-
     return aggregated_solution;
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

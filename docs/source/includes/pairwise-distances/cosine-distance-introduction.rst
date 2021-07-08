@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2020-2021 Intel Corporation
+.. * Copyright 2021 Intel Corporation
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-=======================
-Nearest Neighbors (kNN)
-=======================
+The Cosine distance is a measure of distance between two non-zero vectors of an inner product space.
 
-.. toctree::
-   :titlesonly:
+.. |c_math| replace::   :ref:`dense <cosine_distance_c_math>`
+.. |c_dense| replace::  :ref:`dense <cosine_distance_c_math_dense>`
 
-   knn.rst
-
-.. rubric:: Examples: k-Nearest Neighbors
-
-.. include:: ../../../includes/nearest-neighbors/knn-examples.rst
+=============  ===============  =========
+**Operation**  **Computational  methods**
+-------------  --------------------------
+|c_math|       |c_dense|
+=============  ===============  =========

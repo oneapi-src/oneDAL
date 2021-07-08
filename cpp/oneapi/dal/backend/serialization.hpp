@@ -166,6 +166,9 @@ public:
     ID(3010200000, svm_model_interop_impl_multiclass_id);
     ID(3010300000, svm_nu_classification_model_impl_id);
     ID(3010400000, svm_nu_regression_model_impl_id);
+
+    // PCA
+    ID(4010000000, pca_dim_reduction_model_impl_id);
 };
 
 #undef ID
