@@ -55,12 +55,14 @@ public:
         std::uniform_real_distribution<Float> distr(a, b);
 
         // move generation to device when rng is available there
-        Float* val_ptr = detail::host_allocator<Float>().allocate(val.get_count());
+        auto val_host = ndarray<Float, 1>::empty({ val.get_count() });
+        Float* val_ptr = val_host.get_mutable_data();
         for (Index el = 0; el < elem_count; el++) {
             val_ptr[el] = distr(rng);
         }
-        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
-        detail::host_allocator<Float>().deallocate(val_ptr, val.get_count());
+
+        auto& q = this->get_queue();
+        val.assign(q, val_host.to_device(q)).wait_and_throw();
     }
 
     auto create_reference_on_host(const ndarray<Float, 1>& val) {
@@ -125,15 +127,16 @@ public:
         std::uniform_int_distribution<Integer> distr(a, b);
 
         // move generation to device when rng is available there
-        Integer* val_ptr = detail::host_allocator<Integer>().allocate(val.get_count());
+        auto val_host = ndarray<Integer, 2>::empty({ val.get_shape() });
+        Integer* val_ptr = val_host.get_mutable_data();
         for (std::uint32_t vec = 0; vec < vector_count; vec++) {
             for (std::uint32_t el = 0; el < elem_count; el++) {
                 val_ptr[vec * elem_count + el] = distr(rng);
             }
         }
 
-        val.assign(this->get_queue(), val_ptr, val.get_count()).wait_and_throw();
-        detail::host_allocator<Integer>().deallocate(val_ptr, val.get_count());
+        auto& q = this->get_queue();
+        val.assign(q, val_host.to_device(q)).wait_and_throw();
     }
 
     void check_sort(ndarray<Integer, 2>& val, std::int64_t sorted_elem_count) {
