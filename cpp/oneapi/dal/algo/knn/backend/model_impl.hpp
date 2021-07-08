@@ -19,6 +19,13 @@
 #include "oneapi/dal/algo/knn/common.hpp"
 #include "oneapi/dal/algo/knn/backend/model_interop.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
+
+#ifdef ONEDAL_DATA_PARALLEL
+#include <src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h>
+#else
+#include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
+#endif
 
 namespace oneapi::dal::knn {
 
@@ -121,6 +128,67 @@ using brute_force_model_impl = detail::brute_force_model_impl<Task>;
 
 template <typename Task>
 using kd_tree_model_impl = detail::kd_tree_model_impl<Task>;
+
+namespace interop = dal::backend::interop;
+
+template <typename Task>
+auto dynamic_cast_to_bf_knn_model(const model<Task>& m) {
+    const auto trained_model =
+        dynamic_cast<oneapi::dal::knn::backend::brute_force_model_impl<Task>*>(
+            &dal::detail::get_impl(m));
+
+    if (!trained_model) {
+        throw internal_error{ dal::detail::error_messages::incompatible_knn_model() };
+    }
+
+    return trained_model;
+}
+
+template <typename Float>
+auto create_daal_model_for_bf_knn(
+    const daal::data_management::NumericTablePtr daal_train_data,
+    const daal::data_management::NumericTablePtr daal_train_responses) {
+    namespace daal_bf_knn = daal::algorithms::bf_knn_classification;
+    const std::int64_t column_count = daal_train_data->getNumberOfColumns();
+
+    const auto model_ptr = daal_bf_knn::ModelPtr(new daal_bf_knn::Model(column_count));
+
+    // Data or responses should not be copied
+    model_ptr->impl()->setData<Float>(daal_train_data, false);
+    model_ptr->impl()->setLabels<Float>(daal_train_responses, false);
+
+    return model_ptr;
+}
+
+template <typename Float, typename Task>
+auto convert_onedal_to_daal_knn_model(const model<Task>& m) {
+    const auto trained_model = dynamic_cast_to_bf_knn_model(m);
+
+    const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->data);
+    const auto daal_train_responses =
+        interop::convert_to_daal_table<Float>(trained_model->responses);
+
+    const auto model_ptr =
+        create_daal_model_for_bf_knn<Float>(daal_train_data, daal_train_responses);
+
+    return model_ptr;
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename Float, typename Task>
+auto convert_onedal_to_daal_knn_model(const sycl::queue& queue, const model<Task>& m) {
+    const auto trained_model = dynamic_cast_to_bf_knn_model<Task>(m);
+
+    const auto daal_train_data = interop::convert_to_daal_table(queue, trained_model->data);
+    const auto daal_train_responses =
+        interop::convert_to_daal_table(queue, trained_model->responses);
+
+    const auto model_ptr =
+        create_daal_model_for_bf_knn<Float>(daal_train_data, daal_train_responses);
+
+    return model_ptr;
+}
+#endif
 
 } // namespace backend
 } // namespace oneapi::dal::knn

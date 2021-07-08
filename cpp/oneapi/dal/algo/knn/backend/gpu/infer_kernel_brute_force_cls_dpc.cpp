@@ -66,23 +66,7 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
         throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
     }
 
-    const auto trained_model =
-        dynamic_cast<brute_force_model_impl<task::classification>*>(&dal::detail::get_impl(m));
-
-    if (!trained_model) {
-        throw internal_error{ dal::detail::error_messages::incompatible_knn_model() };
-    }
-
-    const auto daal_train_data = interop::convert_to_daal_table(queue, trained_model->data);
-    const auto daal_train_responses =
-        interop::convert_to_daal_table(queue, trained_model->responses);
-    const std::int64_t column_count = daal_train_data->getNumberOfColumns();
-
-    const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
-
-    // Data or responses should not be copied
-    model_ptr->impl()->setData<Float>(daal_train_data, false);
-    model_ptr->impl()->setLabels<Float>(daal_train_responses, false);
+    const auto model_ptr = convert_onedal_to_daal_knn_model<Float, task::classification>(queue, m);
 
     interop::status_to_exception(
         daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),

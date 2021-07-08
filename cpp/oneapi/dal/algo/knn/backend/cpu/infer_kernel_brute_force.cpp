@@ -42,7 +42,7 @@ template <typename Float, typename Task>
 static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
                                            const detail::descriptor_base<Task> &desc,
                                            const table &data,
-                                           model<Task> m) {
+                                           const model<Task> m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
@@ -98,23 +98,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     const auto daal_voting_mode = convert_to_daal_bf_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
 
-    const auto trained_model =
-        dynamic_cast<brute_force_model_impl<Task> *>(&dal::detail::get_impl(m));
-
-    if (!trained_model) {
-        throw internal_error{ dal::detail::error_messages::incompatible_knn_model() };
-    }
-
-    const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->data);
-    const auto daal_train_responses =
-        interop::convert_to_daal_table<Float>(trained_model->responses);
-    const std::int64_t column_count = daal_train_data->getNumberOfColumns();
-
-    const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
-
-    // Data or responses should not be copied
-    model_ptr->impl()->setData<Float>(daal_train_data, false);
-    model_ptr->impl()->setLabels<Float>(daal_train_responses, false);
+    const auto model_ptr = convert_onedal_to_daal_knn_model<Float, Task>(m);
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(ctx,
