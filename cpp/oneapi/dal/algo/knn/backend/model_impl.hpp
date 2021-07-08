@@ -37,15 +37,15 @@ namespace oneapi::dal::knn {
 template <typename Task>
 class detail::v1::model_impl : public base {
 public:
-    model_impl() {}
-    model_impl(const model_impl&) = delete;
-    model_impl& operator=(const model_impl&) = delete;
+    model_impl() = default;
 
     virtual backend::model_interop* get_interop() = 0;
 };
 
-namespace detail {
-namespace v1 {
+namespace backend {
+
+template <typename Task>
+using model_impl = detail::model_impl<Task>;
 
 template <typename Task>
 class brute_force_model_impl : public model_impl<Task>,
@@ -53,30 +53,35 @@ class brute_force_model_impl : public model_impl<Task>,
                                                        knn_brute_force_classification_model_impl_id,
                                                        knn_brute_force_search_model_impl_id) {
 public:
-    brute_force_model_impl() {}
-    brute_force_model_impl(const brute_force_model_impl&) = delete;
-    brute_force_model_impl& operator=(const brute_force_model_impl&) = delete;
+    brute_force_model_impl() = default;
 
     brute_force_model_impl(const table& data, const table& responses)
-            : data(data),
-              responses(responses) {}
-
-    ~brute_force_model_impl() {}
+            : data_(data),
+              responses_(responses) {}
 
     backend::model_interop* get_interop() override {
         return nullptr;
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
-        ar(data, responses);
+        ar(data_, responses_);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
-        ar(data, responses);
+        ar(data_, responses_);
     }
 
-    table data;
-    table responses;
+    table get_data() {
+        return data_;
+    }
+
+    table get_responses() {
+        return responses_;
+    }
+
+private:
+    table data_;
+    table responses_;
 };
 
 template <typename Task>
@@ -111,23 +116,6 @@ public:
 private:
     backend::model_interop* interop_;
 };
-} // namespace v1
-
-using v1::brute_force_model_impl;
-using v1::kd_tree_model_impl;
-
-} // namespace detail
-
-namespace backend {
-
-template <typename Task>
-using model_impl = detail::model_impl<Task>;
-
-template <typename Task>
-using brute_force_model_impl = detail::brute_force_model_impl<Task>;
-
-template <typename Task>
-using kd_tree_model_impl = detail::kd_tree_model_impl<Task>;
 
 template <typename Task>
 inline auto dynamic_cast_to_bf_knn_model(const model<Task>& m) {
@@ -136,7 +124,7 @@ inline auto dynamic_cast_to_bf_knn_model(const model<Task>& m) {
             &dal::detail::get_impl(m));
 
     if (!trained_model) {
-        throw internal_error{ dal::detail::error_messages::incompatible_knn_model() };
+        throw invalid_argument{ dal::detail::error_messages::incompatible_knn_model() };
     }
 
     return trained_model;
@@ -164,9 +152,9 @@ inline auto convert_onedal_to_daal_knn_model(const model<Task>& m) {
 
     const auto trained_model = dynamic_cast_to_bf_knn_model(m);
 
-    const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->data);
+    const auto daal_train_data = interop::convert_to_daal_table<Float>(trained_model->get_data());
     const auto daal_train_responses =
-        interop::convert_to_daal_table<Float>(trained_model->responses);
+        interop::convert_to_daal_table<Float>(trained_model->get_responses());
 
     const auto model_ptr =
         create_daal_model_for_bf_knn<Float>(daal_train_data, daal_train_responses);
@@ -181,9 +169,9 @@ inline auto convert_onedal_to_daal_knn_model(const sycl::queue& queue, const mod
 
     const auto trained_model = dynamic_cast_to_bf_knn_model<Task>(m);
 
-    const auto daal_train_data = interop::convert_to_daal_table(queue, trained_model->data);
+    const auto daal_train_data = interop::convert_to_daal_table(queue, trained_model->get_data());
     const auto daal_train_responses =
-        interop::convert_to_daal_table(queue, trained_model->responses);
+        interop::convert_to_daal_table(queue, trained_model->get_responses());
 
     const auto model_ptr =
         create_daal_model_for_bf_knn<Float>(daal_train_data, daal_train_responses);

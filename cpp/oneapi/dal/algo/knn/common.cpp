@@ -118,10 +118,10 @@ void model<Task>::deserialize(dal::detail::input_archive& ar) {
 template class ONEDAL_EXPORT model<task::classification>;
 template class ONEDAL_EXPORT model<task::search>;
 
-ONEDAL_REGISTER_SERIALIZABLE(detail::v1::brute_force_model_impl<task::classification>)
-ONEDAL_REGISTER_SERIALIZABLE(detail::v1::kd_tree_model_impl<task::classification>)
-ONEDAL_REGISTER_SERIALIZABLE(detail::v1::brute_force_model_impl<task::search>)
-ONEDAL_REGISTER_SERIALIZABLE(detail::v1::kd_tree_model_impl<task::search>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::search>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::search>)
 ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop)
 
 } // namespace v1

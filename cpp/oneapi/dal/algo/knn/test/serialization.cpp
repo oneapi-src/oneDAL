@@ -132,6 +132,8 @@ public:
         INFO("compare responses") {
             te::check_if_tables_equal<float_t>(actual.get_responses(), reference.get_responses());
         }
+
+        // TODO: add "compare distances" checker also
     }
 
     void run_test() {
