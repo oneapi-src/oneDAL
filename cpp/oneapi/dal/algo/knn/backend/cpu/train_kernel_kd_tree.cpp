@@ -42,6 +42,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const table& responses) {
+    using model_t = model<Task>;
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
@@ -79,7 +80,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto interop = new daal_model_interop_t(model_ptr);
     const auto model_impl = std::make_shared<kd_tree_model_impl<Task>>(interop);
-    return train_result<Task>().set_model(dal::detail::make_private<model<Task>>(model_impl));
+    return train_result<Task>().set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
 template <typename Float, typename Task>
