@@ -30,12 +30,12 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace pr = dal::backend::primitives;
 
 template <typename Float>
-inline auto compute_rbf_values(sycl::queue& queue,
-                               const pr::ndview<Float, 1>& sqr_x_nd,
-                               const pr::ndview<Float, 1>& sqr_y_nd,
-                               pr::ndview<Float, 2>& res_nd,
-                               double sigma,
-                               const dal::backend::event_vector& deps = {}) {
+inline auto compute_exponents(sycl::queue& queue,
+                              const pr::ndview<Float, 1>& sqr_x_nd,
+                              const pr::ndview<Float, 1>& sqr_y_nd,
+                              pr::ndview<Float, 2>& res_nd,
+                              double sigma,
+                              const dal::backend::event_vector& deps = {}) {
     const std::int64_t x_row_count = sqr_x_nd.get_dimension(0);
     const std::int64_t y_row_count = sqr_y_nd.get_dimension(0);
     ONEDAL_ASSERT(res_nd.get_count() == x_row_count * y_row_count);
@@ -52,10 +52,9 @@ inline auto compute_rbf_values(sycl::queue& queue,
     const auto range =
         dal::backend::make_multiple_nd_range_2d({ x_row_count, y_row_count }, { wg_size, 1 });
 
-    const std::size_t ld = y_row_count;
-
     auto compute_rbf_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
+        const std::size_t ld = y_row_count;
 
         cgh.parallel_for(range, [=](sycl::nd_item<2> item) {
             const std::size_t i = item.get_global_id(0);
@@ -86,24 +85,24 @@ inline auto compute_rbf(sycl::queue& queue,
     auto sqr_y_nd = pr::ndarray<Float, 1>::empty(queue, { y_row_count }, sycl::usm::alloc::device);
 
     auto reduce_x_event =
-        reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
+        pr::reduce_by_rows(queue, x_nd, sqr_x_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
     auto reduce_y_event =
-        reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
+        pr::reduce_by_rows(queue, y_nd, sqr_y_nd, pr::sum<Float>{}, pr::square<Float>{}, deps);
 
     constexpr Float alpha = -2.0;
     constexpr Float beta = 0.0;
     auto gemm_event = pr::gemm(queue, x_nd, y_nd.t(), res_nd, alpha, beta);
 
-    auto compute_rbf_values_event =
-        compute_rbf_values(queue,
-                           sqr_x_nd,
-                           sqr_y_nd,
-                           res_nd,
-                           sigma,
-                           { reduce_x_event, reduce_y_event, gemm_event });
+    auto compute_exponents_event =
+        compute_exponents(queue,
+                          sqr_x_nd,
+                          sqr_y_nd,
+                          res_nd,
+                          sigma,
+                          { reduce_x_event, reduce_y_event, gemm_event });
 
     auto smart_event =
-        dal::backend::smart_event{ compute_rbf_values_event }.attach(sqr_x_nd).attach(sqr_y_nd);
+        dal::backend::smart_event{ compute_exponents_event }.attach(sqr_x_nd).attach(sqr_y_nd);
 
     return smart_event;
 }
