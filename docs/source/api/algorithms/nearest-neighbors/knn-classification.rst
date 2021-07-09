@@ -44,7 +44,7 @@ Enum classes
 
 Result options
 --------------
-.. onedal_class:: oneapi::dal::knn::result_options::result_option_id_t
+.. onedal_class:: oneapi::dal::knn::result_option_id_t
 
 Descriptor
 ----------
