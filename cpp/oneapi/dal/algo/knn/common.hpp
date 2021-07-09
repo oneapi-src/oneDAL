@@ -85,7 +85,6 @@ struct result_option_id_t : public result_option_id {
 
 namespace detail {
 
-/// Alias for :expr`result_options::result_option_id_t`
 ONEDAL_EXPORT result_option_id_t get_indices_id();
 ONEDAL_EXPORT result_option_id_t get_distances_id();
 ONEDAL_EXPORT result_option_id_t get_responses_id();
