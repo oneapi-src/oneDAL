@@ -259,8 +259,8 @@ nitpick_ignore = [
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
+    ('cpp:identifier', 'result_option_id_base'),
     ('cpp:identifier', 'result_option_id'),
-    ('cpp:identifier', 'result_option_id_t'),
     # tables
     ('cpp:identifier', 'table'),
     ('cpp:identifier', 'row_count'),
