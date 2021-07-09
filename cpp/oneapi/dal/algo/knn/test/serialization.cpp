@@ -38,6 +38,7 @@ public:
 
     static constexpr bool is_kd_tree = std::is_same_v<method_t, knn::method::kd_tree>;
     static constexpr bool is_brute_force = std::is_same_v<method_t, knn::method::brute_force>;
+    static constexpr bool is_classification = std::is_same_v<task_t, knn::task::classification>;
     static constexpr bool is_search = std::is_same_v<task_t, knn::task::search>;
 
     bool not_available_on_device() {
@@ -124,13 +125,24 @@ public:
     }
 
     infer_result<task_t> run_inference(const model<task_t>& m) {
+        std::cerr << bool(this->get_descriptor().get_result_options() & result_options::responses) << std::endl;
         return this->infer(this->get_descriptor(), this->get_test_data(), m);
     }
 
     void compare_infer_results(const infer_result<task_t>& actual,
                                const infer_result<task_t>& reference) {
-        INFO("compare responses") {
-            te::check_if_tables_equal<float_t>(actual.get_responses(), reference.get_responses());
+        if constexpr (is_classification) {
+            INFO("compare responses") {
+                te::check_if_tables_equal<float_t>(actual.get_responses(), reference.get_responses());
+            }
+        }
+        if constexpr (is_search) {
+            INFO("compare indices") {
+                te::check_if_tables_equal<float_t>(actual.get_indices(), reference.get_indices());
+            }
+            INFO("compare distances") {
+                te::check_if_tables_equal<float_t>(actual.get_distances(), reference.get_distances());
+            }
         }
 
         // TODO: add "compare distances" checker also
