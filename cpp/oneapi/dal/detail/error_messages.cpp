@@ -166,7 +166,8 @@ MSG(unknown_distance_type,
 MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
 MSG(incompatible_knn_model,
     "The provided model is incompatible with the selected k-NN task or method")
-MSG(invalid_set_of_result_options_to_search, "Invalid set of optional results to search")
+MSG(invalid_set_of_result_options_to_search,
+    "Invalid set of optional results to search. Search task can not return responses.")
 
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
