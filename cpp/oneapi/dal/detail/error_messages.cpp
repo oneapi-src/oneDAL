@@ -184,6 +184,7 @@ MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
     "Subgraph isomorphism is not implemented for labeled edges")
 MSG(incorrect_index_is_returned, "Internal error: incorrect index is returned")
 MSG(invalid_vertex_edge_attributes, "Internal error: invalid vertex/edge attributes")
+MSG(target_graph_is_smaller_than_pattern_graph, "Target graph is smaller than pattern graph")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")

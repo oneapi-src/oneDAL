@@ -176,6 +176,7 @@ public:
     MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
     MSG(incorrect_index_is_returned);
     MSG(invalid_vertex_edge_attributes);
+    MSG(target_graph_is_smaller_than_pattern_graph);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
