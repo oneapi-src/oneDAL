@@ -27,7 +27,7 @@ const inline result_option_id_t default_result_options = responses;
 
 template <>
 const inline result_option_id_t default_result_options<task::search> = indices | distances;
-    
+
 } // namespace result_options
 
 namespace detail {

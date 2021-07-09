@@ -39,10 +39,10 @@ using daal_knn_bf_kernel_t =
     daal_knn::prediction::internal::KNNClassificationPredictKernel<Float, Cpu>;
 
 template <typename Float, typename Task>
-static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
-                                           const detail::descriptor_base<Task> &desc,
-                                           const table &data,
-                                           const model<Task> &m) {
+static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const table& data,
+                                           const model<Task>& m) {
     auto distance_impl = detail::get_distance_impl(desc);
     if (!distance_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_distance_type() };

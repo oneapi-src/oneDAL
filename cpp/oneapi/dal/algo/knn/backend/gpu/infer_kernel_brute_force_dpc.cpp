@@ -108,13 +108,13 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     const auto model_ptr = convert_onedal_to_daal_knn_model<Float, Task>(queue, m);
 
-    interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
-        daal_data.get(),
-        model_ptr.get(),
-        daal_responses.get(),
-        daal_indices.get(),
-        daal_distance.get(),
-        &daal_parameter));
+    interop::status_to_exception(
+        daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
+                                                       model_ptr.get(),
+                                                       daal_responses.get(),
+                                                       daal_indices.get(),
+                                                       daal_distance.get(),
+                                                       &daal_parameter));
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 

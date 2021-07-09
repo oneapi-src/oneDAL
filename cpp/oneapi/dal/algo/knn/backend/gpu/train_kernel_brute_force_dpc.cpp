@@ -91,10 +91,8 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                        daal_parameter,
                                                        *daal_parameter.engine.get()));
 
-    const auto model_impl =
-        std::make_shared<brute_force_model_impl<Task>>(data, responses);
-    return train_result<Task>().set_model(
-        dal::detail::make_private<model<Task>>(model_impl));
+    const auto model_impl = std::make_shared<brute_force_model_impl<Task>>(data, responses);
+    return train_result<Task>().set_model(dal::detail::make_private<model<Task>>(model_impl));
 }
 
 template <typename Float, typename Task>

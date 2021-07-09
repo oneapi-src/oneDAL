@@ -125,7 +125,8 @@ public:
     }
 
     infer_result<task_t> run_inference(const model<task_t>& m) {
-        std::cerr << bool(this->get_descriptor().get_result_options() & result_options::responses) << std::endl;
+        std::cerr << bool(this->get_descriptor().get_result_options() & result_options::responses)
+                  << std::endl;
         return this->infer(this->get_descriptor(), this->get_test_data(), m);
     }
 
@@ -133,7 +134,8 @@ public:
                                const infer_result<task_t>& reference) {
         if constexpr (is_classification) {
             INFO("compare responses") {
-                te::check_if_tables_equal<float_t>(actual.get_responses(), reference.get_responses());
+                te::check_if_tables_equal<float_t>(actual.get_responses(),
+                                                   reference.get_responses());
             }
         }
         if constexpr (is_search) {
@@ -141,7 +143,8 @@ public:
                 te::check_if_tables_equal<float_t>(actual.get_indices(), reference.get_indices());
             }
             INFO("compare distances") {
-                te::check_if_tables_equal<float_t>(actual.get_distances(), reference.get_distances());
+                te::check_if_tables_equal<float_t>(actual.get_distances(),
+                                                   reference.get_distances());
             }
         }
 
