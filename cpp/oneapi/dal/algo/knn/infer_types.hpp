@@ -126,7 +126,7 @@ public:
         return *this;
     }
 
-    /// Set of results to be computed and returned
+    /// Result options that indicates availability of the properties
     /// @remark default = default_result_options<Task>
     const result_option_id& get_result_options() const;
 
