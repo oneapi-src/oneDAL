@@ -19,6 +19,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/algo/knn/detail/distance.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 
 namespace oneapi::dal::knn {
 
@@ -270,12 +271,16 @@ template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
+    friend dal::detail::serialization_accessor;
 
 public:
     /// Creates a new instance of the class with the default property values.
     model();
 
 private:
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
+
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };

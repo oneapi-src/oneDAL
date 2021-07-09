@@ -1681,7 +1681,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
     const Index selected_ftr_count = ctx.selected_ftr_count_;
     const Index column_count = ctx.column_count_;
 
-    ONEDAL_ASSERT(partialHistograms.get_count() == hist_prop_count * max_bin_count_among_ftrs_ *
+    ONEDAL_ASSERT(partialHistograms.get_count() == hist_prop_count * ctx.max_bin_count_among_ftrs_ *
                                                        selected_ftr_count * part_hist_count *
                                                        node_count);
 
@@ -1769,9 +1769,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_sum
     const Index selected_ftr_count = ctx.selected_ftr_count_;
     const Index column_count = ctx.column_count_;
 
-    ONEDAL_ASSERT(sum_list.get_count() == hist_prop_sum_count * max_bin_count_among_ftrs_ *
+    ONEDAL_ASSERT(sum_list.get_count() == hist_prop_sum_count * ctx.max_bin_count_among_ftrs_ *
                                               selected_ftr_count * part_hist_count * node_count);
-    ONEDAL_ASSERT(partialHistograms.get_count() == hist_prop_count * max_bin_count_among_ftrs_ *
+    ONEDAL_ASSERT(partialHistograms.get_count() == hist_prop_count * ctx.max_bin_count_among_ftrs_ *
                                                        selected_ftr_count * part_hist_count *
                                                        node_count);
 

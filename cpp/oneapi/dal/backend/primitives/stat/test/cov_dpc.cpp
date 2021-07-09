@@ -148,18 +148,10 @@ public:
             17.49, 12.88, 10.2, 16.77, 9.44,
         };
 
-        auto [data, data_event] = ndarray<Float, 2>::copy(this->get_queue(),
-                                                          data_host,
-                                                          { row_count, column_count },
-                                                          sycl::usm::alloc::device);
-
-        auto [sums, sums_event] = ndarray<Float, 1>::copy(this->get_queue(),
-                                                          sums_host,
-                                                          { column_count },
-                                                          sycl::usm::alloc::device);
-
-        data_event.wait_and_throw();
-        sums_event.wait_and_throw();
+        auto data_host_arr = ndarray<Float, 2>::wrap(data_host, { row_count, column_count });
+        auto sums_host_arr = ndarray<Float, 1>::wrap(sums_host, column_count);
+        auto data = data_host_arr.to_device(this->get_queue());
+        auto sums = sums_host_arr.to_device(this->get_queue());
 
         return std::make_tuple(data, sums);
     }
@@ -281,7 +273,7 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     const auto data = data_host.to_device(this->get_queue());
 
     auto [sums, corr, means, vars, tmp] = this->allocate_arrays(column_count);
-    auto sums_event = sums.assign(this->get_queue(), data_ptr, column_count);
+    auto sums_event = sums.assign(this->get_queue(), data.get_data(), column_count);
 
     INFO("run correlation");
     correlation(this->get_queue(), data, sums, corr, means, vars, tmp, { sums_event })

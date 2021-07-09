@@ -19,6 +19,7 @@
 #define __KERNEL_FUNCTION_TYPES_POLYNOMIAL_H__
 
 #include "algorithms/kernel_function/kernel_function_types.h"
+#include "src/algorithms/kernel_function/kernel_function_dense_base.h"
 
 namespace daal
 {
@@ -42,6 +43,7 @@ struct DAAL_EXPORT Parameter : public ParameterBase
     double scale;  /*!< Polynomial kernel coefficient k in the (k(X,Y) + b)^d model */
     double shift;  /*!< Polynomial kernel coefficient b in the (k(X,Y) + b)^d model */
     size_t degree; /*!< Polynomial kernel coefficient d in the (k(X,Y) + b)^d model */
+    KernelType kernelType = KernelType::polynomial;
 };
 
 class DAAL_EXPORT Input : public kernel_function::Input

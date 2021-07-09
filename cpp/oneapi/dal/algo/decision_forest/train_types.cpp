@@ -22,10 +22,12 @@ namespace oneapi::dal::decision_forest {
 template <typename Task>
 class detail::v1::train_input_impl : public base {
 public:
-    train_input_impl(const table& data, const table& labels) : data(data), labels(labels) {}
+    train_input_impl(const table& data, const table& responses)
+            : data(data),
+              responses(responses) {}
 
     table data;
-    table labels;
+    table responses;
 };
 
 template <typename Task>
@@ -44,8 +46,8 @@ using detail::v1::train_result_impl;
 namespace v1 {
 
 template <typename Task>
-train_input<Task>::train_input(const table& data, const table& labels)
-        : impl_(new train_input_impl<Task>(data, labels)) {}
+train_input<Task>::train_input(const table& data, const table& responses)
+        : impl_(new train_input_impl<Task>(data, responses)) {}
 
 template <typename Task>
 const table& train_input<Task>::get_data() const {
@@ -53,8 +55,8 @@ const table& train_input<Task>::get_data() const {
 }
 
 template <typename Task>
-const table& train_input<Task>::get_labels() const {
-    return impl_->labels;
+const table& train_input<Task>::get_responses() const {
+    return impl_->responses;
 }
 
 template <typename Task>
@@ -63,8 +65,8 @@ void train_input<Task>::set_data_impl(const table& value) {
 }
 
 template <typename Task>
-void train_input<Task>::set_labels_impl(const table& value) {
-    impl_->labels = value;
+void train_input<Task>::set_responses_impl(const table& value) {
+    impl_->responses = value;
 }
 
 template <typename Task>

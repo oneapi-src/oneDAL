@@ -23,7 +23,7 @@
 
 #include "src/algorithms/pca/pca_dense_svd_batch_kernel.h"
 #include "src/algorithms/pca/pca_dense_svd_batch_impl.i"
-#include "src/algorithms/pca/inner/pca_types_v2.h"
+#include "algorithms/pca/pca_types.h"
 
 namespace daal
 {
@@ -33,8 +33,6 @@ namespace pca
 {
 namespace internal
 {
-template class DAAL_EXPORT PCASVDBatchKernel<DAAL_FPTYPE, interface2::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
-
 template class DAAL_EXPORT PCASVDBatchKernel<DAAL_FPTYPE, interface3::BatchParameter<DAAL_FPTYPE, pca::svdDense>, DAAL_CPU>;
 
 } // namespace internal

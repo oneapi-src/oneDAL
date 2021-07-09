@@ -18,6 +18,7 @@ ALGOS = [
     "pca",
     "polynomial_kernel",
     "rbf_kernel",
+    "sigmoid_kernel",
     "shortest_paths",
     "subgraph_isomorphism",
     "svm",

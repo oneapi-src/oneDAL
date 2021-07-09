@@ -30,10 +30,11 @@ template <typename Policy,
           typename EdgeValue>
 struct backend_base {
     using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual graph_matching_result operator()(
+    virtual graph_matching_result<task_t> operator()(
         const Policy &ctx,
         const Descriptor &descriptor,
         const Topology &t_data,
@@ -54,9 +55,12 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology, Verte
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
+    using float_t = typename Descriptor::float_t;
+    using task_t = typename Descriptor::task_t;
+    using method_t = typename Descriptor::method_t;
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual graph_matching_result operator()(
+    virtual graph_matching_result<task_t> operator()(
         const Policy &ctx,
         const Descriptor &descriptor,
         const Topology &t_data,
@@ -79,7 +83,6 @@ struct backend_default : public backend_base<Policy, Descriptor, Topology, Verte
                        vv_p,
                        ev_p);
     }
-    virtual ~backend_default() {}
 };
 
 template <typename Policy,

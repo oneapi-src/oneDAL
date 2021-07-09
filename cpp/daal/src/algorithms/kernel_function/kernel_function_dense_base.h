@@ -45,7 +45,8 @@ enum class KernelType
 {
     linear,
     rbf,
-    polynomial
+    polynomial,
+    sigmoid
 };
 struct KernelParameter
 {
