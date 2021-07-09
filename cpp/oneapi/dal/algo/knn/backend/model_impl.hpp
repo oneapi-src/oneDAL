@@ -73,7 +73,6 @@ public:
     }
 
 private:
-    //const result_options::result_option_id_t
     table data_;
     table responses_;
 };
