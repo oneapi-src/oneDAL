@@ -32,7 +32,7 @@ public:
 template <typename Task>
 class detail::v1::infer_result_impl : public base {
 public:
-    result_option_id_t options;
+    result_option_id options;
     table responses;
     table indices;
     table distances;
@@ -113,12 +113,12 @@ void infer_result<Task>::set_distances_impl(const table& value) {
 }
 
 template <typename Task>
-const result_option_id_t& infer_result<Task>::get_result_options() const {
+const result_option_id& infer_result<Task>::get_result_options() const {
     return impl_->options;
 }
 
 template <typename Task>
-void infer_result<Task>::set_result_options_impl(const result_option_id_t& value) {
+void infer_result<Task>::set_result_options_impl(const result_option_id& value) {
     impl_->options = value;
 }
 

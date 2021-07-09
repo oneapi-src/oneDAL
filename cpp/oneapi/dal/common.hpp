@@ -96,13 +96,13 @@ using v1::base;
 using v1::data_type;
 using v1::range;
 
-class result_option_id {
-    using this_t = result_option_id;
+class result_option_id_base {
+    using this_t = result_option_id_base;
     using bitset_t = std::uint64_t;
 
 public:
-    result_option_id() = default;
-    result_option_id(const bitset_t& mask) : mask_{ mask } {}
+    result_option_id_base() = default;
+    result_option_id_base(const bitset_t& mask) : mask_{ mask } {}
 
     operator bool() const {
         return mask_ > 0ul;
@@ -112,12 +112,12 @@ public:
         return mask_;
     }
 
-    static result_option_id make_by_index(std::int64_t result_index) {
+    static this_t make_by_index(std::int64_t result_index) {
         return this_t{}.set_mask(std::uint64_t(1) << result_index);
     }
 
 private:
-    result_option_id& set_mask(const bitset_t& mask) {
+    this_t& set_mask(const bitset_t& mask) {
         this->mask_ = mask;
         return *this;
     }
@@ -127,7 +127,7 @@ private:
 
 template <typename ResultOptionIdType>
 constexpr inline bool is_result_option_id_v =
-    std::is_base_of_v<result_option_id, ResultOptionIdType>;
+    std::is_base_of_v<result_option_id_base, ResultOptionIdType>;
 template <typename ResultOptionIdType>
 using enable_if_result_option_id_t = std::enable_if_t<is_result_option_id_v<ResultOptionIdType>>;
 

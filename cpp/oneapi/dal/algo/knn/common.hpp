@@ -78,16 +78,16 @@ using v1::by_default;
 
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
-struct result_option_id_t : public result_option_id {
-    result_option_id_t() : result_option_id{} {}
-    result_option_id_t(const result_option_id& base) : result_option_id{ base } {}
+struct result_option_id : public result_option_id_base {
+    result_option_id() : result_option_id_base{} {}
+    result_option_id(const result_option_id_base& base) : result_option_id_base{ base } {}
 };
 
 namespace detail {
 
-ONEDAL_EXPORT result_option_id_t get_indices_id();
-ONEDAL_EXPORT result_option_id_t get_distances_id();
-ONEDAL_EXPORT result_option_id_t get_responses_id();
+ONEDAL_EXPORT result_option_id get_indices_id();
+ONEDAL_EXPORT result_option_id get_distances_id();
+ONEDAL_EXPORT result_option_id get_responses_id();
 
 } // namespace detail
 
@@ -95,9 +95,9 @@ ONEDAL_EXPORT result_option_id_t get_responses_id();
 /// what should algorithm return
 namespace result_options {
 
-const inline result_option_id_t indices = detail::get_indices_id();
-const inline result_option_id_t distances = detail::get_distances_id();
-const inline result_option_id_t responses = detail::get_responses_id();
+const inline result_option_id indices = detail::get_indices_id();
+const inline result_option_id distances = detail::get_distances_id();
+const inline result_option_id responses = detail::get_responses_id();
 
 } // namespace result_options
 

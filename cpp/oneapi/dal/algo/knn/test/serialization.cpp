@@ -145,8 +145,6 @@ public:
                                                    reference.get_distances());
             }
         }
-
-        // TODO: add "compare distances" checker also
     }
 
     void run_test() {

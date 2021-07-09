@@ -22,23 +22,23 @@ namespace oneapi::dal::knn {
 
 namespace detail {
 
-result_option_id_t get_responses_id() {
-    return result_option_id_t::make_by_index(0);
+result_option_id get_responses_id() {
+    return result_option_id::make_by_index(0);
 }
 
-result_option_id_t get_indices_id() {
-    return result_option_id_t::make_by_index(1);
+result_option_id get_indices_id() {
+    return result_option_id::make_by_index(1);
 }
 
-result_option_id_t get_distances_id() {
-    return result_option_id_t::make_by_index(2);
+result_option_id get_distances_id() {
+    return result_option_id::make_by_index(2);
 }
 
 template <typename Task>
-const inline result_option_id_t default_result_options = responses;
+const inline result_option_id default_result_options = responses;
 
 template <>
-const inline result_option_id_t default_result_options<task::search> = indices | distances;
+const inline result_option_id default_result_options<task::search> = indices | distances;
 
 namespace v1 {
 template <typename Task>
@@ -50,7 +50,7 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
-    result_option_id_t result_options = default_result_options<Task>;
+    result_option_id result_options = default_result_options<Task>;
 };
 
 template <typename Task>
@@ -110,12 +110,12 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template <typename Task>
-result_option_id_t descriptor_base<Task>::get_result_options() const {
+result_option_id descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_result_options_impl(const result_option_id_t& value) {
+void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {
     using msg = dal::detail::error_messages;
     if (!bool(value)) {
         throw domain_error(msg::empty_set_of_result_options());
