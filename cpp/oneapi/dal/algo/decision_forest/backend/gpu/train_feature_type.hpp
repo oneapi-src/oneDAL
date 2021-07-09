@@ -21,12 +21,19 @@
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
 
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+#include "oneapi/dal/policy/mpi.hpp"
+#endif
+
 namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
 template <typename Float, typename Bin, typename Index = std::int32_t>
 class indexed_features {
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+    using comm_t = dal::preview::detail::mpi_communicator;
+#endif
 public:
     struct feature_entry {
         Index bin_count_ = 0;
@@ -34,7 +41,14 @@ public:
         dal::backend::primitives::ndarray<Float, 1> bin_borders_nd_; //right bin borders
     };
 
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+    indexed_features(sycl::queue& q,
+                     comm_t& comm,
+                     std::int64_t min_bin_size,
+                     std::int64_t max_bins);
+#else
     indexed_features(sycl::queue& q, std::int64_t min_bin_size, std::int64_t max_bins);
+#endif
     ~indexed_features() = default;
 
     // migrate to std::uint64_t
@@ -81,7 +95,18 @@ private:
         const dal::backend::primitives::ndarray<Index, 1>& bin_offsets_nd,
         dal::backend::primitives::ndarray<Float, 1>& bin_borders_nd,
         const dal::backend::event_vector& deps = {});
-    sycl::event compute_bins(const dal::backend::primitives::ndarray<Float, 1>& values_nd,
+
+    std::tuple<dal::backend::primitives::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders(
+        const dal::backend::primitives::ndarray<Float, 1>& values_nd,
+        Index row_count,
+        const dal::backend::event_vector& deps = {});
+
+    std::tuple<dal::backend::primitives::ndarray<Float, 1>, Index, sycl::event>
+    gather_bin_borders_distr(const dal::backend::primitives::ndarray<Float, 1>& values_nd,
+                             Index row_count,
+                             const dal::backend::event_vector& deps = {});
+
+    sycl::event fill_bin_map(const dal::backend::primitives::ndarray<Float, 1>& values_nd,
                              const dal::backend::primitives::ndarray<Index, 1>& indices_nd,
                              const dal::backend::primitives::ndarray<Float, 1>& bin_borders_nd,
                              const dal::backend::primitives::ndarray<Bin, 1>& bins_nd,
@@ -93,6 +118,7 @@ private:
                              const dal::backend::primitives::ndarray<Index, 1>& indices_nd,
                              dal::backend::primitives::ndarray<Bin, 1>& bins_nd,
                              feature_entry& entry,
+                             Index entry_idx,
                              const dal::backend::event_vector& deps);
 
     sycl::event store_column(const dal::backend::primitives::ndarray<Bin, 1>& column_data_nd,
@@ -102,6 +128,9 @@ private:
                              const dal::backend::event_vector& deps);
 
     sycl::queue queue_;
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+    comm_t comm_;
+#endif
 
     dal::backend::primitives::ndarray<Bin, 2> full_data_nd_;
     dal::backend::primitives::ndarray<Index, 1> bin_offsets_nd_;

@@ -87,7 +87,7 @@ sycl::event indexed_features<Float, Bin, Index>::collect_bin_borders(
 }
 
 template <typename Float, typename Bin, typename Index>
-sycl::event indexed_features<Float, Bin, Index>::compute_bins(
+sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
     const pr::ndarray<Float, 1>& values_nd,
     const pr::ndarray<Index, 1>& indices_nd,
     const pr::ndarray<Float, 1>& bin_borders_nd,
@@ -141,28 +141,20 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
         });
     });
 
+    event.wait_and_throw();
     return event;
 }
 
 template <typename Float, typename Bin, typename Index>
-//std::tuple<pr::ndarray<Index, 1>, sycl::event> indexed_features<Float, Bin, Index>::compute_bins(
-sycl::event indexed_features<Float, Bin, Index>::compute_bins(
-    const pr::ndarray<Float, 1>& values_nd,
-    const pr::ndarray<Index, 1>& indices_nd,
-    pr::ndarray<Bin, 1>& bins_nd,
-    feature_entry& entry,
-    const dal::backend::event_vector& deps) {
-    ONEDAL_ASSERT(values_nd.get_count() == row_count_);
-    ONEDAL_ASSERT(indices_nd.get_count() == row_count_);
-    ONEDAL_ASSERT(bins_nd.get_count() == row_count_);
+std::tuple<pr::ndarray<Float, 1>, Index, sycl::event>
+indexed_features<Float, Bin, Index>::gather_bin_borders(const pr::ndarray<Float, 1>& values_nd,
+                                                        Index row_count,
+                                                        const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(values_nd.get_count() == row_count);
 
     sycl::event::wait_and_throw(deps);
 
-    const Index max_bins = std::min(max_bins_, row_count_);
-    const Index local_size = preferable_sbg_size_;
-    const Index local_block_count = max_local_block_count_ * local_size < row_count_
-                                        ? max_local_block_count_
-                                        : (row_count_ / local_size) + bool(row_count_ % local_size);
+    const Index max_bins = std::min(max_bins_, row_count);
 
     auto bin_offsets_nd_host = pr::ndarray<Index, 1>::empty({ max_bins });
     auto bin_borders_nd_device =
@@ -171,7 +163,7 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
     auto bin_offsets = bin_offsets_nd_host.get_mutable_data();
     Index offset = 0;
     for (Index i = 0; i < max_bins; i++) {
-        offset += (row_count_ + i) / max_bins;
+        offset += (row_count + i) / max_bins;
         ONEDAL_ASSERT(offset > 0); // max_bins = min(max_bins_, row_count_) => offset > 0
         bin_offsets[i] = offset - 1;
     }
@@ -191,7 +183,156 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
     }
     last_event = bin_borders_nd_device.assign(queue_, bin_borders_nd_host);
 
-    last_event = compute_bins(values_nd,
+    //TODO remove
+    last_event.wait_and_throw();
+
+    return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
+}
+
+template <typename Float, typename Bin, typename Index>
+std::tuple<pr::ndarray<Float, 1>, Index, sycl::event>
+indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
+    const pr::ndarray<Float, 1>& values_nd,
+    Index row_count,
+    const dal::backend::event_vector& deps) {
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+    ONEDAL_ASSERT(values_nd.get_count() == row_count);
+
+    sycl::event::wait_and_throw(deps);
+
+    sycl::event last_event;
+    pr::ndarray<Float, 1> bin_borders_nd_device;
+    Index bin_count = 0;
+
+    // gather local bins
+    auto [local_bin_borders_nd_device, local_bin_count, event] =
+        gather_bin_borders(values_nd, row_count, deps);
+
+    event.wait_and_throw();
+    last_event = event;
+
+    Index cum_bin_count = 0;
+    // using int64_t instead of Index because of it is used as displ in gatherv
+    auto cum_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
+    auto cum_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
+
+    comm_.allreduce_add_int(&local_bin_count, &cum_bin_count, 1).wait();
+
+    std::int64_t lbc_64 = static_cast<std::int64_t>(local_bin_count);
+    comm_
+        .gather(reinterpret_cast<byte_t*>(&lbc_64),
+                sizeof(lbc_64),
+                reinterpret_cast<byte_t*>(cum_bin_count_arr.get_mutable_data()),
+                sizeof(std::int64_t),
+                comm_.get_root_rank())
+        .wait();
+
+    if (comm_.get_rank() != comm_.get_root_rank()) {
+        auto local_bin_brd_host = local_bin_borders_nd_device.to_host(queue_, { event });
+
+        comm_
+            .gatherv(reinterpret_cast<const byte_t*>(local_bin_brd_host.get_data()),
+                     local_bin_count * sizeof(Float),
+                     nullptr,
+                     nullptr,
+                     nullptr,
+                     comm_.get_root_rank())
+            .wait();
+    }
+    else { // is_root
+        std::int64_t* cum_bin_offset_ptr = cum_bin_offset_arr.get_mutable_data();
+        std::int64_t* cum_bin_count_ptr = cum_bin_count_arr.get_mutable_data();
+
+        std::int64_t offset = 0;
+        for (Index i = 0; i < comm_.get_rank_count(); i++) {
+            cum_bin_count_ptr[i] *= sizeof(Float);
+            cum_bin_offset_ptr[i] = offset;
+            offset += cum_bin_count_ptr[i];
+        }
+
+        auto cum_bin_brd_host = pr::ndarray<Float, 1>::empty({ cum_bin_count });
+        auto local_bin_brd_host = local_bin_borders_nd_device.to_host(queue_, { event });
+
+        comm_
+            .gatherv(reinterpret_cast<const byte_t*>(local_bin_brd_host.get_data()),
+                     local_bin_count * sizeof(Float),
+                     reinterpret_cast<byte_t*>(cum_bin_brd_host.get_mutable_data()),
+                     cum_bin_count_ptr,
+                     cum_bin_offset_ptr,
+                     comm_.get_root_rank())
+            .wait();
+
+        std::sort(cum_bin_brd_host.get_mutable_data(),
+                  cum_bin_brd_host.get_mutable_data() + cum_bin_count);
+
+        // filter out fin bin set
+        auto [fin_borders_nd_device_temp, fin_bin_count_temp, event] =
+            gather_bin_borders(cum_bin_brd_host.to_device(queue_), cum_bin_count);
+        event.wait_and_throw();
+        bin_borders_nd_device = fin_borders_nd_device_temp;
+        bin_count = fin_bin_count_temp;
+    }
+
+    comm_.bcast(reinterpret_cast<byte_t*>(&bin_count), sizeof(bin_count), comm_.get_root_rank())
+        .wait();
+
+    if (comm_.get_rank() == comm_.get_root_rank()) {
+        auto bin_borders_nd_host = bin_borders_nd_device.to_host(queue_);
+        comm_
+            .bcast(reinterpret_cast<byte_t*>(bin_borders_nd_host.get_mutable_data()),
+                   bin_count * sizeof(Float),
+                   comm_.get_root_rank())
+            .wait();
+    }
+    else {
+        auto bin_borders_nd_host = pr::ndarray<Float, 1>::empty({ bin_count });
+        comm_
+            .bcast(reinterpret_cast<byte_t*>(bin_borders_nd_host.get_mutable_data()),
+                   bin_count * sizeof(Float),
+                   comm_.get_root_rank())
+            .wait();
+        bin_borders_nd_device = bin_borders_nd_host.to_device(queue_);
+    }
+
+    return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
+#else
+    pr::ndarray<Float, 1> dummy_ndarr;
+    return std::make_tuple(dummy_ndarr, 0, sycl::event{});
+#endif
+}
+
+template <typename Float, typename Bin, typename Index>
+sycl::event indexed_features<Float, Bin, Index>::compute_bins(
+    const pr::ndarray<Float, 1>& values_nd,
+    const pr::ndarray<Index, 1>& indices_nd,
+    pr::ndarray<Bin, 1>& bins_nd,
+    feature_entry& entry,
+    Index entry_idx,
+    const dal::backend::event_vector& deps) {
+    ONEDAL_ASSERT(values_nd.get_count() == row_count_);
+    ONEDAL_ASSERT(indices_nd.get_count() == row_count_);
+    ONEDAL_ASSERT(bins_nd.get_count() == row_count_);
+
+    sycl::event::wait_and_throw(deps);
+
+    sycl::event last_event;
+
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+    auto [bin_borders_nd_device, bin_count, event] =
+        comm_.get_rank_count() == 1 ? gather_bin_borders(values_nd, row_count_, deps)
+                                    : gather_bin_borders_distr(values_nd, row_count_, deps);
+#else
+    auto [bin_borders_nd_device, bin_count, event] =
+        gather_bin_borders(values_nd, row_count_, deps);
+#endif
+
+    last_event = event;
+
+    const Index local_size = preferable_sbg_size_;
+    const Index local_block_count = max_local_block_count_ * local_size < row_count_
+                                        ? max_local_block_count_
+                                        : (row_count_ / local_size) + bool(row_count_ % local_size);
+    last_event = fill_bin_map(values_nd,
                               indices_nd,
                               bin_borders_nd_device,
                               bins_nd,
@@ -202,6 +343,8 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
 
     entry.bin_count_ = bin_count;
     entry.bin_borders_nd_ = bin_borders_nd_device;
+
+    last_event.wait_and_throw();
 
     return last_event;
 }
@@ -231,6 +374,18 @@ sycl::event indexed_features<Float, Bin, Index>::store_column(
     return event;
 }
 
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+template <typename Float, typename Bin, typename Index>
+indexed_features<Float, Bin, Index>::indexed_features(sycl::queue& q,
+                                                      comm_t& comm,
+                                                      std::int64_t min_bin_size,
+                                                      std::int64_t max_bins)
+        : queue_(q),
+          comm_(comm) {
+    min_bin_size_ = de::integral_cast<Index>(min_bin_size);
+    max_bins_ = de::integral_cast<Index>(max_bins);
+}
+#else
 template <typename Float, typename Bin, typename Index>
 indexed_features<Float, Bin, Index>::indexed_features(sycl::queue& q,
                                                       std::int64_t min_bin_size,
@@ -239,6 +394,7 @@ indexed_features<Float, Bin, Index>::indexed_features(sycl::queue& q,
     min_bin_size_ = de::integral_cast<Index>(min_bin_size);
     max_bins_ = de::integral_cast<Index>(max_bins);
 }
+#endif
 
 template <typename Float, typename Bin, typename Index>
 std::int64_t indexed_features<Float, Bin, Index>::get_required_mem_size(std::int64_t row_count,
@@ -260,8 +416,6 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
     const dal::backend::event_vector& deps) {
     sycl::event::wait_and_throw(deps);
 
-    const auto data_nd_ = pr::table2ndarray<Float>(queue_, tbl, sycl::usm::alloc::device);
-
     if (tbl.get_row_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
     }
@@ -273,6 +427,7 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
     column_count_ = de::integral_cast<Index>(tbl.get_column_count());
     total_bins_ = 0;
 
+    const auto data_nd_ = pr::table2ndarray<Float>(queue_, tbl, sycl::usm::alloc::device);
     //allocating buffers
     full_data_nd_ =
         pr::ndarray<Bin, 2>::empty(queue_, { row_count_, column_count_ }, sycl::usm::alloc::device);
@@ -298,7 +453,7 @@ sycl::event indexed_features<Float, Bin, Index>::operator()(
         last_event = extract_column(data_nd_, values_nd, indices_nd, i, { last_event });
         last_event = sort(values_nd, indices_nd, { last_event });
         last_event =
-            compute_bins(values_nd, indices_nd, column_bin_vec_[i], entries_[i], { last_event });
+            compute_bins(values_nd, indices_nd, column_bin_vec_[i], entries_[i], i, { last_event });
     }
 
     last_event.wait_and_throw();

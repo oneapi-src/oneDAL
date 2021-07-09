@@ -27,24 +27,15 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_service_kernels.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_model_manager.hpp"
+#include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
+
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+#include "oneapi/dal/policy/mpi.hpp"
+#endif
 
 namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
-
-// task_types
-template <typename Float, typename Index, typename Task = task::by_default>
-struct task_types;
-
-template <typename Float, typename Index>
-struct task_types<Float, Index, task::classification> {
-    using hist_type_t = Index; // histogram data type
-};
-
-template <typename Float, typename Index>
-struct task_types<Float, Index, task::regression> {
-    using hist_type_t = Float; // histogram data type
-};
 
 template <typename Float,
           typename Bin = std::uint32_t,
@@ -53,16 +44,22 @@ template <typename Float,
 class train_kernel_hist_impl {
     using result_t = train_result<Task>;
     using train_service_kernels_t = train_service_kernels<Float, Bin, Index, Task>;
+    using bs_kernels_t = train_best_split_impl<Float, Bin, Index, Task>;
     using impl_const_t = impl_const<Index, Task>;
     using descriptor_t = detail::descriptor_base<Task>;
     using model_manager_t = train_model_manager<Float, Index, Task>;
-    using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
     using context_t = train_context<Float, Index, Task>;
     using imp_data_t = impurity_data<Float, Index, Task>;
+    using engine_list_t = dal::array<engine_impl>;
     using msg = dal::detail::error_messages;
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+    using comm_t = dal::preview::detail::mpi_communicator;
+#endif
 
 public:
-    train_kernel_hist_impl(sycl::queue& q) : queue_(q), train_service_kernels_(q) {}
+    using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
+
+    train_kernel_hist_impl(sycl::queue& q) : queue_(q), train_service_kernels_(q), bs_kernels_(q) {}
     ~train_kernel_hist_impl() = default;
 
     result_t operator()(const descriptor_t& desc, const table& data, const table& labels);
@@ -72,7 +69,26 @@ private:
                                                   Index max_bin_count_among_ftrs,
                                                   Index class_count) const;
 
+    sycl::event allreduce_ndarray_inplace(dal::backend::primitives::ndarray<Index, 1>& src_dst,
+                                          const dal::backend::event_vector& deps = {});
+
+    sycl::event allreduce_ndarray_inplace(dal::backend::primitives::ndarray<Float, 1>& src_dst,
+                                          const dal::backend::event_vector& deps = {});
+
+    sycl::event gen_initial_tree_order(
+        context_t& ctx,
+        engine_list_t& engine_list,
+        dal::backend::primitives::ndarray<Index, 1>& node_list,
+        dal::backend::primitives::ndarray<Index, 1>& tree_order_level,
+        dal::backend::primitives::ndarray<Index, 1>& selected_row_global_host,
+        dal::backend::primitives::ndarray<Index, 1>& selected_row_host,
+        Index engine_offset,
+        Index node_count);
+
     void validate_input(const descriptor_t& desc, const table& data, const table& labels) const;
+
+    Index get_row_total_count(bool distr_mode, Index row_count);
+    Index get_global_row_offset(bool distr_mode, Index row_count);
 
     void init_params(context_t& ctx,
                      const descriptor_t& desc,
@@ -80,19 +96,62 @@ private:
                      const table& labels);
     void allocate_buffers(const context_t& ctx_);
 
-    std::tuple<pr::ndarray<Index, 1>, sycl::event> gen_features(
+    std::tuple<dal::backend::primitives::ndarray<Index, 1>, sycl::event> gen_feature_list(
         Index node_count,
         const dal::backend::primitives::ndarray<Index, 1>& node_vs_tree_map,
-        dal::array<engine_impl>& engines,
+        engine_list_t& engine_list,
         const context_t& ctx_);
 
-    sycl::event compute_initial_histogram(
+    sycl::event compute_initial_imp_for_node_list(
+        const context_t& ctx,
+        imp_data_t& imp_data_list,
+        dal::backend::primitives::ndarray<Index, 1>& node_list,
+        Index node_count,
+        const dal::backend::event_vector& deps = {});
+
+    sycl::event compute_initial_histogram_local(
+        const context_t& ctx,
         const dal::backend::primitives::ndarray<Float, 1>& response,
         const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
-        const dal::backend::primitives::ndarray<Index, 1>& nodeList,
+        dal::backend::primitives::ndarray<Index, 1>& nodeList,
         imp_data_t& imp_data_list,
         Index node_count,
+        const dal::backend::event_vector& deps);
+
+    sycl::event compute_initial_sum_local(
         const context_t& ctx,
+        const dal::backend::primitives::ndarray<Float, 1>& response,
+        const dal::backend::primitives::ndarray<Index, 1>& tree_order,
+        const dal::backend::primitives::ndarray<Index, 1>& node_list,
+        dal::backend::primitives::ndarray<Float, 1>& sum_list,
+        Index node_count,
+        const dal::backend::event_vector& deps);
+
+    sycl::event compute_initial_sum2cent_local(
+        const context_t& ctx,
+        const dal::backend::primitives::ndarray<Float, 1>& response,
+        const dal::backend::primitives::ndarray<Index, 1>& tree_order,
+        const dal::backend::primitives::ndarray<Index, 1>& node_list,
+        const dal::backend::primitives::ndarray<Float, 1>& sum_list,
+        dal::backend::primitives::ndarray<Float, 1>& sum2cent_list,
+        Index node_count,
+        const dal::backend::event_vector& deps);
+
+    sycl::event fin_initial_imp(const context_t& ctx,
+                                const dal::backend::primitives::ndarray<Index, 1>& node_list,
+                                const dal::backend::primitives::ndarray<Float, 1>& sum_list,
+                                const dal::backend::primitives::ndarray<Float, 1>& sum2cent_list,
+                                imp_data_t& imp_data_list,
+                                Index node_count,
+                                const dal::backend::event_vector& deps);
+
+    sycl::event compute_initial_histogram(
+        const context_t& ctx,
+        const dal::backend::primitives::ndarray<Float, 1>& response,
+        const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
+        dal::backend::primitives::ndarray<Index, 1>& nodeList,
+        imp_data_t& imp_data_list,
+        Index node_count,
         const dal::backend::event_vector& deps);
 
     sycl::event do_node_split(const dal::backend::primitives::ndarray<Index, 1>& node_list,
@@ -122,6 +181,34 @@ private:
         const context_t& ctx,
         const dal::backend::event_vector& deps = {});
 
+    std::tuple<dal::backend::primitives::ndarray<hist_type_t, 1>, sycl::event> compute_histogram(
+        const context_t& ctx,
+        const dal::backend::primitives::ndarray<Bin, 2>& data,
+        const dal::backend::primitives::ndview<Float, 1>& response,
+        const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
+        const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
+        const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
+        const dal::backend::primitives::ndarray<Index, 1>& node_list,
+        const dal::backend::primitives::ndarray<Index, 1>& nodeIndices,
+        Index nodeIndicesOffset,
+        Index nPartialHistograms,
+        Index node_count,
+        const dal::backend::event_vector& deps = {});
+
+    std::tuple<dal::backend::primitives::ndarray<hist_type_t, 1>, sycl::event>
+    compute_histogram_distr(const context_t& ctx,
+                            const dal::backend::primitives::ndarray<Bin, 2>& data,
+                            const dal::backend::primitives::ndview<Float, 1>& response,
+                            const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
+                            const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
+                            const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
+                            const dal::backend::primitives::ndarray<Index, 1>& node_list,
+                            const dal::backend::primitives::ndarray<Index, 1>& nodeIndices,
+                            Index nodeIndicesOffset,
+                            Index nPartialHistograms,
+                            Index node_count,
+                            const dal::backend::event_vector& deps = {});
+
     sycl::event compute_partial_histograms(
         const dal::backend::primitives::ndarray<Bin, 2>& data,
         const dal::backend::primitives::ndview<Float, 1>& response,
@@ -138,11 +225,61 @@ private:
         const dal::backend::event_vector& deps = {});
 
     sycl::event reduce_partial_histograms(
+        const context_t& ctx,
         const dal::backend::primitives::ndarray<hist_type_t, 1>& partialHistograms,
         dal::backend::primitives::ndarray<hist_type_t, 1>& histograms,
         Index nPartialHistograms,
         Index node_count,
+        const dal::backend::event_vector& deps = {});
+
+    sycl::event compute_partial_count_and_sum(
         const context_t& ctx,
+        const dal::backend::primitives::ndarray<Bin, 2>& data,
+        const dal::backend::primitives::ndview<Float, 1>& response,
+        const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
+        const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
+        const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
+        const dal::backend::primitives::ndarray<Index, 1>& node_list,
+        const dal::backend::primitives::ndarray<Index, 1>& nodeIndices,
+        Index nodeIndicesOffset,
+        dal::backend::primitives::ndarray<Float, 1>& partialHistograms,
+        Index part_hist_count,
+        Index node_count,
+        const dal::backend::event_vector& deps = {},
+        const task::regression task_val = {});
+
+    sycl::event compute_partial_sum2cent(
+        const context_t& ctx,
+        const dal::backend::primitives::ndarray<Bin, 2>& data,
+        const dal::backend::primitives::ndview<Float, 1>& response,
+        const dal::backend::primitives::ndview<Float, 1>& sum_list,
+        const dal::backend::primitives::ndarray<Index, 1>& treeOrder,
+        const dal::backend::primitives::ndarray<Index, 1>& selectedFeatures,
+        const dal::backend::primitives::ndarray<Index, 1>& binOffsets,
+        const dal::backend::primitives::ndarray<Index, 1>& node_list,
+        const dal::backend::primitives::ndarray<Index, 1>& nodeIndices,
+        Index nodeIndicesOffset,
+        dal::backend::primitives::ndarray<Float, 1>& partialHistograms,
+        Index part_hist_count,
+        Index node_count,
+        const dal::backend::event_vector& deps = {},
+        const task::regression task_val = {});
+
+    sycl::event sum_reduce_partial_histograms(
+        const context_t& ctx,
+        const dal::backend::primitives::ndarray<Float, 1>& partialHistograms,
+        dal::backend::primitives::ndarray<Float, 1>& histograms,
+        Index part_hist_count,
+        Index node_count,
+        Index hist_prop_count,
+        const dal::backend::event_vector& deps = {});
+
+    sycl::event fin_histogram_distr(
+        const context_t& ctx,
+        const dal::backend::primitives::ndarray<Float, 1>& sum_list,
+        const dal::backend::primitives::ndarray<Float, 1>& sum2cent_list,
+        dal::backend::primitives::ndarray<Float, 1>& histogram_list,
+        Index node_count,
         const dal::backend::event_vector& deps = {});
 
     sycl::event compute_best_split_by_histogram(
@@ -230,8 +367,12 @@ private:
 
 private:
     sycl::queue queue_;
+#ifdef DISTRIBUTED_SUPPORT_ENABLED
+    comm_t comm_;
+#endif
 
     train_service_kernels_t train_service_kernels_;
+    bs_kernels_t bs_kernels_;
 
     // algo buffers which are allocated one time at the beggining
     dal::backend::primitives::ndarray<Bin, 2> full_data_nd_;
@@ -241,7 +382,8 @@ private:
     dal::backend::primitives::ndarray<Float, 1> response_host_;
     dal::backend::primitives::ndarray<Float, 1> data_host_;
 
-    dal::backend::primitives::ndarray<Index, 1> selected_rows_host_;
+    dal::backend::primitives::ndarray<Index, 1> selected_row_host_;
+    dal::backend::primitives::ndarray<Index, 1> selected_row_global_host_;
     dal::backend::primitives::ndarray<Index, 1> tree_order_lev_;
     dal::backend::primitives::ndarray<Index, 1> tree_order_lev_buf_;
 

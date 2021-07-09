@@ -76,18 +76,22 @@ struct tree_level_record {
     }
 
     Index get_row_count(Index node_idx) {
-        return node_list_.get_data()[node_idx * impl_const_t::node_prop_count_ + 1];
+        return node_list_
+            .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_grc];
     }
     Index get_feature_id(Index node_idx) {
-        return node_list_.get_data()[node_idx * impl_const_t::node_prop_count_ + 2];
+        return node_list_
+            .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_fid];
     }
     Index get_feature_bin(Index node_idx) {
-        return node_list_.get_data()[node_idx * impl_const_t::node_prop_count_ + 3];
+        return node_list_
+            .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_bin];
     }
 
     auto get_response(Index node_idx) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            return node_list_.get_data()[node_idx * impl_const_t::node_prop_count_ + 5];
+            return node_list_
+                .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_win];
         }
         else {
             return imp_data_list_.imp_list_

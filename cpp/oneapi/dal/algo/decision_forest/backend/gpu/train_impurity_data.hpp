@@ -116,6 +116,10 @@ struct imp_data_list_ptr<Float, Index, task::classification> {
               class_hist_list_ptr_(imp_data.class_hist_list_.get_data()) {}
     const Float* imp_list_ptr_;
     const Index* class_hist_list_ptr_;
+
+    const Index* get_class_hist_list_ptr_or_null() {
+        return class_hist_list_ptr_;
+    }
 };
 
 template <typename Float, typename Index>
@@ -123,6 +127,10 @@ struct imp_data_list_ptr<Float, Index, task::regression> {
     imp_data_list_ptr(const impurity_data<Float, Index, task::regression>& imp_data)
             : imp_list_ptr_(imp_data.imp_list_.get_data()) {}
     const Float* imp_list_ptr_;
+
+    const Index* get_class_hist_list_ptr_or_null() {
+        return nullptr;
+    }
 };
 
 template <typename Float, typename Index, typename Task = task::by_default>
@@ -136,6 +144,10 @@ struct imp_data_list_ptr_mutable<Float, Index, task::classification> {
 
     Float* imp_list_ptr_;
     Index* class_hist_list_ptr_;
+
+    Index* get_class_hist_list_ptr_or_null() {
+        return class_hist_list_ptr_;
+    }
 };
 
 template <typename Float, typename Index>
@@ -144,6 +156,10 @@ struct imp_data_list_ptr_mutable<Float, Index, task::regression> {
             : imp_list_ptr_(imp_data.imp_list_.get_mutable_data()) {}
 
     Float* imp_list_ptr_;
+
+    Index* get_class_hist_list_ptr_or_null() {
+        return nullptr;
+    }
 };
 
 template <typename Float, typename Index, typename Task>

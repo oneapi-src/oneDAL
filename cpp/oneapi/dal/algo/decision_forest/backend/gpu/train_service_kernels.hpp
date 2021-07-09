@@ -30,6 +30,7 @@ template <typename Float,
           typename Task = task::by_default>
 class train_service_kernels {
     using impl_const_t = impl_const<Index, Task>;
+    using context_t = train_context<Float, Index, Task>;
 
 public:
     train_service_kernels(sycl::queue& q) : queue_(q){};
@@ -40,6 +41,7 @@ public:
                                                  double observations_per_tree_fraction);
 
     sycl::event split_node_list_on_groups_by_size(
+        const context_t& ctx,
         const dal::backend::primitives::ndarray<Index, 1>& node_list,
         dal::backend::primitives::ndarray<Index, 1>& node_groups,
         dal::backend::primitives::ndarray<Index, 1>& node_indices,
@@ -53,7 +55,17 @@ public:
                                      Index& split_node_count,
                                      const dal::backend::event_vector& deps = {});
 
+    sycl::event calculate_left_child_row_count_on_local_data(
+        const context_t& ctx,
+        const dal::backend::primitives::ndarray<Bin, 2>& data,
+        const dal::backend::primitives::ndarray<Index, 1>& node_list,
+        const dal::backend::primitives::ndarray<Index, 1>& tree_order,
+        Index column_count,
+        Index node_count,
+        const dal::backend::event_vector& deps);
+
     sycl::event do_level_partition_by_groups(
+        const context_t& ctx,
         const dal::backend::primitives::ndarray<Bin, 2>& data,
         const dal::backend::primitives::ndarray<Index, 1>& node_list,
         dal::backend::primitives::ndarray<Index, 1>& tree_order,
