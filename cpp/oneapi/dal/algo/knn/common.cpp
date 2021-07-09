@@ -54,8 +54,7 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
-    result_options::result_option_id_t result_options =
-        result_options::default_result_options<Task>;
+    result_option_id_t result_options = result_options::default_result_options<Task>;
 };
 
 template <typename Task>
@@ -115,13 +114,12 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template <typename Task>
-result_options::result_option_id_t descriptor_base<Task>::get_result_options() const {
+result_option_id_t descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_result_options_impl(
-    const result_options::result_option_id_t& value) {
+void descriptor_base<Task>::set_result_options_impl(const result_option_id_t& value) {
     using msg = dal::detail::error_messages;
     if (!bool(value)) {
         throw domain_error(msg::empty_set_of_result_options());

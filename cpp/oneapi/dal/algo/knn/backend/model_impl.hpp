@@ -52,13 +52,6 @@ public:
             : data_(data),
               responses_(responses) {}
 
-    /*model_impl(const result_options::result_option_id_t& options, 
-               const table& data, 
-               const table& responses)
-            : options_(options),
-              data_(data),
-              responses_(responses) {}*/
-
     backend::model_interop* get_interop() override {
         return nullptr;
     }
@@ -115,7 +108,7 @@ public:
     }
 
 private:
-    result_options::result_option_id_t options_;
+    result_option_id_t options_;
     backend::model_interop* interop_;
 };
 

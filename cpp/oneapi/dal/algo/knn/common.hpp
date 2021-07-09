@@ -76,8 +76,6 @@ using v1::by_default;
 
 } // namespace method
 
-namespace result_options {
-
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
 struct result_option_id_t : public result_option_id {
@@ -85,12 +83,9 @@ struct result_option_id_t : public result_option_id {
     result_option_id_t(const result_option_id& base) : result_option_id{ base } {}
 };
 
-} // namespace result_options
-
 namespace detail {
 
 /// Alias for :expr`result_options::result_option_id_t`
-using result_option_id_t = result_options::result_option_id_t;
 ONEDAL_EXPORT result_option_id_t get_indices_id();
 ONEDAL_EXPORT result_option_id_t get_distances_id();
 ONEDAL_EXPORT result_option_id_t get_responses_id();
@@ -161,7 +156,7 @@ public:
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
     voting_mode get_voting_mode() const;
-    result_options::result_option_id_t get_result_options() const;
+    result_option_id_t get_result_options() const;
 
 protected:
     explicit descriptor_base(const detail::distance_ptr& distance);
@@ -171,7 +166,7 @@ protected:
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
-    void set_result_options_impl(const result_options::result_option_id_t& value);
+    void set_result_options_impl(const result_option_id_t& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -310,11 +305,11 @@ public:
     }
 
     /// Choose which results should be computed and returned.
-    result_options::result_option_id_t get_result_options() const {
+    result_option_id_t get_result_options() const {
         return base_t::get_result_options();
     }
 
-    auto& set_result_options(const result_options::result_option_id_t& value) {
+    auto& set_result_options(const result_option_id_t& value) {
         base_t::set_result_options_impl(value);
         return *this;
     }
@@ -337,7 +332,7 @@ private:
     void deserialize(dal::detail::input_archive& ar);
 
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
-    explicit model(const result_options::result_option_id_t& options,
+    explicit model(result_option_id_t& options,
                    const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };

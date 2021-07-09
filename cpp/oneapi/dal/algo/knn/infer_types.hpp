@@ -128,9 +128,9 @@ public:
 
     /// Set of results to be computed and returned
     /// @remark default = default_result_options<Task>
-    const result_options::result_option_id_t& get_result_options() const;
+    const result_option_id_t& get_result_options() const;
 
-    auto& set_result_options(const result_options::result_option_id_t& value) {
+    auto& set_result_options(const result_option_id_t& value) {
         set_result_options_impl(value);
         return *this;
     }
@@ -139,7 +139,7 @@ protected:
     void set_responses_impl(const table&);
     void set_indices_impl(const table&);
     void set_distances_impl(const table&);
-    void set_result_options_impl(const result_options::result_option_id_t&);
+    void set_result_options_impl(const result_option_id_t&);
     const table& get_responses_impl() const;
 
 private:

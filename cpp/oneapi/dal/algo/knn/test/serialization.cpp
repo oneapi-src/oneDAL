@@ -125,8 +125,6 @@ public:
     }
 
     infer_result<task_t> run_inference(const model<task_t>& m) {
-        std::cerr << bool(this->get_descriptor().get_result_options() & result_options::responses)
-                  << std::endl;
         return this->infer(this->get_descriptor(), this->get_test_data(), m);
     }
 
