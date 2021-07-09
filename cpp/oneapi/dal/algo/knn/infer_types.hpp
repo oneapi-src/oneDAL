@@ -126,8 +126,7 @@ public:
         return *this;
     }
 
-    /// Set of results that will
-    /// be computed and returned
+    /// Set of results to be computed and returned
     /// @remark default = default_result_options<Task>
     const result_options::result_option_id_t& get_result_options() const;
 
