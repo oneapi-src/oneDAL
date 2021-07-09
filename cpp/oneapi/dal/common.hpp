@@ -128,6 +128,7 @@ private:
 template <typename ResultOptionIdType>
 constexpr inline bool is_result_option_id_v =
     std::is_base_of_v<result_option_id_base, ResultOptionIdType>;
+    
 template <typename ResultOptionIdType>
 using enable_if_result_option_id_t = std::enable_if_t<is_result_option_id_v<ResultOptionIdType>>;
 
