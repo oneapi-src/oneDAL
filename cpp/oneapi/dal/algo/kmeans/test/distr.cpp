@@ -83,7 +83,7 @@ private:
 
 TEMPLATE_LIST_TEST_M(kmeans_distr_test,
                      "distributed kmeans on gold data",
-                     "[kmeans][distr]",
+                     "[distr]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
     this->set_rank_count(GENERATE(1, 2, 4, 8));
@@ -92,7 +92,7 @@ TEMPLATE_LIST_TEST_M(kmeans_distr_test,
 
 // TEMPLATE_LIST_TEST_M(kmeans_distr_test,
 //                      "distributed kmeans empty clusters test",
-//                      "[kmeans][distr]",
+//                      "[distr]",
 //                      kmeans_types) {
 //     SKIP_IF(this->not_float64_friendly());
 //     this->set_rank_count(GENERATE(1, 2));

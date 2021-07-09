@@ -54,7 +54,6 @@ public:
 
     template <typename Body>
     void execute(const Body& body) {
-        // TODO: Use TBB threads
         for (std::int64_t i = 0; i < thread_count_; i++) {
             thread_pool_.emplace_back([=]() {
                 init(i);

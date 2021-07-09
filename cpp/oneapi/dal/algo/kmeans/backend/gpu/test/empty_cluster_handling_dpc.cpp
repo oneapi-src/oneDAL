@@ -87,9 +87,9 @@ public:
         counters.assign(this->get_queue(), val_ptr, cluster_count).wait_and_throw();
     }
 
-    void test_find_candidates(const pr::ndarray<float_t, 2>& closest_distances,
-                              const pr::ndarray<std::int32_t, 1>& counters,
-                              std::int64_t candidate_count) {
+    void run_find_candidates(const pr::ndarray<float_t, 2>& closest_distances,
+                             const pr::ndarray<std::int32_t, 1>& counters,
+                             std::int64_t candidate_count) {
         auto [candidates, find_candidates_event] = find_candidates( //
             this->get_queue(),
             candidate_count,
@@ -98,6 +98,20 @@ public:
         find_candidates_event.wait_and_throw();
 
         check_candidates(closest_distances, candidates);
+    }
+
+    void run_fill_empty_clusters(bk::spmd_communicator& comm,
+                                 std::int64_t cluster_count,
+                                 const pr::ndarray<float_t, 2>& data,
+                                 const centroid_candidates<Float>& candidates) {
+        const std::int64_t column_count = data.get_dimension(1);
+
+        auto centroids = pr::ndarray<float_t, 2>::empty( //
+            this->get_queue(),
+            { cluster_count, column_count },
+            sycl::usm::alloc::device);
+
+        fill_empty_clusters(this->get_queue(), comm, data, candidates, centroids).wait_and_throw();
     }
 
     void check_candidates(const pr::ndarray<float_t, 2>& closest_distances,
@@ -132,10 +146,7 @@ public:
 
 using kmeans_types = std::tuple<float, double>;
 
-TEMPLATE_LIST_TEST_M(empty_cluster_handling_test,
-                     "candidate search test",
-                     "[kmeans][unit]",
-                     kmeans_types) {
+TEMPLATE_LIST_TEST_M(empty_cluster_handling_test, "find candidates", "[candidates]", kmeans_types) {
     using float_t = TestType;
     SKIP_IF(this->not_float64_friendly());
 
@@ -156,9 +167,13 @@ TEMPLATE_LIST_TEST_M(empty_cluster_handling_test,
     this->test_find_candidates(closest_distances, counters, candidate_count);
 }
 
-// TEMPLATE_LIST_TEST_M(empty_cluster_handling_test,
-//                      "fill empty clusters test",
-//                      "[kmeans][weekly][unit]",
-//                      kmeans_types) {}
+TEMPLATE_LIST_TEST_M(empty_cluster_handling_test,
+                     "fill empty clusters local",
+                     "[fill]",
+                     kmeans_types) {
+    bk::spmd_communicator fake_comm;
+
+    fill_empty_clusters(this->get_queue(), fake_comm, )
+}
 
 } // namespace oneapi::dal::kmeans::backend::test
