@@ -20,16 +20,6 @@
 
 namespace oneapi::dal::knn {
 
-namespace result_options {
-
-template <typename Task>
-const inline result_option_id_t default_result_options = responses;
-
-template <>
-const inline result_option_id_t default_result_options<task::search> = indices | distances;
-
-} // namespace result_options
-
 namespace detail {
 
 result_option_id_t get_responses_id() {
@@ -44,6 +34,12 @@ result_option_id_t get_distances_id() {
     return result_option_id_t::make_by_index(2);
 }
 
+template <typename Task>
+const inline result_option_id_t default_result_options = responses;
+
+template <>
+const inline result_option_id_t default_result_options<task::search> = indices | distances;
+
 namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
@@ -54,7 +50,7 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
-    result_option_id_t result_options = result_options::default_result_options<Task>;
+    result_option_id_t result_options = default_result_options<Task>;
 };
 
 template <typename Task>
