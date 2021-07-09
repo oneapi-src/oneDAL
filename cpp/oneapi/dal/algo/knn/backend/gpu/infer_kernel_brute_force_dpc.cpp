@@ -30,11 +30,11 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
-namespace daal_classifier = daal::algorithms::classifier;
 
 template <typename Task>
 using descriptor_t = detail::descriptor_base<Task>;
 
+namespace daal_classifier = daal::algorithms::classifier;
 namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop = dal::backend::interop;
 

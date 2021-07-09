@@ -31,7 +31,6 @@ using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace daal_classifier = daal::algorithms::classifier;
-
 namespace interop = dal::backend::interop;
 
 template <typename Float, daal::CpuType Cpu>
