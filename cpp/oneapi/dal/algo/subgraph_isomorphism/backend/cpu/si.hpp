@@ -31,6 +31,7 @@ template <typename Cpu>
 oneapi::dal::homogen_table si(const graph<Cpu>& pattern,
                               const graph<Cpu>& target,
                               kind isomorphism_kind,
+                              std::int64_t max_match_count,
                               detail::byte_alloc_iface* alloc_ptr) {
     inner_alloc local_allocator(alloc_ptr);
 
@@ -72,19 +73,20 @@ oneapi::dal::homogen_table si(const graph<Cpu>& pattern,
                                pattern_vertex_probability.get(),
                                isomorphism_kind,
                                local_allocator);
-    const solution<Cpu> results = harness.run();
+    const solution<Cpu> results = harness.run(max_match_count);
 
     for (std::int64_t i = 0; i < (pattern_vetrex_count - 1); i++) {
         cconditions_array[i].~sconsistent_conditions();
     }
     cconditions = nullptr;
 
-    return results.export_as_table(sorted_pattern_vertex_array);
+    return results.export_as_table(sorted_pattern_vertex_array, max_match_count);
 }
 
 template <typename Cpu>
 subgraph_isomorphism::graph_matching_result<task::compute> si_call_kernel(
     const kind& si_kind,
+    std::int64_t max_match_count,
     detail::byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
@@ -100,10 +102,12 @@ subgraph_isomorphism::graph_matching_result<task::compute> si_call_kernel(
         pattern.set_vertex_attribute(p_data._vertex_count, vv_p);
     }
 
-    const oneapi::dal::homogen_table results = si<Cpu>(pattern, target, si_kind, alloc_ptr);
+    const oneapi::dal::homogen_table results =
+        si<Cpu>(pattern, target, si_kind, max_match_count, alloc_ptr);
 
+    const auto solution_count = results.get_row_count();
     return graph_matching_result<task::compute>().set_vertex_match(results).set_match_count(
-        results.get_row_count());
+        (max_match_count == 0) ? solution_count : std::min(solution_count, max_match_count));
 }
 
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

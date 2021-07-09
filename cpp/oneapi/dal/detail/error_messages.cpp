@@ -166,6 +166,8 @@ MSG(neighbor_count_lt_one, "Neighbor count lower than one")
 MSG(unknown_distance_type,
     "Custom distances for k-NN is not supported, use one of the predefined distances instead.")
 MSG(distance_is_not_supported_for_gpu, "Only Euclidean distances for k-NN is supported for GPU")
+MSG(incompatible_knn_model,
+    "The provided model is incompatible with the selected k-NN task or method")
 
 /* Minkowski distance */
 MSG(invalid_minkowski_degree, "Minkowski degree should be greater than zero")
@@ -184,9 +186,9 @@ MSG(empty_target_graph, "Empty target graph")
 MSG(empty_pattern_graph, "Empty pattern graph")
 MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges,
     "Subgraph isomorphism is not implemented for labeled edges")
-MSG(non_zero_max_match_count_is_not_supported, "Non-zero max_match_count is not supported")
 MSG(incorrect_index_is_returned, "Internal error: incorrect index is returned")
 MSG(invalid_vertex_edge_attributes, "Internal error: invalid vertex/edge attributes")
+MSG(target_graph_is_smaller_than_pattern_graph, "Target graph is smaller than pattern graph")
 
 /* PCA */
 MSG(component_count_lt_zero, "Component count is lower than zero")

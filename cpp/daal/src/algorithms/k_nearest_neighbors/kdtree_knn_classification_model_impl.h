@@ -46,15 +46,8 @@ struct KDTreeNode
 class KDTreeTable : public data_management::AOSNumericTable
 {
 public:
-    KDTreeTable(size_t rowCount, services::Status & st) : data_management::AOSNumericTable(sizeof(KDTreeNode), 4, rowCount, st)
-    {
-        setFeature<size_t>(0, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, dimension));
-        setFeature<size_t>(1, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, leftIndex));
-        setFeature<size_t>(2, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, rightIndex));
-        setFeature<double>(3, DAAL_STRUCT_MEMBER_OFFSET(KDTreeNode, cutPoint));
-        st |= allocateDataMemory();
-    }
-    KDTreeTable(services::Status & st) : KDTreeTable(0, st) {}
+    KDTreeTable(size_t rowCount, services::Status & st);
+    KDTreeTable(services::Status & st);
 };
 typedef services::SharedPtr<KDTreeTable> KDTreeTablePtr;
 typedef services::SharedPtr<const KDTreeTable> KDTreeTableConstPtr;
