@@ -18,6 +18,7 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
@@ -28,7 +29,6 @@
 
 namespace oneapi::dal::knn::backend {
 
-using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
@@ -42,7 +42,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const table& responses) {
-    using daal_model_interop_t = model_interop;
+    using model_t = model<Task>;
     const std::int64_t column_count = data.get_column_count();
 
     const auto data_use_in_model = daal_knn::doUse;
@@ -51,9 +51,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
 
-    Status status;
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
-    interop::status_to_exception(status);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     model_ptr->impl()->setData<Float>(daal_data, false);
@@ -72,10 +70,8 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                daal_parameter,
                                                                *daal_parameter.engine));
 
-    auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl_interop = std::make_shared<model_impl<Task>>(interop);
-    return train_result<Task>().set_model(
-        dal::detail::make_private<model<Task>>(model_impl_interop));
+    const auto model_impl = std::make_shared<brute_force_model_impl<Task>>(data, responses);
+    return train_result<Task>().set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
 template <typename Float, typename Task>

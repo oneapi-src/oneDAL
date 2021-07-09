@@ -21,6 +21,7 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
@@ -46,7 +47,6 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                            const descriptor_t<Task>& desc,
                                            const table& data,
                                            const table& responses) {
-    using daal_model_interop_t = backend::model_interop;
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -91,17 +91,17 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
                                                        daal_parameter,
                                                        *daal_parameter.engine.get()));
 
-    auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl_interop = std::make_shared<model_impl<Task>>(interop);
+    const auto model_impl =
+        std::make_shared<brute_force_model_impl<Task>>(data, responses);
     return train_result<Task>().set_model(
-        dal::detail::make_private<model<Task>>(model_impl_interop));
+        dal::detail::make_private<model<Task>>(model_impl));
 }
 
 template <typename Float, typename Task>
 static train_result<Task> train(const context_gpu& ctx,
                                 const descriptor_t<Task>& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>
@@ -109,7 +109,7 @@ struct train_kernel_gpu<Float, method::brute_force, Task> {
     train_result<Task> operator()(const context_gpu& ctx,
                                   const descriptor_t<Task>& desc,
                                   const train_input<Task>& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, input);
     }
 };
 

@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/detail/distance.hpp"
+#include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/common.hpp"
@@ -103,12 +104,6 @@ namespace result_options {
 const inline result_option_id_t indices = detail::get_indices_id();
 const inline result_option_id_t distances = detail::get_distances_id();
 const inline result_option_id_t responses = detail::get_responses_id();
-
-template <typename Task>
-const inline result_option_id_t default_result_options = responses;
-
-template <>
-const inline result_option_id_t default_result_options<task::search> = indices | distances;
 
 } // namespace result_options
 
@@ -311,7 +306,7 @@ public:
     template <typename M = Method, typename = detail::enable_if_brute_force_t<M>>
     auto& set_distance(const distance_t& dist) {
         base_t::set_distance_impl(std::make_shared<detail::distance<distance_t>>(dist));
-        return base_t::get_result_options();
+        return *this;
     }
 
     /// Choose which results should be computed and returned.
@@ -331,12 +326,16 @@ template <typename Task = task::by_default>
 class model : public base {
     static_assert(detail::is_valid_task_v<Task>);
     friend dal::detail::pimpl_accessor;
+    friend dal::detail::serialization_accessor;
 
 public:
     /// Creates a new instance of the class with the default property values.
     model();
 
 private:
+    void serialize(dal::detail::output_archive& ar) const;
+    void deserialize(dal::detail::input_archive& ar);
+
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
     explicit model(const result_options::result_option_id_t& options,
                    const std::shared_ptr<detail::model_impl<Task>>& impl);

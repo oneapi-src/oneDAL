@@ -112,7 +112,7 @@ public:
         return mask_;
     }
 
-    static result_option_id get_result_id_by_index(std::int64_t result_index) {
+    static result_option_id make_by_index(std::int64_t result_index) {
         return this_t{}.set_mask(std::uint64_t(1) << result_index);
     }
 

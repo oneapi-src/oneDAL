@@ -178,6 +178,7 @@ public:
     MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
     MSG(incorrect_index_is_returned);
     MSG(invalid_vertex_edge_attributes);
+    MSG(target_graph_is_smaller_than_pattern_graph);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
@@ -200,6 +201,7 @@ public:
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
     MSG(distance_is_not_supported_for_gpu);
+    MSG(incompatible_knn_model);
     MSG(invalid_set_of_result_options_to_search);
 
     /* Linear and RBF Kernels */

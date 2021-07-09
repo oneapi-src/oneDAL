@@ -18,9 +18,9 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 
 #include "oneapi/dal/table/row_accessor.hpp"
 #include <daal/src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h>
@@ -103,14 +103,16 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
     const auto daal_voting_mode = convert_to_daal_bf_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
 
-    interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(
-        ctx,
-        daal_data.get(),
-        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
-        daal_responses.get(),
-        daal_indices.get(),
-        daal_distances.get(),
-        &daal_parameter));
+    const auto model_ptr = convert_onedal_to_daal_knn_model<Float, Task>(m);
+
+    interop::status_to_exception(
+        interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(ctx,
+                                                               daal_data.get(),
+                                                               model_ptr.get(),
+                                                               daal_responses.get(),
+                                                               daal_indices.get(),
+                                                               daal_distances.get(),
+                                                               &daal_parameter));
 
     auto result = infer_result<Task>{}.set_result_options(desc.get_result_options());
 
@@ -136,17 +138,17 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
 }
 
 template <typename Float, typename Task>
-static infer_result<Task> infer(const context_cpu &ctx,
-                                const detail::descriptor_base<Task> &desc,
-                                const infer_input<Task> &input) {
+static infer_result<Task> infer(const context_cpu& ctx,
+                                const detail::descriptor_base<Task>& desc,
+                                const infer_input<Task>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float, typename Task>
 struct infer_kernel_cpu<Float, method::brute_force, Task> {
-    infer_result<Task> operator()(const context_cpu &ctx,
-                                  const detail::descriptor_base<Task> &desc,
-                                  const infer_input<Task> &input) const {
+    infer_result<Task> operator()(const context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         return infer<Float>(ctx, desc, input);
     }
 };

@@ -20,9 +20,11 @@
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::knn::backend {
@@ -104,9 +106,11 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
             interop::convert_to_daal_table(queue, arr_distance, row_count, neighbor_count);
     }
 
+    const auto model_ptr = convert_onedal_to_daal_knn_model<Float, Task>(queue, m);
+
     interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
         daal_data.get(),
-        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
+        model_ptr.get(),
         daal_responses.get(),
         daal_indices.get(),
         daal_distance.get(),
@@ -139,7 +143,7 @@ template <typename Float, typename Task>
 static infer_result<Task> infer(const context_gpu& ctx,
                                 const descriptor_t<Task>& desc,
                                 const infer_input<Task>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float, typename Task>
@@ -147,7 +151,7 @@ struct infer_kernel_gpu<Float, method::brute_force, Task> {
     infer_result<Task> operator()(const context_gpu& ctx,
                                   const descriptor_t<Task>& desc,
                                   const infer_input<Task>& input) const {
-        return infer<Float>(ctx, desc, input);
+        return infer<Float, Task>(ctx, desc, input);
     }
 };
 

@@ -17,8 +17,10 @@
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h>
 #include <src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h>
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -42,6 +44,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
                                            const table& responses) {
+    using model_t = model<Task>;
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
 
@@ -78,16 +81,15 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                     *daal_parameter.engine.get()));
 
     auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl_interop = std::make_shared<model_impl<Task>>(interop);
-    return train_result<Task>().set_model(
-        dal::detail::make_private<model<Task>>(model_impl_interop));
+    const auto model_impl = std::make_shared<kd_tree_model_impl<Task>>(interop);
+    return train_result<Task>().set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
 template <typename Float, typename Task>
 static train_result<Task> train(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>
@@ -95,7 +97,7 @@ struct train_kernel_cpu<Float, method::kd_tree, Task> {
     train_result<Task> operator()(const context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, input);
     }
 };
 
