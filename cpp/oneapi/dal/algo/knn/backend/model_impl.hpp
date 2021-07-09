@@ -107,7 +107,7 @@ public:
     }
 
 private:
-    result_option_id_t options_;
+    result_option_id options_;
     backend::model_interop* interop_;
 };
 

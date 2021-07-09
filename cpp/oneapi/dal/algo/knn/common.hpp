@@ -155,7 +155,7 @@ public:
     std::int64_t get_class_count() const;
     std::int64_t get_neighbor_count() const;
     voting_mode get_voting_mode() const;
-    result_option_id_t get_result_options() const;
+    result_option_id get_result_options() const;
 
 protected:
     explicit descriptor_base(const detail::distance_ptr& distance);
@@ -165,7 +165,7 @@ protected:
     void set_voting_mode_impl(voting_mode value);
     void set_distance_impl(const detail::distance_ptr& distance);
     const detail::distance_ptr& get_distance_impl() const;
-    void set_result_options_impl(const result_option_id_t& value);
+    void set_result_options_impl(const result_option_id& value);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
@@ -304,11 +304,11 @@ public:
     }
 
     /// Choose which results should be computed and returned.
-    result_option_id_t get_result_options() const {
+    result_option_id get_result_options() const {
         return base_t::get_result_options();
     }
 
-    auto& set_result_options(const result_option_id_t& value) {
+    auto& set_result_options(const result_option_id& value) {
         base_t::set_result_options_impl(value);
         return *this;
     }
@@ -331,7 +331,7 @@ private:
     void deserialize(dal::detail::input_archive& ar);
 
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
-    explicit model(result_option_id_t& options,
+    explicit model(result_option_id& options,
                    const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };

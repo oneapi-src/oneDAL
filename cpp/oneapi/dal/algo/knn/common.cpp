@@ -35,10 +35,10 @@ result_option_id get_distances_id() {
 }
 
 template <typename Task>
-const inline result_option_id default_result_options = responses;
+const inline result_option_id default_result_options = result_options::responses;
 
 template <>
-const inline result_option_id default_result_options<task::search> = indices | distances;
+const inline result_option_id default_result_options<task::search> = result_options::indices | result_options::distances;
 
 namespace v1 {
 template <typename Task>

@@ -80,7 +80,7 @@ static train_result<Task> call_daal_kernel(const context_gpu& ctx,
     const bool copy_data_responses = false;
     knn_model->impl()->setData<Float>(daal_data, copy_data_responses);
     if constexpr (!std::is_same_v<Task, task::search>) {
-        daal_responses = interop::convert_to_daal_table<Float>(queue, responses);
+        daal_responses = interop::convert_to_daal_table(queue, responses);
         knn_model->impl()->setLabels<Float>(daal_responses, false);
     }
 
