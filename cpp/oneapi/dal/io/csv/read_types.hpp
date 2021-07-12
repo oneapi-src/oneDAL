@@ -34,9 +34,15 @@ public:
         if (mode != preview::read_mode::edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
+    read_args_graph_impl(Allocator alloc, preview::read_mode mode = preview::read_mode::edge_list)
+            : allocator(alloc),
+              mode(mode) {
+        if (mode != preview::read_mode::edge_list)
+            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
+    }
 
-    preview::read_mode mode;
     Allocator allocator;
+    preview::read_mode mode;
 };
 } // namespace v1
 
@@ -60,6 +66,8 @@ public:
     read_args(Allocator& allocator) : impl_(new detail::read_args_graph_impl<Allocator>()) {
         set_allocator_impl(allocator);
     }
+    read_args(Allocator& allocator, preview::read_mode mode)
+            : impl_(new detail::read_args_graph_impl<Allocator>(allocator, mode)) {}
 
     Allocator get_allocator() const;
 

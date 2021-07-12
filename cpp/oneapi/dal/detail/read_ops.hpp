@@ -40,11 +40,11 @@ public:
     enum { value = (sizeof(test<T>(0)) == sizeof(yes_t)) };
 };
 
-template <typename Object, typename Descriptor, typename Tag, typename... Options>
+template <typename Object, typename DataSource, typename Tag, typename... Options>
 struct read_ops;
 
-template <typename Object, typename Descriptor, typename... Options>
-using tagged_read_ops = read_ops<Object, Descriptor, typename Descriptor::tag_t, Options...>;
+template <typename Object, typename DataSource, typename... Options>
+using tagged_read_ops = read_ops<Object, DataSource, typename DataSource::tag_t, Options...>;
 
 template <typename Object, typename Head, typename... Tail>
 auto read_dispatch(Head&& head, Tail&&... tail) {
@@ -59,18 +59,17 @@ auto read_dispatch(DataSource&& ds, Head&& head, Tail&&... tail) {
         using read_args_tag_t = typename head_t::tag_t;
         if constexpr (is_tag_one_of_v<read_args_tag_t, csv::read_args_tag>) {
             using allocator_t = typename head_t::allocator_t;
-            using tagged_ops_t = tagged_read_ops<Object, DataSource, allocator_t>;
             using dispatcher_t = ops_policy_dispatcher_object_allocator<Object,
                                                                         std::decay_t<Head>,
                                                                         allocator_t,
-                                                                        tagged_ops_t>;
+                                                                        tagged_read_ops>;
             return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
         }
     }
     else {
         using dispatcher_t =
             ops_policy_dispatcher_object<Object, std::decay_t<Head>, tagged_read_ops>;
-        return dispatcher_t{}(std::forward<Head>(head), std::forward<Tail>(tail)...);
+        return dispatcher_t{}(ds, std::forward<Head>(head), std::forward<Tail>(tail)...);
     }
 }
 

@@ -264,9 +264,6 @@ void filter_neighbors_and_fill_new_degrees(VertexIndex *unfiltered_neighs,
     });
 }
 
-<<<<<<< HEAD:cpp/oneapi/dal/io/csv/detail/read_graph_kernel_impl.hpp
-//
-=======
 template <typename Vertex, typename Weight, typename EdgeIndex>
 void filter_neighbors_and_fill_new_degrees(std::pair<Vertex, Weight> *unfiltered_neighs_vals,
                                            EdgeIndex *unfiltered_offsets,
@@ -299,7 +296,6 @@ ONEDAL_EXPORT void filter_neighbors_and_fill_new_degrees<std::int32_t, std::int6
     std::int32_t *new_degrees,
     std::int64_t vertex_count);
 
->>>>>>> master:cpp/oneapi/dal/io/detail/load_graph.hpp
 template <typename Graph>
 void convert_to_csr_impl(const edge_list<typename graph_traits<Graph>::vertex_type> &edges,
                          Graph &g) {
@@ -562,23 +558,13 @@ void convert_to_csr_impl(
     return;
 }
 
-<<<<<<< HEAD:cpp/oneapi/dal/io/csv/detail/read_graph_kernel_impl.hpp
 template <typename Graph, typename DataSource>
 void read_impl(Graph &graph, DataSource data_source) {
-    const auto el = read_edge_list<std::int32_t>(data_source.get_file_name());
-    convert_to_csr_impl(el, graph);
-    return;
-=======
-template <typename Descriptor, typename DataSource>
-output_type<Descriptor> load_impl(const Descriptor &desc, const DataSource &data_source) {
-    using graph_type = output_type<Descriptor>;
-    using edge_list_type = typename Descriptor::input_type;
+    using edge_list_type = preview::edge_list<>;
 
-    graph_type graph;
     edge_list_type elist;
-    load_edge_list(data_source.get_filename(), elist);
+    read_edge_list(data_source.get_file_name(), elist);
     convert_to_csr_impl(elist, graph);
-    return graph;
->>>>>>> master:cpp/oneapi/dal/io/detail/load_graph.hpp
+    return;
 }
 } // namespace oneapi::dal::preview::read_graph::detail

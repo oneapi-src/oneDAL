@@ -130,6 +130,7 @@ public:
 
     /* I/O */
     MSG(file_not_found);
+    MSG(unsupported_read_mode);
 
     /* Serialization */
     MSG(object_is_not_serializable);
@@ -149,10 +150,6 @@ public:
     MSG(iteration_count_lt_zero);
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
-
-    /* I/O */
-    MSG(file_not_found);
-    MSG(unsupported_read_mode);
 
     /* Decision Forest */
     MSG(bootstrap_is_incompatible_with_error_metric);
