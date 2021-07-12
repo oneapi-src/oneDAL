@@ -34,11 +34,11 @@ struct ops_input_dispatcher<T, Ops, /* IsInput = */ true> {
 
 template <typename T, typename Ops>
 struct ops_input_dispatcher<T, Ops, /* IsInput = */ false> {
-    template <typename Policy, typename DataSource, typename... Args>
-    auto operator()(Policy&& policy, DataSource&& ds, Args&&... args) {
+    template <typename Policy, typename Descriptor, typename... Args>
+    auto operator()(Policy&& policy, Descriptor&& desc, Args&&... args) {
         using input_t = typename Ops::input_t;
         return Ops{}(std::forward<Policy>(policy),
-                     std::forward<DataSource>(ds),
+                     std::forward<Descriptor>(desc),
                      input_t{ std::forward<Args>(args)... });
     }
 };
@@ -48,12 +48,12 @@ struct ops_policy_dispatcher;
 
 template <typename T, template <typename> typename Ops>
 struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ true> {
-    template <typename Policy, typename DataSource, typename Head, typename... Tail>
-    auto operator()(Policy&& policy, DataSource&& ds, Head&& head, Tail&&... tail) {
-        using ops_t = Ops<std::decay_t<DataSource>>;
+    template <typename Policy, typename Descriptor, typename Head, typename... Tail>
+    auto operator()(Policy&& policy, Descriptor&& desc, Head&& head, Tail&&... tail) {
+        using ops_t = Ops<std::decay_t<Descriptor>>;
         using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
         return dispatcher_t{}(std::forward<Policy>(policy),
-                              std::forward<DataSource>(ds),
+                              std::forward<Descriptor>(desc),
                               std::forward<Head>(head),
                               std::forward<Tail>(tail)...);
     }
@@ -61,12 +61,12 @@ struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ true> {
 
 template <typename T, template <typename> typename Ops>
 struct ops_policy_dispatcher<T, Ops, /* IsPolicy = */ false> {
-    template <typename DataSource, typename Head, typename... Tail>
-    auto operator()(DataSource&& ds, Head&& head, Tail&&... tail) {
-        using ops_t = Ops<std::decay_t<DataSource>>;
+    template <typename Descriptor, typename Head, typename... Tail>
+    auto operator()(Descriptor&& desc, Head&& head, Tail&&... tail) {
+        using ops_t = Ops<std::decay_t<Descriptor>>;
         using dispatcher_t = ops_input_dispatcher<std::decay_t<Head>, ops_t>;
         return dispatcher_t{}(host_policy::get_default(),
-                              std::forward<DataSource>(ds),
+                              std::forward<Descriptor>(desc),
                               std::forward<Head>(head),
                               std::forward<Tail>(tail)...);
     }

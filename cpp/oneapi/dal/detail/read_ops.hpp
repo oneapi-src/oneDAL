@@ -21,11 +21,11 @@
 namespace oneapi::dal::detail {
 namespace v1 {
 
-template <typename Object, typename DataSource, typename Tag>
+template <typename Object, typename Descriptor, typename Tag>
 struct read_ops;
 
-template <typename Object, typename DataSource>
-using tagged_read_ops = read_ops<Object, DataSource, typename DataSource::tag_t>;
+template <typename Object, typename Descriptor>
+using tagged_read_ops = read_ops<Object, Descriptor, typename Descriptor::tag_t>;
 
 template <typename Object, typename Head, typename... Tail>
 auto read_dispatch(Head&& head, Tail&&... tail) {
