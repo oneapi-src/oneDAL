@@ -18,6 +18,7 @@
 
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -27,7 +28,6 @@
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_cpu;
-using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_knn = daal::algorithms::kdtree_knn_classification;
 namespace daal_classifier = daal::algorithms::classifier;
@@ -39,10 +39,10 @@ using daal_knn_kd_tree_kernel_t = daal_knn::prediction::internal::
     KNNClassificationPredictKernel<Float, daal_knn::prediction::defaultDense, Cpu>;
 
 template <typename Float, typename Task>
-static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
-                                           const descriptor_t &desc,
-                                           const table &data,
-                                           model<Task> m) {
+static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const table& data,
+                                           const model<Task>& m) {
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
@@ -85,10 +85,12 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
+    const auto model_ptr = dynamic_cast_to_knn_model<Task, kd_tree_model_impl<Task>>(m);
+
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         daal_data.get(),
-        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
+        model_ptr->get_interop()->get_daal_model().get(),
         daal_responses.get(),
         daal_indices.get(),
         daal_distance.get(),
@@ -113,17 +115,17 @@ static infer_result<Task> call_daal_kernel(const context_cpu &ctx,
 }
 
 template <typename Float, typename Task>
-static infer_result<Task> infer(const context_cpu &ctx,
-                                const descriptor_t &desc,
-                                const infer_input<Task> &input) {
+static infer_result<Task> infer(const context_cpu& ctx,
+                                const detail::descriptor_base<Task>& desc,
+                                const infer_input<Task>& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_model());
 }
 
 template <typename Float, typename Task>
 struct infer_kernel_cpu<Float, method::kd_tree, Task> {
-    infer_result<Task> operator()(const context_cpu &ctx,
-                                  const descriptor_t &desc,
-                                  const infer_input<Task> &input) const {
+    infer_result<Task> operator()(const context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
         return infer<Float>(ctx, desc, input);
     }
 };
