@@ -38,6 +38,35 @@ dal_test_module(
     ],
 )
 
+
+dal_test_module(
+    name = "gbench_main",
+    srcs = [
+        "gbench_main.cpp",
+    ],
+    dal_test_deps = [
+    ],
+    extra_deps = [
+       # "@gtest//:gtest",
+        "@gbench//:benchmark",
+    ],
+)
+
+load("@onedal//dev/bazel:dal.bzl",
+    "dal_module",
+    "dal_test_suite",
+)
+
+dal_test_suite(
+    name = "func_test",
+    framework = "gbench",
+    srcs = [
+        "func.cpp",
+    ],
+    dal_deps = [
+    ],
+)
+
 dal_test_module(
     name = "catch2_main",
     srcs = [

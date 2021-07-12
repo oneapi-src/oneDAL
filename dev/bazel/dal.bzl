@@ -154,8 +154,9 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
              framework="gtest", data=[], tags=[], private=False, args=[], **kwargs):
     # TODO: Check `compile_as` parameter
     # TODO: Refactor this rule once decision on the tests structure is made
-    if not framework in ["gtest", "catch2", "none"]:
+    if not framework in ["gtest", "gbench", "catch2", "none"]:
         fail("Unknown test framework '{}' in test rule '{}'".format(framework, name))
+    is_gbench = framework == "gbench"
     is_gtest = framework == "gtest"
     is_catch2 = framework == "catch2"
     module_name = "_" + name
@@ -174,11 +175,14 @@ def dal_test(name, hdrs=[], srcs=[], dal_deps=[], dal_test_deps=[],
             dal_test_deps +
             _test_link_mode_deps(dal_deps)
         ) + ([
+            "@onedal//cpp/oneapi/dal/test/engine:gbench_main",
+        ] if is_gbench else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:gtest_main",
         ] if is_gtest else []) + ([
             "@onedal//cpp/oneapi/dal/test/engine:common",
             "@onedal//cpp/oneapi/dal/test/engine:catch2_main",
-        ] if is_catch2 else []),
+        ]
+         if is_catch2 else []),
         extra_deps = _test_deps_on_daal() + extra_deps,
         testonly = True,
         **kwargs,
