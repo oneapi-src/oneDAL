@@ -79,8 +79,10 @@ using v1::by_default;
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
 struct result_option_id : public result_option_id_base {
+    using base_t = result_option_id_base;
     result_option_id() : result_option_id_base{} {}
-    result_option_id(const result_option_id_base& base) : result_option_id_base{ base } {}
+    result_option_id(const base_t& base) : result_option_id_base{ base } {}
+    result_option_id(const base_t::bitset_t& mask) : result_option_id_base{ mask } {}
 };
 
 namespace detail {
