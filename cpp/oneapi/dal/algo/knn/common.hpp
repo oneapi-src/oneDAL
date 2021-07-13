@@ -79,11 +79,9 @@ using v1::by_default;
 /// Represents result option flag
 /// Behaves like a regular :expr`enum`.
 class result_option_id : public result_option_id_base {
-    using base_t = result_option_id_base;
-
 public:
     result_option_id() : result_option_id_base{} {}
-    result_option_id(const base_t& base) : result_option_id_base{ base } {}
+    result_option_id(const result_option_id_base& base) : result_option_id_base{ base } {}
 };
 
 namespace detail {
