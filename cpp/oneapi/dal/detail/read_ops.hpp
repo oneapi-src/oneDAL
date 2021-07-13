@@ -41,19 +41,22 @@ auto read_dispatch(Head&& head, Tail&&... tail) {
 template <typename Object, typename Descriptor, typename Head, typename... Tail>
 auto read_dispatch(Descriptor&& desc, Head&& head, Tail&&... tail) {
     using head_t = std::decay_t<Head>;
-    // if constexpr (oneapi::dal::detail::is_tagged_v<head_t>) {
-    // if constexpr (is_tag_one_of_v<head_t, csv::read_args_tag>) {
-    using allocator_t = typename head_t::allocator_t;
-    using dispatcher_t = ops_policy_dispatcher_object_allocator<Object,
-                                                                std::decay_t<Head>,
-                                                                allocator_t,
-                                                                tagged_read_ops>;
+    if constexpr (oneapi::dal::detail::is_tagged_v<head_t>) {
+        if constexpr (is_tag_one_of_v<head_t, csv::read_args_tag>) {
+            using allocator_t = typename head_t::allocator_t;
+            using dispatcher_t = ops_policy_dispatcher_object_allocator<Object,
+                                                                        std::decay_t<Head>,
+                                                                        allocator_t,
+                                                                        tagged_read_ops>;
 
-    return dispatcher_t{}(desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
-    // }
-    // }
-    // using dispatcher_t = ops_policy_dispatcher_object<Object, std::decay_t<Head>, tagged_read_ops>;
-    // return dispatcher_t{}(desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
+            return dispatcher_t{}(desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
+        }
+    }
+    else {
+        using dispatcher_t =
+            ops_policy_dispatcher_object<Object, std::decay_t<Head>, tagged_read_ops>;
+        return dispatcher_t{}(desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
+    }
 }
 
 } // namespace v1
