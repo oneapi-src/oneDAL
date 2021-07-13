@@ -105,7 +105,7 @@ public:
     result_option_id_base(const bitset_t& mask) : mask_{ mask } {}
 
     operator bool() const {
-        return mask_ > 0ul;
+        return mask_ > 0;
     }
 
     const bitset_t& get_mask() const {

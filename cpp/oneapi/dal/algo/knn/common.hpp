@@ -95,9 +95,9 @@ ONEDAL_EXPORT result_option_id get_responses_id();
 /// what should algorithm return
 namespace result_options {
 
-const inline result_option_id indices = detail::get_indices_id();
-const inline result_option_id distances = detail::get_distances_id();
-const inline result_option_id responses = detail::get_responses_id();
+const result_option_id indices = detail::get_indices_id();
+const result_option_id distances = detail::get_distances_id();
+const result_option_id responses = detail::get_responses_id();
 
 } // namespace result_options
 
