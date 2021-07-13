@@ -42,7 +42,7 @@ public:
     static constexpr bool is_search = std::is_same_v<task_t, knn::task::search>;
 
     bool not_available_on_device() {
-        return (this->get_policy().is_gpu() && (is_kd_tree || is_search));
+        return (this->get_policy().is_gpu() && is_kd_tree);
     }
 
     void set_class_count(std::int64_t class_count) {

@@ -331,8 +331,6 @@ private:
     void deserialize(dal::detail::input_archive& ar);
 
     explicit model(const std::shared_ptr<detail::model_impl<Task>>& impl);
-    explicit model(result_option_id& options,
-                   const std::shared_ptr<detail::model_impl<Task>>& impl);
     dal::detail::pimpl<detail::model_impl<Task>> impl_;
 };
 
