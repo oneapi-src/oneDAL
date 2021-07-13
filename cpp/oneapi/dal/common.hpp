@@ -134,14 +134,12 @@ using enable_if_result_option_id_t = std::enable_if_t<is_result_option_id_v<Resu
 
 template <typename ResultOptionIdType, typename = enable_if_result_option_id_t<ResultOptionIdType>>
 inline ResultOptionIdType operator|(const ResultOptionIdType& lhs, const ResultOptionIdType& rhs) {
-    return ResultOptionIdType{ lhs.get_mask() | rhs.get_mask() };
+    return result_option_id_base{ lhs.get_mask() | rhs.get_mask() };
 }
 
 template <typename ResultOptionIdType, typename = enable_if_result_option_id_t<ResultOptionIdType>>
 inline ResultOptionIdType operator&(const ResultOptionIdType& lhs, const ResultOptionIdType& rhs) {
-    const auto sr = lhs.get_mask() & rhs.get_mask();
-    //return ResultOptionIdType{ lhs.get_mask() & rhs.get_mask() };
-    return ResultOptionIdType{ sr };
+    return result_option_id_base{ lhs.get_mask() & rhs.get_mask() };
 }
 
 template <typename ResultOptionIdType, typename = enable_if_result_option_id_t<ResultOptionIdType>>
