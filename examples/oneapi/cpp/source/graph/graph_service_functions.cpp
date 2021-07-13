@@ -98,11 +98,16 @@ int main(int argc, char **argv) {
         print_graph_info(graph);
     }
 
+    {
+        auto read_args = csv::read_args<graph_t, Mallocator<char>>{ mallocator }.set_read_mode(
+            preview::read_mode::edge_list);
+        auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
+        print_graph_info(graph);
+    }
+
     // {
-    //     auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
-    //         csv::data_source{ filename },
-    //         mallocator,
-    //         preview::read_mode::edge_list);
+    //     auto graph =
+    //         read<graph_t>(csv::data_source{ filename }, mallocator, preview::read_mode::edge_list);
     //     print_graph_info(graph);
     // }
 
