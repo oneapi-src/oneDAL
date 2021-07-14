@@ -52,7 +52,7 @@ inline void read_edge_list(const std::string &name, edge_list<std::int32_t> &eli
 }
 
 template <typename Vertex, typename Weight>
-inline void load_edge_list(const std::string &name, weighted_edge_list<Vertex, Weight> &elist) {
+inline void read_edge_list(const std::string &name, weighted_edge_list<Vertex, Weight> &elist) {
     std::ifstream file(name);
     if (!file.is_open()) {
         throw invalid_argument(dal::detail::error_messages::file_not_found());
@@ -558,12 +558,13 @@ void convert_to_csr_impl(
     return;
 }
 
-template <typename Graph, typename DataSource>
-void read_impl(Graph &graph, DataSource data_source) {
-    using edge_list_type = preview::edge_list<>;
+template <typename Descriptor, typename DataSource>
+void read_impl(const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t graph) {
+    using allocator_t = typename Descriptor::allocator_t;
 
+    using edge_list_type = preview::edge_list<>;
     edge_list_type elist;
-    read_edge_list(data_source.get_file_name(), elist);
+    read_edge_list(ds.get_file_name(), elist);
     convert_to_csr_impl(elist, graph);
     return;
 }

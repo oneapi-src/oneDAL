@@ -32,11 +32,11 @@ struct read_ops_dispatcher<Graph, dal::detail::host_policy, Allocator> {
     Graph operator()(const dal::detail::host_policy& policy,
                      const data_source_base& ds,
                      const read_args<Graph, Allocator>& args) const {
-        Graph g;
         static auto impl =
-            get_backend<dal::detail::host_policy, data_source_base, Graph, Allocator>(ds, g, args);
-        (*impl)(policy, ds, g, args);
-        return g;
+            get_backend<dal::detail::host_policy, data_source_base, read_args<Graph, Allocator>>(
+                ds,
+                args);
+        return (*impl)(policy, ds, args);
     }
 };
 

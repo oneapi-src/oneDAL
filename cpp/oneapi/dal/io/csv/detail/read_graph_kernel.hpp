@@ -22,12 +22,13 @@
 
 namespace oneapi::dal::csv::detail {
 
-template <typename Allocator, typename Graph>
-inline void read_graph_default_kernel(const dal::detail::host_policy& ctx,
-                                      const detail::data_source_base& ds,
-                                      const Allocator& alloc,
-                                      Graph& g) {
-    oneapi::dal::preview::read_graph::detail::read_impl(g, ds);
-    return;
+template <typename Descriptor>
+inline typename Descriptor::object_t read_graph_default_kernel(const dal::detail::host_policy& ctx,
+                                                               const detail::data_source_base& ds,
+                                                               const Descriptor& desc) {
+    using object_t = typename Descriptor::object_t;
+    object_t graph;
+    oneapi::dal::preview::read_graph::detail::read_impl(ds, desc, graph);
+    return graph;
 }
 } // namespace oneapi::dal::csv::detail

@@ -21,33 +21,31 @@
 
 namespace oneapi::dal::csv::detail {
 
-template <typename Policy, typename Descriptor, typename Graph, typename Allocator>
+template <typename Policy, typename DataSource, typename Descriptor>
 struct backend_base {
-    virtual void operator()(const Policy &ctx,
-                            const Descriptor &descriptor,
-                            Graph &g,
-                            const read_args<Graph, Allocator> &args) = 0;
+    virtual typename Descriptor::object_t operator()(const Policy &ctx,
+                                                     const DataSource &ds,
+                                                     const Descriptor &desc) = 0;
     virtual ~backend_base() = default;
 };
 
-template <typename Policy, typename Descriptor, typename Graph, typename Allocator>
-struct backend_default : public backend_base<Policy, Descriptor, Graph, Allocator> {
+template <typename Policy, typename DataSource, typename Descriptor>
+struct backend_default : public backend_base<Policy, DataSource, Descriptor> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
-    virtual void operator()(const Policy &ctx,
-                            const Descriptor &descriptor,
-                            Graph &g,
-                            const read_args<Graph, Allocator> &args) {
-        auto allocator = args.get_allocator();
-        return read_graph_default_kernel(ctx, descriptor, allocator, g);
+    virtual typename Descriptor::object_t operator()(const Policy &ctx,
+                                                     const DataSource &ds,
+                                                     const Descriptor &desc) {
+        return read_graph_default_kernel(ctx, ds, desc);
     }
 };
 
-template <typename Policy, typename Descriptor, typename Graph, typename Allocator>
-dal::detail::shared<backend_base<Policy, Descriptor, Graph, Allocator>>
-get_backend(const Descriptor &desc, Graph &data, const read_args<Graph, Allocator> &args) {
-    return std::make_shared<backend_default<Policy, Descriptor, Graph, Allocator>>();
+template <typename Policy, typename DataSource, typename Descriptor>
+dal::detail::shared<backend_base<Policy, DataSource, Descriptor>> get_backend(
+    const DataSource &ds,
+    const Descriptor &desc) {
+    return std::make_shared<backend_default<Policy, DataSource, Descriptor>>();
 }
 
 } // namespace oneapi::dal::csv::detail

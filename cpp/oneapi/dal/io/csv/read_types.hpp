@@ -58,6 +58,7 @@ struct read_args_tag {};
 template <typename Object = table, typename Allocator = std::allocator<char>>
 class ONEDAL_EXPORT read_args : public base {
 public:
+    using object_t = Object;
     using allocator_t = Allocator;
     using tag_t = read_args_tag;
     read_args() : impl_(new detail::read_args_graph_impl<Allocator>()) {}
