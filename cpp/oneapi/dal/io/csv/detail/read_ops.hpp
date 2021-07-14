@@ -65,7 +65,7 @@ struct read_ops<Object, data_source, Allocator> {
     template <typename Policy>
     auto operator()(const Policy& ctx, const data_source_base& ds, const args_t& args) const {
         check_preconditions(ds, args);
-        const auto result = read_ops_dispatcher<Object, Policy, Allocator>()(ctx, ds, args);
+        auto result = read_ops_dispatcher<Object, Policy, Allocator>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }
@@ -85,8 +85,7 @@ struct read_ops<Object, data_source> {
     template <typename Policy>
     auto operator()(const Policy& ctx, const data_source_base& ds, const args_t& args) const {
         check_preconditions(ds, args);
-        const auto result =
-            read_ops_dispatcher<Object, Policy, std::allocator<float>>()(ctx, ds, args);
+        auto result = read_ops_dispatcher<Object, Policy, std::allocator<float>>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }

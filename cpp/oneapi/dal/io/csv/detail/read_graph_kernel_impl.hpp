@@ -559,7 +559,7 @@ void convert_to_csr_impl(
 }
 
 template <typename Descriptor, typename DataSource>
-void read_impl(const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t graph) {
+void read_impl(const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t &graph) {
     using allocator_t = typename Descriptor::allocator_t;
 
     using edge_list_type = preview::edge_list<>;
