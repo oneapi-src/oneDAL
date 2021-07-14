@@ -18,6 +18,8 @@
 
 #include "oneapi/dal/detail/ops_dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
+#pragma warning(disable : 1011)
+
 namespace oneapi::dal::csv {
 struct read_args_tag;
 }
@@ -42,15 +44,14 @@ template <typename Object, typename Descriptor, typename Head, typename... Tail>
 auto read_dispatch(Descriptor&& desc, Head&& head, Tail&&... tail) {
     using head_t = std::decay_t<Head>;
     if constexpr (oneapi::dal::detail::is_tagged_v<head_t>) {
-        if constexpr (is_tag_one_of_v<head_t, csv::read_args_tag>) {
-            using allocator_t = typename head_t::allocator_t;
-            using dispatcher_t = ops_policy_dispatcher_object_allocator<Object,
-                                                                        std::decay_t<Head>,
-                                                                        allocator_t,
-                                                                        tagged_read_ops>;
+        static_assert(is_tag_one_of_v<head_t, csv::read_args_tag>);
+        using allocator_t = typename head_t::allocator_t;
+        using dispatcher_t = ops_policy_dispatcher_object_allocator<Object,
+                                                                    std::decay_t<Head>,
+                                                                    allocator_t,
+                                                                    tagged_read_ops>;
 
-            return dispatcher_t{}(desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
-        }
+        return dispatcher_t{}(desc, std::forward<Head>(head), std::forward<Tail>(tail)...);
     }
     else {
         using dispatcher_t =

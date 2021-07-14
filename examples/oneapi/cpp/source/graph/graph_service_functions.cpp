@@ -106,10 +106,18 @@ int main(int argc, char **argv) {
     }
 
     {
-        auto graph = read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
-        auto graph = read<graph_t>(csv::data_source{ filename }, mallocator);
         auto graph =
-            read<graph_t>(csv::data_source{ filename }, mallocator, preview::read_mode::edge_list);
+            read<graph_t>(csv::data_source{ filename },
+                          csv::read_args<graph_t, Mallocator<char>>{ mallocator }.set_read_mode(
+                              preview::read_mode::edge_list));
+        print_graph_info(graph);
+    }
+
+    {
+        auto graph = read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
+        // auto graph = read<graph_t>(csv::data_source{ filename }, mallocator);
+        // auto graph =
+        //     read<graph_t>(csv::data_source{ filename }, mallocator, preview::read_mode::edge_list);
 
         print_graph_info(graph);
     }
