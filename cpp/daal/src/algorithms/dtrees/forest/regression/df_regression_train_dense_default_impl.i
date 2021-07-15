@@ -353,6 +353,8 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
     DAAL_ASSERT(bestSplit.leftWeights > 0.);
     algorithmFPType divL = 1.;
     int iRowSplitVal     = -1;
+    int iNext            = -1;
+    int idxNext          = this->_aResponse.size() - 1;
     size_t iLeft         = 0;
     size_t iRight        = 0;
     if (noWeights)
@@ -380,6 +382,11 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
                 bestSplitIdx[iLeft++]   = iSample;
                 const algorithmFPType y = aResponse[iSample].val;
                 bestSplit.left.var += (y - bestSplit.left.mean) * (y - bestSplit.left.mean);
+            }
+            if ((idx > idxFeatureValueBestSplit) && (idxNext > idx))
+            {
+                idxNext = idx;
+                iNext   = aResponse[iSample].idx;
             }
         }
     }
@@ -411,6 +418,11 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
                 const algorithmFPType w = aWeights[iSample].val;
                 bestSplit.left.var += w * (y - bestSplit.left.mean) * (y - bestSplit.left.mean);
             }
+            if ((idx > idxFeatureValueBestSplit) && (idxNext > idx))
+            {
+                idxNext = idx;
+                iNext   = aResponse[iSample].idx;
+            }
         }
     }
 
@@ -419,7 +431,9 @@ void OrderedRespHelper<algorithmFPType, cpu>::finalizeBestSplit(const IndexType 
     bestSplit.left.var *= divL;
     bestSplit.iStart = 0;
     DAAL_ASSERT(iRowSplitVal >= 0);
-    bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
+    if (idxNext == this->_aResponse.size() - 1) iNext = iRowSplitVal;
+    bestSplit.featureValue = (this->getValue(iFeature, iRowSplitVal) + this->getValue(iFeature, iNext)) / (algorithmFPType)2.;
+    if (bestSplit.featureValue == this->getValue(iFeature, iNext)) bestSplit.featureValue = this->getValue(iFeature, iRowSplitVal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
