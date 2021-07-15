@@ -32,8 +32,8 @@ int main(int argc, char** argv) {
     using weight_type = double;
     using graph_t = dal::preview::directed_adjacency_vector_graph<vertex_type, weight_type>;
 
-    auto graph =
-        dal::read<graph_t>(dal::csv::data_source{ filename }, dal::preview::read_mode::edge_list);
+    auto graph = dal::read<graph_t>(dal::csv::data_source{ filename },
+                                    dal::preview::read_mode::weighted_edge_list);
 
     std::cout << "Number of vertices: " << dal::preview::get_vertex_count(graph) << std::endl;
     std::cout << "Number of edges: " << dal::preview::get_edge_count(graph) << std::endl;

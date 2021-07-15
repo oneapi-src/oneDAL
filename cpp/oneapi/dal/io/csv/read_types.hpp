@@ -31,13 +31,13 @@ template <typename Allocator>
 class read_args_graph_impl : public base {
 public:
     read_args_graph_impl(preview::read_mode mode = preview::read_mode::edge_list) : mode(mode) {
-        if (mode != preview::read_mode::edge_list)
+        if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
     read_args_graph_impl(Allocator alloc, preview::read_mode mode = preview::read_mode::edge_list)
             : allocator(alloc),
               mode(mode) {
-        if (mode != preview::read_mode::edge_list)
+        if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
 
@@ -111,7 +111,7 @@ preview::read_mode read_args<Object, Allocator>::get_read_mode() const {
 
 template <typename Object, typename Allocator>
 void read_args<Object, Allocator>::set_read_mode_impl(preview::read_mode mode) {
-    if (mode != preview::read_mode::edge_list)
+    if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
         throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     impl_->mode = mode;
 }

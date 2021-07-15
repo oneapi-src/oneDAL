@@ -104,5 +104,5 @@ using v1::data_source;
 } // namespace oneapi::dal::csv
 
 namespace oneapi::dal::preview {
-enum class read_mode { table, edge_list };
+enum class read_mode { table, edge_list, weighted_edge_list };
 } // namespace oneapi::dal::preview

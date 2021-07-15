@@ -558,12 +558,11 @@ void convert_to_csr_impl(
     return;
 }
 
-template <typename Descriptor, typename DataSource>
+template <typename EdgeListType, typename Descriptor, typename DataSource>
 void read_impl(const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t &graph) {
     using allocator_t = typename Descriptor::allocator_t;
 
-    using edge_list_type = preview::edge_list<>;
-    edge_list_type elist;
+    EdgeListType elist;
     read_edge_list(ds.get_file_name(), elist);
     convert_to_csr_impl(elist, graph);
     return;
