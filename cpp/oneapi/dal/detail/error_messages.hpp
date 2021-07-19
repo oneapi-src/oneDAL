@@ -140,12 +140,12 @@ public:
     MSG(accuracy_threshold_lt_zero);
     MSG(class_count_leq_one);
     MSG(input_data_is_empty);
-    MSG(input_data_rc_neq_input_labels_rc);
+    MSG(input_data_rc_neq_input_responses_rc);
     MSG(input_data_rc_neq_input_weights_rc);
-    MSG(input_labels_are_empty);
-    MSG(input_labels_contain_only_one_unique_value_expect_two);
-    MSG(input_labels_contain_wrong_unique_values_count_expect_two);
-    MSG(input_labels_table_has_wrong_cc_expect_one);
+    MSG(input_responses_are_empty);
+    MSG(input_responses_contain_only_one_unique_value_expect_two);
+    MSG(input_responses_contain_wrong_unique_values_count_expect_two);
+    MSG(input_responses_table_has_wrong_cc_expect_one);
     MSG(iteration_count_lt_zero);
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
@@ -174,8 +174,9 @@ public:
     MSG(empty_target_graph);
     MSG(empty_pattern_graph);
     MSG(subgraph_isomorphism_is_not_implemented_for_labeled_edges);
-    MSG(non_zero_max_match_count_is_not_supported);
     MSG(incorrect_index_is_returned);
+    MSG(invalid_vertex_edge_attributes);
+    MSG(target_graph_is_smaller_than_pattern_graph);
 
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
@@ -198,6 +199,7 @@ public:
     MSG(neighbor_count_lt_one);
     MSG(unknown_distance_type);
     MSG(distance_is_not_supported_for_gpu);
+    MSG(incompatible_knn_model);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);

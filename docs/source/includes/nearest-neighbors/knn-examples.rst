@@ -28,6 +28,7 @@
 
     - :ref:`cpp_knn_cls_brute_force_dense_batch.cpp`
     - :ref:`cpp_knn_cls_kd_tree_dense_batch.cpp`
+    - :ref:`cpp_knn_search_brute_force_dense_batch.cpp`
 
   .. group-tab:: Python* with DPC++ support
 

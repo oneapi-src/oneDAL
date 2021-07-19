@@ -24,6 +24,8 @@
 #ifndef __DAAL_KERNEL_DEFINES_H__
 #define __DAAL_KERNEL_DEFINES_H__
 
+#include "services/env_detect.h"
+
 /** \file daal_kernel_defines.h */
 /**
  * @ingroup services
@@ -50,6 +52,8 @@ case cpuType:                                                                   
     break;                                                                                      \
 }
 
+#undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+#define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                daal::sse2
 #define DAAL_KERNEL_SSE2_ONLY(something)                        , something
 #define DAAL_KERNEL_SSE2_ONLY_CODE(...)                         __VA_ARGS__
 #define DAAL_KERNEL_SSE2_CONTAINER(ContainerTemplate, ...)      , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse2, __VA_ARGS__)
@@ -57,6 +61,8 @@ case cpuType:                                                                   
 #define DAAL_KERNEL_SSE2_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, sse2, __VA_ARGS__)
 
 #if defined(DAAL_KERNEL_SSSE3)
+    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID            daal::ssse3
     #define DAAL_KERNEL_SSSE3_ONLY(something)                   , something
     #define DAAL_KERNEL_SSSE3_ONLY_CODE(...)                    __VA_ARGS__
     #define DAAL_KERNEL_SSSE3_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, ssse3, __VA_ARGS__)
@@ -74,6 +80,8 @@ case cpuType:                                                                   
 #endif
 
 #if defined(DAAL_KERNEL_SSE42)
+    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID            daal::sse42
     #define DAAL_KERNEL_SSE42_ONLY(something)                   , something
     #define DAAL_KERNEL_SSE42_ONLY_CODE(...)                    __VA_ARGS__
     #define DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, sse42, __VA_ARGS__)
@@ -91,6 +99,8 @@ case cpuType:                                                                   
 #endif
 
 #if defined(DAAL_KERNEL_AVX)
+    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                    daal::avx
     #define DAAL_KERNEL_AVX_ONLY(something)                             , something
     #define DAAL_KERNEL_AVX_ONLY_CODE(...)                              __VA_ARGS__
     #define DAAL_KERNEL_AVX_CONTAINER(ContainerTemplate, ...)           , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx, __VA_ARGS__)
@@ -107,6 +117,8 @@ case cpuType:                                                                   
 #endif
 
 #if defined(DAAL_KERNEL_AVX2)
+    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID           daal::avx2
     #define DAAL_KERNEL_AVX2_ONLY(something)                   , something
     #define DAAL_KERNEL_AVX2_ONLY_CODE(...)                    __VA_ARGS__
     #define DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx2, __VA_ARGS__)
@@ -124,6 +136,8 @@ case cpuType:                                                                   
 #endif
 
 #if defined(DAAL_KERNEL_AVX512_MIC)
+    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID                 daal::avx512_mic
     #define DAAL_KERNEL_AVX512_MIC_ONLY(something)                   , something
     #define DAAL_KERNEL_AVX512_MIC_ONLY_CODE(...)                    __VA_ARGS__
     #define DAAL_KERNEL_AVX512_MIC_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512_mic, __VA_ARGS__)
@@ -142,6 +156,8 @@ case cpuType:                                                                   
 #endif
 
 #if defined(DAAL_KERNEL_AVX512)
+    #undef DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID
+    #define DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID             daal::avx512
     #define DAAL_KERNEL_AVX512_ONLY(something)                   , something
     #define DAAL_KERNEL_AVX512_ONLY_CODE(...)                    __VA_ARGS__
     #define DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, ...) , DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, avx512, __VA_ARGS__)

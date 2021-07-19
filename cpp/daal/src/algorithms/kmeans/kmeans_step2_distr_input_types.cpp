@@ -22,7 +22,6 @@
 */
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 #include "services/daal_defines.h"
 #include "src/services/daal_strings.h"
 
@@ -93,10 +92,9 @@ size_t DistributedStep2MasterInput::getNumberOfFeatures() const
 services::Status DistributedStep2MasterInput::check(const daal::algorithms::Parameter * par, int method) const
 {
     const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(par);
-    const interface1::Parameter * kmPar1 = dynamic_cast<const interface1::Parameter *>(par);
-    if (kmPar1 == nullptr && kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
+    if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
-    size_t nClusters = kmPar2 ? kmPar2->nClusters : kmPar1->nClusters;
+    size_t nClusters = kmPar2->nClusters;
 
     DataCollectionPtr collection = get(partialResults);
     DAAL_CHECK(collection, ErrorNullInputDataCollection);
@@ -128,13 +126,6 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
             DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
         }
     }
-    else
-    {
-        if (kmPar1->assignFlag)
-        {
-            DAAL_CHECK_STATUS(s, checkNumericTable(firstPres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
-        }
-    }
 
     for (size_t i = 1; i < nBlocks; i++)
     {
@@ -152,13 +143,6 @@ services::Status DistributedStep2MasterInput::check(const daal::algorithms::Para
         if (kmPar2)
         {
             if (kmPar2->resultsToEvaluate & computeAssignments || kmPar2->assignFlag)
-            {
-                DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
-            }
-        }
-        else
-        {
-            if (kmPar1->assignFlag)
             {
                 DAAL_CHECK_STATUS(s, checkNumericTable(pres->get(partialAssignments).get(), partialAssignmentsStr(), unexpectedLayouts, 0, 1));
             }

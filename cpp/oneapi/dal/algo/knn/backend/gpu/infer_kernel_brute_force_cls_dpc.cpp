@@ -22,13 +22,14 @@
 
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/distance_impl.hpp"
-#include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
 namespace oneapi::dal::knn::backend {
 
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::classification>;
+using model_t = model<task::classification>;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
 namespace interop = dal::backend::interop;
@@ -41,15 +42,15 @@ template <typename Float>
 static infer_result<task::classification> call_daal_kernel(const context_gpu& ctx,
                                                            const descriptor_t& desc,
                                                            const table& data,
-                                                           const model<task::classification> m) {
+                                                           const model_t& m) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
     const std::int64_t row_count = data.get_row_count();
-    auto arr_labels = array<Float>::empty(queue, 1 * row_count, sycl::usm::alloc::device);
+    auto arr_responses = array<Float>::empty(queue, 1 * row_count, sycl::usm::alloc::device);
 
     const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table(queue, arr_labels, row_count, 1);
+    const auto daal_responses = interop::convert_to_daal_table(queue, arr_responses, row_count, 1);
 
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(
@@ -66,14 +67,16 @@ static infer_result<task::classification> call_daal_kernel(const context_gpu& ct
         throw internal_error{ dal::detail::error_messages::distance_is_not_supported_for_gpu() };
     }
 
-    interop::status_to_exception(daal_knn_brute_force_kernel_t<Float>().compute(
-        daal_data.get(),
-        dal::detail::get_impl(m).get_interop()->get_daal_model().get(),
-        daal_labels.get(),
-        &daal_parameter));
+    const auto model_ptr = convert_onedal_to_daal_knn_model<Float, task::classification>(queue, m);
 
-    return infer_result<task::classification>().set_labels(
-        dal::detail::homogen_table_builder{}.reset(arr_labels, row_count, 1).build());
+    interop::status_to_exception(
+        daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
+                                                       model_ptr.get(),
+                                                       daal_responses.get(),
+                                                       &daal_parameter));
+
+    return infer_result<task::classification>().set_responses(
+        dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
 }
 
 template <typename Float>
