@@ -25,7 +25,6 @@
 #define __KMEANS_PARTIALRESULT_
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "src/algorithms/kmeans/inner/kmeans_types_v1.h"
 
 using namespace daal::data_management;
 
@@ -46,11 +45,10 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
                                                      const int method)
 {
     const interface2::Parameter * kmPar2 = dynamic_cast<const interface2::Parameter *>(parameter);
-    const interface1::Parameter * kmPar1 = dynamic_cast<const interface1::Parameter *>(parameter);
-    if (kmPar1 == nullptr && kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
+    if (kmPar2 == nullptr) return services::Status(daal::services::ErrorNullParameterNotSupported);
 
     size_t nFeatures = static_cast<const InputIface *>(input)->getNumberOfFeatures();
-    size_t nClusters = kmPar2 ? kmPar2->nClusters : kmPar1->nClusters;
+    size_t nClusters = kmPar2->nClusters;
 
     services::Status status;
     set(nObservations, HomogenNumericTable<algorithmFPType>::create(1, nClusters, NumericTable::doAllocate, &status));
@@ -69,14 +67,6 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     if (kmPar2)
     {
         if ((kmPar2->resultsToEvaluate & computeAssignments || kmPar2->assignFlag) && step1Input)
-        {
-            const size_t nRows = step1Input->get(data)->getNumberOfRows();
-            set(partialAssignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));
-        }
-    }
-    else
-    {
-        if (kmPar1->assignFlag && step1Input)
         {
             const size_t nRows = step1Input->get(data)->getNumberOfRows();
             set(partialAssignments, HomogenNumericTable<int>::create(1, nRows, NumericTable::doAllocate, &status));

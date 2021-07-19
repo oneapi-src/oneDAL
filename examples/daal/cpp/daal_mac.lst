@@ -137,7 +137,6 @@ DAAL  = assoc_rules_apriori_batch             \
         qr_dense_distr                        \
         qr_dense_online                       \
         serialization                         \
-        stump_dense_batch                     \
         stump_cls_gini_dense_batch            \
         stump_cls_infogain_dense_batch        \
         stump_reg_mse_dense_batch             \

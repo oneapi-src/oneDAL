@@ -239,7 +239,7 @@ DF_BADARG_TEST("throws if train input data is empty") {
     REQUIRE_THROWS_AS(this->train(this->get_default_descriptor(), x_empty, y), domain_error);
 }
 
-DF_BADARG_TEST("throws if train input labels is empty") {
+DF_BADARG_TEST("throws if train input responses is empty") {
     SKIP_IF(this->not_available_on_device());
 
     dal::homogen_table y_empty;
@@ -285,7 +285,7 @@ DF_BADARG_TEST(
     REQUIRE_THROWS_AS(this->train(desc, x, y), invalid_argument);
 }
 
-DF_BADARG_TEST("throws if train input data row count doesn't match labels row count") {
+DF_BADARG_TEST("throws if train input data row count doesn't match responses row count") {
     SKIP_IF(this->not_available_on_device());
 
     const auto [x, y] = this->get_incorrect_train_data();

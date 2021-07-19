@@ -43,14 +43,15 @@ template <typename Float>
 static train_result<task::classification> call_daal_kernel(const context_gpu& ctx,
                                                            const descriptor_t& desc,
                                                            const table& data,
-                                                           const table& labels) {
-    using daal_model_interop_t = backend::model_interop;
+                                                           const table& responses) {
+    using model_t = model<task::classification>;
+
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
     const std::int64_t column_count = data.get_column_count();
     const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table(queue, labels);
+    const auto daal_responses = interop::convert_to_daal_table(queue, responses);
 
     const auto data_use_in_model = daal_knn::doNotUse;
     daal_knn::Parameter daal_parameter(
@@ -73,30 +74,30 @@ static train_result<task::classification> call_daal_kernel(const context_gpu& ct
     }
 
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
-    // No need for data copy in case of brute-force. The data and labels
+    // No need for data copy in case of brute-force. The data and responses
     // are not modified by the algorithm.
-    const bool copy_data_labels = false;
-    knn_model->impl()->setData<Float>(daal_data, copy_data_labels);
-    knn_model->impl()->setLabels<Float>(daal_labels, copy_data_labels);
+    const bool copy_data_responses = false;
+    knn_model->impl()->setData<Float>(daal_data, copy_data_responses);
+    knn_model->impl()->setLabels<Float>(daal_responses, copy_data_responses);
 
     interop::status_to_exception(
         daal_knn_brute_force_kernel_t<Float>().compute(daal_data.get(),
-                                                       daal_labels.get(),
+                                                       daal_responses.get(),
                                                        knn_model,
                                                        daal_parameter,
                                                        *daal_parameter.engine.get()));
 
-    auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl_interop = std::make_shared<model_impl<task::classification>>(interop);
+    const auto model_impl =
+        std::make_shared<brute_force_model_impl<task::classification>>(data, responses);
     return train_result<task::classification>().set_model(
-        dal::detail::make_private<model<task::classification>>(model_impl_interop));
+        dal::detail::make_private<model_t>(model_impl));
 }
 
 template <typename Float>
 static train_result<task::classification> train(const context_gpu& ctx,
                                                 const descriptor_t& desc,
                                                 const train_input<task::classification>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float>
