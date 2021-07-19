@@ -20,12 +20,12 @@
 
 namespace oneapi::dal::dbscan::backend {
 
-inline array<int> fill_core_flags(const table& core_observation_indices, std::int64_t row_count) {
-    array<int> arr_core_flags = array<int>::full(row_count * 1, 0);
+inline array<std::int32_t> fill_core_flags(const table& core_observation_indices, std::int64_t row_count) {
+    array<std::int32_t> arr_core_flags = array<std::int32_t>::full(row_count * 1, 0);
     if (core_observation_indices.get_row_count() > 0) {
-        auto index_block = row_accessor<const int>(core_observation_indices).pull();
+        auto index_block = row_accessor<const std::int32_t>(core_observation_indices).pull();
         auto arr_core_flags_ptr = arr_core_flags.get_mutable_data();
-        for (int index = 0; index < core_observation_indices.get_row_count(); index++) {
+        for (std::int32_t index = 0; index < core_observation_indices.get_row_count(); index++) {
             arr_core_flags_ptr[index_block[index]] = 1;
         }
     }
