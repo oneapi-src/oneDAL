@@ -36,9 +36,9 @@ public:
         }
     }
 
-    std::int64_t _source;
-    double _delta;
-    optional_result_id optional_results;
+    std::int64_t _source = 0;
+    double _delta = 1;
+    optional_result_id optional_results = optional_results::distances;
 };
 
 template <typename Task>

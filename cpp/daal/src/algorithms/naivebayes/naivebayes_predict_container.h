@@ -33,36 +33,6 @@ namespace multinomial_naive_bayes
 {
 namespace prediction
 {
-namespace interface1
-{
-template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
-{
-    __DAAL_INITIALIZE_KERNELS(internal::NaiveBayesPredictKernel, algorithmFPType, method);
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
-{
-    __DAAL_DEINITIALIZE_KERNELS();
-}
-
-template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
-{
-    classifier::prediction::Input * input   = static_cast<classifier::prediction::Input *>(_in);
-    classifier::prediction::Result * result = static_cast<classifier::prediction::Result *>(_res);
-
-    NumericTable * a                   = static_cast<NumericTable *>(input->get(classifier::prediction::data).get());
-    multinomial_naive_bayes::Model * m = static_cast<multinomial_naive_bayes::Model *>(input->get(classifier::prediction::model).get());
-    NumericTable * r                   = static_cast<NumericTable *>(result->get(classifier::prediction::prediction).get());
-
-    multinomial_naive_bayes::interface1::Parameter * par = static_cast<multinomial_naive_bayes::interface1::Parameter *>(_par);
-    daal::services::Environment::env & env               = *_env;
-
-    __DAAL_CALL_KERNEL(env, internal::NaiveBayesPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, a, m, r, par);
-}
-} // namespace interface1
 namespace interface2
 {
 template <typename algorithmFPType, Method method, CpuType cpu>

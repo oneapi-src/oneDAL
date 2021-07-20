@@ -35,9 +35,6 @@ struct alloc_connector : public byte_alloc_iface {
     alloc_connector(Alloc alloc) : _alloc(alloc) {}
     byte_t* allocate(std::int64_t count) override {
         typename t_allocator_traits::pointer ptr = t_allocator_traits::allocate(_alloc, count);
-        if (ptr == nullptr) {
-            throw host_bad_alloc();
-        }
         return ptr;
     };
 
