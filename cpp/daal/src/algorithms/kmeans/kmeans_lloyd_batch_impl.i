@@ -101,13 +101,10 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     WriteOnlyRows<algorithmFPType, cpu> mtClusters(const_cast<NumericTable *>(r[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtClusters);
     algorithmFPType * clusters = mtClusters.get();
-
-    algorithmFPType * old_clusters = new algorithmFPType[nClusters * p];
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
-    for(size_t i = 0;i < nClusters * p;++i){
-        old_clusters[i] = 0;
-    }
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, p);
+    const size_t nClustersP = nClusters * p;
+    TArray<algorithmFPType, cpu> old_clusters(nClustersP);
+    service_memset<algorithmFPType, cpu>(old_clusters.get(), (algorithmFPType)0.0, nClustersP);
 
     TArray<algorithmFPType, cpu> tClusters;
     if (clusters == nullptr && nIter != 0)
@@ -206,14 +203,6 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 }
             }
         }
-        algorithmFPType center_shift_tot = 0;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for(size_t i = 0;i < nClusters * p;++i){
-            algorithmFPType tmp = clusters[i] - old_clusters[i];
-            center_shift_tot += tmp * tmp;
-            old_clusters[i] = clusters[i];
-        }
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(kmeansUpdateObjectiveFunction);
             if (par->accuracyThreshold > (algorithmFPType)0.0)
@@ -223,6 +212,14 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 task->kmeansClearClusters(&newTargetFunc);
                 newTargetFunc -= newCentersGoalFunc;
 
+                algorithmFPType center_shift_tot = 0;
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for(size_t i = 0;i < nClustersP;++i){
+                    algorithmFPType tmp = clusters[i] - old_clusters[i];
+                    center_shift_tot += tmp * tmp;
+                }
+                daal::services::internal::daal_memcpy_s(old_clusters.get(), nClustersP, clusters, nClustersP);
                 if (center_shift_tot < par->accuracyThreshold)
                 {
                     kIter++;
