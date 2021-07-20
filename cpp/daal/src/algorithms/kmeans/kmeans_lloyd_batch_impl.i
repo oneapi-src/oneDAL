@@ -215,7 +215,8 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 algorithmFPType center_shift_tot = 0;
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for(size_t i = 0;i < nClustersP;++i){
+                for (size_t i = 0; i < nClustersP; ++i)
+                {
                     algorithmFPType tmp = clusters[i] - old_clusters[i];
                     center_shift_tot += tmp * tmp;
                 }
