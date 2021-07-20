@@ -220,7 +220,8 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                     algorithmFPType tmp = clusters[i] - old_clusters[i];
                     center_shift_tot += tmp * tmp;
                 }
-                daal::services::internal::daal_memcpy_s(old_clusters.get(), nClustersP * sizeof(algorithmFPType), clusters, nClustersP * sizeof(algorithmFPType));
+                daal::services::internal::daal_memcpy_s(old_clusters.get(), nClustersP * sizeof(algorithmFPType), clusters,
+                                                        nClustersP * sizeof(algorithmFPType));
                 if (center_shift_tot < par->accuracyThreshold)
                 {
                     kIter++;
