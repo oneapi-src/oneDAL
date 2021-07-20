@@ -32,6 +32,7 @@ template <typename Task>
 subgraph_isomorphism::graph_matching_result<Task> call_kernel(
     const dal::detail::host_policy& ctx,
     const kind& desc,
+    std::int64_t max_match_count,
     byte_alloc_iface* alloc_ptr,
     const dal::preview::detail::topology<std::int32_t>& t_data,
     const dal::preview::detail::topology<std::int32_t>& p_data,
@@ -81,6 +82,7 @@ struct call_subgraph_isomorphism_kernel_cpu {
         }
         auto result = call_kernel<task::compute>(ctx,
                                                  desc.get_kind(),
+                                                 desc.get_max_match_count(),
                                                  alloc_ptr,
                                                  t_data,
                                                  p_data,
@@ -111,7 +113,12 @@ struct call_subgraph_isomorphism_kernel_cpu<Allocator,
         const dal::preview::detail::edge_values<oneapi::dal::preview::empty_value>& ev_t,
         const dal::preview::detail::vertex_values<oneapi::dal::preview::empty_value>& vv_p,
         const dal::preview::detail::edge_values<oneapi::dal::preview::empty_value>& ev_p) {
-        auto result = call_kernel<task::compute>(ctx, desc.get_kind(), alloc_ptr, t_data, p_data);
+        auto result = call_kernel<task::compute>(ctx,
+                                                 desc.get_kind(),
+                                                 desc.get_max_match_count(),
+                                                 alloc_ptr,
+                                                 t_data,
+                                                 p_data);
         return result;
     }
 };

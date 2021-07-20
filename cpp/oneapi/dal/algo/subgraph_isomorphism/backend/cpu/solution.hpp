@@ -51,7 +51,8 @@ public:
     std::int64_t get_solution_count() const;
     void add(std::int64_t** state_core);
     void append(solution<Cpu>&& _solution);
-    oneapi::dal::homogen_table export_as_table(std::int64_t* sorted_pattern_vertex_array) const;
+    oneapi::dal::homogen_table export_as_table(std::int64_t* sorted_pattern_vertex_array,
+                                               std::int64_t max_match_count) const;
 
 private:
     inner_alloc allocator;
@@ -201,7 +202,7 @@ void solution<Cpu>::append(solution<Cpu>&& _solution) {
     }
 
     if (_solution.data != nullptr) {
-        allocator.deallocate(_solution.data, 0);
+        allocator.deallocate(_solution.data, _solution.max_solution_count);
         _solution.data = nullptr;
     }
 
@@ -232,13 +233,18 @@ inline T min(const T a, const T b) {
 }
 
 template <typename Cpu>
-oneapi::dal::homogen_table solution<Cpu>::export_as_table(
-    std::int64_t* sorted_pattern_vertices_array) const {
+oneapi::dal::homogen_table solution<Cpu>::export_as_table(std::int64_t* sorted_pattern_vertices,
+                                                          std::int64_t max_match_count) const {
     if (solution_count == 0)
         return dal::homogen_table();
 
-    const auto begin = sorted_pattern_vertices_array;
-    const auto end = &sorted_pattern_vertices_array[solution_core_length];
+    auto export_solution_count = solution_count;
+    if (max_match_count != 0) {
+        export_solution_count = std::min(max_match_count, solution_count);
+    }
+
+    const auto begin = sorted_pattern_vertices;
+    const auto end = &sorted_pattern_vertices[solution_core_length];
 
     auto mapping_array = dal::array<std::int64_t>::empty(solution_core_length);
     const auto mapping = mapping_array.get_mutable_data();
@@ -248,14 +254,14 @@ oneapi::dal::homogen_table solution<Cpu>::export_as_table(
         mapping[j] = p - begin;
     }
 
-    auto arr_solution = dal::array<int>::empty(solution_core_length * solution_count);
+    auto arr_solution = dal::array<int>::empty(solution_core_length * export_solution_count);
     const auto arr = arr_solution.get_mutable_data();
 
     constexpr std::int64_t block_size = 64;
-    const std::int64_t block_count = (solution_count - 1 + block_size) / block_size;
+    const std::int64_t block_count = (export_solution_count - 1 + block_size) / block_size;
     dal::detail::threader_for(block_count, block_count, [&](int index) {
         const std::int64_t first = index * block_size;
-        const std::int64_t last = min(first + block_size, solution_count);
+        const std::int64_t last = min(first + block_size, export_solution_count);
         for (auto i = first; i != last; ++i) {
             for (std::int64_t j = 0; j < solution_core_length; ++j) {
                 arr[i * solution_core_length + j] = data[i][mapping[j]];
@@ -264,7 +270,7 @@ oneapi::dal::homogen_table solution<Cpu>::export_as_table(
     });
 
     return dal::detail::homogen_table_builder{}
-        .reset(arr_solution, solution_count, solution_core_length)
+        .reset(arr_solution, export_solution_count, solution_core_length)
         .build();
 }
 } // namespace oneapi::dal::preview::subgraph_isomorphism::backend

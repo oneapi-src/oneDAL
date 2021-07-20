@@ -114,7 +114,7 @@ inline deserialize_result_t deserialize_array_impl(const data_parallel_policy& p
         byte_t* data_device = backend::malloc_device<byte_t>(q, size_in_bytes);
         auto shared_data_device = shared<byte_t>{ data_device, std::move(deleter) };
 
-        backend::copy(q, data_device, shared_data_host.get(), size_in_bytes);
+        backend::copy_host2usm(q, data_device, shared_data_host.get(), size_in_bytes);
 
         return { shared_data_device, size_in_bytes };
     }

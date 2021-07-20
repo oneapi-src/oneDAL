@@ -46,6 +46,7 @@ set "INCLUDE=%DAAL%\include;%INCLUDE%"
 set "CPATH=%DAAL%\include;%CPATH%"
 set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
 set "CMAKE_PREFIX_PATH=%DAAL%;%CMAKE_PREFIX_PATH%"
+set "PKG_CONFIG_PATH=%DAAL%\lib\pkgconfig;%PKG_CONFIG_PATH%"
 if exist "%DAAL_UP_OLD%\redist" (
     set "PATH=%DAAL_UP_OLD%\redist\%DAAL_IA%_win\daal;%PATH%"
 ) else (
@@ -64,4 +65,5 @@ set PATH=%PATH%& ^
 set LD_LIBRARY_PATH=%LD_LIBRARY_PATH%& ^
 set CLASSPATH=%CLASSPATH%& ^
 set CMAKE_PREFIX_PATH=%CMAKE_PREFIX_PATH%& ^
+set PKG_CONFIG_PATH=%PKG_CONFIG_PATH%& ^
 goto:eof
