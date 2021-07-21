@@ -320,14 +320,14 @@ protected:
             }
         }
 
-        double factor = (signNuType == SignNuType::positive) ? 1.0 : -1.0;
+        const double sign = (signNuType == SignNuType::positive) ? 1.0 : -1.0;
         if (nGrad == 0)
         {
-            bias = factor * 0.5 * (ub + lb);
+            bias = sign * 0.5 * (ub + lb);
         }
         else
         {
-            bias = factor * sumGrad / algorithmFPType(nGrad);
+            bias = sign * sumGrad / algorithmFPType(nGrad);
         }
 
         return bias;

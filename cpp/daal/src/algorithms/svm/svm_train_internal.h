@@ -1,4 +1,4 @@
-/* file: svm_train.h */
+/* file: svm_train_internal.h */
 /*******************************************************************************
 * Copyright 2021 Intel Corporation
 *
@@ -15,20 +15,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of the interface for SVM model-based training in the batch
-//  processing mode
-//--
-*/
-
 #ifndef __SVM_TRAIN_INTERNAL_H__
 #define __SVM_TRAIN_INTERNAL_H__
 
 #include "algorithms/algorithm.h"
 
 #include "algorithms/svm/svm_train_types.h"
-#include "src/algorithms/svm/svm_model.h"
+#include "src/algorithms/svm/svm_train_kernel.h"
 #include "algorithms/classifier/classifier_training_batch.h"
 
 namespace daal
@@ -59,7 +52,7 @@ public:
     typedef classifier::training::Batch super;
 
     typedef typename super::InputType InputType;
-    typedef algorithms::svm::internal::Parameter ParameterType;
+    typedef KernelParameter ParameterType;
     typedef algorithms::svm::training::Result ResultType;
 
     ParameterType parameter;

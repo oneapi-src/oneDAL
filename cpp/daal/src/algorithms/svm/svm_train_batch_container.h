@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/svm/svm_train.h"
-#include "src/algorithms/svm/svm_train.h"
+#include "src/algorithms/svm/svm_train_internal.h"
 #include "src/algorithms/svm/svm_train_kernel.h"
 #include "src/algorithms/svm/svm_train_boser_kernel.h"
 #include "algorithms/classifier/classifier_training_types.h"
@@ -145,20 +145,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::algorithms::Model * r = static_cast<daal::algorithms::Model *>(result->get(classifier::training::model).get());
 
-    const svm::internal::Parameter * const par = static_cast<svm::internal::Parameter *>(_par);
-
-    internal::KernelParameter kernelPar;
-    kernelPar.C                 = par->C;
-    kernelPar.accuracyThreshold = par->accuracyThreshold;
-    kernelPar.tau               = par->tau;
-    kernelPar.maxIterations     = par->maxIterations;
-    kernelPar.kernel            = par->kernel;
-    kernelPar.shrinkingStep     = par->shrinkingStep;
-    kernelPar.doShrinking       = par->doShrinking;
-    kernelPar.cacheSize         = par->cacheSize;
-    kernelPar.epsilon           = par->epsilon;
-    kernelPar.nu                = par->nu;
-    kernelPar.svmType           = par->svmType;
+    internal::KernelParameter kernelPar = *static_cast<internal::KernelParameter *>(_par);
 
     daal::services::Environment::env & env = *_env;
 
