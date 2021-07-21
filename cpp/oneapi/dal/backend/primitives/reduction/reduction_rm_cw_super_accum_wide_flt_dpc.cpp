@@ -68,7 +68,6 @@ public:
     constexpr static inline int block = b;
     constexpr static inline bool strided = s;
 
-    //template<typename = std::enable_if_t<strided>>
     reduction_kernel(std::int32_t width,
                      std::int32_t stride,
                      std::int32_t height,
@@ -80,7 +79,6 @@ public:
               bins_(std::move(bins)),
               unary_(std::move(unary)) {}
 
-    //template<typename = std::enable_if_t<!strided>>
     reduction_kernel(std::int32_t width,
                      std::int32_t height,
                      const float* data,
