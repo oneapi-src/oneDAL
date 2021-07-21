@@ -159,32 +159,77 @@ private:
             select_ws_edge_event =
                 reset_indicator(ws_indices, indicator_, already_selected, { select_ws_edge_event });
         }
-        std::int64_t select_count = 0;
+        std::int64_t select_flagged_count = 0;
         auto select_flagged = pr::select_flagged_index<std::uint32_t, std::uint8_t>{ queue_ };
         select_ws_edge_event = select_flagged(indicator_,
                                               sorted_f_indices_,
                                               buff_indices_,
-                                              select_count,
+                                              select_flagged_count,
                                               { select_ws_edge_event });
 
-        const std::int64_t copy_count = std::min(select_count, need_select_count);
+        const std::int64_t select_count = std::min(select_flagged_count, need_select_count);
 
         std::uint32_t* ws_indices_ptr = ws_indices.get_mutable_data();
         const std::uint32_t* buff_indices_ptr = buff_indices_.get_data();
 
-        if (copy_count > 0) {
+        if (select_count > 0) {
             std::int64_t offset = 0;
             if (edge == ws_edge::low) {
-                offset = select_count - copy_count;
+                offset = select_flagged_count - select_count;
             }
             select_ws_edge_event = dal::backend::copy(queue_,
                                                       ws_indices_ptr + already_selected,
                                                       buff_indices_ptr + offset,
-                                                      copy_count,
+                                                      select_count,
                                                       { select_ws_edge_event });
         }
 
-        return { select_ws_edge_event, copy_count };
+        return { select_ws_edge_event, select_count };
+    }
+
+    sycl::event check_ws_edge(sycl::queue& queue,
+                              const pr::ndview<Float, 1>& y,
+                              const pr::ndview<Float, 1>& alpha,
+                              pr::ndview<std::uint8_t, 1>& indicator,
+                              const Float C,
+                              const std::int64_t n,
+                              ws_edge edge,
+                              const dal::backend::event_vector& deps = {}) {
+        ONEDAL_ASSERT(y.get_dimension(0) == n);
+        ONEDAL_ASSERT(alpha.get_dimension(0) == n);
+        ONEDAL_ASSERT(indicator.get_dimension(0) == n);
+        ONEDAL_ASSERT(indicator.has_mutable_data());
+
+        const Float* y_ptr = y.get_data();
+        const Float* alpha_ptr = alpha.get_data();
+        std::uint8_t* indicator_ptr = indicator.get_mutable_data();
+
+        const auto wg_size = std::min(dal::backend::propose_wg_size(queue), n);
+        const auto range = dal::backend::make_multiple_nd_range_1d(n, wg_size);
+
+        sycl::event check_event;
+
+        if (edge == ws_edge::up) {
+            check_event = queue.submit([&](sycl::handler& cgh) {
+                cgh.depends_on(deps);
+
+                cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
+                    const std::uint32_t i = item.get_global_id(0);
+                    indicator_ptr[i] = is_upper_edge<Float>(y_ptr[i], alpha_ptr[i], C);
+                });
+            });
+        }
+        else {
+            check_event = queue.submit([&](sycl::handler& cgh) {
+                cgh.depends_on(deps);
+
+                cgh.parallel_for(range, [=](sycl::nd_item<1> item) {
+                    const std::uint32_t i = item.get_global_id(0);
+                    indicator_ptr[i] = is_lower_edge<Float>(y_ptr[i], alpha_ptr[i], C);
+                });
+            });
+        }
+        return check_event;
     }
 
     std::tuple<sycl::event, const std::int64_t> copy_last_to_first(
