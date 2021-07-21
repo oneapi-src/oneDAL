@@ -20,27 +20,76 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename UnaryOp, int f, int b>
+template <bool strided>
+struct dimensions_keeper {
+    dimensions_keeper(std::int32_t width, std::int32_t height)
+            : width_(std::move(width)),
+              height_(std::move(height)){};
+
+    const auto& get_stride() const {
+        return width_;
+    }
+
+    const auto& get_width() const {
+        return width_;
+    }
+
+    const auto& get_height() const {
+        return height_;
+    }
+
+    const std::int32_t width_;
+    const std::int32_t height_;
+};
+
+template <>
+struct dimensions_keeper<true> : public dimensions_keeper<false> {
+    using base_t = dimensions_keeper<false>;
+
+    dimensions_keeper(std::int32_t width, std::int32_t stride, std::int32_t height)
+            : base_t(std::move(width), std::move(height)),
+              stride_(std::move(stride)){};
+
+    const auto& get_stride() const {
+        return stride_;
+    }
+
+    const std::int32_t stride_;
+};
+
+template <typename UnaryOp, int f, int b, bool s>
 class reduction_kernel {
     using super_accums = super_accumulators<float, false>;
+    using dkeeper = dimensions_keeper<s>;
 
 public:
     constexpr static inline float zero = 0.f;
     constexpr static inline int folding = f;
     constexpr static inline int block = b;
+    constexpr static inline bool strided = s;
 
+    //template<typename = std::enable_if_t<strided>>
     reduction_kernel(std::int32_t width,
                      std::int32_t stride,
                      std::int32_t height,
                      const float* data,
                      std::int64_t* bins,
                      const UnaryOp& unary)
-            : width_(width),
-              stride_(stride),
-              height_(height),
-              data_(data),
-              bins_(bins),
-              unary_(unary) {}
+            : dk(std::move(width), std::move(stride), std::move(height)),
+              data_(std::move(data)),
+              bins_(std::move(bins)),
+              unary_(std::move(unary)) {}
+
+    //template<typename = std::enable_if_t<!strided>>
+    reduction_kernel(std::int32_t width,
+                     std::int32_t height,
+                     const float* data,
+                     std::int64_t* bins,
+                     const UnaryOp& unary)
+            : dk(std::move(width), std::move(height)),
+              data_(std::move(data)),
+              bins_(std::move(bins)),
+              unary_(std::move(unary)) {}
 
     void operator()(sycl::nd_item<2> it) const {
         // Acumulators for working in width
@@ -59,10 +108,10 @@ public:
                 // Current dataset col number
                 const auto cid = hid + j * hwg;
                 // Check for row and col to be in dataset
-                const bool handle = (rid < height_) && (cid < width_);
+                const bool handle = (rid < dk.get_height()) && (cid < dk.get_width());
                 // Access to the value in row-major order
                 // All arithmetics should work in std::int64_t
-                const auto& val = data_[cid + rid * stride_];
+                const auto& val = data_[cid + rid * dk.get_stride()];
                 accs[j] += handle ? unary_(val) : zero;
             }
         }
@@ -71,22 +120,24 @@ public:
         //
         for (std::int32_t j = 0; j < folding; ++j) {
             const auto cid = hid + j * hwg;
-            if (cid < width_) {
+            if (cid < dk.get_width()) {
                 bins_.add(accs[j], cid);
             }
         }
     }
 
 private:
-    const std::int32_t width_;
-    const std::int32_t stride_;
-    const std::int32_t height_;
+    const dkeeper dk;
     const float* const data_;
     const super_accums bins_;
     const UnaryOp unary_;
 };
 
-template <typename UnaryOp, int folding, int block_size, typename = std::enable_if_t<folding != 0>>
+template <typename UnaryOp,
+          int folding,
+          int block_size,
+          bool strided,
+          typename = std::enable_if_t<folding != 0>>
 sycl::event reduction_impl(sycl::queue& queue,
                            const float* data,
                            std::int64_t width,
@@ -95,7 +146,7 @@ sycl::event reduction_impl(sycl::queue& queue,
                            std::int64_t* bins,
                            const UnaryOp& unary = {},
                            const std::vector<sycl::event>& deps = {}) {
-    using kernel_t = reduction_kernel<UnaryOp, folding, block_size>;
+    using kernel_t = reduction_kernel<UnaryOp, folding, block_size, strided>;
     constexpr int bl = kernel_t::block;
     const auto n_blocks = height / bl + bool(height % bl);
     const auto wg = std::min<std::int64_t>(device_max_wg_size(queue), width);
@@ -103,24 +154,35 @@ sycl::event reduction_impl(sycl::queue& queue,
     if (cfolding == folding) {
         return queue.submit([&](sycl::handler& h) {
             h.depends_on(deps);
-            h.parallel_for<kernel_t>(make_multiple_nd_range_2d({ wg, n_blocks }, { wg, 1l }),
-                                     kernel_t(dal::detail::integral_cast<std::int32_t>(width),
-                                              dal::detail::integral_cast<std::int32_t>(stride),
-                                              dal::detail::integral_cast<std::int32_t>(height),
-                                              data,
-                                              bins,
-                                              unary));
+            const auto range = make_multiple_nd_range_2d({ wg, n_blocks }, { wg, 1l });
+            if constexpr (strided) {
+                h.parallel_for<kernel_t>(range,
+                                         kernel_t(dal::detail::integral_cast<std::int32_t>(width),
+                                                  dal::detail::integral_cast<std::int32_t>(stride),
+                                                  dal::detail::integral_cast<std::int32_t>(height),
+                                                  data,
+                                                  bins,
+                                                  unary));
+            }
+            else {
+                h.parallel_for<kernel_t>(range,
+                                         kernel_t(dal::detail::integral_cast<std::int32_t>(width),
+                                                  dal::detail::integral_cast<std::int32_t>(height),
+                                                  data,
+                                                  bins,
+                                                  unary));
+            }
         });
     }
     if constexpr (folding > 1) {
-        return reduction_impl<UnaryOp, folding - 1, block_size>(queue,
-                                                                data,
-                                                                width,
-                                                                stride,
-                                                                height,
-                                                                bins,
-                                                                unary,
-                                                                deps);
+        return reduction_impl<UnaryOp, folding - 1, block_size, strided>(queue,
+                                                                         data,
+                                                                         width,
+                                                                         stride,
+                                                                         height,
+                                                                         bins,
+                                                                         unary,
+                                                                         deps);
     }
     ONEDAL_ASSERT(false);
     return sycl::event();
@@ -167,14 +229,23 @@ sycl::event reduction_rm_cw_super_accum_wide<Float, BinaryOp, UnaryOp>::operator
     const BinaryOp& binary,
     const UnaryOp& unary,
     const event_vector& deps) const {
-    auto reduction_event = reduction_impl<UnaryOp, max_folding, block_size>(q_,
-                                                                            input,
-                                                                            width,
-                                                                            stride,
-                                                                            height,
-                                                                            bins,
-                                                                            unary,
-                                                                            deps);
+    auto reduction_event = (stride == width)
+                               ? reduction_impl<UnaryOp, max_folding, block_size, false>(q_,
+                                                                                         input,
+                                                                                         width,
+                                                                                         stride,
+                                                                                         height,
+                                                                                         bins,
+                                                                                         unary,
+                                                                                         deps)
+                               : reduction_impl<UnaryOp, max_folding, block_size, true>(q_,
+                                                                                        input,
+                                                                                        width,
+                                                                                        stride,
+                                                                                        height,
+                                                                                        bins,
+                                                                                        unary,
+                                                                                        deps);
     return finalization(q_, output, width, bins, { reduction_event });
 }
 
