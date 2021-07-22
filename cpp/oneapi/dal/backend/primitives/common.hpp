@@ -17,3 +17,37 @@
 #pragma once
 
 #include "oneapi/dal/backend/common.hpp"
+
+class uniform_blocking {
+public:
+    uniform_blocking(std::int64_t length, std::int64_t block) 
+        : range_length_{ length }, block_length_{ block } {
+        ONEDAL_ASSERT(block > 0);
+    }
+    
+    const std::int64_t& block() const {
+        return block_length_;
+    }
+
+    const std::int64_t& length() const {
+        return range_length_;
+    }
+
+    std::int64_t block_count() const {
+        return (length() / block())  + bool(length() % block());
+    }
+
+    std::int64_t block_begin(std::int64_t i) const {
+        ONEDAL_ASSERT((block_count() > i) && (i >= 0));
+        return i * block();
+    }
+
+    std::int64_t block_end(std::int64_t i) const {
+        ONEDAL_ASSERT((block_count() > i) && (i >= 0));
+        return std::min((i + 1l) * block(), length());
+    }
+
+private:
+    const std::int64_t range_length_;
+    const std::int64_t block_length_;
+};
