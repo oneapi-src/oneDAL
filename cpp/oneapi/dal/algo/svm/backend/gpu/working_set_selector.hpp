@@ -22,6 +22,8 @@ namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 enum class ws_edge { up, low };
 
 inline std::int64_t propose_working_set_size(const sycl::queue& queue,
@@ -83,5 +85,7 @@ private:
     pr::ndarray<Float, 1> tmp_sort_values_;
     pr::ndarray<Float, 1> labels_;
 };
+
+#endif
 
 } // namespace oneapi::dal::svm::backend
