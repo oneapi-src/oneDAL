@@ -174,7 +174,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
         size_t cPos = 0;
 
         algorithmFPType newCentersGoalFunc = (algorithmFPType)0.0;
-
+        algorithmFPType l2Norm = (algorithmFPType)0.0;
         {
             DAAL_ITTNOTIFY_SCOPED_TASK(kmeansMergeReduceCentroids);
 
@@ -188,7 +188,9 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t j = 0; j < p; j++)
                     {
-                        clusters[i * p + j] = clusterS1[i * p + j] * coeff;
+                        algorithmFPType dist = clusters[i * p + j] - clusterS1[i * p + j] * coeff;
+                        l2Norm += dist * dist;
+                        clusters[i * p + j] -= dist;
                     }
                 }
                 else
@@ -197,6 +199,14 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                     newCentersGoalFunc += cValues[cPos];
                     ReadRows<algorithmFPType, cpu> mtRow(ntData, cIndices[cPos], 1);
                     const algorithmFPType * row = mtRow.get();
+
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t j = 0; j < p; j++)
+                    {
+                        algorithmFPType dist = row[j] - clusters[i * p + j];
+                        l2Norm += dist * dist;
+                    }
                     result |=
                         daal::services::internal::daal_memcpy_s(&clusters[i * p], p * sizeof(algorithmFPType), row, p * sizeof(algorithmFPType));
                     cPos++;
@@ -212,17 +222,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                 task->kmeansClearClusters(&newTargetFunc);
                 newTargetFunc -= newCentersGoalFunc;
 
-                algorithmFPType center_shift_tot = 0;
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < nClustersP; ++i)
-                {
-                    algorithmFPType tmp = clusters[i] - old_clusters[i];
-                    center_shift_tot += tmp * tmp;
-                }
-                daal::services::internal::daal_memcpy_s(old_clusters.get(), nClustersP * sizeof(algorithmFPType), clusters,
-                                                        nClustersP * sizeof(algorithmFPType));
-                if (center_shift_tot < par->accuracyThreshold)
+                if (l2Norm < par->accuracyThreshold)
                 {
                     kIter++;
                     break;
