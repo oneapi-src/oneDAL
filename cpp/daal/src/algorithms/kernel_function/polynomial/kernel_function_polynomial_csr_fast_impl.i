@@ -107,11 +107,6 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInternalMatrixMatrix(const NumericTable * a1, const NumericTable * a2,
                                                                                                   NumericTable * r, const KernelParameter * par)
 {
-    if (par->kernelType != KernelType::linear)
-    {
-        return services::ErrorMethodNotImplemented;
-    }
-
     //prepareData
     const size_t nVectors1 = a1->getNumberOfRows();
     const size_t nVectors2 = a2->getNumberOfRows();
@@ -119,6 +114,7 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
 
     const algorithmFPType k    = (algorithmFPType)(par->scale);
     const algorithmFPType b    = (algorithmFPType)(par->shift);
+    const size_t degree        = (par->kernelType == KernelType::sigmoid) ? 1 : static_cast<size_t>(par->degree);
     const algorithmFPType zero = algorithmFPType(0.0);
     const algorithmFPType one  = algorithmFPType(1.0);
 
@@ -143,7 +139,16 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j <= i; j++)
                 {
-                    dataR[i * nVectors1 + j] = dataR[i * nVectors1 + j] * k + b;
+                    const algorithmFPType factor = dataR[i * nVectors1 + j] * k + b;
+                    dataR[i * nVectors1 + j]     = factor;
+                    for (size_t k = 0; k < degree - 1; ++k)
+                    {
+                        dataR[i * nVectors1 + j] *= factor;
+                    }
+                }
+                if (par->kernelType == KernelType::sigmoid)
+                {
+                    daal::internal::Math<algorithmFPType, cpu>::vTanh(i + 1, dataR + i * nVectors1, dataR + i * nVectors1);
                 }
             });
         }
@@ -204,11 +209,21 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
 
                 if (k != one || b != zero)
                 {
-                    for (size_t i = 0; i < nRowsInBlock1; i++)
+                    for (size_t i = 0; i < nRowsInBlock1; ++i)
                     {
-                        for (size_t j = 0; j < nRowsInBlock2; j++)
+                        for (size_t j = 0; j < nRowsInBlock2; ++j)
                         {
-                            dataR[i * ldc + j + startRow2] = dataR[i * ldc + j + startRow2] * k + b;
+                            const algorithmFPType factor   = dataR[i * ldc + j + startRow2] * k + b;
+                            dataR[i * ldc + j + startRow2] = factor;
+                            for (size_t k = 0; k < degree - 1; ++k)
+                            {
+                                dataR[i * ldc + j + startRow2] *= factor;
+                            }
+                        }
+                        if (par->kernelType == KernelType::sigmoid)
+                        {
+                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock2, dataR + i * ldc + startRow2,
+                                                                              dataR + i * ldc + startRow2);
                         }
                     }
                 }
@@ -223,11 +238,20 @@ services::Status KernelImplPolynomial<fastCSR, algorithmFPType, cpu>::computeInt
 
                 if (k != one || b != zero)
                 {
-                    for (size_t i = 0; i < nRowsInBlock2; i++)
+                    for (size_t i = 0; i < nRowsInBlock2; ++i)
                     {
-                        for (size_t j = 0; j < nRowsInBlock1; j++)
+                        for (size_t j = 0; j < nRowsInBlock1; ++j)
                         {
-                            mklBuff[i * ldc + j] = mklBuff[i * ldc + j] * k + b;
+                            const algorithmFPType factor = mklBuff[i * ldc + j] * k + b;
+                            mklBuff[i * ldc + j]         = factor;
+                            for (size_t k = 0; k < degree - 1; ++k)
+                            {
+                                mklBuff[i * ldc + j] *= factor;
+                            }
+                        }
+                        if (par->kernelType == KernelType::sigmoid)
+                        {
+                            daal::internal::Math<algorithmFPType, cpu>::vTanh(nRowsInBlock1, mklBuff + i * ldc, mklBuff + i * ldc);
                         }
                     }
                 }

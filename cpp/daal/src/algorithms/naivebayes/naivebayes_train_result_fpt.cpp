@@ -49,15 +49,9 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     size_t nFeatures                                  = algInput->getNumberOfFeatures();
     services::Status st;
     ModelPtr modelPtr;
-    {
-        const multinomial_naive_bayes::interface1::Parameter * algPar =
-            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
-    }
-    {
-        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
-    }
+
+    const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+    if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
     DAAL_CHECK(modelPtr, ErrorNullModel);
     DAAL_CHECK_STATUS_VAR(st);
     set(classifier::training::model, modelPtr);
@@ -78,15 +72,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     size_t nFeatures           = pres->getNumberOfFeatures();
     services::Status st;
     ModelPtr modelPtr;
-    {
-        const multinomial_naive_bayes::interface1::Parameter * algPar =
-            dynamic_cast<const multinomial_naive_bayes::interface1::Parameter *>(parameter);
-        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
-    }
-    {
-        const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
-        if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
-    }
+
+    const multinomial_naive_bayes::Parameter * algPar = dynamic_cast<const multinomial_naive_bayes::Parameter *>(parameter);
+    if (algPar) modelPtr = Model::create<algorithmFPType>(nFeatures, *algPar, &st);
+
     DAAL_CHECK(modelPtr, ErrorNullModel);
     DAAL_CHECK_STATUS_VAR(st);
     set(classifier::training::model, modelPtr);

@@ -19,11 +19,18 @@
 #include <utility>
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/exceptions.hpp"
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <intrin.h>
+#endif
 
 namespace oneapi::dal::preview {
 typedef void (*functype)(std::int32_t i, const void *a);
 typedef void (*functype_int64)(std::int64_t i, const void *a);
 typedef void (*functype_int32ptr)(const std::int32_t *i, const void *a);
+typedef void *(*tls_functype)(const void *a);
+typedef void (*tls_reduce_functype)(void *p, const void *a);
 
 typedef std::int64_t (*loop_functype_int32_int64)(std::int32_t start_idx,
                                                   std::int32_t end_idx,
@@ -90,6 +97,21 @@ ONEDAL_EXPORT std::int64_t _onedal_parallel_reduce_int32ptr_int64_simple(
     oneapi::dal::preview::loop_functype_int32ptr_int64 loop_func,
     const void *b,
     oneapi::dal::preview::reduction_functype_int64 reduction_func);
+
+ONEDAL_EXPORT void *_onedal_get_tls_ptr(void *a, oneapi::dal::preview::tls_functype func);
+ONEDAL_EXPORT void *_onedal_get_tls_local(void *tlsPtr);
+ONEDAL_EXPORT void _onedal_reduce_tls(void *tlsPtr,
+                                      void *a,
+                                      oneapi::dal::preview::tls_reduce_functype func);
+ONEDAL_EXPORT void _onedal_parallel_reduce_tls(void *tlsPtr,
+                                               void *a,
+                                               oneapi::dal::preview::tls_reduce_functype func);
+ONEDAL_EXPORT void _onedal_del_tls_ptr(void *tlsPtr);
+
+ONEDAL_EXPORT void *_onedal_new_mutex();
+ONEDAL_EXPORT void _onedal_lock_mutex(void *mutex_ptr);
+ONEDAL_EXPORT void _onedal_unlock_mutex(void *mutex_ptr);
+ONEDAL_EXPORT void _onedal_del_mutex(void *mutex_ptr);
 }
 
 namespace oneapi::dal::detail {
@@ -244,5 +266,196 @@ ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(std::uint64_t)
 ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL(oneapi::dal::preview::pair_int32_t_size_t)
 
 #undef ONEDAL_PARALLEL_SORT_SPECIALIZATION_DECL
+
+inline void atomic_increment(std::int64_t &value, std::int64_t delta = 1) {
+#if defined(_WIN32) || defined(_WIN64)
+    _InterlockedExchangeAdd64(&value, delta);
+#else
+    __atomic_add_fetch(&value, delta, __ATOMIC_SEQ_CST);
+#endif
+}
+
+inline void atomic_decrement(std::int64_t &value, std::int64_t delta = 1) {
+#if defined(_WIN32) || defined(_WIN64)
+    _InterlockedExchangeAdd64(&value, -delta);
+#else
+    __atomic_sub_fetch(&value, delta, __ATOMIC_SEQ_CST);
+#endif
+}
+
+inline std::int64_t atomic_load(std::int64_t &value) {
+#if defined(_WIN32) || defined(_WIN64)
+    const std::int64_t result = value;
+    _ReadWriteBarrier();
+    return result;
+#else
+    const std::int64_t result = __atomic_load_n(&value, __ATOMIC_ACQUIRE);
+    __asm__ __volatile__("" : : : "memory");
+    return result;
+#endif
+}
+
+template <typename lambdaType>
+inline void *tls_func(const void *a) {
+    const lambdaType &lambda = *static_cast<const lambdaType *>(a);
+    return lambda();
+}
+
+template <typename F, typename lambdaType>
+inline void tls_reduce_func(void *v, const void *a) {
+    const lambdaType &lambda = *static_cast<const lambdaType *>(a);
+    lambda((F)v);
+}
+
+struct tlsBase {
+    virtual ~tlsBase() {}
+};
+
+class tls_deleter : public tlsBase {
+public:
+    virtual ~tls_deleter() {}
+    virtual void del(void *a) = 0;
+};
+
+template <typename lambdaType>
+class tls_deleter_ : public tls_deleter {
+public:
+    virtual ~tls_deleter_() {}
+    virtual void del(void *a) {
+        delete static_cast<lambdaType *>(a);
+    }
+};
+
+template <typename F>
+class tls : public tlsBase {
+public:
+    template <typename lambdaType>
+    explicit tls(const lambdaType &lambda) {
+        lambdaType *locall = new lambdaType(lambda);
+        d = new tls_deleter_<lambdaType>();
+
+        const void *ac = static_cast<const void *>(locall);
+        void *a = const_cast<void *>(ac);
+        voidLambda = a;
+
+        tlsPtr = _onedal_get_tls_ptr(a, tls_func<lambdaType>);
+    }
+
+    virtual ~tls() {
+        d->del(voidLambda);
+        delete d;
+        _onedal_del_tls_ptr(tlsPtr);
+    }
+
+    F local() {
+        void *pf = _onedal_get_tls_local(tlsPtr);
+        return (static_cast<F>(pf));
+    }
+
+    template <typename lambdaType>
+    void reduce(const lambdaType &lambda) {
+        const void *ac = static_cast<const void *>(&lambda);
+        void *a = const_cast<void *>(ac);
+        _onedal_reduce_tls(tlsPtr, a, tls_reduce_func<F, lambdaType>);
+    }
+
+    template <typename lambdaType>
+    void parallel_reduce(const lambdaType &lambda) {
+        const void *ac = static_cast<const void *>(&lambda);
+        void *a = const_cast<void *>(ac);
+        _onedal_parallel_reduce_tls(tlsPtr, a, tls_reduce_func<F, lambdaType>);
+    }
+
+private:
+    void *tlsPtr;
+    void *voidLambda;
+    tls_deleter *d;
+};
+
+template <typename T, typename Allocator = std::allocator<char>>
+class tls_mem : public oneapi::dal::detail::tls<T *> {
+public:
+    typedef oneapi::dal::detail::tls<T *> super;
+    // tls_mem(Allocator allocator, size_t count = 1)
+    tls_mem(size_t count = 1)
+            : super([=]() -> T * {
+                  using t_allocator_type =
+                      typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
+                  std::allocator<char> local_char_alloc; //WRONG
+                  t_allocator_type local_allocator(local_char_alloc);
+                  using t_allocator_traits =
+                      typename std::allocator_traits<Allocator>::template rebind_traits<T>;
+                  typename t_allocator_traits::pointer ptr =
+                      t_allocator_traits::allocate(local_allocator, count);
+                  if (ptr == nullptr) {
+                      throw host_bad_alloc();
+                  }
+                  return (T *)ptr;
+              }),
+              _count(count) {
+        Allocator allocator;
+        _alloc = allocator;
+    }
+
+    ~tls_mem() {
+        super::reduce([&](T *ptr) -> void {
+            using t_allocator_type =
+                typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
+            t_allocator_type t_allocator(_alloc);
+            using t_allocator_traits =
+                typename std::allocator_traits<Allocator>::template rebind_traits<T>;
+            if (ptr != nullptr) {
+                t_allocator_traits::deallocate(t_allocator, ptr, _count);
+            }
+        });
+    }
+
+    using ptr_t = typename std::add_pointer_t<T>;
+    using reference = ptr_t;
+
+private:
+    Allocator _alloc;
+    size_t _count;
+};
+
+class mutex {
+public:
+    mutex() : impl_(_onedal_new_mutex()) {}
+    mutex(const mutex &) = delete;
+    mutex &operator=(const mutex &) = delete;
+    ~mutex() {
+        if (impl_) {
+            _onedal_del_mutex(impl_);
+        }
+    }
+    void lock() {
+        if (impl_) {
+            _onedal_lock_mutex(impl_);
+        }
+    }
+    void unlock() {
+        if (impl_) {
+            _onedal_unlock_mutex(impl_);
+        }
+    }
+
+private:
+    void *impl_;
+};
+
+class scoped_lock {
+public:
+    explicit scoped_lock(mutex &m) : mutex_(m) {
+        mutex_.lock();
+    }
+    scoped_lock(const scoped_lock &) = delete;
+    scoped_lock(scoped_lock &&) = delete;
+    ~scoped_lock() {
+        mutex_.unlock();
+    }
+
+private:
+    mutex &mutex_;
+};
 
 } // namespace oneapi::dal::detail

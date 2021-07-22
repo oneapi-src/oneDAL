@@ -40,6 +40,12 @@ public:
     const char* what() const noexcept override;
 };
 
+class ONEDAL_EXPORT uninitialized_optional_result : public logic_error, public std::logic_error {
+public:
+    using std::logic_error::logic_error;
+    const char* what() const noexcept override;
+};
+
 class ONEDAL_EXPORT domain_error : public logic_error, public std::domain_error {
 public:
     using std::domain_error::domain_error;
@@ -103,6 +109,7 @@ using v1::exception;
 using v1::logic_error;
 using v1::runtime_error;
 using v1::invalid_argument;
+using v1::uninitialized_optional_result;
 using v1::domain_error;
 using v1::out_of_range;
 using v1::unimplemented;

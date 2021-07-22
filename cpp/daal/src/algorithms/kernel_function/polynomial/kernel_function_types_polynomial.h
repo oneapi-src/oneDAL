@@ -19,6 +19,7 @@
 #define __KERNEL_FUNCTION_TYPES_POLYNOMIAL_H__
 
 #include "algorithms/kernel_function/kernel_function_types.h"
+#include "src/algorithms/kernel_function/kernel_function_dense_base.h"
 
 namespace daal
 {
@@ -38,30 +39,21 @@ enum Method
 
 struct DAAL_EXPORT Parameter : public ParameterBase
 {
-    Parameter(double scale = 1.0, double shift = 0.0, size_t degree = 3) : ParameterBase(), scale(scale), shift(shift), degree(degree) {}
+    Parameter(double scale = 1.0, double shift = 0.0, size_t degree = 3);
     double scale;  /*!< Polynomial kernel coefficient k in the (k(X,Y) + b)^d model */
     double shift;  /*!< Polynomial kernel coefficient b in the (k(X,Y) + b)^d model */
     size_t degree; /*!< Polynomial kernel coefficient d in the (k(X,Y) + b)^d model */
+    KernelType kernelType = KernelType::polynomial;
 };
 
 class DAAL_EXPORT Input : public kernel_function::Input
 {
 public:
-    Input() : kernel_function::Input() {}
-    Input(const Input & other) : kernel_function::Input(other) {}
-    virtual ~Input() {}
+    Input();
+    Input(const Input & other);
+    ~Input() override;
 
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE
-    {
-        switch (method)
-        {
-        // case fastCSR: return checkCSR();
-        case defaultDense: return checkDense();
-        default: DAAL_ASSERT(false); break;
-        }
-
-        return services::Status();
-    }
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 } // namespace internal

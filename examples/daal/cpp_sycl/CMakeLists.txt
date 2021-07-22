@@ -23,8 +23,13 @@ set(CMAKE_BUILD_TYPE Release)
 set(USE_DPCPP yes)
 set(USE_NEW_IFACES no)
 
+set(CUSTOM_OPTIONS "-fsycl-device-code-split=per_kernel")
+
 if (WIN32)
     set(TARGET_LINK dynamic)
+    set(CMAKE_CXX_COMPILE_OBJECT "<CMAKE_CXX_COMPILER> <DEFINES> <INCLUDES> <FLAGS> /Fo<OBJECT> -c <SOURCE>")
+    set(CMAKE_CXX_CREATE_STATIC_LIBRARY "lib <OBJECTS> /out:<TARGET>")
+    set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_CXX_COMPILER> ${CUSTOM_OPTIONS} <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
 endif()
 
 function (add_examples examples)
@@ -36,6 +41,7 @@ function (add_examples examples)
         else()
             target_link_libraries(${example} PRIVATE ${oneDAL_IMPORTED_TARGETS})
         endif()
+        target_compile_options(${example} PRIVATE ${CUSTOM_OPTIONS})
         set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${THREADING_TYPE}_${LINK_TYPE}")
     endforeach()
 endfunction()
@@ -54,19 +60,18 @@ function (set_link_and_threading_types)
     endif()
 endfunction()
 
-function (change_md_to_mt)
+function (change_md_to_mdd)
     set(cxx_flag ${CMAKE_CXX_FLAGS})
     set(cxxr_flag ${CMAKE_CXX_FLAGS_RELEASE})
     set(c_flag ${CMAKE_C_FLAGS})
     set(cr_flag ${CMAKE_C_FLAGS_RELEASE})
-
     set(flags
             cxx_flag
             cxxr_flag
             c_flag
             cr_flag)
     foreach(flag ${flags})
-        string(REPLACE "/MD" "/MT" ${flag} "${${flag}}")
+        string(REPLACE "/MD" "/MDd /debug:none" ${flag} "${${flag}}")
     endforeach()
 
     set(CMAKE_CXX_FLAGS ${cxx_flag} PARENT_SCOPE)

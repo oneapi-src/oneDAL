@@ -84,48 +84,6 @@ enum ResultEngineId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface1
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__PARAMETER"></a>
- * \brief Decision forest algorithm parameters   \DAAL_DEPRECATED
- *
- * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
- */
-/* [interface1::Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::interface1::Parameter, public daal::algorithms::decision_forest::training::interface1::Parameter
-{
-    /** Default constructor */
-    DAAL_DEPRECATED Parameter(size_t nClasses) : classifier::interface1::Parameter(nClasses) {}
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface1::Parameter source code] */
-} // namespace interface1
-
-/**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
- */
-namespace interface2
-{
-/**
- * <a name="DAAL-STRUCT-ALGORITHMS__DECISION_FOREST__CLASSIFICATION__TRAINING__PARAMETER"></a>
- * \brief Decision forest algorithm parameters   \DAAL_DEPRECATED
- *
- * \snippet decision_forest/decision_forest_classification_training_types.h Parameter source code
- */
-/* [interface2::Parameter source code] */
-struct DAAL_EXPORT Parameter : public classifier::Parameter, public daal::algorithms::decision_forest::training::interface1::Parameter
-{
-    /** Default constructor */
-    DAAL_DEPRECATED Parameter(size_t nClasses) : classifier::Parameter(nClasses) {}
-    DAAL_DEPRECATED services::Status check() const DAAL_C11_OVERRIDE;
-};
-/* [interface2::Parameter source code] */
-} // namespace interface2
-
-/**
  * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
  */
 namespace interface3

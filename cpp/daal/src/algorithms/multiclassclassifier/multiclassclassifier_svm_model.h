@@ -95,6 +95,7 @@ protected:
         {
             _SV = HomogenNumericTable<modelFPType>::create(nColumns, 0, NumericTable::doNotAllocate, &st);
         }
+        if (!st) return;
         _SVCoeff = HomogenNumericTable<modelFPType>::create(nClasses - 1, 0, NumericTable::doNotAllocate, &st);
         if (!st) return;
         _SVIndices = HomogenNumericTable<int>::create(1, 0, NumericTable::doNotAllocate, &st);

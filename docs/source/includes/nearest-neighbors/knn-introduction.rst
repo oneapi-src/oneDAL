@@ -15,10 +15,13 @@
 .. *******************************************************************************/
 
 
-:math:`k`-NN :capterm:`classification` algorithm infers the class for the new
-feature vector by computing majority vote of the :math:`k` nearest observations
-from the training set.
-
+:math:`k`-NN :capterm:`classification` and :capterm:`search` algorithms are based on finding
+the :math:`k` nearest observations to the training set. For :capterm:`classification`,
+the problem is to infer the class of a new feature vector by computing the majority vote of its
+:math:`k` nearest observations from the training set.
+For :capterm:`search`, the problem is to infer :math:`k` nearest observations from
+the training set to a new feature vector. The nearest observations are computed
+based on the chosen distance metric.
 
 .. |t_math| replace:: :ref:`Training <knn_t_math>`
 .. |t_brute_f| replace:: :ref:`Brute-force <knn_t_math_brute_force>`

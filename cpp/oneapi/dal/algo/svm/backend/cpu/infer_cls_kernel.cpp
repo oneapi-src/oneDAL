@@ -33,10 +33,6 @@
 namespace oneapi::dal::svm::backend {
 
 using dal::backend::context_cpu;
-using model_t = model<task::classification>;
-using input_t = infer_input<task::classification>;
-using result_t = infer_result<task::classification>;
-using descriptor_t = detail::descriptor_base<task::classification>;
 
 namespace daal_svm = daal::algorithms::svm;
 namespace daal_classifier = daal::algorithms::classifier;
@@ -56,16 +52,16 @@ using daal_multiclass_kernel_t =
         Float,
         Cpu>;
 
-template <typename Float>
-static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
-                                            const descriptor_t& desc,
-                                            const model_t& trained_model,
-                                            const table& data,
-                                            const daal_svm::Parameter& daal_parameter,
-                                            const std::uint64_t class_count) {
+template <typename Float, typename Task>
+static infer_result<Task> call_multiclass_daal_kernel(const context_cpu& ctx,
+                                                      const detail::descriptor_base<Task>& desc,
+                                                      const model<Task>& trained_model,
+                                                      const table& data,
+                                                      const daal_svm::Parameter& daal_parameter,
+                                                      const std::uint64_t class_count) {
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t row_count = data.get_row_count();
-    auto arr_label = array<Float>::empty(row_count * 1);
+    auto arr_response = array<Float>::empty(row_count * 1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const model_interop* interop_model = dal::detail::get_impl(trained_model).get_interop();
@@ -83,7 +79,7 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
     daal_multiclass_parameter.prediction =
         daal::services::staticPointerCast<daal_classifier::prediction::Batch>(svm_batch);
 
-    const auto daal_label = interop::convert_to_daal_homogen_table(arr_label, row_count, 1);
+    const auto daal_response = interop::convert_to_daal_homogen_table(arr_response, row_count, 1);
 
     auto arr_decision_function = array<Float>::empty(row_count * model_count);
     const auto daal_decision_function =
@@ -96,25 +92,26 @@ static result_t call_multiclass_daal_kernel(const context_cpu& ctx,
                                                                    daal_data.get(),
                                                                    daal_model.get(),
                                                                    daal_svm_model.get(),
-                                                                   daal_label.get(),
+                                                                   daal_response.get(),
                                                                    daal_decision_function.get(),
                                                                    &daal_multiclass_parameter));
 
-    return result_t()
+    return infer_result<Task>()
         .set_decision_function(dal::detail::homogen_table_builder{}
                                    .reset(arr_decision_function, row_count, model_count)
                                    .build())
-        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+        .set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
 }
 
-template <typename Float>
-static result_t call_binary_daal_kernel(const context_cpu& ctx,
-                                        const descriptor_t& desc,
-                                        const model_t& trained_model,
-                                        const table& data,
-                                        const daal_svm::Parameter daal_parameter) {
+template <typename Float, typename Task>
+static infer_result<Task> call_binary_daal_kernel(const context_cpu& ctx,
+                                                  const detail::descriptor_base<Task>& desc,
+                                                  const model<Task>& trained_model,
+                                                  const table& data,
+                                                  const daal_svm::Parameter daal_parameter) {
     const std::int64_t row_count = data.get_row_count();
-    auto arr_label = array<Float>::empty(row_count * 1);
+    auto arr_response = array<Float>::empty(row_count * 1);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const auto daal_support_vectors =
@@ -140,60 +137,66 @@ static result_t call_binary_daal_kernel(const context_cpu& ctx,
                                                                     *daal_decision_function,
                                                                     &daal_parameter));
 
-    auto label_data = arr_label.get_mutable_data();
+    auto response_data = arr_response.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
-        label_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_label()
-                                                      : trained_model.get_first_class_label();
+        response_data[i] = arr_decision_function[i] >= 0 ? trained_model.get_second_class_response()
+                                                         : trained_model.get_first_class_response();
     }
 
-    return result_t()
+    return infer_result<Task>()
         .set_decision_function(
             dal::detail::homogen_table_builder{}.reset(arr_decision_function, row_count, 1).build())
-        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+        .set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
 }
 
-template <typename Float>
-static result_t call_daal_kernel(const context_cpu& ctx,
-                                 const descriptor_t& desc,
-                                 const model_t& trained_model,
-                                 const table& data) {
+template <typename Float, typename Task>
+static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
+                                           const detail::descriptor_base<Task>& desc,
+                                           const model<Task>& trained_model,
+                                           const table& data) {
     const std::int64_t class_count = dal::detail::get_impl(trained_model).class_count;
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+    const bool is_dense{ data.get_kind() != dal::detail::csr_table::kind() };
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
     daal_svm::Parameter daal_parameter(daal_kernel);
 
     if (class_count > 2) {
-        return call_multiclass_daal_kernel<Float>(ctx,
-                                                  desc,
-                                                  trained_model,
-                                                  data,
-                                                  daal_parameter,
-                                                  class_count);
+        return call_multiclass_daal_kernel<Float, Task>(ctx,
+                                                        desc,
+                                                        trained_model,
+                                                        data,
+                                                        daal_parameter,
+                                                        class_count);
     }
     else {
-        return call_binary_daal_kernel<Float>(ctx, desc, trained_model, data, daal_parameter);
+        return call_binary_daal_kernel<Float, Task>(ctx, desc, trained_model, data, daal_parameter);
     }
 }
 
-template <typename Float>
-static result_t infer(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_model(), input.get_data());
+template <typename Float, typename Task>
+static infer_result<Task> infer(const context_cpu& ctx,
+                                const detail::descriptor_base<Task>& desc,
+                                const infer_input<Task>& input) {
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_model(), input.get_data());
 }
 
-template <typename Float>
-struct infer_kernel_cpu<Float, method::by_default, task::classification> {
-    result_t operator()(const context_cpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) const {
-        return infer<Float>(ctx, desc, input);
+template <typename Float, typename Task>
+struct infer_kernel_cpu<Float, method::by_default, Task> {
+    infer_result<Task> operator()(const context_cpu& ctx,
+                                  const detail::descriptor_base<Task>& desc,
+                                  const infer_input<Task>& input) const {
+        return infer<Float, Task>(ctx, desc, input);
     }
 };
 
 template struct infer_kernel_cpu<float, method::by_default, task::classification>;
 template struct infer_kernel_cpu<double, method::by_default, task::classification>;
+template struct infer_kernel_cpu<float, method::by_default, task::nu_classification>;
+template struct infer_kernel_cpu<double, method::by_default, task::nu_classification>;
 
 } // namespace oneapi::dal::svm::backend

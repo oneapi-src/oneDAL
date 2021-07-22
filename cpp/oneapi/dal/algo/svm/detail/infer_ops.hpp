@@ -69,10 +69,14 @@ struct infer_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        ONEDAL_ASSERT(result.get_labels().has_data());
-        ONEDAL_ASSERT(result.get_decision_function().has_data());
-        ONEDAL_ASSERT(result.get_decision_function().get_row_count() ==
-                      result.get_labels().get_row_count());
+        ONEDAL_ASSERT(result.get_responses().has_data());
+
+        if constexpr (std::is_same_v<task_t, task::classification>) {
+            ONEDAL_ASSERT(result.get_decision_function().has_data());
+
+            ONEDAL_ASSERT(result.get_decision_function().get_row_count() ==
+                          result.get_responses().get_row_count());
+        }
     }
 
     template <typename Context>

@@ -259,7 +259,7 @@ static homogen_table wrap_to_homogen_table(device_test_policy& policy,
     return dal::detail::homogen_table_builder{}
         .set_data_type(dal::detail::make_data_type<Float>())
         .allocate(policy.get_queue(), row_count, column_count, std::forward<Args>(args)...)
-        .copy_data(policy.get_queue(), data.get_data(), row_count, column_count)
+        .copy_data(data)
         .build();
 }
 #endif

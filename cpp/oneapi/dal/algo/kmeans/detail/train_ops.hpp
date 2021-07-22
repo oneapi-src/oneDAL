@@ -44,6 +44,12 @@ struct train_ops {
         if (!(input.get_data().has_data())) {
             throw domain_error(msg::input_data_is_empty());
         }
+        if (input.get_data().get_row_count() > dal::detail::limits<std::int32_t>::max()) {
+            throw domain_error(dal::detail::error_messages::row_count_gt_max_int32());
+        }
+        if (params.get_cluster_count() > input.get_data().get_row_count()) {
+            throw invalid_argument(msg::cluster_count_exceeds_data_row_count());
+        }
         if (input.get_initial_centroids().has_data()) {
             if (input.get_initial_centroids().get_row_count() != params.get_cluster_count()) {
                 throw invalid_argument(msg::input_initial_centroids_rc_neq_desc_cluster_count());
@@ -58,15 +64,15 @@ struct train_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        ONEDAL_ASSERT(result.get_labels().has_data());
-        ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
+        ONEDAL_ASSERT(result.get_responses().has_data());
+        ONEDAL_ASSERT(result.get_responses().get_column_count() == 1);
         ONEDAL_ASSERT(result.get_iteration_count() <= params.get_max_iteration_count());
         ONEDAL_ASSERT(result.get_model().get_centroids().has_data());
         ONEDAL_ASSERT(result.get_model().get_centroids().get_row_count() ==
                       params.get_cluster_count());
         ONEDAL_ASSERT(result.get_model().get_centroids().get_column_count() ==
                       input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_labels().get_row_count() == input.get_data().get_row_count());
+        ONEDAL_ASSERT(result.get_responses().get_row_count() == input.get_data().get_row_count());
     }
 
     template <typename Context>

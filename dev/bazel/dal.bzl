@@ -464,17 +464,22 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
         ),
         disable_mic = True,
         cpu_defines = {
-            "sse2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse2"   ],
-            "ssse3":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_ssse3"  ],
-            "sse42":  [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_sse42"  ],
-            "avx":    [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx"    ],
-            "avx2":   [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx2"   ],
-            "avx512": [ "__CPU_TAG__=oneapi::dal::backend::cpu_dispatch_avx512" ],
+            "sse2":   [ "__CPU_TAG__=__CPU_TAG_SSE2__"   ],
+            "ssse3":  [ "__CPU_TAG__=__CPU_TAG_SSSE3__"  ],
+            "sse42":  [ "__CPU_TAG__=__CPU_TAG_SSE42__"  ],
+            "avx":    [ "__CPU_TAG__=__CPU_TAG_AVX__"    ],
+            "avx2":   [ "__CPU_TAG__=__CPU_TAG_AVX2__"   ],
+            "avx512": [ "__CPU_TAG__=__CPU_TAG_AVX512__" ],
         },
         local_defines = local_defines + ([
             "DAAL_SYCL_INTERFACE",
             "ONEDAL_DATA_PARALLEL"
-        ] if is_dpc else []),
+        ] if is_dpc else []) + select({
+            "@config//:test_fp64_disabled": [
+                "ONEDAL_DISABLE_FP64_TESTS=1",
+            ],
+            "//conditions:default": [],
+        }),
         deps = _expand_select(deps),
         **kwargs,
     )

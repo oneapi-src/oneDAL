@@ -22,11 +22,17 @@ import os
 import sys
 import glob
 
+def check_stop_list(path):
+    exclude_list = ['jaccard_batch_app']
+    for exclude_name in exclude_list:
+        if exclude_name in path:
+            return False
+    return True
+
 def get_rules_list(directory):
     cpp_paths = glob.glob('{}/**/*.cpp'.format(directory))
-    exclude_example = 'jaccard_batch_app'
-    relative_cpp_paths = [ os.path.join('source', os.path.relpath(x, directory)) for x in cpp_paths if exclude_example not in x]
-    exe_names =  [os.path.basename(x).replace('.cpp', '.exe') for x in cpp_paths if exclude_example not in x]
+    relative_cpp_paths = [ os.path.join('source', os.path.relpath(x, directory)) for x in cpp_paths if check_stop_list(x)]
+    exe_names =  [os.path.basename(x).replace('.cpp', '.exe') for x in cpp_paths if check_stop_list(x)]
     return list(zip(exe_names, relative_cpp_paths))
 
 if __name__ == '__main__':

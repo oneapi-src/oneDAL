@@ -20,78 +20,9 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/graph/common.hpp"
 #include "oneapi/dal/graph/detail/container.hpp"
+#include "oneapi/dal/graph/detail/csr_topology.hpp"
 
 namespace oneapi::dal::preview::detail {
-
-template <typename IndexType>
-constexpr bool is_valid_index_v = dal::detail::is_one_of_v<IndexType, std::int32_t>;
-
-template <typename IndexType>
-class topology {
-public:
-    using vertex_type = IndexType;
-    using vertex_set = container<vertex_type>;
-    using vertex_iterator = vertex_type*;
-    using const_vertex_iterator = const vertex_type*;
-    using vertex_size_type = std::int64_t;
-    using vertex_edge_type = vertex_type;
-    using vertex_edge_size_type = vertex_type;
-
-    using edge_type = std::int64_t;
-    using edge_set = container<edge_type>;
-
-    using vertex_edge_set = container<vertex_edge_type>;
-    using vertex_edge_iterator = vertex_edge_type*;
-    using const_vertex_edge_iterator = const vertex_edge_type*;
-    using edge_size_type = std::int64_t;
-
-    // ranges
-    using vertex_edge_range = range<vertex_edge_iterator>;
-    using const_vertex_edge_range = range<const_vertex_edge_iterator>;
-
-    topology() = default;
-    virtual ~topology() = default;
-
-    ONEDAL_FORCEINLINE std::int64_t get_vertex_count() const {
-        return _vertex_count;
-    }
-
-    ONEDAL_FORCEINLINE std::int64_t get_edge_count() const {
-        return _edge_count;
-    }
-
-    ONEDAL_FORCEINLINE auto get_vertex_degree(const IndexType& u) const noexcept
-        -> vertex_edge_size_type {
-        return _degrees_ptr[u];
-    }
-
-    ONEDAL_FORCEINLINE auto get_vertex_neighbors_begin(const IndexType& u) const noexcept
-        -> const_vertex_edge_iterator {
-        return _cols_ptr + _rows[u];
-    }
-
-    ONEDAL_FORCEINLINE auto get_vertex_neighbors_end(const IndexType& u) const noexcept
-        -> const_vertex_edge_iterator {
-        return _cols_ptr + _rows[u + 1];
-    }
-
-    ONEDAL_FORCEINLINE auto get_vertex_neighbors(const IndexType& u) const noexcept
-        -> const_vertex_edge_range {
-        return std::make_pair(get_vertex_neighbors_begin(u), get_vertex_neighbors_end(u));
-    }
-
-    vertex_set _cols;
-    vertex_set _degrees;
-    edge_set _rows;
-    vertex_edge_set _rows_vertex;
-
-    const vertex_type* _cols_ptr;
-    const vertex_type* _degrees_ptr;
-    const edge_type* _rows_ptr;
-
-    std::int64_t _vertex_count = 0;
-    std::int64_t _edge_count = 0;
-};
 
 template <typename VertexValue>
 using vertex_values = container<VertexValue>;
@@ -154,7 +85,7 @@ public:
 
     undirected_adjacency_vector_graph_impl() = default;
 
-    virtual ~undirected_adjacency_vector_graph_impl() {
+    ~undirected_adjacency_vector_graph_impl() {
         auto& cols = _topology._cols;
         auto& degrees = _topology._degrees;
         auto& rows = _topology._rows;
@@ -193,19 +124,9 @@ public:
         }
     }
 
-    inline void set_topology(vertex_size_type vertex_count,
-                             edge_size_type edge_count,
-                             edge_type* offsets,
-                             vertex_type* neighbors,
-                             vertex_type* degrees) {
-        _topology._vertex_count = vertex_count;
-        _topology._edge_count = edge_count;
-        _topology._rows = edge_set::wrap(offsets, vertex_count + 1);
-        _topology._degrees = vertex_set::wrap(degrees, vertex_count);
-        _topology._cols = vertex_set::wrap(neighbors, edge_count * 2);
-        _topology._rows_ptr = _topology._rows.get_data();
-        _topology._cols_ptr = _topology._cols.get_data();
-        _topology._degrees_ptr = _topology._degrees.get_data();
+    template <typename... Args>
+    inline void set_topology(Args&&... args) {
+        _topology.set_topology(std::forward<Args>(args)...);
     }
 
     inline topology<IndexType>& get_topology() {

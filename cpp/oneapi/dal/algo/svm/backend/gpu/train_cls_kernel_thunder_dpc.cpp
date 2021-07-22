@@ -48,7 +48,7 @@ template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
-                                 const table& labels) {
+                                 const table& responses) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -59,16 +59,21 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
     const std::int64_t column_count = data.get_column_count();
 
-    const binary_label_t<Float> old_unique_labels = get_unique_labels<Float>(queue, labels);
-    const auto new_labels =
-        convert_binary_labels(queue, labels, { Float(-1.0), Float(1.0) }, old_unique_labels);
-    const auto daal_labels = interop::convert_to_daal_table(queue, new_labels);
+    const binary_response_t<Float> old_unique_responses =
+        get_unique_responses<Float>(queue, responses);
+    const auto new_responses = convert_binary_responses(queue,
+                                                        responses,
+                                                        { Float(-1.0), Float(1.0) },
+                                                        old_unique_responses);
+    const auto daal_responses = interop::convert_to_daal_table(queue, new_responses);
 
     auto kernel_impl = detail::get_kernel_function_impl(desc);
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+
+    const bool is_dense{ data.get_kind() == homogen_table::kind() };
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
 
     const std::uint64_t cache_megabyte = static_cast<std::uint64_t>(desc.get_cache_size());
     constexpr std::uint64_t megabyte = 1024 * 1024;
@@ -88,22 +93,26 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const auto daal_data = interop::convert_to_daal_table(queue, data);
     auto daal_model = daal_svm::Model::create<Float>(column_count);
     interop::status_to_exception(daal_svm_thunder_kernel_t<Float>().compute(daal_data,
-                                                                            *daal_labels,
+                                                                            *daal_responses,
                                                                             daal_model.get(),
                                                                             daal_svm_parameter));
+    const std::int64_t n_sv = daal_model->getSupportIndices()->getNumberOfRows();
+    if (n_sv == 0) {
+        return result_t{};
+    }
     auto table_support_indices =
         interop::convert_from_daal_homogen_table<Float>(daal_model->getSupportIndices());
 
     auto trained_model = convert_from_daal_model<task::classification, Float>(*daal_model)
-                             .set_first_class_label(old_unique_labels.first)
-                             .set_second_class_label(old_unique_labels.second);
+                             .set_first_class_response(old_unique_responses.first)
+                             .set_second_class_response(old_unique_responses.second);
 
     return result_t().set_model(trained_model).set_support_indices(table_support_indices);
 }
 
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float>
@@ -115,7 +124,20 @@ struct train_kernel_gpu<Float, method::thunder, task::classification> {
     }
 };
 
+template <typename Float>
+struct train_kernel_gpu<Float, method::thunder, task::nu_classification> {
+    train_result<task::nu_classification> operator()(
+        const dal::backend::context_gpu& ctx,
+        const detail::descriptor_base<task::nu_classification>& params,
+        const train_input<task::nu_classification>& input) const {
+        throw unimplemented(
+            dal::detail::error_messages::nu_svm_thunder_method_is_not_implemented_for_gpu());
+    }
+};
+
 template struct train_kernel_gpu<float, method::thunder, task::classification>;
 template struct train_kernel_gpu<double, method::thunder, task::classification>;
+template struct train_kernel_gpu<float, method::thunder, task::nu_classification>;
+template struct train_kernel_gpu<double, method::thunder, task::nu_classification>;
 
 } // namespace oneapi::dal::svm::backend
