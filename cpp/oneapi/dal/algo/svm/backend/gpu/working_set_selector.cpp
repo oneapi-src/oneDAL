@@ -23,6 +23,8 @@ namespace oneapi::dal::svm::backend {
 
 namespace pr = dal::backend::primitives;
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 template <typename Float>
 working_set_selector<Float>::working_set_selector(const sycl::queue& queue,
                                                   const pr::ndarray<Float, 1>& labels,
@@ -239,5 +241,7 @@ sycl::event working_set_selector<Float>::sort_f_indices(sycl::queue& queue,
 
 INSTANTIATE_WORKING_SET(float);
 INSTANTIATE_WORKING_SET(double);
+
+#endif
 
 } // namespace oneapi::dal::svm::backend
