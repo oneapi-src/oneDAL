@@ -101,10 +101,6 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
     WriteOnlyRows<algorithmFPType, cpu> mtClusters(const_cast<NumericTable *>(r[0]), 0, nClusters);
     DAAL_CHECK_BLOCK_STATUS(mtClusters);
     algorithmFPType * clusters = mtClusters.get();
-    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nClusters, p);
-    const size_t nClustersP = nClusters * p;
-    TArray<algorithmFPType, cpu> old_clusters(nClustersP);
-    service_memset<algorithmFPType, cpu>(old_clusters.get(), (algorithmFPType)0.0, nClustersP);
 
     TArray<algorithmFPType, cpu> tClusters;
     if (clusters == nullptr && nIter != 0)
