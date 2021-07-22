@@ -51,7 +51,6 @@ public:
         auto alpha_ndarray = alpha_host_ndarray.to_device(q);
 
         auto ws_count = propose_working_set_size(q, row_count);
-        std::cout << ws_count << ":WS COUNT\n";
         auto ws_indices =
             pr::ndarray<std::uint32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
 
@@ -59,7 +58,7 @@ public:
         auto ws = working_set_selector<Float>(q, y_ndarray, C, row_count);
 
         INFO("Run select");
-        ws.select(alpha_ndarray, f_ndarray, ws_indices, 0).wait_and_throw();
+        ws.select(alpha_ndarray, f_ndarray, ws_indices).wait_and_throw();
 
         INFO("Check ws_indices");
         const auto indices_arr = ws_indices.flatten(q);

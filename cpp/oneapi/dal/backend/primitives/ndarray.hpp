@@ -480,6 +480,26 @@ public:
     }
 #endif
 
+    void arange() {
+        T* data_ptr = this->get_mutable_data();
+        for (std::int64_t i = 0; i < this->get_count(); i++) {
+            data_ptr[i] = i;
+        }
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    sycl::event arange(sycl::queue& q, const event_vector& deps = {}) {
+        auto data_ptr = this->get_mutable_data();
+        return q.submit([&](sycl::handler& cgh) {
+            const auto range = dal::backend::make_range_1d(this->get_count());
+            cgh.depends_on(deps);
+            cgh.parallel_for(range, [=](sycl::id<1> idx) {
+                data_ptr[idx] = idx;
+            });
+        });
+    }
+#endif
+
     void assign(const T* source_ptr, std::int64_t source_count) {
         ONEDAL_ASSERT(source_ptr != nullptr);
         ONEDAL_ASSERT(source_count > 0);

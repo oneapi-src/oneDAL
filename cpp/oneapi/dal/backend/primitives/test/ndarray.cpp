@@ -52,6 +52,20 @@ public:
     void check_if_all_ones(const ndarray<T, axis_count>& x) const {
         check_if_all_equal(x, T(1));
     }
+
+    template <typename T, std::int64_t axis_count>
+    void check_if_arange(const ndarray<T, axis_count>& x, std::int64_t count = -1) const {
+        if (count < 0) {
+            count = x.get_count();
+        }
+        const T* x_ptr = x.get_data();
+        for (std::int64_t i = 0; i < count; i++) {
+            if (x_ptr[i] != i) {
+                CAPTURE(x_ptr[i], i);
+                FAIL();
+            }
+        }
+    }
 };
 
 TEST("ndarray returns correct shapes", "[ndarray_base]") {
@@ -448,6 +462,14 @@ TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
     check_if_all_equal(x, c);
 }
 
+TEST_M(ndarray_test, "can arange ndarray", "[ndarray]") {
+    auto x = ndarray<float, 2>::empty({ 7, 5 });
+
+    x.arange();
+
+    check_if_arange(x);
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 TEST("can allocate empty ndarray with queue", "[ndarray]") {
@@ -487,6 +509,17 @@ TEST_M(ndarray_test, "can fill ndarray with queue", "[ndarray]") {
     x.fill(queue, c).wait_and_throw();
 
     check_if_all_equal(x, c);
+}
+
+TEST_M(ndarray_test, "can arange ndarray with queue", "[ndarray]") {
+    DECLARE_TEST_POLICY(policy);
+    auto& queue = policy.get_queue();
+
+    auto x = ndarray<float, 2>::empty(queue, { 7, 5 });
+
+    x.arange(queue).wait_and_throw();
+
+    check_if_arange(x);
 }
 
 TEST_M(ndarray_test, "can assign ndarray with queue", "[ndarray]") {
