@@ -39,6 +39,7 @@ result_option_id get_default_result_options() {
     return result_option_id{};
 }
 
+template <>
 result_option_id get_default_result_options<task::search>() {
     return result_options::indices | result_options::distances;
 }
