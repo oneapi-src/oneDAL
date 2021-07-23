@@ -90,6 +90,9 @@ ONEDAL_EXPORT result_option_id get_indices_id();
 ONEDAL_EXPORT result_option_id get_distances_id();
 ONEDAL_EXPORT result_option_id get_responses_id();
 
+template <typename Task>
+ONEDAL_EXPORT result_option_id get_default_result_options();
+
 } // namespace detail
 
 /// Result options are used to define

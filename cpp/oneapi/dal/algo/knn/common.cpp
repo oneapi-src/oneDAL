@@ -35,14 +35,18 @@ result_option_id get_distances_id() {
 }
 
 template <typename Task>
-const result_option_id default_result_options = result_option_id{};
+result_option_id get_default_result_options<task::search>() {
+    return result_option_id{};
+}
+
+result_option_id get_default_result_options<task::search>() {
+    return result_options::indices | result_options::distances;
+}
 
 template <>
-const result_option_id default_result_options<task::classification> = result_options::responses;
-
-template <>
-const result_option_id default_result_options<task::search> =
-    result_options::indices | result_options::distances;
+result_option_id get_default_result_options<task::classification>() {
+    return result_options::responses;
+}
 
 namespace v1 {
 template <typename Task>
@@ -54,7 +58,7 @@ public:
     std::int64_t neighbor_count = 1;
     voting_mode voting_mode_value = voting_mode::uniform;
     detail::distance_ptr distance;
-    result_option_id result_options = default_result_options<Task>;
+    result_option_id result_options = get_default_result_options<Task>();
 };
 
 template <typename Task>

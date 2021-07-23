@@ -101,7 +101,7 @@ class result_option_id_base {
 
 public:
     using bitset_t = std::uint64_t;
-    result_option_id_base() = default;
+    result_option_id_base() : mask_{ bitset_t(0) } {}
     explicit result_option_id_base(const bitset_t& mask) : mask_{ mask } {}
 
     operator bool() const {

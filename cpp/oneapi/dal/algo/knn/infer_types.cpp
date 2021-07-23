@@ -32,10 +32,10 @@ public:
 template <typename Task>
 class detail::v1::infer_result_impl : public base {
 public:
-    result_option_id options;
     table responses;
     table indices;
     table distances;
+    result_option_id options = detail::get_default_result_options<Task>();
 };
 
 using detail::v1::infer_input_impl;
