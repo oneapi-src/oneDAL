@@ -201,7 +201,7 @@ Status KMeansBatchKernel<method, algorithmFPType, cpu>::compute(const NumericTab
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t j = 0; j < p; j++)
                     {
-                        algorithmFPType dist = row[j] - clusters[i * p + j];
+                        const algorithmFPType dist = clusters[i * p + j] - row[j];
                         l2Norm += dist * dist;
                     }
                     result |=
