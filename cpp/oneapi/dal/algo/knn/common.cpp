@@ -35,7 +35,7 @@ result_option_id get_distances_id() {
 }
 
 template <typename Task>
-result_option_id get_default_result_options<task::search>() {
+result_option_id get_default_result_options() {
     return result_option_id{};
 }
 

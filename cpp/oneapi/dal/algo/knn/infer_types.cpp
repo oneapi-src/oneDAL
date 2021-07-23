@@ -35,7 +35,7 @@ public:
     table responses;
     table indices;
     table distances;
-    result_option_id options = detail::get_default_result_options<Task>();
+    result_option_id options = get_default_result_options<Task>();
 };
 
 using detail::v1::infer_input_impl;
