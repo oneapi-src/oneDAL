@@ -192,22 +192,22 @@ SERVICE_FUNCTIONS_BADARG_TEST("Edge is not in the graph for get_edge_value") {
     REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 1, 7), out_of_range);
 }
 
-//incorrect result
-// SERVICE_FUNCTIONS_BADARG_TEST("First vertex_id >= vertex_count for get_edge_value") {
-//     d_graph_with_isolated_vertices_10_type graph_data;
-//         const auto &graph_builder = dal::preview::detail::directed_adjacency_vector_graph_builder<
-//             std::int32_t,
-//             std::int32_t,
-//             oneapi::dal::preview::empty_value,
-//             std::int32_t,
-//             std::allocator<char>>(graph_data.get_vertex_count(),
-//                                   graph_data.get_edge_count(),
-//                                   graph_data.rows.data(),
-//                                   graph_data.cols.data(),
-//                                   graph_data.edge_weights_int.data());
-//         const auto &g = graph_builder.get_graph();
-// REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 10, 0), out_of_range);
-// }
+SERVICE_FUNCTIONS_BADARG_TEST("First vertex_id >= vertex_count for get_edge_value") {
+    d_graph_with_isolated_vertices_10_type graph_data;
+    const auto &graph_builder = dal::preview::detail::directed_adjacency_vector_graph_builder<
+        std::int32_t,
+        std::int32_t,
+        oneapi::dal::preview::empty_value,
+        std::int32_t,
+        std::allocator<char>>(graph_data.get_vertex_count(),
+                              graph_data.get_edge_count(),
+                              graph_data.rows.data(),
+                              graph_data.cols.data(),
+                              graph_data.edge_weights_int.data());
+    const auto &g = graph_builder.get_graph();
+    REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 100, 0), out_of_range);
+    REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 10, 0), out_of_range);
+}
 
 SERVICE_FUNCTIONS_BADARG_TEST("Second vertex_id >= vertex_count for get_edge_value") {
     d_graph_with_isolated_vertices_10_type graph_data;
@@ -222,6 +222,7 @@ SERVICE_FUNCTIONS_BADARG_TEST("Second vertex_id >= vertex_count for get_edge_val
                               graph_data.cols.data(),
                               graph_data.edge_weights_int.data());
     const auto &g = graph_builder.get_graph();
+    REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 0, 100), out_of_range);
     REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 0, 10), out_of_range);
 }
 
@@ -262,13 +263,6 @@ SERVICE_FUNCTIONS_BADARG_TEST("Second vertex_id < 0 for get_edge_value") {
 // REQUIRE_THROWS_AS(dal::preview::get_vertex_degree(g, 0), invalid_argument);
 // }
 
-/* static_assert
-SERVICE_FUNCTIONS_BADARG_TEST("Directed graph for get_vertex_neighbors") {
-const auto g = create_graph<dal::preview::directed_adjacency_vector_graph<>,d_graph_with_isolated_vertices_10_type>();
-REQUIRE_THROWS_AS(dal::preview::get_vertex_neighbors(g, 0), invalid_argument);
-}
-*/
-
 // SERVICE_FUNCTIONS_BADARG_TEST("Undirected graph for get_vertex_outward_degree") {
 //     const auto g = create_graph<dal::preview::undirected_adjacency_vector_graph<>, graph_with_isolated_vertices_10_type>();
 // REQUIRE_THROWS_AS(dal::preview::get_vertex_outward_degree(g, 0), invalid_argument);
@@ -278,12 +272,5 @@ REQUIRE_THROWS_AS(dal::preview::get_vertex_neighbors(g, 0), invalid_argument);
 //     const auto g = create_graph<dal::preview::undirected_adjacency_vector_graph<>, graph_with_isolated_vertices_10_type>();
 // REQUIRE_THROWS_AS(dal::preview::get_vertex_outward_neighbors(g, 0), invalid_argument);
 // }
-
-/*static_assert
-SERVICE_FUNCTIONS_BADARG_TEST("Undirected graph for get_vertex_outward_neighbors") {
-    const auto g = create_graph<dal::preview::undirected_adjacency_vector_graph<>, graph_with_isolated_vertices_10_type>();
-REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 0, 1), invalid_argument);
-}
-*/
 
 } // namespace oneapi::dal::graph::test
