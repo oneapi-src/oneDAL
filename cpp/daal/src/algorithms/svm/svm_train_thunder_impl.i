@@ -144,7 +144,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         DAAL_CHECK_STATUS(status, initGrad(xTable, kernel, nVectors, nTrainVectors, y, alpha, grad));
     }
 
-    size_t iter = 0;
+    innerIterCount = 0;
+    size_t iter    = 0;
     for (; iter < maxIterations; ++iter)
     {
         if (iter != 0)
@@ -168,6 +169,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
         if (checkStopCondition(diff, diffPrev, accuracyThreshold, sameLocalDiff) && iter >= nNoChanges) break;
         diffPrev = diff;
     }
+    // printf("total iterations: %zu\n", iter + 1);
+    // printf("inner iterations: %zu\n", innerIterCount);
 
     cachePtr->clear();
     SaveResultTask<algorithmFPType, cpu> saveResult(nVectors, y, alpha, grad, svmType, cachePtr.get());
@@ -332,7 +335,7 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
     const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS, const size_t nVectors,
     const size_t nWS, const algorithmFPType * cw, const double accuracyThreshold, const double tau, algorithmFPType * buffer, char * I,
-    algorithmFPType * alpha, algorithmFPType * deltaAlpha, algorithmFPType & localDiff, SvmType svmType) const
+    algorithmFPType * alpha, algorithmFPType * deltaAlpha, algorithmFPType & localDiff, SvmType svmType)
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(SMOBlockSolver);
     services::Status status;
@@ -385,15 +388,17 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
         });
     }
 
-    algorithmFPType delta    = algorithmFPType(0);
-    algorithmFPType localEps = algorithmFPType(0);
-    localDiff                = algorithmFPType(0);
-    int Bi                   = -1;
-    int Bj                   = -1;
+    algorithmFPType firstDiff = algorithmFPType(0);
+    algorithmFPType delta     = algorithmFPType(0);
+    algorithmFPType localEps  = algorithmFPType(0);
+    localDiff                 = algorithmFPType(0);
+    int Bi                    = -1;
+    int Bj                    = -1;
 
     size_t iter = 0;
     for (; iter < innerMaxIterations; ++iter)
     {
+        ++innerIterCount;
         algorithmFPType GMin  = MaxVal<algorithmFPType>::get();
         algorithmFPType GMax  = -MaxVal<algorithmFPType>::get();
         algorithmFPType GMax2 = -MaxVal<algorithmFPType>::get();
@@ -451,6 +456,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
                 GMax2    = GMax2Neg;
                 KBiBlock = KBiBlockNeg;
             }
+
+            localDiff = services::internal::max<cpu, algorithmFPType>(GMax2Pos - GMinPos, GMax2Neg - GMinNeg);
         }
         else
         {
@@ -460,13 +467,14 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
             KBiBlock                    = &kernelLocal[Bi * nWS];
 
             HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(0, nWS, KBiBlock, kdLocal, gradLocal, I, GMin, KBiBi, tau, Bj, GMax, GMax2, delta);
-        }
 
-        localDiff = GMax2 - GMin;
+            localDiff = GMax2 - GMin;
+        }
 
         if (iter == 0)
         {
-            localEps = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
+            localEps  = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(0.5));
+            firstDiff = localDiff;
         }
         if (localDiff < localEps)
         {
@@ -513,6 +521,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
             gradLocal[i] += delta * (KiBi - KiBj);
         }
     }
+
+    localDiff = firstDiff;
 
     /* Compute diff and scatter to alpha vector */
     PRAGMA_IVDEP

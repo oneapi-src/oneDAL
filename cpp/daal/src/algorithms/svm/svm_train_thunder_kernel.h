@@ -46,6 +46,7 @@ namespace internal
 template <typename algorithmFPType, CpuType cpu>
 struct SVMTrainImpl<thunder, algorithmFPType, cpu> : public Kernel
 {
+    size_t innerIterCount;
     services::Status compute(const data_management::NumericTablePtr & xTable, const data_management::NumericTablePtr & wTable,
                              data_management::NumericTable & yTable, daal::algorithms::Model * r, const KernelParameter & par);
 
@@ -61,7 +62,7 @@ private:
     services::Status SMOBlockSolver(const algorithmFPType * y, const algorithmFPType * grad, const uint32_t * wsIndices, algorithmFPType ** kernelWS,
                                     const size_t nVectors, const size_t nWS, const algorithmFPType * cw, const double eps, const double tau,
                                     algorithmFPType * buffer, char * I, algorithmFPType * alpha, algorithmFPType * deltaAlpha,
-                                    algorithmFPType & localDiff, SvmType svmType) const;
+                                    algorithmFPType & localDiff, SvmType svmType);
 
     services::Status updateGrad(algorithmFPType ** kernelWS, const algorithmFPType * deltaalpha, algorithmFPType * grad, const size_t nVectors,
                                 const size_t nTrainVectors, const size_t nWS);
