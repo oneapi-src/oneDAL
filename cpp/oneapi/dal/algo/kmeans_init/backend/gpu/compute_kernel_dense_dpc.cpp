@@ -28,19 +28,16 @@ using dal::backend::context_gpu;
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
 
-template <typename Task>
-using result_t = compute_result<Task>;
+using result_t = compute_result<task::init>;
 
-template <typename Task>
-using descriptor_t = detail::descriptor_base<Task>;
+using descriptor_t = detail::descriptor_base<task::init>;
 
-template <typename Task>
-using input_t = compute_input<Task>;
+using input_t = compute_input<task::init>;
 
-template <typename Float, typename Method, typename Task>
-static result_t<Task> call_daal_kernel(const context_gpu& ctx,
-                                       const descriptor_t<Task>& params,
-                                       const table& data) {
+template <typename Float, typename Method>
+static result_t call_daal_kernel(const context_gpu& ctx,
+                                 const descriptor_t& params,
+                                 const table& data) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -59,24 +56,23 @@ static result_t<Task> call_daal_kernel(const context_gpu& ctx,
 
     kmeans_init_kernel<Float, Method>::compute_initial_centroids(queue, arr_data, arr_centroids)
         .wait_and_throw();
-    return result_t<Task>().set_centroids(
+    return result_t().set_centroids(
         dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
 }
 
-template <typename Float, typename Method, typename Task>
-static result_t<Task> compute(const context_gpu& ctx,
-                              const descriptor_t<Task>& desc,
-                              const input_t<Task>& input) {
-    return call_daal_kernel<Float, Method, Task>(ctx, desc, input.get_data());
+template <typename Float, typename Method>
+static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+    return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
 }
 
-template <typename Float, typename Method, typename Task>
-result_t<Task> compute_kernel_gpu<Float, Method, Task>::operator()(
-    const context_gpu& ctx,
-    const descriptor_t<Task>& desc,
-    const input_t<Task>& input) const {
-    return compute<Float, Method, Task>(ctx, desc, input);
-}
+template <typename Float, typename Method>
+struct compute_kernel_gpu<Float, Method, task::init> {
+    result_t operator()(const context_gpu& ctx,
+                        const descriptor_t& desc,
+                        const input_t& input) const {
+        return compute<Float, Method>(ctx, desc, input);
+    }
+};
 
 template struct compute_kernel_gpu<float, method::dense, task::init>;
 template struct compute_kernel_gpu<double, method::dense, task::init>;

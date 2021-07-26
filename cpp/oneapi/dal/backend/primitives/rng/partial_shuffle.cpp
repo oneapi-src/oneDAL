@@ -35,7 +35,7 @@ inline void uniform_by_cpu(Args&&... args) {
     });
 }
 
-void partial_shuffle::generate(ndview<size_t, 1>& result_array, size_t top) {
+void partial_fisher_yates_shuffle(ndview<size_t, 1>& result_array, size_t top) {
     daal::algorithms::engines::EnginePtr engine =
         daal::algorithms::engines::mt19937::Batch<>::create(777);
     ONEDAL_ASSERT(engine.get() != nullptr);
@@ -62,7 +62,7 @@ void partial_shuffle::generate(ndview<size_t, 1>& result_array, size_t top) {
         k++;
     }
     ONEDAL_ASSERT(k == count);
-};
+}
 
 #endif
 

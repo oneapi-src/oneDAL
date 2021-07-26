@@ -83,7 +83,7 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
             dal::detail::integral_cast<std::uint64_t>(sizeof(std::int32_t)));
 
         auto indices = pr::ndarray<size_t, 1>::empty(queue, cluster_count);
-        pr::partial_shuffle{}.generate(indices, row_count);
+        partial_fisher_yates_shuffle(indices, row_count);
         auto indices_ptr = indices.get_data();
 
         const std::int64_t required_local_size = bk::device_max_wg_size(queue);
