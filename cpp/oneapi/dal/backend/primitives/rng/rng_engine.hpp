@@ -22,43 +22,39 @@
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 
-namespace oneapi::dal::decision_forest::backend {
+namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
-
-template <typename Integer, typename Size = std::uint64_t>
+template <typename Type, typename Size = std::int64_t>
 class rng {
 public:
     rng() = default;
     ~rng() = default;
 
-    // add convertion of error into exception
-    int uniform(Size count, Integer* dst, void* state, Integer a, Integer b) {
-        // add convertion to size_t
+    int uniform(Size count, Type* dst, void* state, Type a, Type b) {
         return daal_rng_.uniform(count, dst, state, a, b);
     }
 
-    // add convertion of error into exception
     int uniform_without_replacement(Size count,
-                                    Integer* dst,
-                                    Integer* buffer,
+                                    Type* dst,
+                                    Type* buffer,
                                     void* state,
-                                    Integer a,
-                                    Integer b) {
-        // add convertion to size_t
+                                    Type a,
+                                    Type b) {
         return daal_rng_.uniformWithoutReplacement(count, dst, buffer, state, a, b);
     }
 
-    cl::sycl::event shuffle(Size count, Integer* dst, void* state) {
-        Integer idx[2];
+    template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
+    cl::sycl::event shuffle(Size count, Type* dst, void* state) {
+        Type idx[2];
 
         for (Size i = 0; i < count; ++i) {
             daal_rng_.uniform(2,
                               idx,
                               state,
                               0,
-                              count); //TODO add processing of error returned by uniform
+                              count);
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
 
@@ -67,25 +63,33 @@ public:
 
 private:
     sycl::queue queue_;
-    daal::internal::RNGs<Integer, daal::sse2> daal_rng_;
+    daal::internal::RNGs<Type, daal::sse2> daal_rng_;
 };
 
 class engine {
 public:
     engine() : engine_(daal::algorithms::engines::mt2203::Batch<>::create()) {
         impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
-        ONEDAL_ASSERT(impl_ != nullptr);
+        if(!impl_) {
+            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
+        }
     }
+
     explicit engine(const daal::algorithms::engines::EnginePtr& eng) : engine_(eng) {
-        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
-        ONEDAL_ASSERT(impl_ != nullptr);
+        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
+        if(!impl_) {
+            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
+        }
     }
+
     virtual ~engine() = default;
 
     engine& operator=(const daal::algorithms::engines::EnginePtr& eng) {
         engine_ = eng;
-        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
-        ONEDAL_ASSERT(impl_ != nullptr);
+        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
+        if(!impl_) {
+            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
+        }
 
         return *this;
     }
@@ -99,31 +103,7 @@ private:
     daal::algorithms::engines::internal::BatchBaseImpl* impl_;
 };
 
-class engine_impl {
-public:
-    engine_impl() {}
-    explicit engine_impl(const daal::algorithms::engines::EnginePtr& eng) {
-        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
-        ONEDAL_ASSERT(impl_ != nullptr);
-    }
-    virtual ~engine_impl() = default;
-
-    engine_impl& operator=(const daal::algorithms::engines::EnginePtr& eng) {
-        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
-        ONEDAL_ASSERT(impl_ != nullptr);
-
-        return *this;
-    }
-
-    void* get_state() const {
-        return impl_->getState();
-    }
-
-private:
-    daal::algorithms::engines::internal::BatchBaseImpl* impl_;
-};
-
-template <typename Size = std::uint64_t>
+template <typename Size = std::int64_t>
 class engine_collection {
 public:
     engine_collection(Size count)
@@ -131,39 +111,38 @@ public:
               engine_(daal::algorithms::engines::mt2203::Batch<>::create()),
               params_(count),
               technique_(daal::algorithms::engines::internal::family),
-              engines_(count) {}
+              engine_list_(count) {}
 
     template <typename Op>
-    dal::array<engine_impl> operator()(Op&& op) {
+    std::vector<engine> operator()(Op&& op) {
         daal::services::Status status;
         for (Size i = 0; i < count_; i++) {
             op(i, params_.nSkip[i]);
         }
         select_parallelization_technique(technique_);
-        daal::algorithms::engines::internal::EnginesCollection<daal::sse2> enginesCollection(
+        daal::algorithms::engines::internal::EnginesCollection<daal::sse2> engine_collection(
             engine_,
             technique_,
             params_,
-            engines_,
+            engine_list_,
             &status);
         if (!status) {
-            //throw;
+            dal::backend::interop::status_to_exception(status);
         }
 
-        dal::array<engine_impl> arr = dal::array<engine_impl>::empty(count_);
-        engine_impl* arr_data = arr.get_mutable_data();
+        std::vector<engine> arr_data(count_);
         for (Size i = 0; i < count_; i++) {
-            if (arr_data)
-                arr_data[i] = engines_[i];
+            arr_data[i] = engine_list_[i];
         }
 
-        return arr;
+        //copy elision
+        return arr_data;
     }
 
 private:
     void select_parallelization_technique(
         daal::algorithms::engines::internal::ParallelizationTechnique& technique) {
-        auto engineImpl =
+        auto daal_engine_impl =
             dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
 
         daal::algorithms::engines::internal::ParallelizationTechnique techniques[] = {
@@ -173,12 +152,13 @@ private:
         };
 
         for (auto& techn : techniques) {
-            if (engineImpl->hasSupport(techn)) {
+            if (daal_engine_impl->hasSupport(techn)) {
                 technique = techn;
                 return;
             }
         }
-        // throw exception;
+
+        throw domain_error(dal::detail::error_messages::rng_engine_does_not_support_parallelization_techniques());
     }
 
 private:
@@ -186,9 +166,7 @@ private:
     daal::algorithms::engines::EnginePtr engine_;
     daal::algorithms::engines::internal::Params<daal::sse2> params_;
     daal::algorithms::engines::internal::ParallelizationTechnique technique_;
-    daal::services::internal::TArray<daal::algorithms::engines::EnginePtr, daal::sse2> engines_;
+    daal::services::internal::TArray<daal::algorithms::engines::EnginePtr, daal::sse2> engine_list_;
 };
 
-#endif
-
-} // namespace oneapi::dal::decision_forest::backend
+} // oneapi::dal::backend::primitives

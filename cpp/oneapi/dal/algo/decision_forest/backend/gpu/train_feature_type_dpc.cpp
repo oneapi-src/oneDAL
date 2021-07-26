@@ -216,7 +216,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     auto cum_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
     auto cum_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
 
-    comm_.allreduce_add_int(&local_bin_count, &cum_bin_count, 1).wait();
+    comm_.allreduce(&local_bin_count, &cum_bin_count, 1).wait();
 
     std::int64_t lbc_64 = static_cast<std::int64_t>(local_bin_count);
     comm_

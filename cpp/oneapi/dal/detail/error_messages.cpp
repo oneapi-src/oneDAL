@@ -98,6 +98,11 @@ MSG(invalid_range_of_rows, "Invalid range of rows")
 MSG(invalid_range_of_columns, "Invalid range of columns")
 MSG(column_index_out_of_range, "Column index out of range")
 
+/* RNG */
+MSG(rng_engine_does_not_support_parallelization_techniques,
+    "Random number generation engine doesn't support parallelization techniques")
+MSG(rng_engine_is_not_supported, "Random number generation engine isn't supported")
+
 /* Graphs */
 MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count,
     "Vertex index is out of range, expect index in [0, vertex_count)")

@@ -12,6 +12,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo:decision_tree",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:sort",
+        "@onedal//cpp/oneapi/dal/backend/primitives:rng",
     ],
     extra_deps = [
         "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:kernel",

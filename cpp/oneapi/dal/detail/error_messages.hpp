@@ -123,6 +123,10 @@ public:
     MSG(invalid_range_of_columns);
     MSG(column_index_out_of_range);
 
+    /* RNG */
+    MSG(rng_engine_does_not_support_parallelization_techniques);
+    MSG(rng_engine_is_not_supported);
+
     /* Graphs */
     MSG(vertex_index_out_of_range_expect_from_zero_to_vertex_count);
     MSG(negative_vertex_id);
