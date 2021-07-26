@@ -448,6 +448,34 @@ TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
     check_if_all_equal(x, c);
 }
 
+TEST_M(ndarray_test, "slice ndarray", "[ndarray]") {
+    const float c = 42.2;
+
+    SECTION("1D") {
+        float data[] = { -c, c, c, -c };
+        auto x = ndarray<float, 1>::wrap(data, 4);
+
+        const auto x_slice = x.slice(1, 2);
+
+        REQUIRE(x_slice.get_shape()[0] == 2);
+        check_if_all_equal(x_slice, c);
+    }
+
+    SECTION("2D") {
+        float data[] = { -c, c,  c,  -c, //
+                         c,  c,  c,  c, //
+                         c,  c,  c,  c, //
+                         c,  -c, -c, c };
+        auto x = ndarray<float, 2>::wrap(data, { 4, 4 });
+
+        const auto x_slice = x.slice(1, 2);
+
+        REQUIRE(x_slice.get_shape()[0] == 2);
+        REQUIRE(x_slice.get_shape()[1] == 4);
+        check_if_all_equal(x_slice, c);
+    }
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 TEST("can allocate empty ndarray with queue", "[ndarray]") {
@@ -550,6 +578,39 @@ TEST_M(ndarray_test, "can be flattened with device usm", "[ndarray]") {
     REQUIRE(raw_arr_host.get_count() == x.get_count());
     for (std::int64_t i = 0; i < x.get_count(); ++i) {
         REQUIRE(raw_arr_host[i] == 1.0f);
+    }
+}
+
+TEST_M(ndarray_test, "split ndarray", "[ndarray]") {
+    const float c = 42.2;
+
+    SECTION("1D") {
+        float data[] = { c, c, -c, -c };
+        auto x = ndarray<float, 1>::wrap(data, 4);
+
+        const auto x_parts = x.split(2);
+
+        REQUIRE(x_parts[0].get_shape()[0] == 2);
+        REQUIRE(x_parts[1].get_shape()[0] == 2);
+        check_if_all_equal(x_parts[0], c);
+        check_if_all_equal(x_parts[1], -c);
+    }
+
+    SECTION("2D") {
+        float data[] = { c,  c,  c,  c, //
+                         c,  c,  c,  c, //
+                         -c, -c, -c, -c, //
+                         -c, -c, -c, -c };
+        auto x = ndarray<float, 2>::wrap(data, { 4, 4 });
+
+        const auto x_parts = x.split(2);
+
+        REQUIRE(x_parts[0].get_shape()[0] == 2);
+        REQUIRE(x_parts[0].get_shape()[1] == 4);
+        REQUIRE(x_parts[1].get_shape()[0] == 2);
+        REQUIRE(x_parts[1].get_shape()[1] == 4);
+        check_if_all_equal(x_parts[0], c);
+        check_if_all_equal(x_parts[1], -c);
     }
 }
 

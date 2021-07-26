@@ -27,7 +27,7 @@ static auto fill_candidate_indices_and_distances(sycl::queue& queue,
                                                  pr::ndview<Float, 1>& candidate_distances,
                                                  const bk::event_vector& deps = {}) -> sycl::event {
     ONEDAL_ASSERT(candidate_count > 0);
-    ONEDAL_ASSERT(closest_distances.get_dimension(0) > candidate_count);
+    ONEDAL_ASSERT(closest_distances.get_dimension(0) >= candidate_count);
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(candidate_indices.get_dimension(0) == candidate_indices.get_dimension(0));
     ONEDAL_ASSERT(candidate_indices.get_dimension(0) >= candidate_count);
@@ -212,8 +212,8 @@ static auto reduce_candidates(sycl::queue& queue,
 
     ONEDAL_ASSERT(candidate_count > 0);
     ONEDAL_ASSERT(column_count > 0);
-    ONEDAL_ASSERT(candidates.get_dimension(0) >= candidate_count);
-    ONEDAL_ASSERT(distances.get_dimension(0) >= candidate_count);
+    ONEDAL_ASSERT(candidates.get_dimension(0) == candidate_count);
+    ONEDAL_ASSERT(distances.get_dimension(0) == candidate_count);
 
     const std::int64_t all_candidate_count =
         dal::detail::check_mul_overflow(comm.get_rank_count(), candidate_count);
@@ -257,7 +257,7 @@ static auto reduce_candidates(sycl::queue& queue,
                           });
 
         if (candidate_count >= 2) {
-            ONEDAL_ASSERT(host_all_distances_ptr[host_all_indices_ptr[0]] >
+            ONEDAL_ASSERT(host_all_distances_ptr[host_all_indices_ptr[0]] >=
                           host_all_distances_ptr[host_all_indices_ptr[1]]);
         }
     }
@@ -291,12 +291,12 @@ static auto reduce_candidates(sycl::queue& queue,
 }
 
 template <typename Float>
-auto gather_scatter_candidates(sycl::queue& queue,
-                               bk::spmd_communicator& comm,
-                               const pr::ndview<Float, 2>& data,
-                               const centroid_candidates<Float>& candidates,
-                               pr::ndview<Float, 2>& centroids,
-                               const bk::event_vector& deps) -> sycl::event {
+static auto gather_scatter_candidates(sycl::queue& queue,
+                                      bk::spmd_communicator& comm,
+                                      const pr::ndview<Float, 2>& data,
+                                      const centroid_candidates<Float>& candidates,
+                                      pr::ndview<Float, 2>& centroids,
+                                      const bk::event_vector& deps) -> sycl::event {
     const std::int64_t column_count = data.get_dimension(1);
     const std::int64_t candidate_count = candidates.get_candidate_count();
 
@@ -315,11 +315,17 @@ auto gather_scatter_candidates(sycl::queue& queue,
                                           gathered_candidates,
                                           { gather_event });
 
-    return scatter_candidates(queue,
-                              candidates.get_empty_cluster_indices(),
-                              gathered_candidates,
-                              centroids,
-                              { reduce_event });
+    auto scatter_event = scatter_candidates(queue,
+                                            candidates.get_empty_cluster_indices(),
+                                            gathered_candidates,
+                                            centroids,
+                                            { reduce_event });
+
+    // We need to wait as `gathered_candidates` will be deallocated
+    // as we leave scope of the function
+    scatter_event.wait_and_throw();
+
+    return scatter_event;
 }
 
 template <typename Float>
@@ -329,7 +335,7 @@ auto find_candidates(sycl::queue& queue,
                      const pr::ndarray<std::int32_t, 1>& counters,
                      const bk::event_vector& deps)
     -> std::tuple<centroid_candidates<Float>, sycl::event> {
-    ONEDAL_ASSERT(closest_distances.get_dimension(0) > candidate_count);
+    ONEDAL_ASSERT(closest_distances.get_dimension(0) >= candidate_count);
     ONEDAL_ASSERT(closest_distances.get_dimension(1) == 1);
     ONEDAL_ASSERT(counters.get_dimension(0) >= candidate_count);
 

@@ -44,7 +44,8 @@ public:
         // Data table is distributed across the ranks, but
         // initial centroids are common for all the ranks
 
-        const auto split_data = te::split_table_by_rows<float_t>(input.get_data(), split_count);
+        const auto split_data =
+            te::split_table_by_rows<float_t>(this->get_policy(), input.get_data(), split_count);
         const auto common_centroids = input.get_initial_centroids();
 
         std::vector<train_input_t> split_input;
@@ -82,49 +83,109 @@ private:
 };
 
 TEMPLATE_LIST_TEST_M(kmeans_distr_test,
-                     "distributed kmeans on gold data",
+                     "distributed kmeans empty clusters test",
+                     "[distr]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    // this->set_rank_count(GENERATE(1, 2, 4));
+    this->set_rank_count(4);
+    this->check_empty_clusters();
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+                     "distributed kmeans smoke train/infer test",
+                     "[distr]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->set_rank_count(GENERATE(1, 2));
+    this->check_on_smoke_data();
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+                     "distributed kmeans train/infer on gold data",
                      "[distr]",
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
     this->set_rank_count(GENERATE(1, 2, 4, 8));
-    this->checks_on_gold_data();
+    this->check_on_gold_data();
 }
 
-// TEMPLATE_LIST_TEST_M(kmeans_distr_test,
-//                      "distributed kmeans empty clusters test",
-//                      "[distr]",
-//                      kmeans_types) {
-//     SKIP_IF(this->not_float64_friendly());
-//     this->set_rank_count(GENERATE(1, 2));
-//     this->check_empty_clusters();
-// }
+TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+                     "distributed kmeans block test",
+                     "[distr][block][nightly]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+    this->set_rank_count(GENERATE(1, 8));
+    this->check_on_large_data_with_one_cluster();
+}
 
-// const std::int64_t thread_count = GENERATE(1, 2, 4, 8, 16);
-// auto thread_comm = te::thread_communicator{ thread_count };
-// auto host_spmd_policy = dal::detail::spmd_policy{ dal::detail::host_policy{}, thread_comm };
+TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+                     "distributed higgs: samples=1M, iters=3",
+                     "[kmeans][distr][higgs][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
 
-// const auto data_df = gold_dataset::get_data();
-// const auto data_df_chunks = data_df.split(thread_count);
-// const auto initial_centroids_df = gold_dataset::get_initial_centroids();
+    this->set_rank_count(10);
+    const std::int64_t iters = 3;
+    const std::string higgs_path = "workloads/higgs/dataset/higgs_1m_test.csv";
 
-// thread_comm.execute([=](std::int64_t rank) {
-//     const std::int64_t cluster_count = 3;
+    SECTION("clusters=10") {
+        this->test_on_dataset(higgs_path, 10, iters, 3.1997724684, 14717484.0);
+    }
 
-//     const auto kmeans_desc = kmeans::descriptor<float>{ cluster_count }
-//                                  .set_max_iteration_count(100)
-//                                  .set_accuracy_threshold(0.0001);
+    SECTION("clusters=100") {
+        this->test_on_dataset(higgs_path, 100, iters, 2.7450205195, 10704352.0);
+    }
 
-//     const auto table_id = te::table_id::homogen<float>();
-//     const auto data = data_df_chunks[rank].get_table(table_id);
-//     const auto initial_centroids = initial_centroids_df.get_table(table_id);
+    SECTION("cluster=250") {
+        this->test_on_dataset(higgs_path, 250, iters, 2.5923397174, 9335216.0);
+    }
+}
 
-//     const auto result = dal::train(host_spmd_policy, kmeans_desc, data, initial_centroids);
+TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+                     "distributed susy: samples=0.5M, iters=10",
+                     "[kmeans][nightly][distr][susy][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
 
-//     if (rank == 0) {
-//         const auto centroids = result.get_model().get_centroids();
-//         const auto C = la::matrix<float>::wrap(centroids);
-//         std::cout << C << std::endl;
-//     }
-// });
+    this->set_rank_count(10);
+    const std::int64_t iters = 10;
+    const std::string susy_path = "workloads/susy/dataset/susy_test.csv";
+
+    SECTION("clusters=10") {
+        this->test_on_dataset(susy_path, 10, iters, 1.7730860782, 3183696.0);
+    }
+
+    SECTION("clusters=100") {
+        this->test_on_dataset(susy_path, 100, iters, 1.9384844916, 1757022.625);
+    }
+
+    SECTION("cluster=250") {
+        this->test_on_dataset(susy_path, 250, iters, 1.8950113604, 1400958.5);
+    }
+}
+
+TEMPLATE_LIST_TEST_M(kmeans_distr_test,
+                     "distributed epsilon: samples=80K, iters=2",
+                     "[kmeans][nightly][distr][epsilon][external-dataset]",
+                     kmeans_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    this->set_rank_count(10);
+    const std::int64_t iters = 2;
+    const std::string epsilon_path = "workloads/epsilon/dataset/epsilon_80k_train.csv";
+
+    SECTION("clusters=512") {
+        this->test_on_dataset(epsilon_path, 512, iters, 6.9367580565, 50128.640625, 1.0e-3);
+    }
+
+    SECTION("clusters=1024") {
+        this->test_on_dataset(epsilon_path, 1024, iters, 5.59003873, 49518.75, 1.0e-3);
+    }
+
+    SECTION("cluster=2048") {
+        this->test_on_dataset(epsilon_path, 2048, iters, 4.3202752143, 48437.6015625, 1.0e-3);
+    }
+}
 
 } // namespace oneapi::dal::kmeans::test

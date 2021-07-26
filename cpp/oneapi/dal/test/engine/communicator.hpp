@@ -315,9 +315,22 @@ public:
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
         ONEDAL_ASSERT(count > 0);
+        dal::array<byte_t> tmp_send_buffer;
 
         const std::int64_t rank = ctx_.get_this_thread_rank();
-        send_buffers_[rank] = buffer_info{ send_buf, count };
+        if (data_blocks_has_intersection(send_buf, recv_buf, count)) {
+            // If send buffer is the same as recv buffer, the allreduce algorithm runs into
+            // data races problem, so will need to create temporal copy of the send buffer
+            tmp_send_buffer = dal::array<byte_t>::empty(count);
+            dal::detail::memcpy(dal::detail::default_host_policy{},
+                                tmp_send_buffer.get_mutable_data(),
+                                send_buf,
+                                tmp_send_buffer.get_size());
+            send_buffers_[rank] = buffer_info{ tmp_send_buffer.get_data(), count };
+        }
+        else {
+            send_buffers_[rank] = buffer_info{ send_buf, count };
+        }
 
         barrier_();
 
@@ -332,6 +345,7 @@ public:
 
         fill_with_zeros(recv_buf, count, dtype);
         for (const auto& info : send_buffers_) {
+            ONEDAL_ASSERT(info.send_buf != recv_buf);
             reduce(info.send_buf, recv_buf, count, dtype, op);
         }
 
@@ -362,6 +376,14 @@ private:
 
     template <typename T>
     static void fill_with_zeros_impl(byte_t* dst, std::int64_t count);
+
+    static bool data_blocks_has_intersection(const byte_t* x, const byte_t* y, std::int64_t count) {
+        const std::uintptr_t x_address = std::uintptr_t(x);
+        const std::uintptr_t y_address = std::uintptr_t(y);
+        const std::uintptr_t a = std::min(x_address, y_address);
+        const std::uintptr_t b = std::max(x_address, y_address);
+        return a + count > b;
+    }
 };
 
 class thread_communicator_allgather {
@@ -590,11 +612,11 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    virtual request_t* allgather(sycl::queue& q,
-                                 const byte_t* send_buf,
-                                 std::int64_t send_count,
-                                 byte_t* recv_buf,
-                                 std::int64_t recv_count) override {
+    request_t* allgather(sycl::queue& q,
+                         const byte_t* send_buf,
+                         std::int64_t send_count,
+                         byte_t* recv_buf,
+                         std::int64_t recv_count) override {
         check_if_pointer_matches_queue(q, send_buf);
         check_if_pointer_matches_queue(q, recv_buf);
 

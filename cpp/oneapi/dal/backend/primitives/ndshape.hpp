@@ -93,6 +93,10 @@ public:
         return !(*this == other);
     }
 
+    const ndindex<axis_count>& get_index() const {
+        return dimensions_;
+    }
+
 private:
     ndindex<axis_count> dimensions_;
 };

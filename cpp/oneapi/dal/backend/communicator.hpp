@@ -174,7 +174,7 @@ class spmd_communicator {
 public:
     spmd_communicator() : comm_(fake_spmd_communicator{}), is_distributed_(false) {}
 
-    explicit spmd_communicator(const dal::detail::spmd_communicator& comm)
+    spmd_communicator(const dal::detail::spmd_communicator& comm)
             : comm_(comm),
               is_distributed_(true) {}
 

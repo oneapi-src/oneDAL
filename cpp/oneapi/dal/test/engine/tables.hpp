@@ -95,8 +95,20 @@ inline void check_if_tables_equal_approx(const table& actual,
     check_if_table_content_equal_approx<Float>(actual, reference, tolerance);
 }
 
-template <typename Float>
-inline std::vector<table> split_table_by_rows(const table& t, std::int64_t split_count) {
+template <typename T>
+inline array<T> get_table_block(host_test_policy&, const table& t, const range& row_range) {
+    return row_accessor<const T>{ t }.pull(row_range);
+}
+
+template <typename T>
+inline array<T> get_table_block(device_test_policy& p, const table& t, const range& row_range) {
+    return row_accessor<const T>{ t }.pull(p.get_queue(), row_range, sycl::usm::alloc::device);
+}
+
+template <typename Float, typename TestPolicy>
+inline std::vector<table> split_table_by_rows(TestPolicy& policy,
+                                              const table& t,
+                                              std::int64_t split_count) {
     ONEDAL_ASSERT(split_count > 0);
     ONEDAL_ASSERT(split_count <= t.get_row_count());
 
@@ -113,7 +125,7 @@ inline std::vector<table> split_table_by_rows(const table& t, std::int64_t split
         const std::int64_t block_size = block_size_regular + tail;
 
         const auto row_range = range{ row_offset, row_offset + block_size };
-        const auto block = row_accessor<const Float>{ t }.pull(row_range);
+        const auto block = get_table_block<Float>(policy, t, row_range);
         result[i] = homogen_table::wrap(block, block_size, column_count);
         row_offset += block_size;
     }

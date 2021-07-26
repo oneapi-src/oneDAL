@@ -127,7 +127,7 @@ public:
                            ref_objective_function);
     }
 
-    void checks_on_gold_data() {
+    void check_on_gold_data() {
         const auto table_id = te::table_id::homogen<float_t>();
         const auto data = gold_dataset::get_data().get_table(table_id);
         const auto initial_centroids = gold_dataset::get_initial_centroids().get_table(table_id);
@@ -190,6 +190,114 @@ public:
         const auto y = homogen_table::wrap(labels, 10, 1);
 
         this->exact_checks(x, c_init, c_final, y, 3, 1, 0.0);
+    }
+
+    void check_on_smoke_data() {
+        const float_t data[] = { 1.0,  1.0, //
+                                 2.0,  2.0, //
+                                 1.0,  2.0, //
+                                 2.0,  1.0, //
+                                 -1.0, -1.0, //
+                                 -1.0, -2.0, //
+                                 -2.0, -1.0, //
+                                 -2.0, -2.0 };
+        const auto x = homogen_table::wrap(data, 8, 2);
+
+        const float_t final_centroids[] = { -1.5, -1.5, 1.5, 1.5 };
+        const auto c_final = homogen_table::wrap(final_centroids, 2, 2);
+
+        const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
+        const auto y = homogen_table::wrap(labels, 8, 1);
+
+        const auto model = this->train_with_initialization_checks(x, c_final, y, 2, 4, 0.001);
+
+        const float_t data_infer[] = { 1.0,  1.0, //
+                                       0.0,  1.0, //
+                                       1.0,  0.0, //
+                                       2.0,  2.0, //
+                                       7.0,  0.0, //
+                                       -1.0, 0.0, //
+                                       -5.0, -5.0, //
+                                       -5.0, 0.0, //
+                                       -2.0, 1.0 };
+        const auto x2 = homogen_table::wrap(data_infer, 9, 2);
+        float_t expected_obj_function = 4;
+        this->infer_checks(x, model, y, expected_obj_function);
+    }
+
+    void check_on_large_data_with_one_cluster() {
+        constexpr std::int64_t row_count = 1024 * 1024;
+        constexpr std::int64_t column_count = 1024 * 2 / sizeof(float_t);
+        constexpr std::int64_t cluster_count = 1;
+        constexpr std::int64_t max_iteration_count = 1;
+
+        const auto x_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
+        const table x_table =
+            x_dataframe.get_table(this->get_policy(), this->get_homogen_table_id());
+
+        const auto first_row = row_accessor<const float_t>(x_table).pull({ 0, 1 });
+        const auto c_init = homogen_table::wrap(first_row, 1, column_count);
+
+        auto labels = array<std::int32_t>::zeros(row_count);
+        const auto y = homogen_table::wrap(labels, row_count, 1);
+
+        auto stat = te::compute_basic_statistics<float_t>(x_dataframe);
+        const auto c_final = homogen_table::wrap(stat.get_means(), 1, column_count);
+        auto variance = stat.get_variances().get_data();
+        double obj_function = 0.0;
+        for (std::int64_t i = 0; i < column_count; ++i) {
+            obj_function += variance[i];
+        }
+        obj_function *= column_count - 1;
+
+        this->exact_checks(x_table,
+                           c_init,
+                           c_final,
+                           y,
+                           cluster_count,
+                           max_iteration_count,
+                           obj_function);
+    }
+
+    void partial_centroids_stress_test() {
+        constexpr std::int64_t row_count = 8 * 1024;
+        constexpr std::int64_t column_count = 2 * 1024;
+        constexpr std::int64_t cluster_count = 8 * 1024;
+
+        const auto x_dataframe = GENERATE_DATAFRAME(
+            te::dataframe_builder{ row_count, column_count }.fill_uniform(-0.2, 0.5));
+        const table x = x_dataframe.get_table(this->get_policy(), this->get_homogen_table_id());
+
+        const auto first_row = row_accessor<const float_t>(x).pull({ 0, 1 });
+        const auto c_init = homogen_table::wrap(first_row.get_data(), 1, column_count);
+
+        auto labels = array<std::int32_t>::zeros(1 * cluster_count);
+        auto label_ptr = labels.get_mutable_data();
+        auto first_label = &label_ptr[0];
+        std::iota(first_label, first_label + row_count, std::int32_t(0));
+        const auto y = homogen_table::wrap(labels.get_data(), row_count, 1);
+
+        this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
+    }
+
+    void test_on_dataset(const std::string& dataset_path,
+                         std::int64_t cluster_count,
+                         std::int64_t max_iteration_count,
+                         float_t expected_dbi,
+                         float_t expected_obj,
+                         float_t obj_ref_tol = 1.0e-4,
+                         float_t dbi_ref_tol = 1.0e-4) {
+        const te::dataframe data = te::dataframe_builder{ dataset_path }.build();
+        const table x = data.get_table(this->get_homogen_table_id());
+        this->dbi_deterministic_checks(x,
+                                       cluster_count,
+                                       max_iteration_count,
+                                       0.0,
+                                       expected_dbi,
+                                       expected_obj,
+                                       obj_ref_tol,
+                                       dbi_ref_tol);
     }
 
     void dbi_deterministic_checks(const table& data,

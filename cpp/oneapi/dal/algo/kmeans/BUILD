@@ -1,6 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 load("@onedal//dev/bazel:dal.bzl",
     "dal_module",
+    "dal_test_module",
     "dal_test_suite",
 )
 
@@ -35,6 +36,9 @@ dal_test_suite(
     framework = "catch2",
     private = True,
     compile_as = [ "dpc++" ],
+    hdrs = glob([
+        "backend/gpu/test/*.hpp",
+    ]),
     srcs = glob([
         "backend/gpu/test/*.cpp",
     ], exclude=[
