@@ -50,11 +50,7 @@ public:
         Type idx[2];
 
         for (Size i = 0; i < count; ++i) {
-            daal_rng_.uniform(2,
-                              idx,
-                              state,
-                              0,
-                              count);
+            daal_rng_.uniform(2, idx, state, 0, count);
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
 
@@ -70,14 +66,14 @@ class engine {
 public:
     engine() : engine_(daal::algorithms::engines::mt2203::Batch<>::create()) {
         impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
-        if(!impl_) {
+        if (!impl_) {
             throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
         }
     }
 
     explicit engine(const daal::algorithms::engines::EnginePtr& eng) : engine_(eng) {
         impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
-        if(!impl_) {
+        if (!impl_) {
             throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
         }
     }
@@ -87,7 +83,7 @@ public:
     engine& operator=(const daal::algorithms::engines::EnginePtr& eng) {
         engine_ = eng;
         impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
-        if(!impl_) {
+        if (!impl_) {
             throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
         }
 
@@ -158,7 +154,8 @@ private:
             }
         }
 
-        throw domain_error(dal::detail::error_messages::rng_engine_does_not_support_parallelization_techniques());
+        throw domain_error(
+            dal::detail::error_messages::rng_engine_does_not_support_parallelization_techniques());
     }
 
 private:
@@ -169,4 +166,4 @@ private:
     daal::services::internal::TArray<daal::algorithms::engines::EnginePtr, daal::sse2> engine_list_;
 };
 
-} // oneapi::dal::backend::primitives
+} // namespace oneapi::dal::backend::primitives
