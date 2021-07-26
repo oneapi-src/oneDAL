@@ -20,7 +20,8 @@
 
 namespace oneapi::dal::dbscan::backend {
 
-inline array<std::int32_t> fill_core_flags(const table& core_observation_indices, std::int64_t row_count) {
+inline array<std::int32_t> fill_core_flags(const table& core_observation_indices,
+                                           std::int64_t row_count) {
     array<std::int32_t> arr_core_flags = array<std::int32_t>::full(row_count * 1, 0);
     if (core_observation_indices.get_row_count() > 0) {
         auto index_block = row_accessor<const std::int32_t>(core_observation_indices).pull();
