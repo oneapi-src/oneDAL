@@ -1,6 +1,5 @@
-/* file: svm_train_thunder_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,19 +14,22 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of SVM training algorithm container.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/svm/svm_train_batch_container.h"
+#include "oneapi/dal/detail/common.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(svm::training::BatchContainer, batch, DAAL_FPTYPE, svm::training::thunder)
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(svm::training::internal::BatchContainer, batch, DAAL_FPTYPE, svm::training::thunder)
-} // namespace algorithms
-} // namespace daal
+namespace oneapi::dal::backend {
+
+template <typename Float>
+inline constexpr Float exp_low_threshold() {
+    static_assert(detail::is_floating_point<Float>());
+
+    // minimal double value ~ 2.3e-308, exp(-650.0) ~ 5.1e-283
+    constexpr double exp_low_double_threshold = -650.0;
+    // minimal float value ~ 1.2e-38, exp(-75.0) ~ 2.6e-33
+    constexpr float exp_low_float_threshold = -75.0;
+
+    return std::is_same_v<Float, double> ? exp_low_double_threshold : exp_low_float_threshold;
+}
+
+} // namespace oneapi::dal::backend
