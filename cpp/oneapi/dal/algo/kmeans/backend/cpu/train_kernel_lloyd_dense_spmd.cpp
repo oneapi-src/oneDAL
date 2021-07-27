@@ -374,7 +374,7 @@ static result_t train(const context_cpu& ctx, const descriptor_t& desc, const in
         comm.bcast(current_centroids);
     }
 
-    table local_labels;
+    table local_responses;
     {
         const auto daal_centroids =
             interop::convert_to_daal_homogen_table(current_centroids, cluster_count, feature_count);
@@ -390,7 +390,7 @@ static result_t train(const context_cpu& ctx, const descriptor_t& desc, const in
         run_step3_local<Float>(ctx, desc, local_step3_input, local_step3_result);
 
         // TODO: Memory must be allocated on new interfaces side
-        local_labels =
+        local_responses =
             interop::convert_from_daal_table<std::int32_t>(local_step3_result.local_assignments);
     }
 
@@ -400,7 +400,7 @@ static result_t train(const context_cpu& ctx, const descriptor_t& desc, const in
     return result_t{} //
         .set_model(model)
         .set_iteration_count(iteration_counter)
-        .set_labels(local_labels)
+        .set_responses(local_responses)
         .set_objective_function_value(current_objective);
 }
 

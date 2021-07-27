@@ -28,7 +28,6 @@
 
 namespace oneapi::dal::knn::backend {
 
-using daal::services::Status;
 using dal::backend::context_cpu;
 
 namespace daal_knn = daal::algorithms::bf_knn_classification;
@@ -41,8 +40,8 @@ template <typename Float, typename Task>
 static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                            const detail::descriptor_base<Task>& desc,
                                            const table& data,
-                                           const table& labels) {
-    using daal_model_interop_t = model_interop;
+                                           const table& responses) {
+    using model_t = model<Task>;
     const std::int64_t column_count = data.get_column_count();
 
     const auto data_use_in_model = daal_knn::doUse;
@@ -51,38 +50,34 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         data_use_in_model);
 
-    Status status;
     const auto model_ptr = daal_knn::ModelPtr(new daal_knn::Model(column_count));
-    interop::status_to_exception(status);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     model_ptr->impl()->setData<Float>(daal_data, false);
 
-    auto daal_labels = daal::data_management::NumericTablePtr();
+    auto daal_responses = daal::data_management::NumericTablePtr();
     if constexpr (!std::is_same_v<Task, task::search>) {
-        daal_labels = interop::convert_to_daal_table<Float>(labels);
-        model_ptr->impl()->setLabels<Float>(daal_labels, false);
+        daal_responses = interop::convert_to_daal_table<Float>(responses);
+        model_ptr->impl()->setLabels<Float>(daal_responses, false);
     }
 
     interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_knn_bf_kernel_t>(ctx,
                                                                daal_data.get(),
-                                                               daal_labels.get(),
+                                                               daal_responses.get(),
                                                                model_ptr.get(),
                                                                daal_parameter,
                                                                *daal_parameter.engine));
 
-    auto interop = new daal_model_interop_t(model_ptr);
-    const auto model_impl_interop = std::make_shared<model_impl<Task>>(interop);
-    return train_result<Task>().set_model(
-        dal::detail::make_private<model<Task>>(model_impl_interop));
+    const auto model_impl = std::make_shared<brute_force_model_impl<Task>>(data, responses);
+    return train_result<Task>().set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
 template <typename Float, typename Task>
 static train_result<Task> train(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>

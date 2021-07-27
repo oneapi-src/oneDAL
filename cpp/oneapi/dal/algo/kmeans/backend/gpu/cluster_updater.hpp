@@ -74,7 +74,7 @@ public:
                 pr::ndarray<Float, 2>& distance_block,
                 pr::ndarray<Float, 2>& closest_distances,
                 pr::ndarray<Float, 1>& objective_function,
-                pr::ndarray<std::int32_t, 2>& labels,
+                pr::ndarray<std::int32_t, 2>& responses,
                 const bk::event_vector& deps = {}) -> std::tuple<Float, sycl::event> {
         ONEDAL_ASSERT(data_.get_dimension(0) == row_count_);
         ONEDAL_ASSERT(data_.get_dimension(1) == column_count_);
@@ -83,8 +83,8 @@ public:
         ONEDAL_ASSERT(partial_centroids_.get_dimension(1) == column_count_);
         ONEDAL_ASSERT(counters_.get_dimension(0) == cluster_count_);
         ONEDAL_ASSERT(distance_block.get_dimension(1) == cluster_count_);
-        ONEDAL_ASSERT(labels.get_dimension(0) == row_count_);
-        ONEDAL_ASSERT(labels.get_dimension(1) == 1);
+        ONEDAL_ASSERT(responses.get_dimension(0) == row_count_);
+        ONEDAL_ASSERT(responses.get_dimension(1) == 1);
         ONEDAL_ASSERT(objective_function.get_dimension(0) == 1);
         ONEDAL_ASSERT(centroids.get_dimension(0) == cluster_count_);
         ONEDAL_ASSERT(centroids.get_dimension(1) == column_count_);
@@ -95,13 +95,13 @@ public:
             data_,
             initial_centroids_,
             block_size_in_rows,
-            labels,
+            responses,
             distance_block,
             closest_distances,
             deps);
 
         auto count_event =
-            count_clusters(queue_, labels, cluster_count_, counters_, { assign_event });
+            count_clusters(queue_, responses, cluster_count_, counters_, { assign_event });
         auto count_reduce_request = comm_.allreduce(counters_.flatten(queue_), { count_event });
 
         auto objective_function_event = kernels_fp_t::compute_objective_function( //
@@ -114,7 +114,7 @@ public:
         auto centroids_event = kernels_fp_t::partial_reduce_centroids( //
             queue_,
             data_,
-            labels,
+            responses,
             cluster_count_,
             part_count_,
             partial_centroids_,

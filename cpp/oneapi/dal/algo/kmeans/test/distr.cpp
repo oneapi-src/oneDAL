@@ -62,17 +62,17 @@ public:
     }
 
     train_result_t merge_train_result_override(const std::vector<train_result_t>& results) {
-        // Labels are distributed accross the ranks, we combine them into one table;
+        // Responses are distributed accross the ranks, we combine them into one table;
         // Model, iteration_count, objective_function_value are the same for all ranks
 
-        std::vector<table> labels;
+        std::vector<table> responses;
         for (const auto& r : results) {
-            labels.push_back(r.get_labels());
+            responses.push_back(r.get_responses());
         }
-        const auto full_labels = te::stack_tables_by_rows<float_t>(labels);
+        const auto full_responses = te::stack_tables_by_rows<float_t>(responses);
 
         return train_result_t{} //
-            .set_labels(full_labels) //
+            .set_responses(full_responses) //
             .set_model(results[0].get_model()) //
             .set_iteration_count(results[0].get_iteration_count()) //
             .set_objective_function_value(results[0].get_objective_function_value());

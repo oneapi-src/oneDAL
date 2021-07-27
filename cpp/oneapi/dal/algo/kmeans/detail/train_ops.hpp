@@ -72,10 +72,10 @@ struct train_ops {
                               const Descriptor& desc,
                               const input_t& input,
                               const result_t& result) const {
-        ONEDAL_ASSERT(result.get_labels().has_data());
-        ONEDAL_ASSERT(result.get_labels().get_column_count() == 1);
+        ONEDAL_ASSERT(result.get_responses().has_data());
+        ONEDAL_ASSERT(result.get_responses().get_column_count() == 1);
         ONEDAL_ASSERT(result.get_iteration_count() <= desc.get_max_iteration_count());
-        ONEDAL_ASSERT(result.get_labels().get_row_count() == input.get_data().get_row_count());
+        ONEDAL_ASSERT(result.get_responses().get_row_count() == input.get_data().get_row_count());
 
         // K-Means model is initialized only on root rank
         if (dal::detail::is_root_rank(policy)) {

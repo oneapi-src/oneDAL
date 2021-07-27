@@ -33,8 +33,8 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
     Float data[] = { 0.0, 5.0, 0.0, 0.0, 0.0, 1.0, 1.0, 4.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.0, 1.0 };
     const auto x = homogen_table::wrap(data, 3, 5);
 
-    Float labels[] = { 0, 1, 2 };
-    const auto y = homogen_table::wrap(labels, 3, 1);
+    Float responses[] = { 0, 1, 2 };
+    const auto y = homogen_table::wrap(responses, 3, 1);
     this->exact_checks(x, x, x, y, 3, 2, 0.0, 0.0, false);
 }
 
@@ -52,8 +52,8 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test, "kmeans relocation test", "[kmeans][batc
     Float final_centroids[] = { 0.25, 0, 0.75, 1 };
     const auto c_final = homogen_table::wrap(final_centroids, 2, 2);
 
-    std::int64_t labels[] = { 0, 0, 1, 1 };
-    const auto y = homogen_table::wrap(labels, 4, 1);
+    std::int64_t responses[] = { 0, 0, 1, 1 };
+    const auto y = homogen_table::wrap(responses, 4, 1);
 
     Float expected_obj_function = 0.25;
     std::int64_t expected_n_iters = 4;
@@ -91,7 +91,7 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      kmeans_types) {
     SKIP_IF(this->not_float64_friendly());
     this->check_on_gold_data();
-}
+} // namespace oneapi::dal::kmeans::test
 
 TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans block test",

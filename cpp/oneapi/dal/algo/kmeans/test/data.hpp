@@ -163,7 +163,7 @@ public:
         return te::dataframe{ data.data(), cluster_count, column_count };
     }
 
-    static te::dataframe get_expected_labels() {
+    static te::dataframe get_expected_responses() {
         static std::array<float, row_count> data = {
             1, 0, 2, 2, 1, 2, 0, 0, 1, 0, 1, 1, 2, 2, 2, 2, 2, 1, 1, 0, 2, 2, 2, 2, 0,
             2, 1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 1, 2, 1, 1, 0, 2, 2, 1, 2, 2, 0, 1, 2, 1,

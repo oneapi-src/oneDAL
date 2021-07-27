@@ -16,47 +16,49 @@
 
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 
-namespace oneapi::dal::preview {
-namespace subgraph_isomorphism {
+namespace oneapi::dal::preview::subgraph_isomorphism::detail {
 
-class detail::descriptor_impl : public base {
+template <typename Task>
+class descriptor_impl : public base {
 public:
     bool semantic_match = false;
     std::int64_t max_match_count = 0;
     kind _kind = kind::induced;
 };
 
-using detail::descriptor_impl;
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-descriptor_base::descriptor_base() : impl_(new descriptor_impl{}) {}
-
-kind descriptor_base::get_kind() const {
+template <typename Task>
+kind descriptor_base<Task>::get_kind() const {
     return impl_->_kind;
 }
 
-bool descriptor_base::get_semantic_match() const {
+template <typename Task>
+bool descriptor_base<Task>::get_semantic_match() const {
     return impl_->semantic_match;
 }
 
-std::int64_t descriptor_base::get_max_match_count() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_max_match_count() const {
     return impl_->max_match_count;
 }
 
-void descriptor_base::set_kind_impl(kind value) {
-    impl_->_kind = value;
+template <typename Task>
+void descriptor_base<Task>::set_kind(kind kind) {
+    impl_->_kind = kind;
 }
 
-void descriptor_base::set_semantic_match_impl(bool semantic_match) {
+template <typename Task>
+void descriptor_base<Task>::set_semantic_match(bool semantic_match) {
     impl_->semantic_match = semantic_match;
 }
 
-void descriptor_base::set_max_match_count_impl(std::int64_t max_match_count) {
-    if (max_match_count > 0) {
-        throw unimplemented(
-            dal::detail::error_messages::non_zero_max_match_count_is_not_supported());
-    }
+template <typename Task>
+void descriptor_base<Task>::set_max_match_count(std::int64_t max_match_count) {
     impl_->max_match_count = max_match_count;
 }
 
-} // namespace subgraph_isomorphism
-} // namespace oneapi::dal::preview
+template class ONEDAL_EXPORT descriptor_base<task::compute>;
+
+} // namespace oneapi::dal::preview::subgraph_isomorphism::detail

@@ -48,7 +48,7 @@ template <typename Float>
 static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
-                                 const table& labels) {
+                                 const table& responses) {
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
@@ -56,12 +56,12 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const int64_t column_count = data.get_column_count();
 
     const auto daal_data = interop::convert_to_daal_table(queue, data);
-    const auto daal_labels = interop::convert_to_daal_table(queue, labels);
+    const auto daal_responses = interop::convert_to_daal_table(queue, responses);
 
     /* init param for daal kernel */
     auto daal_input = daal_df_reg_train::Input();
     daal_input.set(daal_df_reg_train::data, daal_data);
-    daal_input.set(daal_df_reg_train::dependentVariable, daal_labels);
+    daal_input.set(daal_df_reg_train::dependentVariable, daal_responses);
 
     auto daal_parameter = daal_df_reg_train::Parameter();
     daal_parameter.nTrees = dal::detail::integral_cast<std::size_t>(desc.get_tree_count());
@@ -130,7 +130,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     interop::status_to_exception(
         reg_hist_kernel_t<Float>().compute(daal::services::internal::hostApp(daal_input),
                                            daal_data.get(),
-                                           daal_labels.get(),
+                                           daal_responses.get(),
                                            *mptr,
                                            daal_result,
                                            daal_parameter));
@@ -158,7 +158,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
 
 template <typename Float>
 static result_t train(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_labels());
+    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>

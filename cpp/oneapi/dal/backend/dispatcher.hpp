@@ -138,7 +138,7 @@ struct kernel_dispatcher<local_cpu_kernel<K1>, spmd_cpu_kernel<K2>> {
 };
 
 inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension test) {
-    return ((std::uint64_t)mask & (std::uint64_t)test) > 0;
+    return mask >= test;
 }
 
 template <typename Op>

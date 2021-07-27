@@ -22,8 +22,7 @@
 #ifndef __ZSCORE_BASE_H__
 #define __ZSCORE_BASE_H__
 
-#include "src/algorithms/normalization/zscore/inner/zscore_v1.h"
-#include "src/algorithms/normalization/zscore/inner/zscore_v2.h"
+#include "algorithms/normalization/zscore_types.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "src/externals/service_math.h"

@@ -66,7 +66,7 @@ public:
     void exact_checks(const table& data,
                       const table& initial_centroids,
                       const table& ref_centroids,
-                      const table& ref_labels,
+                      const table& ref_responses,
                       std::int64_t cluster_count,
                       std::int64_t max_iteration_count,
                       float_t accuracy_threshold,
@@ -81,17 +81,21 @@ public:
         INFO("run training");
         const auto train_result = this->train(kmeans_desc, data, initial_centroids);
         const auto model = train_result.get_model();
-        check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, test_convergence);
+        check_train_result(kmeans_desc,
+                           train_result,
+                           ref_centroids,
+                           ref_responses,
+                           test_convergence);
 
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
-        check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
+        check_infer_result(kmeans_desc, infer_result, ref_responses, ref_objective_function);
     }
 
     void exact_checks_with_reordering(const table& data,
                                       const table& initial_centroids,
                                       const table& ref_centroids,
-                                      const table& ref_labels,
+                                      const table& ref_responses,
                                       std::int64_t cluster_count,
                                       std::int64_t max_iteration_count,
                                       float_t accuracy_threshold,
@@ -116,14 +120,14 @@ public:
                            train_result,
                            match_map,
                            ref_centroids,
-                           ref_labels,
+                           ref_responses,
                            test_convergence);
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
         check_infer_result(kmeans_desc,
                            infer_result,
                            match_map,
-                           ref_labels,
+                           ref_responses,
                            ref_objective_function);
     }
 
@@ -132,7 +136,7 @@ public:
         const auto data = gold_dataset::get_data().get_table(table_id);
         const auto initial_centroids = gold_dataset::get_initial_centroids().get_table(table_id);
         const auto expected_centroids = gold_dataset::get_expected_centroids().get_table(table_id);
-        const auto expected_labels = gold_dataset::get_expected_labels().get_table(table_id);
+        const auto expected_responses = gold_dataset::get_expected_responses().get_table(table_id);
 
         const std::int64_t cluster_count = gold_dataset::get_cluster_count();
         const std::int64_t max_iteration_count = 100;
@@ -160,10 +164,10 @@ public:
 
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
-        const auto labels = infer_result.get_labels();
+        const auto responses = infer_result.get_responses();
 
-        INFO("check if labels are expected") {
-            check_label_match(match_map, expected_labels, labels);
+        INFO("check if responses are expected") {
+            check_response_match(match_map, expected_responses, responses);
         }
 
         INFO("check if objective function value is expected") {
@@ -186,8 +190,8 @@ public:
         float_t final_centroids[] = { -1.65, 10, 9.5 };
         const auto c_final = homogen_table::wrap(final_centroids, 3, 1);
 
-        float_t labels[] = { 0, 0, 0, 0, 0, 0, 0, 2, 2, 1 };
-        const auto y = homogen_table::wrap(labels, 10, 1);
+        float_t responses[] = { 0, 0, 0, 0, 0, 0, 0, 2, 2, 1 };
+        const auto y = homogen_table::wrap(responses, 10, 1);
 
         this->exact_checks(x, c_init, c_final, y, 3, 1, 0.0);
     }
@@ -206,8 +210,8 @@ public:
         const float_t final_centroids[] = { -1.5, -1.5, 1.5, 1.5 };
         const auto c_final = homogen_table::wrap(final_centroids, 2, 2);
 
-        const int labels[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
-        const auto y = homogen_table::wrap(labels, 8, 1);
+        const int responses[] = { 1, 1, 1, 1, 0, 0, 0, 0 };
+        const auto y = homogen_table::wrap(responses, 8, 1);
 
         const auto model = this->train_with_initialization_checks(x, c_final, y, 2, 4, 0.001);
 
@@ -239,8 +243,8 @@ public:
         const auto first_row = row_accessor<const float_t>(x_table).pull({ 0, 1 });
         const auto c_init = homogen_table::wrap(first_row, 1, column_count);
 
-        auto labels = array<std::int32_t>::zeros(row_count);
-        const auto y = homogen_table::wrap(labels, row_count, 1);
+        auto responses = array<std::int32_t>::zeros(row_count);
+        const auto y = homogen_table::wrap(responses, row_count, 1);
 
         auto stat = te::compute_basic_statistics<float_t>(x_dataframe);
         const auto c_final = homogen_table::wrap(stat.get_means(), 1, column_count);
@@ -272,11 +276,11 @@ public:
         const auto first_row = row_accessor<const float_t>(x).pull({ 0, 1 });
         const auto c_init = homogen_table::wrap(first_row.get_data(), 1, column_count);
 
-        auto labels = array<std::int32_t>::zeros(1 * cluster_count);
-        auto label_ptr = labels.get_mutable_data();
-        auto first_label = &label_ptr[0];
-        std::iota(first_label, first_label + row_count, std::int32_t(0));
-        const auto y = homogen_table::wrap(labels.get_data(), row_count, 1);
+        auto responses = array<std::int32_t>::zeros(1 * cluster_count);
+        auto response_ptr = responses.get_mutable_data();
+        auto first_response = &response_ptr[0];
+        std::iota(first_response, first_response + row_count, std::int32_t(0));
+        const auto y = homogen_table::wrap(responses.get_data(), row_count, 1);
 
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
     }
@@ -325,9 +329,10 @@ public:
 
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
-        REQUIRE(te::has_no_nans(infer_result.get_labels()));
+        REQUIRE(te::has_no_nans(infer_result.get_responses()));
 
-        auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        auto dbi =
+            te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_responses());
         CAPTURE(dbi, ref_dbi);
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
@@ -358,9 +363,10 @@ public:
 
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
-        REQUIRE(te::has_no_nans(infer_result.get_labels()));
+        REQUIRE(te::has_no_nans(infer_result.get_responses()));
 
-        auto dbi = te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_labels());
+        auto dbi =
+            te::davies_bouldin_index(data, model.get_centroids(), infer_result.get_responses());
         CAPTURE(dbi, ref_dbi);
         CAPTURE(infer_result.get_objective_function_value(), ref_obj_func);
         REQUIRE(check_value_with_ref_tol(dbi, ref_dbi, dbi_ref_tol));
@@ -371,7 +377,7 @@ public:
 
     model_t train_with_initialization_checks(const table& data,
                                              const table& ref_centroids,
-                                             const table& ref_labels,
+                                             const table& ref_responses,
                                              std::int64_t cluster_count,
                                              std::int64_t max_iteration_count,
                                              float_t accuracy_threshold) {
@@ -383,13 +389,13 @@ public:
 
         INFO("run training");
         const auto train_result = this->train(kmeans_desc, data);
-        check_train_result(kmeans_desc, train_result, ref_centroids, ref_labels, false);
+        check_train_result(kmeans_desc, train_result, ref_centroids, ref_responses, false);
         return train_result.get_model();
     }
 
     void infer_checks(const table& data,
                       const model_t& model,
-                      const table& ref_labels,
+                      const table& ref_responses,
                       float_t ref_objective_function = -1.0) {
         CAPTURE(model.get_cluster_count());
 
@@ -398,21 +404,21 @@ public:
 
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
-        check_infer_result(kmeans_desc, infer_result, ref_labels, ref_objective_function);
+        check_infer_result(kmeans_desc, infer_result, ref_responses, ref_objective_function);
     }
 
     void check_train_result(const descriptor_t& desc,
                             const train_result_t& result,
                             const table& ref_centroids,
-                            const table& ref_labels,
+                            const table& ref_responses,
                             bool test_convergence = false) {
-        const auto [centroids, labels, iteration_count] = unpack_result(result);
+        const auto [centroids, responses, iteration_count] = unpack_result(result);
 
         check_nans(result);
         const float_t strict_rel_tol =
             5.f * std::numeric_limits<float_t>::epsilon() * iteration_count * 100;
         check_centroid_match_with_rel_tol(strict_rel_tol, ref_centroids, centroids);
-        check_label_match(ref_labels, labels);
+        check_response_match(ref_responses, responses);
         if (test_convergence) {
             INFO("check convergence");
             REQUIRE(iteration_count < desc.get_max_iteration_count());
@@ -423,15 +429,15 @@ public:
                             const train_result_t& result,
                             const array<float_t>& match_map,
                             const table& ref_centroids,
-                            const table& ref_labels,
+                            const table& ref_responses,
                             bool test_convergence = false) {
-        const auto [centroids, labels, iteration_count] = unpack_result(result);
+        const auto [centroids, responses, iteration_count] = unpack_result(result);
 
         check_nans(result);
         const float_t strict_rel_tol =
             std::numeric_limits<float_t>::epsilon() * iteration_count * 10;
         check_centroid_match_with_rel_tol(match_map, strict_rel_tol, ref_centroids, centroids);
-        check_label_match(match_map, ref_labels, labels);
+        check_response_match(match_map, ref_responses, responses);
 
         if (test_convergence) {
             INFO("check convergence");
@@ -450,7 +456,7 @@ public:
     void check_base_infer_result(const descriptor_t& desc,
                                  const infer_result_t& result,
                                  float_t ref_objective_function) {
-        const auto [labels, objective_function] = unpack_result(result);
+        const auto [responses, objective_function] = unpack_result(result);
 
         check_nans(result);
 
@@ -466,22 +472,22 @@ public:
 
     void check_infer_result(const descriptor_t& desc,
                             const infer_result_t& result,
-                            const table& ref_labels,
+                            const table& ref_responses,
                             float_t ref_objective_function) {
-        const auto [labels, objective_function] = unpack_result(result);
+        const auto [responses, objective_function] = unpack_result(result);
 
         check_base_infer_result(desc, result, ref_objective_function);
-        check_label_match(ref_labels, labels);
+        check_response_match(ref_responses, responses);
     }
 
     void check_infer_result(const descriptor_t& desc,
                             const infer_result_t& result,
                             const array<float_t>& match_map,
-                            const table& ref_labels,
+                            const table& ref_responses,
                             float_t ref_objective_function) {
-        const auto [labels, objective_function] = unpack_result(result);
+        const auto [responses, objective_function] = unpack_result(result);
         check_base_infer_result(desc, result, ref_objective_function);
-        check_label_match(match_map, ref_labels, labels);
+        check_response_match(match_map, ref_responses, responses);
     }
 
     void check_centroid_match_with_rel_tol(float_t rel_tol, const table& left, const table& right) {
@@ -579,12 +585,12 @@ public:
         }
     }
 
-    void check_label_match(const table& left, const table& right) {
-        INFO("check if label shape is expected")
+    void check_response_match(const table& left, const table& right) {
+        INFO("check if response shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
         REQUIRE(left.get_column_count() == 1);
-        INFO("check if label match is expected")
+        INFO("check if response match is expected")
         const auto left_rows = row_accessor<const float_t>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const float_t>(right).pull({ 0, -1 });
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
@@ -592,18 +598,20 @@ public:
             const float_t r = right_rows[i];
             if (l != r) {
                 CAPTURE(l, r);
-                FAIL("Label mismatch");
+                FAIL("response mismatch");
             }
         }
     }
 
-    void check_label_match(const array<float_t>& match_map, const table& left, const table& right) {
-        INFO("check if label shape is expected")
+    void check_response_match(const array<float_t>& match_map,
+                              const table& left,
+                              const table& right) {
+        INFO("check if response shape is expected")
         REQUIRE(left.get_row_count() == right.get_row_count());
         REQUIRE(left.get_column_count() == right.get_column_count());
         REQUIRE(left.get_column_count() == 1);
 
-        INFO("check if label match is expected")
+        INFO("check if response match is expected")
         const auto left_rows = row_accessor<const float_t>(left).pull({ 0, -1 });
         const auto right_rows = row_accessor<const float_t>(right).pull({ 0, -1 });
         for (std::int64_t i = 0; i < left_rows.get_count(); i++) {
@@ -611,42 +619,42 @@ public:
             const float_t r = right_rows[i];
             if (l != match_map[r]) {
                 CAPTURE(l, r, match_map[r]);
-                FAIL("Label mismatch for mapped centroids");
+                FAIL("response mismatch for mapped centroids");
             }
         }
     }
 
     void check_nans(const train_result_t& result) {
-        const auto [centroids, labels, iteration_count] = unpack_result(result);
+        const auto [centroids, responses, iteration_count] = unpack_result(result);
 
         INFO("check if there is no NaN in centroids")
         REQUIRE(te::has_no_nans(centroids));
 
-        INFO("check if there is no NaN in labels")
-        REQUIRE(te::has_no_nans(labels));
+        INFO("check if there is no NaN in responses")
+        REQUIRE(te::has_no_nans(responses));
     }
 
     void check_nans(const infer_result_t& result) {
-        const auto [labels, objective_function] = unpack_result(result);
+        const auto [responses, objective_function] = unpack_result(result);
 
         INFO("check if there is no NaN in objective function values")
         REQUIRE(!std::isnan(objective_function));
 
-        INFO("check if there is no NaN in labels")
-        REQUIRE(te::has_no_nans(labels));
+        INFO("check if there is no NaN in responses")
+        REQUIRE(te::has_no_nans(responses));
     }
 
     static auto unpack_result(const train_result_t& result) {
         const auto centroids = result.get_model().get_centroids();
-        const auto labels = result.get_labels();
+        const auto responses = result.get_responses();
         const auto iteration_count = result.get_iteration_count();
-        return std::make_tuple(centroids, labels, iteration_count);
+        return std::make_tuple(centroids, responses, iteration_count);
     }
 
     static auto unpack_result(const infer_result_t& result) {
-        const auto labels = result.get_labels();
+        const auto responses = result.get_responses();
         const auto objective_function = result.get_objective_function_value();
-        return std::make_tuple(labels, objective_function);
+        return std::make_tuple(responses, objective_function);
     }
 };
 

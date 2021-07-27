@@ -164,6 +164,10 @@ Machine learning terms
 
         **Synonym:** dependent variable
 
+    Search
+        A kNN-specific optimization problem of finding the point in a given set
+        that is the closest to the given points.
+
     Supervised learning
         :capterm:`Training` process that uses a :capterm:`dataset` with information
         about dependencies between :capterm:`features <Feature>` and

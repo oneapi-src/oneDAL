@@ -100,10 +100,12 @@ inline array<T> get_table_block(host_test_policy&, const table& t, const range& 
     return row_accessor<const T>{ t }.pull(row_range);
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
 template <typename T>
 inline array<T> get_table_block(device_test_policy& p, const table& t, const range& row_range) {
     return row_accessor<const T>{ t }.pull(p.get_queue(), row_range, sycl::usm::alloc::device);
 }
+#endif
 
 template <typename Float, typename TestPolicy>
 inline std::vector<table> split_table_by_rows(TestPolicy& policy,

@@ -33,9 +33,7 @@ template <typename T, std::int64_t dim, std::enable_if_t<dim == 1>* = nullptr>
 inline auto make_device_ndarray(sycl::queue& q, const std::vector<T>& data) -> pr::ndarray<T, 1> {
     ONEDAL_ASSERT(data.size() > 0);
     const auto shape = pr::ndshape<1>{ std::int64_t(data.size()) };
-    auto ary = pr::ndarray<T, 1>::empty(q, shape, sycl::usm::alloc::device);
-    ary.assign(q, data.data(), shape.get_count()).wait_and_throw();
-    return ary;
+    return pr::ndarray<T, 1>::wrap(data.data(), shape).to_device(q);
 }
 
 // TODO: Move to common
@@ -52,7 +50,7 @@ inline auto make_device_ndarray(sycl::queue& q, const std::vector<std::vector<T>
 
     for (const auto& row : data) {
         ONEDAL_ASSERT(row.size() == row_size);
-        dal::backend::memcpy(ary_ptr, row.data(), sizeof(T) * row_size);
+        dal::backend::copy(ary_ptr, row.data(), std::int64_t(row_size));
         ary_ptr += row_size;
     }
 

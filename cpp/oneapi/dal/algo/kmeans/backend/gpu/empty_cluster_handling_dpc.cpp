@@ -98,7 +98,10 @@ static auto fill_empty_cluster_indices(sycl::queue& queue,
     }
 
     // We have to wait as `host_counters` will be deleted once we leave scope of the function
-    empty_cluster_indices.assign(queue, host_empty_cluster_indices_ptr, candidate_count)
+    dal::backend::copy_host2usm(queue,
+                                empty_cluster_indices.get_mutable_data(),
+                                host_empty_cluster_indices_ptr,
+                                candidate_count)
         .wait_and_throw();
 
     return sycl::event{};
@@ -279,12 +282,19 @@ static auto reduce_candidates(sycl::queue& queue,
     }
 
     {
-        const Float* host_distances_ptr = host_distances.get_data();
-        const Float* host_candidates_ptr = host_candidates.get_data();
-        auto distances_assign_event = distances.assign(queue, host_distances_ptr, candidate_count);
-        auto candidates_assign_event =
-            candidates.assign(queue, host_candidates_ptr, candidate_count * column_count);
-        sycl::event::wait({ distances_assign_event, candidates_assign_event });
+        auto distances_copy_event = dal::backend::copy_host2usm( //
+            queue,
+            distances.get_mutable_data(),
+            host_distances.get_data(),
+            candidate_count);
+
+        auto candidates_copy_event = dal::backend::copy_host2usm( //
+            queue,
+            candidates.get_mutable_data(),
+            host_candidates.get_data(),
+            candidate_count * column_count);
+
+        sycl::event::wait({ distances_copy_event, candidates_copy_event });
     }
 
     return sycl::event{};

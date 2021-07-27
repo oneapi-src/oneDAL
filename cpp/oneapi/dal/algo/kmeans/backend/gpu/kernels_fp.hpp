@@ -45,11 +45,10 @@ struct kernels_fp {
                                        const pr::ndview<Float, 2>& data,
                                        const pr::ndview<Float, 2>& centroids,
                                        std::int64_t block_size_in_rows,
-                                       pr::ndview<std::int32_t, 2>& labels,
+                                       pr::ndview<std::int32_t, 2>& responses,
                                        pr::ndview<Float, 2>& distances,
                                        pr::ndview<Float, 2>& closest_distances,
                                        const bk::event_vector& deps = {});
-
     static sycl::event merge_reduce_centroids(sycl::queue& queue,
                                               const pr::ndview<std::int32_t, 1>& counters,
                                               const pr::ndview<Float, 2>& partial_centroids,
@@ -59,7 +58,7 @@ struct kernels_fp {
 
     static sycl::event partial_reduce_centroids(sycl::queue& queue,
                                                 const pr::ndview<Float, 2>& data,
-                                                const pr::ndview<std::int32_t, 2>& labels,
+                                                const pr::ndview<std::int32_t, 2>& responses,
                                                 std::int64_t cluster_count,
                                                 std::int64_t part_count,
                                                 pr::ndview<Float, 2>& partial_centroids,
