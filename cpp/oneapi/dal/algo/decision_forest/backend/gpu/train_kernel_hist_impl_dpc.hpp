@@ -460,8 +460,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
         }
     }
 
-    sycl::event event = ctx.distr_mode_ ? tree_order_level.assign(queue_, selected_row_host)
-                                        : tree_order_level.assign(queue_, selected_row_global_host);
+    sycl::event event = ctx.distr_mode_
+                            ? tree_order_level.assign_from_host(queue_, selected_row_host)
+                            : tree_order_level.assign_from_host(queue_, selected_row_global_host);
     event.wait_and_throw();
 
     return event;
@@ -511,9 +512,9 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
         }
     }
 
-    auto event = selected_features_com.assign(queue_,
-                                              selected_features_host_ptr,
-                                              selected_features_com.get_count());
+    auto event = selected_features_com.assign_from_host(queue_,
+                                                        selected_features_host_ptr,
+                                                        selected_features_com.get_count());
 
     return std::tuple{ selected_features_com, event };
 }
@@ -2354,7 +2355,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error(
     const be::event_vector& deps) {
     ONEDAL_ASSERT(data_host.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response_host.get_count() == ctx.row_count_);
-    ONEDAL_ASSERT(oob_row_list.get_count() >= ind_ofs + n + 1);
+    ONEDAL_ASSERT(oob_row_list.get_count() >= ind_ofs + n);
     ONEDAL_ASSERT(oob_per_obs_list.get_count() == ctx.row_count_ * ctx.oob_prop_count_);
 
     auto oob_row_list_host = oob_row_list.to_host(queue_, deps);
@@ -2410,7 +2411,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error_perm(
     const be::event_vector& deps) {
     ONEDAL_ASSERT(data_host.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response_host.get_count() == ctx.column_count_);
-    ONEDAL_ASSERT(oob_row_list.get_count() >= ind_ofs + n + 1);
+    ONEDAL_ASSERT(oob_row_list.get_count() >= ind_ofs + n);
     ONEDAL_ASSERT(permutation_host.get_count() == n);
     ONEDAL_ASSERT(tree_idx < ctx.tree_count_);
     ONEDAL_ASSERT(column_idx < ctx.column_count_);
@@ -2553,10 +2554,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
     pr::ndarray<Float, 1>& res_oob_err,
     pr::ndarray<Float, 1>& res_oob_err_obs,
     const be::event_vector& deps) {
-    ONEDAL_ASSERT(response_host.get_count() == ctx.column_count_);
+    ONEDAL_ASSERT(response_host.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(oob_per_obs_list.get_count() == ctx.row_count_ * ctx.oob_prop_count_);
-    ONEDAL_ASSERT(res_oob_err.get_count() == 1);
-    ONEDAL_ASSERT(res_oob_err_obs.get_count() == ctx.row_count_);
+    // no need for assert for res_oob_err or res_oob_err_obs because they are created here
 
     auto oob_per_obs_list_host = oob_per_obs_list.to_host(queue_, deps);
 

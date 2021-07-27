@@ -570,7 +570,37 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
     const be::event_vector& deps) {
     using split_smp_t = split_smp<Float, Index, Task>;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
-    // input asserts is going to be added
+
+    Index hist_prop_count = 0;
+    if constexpr (std::is_same_v<std::decay_t<Task>, task::classification>) {
+        hist_prop_count = ctx.class_count_;
+    }
+    else {
+        hist_prop_count = impl_const<Index, task::regression>::hist_prop_count_;
+    }
+
+    ONEDAL_ASSERT(node_hist_list.get_count() == hist_prop_count * ctx.max_bin_count_among_ftrs_ *
+                                                    ctx.selected_ftr_count_ * node_count);
+    ONEDAL_ASSERT(selected_ftr_list.get_count() >= node_count * ctx.selected_ftr_count_);
+    ONEDAL_ASSERT(bin_offset_list.get_count() == ctx.column_count_ + 1);
+    ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() >=
+                  node_count * impl_const_t::node_imp_prop_count_);
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() >= node_count * ctx.class_count_);
+    }
+    ONEDAL_ASSERT(node_ind_list.get_count() >= (node_ind_ofs + node_count));
+    ONEDAL_ASSERT(node_list.get_count() >=
+                  (node_ind_ofs + node_count) * impl_const_t::node_prop_count_);
+    ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
+                  node_count * impl_const_t::node_imp_prop_count_);
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        ONEDAL_ASSERT(left_child_imp_data_list.class_hist_list_.get_count() >=
+                      node_count * ctx.class_count_);
+    }
+    if (update_imp_dec_required) {
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+    }
+
     const hist_type_t* node_hist_list_ptr = node_hist_list.get_data();
     const Index* selected_ftr_list_ptr = selected_ftr_list.get_data();
 
@@ -579,18 +609,12 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
 
     const Index* node_indices_ptr = node_ind_list.get_data();
     Index* node_list_ptr = node_list.get_mutable_data();
-    Float* node_imp_decr_list_ptr = node_imp_dec_list.get_mutable_data();
+    Float* node_imp_decr_list_ptr =
+        update_imp_dec_required ? node_imp_dec_list.get_mutable_data() : nullptr;
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 
     const Index max_bin_count_among_ftrs = ctx.max_bin_count_among_ftrs_;
-    Index hist_prop_count = 0;
-    if constexpr (std::is_same_v<std::decay_t<Task>, task::classification>) {
-        hist_prop_count = ctx.class_count_;
-    }
-    else {
-        hist_prop_count = impl_const_t::hist_prop_count_;
-    }
 
     const Index selected_ftr_count = ctx.selected_ftr_count_;
 
@@ -798,6 +822,30 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
     const be::event_vector& deps) {
     using split_smp_t = split_smp<Float, Index, Task>;
 
+    ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
+    ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
+    ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
+    ONEDAL_ASSERT(selected_ftr_list.get_count() >= node_count * ctx.selected_ftr_count_);
+    ONEDAL_ASSERT(bin_offset_list.get_count() == ctx.column_count_ + 1);
+    ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() >=
+                  node_count * impl_const_t::node_imp_prop_count_);
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() == node_count * ctx.class_count_);
+    }
+    ONEDAL_ASSERT(node_ind_list.get_count() >= (node_ind_ofs + node_count));
+    ONEDAL_ASSERT(node_list.get_count() >=
+                  (node_ind_ofs + node_count) * impl_const_t::node_prop_count_);
+    ONEDAL_ASSERT(left_child_imp_data_list.imp_list_.get_count() >=
+                  node_count * impl_const_t::node_imp_prop_count_);
+    if constexpr (std::is_same_v<Task, task::classification>) {
+        ONEDAL_ASSERT(left_child_imp_data_list.class_hist_list_.get_count() >=
+                      node_count * ctx.class_count_);
+    }
+
+    if (update_imp_dec_required) {
+        ONEDAL_ASSERT(node_imp_dec_list.get_count() == node_count);
+    }
+
     const Bin* data_ptr = data.get_data();
     const Float* response_ptr = response.get_data();
     const Index* tree_order_ptr = tree_order.get_data();
@@ -808,7 +856,8 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
 
     const Index* node_indices_ptr = node_ind_list.get_data();
     Index* node_list_ptr = node_list.get_mutable_data();
-    Float* node_imp_decr_list_ptr = node_imp_dec_list.get_mutable_data();
+    Float* node_imp_decr_list_ptr =
+        update_imp_dec_required ? node_imp_dec_list.get_mutable_data() : nullptr;
 
     imp_data_list_ptr_mutable<Float, Index, Task> left_imp_list_ptr(left_child_imp_data_list);
 

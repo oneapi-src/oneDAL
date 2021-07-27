@@ -17,6 +17,8 @@
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_feature_type.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -181,9 +183,9 @@ indexed_features<Float, Bin, Index>::gather_bin_borders(const pr::ndarray<Float,
             bin_count++;
         }
     }
-    last_event = bin_borders_nd_device.assign(queue_, bin_borders_nd_host);
 
-    //TODO remove
+    last_event = bin_borders_nd_device.assign_from_host(queue_, bin_borders_nd_host);
+
     last_event.wait_and_throw();
 
     return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
