@@ -47,15 +47,15 @@ public:
 
     compute_input(const table& data);
 
-    const table& get_input() const;
+    const table& get_data() const;
 
-    auto& set_input(const table& data) {
-        set_input_impl(data);
+    auto& set_data(const table& value) {
+        set_data_impl(value);
         return *this;
     }
 
 protected:
-    void set_input_impl(const table& data);
+    void set_data_impl(const table& value);
 
 private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
