@@ -202,12 +202,7 @@ inline sycl::event memcpy_host2usm(sycl::queue& queue,
                                    std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    auto tmp_usm_host = make_unique_usm_host(queue, size);
-    memcpy(tmp_usm_host.get(), src_host, size);
-    memcpy(queue, dest_usm, tmp_usm_host.get(), size, deps).wait_and_throw();
+    memcpy(queue, dest_usm, src_host, size, deps).wait_and_throw();
     return {};
 }
 
@@ -217,12 +212,7 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
                                    std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, src_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    auto tmp_usm_host = make_unique_usm_host(queue, size);
-    memcpy(queue, tmp_usm_host.get(), src_usm, size, deps).wait_and_throw();
-    memcpy(dest_host, tmp_usm_host.get(), size);
+    memcpy(queue, dest_host, src_usm, size, deps).wait_and_throw();
     return {};
 }
 

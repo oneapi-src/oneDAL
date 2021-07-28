@@ -152,7 +152,7 @@ inline table convert_binary_responses(sycl::queue& queue,
         const std::int64_t count = arr_response.get_count();
 
         const auto arr_response_host = dal::backend::to_host_sync(arr_response);
-        auto new_response_arr = array<Float>::empty(queue, count, sycl::usm::alloc::host);
+        auto new_response_arr = array<Float>::empty(count);
         convert_binary_responses_impl<Float>(requested_unique_responses,
                                              old_unique_responses,
                                              arr_response_host,
