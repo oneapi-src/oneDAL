@@ -76,6 +76,8 @@ TEMPLATE_LIST_TEST_M(working_set_test,
                      "select ws common flow",
                      "[svm][working_set]",
                      working_set_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+
     using float_t = TestType;
 
     constexpr std::int64_t row_count = 9;
@@ -97,6 +99,8 @@ TEMPLATE_LIST_TEST_M(working_set_test,
                      "not enough elements in upper set",
                      "[svm][working_set]",
                      working_set_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+
     using float_t = TestType;
 
     constexpr std::int64_t row_count = 10;
@@ -118,6 +122,8 @@ TEMPLATE_LIST_TEST_M(working_set_test,
                      "not enough elements in lower set",
                      "[svm][working_set]",
                      working_set_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+
     using float_t = TestType;
 
     constexpr std::int64_t row_count = 10;
