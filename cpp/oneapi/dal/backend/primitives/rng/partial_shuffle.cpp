@@ -17,6 +17,8 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/primitives/rng/partial_shuffle.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 #include <daal/src/externals/service_rng.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
@@ -29,19 +31,29 @@ namespace oneapi::dal::backend::primitives {
 template <typename... Args>
 inline void uniform_by_cpu(Args&&... args) {
     dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        daal::internal::
-            RNGs<size_t, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                .uniform(std::forward<Args>(args)...);
+        int res = daal::internal::RNGs<
+                      size_t,
+                      oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
+                      .uniform(std::forward<Args>(args)...);
+        if (res) {
+            using msg = dal::detail::error_messages;
+            throw internal_error(msg::failed_to_generate_random_numbers());
+        }
     });
 }
 
 void partial_fisher_yates_shuffle(ndview<size_t, 1>& result_array, size_t top) {
+    using msg = dal::detail::error_messages;
     daal::algorithms::engines::EnginePtr engine =
         daal::algorithms::engines::mt19937::Batch<>::create(777);
-    ONEDAL_ASSERT(engine.get() != nullptr);
+    if (engine.get() == nullptr) {
+        throw internal_error(msg::failed_to_generate_random_numbers());
+    }
     auto engine_impl =
         dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(&(*engine));
-    ONEDAL_ASSERT(engine_impl != nullptr);
+    if (engine_impl == nullptr) {
+        throw internal_error(msg::failed_to_generate_random_numbers());
+    }
     const std::uint64_t count = result_array.get_count();
     const auto casted_count = dal::detail::integral_cast<size_t>(count);
     ONEDAL_ASSERT(casted_count < top);
