@@ -33,19 +33,30 @@ struct cpu_dispatch_avx512 {};
 
 using cpu_dispatch_default = cpu_dispatch_sse2;
 
+#define __CPU_TAG_SSE2__    oneapi::dal::backend::cpu_dispatch_sse2
+#define __CPU_TAG_SSSE3__   oneapi::dal::backend::cpu_dispatch_ssse3
+#define __CPU_TAG_SSE42__   oneapi::dal::backend::cpu_dispatch_sse42
+#define __CPU_TAG_AVX__     oneapi::dal::backend::cpu_dispatch_avx
+#define __CPU_TAG_AVX2__    oneapi::dal::backend::cpu_dispatch_avx2
+#define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
+#define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
+
 template <typename... Kernels>
 struct kernel_dispatcher {};
 
 class context_cpu {
 public:
     explicit context_cpu(const detail::host_policy& ctx = detail::host_policy::get_default())
-            : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {}
+            : cpu_extensions_(ctx.get_enabled_cpu_extensions()) {
+        global_init();
+    }
 
     detail::cpu_extension get_enabled_cpu_extensions() const {
         return cpu_extensions_;
     }
 
 private:
+    void global_init();
     detail::cpu_extension cpu_extensions_;
 };
 
@@ -58,7 +69,7 @@ struct kernel_dispatcher<CpuKernel> {
 };
 
 inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension test) {
-    return ((std::uint64_t)mask & (std::uint64_t)test) > 0;
+    return mask >= test;
 }
 
 template <typename Op>

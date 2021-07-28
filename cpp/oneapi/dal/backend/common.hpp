@@ -120,6 +120,84 @@ inline constexpr Integer up_pow2(Integer x) {
 
 using event_vector = std::vector<sycl::event>;
 
+template <typename T>
+class object_store_entry : public base {
+public:
+    object_store_entry(const T& value) : inner_(value) {}
+    object_store_entry(T&& value) : inner_(std::move(value)) {}
+
+private:
+    T inner_;
+};
+
+class object_store : public base {
+public:
+    using container_t = std::vector<base*>;
+
+    ~object_store() {
+        for (auto obj : container_) {
+            delete obj;
+        }
+    }
+
+    template <typename T>
+    void add(T&& obj) {
+        container_.push_back(new object_store_entry{ std::forward<T>(obj) });
+    }
+
+    void clear() {
+        container_.clear();
+    }
+
+private:
+    container_t container_;
+};
+
+class smart_event : public base {
+public:
+    smart_event() = default;
+    smart_event(const sycl::event& event) : event_(event) {}
+    smart_event(sycl::event&& event) : event_(std::move(event)) {}
+
+    operator sycl::event() const {
+        return event_;
+    }
+
+    smart_event& operator=(const sycl::event& event) {
+        event_ = event;
+        return *this;
+    }
+
+    smart_event& operator=(sycl::event&& event) {
+        event_ = std::move(event);
+        return *this;
+    }
+
+    void wait() {
+        event_.wait();
+        store_->clear();
+    }
+
+    void wait_and_throw() {
+        event_.wait_and_throw();
+        store_->clear();
+    }
+
+    template <typename T>
+    smart_event& attach(T&& value) {
+        store_->add(std::forward<T>(value));
+        return *this;
+    }
+
+private:
+    sycl::event event_;
+    std::shared_ptr<object_store> store_ = std::make_shared<object_store>();
+};
+
+inline bool is_same_context(const sycl::queue& q1, const sycl::queue& q2) {
+    return q1.get_context() == q2.get_context();
+}
+
 template <typename, typename = void>
 struct has_get_queue : std::false_type {};
 
@@ -279,6 +357,28 @@ inline std::int64_t propose_wg_size(const sycl::queue& q) {
     return std::min<std::int64_t>(512, device_max_wg_size(q));
 }
 
+/// Finds the workgroup size for specified data set width
+/// {WG-per-row topology is expected)
+/// Number of subgroups is calculated as minimal value
+/// from subgroups in WG with preffered_wg_size
+/// and number of subgroups to completely cover the dataset row
+/// For, example if column_count = 350; preffered_wg_size = 512 and
+/// max supported subgroup size = 32 then
+/// final WG size will be 352
+inline std::int64_t get_scaled_wg_size_per_row(const sycl::queue& queue,
+                                               std::int64_t column_count,
+                                               std::int64_t preffered_wg_size) {
+    const std::int64_t sg_max_size = device_max_sg_size(queue);
+    ONEDAL_ASSERT(sg_max_size > 0);
+    const std::int64_t row_adjusted_sg_count =
+        column_count / sg_max_size + std::int64_t(column_count % sg_max_size > 0);
+    std::int64_t expected_sg_count =
+        std::min(preffered_wg_size / sg_max_size, row_adjusted_sg_count);
+    if (expected_sg_count < 1)
+        expected_sg_count = 1;
+    return dal::detail::check_mul_overflow(expected_sg_count, sg_max_size);
+}
+
 inline std::int64_t device_local_mem_size(const sycl::queue& q) {
     const auto res = q.get_device().template get_info<sycl::info::device::local_mem_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
@@ -301,6 +401,21 @@ template <>
 inline std::int64_t device_native_vector_size<double>(const sycl::queue& q) {
     const auto res =
         q.get_device().template get_info<sycl::info::device::native_vector_width_double>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_max_mem_alloc_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::max_mem_alloc_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_global_mem_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::global_mem_size>();
+    return dal::detail::integral_cast<std::int64_t>(res);
+}
+
+inline std::int64_t device_global_mem_cache_size(const sycl::queue& q) {
+    const auto res = q.get_device().template get_info<sycl::info::device::global_mem_cache_size>();
     return dal::detail::integral_cast<std::int64_t>(res);
 }
 

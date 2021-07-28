@@ -20,6 +20,14 @@
 
 namespace oneapi::dal::backend {
 
+void memcpy(void* dest, const void* src, std::int64_t size);
+
+template <typename T>
+inline void copy(T* dest, const T* src, std::int64_t count) {
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, sizeof(T), count);
+    return memcpy(dest, src, sizeof(T) * count);
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 inline bool is_device_usm(const sycl::queue& queue, const void* pointer) {
     const auto pointer_type = sycl::get_pointer_type(pointer, queue.get_context());
@@ -110,43 +118,6 @@ inline T* malloc_host(const sycl::queue& queue, std::int64_t count) {
     return malloc<T>(queue, count, sycl::usm::alloc::host);
 }
 
-inline sycl::event memcpy(sycl::queue& queue, void* dest, const void* src, std::size_t size) {
-    ONEDAL_ASSERT(size > 0);
-    return queue.memcpy(dest, src, size);
-}
-
-inline sycl::event memcpy(sycl::queue& queue,
-                          void* dest,
-                          const void* src,
-                          std::size_t size,
-                          const event_vector& deps) {
-    ONEDAL_ASSERT(size > 0);
-    return queue.submit([&](sycl::handler& cgh) {
-        cgh.depends_on(deps);
-        cgh.memcpy(dest, src, size);
-    });
-}
-
-template <typename T>
-inline sycl::event copy(sycl::queue& queue, T* dest, const T* src, std::int64_t count) {
-    ONEDAL_ASSERT(count > 0);
-    const std::size_t n = detail::integral_cast<std::size_t>(count);
-    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
-    return memcpy(queue, dest, src, sizeof(T) * n);
-}
-
-template <typename T>
-inline sycl::event copy(sycl::queue& queue,
-                        T* dest,
-                        const T* src,
-                        std::int64_t count,
-                        const event_vector& deps) {
-    ONEDAL_ASSERT(count > 0);
-    const std::size_t n = detail::integral_cast<std::size_t>(count);
-    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
-    return memcpy(queue, dest, src, sizeof(T) * n, deps);
-}
-
 template <typename T>
 class usm_deleter {
 public:
@@ -209,6 +180,86 @@ inline unique_usm_ptr<T> make_unique_usm_shared(const sycl::queue& q, std::int64
 template <typename T>
 inline unique_usm_ptr<T> make_unique_usm_host(const sycl::queue& q, std::int64_t count) {
     return unique_usm_ptr<T>{ malloc_host<T>(q, count), usm_deleter<T>{ q } };
+}
+
+inline sycl::event memcpy(sycl::queue& queue,
+                          void* dest,
+                          const void* src,
+                          std::size_t size,
+                          const event_vector& deps = {}) {
+    ONEDAL_ASSERT(size > 0);
+    ONEDAL_ASSERT(is_known_usm(queue, dest));
+    ONEDAL_ASSERT(is_known_usm(queue, src));
+    return queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.memcpy(dest, src, size);
+    });
+}
+
+inline sycl::event memcpy_host2usm(sycl::queue& queue,
+                                   void* dest_usm,
+                                   const void* src_host,
+                                   std::size_t size,
+                                   const event_vector& deps = {}) {
+    ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
+
+    // TODO: Remove additional copy to host usm memory once
+    //       bug in `copy` with the host memory is fixed
+    auto tmp_usm_host = make_unique_usm_host(queue, size);
+    memcpy(tmp_usm_host.get(), src_host, size);
+    memcpy(queue, dest_usm, tmp_usm_host.get(), size, deps).wait_and_throw();
+    return {};
+}
+
+inline sycl::event memcpy_usm2host(sycl::queue& queue,
+                                   void* dest_host,
+                                   const void* src_usm,
+                                   std::size_t size,
+                                   const event_vector& deps = {}) {
+    ONEDAL_ASSERT(is_known_usm(queue, src_usm));
+
+    // TODO: Remove additional copy to host usm memory once
+    //       bug in `copy` with the host memory is fixed
+    auto tmp_usm_host = make_unique_usm_host(queue, size);
+    memcpy(queue, tmp_usm_host.get(), src_usm, size, deps).wait_and_throw();
+    memcpy(dest_host, tmp_usm_host.get(), size);
+    return {};
+}
+
+template <typename T>
+inline sycl::event copy(sycl::queue& queue,
+                        T* dest,
+                        const T* src,
+                        std::int64_t count,
+                        const event_vector& deps = {}) {
+    ONEDAL_ASSERT(count > 0);
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    return memcpy(queue, dest, src, sizeof(T) * n, deps);
+}
+
+template <typename T>
+inline sycl::event copy_host2usm(sycl::queue& queue,
+                                 T* dest_usm,
+                                 const T* src_host,
+                                 std::int64_t count,
+                                 const event_vector& deps = {}) {
+    ONEDAL_ASSERT(count > 0);
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    return memcpy_host2usm(queue, dest_usm, src_host, sizeof(T) * n, deps);
+}
+
+template <typename T>
+inline sycl::event copy_usm2host(sycl::queue& queue,
+                                 T* dest_host,
+                                 const T* src_usm,
+                                 std::int64_t count,
+                                 const event_vector& deps = {}) {
+    ONEDAL_ASSERT(count > 0);
+    const std::size_t n = detail::integral_cast<std::size_t>(count);
+    ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    return memcpy_usm2host(queue, dest_host, src_usm, sizeof(T) * n, deps);
 }
 
 template <typename T>
@@ -275,3 +326,58 @@ inline unique_host_ptr<T> make_unique_host(std::int64_t count) {
 }
 
 } // namespace oneapi::dal::backend
+
+namespace oneapi::dal::preview::detail {
+struct byte_alloc_iface;
+} // namespace oneapi::dal::preview::detail
+
+namespace oneapi::dal::preview::backend {
+
+template <typename T>
+struct inner_alloc {
+    using byte_t = char;
+    using value_type = T;
+    using pointer = T*;
+
+    inner_alloc(detail::byte_alloc_iface* byte_allocator) : byte_allocator_(byte_allocator) {}
+
+    inner_alloc(const detail::byte_alloc_iface* byte_allocator)
+            : byte_allocator_(const_cast<detail::byte_alloc_iface*>(byte_allocator)) {}
+
+    template <typename V>
+    inner_alloc(inner_alloc<V>& other) : byte_allocator_(other.get_byte_allocator()) {}
+
+    template <typename V>
+    inner_alloc(const inner_alloc<V>& other) {
+        byte_allocator_ = const_cast<detail::byte_alloc_iface*>(other.get_byte_allocator());
+    }
+
+    T* allocate(std::int64_t n) {
+        return reinterpret_cast<T*>(byte_allocator_->allocate(n * sizeof(T)));
+    }
+
+    void deallocate(T* ptr, std::int64_t n) {
+        byte_allocator_->deallocate(reinterpret_cast<byte_t*>(ptr), n * sizeof(T));
+    }
+
+    oneapi::dal::detail::shared<T> make_shared_memory(std::int64_t n) {
+        return oneapi::dal::detail::shared<T>(this->allocate(n), [=](T* p) {
+            this->deallocate(p, n);
+        });
+    }
+
+    detail::byte_alloc_iface* get_byte_allocator() {
+        return byte_allocator_;
+    }
+
+    const detail::byte_alloc_iface* get_byte_allocator() const {
+        return byte_allocator_;
+    }
+
+private:
+    inner_alloc() = default;
+
+    detail::byte_alloc_iface* byte_allocator_;
+};
+
+} // namespace oneapi::dal::preview::backend

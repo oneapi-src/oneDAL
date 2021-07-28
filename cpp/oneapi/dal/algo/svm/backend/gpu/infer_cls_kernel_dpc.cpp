@@ -49,6 +49,11 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
+    const std::uint64_t class_count = desc.get_class_count();
+    if (class_count > 2) {
+        throw unimplemented(dal::detail::error_messages::svm_multiclass_not_implemented_for_gpu());
+    }
+
     const std::int64_t row_count = data.get_row_count();
 
     const auto daal_data = interop::convert_to_daal_table(queue, data);
@@ -69,7 +74,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     if (!kernel_impl) {
         throw internal_error{ dal::detail::error_messages::unknown_kernel_function_type() };
     }
-    const auto daal_kernel = kernel_impl->get_daal_kernel_function();
+    const bool is_dense{ data.get_kind() == homogen_table::kind() };
+    const auto daal_kernel = kernel_impl->get_daal_kernel_function(is_dense);
 
     daal_svm::Parameter daal_parameter(daal_kernel);
 
@@ -85,18 +91,20 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     const auto arr_decision_func_host = dal::backend::to_host_sync(arr_decision_func);
 
     // TODO: rework with help dpcpp code
-    auto arr_label = array<Float>::empty(row_count * 1);
-    auto label_data = arr_label.get_mutable_data();
+    auto arr_response = array<Float>::empty(row_count * 1);
+    auto response_data = arr_response.get_mutable_data();
     for (std::int64_t i = 0; i < row_count; ++i) {
-        label_data[i] = arr_decision_func_host[i] >= 0 ? trained_model.get_second_class_label()
-                                                       : trained_model.get_first_class_label();
+        response_data[i] = arr_decision_func_host[i] >= 0
+                               ? trained_model.get_second_class_response()
+                               : trained_model.get_first_class_response();
     }
 
     return result_t()
         .set_decision_function(dal::detail::homogen_table_builder{}
                                    .reset(arr_decision_func_host, row_count, 1)
                                    .build())
-        .set_labels(dal::detail::homogen_table_builder{}.reset(arr_label, row_count, 1).build());
+        .set_responses(
+            dal::detail::homogen_table_builder{}.reset(arr_response, row_count, 1).build());
 }
 
 template <typename Float>
@@ -113,7 +121,20 @@ struct infer_kernel_gpu<Float, method::by_default, task::classification> {
     }
 };
 
+template <typename Float>
+struct infer_kernel_gpu<Float, method::by_default, task::nu_classification> {
+    infer_result<task::nu_classification> operator()(
+        const context_gpu& ctx,
+        const detail::descriptor_base<task::nu_classification>& desc,
+        const infer_input<task::nu_classification>& input) const {
+        throw unimplemented(
+            dal::detail::error_messages::svm_nu_classification_task_is_not_implemented_for_gpu());
+    }
+};
+
 template struct infer_kernel_gpu<float, method::by_default, task::classification>;
 template struct infer_kernel_gpu<double, method::by_default, task::classification>;
+template struct infer_kernel_gpu<float, method::by_default, task::nu_classification>;
+template struct infer_kernel_gpu<double, method::by_default, task::nu_classification>;
 
 } // namespace oneapi::dal::svm::backend

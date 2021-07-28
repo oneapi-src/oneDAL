@@ -24,6 +24,7 @@ Kernel Functions
    linear-kernel.rst
    polynomial-kernel.rst
    rbf-kernel.rst
+   sigmoid-kernel.rst
 
 .. rubric:: Examples: Linear Kernel
 
@@ -36,3 +37,7 @@ Kernel Functions
 .. rubric:: Examples: RBF Kernel
 
 .. include:: ../../../includes/kernel-functions/rbf-kernel-examples.rst
+
+.. rubric:: Examples: Sigmoid Kernel
+
+.. include:: ../../../includes/kernel-functions/sigmoid-kernel-examples.rst

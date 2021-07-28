@@ -116,6 +116,16 @@ Machine learning terms
         **Example:** in linear regression algorithm, the model contains weight
         values for each input feature and a single bias value
 
+    Nu-classification
+        An SVM-specific :capterm:`classification` problem where :math:`\nu` parameter is used
+        instead of :math:`C`. :math:`\nu` is an upper bound on the fraction
+        of training errors and a lower bound of the fraction of the support vector.
+
+    Nu-regression
+        An SVM-specific :capterm:`regression` problem where :math:`\nu` parameter is used
+        instead of :math:`\epsilon`. :math:`\nu` is an upper bound on the fraction
+        of training errors and a lower bound of the fraction of the support vector.
+
     Observation
         A :capterm:`feature vector` and zero or more :capterm:`responses<Response>`.
 
@@ -153,6 +163,10 @@ Machine learning terms
         :capterm:`model` on the :capterm:`inference` stage.
 
         **Synonym:** dependent variable
+
+    Search
+        A kNN-specific optimization problem of finding the point in a given set
+        that is the closest to the given points.
 
     Supervised learning
         :capterm:`Training` process that uses a :capterm:`dataset` with information

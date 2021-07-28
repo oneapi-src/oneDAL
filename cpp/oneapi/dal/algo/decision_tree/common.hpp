@@ -139,7 +139,12 @@ public:
     leaf_node_info<task_t>& operator=(leaf_node_info<task_t>&&);
 
     /// Label to be predicted when reaching the leaf
-    std::int64_t get_label() const;
+    [[deprecated]] std::int64_t get_label() const {
+        return get_response();
+    }
+
+    /// Response to be predicted when reaching the leaf
+    std::int64_t get_response() const;
     /// Probability estimation for the leaf for certain class
     double get_probability(std::int64_t class_idx) const;
 
@@ -160,7 +165,12 @@ public:
     leaf_node_info<task_t>& operator=(leaf_node_info<task_t>&&);
 
     /// Label to be predicted when reaching the leaf
-    double get_label() const;
+    [[deprecated]] double get_label() const {
+        return get_response();
+    }
+
+    /// Response to be predicted when reaching the leaf
+    double get_response() const;
 
 private:
     explicit leaf_node_info(impl_t* impl);

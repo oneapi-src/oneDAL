@@ -19,12 +19,12 @@
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
+#include "oneapi/dal/backend/memory.hpp"
 
 namespace oneapi::dal::backend {
 
 class homogen_table_builder_impl
-        : public detail::table_builder_template<detail::homogen_table_builder_iface,
-                                                homogen_table_builder_impl> {
+        : public detail::homogen_table_builder_template<homogen_table_builder_impl> {
 public:
     homogen_table_builder_impl() {
         reset();
@@ -82,10 +82,34 @@ public:
 
     void copy_data(const void* data, std::int64_t row_count, std::int64_t column_count) override {
         check_copy_data_preconditions(row_count, column_count);
-        detail::memcpy(detail::default_host_policy{},
-                       data_.get_mutable_data(),
-                       data,
-                       data_.get_size());
+
+        __ONEDAL_IF_QUEUE__(data_.get_queue(), {
+            auto this_q = data_.get_queue().value();
+            ONEDAL_ASSERT(is_known_usm(data_));
+            detail::memcpy_host2usm(this_q, data_.get_mutable_data(), data, data_.get_size());
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(data_.get_queue(), {
+            detail::memcpy(detail::default_host_policy{},
+                           data_.get_mutable_data(),
+                           data,
+                           data_.get_size());
+        });
+    }
+
+    void copy_data(const dal::array<byte_t>& data) override {
+        const std::int64_t dtype_size = detail::get_data_type_size(dtype_);
+        const std::int64_t input_element_count = data.get_size() / dtype_size;
+        ONEDAL_ASSERT(input_element_count * dtype_size == data.get_size());
+
+        __ONEDAL_IF_QUEUE__(data.get_queue(), {
+            auto input_q = data.get_queue().value();
+            copy_data(input_q, data.get_data(), input_element_count, 1);
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(data.get_queue(), { //
+            copy_data(data.get_data(), input_element_count, 1);
+        });
     }
 
     detail::homogen_table_iface* build_homogen() override {
@@ -122,18 +146,29 @@ public:
                    const void* data,
                    std::int64_t row_count,
                    std::int64_t column_count) override {
-        auto& queue = policy.get_queue();
-        ONEDAL_ASSERT(sycl::get_pointer_type(data_.get_data(), queue.get_context()) !=
-                      sycl::usm::alloc::unknown);
         check_copy_data_preconditions(row_count, column_count);
-        detail::memcpy(queue, data_.get_mutable_data(), data, data_.get_size());
+
+        auto& input_q = policy.get_queue();
+        ONEDAL_ASSERT(is_known_usm(input_q, data));
+
+        __ONEDAL_IF_QUEUE__(data_.get_queue(), {
+            auto this_q = data_.get_queue().value();
+
+            ONEDAL_ASSERT(is_known_usm(data_));
+            ONEDAL_ASSERT(is_known_usm(this_q, data));
+            detail::memcpy(this_q, data_.get_mutable_data(), data, data_.get_size());
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(data_.get_queue(), {
+            detail::memcpy_usm2host(input_q, data_.get_mutable_data(), data, data_.get_size());
+        });
     }
 #endif
 
     template <typename T>
-    void pull_rows(const detail::default_host_policy& policy,
-                   array<T>& block,
-                   const range& rows) const {
+    void pull_rows_template(const detail::default_host_policy& policy,
+                            array<T>& block,
+                            const range& rows) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_rows(policy,
                           get_info(),
@@ -145,10 +180,10 @@ public:
     }
 
     template <typename T>
-    void pull_column(const detail::default_host_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) const {
+    void pull_column_template(const detail::default_host_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_column(policy,
                             get_info(),
@@ -161,26 +196,26 @@ public:
     }
 
     template <typename T>
-    void push_rows(const detail::default_host_policy& policy,
-                   const array<T>& block,
-                   const range& rows) {
+    void push_rows_template(const detail::default_host_policy& policy,
+                            const array<T>& block,
+                            const range& rows) {
         homogen_push_rows(policy, get_info(), data_, block, rows);
     }
 
     template <typename T>
-    void push_column(const detail::default_host_policy& policy,
-                     const array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) {
+    void push_column_template(const detail::default_host_policy& policy,
+                              const array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) {
         homogen_push_column(policy, get_info(), data_, block, column_index, rows);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename T>
-    void pull_rows(const detail::data_parallel_policy& policy,
-                   array<T>& block,
-                   const range& rows,
-                   sycl::usm::alloc alloc) const {
+    void pull_rows_template(const detail::data_parallel_policy& policy,
+                            array<T>& block,
+                            const range& rows,
+                            sycl::usm::alloc alloc) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_rows(policy,
                           get_info(),
@@ -192,11 +227,11 @@ public:
     }
 
     template <typename T>
-    void pull_column(const detail::data_parallel_policy& policy,
-                     array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows,
-                     sycl::usm::alloc alloc) const {
+    void pull_column_template(const detail::data_parallel_policy& policy,
+                              array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows,
+                              sycl::usm::alloc alloc) const {
         constexpr bool preserve_mutability = true;
         homogen_pull_column(policy,
                             get_info(),
@@ -209,17 +244,17 @@ public:
     }
 
     template <typename T>
-    void push_rows(const detail::data_parallel_policy& policy,
-                   const array<T>& block,
-                   const range& rows) {
+    void push_rows_template(const detail::data_parallel_policy& policy,
+                            const array<T>& block,
+                            const range& rows) {
         homogen_push_rows(policy, get_info(), data_, block, rows);
     }
 
     template <typename T>
-    void push_column(const detail::data_parallel_policy& policy,
-                     const array<T>& block,
-                     std::int64_t column_index,
-                     const range& rows) {
+    void push_column_template(const detail::data_parallel_policy& policy,
+                              const array<T>& block,
+                              std::int64_t column_index,
+                              const range& rows) {
         homogen_push_column(policy, get_info(), data_, block, column_index, rows);
     }
 #endif

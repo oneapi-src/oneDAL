@@ -30,7 +30,7 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
                         const descriptor_t& desc,
                         const input_t& input) const {
         throw unimplemented(
-            dal::detail::error_messages::polynomial_kenrel_is_not_implemented_for_gpu());
+            dal::detail::error_messages::polynomial_kernel_is_not_implemented_for_gpu());
     }
 };
 

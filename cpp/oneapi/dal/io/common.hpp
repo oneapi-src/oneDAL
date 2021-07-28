@@ -30,4 +30,11 @@ namespace oneapi::dal::preview {
 template <typename IndexType = std::int32_t>
 using edge_list =
     detail::edge_list_container<std::pair<IndexType, IndexType>, std::allocator<char>>;
+
+/// Type of graph with edge weights representation as an edge list
+/// @tparam IndexType Type of the graph vertex indicies
+template <typename IndexType = std::int32_t, typename WeightType = std::int32_t>
+using weighted_edge_list =
+    detail::edge_list_container<std::tuple<IndexType, IndexType, WeightType>, std::allocator<char>>;
+
 } // namespace oneapi::dal::preview
