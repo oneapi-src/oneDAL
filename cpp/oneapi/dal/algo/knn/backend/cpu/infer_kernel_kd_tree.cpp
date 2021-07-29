@@ -66,14 +66,14 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal_parameter.voteWeights = daal_voting_mode;
 
     if (desc.get_result_options().test(result_options::responses)) {
-            arr_responses.reset(1 * row_count);
-            daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
+        arr_responses.reset(1 * row_count);
+        daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
     }
     else {
         daal_parameter.resultsToEvaluate = daal_classifier::none;
     }
 
-    if (desc.get_result_options() .test(result_options::indices)) {
+    if (desc.get_result_options().test(result_options::indices)) {
         dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
         arr_indices.reset(neighbor_count * row_count);
