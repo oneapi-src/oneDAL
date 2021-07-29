@@ -60,11 +60,11 @@ void partial_fisher_yates_shuffle(ndview<std::size_t, 1>& result_array, std::siz
     auto indices_ptr = result_array.get_mutable_data();
 
     std::uint64_t k = 0;
-    for (size_t i = 0; i < casted_count; i++) {
+    for (std::size_t i = 0; i < casted_count; i++) {
         uniform_by_cpu(1, indices_ptr + i, engine_impl->getState(), i, top);
         ONEDAL_ASSERT(indices_ptr[i] >= 0);
         std::size_t& value = indices_ptr[i];
-        for (size_t j = i; j > 0; j--) {
+        for (std::size_t j = i; j > 0; j--) {
             if (value == indices_ptr[j - 1]) {
                 value = j - 1;
             }

@@ -22,7 +22,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-void partial_fisher_yates_shuffle(ndview<size_t, 1>& result_array, std::size_t top);
+void partial_fisher_yates_shuffle(ndview<std::size_t, 1>& result_array, std::size_t top);
 
 #endif
 
