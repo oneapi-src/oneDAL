@@ -90,18 +90,48 @@ int main(int argc, char **argv) {
     Mallocator<char> mallocator;
 
     {
-        auto read_args = csv::read_args<graph_t, Mallocator<char>>{ mallocator }.set_read_mode(
-            preview::read_mode::edge_list);
+        auto graph = read<graph_t>(csv::data_source{ filename });
+        print_graph_info(graph);
+    }
+
+    {
+        auto graph = read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list);
+        print_graph_info(graph);
+    }
+
+    // { Doesn't work
+    //     auto graph = read<graph_t, csv::data_source>(csv::data_source{ filename }, mallocator);
+    //     print_graph_info(graph);
+    // }
+
+    {
         auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
             csv::data_source{ filename },
-            std::move(read_args));
+            mallocator);
+        print_graph_info(graph);
+    }
+
+    {
+        auto read_args =
+            csv::read_args<graph_t, Mallocator<char>>{ mallocator, preview::read_mode::edge_list };
+        auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
+        print_graph_info(graph);
+    }
+
+    {
+        // auto read_args = csv::read_args<graph_t>{ mallocator, preview::read_mode::edge_list};
+        auto read_args = csv::read_args<graph_t>(mallocator);
+        // , preview::read_mode::edge_list
+        auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
         print_graph_info(graph);
     }
 
     {
         auto read_args = csv::read_args<graph_t, Mallocator<char>>{ mallocator }.set_read_mode(
             preview::read_mode::edge_list);
-        auto graph = read<graph_t>(csv::data_source{ filename }, std::move(read_args));
+        auto graph = read<graph_t, csv::data_source, csv::read_args<graph_t, Mallocator<char>>>(
+            csv::data_source{ filename },
+            std::move(read_args));
         print_graph_info(graph);
     }
 
@@ -112,18 +142,4 @@ int main(int argc, char **argv) {
                               preview::read_mode::edge_list));
         print_graph_info(graph);
     }
-
-    { auto graph = read<graph_t>(csv::data_source{ filename }, preview::read_mode::edge_list); }
-
-    // auto graph = read<graph_t>(csv::data_source{ filename }, mallocator);
-    // auto graph =
-    //     read<graph_t>(csv::data_source{ filename }, mallocator, preview::read_mode::edge_list);
-
-    // print_graph_info(graph);
-    // }
-
-    // {
-    //     auto graph = read<graph_t>(csv::data_source{ filename });
-    //     print_graph_info(graph);
-    // }
 }

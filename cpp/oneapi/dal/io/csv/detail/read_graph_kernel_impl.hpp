@@ -560,7 +560,7 @@ void convert_to_csr_impl(
 
 template <typename EdgeListType, typename Descriptor, typename DataSource>
 void read_impl(const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t &graph) {
-    using allocator_t = typename Descriptor::allocator_t;
+    // using allocator_t = typename Descriptor::allocator_t;
 
     EdgeListType elist;
     read_edge_list(ds.get_file_name(), elist);

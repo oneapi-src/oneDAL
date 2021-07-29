@@ -52,18 +52,18 @@ struct read_ops;
 
 template <typename Object, typename Allocator>
 struct read_ops<Object, data_source, Allocator> {
-    using args_t = read_args<Object, Allocator>;
+    using input_t = read_args<Object, Allocator>;
     using result_t = Object;
     using allocator_t = Allocator;
 
-    void check_preconditions(const data_source_base& ds, const args_t& args) const {}
+    void check_preconditions(const data_source_base& ds, const input_t& args) const {}
 
     void check_postconditions(const data_source_base& ds,
-                              const args_t& args,
+                              const input_t& args,
                               const result_t& result) const {}
 
     template <typename Policy>
-    auto operator()(const Policy& ctx, const data_source_base& ds, const args_t& args) const {
+    auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
         check_preconditions(ds, args);
         auto result = read_ops_dispatcher<Object, Policy, Allocator>()(ctx, ds, args);
         check_postconditions(ds, args, result);
@@ -73,17 +73,17 @@ struct read_ops<Object, data_source, Allocator> {
 
 template <typename Object>
 struct read_ops<Object, data_source> {
-    using args_t = read_args<Object, std::allocator<float>>;
+    using input_t = read_args<Object, std::allocator<float>>;
     using result_t = Object;
 
-    void check_preconditions(const data_source_base& ds, const args_t& args) const {}
+    void check_preconditions(const data_source_base& ds, const input_t& args) const {}
 
     void check_postconditions(const data_source_base& ds,
-                              const args_t& args,
+                              const input_t& args,
                               const result_t& result) const {}
 
     template <typename Policy>
-    auto operator()(const Policy& ctx, const data_source_base& ds, const args_t& args) const {
+    auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
         check_preconditions(ds, args);
         auto result = read_ops_dispatcher<Object, Policy, std::allocator<float>>()(ctx, ds, args);
         check_postconditions(ds, args, result);
@@ -93,17 +93,17 @@ struct read_ops<Object, data_source> {
 
 template <>
 struct read_ops<table, data_source> {
-    using args_t = read_args<table>;
+    using input_t = read_args<table>;
     using result_t = table;
 
-    void check_preconditions(const data_source_base& ds, const args_t& args) const {}
+    void check_preconditions(const data_source_base& ds, const input_t& args) const {}
 
     void check_postconditions(const data_source_base& ds,
-                              const args_t& args,
+                              const input_t& args,
                               const result_t& result) const {}
 
     template <typename Policy>
-    auto operator()(const Policy& ctx, const data_source_base& ds, const args_t& args) const {
+    auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
         check_preconditions(ds, args);
         const auto result = read_ops_dispatcher<table, Policy>()(ctx, ds, args);
         check_postconditions(ds, args, result);

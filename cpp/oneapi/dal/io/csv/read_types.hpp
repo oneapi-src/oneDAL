@@ -30,13 +30,11 @@ class read_args_impl;
 template <typename Allocator>
 class read_args_graph_impl : public base {
 public:
-    read_args_graph_impl(preview::read_mode mode = preview::read_mode::edge_list) : mode(mode) {
+    read_args_graph_impl(preview::read_mode mode) : mode(mode) {
         if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
-    read_args_graph_impl(Allocator alloc, preview::read_mode mode = preview::read_mode::edge_list)
-            : allocator(alloc),
-              mode(mode) {
+    read_args_graph_impl(Allocator alloc, preview::read_mode mode) : allocator(alloc), mode(mode) {
         if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
             throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
     }
@@ -55,21 +53,20 @@ namespace v1 {
 
 struct read_args_tag {};
 
-template <typename Object = table, typename Allocator = std::allocator<char>>
+template <typename Object, typename Allocator = std::allocator<char>>
 class ONEDAL_EXPORT read_args : public base {
 public:
     using object_t = Object;
     using allocator_t = Allocator;
     using tag_t = read_args_tag;
-    read_args() : impl_(new detail::read_args_graph_impl<Allocator>()) {}
+    read_args()
+            : impl_(new detail::read_args_graph_impl<Allocator>(preview::read_mode::edge_list)) {}
     read_args(const read_args& args) = default;
     read_args(preview::read_mode mode) : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {}
-    read_args(Allocator& allocator) : impl_(new detail::read_args_graph_impl<Allocator>()) {
+    read_args(Allocator& allocator, preview::read_mode mode = preview::read_mode::edge_list)
+            : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {
         set_allocator_impl(allocator);
     }
-    read_args(Allocator& allocator, preview::read_mode mode)
-            : impl_(new detail::read_args_graph_impl<Allocator>(allocator, mode)) {}
-
     Allocator get_allocator() const;
 
     auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
