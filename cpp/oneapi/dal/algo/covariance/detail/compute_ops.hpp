@@ -41,8 +41,8 @@ struct compute_ops {
     void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
-        if (!input.get_x().has_data()) {
-            throw domain_error(msg::input_x_is_empty());
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
 
     }
@@ -50,9 +50,26 @@ struct compute_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        ONEDAL_ASSERT(result.get_values().has_data());
-        ONEDAL_ASSERT(input.get_x().get_row_count() == result.get_values().get_row_count());
-        //ONEDAL_ASSERT(input.get_y().get_row_count() == result.get_values().get_column_count());
+        ONEDAL_ASSERT(result.get_means().has_data());
+        ONEDAL_ASSERT(result.get_means().get_column_count() ==
+                      input.get_data().get_column_count());
+        ONEDAL_ASSERT(result.get_means().get_row_count() == 1);
+        if (bool(result.get_result_options() & result_options::cor_matrix))
+        {
+            ONEDAL_ASSERT(result.get_cor().has_data());
+            ONEDAL_ASSERT(result.get_cor().get_column_count() ==
+                      input.get_data().get_column_count());
+            ONEDAL_ASSERT(result.get_cor().get_row_count() ==
+                      input.get_data().get_column_count());           
+        }
+        if (bool(result.get_result_options() & result_options::cov_matrix))
+        {
+            ONEDAL_ASSERT(result.get_cov().has_data());
+            ONEDAL_ASSERT(result.get_cov().get_column_count() ==
+                      input.get_data().get_column_count());
+            ONEDAL_ASSERT(result.get_cov().get_row_count() ==
+                      input.get_data().get_column_count()); 
+        }
     }
 
     template <typename Context>

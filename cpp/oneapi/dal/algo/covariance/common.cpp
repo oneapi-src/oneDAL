@@ -28,9 +28,9 @@ result_option_id get_cor_matrix() {
     return result_option_id::make_by_index(1);
 }
 
-result_option_id get_means() {
-    return result_option_id::make_by_index(2);
-}
+// result_option_id get_means() {
+//     return result_option_id::make_by_index(2);
+// }
 
 template <typename Task>
 result_option_id get_default_result_options() {

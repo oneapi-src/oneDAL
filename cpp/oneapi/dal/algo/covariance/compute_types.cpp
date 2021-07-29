@@ -23,8 +23,8 @@ namespace oneapi::dal::covariance {
 template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
-    compute_input_impl(const table& input) : input(input) {}
-    table input;
+    compute_input_impl(const table& data) : data(data) {}
+    table data;
 };
 
 template <typename Task>
@@ -42,17 +42,17 @@ using detail::v1::compute_result_impl;
 namespace v1 {
 
 template <typename Task>
-compute_input<Task>::compute_input(const table& x)
-        : impl_(new compute_input_impl<Task>(x)) {}
+compute_input<Task>::compute_input(const table& data)
+        : impl_(new compute_input_impl<Task>(data)) {}
 
 template <typename Task>
-const table& compute_input<Task>::get_input() const {
-    return impl_->input;
+const table& compute_input<Task>::get_data() const {
+    return impl_->data;
 }
 
 template <typename Task>
-void compute_input<Task>::set_input_impl(const table& value) {
-    impl_->x = value;
+void compute_input<Task>::set_data_impl(const table& value) {
+    impl_->data = value;
 }
 
 template <typename Task>
@@ -87,10 +87,10 @@ void compute_result<Task>::set_cor_matrix_impl(const table& value) {
 
 template <typename Task>
 const table& compute_result<Task>::get_means() const {
-    using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::means)) {
-        throw domain_error(msg::result_option_have_not_been_computed());
-    }
+    // using msg = dal::detail::error_messages;
+    // if (!bool(get_result_options() & result_options::means)) {
+    //     throw domain_error(msg::result_option_have_not_been_computed());
+    // }
     return impl_->means;
 }
 
