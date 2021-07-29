@@ -68,7 +68,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     knn_model->impl()->setData<Float>(daal_data, copy_data_responses);
 
     auto daal_responses = daal::data_management::NumericTablePtr();
-    if constexpr (!std::is_same_v<Task, task::search>) {
+    if (desc.get_result_options().test(result_options::responses)) {
         daal_responses = interop::copy_to_daal_homogen_table<Float>(responses);
         knn_model->impl()->setLabels<Float>(daal_responses, copy_data_responses);
     }

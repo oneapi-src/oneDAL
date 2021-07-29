@@ -73,7 +73,7 @@ infer_result<Task>::infer_result() : impl_(new infer_result_impl<Task>{}) {}
 template <typename Task>
 const table& infer_result<Task>::get_responses() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::responses)) {
+    if (!get_result_options().test(result_options::responses)) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->responses;
@@ -87,7 +87,7 @@ void infer_result<Task>::set_responses_impl(const table& value) {
 template <typename Task>
 const table& infer_result<Task>::get_indices() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::indices)) {
+    if (!get_result_options().test(result_options::indices)) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->indices;
@@ -101,7 +101,7 @@ void infer_result<Task>::set_indices_impl(const table& value) {
 template <typename Task>
 const table& infer_result<Task>::get_distances() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options() & result_options::distances)) {
+    if (!get_result_options().test(result_options::distances)) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->distances;

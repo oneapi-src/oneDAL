@@ -41,12 +41,12 @@ result_option_id get_default_result_options() {
 
 template <>
 result_option_id get_default_result_options<task::search>() {
-    return result_options::indices | result_options::distances;
+    return get_indices_id() | get_distances_id();
 }
 
 template <>
 result_option_id get_default_result_options<task::classification>() {
-    return result_options::responses;
+    return get_responses_id();
 }
 
 namespace v1 {
@@ -129,7 +129,7 @@ void descriptor_base<Task>::set_result_options_impl(const result_option_id& valu
     if (!bool(value)) {
         throw domain_error(msg::empty_set_of_result_options());
     }
-    else if (std::is_same_v<Task, task::search> && bool(value | result_options::responses)) {
+    else if (std::is_same_v<Task, task::search> && value.test(result_options::responses)) {
         throw domain_error(msg::invalid_set_of_result_options_to_search());
     }
     impl_->result_options = value;
