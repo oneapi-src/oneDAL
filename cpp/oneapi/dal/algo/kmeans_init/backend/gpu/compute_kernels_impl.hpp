@@ -71,19 +71,17 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
                                                  pr::ndview<Float, 2>& centroids) {
         ONEDAL_ASSERT(data.get_dimension(1) == centroids.get_dimension(1));
         ONEDAL_ASSERT(data.get_dimension(0) >= centroids.get_dimension(0));
-        const std::uint64_t row_count =
-            dal::detail::integral_cast<std::uint64_t>(data.get_dimension(0));
-        const std::uint64_t cluster_count =
-            dal::detail::integral_cast<std::uint64_t>(centroids.get_dimension(0));
+        const std::int64_t row_count = data.get_dimension(0);
+        const std::int64_t cluster_count = centroids.get_dimension(0);
         const std::int64_t column_count = centroids.get_dimension(1);
         const auto data_ptr = data.get_data();
         auto centroids_ptr = centroids.get_mutable_data();
         dal::detail::check_mul_overflow(
             cluster_count,
-            dal::detail::integral_cast<std::uint64_t>(sizeof(std::int32_t)));
+            dal::detail::integral_cast<std::int64_t>(sizeof(std::size_t)));
 
-        auto indices = pr::ndarray<size_t, 1>::empty(queue, cluster_count);
-        partial_fisher_yates_shuffle(indices, row_count);
+        auto indices = pr::ndarray<std::size_t, 1>::empty(queue, cluster_count);
+        partial_fisher_yates_shuffle(indices, dal::detail::integral_cast<std::size_t>(row_count));
         auto indices_ptr = indices.get_data();
 
         const std::int64_t required_local_size = bk::device_max_wg_size(queue);
@@ -91,9 +89,8 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
 
         auto gather_event = queue.submit([&](sycl::handler& cgh) {
             sycl::stream out(1024, 256, cgh);
-            const auto range = bk::make_multiple_nd_range_2d(
-                { local_size, dal::detail::integral_cast<std::int64_t>(cluster_count) },
-                { local_size, 1 });
+            const auto range =
+                bk::make_multiple_nd_range_2d({ local_size, cluster_count }, { local_size, 1 });
             cgh.parallel_for(range, [=](sycl::nd_item<2> id) {
                 const auto cluster = id.get_global_id(1);
                 const std::int64_t local_id = id.get_local_id(0);

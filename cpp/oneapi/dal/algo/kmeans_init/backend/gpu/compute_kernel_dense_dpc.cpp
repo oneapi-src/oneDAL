@@ -18,6 +18,7 @@
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernels_impl.hpp"
 #include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -29,9 +30,7 @@ namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
 
 using result_t = compute_result<task::init>;
-
 using descriptor_t = detail::descriptor_base<task::init>;
-
 using input_t = compute_input<task::init>;
 
 template <typename Float, typename Method>
@@ -41,13 +40,10 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto& queue = ctx.get_queue();
     interop::execution_context_guard guard(queue);
 
-    const int64_t column_count = data.get_column_count();
-    const int64_t row_count = data.get_row_count();
-    const int64_t cluster_count = params.get_cluster_count();
+    const std::int64_t column_count = data.get_column_count();
+    const std::int64_t cluster_count = params.get_cluster_count();
 
-    auto data_ptr =
-        row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
-    auto arr_data = pr::ndarray<Float, 2>::wrap(data_ptr, { row_count, column_count });
+    auto arr_data = pr::table2ndarray<Float>(queue, data, sycl::usm::alloc::device);
 
     dal::detail::check_mul_overflow(cluster_count, column_count);
     auto arr_centroids = pr::ndarray<Float, 2>::empty(queue,

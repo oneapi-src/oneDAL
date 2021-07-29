@@ -32,7 +32,7 @@ template <typename... Args>
 inline void uniform_by_cpu(Args&&... args) {
     dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
         int res = daal::internal::RNGs<
-                      size_t,
+                      std::size_t,
                       oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
                       .uniform(std::forward<Args>(args)...);
         if (res) {
@@ -42,7 +42,7 @@ inline void uniform_by_cpu(Args&&... args) {
     });
 }
 
-void partial_fisher_yates_shuffle(ndview<size_t, 1>& result_array, size_t top) {
+void partial_fisher_yates_shuffle(ndview<std::size_t, 1>& result_array, std::size_t top) {
     using msg = dal::detail::error_messages;
     daal::algorithms::engines::EnginePtr engine =
         daal::algorithms::engines::mt19937::Batch<>::create(777);
@@ -63,7 +63,7 @@ void partial_fisher_yates_shuffle(ndview<size_t, 1>& result_array, size_t top) {
     for (size_t i = 0; i < casted_count; i++) {
         uniform_by_cpu(1, indices_ptr + i, engine_impl->getState(), i, top);
         ONEDAL_ASSERT(indices_ptr[i] >= 0);
-        size_t& value = indices_ptr[i];
+        std::size_t& value = indices_ptr[i];
         for (size_t j = i; j > 0; j--) {
             if (value == indices_ptr[j - 1]) {
                 value = j - 1;

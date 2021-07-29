@@ -19,6 +19,10 @@
 namespace oneapi::dal::kmeans_init::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
+template struct kmeans_init_kernel<float, kmeans_init::method::dense>;
+template struct kmeans_init_kernel<float, kmeans_init::method::random_dense>;
+template struct kmeans_init_kernel<float, kmeans_init::method::plus_plus_dense>;
+template struct kmeans_init_kernel<float, kmeans_init::method::parallel_plus_dense>;
 template struct kmeans_init_kernel<double, kmeans_init::method::dense>;
 template struct kmeans_init_kernel<double, kmeans_init::method::random_dense>;
 template struct kmeans_init_kernel<double, kmeans_init::method::plus_plus_dense>;
