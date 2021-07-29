@@ -87,10 +87,10 @@ void compute_result<Task>::set_cor_matrix_impl(const table& value) {
 
 template <typename Task>
 const table& compute_result<Task>::get_means() const {
-    // using msg = dal::detail::error_messages;
-    // if (!bool(get_result_options() & result_options::means)) {
-    //     throw domain_error(msg::result_option_have_not_been_computed());
-    // }
+    using msg = dal::detail::error_messages;
+    if (!bool(get_result_options() & result_options::means)) {
+        throw domain_error(msg::result_option_have_not_been_computed());
+    }
     return impl_->means;
 }
 

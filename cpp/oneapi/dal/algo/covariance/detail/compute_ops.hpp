@@ -50,10 +50,12 @@ struct compute_ops {
     void check_postconditions(const Descriptor& params,
                               const input_t& input,
                               const result_t& result) const {
-        ONEDAL_ASSERT(result.get_means().has_data());
-        ONEDAL_ASSERT(result.get_means().get_column_count() ==
+        if (bool(result.get_result_options() & result_options::means))
+        {
+            ONEDAL_ASSERT(result.get_means().has_data());
+            ONEDAL_ASSERT(result.get_means().get_column_count() ==
                       input.get_data().get_column_count());
-        ONEDAL_ASSERT(result.get_means().get_row_count() == 1);
+            ONEDAL_ASSERT(result.get_means().get_row_count() == 1);
         if (bool(result.get_result_options() & result_options::cor_matrix))
         {
             ONEDAL_ASSERT(result.get_cor().has_data());

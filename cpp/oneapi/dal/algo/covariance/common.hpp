@@ -60,7 +60,7 @@ namespace detail {
 
 ONEDAL_EXPORT result_option_id get_cov_matrix();
 ONEDAL_EXPORT result_option_id get_cor_matrix();
-//ONEDAL_EXPORT result_option_id get_means();
+ONEDAL_EXPORT result_option_id get_means();
 
 template <typename Task>
 ONEDAL_EXPORT result_option_id get_default_result_options();
@@ -73,7 +73,7 @@ namespace result_options {
 
 const inline result_option_id cov_matrix = detail::get_cov_matrix();
 const inline result_option_id cor_matrix = detail::get_cor_matrix();
-//const inline result_option_id means = detail::get_means();
+const inline result_option_id means = detail::get_means();
 
 } // namespace result_options
 
