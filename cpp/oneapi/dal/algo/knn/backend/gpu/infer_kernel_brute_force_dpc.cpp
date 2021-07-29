@@ -129,7 +129,7 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
                                         .build());
     }
 
-    if (desc.get_result_options().test(result_options::indices)) {
+    if (desc.get_result_options().test(result_options::distances)) {
         result = result.set_distances(dal::detail::homogen_table_builder{}
                                           .reset(arr_distance, row_count, neighbor_count)
                                           .build());
