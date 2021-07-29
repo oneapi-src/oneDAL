@@ -42,6 +42,11 @@ using sycl::ONEAPI::minimum;
 using sycl::ONEAPI::maximum;
 using sycl::ONEAPI::exclusive_scan;
 
+using bin_map_t = std::uint64_t;
+constexpr inline std::int32_t bin_block_count =
+    4; // number of elements in bin_map_t array which is used for trackin already processed bins
+constexpr inline std::int32_t bin_in_block_count = sizeof(bin_map_t) * 8;
+
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
 
@@ -141,15 +146,16 @@ inline bool float_gt(Float a, Float b) {
 }
 
 template <typename Index>
-inline void mark_bin_processed(std::uint64_t* bin_map, Index bin_idx) {
-    std::uint64_t mask = 1ul << (bin_idx % 64);
-    bin_map[bin_idx / 64] = bin_map[bin_idx / 64] & mask;
+inline void mark_bin_processed(bin_map_t* bin_map, Index bin_idx) {
+    bin_map_t mask = 1ul << (bin_idx % bin_in_block_count);
+    bin_map[bin_idx / bin_in_block_count] = bin_map[bin_idx / bin_in_block_count] & mask;
 }
 
 template <typename Index>
-inline bool is_bin_processed(const std::uint64_t* bin_map, Index bin_idx) {
-    std::uint64_t mask = 1ul << (bin_idx % 64);
-    return bin_map[bin_idx / 64] & mask;
+inline bool is_bin_processed(const bin_map_t* bin_map, Index bin_idx) {
+    bin_map_t mask = 1ul << (bin_idx % bin_in_block_count);
+    Index block_idx = bin_idx / bin_in_block_count;
+    return block_idx < bin_block_count ? bin_map[block_idx] & mask : false;
 }
 
 template <typename Float, typename Index, typename Task>
@@ -897,7 +903,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                 const Index ts_ftr_id =
                     selected_ftr_list_ptr[node_id * selected_ftr_count + ftr_idx];
 
-                std::uint64_t bin_map[4] = { 0 };
+                bin_map_t bin_map[bin_block_count] = { 0 };
 
                 // calculating classes histogram rows count <= bins num
                 for (Index i = 0; i < row_count; i++) {

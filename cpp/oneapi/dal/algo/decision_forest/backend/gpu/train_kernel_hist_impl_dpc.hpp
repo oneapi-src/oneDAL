@@ -62,13 +62,6 @@ struct float_accuracy<double> {
     static constexpr double val = double(1e-10);
 };
 
-//template <typename T>
-//inline T atomic_global_add(T* ptr, T operand) {
-//    return sycl::atomic_fetch_add<T, address::global_space>(
-//        { sycl::multi_ptr<T, address::global_space>{ ptr } },
-//        operand);
-//}
-
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
     sycl::ONEAPI::atomic_ref<T,
