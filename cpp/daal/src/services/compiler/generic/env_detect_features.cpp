@@ -42,7 +42,7 @@
 void __daal_serv_CPUHasAVX512f_enable_it_mac();
 #endif
 
-static void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
+void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t* abcd)
 {
 #if defined(_MSC_VER)
     __cpuidex((int *)abcd, eax, ecx);
