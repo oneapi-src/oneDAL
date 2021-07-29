@@ -66,10 +66,8 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     daal_parameter.voteWeights = daal_voting_mode;
 
     if (desc.get_result_options().test(result_options::responses)) {
-        if constexpr (std::is_same_v<Task, task::classification>) {
             arr_responses.reset(1 * row_count);
             daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
-        }
     }
     else {
         daal_parameter.resultsToEvaluate = daal_classifier::none;

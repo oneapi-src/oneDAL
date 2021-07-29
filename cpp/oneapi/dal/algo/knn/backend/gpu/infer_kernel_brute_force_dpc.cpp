@@ -79,10 +79,8 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
         data_use_in_model);
 
     if (desc.get_result_options().test(result_options::responses)) {
-        if constexpr (std::is_same_v<Task, task::classification>) {
             arr_responses = array<Float>::empty(queue, 1 * row_count, sycl::usm::alloc::device);
             daal_responses = interop::convert_to_daal_table(queue, arr_responses, row_count, 1);
-        }
     }
     else {
         daal_parameter.resultsToEvaluate = daal_classifier::none;

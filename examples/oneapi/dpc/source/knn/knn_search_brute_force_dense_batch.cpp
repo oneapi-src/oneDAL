@@ -33,13 +33,13 @@ void run(sycl::queue& q) {
     const std::size_t neighbors_count = 6;
 
     const auto knn_desc =
-        knn::descriptor<float, knn::method::brute_force, knn::task::search>(neighbors_count);
+        knn::descriptor<float, knn::method::brute_force, knn::task::search>(neighbors_count)
+        .set_result_options(result_options::indices);
 
     const auto train_result = dal::train(q, knn_desc, x_train);
     const auto test_result = dal::infer(q, knn_desc, x_query, train_result.get_model());
 
     std::cout << "Indices result:\n" << test_result.get_indices() << std::endl;
-    std::cout << "Distance result:\n" << test_result.get_distances() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
