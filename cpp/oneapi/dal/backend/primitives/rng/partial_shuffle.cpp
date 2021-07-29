@@ -55,7 +55,7 @@ void partial_fisher_yates_shuffle(ndview<std::size_t, 1>& result_array, std::siz
         throw internal_error(msg::failed_to_generate_random_numbers());
     }
     const std::uint64_t count = result_array.get_count();
-    const auto casted_count = dal::detail::integral_cast<size_t>(count);
+    const auto casted_count = dal::detail::integral_cast<std::size_t>(count);
     ONEDAL_ASSERT(casted_count < top);
     auto indices_ptr = result_array.get_mutable_data();
 
