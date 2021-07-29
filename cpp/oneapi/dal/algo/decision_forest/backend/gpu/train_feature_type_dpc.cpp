@@ -24,8 +24,6 @@
 
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 
-#endif
-
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;
@@ -488,3 +486,5 @@ INSTANTIATE(double, std::uint32_t);
 INSTANTIATE(double, std::uint8_t);
 
 } // namespace oneapi::dal::decision_forest::backend
+
+#endif

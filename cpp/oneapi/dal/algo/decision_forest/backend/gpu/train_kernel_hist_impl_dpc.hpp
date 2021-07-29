@@ -22,14 +22,12 @@
 
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 
-#endif
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel_hist_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 using alloc = sycl::usm::alloc;
@@ -68,8 +66,8 @@ inline T atomic_global_add(T* ptr, T operand) {
                              cl::sycl::ONEAPI::memory_order::relaxed,
                              cl::sycl::ONEAPI::memory_scope::device,
                              cl::sycl::access::address_space::global_device_space>
-        counter_atomic(*ptr);
-    return counter_atomic.fetch_add(operand);
+        atomic_var(*ptr);
+    return atomic_var.fetch_add(operand);
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
@@ -84,7 +82,7 @@ std::int64_t train_kernel_hist_impl<Float, Bin, Index, Task>::get_part_hist_requ
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::allreduce_ndarray_inplace(
     pr::ndarray<Index, 1>& src_dst,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
 #ifdef DISTRIBUTED_SUPPORT_ENABLED
 
     auto src_dst_host = src_dst.to_host(queue_, deps);
@@ -106,7 +104,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::allreduce_ndarray_i
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::allreduce_ndarray_inplace(
     pr::ndarray<Float, 1>& src_dst,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
 #ifdef DISTRIBUTED_SUPPORT_ENABLED
     auto src_dst_host = src_dst.to_host(queue_, deps);
     auto tgt_host = pr::ndarray<Float, 1>::empty(src_dst.get_shape());
@@ -713,7 +711,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
     imp_data_t& imp_data_list,
     pr::ndarray<Index, 1>& node_list,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() ==
                   node_count * impl_const_t::node_imp_prop_count_);
     if constexpr (std::is_same_v<task::classification, Task>) {
@@ -775,7 +773,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
     pr::ndarray<Index, 1>& node_list,
     imp_data_t& imp_data_list,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
@@ -804,7 +802,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
 
     auto local_size = ctx.preferable_group_size_;
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
+        bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -858,7 +856,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
     const pr::ndarray<Index, 1>& node_list,
     pr::ndarray<Float, 1>& sum_list,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
@@ -877,7 +875,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
 
     auto local_size = ctx.preferable_group_size_;
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
+        bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -929,7 +927,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
     const pr::ndarray<Float, 1>& sum_list,
     pr::ndarray<Float, 1>& sum2cent_list,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
@@ -950,7 +948,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
 
     auto local_size = ctx.preferable_group_size_;
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
+        bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -1005,7 +1003,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_initial_imp(
     const pr::ndarray<Float, 1>& sum2cent_list,
     imp_data_t& imp_data_list,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(sum_list.get_count() == node_count);
     ONEDAL_ASSERT(sum2cent_list.get_count() == node_count);
@@ -1044,7 +1042,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
     pr::ndarray<Index, 1>& node_list,
     imp_data_t& imp_data_list,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
@@ -1129,7 +1127,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     pr::ndarray<Float, 1>& node_imp_decrease_list,
     bool update_imp_dec_required,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
@@ -1312,7 +1310,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram(
     Index node_ind_ofs,
     Index part_hist_count,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
@@ -1402,7 +1400,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_histogram_distr(
     Index node_ind_ofs,
     Index part_hist_count,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
@@ -1624,7 +1622,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_his
     pr::ndarray<hist_type_t, 1>& part_hist_list,
     Index part_hist_count,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(tree_order.get_count() == ctx.tree_in_block_ * ctx.selected_row_total_count_);
@@ -1669,7 +1667,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_his
 
     auto local_size = ctx.preferable_local_size_for_part_hist_kernel_;
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ part_hist_count * local_size, node_count },
+        bk::make_multiple_nd_range_2d({ part_hist_count * local_size, node_count },
                                       { local_size, 1 });
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
@@ -1727,7 +1725,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
     pr::ndarray<Float, 1>& part_hist_list,
     Index part_hist_count,
     Index node_count,
-    const be::event_vector& deps,
+    const bk::event_vector& deps,
     const task::regression task_val) {
     const Index hist_prop_count = impl_const_t::hist_prop_sum_count_;
     const Index node_prop_count =
@@ -1764,7 +1762,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
 
     auto local_size = ctx.preferable_local_size_for_part_hist_kernel_;
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ part_hist_count * local_size, node_count },
+        bk::make_multiple_nd_range_2d({ part_hist_count * local_size, node_count },
                                       { local_size, 1 });
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
@@ -1823,7 +1821,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_sum
     pr::ndarray<Float, 1>& part_hist_list,
     Index part_hist_count,
     Index node_count,
-    const be::event_vector& deps,
+    const bk::event_vector& deps,
     const task::regression task_val) {
     const Index hist_prop_sum_count = impl_const_t::hist_prop_sum_count_;
     const Index hist_prop_count = impl_const_t::hist_prop_sum2cent_count_;
@@ -1863,7 +1861,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_sum
 
     auto local_size = ctx.preferable_local_size_for_part_hist_kernel_;
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ part_hist_count * local_size, node_count },
+        bk::make_multiple_nd_range_2d({ part_hist_count * local_size, node_count },
                                       { local_size, 1 });
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
@@ -1922,7 +1920,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_histogram_distr
     const pr::ndarray<Float, 1>& sum2cent_list,
     pr::ndarray<Float, 1>& hist_list,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     const Index hist_prop_sum_count = impl_const_t::hist_prop_sum_count_;
     const Index hist_prop_sum2cent_count = impl_const_t::hist_prop_sum2cent_count_;
     const Index hist_prop_count = impl_const_t::hist_prop_count_;
@@ -1970,7 +1968,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_hist
     pr::ndarray<hist_type_t, 1>& hist_list,
     Index part_hist_count,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     Index hist_prop_count = 0;
     if constexpr (std::is_same_v<std::decay_t<Task>, task::classification>) {
         hist_prop_count = ctx.class_count_;
@@ -1993,7 +1991,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_hist
 
     // overflow for nMaxBinsAmongFtrs * nSelectedFeatures should be checked in compute
     const sycl::nd_range<3> nd_range =
-        be::make_multiple_nd_range_3d({ max_bin_count_among_ftrs * selected_ftr_count,
+        bk::make_multiple_nd_range_3d({ max_bin_count_among_ftrs * selected_ftr_count,
                                         ctx.reduce_local_size_part_hist_,
                                         node_count },
                                       { 1, ctx.reduce_local_size_part_hist_, 1 });
@@ -2057,7 +2055,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
     Index part_hist_count,
     Index node_count,
     Index hist_prop_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     const Index max_bin_count_among_ftrs = ctx.max_bin_count_among_ftrs_;
     const Index selected_ftr_count = ctx.selected_ftr_count_;
 
@@ -2072,7 +2070,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
 
     // overflow for nMaxBinsAmongFtrs * nSelectedFeatures should be checked in compute
     const sycl::nd_range<3> nd_range =
-        be::make_multiple_nd_range_3d({ max_bin_count_among_ftrs * selected_ftr_count,
+        bk::make_multiple_nd_range_3d({ max_bin_count_among_ftrs * selected_ftr_count,
                                         ctx.reduce_local_size_part_hist_,
                                         node_count },
                                       { 1, ctx.reduce_local_size_part_hist_, 1 });
@@ -2231,7 +2229,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
     imp_data_t& imp_data_list_new,
     Index node_count,
     Index node_count_new,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(node_vs_tree_map_list.get_count() == node_count);
     ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() ==
@@ -2273,8 +2271,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
 
     const kernel_context<Float, Index, Task> krn_ctx(ctx);
 
-    auto local_size = be::device_max_sg_size(queue_);
-    const sycl::nd_range<1> nd_range = be::make_multiple_nd_range_1d(local_size, local_size);
+    auto local_size = bk::device_max_sg_size(queue_);
+    const sycl::nd_range<1> nd_range = bk::make_multiple_nd_range_1d(local_size, local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -2355,7 +2353,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error(
     Index tree_idx,
     Index ind_ofs,
     Index n,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data_host.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response_host.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(oob_row_list.get_count() >= ind_ofs + n);
@@ -2411,7 +2409,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error_perm(
     Index ind_ofs,
     Index n,
     Index column_idx,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data_host.get_count() == ctx.row_count_ * ctx.column_count_);
     ONEDAL_ASSERT(response_host.get_count() == ctx.column_count_);
     ONEDAL_ASSERT(oob_row_list.get_count() >= ind_ofs + n);
@@ -2470,7 +2468,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
     Index tree_idx_in_block,
     Index tree_in_block_count,
     Index built_tree_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(oob_row_count_list.get_count() == tree_in_block_count + 1);
     ONEDAL_ASSERT(
         (ctx.mdi_required_ || ctx.mda_required_) ? var_imp.get_count() == ctx.column_count_ : true);
@@ -2556,7 +2554,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
     pr::ndarray<hist_type_t, 1>& oob_per_obs_list,
     pr::ndarray<Float, 1>& res_oob_err,
     pr::ndarray<Float, 1>& res_oob_err_obs,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(response_host.get_count() == ctx.row_count_);
     ONEDAL_ASSERT(oob_per_obs_list.get_count() == ctx.row_count_ * ctx.oob_prop_count_);
     // no need for assert for res_oob_err or res_oob_err_obs because they are created here
@@ -2637,7 +2635,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_var_imp(
     const train_context_t& ctx,
     pr::ndarray<Float, 1>& var_imp,
     pr::ndarray<Float, 1>& var_imp_variance,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(var_imp.get_count() == ctx.column_count_);
 
     auto var_imp_host = var_imp.to_host(queue_);
@@ -2964,3 +2962,5 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 #define INSTANTIATE(F, B, I, T) template class train_kernel_hist_impl<F, B, I, T>;
 
 } // namespace oneapi::dal::decision_forest::backend
+
+#endif

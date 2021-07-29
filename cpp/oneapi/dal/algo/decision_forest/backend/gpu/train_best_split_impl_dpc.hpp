@@ -22,8 +22,6 @@
 
 #include <CL/sycl/ONEAPI/experimental/builtins.hpp>
 
-#endif
-
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_best_split_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
@@ -62,13 +60,6 @@ template <>
 struct float_accuracy<double> {
     static constexpr double val = double(1e-10);
 };
-
-template <typename T>
-inline T atomic_global_add(T* ptr, T operand) {
-    return sycl::atomic_fetch_add<T, address::global_space>(
-        { sycl::multi_ptr<T, address::global_space>{ ptr } },
-        operand);
-}
 
 template <typename Float, typename Index>
 inline void add_val_to_hist(
@@ -125,14 +116,14 @@ template <typename Float, typename Index, typename T = enable_if_float_t<Float>>
 inline void sub_stat(Float* dst, const Float* src, const Float* mrg, Index elem_count) {
     dst[0] = mrg[0] - src[0];
 
-    dst[1] = dst[0] >= Float(1) ? mrg[1] + (src[0] * (mrg[1] - src[1])) / dst[0] : Float(0);
+    dst[1] = (dst[0] >= Float(1)) ? (mrg[1] + (src[0] * (mrg[1] - src[1])) / dst[0]) : Float(0);
 
     Float sum_n1n2 = mrg[0];
     Float mul_n1n2 = src[0] * dst[0];
     Float delta_scl = mul_n1n2 / sum_n1n2;
     Float delta = src[1] - dst[1];
 
-    dst[2] = dst[0] >= Float(1) ? (mrg[2] - src[2] - delta * delta * delta_scl) : Float(0);
+    dst[2] = (dst[0] >= Float(1)) ? ((mrg[2] - src[2] - delta * delta * delta_scl)) : Float(0);
 }
 
 template <typename Float>
@@ -355,7 +346,6 @@ struct split_smp {
                                   Index node_id,
                                   Float impurity_threshold_,
                                   Index min_observations_in_leaf_node) {
-        // TODO move check for imp 0 to node split func
         const Float* node_imp_ptr =
             node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
         Float node_imp = node_imp_ptr[1];
@@ -1042,3 +1032,5 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
 #define INSTANTIATE(F, B, I, T) template class train_best_split_impl<F, B, I, T>;
 
 } // namespace oneapi::dal::decision_forest::backend
+
+#endif

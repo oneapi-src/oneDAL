@@ -49,11 +49,12 @@ struct daal_types_map<task::regression> {
 };
 
 template <typename Float, typename Index, typename Task = task::by_default>
-struct tree_level_record {
+class tree_level_record {
     using impl_const_t = impl_const<Index, Task>;
     using context_t = train_context<Float, Index, Task>;
     using imp_data_t = impurity_data<Float, Index, Task>;
 
+public:
     tree_level_record(cl::sycl::queue& queue,
                       dal::backend::primitives::ndarray<Index, 1> node_list,
                       const imp_data_t& imp_data_list,
@@ -63,65 +64,71 @@ struct tree_level_record {
             : node_count_(node_count),
               ctx_(ctx) {
         ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
-        //ONEDAL_ASSERT(imp_list.get_count() == node_count * impl_const_t::node_imp_prop_count_);
-        //ONEDAL_ASSERT(class_hist_list.get_count() == node_count * class_count);
+        ONEDAL_ASSERT(imp_data_list.imp_list_.get_count() ==
+                      node_count * impl_const_t::node_imp_prop_count_);
+        if constexpr (std::is_same_v<task::classification, Task>) {
+            ONEDAL_ASSERT(imp_data_list.class_hist_list_.get_count() ==
+                          node_count * ctx.class_count_);
+        }
 
-        // Add to host async??
         node_list_ = node_list.to_host(queue, deps);
         imp_data_list_ = imp_data_list.to_host(queue);
     }
 
-    Index get_node_count() {
+    Index get_node_count() const {
         return node_count_;
     }
 
-    Index get_row_count(Index node_idx) {
+    Index get_row_count(Index node_idx) const {
         return node_list_
             .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_grc];
     }
-    Index get_feature_id(Index node_idx) {
+    Index get_feature_id(Index node_idx) const {
         return node_list_
             .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_fid];
     }
-    Index get_feature_bin(Index node_idx) {
+    Index get_feature_bin(Index node_idx) const {
         return node_list_
             .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_bin];
     }
 
-    auto get_response(Index node_idx) {
+    auto get_response(Index node_idx) const {
         if constexpr (std::is_same_v<Task, task::classification>) {
             return node_list_
                 .get_data()[node_idx * impl_const_t::node_prop_count_ + impl_const_t::ind_win];
         }
         else {
             return imp_data_list_.imp_list_
-                .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + 0];
+                .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + impl_const_t::ind_rsp];
         }
     }
-    Float get_impurity(Index node_idx) {
+
+    Float get_impurity(Index node_idx) const {
         if constexpr (std::is_same_v<Task, task::classification>) {
             return imp_data_list_.imp_list_
-                .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + 0];
+                .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + impl_const_t::ind_imp];
         }
         else {
             return imp_data_list_.imp_list_
-                       .get_data()[node_idx * impl_const_t::node_imp_prop_count_ + 1] /
+                       .get_data()[node_idx * impl_const_t::node_imp_prop_count_ +
+                                   impl_const_t::ind_imp] /
                    get_row_count(node_idx);
         }
     }
 
     template <typename T = Task, typename = decision_forest::detail::enable_if_classification_t<T>>
-    const Index* get_class_hist(Index node_idx) {
+    const Index* get_class_hist(Index node_idx) const {
         return &(imp_data_list_.class_hist_list_.get_data()[node_idx * ctx_.class_count_]);
     }
 
-    bool is_leaf(Index node_idx) {
+    bool is_leaf(Index node_idx) const {
         return get_feature_id(node_idx) == impl_const_t::leaf_mark_;
     }
-    bool has_unordered_feature(Index node_idx) {
+    bool has_unordered_feature(Index node_idx) const {
         return false; /* unordered features are not supported yet */
     }
 
+private:
     dal::backend::primitives::ndarray<Index, 1> node_list_;
     imp_data_t imp_data_list_;
 
@@ -153,51 +160,51 @@ public:
 
     ~train_model_manager() = default;
 
-    void add_tree_block(std::vector<tree_level_record<Float, Index, Task>>& treeLevelsList,
-                        std::vector<dal::backend::primitives::ndarray<Float, 1>>& binValues,
+    void add_tree_block(std::vector<tree_level_record<Float, Index, Task>>& tree_level_list,
+                        std::vector<dal::backend::primitives::ndarray<Float, 1>>& bin_value_list,
                         Index tree_count) {
-        typedef std::vector<typename NodeType::Base*> DFTreeNodesArr;
-        typedef dal::detail::shared<DFTreeNodesArr> DFTreeNodesArrPtr;
+        typedef std::vector<typename NodeType::Base*> df_tree_node_list_t;
+        typedef dal::detail::shared<df_tree_node_list_t> df_tree_node_list_ptr_t;
 
-        DFTreeNodesArrPtr dfTreeLevelNodesPrev;
-        bool unorderedFeaturesUsed = false;
+        df_tree_node_list_ptr_t df_tree_level_node_list_prev;
+        bool unord_ftr_used = false;
 
-        Index level = treeLevelsList.size();
+        Index level = tree_level_list.size();
         ONEDAL_ASSERT(level);
-        //_P(" add tree first level %d", level);
 
         do {
             level--;
-            tree_level_record<Float, Index, Task>& record = treeLevelsList[level];
+            tree_level_record<Float, Index, Task>& record = tree_level_list[level];
 
-            DFTreeNodesArrPtr dfTreeLevelNodes(new DFTreeNodesArr(record.get_node_count()));
+            df_tree_node_list_ptr_t df_tree_level_node_list(
+                new df_tree_node_list_t(record.get_node_count()));
 
-            Index nSplits = 0;
-            // nSplits is used to calculate index of child nodes on next level
+            Index split_count = 0;
+            // split_count is used to calculate index of child nodes on next level
             for (Index node_idx = 0; node_idx < record.get_node_count(); node_idx++) {
                 if (record.is_leaf(node_idx)) {
-                    (*dfTreeLevelNodes)[node_idx] = makeLeaf(record, node_idx);
+                    (*df_tree_level_node_list)[node_idx] = make_leaf(record, node_idx);
                 }
                 else {
-                    ONEDAL_ASSERT(dfTreeLevelNodesPrev.get());
-                    (*dfTreeLevelNodes)[node_idx] =
-                        makeSplit(record,
-                                  binValues,
-                                  node_idx,
-                                  (*dfTreeLevelNodesPrev)[nSplits * 2],
-                                  (*dfTreeLevelNodesPrev)[nSplits * 2 + 1]);
-                    nSplits++;
+                    ONEDAL_ASSERT(df_tree_level_node_list_prev.get());
+                    (*df_tree_level_node_list)[node_idx] =
+                        make_split(record,
+                                   bin_value_list,
+                                   node_idx,
+                                   (*df_tree_level_node_list_prev)[split_count * 2],
+                                   (*df_tree_level_node_list_prev)[split_count * 2 + 1]);
+                    split_count++;
                 }
             }
 
-            dfTreeLevelNodesPrev = dfTreeLevelNodes;
+            df_tree_level_node_list_prev = df_tree_level_node_list;
         } while (level > 0);
 
         ONEDAL_ASSERT(static_cast<size_t>(last_tree_pos_ + tree_count) <= tree_list_.size());
 
         for (Index tree_idx = 0; tree_idx < tree_count; tree_idx++) {
-            tree_list_[last_tree_pos_ + tree_idx].reset((*dfTreeLevelNodesPrev)[tree_idx],
-                                                        unorderedFeaturesUsed);
+            tree_list_[last_tree_pos_ + tree_idx].reset((*df_tree_level_node_list_prev)[tree_idx],
+                                                        unord_ftr_used);
             Index class_count = 0;
             if constexpr (std::is_same_v<task::classification, Task>) {
                 class_count = ctx_.class_count_;
@@ -212,16 +219,16 @@ public:
 
     Float get_tree_response(Index tree_idx, const Float* x) const {
         ONEDAL_ASSERT(static_cast<size_t>(tree_idx) < tree_list_.size());
-        const typename NodeType::Base* pNode =
+        const typename NodeType::Base* node_ptr =
             daal::algorithms::dtrees::prediction::internal::findNode<Float, TreeType, daal::sse2>(
                 tree_list_[tree_idx],
                 x);
-        ONEDAL_ASSERT(pNode);
+        ONEDAL_ASSERT(node_ptr);
         if constexpr (std::is_same_v<task::classification, Task>) {
-            return NodeType::castLeaf(pNode)->response.value;
+            return NodeType::castLeaf(node_ptr)->response.value;
         }
         else {
-            return NodeType::castLeaf(pNode)->response;
+            return NodeType::castLeaf(node_ptr)->response;
         }
     }
 
@@ -238,50 +245,50 @@ public:
     }
 
 private:
-    typename NodeType::Leaf* makeLeaf(tree_level_record<Float, Index, Task>& record,
-                                      Index node_idx) {
+    typename NodeType::Leaf* make_leaf(tree_level_record<Float, Index, Task>& record,
+                                       Index node_idx) {
         DAAL_ASSERT(record.get_row_count(node_idx) > 0);
 
-        typename NodeType::Leaf* pNode;
+        typename NodeType::Leaf* node_ptr;
         if constexpr (std::is_same_v<task::classification, Task>) {
-            pNode = allocator_.allocLeaf(ctx_.class_count_);
-            pNode->response.value = record.get_response(node_idx);
+            node_ptr = allocator_.allocLeaf(ctx_.class_count_);
+            node_ptr->response.value = record.get_response(node_idx);
         }
         else {
-            pNode = allocator_.allocLeaf();
-            pNode->response = record.get_response(node_idx);
+            node_ptr = allocator_.allocLeaf();
+            node_ptr->response = record.get_response(node_idx);
         }
 
-        pNode->count = record.get_row_count(node_idx);
-        pNode->impurity = record.get_impurity(node_idx);
+        node_ptr->count = record.get_row_count(node_idx);
+        node_ptr->impurity = record.get_impurity(node_idx);
 
         if constexpr (std::is_same_v<task::classification, Task>) {
             const Index* hist_ptr = record.get_class_hist(node_idx);
             for (Index i = 0; i < ctx_.class_count_; i++) {
-                pNode->hist[i] = static_cast<Float>(hist_ptr[i]);
+                node_ptr->hist[i] = static_cast<Float>(hist_ptr[i]);
             }
         }
 
-        return pNode;
+        return node_ptr;
     }
 
-    typename NodeType::Split* makeSplit(
-        tree_level_record<Float, Index, Task>& record, //const ???
+    typename NodeType::Split* make_split(
+        const tree_level_record<Float, Index, Task>& record, //const ???
         std::vector<dal::backend::primitives::ndarray<Float, 1>>& feature_value_arr,
         Index node_idx,
         typename NodeType::Base* left,
         typename NodeType::Base* right) {
-        typename NodeType::Split* pNode = allocator_.allocSplit();
-        pNode->set(record.get_feature_id(node_idx),
-                   feature_value_arr[record.get_feature_id(node_idx)]
-                       .get_data()[record.get_feature_bin(node_idx)],
-                   record.has_unordered_feature(node_idx));
-        pNode->kid[0] = left;
-        pNode->kid[1] = right;
-        pNode->count = record.get_row_count(node_idx);
-        pNode->impurity = record.get_impurity(node_idx);
+        typename NodeType::Split* node_ptr = allocator_.allocSplit();
+        node_ptr->set(record.get_feature_id(node_idx),
+                      feature_value_arr[record.get_feature_id(node_idx)]
+                          .get_data()[record.get_feature_bin(node_idx)],
+                      record.has_unordered_feature(node_idx));
+        node_ptr->kid[0] = left;
+        node_ptr->kid[1] = right;
+        node_ptr->count = record.get_row_count(node_idx);
+        node_ptr->impurity = record.get_impurity(node_idx);
 
-        return pNode;
+        return node_ptr;
     }
 
 private:

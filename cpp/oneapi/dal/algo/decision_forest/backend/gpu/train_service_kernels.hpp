@@ -24,6 +24,10 @@ namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+namespace de = dal::detail;
+namespace bk = dal::backend;
+namespace pr = dal::backend::primitives;
+
 template <typename Float,
           typename Bin = std::uint32_t,
           typename Index = std::int32_t,
@@ -40,104 +44,98 @@ public:
                                                  Index tree_count,
                                                  double observations_per_tree_fraction);
 
-    sycl::event split_node_list_on_groups_by_size(
-        const context_t& ctx,
-        const dal::backend::primitives::ndarray<Index, 1>& node_list,
-        dal::backend::primitives::ndarray<Index, 1>& node_groups,
-        dal::backend::primitives::ndarray<Index, 1>& node_indices,
-        Index node_count,
-        Index group_count,
-        Index group_prop_count,
-        const dal::backend::event_vector& deps = {});
+    sycl::event split_node_list_on_groups_by_size(const context_t& ctx,
+                                                  const pr::ndarray<Index, 1>& node_list,
+                                                  pr::ndarray<Index, 1>& node_groups,
+                                                  pr::ndarray<Index, 1>& node_indices,
+                                                  Index node_count,
+                                                  Index group_count,
+                                                  Index group_prop_count,
+                                                  const bk::event_vector& deps = {});
 
-    sycl::event get_split_node_count(const dal::backend::primitives::ndarray<Index, 1>& node_list,
+    sycl::event get_split_node_count(const pr::ndarray<Index, 1>& node_list,
                                      Index node_count,
                                      Index& split_node_count,
-                                     const dal::backend::event_vector& deps = {});
+                                     const bk::event_vector& deps = {});
 
     sycl::event calculate_left_child_row_count_on_local_data(
         const context_t& ctx,
-        const dal::backend::primitives::ndarray<Bin, 2>& data,
-        const dal::backend::primitives::ndarray<Index, 1>& node_list,
-        const dal::backend::primitives::ndarray<Index, 1>& tree_order,
+        const pr::ndarray<Bin, 2>& data,
+        const pr::ndarray<Index, 1>& node_list,
+        const pr::ndarray<Index, 1>& tree_order,
         Index column_count,
         Index node_count,
-        const dal::backend::event_vector& deps);
+        const bk::event_vector& deps);
 
-    sycl::event do_level_partition_by_groups(
-        const context_t& ctx,
-        const dal::backend::primitives::ndarray<Bin, 2>& data,
-        const dal::backend::primitives::ndarray<Index, 1>& node_list,
-        dal::backend::primitives::ndarray<Index, 1>& tree_order,
-        dal::backend::primitives::ndarray<Index, 1>& tree_order_buf,
-        Index data_row_count,
-        Index data_selected_row_count,
-        Index data_column_count,
-        Index node_count,
-        Index tree_count,
-        const dal::backend::event_vector& deps = {});
+    sycl::event do_level_partition_by_groups(const context_t& ctx,
+                                             const pr::ndarray<Bin, 2>& data,
+                                             const pr::ndarray<Index, 1>& node_list,
+                                             pr::ndarray<Index, 1>& tree_order,
+                                             pr::ndarray<Index, 1>& tree_order_buf,
+                                             Index data_row_count,
+                                             Index data_selected_row_count,
+                                             Index data_column_count,
+                                             Index node_count,
+                                             Index tree_count,
+                                             const bk::event_vector& deps = {});
 
-    sycl::event initialize_tree_order(dal::backend::primitives::ndarray<Index, 1>& tree_order,
+    sycl::event initialize_tree_order(pr::ndarray<Index, 1>& tree_order,
                                       Index tree_count,
                                       Index row_count,
-                                      const dal::backend::event_vector& deps = {});
+                                      const bk::event_vector& deps = {});
 
-    sycl::event update_mdi_var_importance(
-        const dal::backend::primitives::ndarray<Index, 1>& node_list,
-        const dal::backend::primitives::ndarray<Float, 1>& node_imp_decrease_list,
-        dal::backend::primitives::ndarray<Float, 1>& res_var_imp,
-        Index column_count,
-        Index node_count,
-        const dal::backend::event_vector& deps = {});
+    sycl::event update_mdi_var_importance(const pr::ndarray<Index, 1>& node_list,
+                                          const pr::ndarray<Float, 1>& node_imp_decrease_list,
+                                          pr::ndarray<Float, 1>& res_var_imp,
+                                          Index column_count,
+                                          Index node_count,
+                                          const bk::event_vector& deps = {});
 
-    sycl::event mark_present_rows(const dal::backend::primitives::ndarray<Index, 1>& rowsList,
-                                  dal::backend::primitives::ndarray<Index, 1>& rowsBuffer,
-                                  Index nRows,
-                                  Index nTrees,
+    sycl::event mark_present_rows(const pr::ndarray<Index, 1>& row_list,
+                                  pr::ndarray<Index, 1>& row_buffer,
+                                  Index row_count,
+                                  Index tree_count,
                                   Index tree_idx,
-                                  Index localSize,
-                                  Index nSubgroupSums,
-                                  const dal::backend::event_vector& deps = {});
+                                  Index krn_local_size,
+                                  Index sbg_sum_count,
+                                  const bk::event_vector& deps = {});
 
-    sycl::event count_absent_rows_for_blocks(
-        const dal::backend::primitives::ndarray<Index, 1>& rowsBuffer,
-        dal::backend::primitives::ndarray<Index, 1>& partial_sum,
-        Index nRows,
-        Index nTrees,
-        Index tree,
-        Index localSize,
-        Index nSubgroupSums,
-        const dal::backend::event_vector& deps = {});
+    sycl::event count_absent_rows_for_blocks(const pr::ndarray<Index, 1>& row_buffer,
+                                             pr::ndarray<Index, 1>& part_sum_list,
+                                             Index row_count,
+                                             Index tree_count,
+                                             Index tree_idx,
+                                             Index krn_local_size,
+                                             Index sbg_sum_count,
+                                             const bk::event_vector& deps = {});
 
-    sycl::event count_absent_rows_total(
-        const dal::backend::primitives::ndarray<Index, 1>& partial_sum,
-        dal::backend::primitives::ndarray<Index, 1>& partial_prefix_sum,
-        dal::backend::primitives::ndarray<Index, 1>& oob_rows_num_list,
-        Index nTrees,
-        Index tree,
-        Index localSize,
-        Index nSubgroupSums,
-        const dal::backend::event_vector& deps = {});
+    sycl::event count_absent_rows_total(const pr::ndarray<Index, 1>& part_sum_list,
+                                        pr::ndarray<Index, 1>& part_pref_sum_list,
+                                        pr::ndarray<Index, 1>& oob_rows_num_list,
+                                        Index tree_count,
+                                        Index tree,
+                                        Index krn_local_size,
+                                        Index sbg_sum_count,
+                                        const bk::event_vector& deps = {});
 
-    sycl::event fill_oob_rows_list_by_blocks(
-        const dal::backend::primitives::ndarray<Index, 1>& rowsBuffer,
-        const dal::backend::primitives::ndarray<Index, 1>& partial_prefix_sum,
-        const dal::backend::primitives::ndarray<Index, 1>& oob_row_num_list,
-        dal::backend::primitives::ndarray<Index, 1>& oob_row_list,
-        Index nRows,
-        Index nTrees,
-        Index tree,
-        Index total_oob_row_num,
-        Index localSize,
-        Index nSubgroupSums,
-        const dal::backend::event_vector& deps = {});
+    sycl::event fill_oob_rows_list_by_blocks(const pr::ndarray<Index, 1>& row_buffer,
+                                             const pr::ndarray<Index, 1>& part_pref_sum_list,
+                                             const pr::ndarray<Index, 1>& oob_row_num_list,
+                                             pr::ndarray<Index, 1>& oob_row_list,
+                                             Index row_count,
+                                             Index tree_count,
+                                             Index tree,
+                                             Index total_oob_row_num,
+                                             Index krn_local_size,
+                                             Index sbg_sum_count,
+                                             const bk::event_vector& deps = {});
 
-    sycl::event get_oob_row_list(const dal::backend::primitives::ndarray<Index, 1>& rowsList,
-                                 dal::backend::primitives::ndarray<Index, 1>& oobRowsNumList,
-                                 dal::backend::primitives::ndarray<Index, 1>& oobRowsList,
-                                 Index nRows,
-                                 Index nTrees,
-                                 const dal::backend::event_vector& deps = {});
+    sycl::event get_oob_row_list(const pr::ndarray<Index, 1>& row_list,
+                                 pr::ndarray<Index, 1>& oob_row_count_list,
+                                 pr::ndarray<Index, 1>& oob_row_list,
+                                 Index row_count,
+                                 Index tree_count,
+                                 const bk::event_vector& deps = {});
 
 private:
     sycl::queue queue_;

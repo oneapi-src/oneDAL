@@ -57,6 +57,9 @@ struct impl_const<Index, task::classification> {
     constexpr static Index ind_grc = 6; // property index for global row count
     constexpr static Index ind_lch_lrc = 7; // property index for left child local row count
 
+    //constexpr static Index ind_rsp = 0; // is not used for classification, added for consistency
+    constexpr static Index ind_imp = 0; // impurity property index
+
     constexpr static Index node_imp_prop_count_ = 1; // only node impurity is stored
     constexpr static Index oob_aux_prop_count_ = 0; // 0 due to class count is used instead
         // added for consistency with regression
@@ -85,6 +88,9 @@ struct impl_const<Index, task::regression> {
     //constexpr static Index ind_win  = 5; // is not used for regression, added for consistency
     constexpr static Index ind_grc = 6; // property index for global row count
     constexpr static Index ind_lch_lrc = 7; // property index for left child local row count
+
+    constexpr static Index ind_rsp = 0; // response property index
+    constexpr static Index ind_imp = 1; // impurity property index
 
     constexpr static Index node_imp_prop_count_ = 2; // mean and sum2cent, mean also is a response
     constexpr static Index hist_prop_count_ =
