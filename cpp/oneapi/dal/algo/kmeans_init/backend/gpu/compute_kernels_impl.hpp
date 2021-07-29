@@ -82,13 +82,13 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
 
         auto indices = pr::ndarray<std::size_t, 1>::empty(queue, cluster_count);
         partial_fisher_yates_shuffle(indices, dal::detail::integral_cast<std::size_t>(row_count));
-        auto indices_ptr = indices.get_data();
+        auto indices_on_device = indices.to_device(queue);
+        auto indices_ptr = indices_on_device.get_data();
 
         const std::int64_t required_local_size = bk::device_max_wg_size(queue);
         const std::int64_t local_size = std::min(bk::down_pow2(column_count), required_local_size);
 
         auto gather_event = queue.submit([&](sycl::handler& cgh) {
-            sycl::stream out(1024, 256, cgh);
             const auto range =
                 bk::make_multiple_nd_range_2d({ local_size, cluster_count }, { local_size, 1 });
             cgh.parallel_for(range, [=](sycl::nd_item<2> id) {
