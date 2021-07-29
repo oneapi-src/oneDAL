@@ -62,11 +62,21 @@ struct float_accuracy<double> {
     static constexpr double val = double(1e-10);
 };
 
+//template <typename T>
+//inline T atomic_global_add(T* ptr, T operand) {
+//    return sycl::atomic_fetch_add<T, address::global_space>(
+//        { sycl::multi_ptr<T, address::global_space>{ ptr } },
+//        operand);
+//}
+
 template <typename T>
 inline T atomic_global_add(T* ptr, T operand) {
-    return sycl::atomic_fetch_add<T, address::global_space>(
-        { sycl::multi_ptr<T, address::global_space>{ ptr } },
-        operand);
+    sycl::ONEAPI::atomic_ref<T,
+                             cl::sycl::ONEAPI::memory_order::relaxed,
+                             cl::sycl::ONEAPI::memory_scope::device,
+                             cl::sycl::access::address_space::global_device_space>
+        counter_atomic(*ptr);
+    return counter_atomic.fetch_add(operand);
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>

@@ -45,10 +45,6 @@ using sycl::ONEAPI::exclusive_scan;
 template <typename T>
 using enable_if_float_t = std::enable_if_t<detail::is_valid_float_v<T>>;
 
-template <typename Data>
-using local_accessor_rw_t =
-    sycl::accessor<Data, 1, sycl::access::mode::read_write, sycl::access::target::local>;
-
 template <typename F>
 struct float_accuracy;
 
@@ -68,23 +64,6 @@ inline T atomic_global_add(T* ptr, T operand) {
         { sycl::multi_ptr<T, address::global_space>{ ptr } },
         operand);
 }
-
-// Kernel context
-template <typename Float, typename Index, typename Task>
-struct kernel_context {
-    kernel_context(const train_context<Float, Index, Task>& ctx)
-            : float_min_(ctx.float_min_),
-              index_max_(ctx.index_max_),
-              min_observations_in_leaf_node_(ctx.min_observations_in_leaf_node_),
-              class_count_(ctx.class_count_),
-              impurity_threshold_(ctx.impurity_threshold_) {}
-
-    Float float_min_;
-    Index index_max_;
-    Index min_observations_in_leaf_node_;
-    Index class_count_;
-    Float impurity_threshold_;
-};
 
 template <typename Float, typename Index>
 inline void add_val_to_hist(
@@ -151,7 +130,6 @@ inline void sub_stat(Float* dst, const Float* src, const Float* mrg, Index elem_
     dst[2] = dst[0] >= Float(1) ? (mrg[2] - src[2] - delta * delta * delta_scl) : Float(0);
 }
 
-//////////////////////////////////////////// Best split kernels
 template <typename Float>
 inline bool float_eq(Float a, Float b) {
     return sycl::fabs(a - b) <= float_accuracy<Float>::val;
@@ -294,15 +272,15 @@ struct split_smp {
                                    Index node_id,
                                    Float node_imp,
                                    Float impurity_threshold_,
-                                   Index min_observations_in_leaf_node_) {
+                                   Index min_observations_in_leaf_node) {
         return (Float(0) < ts_imp_dec_ && !float_eq(node_imp, Float(0)) &&
                 node_imp >= impurity_threshold_ &&
                 (bs_ftr_bin_ == impl_const_t::leaf_mark_ || float_gt(ts_imp_dec_, bs_imp_dec_) ||
                  (float_eq(ts_imp_dec_, bs_imp_dec_) &&
                   (ts_ftr_id_ < bs_ftr_id_ ||
                    (bs_ftr_id_ == ts_ftr_id_ && ts_ftr_bin_ < bs_ftr_bin_)))) &&
-                ts_left_count_ >= min_observations_in_leaf_node_ &&
-                ts_right_count_ >= min_observations_in_leaf_node_);
+                ts_left_count_ >= min_observations_in_leaf_node &&
+                ts_right_count_ >= min_observations_in_leaf_node);
     }
 
     // classififcation version
@@ -323,7 +301,7 @@ struct split_smp {
                                   Index class_count_,
                                   Index node_id,
                                   Float impurity_threshold_,
-                                  Index min_observations_in_leaf_node_) {
+                                  Index min_observations_in_leaf_node) {
         // TODO move check for imp 0 to node split func
         const Float* node_imp_ptr =
             node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
@@ -341,7 +319,7 @@ struct split_smp {
                                node_id,
                                node_imp,
                                impurity_threshold_,
-                               min_observations_in_leaf_node_)) {
+                               min_observations_in_leaf_node)) {
             bs_ftr_id_ = ts_ftr_id_;
             bs_ftr_bin_ = ts_ftr_bin_;
             bs_imp_dec_ = ts_imp_dec_;
@@ -370,7 +348,7 @@ struct split_smp {
                                   Index hist_elem_count,
                                   Index node_id,
                                   Float impurity_threshold_,
-                                  Index min_observations_in_leaf_node_) {
+                                  Index min_observations_in_leaf_node) {
         // TODO move check for imp 0 to node split func
         const Float* node_imp_ptr =
             node_imp_list_ptr + node_id * impl_const_t::node_imp_prop_count_;
@@ -389,7 +367,7 @@ struct split_smp {
                                node_id,
                                node_imp,
                                impurity_threshold_,
-                               min_observations_in_leaf_node_)) {
+                               min_observations_in_leaf_node)) {
             bs_ftr_id_ = ts_ftr_id_;
             bs_ftr_bin_ = ts_ftr_bin_;
             bs_imp_dec_ = ts_imp_dec_;
@@ -634,8 +612,6 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    //const kernel_context<Float, Index, Task> krn_ctx(ctx);
-
     auto local_size = be::device_max_sg_size(queue_);
 
     const sycl::nd_range<2> nd_range =
@@ -864,8 +840,6 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
     const Index column_count = ctx.column_count_;
 
     const Index selected_ftr_count = ctx.selected_ftr_count_;
-
-    const kernel_context<Float, Index, Task> krn_ctx(ctx);
 
     const Index index_max = ctx.index_max_;
 

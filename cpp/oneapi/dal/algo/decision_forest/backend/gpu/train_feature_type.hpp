@@ -29,6 +29,9 @@ namespace oneapi::dal::decision_forest::backend {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
+namespace pr = dal::backend::primitives;
+namespace be = dal::backend;
+
 template <typename Float, typename Bin, typename Index = std::int32_t>
 class indexed_features {
 #ifdef DISTRIBUTED_SUPPORT_ENABLED
@@ -38,7 +41,7 @@ public:
     struct feature_entry {
         Index bin_count_ = 0;
         Index offset_ = 0;
-        dal::backend::primitives::ndarray<Float, 1> bin_borders_nd_; //right bin borders
+        pr::ndarray<Float, 1> bin_borders_nd_; //right bin borders
     };
 
 #ifdef DISTRIBUTED_SUPPORT_ENABLED
@@ -51,12 +54,11 @@ public:
 #endif
     ~indexed_features() = default;
 
-    // migrate to std::uint64_t
     static std::int64_t get_required_mem_size(std::int64_t row_count,
                                               std::int64_t column_count,
                                               std::int64_t max_bins);
 
-    sycl::event operator()(const table& tbl, const dal::backend::event_vector& deps = {});
+    sycl::event operator()(const table& tbl, const be::event_vector& deps = {});
 
     Index get_bin_count(std::int64_t column_idx) const {
         return entries_[column_idx].bin_count_;
@@ -65,15 +67,15 @@ public:
         return total_bins_;
     }
 
-    dal::backend::primitives::ndarray<Float, 1> get_bin_borders(Index column_idx) {
+    pr::ndarray<Float, 1> get_bin_borders(Index column_idx) {
         return entries_[column_idx].bin_borders_nd_;
     }
 
-    const dal::backend::primitives::ndarray<Index, 1> get_bin_offsets() const {
+    const pr::ndarray<Index, 1> get_bin_offsets() const {
         return bin_offsets_nd_;
     }
 
-    dal::backend::primitives::ndarray<Bin, 2> get_full_data() const {
+    pr::ndarray<Bin, 2> get_full_data() const {
         return full_data_nd_;
     }
 
@@ -85,55 +87,54 @@ public:
     }
 
 private:
-    sycl::event extract_column(const dal::backend::primitives::ndarray<Float, 2>& data_nd,
-                               dal::backend::primitives::ndarray<Float, 1>& values_nd,
-                               dal::backend::primitives::ndarray<Index, 1>& indices_nd,
+    sycl::event extract_column(const pr::ndarray<Float, 2>& data_nd,
+                               pr::ndarray<Float, 1>& values_nd,
+                               pr::ndarray<Index, 1>& indices_nd,
                                Index feature_id,
-                               const dal::backend::event_vector& deps = {});
-    sycl::event collect_bin_borders(
-        const dal::backend::primitives::ndarray<Float, 1>& values_nd,
-        const dal::backend::primitives::ndarray<Index, 1>& bin_offsets_nd,
-        dal::backend::primitives::ndarray<Float, 1>& bin_borders_nd,
-        const dal::backend::event_vector& deps = {});
+                               const be::event_vector& deps = {});
+    sycl::event collect_bin_borders(const pr::ndarray<Float, 1>& values_nd,
+                                    const pr::ndarray<Index, 1>& bin_offsets_nd,
+                                    pr::ndarray<Float, 1>& bin_borders_nd,
+                                    const be::event_vector& deps = {});
 
-    std::tuple<dal::backend::primitives::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders(
-        const dal::backend::primitives::ndarray<Float, 1>& values_nd,
+    std::tuple<pr::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders(
+        const pr::ndarray<Float, 1>& values_nd,
         Index row_count,
-        const dal::backend::event_vector& deps = {});
+        const be::event_vector& deps = {});
 
-    std::tuple<dal::backend::primitives::ndarray<Float, 1>, Index, sycl::event>
-    gather_bin_borders_distr(const dal::backend::primitives::ndarray<Float, 1>& values_nd,
-                             Index row_count,
-                             const dal::backend::event_vector& deps = {});
+    std::tuple<pr::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders_distr(
+        const pr::ndarray<Float, 1>& values_nd,
+        Index row_count,
+        const be::event_vector& deps = {});
 
-    sycl::event fill_bin_map(const dal::backend::primitives::ndarray<Float, 1>& values_nd,
-                             const dal::backend::primitives::ndarray<Index, 1>& indices_nd,
-                             const dal::backend::primitives::ndarray<Float, 1>& bin_borders_nd,
-                             const dal::backend::primitives::ndarray<Bin, 1>& bins_nd,
+    sycl::event fill_bin_map(const pr::ndarray<Float, 1>& values_nd,
+                             const pr::ndarray<Index, 1>& indices_nd,
+                             const pr::ndarray<Float, 1>& bin_borders_nd,
+                             const pr::ndarray<Bin, 1>& bins_nd,
                              Index bin_count,
                              size_t local_size,
                              size_t local_blocks_count,
-                             const dal::backend::event_vector& deps = {});
-    sycl::event compute_bins(const dal::backend::primitives::ndarray<Float, 1>& values_nd,
-                             const dal::backend::primitives::ndarray<Index, 1>& indices_nd,
-                             dal::backend::primitives::ndarray<Bin, 1>& bins_nd,
+                             const be::event_vector& deps = {});
+    sycl::event compute_bins(const pr::ndarray<Float, 1>& values_nd,
+                             const pr::ndarray<Index, 1>& indices_nd,
+                             pr::ndarray<Bin, 1>& bins_nd,
                              feature_entry& entry,
                              Index entry_idx,
-                             const dal::backend::event_vector& deps);
+                             const be::event_vector& deps);
 
-    sycl::event store_column(const dal::backend::primitives::ndarray<Bin, 1>& column_data_nd,
-                             dal::backend::primitives::ndarray<Bin, 2>& full_data_nd,
+    sycl::event store_column(const pr::ndarray<Bin, 1>& column_data_nd,
+                             pr::ndarray<Bin, 2>& full_data_nd,
                              Index column_idx,
                              Index column_count,
-                             const dal::backend::event_vector& deps);
+                             const be::event_vector& deps);
 
     sycl::queue queue_;
 #ifdef DISTRIBUTED_SUPPORT_ENABLED
     comm_t comm_;
 #endif
 
-    dal::backend::primitives::ndarray<Bin, 2> full_data_nd_;
-    dal::backend::primitives::ndarray<Index, 1> bin_offsets_nd_;
+    pr::ndarray<Bin, 2> full_data_nd_;
+    pr::ndarray<Index, 1> bin_offsets_nd_;
 
     std::vector<feature_entry> entries_;
 
