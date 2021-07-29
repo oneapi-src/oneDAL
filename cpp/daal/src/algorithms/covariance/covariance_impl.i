@@ -35,6 +35,9 @@
 #include "src/algorithms/service_error_handling.h"
 #include "src/threading/threading.h"
 #include "src/externals/service_ittnotify.h"
+#include "src/services/service_environment.h"
+#include <iostream>
+#include <chrono>
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -141,11 +144,85 @@ inline size_t getBlockSize<avx512>(size_t nrows)
     return (nrows > 5000 && nrows <= 50000) ? 1024 : 140;
 }
 
+template <typename algorithmFPType, CpuType cpu>
+inline DAAL_INT64 getBlockSizeTry(size_t nrows, size_t ncols)
+{
+    // size_t dataBytes = nrows * ncols * sizeof(algorithmFPType);
+    // size_t resultBytes = ncols * ncols * sizeof(algorithmFPType);
+    DAAL_INT64 l2_size = getL2CacheSize();
+    DAAL_INT64 rows_in_block = (0.8 * l2_size - ncols * 128 * sizeof(algorithmFPType)) / (ncols * sizeof(algorithmFPType));
+    return rows_in_block;
+}
+
+template <typename algorithmFPType, CpuType cpu>
+inline DAAL_INT64 getFeaturesBlockSize(size_t numRowsInBlock) {
+    DAAL_INT64 l2_size = getL2CacheSize();
+    algorithmFPType alpha = 2., beta = 1.05, k = 0.8, f = sizeof(algorithmFPType);
+
+    // algorithmFPType discr = alpha * alpha * f * f * numRowsInBlock * numRowsInBlock + 4 * k * l2_size * beta * f;
+    // DAAL_INT64 numFeaturesInBlock = (-alpha * f * numRowsInBlock + daal::internal::Math<algorithmFPType, cpu>::sSqrt(discr)) / (2 * beta * f);
+    return (0.8 * l2_size) / (numRowsInBlock * f + 128 * f);
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+size_t calculateBlockIndex(size_t numFeatureBlocks, size_t firstFeatureBlockIndex, size_t secondFeatureBlockIndex)
+{
+    return firstFeatureBlockIndex * (2 * numFeatureBlocks - firstFeatureBlockIndex + 1) / 2 + firstFeatureBlockIndex + secondFeatureBlockIndex;
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+void checkBlockIndices(size_t iBlockPair, size_t numFeatureBlocks, size_t& firstFeatureBlockIndex, size_t& secondFeatureBlockIndex)
+{
+    if (calculateBlockIndex<algorithmFPType, method, cpu>(numFeatureBlocks, firstFeatureBlockIndex, secondFeatureBlockIndex) == iBlockPair) 
+    {
+        // std::cout << "OK BLOCK" << std::endl;
+        return;    
+    } else {
+        // std::cout << "(!) NO OK BLOCK" << std::endl;
+        for (int firstInc = -1; firstInc <= 1; ++firstInc) {
+            for (int secondInc = -1; secondInc <= 1; ++secondInc) {
+                if (firstInc == -1 && firstFeatureBlockIndex == 0 || secondInc == -1 && secondFeatureBlockIndex == 0 || 
+                    firstInc == 1 && firstFeatureBlockIndex == static_cast<size_t>(-1) || secondInc == 1 && secondFeatureBlockIndex == static_cast<size_t>(-1))
+                {
+                    continue;
+                } 
+                else
+                {
+                    if (calculateBlockIndex<algorithmFPType, method, cpu>(numFeatureBlocks, firstFeatureBlockIndex + firstInc, secondFeatureBlockIndex + secondInc) == iBlockPair) {
+                        firstFeatureBlockIndex += firstInc;
+                        secondFeatureBlockIndex += secondInc;
+                    }
+                }
+            }
+        }
+    }
+}
+
+template <typename algorithmFPType, Method method, CpuType cpu>
+void findFeatureBlockIndices(size_t iBlockPair, size_t numFeatureBlocks, size_t& firstFeatureBlockIndex, size_t& secondFeatureBlockIndex)
+{
+    // firstFeatureBlockIndex = 0, secondFeatureBlockIndex = 0;
+    // size_t diff = numFeatureBlocks;
+    // while (iBlockPair >= diff) {
+    //     iBlockPair -= diff;
+    //     firstFeatureBlockIndex += 1;
+    //     secondFeatureBlockIndex += 1;
+    //     diff -= 1;
+    // }
+    // secondFeatureBlockIndex += iBlockPair;
+    double discr = (numFeatureBlocks + 0.5) * (numFeatureBlocks + 0.5) - 2 * iBlockPair;
+    firstFeatureBlockIndex = numFeatureBlocks + 0.5 - daal::internal::Math<algorithmFPType, cpu>::sSqrt(discr);
+    secondFeatureBlockIndex = iBlockPair - firstFeatureBlockIndex * 0.5 * (2 * numFeatureBlocks - firstFeatureBlockIndex + 1) + firstFeatureBlockIndex;
+    // std::cout << "PreInd: " << firstFeatureBlockIndex << ' ' << secondFeatureBlockIndex << std::endl;
+    checkBlockIndices<algorithmFPType, method, cpu>(iBlockPair, numFeatureBlocks, firstFeatureBlockIndex, secondFeatureBlockIndex);
+}
+
 /********************* updateDenseCrossProductAndSums ********************************************/
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatures, size_t nVectors, NumericTable * dataTable,
                                                 algorithmFPType * crossProduct, algorithmFPType * sums, algorithmFPType * nObservations)
 {
+    //std::cout << "************************************************" << std::endl;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateDenseCrossProductAndSums);
     if (((isNormalized) || ((!isNormalized) && ((method == defaultDense) || (method == sumDense)))))
     {
@@ -153,17 +230,38 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         algorithmFPType nVectorsInv = 1.0 / (double)(nVectors);
 
         /* Split rows by blocks */
-        size_t numRowsInBlock = getBlockSize<cpu>(nVectors);
+        DAAL_INT64 numRowsInBlockDefault = getBlockSizeTry<algorithmFPType, cpu>(nVectors, nFeatures);
+        size_t numRowsInBlock = 0;
+        size_t numFeaturesInBlock = 0;
+        const size_t numRowsLimit = 128;
+        if (numRowsInBlockDefault <= numRowsLimit) {
+            numRowsInBlock = numRowsLimit;
+            numFeaturesInBlock = getFeaturesBlockSize<algorithmFPType, cpu>(numRowsInBlock);
+        } else {
+            numRowsInBlock = numRowsInBlockDefault;
+            numFeaturesInBlock = nFeatures;
+        }
+        if (numRowsInBlock > nVectors) {
+            numRowsInBlock = nVectors;
+        }
+        if (numFeaturesInBlock > nFeatures) {
+            numFeaturesInBlock = nFeatures;
+        }
         size_t numBlocks      = nVectors / numRowsInBlock;
         if (numBlocks * numRowsInBlock < nVectors)
         {
             numBlocks++;
         }
-        size_t numRowsInLastBlock = numRowsInBlock + (nVectors - numBlocks * numRowsInBlock);
+        size_t numFeatureBlocks      = nFeatures / numFeaturesInBlock;
+        if (numFeatureBlocks * numFeaturesInBlock < nFeatures)
+        {
+            numFeatureBlocks++;
+        }
 
         /* TLS data initialization */
+        auto start = std::chrono::steady_clock::now();
         SafeStatus safeStat;
-        daal::static_tls<tls_data_t<algorithmFPType, cpu> *> tls_data([=, &safeStat]() {
+        daal::tls<tls_data_t<algorithmFPType, cpu> *> tls_data([=, &safeStat]() {
             auto tlsData = tls_data_t<algorithmFPType, cpu>::create(isNormalized, nFeatures);
             if (!tlsData)
             {
@@ -171,65 +269,127 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             }
             return tlsData;
         });
-
+        auto end = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        std::cout << "CPP COVARIANCE FIT updateDenseCrossProductAndSums_init: " << elapsed << std::endl;
+        
         /* Threaded loop with syrk seq calls */
-        daal::static_threader_for(numBlocks, [&](int iBlock, size_t tid) {
-            struct tls_data_t<algorithmFPType, cpu> * tls_data_local = tls_data.local(tid);
-            if (!tls_data_local)
-            {
-                return;
-            }
+        start = std::chrono::steady_clock::now();
 
-            char uplo             = 'U';
-            char trans            = 'N';
-            algorithmFPType alpha = 1.0;
-            algorithmFPType beta  = 1.0;
-
-            size_t nRows    = (iBlock < (numBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
-            size_t startRow = iBlock * numRowsInBlock;
-
-            ReadRows<algorithmFPType, cpu, NumericTable> dataTableBD(dataTable, startRow, nRows);
-            DAAL_CHECK_BLOCK_STATUS_THR(dataTableBD);
-            algorithmFPType * dataBlock_local = const_cast<algorithmFPType *>(dataTableBD.get());
-
-            DAAL_INT nFeatures_local             = nFeatures;
-            algorithmFPType * crossProduct_local = tls_data_local->crossProduct;
-            algorithmFPType * sums_local         = tls_data_local->sums;
-
-            {
-                DAAL_ITTNOTIFY_SCOPED_TASK(gemmData);
-                Blas<algorithmFPType, cpu>::xxsyrk(&uplo, &trans, (DAAL_INT *)&nFeatures_local, (DAAL_INT *)&nRows, &alpha, dataBlock_local,
-                                                   (DAAL_INT *)&nFeatures_local, &beta, crossProduct_local, (DAAL_INT *)&nFeatures_local);
-            }
-
-            if (!isNormalized && (method == defaultDense))
-            {
-                DAAL_ITTNOTIFY_SCOPED_TASK(cumputeSums.local);
-                /* Sum input array elements in case of non-normalized data */
-                for (DAAL_INT i = 0; i < nRows; i++)
-                {
-                    PRAGMA_IVDEP
-                    PRAGMA_VECTOR_ALWAYS
-                    for (DAAL_INT j = 0; j < nFeatures_local; j++)
+        DataBlocker<algorithmFPType, cpu, NumericTable> dataBlocker(dataTable, numBlocks, numRowsInBlock, numFeatureBlocks, numFeaturesInBlock);
+        DAAL_INT lda = nFeatures, ldb = nFeatures, ldc = nFeatures;
+        DAAL_INT nFeatures_local             = nFeatures;
+        algorithmFPType alpha = 1.0;
+        algorithmFPType beta  = 1.0;
+        size_t pairsToProcess = (numFeatureBlocks * numFeatureBlocks - numFeatureBlocks) / 2 + numFeatureBlocks;
+        size_t pairsForThread = pairsToProcess / threader_get_threads_number();
+        std::cout << "Threads num: " << threader_get_threads_number() << std::endl;
+        const size_t pairsForThreadLimit = 4;
+        if (pairsForThread < pairsForThreadLimit) {
+            pairsForThread = pairsForThreadLimit;
+        }
+        if (pairsForThread > pairsToProcess) {
+            pairsForThread = pairsToProcess;
+        }
+        size_t pairBlocks = pairsToProcess / pairsForThread;
+        if (pairBlocks * pairsForThread != pairsToProcess) {
+            ++pairBlocks;
+        }
+        daal::conditional_threader_for((numBlocks > 2), numBlocks, [&](int iBlock) {
+            size_t nRows    = (iBlock < numBlocks - 1) ? numRowsInBlock : nVectors - iBlock * numRowsInBlock;
+            daal::conditional_threader_for((numFeatureBlocks > 3), pairBlocks, [&](const size_t iBlockPair) {
+                size_t firstFeatureBlockIndex = 0, secondFeatureBlockIndex = 0;
+                size_t indexPair = iBlockPair * pairsForThread;
+                findFeatureBlockIndices<algorithmFPType, method, cpu>(indexPair, numFeatureBlocks, firstFeatureBlockIndex, secondFeatureBlockIndex);
+                size_t localPairsToProcess = iBlockPair + 1 == pairBlocks ? pairsToProcess - iBlockPair * pairsForThread : pairsForThread;
+                for (size_t pairIndex = 0; pairIndex < localPairsToProcess; ++pairIndex) {
+                    size_t featuresFirstPart = firstFeatureBlockIndex * numFeaturesInBlock;
+                    size_t firstFeaturesToProcess = nFeatures - featuresFirstPart < numFeaturesInBlock ? nFeatures - featuresFirstPart : numFeaturesInBlock;
+                    size_t featuresSecondPart = secondFeatureBlockIndex * numFeaturesInBlock;
+                    size_t secondFeaturesToProcess = nFeatures - featuresSecondPart < numFeaturesInBlock ? nFeatures - featuresSecondPart : numFeaturesInBlock;
+                    struct tls_data_t<algorithmFPType, cpu> * tls_data_local = tls_data.local();
+                    if (!tls_data_local)
                     {
-                        sums_local[j] += dataBlock_local[i * nFeatures_local + j];
+                        return;
+                    }
+                    algorithmFPType * crossProduct_local = tls_data_local->crossProduct;
+                    DataView<algorithmFPType, cpu, NumericTable> dataViewFirst = dataBlocker.getView(iBlock, firstFeatureBlockIndex);
+                    DataView<algorithmFPType, cpu, NumericTable> dataViewSecond = dataBlocker.getView(iBlock, secondFeatureBlockIndex);
+                    algorithmFPType * firstBlock_local = const_cast<algorithmFPType *>(dataViewFirst.get());
+                    algorithmFPType * secondBlock_local = const_cast<algorithmFPType *>(dataViewSecond.get());
+                    algorithmFPType * sums_local         = tls_data_local->sums;
+                    {
+                        DAAL_ITTNOTIFY_SCOPED_TASK(gemmData);
+                        if (dataBlocker.isRows()) {
+                            char transa = 'N', transb = 'T';
+                            Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, (DAAL_INT *)&firstFeaturesToProcess, (DAAL_INT *)&secondFeaturesToProcess, 
+                                (DAAL_INT *)&nRows, &alpha, firstBlock_local, &lda, secondBlock_local, &ldb, 
+                                &beta, crossProduct_local + nFeatures * featuresSecondPart + featuresFirstPart, &ldc);
+                        } else {
+                            char transa = 'T', transb = 'N';
+                            DAAL_INT lda = dataViewFirst.getLD(), ldb = dataViewSecond.getLD(), ldc = nFeatures;
+                            Blas<algorithmFPType, cpu>::xxgemm(&transa, &transb, (DAAL_INT *)&firstFeaturesToProcess, (DAAL_INT *)&secondFeaturesToProcess, 
+                                (DAAL_INT *)&nRows, &alpha, firstBlock_local, &lda, secondBlock_local, &ldb, 
+                                &beta, crossProduct_local + nFeatures * featuresSecondPart + featuresFirstPart, &ldc);
+                        }
+                    }
+                    if (!isNormalized && (method == defaultDense) && (featuresFirstPart == featuresSecondPart))
+                    {
+                        DAAL_ITTNOTIFY_SCOPED_TASK(cumputeSums.local);
+                        /* Sum input array elements in case of non-normalized data */
+                        if (dataBlocker.isRows()) {
+                            DAAL_INT ld = dataViewFirst.getLD();
+                            for (DAAL_INT i = 0; i < nRows; i++)
+                            {
+                                PRAGMA_IVDEP
+                                PRAGMA_VECTOR_ALWAYS
+                                for (DAAL_INT j = 0; j < firstFeaturesToProcess; j++)
+                                {
+                                    sums_local[featuresFirstPart + j] += firstBlock_local[i * ld + j];
+                                }
+                            }
+                        } else {
+                            DAAL_INT ld = dataViewFirst.getLD();
+                            for (DAAL_INT j = 0; j < firstFeaturesToProcess; j++)
+                            {
+                                PRAGMA_IVDEP
+                                PRAGMA_VECTOR_ALWAYS
+                                for (DAAL_INT i = 0; i < nRows; i++)
+                                {
+                                    sums_local[featuresFirstPart + j] += firstBlock_local[ld * j + i];
+                                }
+                            }
+                        }
+                    }
+                    if (secondFeatureBlockIndex + 1 >= numFeatureBlocks) {
+                        firstFeatureBlockIndex += 1;
+                        secondFeatureBlockIndex = firstFeatureBlockIndex;
+                    } else {
+                        secondFeatureBlockIndex += 1;
                     }
                 }
-            }
+            });
         });
         DAAL_CHECK_SAFE_STATUS();
+        end = std::chrono::steady_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        std::cout << "CPP COVARIANCE FIT updateDenseCrossProductAndSums_threaderfor: " << elapsed << std::endl;
+        DAAL_CHECK_SAFE_STATUS();
 
+        start = std::chrono::steady_clock::now();
         /* TLS reduction: sum all partial cross products and sums */
         tls_data.reduce([=](tls_data_t<algorithmFPType, cpu> * tls_data_local) {
             DAAL_ITTNOTIFY_SCOPED_TASK(computeSums.reduce);
             /* Sum all cross products */
             if (tls_data_local->crossProduct)
             {
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t i = 0; i < (nFeatures * nFeatures); i++)
+                for (size_t i = 0; i < nFeatures; i++)
                 {
-                    crossProduct[i] += tls_data_local->crossProduct[i];
+                    PRAGMA_IVDEP
+                    PRAGMA_VECTOR_ALWAYS
+                    for (size_t j = 0; j <= i; j++) {
+                        crossProduct[i * nFeatures + j] += tls_data_local->crossProduct[i * nFeatures + j];
+                    }
                 }
             }
 
@@ -249,7 +409,10 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
 
             delete tls_data_local;
         });
-
+        end = std::chrono::steady_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        std::cout << "CPP COVARIANCE FIT updateDenseCrossProductAndSums_reduce: " << elapsed << std::endl;
+        start = std::chrono::steady_clock::now();
         /* If data is not normalized, perform subtractions of(sums[i]*sums[j])/n */
         if (!isNormalized)
         {
@@ -258,15 +421,19 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < nFeatures; j++)
+                for (size_t j = 0; j <= i; j++)
                 {
                     crossProduct[i * nFeatures + j] -= (nVectorsInv * sums[i] * sums[j]);
                 }
             }
         }
+        end = std::chrono::steady_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        std::cout << "CPP COVARIANCE FIT updateDenseCrossProductAndSums_isnormalized: " << elapsed << std::endl;
     }
     else
     {
+        auto start = std::chrono::steady_clock::now();
         __int64 mklMethod = __DAAL_VSL_SS_METHOD_FAST;
         switch (method)
         {
@@ -275,15 +442,18 @@ services::Status updateDenseCrossProductAndSums(bool isNormalized, size_t nFeatu
         case sumDense: mklMethod = __DAAL_VSL_SS_METHOD_FAST_USER_MEAN; break;
         default: break;
         }
-
+        auto end = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        start = std::chrono::steady_clock::now();
         DEFINE_TABLE_BLOCK(ReadRows, dataBlock, dataTable);
         algorithmFPType * dataBlockPtr = const_cast<algorithmFPType *>(dataBlock.get());
 
         int errcode =
             Statistics<algorithmFPType, cpu>::xcp(dataBlockPtr, (__int64)nFeatures, (__int64)nVectors, nObservations, sums, crossProduct, mklMethod);
+        end = std::chrono::steady_clock::now();
+        elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
         DAAL_CHECK(errcode == 0, services::ErrorCovarianceInternal);
     }
-
     *nObservations += (algorithmFPType)nVectors;
     return services::Status();
 }
@@ -396,14 +566,20 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
         invNObservationsM1 = 1.0 / (nObservations - 1.0);
     }
 
+    // auto start = std::chrono::steady_clock::now();
     /* Calculate resulting mean vector */
     for (size_t i = 0; i < nFeatures; i++)
     {
         mean[i] = sums[i] * invNObservations;
     }
+    // auto end = std::chrono::steady_clock::now();
+    // auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    // //std::cout << "CPP Covariance finalizeCovariance loop_on_features: " << elapsed << std::endl;
 
+    // start = std::chrono::steady_clock::now();
     if (parameter->outputMatrixType == covariance::correlationMatrix)
     {
+        // //std::cout << '#' << std::endl;
         /* Calculate resulting correlation matrix */
         TArray<algorithmFPType, cpu> diagInvSqrtsArray(nFeatures);
         DAAL_CHECK_MALLOC(diagInvSqrtsArray.get());
@@ -425,6 +601,7 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
     }
     else
     {
+        // //std::cout << '@' << std::endl;
         /* Calculate resulting covariance matrix */
         for (size_t i = 0; i < nFeatures; i++)
         {
@@ -434,7 +611,11 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
             }
         }
     }
+    // end = std::chrono::steady_clock::now();
+    // elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    // //std::cout << "CPP Covariance finalizeCovariance compute: " << elapsed << std::endl;
 
+    // start = std::chrono::steady_clock::now();
     /* Copy results into symmetric upper triangle */
     for (size_t i = 0; i < nFeatures; i++)
     {
@@ -443,6 +624,9 @@ services::Status finalizeCovariance(size_t nFeatures, algorithmFPType nObservati
             cov[j * nFeatures + i] = cov[i * nFeatures + j];
         }
     }
+    // end = std::chrono::steady_clock::now();
+    // elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    // //std::cout << "CPP Covariance finalizeCovariance loop_on_features2: " << elapsed << std::endl;
 
     return services::Status();
 }
