@@ -112,7 +112,7 @@ public:
     template <typename Op>
     std::vector<engine> operator()(Op&& op) {
         daal::services::Status status;
-        for (Size i = 0; i < count_; i++) {
+        for (Size i = 0; i < count_; ++i) {
             op(i, params_.nSkip[i]);
         }
         select_parallelization_technique(technique_);
@@ -127,7 +127,7 @@ public:
         }
 
         std::vector<engine> arr_data(count_);
-        for (Size i = 0; i < count_; i++) {
+        for (Size i = 0; i < count_; ++i) {
             arr_data[i] = engine_list_[i];
         }
 

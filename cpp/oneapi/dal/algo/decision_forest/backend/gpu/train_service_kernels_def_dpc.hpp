@@ -851,7 +851,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_oob_row_list(
 
     last_event = oob_row_count_list.fill(queue_, 0);
 
-    for (Index tree_idx = 0; tree_idx < tree_count; tree_idx++) {
+    for (Index tree_idx = 0; tree_idx < tree_count; ++tree_idx) {
         last_event = mark_present_rows(row_list,
                                        row_buffer,
                                        row_count,
@@ -886,7 +886,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_oob_row_list(
         // assign buffer of required size to the input oob_row_list buffer
         oob_row_list = pr::ndarray<Index, 1>::empty(queue_, { total_oob_row_count }, alloc::device);
 
-        for (Index tree_idx = 0; tree_idx < tree_count; tree_idx++) {
+        for (Index tree_idx = 0; tree_idx < tree_count; ++tree_idx) {
             Index oob_row_count =
                 oob_row_count_host_ptr[tree_idx + 1] - oob_row_count_host_ptr[tree_idx];
 

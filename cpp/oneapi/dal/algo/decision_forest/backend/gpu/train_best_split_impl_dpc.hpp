@@ -99,14 +99,14 @@ inline void merge_stat(Float* dst, const Float* src, Index) {
 
 template <typename Index>
 inline void merge_stat(Index* dst, const Index* src, Index count) {
-    for (Index i = 0; i < count; i++) {
+    for (Index i = 0; i < count; ++i) {
         dst[i] += src[i];
     }
 }
 
 template <typename Index>
 inline void merge_stat(Index* dst, Index* accum, const Index* src, Index count) {
-    for (Index i = 0; i < count; i++) {
+    for (Index i = 0; i < count; ++i) {
         *accum += src[i];
         dst[i] += src[i];
     }
@@ -217,7 +217,7 @@ struct split_smp {
         left_imp_ = Float(1);
         right_imp_ = Float(1);
 
-        for (Index class_id = 0; class_id < class_count; class_id++) {
+        for (Index class_id = 0; class_id < class_count; ++class_id) {
             left_imp_ -=
                 Float(left_class_hist_[class_id]) * Float(left_class_hist_[class_id]) * divL;
             right_imp_ -= Float(node_class_hist_ptr[class_id] - left_class_hist_[class_id]) *
@@ -323,7 +323,7 @@ struct split_smp {
 
             bs_left_count_ = ts_left_count_;
             bs_left_imp_ = ts_left_imp_;
-            for (Index class_id = 0; class_id < class_count_; class_id++) {
+            for (Index class_id = 0; class_id < class_count_; ++class_id) {
                 bs_left_class_hist_[class_id] = ts_left_class_hist_[class_id];
             }
         }
@@ -370,7 +370,7 @@ struct split_smp {
 
             bs_left_count_ = ts_left_count_;
 
-            for (Index i = 0; i < hist_elem_count; i++) {
+            for (Index i = 0; i < hist_elem_count; ++i) {
                 bs_left_hist_[i] = ts_left_hist_[i];
             }
         }
@@ -388,7 +388,7 @@ struct split_smp {
         left_node_imp_ptr[0] = bs_left_imp_;
         hist_type_t* left_node_class_hist_ptr = left_class_hist_list_ptr + node_id * class_count;
 
-        for (Index class_id = 0; class_id < class_count; class_id++) {
+        for (Index class_id = 0; class_id < class_count; ++class_id) {
             left_node_class_hist_ptr[class_id] = bs_left_class_hist_[class_id];
         }
     }
@@ -660,7 +660,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
                 Float ts_right_imp = Float(0);
                 Float ts_imp_dec = Float(0);
 
-                for (Index ts_ftr_bin = 0; ts_ftr_bin < ts_ftr_bin_count; ts_ftr_bin++) {
+                for (Index ts_ftr_bin = 0; ts_ftr_bin < ts_ftr_bin_count; ++ts_ftr_bin) {
                     const Index bin_ofs = ts_ftr_bin * hist_prop_count;
 
                     if constexpr (std::is_same_v<Task, task::classification>) {
@@ -896,7 +896,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                 bin_map_t bin_map[bin_block_count] = { 0 };
 
                 // calculating classes histogram rows count <= bins num
-                for (Index i = 0; i < row_count; i++) {
+                for (Index i = 0; i < row_count; ++i) {
                     Index curr_row_id = tree_order_ptr[row_ofs + i];
                     Index ts_ftr_bin = data_ptr[curr_row_id * column_count + ts_ftr_id];
 
@@ -910,7 +910,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                         Float ts_right_imp = Float(0);
                         Float ts_imp_dec = Float(0);
 
-                        for (int row_idx = 0; row_idx < row_count; row_idx++) {
+                        for (int row_idx = 0; row_idx < row_count; ++row_idx) {
                             Index id = tree_order_ptr[row_ofs + row_idx];
                             Index bin = data_ptr[id * column_count + ts_ftr_id];
 

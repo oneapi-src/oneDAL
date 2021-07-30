@@ -184,7 +184,7 @@ Index train_kernel_hist_impl<Float, Bin, Index, Task>::get_global_row_offset(boo
                        sizeof(Index))
             .wait();
 
-        for (std::int64_t i = 0; i < comm_.get_rank(); i++) {
+        for (std::int64_t i = 0; i < comm_.get_rank(); ++i) {
             global_row_offset += row_count_list_host_ptr[i];
         }
     }
@@ -282,7 +282,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
     ftr_bin_offsets_nd_ = ind_ftrs.get_bin_offsets();
 
     bin_borders_host_.resize(ctx.column_count_);
-    for (Index clmn_idx = 0; clmn_idx < ctx.column_count_; clmn_idx++) {
+    for (Index clmn_idx = 0; clmn_idx < ctx.column_count_; ++clmn_idx) {
         bin_borders_host_[clmn_idx] = ind_ftrs.get_bin_borders(clmn_idx).to_host(queue_);
     }
 
@@ -294,7 +294,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::init_params(train_context_
 
     // calculating the maximal number of bins for feature among all features
     ctx.max_bin_count_among_ftrs_ = 0;
-    for (Index clmn_idx = 0; clmn_idx < ctx.column_count_; clmn_idx++) {
+    for (Index clmn_idx = 0; clmn_idx < ctx.column_count_; ++clmn_idx) {
         auto ftr_bins = ind_ftrs.get_bin_count(clmn_idx);
         ctx.max_bin_count_among_ftrs_ = std::max(ctx.max_bin_count_among_ftrs_, ftr_bins);
     }
@@ -433,7 +433,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
     Index* selected_row_ptr = selected_row_host.get_mutable_data();
     Index* node_list_ptr = node_list.get_mutable_data();
 
-    for (Index node_idx = 0; node_idx < node_count; node_idx++) {
+    for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
         pr::rng<Index> rn_gen;
         Index* gen_row_idx_global_ptr =
             selected_row_global_ptr + ctx.selected_row_total_count_ * node_idx;
@@ -450,7 +450,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
             Index* dst = selected_row_ptr + ctx.selected_row_total_count_ * node_idx;
 
             Index row_idx = 0;
-            for (Index i = 0; i < ctx.selected_row_total_count_; i++) {
+            for (Index i = 0; i < ctx.selected_row_total_count_; ++i) {
                 dst[i] = 0;
                 if (src[i] >= ctx.global_row_offset_ &&
                     src[i] < ctx.global_row_offset_ + ctx.row_count_) {
@@ -495,7 +495,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
         pr::rng<Index> rn_gen;
         auto treeMap_ptr = node_vs_tree_map_list_host.get_mutable_data();
 
-        for (Index node = 0; node < node_count; node++) {
+        for (Index node = 0; node < node_count; ++node) {
             rn_gen.uniform_without_replacement(
                 ctx.selected_ftr_count_,
                 selected_features_host_ptr + node * ctx.selected_ftr_count_,
@@ -506,8 +506,8 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
         }
     }
     else {
-        for (Index node = 0; node < node_count; node++) {
-            for (Index i = 0; i < ctx.selected_ftr_count_; i++) {
+        for (Index node = 0; node < node_count; ++node) {
+            for (Index i = 0; i < ctx.selected_ftr_count_; ++i) {
                 selected_features_host_ptr[node * ctx.selected_ftr_count_ + i] = i;
             }
         }
@@ -574,14 +574,14 @@ inline void merge_stat(Float* dst, const Float* src, Index) {
 
 template <typename Index>
 inline void merge_stat(Index* dst, const Index* src, Index count) {
-    for (Index i = 0; i < count; i++) {
+    for (Index i = 0; i < count; ++i) {
         dst[i] += src[i];
     }
 }
 
 template <typename Index>
 inline void merge_stat(Index* dst, Index* accum, const Index* src, Index count) {
-    for (Index i = 0; i < count; i++) {
+    for (Index i = 0; i < count; ++i) {
         *accum += src[i];
         dst[i] += src[i];
     }
@@ -625,12 +625,12 @@ inline void compute_hist_for_node(
     Float* node_imp_ptr = imp_list_ptr.imp_list_ptr_ + node_id * impl_const_t::node_imp_prop_count_;
     const Index row_count = node_ptr[impl_const_t::ind_lrc];
 
-    for (Index i = ind_start; i < ind_end; i++) {
+    for (Index i = ind_start; i < ind_end; ++i) {
         Index id = node_tree_order_ptr[i];
         add_val_to_hist<Float, Index>(private_histogram, response_ptr[id]);
     }
 
-    for (Index cls_idx = 0; cls_idx < ctx.class_count_; cls_idx++) {
+    for (Index cls_idx = 0; cls_idx < ctx.class_count_; ++cls_idx) {
         atomic_global_add(node_histogram_ptr + cls_idx, private_histogram[cls_idx]);
     }
 
@@ -642,7 +642,7 @@ inline void compute_hist_for_node(
     Index win_cls = 0;
     Index cls_count = 0;
 
-    for (Index cls_idx = 0; cls_idx < ctx.class_count_; cls_idx++) {
+    for (Index cls_idx = 0; cls_idx < ctx.class_count_; ++cls_idx) {
         cls_count = node_histogram_ptr[cls_idx];
         imp -= Float(cls_count) * (cls_count)*div;
 
@@ -680,7 +680,7 @@ inline void compute_hist_for_node(
     constexpr Index hist_prop_count = impl_const_t::hist_prop_count_;
     hist_type_t private_histogram[hist_prop_count] = { 0 };
 
-    for (Index i = ind_start; i < ind_end; i++) {
+    for (Index i = ind_start; i < ind_end; ++i) {
         Index id = node_tree_order_ptr[i];
         add_val_to_hist<Float, Index>(private_histogram, response_ptr[id]);
     }
@@ -730,7 +730,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
         Float* imp_list_host_ptr = imp_list_host.get_mutable_data();
         Index* node_list_host_ptr = node_list_host.get_mutable_data();
 
-        for (Index node_idx = 0; node_idx < node_count; node_idx++) {
+        for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
             const Index* node_histogram_ptr =
                 class_hist_list_host_ptr + node_idx * ctx.class_count_;
             Float* node_imp_ptr = imp_list_host_ptr + node_idx * impl_const_t::node_imp_prop_count_;
@@ -744,7 +744,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
             Index win_cls = 0;
             Index cls_count = 0;
 
-            for (Index cls_idx = 0; cls_idx < ctx.class_count_; cls_idx++) {
+            for (Index cls_idx = 0; cls_idx < ctx.class_count_; ++cls_idx) {
                 cls_count = node_histogram_ptr[cls_idx];
                 imp -= Float(cls_count) * (cls_count)*div;
 
@@ -1171,7 +1171,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
     Index grp_node_count = 0;
     Index processed_node_count = 0;
 
-    for (Index i = 0; i < ctx.node_group_count_; i++, processed_node_count += grp_node_count) {
+    for (Index i = 0; i < ctx.node_group_count_; ++i, processed_node_count += grp_node_count) {
         grp_node_count = node_grp_list_host[i * ctx.node_group_prop_count_ + 0];
         if (0 == grp_node_count)
             continue;
@@ -1688,7 +1688,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_his
             Index ind_end;
             get_block_borders(row_count, part_hist_count, hist_idx, ind_start, ind_end);
 
-            for (Index i = ind_start; i < ind_end; i++) {
+            for (Index i = ind_start; i < ind_end; ++i) {
                 Index id = tree_order_ptr[row_ofs + i];
                 for (Index ftr_idx = ftr_grp_idx; ftr_idx < selected_ftr_count;
                      ftr_idx += ftr_grp_size) {
@@ -1783,7 +1783,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
             Index ind_end;
             get_block_borders(row_count, part_hist_count, hist_idx, ind_start, ind_end);
 
-            for (Index i = ind_start; i < ind_end; i++) {
+            for (Index i = ind_start; i < ind_end; ++i) {
                 Index id = tree_order_ptr[row_ofs + i];
                 for (Index ftr_idx = ftr_grp_idx; ftr_idx < selected_ftr_count;
                      ftr_idx += ftr_grp_size) {
@@ -1882,7 +1882,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_sum
             Index ind_end;
             get_block_borders(row_count, part_hist_count, hist_idx, ind_start, ind_end);
 
-            for (Index i = ind_start; i < ind_end; i++) {
+            for (Index i = ind_start; i < ind_end; ++i) {
                 Index id = tree_order_ptr[row_ofs + i];
                 for (Index ftr_idx = ftr_grp_idx; ftr_idx < selected_ftr_count;
                      ftr_idx += ftr_grp_size) {
@@ -2009,7 +2009,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::reduce_partial_hist
 
             hist_type_t* buf_ptr = buf.get_pointer().get();
 
-            for (Index prop = 0; prop < hist_prop_count; prop++) {
+            for (Index prop = 0; prop < hist_prop_count; ++prop) {
                 buf_ptr[local_id * hist_prop_count + prop] = 0;
             }
 
@@ -2087,7 +2087,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
 
             Float* buf_ptr = buf.get_pointer().get();
 
-            for (Index prop = 0; prop < hist_prop_count; prop++) {
+            for (Index prop = 0; prop < hist_prop_count; ++prop) {
                 buf_ptr[local_id * hist_prop_count + prop] = 0;
             }
 
@@ -2100,7 +2100,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
             for (Index i = local_id; i < part_hist_count; i += local_size) {
                 Index offset = i * selected_ftr_count * max_bin_count_among_ftrs * hist_prop_count +
                                binId * hist_prop_count;
-                for (Index prop = 0; prop < hist_prop_count; prop++) {
+                for (Index prop = 0; prop < hist_prop_count; ++prop) {
                     buf_ptr[local_id * hist_prop_count + prop] += node_part_hist_ptr[offset + prop];
                 }
             }
@@ -2108,7 +2108,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
             for (Index offset = local_size / 2; offset > 0; offset >>= 1) {
                 item.barrier(sycl::access::fence_space::local_space);
                 if (local_id < offset) {
-                    for (Index prop = 0; prop < hist_prop_count; prop++) {
+                    for (Index prop = 0; prop < hist_prop_count; ++prop) {
                         buf_ptr[local_id * hist_prop_count + prop] +=
                             buf_ptr[(local_id + offset) * hist_prop_count + prop];
                     }
@@ -2116,7 +2116,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::sum_reduce_partial_
             }
 
             if (local_id == 0) {
-                for (Index prop = 0; prop < hist_prop_count; prop++) {
+                for (Index prop = 0; prop < hist_prop_count; ++prop) {
                     node_hist_ptr[binId * hist_prop_count + prop] =
                         buf_ptr[local_id * hist_prop_count + prop];
                 }
@@ -2157,7 +2157,7 @@ static void do_node_imp_split(const imp_data_list_ptr<Float, Index, Task>& imp_l
         Float imp_right = Float(1);
         Float div_right = (0 < rows_right) ? Float(1) / (Float(rows_right) * rows_right) : Float(0);
 
-        for (Index class_id = 0; class_id < ctx.class_count_; class_id++) {
+        for (Index class_id = 0; class_id < ctx.class_count_; ++class_id) {
             class_hist_left[class_id] = left_child_class_hist[class_id];
             Index class_count_right = class_hist_p[class_id] - left_child_class_hist[class_id];
             class_hist_right[class_id] = class_count_right;
@@ -2370,7 +2370,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error(
     //compute prediction error on each OOB row and get its mean online formulae (Welford)
 
     Float mean = 0;
-    for (Index i = 0; i < n; i++) {
+    for (Index i = 0; i < n; ++i) {
         Index row_ind = oob_row_list_host_ptr[ind_ofs + i];
         ONEDAL_ASSERT(row_ind < ctx.row_count_);
 
@@ -2428,7 +2428,7 @@ Float train_kernel_hist_impl<Float, Bin, Index, Task>::compute_oob_error_perm(
     Float* buf_ptr = buf.get_mutable_data();
 
     Float mean = Float(0);
-    for (Index i = 0; i < n; i++) {
+    for (Index i = 0; i < n; ++i) {
         int row_ind = oob_row_list_host_ptr[ind_ofs + i];
         int row_ind_perm = permutation_ptr[i];
         ONEDAL_ASSERT(row_ind < ctx.row_count_);
@@ -2511,7 +2511,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
 
             pr::rng<Index> rn_gen;
 
-            for (Index column_idx = 0; column_idx < ctx.column_count_; column_idx++) {
+            for (Index column_idx = 0; column_idx < ctx.column_count_; ++column_idx) {
                 rn_gen
                     .shuffle(oob_row_count,
                              permutation_ptr,
@@ -2572,14 +2572,14 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
     Index predicted_count = 0;
     Float oob_err = 0;
 
-    for (Index i = 0; i < ctx.row_count_; i++) {
+    for (Index i = 0; i < ctx.row_count_; ++i) {
         bool predicted = false;
         hist_type_t prediction = hist_type_t(0);
 
         if constexpr (std::is_same_v<Task, task::classification>) {
             ONEDAL_ASSERT(ctx.class_count_ == ctx.oob_prop_count_);
             Index max_val = 0;
-            for (Index class_idx = 0; class_idx < ctx.class_count_; class_idx++) {
+            for (Index class_idx = 0; class_idx < ctx.class_count_; ++class_idx) {
                 Index val = oob_per_obs_list_host_ptr[i * ctx.oob_prop_count_ + class_idx];
                 if (val > max_val) {
                     max_val = val;
@@ -2611,7 +2611,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_oob_error(
             if (ctx.oob_err_obs_required_)
                 res_oob_err_obs_host_ptr[i] = prediction_res;
             oob_err += prediction_res;
-            predicted_count++;
+            ++predicted_count;
         }
         else if (ctx.oob_err_obs_required_)
             //was not in OOB set of any tree and hence not predicted
@@ -2648,7 +2648,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_var_imp(
             Float* var_imp_var_host_ptr = var_imp_var_host.get_mutable_data();
 
             const Float div = Float(1) / Float(ctx.tree_count_);
-            for (Index i = 0; i < ctx.column_count_; i++) {
+            for (Index i = 0; i < ctx.column_count_; ++i) {
                 var_imp_var_host_ptr[i] *= div;
                 if (var_imp_var_host_ptr[i] > Float(0)) {
                     var_imp_host_ptr[i] /= std::sqrt(var_imp_var_host_ptr[i] * div);
@@ -2662,7 +2662,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::finalize_var_imp(
     }
     else if (ctx.mdi_required_) {
         const Float div = Float(1) / ctx.tree_count_;
-        for (Index i = 0; i < ctx.column_count_; i++)
+        for (Index i = 0; i < ctx.column_count_; ++i)
             var_imp_host_ptr[i] *= div;
         var_imp = var_imp_host.to_device(queue_);
     }
@@ -2728,7 +2728,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
         auto treeMap = node_vs_tree_map_list_host.get_mutable_data();
         auto node_list_ptr = level_node_list_init_host.get_mutable_data();
 
-        for (Index node = 0; node < node_count; node++) {
+        for (Index node = 0; node < node_count; ++node) {
             Index* node_ptr = node_list_ptr + node * impl_const_t::node_prop_count_;
             treeMap[node] = iter + node;
             node_ptr[impl_const_t::ind_ofs] =
@@ -2781,7 +2781,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
             event.wait_and_throw();
         }
 
-        for (Index level = 0; node_count > 0; level++) {
+        for (Index level = 0; node_count > 0; ++level) {
             auto node_list = level_node_lists[level];
 
             imp_data_t left_child_imp_data(queue_, ctx, node_count);
@@ -2910,7 +2910,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
         model_manager.add_tree_block(level_records, bin_borders_host_, iter_tree_count);
 
-        for (Index tree_idx = 0; tree_idx < iter_tree_count; tree_idx++) {
+        for (Index tree_idx = 0; tree_idx < iter_tree_count; ++tree_idx) {
             compute_results(ctx,
                             model_manager,
                             data_host_,
