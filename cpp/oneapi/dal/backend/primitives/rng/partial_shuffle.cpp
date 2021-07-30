@@ -26,8 +26,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-#ifdef ONEDAL_DATA_PARALLEL
-
 template <typename... Args>
 inline void uniform_by_cpu(Args&&... args) {
     dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
@@ -75,7 +73,5 @@ void partial_fisher_yates_shuffle(ndview<std::size_t, 1>& result_array, std::siz
     }
     ONEDAL_ASSERT(k == count);
 }
-
-#endif
 
 } // namespace oneapi::dal::backend::primitives
