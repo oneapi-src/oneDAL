@@ -45,7 +45,7 @@ inline void uniform_by_cpu(Args&&... args) {
 void partial_fisher_yates_shuffle(ndview<std::size_t, 1>& result_array, std::size_t top) {
     using msg = dal::detail::error_messages;
     daal::algorithms::engines::EnginePtr engine =
-        daal::algorithms::engines::mt19937::Batch<>::create(777);
+        daal::algorithms::engines::mt19937::Batch<>::create(777777);
     if (engine.get() == nullptr) {
         throw internal_error(msg::failed_to_generate_random_numbers());
     }

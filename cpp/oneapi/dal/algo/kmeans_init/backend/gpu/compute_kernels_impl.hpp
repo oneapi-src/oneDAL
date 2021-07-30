@@ -101,9 +101,8 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
                 }
             });
         });
-        bk::smart_event event(gather_event);
-        event.attach(indices_ptr);
-        return event;
+        gather_event.wait_and_throw();
+        return gather_event;
     }
 };
 
