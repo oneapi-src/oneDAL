@@ -43,8 +43,8 @@ std::int64_t spmd_communicator::get_rank_count() const {
     return impl_->get_rank_count();
 }
 
-std::int64_t spmd_communicator::get_root_rank() const {
-    return impl_->get_root_rank();
+std::int64_t spmd_communicator::get_default_root_rank() const {
+    return impl_->get_default_root_rank();
 }
 
 void spmd_communicator::barrier() const {

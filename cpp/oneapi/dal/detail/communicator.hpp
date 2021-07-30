@@ -20,7 +20,7 @@
 #include <CL/sycl.hpp>
 #endif
 
-#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/array.hpp"
 
 namespace oneapi::dal::detail {
 namespace v1 {
@@ -47,8 +47,8 @@ public:
     virtual ~spmd_communicator_iface() = default;
 
     virtual std::int64_t get_rank() = 0;
-    virtual std::int64_t get_root_rank() = 0;
     virtual std::int64_t get_rank_count() = 0;
+    virtual std::int64_t get_default_root_rank() = 0;
 
     virtual void barrier() = 0;
 
@@ -96,8 +96,8 @@ public:
                                         const byte_t* send_buf,
                                         std::int64_t send_count,
                                         byte_t* recv_buf,
-                                        const std::int64_t* recv_count,
-                                        const std::int64_t* displs,
+                                        const std::int64_t* recv_count_host,
+                                        const std::int64_t* displs_host,
                                         const data_type& dtype,
                                         std::int64_t root) = 0;
 #endif
@@ -164,32 +164,123 @@ public:
     std::int64_t get_rank_count() const;
 
     /// Returns id of the rank considered as a root for collective operations
-    std::int64_t get_root_rank() const;
+    std::int64_t get_default_root_rank() const;
+
+    /// Returns `true` if the current rank is root
+    bool is_root_rank(std::int64_t root = -1) const {
+        return get_rank() == fix_root_rank(root);
+    }
+
+    /// Performs `if_body` only if the current rank is root, passes through the
+    /// result returned by the `if_body`. The result type must be trivially-constructable.
+    template <typename IfBody>
+    auto if_root_rank(IfBody&& if_body, std::int64_t root = -1) const {
+        if (is_root_rank(root)) {
+            return if_body();
+        }
+        else {
+            using return_t = decltype(if_body());
+            return return_t{};
+        }
+    }
+
+    /// Performs `if_body` only if the current rank is root, otherwise performs
+    /// `else_body`. Passes through the result returned by the `if_body` or
+    /// `else_body`. The `if_body` and `else_body` must return value of the same type.
+    template <typename IfBody, typename ElseBody>
+    auto if_root_rank_else(IfBody&& if_body, ElseBody&& else_body, std::int64_t root = -1) {
+        if (is_root_rank(root)) {
+            return if_body();
+        }
+        else {
+            return else_body();
+        }
+    }
 
     /// Blocks until all ranks in the communicator have reached this function
     void barrier() const;
 
     /// Broadcasts a message from the `root` rank to all other ranks
     ///
-    /// @param send_buf The buffer which content is broadcasted
-    /// @param count    The number of elements of `dtype` in `send_buf`
-    /// @param dtype    The type of elements in the passed buffers
-    /// @param root     The rank of the broadcasting process
+    /// @param buf   The buffer which content is broadcasted
+    /// @param count The number of elements of `dtype` in `send_buf`
+    /// @param dtype The type of elements in the passed buffers
+    /// @param root  The rank of the broadcasting process, if the passed
+    ///              rank is negative, the default root rank is used
     ///
     /// @return The object to track the progress of the operation
-    spmd_request bcast(byte_t* send_buf,
+    spmd_request bcast(byte_t* buf,
                        std::int64_t count,
                        const data_type& dtype,
-                       std::int64_t root) const;
+                       std::int64_t root = -1) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// `bcast` that accepts USM pointers
     spmd_request bcast(sycl::queue& q,
-                       byte_t* send_buf,
+                       byte_t* buf,
                        std::int64_t count,
                        const data_type& dtype,
-                       std::int64_t root) const;
+                       std::int64_t root = -1) const;
 #endif
+
+    template <typename T>
+    spmd_request bcast(T* buf, std::int64_t count, std::int64_t root = -1) const {
+        static_assert(std::is_arithmetic_v<T>);
+        return bcast(reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), root);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    spmd_request bcast(sycl::queue& q, T* buf, std::int64_t count, std::int64_t root = -1) const {
+        static_assert(std::is_arithmetic_v<T>);
+        return bcast(q, reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), root);
+    }
+#endif
+
+    template <typename T>
+    spmd_request bcast(T& value, std::int64_t root = -1) const {
+        return bcast(&value, 1, root);
+    }
+
+    template <typename T>
+    spmd_request bcast(const array<T>& ary, std::int64_t root = -1) const {
+        std::int64_t count = if_root_rank(
+            [&]() {
+                return ary.get_count();
+            },
+            root);
+
+        bcast(count, root).wait();
+        ONEDAL_ASSERT(ary.get_count() >= count);
+
+        spmd_request request;
+        if (is_root_rank(root)) {
+            // `const_cast` is safe here, `bcast` called on the
+            // root rank does not modify the values
+            __ONEDAL_IF_QUEUE__(ary.get_queue(), {
+                auto queue = ary.get_queue().value();
+                request = bcast(queue, const_cast<T*>(ary.get_data()), count, root);
+            });
+
+            __ONEDAL_IF_NO_QUEUE__(ary.get_queue(), { //
+                request = bcast(const_cast<T*>(ary.get_data()), count, root);
+            });
+        }
+        else {
+            ONEDAL_ASSERT(ary.has_mutable_data());
+
+            __ONEDAL_IF_QUEUE__(ary.get_queue(), {
+                auto queue = ary.get_queue().value();
+                request = bcast(queue, ary.get_mutable_data(), count, root);
+            });
+
+            __ONEDAL_IF_NO_QUEUE__(ary.get_queue(), { //
+                request = bcast(ary.get_mutable_data(), count, root);
+            });
+        }
+
+        return request;
+    }
 
     /// Collects data from all the ranks within a communicator into a single buffer.
     /// The data size sent by each ranks must be the same.
@@ -210,7 +301,7 @@ public:
                         byte_t* recv_buf,
                         std::int64_t recv_count,
                         const data_type& dtype,
-                        std::int64_t root) const;
+                        std::int64_t root = -1) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// `gather` that accepts USM pointers
@@ -220,8 +311,108 @@ public:
                         byte_t* recv_buf,
                         std::int64_t recv_count,
                         const data_type& dtype,
-                        std::int64_t root) const;
+                        std::int64_t root = -1) const;
 #endif
+
+    template <typename T>
+    spmd_request gather(const T* send_buf,
+                        std::int64_t send_count,
+                        T* recv_buf,
+                        std::int64_t recv_count,
+                        std::int64_t root = -1) const {
+        static_assert(std::is_arithmetic_v<T>);
+        return gather(reinterpret_cast<const byte_t*>(send_buf),
+                      send_count,
+                      reinterpret_cast<byte_t*>(recv_buf),
+                      recv_count,
+                      make_data_type<T>(),
+                      root);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T>
+    spmd_request gather(sycl::queue& q,
+                        const T* send_buf,
+                        std::int64_t send_count,
+                        T* recv_buf,
+                        std::int64_t recv_count,
+                        std::int64_t root = -1) const {
+        static_assert(std::is_arithmetic_v<T>);
+        return gather(q,
+                      reinterpret_cast<const byte_t*>(send_buf),
+                      send_count,
+                      reinterpret_cast<byte_t*>(recv_buf),
+                      recv_count,
+                      make_data_type<T>(),
+                      root);
+    }
+#endif
+
+    template <typename T>
+    spmd_request gather(const T& send, T* recv, const std::int64_t root = -1) const {
+        return gather(&send, 1, recv, 1, root);
+    }
+
+    template <typename T>
+    array<T> gather(const T& send, const std::int64_t root = -1) const {
+        array<T> recv;
+        T* recv_ptr = nullptr;
+
+        if (is_root_rank(root)) {
+            recv.reset(get_rank_count());
+            recv_ptr = recv.get_mutable_data();
+        }
+
+        gather(send, recv_ptr, root).wait();
+
+        return recv;
+    }
+
+    template <typename T>
+    spmd_request gather(const array<T>& send,
+                        const array<T>& recv,
+                        const std::int64_t root = -1) const {
+        if (is_root_rank(root)) {
+            ONEDAL_ASSERT(recv.has_mutable_data());
+        }
+
+#ifdef ONEDAL_ENABLE_ASSERT
+        check_if_same_send_count(send.get_count(), root);
+
+        // Check if recv allocated count is enough to store all the received values
+        // Note: `recv` must be allocated at least on root node
+        const std::int64_t min_recv_count = get_min_recv_count(send.get_count());
+        if (is_root_rank(root)) {
+            ONEDAL_ASSERT(recv.get_count() >= min_recv_count);
+        }
+#endif
+
+        spmd_request request;
+
+        __ONEDAL_IF_QUEUE__(send.get_queue(), {
+            auto queue = send.get_queue().value();
+
+            ONEDAL_ASSERT(recv.get_queue().has_value());
+            ONEDAL_ASSERT(recv.get_queue().value() == queue);
+
+            request = gather(queue,
+                             send.get_data(),
+                             send.get_count(),
+                             recv.get_mutable_data(),
+                             send.get_count(),
+                             root);
+        });
+
+        __ONEDAL_IF_NO_QUEUE__(send.get_queue(), {
+            request = gather(send.get_data(),
+                             send.get_count(),
+                             recv.get_mutable_data(),
+                             send.get_count(),
+                             root);
+        });
+
+        return request;
+    }
 
     /// Collects data from all the ranks within a communicator into a single buffer.
     /// The data size send by each rank may be different.
@@ -252,12 +443,14 @@ public:
 
 #ifdef ONEDAL_DATA_PARALLEL
     /// `gatherv` that accepts USM pointers
+    /// `recv_count_host` must be host-allocated memory!
+    /// `displs_host` must be host-allocated memory!
     spmd_request gatherv(sycl::queue& q,
                          const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
-                         const std::int64_t* recv_count,
-                         const std::int64_t* displs,
+                         const std::int64_t* recv_count_host,
+                         const std::int64_t* displs_host,
                          const data_type& dtype,
                          std::int64_t root) const;
 #endif
@@ -321,6 +514,31 @@ protected:
     Impl& get_impl() const {
         static_assert(std::is_base_of_v<spmd_communicator_iface, Impl>);
         return static_cast<Impl&>(*impl_);
+    }
+
+    std::int64_t fix_root_rank(std::int64_t root) const {
+        if (root < 0) {
+            return get_default_root_rank();
+        }
+        return root;
+    }
+
+#ifdef ONEDAL_ENABLE_ASSERT
+    void check_if_same_send_count(std::int64_t send_count, std::int64_t root) const {
+        const auto counts = gather(send_count, root);
+        if (is_root_rank(root)) {
+            ONEDAL_ASSERT(counts.get_count() > 0);
+            for (std::int64_t i = 0; i < counts.get_count(); i++) {
+                ONEDAL_ASSERT(counts[i] == counts[0]);
+            }
+        }
+    }
+#endif
+
+    std::int64_t get_min_recv_count(std::int64_t send_count) const {
+        std::int64_t minimal_recv_count = send_count;
+        allreduce(minimal_recv_count).wait();
+        return minimal_recv_count;
     }
 
 private:
