@@ -23,12 +23,13 @@
 namespace oneapi::dal::csv {
 
 namespace detail {
-
 namespace v1 {
 template <typename Object>
 class read_args_impl;
 } // namespace v1
+
 using v1::read_args_impl;
+
 } // namespace detail
 
 namespace v1 {
@@ -46,7 +47,9 @@ private:
 };
 
 } // namespace v1
+
 using v1::read_args;
+
 } // namespace oneapi::dal::csv
 
 namespace oneapi::dal::preview::csv {
