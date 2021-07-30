@@ -20,6 +20,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-void partial_fisher_yates_shuffle(ndview<std::size_t, 1>& result_array, std::size_t top);
+void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top);
 
 } // namespace oneapi::dal::backend::primitives

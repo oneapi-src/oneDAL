@@ -78,10 +78,10 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
         auto centroids_ptr = centroids.get_mutable_data();
         dal::detail::check_mul_overflow(
             cluster_count,
-            dal::detail::integral_cast<std::int64_t>(sizeof(std::size_t)));
+            dal::detail::integral_cast<std::int64_t>(sizeof(std::int64_t)));
 
-        auto indices = pr::ndarray<std::size_t, 1>::empty(queue, cluster_count);
-        partial_fisher_yates_shuffle(indices, dal::detail::integral_cast<std::size_t>(row_count));
+        auto indices = pr::ndarray<std::int64_t, 1>::empty(queue, cluster_count);
+        partial_fisher_yates_shuffle(indices, row_count);
         auto indices_on_device = indices.to_device(queue);
         auto indices_ptr = indices_on_device.get_data();
 
@@ -95,7 +95,7 @@ struct kmeans_init_kernel<Float, kmeans_init::method::random_dense> {
                 const auto cluster = id.get_global_id(1);
                 const std::int64_t local_id = id.get_local_id(0);
                 const std::int64_t local_size = id.get_local_range()[0];
-                const std::uint64_t index = indices_ptr[cluster];
+                const auto index = indices_ptr[cluster];
                 for (std::int64_t k = local_id; k < column_count; k += local_size) {
                     centroids_ptr[cluster * column_count + k] = data_ptr[index * column_count + k];
                 }
