@@ -258,19 +258,4 @@ SERVICE_FUNCTIONS_BADARG_TEST("Second vertex_id < 0 for get_edge_value") {
     REQUIRE_THROWS_AS(dal::preview::get_edge_value(g, 0, -10), out_of_range);
 }
 
-// SERVICE_FUNCTIONS_BADARG_TEST("Directed graph for get_vertex_degree") {
-// const auto g = create_graph<dal::preview::directed_adjacency_vector_graph<>,d_graph_with_isolated_vertices_10_type>();
-// REQUIRE_THROWS_AS(dal::preview::get_vertex_degree(g, 0), invalid_argument);
-// }
-
-// SERVICE_FUNCTIONS_BADARG_TEST("Undirected graph for get_vertex_outward_degree") {
-//     const auto g = create_graph<dal::preview::undirected_adjacency_vector_graph<>, graph_with_isolated_vertices_10_type>();
-// REQUIRE_THROWS_AS(dal::preview::get_vertex_outward_degree(g, 0), invalid_argument);
-// }
-
-// SERVICE_FUNCTIONS_BADARG_TEST("Undirected graph for get_vertex_outward_neighbors") {
-//     const auto g = create_graph<dal::preview::undirected_adjacency_vector_graph<>, graph_with_isolated_vertices_10_type>();
-// REQUIRE_THROWS_AS(dal::preview::get_vertex_outward_neighbors(g, 0), invalid_argument);
-// }
-
 } // namespace oneapi::dal::graph::test
