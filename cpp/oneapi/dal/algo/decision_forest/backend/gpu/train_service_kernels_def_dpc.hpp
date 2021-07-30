@@ -65,7 +65,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     pr::ndarray<Index, 1>& tree_order,
     Index tree_count,
     Index row_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(tree_order.get_count() == tree_count * row_count);
 
     Index* tree_order_ptr = tree_order.get_mutable_data();
@@ -92,7 +92,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
     Index node_count,
     Index group_count,
     Index group_prop_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(node_groups.get_count() == group_count * group_prop_count);
     ONEDAL_ASSERT(node_indices.get_count() == node_count);
@@ -108,7 +108,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::split_node_list_on_g
 
     auto krn_local_size = preferable_sbg_size_;
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(krn_local_size, krn_local_size);
+        bk::make_multiple_nd_range_1d(krn_local_size, krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -190,7 +190,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
     const dal::backend::primitives::ndarray<Index, 1>& node_list,
     Index node_count,
     Index& split_node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
 
     const Index node_prop_count =
@@ -203,7 +203,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
 
     auto krn_local_size = preferable_sbg_size_;
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(krn_local_size, krn_local_size);
+        bk::make_multiple_nd_range_1d(krn_local_size, krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -244,7 +244,7 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
     const pr::ndarray<Index, 1>& tree_order,
     Index column_count,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     // this function is used for ditributed mode only, because for batch it is claculated during bs
     ONEDAL_ASSERT(ctx.distr_mode_);
 
@@ -266,7 +266,7 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
 
     auto krn_local_size = preferable_partition_group_size_;
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(preferable_partition_groups_count_ * krn_local_size,
+        bk::make_multiple_nd_range_1d(preferable_partition_groups_count_ * krn_local_size,
                                       krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
@@ -352,7 +352,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
     Index data_column_count,
     Index node_count,
     Index tree_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(data.get_count() == data_row_count * data_column_count);
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(tree_order.get_count() == data_selected_row_count * tree_count);
@@ -389,7 +389,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
 
     auto krn_local_size = preferable_partition_group_size_;
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(preferable_partition_groups_count_ * krn_local_size,
+        bk::make_multiple_nd_range_1d(preferable_partition_groups_count_ * krn_local_size,
                                       krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
@@ -503,23 +503,19 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
     pr::ndarray<Float, 1>& res_var_imp,
     Index data_column_count,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
     ONEDAL_ASSERT(node_imp_decrease_list.get_count() == node_count);
     ONEDAL_ASSERT(res_var_imp.get_count() == data_column_count);
 
-    Index krn_local_size = preferable_group_size_;
-    //calculating local size in way to have all subgroups for node in one group to use local buffer
-    while (krn_local_size > node_count && krn_local_size > preferable_sbg_size_) {
-        krn_local_size >>= 1;
-    }
+    const Index krn_local_size = bk::down_pow2(std::min(preferable_group_size_, node_count));
 
     const Index* node_list_ptr = node_list.get_data();
     const Float* node_imp_decrease_list_ptr = node_imp_decrease_list.get_data();
     Float* res_var_imp_ptr = res_var_imp.get_mutable_data();
 
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ krn_local_size, data_column_count }, { krn_local_size, 1 });
+        bk::make_multiple_nd_range_2d({ krn_local_size, data_column_count }, { krn_local_size, 1 });
 
     const Index node_prop_count =
         impl_const_t::node_prop_count_; // num of split attributes for node
@@ -604,7 +600,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
     Index tree_idx,
     Index krn_local_size,
     Index sbg_sum_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(row_list.get_count() == row_count * tree_count);
     ONEDAL_ASSERT(row_buffer.get_count() == row_count * tree_count);
 
@@ -613,7 +609,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
     const Index item_present_mark = 1;
 
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
+        bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -656,7 +652,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
     Index tree_idx,
     Index krn_local_size,
     Index sbg_sum_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(row_buffer.get_count() == row_count * tree_count);
     ONEDAL_ASSERT(part_sum_list.get_count() == sbg_sum_count);
 
@@ -665,7 +661,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
     const Index item_absent_mark = -1;
 
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
+        bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -713,7 +709,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_to
     Index tree_idx,
     Index krn_local_size,
     Index sbg_sum_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(part_sum_list.get_count() == sbg_sum_count);
     ONEDAL_ASSERT(part_pref_sum_list.get_count() == sbg_sum_count * tree_count);
     ONEDAL_ASSERT(oob_rows_num_list.get_count() == tree_count + 1);
@@ -723,7 +719,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_to
     Index* total_sum_ptr = oob_rows_num_list.get_mutable_data();
 
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
+        bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -765,7 +761,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
     Index total_oob_row_num,
     Index krn_local_size,
     Index sbg_sum_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     ONEDAL_ASSERT(row_buffer.get_count() == row_count * tree_count);
     ONEDAL_ASSERT(part_pref_sum_list.get_count() == sbg_sum_count * tree_count);
     ONEDAL_ASSERT(oob_row_num_list.get_count() == tree_count + 1);
@@ -779,7 +775,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
     const Index item_absent_mark = -1;
 
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
+        bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
@@ -828,7 +824,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_oob_row_list(
     pr::ndarray<Index, 1>& oob_row_list,
     Index row_count,
     Index tree_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     const Index absent_mark = -1;
     const Index krn_local_size = preferable_sbg_size_;
     const Index sbg_sum_count = max_local_sums_ * krn_local_size < row_count

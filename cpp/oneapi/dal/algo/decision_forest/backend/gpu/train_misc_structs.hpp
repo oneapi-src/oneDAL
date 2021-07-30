@@ -46,7 +46,7 @@ struct impl_const<Index, task::classification> {
     constexpr static Index bad_val_ = -1;
     constexpr static Index leaf_mark_ = bad_val_;
     constexpr static Index node_prop_count_ = 8; // rows offset, rows count, ftr id, ftr val(bin),
-        // left part rows count, response
+    // left part rows count, response
     // node props mapping
     constexpr static Index ind_ofs = 0; // property index for local row offset
     constexpr static Index ind_lrc = 1; // property index for local row count
@@ -62,7 +62,7 @@ struct impl_const<Index, task::classification> {
 
     constexpr static Index node_imp_prop_count_ = 1; // only node impurity is stored
     constexpr static Index oob_aux_prop_count_ = 0; // 0 due to class count is used instead
-        // added for consistency with regression
+    // added for consistency with regression
     constexpr static Index max_private_class_hist_buff_size = 16;
     constexpr static Index private_hist_buff_size = max_private_class_hist_buff_size;
 
@@ -78,7 +78,7 @@ struct impl_const<Index, task::regression> {
     constexpr static Index bad_val_ = -1;
     constexpr static Index leaf_mark_ = bad_val_;
     constexpr static Index node_prop_count_ = 8; // rows offset, rows count, ftr id, ftr val(bin),
-        // left part rows count, response
+    // left part rows count, response
     // node props mapping
     constexpr static Index ind_ofs = 0; // property index for local row offset
     constexpr static Index ind_lrc = 1; // property index for local row count
