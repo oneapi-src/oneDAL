@@ -23,109 +23,99 @@
 namespace oneapi::dal::csv {
 
 namespace detail {
+
 namespace v1 {
 template <typename Object>
 class read_args_impl;
-
-template <typename Allocator>
-class read_args_graph_impl : public base {
-public:
-    read_args_graph_impl(preview::read_mode mode) : mode(mode) {
-        if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
-            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
-    }
-    read_args_graph_impl(Allocator alloc, preview::read_mode mode) : allocator(alloc), mode(mode) {
-        if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
-            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
-    }
-
-    Allocator allocator;
-    preview::read_mode mode;
-};
 } // namespace v1
-
 using v1::read_args_impl;
-using v1::read_args_graph_impl;
-
 } // namespace detail
 
 namespace v1 {
 
-struct read_args_tag {};
-
-template <typename Object, typename Allocator = std::allocator<char>>
-class ONEDAL_EXPORT read_args : public base {
-public:
-    using object_t = Object;
-    using allocator_t = Allocator;
-    using tag_t = read_args_tag;
-    read_args()
-            : impl_(new detail::read_args_graph_impl<Allocator>(preview::read_mode::edge_list)) {}
-    read_args(const read_args& args) = default;
-    read_args(preview::read_mode mode) : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {}
-    read_args(Allocator& allocator, preview::read_mode mode = preview::read_mode::edge_list)
-            : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {
-        set_allocator_impl(allocator);
-    }
-    Allocator get_allocator() const;
-
-    auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
-        set_read_mode_impl(mode);
-        return *this;
-    }
-    oneapi::dal::preview::read_mode get_read_mode() const;
-
-protected:
-    void set_read_mode_impl(oneapi::dal::preview::read_mode mode);
-    void set_allocator_impl(Allocator allocator);
-
-private:
-    dal::detail::pimpl<detail::read_args_graph_impl<Allocator>> impl_;
-};
+template <typename Object = table>
+class read_args;
 
 template <>
-class ONEDAL_EXPORT read_args<table, std::allocator<char>> : public base {
+class ONEDAL_EXPORT read_args<table> : public base {
 public:
     read_args();
-    read_args(oneapi::dal::preview::read_mode mode);
-    auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
-        set_read_mode_impl(mode);
-        return *this;
-    }
-    oneapi::dal::preview::read_mode get_read_mode();
-
-protected:
-    void set_read_mode_impl(oneapi::dal::preview::read_mode mode);
 
 private:
     dal::detail::pimpl<detail::read_args_impl<table>> impl_;
 };
 
-template <typename Object, typename Allocator>
-preview::read_mode read_args<Object, Allocator>::get_read_mode() const {
-    return impl_->mode;
-}
-
-template <typename Object, typename Allocator>
-void read_args<Object, Allocator>::set_read_mode_impl(preview::read_mode mode) {
-    if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
-        throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
-    impl_->mode = mode;
-}
-
-template <typename Object, typename Allocator>
-Allocator read_args<Object, Allocator>::get_allocator() const {
-    return impl_->allocator;
-}
-
-template <typename Object, typename Allocator>
-void read_args<Object, Allocator>::set_allocator_impl(Allocator allocator) {
-    impl_->allocator = allocator;
-}
-
 } // namespace v1
-
 using v1::read_args;
-using v1::read_args_tag;
-
 } // namespace oneapi::dal::csv
+
+namespace oneapi::dal::preview::csv {
+
+namespace detail {
+template <typename Allocator>
+class read_args_graph_impl : public base {
+public:
+    read_args_graph_impl(oneapi::dal::preview::read_mode mode) : mode(mode) {
+        if (mode != oneapi::dal::preview::read_mode::edge_list &&
+            mode != oneapi::dal::preview::read_mode::weighted_edge_list)
+            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
+    }
+    read_args_graph_impl(Allocator alloc, oneapi::dal::preview::read_mode mode)
+            : allocator(alloc),
+              mode(mode) {
+        if (mode != oneapi::dal::preview::read_mode::edge_list &&
+            mode != oneapi::dal::preview::read_mode::weighted_edge_list)
+            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
+    }
+
+    Allocator allocator;
+    oneapi::dal::preview::read_mode mode;
+};
+} // namespace detail
+
+struct read_args_tag {};
+
+template <typename Object, typename Allocator>
+class ONEDAL_EXPORT read_args : public base {
+public:
+    using object_t = Object;
+    using allocator_t = Allocator;
+    using tag_t = read_args_tag;
+    read_args(const read_args& args) = default;
+    read_args(oneapi::dal::preview::read_mode mode)
+            : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {}
+    read_args(Allocator& allocator = std::allocator<char>{},
+              oneapi::dal::preview::read_mode mode = oneapi::dal::preview::read_mode::edge_list)
+            : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {
+        set_allocator_impl(allocator);
+    }
+    Allocator get_allocator() const {
+        return impl_->allocator;
+    }
+
+    auto& set_read_mode(oneapi::dal::preview::read_mode mode) {
+        set_read_mode_impl(mode);
+        return *this;
+    }
+    oneapi::dal::preview::read_mode get_read_mode() const {
+        return impl_->mode;
+    }
+
+protected:
+    void set_read_mode_impl(oneapi::dal::preview::read_mode mode) {
+        if (mode != preview::read_mode::edge_list && mode != preview::read_mode::weighted_edge_list)
+            throw invalid_argument(dal::detail::error_messages::unsupported_read_mode());
+        impl_->mode = mode;
+    }
+    void set_allocator_impl(Allocator allocator) {
+        impl_->allocator = allocator;
+    }
+
+private:
+    dal::detail::pimpl<detail::read_args_graph_impl<Allocator>> impl_;
+};
+
+template <typename Object, typename Allocator>
+read_args(Allocator& allocator, oneapi::dal::preview::read_mode mode)->read_args<Object, Allocator>;
+
+} // namespace oneapi::dal::preview::csv

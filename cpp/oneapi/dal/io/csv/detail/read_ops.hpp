@@ -31,11 +31,10 @@ template <typename Graph, typename Allocator>
 struct read_ops_dispatcher<Graph, dal::detail::host_policy, Allocator> {
     Graph operator()(const dal::detail::host_policy& policy,
                      const data_source_base& ds,
-                     const read_args<Graph, Allocator>& args) const {
-        static auto impl =
-            get_backend<dal::detail::host_policy, data_source_base, read_args<Graph, Allocator>>(
-                ds,
-                args);
+                     const dal::preview::csv::read_args<Graph, Allocator>& args) const {
+        static auto impl = get_backend<dal::detail::host_policy,
+                                       data_source_base,
+                                       dal::preview::csv::read_args<Graph, Allocator>>(ds, args);
         return (*impl)(policy, ds, args);
     }
 };
@@ -52,7 +51,7 @@ struct read_ops;
 
 template <typename Object, typename Allocator>
 struct read_ops<Object, data_source, Allocator> {
-    using input_t = read_args<Object, Allocator>;
+    using input_t = dal::preview::csv::read_args<Object, Allocator>;
     using result_t = Object;
     using allocator_t = Allocator;
 
@@ -73,7 +72,7 @@ struct read_ops<Object, data_source, Allocator> {
 
 template <typename Object>
 struct read_ops<Object, data_source> {
-    using input_t = read_args<Object, std::allocator<float>>;
+    using input_t = dal::preview::csv::read_args<Object, std::allocator<float>>;
     using result_t = Object;
 
     void check_preconditions(const data_source_base& ds, const input_t& args) const {}

@@ -20,7 +20,7 @@
 #include "oneapi/dal/detail/common.hpp"
 // #pragma warning(disable : 1011)
 
-namespace oneapi::dal::csv {
+namespace oneapi::dal::preview::csv {
 struct read_args_tag;
 }
 
@@ -44,7 +44,7 @@ template <typename Object, typename Descriptor, typename Head, typename... Tail>
 auto read_dispatch(Descriptor&& desc, Head&& head, Tail&&... tail) {
     using head_t = std::decay_t<Head>;
     if constexpr (oneapi::dal::detail::is_tagged_v<head_t>) {
-        static_assert(is_tag_one_of_v<head_t, csv::read_args_tag>);
+        static_assert(is_tag_one_of_v<head_t, oneapi::dal::preview::csv::read_args_tag>);
         using allocator_t = typename head_t::allocator_t;
         using dispatcher_t = ops_policy_dispatcher_object_allocator<Object,
                                                                     std::decay_t<Head>,
