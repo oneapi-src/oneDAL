@@ -106,19 +106,38 @@ template <typename algorithmFPType, CpuType cpu>
 services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(services::HostAppIface * pHostApp, NumericTable * result)
 {
     const auto nTreesTotal = this->_aTree.size();
-
     gbt::prediction::internal::TileDimensions<algorithmFPType> dim(*this->_data, nTreesTotal);
+
+    bool treeParallel    = false;
+    size_t nTreeBlocks   = 0;
+    size_t nTreesInBlock = 0;
+    size_t modelSize     = 0;
+
+    for (size_t iTree = 0; iTree < dim.nTreesTotal; ++iTree)
+    {
+        modelSize += this->_aTree[iTree]->getNumberOfNodes() * 64;
+    }
+
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, dim.nCols, dim.nRowsTotal);
+    DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, dim.nCols * dim.nRowsTotal, sizeof(algorithmFPType));
+
+    if (modelSize > dim.nCols * dim.nRowsTotal * sizeof(algorithmFPType) && true)
+    {
+        nTreeBlocks   = daal::threader_get_threads_number();
+        nTreesInBlock = nTreesTotal / nTreeBlocks;
+        treeParallel  = true;
+    }
     WriteOnlyRows<algorithmFPType, cpu> resBD(result, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(resBD);
     services::internal::service_memset<algorithmFPType, cpu>(resBD.get(), 0, dim.nRowsTotal);
     SafeStatus safeStat;
     services::Status s;
     HostAppHelper host(pHostApp, 100);
-    for (size_t iTree = 0; iTree < nTreesTotal; iTree += dim.nTreesInBlock)
+    if (!s || host.isCancelled(s, 1)) return s;
+    // size_t nTreesToUse = ((iTree + dim.nTreesInBlock) < nTreesTotal ? dim.nTreesInBlock : (nTreesTotal - iTree));
+    size_t nTreesToUse = nTreesTotal;
+    if (!treeParallel)
     {
-        if (!s || host.isCancelled(s, 1)) return s;
-        size_t nTreesToUse = ((iTree + dim.nTreesInBlock) < nTreesTotal ? dim.nTreesInBlock : (nTreesTotal - iTree));
-
         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == dim.nDataBlocks - 1) ? dim.nRowsTotal - iBlock * dim.nRowsInBlock : dim.nRowsInBlock;
@@ -129,17 +148,40 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
             size_t iRow;
             for (iRow = 0; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
             {
-                predictByTreesVector(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols, res + iRow);
+                predictByTreesVector(0, nTreesToUse, xBD.get() + iRow * dim.nCols, res + iRow);
             }
             for (; iRow < nRowsToProcess; ++iRow)
             {
-                res[iRow] += predictByTrees(iTree, nTreesToUse, xBD.get() + iRow * dim.nCols);
+                res[iRow] += predictByTrees(0, nTreesToUse, xBD.get() + iRow * dim.nCols);
+
             }
         });
-
-        s = safeStat.detach();
     }
+    else
+    {
+        daal::StaticTlsSum<algorithmFPType, cpu> lsData(dim.nRowsTotal);
+        // std::cout << dim.nRowsTotal << std::endl;
+        daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
+            algorithmFPType* val = lsData.local(iBlock);
+            const size_t iStartTree     = iBlock * nTreesInBlock;
+            const size_t nTreesToProcess = (iBlock == (nTreeBlocks - 1)) ? nTreesTotal - iStartTree : nTreesInBlock;
+            ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(this->_data), 0, dim.nRowsTotal);
+            DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+            size_t iRow;
 
+            for (iRow = 0; iRow + VECTOR_BLOCK_SIZE <= dim.nRowsTotal; iRow += VECTOR_BLOCK_SIZE)
+            {
+                predictByTreesVector(iStartTree, nTreesToProcess, xBD.get() + iRow * dim.nCols, val + iRow);
+            }
+            for (; iRow < dim.nRowsTotal; ++iRow)
+            {
+                val[iRow] += predictByTrees(iStartTree, nTreesToProcess, xBD.get() + iRow * dim.nCols);
+            }
+        });
+        algorithmFPType * res = resBD.get();
+        lsData.reduceTo(res, dim.nRowsTotal);
+    }
+    s = safeStat.detach();
     return s;
 }
 
