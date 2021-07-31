@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include <daal/src/algorithms/covariance/covariance_kernel.h>
 
 #include "oneapi/dal/algo/covariance/common.hpp"
-#include "oneapi/dal/algo/covariance/backend/cpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/covariance/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -25,7 +25,7 @@
 
 namespace oneapi::dal::covariance::backend {
 
-using dal::backend::context_cpu;
+using dal::backend::context_gpu;
 using input_t = compute_input<task::compute>;
 using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
@@ -34,12 +34,12 @@ namespace daal_covariance = daal::algorithms::covariance;
 namespace daal_covariance_parameter = daal::algorithms::covariance::internal;
 namespace interop = dal::backend::interop;
 
-template <typename Float, daal::CpuType Cpu>
+template <typename Float>
 using daal_covariance_kernel_t =
-    daal_covariance::internal::CovarianceDenseBatchKernel<Float, daal_covariance::Method::defaultDense, Cpu>;
+    daal_covariance::oneapi::internal::CovarianceDenseBatchKernelOneAPI<Float, daal_covariance::Method::defaultDense>;
 
 template <typename Float>
-static result_t call_daal_kernel(const context_cpu& ctx,
+static result_t call_daal_kernel(const context_gpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data) {
 
@@ -110,20 +110,20 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float>
-static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
+static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
-struct compute_kernel_cpu<Float, method::dense, task::compute> {
-    result_t operator()(const context_cpu& ctx,
+struct compute_kernel_gpu<Float, method::dense, task::compute> {
+    result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 };
 
-template struct compute_kernel_cpu<float, method::dense, task::compute>;
-template struct compute_kernel_cpu<double, method::dense, task::compute>;
+template struct compute_kernel_gpu<float, method::dense, task::compute>;
+template struct compute_kernel_gpu<double, method::dense, task::compute>;
 
 } // namespace oneapi::dal::covariance::backend

@@ -45,8 +45,11 @@ class compute_input : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the given :literal:`data`
     compute_input(const table& data);
 
+    /// The dataset for compute $X'$
+    /// @remark default = table{}
     const table& get_data() const;
 
     auto& set_data(const table& value) {
@@ -70,8 +73,11 @@ class compute_result : public base {
 public:
     using task_t = Task;
 
+    /// Creates a new instance of the class with the default property values.
     compute_result();
 
+    /// The covariance matrix.
+    /// @remark default = table{}
     const table& get_cov_matrix() const;
 
     auto& set_cov_matrix(const table& value) {
@@ -79,6 +85,8 @@ public:
         return *this;
     }
 
+    /// The correlation matrix.
+    /// @remark default = table{}
     const table& get_cor_matrix() const;
 
     auto& set_cor_matrix(const table& value) {
@@ -86,13 +94,17 @@ public:
         return *this;
     }
 
+    /// Means.
+    /// @remark default = table{}
     const table& get_means() const;
 
     auto& set_means(const table& value) {
         set_means_impl(value);
         return *this;
     }
-
+    
+    /// Result options that indicates availability of the properties
+    /// @remark default = default_result_options<Task>
     const result_option_id& get_result_options() const;
 
     auto& set_result_options(const result_option_id& value) {

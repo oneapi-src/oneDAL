@@ -39,7 +39,7 @@ result_option_id get_default_result_options() {
 
 template <>
 result_option_id get_default_result_options<task::compute>() {
-    return result_options::cov_matrix;
+    return get_cov_matrix();
 }
 
 template <typename Task>
