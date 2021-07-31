@@ -275,7 +275,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
     size_t modelSize     = 0;
 
     for (size_t iTree = 0; iTree < dim.nTreesTotal; ++iTree)
-    {ы
+    {
         modelSize += this->_aTree[iTree]->getNumberOfNodes() * 64;
     }
 
@@ -286,19 +286,66 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
     {
         nTreeBlocks   = daal::threader_get_threads_number();
         nTreesInBlock = nTreesTotal / nTreeBlocks;
-        treeParallel = true;
+        treeParallel  = true;
     }
 
-    if (_prob)
+    if (_prob || this->_res)
     {
-        WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, dim.nRowsTotal);
-        DAAL_CHECK_BLOCK_STATUS(probBD);
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nClasses);
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, sizeof(algorithmFPType));
-
-        if (treeParallel)
+        if (!treeParallel)
         {
-            daal::StaticTlsSum<algorithmFPType, cpu> lsData(nClasses * dim.nRowsTotal + 6000);
+            TArray<algorithmFPType, cpu> valPtr(nRows * nClasses);
+            algorithmFPType * valFull = valPtr.get();
+            services::internal::service_memset<algorithmFPType, cpu>(valFull, algorithmFPType(0), nRows * nClasses);
+
+            daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
+                const size_t iStartRow      = iBlock * dim.nRowsInBlock;
+                const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
+                algorithmFPType * valL      = valFull + iStartRow * nClasses;
+                algorithmFPType * val       = valL;
+                ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
+                DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+                algorithmFPType * res = resBD.get() ? resBD.get() + iStartRow : nullptr;
+
+                size_t iRow = 0;
+                for (; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
+                {
+                    val = valL + iRow * nClasses;
+                    predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+                    if (res)
+                    {
+                        for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
+                        {
+                            res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
+                        }
+                    }
+                }
+                for (; iRow < nRowsToProcess; ++iRow)
+                {
+                    val = valL + iRow * nClasses;
+                    predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+                    if (res)
+                    {
+                        res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
+                    }
+                }
+            });
+            if (_prob)
+            {
+                WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, dim.nRowsTotal);
+                DAAL_CHECK_BLOCK_STATUS(probBD);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nClasses);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, sizeof(algorithmFPType));
+
+                algorithmFPType * prob_pred = probBD.get();
+                daal::algorithms::optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernel<
+                    algorithmFPType, daal::algorithms::optimization_solver::cross_entropy_loss::defaultDense, cpu>::softmaxThreaded(valFull,
+                                                                                                                                    prob_pred, nRows,
+                                                                                                                                    nClasses);
+            }
+        }
+        else
+        {
+            daal::StaticTlsSum<algorithmFPType, cpu> lsData(nClasses * dim.nRowsTotal);
 
             daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
                 algorithmFPType * const valL = lsData.local(iBlock);
@@ -340,130 +387,196 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
                 });
             }
 
-            daal::algorithms::optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernel<
-                algorithmFPType, daal::algorithms::optimization_solver::cross_entropy_loss::defaultDense, cpu>::softmaxThreaded(valFull, probBD.get(),
-                                                                                                                                nRows, nClasses);
-        }
-        else
-        {
-            TArray<algorithmFPType, cpu> valPtr(nRows * nClasses);
-            algorithmFPType * valFull = valPtr.get();
-            services::internal::service_memset<algorithmFPType, cpu>(valFull, algorithmFPType(0), nRows * nClasses);
-
-            daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
-                const size_t iStartRow      = iBlock * dim.nRowsInBlock;
-                const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
-                algorithmFPType * valL      = valFull + iStartRow * nClasses;
-                algorithmFPType * val       = valL;
-                ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
-                DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-                algorithmFPType * res = resBD.get() ? resBD.get() + iStartRow : nullptr;
-
-                size_t iRow = 0;
-                for (; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
-                {
-                    val = valL + iRow * nClasses;
-                    predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
-                    if (res)
-                    {
-                        for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
-                        {
-                            res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
-                        }
-                    }
-                }
-                for (; iRow < nRowsToProcess; ++iRow)
-                {
-                    val = valL + iRow * nClasses;
-                    predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
-                    if (res)
-                    {
-                        res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
-                    }
-                }
-            });
-            algorithmFPType * prob_pred = probBD.get();
-            daal::algorithms::optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernel<
-                algorithmFPType, daal::algorithms::optimization_solver::cross_entropy_loss::defaultDense, cpu>::softmaxThreaded(valFull, prob_pred,
-                                                                                                                                nRows, nClasses);
+            if (_prob)
+            {
+                 WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, dim.nRowsTotal);
+                DAAL_CHECK_BLOCK_STATUS(probBD);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nClasses);
+                DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, sizeof(algorithmFPType));
+                
+                daal::algorithms::optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernel<
+                    algorithmFPType, daal::algorithms::optimization_solver::cross_entropy_loss::defaultDense, cpu>::softmaxThreaded(valFull,
+                                                                                                                                    probBD.get(),
+                                                                                                                                    nRows, nClasses);
+            }
         }
     }
-    else if (!_prob && this->_res)
-    {
-        if (treeParallel)
-        {
-            daal::StaticTlsSum<algorithmFPType, cpu> lsData(nClasses * nRows);
 
-            daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
-                algorithmFPType * const valL = lsData.local(iBlock);
-                DAAL_CHECK_MALLOC_THR(valL);
+    // if (_prob)
+    // {
+    //     WriteOnlyRows<algorithmFPType, cpu> probBD(_prob, 0, dim.nRowsTotal);
+    //     DAAL_CHECK_BLOCK_STATUS(probBD);
+    //     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows, nClasses);
+    //     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, nRows * nClasses, sizeof(algorithmFPType));
 
-                ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, dim.nRowsTotal);
-                DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-                const size_t iStartTree      = iBlock * nTreesInBlock;
-                const size_t nTreesToProcess = (iBlock == (nTreeBlocks - 1)) ? nTreesTotal - iStartTree : nTreesInBlock;
+    //     if (treeParallel)
+    //     {
+    //         daal::StaticTlsSum<algorithmFPType, cpu> lsData(nClasses * dim.nRowsTotal + 6000);
 
-                size_t iRow = 0;
-                for (; iRow + VECTOR_BLOCK_SIZE <= nRows; iRow += VECTOR_BLOCK_SIZE)
-                {
-                    algorithmFPType * val = valL + iRow * nClasses;
-                    services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses * VECTOR_BLOCK_SIZE);
-                    predictByTreesVector(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
-                }
+    //         daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
+    //             algorithmFPType * const valL = lsData.local(iBlock);
+    //             services::internal::service_memset<algorithmFPType, cpu>(valL, algorithmFPType(0), nClasses * dim.nRowsTotal);
 
-                for (; iRow < nRows; ++iRow)
-                {
-                    algorithmFPType * val = valL + iRow * nClasses;
-                    services::internal::service_memset_seq<algorithmFPType, cpu>(valL, algorithmFPType(0), nClasses);
-                    predictByTrees(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
-                }
-            });
-            TArray<algorithmFPType, cpu> valPtr(nRows * nClasses);
-            algorithmFPType * valFull = valPtr.get();
-            lsData.reduceTo(valFull, dim.nRowsTotal * nClasses);
+    //             const size_t iStartTree      = iBlock * nTreesInBlock;
+    //             const size_t nTreesToProcess = (iBlock == (nTreeBlocks - 1)) ? nTreesTotal - iStartTree : nTreesInBlock;
+    //             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, dim.nRowsTotal);
+    //             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+    //             size_t iTree = iStartTree;
 
-            algorithmFPType * res = resBD.get();
+    //             size_t iRow = 0;
+    //             for (; iRow + VECTOR_BLOCK_SIZE <= nRows; iRow += VECTOR_BLOCK_SIZE)
+    //             {
+    //                 algorithmFPType * val = valL + iRow * nClasses;
+    //                 predictByTreesVector(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
+    //             }
+    //             for (; iRow < nRows; ++iRow)
+    //             {
+    //                 algorithmFPType * val = valL + iRow * nClasses;
+    //                 predictByTrees(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
+    //             }
+    //         });
 
-            daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
-                const size_t iStartRow      = iBlock * dim.nRowsInBlock;
-                const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
-                for (size_t i = 0; i < nRowsToProcess; ++i)
-                {
-                    res[iStartRow + i] = algorithmFPType(getMaxClass(valFull + iStartRow * nClasses + i * nClasses, nClasses));
-                }
-            });
-        }
-        else
-        {
-            ClassesRawBoostedTls lsData(nClasses * VECTOR_BLOCK_SIZE);
-            daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
-                algorithmFPType * const val = lsData.local();
-                const size_t iStartRow      = iBlock * dim.nRowsInBlock;
-                const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
-                ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
-                DAAL_CHECK_BLOCK_STATUS_THR(xBD);
-                algorithmFPType * res = resBD.get() + iStartRow;
+    //         TArray<algorithmFPType, cpu> valPtr(nRows * nClasses);
+    //         algorithmFPType * valFull = valPtr.get();
+    //         lsData.reduceTo(valFull, dim.nRowsTotal * nClasses);
+    //         algorithmFPType * res = resBD.get() ? resBD.get() : nullptr;
 
-                size_t iRow = 0;
-                for (; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
-                {
-                    services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses * VECTOR_BLOCK_SIZE);
-                    predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+    //         if (res)
+    //         {
+    //             daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
+    //                 const size_t iStartRow      = iBlock * dim.nRowsInBlock;
+    //                 const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
+    //                 for (size_t i = 0; i < nRowsToProcess; ++i)
+    //                 {
+    //                     res[iStartRow + i] = getMaxClass(valFull + iStartRow * nClasses + i * nClasses, nClasses);
+    //                 }
+    //             });
+    //         }
 
-                    for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
-                    {
-                        res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
-                    }
-                }
-                for (; iRow < nRowsToProcess; ++iRow)
-                {
-                    services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses);
-                    predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
-                    res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
-                }
-            });
-        }
-    }
+    //         daal::algorithms::optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernel<
+    //             algorithmFPType, daal::algorithms::optimization_solver::cross_entropy_loss::defaultDense, cpu>::softmaxThreaded(valFull, probBD.get(),
+    //                                                                                                                             nRows, nClasses);
+    //     }
+    //     else
+    //     {
+    //         TArray<algorithmFPType, cpu> valPtr(nRows * nClasses);
+    //         algorithmFPType * valFull = valPtr.get();
+    //         services::internal::service_memset<algorithmFPType, cpu>(valFull, algorithmFPType(0), nRows * nClasses);
+
+    //         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
+    //             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
+    //             const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
+    //             algorithmFPType * valL      = valFull + iStartRow * nClasses;
+    //             algorithmFPType * val       = valL;
+    //             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
+    //             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+    //             algorithmFPType * res = resBD.get() ? resBD.get() + iStartRow : nullptr;
+
+    //             size_t iRow = 0;
+    //             for (; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
+    //             {
+    //                 val = valL + iRow * nClasses;
+    //                 predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+    //                 if (res)
+    //                 {
+    //                     for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
+    //                     {
+    //                         res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
+    //                     }
+    //                 }
+    //             }
+    //             for (; iRow < nRowsToProcess; ++iRow)
+    //             {
+    //                 val = valL + iRow * nClasses;
+    //                 predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+    //                 if (res)
+    //                 {
+    //                     res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
+    //                 }
+    //             }
+    //         });
+    //         algorithmFPType * prob_pred = probBD.get();
+    //         daal::algorithms::optimization_solver::cross_entropy_loss::internal::CrossEntropyLossKernel<
+    //             algorithmFPType, daal::algorithms::optimization_solver::cross_entropy_loss::defaultDense, cpu>::softmaxThreaded(valFull, prob_pred,
+    //                                                                                                                             nRows, nClasses);
+    //     }
+    // }
+    // else if (!_prob && this->_res)
+    // {
+    //     if (treeParallel)
+    //     {
+    //         daal::StaticTlsSum<algorithmFPType, cpu> lsData(nClasses * nRows);
+
+    //         daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
+    //             algorithmFPType * const valL = lsData.local(iBlock);
+    //             DAAL_CHECK_MALLOC_THR(valL);
+
+    //             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, dim.nRowsTotal);
+    //             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+    //             const size_t iStartTree      = iBlock * nTreesInBlock;
+    //             const size_t nTreesToProcess = (iBlock == (nTreeBlocks - 1)) ? nTreesTotal - iStartTree : nTreesInBlock;
+
+    //             size_t iRow = 0;
+    //             for (; iRow + VECTOR_BLOCK_SIZE <= nRows; iRow += VECTOR_BLOCK_SIZE)
+    //             {
+    //                 algorithmFPType * val = valL + iRow * nClasses;
+    //                 services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses * VECTOR_BLOCK_SIZE);
+    //                 predictByTreesVector(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
+    //             }
+
+    //             for (; iRow < nRows; ++iRow)
+    //             {
+    //                 algorithmFPType * val = valL + iRow * nClasses;
+    //                 services::internal::service_memset_seq<algorithmFPType, cpu>(valL, algorithmFPType(0), nClasses);
+    //                 predictByTrees(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
+    //             }
+    //         });
+    //         TArray<algorithmFPType, cpu> valPtr(nRows * nClasses);
+    //         algorithmFPType * valFull = valPtr.get();
+    //         lsData.reduceTo(valFull, dim.nRowsTotal * nClasses);
+
+    //         algorithmFPType * res = resBD.get();
+
+    //         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
+    //             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
+    //             const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
+    //             for (size_t i = 0; i < nRowsToProcess; ++i)
+    //             {
+    //                 res[iStartRow + i] = algorithmFPType(getMaxClass(valFull + iStartRow * nClasses + i * nClasses, nClasses));
+    //             }
+    //         });
+    //     }
+    //     else
+    //     {
+    //         ClassesRawBoostedTls lsData(nClasses * VECTOR_BLOCK_SIZE);
+    //         daal::threader_for(dim.nDataBlocks, dim.nDataBlocks, [&](size_t iBlock) {
+    //             algorithmFPType * const val = lsData.local();
+    //             const size_t iStartRow      = iBlock * dim.nRowsInBlock;
+    //             const size_t nRowsToProcess = (iBlock == (dim.nDataBlocks - 1)) ? dim.nRowsTotal - iStartRow : dim.nRowsInBlock;
+    //             ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), iStartRow, nRowsToProcess);
+    //             DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+    //             algorithmFPType * res = resBD.get() + iStartRow;
+
+    //             size_t iRow = 0;
+    //             for (; iRow + VECTOR_BLOCK_SIZE <= nRowsToProcess; iRow += VECTOR_BLOCK_SIZE)
+    //             {
+    //                 services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses * VECTOR_BLOCK_SIZE);
+    //                 predictByTreesVector(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+
+    //                 for (size_t i = 0; i < gbt::prediction::internal::VECTOR_BLOCK_SIZE; ++i)
+    //                 {
+    //                     res[iRow + i] = getMaxClass(val + i * nClasses, nClasses);
+    //                 }
+    //             }
+    //             for (; iRow < nRowsToProcess; ++iRow)
+    //             {
+    //                 services::internal::service_memset_seq<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses);
+    //                 predictByTrees(val, 0, nTreesTotal, nClasses, xBD.get() + iRow * nCols);
+    //                 res[iRow] = algorithmFPType(getMaxClass(val, nClasses));
+    //             }
+    //         });
+    //     }
+    // }
 
     return safeStat.detach();
 }
