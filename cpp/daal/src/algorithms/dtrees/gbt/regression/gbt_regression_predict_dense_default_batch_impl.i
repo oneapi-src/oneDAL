@@ -134,7 +134,6 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
     services::Status s;
     HostAppHelper host(pHostApp, 100);
     if (!s || host.isCancelled(s, 1)) return s;
-    // size_t nTreesToUse = ((iTree + dim.nTreesInBlock) < nTreesTotal ? dim.nTreesInBlock : (nTreesTotal - iTree));
     size_t nTreesToUse = nTreesTotal;
     if (!treeParallel)
     {
@@ -160,7 +159,6 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
     else
     {
         daal::StaticTlsSum<algorithmFPType, cpu> lsData(dim.nRowsTotal);
-        // std::cout << dim.nRowsTotal << std::endl;
         daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
             algorithmFPType* val = lsData.local(iBlock);
             const size_t iStartTree     = iBlock * nTreesInBlock;
