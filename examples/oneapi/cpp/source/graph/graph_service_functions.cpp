@@ -105,14 +105,14 @@ int main(int argc, char **argv) {
 
     Mallocator<char> mallocator;
 
-    // {
-    //     auto graph = read<graph_t,
-    //                       csv::data_source,
-    //                       dal::preview::csv::read_args<graph_t, Mallocator<char>>>(
-    //         csv::data_source{ filename },
-    //         mallocator);
-    //     print_graph_info(graph);
-    // }
+    {
+        auto graph = read<graph_t,
+                          csv::data_source,
+                          dal::preview::csv::read_args<graph_t, Mallocator<char>>>(
+            csv::data_source{ filename },
+            mallocator);
+        print_graph_info(graph);
+    }
 
     {
         auto read_args = dal::preview::csv::read_args<graph_t, Mallocator<char>>{
