@@ -27,14 +27,14 @@ namespace v1 {
 template <typename Object, typename Policy, typename... Options>
 struct read_ops_dispatcher;
 
-template <typename Graph, typename Allocator>
-struct read_ops_dispatcher<Graph, dal::detail::host_policy, Allocator> {
-    Graph operator()(const dal::detail::host_policy& policy,
-                     const data_source_base& ds,
-                     const dal::preview::csv::read_args<Graph, Allocator>& args) const {
+template <typename Object, typename Allocator>
+struct read_ops_dispatcher<Object, dal::detail::host_policy, Allocator> {
+    Object operator()(const dal::detail::host_policy& policy,
+                      const data_source_base& ds,
+                      const dal::preview::csv::read_args<Object, Allocator>& args) const {
         static auto impl = get_backend<dal::detail::host_policy,
                                        data_source_base,
-                                       dal::preview::csv::read_args<Graph, Allocator>>(ds, args);
+                                       dal::preview::csv::read_args<Object, Allocator>>(ds, args);
         return (*impl)(policy, ds, args);
     }
 };

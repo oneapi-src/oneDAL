@@ -26,9 +26,9 @@ namespace v1 {
 template <typename Object, typename DataSource, typename Tag, typename... Options>
 struct read_ops;
 
-template <typename Object, typename DataSource, typename Head>
-struct read_ops<Object, DataSource, dal::csv::detail::data_source_tag, Head>
-        : dal::csv::detail::read_ops<Object, DataSource, Head> {};
+template <typename Object, typename DataSource, typename Allocator>
+struct read_ops<Object, DataSource, dal::csv::detail::data_source_tag, Allocator>
+        : dal::csv::detail::read_ops<Object, DataSource, Allocator> {};
 
 template <typename Object, typename DataSource>
 struct read_ops<Object, DataSource, dal::csv::detail::data_source_tag>
