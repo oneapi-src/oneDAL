@@ -479,6 +479,11 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
                 "ONEDAL_DISABLE_FP64_TESTS=1",
             ],
             "//conditions:default": [],
+        }) + select({
+            "@config//:assert_enabled": [
+                "ONEDAL_ENABLE_ASSERT=1",
+            ],
+            "//conditions:default": [],
         }),
         deps = _expand_select(deps),
         **kwargs,

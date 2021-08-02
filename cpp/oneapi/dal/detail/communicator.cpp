@@ -22,6 +22,8 @@ const char* communication_error::what() const noexcept {
     return std::runtime_error::what();
 }
 
+spmd_request::spmd_request() : impl_(nullptr) {}
+
 void spmd_request::wait() {
     if (impl_) {
         return impl_->wait();
@@ -55,7 +57,7 @@ spmd_request spmd_communicator::bcast(byte_t* send_buf,
                                       std::int64_t count,
                                       const data_type& dtype,
                                       std::int64_t root) const {
-    return make_private<spmd_request>(impl_->bcast(send_buf, count, dtype, root));
+    return make_private<spmd_request>(impl_->bcast(send_buf, count, dtype, fix_root_rank(root)));
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -64,7 +66,7 @@ spmd_request spmd_communicator::bcast(sycl::queue& q,
                                       std::int64_t count,
                                       const data_type& dtype,
                                       std::int64_t root) const {
-    return make_private<spmd_request>(impl_->bcast(q, send_buf, count, dtype, root));
+    return make_private<spmd_request>(impl_->bcast(q, send_buf, count, dtype, fix_root_rank(root)));
 }
 #endif
 
@@ -75,7 +77,7 @@ spmd_request spmd_communicator::gather(const byte_t* send_buf,
                                        const data_type& dtype,
                                        std::int64_t root) const {
     return make_private<spmd_request>(
-        impl_->gather(send_buf, send_count, recv_buf, recv_count, dtype, root));
+        impl_->gather(send_buf, send_count, recv_buf, recv_count, dtype, fix_root_rank(root)));
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -87,7 +89,7 @@ spmd_request spmd_communicator::gather(sycl::queue& q,
                                        const data_type& dtype,
                                        std::int64_t root) const {
     return make_private<spmd_request>(
-        impl_->gather(q, send_buf, send_count, recv_buf, recv_count, dtype, root));
+        impl_->gather(q, send_buf, send_count, recv_buf, recv_count, dtype, fix_root_rank(root)));
 }
 #endif
 
@@ -98,8 +100,13 @@ spmd_request spmd_communicator::gatherv(const byte_t* send_buf,
                                         const std::int64_t* displs,
                                         const data_type& dtype,
                                         std::int64_t root) const {
-    return make_private<spmd_request>(
-        impl_->gatherv(send_buf, send_count, recv_buf, recv_count, displs, dtype, root));
+    return make_private<spmd_request>(impl_->gatherv(send_buf,
+                                                     send_count,
+                                                     recv_buf,
+                                                     recv_count,
+                                                     displs,
+                                                     dtype,
+                                                     fix_root_rank(root)));
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -111,8 +118,14 @@ spmd_request spmd_communicator::gatherv(sycl::queue& q,
                                         const std::int64_t* displs,
                                         const data_type& dtype,
                                         std::int64_t root) const {
-    return make_private<spmd_request>(
-        impl_->gatherv(q, send_buf, send_count, recv_buf, recv_count, displs, dtype, root));
+    return make_private<spmd_request>(impl_->gatherv(q,
+                                                     send_buf,
+                                                     send_count,
+                                                     recv_buf,
+                                                     recv_count,
+                                                     displs,
+                                                     dtype,
+                                                     fix_root_rank(root)));
 }
 #endif
 

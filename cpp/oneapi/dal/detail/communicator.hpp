@@ -139,7 +139,7 @@ class spmd_request : public base {
 
 public:
     /// Creates completed request that does not track progress of any operation
-    spmd_request() = default;
+    spmd_request();
 
     /// Blocks until request is preformed
     void wait();
@@ -223,26 +223,24 @@ public:
                        std::int64_t root = -1) const;
 #endif
 
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request bcast(T* buf, std::int64_t count, std::int64_t root = -1) const {
-        static_assert(std::is_arithmetic_v<T>);
         return bcast(reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), root);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request bcast(sycl::queue& q, T* buf, std::int64_t count, std::int64_t root = -1) const {
-        static_assert(std::is_arithmetic_v<T>);
         return bcast(q, reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), root);
     }
 #endif
 
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request bcast(T& value, std::int64_t root = -1) const {
         return bcast(&value, 1, root);
     }
 
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request bcast(const array<T>& ary, std::int64_t root = -1) const {
         std::int64_t count = if_root_rank(
             [&]() {
@@ -314,13 +312,12 @@ public:
                         std::int64_t root = -1) const;
 #endif
 
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request gather(const T* send_buf,
                         std::int64_t send_count,
                         T* recv_buf,
                         std::int64_t recv_count,
                         std::int64_t root = -1) const {
-        static_assert(std::is_arithmetic_v<T>);
         return gather(reinterpret_cast<const byte_t*>(send_buf),
                       send_count,
                       reinterpret_cast<byte_t*>(recv_buf),
@@ -330,14 +327,13 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request gather(sycl::queue& q,
                         const T* send_buf,
                         std::int64_t send_count,
                         T* recv_buf,
                         std::int64_t recv_count,
                         std::int64_t root = -1) const {
-        static_assert(std::is_arithmetic_v<T>);
         return gather(q,
                       reinterpret_cast<const byte_t*>(send_buf),
                       send_count,
@@ -348,12 +344,12 @@ public:
     }
 #endif
 
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request gather(const T& send, T* recv, const std::int64_t root = -1) const {
         return gather(&send, 1, recv, 1, root);
     }
 
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     array<T> gather(const T& send, const std::int64_t root = -1) const {
         array<T> recv;
         T* recv_ptr = nullptr;
@@ -368,14 +364,10 @@ public:
         return recv;
     }
 
-    template <typename T>
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request gather(const array<T>& send,
                         const array<T>& recv,
                         const std::int64_t root = -1) const {
-        if (is_root_rank(root)) {
-            ONEDAL_ASSERT(recv.has_mutable_data());
-        }
-
 #ifdef ONEDAL_ENABLE_ASSERT
         check_if_same_send_count(send.get_count(), root);
 
@@ -387,28 +379,38 @@ public:
         }
 #endif
 
+        T* recv_ptr = nullptr;
+        if (is_root_rank(root)) {
+            ONEDAL_ASSERT(recv.has_mutable_data());
+            recv_ptr = recv.get_mutable_data();
+        }
+
         spmd_request request;
 
         __ONEDAL_IF_QUEUE__(send.get_queue(), {
             auto queue = send.get_queue().value();
 
-            ONEDAL_ASSERT(recv.get_queue().has_value());
-            ONEDAL_ASSERT(recv.get_queue().value() == queue);
+            if (is_root_rank(root)) {
+                ONEDAL_ASSERT(recv.get_queue().has_value());
+                ONEDAL_ASSERT(recv.get_queue().value() == queue);
+            }
 
-            request = gather(queue,
-                             send.get_data(),
-                             send.get_count(),
-                             recv.get_mutable_data(),
-                             send.get_count(),
-                             root);
+            request = gather( //
+                queue,
+                send.get_data(),
+                send.get_count(),
+                recv_ptr,
+                send.get_count(),
+                root);
         });
 
         __ONEDAL_IF_NO_QUEUE__(send.get_queue(), {
-            request = gather(send.get_data(),
-                             send.get_count(),
-                             recv.get_mutable_data(),
-                             send.get_count(),
-                             root);
+            request = gather( //
+                send.get_data(),
+                send.get_count(),
+                recv_ptr,
+                send.get_count(),
+                root);
         });
 
         return request;
@@ -455,6 +457,42 @@ public:
                          std::int64_t root) const;
 #endif
 
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+    spmd_request gatherv(const T* send_buf,
+                         std::int64_t send_count,
+                         T* recv_buf,
+                         const std::int64_t* recv_count,
+                         const std::int64_t* displs,
+                         std::int64_t root = -1) const {
+        return gatherv(reinterpret_cast<const byte_t*>(send_buf),
+                       send_count,
+                       reinterpret_cast<byte_t*>(recv_buf),
+                       recv_count,
+                       displs,
+                       make_data_type<T>(),
+                       root);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+    spmd_request gatherv(sycl::queue& q,
+                         const T* send_buf,
+                         std::int64_t send_count,
+                         T* recv_buf,
+                         const std::int64_t* recv_count,
+                         const std::int64_t* displs,
+                         std::int64_t root = -1) const {
+        return gatherv(q,
+                       reinterpret_cast<const byte_t*>(send_buf),
+                       send_count,
+                       reinterpret_cast<byte_t*>(recv_buf),
+                       recv_count,
+                       displs,
+                       make_data_type<T>(),
+                       root);
+    }
+#endif
+
     /// Combines data from all ranks using reduction operation and
     /// distributes the result back to all ranks
     ///
@@ -481,6 +519,15 @@ public:
                            const data_type& dtype,
                            const spmd_reduce_op& op) const;
 #endif
+
+    template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
+    spmd_request allreduce(T& scalar) const {
+        return allreduce(reinterpret_cast<const byte_t*>(&scalar),
+                         reinterpret_cast<byte_t*>(&scalar),
+                         1,
+                         dal::detail::make_data_type<T>(),
+                         spmd_reduce_op::sum);
+    }
 
     /// Gathers data from all ranks and distributes the results back to all ranks
     ///

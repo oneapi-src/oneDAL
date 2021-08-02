@@ -24,14 +24,7 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 // TODO: Support other reduction operations, now only SUM available
-template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>
-inline spmd_request allreduce(const dal::detail::spmd_communicator& comm, T& scalar) {
-    return comm.allreduce(reinterpret_cast<const byte_t*>(&scalar),
-                          reinterpret_cast<byte_t*>(&scalar),
-                          sizeof(T),
-                          dal::detail::make_data_type<T>(),
-                          spmd_reduce_op::sum);
-}
+
 
 // TODO: Support other reduction operations, now only SUM available
 template <typename T, dal::detail::enable_if_trivially_serializable_t<T>* = nullptr>

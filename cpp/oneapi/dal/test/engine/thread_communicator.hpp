@@ -161,9 +161,13 @@ public:
                     std::int64_t count,
                     const data_type& dtype,
                     std::int64_t root) {
+        ONEDAL_ASSERT(root >= 0);
+        if (count == 0) {
+            return;
+        }
+
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(count > 0);
-        ONEDAL_ASSERT(root >= 0);
 
         const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
         const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
@@ -503,7 +507,7 @@ public:
         return ctx_.map_thread_id_to_rank(std::this_thread::get_id());
     }
 
-    std::int64_t get_root_rank() override {
+    std::int64_t get_default_root_rank() override {
         return ctx_.get_root_rank();
     }
 
@@ -530,6 +534,10 @@ public:
                      std::int64_t count,
                      const data_type& dtype,
                      std::int64_t root) override {
+        if (count == 0) {
+            return nullptr;
+        }
+
         check_if_pointer_matches_queue(q, send_buf);
 
         const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
@@ -570,8 +578,30 @@ public:
                       std::int64_t root) override {
         check_if_pointer_matches_queue(q, send_buf);
         check_if_pointer_matches_queue(q, recv_buf);
-        // TODO: copy to host
-        return gather(send_buf, send_count, recv_buf, recv_count, dtype, root);
+
+        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
+        const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
+        const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_count);
+        const std::int64_t all_recv_size =
+            dal::detail::check_mul_overflow(get_rank_count(), recv_size);
+
+        const auto send_buff_host = array<byte_t>::empty(send_size);
+        dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
+
+        array<byte_t> recv_host;
+        byte_t* recv_host_ptr = nullptr;
+        if (get_rank() == root) {
+            recv_host.reset(all_recv_size);
+            recv_host_ptr = recv_host.get_mutable_data();
+        }
+
+        gather(send_buff_host.get_data(), send_count, recv_host_ptr, recv_count, dtype, root);
+
+        if (get_rank() == root) {
+            dal::detail::memcpy_host2usm(q, recv_buf, recv_host_ptr, all_recv_size);
+        }
+
+        return nullptr;
     }
 #endif
 
@@ -620,14 +650,16 @@ public:
         dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
 
         array<byte_t> recv_buf_host;
+        byte_t* recv_buf_host_ptr = nullptr;
         if (get_rank() == root) {
             ONEDAL_ASSERT(total_recv_count > 0);
             recv_buf_host.reset(total_recv_count);
+            recv_buf_host_ptr = recv_buf_host.get_mutable_data();
         }
 
         gatherv(send_buff_host.get_data(),
                 send_count,
-                recv_buf_host.get_mutable_data(),
+                recv_buf_host_ptr,
                 displs_host_0.get_data(),
                 displs_host,
                 dtype,
@@ -649,7 +681,7 @@ public:
 
                 dal::detail::memcpy_host2usm(q,
                                              recv_buf + dst_offset,
-                                             recv_buf_host.get_mutable_data() + src_offset,
+                                             recv_buf_host_ptr + src_offset,
                                              copy_size);
             }
         }
@@ -664,9 +696,7 @@ public:
                          const data_type& dtype,
                          const dal::detail::spmd_reduce_op& op) override {
         collective_operation_guard guard{ ctx_ };
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t byte_count = dal::detail::check_mul_overflow(dtype_size, count);
-        allreduce_(send_buf, recv_buf, byte_count, dtype, op);
+        allreduce_(send_buf, recv_buf, count, dtype, op);
         return nullptr;
     }
 
@@ -766,10 +796,6 @@ class thread_communicator : public dal::detail::spmd_communicator {
 public:
     explicit thread_communicator(std::int64_t thread_count)
             : dal::detail::spmd_communicator(new thread_communicator_impl{ thread_count }) {}
-
-    std::int64_t get_root_rank() const {
-        return get_impl<thread_communicator_impl>().get_root_rank();
-    }
 
     template <typename Body>
     void execute(const Body& body) {
