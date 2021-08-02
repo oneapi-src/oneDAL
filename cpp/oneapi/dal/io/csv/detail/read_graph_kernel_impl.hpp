@@ -26,7 +26,7 @@
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 #include "oneapi/dal/graph/undirected_adjacency_vector_graph.hpp"
 #include "oneapi/dal/io/csv/detail/read_graph_service.hpp"
-#include "oneapi/dal/io/csv/detail/common.hpp"
+#include "oneapi/dal/io/csv/detail/graph_service.hpp"
 
 namespace oneapi::dal::preview::read_graph::detail {
 

@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/detail/ops_dispatcher.hpp"
-#include "oneapi/dal/detail/common.hpp"
 
 #if defined(__INTEL_COMPILER)
 #pragma warning disable 1011

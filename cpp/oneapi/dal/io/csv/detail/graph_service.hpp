@@ -18,9 +18,23 @@
 
 #include "oneapi/dal/graph/detail/container.hpp"
 
-namespace oneapi::dal::preview::detail {
+namespace oneapi::dal::preview {
 
+namespace detail {
 template <typename T = std::int32_t, typename Allocator = std::allocator<char>>
 using edge_list_container = vector_container<T, Allocator>;
+}
 
-} // namespace oneapi::dal::preview::detail
+/// Type of graph representation as an edge list
+/// @tparam IndexType Type of the graph vertex indicies
+template <typename IndexType = std::int32_t>
+using edge_list =
+    detail::edge_list_container<std::pair<IndexType, IndexType>, std::allocator<char>>;
+
+/// Type of graph with edge weights representation as an edge list
+/// @tparam IndexType Type of the graph vertex indicies
+template <typename IndexType = std::int32_t, typename WeightType = std::int32_t>
+using weighted_edge_list =
+    detail::edge_list_container<std::tuple<IndexType, IndexType, WeightType>, std::allocator<char>>;
+
+} // namespace oneapi::dal::preview
