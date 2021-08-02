@@ -18,7 +18,8 @@
 
 #include "oneapi/dal/detail/ops_dispatcher.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#pragma warning(disable : 1011)
+#include "oneapi/dal/backend/common.hpp"
+PRAGMA_DISABLE_WARNING_1011
 
 namespace oneapi::dal::preview::csv {
 struct read_args_tag;
