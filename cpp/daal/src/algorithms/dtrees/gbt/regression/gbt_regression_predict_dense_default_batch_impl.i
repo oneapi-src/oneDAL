@@ -35,6 +35,7 @@
 #include "src/externals/service_memory.h"
 #include "src/algorithms/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
+#include <iostream>
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -121,7 +122,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, dim.nCols, dim.nRowsTotal);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, dim.nCols * dim.nRowsTotal, sizeof(algorithmFPType));
 
-    if (modelSize > dim.nCols * dim.nRowsTotal * sizeof(algorithmFPType) && true)
+    if (modelSize > dim.nCols * dim.nRowsTotal * sizeof(algorithmFPType))
     {
         nTreeBlocks   = daal::threader_get_threads_number();
         nTreesInBlock = nTreesTotal / nTreeBlocks;
