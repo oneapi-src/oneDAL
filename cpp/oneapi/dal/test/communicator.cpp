@@ -81,12 +81,12 @@ public:
 #endif
 
     template <typename T>
-    array<T> array_range(std::int64_t count, T dummy) {
+    array<T> array_range(std::int64_t count, T start = T(0)) {
         auto dst = array<T>::empty(count);
 
         T* dst_ptr = dst.get_mutable_data();
         for (std::int64_t i = 0; i < count; i++) {
-            dst_ptr[i] = T(i);
+            dst_ptr[i] = start + T(i);
         }
 
         return dst;
@@ -104,32 +104,27 @@ public:
         return dst;
     }
 
-    table create_random_table(std::int64_t row_count, std::int64_t column_count) {
-        std::uniform_real_distribution<float> uniform{ -10.f, 10.f };
+    template <typename T>
+    array<T> array_displacements(const array<T>& values) {
+        const auto displs = array<T>::empty(values.get_count());
+        T* displs_ptr = displs.get_mutable_data();
 
-        auto x = array<float>::empty(row_count * column_count);
-        float* x_ptr = x.get_mutable_data();
-
-        for (std::int64_t i = 0; i < x.get_count(); i++) {
-            x_ptr[i] = uniform(rng_);
+        T sum = T(0);
+        for (std::int64_t i = 0; i < displs.get_count(); i++) {
+            displs_ptr[i] = sum;
+            sum += values[i];
         }
 
-        return homogen_table::wrap(x, row_count, column_count);
+        return displs;
     }
 
-    std::vector<table> create_random_tables(std::int64_t count) {
-        std::uniform_int_distribution<std::int64_t> uniform{ 10, 30 };
-
-        std::vector<table> tables;
-        tables.reserve(count);
-
-        for (std::int64_t i = 0; i < count; i++) {
-            const std::int64_t row_count = uniform(rng_);
-            const std::int64_t column_count = uniform(rng_);
-            tables.push_back(create_random_table(row_count, column_count));
+    template <typename T>
+    T array_sum(const array<T>& values) {
+        T sum = T(0);
+        for (std::int64_t i = 0; i < values.get_count(); i++) {
+            sum += values[i];
         }
-
-        return tables;
+        return sum;
     }
 
     template <typename T>
@@ -496,6 +491,82 @@ TEST_M(communicator_test, "usm gather array of primitive type", "[gather][usm]")
         }
 
         comm.gather(send, recv).wait();
+
+        exclusive([&]() {
+            if (comm.is_root_rank()) {
+                check_if_arrays_equal(this->to_host(recv), send_full);
+            }
+            else {
+                REQUIRE(recv.get_count() == 0);
+            }
+        });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "gatherv values of primitive type", "[gatherv]") {
+    auto comm = create_communicator();
+
+    // Send 1, 2, 3, ... elements from each rank
+    const auto send_count = this->array_range(comm.get_rank_count(), std::int64_t(1));
+    const auto displs = this->array_displacements(send_count);
+
+    const std::int64_t total_send_count = this->array_sum(send_count);
+    auto send_full = this->array_range(total_send_count, float());
+
+    execute([&](std::int64_t rank) {
+        const float* send_buf = send_full.get_data() + displs[rank];
+
+        array<float> recv;
+        float* recv_buf = nullptr;
+        if (comm.is_root_rank()) {
+            recv = array<float>::empty(total_send_count);
+            recv_buf = recv.get_mutable_data();
+        }
+
+        comm.gatherv(send_buf, send_count[rank], recv_buf, send_count.get_data(), displs.get_data())
+            .wait();
+
+        exclusive([&]() {
+            if (comm.is_root_rank()) {
+                check_if_arrays_equal(recv, send_full);
+            }
+            else {
+                REQUIRE(recv.get_count() == 0);
+            }
+        });
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "USM gatherv values of primitive type", "[gatherv][usm]") {
+    auto comm = create_communicator();
+
+    // Send 1, 2, 3, ... elements from each rank
+    const auto send_count = this->array_range(comm.get_rank_count(), std::int64_t(1));
+    const auto displs = this->array_displacements(send_count);
+
+    const std::int64_t total_send_count = this->array_sum(send_count);
+    auto send_full = this->array_range(total_send_count, float());
+    auto send_full_device = this->to_device(send_full);
+
+    execute([&](std::int64_t rank) {
+        const float* send_buf = send_full_device.get_data() + displs[rank];
+
+        array<float> recv;
+        float* recv_buf = nullptr;
+        if (comm.is_root_rank()) {
+            recv.reset(this->get_queue(), total_send_count, sycl::usm::alloc::device);
+            recv_buf = recv.get_mutable_data();
+        }
+
+        comm.gatherv(this->get_queue(),
+                     send_buf,
+                     send_count[rank],
+                     recv_buf,
+                     send_count.get_data(),
+                     displs.get_data())
+            .wait();
 
         exclusive([&]() {
             if (comm.is_root_rank()) {

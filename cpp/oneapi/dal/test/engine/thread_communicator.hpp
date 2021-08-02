@@ -645,6 +645,8 @@ public:
 
         const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
         const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
+        const std::int64_t total_recv_size =
+            dal::detail::check_mul_overflow(dtype_size, total_recv_count);
 
         const auto send_buff_host = array<byte_t>::empty(send_size);
         dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
@@ -652,16 +654,16 @@ public:
         array<byte_t> recv_buf_host;
         byte_t* recv_buf_host_ptr = nullptr;
         if (get_rank() == root) {
-            ONEDAL_ASSERT(total_recv_count > 0);
-            recv_buf_host.reset(total_recv_count);
+            ONEDAL_ASSERT(total_recv_size > 0);
+            recv_buf_host.reset(total_recv_size);
             recv_buf_host_ptr = recv_buf_host.get_mutable_data();
         }
 
         gatherv(send_buff_host.get_data(),
                 send_count,
                 recv_buf_host_ptr,
+                recv_count_host,
                 displs_host_0.get_data(),
-                displs_host,
                 dtype,
                 root);
 
