@@ -448,6 +448,50 @@ TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
     check_if_all_equal(x, c);
 }
 
+TEST_M(ndarray_test, "can get element - c-order", "[ndarray]") {
+    constexpr std::int64_t m = 5;
+    constexpr std::int64_t n = 4;
+
+    std::int64_t data[m * n];
+
+    for(std::int64_t i = 0; i < (m * n); ++i) {
+        data[i] = i;
+    }
+
+    auto x = ndarray<std::int64_t, 2, ndorder::c>::wrap(data, { m, n });
+
+    for(std::int64_t r = 0; r < m; ++r) {
+        for(std::int64_t c = 0; c < n; ++c) {
+            const std::int64_t gtr_val = r * n + c;
+            const std::int64_t res_val = x.at(r, c);
+            CAPTURE(r, c, gtr_val, res_val);
+            REQUIRE(gtr_val == res_val);
+        }
+    }
+}
+
+TEST_M(ndarray_test, "can get element - f-order", "[ndarray]") {
+    constexpr std::int64_t m = 5;
+    constexpr std::int64_t n = 4;
+
+    std::int64_t data[m * n];
+
+    for(std::int64_t i = 0; i < (m * n); ++i) {
+        data[i] = i;
+    }
+
+    auto x = ndarray<std::int64_t, 2, ndorder::f>::wrap(data, { m, n });
+
+    for(std::int64_t r = 0; r < m; ++r) {
+        for(std::int64_t c = 0; c < n; ++c) {
+            const std::int64_t gtr_val = r + c * m;
+            const std::int64_t res_val = x.at(r, c);
+            CAPTURE(r, c, gtr_val, res_val);
+            REQUIRE(gtr_val == res_val);
+        }
+    }
+}
+
 TEST_M(ndarray_test, "can slice ndarray - c-order", "[ndarray]") {
     constexpr std::int64_t m = 5;
     constexpr std::int64_t n = 4;
