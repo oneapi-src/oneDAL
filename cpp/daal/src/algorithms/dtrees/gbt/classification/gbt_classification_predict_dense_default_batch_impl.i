@@ -38,9 +38,6 @@
 #include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
 #include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
 #include "src/services/service_algo_utils.h"
-#include <iostream>
-
-#include "src/sycl/reducer.h"
 
 using namespace daal::internal;
 using namespace daal::services::internal;
@@ -174,6 +171,7 @@ public:
     typedef gbt::prediction::internal::TileDimensions<algorithmFPType> DimType;
     typedef daal::tls<algorithmFPType *> ClassesRawBoostedTlsBase;
     typedef daal::TlsMem<algorithmFPType, cpu> ClassesRawBoostedTls;
+    typedef daal::StaticTlsSum<algorithmFPType, cpu> ClassesRawBoostedTlsSum;
 
     PredictMulticlassTask(const NumericTable * x, NumericTable * y, NumericTable * prob) : _data(x), _res(y), _prob(prob) {}
     services::Status run(const gbt::classification::internal::ModelImpl * m, size_t nClasses, size_t nIterations, services::HostAppIface * pHostApp);
@@ -345,8 +343,7 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
         }
         else
         {
-            daal::StaticTlsSum<algorithmFPType, cpu> lsData(nClasses * dim.nRowsTotal);
-
+            ClassesRawBoostedTlsSum lsData(nClasses * dim.nRowsTotal);
             daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
                 algorithmFPType * const valL = lsData.local(iBlock);
 

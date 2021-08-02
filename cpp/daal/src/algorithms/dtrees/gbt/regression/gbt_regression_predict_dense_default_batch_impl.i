@@ -61,6 +61,7 @@ class PredictRegressionTask
 {
 public:
     typedef gbt::internal::GbtDecisionTree TreeType;
+    typedef daal::StaticTlsSum<algorithmFPType, cpu> ValueRawBoostedTlsSum;
     PredictRegressionTask(const NumericTable * x, NumericTable * y) : _data(x), _res(y) {}
     services::Status run(const gbt::regression::internal::ModelImpl * m, size_t nIterations, services::HostAppIface * pHostApp);
 
@@ -158,7 +159,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::runInternal(servic
     }
     else
     {
-        daal::StaticTlsSum<algorithmFPType, cpu> lsData(dim.nRowsTotal);
+        ValueRawBoostedTlsSum lsData(dim.nRowsTotal);
         daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
             algorithmFPType* val = lsData.local(iBlock);
             const size_t iStartTree     = iBlock * nTreesInBlock;
