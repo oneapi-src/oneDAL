@@ -207,7 +207,7 @@ TEST_M(communicator_test, "execute if root rank", "[basic]") {
     }
 }
 
-TEST_M(communicator_test, "bcast single value of primitive type", "[bcast]") {
+TEST_M(communicator_test, "bcast single value", "[bcast]") {
     auto comm = create_communicator();
 
     execute([&](std::int64_t rank) {
@@ -224,7 +224,7 @@ TEST_M(communicator_test, "bcast single value of primitive type", "[bcast]") {
     });
 }
 
-TEST_M(communicator_test, "bcast multiple values of primitive type", "[bcast]") {
+TEST_M(communicator_test, "bcast multiple values", "[bcast]") {
     constexpr std::int64_t count = 4;
     auto comm = create_communicator();
 
@@ -249,7 +249,7 @@ TEST_M(communicator_test, "bcast multiple values of primitive type", "[bcast]") 
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM bcast multiple values of primitive type", "[bcast][usm]") {
+TEST_M(communicator_test, "USM bcast multiple values", "[bcast][usm]") {
     constexpr std::int64_t count = 4;
     auto comm = create_communicator();
 
@@ -275,7 +275,7 @@ TEST_M(communicator_test, "USM bcast multiple values of primitive type", "[bcast
 }
 #endif
 
-TEST_M(communicator_test, "bcast array of primitive type", "[bcast]") {
+TEST_M(communicator_test, "bcast array", "[bcast]") {
     constexpr std::int64_t count = 4;
     auto comm = create_communicator();
 
@@ -306,7 +306,7 @@ TEST_M(communicator_test, "bcast array of primitive type", "[bcast]") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM bcast array of primitive type", "[bcast][usm]") {
+TEST_M(communicator_test, "USM bcast array", "[bcast][usm]") {
     constexpr std::int64_t count = 4;
     auto comm = create_communicator();
 
@@ -362,7 +362,7 @@ TEST_M(communicator_test, "empty usm bcast is allowed", "[bcast][usm]") {
 }
 #endif
 
-TEST_M(communicator_test, "gather single value of primitive type", "[gather]") {
+TEST_M(communicator_test, "gather single value", "[gather]") {
     auto comm = create_communicator();
 
     auto send = this->array_range(comm.get_rank_count(), float());
@@ -381,7 +381,7 @@ TEST_M(communicator_test, "gather single value of primitive type", "[gather]") {
     });
 }
 
-TEST_M(communicator_test, "gather multiple values of primitive type", "[gather]") {
+TEST_M(communicator_test, "gather multiple values", "[gather]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
 
@@ -411,7 +411,7 @@ TEST_M(communicator_test, "gather multiple values of primitive type", "[gather]"
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "usm gather multiple values of primitive type", "[gather][usm]") {
+TEST_M(communicator_test, "USM gather multiple values", "[gather][usm]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
 
@@ -444,7 +444,7 @@ TEST_M(communicator_test, "usm gather multiple values of primitive type", "[gath
 }
 #endif
 
-TEST_M(communicator_test, "gather array of primitive type", "[gather]") {
+TEST_M(communicator_test, "gather array", "[gather]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
 
@@ -473,7 +473,7 @@ TEST_M(communicator_test, "gather array of primitive type", "[gather]") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "usm gather array of primitive type", "[gather][usm]") {
+TEST_M(communicator_test, "USM gather array", "[gather][usm]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
 
@@ -504,7 +504,7 @@ TEST_M(communicator_test, "usm gather array of primitive type", "[gather][usm]")
 }
 #endif
 
-TEST_M(communicator_test, "gatherv values of primitive type", "[gatherv]") {
+TEST_M(communicator_test, "gatherv values", "[gatherv]") {
     auto comm = create_communicator();
 
     // Send 1, 2, 3, ... elements from each rank
@@ -539,7 +539,7 @@ TEST_M(communicator_test, "gatherv values of primitive type", "[gatherv]") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM gatherv values of primitive type", "[gatherv][usm]") {
+TEST_M(communicator_test, "USM gatherv values", "[gatherv][usm]") {
     auto comm = create_communicator();
 
     // Send 1, 2, 3, ... elements from each rank
@@ -575,6 +575,180 @@ TEST_M(communicator_test, "USM gatherv values of primitive type", "[gatherv][usm
             else {
                 REQUIRE(recv.get_count() == 0);
             }
+        });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "allgather multiple values", "[allgather]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
+
+    execute([&](std::int64_t rank) {
+        const float* send_buf = send_full.get_data() + rank * count_per_rank;
+        const auto recv = array<float>::empty(comm.get_rank_count() * count_per_rank);
+
+        comm.allgather(send_buf, count_per_rank, recv.get_mutable_data(), count_per_rank).wait();
+
+        exclusive([&]() {
+            check_if_arrays_equal(recv, send_full);
+        });
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "USM allgather multiple values", "[allgather][usm]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
+    auto send_full_device = this->to_device(send_full);
+
+    execute([&](std::int64_t rank) {
+        const float* send_buf = send_full_device.get_data() + rank * count_per_rank;
+        const auto recv = array<float>::empty(this->get_queue(),
+                                              comm.get_rank_count() * count_per_rank,
+                                              sycl::usm::alloc::device);
+
+        comm.allgather(this->get_queue(),
+                       send_buf,
+                       count_per_rank,
+                       recv.get_mutable_data(),
+                       count_per_rank)
+            .wait();
+
+        exclusive([&]() {
+            check_if_arrays_equal(this->to_host(recv), send_full);
+        });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "allgather array", "[allgather]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
+
+    execute([&](std::int64_t rank) {
+        const float* send_buf = send_full.get_data() + rank * count_per_rank;
+        const auto send = array<float>::wrap(send_buf, count_per_rank);
+        const auto recv = array<float>::empty(comm.get_rank_count() * count_per_rank);
+
+        comm.allgather(send, recv).wait();
+
+        exclusive([&]() {
+            check_if_arrays_equal(recv, send_full);
+        });
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "USM allgather array", "[allgather][usm]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    auto send_full = this->array_range(comm.get_rank_count() * count_per_rank, float());
+    auto send_full_device = this->to_device(send_full);
+
+    execute([&](std::int64_t rank) {
+        const float* send_buf = send_full_device.get_data() + rank * count_per_rank;
+        const auto send = array<float>::wrap(this->get_queue(), send_buf, count_per_rank);
+        const auto recv = array<float>::empty(this->get_queue(),
+                                              comm.get_rank_count() * count_per_rank,
+                                              sycl::usm::alloc::device);
+
+        comm.allgather(send, recv).wait();
+
+        exclusive([&]() {
+            check_if_arrays_equal(this->to_host(recv), send_full);
+        });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "allreduce single value", "[allreduce]") {
+    auto comm = create_communicator();
+
+    execute([&](std::int64_t rank) {
+        float x = 1;
+
+        comm.allreduce(x).wait();
+
+        exclusive([&]() {
+            REQUIRE(std::int64_t(x) == comm.get_rank_count());
+        });
+    });
+}
+
+TEST_M(communicator_test, "allreduce multiple values", "[allreduce]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    execute([&](std::int64_t rank) {
+        const auto send = this->array_full(count_per_rank, float(1));
+        const auto recv = this->array_full(count_per_rank, float(0));
+
+        comm.allreduce(send.get_data(), recv.get_mutable_data(), count_per_rank).wait();
+
+        exclusive([&]() {
+            const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
+            check_if_arrays_equal(recv, expected);
+        });
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "USM allreduce multiple values", "[allreduce][usm]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    execute([&](std::int64_t rank) {
+        const auto send = this->to_device(this->array_full(count_per_rank, float(1)));
+        const auto recv = this->to_device(this->array_full(count_per_rank, float(0)));
+
+        comm.allreduce(this->get_queue(), send.get_data(), recv.get_mutable_data(), count_per_rank)
+            .wait();
+
+        exclusive([&]() {
+            const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
+            check_if_arrays_equal(this->to_host(recv), expected);
+        });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "allreduce array", "[allreduce]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    execute([&](std::int64_t rank) {
+        const auto ary = this->array_full(count_per_rank, float(1));
+
+        comm.allreduce(ary).wait();
+
+        exclusive([&]() {
+            const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
+            check_if_arrays_equal(ary, expected);
+        });
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "USM allreduce array", "[allreduce][usm]") {
+    constexpr std::int64_t count_per_rank = 5;
+    auto comm = create_communicator();
+
+    execute([&](std::int64_t rank) {
+        const auto ary = this->to_device(this->array_full(count_per_rank, float(1)));
+
+        comm.allreduce(ary).wait();
+
+        exclusive([&]() {
+            const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
+            check_if_arrays_equal(this->to_host(ary), expected);
         });
     });
 }

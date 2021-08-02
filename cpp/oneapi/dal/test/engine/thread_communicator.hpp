@@ -455,7 +455,7 @@ public:
 
         {
             std::int64_t r = 0;
-            for (const auto& send : send_buffers_) {
+            for ([[maybe_unused]] const auto& send : send_buffers_) {
                 for (std::int64_t i = 0; i < recv_size; i++) {
                     recv_buf[r * recv_size + i] = send.buf[i];
                 }
@@ -732,10 +732,7 @@ public:
                          std::int64_t recv_count,
                          const data_type& dtype) override {
         collective_operation_guard guard{ ctx_ };
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t send_bytes = dal::detail::check_mul_overflow(dtype_size, send_count);
-        const std::int64_t recv_bytes = dal::detail::check_mul_overflow(dtype_size, recv_count);
-        allgather_(send_buf, send_bytes, recv_buf, recv_bytes, dtype);
+        allgather_(send_buf, send_count, recv_buf, recv_count, dtype);
         return nullptr;
     }
 
@@ -750,21 +747,21 @@ public:
         check_if_pointer_matches_queue(q, recv_buf);
 
         const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t send_bytes = dal::detail::check_mul_overflow(dtype_size, send_count);
-        const std::int64_t recv_bytes = dal::detail::check_mul_overflow(dtype_size, recv_count);
-        const std::int64_t all_recv_bytes =
-            dal::detail::check_mul_overflow(recv_bytes, get_rank_count());
+        const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
+        const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_count);
+        const std::int64_t all_recv_size =
+            dal::detail::check_mul_overflow(recv_size, get_rank_count());
 
-        const auto send_buff_host = array<byte_t>::empty(send_bytes);
-        const auto recv_buf_host = array<byte_t>::empty(all_recv_bytes);
+        const auto send_buff_host = array<byte_t>::empty(send_size);
+        const auto recv_buf_host = array<byte_t>::empty(all_recv_size);
 
-        dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_bytes);
+        dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
         allgather(send_buff_host.get_data(),
                   send_count,
                   recv_buf_host.get_mutable_data(),
                   recv_count,
                   dtype);
-        dal::detail::memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), all_recv_bytes);
+        dal::detail::memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), all_recv_size);
 
         return nullptr;
     }
