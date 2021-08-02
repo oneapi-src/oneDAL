@@ -35,7 +35,6 @@
 #include "src/externals/service_memory.h"
 #include "src/algorithms/dtrees/regression/dtrees_regression_predict_dense_default_impl.i"
 #include "src/algorithms/dtrees/gbt/gbt_predict_dense_default_impl.i"
-#include <iostream>
 
 using namespace daal::internal;
 using namespace daal::services::internal;
