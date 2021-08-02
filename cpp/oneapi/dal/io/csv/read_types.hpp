@@ -87,7 +87,7 @@ public:
     read_args(const read_args& args) = default;
     read_args(oneapi::dal::preview::read_mode mode)
             : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {}
-    read_args(Allocator& allocator = std::allocator<char>{},
+    read_args(const Allocator& allocator = std::allocator<char>{},
               oneapi::dal::preview::read_mode mode = oneapi::dal::preview::read_mode::edge_list)
             : impl_(new detail::read_args_graph_impl<Allocator>(mode)) {
         set_allocator_impl(allocator);
@@ -118,7 +118,7 @@ private:
     dal::detail::pimpl<detail::read_args_graph_impl<Allocator>> impl_;
 };
 
-template <typename Object, typename Allocator>
-read_args(Allocator& allocator, oneapi::dal::preview::read_mode mode)->read_args<Object, Allocator>;
+// template <typename Object, typename Allocator>
+// read_args(Allocator& allocator, oneapi::dal::preview::read_mode mode)->read_args<Object, Allocator>;
 
 } // namespace oneapi::dal::preview::csv

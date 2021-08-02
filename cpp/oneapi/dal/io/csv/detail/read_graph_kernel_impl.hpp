@@ -558,13 +558,66 @@ void convert_to_csr_impl(
     return;
 }
 
-template <typename EdgeListType, typename Descriptor, typename DataSource>
-void read_impl(const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t &graph) {
-    // using allocator_t = typename Descriptor::allocator_t;
+// template <typename EdgeListType, typename Descriptor, typename DataSource>
+// void read_from_edgelist(const EdgeListType &elist, const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t &graph) {
+//     // using allocator_t = typename Descriptor::allocator_t;
 
-    EdgeListType elist;
-    read_edge_list(ds.get_file_name(), elist);
-    convert_to_csr_impl(elist, graph);
-    return;
-}
+//     EdgeListType elist;
+//     read_edge_list(ds.get_file_name(), elist);
+//     convert_to_csr_impl(elist, graph);
+//     return;
+// }
+
+template <bool IsEdgeWeighted, typename Descriptor, typename DataSource>
+class read_impl {};
+
+template <typename Descriptor, typename DataSource>
+class read_impl<false, Descriptor, DataSource> {
+public:
+    void operator()(const DataSource &ds,
+                    const Descriptor &desc,
+                    typename Descriptor::object_t &graph) {
+        std::cout << "will read un-weighted graph\n";
+        using graph_t = typename Descriptor::object_t;
+        using vertex_t = typename dal::preview::vertex_type<graph_t>;
+        using edge_list_t = typename preview::edge_list<vertex_t>;
+        edge_list_t elist;
+        read_edge_list(ds.get_file_name(), elist);
+        convert_to_csr_impl(elist, graph);
+    }
+};
+
+template <typename Descriptor, typename DataSource>
+class read_impl<true, Descriptor, DataSource> {
+public:
+    void operator()(const DataSource &ds,
+                    const Descriptor &desc,
+                    typename Descriptor::object_t &graph) {
+        std::cout << "will read weighted graph\n";
+        using graph_t = typename Descriptor::object_t;
+        using vertex_t = typename dal::preview::vertex_type<graph_t>;
+        using weight_t = typename dal::preview::edge_user_value_type<graph_t>;
+        using edge_list_t = typename preview::weighted_edge_list<vertex_t, weight_t>;
+        edge_list_t elist;
+        read_edge_list(ds.get_file_name(), elist);
+        convert_to_csr_impl(elist, graph);
+        return;
+    }
+};
+
+// template <typename Descriptor, typename DataSource>
+// class read_impl<false, Descriptor, DataSource> {};
+
+// template <typename EdgeListType, typename Descriptor, typename DataSource>
+// void read_impl(const DataSource &ds, const Descriptor &desc, typename Descriptor::object_t &graph) {
+//     // using allocator_t = typename Descriptor::allocator_t;
+
+//     EdgeListType elist;
+//     read_edge_list(ds.get_file_name(), elist);
+//     convert_to_csr_impl(elist, graph);
+//     return;
+// }
+
+//     preview::read_graph::detail::read_impl<preview::weighted_edge_list<vertex_t, weight_t>>(
+// preview::read_graph::detail::read_impl<preview::edge_list<vertex_t>>(ds, desc, graph);
 } // namespace oneapi::dal::preview::read_graph::detail

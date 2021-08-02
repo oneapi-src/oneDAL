@@ -19,6 +19,7 @@
 #include "oneapi/dal/io/csv/common.hpp"
 #include "oneapi/dal/io/csv/detail/read_graph_kernel_impl.hpp"
 #include "oneapi/dal/io/csv/detail/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
 
 namespace oneapi::dal::csv::detail {
 
@@ -28,15 +29,21 @@ inline typename Descriptor::object_t read_graph_default_kernel(const dal::detail
                                                                const Descriptor& desc) {
     using graph_t = typename Descriptor::object_t;
     graph_t graph;
-    using vertex_t = typename dal::preview::vertex_type<graph_t>;
-    // using weight_t = typename dal::preview::edge_user_value_type<graph_t>;
+    // using vertex_t = typename dal::preview::vertex_type<graph_t>;
+    using weight_t = typename dal::preview::edge_user_value_type<graph_t>;
     // if (desc.get_read_mode() == preview::read_mode::weighted_edge_list)
     //     preview::read_graph::detail::read_impl<preview::weighted_edge_list<vertex_t, weight_t>>(
     //         ds,
     //         desc,
     //         graph);
     // else
-    preview::read_graph::detail::read_impl<preview::edge_list<vertex_t>>(ds, desc, graph);
+
+    constexpr bool is_edge_weighted =
+        !oneapi::dal::detail::is_one_of_v<weight_t, oneapi::dal::preview::empty_value>;
+    // (desc.get_read_mode() == preview::read_mode::weighted_edge_list);
+    using read_impl_t = preview::read_graph::detail::
+        read_impl<is_edge_weighted, Descriptor, detail::data_source_base>;
+    read_impl_t{}(ds, desc, graph);
     return graph;
 }
 } // namespace oneapi::dal::csv::detail

@@ -87,7 +87,6 @@ int main(int argc, char **argv) {
     { const auto x_test = dal::read<dal::table>(dal::csv::data_source{ filename }); }
 
     using graph_t = preview::undirected_adjacency_vector_graph<>;
-    Mallocator<char> mallocator;
 
     {
         auto graph = read<graph_t>(csv::data_source{ filename });
@@ -104,14 +103,16 @@ int main(int argc, char **argv) {
     //     print_graph_info(graph);
     // }
 
-    {
-        auto graph = read<graph_t,
-                          csv::data_source,
-                          dal::preview::csv::read_args<graph_t, Mallocator<char>>>(
-            csv::data_source{ filename },
-            mallocator);
-        print_graph_info(graph);
-    }
+    Mallocator<char> mallocator;
+
+    // {
+    //     auto graph = read<graph_t,
+    //                       csv::data_source,
+    //                       dal::preview::csv::read_args<graph_t, Mallocator<char>>>(
+    //         csv::data_source{ filename },
+    //         mallocator);
+    //     print_graph_info(graph);
+    // }
 
     {
         auto read_args = dal::preview::csv::read_args<graph_t, Mallocator<char>>{

@@ -43,28 +43,6 @@ struct ops_input_dispatcher<T, Ops, /* IsInput = */ false> {
     }
 };
 
-// template <typename T, typename Ops, bool IsInput = std::is_same_v<T, typename Ops::args_t>>
-// struct ops_args_dispatcher;
-
-// template <typename T, typename Ops>
-// struct ops_args_dispatcher<T, Ops, /* IsInput = */ true> {
-//     template <typename... Args>
-//     auto operator()(Args&&... args) {
-//         return Ops{}(std::forward<Args>(args)...);
-//     }
-// };
-
-// template <typename T, typename Ops>
-// struct ops_args_dispatcher<T, Ops, /* IsInput = */ false> {
-//     template <typename Policy, typename Descriptor, typename... Args>
-//     auto operator()(Policy&& policy, Descriptor&& desc, Args&&... args) {
-//         using args_t = typename Ops::args_t;
-//         return Ops{}(std::forward<Policy>(policy),
-//                      std::forward<Descriptor>(desc),
-//                      args_t{ std::forward<Args>(args)... });
-//     }
-// };
-
 template <typename T, template <typename> typename Ops, bool IsPolicy = is_execution_policy_v<T>>
 struct ops_policy_dispatcher;
 
@@ -179,11 +157,11 @@ template <typename Object,
           template <typename, typename, typename>
           typename Ops>
 struct ops_policy_dispatcher_object_allocator<Object, T, Allocator, Ops, /* IsPolicy = */ false> {
-    template <typename DataSource>
-    auto operator()(DataSource&& ds) {
-        using ops_t = Ops<std::decay_t<Object>, std::decay_t<DataSource>, Allocator>;
+    template <typename Descriptor>
+    auto operator()(Descriptor&& desc) {
+        using ops_t = Ops<std::decay_t<Object>, std::decay_t<Descriptor>, Allocator>;
         using input_t = typename ops_t::input_t;
-        return ops_t{}(host_policy::get_default(), std::forward<DataSource>(ds), input_t{});
+        return ops_t{}(host_policy::get_default(), std::forward<Descriptor>(desc), input_t{});
     }
 
     template <typename Descriptor, typename Head, typename... Tail>
