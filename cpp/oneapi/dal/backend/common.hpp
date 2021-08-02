@@ -24,13 +24,11 @@
 #include "oneapi/dal/detail/common.hpp"
 
 #if defined(__INTEL_COMPILER)
-#define PRAGMA_IVDEP                _Pragma("ivdep")
-#define PRAGMA_VECTOR_ALWAYS        _Pragma("vector always")
-#define PRAGMA_DISABLE_WARNING_1011 _Pragma("warning disable 1011")
+#define PRAGMA_IVDEP         _Pragma("ivdep")
+#define PRAGMA_VECTOR_ALWAYS _Pragma("vector always")
 #else
 #define PRAGMA_IVDEP
 #define PRAGMA_VECTOR_ALWAYS
-#define PRAGMA_DISABLE_WARNING_1011
 #endif
 
 namespace oneapi::dal::backend {
