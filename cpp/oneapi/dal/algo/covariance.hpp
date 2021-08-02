@@ -16,16 +16,4 @@
 
 #pragma once
 
-#include "oneapi/dal/algo/covariance/compute_types.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
-
-namespace oneapi::dal::covariance::backend {
-
-template <typename Float, typename Method, typename Task>
-struct compute_kernel_gpu {
-    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const;
-};
-
-} // namespace oneapi::dal::covariance::backend
+#include "oneapi/dal/algo/covariance/compute.hpp"

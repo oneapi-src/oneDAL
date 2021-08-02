@@ -7,6 +7,7 @@ load("@onedal//dev/bazel:dal.bzl",
 ALGOS = [
     "chebyshev_distance",
     "cosine_distance",
+    "covariance",
     "decision_forest",
     "decision_tree",
     "jaccard",

@@ -14,18 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/covariance.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
-#include "oneapi/dal/algo/covariance/compute_types.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "example_util/utils.hpp"
 
-namespace oneapi::dal::covariance::backend {
+namespace dal = oneapi::dal;
 
-template <typename Float, typename Method, typename Task>
-struct compute_kernel_gpu {
-    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
-                                    const detail::descriptor_base<Task>& params,
-                                    const compute_input<Task>& input) const;
-};
+int main(int argc, char const *argv[]) {
+    const auto input = dal::read<dal::table>(dal::csv::data_source{ dataset_path });
 
-} // namespace oneapi::dal::covariance::backend
+    auto cov_desc = cov::descriptor<float>
+        .set_result_options(covariance::result_options::means);
+
+    auto result = dal::compute(cov_desc, input);
+    auto means = result.get_means();
+
+    return 0;
+}
