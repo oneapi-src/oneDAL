@@ -70,13 +70,13 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal_df_cls_pred::Parameter(dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
                                     daal_voting_mode);
 
-    daal::data_management::NumericTablePtr daal_labels_res;
-    daal::data_management::NumericTablePtr daal_labels_prob_res;
-    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
-        daal_labels_res = interop::allocate_daal_homogen_table<Float>(row_count, 1);
+    daal::data_management::NumericTablePtr daal_responses_res;
+    daal::data_management::NumericTablePtr daal_responses_prob_res;
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_responses)) {
+        daal_responses_res = interop::allocate_daal_homogen_table<Float>(row_count, 1);
     }
     if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
-        daal_labels_prob_res =
+        daal_responses_prob_res =
             interop::allocate_daal_homogen_table<Float>(row_count, desc.get_class_count());
     }
 
@@ -86,21 +86,22 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         daal::services::internal::hostApp(daal_input),
         daal_data.get(),
         daal_model_ptr,
-        daal_labels_res.get(),
-        daal_labels_prob_res.get(),
+        daal_responses_res.get(),
+        daal_responses_prob_res.get(),
         desc.get_class_count(),
         daal_voting_mode));
 
     result_t res;
 
-    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_labels)) {
-        auto table_class_labels = interop::convert_from_daal_homogen_table<Float>(daal_labels_res);
-        res.set_labels(table_class_labels);
+    if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_responses)) {
+        auto table_class_responses =
+            interop::convert_from_daal_homogen_table<Float>(daal_responses_res);
+        res.set_responses(table_class_responses);
     }
 
     if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
         auto table_class_probs =
-            interop::convert_from_daal_homogen_table<Float>(daal_labels_prob_res);
+            interop::convert_from_daal_homogen_table<Float>(daal_responses_prob_res);
         res.set_probabilities(table_class_probs);
     }
 

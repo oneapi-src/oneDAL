@@ -52,6 +52,7 @@
 #include "oneapi/dal/algo/linear_kernel.hpp"
 #include "oneapi/dal/algo/pca.hpp"
 #include "oneapi/dal/algo/polynomial_kernel.hpp"
+#include "oneapi/dal/algo/sigmoid_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel.hpp"
 #include "oneapi/dal/algo/shortest_paths.hpp"
 #include "oneapi/dal/algo/svm.hpp"

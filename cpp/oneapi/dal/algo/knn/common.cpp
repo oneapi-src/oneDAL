@@ -90,6 +90,7 @@ void descriptor_base<Task>::set_distance_impl(const detail::distance_ptr& distan
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;
+template class ONEDAL_EXPORT descriptor_base<task::search>;
 
 } // namespace v1
 } // namespace detail
@@ -99,12 +100,29 @@ namespace v1 {
 using detail::v1::model_impl;
 
 template <typename Task>
-model<Task>::model() : impl_(new model_impl<Task>{}) {}
+model<Task>::model() : impl_(nullptr) {}
 
 template <typename Task>
 model<Task>::model(const std::shared_ptr<detail::model_impl<Task>>& impl) : impl_(impl) {}
 
+template <typename Task>
+void model<Task>::serialize(dal::detail::output_archive& ar) const {
+    dal::detail::serialize_polymorphic_shared(impl_, ar);
+}
+
+template <typename Task>
+void model<Task>::deserialize(dal::detail::input_archive& ar) {
+    dal::detail::deserialize_polymorphic_shared(impl_, ar);
+}
+
 template class ONEDAL_EXPORT model<task::classification>;
+template class ONEDAL_EXPORT model<task::search>;
+
+ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::classification>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::brute_force_model_impl<task::search>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::kd_tree_model_impl<task::search>)
+ONEDAL_REGISTER_SERIALIZABLE(backend::model_interop)
 
 } // namespace v1
 } // namespace oneapi::dal::knn

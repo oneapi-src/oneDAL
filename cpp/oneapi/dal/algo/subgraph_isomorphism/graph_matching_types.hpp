@@ -23,16 +23,18 @@
 #include "oneapi/dal/algo/subgraph_isomorphism/common.hpp"
 #include "oneapi/dal/algo/subgraph_isomorphism/detail/graph_matching_types.hpp"
 
-namespace oneapi::dal::preview {
-namespace subgraph_isomorphism {
+namespace oneapi::dal::preview::subgraph_isomorphism {
 
 /// Class for the description of the input parameters of the Subgraph Isomorphism
 /// algorithm
 ///
 /// @tparam Graph  Type of the input graph
-template <typename Graph>
-class ONEDAL_EXPORT graph_matching_input {
+template <typename Graph, typename Task = task::compute>
+class graph_matching_input : public base {
+    static_assert(detail::is_valid_task<Task>);
+
 public:
+    using task_t = Task;
     static_assert(detail::is_valid_graph<Graph>,
                   "Only undirected_adjacency_vector_graph is supported.");
     /// Constructs the algorithm input initialized with the target and pattern graphs.
@@ -44,55 +46,77 @@ public:
     /// Returns the constant reference to the input target graph
     const Graph& get_target_graph() const;
 
+    /// Sets the constant reference to the input target graph
+    const auto& set_target_graph(const Graph& target_graph);
+
     /// Returns the constant reference to the input pattern graph
     const Graph& get_pattern_graph() const;
 
+    /// Sets the constant reference to the input pattern graph
+    const auto& set_pattern_graph(const Graph& pattern_graph);
+
 private:
-    dal::detail::pimpl<detail::graph_matching_input_impl<Graph>> impl_;
+    dal::detail::pimpl<detail::graph_matching_input_impl<Graph, Task>> impl_;
 };
 
 /// Class for the description of the result of the Subgraph Isomorphism algorithm
-class ONEDAL_EXPORT graph_matching_result {
+template <typename Task = task::by_default>
+class graph_matching_result {
+    static_assert(detail::is_valid_task<Task>);
+
 public:
+    using task_t = Task;
     /// Constructs the empty result
     graph_matching_result();
 
-    /// Constructs the algorithm result initialized with the table of vertex matchings and
-    /// the number of pattern matchings in target graph.
-    ///
-    /// @param [in]   vertex_match        The table of size [match_count x pattern_vertex_count] with
-    ///                                   matchings of pattern graph in target graph. Each row of the table
-    ///                                   contain ids of vertices in target graph sorted by pattern vertex ids.
-    ///                                   I.e. j-th element of i-th row contain id of target graph vertex which
-    ///                                   was matched with j-th vertex of pattern graph in i-th match.
-    /// @param [in]   match_count         The number pattern matches in the target graph.
-    graph_matching_result(const table& vertex_match, std::int64_t match_count);
-
     /// Returns the table of size [match_count x pattern_vertex_count] with matchings of pattern graph
-    /// in target graph.
-    table get_vertex_match() const;
+    /// in target graph. Each row of the table
+    /// contain ids of vertices in target graph sorted by pattern vertex ids.
+    /// I.e. j-th element of i-th row contain id of target graph vertex which
+    /// was matched with j-th vertex of pattern graph in i-th match.
+    const table& get_vertex_match() const {
+        return get_vertex_match_impl();
+    }
 
     /// The number pattern matches in the target graph.
-    std::int64_t get_match_count() const;
+    int64_t get_match_count() const {
+        return get_match_count_impl();
+    }
+
+    /// Sets the table with matchings of pattern graph
+    /// in target graph.
+    auto& set_vertex_match(const table& value) {
+        set_vertex_match_impl(value);
+        return *this;
+    }
+
+    /// Sets the number pattern matches in the target graph.
+    auto& set_match_count(int64_t value) {
+        set_match_count_impl(value);
+        return *this;
+    }
 
 private:
+    const table& get_vertex_match_impl() const;
+    int64_t get_match_count_impl() const;
+    void set_vertex_match_impl(const table& value);
+    void set_match_count_impl(int64_t value);
     dal::detail::pimpl<detail::graph_matching_result_impl> impl_;
 };
 
-template <typename Graph>
-graph_matching_input<Graph>::graph_matching_input(const Graph& target_graph,
-                                                  const Graph& pattern_graph)
-        : impl_(new detail::graph_matching_input_impl<Graph>(target_graph, pattern_graph)) {}
+template <typename Graph, typename Task>
+graph_matching_input<Graph, Task>::graph_matching_input(const Graph& target_graph,
+                                                        const Graph& pattern_graph)
+        : impl_(new detail::graph_matching_input_impl<Graph, Task>(target_graph, pattern_graph)) {}
 
-template <typename Graph>
-const Graph& graph_matching_input<Graph>::get_target_graph() const {
+template <typename Graph, typename Task>
+const Graph& graph_matching_input<Graph, Task>::get_target_graph() const {
     return impl_->target_graph;
 }
 
-template <typename Graph>
-const Graph& graph_matching_input<Graph>::get_pattern_graph() const {
+template <typename Graph, typename Task>
+const Graph& graph_matching_input<Graph, Task>::get_pattern_graph() const {
     return impl_->pattern_graph;
 }
 
-} // namespace subgraph_isomorphism
-} // namespace oneapi::dal::preview
+} // namespace oneapi::dal::preview::subgraph_isomorphism
