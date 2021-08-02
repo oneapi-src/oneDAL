@@ -16,4 +16,4 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/primitives/selection/kselect_by_rows.hpp"

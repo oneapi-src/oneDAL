@@ -116,6 +116,40 @@ inline constexpr Integer up_pow2(Integer x) {
     return power;
 }
 
+class uniform_blocking {
+public:
+    uniform_blocking(std::int64_t length, std::int64_t block)
+        : range_length_{ length }, block_length_{ block } {
+        ONEDAL_ASSERT(block > 0);
+    }
+
+    const std::int64_t& get_block() const {
+        return block_length_;
+    }
+
+    const std::int64_t& get_length() const {
+        return range_length_;
+    }
+
+    std::int64_t get_block_count() const {
+        return (get_length() / get_block()) + bool(get_length() % get_block());
+    }
+
+    std::int64_t get_block_start_index(std::int64_t i) const {
+        ONEDAL_ASSERT((get_block_count() > i) && (i >= 0));
+        return i * get_block();
+    }
+
+    std::int64_t get_block_end_index(std::int64_t i) const {
+        ONEDAL_ASSERT((get_block_count() > i) && (i >= 0));
+        return std::min((i + 1l) * get_block(), get_length());
+    }
+
+private:
+    const std::int64_t range_length_;
+    const std::int64_t block_length_;
+};
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 using event_vector = std::vector<sycl::event>;

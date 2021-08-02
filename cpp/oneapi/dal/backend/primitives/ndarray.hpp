@@ -177,6 +177,7 @@ class ndview : public ndarray_base<axis_count, order> {
 
 public:
     using base = ndarray_base<axis_count, order>;
+    using this_t = ndview<T, axis_count, order>;
     using shape_t = ndshape<axis_count>;
 
     ndview() : data_(nullptr) {}
@@ -210,8 +211,32 @@ public:
         return this->get_count() > 0;
     }
 
+    bool is_data_mutable() const {
+        return data_is_mutable_;
+    }
+
     bool has_mutable_data() const {
-        return has_data() && data_is_mutable_;
+        return has_data() && is_data_mutable();
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 1>>
+    const T& at(std::int64_t id) const {
+        ONEDAL_ASSERT(has_data());
+        ONEDAL_ASSERT((get_dimension(0) >= id) && (id >= 0));
+        return *(get_data() + id);
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    const T& at(std::int64_t id0, std::int64_t id1) const {
+        ONEDAL_ASSERT(has_data());
+        ONEDAL_ASSERT((get_dimension(0) >= id0) && (id0 >= 0));
+        ONEDAL_ASSERT((get_dimension(1) >= id1) && (id1 >= 0));
+        if constexpr (order == ndorder::c) {
+            const auto* row = get_data() + id0 * this->get_stride(0);
+            return *(row +  id1);
+        }
+        const auto* col = get_data() + id1 * this->get_stride(1);
+        return *(col +  id0);
     }
 
     auto t() const {
@@ -226,6 +251,26 @@ public:
         using reshaped_ndview_t = ndview<T, new_axis_count, order>;
         check_reshape_conditions(new_shape);
         return reshaped_ndview_t{ data_, new_shape, data_is_mutable_ };
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    auto get_row_slice(std::int64_t from_row, std::int64_t to_row) const {
+        ONEDAL_ASSERT((this->get_dimension(0) >= from_row) && (from_row >= 0));
+        ONEDAL_ASSERT((this->get_dimension(0) >= to_row) && (to_row >= from_row));
+        ONEDAL_ASSERT(this->has_data());
+        const ndshape<2> new_shape{(to_row - from_row), this->get_dimension(1)};
+        if constexpr (order == ndorder::c) {
+            const T* new_start_point = this->get_data() + from_row * this->get_leading_stride();
+            return this_t(new_start_point, new_shape, this->get_strides(), this->is_data_mutable());
+        }
+        const T* new_start_point = this->get_data() + from_row;
+        return this_t(new_start_point, new_shape, this->get_strides(), this->is_data_mutable());
+    }
+
+    template <std::int64_t n = axis_count, typename = std::enable_if_t<n == 2>>
+    auto get_col_slice(std::int64_t from_col, std::int64_t to_col) const {
+        const auto transposed = this->t();
+        return this->get_row_slice(transposed, from_col, to_col).t();
     }
 
 #ifdef ONEDAL_DATA_PARALLEL

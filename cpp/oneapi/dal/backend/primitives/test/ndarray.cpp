@@ -448,6 +448,60 @@ TEST_M(ndarray_test, "can fill ndarray", "[ndarray]") {
     check_if_all_equal(x, c);
 }
 
+TEST_M(ndarray_test, "can slice ndarray - c-order", "[ndarray]") {
+    constexpr std::int64_t m = 5;
+    constexpr std::int64_t n = 4;
+
+    float data[m * n];
+
+    for(std::int64_t i = 0; i < (m * n); ++i) {
+        data[i] = float(i);
+    }
+
+    auto x = ndarray<float, 2, ndorder::c>::wrap(data, { m, n });
+
+    constexpr std::int64_t from_row = 1;
+    constexpr std::int64_t to_row = 3;
+    constexpr std::int64_t new_m = to_row - from_row;
+
+    auto y = x.get_row_slice(from_row, to_row);
+
+    for(std::int64_t r = 0; r < new_m; ++r) {
+        for(std::int64_t c = 0; c < n; ++c) {
+            const float gtr_val = x.at(r + from_row, c);
+            const float res_val = y.at(r, c);
+            REQUIRE(gtr_val == res_val);
+        }
+    }
+}
+
+TEST_M(ndarray_test, "can slice ndarray - f-order", "[ndarray]") {
+    constexpr std::int64_t m = 5;
+    constexpr std::int64_t n = 4;
+
+    float data[m * n];
+
+    for(std::int64_t i = 0; i < (m * n); ++i) {
+        data[i] = float(i);
+    }
+
+    auto x = ndarray<float, 2, ndorder::f>::wrap(data, { m, n });
+
+    constexpr std::int64_t from_row = 1;
+    constexpr std::int64_t to_row = 3;
+    constexpr std::int64_t new_m = to_row - from_row;
+
+    auto y = x.get_row_slice(from_row, to_row);
+
+    for(std::int64_t r = 0; r < new_m; ++r) {
+        for(std::int64_t c = 0; c < n; ++c) {
+            const float gtr_val = x.at(r + from_row, c);
+            const float res_val = y.at(r, c);
+            REQUIRE(gtr_val == res_val);
+        }
+    }
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 
 TEST("can allocate empty ndarray with queue", "[ndarray]") {

@@ -43,9 +43,6 @@ private:
 };
 
 template <typename Float>
-class l2_helper;
-
-template <typename Float>
 class distance<Float, squared_l2_metric<Float>> {
 public:
     distance(sycl::queue& q) : q_{ q } {};
