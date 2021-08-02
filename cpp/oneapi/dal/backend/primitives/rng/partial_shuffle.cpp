@@ -53,16 +53,15 @@ void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::in
         throw internal_error(msg::failed_to_generate_random_numbers());
     }
     const auto casted_top = dal::detail::integral_cast<std::size_t>(top);
-    const std::uint64_t count = result_array.get_count();
+    const std::int64_t count = result_array.get_count();
     const auto casted_count = dal::detail::integral_cast<std::size_t>(count);
     ONEDAL_ASSERT(casted_count < casted_top);
     auto indices_ptr = result_array.get_mutable_data();
 
-    std::uint64_t k = 0;
+    std::int64_t k = 0;
     std::size_t value = 0;
     for (std::size_t i = 0; i < casted_count; i++) {
         uniform_by_cpu(1, &value, engine_impl->getState(), i, casted_top);
-        ONEDAL_ASSERT(value >= 0);
         for (std::size_t j = i; j > 0; j--) {
             if (value == dal::detail::integral_cast<std::size_t>(indices_ptr[j - 1])) {
                 value = j - 1;
