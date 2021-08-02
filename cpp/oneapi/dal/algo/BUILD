@@ -6,6 +6,7 @@ load("@onedal//dev/bazel:dal.bzl",
 
 ALGOS = [
     "chebyshev_distance",
+    "connected_components",
     "decision_forest",
     "decision_tree",
     "jaccard",

@@ -177,6 +177,9 @@ public:
     MSG(non_zero_max_match_count_is_not_supported);
     MSG(incorrect_index_is_returned);
 
+    /* Connected Components */
+    MSG(afforest_algorithm_is_not_implemented);
+
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
     MSG(cluster_count_exceeds_data_row_count);
