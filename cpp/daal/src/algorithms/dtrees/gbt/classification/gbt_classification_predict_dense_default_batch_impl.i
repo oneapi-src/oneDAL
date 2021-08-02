@@ -349,7 +349,6 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
 
             daal::threader_for(nTreeBlocks, nTreeBlocks, [&](size_t iBlock) {
                 algorithmFPType * const valL = lsData.local(iBlock);
-                services::internal::service_memset<algorithmFPType, cpu>(valL, algorithmFPType(0), nClasses * dim.nRowsTotal);
 
                 const size_t iStartTree      = iBlock * nTreesInBlock;
                 const size_t nTreesToProcess = (iBlock == (nTreeBlocks - 1)) ? nTreesTotal - iStartTree : nTreesInBlock;
@@ -361,11 +360,13 @@ services::Status PredictMulticlassTask<algorithmFPType, cpu>::predictByAllTrees(
                 for (; iRow + VECTOR_BLOCK_SIZE <= nRows; iRow += VECTOR_BLOCK_SIZE)
                 {
                     algorithmFPType * val = valL + iRow * nClasses;
+                    services::internal::service_memset<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses * VECTOR_BLOCK_SIZE);
                     predictByTreesVector(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
                 }
                 for (; iRow < nRows; ++iRow)
                 {
                     algorithmFPType * val = valL + iRow * nClasses;
+                    services::internal::service_memset<algorithmFPType, cpu>(val, algorithmFPType(0), nClasses);
                     predictByTrees(val, iStartTree, nTreesToProcess, nClasses, xBD.get() + iRow * nCols);
                 }
             });
