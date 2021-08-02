@@ -19,8 +19,7 @@
 #include "example_util/utils.hpp"
 #include "oneapi/dal/algo/shortest_paths.hpp"
 #include "oneapi/dal/graph/directed_adjacency_vector_graph.hpp"
-#include "oneapi/dal/io/graph_csv_data_source.hpp"
-#include "oneapi/dal/io/load_graph.hpp"
+#include "oneapi/dal/io/csv.hpp"
 
 namespace dal = oneapi::dal;
 using namespace dal::preview::shortest_paths;
@@ -28,17 +27,11 @@ using namespace dal::preview::shortest_paths;
 int main(int argc, char** argv) {
     const auto filename = get_data_path("weighted_edge_list.csv");
 
-    // read the graph
-    const dal::preview::graph_csv_data_source ds(filename);
-
     using vertex_type = int32_t;
     using weight_type = double;
-    using my_graph_type = dal::preview::directed_adjacency_vector_graph<vertex_type, weight_type>;
+    using graph_t = dal::preview::directed_adjacency_vector_graph<vertex_type, weight_type>;
 
-    const dal::preview::load_graph::
-        descriptor<dal::preview::weighted_edge_list<vertex_type, weight_type>, my_graph_type>
-            d;
-    const auto my_graph = dal::preview::load_graph::load(d, ds);
+    const auto graph = dal::read<graph_t>(dal::csv::data_source{ filename });
 
     std::allocator<char> alloc;
     // set algorithm parameters
@@ -49,11 +42,12 @@ int main(int argc, char** argv) {
             optional_results::distances | optional_results::predecessors,
             alloc);
     // compute shortest paths
-    const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, my_graph);
+    const auto result_shortest_paths = dal::preview::traverse(shortest_paths_desc, graph);
 
     // extract the result
-    std::cout << "Distances: " << result_shortest_paths.get_distances() << std::endl;
-    std::cout << "Predecessors: " << result_shortest_paths.get_predecessors() << std::endl;
+    std::cout << "Distances:" << std::endl << result_shortest_paths.get_distances() << std::endl;
+    std::cout << "Predecessors:" << std::endl
+              << result_shortest_paths.get_predecessors() << std::endl;
 
     return 0;
 }
