@@ -18,8 +18,6 @@
 
 namespace oneapi::dal::svm::backend {
 
-namespace pr = dal::backend::primitives;
-
 template <typename Float>
 inline bool is_upper_edge(const Float y, const Float alpha, const Float C) {
     return (y > 0 && alpha < C) || (y < 0 && alpha > 0);
