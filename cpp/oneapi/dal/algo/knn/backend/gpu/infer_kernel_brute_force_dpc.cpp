@@ -118,21 +118,16 @@ static infer_result<Task> call_daal_kernel(const context_gpu& ctx,
 
     if (desc.get_result_options().test(result_options::responses)) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            result = result.set_responses(
-                dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
+            result = result.set_responses(homogen_table::wrap(arr_responses, row_count, 1));
         }
     }
 
     if (desc.get_result_options().test(result_options::indices)) {
-        result = result.set_indices(dal::detail::homogen_table_builder{}
-                                        .reset(arr_indices, row_count, neighbor_count)
-                                        .build());
+        result = result.set_indices(homogen_table::wrap(arr_indices, row_count, neighbor_count));
     }
 
     if (desc.get_result_options().test(result_options::distances)) {
-        result = result.set_distances(dal::detail::homogen_table_builder{}
-                                          .reset(arr_distance, row_count, neighbor_count)
-                                          .build());
+        result = result.set_distances(homogen_table::wrap(arr_distance, row_count, neighbor_count));
     }
     return result;
 }

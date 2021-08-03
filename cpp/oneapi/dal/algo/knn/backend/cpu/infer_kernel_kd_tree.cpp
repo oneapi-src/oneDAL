@@ -48,7 +48,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     auto arr_responses = array<Float>{};
     auto arr_indices = array<std::int64_t>{};
-    auto arr_distance = array<Float>{};
+    auto arr_distances = array<Float>{};
 
     auto daal_responses = daal::data_management::NumericTablePtr();
     auto daal_indices = daal::data_management::NumericTablePtr();
@@ -84,9 +84,9 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     if (desc.get_result_options().test(result_options::distances)) {
         dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
-        arr_distance.reset(neighbor_count * row_count);
+        arr_distances.reset(neighbor_count * row_count);
         daal_distance =
-            interop::convert_to_daal_homogen_table(arr_distance, row_count, neighbor_count);
+            interop::convert_to_daal_homogen_table(arr_distances, row_count, neighbor_count);
     }
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
@@ -106,22 +106,19 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     if (desc.get_result_options().test(result_options::responses)) {
         if constexpr (std::is_same_v<Task, task::classification>) {
-            result = result.set_responses(
-                dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
+            result = result.set_responses(homogen_table::wrap(arr_responses, row_count, 1));
         }
     }
 
     if (desc.get_result_options().test(result_options::indices)) {
-        result = result.set_indices(dal::detail::homogen_table_builder{}
-                                        .reset(arr_indices, row_count, neighbor_count)
-                                        .build());
+        result = result.set_indices(homogen_table::wrap(arr_indices, row_count, neighbor_count));
     }
 
     if (desc.get_result_options().test(result_options::distances)) {
-        result = result.set_distances(dal::detail::homogen_table_builder{}
-                                          .reset(arr_distance, row_count, neighbor_count)
-                                          .build());
+        result =
+            result.set_distances(homogen_table::wrap(arr_distances, row_count, neighbor_count));
     }
+
     return result;
 }
 
