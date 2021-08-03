@@ -81,22 +81,37 @@ namespace oneapi::dal::preview::louvain {
 
     /// Returns the table of size [vertex_count x 1] with community
     /// labels for each vertex
-    const table &get_labels() const;
+    const table &get_labels() const{
+      return get_labels_impl();
+    }
 
     /// Returns the modularity value for computed vertex partition
-    double get_modularity() const;
+    double get_modularity() const{
+      return get_modularity_impl();
+    }
 
     /// Returns the number of computed communities
-    std::int64_t get_community_count() const;
+    std::int64_t get_community_count() const{
+      return get_community_count_impl();
+    }
 
     /// Sets the table with computed community labels for each vertex
-    auto &set_labels(const table &value);
+    auto &set_labels(const table &value){
+      set_labels_impl(value);
+      return *this;
+    }
 
     /// Sets the modularity value for the computed vertex partition
-    auto &set_modularity(double value);
+    auto &set_modularity(double value){
+      set_modularity_impl(value);
+      return *this;
+    }
 
     /// Sets the number of computed communities
-    auto &set_community_count(std::int64_t value);
+    auto &set_community_count(std::int64_t value){
+      set_community_count_impl(value);
+      return *this;
+    }
 
   private:
     const table &get_labels_impl() const;

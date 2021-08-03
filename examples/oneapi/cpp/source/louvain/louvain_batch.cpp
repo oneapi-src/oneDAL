@@ -46,7 +46,14 @@ int main(int argc, char** argv) {
         descriptor<float, method::fast, task::vertex_partitioning, std::allocator<char>>(
             alloc).set_resolution(1).set_accuracy_threshold(0.0001).set_max_iteration_count(3);
     // compute louvain
-    const auto louvain_paths = dal::preview::vertex_partitioning(louvain_desc, my_graph);
 
+    try{
+        const auto result = dal::preview::vertex_partitioning(louvain_desc, my_graph);
+        std::cout<<"Modularity: "<<result.get_modularity()<<std::endl;
+        std::cout<<"Number of communities: "<<result.get_community_count()<<std::endl;
+        std::cout<<"Get communities' labels: "<<result.get_labels()<<std::endl;
+    } catch (dal::unimplemented& e) {
+        std::cout << e.what() << std::endl;
+    }
     return 0;
 }

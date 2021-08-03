@@ -43,8 +43,7 @@ namespace oneapi::dal::preview::louvain {
   }
 
   template <typename Task>
-  std::int64_t vertex_partitioning_result<Task>::get_community_count_impl()
-      const {
+  std::int64_t vertex_partitioning_result<Task>::get_community_count_impl() const {
     return impl_->community_count;
   }
 
@@ -59,8 +58,7 @@ namespace oneapi::dal::preview::louvain {
   }
 
   template <typename Task>
-  void vertex_partitioning_result<Task>::set_community_count_impl(
-      std::int64_t value) {
+  void vertex_partitioning_result<Task>::set_community_count_impl(std::int64_t value) {
     impl_->community_count = value;
   }
 
