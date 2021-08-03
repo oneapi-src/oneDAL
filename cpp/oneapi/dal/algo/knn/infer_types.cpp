@@ -74,13 +74,17 @@ template <typename Task>
 const table& infer_result<Task>::get_responses() const {
     using msg = dal::detail::error_messages;
     if (!get_result_options().test(result_options::responses)) {
-        throw domain_error(msg::result_option_have_not_been_computed());
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->responses;
 }
 
 template <typename Task>
 void infer_result<Task>::set_responses_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::responses)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->responses = value;
 }
 
@@ -88,13 +92,17 @@ template <typename Task>
 const table& infer_result<Task>::get_indices() const {
     using msg = dal::detail::error_messages;
     if (!get_result_options().test(result_options::indices)) {
-        throw domain_error(msg::result_option_have_not_been_computed());
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->indices;
 }
 
 template <typename Task>
 void infer_result<Task>::set_indices_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::indices)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->indices = value;
 }
 
@@ -102,13 +110,17 @@ template <typename Task>
 const table& infer_result<Task>::get_distances() const {
     using msg = dal::detail::error_messages;
     if (!get_result_options().test(result_options::distances)) {
-        throw domain_error(msg::result_option_have_not_been_computed());
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->distances;
 }
 
 template <typename Task>
 void infer_result<Task>::set_distances_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::distances)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
     impl_->distances = value;
 }
 

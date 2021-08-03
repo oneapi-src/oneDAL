@@ -84,7 +84,7 @@ public:
     MSG(invalid_key);
     MSG(capacity_leq_zero);
     MSG(empty_set_of_result_options);
-    MSG(result_option_have_not_been_computed);
+    MSG(this_result_is_not_enabled_via_result_options);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
