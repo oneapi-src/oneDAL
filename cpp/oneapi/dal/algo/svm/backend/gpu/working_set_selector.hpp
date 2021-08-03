@@ -52,7 +52,7 @@ private:
                                 const std::int64_t need_to_reset,
                                 const dal::backend::event_vector& deps = {});
 
-    std::tuple<sycl::event, const std::int64_t> select_ws_edge(
+    std::tuple<const std::int64_t, sycl::event> select_ws_edge(
         const pr::ndview<Float, 1>& alpha,
         pr::ndview<std::uint32_t, 1>& ws_indices,
         const std::int64_t need_select_count,

@@ -72,12 +72,12 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
     event = sort_f_indices(queue_, f, { event });
 
     const std::int64_t need_select_up = (ws_count_ - selected_count) / 2;
-    std::tie(event, selected_count) =
+    std::tie(selected_count, event) =
         select_ws_edge(alpha, ws_indices, need_select_up, left_to_select, ws_edge::up, { event });
     left_to_select -= selected_count;
 
     const std::int64_t need_select_count_low = ws_count_ - selected_count;
-    std::tie(event, selected_count) = select_ws_edge(alpha,
+    std::tie(selected_count, event) = select_ws_edge(alpha,
                                                      ws_indices,
                                                      need_select_count_low,
                                                      left_to_select,
@@ -86,7 +86,7 @@ sycl::event working_set_selector<Float>::select(const pr::ndview<Float, 1>& alph
     left_to_select -= selected_count;
 
     if (left_to_select > 0) {
-        std::tie(event, selected_count) = select_ws_edge(alpha,
+        std::tie(selected_count, event) = select_ws_edge(alpha,
                                                          ws_indices,
                                                          left_to_select,
                                                          left_to_select,
@@ -128,7 +128,7 @@ sycl::event working_set_selector<Float>::reset_indicator(const pr::ndview<std::u
 }
 
 template <typename Float>
-std::tuple<sycl::event, const std::int64_t> working_set_selector<Float>::select_ws_edge(
+std::tuple<const std::int64_t, sycl::event> working_set_selector<Float>::select_ws_edge(
     const pr::ndview<Float, 1>& alpha,
     pr::ndview<std::uint32_t, 1>& ws_indices,
     const std::int64_t need_select_count,
@@ -170,7 +170,7 @@ std::tuple<sycl::event, const std::int64_t> working_set_selector<Float>::select_
                                                   { select_ws_edge_event });
     }
 
-    return { select_ws_edge_event, select_count };
+    return { select_count, select_ws_edge_event };
 }
 
 template <typename Float>

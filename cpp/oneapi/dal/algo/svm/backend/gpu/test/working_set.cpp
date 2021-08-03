@@ -41,24 +41,24 @@ public:
         auto& q = this->get_queue();
 
         INFO("Allocate ndarray");
-        auto f_host_ndarray = pr::ndarray<Float, 1>::wrap(f.data(), row_count);
-        auto f_ndarray = f_host_ndarray.to_device(q);
+        auto f_host_nd = pr::ndarray<Float, 1>::wrap(f.data(), row_count);
+        auto f_nd = f_host_nd.to_device(q);
 
-        auto y_host_ndarray = pr::ndarray<Float, 1>::wrap(y.data(), row_count);
-        auto y_ndarray = y_host_ndarray.to_device(q);
+        auto y_host_nd = pr::ndarray<Float, 1>::wrap(y.data(), row_count);
+        auto y_nd = y_host_nd.to_device(q);
 
-        auto alpha_host_ndarray = pr::ndarray<Float, 1>::wrap(alpha.data(), row_count);
-        auto alpha_ndarray = alpha_host_ndarray.to_device(q);
+        auto alpha_host_nd = pr::ndarray<Float, 1>::wrap(alpha.data(), row_count);
+        auto alpha_nd = alpha_host_nd.to_device(q);
 
         auto ws_count = propose_working_set_size(q, row_count);
         auto ws_indices =
             pr::ndarray<std::uint32_t, 1>::empty(q, { ws_count }, sycl::usm::alloc::device);
 
         INFO("Init working set");
-        auto ws = working_set_selector<Float>(q, y_ndarray, C, row_count);
+        auto ws = working_set_selector<Float>(q, y_nd, C, row_count);
 
         INFO("Run select");
-        ws.select(alpha_ndarray, f_ndarray, ws_indices).wait_and_throw();
+        ws.select(alpha_nd, f_nd, ws_indices).wait_and_throw();
 
         INFO("Check ws_indices");
         const auto indices_arr = ws_indices.flatten(q);
