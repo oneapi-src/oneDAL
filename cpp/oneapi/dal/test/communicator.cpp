@@ -275,7 +275,7 @@ TEST_M(communicator_test, "USM bcast multiple values", "[bcast][usm]") {
 }
 #endif
 
-TEST_M(communicator_test, "bcast array", "[bcast]") {
+TEST_M(communicator_test, "bcast array", "[bcast][array]") {
     constexpr std::int64_t count = 4;
     auto comm = create_communicator();
 
@@ -306,7 +306,7 @@ TEST_M(communicator_test, "bcast array", "[bcast]") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM bcast array", "[bcast][usm]") {
+TEST_M(communicator_test, "USM bcast array", "[bcast][usm][array]") {
     constexpr std::int64_t count = 4;
     auto comm = create_communicator();
 
@@ -338,7 +338,7 @@ TEST_M(communicator_test, "USM bcast array", "[bcast][usm]") {
 }
 #endif
 
-TEST_M(communicator_test, "empty bcast is allowed", "[bcast]") {
+TEST_M(communicator_test, "empty bcast is allowed", "[bcast][empty]") {
     auto comm = create_communicator();
 
     float* empty_buf = nullptr;
@@ -350,7 +350,7 @@ TEST_M(communicator_test, "empty bcast is allowed", "[bcast]") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "empty usm bcast is allowed", "[bcast][usm]") {
+TEST_M(communicator_test, "empty USM bcast is allowed", "[bcast][usm][empty]") {
     auto comm = create_communicator();
 
     float* empty_buf = nullptr;
@@ -444,7 +444,7 @@ TEST_M(communicator_test, "USM gather multiple values", "[gather][usm]") {
 }
 #endif
 
-TEST_M(communicator_test, "gather array", "[gather]") {
+TEST_M(communicator_test, "gather array", "[gather][array]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
 
@@ -473,7 +473,7 @@ TEST_M(communicator_test, "gather array", "[gather]") {
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEST_M(communicator_test, "USM gather array", "[gather][usm]") {
+TEST_M(communicator_test, "USM gather array", "[gather][usm][array]") {
     constexpr std::int64_t count_per_rank = 5;
     auto comm = create_communicator();
 
@@ -500,6 +500,26 @@ TEST_M(communicator_test, "USM gather array", "[gather][usm]") {
                 REQUIRE(recv.get_count() == 0);
             }
         });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "empty gather is allowed", "[gather][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.gather(send_buf, 0, recv_buf, 0).wait();
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "empty USM gather is allowed", "[gather][usm][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.gather(this->get_queue(), send_buf, 0, recv_buf, 0).wait();
     });
 }
 #endif
@@ -576,6 +596,26 @@ TEST_M(communicator_test, "USM gatherv values", "[gatherv][usm]") {
                 REQUIRE(recv.get_count() == 0);
             }
         });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "empty gatherv is allowed", "[gatherv][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.gatherv(send_buf, 0, recv_buf, nullptr, nullptr).wait();
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "empty USM gatherv is allowed", "[gatherv][usm][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.gatherv(this->get_queue(), send_buf, 0, recv_buf, nullptr, nullptr).wait();
     });
 }
 #endif
@@ -669,6 +709,26 @@ TEST_M(communicator_test, "USM allgather array", "[allgather][usm]") {
 }
 #endif
 
+TEST_M(communicator_test, "empty allgather is allowed", "[allgather][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.allgather(send_buf, 0, recv_buf, 0).wait();
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "empty USM allgather is allowed", "[allgather][usm][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.allgather(this->get_queue(), send_buf, 0, recv_buf, 0).wait();
+    });
+}
+#endif
+
 TEST_M(communicator_test, "allreduce single value", "[allreduce]") {
     auto comm = create_communicator();
 
@@ -750,6 +810,26 @@ TEST_M(communicator_test, "USM allreduce array", "[allreduce][usm]") {
             const auto expected = this->array_full(count_per_rank, float(comm.get_rank_count()));
             check_if_arrays_equal(this->to_host(ary), expected);
         });
+    });
+}
+#endif
+
+TEST_M(communicator_test, "empty allreduce is allowed", "[allreduce][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.allreduce(send_buf, recv_buf, 0).wait();
+    });
+}
+
+#ifdef ONEDAL_DATA_PARALLEL
+TEST_M(communicator_test, "empty USM allreduce is allowed", "[allreduce][usm][empty]") {
+    auto comm = create_communicator();
+    execute([&](std::int64_t rank) {
+        const float* send_buf = nullptr;
+        float* recv_buf = nullptr;
+        comm.allreduce(this->get_queue(), send_buf, recv_buf, 0).wait();
     });
 }
 #endif

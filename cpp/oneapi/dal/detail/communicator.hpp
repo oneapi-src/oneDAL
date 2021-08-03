@@ -379,6 +379,13 @@ public:
         }
 #endif
 
+        if (send.get_count() == 0) {
+            if (is_root_rank(root)) {
+                ONEDAL_ASSERT(recv.get_count() == 0);
+            }
+            return spmd_request{};
+        }
+
         T* recv_ptr = nullptr;
         if (is_root_rank(root)) {
             ONEDAL_ASSERT(recv.has_mutable_data());
@@ -548,10 +555,6 @@ public:
 
     template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request allgather(const array<T>& send, const array<T>& recv) {
-        if (send.get_count() == 0) {
-            return spmd_request{};
-        }
-
 #ifdef ONEDAL_ENABLE_ASSERT
         check_if_same_send_count(send.get_count(), get_default_root_rank());
 
@@ -559,6 +562,11 @@ public:
         const std::int64_t min_recv_count = get_min_recv_count(send.get_count());
         ONEDAL_ASSERT(recv.get_count() >= min_recv_count);
 #endif
+
+        if (send.get_count() == 0) {
+            ONEDAL_ASSERT(recv.get_count() == 0);
+            return spmd_request{};
+        }
 
         ONEDAL_ASSERT(send.get_count() > 0);
         ONEDAL_ASSERT(recv.has_mutable_data());
@@ -651,16 +659,16 @@ public:
     template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
     spmd_request allreduce(const array<T>& ary,
                            const spmd_reduce_op& op = spmd_reduce_op::sum) const {
+#ifdef ONEDAL_ENABLE_ASSERT
+        check_if_same_send_count(ary.get_count(), get_default_root_rank());
+#endif
+
         if (ary.get_count() == 0) {
             return spmd_request{};
         }
 
         ONEDAL_ASSERT(ary.get_count() > 0);
         ONEDAL_ASSERT(ary.has_mutable_data());
-
-#ifdef ONEDAL_ENABLE_ASSERT
-        check_if_same_send_count(ary.get_count(), get_default_root_rank());
-#endif
 
         spmd_request request;
 

@@ -215,6 +215,12 @@ public:
                     const data_type& dtype,
                     std::int64_t root) {
         ONEDAL_ASSERT(root >= 0);
+        if (send_count == 0) {
+            return;
+        }
+
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(send_count > 0);
 
         const std::int64_t rank = ctx_.get_this_thread_rank();
         const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
@@ -225,10 +231,6 @@ public:
             ONEDAL_ASSERT(recv_count > 0);
             recv_count_ = recv_count;
             recv_buf_ = recv_buf;
-        }
-        else {
-            ONEDAL_ASSERT(send_buf);
-            ONEDAL_ASSERT(send_count > 0);
         }
 
         barrier_();
@@ -275,6 +277,13 @@ public:
                     std::int64_t root) {
         ONEDAL_ASSERT(root >= 0);
 
+        if (send_count == 0) {
+            return;
+        }
+
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(send_count > 0);
+
         const std::int64_t rank = ctx_.get_this_thread_rank();
         const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
         const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
@@ -286,10 +295,6 @@ public:
             recv_count_ = recv_count;
             displs_ = displs;
             recv_buf_ = recv_buf;
-        }
-        else {
-            ONEDAL_ASSERT(send_buf);
-            ONEDAL_ASSERT(send_count > 0);
         }
 
         barrier_();
@@ -336,9 +341,14 @@ public:
                     std::int64_t count,
                     const data_type& dtype,
                     const dal::detail::spmd_reduce_op& op) {
+        if (count == 0) {
+            return;
+        }
+
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(recv_buf);
         ONEDAL_ASSERT(count > 0);
+
         array<byte_t> tmp_send_buffer;
 
         const std::int64_t rank = ctx_.get_this_thread_rank();
@@ -430,6 +440,10 @@ public:
                     byte_t* recv_buf,
                     std::int64_t recv_count,
                     const data_type& dtype) {
+        if (send_count == 0) {
+            return;
+        }
+
         ONEDAL_ASSERT(send_buf);
         ONEDAL_ASSERT(send_count > 0);
         ONEDAL_ASSERT(recv_buf);
@@ -534,9 +548,14 @@ public:
                      std::int64_t count,
                      const data_type& dtype,
                      std::int64_t root) override {
+        ONEDAL_ASSERT(root >= 0);
+
         if (count == 0) {
             return nullptr;
         }
+
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(count > 0);
 
         check_if_pointer_matches_queue(q, send_buf);
 
@@ -576,6 +595,20 @@ public:
                       std::int64_t recv_count,
                       const data_type& dtype,
                       std::int64_t root) override {
+        ONEDAL_ASSERT(root >= 0);
+
+        if (send_count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(send_count > 0);
+
+        if (get_rank() == root) {
+            ONEDAL_ASSERT(recv_buf);
+            ONEDAL_ASSERT(recv_count > 0);
+        }
+
         check_if_pointer_matches_queue(q, send_buf);
         check_if_pointer_matches_queue(q, recv_buf);
 
@@ -626,6 +659,21 @@ public:
                        const std::int64_t* displs_host,
                        const data_type& dtype,
                        std::int64_t root) override {
+        ONEDAL_ASSERT(root >= 0);
+
+        if (send_count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(send_count > 0);
+
+        if (get_rank() == root) {
+            ONEDAL_ASSERT(recv_buf);
+            ONEDAL_ASSERT(recv_count_host);
+            ONEDAL_ASSERT(displs_host);
+        }
+
         check_if_pointer_matches_queue(q, send_buf);
         check_if_pointer_matches_queue(q, recv_buf);
 
@@ -709,6 +757,14 @@ public:
                          std::int64_t count,
                          const data_type& dtype,
                          const dal::detail::spmd_reduce_op& op) override {
+        if (count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(recv_buf);
+        ONEDAL_ASSERT(count > 0);
+
         check_if_pointer_matches_queue(q, send_buf);
         check_if_pointer_matches_queue(q, recv_buf);
 
@@ -743,6 +799,15 @@ public:
                          byte_t* recv_buf,
                          std::int64_t recv_count,
                          const data_type& dtype) override {
+        if (send_count == 0) {
+            return nullptr;
+        }
+
+        ONEDAL_ASSERT(send_buf);
+        ONEDAL_ASSERT(send_count > 0);
+        ONEDAL_ASSERT(recv_buf);
+        ONEDAL_ASSERT(recv_count > 0);
+
         check_if_pointer_matches_queue(q, send_buf);
         check_if_pointer_matches_queue(q, recv_buf);
 
