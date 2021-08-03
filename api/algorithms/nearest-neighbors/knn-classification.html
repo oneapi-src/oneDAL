@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>k-Nearest Neighbors Classification (k-NN) &#8212; oneDAL 2021 documentation</title>
+    <title>k-Nearest Neighbors Classification (k-NN) &#8212; oneDAL  documentation</title>
     
   <link href="../../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -61,7 +61,7 @@
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">oneDAL 2021 documentation</h1>
+      <h1 class="site-logo" id="site-title">oneDAL  documentation</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
@@ -323,8 +323,8 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html">
-         k-Nearest Neighbors Classification (k-NN)
+        <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html">
+         k-Nearest Neighbors Classification and Search(k-NN)
         </a>
        </li>
       </ul>
@@ -347,6 +347,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/chebyshev-distance.html">
          Chebyshev distance
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/cosine-distance.html">
+         Cosine distance
         </a>
        </li>
       </ul>
@@ -1751,6 +1756,11 @@
          Chebyshev distance
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../pairwise-distances/cosine-distance.html">
+         Cosine distance
+        </a>
+       </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
@@ -2092,9 +2102,13 @@
                 
   <section id="k-nearest-neighbors-classification-k-nn">
 <span id="api-knn"></span><h1>k-Nearest Neighbors Classification (k-NN)<a class="headerlink" href="#k-nearest-neighbors-classification-k-nn" title="Permalink to this headline">¶</a></h1>
-<p><span class="math notranslate nohighlight">\(k\)</span>-NN <a class="reference internal" href="../../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> algorithm infers the class for the new
-feature vector by computing majority vote of the <span class="math notranslate nohighlight">\(k\)</span> nearest observations
-from the training set.</p>
+<p><span class="math notranslate nohighlight">\(k\)</span>-NN <a class="reference internal" href="../../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> and <a class="reference internal" href="../../../onedal/glossary.html#term-Search"><span class="xref std std-term">search</span></a> algorithms are based on finding
+the <span class="math notranslate nohighlight">\(k\)</span> nearest observations to the training set. For <a class="reference internal" href="../../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a>,
+the problem is to infer the class of a new feature vector by computing the majority vote of its
+<span class="math notranslate nohighlight">\(k\)</span> nearest observations from the training set.
+For <a class="reference internal" href="../../../onedal/glossary.html#term-Search"><span class="xref std std-term">search</span></a>, the problem is to infer <span class="math notranslate nohighlight">\(k\)</span> nearest observations from
+the training set to a new feature vector. The nearest observations are computed
+based on the chosen distance metric.</p>
 <table class="table">
 <colgroup>
 <col style="width: 21%" />
@@ -2109,16 +2123,16 @@ from the training set.</p>
 <td colspan="2"><p><strong>Computational methods</strong></p></td>
 <td colspan="3"><p><strong>Programming Interface</strong></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math"><span class="std std-ref">Training</span></a></p></td>
-<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
-<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math"><span class="std std-ref">Training</span></a></p></td>
+<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
+<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
 <td><p><a class="reference internal" href="#knn-t-api"><span class="std std-ref">train(…)</span></a></p></td>
 <td><p><a class="reference internal" href="#knn-t-api-input"><span class="std std-ref">train_input</span></a></p></td>
 <td><p><a class="reference internal" href="#knn-t-api-result"><span class="std std-ref">train_result</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-i-math"><span class="std std-ref">Inference</span></a></p></td>
-<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-i-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
-<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-i-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-i-math"><span class="std std-ref">Inference</span></a></p></td>
+<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-i-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
+<td><p><a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-i-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
 <td><p><a class="reference internal" href="#knn-i-api"><span class="std std-ref">infer(…)</span></a></p></td>
 <td><p><a class="reference internal" href="#knn-i-api-input"><span class="std std-ref">infer_input</span></a></p></td>
 <td><p><a class="reference internal" href="#knn-i-api-result"><span class="std std-ref">infer_result</span></a></p></td>
@@ -2127,7 +2141,7 @@ from the training set.</p>
 </table>
 <section id="mathematical-formulation">
 <h2>Mathematical formulation<a class="headerlink" href="#mathematical-formulation" title="Permalink to this headline">¶</a></h2>
-<p>Refer to <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#alg-knn"><span class="std std-ref">Developer Guide: k-Nearest Neighbors Classification</span></a>.</p>
+<p>Refer to <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#alg-knn"><span class="std std-ref">Developer Guide: k-Nearest Neighbors Classification</span></a>.</p>
 </section>
 <section id="programming-interface">
 <h2>Programming Interface<a class="headerlink" href="#programming-interface" title="Permalink to this headline">¶</a></h2>
@@ -2184,13 +2198,17 @@ from the training set.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor8distanceE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor8distanceE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor8distanceE"></span><span id="oneapi::dal::knn::descriptor::distance__distance_tCR"></span><em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">distance</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor8distanceE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Choose distance type for calculations. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> only.</p>
+<dt id="_CPPv4N6oneapi3dal3knn10descriptor11class_countE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor11class_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11class_countE"></span><span id="oneapi::dal::knn::descriptor::class_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">class_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of classes c.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">const</span> <span class="pre">distance_t</span> <span class="pre">&amp;</span> <span class="pre">get_distance()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_distance(const</span> <span class="pre">distance_t</span> <span class="pre">&amp;dist)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_class_count()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_class_count(std::int64_t</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+<dt>Invariants</dt><dd><div class="line-block">
+<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="oneapi::dal::knn::descriptor::class_count"><span class="pre">class_count</span></a> <span class="pre">&gt;</span> <span class="pre">1</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2227,17 +2245,13 @@ from the training set.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal3knn10descriptor11class_countE">
-<span id="_CPPv3N6oneapi3dal3knn10descriptor11class_countE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor11class_countE"></span><span id="oneapi::dal::knn::descriptor::class_count__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">class_count</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The number of classes c.</p>
+<dt id="_CPPv4N6oneapi3dal3knn10descriptor8distanceE">
+<span id="_CPPv3N6oneapi3dal3knn10descriptor8distanceE"></span><span id="_CPPv2N6oneapi3dal3knn10descriptor8distanceE"></span><span id="oneapi::dal::knn::descriptor::distance__distance_tCR"></span><em class="property"><span class="pre">const</span></em> <span class="pre">distance_t</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">distance</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn10descriptor8distanceE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Choose distance type for calculations. Used with <code class="xref cpp cpp-expr docutils literal notranslate"><span class="pre">method</span><span class="pre">::</span><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a></code> only.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_class_count()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_class_count(std::int64_t</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-<dt>Invariants</dt><dd><div class="line-block">
-<div class="line"><code class="xref cpp cpp-expr docutils literal notranslate"><a class="reference internal" href="#_CPPv4N6oneapi3dal3knn10descriptor11class_countE" title="oneapi::dal::knn::descriptor::class_count"><span class="pre">class_count</span></a> <span class="pre">&gt;</span> <span class="pre">1</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">const</span> <span class="pre">distance_t</span> <span class="pre">&amp;</span> <span class="pre">get_distance()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">M</span> <span class="pre">=</span> <span class="pre">Method,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_brute_force_t&lt;M&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_distance(const</span> <span class="pre">distance_t</span> <span class="pre">&amp;dist)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2250,19 +2264,19 @@ from the training set.</p>
 <dl class="cpp struct">
 <dt id="_CPPv4N6oneapi3dal3knn6method11brute_forceE">
 <span id="_CPPv3N6oneapi3dal3knn6method11brute_forceE"></span><span id="_CPPv2N6oneapi3dal3knn6method11brute_forceE"></span><span id="oneapi::dal::knn::method::brute_force"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">brute_force</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Tag-type that denotes <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math-brute-force"><span class="std std-ref">brute-force</span></a> computational method.</p>
+<dd><p>Tag-type that denotes <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force"><span class="std std-ref">brute-force</span></a> computational method.</p>
 </dd></dl>
 
 <dl class="cpp struct">
 <dt id="_CPPv4N6oneapi3dal3knn6method7kd_treeE">
 <span id="_CPPv3N6oneapi3dal3knn6method7kd_treeE"></span><span id="_CPPv2N6oneapi3dal3knn6method7kd_treeE"></span><span id="oneapi::dal::knn::method::kd_tree"></span><em class="property"><span class="pre">struct</span> </em><code class="sig-name descname"><span class="pre">kd_tree</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method7kd_treeE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Tag-type that denotes <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math-kd-tree"><span class="std std-ref">k-d tree</span></a> computational method.</p>
+<dd><p>Tag-type that denotes <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-kd-tree"><span class="std std-ref">k-d tree</span></a> computational method.</p>
 </dd></dl>
 
 <dl class="cpp type">
 <dt id="_CPPv4N6oneapi3dal3knn6method10by_defaultE">
 <span id="_CPPv3N6oneapi3dal3knn6method10by_defaultE"></span><span id="_CPPv2N6oneapi3dal3knn6method10by_defaultE"></span><em class="property"><span class="pre">using</span> </em><code class="sig-name descname"><span class="pre">by_default</span></code> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N6oneapi3dal3knn6method11brute_forceE" title="oneapi::dal::knn::method::brute_force"><span class="pre">brute_force</span></a><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn6method10by_defaultE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Alias tag-type for <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math-brute-force"><span class="std std-ref">brute-force</span></a> computational method.</p>
+<dd><p>Alias tag-type for <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force"><span class="std std-ref">brute-force</span></a> computational method.</p>
 </dd></dl>
 
 </section>
@@ -2322,8 +2336,8 @@ from the training set.</p>
 <p><strong>Constructors</strong></p>
 <dl class="cpp function">
 <dt id="_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table">
-<span id="_CPPv3N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="_CPPv2N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="oneapi::dal::knn::train_input::train_input__tableCR.tableCR"></span><code class="sig-name descname"><span class="pre">train_input</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">data</span></em>, <em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">labels</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">labels</span></code> property values.</p>
+<span id="_CPPv3N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="_CPPv2N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table"></span><span id="oneapi::dal::knn::train_input::train_input__tableCR.tableCR"></span><code class="sig-name descname"><span class="pre">train_input</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">data</span></em>, <em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><em><span class="pre">responses</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input11train_inputERK5tableRK5table" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Creates a new instance of the class with the given <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">responses</span></code> property values.</p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -2346,13 +2360,26 @@ from the training set.</p>
 </dd></dl>
 
 <dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn11train_input9responsesE">
+<span id="_CPPv3N6oneapi3dal3knn11train_input9responsesE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input9responsesE"></span><span id="oneapi::dal::knn::train_input::responses__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">responses</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input9responsesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Vector of responses y for the training set X. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;responses)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3knn11train_input6labelsE">
 <span id="_CPPv3N6oneapi3dal3knn11train_input6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn11train_input6labelsE"></span><span id="oneapi::dal::knn::train_input::labels__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn11train_input6labelsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Vector of labels y for the training set X. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_labels()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;labels)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_labels(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2503,6 +2530,19 @@ from the training set.</p>
 </dd></dl>
 
 <dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal3knn12infer_result9responsesE">
+<span id="_CPPv3N6oneapi3dal3knn12infer_result9responsesE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result9responsesE"></span><span id="oneapi::dal::knn::infer_result::responses__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">responses</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result9responsesE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The predicted responses. <strong>Default value</strong>: table{}.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_responses()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">template</span> <span class="pre">&lt;typename</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">Task,</span> <span class="pre">typename</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">detail::enable_if_classification_t&lt;T&gt;&gt;</span> <span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_responses(const</span> <span class="pre">table</span> <span class="pre">&amp;value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal3knn12infer_result6labelsE">
 <span id="_CPPv3N6oneapi3dal3knn12infer_result6labelsE"></span><span id="_CPPv2N6oneapi3dal3knn12infer_result6labelsE"></span><span id="oneapi::dal::knn::infer_result::labels__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal3knn12infer_result6labelsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The predicted labels. <strong>Default value</strong>: table{}.</p>
@@ -2605,10 +2645,11 @@ from the training set.</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../../../examples/cpp/knn_cls_brute_force_dense_batch.html#cpp-knn-cls-brute-force-dense-batch-cpp"><span class="std std-ref">knn_cls_brute_force_dense_batch.cpp</span></a></p></li>
 <li><p><a class="reference internal" href="../../../examples/cpp/knn_cls_kd_tree_dense_batch.html#cpp-knn-cls-kd-tree-dense-batch-cpp"><span class="std std-ref">knn_cls_kd_tree_dense_batch.cpp</span></a></p></li>
+<li><p><a class="reference internal" href="../../../examples/cpp/knn_search_brute_force_dense_batch.html#cpp-knn-search-brute-force-dense-batch-cpp"><span class="std std-ref">knn_search_brute_force_dense_batch.cpp</span></a></p></li>
 </ul>
 </div><div aria-labelledby="tab-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" name="UHl0aG9uKiB3aXRoIERQQysrIHN1cHBvcnQ=" role="tabpanel" tabindex="0"><p>Batch Processing:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/sycl/bf_knn_classification_batch.py">bf_knn_classification_batch.py</a></p></li>
+<li><p><a class="reference external" href="https://github.com/intel/scikit-learn-intelex/tree/master/examples/daal4py/sycl/bf_knn_classification_batch.py">bf_knn_classification_batch.py</a></p></li>
 </ul>
 </div></div>
 </section>
@@ -2631,9 +2672,10 @@ from the training set.</p>
     <div class="container">
       <p>
         
-          By Intel<br/>
-        
             &copy; Copyright 2014 - 2021, Intel Corporation.<br/>
+          <div class="extra_footer">
+            <p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>
+          </div>
       </p>
     </div>
   </footer>
