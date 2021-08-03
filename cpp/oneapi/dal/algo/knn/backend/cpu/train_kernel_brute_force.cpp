@@ -70,7 +70,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                daal_parameter,
                                                                *daal_parameter.engine));
 
-    const auto model_impl = std::make_shared<brute_force_model_impl<Task>>(data, responses);
+    const auto model_impl = std::make_shared<brute_force_model_impl<Task>>(data, responses, desc.get_result_options());
     return train_result<Task>().set_model(dal::detail::make_private<model_t>(model_impl));
 }
 

@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/knn/detail/distance.hpp"
+#include "oneapi/dal/util/result_option_id.hpp"
 #include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
