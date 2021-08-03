@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/detail/infer_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::knn::detail {
 namespace v1 {

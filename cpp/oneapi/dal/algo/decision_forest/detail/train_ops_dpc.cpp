@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/train_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 namespace v1 {

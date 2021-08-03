@@ -41,9 +41,6 @@ using cpu_dispatch_default = cpu_dispatch_sse2;
 #define __CPU_TAG_AVX512__  oneapi::dal::backend::cpu_dispatch_avx512
 #define __CPU_TAG_DEFAULT__ oneapi::dal::backend::cpu_dispatch_default
 
-template <typename... Kernels>
-struct kernel_dispatcher {};
-
 class context_cpu {
 public:
     explicit context_cpu(const detail::host_policy& ctx = detail::host_policy::get_default())
@@ -60,6 +57,26 @@ private:
     detail::cpu_extension cpu_extensions_;
 };
 
+#ifdef ONEDAL_DATA_PARALLEL
+class context_gpu : public base {
+public:
+    explicit context_gpu(const detail::data_parallel_policy& policy) : queue_(policy.get_queue()) {}
+
+    context_gpu(const context_gpu&) = delete;
+    context_gpu& operator=(const context_gpu&) = delete;
+
+    sycl::queue& get_queue() const {
+        return queue_;
+    }
+
+private:
+    sycl::queue& queue_;
+};
+#endif
+
+template <typename... Kernels>
+struct kernel_dispatcher {};
+
 template <typename CpuKernel>
 struct kernel_dispatcher<CpuKernel> {
     template <typename... Args>
@@ -67,6 +84,27 @@ struct kernel_dispatcher<CpuKernel> {
         return CpuKernel()(context_cpu{ ctx }, std::forward<Args>(args)...);
     }
 };
+
+#ifdef ONEDAL_DATA_PARALLEL
+template <typename CpuKernel, typename GpuKernel>
+struct kernel_dispatcher<CpuKernel, GpuKernel> {
+    template <typename... Args>
+    auto operator()(const detail::data_parallel_policy& policy, Args&&... args) const {
+        const auto device = policy.get_queue().get_device();
+        if (device.is_host() || device.is_cpu()) {
+            const auto cpu_policy = context_cpu{ detail::host_policy::get_default() };
+            return CpuKernel()(cpu_policy, std::forward<Args>(args)...);
+        }
+        else if (device.is_gpu()) {
+            const auto gpu_policy = context_gpu{ policy };
+            return GpuKernel()(gpu_policy, std::forward<Args>(args)...);
+        }
+        else {
+            throw unsupported_device(dal::detail::error_messages::unsupported_device_type());
+        }
+    }
+};
+#endif
 
 inline bool test_cpu_extension(detail::cpu_extension mask, detail::cpu_extension test) {
     return mask >= test;

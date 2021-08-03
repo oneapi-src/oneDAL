@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/pca/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/pca/detail/infer_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::pca::detail {
 namespace v1 {

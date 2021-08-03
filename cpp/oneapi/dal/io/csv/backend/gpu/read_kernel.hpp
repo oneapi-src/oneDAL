@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/io/csv/read_types.hpp"
 
 namespace oneapi::dal::csv::backend {

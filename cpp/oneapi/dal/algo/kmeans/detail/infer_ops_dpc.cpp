@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/kmeans/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/kmeans/detail/infer_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans::detail {
 namespace v1 {

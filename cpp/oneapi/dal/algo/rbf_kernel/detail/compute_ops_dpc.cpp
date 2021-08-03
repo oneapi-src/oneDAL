@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/rbf_kernel/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/rbf_kernel/detail/compute_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::rbf_kernel::detail {
 namespace v1 {

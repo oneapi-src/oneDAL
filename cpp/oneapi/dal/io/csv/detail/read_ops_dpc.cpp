@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/io/csv/backend/cpu/read_kernel.hpp"
 #include "oneapi/dal/io/csv/backend/gpu/read_kernel.hpp"
 #include "oneapi/dal/io/csv/detail/read_ops.hpp"

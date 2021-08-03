@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/kmeans/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/kmeans/detail/train_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans::detail {
 namespace v1 {

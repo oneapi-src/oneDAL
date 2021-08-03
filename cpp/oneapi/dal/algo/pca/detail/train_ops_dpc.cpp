@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/detail/train_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::pca::detail {
 namespace v1 {

@@ -17,7 +17,7 @@
 #include "oneapi/dal/algo/decision_forest/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/decision_forest/detail/infer_ops.hpp"
-#include "oneapi/dal/backend/dispatcher_dpc.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::decision_forest::detail {
 namespace v1 {
