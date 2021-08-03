@@ -43,20 +43,12 @@ using namespace daal::services::internal;
 template <typename algorithmFPType, CpuType cpu>
 struct TaskWorkingSet
 {
-    using IndexType = uint32_t;
+    using IndexType  = uint32_t;
+    using IdxValType = daal::IdxValType<algorithmFPType>;
 
     TaskWorkingSet(const size_t nNonZeroWeights, const size_t nVectors, const size_t maxWS, SvmType svmType)
         : _nNonZeroWeights(nNonZeroWeights), _nVectors(nVectors), _maxWS(maxWS), _svmType(svmType)
     {}
-
-    struct IdxValType
-    {
-        algorithmFPType key;
-        IndexType val;
-
-        bool operator<(const IdxValType & o) const { return key < o.key; }
-        bool operator>(const IdxValType & o) const { return key > o.key; }
-    };
 
     services::Status init()
     {
@@ -112,12 +104,12 @@ struct TaskWorkingSet
             const size_t endRow   = (iBlock != nBlocks - 1) ? startRow + blockSize : _nVectors;
             for (size_t i = startRow; i < endRow; ++i)
             {
-                sortedFIndices[i].key = f[i];
-                sortedFIndices[i].val = i;
+                sortedFIndices[i].value = f[i];
+                sortedFIndices[i].index = i;
             }
         });
 
-        algorithms::internal::qSortByKey<IdxValType, cpu>(_nVectors, sortedFIndices);
+        daal::parallel_sort(sortedFIndices, sortedFIndices + _nVectors);
 
         if (_svmType == SvmType::nu_classification || _svmType == SvmType::nu_regression)
         {
@@ -189,7 +181,7 @@ protected:
     {
         if (pLeft < _nVectors)
         {
-            IndexType i = sortedFIndices[pLeft].val;
+            IndexType i = sortedFIndices[pLeft].index;
             while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isUpper(y[i], alpha[i], cw[i], signNuType))
             {
                 pLeft++;
@@ -197,7 +189,7 @@ protected:
                 {
                     break;
                 }
-                i = sortedFIndices[pLeft].val;
+                i = sortedFIndices[pLeft].index;
             }
             if (pLeft < _nVectors)
             {
@@ -213,7 +205,7 @@ protected:
     {
         if (pRight >= 0)
         {
-            IndexType i = sortedFIndices[pRight].val;
+            IndexType i = sortedFIndices[pRight].index;
             while (_indicator[i] || !HelperTrainSVM<algorithmFPType, cpu>::isLower(y[i], alpha[i], cw[i], signNuType))
             {
                 pRight--;
@@ -221,7 +213,7 @@ protected:
                 {
                     break;
                 }
-                i = sortedFIndices[pRight].val;
+                i = sortedFIndices[pRight].index;
             }
             if (pRight >= 0)
             {
