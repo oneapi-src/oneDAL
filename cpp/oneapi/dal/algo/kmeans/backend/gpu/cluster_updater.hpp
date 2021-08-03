@@ -18,6 +18,7 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 
+#include <iostream>
 namespace oneapi::dal::kmeans::backend {
 
 namespace pr = dal::backend::primitives;
@@ -122,13 +123,14 @@ public:
                                                       part_count_,
                                                       centroids,
                                                       { count_event, centroids_event });
-        count_empty_clusters(queue_,
-                             cluster_count_,
-                             counters_,
-                             empty_cluster_count_,
-                             { count_event });
+        auto empty_cluster_count_event = count_empty_clusters(queue_,
+                                                              cluster_count_,
+                                                              counters_,
+                                                              empty_cluster_count_,
+                                                              { count_event });
 
-        std::int64_t candidate_count = empty_cluster_count_.to_host(queue_).get_data()[0];
+        std::int64_t candidate_count =
+            empty_cluster_count_.to_host(queue_, { empty_cluster_count_event }).get_data()[0];
         sycl::event find_candidates_event;
         if (candidate_count > 0) {
             find_candidates_event = kernels_fp<Float>::find_candidates(queue_,
