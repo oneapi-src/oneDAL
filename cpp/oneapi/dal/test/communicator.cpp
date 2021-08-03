@@ -15,11 +15,8 @@
 *******************************************************************************/
 
 #include <mutex>
-#include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-#include "oneapi/dal/test/engine/tables.hpp"
 #include "oneapi/dal/test/engine/thread_communicator.hpp"
 
 namespace oneapi::dal::test {
@@ -827,8 +824,8 @@ TEST_M(communicator_test, "empty allreduce is allowed", "[allreduce][empty]") {
 TEST_M(communicator_test, "empty USM allreduce is allowed", "[allreduce][usm][empty]") {
     auto comm = create_communicator();
     execute([&](std::int64_t rank) {
-        const float* send_buf = nullptr;
-        float* recv_buf = nullptr;
+        const byte_t* send_buf = nullptr;
+        byte_t* recv_buf = nullptr;
         comm.allreduce(this->get_queue(), send_buf, recv_buf, 0).wait();
     });
 }

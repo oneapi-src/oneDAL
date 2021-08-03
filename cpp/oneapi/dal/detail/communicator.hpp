@@ -154,6 +154,13 @@ private:
 
 /// Low-level MPI-like communicator
 class spmd_communicator : public base {
+private:
+    template <typename T>
+    static constexpr bool is_primitive_v = std::is_arithmetic_v<T>;
+
+    template <typename T>
+    using enable_if_primitive_t = std::enable_if_t<is_primitive_v<T>>;
+
 public:
     spmd_communicator() = delete;
 
@@ -223,24 +230,24 @@ public:
                        std::int64_t root = -1) const;
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request bcast(T* buf, std::int64_t count, std::int64_t root = -1) const {
         return bcast(reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), root);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request bcast(sycl::queue& q, T* buf, std::int64_t count, std::int64_t root = -1) const {
         return bcast(q, reinterpret_cast<byte_t*>(buf), count, make_data_type<T>(), root);
     }
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request bcast(T& value, std::int64_t root = -1) const {
         return bcast(&value, 1, root);
     }
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request bcast(const array<T>& ary, std::int64_t root = -1) const {
         std::int64_t count = if_root_rank(
             [&]() {
@@ -312,7 +319,7 @@ public:
                         std::int64_t root = -1) const;
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request gather(const T* send_buf,
                         std::int64_t send_count,
                         T* recv_buf,
@@ -327,7 +334,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request gather(sycl::queue& q,
                         const T* send_buf,
                         std::int64_t send_count,
@@ -344,12 +351,12 @@ public:
     }
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request gather(const T& send, T* recv, const std::int64_t root = -1) const {
         return gather(&send, 1, recv, 1, root);
     }
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     array<T> gather(const T& send, const std::int64_t root = -1) const {
         array<T> recv;
         T* recv_ptr = nullptr;
@@ -364,7 +371,7 @@ public:
         return recv;
     }
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request gather(const array<T>& send,
                         const array<T>& recv,
                         const std::int64_t root = -1) const {
@@ -464,7 +471,7 @@ public:
                          std::int64_t root) const;
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request gatherv(const T* send_buf,
                          std::int64_t send_count,
                          T* recv_buf,
@@ -481,7 +488,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request gatherv(sycl::queue& q,
                          const T* send_buf,
                          std::int64_t send_count,
@@ -525,7 +532,7 @@ public:
                            const data_type& dtype) const;
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request allgather(const T* send_buf,
                            std::int64_t send_count,
                            T* recv_buf,
@@ -538,7 +545,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request allgather(sycl::queue& q,
                            const T* send_buf,
                            std::int64_t send_count,
@@ -553,7 +560,7 @@ public:
     }
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request allgather(const array<T>& send, const array<T>& recv) {
 #ifdef ONEDAL_ENABLE_ASSERT
         check_if_same_send_count(send.get_count(), get_default_root_rank());
@@ -623,7 +630,7 @@ public:
                            const spmd_reduce_op& op = spmd_reduce_op::sum) const;
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request allreduce(const T* send_buf,
                            T* recv_buf,
                            std::int64_t count,
@@ -636,7 +643,7 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request allreduce(sycl::queue& q,
                            const T* send_buf,
                            T* recv_buf,
@@ -651,12 +658,12 @@ public:
     }
 #endif
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request allreduce(T& scalar, const spmd_reduce_op& op = spmd_reduce_op::sum) const {
         return allreduce(&scalar, &scalar, 1, op);
     }
 
-    template <typename T, enable_if_trivially_serializable_t<T>* = nullptr>
+    template <typename T, enable_if_primitive_t<T>* = nullptr>
     spmd_request allreduce(const array<T>& ary,
                            const spmd_reduce_op& op = spmd_reduce_op::sum) const {
 #ifdef ONEDAL_ENABLE_ASSERT
