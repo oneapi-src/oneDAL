@@ -86,19 +86,7 @@ public:
 
 private:
     /// Blocks until all threads are mapped to ranks
-    void init(std::int64_t rank) {
-        std::unique_lock<std::mutex> lock(internal_lock_);
-
-        thread_id_map_[std::this_thread::get_id()] = rank;
-        if (thread_id_map_.size() == std::size_t(thread_count_)) {
-            cv_.notify_all();
-        }
-        else {
-            cv_.wait(lock, [this]() {
-                return thread_id_map_.size() == std::size_t(thread_count_);
-            });
-        }
-    }
+    void init(std::int64_t rank);
 
     std::int64_t thread_count_;
     std::vector<std::thread> thread_pool_;
@@ -160,38 +148,7 @@ public:
     void operator()(byte_t* send_buf,
                     std::int64_t count,
                     const data_type& dtype,
-                    std::int64_t root) {
-        ONEDAL_ASSERT(root >= 0);
-        if (count == 0) {
-            return;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(count > 0);
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
-
-        if (ctx_.get_this_thread_rank() == root) {
-            source_count_ = count;
-            source_buf_ = send_buf;
-        }
-
-        barrier_();
-
-        if (ctx_.get_this_thread_rank() != root) {
-            ONEDAL_ASSERT(source_buf_);
-            ONEDAL_ASSERT(source_count_ > 0);
-            ONEDAL_ASSERT(count <= source_count_);
-
-            dal::detail::memcpy(dal::detail::default_host_policy{}, send_buf, source_buf_, size);
-        }
-
-        barrier_([&]() {
-            source_count_ = 0;
-            source_buf_ = nullptr;
-        });
-    }
+                    std::int64_t root);
 
 private:
     thread_communicator_context& ctx_;
@@ -213,44 +170,7 @@ public:
                     byte_t* recv_buf,
                     std::int64_t recv_count,
                     const data_type& dtype,
-                    std::int64_t root) {
-        ONEDAL_ASSERT(root >= 0);
-        if (send_count == 0) {
-            return;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(send_count > 0);
-
-        const std::int64_t rank = ctx_.get_this_thread_rank();
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
-
-        if (rank == root) {
-            ONEDAL_ASSERT(recv_buf);
-            ONEDAL_ASSERT(recv_count > 0);
-            recv_count_ = recv_count;
-            recv_buf_ = recv_buf;
-        }
-
-        barrier_();
-
-        ONEDAL_ASSERT(recv_buf_);
-        ONEDAL_ASSERT(recv_count_ > 0);
-        ONEDAL_ASSERT(send_count <= recv_count_);
-
-        const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_count_);
-        const std::int64_t offset = dal::detail::check_mul_overflow(rank, recv_size);
-
-        for (std::int64_t i = 0; i < send_size; i++) {
-            recv_buf_[offset + i] = send_buf[i];
-        }
-
-        barrier_([&]() {
-            recv_count_ = 0;
-            recv_buf_ = nullptr;
-        });
-    }
+                    std::int64_t root);
 
 private:
     thread_communicator_context& ctx_;
@@ -274,47 +194,7 @@ public:
                     const std::int64_t* recv_count,
                     const std::int64_t* displs,
                     const data_type& dtype,
-                    std::int64_t root) {
-        ONEDAL_ASSERT(root >= 0);
-
-        if (send_count == 0) {
-            return;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(send_count > 0);
-
-        const std::int64_t rank = ctx_.get_this_thread_rank();
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
-
-        if (rank == root) {
-            ONEDAL_ASSERT(recv_buf);
-            ONEDAL_ASSERT(displs);
-            ONEDAL_ASSERT(recv_count);
-            recv_count_ = recv_count;
-            displs_ = displs;
-            recv_buf_ = recv_buf;
-        }
-
-        barrier_();
-
-        ONEDAL_ASSERT(recv_count_);
-        ONEDAL_ASSERT(displs_);
-        ONEDAL_ASSERT(recv_buf_);
-        ONEDAL_ASSERT(send_count <= recv_count_[rank]);
-
-        const std::int64_t offset = dal::detail::check_mul_overflow(dtype_size, displs_[rank]);
-        for (std::int64_t i = 0; i < send_size; i++) {
-            recv_buf_[offset + i] = send_buf[i];
-        }
-
-        barrier_([&]() {
-            recv_count_ = nullptr;
-            displs_ = nullptr;
-            recv_buf_ = nullptr;
-        });
-    }
+                    std::int64_t root);
 
 private:
     thread_communicator_context& ctx_;
@@ -340,57 +220,7 @@ public:
                     byte_t* recv_buf,
                     std::int64_t count,
                     const data_type& dtype,
-                    const dal::detail::spmd_reduce_op& op) {
-        if (count == 0) {
-            return;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(recv_buf);
-        ONEDAL_ASSERT(count > 0);
-
-        array<byte_t> tmp_send_buffer;
-
-        const std::int64_t rank = ctx_.get_this_thread_rank();
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
-
-        if (data_blocks_has_intersection(send_buf, recv_buf, size)) {
-            // If send buffer is the same as recv buffer, the allreduce algorithm runs into
-            // data races problem, so will need to create temporal copy of the send buffer
-            tmp_send_buffer = array<byte_t>::empty(size);
-            dal::detail::memcpy(dal::detail::default_host_policy{},
-                                tmp_send_buffer.get_mutable_data(),
-                                send_buf,
-                                size);
-            send_buffers_[rank] = buffer_info{ tmp_send_buffer.get_data(), count };
-        }
-        else {
-            send_buffers_[rank] = buffer_info{ send_buf, count };
-        }
-
-        barrier_();
-
-#ifdef ONEDAL_ENABLE_ASSERT
-        if (rank == ctx_.get_root_rank()) {
-            for (const auto& info : send_buffers_) {
-                ONEDAL_ASSERT(info.count == count);
-                ONEDAL_ASSERT(info.send_buf != nullptr);
-            }
-        }
-#endif
-
-        fill_with_zeros(recv_buf, count, dtype);
-        for (const auto& info : send_buffers_) {
-            ONEDAL_ASSERT(info.send_buf != recv_buf);
-            reduce(info.send_buf, recv_buf, count, dtype, op);
-        }
-
-        barrier_([&]() {
-            send_buffers_.clear();
-            send_buffers_.resize(ctx_.get_thread_count());
-        });
-    }
+                    const dal::detail::spmd_reduce_op& op);
 
 private:
     thread_communicator_context& ctx_;
@@ -439,49 +269,7 @@ public:
                     std::int64_t send_count,
                     byte_t* recv_buf,
                     std::int64_t recv_count,
-                    const data_type& dtype) {
-        if (send_count == 0) {
-            return;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(send_count > 0);
-        ONEDAL_ASSERT(recv_buf);
-        ONEDAL_ASSERT(recv_count > 0);
-        ONEDAL_ASSERT(send_count == recv_count);
-
-        const std::int64_t rank = ctx_.get_this_thread_rank();
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_count);
-
-        send_buffers_[rank] = buffer_info{ send_buf, send_count };
-
-        barrier_();
-
-#ifdef ONEDAL_ENABLE_ASSERT
-        if (rank == ctx_.get_root_rank()) {
-            for (const auto& info : send_buffers_) {
-                ONEDAL_ASSERT(info.count == send_count);
-                ONEDAL_ASSERT(info.buf != nullptr);
-            }
-        }
-#endif
-
-        {
-            std::int64_t r = 0;
-            for ([[maybe_unused]] const auto& send : send_buffers_) {
-                for (std::int64_t i = 0; i < recv_size; i++) {
-                    recv_buf[r * recv_size + i] = send.buf[i];
-                }
-                r++;
-            }
-        }
-
-        barrier_([&]() {
-            send_buffers_.clear();
-            send_buffers_.resize(ctx_.get_thread_count());
-        });
-    }
+                    const data_type& dtype);
 
 private:
     thread_communicator_context& ctx_;
@@ -517,6 +305,10 @@ public:
               allreduce_(ctx_),
               allgather_(ctx_) {}
 
+    thread_communicator_context& get_context() {
+        return ctx_;
+    }
+
     std::int64_t get_rank() override {
         return ctx_.map_thread_id_to_rank(std::this_thread::get_id());
     }
@@ -529,51 +321,19 @@ public:
         return ctx_.get_thread_count();
     }
 
-    void barrier() override {
-        barrier_();
-    }
+    void barrier() override;
 
     request_t* bcast(byte_t* send_buf,
                      std::int64_t count,
                      const data_type& dtype,
-                     std::int64_t root) override {
-        collective_operation_guard guard{ ctx_ };
-        bcast_(send_buf, count, dtype, root);
-        return nullptr;
-    }
+                     std::int64_t root) override;
 
 #ifdef ONEDAL_DATA_PARALLEL
     request_t* bcast(sycl::queue& q,
                      byte_t* send_buf,
                      std::int64_t count,
                      const data_type& dtype,
-                     std::int64_t root) override {
-        ONEDAL_ASSERT(root >= 0);
-
-        if (count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(count > 0);
-
-        check_if_pointer_matches_queue(q, send_buf);
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t size = dal::detail::check_mul_overflow(dtype_size, count);
-
-        const auto send_buff_host = array<byte_t>::empty(size);
-        if (get_rank() == root) {
-            dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, size);
-        }
-
-        bcast(send_buff_host.get_mutable_data(), count, dtype, root);
-
-        if (get_rank() != root) {
-            dal::detail::memcpy_host2usm(q, send_buf, send_buff_host.get_mutable_data(), size);
-        }
-        return nullptr;
-    }
+                     std::int64_t root) override;
 #endif
 
     request_t* gather(const byte_t* send_buf,
@@ -581,11 +341,7 @@ public:
                       byte_t* recv_buf,
                       std::int64_t recv_count,
                       const data_type& dtype,
-                      std::int64_t root) override {
-        collective_operation_guard guard{ ctx_ };
-        gather_(send_buf, send_count, recv_buf, recv_count, dtype, root);
-        return nullptr;
-    }
+                      std::int64_t root) override;
 
 #ifdef ONEDAL_DATA_PARALLEL
     request_t* gather(sycl::queue& q,
@@ -594,48 +350,7 @@ public:
                       byte_t* recv_buf,
                       std::int64_t recv_count,
                       const data_type& dtype,
-                      std::int64_t root) override {
-        ONEDAL_ASSERT(root >= 0);
-
-        if (send_count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(send_count > 0);
-
-        if (get_rank() == root) {
-            ONEDAL_ASSERT(recv_buf);
-            ONEDAL_ASSERT(recv_count > 0);
-        }
-
-        check_if_pointer_matches_queue(q, send_buf);
-        check_if_pointer_matches_queue(q, recv_buf);
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
-        const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_count);
-        const std::int64_t all_recv_size =
-            dal::detail::check_mul_overflow(get_rank_count(), recv_size);
-
-        const auto send_buff_host = array<byte_t>::empty(send_size);
-        dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
-
-        array<byte_t> recv_host;
-        byte_t* recv_host_ptr = nullptr;
-        if (get_rank() == root) {
-            recv_host.reset(all_recv_size);
-            recv_host_ptr = recv_host.get_mutable_data();
-        }
-
-        gather(send_buff_host.get_data(), send_count, recv_host_ptr, recv_count, dtype, root);
-
-        if (get_rank() == root) {
-            dal::detail::memcpy_host2usm(q, recv_buf, recv_host_ptr, all_recv_size);
-        }
-
-        return nullptr;
-    }
+                      std::int64_t root) override;
 #endif
 
     request_t* gatherv(const byte_t* send_buf,
@@ -644,11 +359,7 @@ public:
                        const std::int64_t* recv_count,
                        const std::int64_t* displs,
                        const data_type& dtype,
-                       std::int64_t root) override {
-        collective_operation_guard guard{ ctx_ };
-        gatherv_(send_buf, send_count, recv_buf, recv_count, displs, dtype, root);
-        return nullptr;
-    }
+                       std::int64_t root) override;
 
 #ifdef ONEDAL_DATA_PARALLEL
     request_t* gatherv(sycl::queue& q,
@@ -658,97 +369,14 @@ public:
                        const std::int64_t* recv_count_host,
                        const std::int64_t* displs_host,
                        const data_type& dtype,
-                       std::int64_t root) override {
-        ONEDAL_ASSERT(root >= 0);
-
-        if (send_count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(send_count > 0);
-
-        if (get_rank() == root) {
-            ONEDAL_ASSERT(recv_buf);
-            ONEDAL_ASSERT(recv_count_host);
-            ONEDAL_ASSERT(displs_host);
-        }
-
-        check_if_pointer_matches_queue(q, send_buf);
-        check_if_pointer_matches_queue(q, recv_buf);
-
-        const std::int64_t rank_count = get_rank_count();
-        std::int64_t total_recv_count = 0;
-
-        array<std::int64_t> displs_host_0;
-        if (get_rank() == root) {
-            displs_host_0.reset(rank_count);
-            std::int64_t* displs_host_0_ptr = displs_host_0.get_mutable_data();
-
-            for (std::int64_t i = 0; i < rank_count; i++) {
-                displs_host_0_ptr[i] = total_recv_count;
-                total_recv_count += recv_count_host[i];
-            }
-        }
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
-        const std::int64_t total_recv_size =
-            dal::detail::check_mul_overflow(dtype_size, total_recv_count);
-
-        const auto send_buff_host = array<byte_t>::empty(send_size);
-        dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
-
-        array<byte_t> recv_buf_host;
-        byte_t* recv_buf_host_ptr = nullptr;
-        if (get_rank() == root) {
-            ONEDAL_ASSERT(total_recv_size > 0);
-            recv_buf_host.reset(total_recv_size);
-            recv_buf_host_ptr = recv_buf_host.get_mutable_data();
-        }
-
-        gatherv(send_buff_host.get_data(),
-                send_count,
-                recv_buf_host_ptr,
-                recv_count_host,
-                displs_host_0.get_data(),
-                dtype,
-                root);
-
-        if (get_rank() == root) {
-            const std::int64_t* displs_host_0_ptr = displs_host_0.get_data();
-            ONEDAL_ASSERT(displs_host_0_ptr);
-            ONEDAL_ASSERT(displs_host);
-            ONEDAL_ASSERT(recv_count_host);
-
-            for (std::int64_t i = 0; i < rank_count; i++) {
-                const std::int64_t src_offset =
-                    dal::detail::check_mul_overflow(dtype_size, displs_host_0_ptr[i]);
-                const std::int64_t dst_offset =
-                    dal::detail::check_mul_overflow(dtype_size, displs_host[i]);
-                const std::int64_t copy_size =
-                    dal::detail::check_mul_overflow(dtype_size, recv_count_host[i]);
-
-                dal::detail::memcpy_host2usm(q,
-                                             recv_buf + dst_offset,
-                                             recv_buf_host_ptr + src_offset,
-                                             copy_size);
-            }
-        }
-
-        return nullptr;
-    }
+                       std::int64_t root) override;
 #endif
 
     request_t* allreduce(const byte_t* send_buf,
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op) override {
-        collective_operation_guard guard{ ctx_ };
-        allreduce_(send_buf, recv_buf, count, dtype, op);
-        return nullptr;
-    }
+                         const dal::detail::spmd_reduce_op& op) override;
 
 #ifdef ONEDAL_DATA_PARALLEL
     request_t* allreduce(sycl::queue& q,
@@ -756,41 +384,14 @@ public:
                          byte_t* recv_buf,
                          std::int64_t count,
                          const data_type& dtype,
-                         const dal::detail::spmd_reduce_op& op) override {
-        if (count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(recv_buf);
-        ONEDAL_ASSERT(count > 0);
-
-        check_if_pointer_matches_queue(q, send_buf);
-        check_if_pointer_matches_queue(q, recv_buf);
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t byte_count = dal::detail::check_mul_overflow(dtype_size, count);
-
-        const auto send_buff_host = array<byte_t>::empty(byte_count);
-        const auto recv_buf_host = array<byte_t>::empty(byte_count);
-
-        dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, byte_count);
-        allreduce(send_buff_host.get_data(), recv_buf_host.get_mutable_data(), count, dtype, op);
-        dal::detail::memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), byte_count);
-
-        return nullptr;
-    }
+                         const dal::detail::spmd_reduce_op& op) override;
 #endif
 
     request_t* allgather(const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
                          std::int64_t recv_count,
-                         const data_type& dtype) override {
-        collective_operation_guard guard{ ctx_ };
-        allgather_(send_buf, send_count, recv_buf, recv_count, dtype);
-        return nullptr;
-    }
+                         const data_type& dtype) override;
 
 #ifdef ONEDAL_DATA_PARALLEL
     request_t* allgather(sycl::queue& q,
@@ -798,43 +399,8 @@ public:
                          std::int64_t send_count,
                          byte_t* recv_buf,
                          std::int64_t recv_count,
-                         const data_type& dtype) override {
-        if (send_count == 0) {
-            return nullptr;
-        }
-
-        ONEDAL_ASSERT(send_buf);
-        ONEDAL_ASSERT(send_count > 0);
-        ONEDAL_ASSERT(recv_buf);
-        ONEDAL_ASSERT(recv_count > 0);
-
-        check_if_pointer_matches_queue(q, send_buf);
-        check_if_pointer_matches_queue(q, recv_buf);
-
-        const std::int64_t dtype_size = dal::detail::get_data_type_size(dtype);
-        const std::int64_t send_size = dal::detail::check_mul_overflow(dtype_size, send_count);
-        const std::int64_t recv_size = dal::detail::check_mul_overflow(dtype_size, recv_count);
-        const std::int64_t all_recv_size =
-            dal::detail::check_mul_overflow(recv_size, get_rank_count());
-
-        const auto send_buff_host = array<byte_t>::empty(send_size);
-        const auto recv_buf_host = array<byte_t>::empty(all_recv_size);
-
-        dal::detail::memcpy_usm2host(q, send_buff_host.get_mutable_data(), send_buf, send_size);
-        allgather(send_buff_host.get_data(),
-                  send_count,
-                  recv_buf_host.get_mutable_data(),
-                  recv_count,
-                  dtype);
-        dal::detail::memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), all_recv_size);
-
-        return nullptr;
-    }
+                         const data_type& dtype) override;
 #endif
-
-    thread_communicator_context& get_context() {
-        return ctx_;
-    }
 
 private:
     thread_communicator_context ctx_;
@@ -846,13 +412,7 @@ private:
     thread_communicator_allgather allgather_;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void check_if_pointer_matches_queue(const sycl::queue& q, const void* pointer) {
-        const auto pointer_type = sycl::get_pointer_type(pointer, q.get_context());
-        if (pointer && pointer_type == sycl::usm::alloc::unknown) {
-            throw std::runtime_error{ "Pointer passed to thread communicator "
-                                      "is inaccessible in the given DPC++ context" };
-        }
-    }
+    void check_if_pointer_matches_queue(const sycl::queue& q, const void* pointer);
 #endif
 };
 
