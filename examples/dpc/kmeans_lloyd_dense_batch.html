@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>kmeans_lloyd_dense_batch.cpp &#8212; oneDAL 2021 documentation</title>
+    <title>kmeans_lloyd_dense_batch.cpp &#8212; oneDAL  documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -59,7 +59,7 @@
       <img src="../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">oneDAL 2021 documentation</h1>
+      <h1 class="site-logo" id="site-title">oneDAL  documentation</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
@@ -321,8 +321,8 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html">
-         k-Nearest Neighbors Classification (k-NN)
+        <a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html">
+         k-Nearest Neighbors Classification and Search(k-NN)
         </a>
        </li>
       </ul>
@@ -345,6 +345,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../onedal/algorithms/pairwise-distances/chebyshev-distance.html">
          Chebyshev distance
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../onedal/algorithms/pairwise-distances/cosine-distance.html">
+         Cosine distance
         </a>
        </li>
       </ul>
@@ -1749,6 +1754,11 @@
          Chebyshev distance
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/algorithms/pairwise-distances/cosine-distance.html">
+         Cosine distance
+        </a>
+       </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
@@ -1981,14 +1991,14 @@
     <span class="k">const</span> <span class="k">auto</span> <span class="n">train_data_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_train_data.csv&quot;</span><span class="p">);</span>
     <span class="k">const</span> <span class="k">auto</span> <span class="n">initial_centroids_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_train_centroids.csv&quot;</span><span class="p">);</span>
     <span class="k">const</span> <span class="k">auto</span> <span class="n">test_data_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_test_data.csv&quot;</span><span class="p">);</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">test_label_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_test_label.csv&quot;</span><span class="p">);</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">test_response_file_name</span> <span class="o">=</span> <span class="n">get_data_path</span><span class="p">(</span><span class="s">&quot;kmeans_dense_test_label.csv&quot;</span><span class="p">);</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">x_train</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span> <span class="n">train_data_file_name</span> <span class="p">});</span>
     <span class="k">const</span> <span class="k">auto</span> <span class="n">initial_centroids</span> <span class="o">=</span>
         <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span> <span class="n">initial_centroids_file_name</span> <span class="p">});</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span> <span class="n">test_data_file_name</span> <span class="p">});</span>
-    <span class="k">const</span> <span class="k">auto</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span> <span class="n">test_label_file_name</span> <span class="p">});</span>
+    <span class="k">const</span> <span class="k">auto</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">read</span><span class="o">&lt;</span><span class="n">dal</span><span class="o">::</span><span class="n">table</span><span class="o">&gt;</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">dal</span><span class="o">::</span><span class="n">csv</span><span class="o">::</span><span class="n">data_source</span><span class="p">{</span> <span class="n">test_response_file_name</span> <span class="p">});</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">kmeans_desc</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">kmeans</span><span class="o">::</span><span class="n">descriptor</span><span class="o">&lt;&gt;</span><span class="p">()</span>
                                  <span class="p">.</span><span class="n">set_cluster_count</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
@@ -2000,12 +2010,12 @@
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Iteration count: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_iteration_count</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Objective function value: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_objective_function_value</span><span class="p">()</span>
               <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Labels:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_labels</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Responses:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_responses</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Centroids:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_model</span><span class="p">().</span><span class="n">get_centroids</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
     <span class="k">const</span> <span class="k">auto</span> <span class="n">result_test</span> <span class="o">=</span> <span class="n">dal</span><span class="o">::</span><span class="n">infer</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">kmeans_desc</span><span class="p">,</span> <span class="n">result_train</span><span class="p">.</span><span class="n">get_model</span><span class="p">(),</span> <span class="n">x_test</span><span class="p">);</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Infer result:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_test</span><span class="p">.</span><span class="n">get_labels</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Infer result:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">result_test</span><span class="p">.</span><span class="n">get_responses</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Ground truth:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">y_test</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 <span class="p">}</span>
@@ -2039,9 +2049,10 @@
     <div class="container">
       <p>
         
-          By Intel<br/>
-        
             &copy; Copyright 2014 - 2021, Intel Corporation.<br/>
+          <div class="extra_footer">
+            <p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>
+          </div>
       </p>
     </div>
   </footer>

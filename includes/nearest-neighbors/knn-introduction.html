@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>&lt;no title&gt; &#8212; oneDAL 2021 documentation</title>
+    <title>&lt;no title&gt; &#8212; oneDAL  documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -58,7 +58,7 @@
       <img src="../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">oneDAL 2021 documentation</h1>
+      <h1 class="site-logo" id="site-title">oneDAL  documentation</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
@@ -320,8 +320,8 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html">
-         k-Nearest Neighbors Classification (k-NN)
+        <a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html">
+         k-Nearest Neighbors Classification and Search(k-NN)
         </a>
        </li>
       </ul>
@@ -344,6 +344,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../onedal/algorithms/pairwise-distances/chebyshev-distance.html">
          Chebyshev distance
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../onedal/algorithms/pairwise-distances/cosine-distance.html">
+         Cosine distance
         </a>
        </li>
       </ul>
@@ -1748,6 +1753,11 @@
          Chebyshev distance
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../api/algorithms/pairwise-distances/cosine-distance.html">
+         Cosine distance
+        </a>
+       </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
@@ -1954,9 +1964,13 @@
         
               <div>
                 
-  <p><span class="math notranslate nohighlight">\(k\)</span>-NN <a class="reference internal" href="../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> algorithm infers the class for the new
-feature vector by computing majority vote of the <span class="math notranslate nohighlight">\(k\)</span> nearest observations
-from the training set.</p>
+  <p><span class="math notranslate nohighlight">\(k\)</span>-NN <a class="reference internal" href="../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a> and <a class="reference internal" href="../../onedal/glossary.html#term-Search"><span class="xref std std-term">search</span></a> algorithms are based on finding
+the <span class="math notranslate nohighlight">\(k\)</span> nearest observations to the training set. For <a class="reference internal" href="../../onedal/glossary.html#term-Classification"><span class="xref std std-term">classification</span></a>,
+the problem is to infer the class of a new feature vector by computing the majority vote of its
+<span class="math notranslate nohighlight">\(k\)</span> nearest observations from the training set.
+For <a class="reference internal" href="../../onedal/glossary.html#term-Search"><span class="xref std std-term">search</span></a>, the problem is to infer <span class="math notranslate nohighlight">\(k\)</span> nearest observations from
+the training set to a new feature vector. The nearest observations are computed
+based on the chosen distance metric.</p>
 <table class="table">
 <colgroup>
 <col style="width: 21%" />
@@ -1971,16 +1985,16 @@ from the training set.</p>
 <td colspan="2"><p><strong>Computational methods</strong></p></td>
 <td colspan="3"><p><strong>Programming Interface</strong></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math"><span class="std std-ref">Training</span></a></p></td>
-<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
-<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-t-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math"><span class="std std-ref">Training</span></a></p></td>
+<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
+<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
 <td><p><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html#knn-t-api"><span class="std std-ref">train(…)</span></a></p></td>
 <td><p><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html#knn-t-api-input"><span class="std std-ref">train_input</span></a></p></td>
 <td><p><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html#knn-t-api-result"><span class="std std-ref">train_result</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-i-math"><span class="std std-ref">Inference</span></a></p></td>
-<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-i-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
-<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn-classification.html#knn-i-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html#knn-i-math"><span class="std std-ref">Inference</span></a></p></td>
+<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html#knn-i-math-brute-force"><span class="std std-ref">Brute-force</span></a></p></td>
+<td><p><a class="reference internal" href="../../onedal/algorithms/nearest-neighbors/knn.html#knn-i-math-kd-tree"><span class="std std-ref">k-d tree</span></a></p></td>
 <td><p><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html#knn-i-api"><span class="std std-ref">infer(…)</span></a></p></td>
 <td><p><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html#knn-i-api-input"><span class="std std-ref">infer_input</span></a></p></td>
 <td><p><a class="reference internal" href="../../api/algorithms/nearest-neighbors/knn-classification.html#knn-i-api-result"><span class="std std-ref">infer_result</span></a></p></td>
@@ -2003,9 +2017,10 @@ from the training set.</p>
     <div class="container">
       <p>
         
-          By Intel<br/>
-        
             &copy; Copyright 2014 - 2021, Intel Corporation.<br/>
+          <div class="extra_footer">
+            <p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>
+          </div>
       </p>
     </div>
   </footer>

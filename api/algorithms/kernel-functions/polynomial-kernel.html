@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Polynomial kernel &#8212; oneDAL 2021 documentation</title>
+    <title>Polynomial kernel &#8212; oneDAL  documentation</title>
     
   <link href="../../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -60,7 +60,7 @@
       <img src="../../../_static/oneAPI-rgb-rev-100.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">oneDAL 2021 documentation</h1>
+      <h1 class="site-logo" id="site-title">oneDAL  documentation</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
@@ -322,8 +322,8 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn-classification.html">
-         k-Nearest Neighbors Classification (k-NN)
+        <a class="reference internal" href="../../../onedal/algorithms/nearest-neighbors/knn.html">
+         k-Nearest Neighbors Classification and Search(k-NN)
         </a>
        </li>
       </ul>
@@ -346,6 +346,11 @@
        <li class="toctree-l4">
         <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/chebyshev-distance.html">
          Chebyshev distance
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../onedal/algorithms/pairwise-distances/cosine-distance.html">
+         Cosine distance
         </a>
        </li>
       </ul>
@@ -1750,6 +1755,11 @@
          Chebyshev distance
         </a>
        </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../pairwise-distances/cosine-distance.html">
+         Cosine distance
+        </a>
+       </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
@@ -2094,19 +2104,6 @@ and allows to fit non-linear models.</p>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal17polynomial_kernel10descriptor6degreeE">
-<span id="_CPPv3N6oneapi3dal17polynomial_kernel10descriptor6degreeE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel10descriptor6degreeE"></span><span id="oneapi::dal::polynomial_kernel::descriptor::degree__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">degree</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel10descriptor6degreeE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>The degree <span class="math notranslate nohighlight">\(d\)</span> of the polynomial kernel. <strong>Default value</strong>: 3.</p>
-<dl>
-<dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_degree()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_degree(std::int64_t</span> <span class="pre">value)</span></code></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal17polynomial_kernel10descriptor5scaleE">
 <span id="_CPPv3N6oneapi3dal17polynomial_kernel10descriptor5scaleE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel10descriptor5scaleE"></span><span id="oneapi::dal::polynomial_kernel::descriptor::scale__double"></span><span class="pre">double</span> <code class="sig-name descname"><span class="pre">scale</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel10descriptor5scaleE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>The coefficient <span class="math notranslate nohighlight">\(k\)</span> of the polynomial kernel. <strong>Default value</strong>: 1.0.</p>
@@ -2114,6 +2111,19 @@ and allows to fit non-linear models.</p>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">get_scale()</span> <span class="pre">const</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_scale(double</span> <span class="pre">value)</span></code></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp member">
+<dt id="_CPPv4N6oneapi3dal17polynomial_kernel10descriptor6degreeE">
+<span id="_CPPv3N6oneapi3dal17polynomial_kernel10descriptor6degreeE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel10descriptor6degreeE"></span><span id="oneapi::dal::polynomial_kernel::descriptor::degree__std::int64_t"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">int64_t</span> <code class="sig-name descname"><span class="pre">degree</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel10descriptor6degreeE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The degree <span class="math notranslate nohighlight">\(d\)</span> of the polynomial kernel. <strong>Default value</strong>: 3.</p>
+<dl>
+<dt>Getter &amp; Setter</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">std::int64_t</span> <span class="pre">get_degree()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_degree(std::int64_t</span> <span class="pre">value)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2172,26 +2182,26 @@ and allows to fit non-linear models.</p>
 
 <p><strong>Properties</strong></p>
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1yE">
-<span id="_CPPv3N6oneapi3dal17polynomial_kernel13compute_input1yE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel13compute_input1yE"></span><span id="oneapi::dal::polynomial_kernel::compute_input::y__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">y</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1yE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An <span class="math notranslate nohighlight">\(n2 \times p\)</span> table with the data y, where each row stores one feature vector. <strong>Default value</strong>: table{}.</p>
+<dt id="_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1xE">
+<span id="_CPPv3N6oneapi3dal17polynomial_kernel13compute_input1xE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel13compute_input1xE"></span><span id="oneapi::dal::polynomial_kernel::compute_input::x__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">x</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1xE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An <span class="math notranslate nohighlight">\(n \times p\)</span> table with the data x, where each row stores one feature vector. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_y()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_y(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_x()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_x(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
 </div>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp member">
-<dt id="_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1xE">
-<span id="_CPPv3N6oneapi3dal17polynomial_kernel13compute_input1xE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel13compute_input1xE"></span><span id="oneapi::dal::polynomial_kernel::compute_input::x__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">x</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1xE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>An <span class="math notranslate nohighlight">\(n1 \times p\)</span> table with the data x, where each row stores one feature vector. <strong>Default value</strong>: table{}.</p>
+<dt id="_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1yE">
+<span id="_CPPv3N6oneapi3dal17polynomial_kernel13compute_input1yE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel13compute_input1yE"></span><span id="oneapi::dal::polynomial_kernel::compute_input::y__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">y</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel13compute_input1yE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>An <span class="math notranslate nohighlight">\(m \times p\)</span> table with the data y, where each row stores one feature vector. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_x()</span> <span class="pre">const</span></code></div>
-<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_x(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_y()</span> <span class="pre">const</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">&amp;</span> <span class="pre">set_y(const</span> <span class="pre">table</span> <span class="pre">&amp;data)</span></code></div>
 </div>
 </dd>
 </dl>
@@ -2221,7 +2231,7 @@ and allows to fit non-linear models.</p>
 <dl class="cpp member">
 <dt id="_CPPv4N6oneapi3dal17polynomial_kernel14compute_result6valuesE">
 <span id="_CPPv3N6oneapi3dal17polynomial_kernel14compute_result6valuesE"></span><span id="_CPPv2N6oneapi3dal17polynomial_kernel14compute_result6valuesE"></span><span id="oneapi::dal::polynomial_kernel::compute_result::values__tableCR"></span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="../../data-management/tables.html#_CPPv4N6oneapi3dal5tableE" title="oneapi::dal::table"><span class="pre">table</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">values</span></code><a class="headerlink" href="#_CPPv4N6oneapi3dal17polynomial_kernel14compute_result6valuesE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>A <span class="math notranslate nohighlight">\(n1 \times n2\)</span> table with the result kernel functions. <strong>Default value</strong>: table{}.</p>
+<dd><p>A <span class="math notranslate nohighlight">\(n \times m\)</span> table with the result kernel functions. <strong>Default value</strong>: table{}.</p>
 <dl>
 <dt>Getter &amp; Setter</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">table</span> <span class="pre">&amp;</span> <span class="pre">get_values()</span> <span class="pre">const</span></code></div>
@@ -2285,9 +2295,10 @@ and allows to fit non-linear models.</p>
     <div class="container">
       <p>
         
-          By Intel<br/>
-        
             &copy; Copyright 2014 - 2021, Intel Corporation.<br/>
+          <div class="extra_footer">
+            <p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>
+          </div>
       </p>
     </div>
   </footer>
