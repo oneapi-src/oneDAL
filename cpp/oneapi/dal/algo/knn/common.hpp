@@ -82,7 +82,8 @@ using v1::by_default;
 class result_option_id : public result_option_id_base {
 public:
     constexpr result_option_id() : result_option_id_base{} {}
-    constexpr result_option_id(const result_option_id_base& base) : result_option_id_base{ base } {}
+    constexpr explicit result_option_id(const result_option_id_base& base)
+            : result_option_id_base{ base } {}
 };
 
 namespace detail {

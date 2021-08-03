@@ -23,15 +23,15 @@ namespace oneapi::dal::knn {
 namespace detail {
 
 result_option_id get_responses_id() {
-    return result_option_id::make_by_index(0);
+    return result_option_id{ result_option_id::make_by_index(0) };
 }
 
 result_option_id get_indices_id() {
-    return result_option_id::make_by_index(1);
+    return result_option_id{ result_option_id::make_by_index(1) };
 }
 
 result_option_id get_distances_id() {
-    return result_option_id::make_by_index(2);
+    return result_option_id{ result_option_id::make_by_index(2) };
 }
 
 template <typename Task>
