@@ -18,7 +18,6 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
 
-#include <iostream>
 namespace oneapi::dal::kmeans::backend {
 
 namespace pr = dal::backend::primitives;
