@@ -35,7 +35,8 @@ class vertex_partitioning_input : public base {
 
 public:
     using task_t = Task;
-    static_assert(detail::is_valid_graph<Graph>);
+    static_assert(detail::is_valid_graph<Graph>,
+            "Only undirected_adjacency_vector_graph is supported.");
 
     /// Constructs the algorithm input initialized with the graph
     /// and the initial partition
