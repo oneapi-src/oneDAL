@@ -20,6 +20,7 @@
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
 
@@ -28,7 +29,7 @@ struct afforest {
     vertex_partitioning_result<task::vertex_partitioning> operator()(
         const detail::descriptor_base<task::vertex_partitioning>& desc,
         const dal::preview::detail::topology<std::int32_t>& t) {
-        throw unimplemented(dal::detail::error_messages::afforest_algorithm_is_not_implemented());
+        throw unimplemented(oneapi::dal::detail::error_messages::method_not_implemented());
     }
 };
 

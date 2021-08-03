@@ -17,8 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/algo/connected_components/common.hpp"
-#include "oneapi/dal/algo/connected_components/detail/traverse_default_kernel.hpp"
-#include "oneapi/dal/algo/connected_components/traverse_types.hpp"
+#include "oneapi/dal/algo/connected_components/detail/vertex_partitioning_default_kernel.hpp"
+#include "oneapi/dal/algo/connected_components/vertex_partitioning_types.hpp"
 #include "oneapi/dal/graph/detail/undirected_adjacency_vector_graph_impl.hpp"
 
 namespace oneapi::dal::preview::connected_components::detail {

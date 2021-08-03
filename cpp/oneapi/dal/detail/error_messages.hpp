@@ -178,9 +178,6 @@ public:
     MSG(invalid_vertex_edge_attributes);
     MSG(target_graph_is_smaller_than_pattern_graph);
 
-    /* Connected Components */
-    MSG(afforest_algorithm_is_not_implemented);
-
     /* K-Means and K-Means Init */
     MSG(cluster_count_leq_zero);
     MSG(cluster_count_exceeds_data_row_count);
