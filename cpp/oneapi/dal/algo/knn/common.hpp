@@ -91,9 +91,6 @@ ONEDAL_EXPORT result_option_id get_indices_id();
 ONEDAL_EXPORT result_option_id get_distances_id();
 ONEDAL_EXPORT result_option_id get_responses_id();
 
-template <typename Task>
-ONEDAL_EXPORT result_option_id get_default_result_options();
-
 } // namespace detail
 
 /// Result options are used to define
@@ -249,7 +246,7 @@ public:
     /// property value.
     /// Used with :expr:`task::search` only.
     template <typename T = Task, typename = detail::enable_if_search_t<T>>
-    explicit descriptor(std::int64_t neighbor_count) : base_t() {
+    explicit descriptor(std::int64_t neighbor_count) {
         set_neighbor_count(neighbor_count);
     }
 
