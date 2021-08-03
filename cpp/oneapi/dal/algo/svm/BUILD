@@ -32,8 +32,22 @@ dal_test_suite(
 )
 
 dal_test_suite(
+    name = "gpu_tests",
+    framework = "catch2",
+    private = True,
+    compile_as = ["dpc++"],
+    srcs = glob([
+        "backend/gpu/test/*.cpp",
+    ]),
+    dal_deps = [
+        ":svm",
+    ],
+)
+
+dal_test_suite(
     name = "tests",
     tests = [
         ":interface_tests",
+        ":gpu_tests",
     ],
 )
