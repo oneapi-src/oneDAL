@@ -49,7 +49,8 @@ public:
     brute_force_model_impl() = default;
 
     brute_force_model_impl(const table& data, const table& responses)
-            : data_(data), responses_(responses) {}
+            : data_(data),
+              responses_(responses) {}
 
     backend::model_interop* get_interop() override {
         return nullptr;
@@ -86,9 +87,7 @@ public:
     kd_tree_model_impl(const kd_tree_model_impl&) = delete;
     kd_tree_model_impl& operator=(const kd_tree_model_impl&) = delete;
 
-    kd_tree_model_impl(backend::model_interop* interop)
-        : interop_(interop) {}
-
+    kd_tree_model_impl(backend::model_interop* interop) : interop_(interop) {}
 
     ~kd_tree_model_impl() {
         delete interop_;
