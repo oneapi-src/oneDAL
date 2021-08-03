@@ -48,22 +48,19 @@ class brute_force_model_impl : public model_impl<Task>,
 public:
     brute_force_model_impl() = default;
 
-    brute_force_model_impl(const table& data, const table& responses,
-        result_option_id result_options = detail::get_default_result_options<Task>())
-            : data_(data),
-              responses_(responses),
-              result_options_(result_options) {}
+    brute_force_model_impl(const table& data, const table& responses)
+            : data_(data), responses_(responses) {}
 
     backend::model_interop* get_interop() override {
         return nullptr;
     }
 
     void serialize(dal::detail::output_archive& ar) const override {
-        ar(data_, responses_, result_options_);
+        ar(data_, responses_);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
-        ar(data_, responses_, result_options_);
+        ar(data_, responses_);
     }
 
     table get_data() {
@@ -74,14 +71,9 @@ public:
         return responses_;
     }
 
-    result_option_id get_result_options() {
-        return result_options_;
-    }
-
 private:
     table data_;
     table responses_;
-    result_option_id result_options_ = detail::get_default_result_options<Task>();
 };
 
 template <typename Task>
@@ -94,10 +86,8 @@ public:
     kd_tree_model_impl(const kd_tree_model_impl&) = delete;
     kd_tree_model_impl& operator=(const kd_tree_model_impl&) = delete;
 
-    kd_tree_model_impl(backend::model_interop* interop,
-        result_option_id result_options = detail::get_default_result_options<Task>()) \
-        : interop_(interop),
-          result_options_(result_options) {}
+    kd_tree_model_impl(backend::model_interop* interop)
+        : interop_(interop) {}
 
 
     ~kd_tree_model_impl() {
@@ -111,21 +101,14 @@ public:
 
     void serialize(dal::detail::output_archive& ar) const override {
         dal::detail::serialize_polymorphic(interop_, ar);
-        ar(result_options_);
     }
 
     void deserialize(dal::detail::input_archive& ar) override {
         interop_ = dal::detail::deserialize_polymorphic<backend::model_interop>(ar);
-        ar(result_options_);
-    }
-
-    result_option_id get_result_options() {
-        return result_options_;
     }
 
 private:
     backend::model_interop* interop_;
-    result_option_id result_options_ = detail::get_default_result_options<Task>();
 };
 
 } // namespace backend
