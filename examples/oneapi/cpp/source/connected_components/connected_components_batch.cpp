@@ -40,12 +40,12 @@ int main(int argc, char** argv) {
             alloc);
     
     try {
-    // compute connected_components
-    const auto result_connected_components = dal::preview::vertex_partitioning(cc_desc, my_graph);
+        // compute connected_components
+        const auto result_connected_components = dal::preview::vertex_partitioning(cc_desc, my_graph);
 
-    // extract the result
-    std::cout << "Components' labels: " << result_connected_components.get_labels() << std::endl;
-    std::cout << "Number of connected components: " << result_connected_components.get_component_count() << std::endl;
+        // extract the result
+        std::cout << "Components' labels: " << result_connected_components.get_labels() << std::endl;
+        std::cout << "Number of connected components: " << result_connected_components.get_component_count() << std::endl;
     }
     catch (dal::unimplemented& e) {
         std::cout << "  " << e.what() << std::endl;
