@@ -83,11 +83,14 @@ public:
     MSG(page_size_leq_zero);
     MSG(invalid_key);
     MSG(capacity_leq_zero);
+    MSG(empty_set_of_result_options);
+    MSG(this_result_is_not_enabled_via_result_options);
 
     /* Primitives */
     MSG(invalid_number_of_elements_to_process);
     MSG(invalid_number_of_elements_to_sort);
     MSG(failed_to_compute_eigenvectors);
+    MSG(failed_to_generate_random_numbers);
 
     /* Tables */
     MSG(allocated_memory_size_is_not_enough_to_copy_data);
@@ -200,6 +203,7 @@ public:
     MSG(unknown_distance_type);
     MSG(distance_is_not_supported_for_gpu);
     MSG(incompatible_knn_model);
+    MSG(invalid_set_of_result_options_to_search);
 
     /* Linear and RBF Kernels */
     MSG(input_x_cc_neq_y_cc);

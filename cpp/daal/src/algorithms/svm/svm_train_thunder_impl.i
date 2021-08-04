@@ -385,11 +385,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
         });
     }
 
-    algorithmFPType delta    = algorithmFPType(0);
-    algorithmFPType localEps = algorithmFPType(0);
-    localDiff                = algorithmFPType(0);
-    int Bi                   = -1;
-    int Bj                   = -1;
+    algorithmFPType firstDiff = algorithmFPType(0);
+    algorithmFPType delta     = algorithmFPType(0);
+    algorithmFPType localEps  = algorithmFPType(0);
+    localDiff                 = algorithmFPType(0);
+    int Bi                    = -1;
+    int Bj                    = -1;
 
     size_t iter = 0;
     for (; iter < innerMaxIterations; ++iter)
@@ -451,6 +452,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
                 GMax2    = GMax2Neg;
                 KBiBlock = KBiBlockNeg;
             }
+
+            localDiff = services::internal::max<cpu, algorithmFPType>(GMax2Pos - GMinPos, GMax2Neg - GMinNeg);
         }
         else
         {
@@ -460,13 +463,14 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
             KBiBlock                    = &kernelLocal[Bi * nWS];
 
             HelperTrainSVM<algorithmFPType, cpu>::WSSjLocal(0, nWS, KBiBlock, kdLocal, gradLocal, I, GMin, KBiBi, tau, Bj, GMax, GMax2, delta);
-        }
 
-        localDiff = GMax2 - GMin;
+            localDiff = GMax2 - GMin;
+        }
 
         if (iter == 0)
         {
-            localEps = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
+            localEps  = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
+            firstDiff = localDiff;
         }
         if (localDiff < localEps)
         {
@@ -513,6 +517,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
             gradLocal[i] += delta * (KiBi - KiBj);
         }
     }
+
+    localDiff = firstDiff;
 
     /* Compute diff and scatter to alpha vector */
     PRAGMA_IVDEP
