@@ -38,10 +38,9 @@ sys.path.insert(0, os.path.abspath('../'))
 
 project = 'oneDAL'
 copyright = '2014 - 2021, Intel Corporation' # pylint: disable=redefined-builtin
-author = 'Intel'
 
 # The full version, including alpha/beta/rc tags
-release = '2021'
+# release = '2021'
 
 rst_prolog = """
 .. |short_name| replace:: oneDAL
@@ -127,7 +126,8 @@ html_theme_options = {
     'path_to_docs': 'docs/source',
     'use_issues_button': True,
     'use_edit_page_button': True,
-    'repository_branch': 'master'
+    'repository_branch': 'master',
+    'extra_footer': '<p align="right"><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a></p>'
 }
 
 # oneDAL project directory is needed for `dalapi` extension
@@ -258,6 +258,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'error_metric_mode::out_of_bag_error_per_observation'),
     # common for algorithms
     ('cpp:identifier', 'result'),
+    # common for result options
+    ('cpp:identifier', 'result_option_id_base'),
+    ('cpp:identifier', 'result_option_id'),
     # tables
     ('cpp:identifier', 'table'),
     ('cpp:identifier', 'row_count'),
