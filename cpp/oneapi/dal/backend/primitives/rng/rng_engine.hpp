@@ -21,10 +21,39 @@
 #include <daal/src/algorithms/engines/engine_types_internal.h>
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
 
-#include "oneapi/dal/array.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 
 namespace oneapi::dal::backend::primitives {
+
+template <typename Type, typename... Args>
+inline void uniform_by_cpu(Args&&... args) {
+    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
+        int res =
+            daal::internal::
+                RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
+                    .uniform(std::forward<Args>(args)...);
+        if (res) {
+            using msg = dal::detail::error_messages;
+            throw internal_error(msg::failed_to_generate_random_numbers());
+        }
+    });
+}
+
+template <typename Type, typename... Args>
+inline void uniform_without_replacement_by_cpu(Args&&... args) {
+    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
+        int res =
+            daal::internal::
+                RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
+                    .uniformWithoutReplacement(std::forward<Args>(args)...);
+        if (res) {
+            using msg = dal::detail::error_messages;
+            throw internal_error(msg::failed_to_generate_random_numbers());
+        }
+    });
+}
 
 template <typename Type, typename Size = std::int64_t>
 class rng {
@@ -32,17 +61,17 @@ public:
     rng() = default;
     ~rng() = default;
 
-    int uniform(Size count, Type* dst, void* state, Type a, Type b) {
-        return daal_rng_.uniform(count, dst, state, a, b);
+    void uniform(Size count, Type* dst, void* state, Type a, Type b) {
+        uniform_by_cpu<Type>(count, dst, state, a, b);
     }
 
-    int uniform_without_replacement(Size count,
-                                    Type* dst,
-                                    Type* buffer,
-                                    void* state,
-                                    Type a,
-                                    Type b) {
-        return daal_rng_.uniformWithoutReplacement(count, dst, buffer, state, a, b);
+    void uniform_without_replacement(Size count,
+                                     Type* dst,
+                                     Type* buffer,
+                                     void* state,
+                                     Type a,
+                                     Type b) {
+        uniform_without_replacement_by_cpu<Type>(count, dst, buffer, state, a, b);
     }
 
     template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
@@ -50,7 +79,7 @@ public:
         Type idx[2];
 
         for (Size i = 0; i < count; ++i) {
-            daal_rng_.uniform(2, idx, state, 0, count);
+            uniform_by_cpu<Type>(2, idx, state, 0, count);
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
 

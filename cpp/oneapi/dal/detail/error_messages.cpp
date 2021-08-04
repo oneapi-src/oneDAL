@@ -54,6 +54,7 @@ MSG(capacity_leq_zero, "Capacity is lower than or equal to zero")
 MSG(invalid_number_of_elements_to_process, "Invalid number of elements to process")
 MSG(invalid_number_of_elements_to_sort, "Invalid number of elements to sort")
 MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
+MSG(failed_to_generate_random_numbers, "Failed to generate random numbers")
 
 /* Tables */
 MSG(allocated_memory_size_is_not_enough_to_copy_data,

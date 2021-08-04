@@ -719,8 +719,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
     }
     ONEDAL_ASSERT(node_list.get_count() == node_count * impl_const_t::node_prop_count_);
 
-    sycl::event last_event;
-
     if constexpr (std::is_same_v<task::classification, Task>) {
         auto class_hist_list_host = imp_data_list.class_hist_list_.to_host(queue_, deps);
         auto imp_list_host = imp_data_list.imp_list_.to_host(queue_);
@@ -762,7 +760,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
         node_list.assign(queue_, node_list_host_ptr, node_list_host.get_count()).wait_and_throw();
     }
 
-    return last_event;
+    return sycl::event{};
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
@@ -1153,8 +1151,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                      alloc::device);
     auto node_ind_list = pr::ndarray<Index, 1>::empty(queue_, { node_count }, alloc::device);
 
-    sycl::event last_event;
-    last_event =
+    auto last_event =
         train_service_kernels_.split_node_list_on_groups_by_size(ctx,
                                                                  node_list,
                                                                  node_grp_list,
@@ -1163,7 +1160,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_best_split(
                                                                  ctx.node_group_count_,
                                                                  ctx.node_group_prop_count_,
                                                                  deps);
-    last_event.wait_and_throw();
 
     auto node_grp_list_host_nd = node_grp_list.to_host(queue_, { last_event });
     const Index* node_grp_list_host = node_grp_list_host_nd.get_data();
@@ -1749,7 +1745,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_partial_cou
                                                     node_count);
 
     auto fill_event = part_hist_list.fill(queue_, 0, deps);
-    fill_event.wait_and_throw();
 
     const Bin* data_ptr = data.get_data();
     const Float* response_ptr = response.get_data();

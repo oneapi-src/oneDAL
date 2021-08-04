@@ -75,7 +75,7 @@ public:
         dal::backend::primitives::ndarray<Float, 1>& node_imp_dec_list,
         bool update_imp_dec_required,
         Index node_count,
-        const be::event_vector& deps = {});
+        const bk::event_vector& deps = {});
 
 private:
     sycl::queue queue_;
