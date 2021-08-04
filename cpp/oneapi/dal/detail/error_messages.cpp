@@ -136,6 +136,11 @@ MSG(iteration_count_lt_zero, "Iteration count is lower than zero")
 MSG(max_iteration_count_leq_zero, "Max iteration count lower than or equal to zero")
 MSG(max_iteration_count_lt_zero, "Max iteration count lower than zero")
 
+/* Covariance */
+MSG(result_option_have_not_been_computed,
+    "no result option")
+
+
 /* K-Means */
 MSG(cluster_count_leq_zero, "Cluster count is lower than or equal to zero")
 MSG(cluster_count_exceeds_data_row_count, "Cluster count exceeds data row count")

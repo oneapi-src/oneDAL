@@ -153,6 +153,9 @@ public:
     MSG(max_iteration_count_leq_zero);
     MSG(max_iteration_count_lt_zero);
 
+    /* Covariance */
+    MSG(result_option_have_not_been_computed);
+
     /* Decision Forest */
     MSG(bootstrap_is_incompatible_with_error_metric);
     MSG(bootstrap_is_incompatible_with_variable_importance_mode);

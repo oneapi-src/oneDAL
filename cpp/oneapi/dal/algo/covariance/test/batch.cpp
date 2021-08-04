@@ -15,7 +15,9 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/covariance/compute.hpp"
-
+#include "oneapi/dal/table/homogen.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 
@@ -32,8 +34,8 @@ public:
     using Method = std::tuple_element_t<1, TestType>;
 
     auto get_descriptor() const {
-        return covariance::descriptor<Float, Method>, covariance::task::classification>()
-            .set_result_options(covaraince::result_options::cov_matrix | covariance::result_options::cor_matrix |
+        return covariance::descriptor<Float, Method, covariance::task::compute>()
+            .set_result_options(covariance::result_options::cov_matrix | covariance::result_options::cor_matrix |
                                 covariance::result_options::means);
     }
     void general_checks(const te::dataframe& input,
@@ -50,8 +52,8 @@ public:
 
     void check_compute_result(const table& data,
                               const covariance::compute_result<>& result) {
-        const auto cov_matrix = result.get_cov();
-        const auto cor_matrix = result.get_cor();
+        const auto cov_matrix = result.get_cov_matrix();
+        const auto cor_matrix = result.get_cor_matrix();
         const auto means = result.get_means();
 
         INFO("check if cov matrix table shape is expected")
@@ -91,15 +93,16 @@ public:
 
     la::matrix<double> compute_reference_means(const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
-        const auto row_count_data = x_data_matrix.get_row_count();
-        const auto column_count_data = x_data_matrix.get_column_count();
+        const auto row_count_data = data_matrix.get_row_count();
+        const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = la::matrix<double>::full({ 1, column_count_data }, 0.0);
-
-        for (std::int64_t i = 0; i < column_count_data; i++)
+        double sum = 0;
+        for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < row_count_data; j++) {
-                    double sum += data_matrix.get(j, i);
+                    sum += data_matrix.get(j, i);
                 }
                 reference_means.set(0, i) = sum / column_count_data;
+                sum = 0;
             }
         return reference_means;
     }
@@ -114,17 +117,18 @@ public:
 
     la::matrix<double> compute_reference_cov(const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
-        const auto row_count_data = x_data_matrix.get_row_count();
-        const auto column_count_data = x_data_matrix.get_column_count();
+        const auto row_count_data = data_matrix.get_row_count();
+        const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = compute_reference_means(data);
         auto reference_cov = la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
-        
-        for (std::int64_t i = 0; i < column_count_data; i++)
+        double elem = 0;
+        for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < column_count_data; j++) {
                 for (std::int64_t k = 0; j < row_count_data; j++) {
-                        double elem += (data_matrix.get(k, i) - reference_means(0, i))*(data_matrix.get(k, j) - reference_means(0, j)))
+                        elem = (data_matrix.get(k, i) - reference_means.get(0, i)) * (data_matrix.get(k, j) - reference_means(0, j));
                     }
                     reference_cov.set(i, j) = elem * (1/row_count_data - 1);
+                    elem = 0;
                 }
             }
         
@@ -134,17 +138,17 @@ public:
                                  const table& cor_matrix) {
         const auto reference = compute_reference_cov(data);
         const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
-        const double diff = te::abs_error(reference, result_values);
+        const double diff = te::abs_error(reference, cor_matrix);
         CHECK(diff < tol);
     }
 
     la::matrix<double> compute_reference_cor(const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
-        const auto column_count_data = x_data_matrix.get_column_count();
+        const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = compute_reference_means(data);
         auto reference_cov = compute_reference_cov(data);
         auto reference_cor = la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
-        for (std::int64_t i = 0; i < column_count_data; i++)
+        for (std::int64_t i = 0; i < column_count_data; i++) {
             for (std::int64_t j = 0; j < column_count_data; j++) {
                     double cor_elem = reference_cov.get(i, j) / std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j))
                     reference_cor.set(i, j) = cor_elem;

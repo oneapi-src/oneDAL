@@ -61,7 +61,7 @@ compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) 
 template <typename Task>
 const table& compute_result<Task>::get_cov_matrix() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options().test(result_options::cov_matrix)) {
+    if (!bool(get_result_options().test(result_options::cov_matrix))) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->cov_matrix;
@@ -74,7 +74,7 @@ void compute_result<Task>::set_cov_matrix_impl(const table& value) {
 template <typename Task>
 const table& compute_result<Task>::get_cor_matrix() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options().test(result_options::cor_matrix)) {
+    if (!bool(get_result_options().test(result_options::cor_matrix))) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->cor_matrix;
@@ -88,7 +88,7 @@ void compute_result<Task>::set_cor_matrix_impl(const table& value) {
 template <typename Task>
 const table& compute_result<Task>::get_means() const {
     using msg = dal::detail::error_messages;
-    if (!bool(get_result_options().test(result_options::means)) {
+    if (!bool(get_result_options().test(result_options::means))) {
         throw domain_error(msg::result_option_have_not_been_computed());
     }
     return impl_->means;

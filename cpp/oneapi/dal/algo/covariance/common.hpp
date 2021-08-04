@@ -16,8 +16,10 @@
 
 #pragma once
 
+#include "oneapi/dal/util/result_option_id.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/common.hpp"
 
 namespace oneapi::dal::covariance {
 
@@ -126,6 +128,7 @@ using v1::is_valid_task_v;
 
 } // namespace detail
 
+namespace v1 {
 
 /// @tparam Float  The floating-point type that the algorithm uses for
 ///                intermediate computations. Can be :expr:`float` or

@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#define ONEDAL_DATA_PARALLEL
 #include "oneapi/dal/algo/covariance.hpp"
 #include "oneapi/dal/io/csv.hpp"
 

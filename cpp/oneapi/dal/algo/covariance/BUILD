@@ -13,7 +13,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
     extra_deps = [
-        "@onedal//cpp/daal/src/algorithms/kernel_function:kernel",
+        "@onedal//cpp/daal/src/algorithms/covariance:kernel",
     ]
 )
 
