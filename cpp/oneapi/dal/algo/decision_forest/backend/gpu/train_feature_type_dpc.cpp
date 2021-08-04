@@ -328,7 +328,7 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
 
     last_event = event;
 
-    const Index local_size = preferable_sbg_size_;
+    const Index local_size = be::device_max_sg_size(queue_);
     const Index local_block_count = max_local_block_count_ * local_size < row_count_
                                         ? max_local_block_count_
                                         : (row_count_ / local_size) + bool(row_count_ % local_size);

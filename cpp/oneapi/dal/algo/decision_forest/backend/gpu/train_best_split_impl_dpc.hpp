@@ -139,7 +139,10 @@ inline bool float_gt(Float a, Float b) {
 template <typename Index>
 inline void mark_bin_processed(bin_map_t* bin_map, Index bin_idx) {
     bin_map_t mask = 1ul << (bin_idx % bin_in_block_count);
-    bin_map[bin_idx / bin_in_block_count] = bin_map[bin_idx / bin_in_block_count] & mask;
+    Index block_idx = bin_idx / bin_in_block_count;
+    if (block_idx < bin_block_count) {
+        bin_map[block_idx] &= mask;
+    }
 }
 
 template <typename Index>
@@ -910,7 +913,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
                         Float ts_right_imp = Float(0);
                         Float ts_imp_dec = Float(0);
 
-                        for (int row_idx = 0; row_idx < row_count; ++row_idx) {
+                        for (std::int32_t row_idx = 0; row_idx < row_count; ++row_idx) {
                             Index id = tree_order_ptr[row_ofs + row_idx];
                             Index bin = data_ptr[id * column_count + ts_ftr_id];
 

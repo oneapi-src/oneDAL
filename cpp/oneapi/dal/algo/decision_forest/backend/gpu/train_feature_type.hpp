@@ -144,7 +144,7 @@ private:
     Index min_bin_size_ = 0;
     Index max_bins_ = 0;
 
-    static constexpr inline Index preferable_sbg_size_ = 16;
+    //static constexpr inline Index preferable_sbg_size_ = 16;
     static constexpr inline Index max_local_block_count_ = 1024;
 };
 
