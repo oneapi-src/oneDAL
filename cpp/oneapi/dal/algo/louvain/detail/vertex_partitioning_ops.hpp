@@ -25,20 +25,20 @@
 
 namespace oneapi::dal::preview::louvain::detail {
 
-  template <typename Policy, typename Descriptor, typename Graph>
-  struct vertex_partitioning_ops_dispatcher {
+template <typename Policy, typename Descriptor, typename Graph>
+struct vertex_partitioning_ops_dispatcher {
     using task_t = typename Descriptor::task_t;
-    vertex_partitioning_result<task_t>
-    operator()(const Policy &policy, const Descriptor &descriptor,
-               vertex_partitioning_input<Graph, task_t> &input) const {
-      static auto impl =
-          get_backend<Policy, Descriptor>(descriptor, input.get_graph());
-      return (*impl)(policy, descriptor, input.get_graph());
+    vertex_partitioning_result<task_t> operator()(
+        const Policy &policy,
+        const Descriptor &descriptor,
+        vertex_partitioning_input<Graph, task_t> &input) const {
+        static auto impl = get_backend<Policy, Descriptor>(descriptor, input.get_graph());
+        return (*impl)(policy, descriptor, input.get_graph());
     }
-  };
+};
 
-  template <typename Descriptor, typename Graph>
-  struct vertex_partitioning_ops {
+template <typename Descriptor, typename Graph>
+struct vertex_partitioning_ops {
     using float_t = typename Descriptor::float_t;
     using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
@@ -48,17 +48,13 @@ namespace oneapi::dal::preview::louvain::detail {
     using result_t = vertex_partitioning_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
-    void check_preconditions(const Descriptor &desc, input_t &input) const {
-      using msg = dal::detail::error_messages;
-    }
+    void check_preconditions(const Descriptor &desc, input_t &input) const {}
 
     template <typename Policy>
-    auto operator()(const Policy &policy, const Descriptor &desc,
-                    input_t &input) const {
-      check_preconditions(desc, input);
-      return vertex_partitioning_ops_dispatcher<Policy, Descriptor, Graph>()(
-          policy, desc, input);
+    auto operator()(const Policy &policy, const Descriptor &desc, input_t &input) const {
+        check_preconditions(desc, input);
+        return vertex_partitioning_ops_dispatcher<Policy, Descriptor, Graph>()(policy, desc, input);
     }
-  };
+};
 
 } // namespace oneapi::dal::preview::louvain::detail

@@ -19,50 +19,49 @@
 
 namespace oneapi::dal::preview::louvain {
 
-  class detail::vertex_partitioning_result_impl : public base {
-  public:
+class detail::vertex_partitioning_result_impl : public base {
+public:
     table labels;
     double modularity;
     std::int64_t community_count;
-  };
+};
 
-  using detail::vertex_partitioning_result_impl;
+using detail::vertex_partitioning_result_impl;
 
-  template <typename Task>
-  vertex_partitioning_result<Task>::vertex_partitioning_result()
-      : impl_(new vertex_partitioning_result_impl()) {}
+template <typename Task>
+vertex_partitioning_result<Task>::vertex_partitioning_result()
+        : impl_(new vertex_partitioning_result_impl()) {}
 
-  template <typename Task>
-  const table &vertex_partitioning_result<Task>::get_labels_impl() const {
+template <typename Task>
+const table &vertex_partitioning_result<Task>::get_labels_impl() const {
     return impl_->labels;
-  }
+}
 
-  template <typename Task>
-  double vertex_partitioning_result<Task>::get_modularity_impl() const {
+template <typename Task>
+double vertex_partitioning_result<Task>::get_modularity_impl() const {
     return impl_->modularity;
-  }
+}
 
-  template <typename Task>
-  std::int64_t vertex_partitioning_result<Task>::get_community_count_impl() const {
+template <typename Task>
+std::int64_t vertex_partitioning_result<Task>::get_community_count_impl() const {
     return impl_->community_count;
-  }
+}
 
-  template <typename Task>
-  void vertex_partitioning_result<Task>::set_labels_impl(const table &value) {
+template <typename Task>
+void vertex_partitioning_result<Task>::set_labels_impl(const table &value) {
     impl_->labels = value;
-  }
+}
 
-  template <typename Task>
-  void vertex_partitioning_result<Task>::set_modularity_impl(double value) {
+template <typename Task>
+void vertex_partitioning_result<Task>::set_modularity_impl(double value) {
     impl_->modularity = value;
-  }
+}
 
-  template <typename Task>
-  void vertex_partitioning_result<Task>::set_community_count_impl(std::int64_t value) {
+template <typename Task>
+void vertex_partitioning_result<Task>::set_community_count_impl(std::int64_t value) {
     impl_->community_count = value;
-  }
+}
 
-  template class ONEDAL_EXPORT
-      vertex_partitioning_result<task::vertex_partitioning>;
+template class ONEDAL_EXPORT vertex_partitioning_result<task::vertex_partitioning>;
 
 } // namespace oneapi::dal::preview::louvain

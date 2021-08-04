@@ -26,52 +26,57 @@
 
 namespace oneapi::dal::preview::louvain::detail {
 
-  using namespace dal::preview::detail;
+using namespace dal::preview::detail;
 
-  template <typename Method, typename Task, typename Allocator, typename Graph>
-  struct vertex_partitioning_kernel_cpu {
-    inline vertex_partitioning_result<Task>
-    operator()(const dal::detail::host_policy &ctx,
-               const detail::descriptor_base<Task> &desc,
-               const Allocator &alloc, const Graph &g) const;
-  };
+template <typename Method, typename Task, typename Allocator, typename Graph>
+struct vertex_partitioning_kernel_cpu {
+    inline vertex_partitioning_result<Task> operator()(const dal::detail::host_policy &ctx,
+                                                       const detail::descriptor_base<Task> &desc,
+                                                       const Allocator &alloc,
+                                                       const Graph &g) const;
+};
 
-  template <typename Float, typename Task, typename Topology,
-            typename EdgeValue, typename... Param>
-  struct louvain_kernel {
-    vertex_partitioning_result<Task>
-    operator()(const dal::detail::host_policy &ctx,
-               const detail::descriptor_base<Task> &desc, const Topology &t,
-               const EdgeValue *vals, byte_alloc_iface *alloc) const;
-  };
+template <typename Float, typename Task, typename Topology, typename EdgeValue, typename... Param>
+struct louvain_kernel {
+    vertex_partitioning_result<Task> operator()(const dal::detail::host_policy &ctx,
+                                                const detail::descriptor_base<Task> &desc,
+                                                const Topology &t,
+                                                const EdgeValue *vals,
+                                                byte_alloc_iface *alloc) const;
+};
 
-  template <typename Float, typename EdgeValue>
-  struct louvain_kernel<Float, task::vertex_partitioning,
-                        dal::preview::detail::topology<std::int32_t>,
-                        EdgeValue> {
-    vertex_partitioning_result<task::vertex_partitioning>
-    operator()(const dal::detail::host_policy &ctx,
-               const detail::descriptor_base<task::vertex_partitioning> &desc,
-               const dal::preview::detail::topology<std::int32_t> &t,
-               const EdgeValue *vals, byte_alloc_iface *alloc) const;
-  };
+template <typename Float, typename EdgeValue>
+struct louvain_kernel<Float,
+                      task::vertex_partitioning,
+                      dal::preview::detail::topology<std::int32_t>,
+                      EdgeValue> {
+    vertex_partitioning_result<task::vertex_partitioning> operator()(
+        const dal::detail::host_policy &ctx,
+        const detail::descriptor_base<task::vertex_partitioning> &desc,
+        const dal::preview::detail::topology<std::int32_t> &t,
+        const EdgeValue *vals,
+        byte_alloc_iface *alloc) const;
+};
 
-  template <typename Allocator, typename Graph>
-  struct vertex_partitioning_kernel_cpu<method::fast, task::vertex_partitioning,
-                                        Allocator, Graph> {
-    inline vertex_partitioning_result<task::vertex_partitioning>
-    operator()(const dal::detail::host_policy &ctx,
-               const detail::descriptor_base<task::vertex_partitioning> &desc,
-               const Allocator &alloc, const Graph &g) const {
-      using topology_type =
-          typename graph_traits<Graph>::impl_type::topology_type;
-      using value_type = edge_user_value_type<Graph>;
-      const auto &t = dal::preview::detail::csr_topology_builder<Graph>()(g);
-      const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
-      alloc_connector<Allocator> alloc_con(alloc);
-      return louvain_kernel<float, task::vertex_partitioning, topology_type,
-                            value_type>{}(ctx, desc, t, vals, &alloc_con);
+template <typename Allocator, typename Graph>
+struct vertex_partitioning_kernel_cpu<method::fast, task::vertex_partitioning, Allocator, Graph> {
+    inline vertex_partitioning_result<task::vertex_partitioning> operator()(
+        const dal::detail::host_policy &ctx,
+        const detail::descriptor_base<task::vertex_partitioning> &desc,
+        const Allocator &alloc,
+        const Graph &g) const {
+        using topology_type = typename graph_traits<Graph>::impl_type::topology_type;
+        using value_type = edge_user_value_type<Graph>;
+        const auto &t = dal::preview::detail::csr_topology_builder<Graph>()(g);
+        const auto vals = dal::detail::get_impl(g).get_edge_values().get_data();
+        alloc_connector<Allocator> alloc_con(alloc);
+        return louvain_kernel<float, task::vertex_partitioning, topology_type, value_type>{}(
+            ctx,
+            desc,
+            t,
+            vals,
+            &alloc_con);
     }
-  };
+};
 
 } // namespace oneapi::dal::preview::louvain::detail

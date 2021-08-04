@@ -23,9 +23,8 @@
 
 namespace oneapi::dal::preview::detail {
 
-  template <typename Descriptor, typename Graph>
-  struct vertex_partitioning_ops<Descriptor, Graph,
-                                 louvain::detail::descriptor_tag>
-      : louvain::detail::vertex_partitioning_ops<Descriptor, Graph> {};
+template <typename Descriptor, typename Graph>
+struct vertex_partitioning_ops<Descriptor, Graph, louvain::detail::descriptor_tag>
+        : louvain::detail::vertex_partitioning_ops<Descriptor, Graph> {};
 
 } // namespace oneapi::dal::preview::detail

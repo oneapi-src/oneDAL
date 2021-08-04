@@ -19,49 +19,47 @@
 
 namespace oneapi::dal::preview::louvain::detail {
 
-  template <typename Task> class descriptor_impl : public base {
-  public:
+template <typename Task>
+class descriptor_impl : public base {
+public:
     double accuracy_threshold = 0.0001;
     double resolution = 1;
     std::int64_t max_iteration_count = 0;
-  };
+};
 
-  template <typename Task>
-  descriptor_base<Task>::descriptor_base()
-      : impl_(new descriptor_impl<Task>{}) {}
+template <typename Task>
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
-  template <typename Task>
-  double descriptor_base<Task>::get_accuracy_threshold() const {
+template <typename Task>
+double descriptor_base<Task>::get_accuracy_threshold() const {
     return impl_->accuracy_threshold;
-  }
+}
 
-  template <typename Task>
-  double descriptor_base<Task>::get_resolution() const {
+template <typename Task>
+double descriptor_base<Task>::get_resolution() const {
     return impl_->resolution;
-  }
+}
 
-  template <typename Task>
-  std::int64_t descriptor_base<Task>::get_max_iteration_count() const {
+template <typename Task>
+std::int64_t descriptor_base<Task>::get_max_iteration_count() const {
     return impl_->max_iteration_count;
-  }
+}
 
-  template <typename Task>
-  void descriptor_base<Task>::set_accuracy_threshold(
-      double accuracy_threshold) {
+template <typename Task>
+void descriptor_base<Task>::set_accuracy_threshold(double accuracy_threshold) {
     impl_->accuracy_threshold = accuracy_threshold;
-  }
+}
 
-  template <typename Task>
-  void descriptor_base<Task>::set_resolution(double resolution) {
+template <typename Task>
+void descriptor_base<Task>::set_resolution(double resolution) {
     impl_->resolution = resolution;
-  }
+}
 
-  template <typename Task>
-  void descriptor_base<Task>::set_max_iteration_count(
-      std::int64_t max_iteration_count) {
+template <typename Task>
+void descriptor_base<Task>::set_max_iteration_count(std::int64_t max_iteration_count) {
     impl_->max_iteration_count = max_iteration_count;
-  }
+}
 
-  template class ONEDAL_EXPORT descriptor_base<task::vertex_partitioning>;
+template class ONEDAL_EXPORT descriptor_base<task::vertex_partitioning>;
 
 } // namespace oneapi::dal::preview::louvain::detail

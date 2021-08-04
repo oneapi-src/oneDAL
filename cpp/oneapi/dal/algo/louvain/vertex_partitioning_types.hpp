@@ -25,15 +25,15 @@
 
 namespace oneapi::dal::preview::louvain {
 
-  /// Class for the description of the input parameters of the Louvain
-  /// algorithm
-  ///
-  /// @tparam Graph  Type of the input graph
-  template <typename Graph, typename Task = task::by_default>
-  class vertex_partitioning_input : public base {
+/// Class for the description of the input parameters of the Louvain
+/// algorithm
+///
+/// @tparam Graph  Type of the input graph
+template <typename Graph, typename Task = task::by_default>
+class vertex_partitioning_input : public base {
     static_assert(detail::is_valid_task<Task>);
 
-  public:
+public:
     using task_t = Task;
     // static_assert(detail::is_valid_graph<Graph>,
     //               "Only undirected_adjacency_vector_graph is supported.");
@@ -65,55 +65,55 @@ namespace oneapi::dal::preview::louvain {
     /// @param [in] initial_partition  The initial partition of verteces
     auto &set_initial_partition(const table &initial_partition);
 
-  private:
-    dal::detail::pimpl<detail::vertex_partitioning_input_impl<Graph, Task>>
-        impl_;
-  };
+private:
+    dal::detail::pimpl<detail::vertex_partitioning_input_impl<Graph, Task>> impl_;
+};
 
-  /// Class for the description of the result of the Louvain algorithm
-  template <typename Task = task::by_default> class vertex_partitioning_result {
+/// Class for the description of the result of the Louvain algorithm
+template <typename Task = task::by_default>
+class vertex_partitioning_result {
     static_assert(detail::is_valid_task<Task>);
 
-  public:
+public:
     using task_t = Task;
     /// Constructs the empty result
     vertex_partitioning_result();
 
     /// Returns the table of size [vertex_count x 1] with community
     /// labels for each vertex
-    const table &get_labels() const{
-      return get_labels_impl();
+    const table &get_labels() const {
+        return get_labels_impl();
     }
 
     /// Returns the modularity value for computed vertex partition
-    double get_modularity() const{
-      return get_modularity_impl();
+    double get_modularity() const {
+        return get_modularity_impl();
     }
 
     /// Returns the number of computed communities
-    std::int64_t get_community_count() const{
-      return get_community_count_impl();
+    std::int64_t get_community_count() const {
+        return get_community_count_impl();
     }
 
     /// Sets the table with computed community labels for each vertex
-    auto &set_labels(const table &value){
-      set_labels_impl(value);
-      return *this;
+    auto &set_labels(const table &value) {
+        set_labels_impl(value);
+        return *this;
     }
 
     /// Sets the modularity value for the computed vertex partition
-    auto &set_modularity(double value){
-      set_modularity_impl(value);
-      return *this;
+    auto &set_modularity(double value) {
+        set_modularity_impl(value);
+        return *this;
     }
 
     /// Sets the number of computed communities
-    auto &set_community_count(std::int64_t value){
-      set_community_count_impl(value);
-      return *this;
+    auto &set_community_count(std::int64_t value) {
+        set_community_count_impl(value);
+        return *this;
     }
 
-  private:
+private:
     const table &get_labels_impl() const;
     double get_modularity_impl() const;
     std::int64_t get_community_count_impl() const;
@@ -121,28 +121,25 @@ namespace oneapi::dal::preview::louvain {
     void set_modularity_impl(double value);
     void set_community_count_impl(std::int64_t value);
     dal::detail::pimpl<detail::vertex_partitioning_result_impl> impl_;
-  };
+};
 
-  template <typename Graph, typename Task>
-  vertex_partitioning_input<Graph, Task>::vertex_partitioning_input(
-      const Graph &g)
-      : impl_(new detail::vertex_partitioning_input_impl<Graph, Task>(g)) {}
+template <typename Graph, typename Task>
+vertex_partitioning_input<Graph, Task>::vertex_partitioning_input(const Graph &g)
+        : impl_(new detail::vertex_partitioning_input_impl<Graph, Task>(g)) {}
 
-  template <typename Graph, typename Task>
-  vertex_partitioning_input<Graph, Task>::vertex_partitioning_input(
-      const Graph &g, const table &initial_partition)
-      : impl_(new detail::vertex_partitioning_input_impl<Graph, Task>(
-            g, initial_partition)) {}
+template <typename Graph, typename Task>
+vertex_partitioning_input<Graph, Task>::vertex_partitioning_input(const Graph &g,
+                                                                  const table &initial_partition)
+        : impl_(new detail::vertex_partitioning_input_impl<Graph, Task>(g, initial_partition)) {}
 
-  template <typename Graph, typename Task>
-  const Graph &vertex_partitioning_input<Graph, Task>::get_graph() const {
+template <typename Graph, typename Task>
+const Graph &vertex_partitioning_input<Graph, Task>::get_graph() const {
     return impl_->graph_data;
-  }
+}
 
-  template <typename Graph, typename Task>
-  const table &vertex_partitioning_input<Graph, Task>::get_initial_partition()
-      const {
+template <typename Graph, typename Task>
+const table &vertex_partitioning_input<Graph, Task>::get_initial_partition() const {
     return impl_->initial_partition_data;
-  }
+}
 
 } // namespace oneapi::dal::preview::louvain

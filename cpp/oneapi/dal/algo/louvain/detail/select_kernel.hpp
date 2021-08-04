@@ -23,21 +23,21 @@
 
 namespace oneapi::dal::preview::louvain::detail {
 
-  template <typename Policy, typename Descriptor, typename Graph>
-  struct backend_base {
+template <typename Policy, typename Descriptor, typename Graph>
+struct backend_base {
     using float_t = typename Descriptor::float_t;
     using task_t = typename Descriptor::task_t;
     using method_t = typename Descriptor::method_t;
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual vertex_partitioning_result<task_t>
-    operator()(const Policy &ctx, const Descriptor &descriptor,
-               const Graph &t) = 0;
+    virtual vertex_partitioning_result<task_t> operator()(const Policy &ctx,
+                                                          const Descriptor &descriptor,
+                                                          const Graph &t) = 0;
     virtual ~backend_base() = default;
-  };
+};
 
-  template <typename Policy, typename Descriptor, typename Graph>
-  struct backend_default : public backend_base<Policy, Descriptor, Graph> {
+template <typename Policy, typename Descriptor, typename Graph>
+struct backend_default : public backend_base<Policy, Descriptor, Graph> {
     static_assert(dal::detail::is_one_of_v<Policy, dal::detail::host_policy>,
                   "Host policy only is supported.");
 
@@ -46,19 +46,21 @@ namespace oneapi::dal::preview::louvain::detail {
     using method_t = typename Descriptor::method_t;
     using allocator_t = typename Descriptor::allocator_t;
 
-    virtual vertex_partitioning_result<task_t>
-    operator()(const Policy &ctx, const Descriptor &descriptor,
-               const Graph &t) {
-      return vertex_partitioning_kernel_cpu<method_t, task_t, allocator_t,
-                                            Graph>()(
-          ctx, descriptor, descriptor.get_allocator(), t);
+    virtual vertex_partitioning_result<task_t> operator()(const Policy &ctx,
+                                                          const Descriptor &descriptor,
+                                                          const Graph &t) {
+        return vertex_partitioning_kernel_cpu<method_t, task_t, allocator_t, Graph>()(
+            ctx,
+            descriptor,
+            descriptor.get_allocator(),
+            t);
     }
-  };
+};
 
-  template <typename Policy, typename Descriptor, typename Graph>
-  dal::detail::shared<backend_base<Policy, Descriptor, Graph>> get_backend(
-      const Descriptor &desc, const Graph &t) {
+template <typename Policy, typename Descriptor, typename Graph>
+dal::detail::shared<backend_base<Policy, Descriptor, Graph>> get_backend(const Descriptor &desc,
+                                                                         const Graph &t) {
     return std::make_shared<backend_default<Policy, Descriptor, Graph>>();
-  }
+}
 
 } // namespace oneapi::dal::preview::louvain::detail

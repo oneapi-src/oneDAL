@@ -20,27 +20,29 @@
 
 namespace oneapi::dal::preview::louvain::detail {
 
-  template <typename Float, typename EdgeValue>
-  vertex_partitioning_result<task::vertex_partitioning>
-      louvain_kernel<Float, task::vertex_partitioning,
-                     dal::preview::detail::topology<std::int32_t>, EdgeValue>::
-      operator()(const dal::detail::host_policy &policy,
-                 const detail::descriptor_base<task::vertex_partitioning> &desc,
-                 const dal::preview::detail::topology<std::int32_t> &t,
-                 const EdgeValue *vals, byte_alloc_iface *alloc_ptr) const {
-    return dal::backend::dispatch_by_cpu(
-        dal::backend::context_cpu{policy}, [&](auto cpu) {
-          return backend::louvain_kernel<decltype(cpu), EdgeValue>{}(
-              desc, t, vals, alloc_ptr);
-        });
-  }
+template <typename Float, typename EdgeValue>
+vertex_partitioning_result<task::vertex_partitioning> louvain_kernel<
+    Float,
+    task::vertex_partitioning,
+    dal::preview::detail::topology<std::int32_t>,
+    EdgeValue>::operator()(const dal::detail::host_policy &policy,
+                           const detail::descriptor_base<task::vertex_partitioning> &desc,
+                           const dal::preview::detail::topology<std::int32_t> &t,
+                           const EdgeValue *vals,
+                           byte_alloc_iface *alloc_ptr) const {
+    return dal::backend::dispatch_by_cpu(dal::backend::context_cpu{ policy }, [&](auto cpu) {
+        return backend::louvain_kernel<decltype(cpu), EdgeValue>{}(desc, t, vals, alloc_ptr);
+    });
+}
 
-  template struct ONEDAL_EXPORT louvain_kernel<
-      float, task::vertex_partitioning,
-      dal::preview::detail::topology<std::int32_t>, std::int32_t>;
+template struct ONEDAL_EXPORT louvain_kernel<float,
+                                             task::vertex_partitioning,
+                                             dal::preview::detail::topology<std::int32_t>,
+                                             std::int32_t>;
 
-  template struct ONEDAL_EXPORT
-      louvain_kernel<float, task::vertex_partitioning,
-                     dal::preview::detail::topology<std::int32_t>, double>;
+template struct ONEDAL_EXPORT louvain_kernel<float,
+                                             task::vertex_partitioning,
+                                             dal::preview::detail::topology<std::int32_t>,
+                                             double>;
 
 } // namespace oneapi::dal::preview::louvain::detail

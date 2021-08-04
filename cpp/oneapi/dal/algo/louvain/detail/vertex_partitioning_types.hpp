@@ -24,17 +24,18 @@
 
 namespace oneapi::dal::preview::louvain::detail {
 
-  class vertex_partitioning_result_impl;
+class vertex_partitioning_result_impl;
 
-  template <typename Graph, typename Task>
-  class vertex_partitioning_input_impl : public base {
-  public:
+template <typename Graph, typename Task>
+class vertex_partitioning_input_impl : public base {
+public:
     vertex_partitioning_input_impl(const Graph &g) : graph_data(g) {}
     vertex_partitioning_input_impl(const Graph &g, const table &labels)
-        : graph_data(g), labels_data(labels) {}
+            : graph_data(g),
+              labels_data(labels) {}
 
     const Graph &graph_data;
     table labels_data;
-  };
+};
 
 } // namespace oneapi::dal::preview::louvain::detail

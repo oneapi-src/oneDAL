@@ -24,19 +24,21 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::preview::louvain::backend {
-  using namespace oneapi::dal::preview::detail;
-  using namespace oneapi::dal::preview::backend;
+using namespace oneapi::dal::preview::detail;
+using namespace oneapi::dal::preview::backend;
 
-  template <typename Cpu, typename EdgeValue> struct louvain_kernel {
-    vertex_partitioning_result<task::vertex_partitioning>
-    operator()(const detail::descriptor_base<task::vertex_partitioning> &desc,
-               const dal::preview::detail::topology<std::int32_t> &t,
-               const EdgeValue *vals, byte_alloc_iface *alloc_ptr) {
-      {
-        throw unimplemented(dal::detail::error_messages::
-                                louvain_algorithm_is_not_implemented());
-      }
+template <typename Cpu, typename EdgeValue>
+struct louvain_kernel {
+    vertex_partitioning_result<task::vertex_partitioning> operator()(
+        const detail::descriptor_base<task::vertex_partitioning> &desc,
+        const dal::preview::detail::topology<std::int32_t> &t,
+        const EdgeValue *vals,
+        byte_alloc_iface *alloc_ptr) {
+        {
+            throw unimplemented(
+                dal::detail::error_messages::louvain_algorithm_is_not_implemented());
+        }
     }
-  };
+};
 
 } // namespace oneapi::dal::preview::louvain::backend
