@@ -81,52 +81,6 @@ public:
         check_means_values(data, means);
     }
 
-    void check_cov_matrix_values(const table& data,
-                                 const table& cov_matrix) {
-        const auto reference_cov = compute_reference_cov(data);
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
-        const double diff = te::abs_error(reference_cov, cov_matrix);
-        CHECK(diff < tol);
-    }
-
-    la::matrix<double> compute_reference_cov(const table& data) {
-        const auto data_matrix = la::matrix<double>::wrap(data);
-        const auto row_count_data = x_data_matrix.get_row_count();
-        const auto column_count_data = x_data_matrix.get_column_count();
-        auto reference_means = la::matrix<double>::full({ 1, column_count_data }, 0.0);
-        auto reference_cov = la::matrix<double>::full({ row_count_data, column_count_data }, 0.0);
-        for (std::int64_t i = 0; i < column_count_data; i++)
-            for (std::int64_t j = 0; j < row_count_data; j++) {
-                    double sum += data_matrix.get(j, i);
-                }
-                reference_means.set(0, i) = sum / column_count_data;
-            }
-        
-        return reference;
-    }
-    void check_cor_matrix_values(const table& data,
-                                 const table& cor_matrix) {
-        const auto reference = compute_reference_cov(sigma, x_data, y_data);
-        const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
-        const double diff = te::abs_error(reference, result_values);
-        CHECK(diff < tol);
-    }
-
-    la::matrix<double> compute_reference_cor(double sigma, const table& x_data, const table& y_data) {
-        const auto data_matrix = la::matrix<double>::wrap(data);
-        const auto row_count_data = x_data_matrix.get_row_count();
-        const auto column_count_data = x_data_matrix.get_column_count();
-        auto reference_means = la::matrix<double>::full({ 1, column_count_data }, 0.0);
-        auto reference_cor = la::matrix<double>::full({ row_count_data, column_count_data }, 0.0);
-        for (std::int64_t i = 0; i < column_count_data; i++)
-            for (std::int64_t j = 0; j < row_count_data; j++) {
-                    double sum += data_matrix.get(j, i);
-                }
-                reference_means.set(0, i) = sum / column_count_data;
-            }
-        
-        return reference;
-    }
     void check_means_values(const table& data,
                             const table& means) {
         const auto reference_means = compute_reference_means(data);
@@ -149,60 +103,91 @@ public:
             }
         return reference_means;
     }
+
+    void check_cov_matrix_values(const table& data,
+                                 const table& cov_matrix) {
+        const auto reference_cov = compute_reference_cov(data);
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
+        const double diff = te::abs_error(reference_cov, cov_matrix);
+        CHECK(diff < tol);
+    }
+
+    la::matrix<double> compute_reference_cov(const table& data) {
+        const auto data_matrix = la::matrix<double>::wrap(data);
+        const auto row_count_data = x_data_matrix.get_row_count();
+        const auto column_count_data = x_data_matrix.get_column_count();
+        auto reference_means = compute_reference_means(data);
+        auto reference_cov = la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
+        
+        for (std::int64_t i = 0; i < column_count_data; i++)
+            for (std::int64_t j = 0; j < column_count_data; j++) {
+                for (std::int64_t k = 0; j < row_count_data; j++) {
+                        double elem += (data_matrix.get(k, i) - reference_means(0, i))*(data_matrix.get(k, j) - reference_means(0, j)))
+                    }
+                    reference_cov.set(i, j) = elem * (1/row_count_data - 1);
+                }
+            }
+        
+        return reference_cov;
+    }
+    void check_cor_matrix_values(const table& data,
+                                 const table& cor_matrix) {
+        const auto reference = compute_reference_cov(data);
+        const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
+        const double diff = te::abs_error(reference, result_values);
+        CHECK(diff < tol);
+    }
+
+    la::matrix<double> compute_reference_cor(const table& data) {
+        const auto data_matrix = la::matrix<double>::wrap(data);
+        const auto column_count_data = x_data_matrix.get_column_count();
+        auto reference_means = compute_reference_means(data);
+        auto reference_cov = compute_reference_cov(data);
+        auto reference_cor = la::matrix<double>::full({ column_count_data, column_count_data }, 0.0);
+        for (std::int64_t i = 0; i < column_count_data; i++)
+            for (std::int64_t j = 0; j < column_count_data; j++) {
+                    double cor_elem = reference_cov.get(i, j) / std::sqrt(reference_cov.get(i, i) * reference_cov.get(j, j))
+                    reference_cor.set(i, j) = cor_elem;
+                }
+            }
+        
+        return reference_cor;
+    }
 };
 
 using covariance_types = COMBINE_TYPES((float, double), (covariance::method::dense));
 
-// TEMPLATE_LIST_TEST_M(covariance_batch_test,
-//                      "covariance common flow",
-//                      "[covariance][integration][batch]",
-//                      covariance_types) {
-//     SKIP_IF(this->not_float64_friendly());
+TEMPLATE_LIST_TEST_M(covariance_batch_test,
+                     "covariance common flow",
+                     "[covariance][integration][batch]",
+                     covariance_types) {
+    SKIP_IF(this->not_float64_friendly());
 
-//     const te::dataframe x_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_normal(0, 1, 7777),
-//                            te::dataframe_builder{ 100, 50 }.fill_normal(0, 1, 7777),
-//                            te::dataframe_builder{ 250, 50 }.fill_normal(0, 1, 7777),
-//                            te::dataframe_builder{ 1100, 50 }.fill_normal(0, 1, 7777));
+    const te::dataframe input =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 100, 50 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 250, 50 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 1100, 50 }.fill_normal(0, 1, 7777));
 
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto x_data_table_id = this->get_homogen_table_id();
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto input_data_table_id = this->get_homogen_table_id();
 
-//     const te::dataframe y_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ 50, 50 }.fill_normal(0, 1, 7777),
-//                            te::dataframe_builder{ 100, 50 }.fill_normal(0, 1, 8888),
-//                            te::dataframe_builder{ 200, 50 }.fill_normal(0, 1, 8888),
-//                            te::dataframe_builder{ 1000, 50 }.fill_normal(0, 1, 8888));
+    this->general_checks(input, input_data_table_id);
+}
 
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto y_data_table_id = this->get_homogen_table_id();
+TEMPLATE_LIST_TEST_M(covariance_batch_test,
+                     "covariance compute one element matrix",
+                     "[covariance][integration][batch]",
+                     covariance_types) {
+    SKIP_IF(this->not_float64_friendly());
 
-//     const double sigma = GENERATE_COPY(0.8, 1.0, 5.0);
+    const te::dataframe input =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
 
-//     this->general_checks(x_data, y_data, sigma, x_data_table_id, y_data_table_id);
-// }
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto input_data_table_id = this->get_homogen_table_id();
 
-// TEMPLATE_LIST_TEST_M(covariance_batch_test,
-//                      "covariance compute one element matrix",
-//                      "[covariance][integration][batch]",
-//                      covariance_types) {
-//     SKIP_IF(this->not_float64_friendly());
-
-//     const te::dataframe x_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
-
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto x_data_table_id = this->get_homogen_table_id();
-
-//     const te::dataframe y_data =
-//         GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 8888));
-
-//     // Homogen floating point type is the same as algorithm's floating point type
-//     const auto y_data_table_id = this->get_homogen_table_id();
-
-//     const double sigma = GENERATE_COPY(0.8, 1.0, 5.0);
-
-//     this->general_checks(x_data, y_data, sigma, x_data_table_id, y_data_table_id);
+    this->general_checks(input, input_data_table_id);
 }
 
 } // namespace oneapi::dal::covariance::test
