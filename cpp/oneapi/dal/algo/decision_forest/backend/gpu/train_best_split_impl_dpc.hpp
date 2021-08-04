@@ -27,7 +27,7 @@
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 using alloc = sycl::usm::alloc;
@@ -544,7 +544,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
     pr::ndarray<Float, 1>& node_imp_dec_list,
     bool update_imp_dec_required,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     using split_smp_t = split_smp<Float, Index, Task>;
     using hist_type_t = typename task_types<Float, Index, Task>::hist_type_t;
 
@@ -611,10 +611,10 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_b
     const Index* class_hist_list_ptr = imp_list_ptr.get_class_hist_list_ptr_or_null();
     Index* left_child_class_hist_list_ptr = left_imp_list_ptr.get_class_hist_list_ptr_or_null();
 
-    auto local_size = be::device_max_sg_size(queue_);
+    auto local_size = bk::device_max_sg_size(queue_);
 
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
+        bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
     sycl::event last_event;
 
@@ -794,7 +794,7 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
     pr::ndarray<Float, 1>& node_imp_dec_list,
     bool update_imp_dec_required,
     Index node_count,
-    const be::event_vector& deps) {
+    const bk::event_vector& deps) {
     using split_smp_t = split_smp<Float, Index, Task>;
 
     ONEDAL_ASSERT(data.get_count() == ctx.row_count_ * ctx.column_count_);
@@ -842,10 +842,10 @@ sycl::event train_best_split_impl<Float, Bin, Index, Task>::compute_best_split_s
 
     const Index index_max = ctx.index_max_;
 
-    auto local_size = be::device_max_sg_size(queue_);
+    auto local_size = bk::device_max_sg_size(queue_);
 
     const sycl::nd_range<2> nd_range =
-        be::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
+        bk::make_multiple_nd_range_2d({ local_size, node_count }, { local_size, 1 });
 
     sycl::event last_event;
 

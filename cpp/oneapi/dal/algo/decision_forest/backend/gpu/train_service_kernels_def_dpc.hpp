@@ -25,7 +25,7 @@
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 using sycl::ONEAPI::broadcast;

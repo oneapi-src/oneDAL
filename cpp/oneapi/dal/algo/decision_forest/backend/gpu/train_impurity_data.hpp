@@ -30,7 +30,7 @@ namespace oneapi::dal::decision_forest::backend {
 #ifdef ONEDAL_DATA_PARALLEL
 
 namespace de = dal::detail;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 using alloc = cl::sycl::usm::alloc;

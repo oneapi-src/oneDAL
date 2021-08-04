@@ -27,7 +27,7 @@
 namespace oneapi::dal::decision_forest::backend {
 
 namespace de = dal::detail;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
 
 template <typename Float, typename Bin, typename Index>
@@ -102,7 +102,7 @@ sycl::event indexed_features<Float, Bin, Index>::fill_bin_map(
     ONEDAL_ASSERT(bins_nd.get_count() == row_count_);
 
     const sycl::nd_range<1> nd_range =
-        be::make_multiple_nd_range_1d(de::check_mul_overflow(local_size, local_blocks_count),
+        bk::make_multiple_nd_range_1d(de::check_mul_overflow(local_size, local_blocks_count),
                                       local_size);
 
     const Index row_count = row_count_;
@@ -328,7 +328,7 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
 
     last_event = event;
 
-    const Index local_size = be::device_max_sg_size(queue_);
+    const Index local_size = bk::device_max_sg_size(queue_);
     const Index local_block_count = max_local_block_count_ * local_size < row_count_
                                         ? max_local_block_count_
                                         : (row_count_ / local_size) + bool(row_count_ % local_size);

@@ -30,7 +30,7 @@ namespace oneapi::dal::decision_forest::backend {
 #ifdef ONEDAL_DATA_PARALLEL
 
 namespace pr = dal::backend::primitives;
-namespace be = dal::backend;
+namespace bk = dal::backend;
 
 template <typename Float, typename Bin, typename Index = std::int32_t>
 class indexed_features {
@@ -58,7 +58,7 @@ public:
                                               std::int64_t column_count,
                                               std::int64_t max_bins);
 
-    sycl::event operator()(const table& tbl, const be::event_vector& deps = {});
+    sycl::event operator()(const table& tbl, const bk::event_vector& deps = {});
 
     Index get_bin_count(std::int64_t column_idx) const {
         return entries_[column_idx].bin_count_;
@@ -91,21 +91,21 @@ private:
                                pr::ndarray<Float, 1>& values_nd,
                                pr::ndarray<Index, 1>& indices_nd,
                                Index feature_id,
-                               const be::event_vector& deps = {});
+                               const bk::event_vector& deps = {});
     sycl::event collect_bin_borders(const pr::ndarray<Float, 1>& values_nd,
                                     const pr::ndarray<Index, 1>& bin_offsets_nd,
                                     pr::ndarray<Float, 1>& bin_borders_nd,
-                                    const be::event_vector& deps = {});
+                                    const bk::event_vector& deps = {});
 
     std::tuple<pr::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders(
         const pr::ndarray<Float, 1>& values_nd,
         Index row_count,
-        const be::event_vector& deps = {});
+        const bk::event_vector& deps = {});
 
     std::tuple<pr::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders_distr(
         const pr::ndarray<Float, 1>& values_nd,
         Index row_count,
-        const be::event_vector& deps = {});
+        const bk::event_vector& deps = {});
 
     sycl::event fill_bin_map(const pr::ndarray<Float, 1>& values_nd,
                              const pr::ndarray<Index, 1>& indices_nd,
@@ -114,19 +114,19 @@ private:
                              Index bin_count,
                              size_t local_size,
                              size_t local_blocks_count,
-                             const be::event_vector& deps = {});
+                             const bk::event_vector& deps = {});
     sycl::event compute_bins(const pr::ndarray<Float, 1>& values_nd,
                              const pr::ndarray<Index, 1>& indices_nd,
                              pr::ndarray<Bin, 1>& bins_nd,
                              feature_entry& entry,
                              Index entry_idx,
-                             const be::event_vector& deps);
+                             const bk::event_vector& deps);
 
     sycl::event store_column(const pr::ndarray<Bin, 1>& column_data_nd,
                              pr::ndarray<Bin, 2>& full_data_nd,
                              Index column_idx,
                              Index column_count,
-                             const be::event_vector& deps);
+                             const bk::event_vector& deps);
 
     sycl::queue queue_;
 #ifdef DISTRIBUTED_SUPPORT_ENABLED
@@ -144,7 +144,6 @@ private:
     Index min_bin_size_ = 0;
     Index max_bins_ = 0;
 
-    //static constexpr inline Index preferable_sbg_size_ = 16;
     static constexpr inline Index max_local_block_count_ = 1024;
 };
 
