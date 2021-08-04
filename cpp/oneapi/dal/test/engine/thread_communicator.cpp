@@ -115,7 +115,7 @@ void thread_communicator_gather::operator()(const byte_t* send_buf,
 void thread_communicator_gatherv::operator()(const byte_t* send_buf,
                                              std::int64_t send_count,
                                              byte_t* recv_buf,
-                                             const std::int64_t* recv_count,
+                                             const std::int64_t* recv_counts,
                                              const std::int64_t* displs,
                                              const data_type& dtype,
                                              std::int64_t root) {
@@ -135,18 +135,18 @@ void thread_communicator_gatherv::operator()(const byte_t* send_buf,
     if (rank == root) {
         ONEDAL_ASSERT(recv_buf);
         ONEDAL_ASSERT(displs);
-        ONEDAL_ASSERT(recv_count);
-        recv_count_ = recv_count;
+        ONEDAL_ASSERT(recv_counts);
+        recv_counts_ = recv_counts;
         displs_ = displs;
         recv_buf_ = recv_buf;
     }
 
     barrier_();
 
-    ONEDAL_ASSERT(recv_count_);
+    ONEDAL_ASSERT(recv_counts_);
     ONEDAL_ASSERT(displs_);
     ONEDAL_ASSERT(recv_buf_);
-    ONEDAL_ASSERT(send_count <= recv_count_[rank]);
+    ONEDAL_ASSERT(send_count <= recv_counts_[rank]);
 
     const std::int64_t offset = dal::detail::check_mul_overflow(dtype_size, displs_[rank]);
     for (std::int64_t i = 0; i < send_size; i++) {
@@ -154,7 +154,7 @@ void thread_communicator_gatherv::operator()(const byte_t* send_buf,
     }
 
     barrier_([&]() {
-        recv_count_ = nullptr;
+        recv_counts_ = nullptr;
         displs_ = nullptr;
         recv_buf_ = nullptr;
     });
@@ -465,12 +465,12 @@ auto thread_communicator_impl::gather(sycl::queue& q,
 auto thread_communicator_impl::gatherv(const byte_t* send_buf,
                                        std::int64_t send_count,
                                        byte_t* recv_buf,
-                                       const std::int64_t* recv_count,
+                                       const std::int64_t* recv_counts,
                                        const std::int64_t* displs,
                                        const data_type& dtype,
                                        std::int64_t root) -> request_t* {
     collective_operation_guard guard{ ctx_ };
-    gatherv_(send_buf, send_count, recv_buf, recv_count, displs, dtype, root);
+    gatherv_(send_buf, send_count, recv_buf, recv_counts, displs, dtype, root);
     return nullptr;
 }
 
@@ -479,7 +479,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
                                        const byte_t* send_buf,
                                        std::int64_t send_count,
                                        byte_t* recv_buf,
-                                       const std::int64_t* recv_count_host,
+                                       const std::int64_t* recv_counts_host,
                                        const std::int64_t* displs_host,
                                        const data_type& dtype,
                                        std::int64_t root) -> request_t* {
@@ -494,7 +494,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
 
     if (get_rank() == root) {
         ONEDAL_ASSERT(recv_buf);
-        ONEDAL_ASSERT(recv_count_host);
+        ONEDAL_ASSERT(recv_counts_host);
         ONEDAL_ASSERT(displs_host);
     }
 
@@ -511,7 +511,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
 
         for (std::int64_t i = 0; i < rank_count; i++) {
             displs_host_0_ptr[i] = total_recv_count;
-            total_recv_count += recv_count_host[i];
+            total_recv_count += recv_counts_host[i];
         }
     }
 
@@ -534,7 +534,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
     gatherv(send_buff_host.get_data(),
             send_count,
             recv_buf_host_ptr,
-            recv_count_host,
+            recv_counts_host,
             displs_host_0.get_data(),
             dtype,
             root);
@@ -543,7 +543,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
         const std::int64_t* displs_host_0_ptr = displs_host_0.get_data();
         ONEDAL_ASSERT(displs_host_0_ptr);
         ONEDAL_ASSERT(displs_host);
-        ONEDAL_ASSERT(recv_count_host);
+        ONEDAL_ASSERT(recv_counts_host);
 
         for (std::int64_t i = 0; i < rank_count; i++) {
             const std::int64_t src_offset =
@@ -551,7 +551,7 @@ auto thread_communicator_impl::gatherv(sycl::queue& q,
             const std::int64_t dst_offset =
                 dal::detail::check_mul_overflow(dtype_size, displs_host[i]);
             const std::int64_t copy_size =
-                dal::detail::check_mul_overflow(dtype_size, recv_count_host[i]);
+                dal::detail::check_mul_overflow(dtype_size, recv_counts_host[i]);
 
             dal::detail::memcpy_host2usm(q,
                                          recv_buf + dst_offset,

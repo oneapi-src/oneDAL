@@ -158,6 +158,10 @@ template <typename Graph>
 constexpr auto get_edge_value(const Graph &g, vertex_type<Graph> u, vertex_type<Graph> v)
     -> const edge_user_value_type<Graph> & {
     static_assert(is_directed<Graph>, "get_edge_value supported only for directed graph");
+    if (u < 0 || (vertex_size_type<Graph>)u >= detail::get_vertex_count_impl(g)) {
+        throw out_of_range(dal::detail::error_messages::
+                               vertex_index_out_of_range_expect_from_zero_to_vertex_count());
+    }
     return detail::get_edge_value_impl(g, u, v);
 }
 
