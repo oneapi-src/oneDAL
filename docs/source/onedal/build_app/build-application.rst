@@ -62,20 +62,65 @@ Applications on Windows* OS
 
 #. Add the appropriate libraries to your project based on |short_name| threading mode and linking method:
 
-     .. list-table::
-          :widths: 25 25 25
-          :header-rows: 1
-          :align: left
+   .. list-table:: |short_name| libraries for Windows
+      :widths: 15 25 25
+      :header-rows: 1
+      :align: left
 
-          * -
-            - Single-threaded (non-threaded) |short_name|
-            - Multi-threaded (internally threaded) |short_name|
-          * - Static linking
-            - onedal_core.lib, onedal_sequential.lib
-            - onedal_core.lib, onedal_thread.lib
-          * - Dynamic linking
-            - onedal_core_dll.lib
-            - onedal_core_dll.lib
+      * -
+        - Single-threaded (non-threaded)
+        - Multi-threaded (internally threaded)
+      * - Static linking
+        - 
+          | onedal_core.lib,
+          | onedal_sequential.lib
+        - 
+          | onedal_core.lib,
+          | onedal_thread.lib
+      * - Dynamic linking
+        - onedal_core_dll.lib
+        - onedal_core_dll.lib
+
+   You may also add debug versions of the libraries based on the treading mode and linking method: 
+
+   .. list-table:: |short_name| debug libraries for Windows
+      :widths: 15 25 25
+      :header-rows: 1
+      :align: left
+
+      * -
+        - Single-threaded (non-threaded)
+        - Multi-threaded (internally threaded)
+      * - Static linking
+        - 
+          | onedal_cored.lib,
+          | onedald.lib,
+          | onedal_dpcd.lib,
+          | onedal_sycld.lib,
+          | onedal_sequentiald.lib
+        - 
+          | onedal_cored.lib,
+          | onedald.lib,
+          | onedal_dpcd.lib,
+          | onedal_sycld.lib,
+          | onedal_threadd.lib
+      * - Dynamic linking
+        - 
+          | onedal_cored_dll.lib (onedal_cored_dll.1.lib),
+          | onedald_dll.lib (onedald_dll.1.lib),
+          | onedal_dpcd_dll.lib (onedal_dpcd_dll.1.lib),
+          | onedald.1.dll,
+          | onedal_cored.1.dll,
+          | onedal_dpcd.1.dll,
+          | onedal_sequentiald.1.dll
+        - 
+          | onedal_cored_dll.lib (onedal_cored_dll.1.lib),
+          | onedald_dll.lib (onedald_dll.1.lib),
+          | onedal_dpcd_dll.lib (onedal_dpcd_dll.1.lib),
+          | onedald.1.dll,
+          | onedal_cored.1.dll,
+          | onedal_dpcd.1.dll,
+          | onedal_threadd.1.dll
 
 .. _app_on_lin:
 
@@ -108,26 +153,34 @@ Applications on Linux* OS
 
    - Add |short_name| libraries. Choose the appropriate |short_name| libraries based on |short_name| threading mode and linking method:
 
-     .. list-table::
-          :widths: 25 25 25
+     .. list-table:: |short_name| libraries for Linux
+          :widths: 15 25 25
           :header-rows: 1
           :align: left
 
           * -
-            - Single-threaded (non-threaded) |short_name|
-            - Multi-threaded (internally threaded) |short_name|
+            - Single-threaded (non-threaded) 
+            - Multi-threaded (internally threaded)
           * - Static linking
-            - libonedal_core.a, libonedal_sequential.a
-            - libonedal_core.a, libonedal_thread.a
+            - 
+              | libonedal_core.a,
+              | libonedal_sequential.a
+            - 
+              | libonedal_core.a,
+              | libonedal_thread.a
           * - Dynamic linking
-            - libonedal_core.so, libonedal_sequential.so
-            - libonedal_core.so, libonedal_thread.so
+            - 
+              | libonedal_core.so,
+              | libonedal_sequential.so
+            - 
+              | libonedal_core.so,
+              | libonedal_thread.so
 
-  - Add an additional |short_name| library:
+   - Add an additional |short_name| library:
 
-    .. code-block:: text
+     .. code-block:: text
 
-     -foffload-static-lib=<install dir>/daal/latest/libintel64/libonedal_sycl.a
+        -foffload-static-lib=<install dir>/daal/latest/libintel64/libonedal_sycl.a
 
 Examples
 ********
