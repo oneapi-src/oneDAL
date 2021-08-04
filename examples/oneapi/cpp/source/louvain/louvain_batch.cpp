@@ -43,16 +43,18 @@ int main(int argc, char** argv) {
     std::allocator<char> alloc;
     // set algorithm parameters
     const auto louvain_desc =
-        descriptor<float, method::fast, task::vertex_partitioning, std::allocator<char>>(
-            alloc).set_resolution(1).set_accuracy_threshold(0.0001).set_max_iteration_count(3);
+        descriptor<float, method::fast, task::vertex_partitioning, std::allocator<char>>(alloc)
+            .set_resolution(1)
+            .set_accuracy_threshold(0.0001)
+            .set_max_iteration_count(3);
     // compute louvain
-
-    try{
+    try {
         const auto result = dal::preview::vertex_partitioning(louvain_desc, my_graph);
-        std::cout<<"Modularity: "<<result.get_modularity()<<std::endl;
-        std::cout<<"Number of communities: "<<result.get_community_count()<<std::endl;
-        std::cout<<"Get communities' labels: "<<result.get_labels()<<std::endl;
-    } catch (dal::unimplemented& e) {
+        std::cout << "Modularity: " << result.get_modularity() << std::endl;
+        std::cout << "Number of communities: " << result.get_community_count() << std::endl;
+        std::cout << "Get communities' labels: " << result.get_labels() << std::endl;
+    }
+    catch (dal::unimplemented& e) {
         std::cout << e.what() << std::endl;
     }
     return 0;
