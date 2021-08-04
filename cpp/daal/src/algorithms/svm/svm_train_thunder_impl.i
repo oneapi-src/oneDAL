@@ -555,7 +555,17 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::updateGrad(algorit
             const algorithmFPType * kernelBlockI = kernelWS[i];
             algorithmFPType deltaalphai          = deltaalpha[i];
 
-            if (startRowGrad + nRowsInBlockGrad > nVectors)
+            if (startRowGrad >= nVectors && startRowGrad + nRowsInBlockGrad > nVectors)
+            {
+                const size_t start = startRowGrad - nVectors;
+                PRAGMA_IVDEP
+                PRAGMA_VECTOR_ALWAYS
+                for (size_t j = 0; j < nRowsInBlockGrad; ++j)
+                {
+                    gradi[j] += deltaalphai * kernelBlockI[start + j];
+                }
+            }
+            else if (startRowGrad + nRowsInBlockGrad > nVectors)
             {
                 PRAGMA_IVDEP
                 PRAGMA_VECTOR_ALWAYS
