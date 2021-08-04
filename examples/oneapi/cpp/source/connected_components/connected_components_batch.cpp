@@ -44,8 +44,8 @@ int main(int argc, char** argv) {
             dal::preview::vertex_partitioning(cc_desc, my_graph);
 
         // extract the result
-        std::cout << "Components' labels: " << result_connected_components.get_labels()
-                  << std::endl;
+        std::cout << "Components' labels:\n"
+                  << result_connected_components.get_labels() << std::endl;
         std::cout << "Number of connected components: "
                   << result_connected_components.get_component_count() << std::endl;
     }
