@@ -53,6 +53,14 @@ public:
         initial_centroids_ = initial_centroids;
         return *this;
     }
+    auto& set_centroid_squares(const pr::ndarray<Float, 1> centroid_squares) {
+        centroid_squares_ = centroid_squares;
+        return *this;
+    }
+    auto& set_data_squares(const pr::ndarray<Float, 1> data_squares) {
+        data_squares_ = data_squares;
+        return *this;
+    }
     void allocate_buffers() {
         partial_centroids_ =
             pr::ndarray<Float, 2>::empty(queue_,
@@ -90,10 +98,11 @@ public:
         ONEDAL_ASSERT(centroids.get_dimension(1) == column_count_);
         const auto block_size_in_rows = distance_block.get_dimension(0);
         auto assign_event =
-            kernels_fp<Float>::template assign_clusters<pr::squared_l2_metric<Float>>(
+            kernels_fp<Float>::assign_clusters(
                 queue_,
                 data_,
                 initial_centroids_,
+                centroid_squares_,
                 block_size_in_rows,
                 responses,
                 distance_block,
@@ -104,6 +113,7 @@ public:
         auto objective_function_event =
             kernels_fp<Float>::compute_objective_function(queue_,
                                                           closest_distances,
+                                                          data_squares_,
                                                           objective_function,
                                                           { assign_event });
         auto reset_event = partial_centroids_.fill(queue_, 0.0);
@@ -166,6 +176,8 @@ private:
     pr::ndarray<Float, 2> data_;
     pr::ndarray<Float, 2> initial_centroids_;
     pr::ndarray<Float, 2> partial_centroids_;
+    pr::ndarray<Float, 1> centroid_squares_;
+    pr::ndarray<Float, 1> data_squares_;
     pr::ndarray<std::int32_t, 1> counters_;
     pr::ndarray<std::int32_t, 1> candidate_indices_;
     pr::ndarray<Float, 1> candidate_distances_;

@@ -38,7 +38,7 @@ public:
         return te::table_id::homogen<float_t>();
     }
 
-    void run_objective_function(const pr::ndview<float_t, 2>& closest_distances) {
+    void run_objective_function(const pr::ndview<float_t, 2>& closest_distances, const pr::ndview<float_t, 2>& squares) {
         INFO("benchmark objective function");
         const auto name = fmt::format("Objective function: val_type {}, elem_count {}",
                                       te::type2str<float_t>::name(),
@@ -48,6 +48,7 @@ public:
         BENCHMARK(name.c_str()) {
             kernels_fp<float_t>::compute_objective_function(this->get_queue(),
                                                             closest_distances,
+                                                            squares,
                                                             obj_func)
                 .wait_and_throw();
         };

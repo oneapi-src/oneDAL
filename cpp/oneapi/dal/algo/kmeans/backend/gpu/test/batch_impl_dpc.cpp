@@ -50,23 +50,27 @@ public:
         de::host_allocator<float_t>().deallocate(val_ptr, val.get_count());
     }
 
-    void run_obj_func_check(const pr::ndview<float_t, 2>& closest_distances, float_t tol = 1.0e-5) {
+    void run_obj_func_check(const pr::ndview<float_t, 2>& closest_distances, const pr::ndview<float_t, 1>& squares, 
+            float_t tol = 1.0e-5) {
         auto obj_func = pr::ndarray<float_t, 1>::empty(this->get_queue(), 1);
         kernels_fp<float_t>::compute_objective_function(this->get_queue(),
                                                         closest_distances,
+                                                        squares,
                                                         obj_func)
             .wait_and_throw();
-        check_objective_function(closest_distances, obj_func.get_data()[0], tol);
+        check_objective_function(closest_distances, squares, obj_func.get_data()[0], tol);
     }
 
     void check_objective_function(const pr::ndview<float_t, 2>& closest_distances,
+                                  const pr::ndview<float_t, 1>& squares,
                                   float_t objective_function_value,
                                   float_t tol) {
         auto row_count = closest_distances.get_shape()[0];
         auto min_distance_ptr = closest_distances.get_data();
+        auto squares_ptr = squares.get_data();
         float_t sum = 0.0;
         for (std::int64_t i = 0; i < row_count; i++) {
-            sum += min_distance_ptr[i];
+            sum += min_distance_ptr[i] + squares_ptr[i];
         }
         CAPTURE(sum, objective_function_value);
         REQUIRE(std::fabs(sum - objective_function_value) /
@@ -163,18 +167,22 @@ public:
             pr::ndarray<float_t, 2>::empty(this->get_queue(), { row_count, 1 });
         auto distances =
             pr::ndarray<float_t, 2>::empty(this->get_queue(), { block_rows, cluster_count });
+        auto centroid_squares =
+            pr::ndarray<float_t, 1>::empty(this->get_queue(), row_count);
+        kernels_fp<float_t>::compute_squares(this->get_queue(), centroids, centroid_squares).wait_and_throw();
 
-        kernels_fp<float_t>::template assign_clusters<pr::squared_l2_metric<float_t>>(
+        kernels_fp<float_t>::assign_clusters(
             this->get_queue(),
             data,
             centroids,
+            centroid_squares,
             block_rows,
             responses,
             distances,
             closest_distances,
             {})
             .wait_and_throw();
-        check_assignments(data, centroids, responses, closest_distances, tol);
+        check_assignments(data, centroids, centroid_squares, responses, closest_distances, tol);
     }
 
     void run_candidates(pr::ndview<float_t, 2>& closest_distances, std::int64_t candidate_count) {
@@ -222,6 +230,7 @@ public:
 
     void check_assignments(const pr::ndview<float_t, 2>& data,
                            const pr::ndview<float_t, 2>& centroids,
+                           const pr::ndview<float_t, 1>& centroid_squares,
                            const pr::ndview<std::int32_t, 2>& responses,
                            const pr::ndview<float_t, 2>& closest_distances,
                            float_t tol) {
@@ -385,8 +394,9 @@ TEMPLATE_LIST_TEST_M(kmeans_impl_test,
         GENERATE_DATAFRAME(te::dataframe_builder{ row_count, 1 }.fill_uniform(0.0, 0.5));
     const table df_table = df.get_table(this->get_homogen_table_id());
     const auto df_rows = row_accessor<const float_t>(df_table).pull(this->get_queue(), { 0, -1 });
-    auto data_array = pr::ndarray<float_t, 2>::wrap(df_rows.get_data(), { row_count, 1 });
-    this->run_obj_func_check(data_array);
+    auto data_array = pr::ndview<float_t, 2>::wrap(df_rows.get_data(), { row_count, 1 });
+    auto squares_array = pr::ndview<float_t, 1>::wrap(df_rows.get_data(), row_count, 1);
+    this->run_obj_func_check(data_array, squares_array);
 }
 
 TEMPLATE_LIST_TEST_M(kmeans_impl_test,
