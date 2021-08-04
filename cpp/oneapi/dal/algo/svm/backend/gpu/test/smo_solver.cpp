@@ -34,6 +34,16 @@ class smo_solver_test : public te::policy_fixture {
 public:
     using Float = TestType;
 
+    template <typename Float>
+    void print_ndview(sycl::queue& q, const pr::ndarray<Float, 1>& f, std::string str) {
+        auto host_ndarr = f.to_host(q);
+        const Float* f_ptr = host_ndarr.get_data();
+        std::cout << "Printing: " << str << "   : ";
+        for (std::int64_t i = 0; i < f.get_dimension(0); i++)
+            std::cout << static_cast<float>(f_ptr[i]) << " ";
+        std::cout << std::endl;
+    }
+
     void test_smo_solver(const std::vector<Float>& x,
                          const std::vector<Float>& y,
                          const std::vector<std::uint32_t>& ws_indices,
@@ -56,7 +66,8 @@ public:
         auto ws_indices_host_nd = pr::ndarray<std::uint32_t, 1>::wrap(ws_indices.data(), row_count);
         auto ws_indices_nd = ws_indices_host_nd.to_device(q);
 
-        auto [f_nd, f_full_event] = pr::ndarray<Float, 1>::full(q, { row_count }, -1);
+        auto f_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
+        auto invert_y_event = invert_values(q, y_nd, f_nd);
 
         auto alpha_nd = pr::ndarray<Float, 1>::empty(q, { row_count }, sycl::usm::alloc::device);
         auto delta_alpha_nd =
@@ -65,7 +76,7 @@ public:
         auto inner_iter_count_nd =
             pr::ndarray<std::uint32_t, 1>::empty(q, { 1 }, sycl::usm::alloc::device);
 
-        const std::int64_t max_inner_iter = 1000;
+        const std::int64_t max_inner_iter = 100000;
         const Float eps = 1.0e-3;
         const Float tau = 1.0e-12;
 
@@ -85,8 +96,14 @@ public:
                          f_nd,
                          f_diff_nd,
                          inner_iter_count_nd,
-                         { f_full_event })
+                         { invert_y_event })
             .wait_and_throw();
+
+        print_ndview<std::uint32_t>(q, inner_iter_count_nd, "INNER ITER COUNT: ");
+        print_ndview<Float>(q, f_diff_nd, "F DIFF: ");
+        print_ndview<Float>(q, alpha_nd, " ALPHA: ");
+        print_ndview<Float>(q, delta_alpha_nd, " DELTA ALPHA: ");
+        print_ndview<Float>(q, f_nd, " F: ");
 
         // INFO("Check ws_indices");
         // const auto indices_arr = ws_indices.flatten(q);

@@ -140,11 +140,16 @@ sycl::event solve_smo(sycl::queue& queue,
         cgh.depends_on(deps);
         local_accessor_rw_t<Float> kd(ws_count, cgh);
         local_accessor_rw_t<Float> objective_func(ws_count, cgh);
+        local_accessor_rw_t<key_value<Float>> local_cache(64, cgh);  // SIMD_WIDTH = 64
 
+        sycl::stream out(1024, 256, cgh);
+        
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             const std::uint32_t i = item.get_local_id(0);
 
             const std::uint32_t ws_index = ws_indices_ptr[i];
+
+            out << " I " << i << " WS INDEX " << ws_index << sycl::endl;
 
             const Float fp_min = dal::detail::limits<Float>::min();
 
@@ -156,7 +161,6 @@ sycl::event solve_smo(sycl::queue& queue,
             Float delta_Bi;
             Float delta_Bj;
 
-            key_value<Float> local_cache[64]; // SIMD_WIDTH = 64
             key_value<Float> max_val_ind;
 
             std::uint32_t Bi = 0;
@@ -164,6 +168,7 @@ sycl::event solve_smo(sycl::queue& queue,
 
             Float* kd_ptr = kd.get_pointer().get();
             Float* objective_func_ptr = objective_func.get_pointer().get();
+            key_value<Float>* local_cache_ptr = local_cache.get_pointer().get();
 
             kd_ptr[i] = kernel_values_ptr[i * row_count + ws_index];
             item.barrier(sycl::access::fence_space::local_space);
@@ -177,7 +182,7 @@ sycl::event solve_smo(sycl::queue& queue,
                 objective_func_ptr[i] = is_upper_edge<Float>(labels_i, aplha_i, C) ? -f_i : fp_min;
 
                 /* Find i index of the working set (Bi) */
-                reduce_arg_max(item, objective_func_ptr, local_cache, max_val_ind);
+                reduce_arg_max(item, objective_func_ptr, local_cache_ptr, max_val_ind);
                 Bi = max_val_ind.index;
                 const Float ma = -max_val_ind.value;
 
@@ -185,7 +190,7 @@ sycl::event solve_smo(sycl::queue& queue,
                 objective_func_ptr[i] = is_lower_edge<Float>(labels_i, aplha_i, C) ? f_i : fp_min;
 
                 /* Find max gradient */
-                reduce_arg_max(item, objective_func_ptr, local_cache, max_val_ind);
+                reduce_arg_max(item, objective_func_ptr, local_cache_ptr, max_val_ind);
 
                 if (i == 0) {
                     const Float max_f = max_val_ind.value;
@@ -220,7 +225,7 @@ sycl::event solve_smo(sycl::queue& queue,
                 }
 
                 /* Find j index of the working set (Bj) */
-                reduce_arg_max(item, objective_func_ptr, local_cache, max_val_ind);
+                reduce_arg_max(item, objective_func_ptr, local_cache_ptr, max_val_ind);
                 Bj = max_val_ind.index;
 
                 const Float KiBj = kernel_values_ptr[Bj * row_count + ws_index];
