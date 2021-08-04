@@ -28,8 +28,8 @@ struct read_ops_dispatcher<Object, host_policy> {
     Object operator()(const host_policy& policy,
                       const data_source_base& ds,
                       const read_args<Object>& args) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::read_kernel_cpu<Object>>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
+            KERNEL_SINGLE_NODE_CPU(backend::read_kernel_cpu<Object>)>;
         return kernel_dispatcher_t()(policy, ds, args);
     }
 };

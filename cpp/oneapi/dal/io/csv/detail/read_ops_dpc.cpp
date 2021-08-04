@@ -29,9 +29,9 @@ struct read_ops_dispatcher<Object, data_parallel_policy> {
     Object operator()(const data_parallel_policy& ctx,
                       const data_source_base& ds,
                       const read_args<Object>& args) const {
-        using kernel_dispatcher_t =
-            dal::backend::kernel_dispatcher<backend::read_kernel_cpu<Object>,
-                                            backend::read_kernel_gpu<Object>>;
+        using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
+            KERNEL_SINGLE_NODE_CPU(backend::read_kernel_cpu<Object>),
+            KERNEL_SINGLE_NODE_GPU(backend::read_kernel_gpu<Object>)>;
         return kernel_dispatcher_t{}(ctx, ds, args);
     }
 };
