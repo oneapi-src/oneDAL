@@ -406,7 +406,7 @@ public:
 
             if (is_root_rank(root)) {
                 ONEDAL_ASSERT(recv.get_queue().has_value());
-                ONEDAL_ASSERT(recv.get_queue().value() == q);
+                ONEDAL_ASSERT(recv.get_queue().value().get_context() == q.get_context());
             }
 
             request = gather( //
@@ -584,7 +584,7 @@ public:
             auto q = send.get_queue().value();
 
             ONEDAL_ASSERT(recv.get_queue().has_value());
-            ONEDAL_ASSERT(recv.get_queue().value() == q);
+            ONEDAL_ASSERT(recv.get_queue().value().get_context() == q.get_context());
 
             request = allgather(q,
                                 send.get_data(),
