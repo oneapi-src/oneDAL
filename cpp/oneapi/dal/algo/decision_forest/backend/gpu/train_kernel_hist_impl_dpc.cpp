@@ -2956,6 +2956,12 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
 #define INSTANTIATE(F, B, I, T) template class train_kernel_hist_impl<F, B, I, T>;
 
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::classification);
+INSTANTIATE(float, std::uint32_t, std::int32_t, task::regression);
+
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::classification);
+INSTANTIATE(double, std::uint32_t, std::int32_t, task::regression);
+
 } // namespace oneapi::dal::decision_forest::backend
 
 #endif

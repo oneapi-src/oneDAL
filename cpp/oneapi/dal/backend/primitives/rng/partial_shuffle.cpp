@@ -14,31 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/primitives/rng/partial_shuffle.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
-#include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/backend/primitives/rng/utils.hpp"
 
-#include <daal/src/externals/service_rng.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
-#include <daal/src/algorithms/engines/engine_batch_impl.h>
 
 namespace oneapi::dal::backend::primitives {
-
-template <typename... Args>
-inline void uniform_by_cpu(Args&&... args) {
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        int res = daal::internal::RNGs<
-                      std::size_t,
-                      oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                      .uniform(std::forward<Args>(args)...);
-        if (res) {
-            using msg = dal::detail::error_messages;
-            throw internal_error(msg::failed_to_generate_random_numbers());
-        }
-    });
-}
 
 void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top) {
     using msg = dal::detail::error_messages;

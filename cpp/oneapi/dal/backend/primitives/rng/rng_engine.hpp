@@ -16,44 +16,11 @@
 
 #pragma once
 
-#include <daal/src/externals/service_rng.h>
-#include <daal/src/algorithms/engines/engine_batch_impl.h>
-#include <daal/src/algorithms/engines/engine_types_internal.h>
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
 
-#include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
+#include "oneapi/dal/backend/primitives/rng/utils.hpp"
 
 namespace oneapi::dal::backend::primitives {
-
-template <typename Type, typename... Args>
-inline void uniform_by_cpu(Args&&... args) {
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        int res =
-            daal::internal::
-                RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                    .uniform(std::forward<Args>(args)...);
-        if (res) {
-            using msg = dal::detail::error_messages;
-            throw internal_error(msg::failed_to_generate_random_numbers());
-        }
-    });
-}
-
-template <typename Type, typename... Args>
-inline void uniform_without_replacement_by_cpu(Args&&... args) {
-    dispatch_by_cpu(context_cpu{}, [&](auto cpu) {
-        int res =
-            daal::internal::
-                RNGs<Type, oneapi::dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>{}
-                    .uniformWithoutReplacement(std::forward<Args>(args)...);
-        if (res) {
-            using msg = dal::detail::error_messages;
-            throw internal_error(msg::failed_to_generate_random_numbers());
-        }
-    });
-}
 
 template <typename Type, typename Size = std::int64_t>
 class rng {
