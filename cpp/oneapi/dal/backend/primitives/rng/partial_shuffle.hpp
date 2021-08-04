@@ -1,6 +1,5 @@
-/* file: svm_train_thunder_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2020-2021 Intel Corporation
+* Copyright 2021 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,19 +14,12 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Implementation of SVM training algorithm container.
-//--
-*/
+#pragma once
 
-#include "src/algorithms/svm/svm_train_batch_container.h"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(svm::training::BatchContainer, batch, DAAL_FPTYPE, svm::training::thunder)
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(svm::training::internal::BatchContainer, batch, DAAL_FPTYPE, svm::training::thunder)
-} // namespace algorithms
-} // namespace daal
+namespace oneapi::dal::backend::primitives {
+
+void partial_fisher_yates_shuffle(ndview<std::int64_t, 1>& result_array, std::int64_t top);
+
+} // namespace oneapi::dal::backend::primitives
