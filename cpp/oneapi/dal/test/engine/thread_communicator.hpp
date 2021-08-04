@@ -184,14 +184,14 @@ public:
     explicit thread_communicator_gatherv(thread_communicator_context& ctx)
             : ctx_(ctx),
               barrier_(ctx),
-              recv_count_(nullptr),
+              recv_counts_(nullptr),
               displs_(nullptr),
               recv_buf_(nullptr) {}
 
     void operator()(const byte_t* send_buf,
                     std::int64_t send_count,
                     byte_t* recv_buf,
-                    const std::int64_t* recv_count,
+                    const std::int64_t* recv_counts,
                     const std::int64_t* displs,
                     const data_type& dtype,
                     std::int64_t root);
@@ -199,7 +199,7 @@ public:
 private:
     thread_communicator_context& ctx_;
     thread_communicator_barrier barrier_;
-    const std::int64_t* recv_count_;
+    const std::int64_t* recv_counts_;
     const std::int64_t* displs_;
     byte_t* recv_buf_;
 };
@@ -356,7 +356,7 @@ public:
     request_t* gatherv(const byte_t* send_buf,
                        std::int64_t send_count,
                        byte_t* recv_buf,
-                       const std::int64_t* recv_count,
+                       const std::int64_t* recv_counts,
                        const std::int64_t* displs,
                        const data_type& dtype,
                        std::int64_t root) override;
@@ -366,7 +366,7 @@ public:
                        const byte_t* send_buf,
                        std::int64_t send_count,
                        byte_t* recv_buf,
-                       const std::int64_t* recv_count_host,
+                       const std::int64_t* recv_counts_host,
                        const std::int64_t* displs_host,
                        const data_type& dtype,
                        std::int64_t root) override;

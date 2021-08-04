@@ -86,7 +86,7 @@ public:
     virtual spmd_request_iface* gatherv(const byte_t* send_buf,
                                         std::int64_t send_count,
                                         byte_t* recv_buf,
-                                        const std::int64_t* recv_count,
+                                        const std::int64_t* recv_counts,
                                         const std::int64_t* displs,
                                         const data_type& dtype,
                                         std::int64_t root) = 0;
@@ -96,7 +96,7 @@ public:
                                         const byte_t* send_buf,
                                         std::int64_t send_count,
                                         byte_t* recv_buf,
-                                        const std::int64_t* recv_count_host,
+                                        const std::int64_t* recv_counts_host,
                                         const std::int64_t* displs_host,
                                         const data_type& dtype,
                                         std::int64_t root) = 0;
@@ -452,7 +452,7 @@ public:
     spmd_request gatherv(const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
-                         const std::int64_t* recv_count,
+                         const std::int64_t* recv_counts,
                          const std::int64_t* displs,
                          const data_type& dtype,
                          std::int64_t root) const;
@@ -465,7 +465,7 @@ public:
                          const byte_t* send_buf,
                          std::int64_t send_count,
                          byte_t* recv_buf,
-                         const std::int64_t* recv_count_host,
+                         const std::int64_t* recv_counts_host,
                          const std::int64_t* displs_host,
                          const data_type& dtype,
                          std::int64_t root) const;
@@ -475,13 +475,13 @@ public:
     spmd_request gatherv(const T* send_buf,
                          std::int64_t send_count,
                          T* recv_buf,
-                         const std::int64_t* recv_count,
+                         const std::int64_t* recv_counts,
                          const std::int64_t* displs,
                          std::int64_t root = -1) const {
         return gatherv(reinterpret_cast<const byte_t*>(send_buf),
                        send_count,
                        reinterpret_cast<byte_t*>(recv_buf),
-                       recv_count,
+                       recv_counts,
                        displs,
                        make_data_type<T>(),
                        root);
@@ -493,14 +493,14 @@ public:
                          const T* send_buf,
                          std::int64_t send_count,
                          T* recv_buf,
-                         const std::int64_t* recv_count,
+                         const std::int64_t* recv_counts,
                          const std::int64_t* displs,
                          std::int64_t root = -1) const {
         return gatherv(q,
                        reinterpret_cast<const byte_t*>(send_buf),
                        send_count,
                        reinterpret_cast<byte_t*>(recv_buf),
-                       recv_count,
+                       recv_counts,
                        displs,
                        make_data_type<T>(),
                        root);
