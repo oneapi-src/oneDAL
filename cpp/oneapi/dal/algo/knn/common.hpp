@@ -81,7 +81,7 @@ using v1::by_default;
 /// Behaves like a regular :expr`enum`.
 class result_option_id : public result_option_id_base {
 public:
-    constexpr result_option_id() : result_option_id_base{} {}
+    constexpr result_option_id() = default;
     constexpr explicit result_option_id(const result_option_id_base& base)
             : result_option_id_base{ base } {}
 };
