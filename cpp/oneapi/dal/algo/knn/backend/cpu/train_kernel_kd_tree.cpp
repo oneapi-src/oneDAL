@@ -17,8 +17,10 @@
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h>
 #include <src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h>
 
+#include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
+
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
@@ -66,7 +68,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
     knn_model->impl()->setData<Float>(daal_data, copy_data_responses);
 
     auto daal_responses = daal::data_management::NumericTablePtr();
-    if constexpr (!std::is_same_v<Task, task::search>) {
+    if (desc.get_result_options().test(result_options::responses)) {
         daal_responses = interop::copy_to_daal_homogen_table<Float>(responses);
         knn_model->impl()->setLabels<Float>(daal_responses, copy_data_responses);
     }
@@ -87,7 +89,7 @@ template <typename Float, typename Task>
 static train_result<Task> train(const context_cpu& ctx,
                                 const detail::descriptor_base<Task>& desc,
                                 const train_input<Task>& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_data(), input.get_responses());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data(), input.get_responses());
 }
 
 template <typename Float, typename Task>
@@ -95,7 +97,7 @@ struct train_kernel_cpu<Float, method::kd_tree, Task> {
     train_result<Task> operator()(const context_cpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const train_input<Task>& input) const {
-        return train<Float>(ctx, desc, input);
+        return train<Float, Task>(ctx, desc, input);
     }
 };
 
