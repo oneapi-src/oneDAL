@@ -158,7 +158,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
 
     template <typename... Args>
     auto operator()(const detail::spmd_host_policy& policy, Args&&... args) const {
-        throw unimplemented{ "SPMD version is not implemented" };
+        using msg = detail::error_messages;
+        throw unimplemented{ msg::spmd_version_of_algorithm_is_not_implemented() };
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -170,7 +171,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
                 return CpuKernel{}(context_cpu{}, std::forward<Args>(args)...);
             },
             [&]() {
-                throw unimplemented{ "GPU algorithm is not implemented" };
+                using msg = detail::error_messages;
+                throw unimplemented{ msg::algorithm_is_not_implemented_for_this_device() };
             });
     }
 #endif
@@ -178,7 +180,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>> {
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename... Args>
     auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const {
-        throw unimplemented{ "SPMD version is not implemented" };
+        using msg = detail::error_messages;
+        throw unimplemented{ msg::spmd_version_of_algorithm_is_not_implemented() };
     }
 #endif
 };
@@ -202,7 +205,8 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
 
     template <typename... Args>
     auto operator()(const detail::spmd_data_parallel_policy& policy, Args&&... args) const {
-        throw unimplemented{ "SPMD version is not implemented" };
+        using msg = detail::error_messages;
+        throw unimplemented{ msg::spmd_version_of_algorithm_is_not_implemented() };
     }
 };
 #endif
@@ -230,7 +234,10 @@ struct kernel_dispatcher<kernel_spec<single_node_cpu_kernel, CpuKernel>,
         return dispatch_by_device(
             policy.get_local(),
             [&]() {
-                throw unimplemented{ "SPMD version is not implemented for CPU" };
+                using msg = detail::error_messages;
+                throw unimplemented{
+                    msg::spmd_version_of_algorithm_is_not_implemented_for_this_device()
+                };
             },
             [&]() {
                 return GpuKernel{}(context_gpu{ policy }, std::forward<Args>(args)...);
